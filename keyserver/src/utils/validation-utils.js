@@ -2,17 +2,17 @@
 
 import type { PolicyType } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
-import { ServerError } from 'lib/utils/errors';
+import { ServerError } from 'lib/utils/errors.js';
 import {
   tCookie,
   tPassword,
   tPlatform,
   tPlatformDetails,
-} from 'lib/utils/validation-utils';
+} from 'lib/utils/validation-utils.js';
 
 import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
-import { verifyClientSupported } from '../session/version';
-import type { Viewer } from '../session/viewer';
+import { verifyClientSupported } from '../session/version.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
   if (!viewer.isSocket) {

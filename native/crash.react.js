@@ -1,9 +1,9 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import Clipboard from '@react-native-clipboard/clipboard';
 import invariant from 'invariant';
-import _shuffle from 'lodash/fp/shuffle';
+import _shuffle from 'lodash/fp/shuffle.js';
 import * as React from 'react';
 import {
   View,
@@ -15,35 +15,38 @@ import {
 } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 
-import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
-import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import type { LogOutResult } from 'lib/types/account-types';
-import type { ErrorData } from 'lib/types/report-types';
+import {
+  sendReportActionTypes,
+  sendReport,
+} from 'lib/actions/report-actions.js';
+import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import type { LogOutResult } from 'lib/types/account-types.js';
+import type { ErrorData } from 'lib/types/report-types.js';
 import {
   type ClientReportCreationRequest,
   type ReportCreationResponse,
   reportTypes,
-} from 'lib/types/report-types';
-import type { PreRequestUserState } from 'lib/types/session-types';
-import { actionLogger } from 'lib/utils/action-logger';
+} from 'lib/types/report-types.js';
+import type { PreRequestUserState } from 'lib/types/session-types.js';
+import { actionLogger } from 'lib/utils/action-logger.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { useIsReportEnabled } from 'lib/utils/report-utils';
+} from 'lib/utils/action-utils.js';
+import { useIsReportEnabled } from 'lib/utils/report-utils.js';
 import {
   sanitizeReduxReport,
   type ReduxCrashReport,
-} from 'lib/utils/sanitization';
-import sleep from 'lib/utils/sleep';
+} from 'lib/utils/sanitization.js';
+import sleep from 'lib/utils/sleep.js';
 
-import Button from './components/button.react';
-import ConnectedStatusBar from './connected-status-bar.react';
-import { persistConfig, codeVersion } from './redux/persist';
-import { useSelector } from './redux/redux-utils';
-import { wipeAndExit } from './utils/crash-utils';
+import Button from './components/button.react.js';
+import ConnectedStatusBar from './connected-status-bar.react.js';
+import { persistConfig, codeVersion } from './redux/persist.js';
+import { useSelector } from './redux/redux-utils.js';
+import { wipeAndExit } from './utils/crash-utils.js';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 

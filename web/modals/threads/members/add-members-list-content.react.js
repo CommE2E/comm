@@ -1,12 +1,12 @@
 // @flow
 
-import _groupBy from 'lodash/fp/groupBy';
-import _toPairs from 'lodash/fp/toPairs';
+import _groupBy from 'lodash/fp/groupBy.js';
+import _toPairs from 'lodash/fp/toPairs.js';
 import * as React from 'react';
 
-import type { UserListItem } from 'lib/types/user-types';
+import type { UserListItem } from 'lib/types/user-types.js';
 
-import AddMembersList from '../../components/add-members-list.react';
+import AddMembersList from '../../components/add-members-list.react.js';
 
 type Props = {
   +userListItems: $ReadOnlyArray<UserListItem>,

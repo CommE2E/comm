@@ -1,6 +1,6 @@
 // @flow
 
-import { generateRandomString } from './text-utils';
+import { generateRandomString } from './text-utils.js';
 
 describe('generateRandomString', () => {
   it('should return an empty string when passed length = 0', () => {

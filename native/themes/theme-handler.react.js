@@ -5,15 +5,15 @@ import * as React from 'react';
 import { Appearance } from 'react-native';
 import { useDispatch } from 'react-redux';
 
-import type { Shape } from 'lib/types/core';
+import type { Shape } from 'lib/types/core.js';
 
-import { updateThemeInfoActionType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
+import { updateThemeInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   type GlobalTheme,
   type GlobalThemeInfo,
   osCanTheme,
-} from '../types/themes';
+} from '../types/themes.js';
 
 function ThemeHandler(): null {
   const globalThemeInfo = useSelector(state => state.globalThemeInfo);

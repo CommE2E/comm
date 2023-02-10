@@ -9,11 +9,11 @@ import {
 } from 'react-native-gesture-handler';
 import Animated, { EasingNode } from 'react-native-reanimated';
 
-import type { AnimatedViewStyle, ViewStyle } from '../types/styles';
+import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
 import {
   runTiming,
   useReanimatedValueForBoolean,
-} from '../utils/animation-utils';
+} from '../utils/animation-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

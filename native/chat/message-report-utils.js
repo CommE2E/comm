@@ -6,14 +6,14 @@ import { Alert } from 'react-native';
 import {
   sendMessageReport,
   sendMessageReportActionTypes,
-} from 'lib/actions/message-report-actions';
+} from 'lib/actions/message-report-actions.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { displayActionResultModal } from '../navigation/action-result-modal';
-import type { TooltipRoute } from '../tooltip/tooltip.react';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import type { TooltipRoute } from '../tooltip/tooltip.react.js';
 
 const confirmReport = () => displayActionResultModal('reported to admin');
 

@@ -3,46 +3,46 @@
 import html from 'common-tags/lib/html';
 import type { $Response, $Request } from 'express';
 import fs from 'fs';
-import _keyBy from 'lodash/fp/keyBy';
+import _keyBy from 'lodash/fp/keyBy.js';
 import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
-import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
-import { freshMessageStore } from 'lib/reducers/message-reducer';
-import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
-import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
+import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
+import { freshMessageStore } from 'lib/reducers/message-reducer.js';
+import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
+import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
   threadIsPending,
   parsePendingThreadID,
   createPendingThread,
-} from 'lib/shared/thread-utils';
-import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
-import { defaultCalendarFilters } from 'lib/types/filter-types';
-import { defaultNumberPerThread } from 'lib/types/message-types';
-import { defaultEnabledReports } from 'lib/types/report-types';
-import { defaultConnectionInfo } from 'lib/types/socket-types';
-import { threadPermissions, threadTypes } from 'lib/types/thread-types';
-import { currentDateInTimeZone } from 'lib/utils/date-utils';
-import { ServerError } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
-import getTitle from 'web/title/getTitle';
-import { navInfoFromURL } from 'web/url-utils';
+} from 'lib/shared/thread-utils.js';
+import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
+import { defaultCalendarFilters } from 'lib/types/filter-types.js';
+import { defaultNumberPerThread } from 'lib/types/message-types.js';
+import { defaultEnabledReports } from 'lib/types/report-types.js';
+import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { threadPermissions, threadTypes } from 'lib/types/thread-types.js';
+import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
+import getTitle from 'web/title/getTitle.js';
+import { navInfoFromURL } from 'web/url-utils.js';
 
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
+import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import { hasAnyNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
-} from '../fetchers/user-fetchers';
-import { setNewSession } from '../session/cookies';
-import { Viewer } from '../session/viewer';
-import { streamJSON, waitForStream } from '../utils/json-stream';
-import { getAppURLFactsFromRequestURL } from '../utils/urls';
+} from '../fetchers/user-fetchers.js';
+import { setNewSession } from '../session/cookies.js';
+import { Viewer } from '../session/viewer.js';
+import { streamJSON, waitForStream } from '../utils/json-stream.js';
+import { getAppURLFactsFromRequestURL } from '../utils/urls.js';
 
 const { renderToNodeStream } = ReactDOMServer;
 

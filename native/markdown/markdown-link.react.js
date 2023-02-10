@@ -4,12 +4,15 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, Linking, Alert } from 'react-native';
 
-import { normalizeURL } from 'lib/utils/url-utils';
+import { normalizeURL } from 'lib/utils/url-utils.js';
 
-import { MessagePressResponderContext } from '../chat/message-press-responder-context';
-import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
-import { MarkdownContext, type MarkdownContextType } from './markdown-context';
-import { MarkdownSpoilerContext } from './markdown-spoiler-context';
+import { MessagePressResponderContext } from '../chat/message-press-responder-context.js';
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
+import {
+  MarkdownContext,
+  type MarkdownContextType,
+} from './markdown-context.js';
+import { MarkdownSpoilerContext } from './markdown-spoiler-context.js';
 
 function useDisplayLinkPrompt(
   inputURL: string,

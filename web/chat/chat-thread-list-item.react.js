@@ -4,24 +4,24 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
-import { useAncestorThreads } from 'lib/shared/ancestor-threads';
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
+import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
+import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import {
   useResolvedThreadInfo,
   useResolvedThreadInfos,
-} from 'lib/utils/entity-helpers';
+} from 'lib/utils/entity-helpers.js';
 
-import { useSelector } from '../redux/redux-utils';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   useOnClickThread,
   useThreadIsActive,
-} from '../selectors/thread-selectors';
-import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
-import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
-import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
+} from '../selectors/thread-selectors.js';
+import ChatThreadListItemMenu from './chat-thread-list-item-menu.react.js';
+import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react.js';
+import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
 import css from './chat-thread-list.css';
-import MessagePreview from './message-preview.react';
+import MessagePreview from './message-preview.react.js';
 
 type Props = {
   +item: ChatThreadItem,

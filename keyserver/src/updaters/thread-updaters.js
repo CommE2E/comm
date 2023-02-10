@@ -1,15 +1,18 @@
 // @flow
 
-import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
+import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
 import {
   threadHasAdminRole,
   roleIsAdminRole,
   viewerIsMember,
   getThreadTypeParentRequirement,
-} from 'lib/shared/thread-utils';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import type { Shape } from 'lib/types/core';
-import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
+} from 'lib/shared/thread-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { Shape } from 'lib/types/core.js';
+import {
+  messageTypes,
+  defaultNumberPerThread,
+} from 'lib/types/message-types.js';
 import {
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,
@@ -21,41 +24,41 @@ import {
   type ThreadJoinResult,
   threadPermissions,
   threadTypes,
-} from 'lib/types/thread-types';
-import { updateTypes } from 'lib/types/update-types';
-import { ServerError } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
-import { firstLine } from 'lib/utils/string-utils';
+} from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
+import { firstLine } from 'lib/utils/string-utils.js';
 
-import createMessages from '../creators/message-creator';
-import { getRolePermissionBlobs } from '../creators/role-creator';
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import createMessages from '../creators/message-creator.js';
+import { getRolePermissionBlobs } from '../creators/role-creator.js';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
+import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
   determineThreadAncestry,
-} from '../fetchers/thread-fetchers';
+} from '../fetchers/thread-fetchers.js';
 import {
   checkThreadPermission,
   viewerIsMember as fetchViewerIsMember,
   checkThread,
   validateCandidateMembers,
-} from '../fetchers/thread-permission-fetchers';
+} from '../fetchers/thread-permission-fetchers.js';
 import {
   verifyUserIDs,
   verifyUserOrCookieIDs,
-} from '../fetchers/user-fetchers';
-import type { Viewer } from '../session/viewer';
-import RelationshipChangeset from '../utils/relationship-changeset';
-import { updateRoles } from './role-updaters';
+} from '../fetchers/user-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
+import RelationshipChangeset from '../utils/relationship-changeset.js';
+import { updateRoles } from './role-updaters.js';
 import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
-} from './thread-permission-updaters';
+} from './thread-permission-updaters.js';
 
 async function updateRole(
   viewer: Viewer,

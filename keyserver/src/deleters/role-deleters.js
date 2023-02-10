@@ -1,6 +1,6 @@
 // @flow
 
-import { dbQuery, SQL } from '../database/database';
+import { dbQuery, SQL } from '../database/database.js';
 
 async function deleteOrphanedRoles(): Promise<void> {
   await dbQuery(SQL`

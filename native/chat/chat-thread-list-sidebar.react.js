@@ -3,15 +3,15 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
+import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
-import ExtendedArrow from '../components/arrow-extended.react';
-import Arrow from '../components/arrow.react';
-import Button from '../components/button.react';
-import UnreadDot from '../components/unread-dot.react';
-import { useColors, useStyles } from '../themes/colors';
-import { SidebarItem, sidebarHeight } from './sidebar-item.react';
-import SwipeableThread from './swipeable-thread.react';
+import ExtendedArrow from '../components/arrow-extended.react.js';
+import Arrow from '../components/arrow.react.js';
+import Button from '../components/button.react.js';
+import UnreadDot from '../components/unread-dot.react.js';
+import { useColors, useStyles } from '../themes/colors.js';
+import { SidebarItem, sidebarHeight } from './sidebar-item.react.js';
+import SwipeableThread from './swipeable-thread.react.js';
 
 type Props = {
   +sidebarInfo: SidebarInfo,

@@ -7,7 +7,7 @@ import SWMansionIcon, {
   type Icon,
 } from 'lib/components/SWMansionIcon.react.js';
 
-import Button from './button.react';
+import Button from './button.react.js';
 import css from './menu.css';
 
 type MenuItemProps = {

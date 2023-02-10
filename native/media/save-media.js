@@ -7,26 +7,26 @@ import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
 import { useDispatch } from 'react-redux';
 
-import { queueReportsActionType } from 'lib/actions/report-actions';
-import { readableFilename, pathFromURI } from 'lib/media/file-utils';
-import { isLocalUploadID } from 'lib/media/media-utils';
+import { queueReportsActionType } from 'lib/actions/report-actions.js';
+import { readableFilename, pathFromURI } from 'lib/media/file-utils.js';
+import { isLocalUploadID } from 'lib/media/media-utils.js';
 import type {
   MediaMissionStep,
   MediaMissionResult,
   MediaMissionFailure,
-} from 'lib/types/media-types';
+} from 'lib/types/media-types.js';
 import {
   reportTypes,
   type MediaMissionReportCreationRequest,
-} from 'lib/types/report-types';
-import { getConfig } from 'lib/utils/config';
-import { getMessageForException } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
-import { useIsReportEnabled } from 'lib/utils/report-utils';
+} from 'lib/types/report-types.js';
+import { getConfig } from 'lib/utils/config.js';
+import { getMessageForException } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
+import { useIsReportEnabled } from 'lib/utils/report-utils.js';
 
-import { displayActionResultModal } from '../navigation/action-result-modal';
-import { requestAndroidPermission } from '../utils/android-permissions';
-import { fetchBlob } from './blob-utils';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import { requestAndroidPermission } from '../utils/android-permissions.js';
+import { fetchBlob } from './blob-utils.js';
 import {
   fetchAssetInfo,
   fetchFileInfo,
@@ -36,8 +36,8 @@ import {
   fetchFileHash,
   copyFile,
   temporaryDirectoryPath,
-} from './file-utils';
-import { getMediaLibraryIdentifier } from './identifier-utils';
+} from './file-utils.js';
+import { getMediaLibraryIdentifier } from './identifier-utils.js';
 
 export type IntentionalSaveMedia = (
   uri: string,

@@ -15,24 +15,24 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   changeUserPasswordActionTypes,
   changeUserPassword,
-} from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { PasswordUpdate } from 'lib/types/user-types';
+} from 'lib/actions/user-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { PasswordUpdate } from 'lib/types/user-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { setNativeCredentials } from '../account/native-credentials';
-import Button from '../components/button.react';
-import TextInput from '../components/text-input.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../themes/colors';
-import type { GlobalTheme } from '../types/themes';
-import type { ProfileNavigationProp } from './profile.react';
+import { setNativeCredentials } from '../account/native-credentials.js';
+import Button from '../components/button.react.js';
+import TextInput from '../components/text-input.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { GlobalTheme } from '../types/themes.js';
+import type { ProfileNavigationProp } from './profile.react.js';
 
 type BaseProps = {
   +navigation: ProfileNavigationProp<'EditPassword'>,

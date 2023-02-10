@@ -2,9 +2,9 @@
 
 import invariant from 'invariant';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function deleteUpdatesByConditions(
   conditions: $ReadOnlyArray<SQLStatementType>,

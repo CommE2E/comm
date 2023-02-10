@@ -14,34 +14,34 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   deleteThreadActionTypes,
   deleteThread,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   ThreadInfo,
   ResolvedThreadInfo,
   LeaveThreadPayload,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+} from 'lib/utils/action-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Button from '../../components/button.react';
-import { clearThreadsActionType } from '../../navigation/action-types';
+import Button from '../../components/button.react.js';
+import { clearThreadsActionType } from '../../navigation/action-types.js';
 import {
   NavContext,
   type NavAction,
-} from '../../navigation/navigation-context';
-import type { NavigationRoute } from '../../navigation/route-names';
-import { useSelector } from '../../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
-import type { GlobalTheme } from '../../types/themes';
-import type { ChatNavigationProp } from '../chat.react';
+} from '../../navigation/navigation-context.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import type { GlobalTheme } from '../../types/themes.js';
+import type { ChatNavigationProp } from '../chat.react.js';
 
 export type DeleteThreadParams = {
   +threadInfo: ThreadInfo,

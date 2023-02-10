@@ -3,13 +3,13 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { notFriendNotice } from 'lib/shared/search-utils';
-import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { notFriendNotice } from 'lib/shared/search-utils.js';
+import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
-import { createTagInput } from '../components/tag-input.react';
-import UserList from '../components/user-list.react';
-import { useStyles } from '../themes/colors';
+import { createTagInput } from '../components/tag-input.react.js';
+import UserList from '../components/user-list.react.js';
+import { useStyles } from '../themes/colors.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
 

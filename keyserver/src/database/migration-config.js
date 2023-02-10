@@ -4,8 +4,8 @@ import fs from 'fs';
 
 import { policyTypes } from 'lib/facts/policies.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters';
+import { dbQuery, SQL } from '../database/database.js';
+import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
 
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [

@@ -6,29 +6,29 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { type MediaInfo } from 'lib/types/media-types';
+import { type MediaInfo } from 'lib/types/media-types.js';
 
-import { type PendingMultimediaUpload } from '../input/input-state';
+import { type PendingMultimediaUpload } from '../input/input-state.js';
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
+} from '../keyboard/keyboard-state.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import { ImageModalRouteName } from '../navigation/route-names';
-import { type Colors, useColors } from '../themes/colors';
-import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
-import { type VerticalBounds } from '../types/layout-types';
-import type { LayoutCoordinates } from '../types/layout-types';
+} from '../navigation/overlay-context.js';
+import { ImageModalRouteName } from '../navigation/route-names.js';
+import { type Colors, useColors } from '../themes/colors.js';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
+import { type VerticalBounds } from '../types/layout-types.js';
+import type { LayoutCoordinates } from '../types/layout-types.js';
 import {
   type ViewStyle,
   type AnimatedStyleObj,
   AnimatedView,
-} from '../types/styles';
-import InlineMultimedia from './inline-multimedia.react';
-import { getMediaKey } from './multimedia-message-utils';
+} from '../types/styles.js';
+import InlineMultimedia from './inline-multimedia.react.js';
+import { getMediaKey } from './multimedia-message-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node, sub, interpolateNode, Extrapolate } = Animated;

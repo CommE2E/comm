@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { AppState } from '../redux/redux-setup.js';
-import { useSelector } from '../redux/redux-utils';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './left-layout-aside.css';
 
 type NavigationPanelItemProps = {

@@ -1,6 +1,6 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import {
   View,
@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import type { LoadingStatus } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 
-import Button from '../components/button.react';
-import { useSelector } from '../redux/redux-utils';
-import type { ViewStyle } from '../types/styles';
+import Button from '../components/button.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type ButtonProps = {
   +text: string,

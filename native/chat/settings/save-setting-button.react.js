@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
-import SWMansionIcon from '../../components/swmansion-icon.react';
-import { useStyles } from '../../themes/colors';
+import SWMansionIcon from '../../components/swmansion-icon.react.js';
+import { useStyles } from '../../themes/colors.js';
 
 type Props = {
   +onPress: () => void,

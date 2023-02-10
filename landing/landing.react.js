@@ -6,21 +6,21 @@ import { useRouteMatch } from 'react-router-dom';
 import {
   ModalProvider,
   useModalContext,
-} from 'lib/components/modal-provider.react';
+} from 'lib/components/modal-provider.react.js';
 
-import AppLanding from './app-landing.react';
-import Footer from './footer.react';
-import Header from './header.react';
-import Investors from './investors.react';
-import Keyservers from './keyservers.react';
+import AppLanding from './app-landing.react.js';
+import Footer from './footer.react.js';
+import Header from './header.react.js';
+import Investors from './investors.react.js';
+import Keyservers from './keyservers.react.js';
 import css from './landing.css';
-import Privacy from './privacy.react';
-import QR from './qr.react';
-import SIWE from './siwe.react';
-import Support from './support.react';
-import Team from './team.react';
-import Terms from './terms.react';
-import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react';
+import Privacy from './privacy.react.js';
+import QR from './qr.react.js';
+import SIWE from './siwe.react.js';
+import Support from './support.react.js';
+import Team from './team.react.js';
+import Terms from './terms.react.js';
+import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react.js';
 import './reset.css';
 import './global.css';
 

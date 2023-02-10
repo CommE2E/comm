@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { validEmailRegex } from 'lib/shared/account-utils';
+import { validEmailRegex } from 'lib/shared/account-utils.js';
 
 import css from './subscription-form.css';
 

@@ -2,7 +2,7 @@
 
 import { useSelector } from 'react-redux';
 
-import { isStaff } from 'lib/shared/user-utils';
+import { isStaff } from 'lib/shared/user-utils.js';
 
 const isStaffRelease = false;
 

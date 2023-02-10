@@ -23,20 +23,20 @@ import * as React from 'react';
 import { Platform, View, useWindowDimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
+import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   threadIsPending,
   threadMembersWithoutAddedAshoat,
-} from 'lib/shared/thread-utils';
+} from 'lib/shared/thread-utils.js';
 
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { InputStateContext } from '../input/input-state';
-import CommunityDrawerButton from '../navigation/community-drawer-button.react';
-import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react';
-import HeaderBackButton from '../navigation/header-back-button.react';
-import { defaultStackScreenOptions } from '../navigation/options';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { InputStateContext } from '../input/input-state.js';
+import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
+import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
+import HeaderBackButton from '../navigation/header-back-button.react.js';
+import { defaultStackScreenOptions } from '../navigation/options.js';
 import {
   ComposeSubchannelRouteName,
   DeleteThreadRouteName,
@@ -48,22 +48,22 @@ import {
   type ScreenParamList,
   type ChatParamList,
   type ChatTopTabsParamList,
-} from '../navigation/route-names';
-import { useColors, useStyles } from '../themes/colors';
-import BackgroundChatThreadList from './background-chat-thread-list.react';
-import ChatHeader from './chat-header.react';
-import ChatRouter, { type ChatRouterNavigationHelpers } from './chat-router';
-import ComposeSubchannel from './compose-subchannel.react';
-import ComposeThreadButton from './compose-thread-button.react';
-import HomeChatThreadList from './home-chat-thread-list.react';
-import MessageListContainer from './message-list-container.react';
-import MessageListHeaderTitle from './message-list-header-title.react';
-import MessageStorePruner from './message-store-pruner.react';
-import DeleteThread from './settings/delete-thread.react';
-import ThreadSettings from './settings/thread-settings.react';
-import ThreadScreenPruner from './thread-screen-pruner.react';
-import ThreadSettingsButton from './thread-settings-button.react';
-import ThreadSettingsHeaderTitle from './thread-settings-header-title.react';
+} from '../navigation/route-names.js';
+import { useColors, useStyles } from '../themes/colors.js';
+import BackgroundChatThreadList from './background-chat-thread-list.react.js';
+import ChatHeader from './chat-header.react.js';
+import ChatRouter, { type ChatRouterNavigationHelpers } from './chat-router.js';
+import ComposeSubchannel from './compose-subchannel.react.js';
+import ComposeThreadButton from './compose-thread-button.react.js';
+import HomeChatThreadList from './home-chat-thread-list.react.js';
+import MessageListContainer from './message-list-container.react.js';
+import MessageListHeaderTitle from './message-list-header-title.react.js';
+import MessageStorePruner from './message-store-pruner.react.js';
+import DeleteThread from './settings/delete-thread.react.js';
+import ThreadSettings from './settings/thread-settings.react.js';
+import ThreadScreenPruner from './thread-screen-pruner.react.js';
+import ThreadSettingsButton from './thread-settings-button.react.js';
+import ThreadSettingsHeaderTitle from './thread-settings-header-title.react.js';
 
 const unboundStyles = {
   keyboardAvoidingView: {

@@ -2,22 +2,22 @@
 
 import invariant from 'invariant';
 
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
   type RawUpdateInfo,
   updateTypes,
   assertUpdateType,
-} from 'lib/types/update-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/update-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import type { ViewerInfo } from '../creators/update-creator';
+import type { ViewerInfo } from '../creators/update-creator.js';
 import {
   type FetchUpdatesResult,
   fetchUpdateInfosWithRawUpdateInfos,
-} from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import type { Viewer } from '../session/viewer';
+} from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import type { Viewer } from '../session/viewer.js';
 
 const defaultUpdateFetchResult = { updateInfos: [], userInfos: {} };
 

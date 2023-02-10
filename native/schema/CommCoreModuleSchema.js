@@ -3,20 +3,20 @@
 'use strict';
 
 import { TurboModuleRegistry } from 'react-native';
-import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
+import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
 import type {
   ClientDBDraftInfo,
   ClientDBDraftStoreOperation,
-} from 'lib/types/draft-types';
+} from 'lib/types/draft-types.js';
 import type {
   ClientDBMessageInfo,
   ClientDBMessageStoreOperation,
-} from 'lib/types/message-types';
+} from 'lib/types/message-types.js';
 import type {
   ClientDBThreadInfo,
   ClientDBThreadStoreOperation,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 
 type ClientDBStore = {
   +messages: $ReadOnlyArray<ClientDBMessageInfo>,

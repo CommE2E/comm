@@ -3,15 +3,15 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
-import { longAbsoluteDate } from 'lib/utils/date-utils';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import css from './chat-message-list.css';
-import MultimediaMessage from './multimedia-message.react';
-import RobotextMessage from './robotext-message.react';
-import TextMessage from './text-message.react';
+import MultimediaMessage from './multimedia-message.react.js';
+import RobotextMessage from './robotext-message.react.js';
+import TextMessage from './text-message.react.js';
 
 type Props = {
   +item: ChatMessageInfoItem,

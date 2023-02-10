@@ -1,6 +1,6 @@
 // @flow
 
-import { dbQuery, SQL } from '../database/database';
+import { dbQuery, SQL } from '../database/database.js';
 
 // 30 minutes = 30min * 60sec * 1000ms
 export const nonceLifetime = 30 * 60 * 1000;

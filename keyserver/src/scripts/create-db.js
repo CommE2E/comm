@@ -1,6 +1,6 @@
 // @flow
 
-import { setupDB } from '../database/setup-db';
-import { main } from './utils';
+import { setupDB } from '../database/setup-db.js';
+import { main } from './utils.js';
 
 main([setupDB]);

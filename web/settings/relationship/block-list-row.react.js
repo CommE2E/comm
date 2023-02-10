@@ -3,12 +3,12 @@
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt';
+import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt.js';
 
-import MenuItem from '../../components/menu-item.react';
-import Menu from '../../components/menu.react';
+import MenuItem from '../../components/menu-item.react.js';
+import Menu from '../../components/menu.react.js';
 import css from './user-list-row.css';
-import type { UserRowProps } from './user-list.react';
+import type { UserRowProps } from './user-list.react.js';
 
 function BlockListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;

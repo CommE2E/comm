@@ -3,15 +3,15 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
-import { getNewTextAndSelection } from 'lib/shared/typeahead-utils';
-import { stringForUserExplicit } from 'lib/shared/user-utils';
-import type { SetState } from 'lib/types/hook-types';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
+import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
+import { getNewTextAndSelection } from 'lib/shared/typeahead-utils.js';
+import { stringForUserExplicit } from 'lib/shared/user-utils.js';
+import type { SetState } from 'lib/types/hook-types.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import { typeaheadStyle } from '../chat/chat-constants';
+import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
-import Button from '../components/button.react';
+import Button from '../components/button.react.js';
 
 const webTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,

@@ -3,7 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import Button from './button.react';
+import Button from './button.react.js';
 import css from './tabs.css';
 
 type Props<T: string> = {

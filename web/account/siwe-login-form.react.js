@@ -13,26 +13,26 @@ import {
   getSIWENonceActionTypes,
   siweAuth,
   siweAuthActionTypes,
-} from 'lib/actions/siwe-actions';
+} from 'lib/actions/siwe-actions.js';
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 import {
   createSIWEMessage,
   getSIWEStatementForPublicKey,
   siweMessageSigningExplanationStatements,
 } from 'lib/utils/siwe-utils.js';
 
-import Button from '../components/button.react';
+import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
-import LoadingIndicator from '../loading-indicator.react';
-import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
-import { useSelector } from '../redux/redux-utils';
+import LoadingIndicator from '../loading-indicator.react.js';
+import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './siwe.css';

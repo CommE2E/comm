@@ -1,10 +1,10 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
-import { useStyles } from '../themes/colors';
+import { useStyles } from '../themes/colors.js';
 
 const iconSize = 12;
 const buttonSize = 24;

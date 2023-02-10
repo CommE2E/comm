@@ -6,10 +6,10 @@ import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
 
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import type { Shape } from 'lib/types/core';
-import type { Platform, PlatformDetails } from 'lib/types/device-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { Shape } from 'lib/types/core.js';
+import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
   type ServerSessionChange,
   cookieLifetime,
@@ -18,24 +18,27 @@ import {
   cookieTypes,
   sessionIdentifierTypes,
   type SessionIdentifierType,
-} from 'lib/types/session-types';
+} from 'lib/types/session-types.js';
 import type { SIWESocialProof } from 'lib/types/siwe-types.js';
-import type { InitialClientSocketMessage } from 'lib/types/socket-types';
-import type { UserInfo } from 'lib/types/user-types';
-import { values } from 'lib/utils/objects';
-import { promiseAll } from 'lib/utils/promises';
+import type { InitialClientSocketMessage } from 'lib/types/socket-types.js';
+import type { UserInfo } from 'lib/types/user-types.js';
+import { values } from 'lib/utils/objects.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
-import createIDs from '../creators/id-creator';
-import { createSession } from '../creators/session-creator';
-import { dbQuery, SQL } from '../database/database';
-import { deleteCookie } from '../deleters/cookie-deleters';
-import { handleAsyncPromise } from '../responders/handlers';
-import { clearDeviceToken } from '../updaters/device-token-updaters';
-import { updateThreadMembers } from '../updaters/thread-updaters';
-import { assertSecureRequest } from '../utils/security-utils';
-import { type AppURLFacts, getAppURLFactsFromRequestURL } from '../utils/urls';
-import { Viewer } from './viewer';
-import type { AnonymousViewerData, UserViewerData } from './viewer';
+import createIDs from '../creators/id-creator.js';
+import { createSession } from '../creators/session-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { deleteCookie } from '../deleters/cookie-deleters.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
+import { clearDeviceToken } from '../updaters/device-token-updaters.js';
+import { updateThreadMembers } from '../updaters/thread-updaters.js';
+import { assertSecureRequest } from '../utils/security-utils.js';
+import {
+  type AppURLFacts,
+  getAppURLFactsFromRequestURL,
+} from '../utils/urls.js';
+import { Viewer } from './viewer.js';
+import type { AnonymousViewerData, UserViewerData } from './viewer.js';
 
 function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();

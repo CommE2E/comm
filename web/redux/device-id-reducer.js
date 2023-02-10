@@ -6,9 +6,9 @@ import {
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
-import type { Action } from '../redux/redux-setup';
-import { deviceIDFormatRegex } from '../utils/device-id';
-import { setDeviceIDActionType } from './action-types';
+import type { Action } from '../redux/redux-setup.js';
+import { deviceIDFormatRegex } from '../utils/device-id.js';
+import { setDeviceIDActionType } from './action-types.js';
 
 export function reduceDeviceID(state: ?string, action: Action): ?string {
   if (action.type === setDeviceIDActionType) {

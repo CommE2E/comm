@@ -5,12 +5,12 @@ import dateFormat from 'dateformat';
 import * as React from 'react';
 import TimeAgo from 'react-timeago';
 
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { colorIsDark } from 'lib/shared/thread-utils';
-import type { HistoryRevisionInfo } from 'lib/types/history-types';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { colorIsDark } from 'lib/shared/thread-utils.js';
+import type { HistoryRevisionInfo } from 'lib/types/history-types.js';
 
-import { useSelector } from '../../redux/redux-utils';
+import { useSelector } from '../../redux/redux-utils.js';
 import css from './history.css';
 
 type Props = {

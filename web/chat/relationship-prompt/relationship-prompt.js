@@ -8,13 +8,13 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
-import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt';
-import { userRelationshipStatus } from 'lib/types/relationship-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import { userRelationshipStatus } from 'lib/types/relationship-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { buttonThemes } from '../../components/button.react';
-import RelationshipPromptButton from './relationship-prompt-button';
-import RelationshipPromptButtonContainer from './relationship-prompt-button-container';
+import { buttonThemes } from '../../components/button.react.js';
+import RelationshipPromptButtonContainer from './relationship-prompt-button-container.js';
+import RelationshipPromptButton from './relationship-prompt-button.js';
 
 type Props = { +threadInfo: ThreadInfo };
 

@@ -6,21 +6,21 @@ import * as React from 'react';
 import {
   changeUserPasswordActionTypes,
   changeUserPassword,
-} from 'lib/actions/user-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
-import { useStringForUser } from 'lib/hooks/ens-cache';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { type PasswordUpdate } from 'lib/types/user-types';
+} from 'lib/actions/user-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { type PasswordUpdate } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../components/button.react';
-import Input from '../modals/input.react';
-import Modal from '../modals/modal.react';
-import { useSelector } from '../redux/redux-utils';
+import Button from '../components/button.react.js';
+import Input from '../modals/input.react.js';
+import Modal from '../modals/modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './password-change-modal.css';
 
 type Props = {

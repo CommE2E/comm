@@ -1,11 +1,14 @@
 // @flow
 
-import { getContainingThreadID, getCommunity } from 'lib/shared/thread-utils';
-import type { ServerThreadInfo } from 'lib/types/thread-types';
+import {
+  getContainingThreadID,
+  getCommunity,
+} from 'lib/shared/thread-utils.js';
+import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
-import { main } from './utils';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import { main } from './utils.js';
 
 async function addColumnAndIndexes() {
   await dbQuery(SQL`

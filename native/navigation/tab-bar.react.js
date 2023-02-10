@@ -7,10 +7,10 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 import { useSafeArea } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
-import { KeyboardContext } from '../keyboard/keyboard-state';
-import { updateDimensionsActiveType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
-import type { LayoutEvent } from '../types/react-native';
+import { KeyboardContext } from '../keyboard/keyboard-state.js';
+import { updateDimensionsActiveType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { LayoutEvent } from '../types/react-native.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, interpolateNode } = Animated;

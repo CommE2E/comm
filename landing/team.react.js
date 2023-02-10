@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import { assetsCacheURLPrefix } from './asset-meta-data';
+import { assetsCacheURLPrefix } from './asset-meta-data.js';
 import Button from './button.react.js';
-import TeamProfile from './team-profile.react';
+import TeamProfile from './team-profile.react.js';
 import css from './team.css';
 
 function Team(): React.Node {

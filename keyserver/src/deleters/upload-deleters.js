@@ -1,9 +1,9 @@
 // @flow
 
-import { ServerError } from 'lib/utils/errors';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function deleteUpload(viewer: Viewer, id: string): Promise<void> {
   if (!viewer.loggedIn) {

@@ -1,7 +1,7 @@
 // @flow
 
-import type { BaseNavInfo } from 'lib/types/nav-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { BaseNavInfo } from 'lib/types/nav-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 export type NavigationTab = 'calendar' | 'chat' | 'apps' | 'settings';
 

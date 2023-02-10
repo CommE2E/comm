@@ -3,15 +3,15 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
-import { threadSubscriptions } from 'lib/types/subscription-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import { promiseAll } from 'lib/utils/promises';
+import { threadSubscriptions } from 'lib/types/subscription-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
-import createIDs from '../creators/id-creator';
-import { dbQuery, SQL } from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import { getAPNsNotificationTopic } from './providers';
-import { apnPush, fcmPush } from './utils';
+import createIDs from '../creators/id-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import { getAPNsNotificationTopic } from './providers.js';
+import { apnPush, fcmPush } from './utils.js';
 
 async function rescindPushNotifs(
   notifCondition: SQLStatementType,

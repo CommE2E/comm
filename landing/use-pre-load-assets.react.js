@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { type Asset } from './asset-meta-data';
+import { type Asset } from './asset-meta-data.js';
 
 function usePreloadAssets(assets: Asset[]) {
   React.useEffect(() => {

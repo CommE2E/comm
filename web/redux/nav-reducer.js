@@ -1,12 +1,12 @@
 // @flow
 
-import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
-import { threadIsPending } from 'lib/shared/thread-utils';
-import type { RawThreadInfo } from 'lib/types/thread-types';
+import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
+import type { RawThreadInfo } from 'lib/types/thread-types.js';
 
-import { updateNavInfoActionType } from '../redux/action-types';
-import type { Action } from '../redux/redux-setup';
-import { type NavInfo } from '../types/nav-types';
+import { updateNavInfoActionType } from '../redux/action-types.js';
+import type { Action } from '../redux/redux-setup.js';
+import { type NavInfo } from '../types/nav-types.js';
 
 export default function reduceNavInfo(
   oldState: NavInfo,

@@ -1,25 +1,25 @@
 // @flow
 
-import { permissionLookup } from 'lib/permissions/thread-permissions';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { permissionLookup } from 'lib/permissions/thread-permissions.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
   type ThreadDeletionRequest,
   type LeaveThreadResult,
   threadPermissions,
-} from 'lib/types/thread-types';
-import { updateTypes } from 'lib/types/update-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
-} from '../fetchers/thread-fetchers';
-import { fetchThreadPermissionsBlob } from '../fetchers/thread-permission-fetchers';
-import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers';
-import { rescindPushNotifs } from '../push/rescind';
-import type { Viewer } from '../session/viewer';
+} from '../fetchers/thread-fetchers.js';
+import { fetchThreadPermissionsBlob } from '../fetchers/thread-permission-fetchers.js';
+import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers.js';
+import { rescindPushNotifs } from '../push/rescind.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function deleteThread(
   viewer: Viewer,

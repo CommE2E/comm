@@ -3,18 +3,18 @@
 import invariant from 'invariant';
 import { Image } from 'react-native';
 
-import { pathFromURI, sanitizeFilename } from 'lib/media/file-utils';
+import { pathFromURI, sanitizeFilename } from 'lib/media/file-utils.js';
 import type {
   Dimensions,
   MediaMissionStep,
   MediaMissionFailure,
   NativeMediaSelection,
-} from 'lib/types/media-types';
+} from 'lib/types/media-types.js';
 
-import { fetchFileInfo } from './file-utils';
-import { processImage } from './image-utils';
-import { saveMedia } from './save-media';
-import { processVideo } from './video-utils';
+import { fetchFileInfo } from './file-utils.js';
+import { processImage } from './image-utils.js';
+import { saveMedia } from './save-media.js';
+import { processVideo } from './video-utils.js';
 
 type MediaProcessConfig = {
   +hasWiFi: boolean,

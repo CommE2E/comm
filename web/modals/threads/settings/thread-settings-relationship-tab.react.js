@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { type SetState } from 'lib/types/hook-types';
-import { type RelationshipButton } from 'lib/types/relationship-types';
-import type { UserInfo } from 'lib/types/user-types';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { type SetState } from 'lib/types/hook-types.js';
+import { type RelationshipButton } from 'lib/types/relationship-types.js';
+import type { UserInfo } from 'lib/types/user-types.js';
 
-import ThreadSettingsRelationshipButton from './thread-settings-relationship-button.react';
+import ThreadSettingsRelationshipButton from './thread-settings-relationship-button.react.js';
 import css from './thread-settings-relationship-tab.css';
 
 type Props = {

@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 
-import Button, { buttonThemes } from '../components/button.react';
-import AccountDeleteModal from './account-delete-modal.react';
+import Button, { buttonThemes } from '../components/button.react.js';
+import AccountDeleteModal from './account-delete-modal.react.js';
 import css from './danger-zone.css';
 
 function DangerZone(): React.Node {

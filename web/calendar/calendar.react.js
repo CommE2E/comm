@@ -9,39 +9,39 @@ import * as React from 'react';
 import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
-} from 'lib/actions/entry-actions';
+} from 'lib/actions/entry-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { currentDaysToEntries } from 'lib/selectors/thread-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   type EntryInfo,
   type CalendarQuery,
   type CalendarQueryUpdateResult,
   type CalendarQueryUpdateStartingPayload,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 import {
   getDate,
   dateString,
   startDateForYearAndMonth,
   endDateForYearAndMonth,
-} from 'lib/utils/date-utils';
+} from 'lib/utils/date-utils.js';
 
-import { useSelector } from '../redux/redux-utils';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   yearAssertingSelector,
   monthAssertingSelector,
   webCalendarQuery,
-} from '../selectors/nav-selectors';
-import type { NavInfo } from '../types/nav-types';
-import { canonicalURLFromReduxState } from '../url-utils';
+} from '../selectors/nav-selectors.js';
+import type { NavInfo } from '../types/nav-types.js';
+import { canonicalURLFromReduxState } from '../url-utils.js';
 import css from './calendar.css';
-import Day from './day.react';
-import FilterPanel from './filter-panel.react';
+import Day from './day.react.js';
+import FilterPanel from './filter-panel.react.js';
 
 type BaseProps = {
   +url: string,

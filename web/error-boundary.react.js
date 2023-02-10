@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { ErrorInfo, ErrorData } from 'lib/types/report-types';
+import type { ErrorInfo, ErrorData } from 'lib/types/report-types.js';
 
 import css from './error-boundary.css';
 

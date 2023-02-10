@@ -3,16 +3,16 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { type ChatThreadItem } from 'lib/selectors/chat-selectors';
-import { useMessagePreview } from 'lib/shared/message-utils';
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import { type ChatThreadItem } from 'lib/selectors/chat-selectors.js';
+import { useMessagePreview } from 'lib/shared/message-utils.js';
+import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Button from '../../../components/button.react';
-import { getDefaultTextMessageRules } from '../../../markdown/rules.react';
-import { useOnClickThread } from '../../../selectors/thread-selectors';
+import Button from '../../../components/button.react.js';
+import { getDefaultTextMessageRules } from '../../../markdown/rules.react.js';
+import { useOnClickThread } from '../../../selectors/thread-selectors.js';
 import css from './subchannels-modal.css';
 
 type Props = {

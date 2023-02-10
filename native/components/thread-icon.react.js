@@ -1,12 +1,12 @@
 // @flow
 
-import EntypoIcon from '@expo/vector-icons/Entypo';
+import EntypoIcon from '@expo/vector-icons/Entypo.js';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
-import { threadTypes, type ThreadType } from 'lib/types/thread-types';
+import { threadTypes, type ThreadType } from 'lib/types/thread-types.js';
 
-import SWMansionIcon from './swmansion-icon.react';
+import SWMansionIcon from './swmansion-icon.react.js';
 
 type Props = {
   +threadType: ThreadType,

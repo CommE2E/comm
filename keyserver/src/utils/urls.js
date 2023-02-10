@@ -2,9 +2,9 @@
 
 import invariant from 'invariant';
 
-import { values } from 'lib/utils/objects';
+import { values } from 'lib/utils/objects.js';
 
-import { importJSON } from './import-json';
+import { importJSON } from './import-json.js';
 
 export type AppURLFacts = {
   +baseDomain: string,

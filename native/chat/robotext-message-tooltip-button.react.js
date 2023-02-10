@@ -4,23 +4,23 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import EmojiPicker from 'rn-emoji-keyboard';
 
-import { localIDPrefix } from 'lib/shared/message-utils';
-import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
+import { localIDPrefix } from 'lib/shared/message-utils.js';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import { useSelector } from '../redux/redux-utils';
-import { useTooltipActions } from '../tooltip/tooltip-hooks';
-import type { TooltipRoute } from '../tooltip/tooltip.react';
-import { TooltipInlineEngagement } from './inline-engagement.react';
-import { InnerRobotextMessage } from './inner-robotext-message.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
+import type { TooltipRoute } from '../tooltip/tooltip.react.js';
+import { TooltipInlineEngagement } from './inline-engagement.react.js';
+import { InnerRobotextMessage } from './inner-robotext-message.react.js';
 import {
   useSendReaction,
   useReactionSelectionPopoverPosition,
-} from './reaction-message-utils';
-import ReactionSelectionPopover from './reaction-selection-popover.react';
-import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
-import { Timestamp } from './timestamp.react';
-import { useAnimatedMessageTooltipButton } from './utils';
+} from './reaction-message-utils.js';
+import ReactionSelectionPopover from './reaction-selection-popover.react.js';
+import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react.js';
+import { Timestamp } from './timestamp.react.js';
+import { useAnimatedMessageTooltipButton } from './utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node, interpolateNode, Extrapolate } = Animated;

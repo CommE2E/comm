@@ -3,51 +3,51 @@
 import apn from '@parse/node-apn';
 import type { ResponseFailure } from '@parse/node-apn';
 import invariant from 'invariant';
-import _cloneDeep from 'lodash/fp/cloneDeep';
-import _flow from 'lodash/fp/flow';
-import _mapValues from 'lodash/fp/mapValues';
-import _pickBy from 'lodash/fp/pickBy';
-import uuidv4 from 'uuid/v4';
+import _cloneDeep from 'lodash/fp/cloneDeep.js';
+import _flow from 'lodash/fp/flow.js';
+import _mapValues from 'lodash/fp/mapValues.js';
+import _pickBy from 'lodash/fp/pickBy.js';
+import uuidv4 from 'uuid/v4.js';
 
-import { oldValidUsernameRegex } from 'lib/shared/account-utils';
+import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
 import {
   createMessageInfo,
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
-} from 'lib/shared/message-utils';
-import { messageSpecs } from 'lib/shared/messages/message-specs';
-import { notifTextsForMessageInfo } from 'lib/shared/notif-utils';
+} from 'lib/shared/message-utils.js';
+import { messageSpecs } from 'lib/shared/messages/message-specs.js';
+import { notifTextsForMessageInfo } from 'lib/shared/notif-utils.js';
 import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
-} from 'lib/shared/thread-utils';
-import type { DeviceType } from 'lib/types/device-types';
+} from 'lib/shared/thread-utils.js';
+import type { DeviceType } from 'lib/types/device-types.js';
 import {
   type RawMessageInfo,
   type MessageInfo,
   messageTypes,
-} from 'lib/types/message-types';
-import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
-import { updateTypes } from 'lib/types/update-types';
-import { promiseAll } from 'lib/utils/promises';
+} from 'lib/types/message-types.js';
+import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
-import createIDs from '../creators/id-creator';
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
-import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchUserInfos } from '../fetchers/user-fetchers';
-import type { Viewer } from '../session/viewer';
-import { getENSNames } from '../utils/ens-cache';
-import { getAPNsNotificationTopic } from './providers';
+import createIDs from '../creators/id-creator.js';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
+import type { CollapsableNotifInfo } from '../fetchers/message-fetchers.js';
+import { fetchCollapsableNotifs } from '../fetchers/message-fetchers.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import { fetchUserInfos } from '../fetchers/user-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
+import { getENSNames } from '../utils/ens-cache.js';
+import { getAPNsNotificationTopic } from './providers.js';
 import {
   apnPush,
   fcmPush,
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
   fcmMaxNotificationPayloadByteSize,
-} from './utils';
+} from './utils.js';
 
 type Device = {
   +deviceType: DeviceType,

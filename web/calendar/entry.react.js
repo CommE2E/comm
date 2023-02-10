@@ -13,15 +13,15 @@ import {
   deleteEntryActionTypes,
   deleteEntry,
   concurrentModificationResetActionType,
-} from 'lib/actions/entry-actions';
+} from 'lib/actions/entry-actions.js';
 import {
   useModalContext,
   type PushModal,
-} from 'lib/components/modal-provider.react';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { entryKey } from 'lib/shared/entry-utils';
-import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
-import type { Shape } from 'lib/types/core';
+} from 'lib/components/modal-provider.react.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { entryKey } from 'lib/shared/entry-utils.js';
+import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils.js';
+import type { Shape } from 'lib/types/core.js';
 import {
   type EntryInfo,
   type CreateEntryInfo,
@@ -32,27 +32,27 @@ import {
   type DeleteEntryInfo,
   type DeleteEntryResult,
   type CalendarQuery,
-} from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import type { ResolvedThreadInfo } from 'lib/types/thread-types';
+} from 'lib/types/entry-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { dateString } from 'lib/utils/date-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/utils/action-utils.js';
+import { dateString } from 'lib/utils/date-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import LoadingIndicator from '../loading-indicator.react';
-import LogInFirstModal from '../modals/account/log-in-first-modal.react';
-import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react';
-import HistoryModal from '../modals/history/history-modal.react';
-import { useSelector } from '../redux/redux-utils';
-import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-import { HistoryVector, DeleteVector } from '../vectors.react';
+import LoadingIndicator from '../loading-indicator.react.js';
+import LogInFirstModal from '../modals/account/log-in-first-modal.react.js';
+import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react.js';
+import HistoryModal from '../modals/history/history-modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
+import { HistoryVector, DeleteVector } from '../vectors.react.js';
 import css from './calendar.css';
 
 type BaseProps = {

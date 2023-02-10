@@ -13,46 +13,46 @@ import {
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
-} from 'lib/actions/relationship-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/actions/relationship-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type RelationshipRequest,
   type RelationshipAction,
   type RelationshipErrors,
   userRelationshipStatus,
   relationshipActions,
-} from 'lib/types/relationship-types';
+} from 'lib/types/relationship-types.js';
 import type {
   AccountUserInfo,
   GlobalAccountUserInfo,
-} from 'lib/types/user-types';
+} from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import PencilIcon from '../components/pencil-icon.react';
-import { SingleLine } from '../components/single-line.react';
+import PencilIcon from '../components/pencil-icon.react.js';
+import { SingleLine } from '../components/single-line.react.js';
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
+} from '../keyboard/keyboard-state.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
+} from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   RelationshipListItemTooltipModalRouteName,
   FriendListRouteName,
   BlockListRouteName,
-} from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../themes/colors';
-import type { VerticalBounds } from '../types/layout-types';
-import type { RelationshipListNavigate } from './relationship-list.react';
+} from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { VerticalBounds } from '../types/layout-types.js';
+import type { RelationshipListNavigate } from './relationship-list.react.js';
 
 type BaseProps = {
   +userInfo: AccountUserInfo,

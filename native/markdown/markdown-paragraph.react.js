@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import { MessagePressResponderContext } from '../chat/message-press-responder-context';
-import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
-import type { TextStyle } from '../types/styles';
+import { MessagePressResponderContext } from '../chat/message-press-responder-context.js';
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
+import type { TextStyle } from '../types/styles.js';
 
 type Props = {
   +style?: ?TextStyle,

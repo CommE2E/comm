@@ -4,20 +4,20 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { messageID } from 'lib/shared/message-utils';
+import { messageID } from 'lib/shared/message-utils.js';
 import {
   assertComposableRawMessage,
   messageTypes,
-} from 'lib/types/message-types';
-import type { RawComposableMessageInfo } from 'lib/types/message-types';
+} from 'lib/types/message-types.js';
+import type { RawComposableMessageInfo } from 'lib/types/message-types.js';
 
-import Button from '../components/button.react';
-import { type InputState, InputStateContext } from '../input/input-state';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
-import { multimediaMessageSendFailed } from './multimedia-message-utils';
-import textMessageSendFailed from './text-message-send-failed';
+import Button from '../components/button.react.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { multimediaMessageSendFailed } from './multimedia-message-utils.js';
+import textMessageSendFailed from './text-message-send-failed.js';
 
 const failedSendHeight = 22;
 

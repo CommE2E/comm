@@ -4,12 +4,12 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../../components/button.react';
-import ThreadPill from '../../components/thread-pill.react';
-import { useStyles } from '../../themes/colors';
-import { useNavigateToThread } from '../message-list-types';
+import Button from '../../components/button.react.js';
+import ThreadPill from '../../components/thread-pill.react.js';
+import { useStyles } from '../../themes/colors.js';
+import { useNavigateToThread } from '../message-list-types.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

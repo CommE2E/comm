@@ -3,11 +3,11 @@
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import type { ASTNode, SingleASTNode } from 'lib/shared/markdown';
-import { messageKey } from 'lib/shared/message-utils';
-import type { TextMessageInfo } from 'lib/types/messages/text';
+import type { ASTNode, SingleASTNode } from 'lib/shared/markdown.js';
+import { messageKey } from 'lib/shared/message-utils.js';
+import type { TextMessageInfo } from 'lib/types/messages/text.js';
 
-import { useTextMessageMarkdownRules } from '../chat/message-list-types';
+import { useTextMessageMarkdownRules } from '../chat/message-list-types.js';
 
 export type TextMessageMarkdownContextType = {
   +messageKey: string,

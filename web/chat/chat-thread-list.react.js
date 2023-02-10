@@ -3,16 +3,16 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { emptyItemText } from 'lib/shared/thread-utils';
+import { emptyItemText } from 'lib/shared/thread-utils.js';
 
-import BackgroundIllustration from '../assets/background-illustration.react';
-import Button from '../components/button.react';
-import Search from '../components/search.react';
-import { useSelector } from '../redux/redux-utils';
-import { useOnClickNewThread } from '../selectors/thread-selectors';
-import ChatThreadListItem from './chat-thread-list-item.react';
+import BackgroundIllustration from '../assets/background-illustration.react.js';
+import Button from '../components/button.react.js';
+import Search from '../components/search.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useOnClickNewThread } from '../selectors/thread-selectors.js';
+import ChatThreadListItem from './chat-thread-list-item.react.js';
 import css from './chat-thread-list.css';
-import { ThreadListContext } from './thread-list-provider';
+import { ThreadListContext } from './thread-list-provider.js';
 
 function ChatThreadList(): React.Node {
   const threadListContext = React.useContext(ThreadListContext);

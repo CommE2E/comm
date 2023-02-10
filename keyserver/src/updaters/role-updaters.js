@@ -1,15 +1,15 @@
 // @flow
 
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 
-import type { ThreadType } from 'lib/types/thread-types';
+import type { ThreadType } from 'lib/types/thread-types.js';
 
-import createIDs from '../creators/id-creator';
-import { getRolePermissionBlobs } from '../creators/role-creator';
-import { dbQuery, SQL } from '../database/database';
-import { fetchRoles } from '../fetchers/role-fetchers';
-import type { Viewer } from '../session/viewer';
+import createIDs from '../creators/id-creator.js';
+import { getRolePermissionBlobs } from '../creators/role-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchRoles } from '../fetchers/role-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function updateRoles(
   viewer: Viewer,

@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 
-import { useFilteredChildThreads } from 'lib/hooks/child-threads';
-import { threadIsChannel } from 'lib/shared/thread-utils';
+import { useFilteredChildThreads } from 'lib/hooks/child-threads.js';
+import { threadIsChannel } from 'lib/shared/thread-utils.js';
 
-import SearchModal from '../../search-modal.react';
-import Subchannel from './subchannel.react';
+import SearchModal from '../../search-modal.react.js';
+import Subchannel from './subchannel.react.js';
 import css from './subchannels-modal.css';
 
 type ContentProps = {

@@ -4,9 +4,9 @@ import invariant from 'invariant';
 import { Platform } from 'react-native';
 import filesystem from 'react-native-fs';
 
-import { mediaConfig, pathFromURI } from 'lib/media/file-utils';
-import { getVideoProcessingPlan } from 'lib/media/video-utils';
-import type { ProcessPlan } from 'lib/media/video-utils';
+import { mediaConfig, pathFromURI } from 'lib/media/file-utils.js';
+import { getVideoProcessingPlan } from 'lib/media/video-utils.js';
+import type { ProcessPlan } from 'lib/media/video-utils.js';
 import type {
   MediaMissionStep,
   MediaMissionFailure,
@@ -14,11 +14,11 @@ import type {
   TranscodeVideoMediaMissionStep,
   VideoGenerateThumbnailMediaMissionStep,
   Dimensions,
-} from 'lib/types/media-types';
-import { getMessageForException } from 'lib/utils/errors';
+} from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
-import { ffmpeg } from './ffmpeg';
-import { temporaryDirectoryPath } from './file-utils';
+import { ffmpeg } from './ffmpeg.js';
+import { temporaryDirectoryPath } from './file-utils.js';
 
 // These are some numbers I sorta kinda made up
 // We should try to calculate them on a per-device basis

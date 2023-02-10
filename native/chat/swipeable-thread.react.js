@@ -1,14 +1,14 @@
 // @flow
 
-import MaterialIcon from '@expo/vector-icons/MaterialCommunityIcons';
+import MaterialIcon from '@expo/vector-icons/MaterialCommunityIcons.js';
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 
-import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Swipeable from '../components/swipeable';
-import { useColors } from '../themes/colors';
+import Swipeable from '../components/swipeable.js';
+import { useColors } from '../themes/colors.js';
 type Props = {
   +threadInfo: ThreadInfo,
   +mostRecentNonLocalMessage: ?string,

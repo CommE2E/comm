@@ -5,22 +5,22 @@ import * as React from 'react';
 import {
   updateSubscription,
   updateSubscriptionActionTypes,
-} from 'lib/actions/user-actions';
-import { canPromoteSidebar } from 'lib/hooks/promote-sidebar.react';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { threadIsSidebar } from 'lib/shared/thread-utils';
+} from 'lib/actions/user-actions.js';
+import { canPromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { threadIsSidebar } from 'lib/shared/thread-utils.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
 import BadgeNotifsIllustration from '../../../assets/badge-notifs.react.js';
 import MutedNotifsIllustration from '../../../assets/muted-notifs.react.js';
-import Button from '../../../components/button.react';
-import EnumSettingsOption from '../../../components/enum-settings-option.react';
-import { useSelector } from '../../../redux/redux-utils';
-import Modal from '../../modal.react';
+import Button from '../../../components/button.react.js';
+import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
+import Modal from '../../modal.react.js';
 import css from './notifications-modal.css';
 
 type NotificationSettings = 'focused' | 'badge-only' | 'background';

@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 
-import Button from '../components/button.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { TextInput } from './modal-components.react';
+import Button from '../components/button.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { TextInput } from './modal-components.react.js';
 
 type Props = React.ElementConfig<typeof BaseTextInput>;
 

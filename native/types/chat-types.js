@@ -1,16 +1,16 @@
 // @flow
 
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
 import type {
   LocalMessageInfo,
   MultimediaMessageInfo,
   RobotextMessageInfo,
-} from 'lib/types/message-types';
-import type { TextMessageInfo } from 'lib/types/messages/text';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { EntityText } from 'lib/utils/entity-text';
+} from 'lib/types/message-types.js';
+import type { TextMessageInfo } from 'lib/types/messages/text.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { EntityText } from 'lib/utils/entity-text.js';
 
-import type { MessagePendingUploads } from '../input/input-state';
+import type { MessagePendingUploads } from '../input/input-state.js';
 
 export type ChatRobotextMessageInfoItemWithHeight = {
   +itemType: 'message',

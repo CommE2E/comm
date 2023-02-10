@@ -2,11 +2,11 @@
 
 import { ethers } from 'ethers';
 
-import { ENSCache, type EthersProvider } from 'lib/utils/ens-cache';
+import { ENSCache, type EthersProvider } from 'lib/utils/ens-cache.js';
 import {
   getENSNames as baseGetENSNames,
   type GetENSNames,
-} from 'lib/utils/ens-helpers';
+} from 'lib/utils/ens-helpers.js';
 
 const alchemyKey = process.env.COMM_ALCHEMY_KEY;
 

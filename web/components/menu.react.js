@@ -3,7 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import { useRenderMenu } from '../menu-provider.react';
+import { useRenderMenu } from '../menu-provider.react.js';
 import css from './menu.css';
 
 type MenuVariant = 'thread-actions' | 'member-actions';

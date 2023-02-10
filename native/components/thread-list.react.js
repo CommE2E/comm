@@ -5,18 +5,18 @@ import * as React from 'react';
 import { FlatList, TextInput } from 'react-native';
 import { createSelector } from 'reselect';
 
-import SearchIndex from 'lib/shared/search-index';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import SearchIndex from 'lib/shared/search-index.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
   type IndicatorStyle,
   useStyles,
   useIndicatorStyle,
-} from '../themes/colors';
-import type { ViewStyle, TextStyle } from '../types/styles';
-import { waitForModalInputFocus } from '../utils/timers';
-import Search from './search.react';
-import ThreadListThread from './thread-list-thread.react';
+} from '../themes/colors.js';
+import type { ViewStyle, TextStyle } from '../types/styles.js';
+import { waitForModalInputFocus } from '../utils/timers.js';
+import Search from './search.react.js';
+import ThreadListThread from './thread-list-thread.react.js';
 
 type BaseProps = {
   +threadInfos: $ReadOnlyArray<ThreadInfo>,

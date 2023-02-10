@@ -7,27 +7,27 @@ import { Text, Alert, ActivityIndicator, View } from 'react-native';
 import {
   leaveThreadActionTypes,
   leaveThread,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors';
-import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
+} from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
+import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../../components/button.react';
-import { clearThreadsActionType } from '../../navigation/action-types';
+import Button from '../../components/button.react.js';
+import { clearThreadsActionType } from '../../navigation/action-types.js';
 import {
   NavContext,
   type NavContextType,
-} from '../../navigation/navigation-context';
-import { useSelector } from '../../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
-import type { ViewStyle } from '../../types/styles';
+} from '../../navigation/navigation-context.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import type { ViewStyle } from '../../types/styles.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

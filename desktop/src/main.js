@@ -12,8 +12,8 @@ import {
 import fs from 'fs';
 import path from 'path';
 
-import { initAutoUpdate } from './auto-update';
-import { handleSquirrelEvent } from './handle-squirrel-event';
+import { initAutoUpdate } from './auto-update.js';
+import { handleSquirrelEvent } from './handle-squirrel-event.js';
 
 const isDev = process.env.ENV === 'dev';
 const url = isDev ? 'http://localhost/comm/' : 'https://web.comm.app';

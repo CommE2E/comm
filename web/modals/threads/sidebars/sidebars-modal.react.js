@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-import { useFilteredChildThreads } from 'lib/hooks/child-threads';
-import { threadInChatList, threadIsSidebar } from 'lib/shared/thread-utils';
+import { useFilteredChildThreads } from 'lib/hooks/child-threads.js';
+import { threadInChatList, threadIsSidebar } from 'lib/shared/thread-utils.js';
 
-import Tabs from '../../../components/tabs.react';
-import SearchModal from '../../search-modal.react';
-import SidebarList from './sidebar-list.react';
+import Tabs from '../../../components/tabs.react.js';
+import SearchModal from '../../search-modal.react.js';
+import SidebarList from './sidebar-list.react.js';
 import css from './sidebars-modal.css';
 
 type SidebarTab = 'All Threads' | 'My Threads';

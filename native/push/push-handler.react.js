@@ -9,55 +9,55 @@ import { useDispatch } from 'react-redux';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
-} from 'lib/actions/device-actions';
-import { saveMessagesActionType } from 'lib/actions/message-actions';
+} from 'lib/actions/device-actions.js';
+import { saveMessagesActionType } from 'lib/actions/message-actions.js';
 import {
   unreadCount,
   threadInfoSelector,
-} from 'lib/selectors/thread-selectors';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
-import type { RawMessageInfo } from 'lib/types/message-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import { type ConnectionInfo } from 'lib/types/socket-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+} from 'lib/selectors/thread-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
+import type { RawMessageInfo } from 'lib/types/message-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { type ConnectionInfo } from 'lib/types/socket-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
 import {
   type MessageListParams,
   useNavigateToThread,
-} from '../chat/message-list-types';
+} from '../chat/message-list-types.js';
 import {
   addLifecycleListener,
   getCurrentLifecycleState,
-} from '../lifecycle/lifecycle';
-import { replaceWithThreadActionType } from '../navigation/action-types';
-import { activeMessageListSelector } from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import { recordNotifPermissionAlertActionType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
-import { RootContext, type RootContextType } from '../root-context';
-import type { EventSubscription } from '../types/react-native';
-import { type GlobalTheme } from '../types/themes';
-import { type NotifPermissionAlertInfo } from './alerts';
+} from '../lifecycle/lifecycle.js';
+import { replaceWithThreadActionType } from '../navigation/action-types.js';
+import { activeMessageListSelector } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import { recordNotifPermissionAlertActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { RootContext, type RootContextType } from '../root-context.js';
+import type { EventSubscription } from '../types/react-native.js';
+import { type GlobalTheme } from '../types/themes.js';
+import { type NotifPermissionAlertInfo } from './alerts.js';
 import {
   androidNotificationChannelID,
   handleAndroidMessage,
   getCommAndroidNotificationsEventEmitter,
   type AndroidForegroundMessage,
   CommAndroidNotifications,
-} from './android';
+} from './android.js';
 import {
   CommIOSNotification,
   type CoreIOSNotificationData,
   type CoreIOSNotificationDataWithRequestIdentifier,
-} from './comm-ios-notification';
-import InAppNotif from './in-app-notif.react';
+} from './comm-ios-notification.js';
+import InAppNotif from './in-app-notif.react.js';
 import {
   requestIOSPushPermissions,
   iosPushPermissionResponseReceived,

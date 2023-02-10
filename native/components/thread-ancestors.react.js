@@ -1,19 +1,19 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome5';
+import Icon from '@expo/vector-icons/FontAwesome5.js';
 import * as React from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { ancestorThreadInfos } from 'lib/selectors/thread-selectors.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useNavigateToThread } from '../chat/message-list-types';
-import { useSelector } from '../redux/redux-utils';
-import { useColors, useStyles } from '../themes/colors';
-import Button from './button.react';
-import CommunityPill from './community-pill.react';
-import ThreadPill from './thread-pill.react';
+import { useNavigateToThread } from '../chat/message-list-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors, useStyles } from '../themes/colors.js';
+import Button from './button.react.js';
+import CommunityPill from './community-pill.react.js';
+import ThreadPill from './thread-pill.react.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

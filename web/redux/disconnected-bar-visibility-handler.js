@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { useDisconnectedBarVisibilityHandler } from 'lib/hooks/disconnected-bar';
+import { useDisconnectedBarVisibilityHandler } from 'lib/hooks/disconnected-bar.js';
 
 function useNetworkConnected() {
   const [networkConnected, setNetworkConnected] = React.useState(true);

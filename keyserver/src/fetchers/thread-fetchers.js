@@ -1,24 +1,24 @@
 // @flow
 
-import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
+import { getAllThreadPermissions } from 'lib/permissions/thread-permissions.js';
 import {
   rawThreadInfoFromServerThreadInfo,
   getContainingThreadID,
   getCommunity,
-} from 'lib/shared/thread-utils';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
+} from 'lib/shared/thread-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import {
   threadTypes,
   type ThreadType,
   type RawThreadInfo,
   type ServerThreadInfo,
-} from 'lib/types/thread-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/thread-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import type { Viewer } from '../session/viewer.js';
 
 type FetchServerThreadInfosResult = {
   +threadInfos: { +[id: string]: ServerThreadInfo },

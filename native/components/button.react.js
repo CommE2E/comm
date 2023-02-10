@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import type { ViewStyle } from '../types/styles';
+import type { ViewStyle } from '../types/styles.js';
 
 const ANDROID_VERSION_LOLLIPOP = 21;
 

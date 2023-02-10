@@ -1,6 +1,6 @@
 // @flow
 
-import Icon from '@expo/vector-icons/MaterialCommunityIcons';
+import Icon from '@expo/vector-icons/MaterialCommunityIcons.js';
 import invariant from 'invariant';
 import * as React from 'react';
 import { useState } from 'react';
@@ -10,21 +10,24 @@ import * as Progress from 'react-native-progress';
 import Animated from 'react-native-reanimated';
 import Video from 'react-native-video';
 
-import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils';
-import type { MediaInfo } from 'lib/types/media-types';
+import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
+import type { MediaInfo } from 'lib/types/media-types.js';
 
-import ConnectedStatusBar from '../connected-status-bar.react';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import { OverlayContext } from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors';
-import { useStyles } from '../themes/colors';
-import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
-import type { VerticalBounds, LayoutCoordinates } from '../types/layout-types';
-import type { NativeMethods } from '../types/react-native';
-import { gestureJustEnded, animateTowards } from '../utils/animation-utils';
-import { formatDuration } from './video-utils';
+import ConnectedStatusBar from '../connected-status-bar.react.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
+import type {
+  VerticalBounds,
+  LayoutCoordinates,
+} from '../types/layout-types.js';
+import type { NativeMethods } from '../types/react-native.js';
+import { gestureJustEnded, animateTowards } from '../utils/animation-utils.js';
+import { formatDuration } from './video-utils.js';
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,

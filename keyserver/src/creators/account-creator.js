@@ -3,52 +3,52 @@
 import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 
-import ashoat from 'lib/facts/ashoat';
-import bots from 'lib/facts/bots';
-import genesis from 'lib/facts/genesis';
+import ashoat from 'lib/facts/ashoat.js';
+import bots from 'lib/facts/bots.js';
+import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
 import {
   validUsernameRegex,
   oldValidUsernameRegex,
-} from 'lib/shared/account-utils';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+} from 'lib/shared/account-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   RegisterResponse,
   RegisterRequest,
-} from 'lib/types/account-types';
+} from 'lib/types/account-types.js';
 import type {
   PlatformDetails,
   DeviceTokenUpdateRequest,
 } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types.js';
 import type { SIWESocialProof } from 'lib/types/siwe-types.js';
-import { threadTypes } from 'lib/types/thread-types';
-import { ServerError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
-import { reservedUsernamesSet } from 'lib/utils/reserved-users';
+import { threadTypes } from 'lib/types/thread-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
+import { reservedUsernamesSet } from 'lib/utils/reserved-users.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { deleteCookie } from '../deleters/cookie-deleters';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { dbQuery, SQL } from '../database/database.js';
+import { deleteCookie } from '../deleters/cookie-deleters.js';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchLoggedInUserInfo,
   fetchKnownUserInfos,
-} from '../fetchers/user-fetchers';
-import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
-import { createNewUserCookie, setNewSession } from '../session/cookies';
-import { createScriptViewer } from '../session/scripts';
-import type { Viewer } from '../session/viewer';
-import { updateThread } from '../updaters/thread-updaters';
+} from '../fetchers/user-fetchers.js';
+import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders.js';
+import { createNewUserCookie, setNewSession } from '../session/cookies.js';
+import { createScriptViewer } from '../session/scripts.js';
+import type { Viewer } from '../session/viewer.js';
+import { updateThread } from '../updaters/thread-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import createIDs from './id-creator';
-import createMessages from './message-creator';
+import createIDs from './id-creator.js';
+import createMessages from './message-creator.js';
 import {
   createThread,
   createPrivateThread,
   privateThreadDescription,
-} from './thread-creator';
+} from './thread-creator.js';
 
 const { commbot } = bots;
 

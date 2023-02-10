@@ -3,25 +3,25 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { logOut } from 'lib/actions/user-actions';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
+import { logOut } from 'lib/actions/user-actions.js';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { useSelector } from './redux/redux-utils';
+import { useSelector } from './redux/redux-utils.js';
 import {
   activeThreadSelector,
   webCalendarQuery,
-} from './selectors/nav-selectors';
+} from './selectors/nav-selectors.js';
 import {
   openSocketSelector,
   sessionIdentificationSelector,
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
-} from './selectors/socket-selectors';
+} from './selectors/socket-selectors.js';
 
 const WebSocket: React.ComponentType<BaseSocketProps> = React.memo<BaseSocketProps>(
   function WebSocket(props) {

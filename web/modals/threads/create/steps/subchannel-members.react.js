@@ -3,12 +3,12 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
-import { userStoreSearchIndex } from 'lib/selectors/user-selectors';
-import { useAncestorThreads } from 'lib/shared/ancestor-threads';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
+import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Search from '../../../../components/search.react';
-import MembersList from './subchannel-members-list.react';
+import Search from '../../../../components/search.react.js';
+import MembersList from './subchannel-members-list.react.js';
 import css from './subchannel-members.css';
 
 type SubchannelMembersProps = {

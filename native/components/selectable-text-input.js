@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
-import type { Selection } from 'lib/shared/typeahead-utils';
+import type { Selection } from 'lib/shared/typeahead-utils.js';
 
-import type { ClearableTextInputProps } from './clearable-text-input';
-import ClearableTextInput from './clearable-text-input.react';
+import type { ClearableTextInputProps } from './clearable-text-input.js';
+import ClearableTextInput from './clearable-text-input.react.js';
 
 export type SyncedSelectionData = {
   +text: string,

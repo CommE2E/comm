@@ -1,19 +1,19 @@
 // @flow
 
-import IonIcon from '@expo/vector-icons/Ionicons';
+import IonIcon from '@expo/vector-icons/Ionicons.js';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import { threadTypeDescriptions } from 'lib/shared/thread-utils';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types.js';
 
-import Button from '../../components/button.react';
-import Modal from '../../components/modal.react';
-import SWMansionIcon from '../../components/swmansion-icon.react';
-import type { RootNavigationProp } from '../../navigation/root-navigator.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-import { ComposeSubchannelRouteName } from '../../navigation/route-names';
-import { type Colors, useStyles, useColors } from '../../themes/colors';
+import Button from '../../components/button.react.js';
+import Modal from '../../components/modal.react.js';
+import SWMansionIcon from '../../components/swmansion-icon.react.js';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
+import { ComposeSubchannelRouteName } from '../../navigation/route-names.js';
+import { type Colors, useStyles, useColors } from '../../themes/colors.js';
 
 export type ComposeSubchannelModalParams = {
   +presentedFrom: string,

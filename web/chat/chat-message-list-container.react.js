@@ -2,31 +2,31 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import { useDispatch } from 'react-redux';
 
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
   useWatchThread,
   useExistingThreadInfoFinder,
   createPendingThread,
   threadIsPending,
-} from 'lib/shared/thread-utils';
-import { threadTypes } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
+} from 'lib/shared/thread-utils.js';
+import { threadTypes } from 'lib/types/thread-types.js';
+import type { AccountUserInfo } from 'lib/types/user-types.js';
 
-import { InputStateContext } from '../input/input-state';
-import { updateNavInfoActionType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
-import ChatInputBar from './chat-input-bar.react';
+import { InputStateContext } from '../input/input-state.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import ChatInputBar from './chat-input-bar.react.js';
 import css from './chat-message-list-container.css';
-import ChatMessageList from './chat-message-list.react';
-import ChatThreadComposer from './chat-thread-composer.react';
-import ThreadTopBar from './thread-top-bar.react';
+import ChatMessageList from './chat-message-list.react.js';
+import ChatThreadComposer from './chat-thread-composer.react.js';
+import ThreadTopBar from './thread-top-bar.react.js';
 
 type Props = {
   +activeChatThreadID: string,

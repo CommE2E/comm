@@ -1,24 +1,24 @@
 // @flow
 
 import type { PossiblyStaleNavigationState } from '@react-navigation/native';
-import _memoize from 'lodash/memoize';
+import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { createSelector } from 'reselect';
 
-import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
-import type { CalendarQuery } from 'lib/types/entry-types';
-import type { CalendarFilter } from 'lib/types/filter-types';
+import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
+import type { CalendarFilter } from 'lib/types/filter-types.js';
 
-import { useSelector } from '../redux/redux-utils';
-import type { NavPlusRedux } from '../types/selector-types';
-import type { GlobalTheme } from '../types/themes';
-import type { NavContextType } from './navigation-context';
-import { NavContext } from './navigation-context';
+import { useSelector } from '../redux/redux-utils.js';
+import type { NavPlusRedux } from '../types/selector-types.js';
+import type { GlobalTheme } from '../types/themes.js';
+import type { NavContextType } from './navigation-context.js';
+import { NavContext } from './navigation-context.js';
 import {
   getStateFromNavigatorRoute,
   getThreadIDFromRoute,
-} from './navigation-utils';
+} from './navigation-utils.js';
 import {
   AppRouteName,
   TabNavigatorRouteName,
@@ -32,7 +32,7 @@ import {
   chatRootModals,
   threadRoutes,
   CommunityDrawerNavigatorRouteName,
-} from './route-names';
+} from './route-names.js';
 
 const baseCreateIsForegroundSelector = (routeName: string) =>
   createSelector(

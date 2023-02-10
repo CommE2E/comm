@@ -21,13 +21,13 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, { EasingNode } from 'react-native-reanimated';
 
-import { values } from 'lib/utils/objects';
+import { values } from 'lib/utils/objects.js';
 
-import { isMessageTooltipKey } from '../chat/utils';
-import { OverlayContext } from './overlay-context';
-import OverlayRouter from './overlay-router';
-import type { OverlayRouterExtraNavigationHelpers } from './overlay-router';
-import { scrollBlockingModals, TabNavigatorRouteName } from './route-names';
+import { isMessageTooltipKey } from '../chat/utils.js';
+import { OverlayContext } from './overlay-context.js';
+import OverlayRouter from './overlay-router.js';
+import type { OverlayRouterExtraNavigationHelpers } from './overlay-router.js';
+import { scrollBlockingModals, TabNavigatorRouteName } from './route-names.js';
 
 export type OverlayNavigationHelpers<
   ParamList: ParamListBase = ParamListBase,

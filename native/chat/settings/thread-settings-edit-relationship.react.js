@@ -7,27 +7,27 @@ import { Alert, Text, View } from 'react-native';
 import {
   updateRelationships as serverUpdateRelationships,
   updateRelationshipsActionTypes,
-} from 'lib/actions/relationship-actions';
-import { useENSNames } from 'lib/hooks/ens-cache';
+} from 'lib/actions/relationship-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
 import {
   getRelationshipActionText,
   getRelationshipDispatchAction,
-} from 'lib/shared/relationship-utils';
-import { getSingleOtherUser } from 'lib/shared/thread-utils';
+} from 'lib/shared/relationship-utils.js';
+import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
 import {
   type RelationshipAction,
   type RelationshipButton,
-} from 'lib/types/relationship-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+} from 'lib/types/relationship-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../../components/button.react';
-import { useSelector } from '../../redux/redux-utils';
-import { useStyles, useColors } from '../../themes/colors';
-import type { ViewStyle } from '../../types/styles';
+import Button from '../../components/button.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { useStyles, useColors } from '../../themes/colors.js';
+import type { ViewStyle } from '../../types/styles.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

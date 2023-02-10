@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
 
-import Button from '../components/button.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { type Colors, useStyles, useColors } from '../themes/colors';
+import Button from '../components/button.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { type Colors, useStyles, useColors } from '../themes/colors.js';
 
 type BaseProps = {
   +dateString: string,

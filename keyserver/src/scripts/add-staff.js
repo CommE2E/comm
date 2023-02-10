@@ -1,10 +1,10 @@
 // @flow
 
-import bots from 'lib/facts/bots';
+import bots from 'lib/facts/bots.js';
 
-import { createScriptViewer } from '../session/scripts';
-import { updateThread } from '../updaters/thread-updaters';
-import { main } from './utils';
+import { createScriptViewer } from '../session/scripts.js';
+import { updateThread } from '../updaters/thread-updaters.js';
+import { main } from './utils.js';
 
 const newStaffIDs = ['518252'];
 

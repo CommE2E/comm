@@ -2,10 +2,10 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import _filter from 'lodash/fp/filter';
-import _flow from 'lodash/fp/flow';
-import _map from 'lodash/fp/map';
-import _unionBy from 'lodash/fp/unionBy';
+import _filter from 'lodash/fp/filter.js';
+import _flow from 'lodash/fp/flow.js';
+import _map from 'lodash/fp/map.js';
+import _unionBy from 'lodash/fp/unionBy.js';
 import * as React from 'react';
 
 import {
@@ -13,31 +13,34 @@ import {
   fetchEntries,
   fetchRevisionsForEntryActionTypes,
   fetchRevisionsForEntry,
-} from 'lib/actions/entry-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
-import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+} from 'lib/actions/entry-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   EntryInfo,
   CalendarQuery,
   FetchEntryInfosResult,
-} from 'lib/types/entry-types';
-import { type CalendarFilter } from 'lib/types/filter-types';
-import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/types/entry-types.js';
+import { type CalendarFilter } from 'lib/types/filter-types.js';
+import type {
+  HistoryMode,
+  HistoryRevisionInfo,
+} from 'lib/types/history-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { prettyDateWithoutDay } from 'lib/utils/date-utils';
+} from 'lib/utils/action-utils.js';
+import { prettyDateWithoutDay } from 'lib/utils/date-utils.js';
 
-import LoadingIndicator from '../../loading-indicator.react';
-import { useSelector } from '../../redux/redux-utils';
-import { allDaysToEntries } from '../../selectors/entry-selectors';
-import Modal from '../modal.react';
-import HistoryEntry from './history-entry.react';
-import HistoryRevision from './history-revision.react';
+import LoadingIndicator from '../../loading-indicator.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { allDaysToEntries } from '../../selectors/entry-selectors.js';
+import Modal from '../modal.react.js';
+import HistoryEntry from './history-entry.react.js';
+import HistoryRevision from './history-revision.react.js';
 import css from './history.css';
 
 type BaseProps = {

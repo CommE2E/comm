@@ -6,18 +6,18 @@ import * as React from 'react';
 import {
   sendReactionMessage,
   sendReactionMessageActionTypes,
-} from 'lib/actions/message-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
-import { messageTypes } from 'lib/types/message-types';
-import type { RawReactionMessageInfo } from 'lib/types/messages/reaction';
+} from 'lib/actions/message-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
-import { cloneError } from 'lib/utils/errors';
+} from 'lib/utils/action-utils.js';
+import { cloneError } from 'lib/utils/errors.js';
 
-import Alert from '../modals/alert.react';
-import { useSelector } from '../redux/redux-utils';
+import Alert from '../modals/alert.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 function useSendReaction(
   messageID: ?string,

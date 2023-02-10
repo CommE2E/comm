@@ -3,9 +3,12 @@
 import invariant from 'invariant';
 import t from 'tcomb';
 
-import { onlyOneEmojiRegex } from 'lib/shared/emojis';
-import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
-import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
+import { onlyOneEmojiRegex } from 'lib/shared/emojis.js';
+import {
+  createMediaMessageData,
+  trimMessage,
+} from 'lib/shared/message-utils.js';
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import type { Media } from 'lib/types/media-types.js';
 import {
   messageTypes,
@@ -16,33 +19,37 @@ import {
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
   type SendMessageResponse,
-} from 'lib/types/message-types';
-import type { ReactionMessageData } from 'lib/types/messages/reaction';
-import type { TextMessageData } from 'lib/types/messages/text';
-import { threadPermissions } from 'lib/types/thread-types';
-import { ServerError } from 'lib/utils/errors';
-import { tRegex, tShape, tMediaMessageMedia } from 'lib/utils/validation-utils';
+} from 'lib/types/message-types.js';
+import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
+import type { TextMessageData } from 'lib/types/messages/text.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import {
+  tRegex,
+  tShape,
+  tMediaMessageMedia,
+} from 'lib/utils/validation-utils.js';
 
-import createMessages from '../creators/message-creator';
-import { SQL } from '../database/database';
+import createMessages from '../creators/message-creator.js';
+import { SQL } from '../database/database.js';
 import {
   fetchMessageInfos,
   fetchMessageInfoForLocalID,
   fetchMessageInfoByID,
-} from '../fetchers/message-fetchers';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
-import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
+} from '../fetchers/message-fetchers.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
   fetchMedia,
   fetchMediaFromMediaMessageContent,
-} from '../fetchers/upload-fetchers';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
-import type { Viewer } from '../session/viewer';
+} from '../fetchers/upload-fetchers.js';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
 import {
   assignMedia,
   assignMessageContainerToMedia,
-} from '../updaters/upload-updaters';
-import { validateInput } from '../utils/validation-utils';
+} from '../updaters/upload-updaters.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,

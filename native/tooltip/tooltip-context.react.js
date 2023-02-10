@@ -4,7 +4,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
-import type { TooltipItemBaseProps } from './tooltip-item.react';
+import type { TooltipItemBaseProps } from './tooltip-item.react.js';
 
 type RegisterOptionInput = {
   ...TooltipItemBaseProps,

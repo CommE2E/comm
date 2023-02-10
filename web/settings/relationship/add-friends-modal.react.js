@@ -7,7 +7,7 @@ import {
   userRelationshipStatus,
 } from 'lib/types/relationship-types.js';
 
-import AddUsersListModal from './add-users-list-modal.react';
+import AddUsersListModal from './add-users-list-modal.react.js';
 
 const excludedStatuses = new Set([
   userRelationshipStatus.FRIEND,

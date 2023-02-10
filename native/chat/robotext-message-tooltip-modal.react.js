@@ -2,16 +2,16 @@
 
 import * as React from 'react';
 
-import SWMansionIcon from '../components/swmansion-icon.react';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   createTooltip,
   type TooltipParams,
   type BaseTooltipProps,
   type TooltipMenuProps,
-} from '../tooltip/tooltip.react';
-import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
-import RobotextMessageTooltipButton from './robotext-message-tooltip-button.react';
-import { useAnimatedNavigateToSidebar } from './sidebar-navigation';
+} from '../tooltip/tooltip.react.js';
+import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import RobotextMessageTooltipButton from './robotext-message-tooltip-button.react.js';
+import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
 
 export type RobotextMessageTooltipModalParams = TooltipParams<{
   +item: ChatRobotextMessageInfoItemWithHeight,

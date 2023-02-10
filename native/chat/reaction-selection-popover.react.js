@@ -3,13 +3,13 @@
 import * as React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 
-import SWMansionIcon from '../components/swmansion-icon.react';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import type { TooltipModalParamList } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
-import { useTooltipActions } from '../tooltip/tooltip-hooks';
-import type { TooltipRoute } from '../tooltip/tooltip.react';
-import type { ViewStyle } from '../types/styles';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
+import type { TooltipModalParamList } from '../navigation/route-names.js';
+import { useStyles } from '../themes/colors.js';
+import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
+import type { TooltipRoute } from '../tooltip/tooltip.react.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type Props<RouteName: $Keys<TooltipModalParamList>> = {
   +navigation: AppNavigationProp<RouteName>,

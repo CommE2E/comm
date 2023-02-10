@@ -3,8 +3,8 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import LoadingIndicator from '../loading-indicator.react';
-import Button from './button.react';
+import LoadingIndicator from '../loading-indicator.react.js';
+import Button from './button.react.js';
 import css from './stepper.css';
 
 export type ButtonProps = {

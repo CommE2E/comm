@@ -10,18 +10,18 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import type { ThreadSearchState } from 'lib/hooks/search-threads';
-import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
-import type { SetState } from 'lib/types/hook-types';
-import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
+import type { ThreadSearchState } from 'lib/hooks/search-threads.js';
+import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
+import type { SetState } from 'lib/types/hook-types.js';
+import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
-import Modal from '../components/modal.react';
-import Search from '../components/search.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import ThreadPill from '../components/thread-pill.react';
-import { useIndicatorStyle, useStyles } from '../themes/colors';
-import { waitForModalInputFocus } from '../utils/timers';
-import { useNavigateToThread } from './message-list-types';
+import Modal from '../components/modal.react.js';
+import Search from '../components/search.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import ThreadPill from '../components/thread-pill.react.js';
+import { useIndicatorStyle, useStyles } from '../themes/colors.js';
+import { waitForModalInputFocus } from '../utils/timers.js';
+import { useNavigateToThread } from './message-list-types.js';
 
 function keyExtractor(sidebarInfo: SidebarInfo | ChatThreadItem) {
   return sidebarInfo.threadInfo.id;

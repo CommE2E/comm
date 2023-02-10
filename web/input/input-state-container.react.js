@@ -2,12 +2,12 @@
 
 import { detect as detectBrowser } from 'detect-browser';
 import invariant from 'invariant';
-import _groupBy from 'lodash/fp/groupBy';
-import _keyBy from 'lodash/fp/keyBy';
-import _omit from 'lodash/fp/omit';
-import _partition from 'lodash/fp/partition';
-import _sortBy from 'lodash/fp/sortBy';
-import _memoize from 'lodash/memoize';
+import _groupBy from 'lodash/fp/groupBy.js';
+import _keyBy from 'lodash/fp/keyBy.js';
+import _omit from 'lodash/fp/omit.js';
+import _partition from 'lodash/fp/partition.js';
+import _sortBy from 'lodash/fp/sortBy.js';
+import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -18,74 +18,74 @@ import {
   legacySendMultimediaMessage,
   sendTextMessageActionTypes,
   sendTextMessage,
-} from 'lib/actions/message-actions';
-import { queueReportsActionType } from 'lib/actions/report-actions';
-import { newThread } from 'lib/actions/thread-actions';
+} from 'lib/actions/message-actions.js';
+import { queueReportsActionType } from 'lib/actions/report-actions.js';
+import { newThread } from 'lib/actions/thread-actions.js';
 import {
   uploadMultimedia,
   updateMultimediaMessageMediaActionType,
   deleteUpload,
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
-} from 'lib/actions/upload-actions';
+} from 'lib/actions/upload-actions.js';
 import {
   useModalContext,
   type PushModal,
-} from 'lib/components/modal-provider.react';
-import { getNextLocalUploadID } from 'lib/media/media-utils';
-import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
+} from 'lib/components/modal-provider.react.js';
+import { getNextLocalUploadID } from 'lib/media/media-utils.js';
+import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import {
   createMediaMessageInfo,
   localIDPrefix,
-} from 'lib/shared/message-utils';
+} from 'lib/shared/message-utils.js';
 import {
   createRealThreadFromPendingThread,
   draftKeyFromThreadID,
   threadIsPending,
-} from 'lib/shared/thread-utils';
-import type { CalendarQuery } from 'lib/types/entry-types';
+} from 'lib/shared/thread-utils.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   UploadMultimediaResult,
   MediaMissionStep,
   MediaMissionFailure,
   MediaMissionResult,
   MediaMission,
-} from 'lib/types/media-types';
+} from 'lib/types/media-types.js';
 import {
   messageTypes,
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
-} from 'lib/types/message-types';
-import type { RawImagesMessageInfo } from 'lib/types/messages/images';
-import type { RawMediaMessageInfo } from 'lib/types/messages/media';
-import type { RawTextMessageInfo } from 'lib/types/messages/text';
-import type { Dispatch } from 'lib/types/redux-types';
-import { reportTypes } from 'lib/types/report-types';
+} from 'lib/types/message-types.js';
+import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
+import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
+import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { reportTypes } from 'lib/types/report-types.js';
 import type {
   ClientNewThreadRequest,
   NewThreadResult,
   ThreadInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { getConfig } from 'lib/utils/config';
-import { getMessageForException, cloneError } from 'lib/utils/errors';
+} from 'lib/utils/action-utils.js';
+import { getConfig } from 'lib/utils/config.js';
+import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 
-import { validateFile, preloadImage } from '../media/media-utils';
-import InvalidUploadModal from '../modals/chat/invalid-upload.react';
-import { useSelector } from '../redux/redux-utils';
-import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
+import { validateFile, preloadImage } from '../media/media-utils.js';
+import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 import {
   type PendingMultimediaUpload,
   type InputState,
   type TypeaheadState,
   InputStateContext,
-} from './input-state';
+} from './input-state.js';
 
 const browser = detectBrowser();
 const exifRotate =

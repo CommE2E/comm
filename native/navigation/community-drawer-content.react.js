@@ -8,19 +8,19 @@ import { useSelector } from 'react-redux';
 import {
   childThreadInfos,
   communityThreadSelector,
-} from 'lib/selectors/thread-selectors';
-import { threadIsChannel } from 'lib/shared/thread-utils';
+} from 'lib/selectors/thread-selectors.js';
+import { threadIsChannel } from 'lib/shared/thread-utils.js';
 import {
   type ThreadInfo,
   type ResolvedThreadInfo,
   communitySubthreads,
-} from 'lib/types/thread-types';
-import { useResolvedThreadInfos } from 'lib/utils/entity-helpers';
+} from 'lib/types/thread-types.js';
+import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
-import { useNavigateToThread } from '../chat/message-list-types';
-import { useStyles } from '../themes/colors';
-import type { TextStyle } from '../types/styles';
-import CommunityDrawerItemCommunity from './community-drawer-item-community.react';
+import { useNavigateToThread } from '../chat/message-list-types.js';
+import { useStyles } from '../themes/colors.js';
+import type { TextStyle } from '../types/styles.js';
+import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
 
 const maxDepth = 2;
 const safeAreaEdges = Platform.select({

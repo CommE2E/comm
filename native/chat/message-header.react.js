@@ -3,14 +3,14 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { useStringForUser } from 'lib/hooks/ens-cache';
+import { useStringForUser } from 'lib/hooks/ens-cache.js';
 
-import { SingleLine } from '../components/single-line.react';
-import { useStyles } from '../themes/colors';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
-import { clusterEndHeight } from './chat-constants';
-import type { DisplayType } from './timestamp.react';
-import { Timestamp, timestampHeight } from './timestamp.react';
+import { SingleLine } from '../components/single-line.react.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { clusterEndHeight } from './chat-constants.js';
+import type { DisplayType } from './timestamp.react.js';
+import { Timestamp, timestampHeight } from './timestamp.react.js';
 
 type Props = {
   +item: ChatMessageInfoItemWithHeight,

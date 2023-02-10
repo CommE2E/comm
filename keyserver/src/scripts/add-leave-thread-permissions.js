@@ -1,10 +1,10 @@
 // @flow
 
-import { threadPermissions, threadTypes } from 'lib/types/thread-types';
+import { threadPermissions, threadTypes } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { recalculateAllThreadPermissions } from '../updaters/thread-permission-updaters';
-import { endScript } from './utils';
+import { dbQuery, SQL } from '../database/database.js';
+import { recalculateAllThreadPermissions } from '../updaters/thread-permission-updaters.js';
+import { endScript } from './utils.js';
 
 async function main() {
   try {
