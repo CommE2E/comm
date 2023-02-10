@@ -16,10 +16,10 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import type { MediaType } from 'lib/types/media-types.js';
 
-import Button from '../components/button.react.js';
-import { type PendingMultimediaUpload } from '../input/input-state.js';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react.js';
+import Button from '../components/button.react.js';
+import { type PendingMultimediaUpload } from '../input/input-state.js';
 
 type BaseProps = {
   +uri: string,

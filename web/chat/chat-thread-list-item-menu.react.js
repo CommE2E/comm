@@ -7,9 +7,9 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import css from './chat-thread-list-item-menu.css';
 import Button from '../components/button.react.js';
 import { useThreadIsActive } from '../selectors/thread-selectors.js';
-import css from './chat-thread-list-item-menu.css';
 
 type Props = {
   +threadInfo: ThreadInfo,

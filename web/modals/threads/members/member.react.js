@@ -26,10 +26,10 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import css from './members-modal.css';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
-import css from './members-modal.css';
 
 type Props = {
   +memberInfo: RelativeMemberInfo,

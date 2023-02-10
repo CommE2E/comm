@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { useStyles } from '../themes/colors.js';
 import CommunityDrawerItem from './community-drawer-item.react.js';
 import type { DrawerItemProps } from './community-drawer-item.react.js';
+import { useStyles } from '../themes/colors.js';
 
 function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
   const styles = useStyles(unboundStyles);

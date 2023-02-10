@@ -27,8 +27,6 @@ import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
-import { activeThreadSelector } from '../selectors/nav-selectors.js';
-import { type NavInfo } from '../types/nav-types.js';
 import {
   updateWindowActiveActionType,
   setDeviceIDActionType,
@@ -42,6 +40,8 @@ import {
   setPrimaryIdentityPublicKey,
 } from './primary-identity-public-key-reducer.js';
 import { getVisibility } from './visibility.js';
+import { activeThreadSelector } from '../selectors/nav-selectors.js';
+import { type NavInfo } from '../types/nav-types.js';
 
 export type WindowDimensions = { width: number, height: number };
 export type AppState = {

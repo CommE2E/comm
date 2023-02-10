@@ -6,9 +6,9 @@ import { useDispatch } from 'react-redux';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
+import css from './community-picker.css';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import css from './community-picker.css';
 
 function CommunityPicker(): React.Node {
   const dispatch = useDispatch();

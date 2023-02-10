@@ -12,12 +12,12 @@ import {
   type EntityText,
 } from 'lib/utils/entity-text.js';
 
+import { useNavigateToThread } from './message-list-types.js';
 import Markdown from '../markdown/markdown.react.js';
 import { inlineMarkdownRules } from '../markdown/rules.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOverlayStyles } from '../themes/colors.js';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
-import { useNavigateToThread } from './message-list-types.js';
 
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: EntityText,

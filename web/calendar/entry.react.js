@@ -46,6 +46,7 @@ import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import css from './calendar.css';
 import LoadingIndicator from '../loading-indicator.react.js';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react.js';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react.js';
@@ -53,7 +54,6 @@ import HistoryModal from '../modals/history/history-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 import { HistoryVector, DeleteVector } from '../vectors.react.js';
-import css from './calendar.css';
 
 type BaseProps = {
   +innerRef: (key: string, me: Entry) => void,

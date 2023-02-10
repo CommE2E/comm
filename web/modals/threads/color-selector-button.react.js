@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
-import Button from '../../components/button.react.js';
 import css from './color-selector-button.css';
+import Button from '../../components/button.react.js';
 
 type ColorSelectorButtonProps = {
   +color: string,

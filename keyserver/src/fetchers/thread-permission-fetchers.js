@@ -18,10 +18,10 @@ import type {
   ThreadRolePermissionsBlob,
 } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database.js';
-import type { Viewer } from '../session/viewer.js';
 import { fetchThreadInfos } from './thread-fetchers.js';
 import { fetchKnownUserInfos } from './user-fetchers.js';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 // Note that it's risky to verify permissions by inspecting the blob directly.
 // There are other factors that can override permissions in the permissions

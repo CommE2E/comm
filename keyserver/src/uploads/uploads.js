@@ -12,6 +12,7 @@ import type {
 } from 'lib/types/media-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import { validateAndConvert } from './media-utils.js';
 import createUploads from '../creators/upload-creator.js';
 import { deleteUpload } from '../deleters/upload-deleters.js';
 import {
@@ -21,7 +22,6 @@ import {
 } from '../fetchers/upload-fetchers.js';
 import type { MulterRequest } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
-import { validateAndConvert } from './media-utils.js';
 
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');

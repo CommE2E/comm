@@ -25,6 +25,7 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import { setNativeCredentials } from '../account/native-credentials.js';
 import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
@@ -32,7 +33,6 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { GlobalTheme } from '../types/themes.js';
-import type { ProfileNavigationProp } from './profile.react.js';
 
 type BaseProps = {
   +navigation: ProfileNavigationProp<'EditPassword'>,

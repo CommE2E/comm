@@ -10,8 +10,8 @@ import {
   threadTypes,
 } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database.js';
 import createIDs from './id-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 type InitialRoles = {
   default: RoleInfo,

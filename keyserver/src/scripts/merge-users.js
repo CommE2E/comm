@@ -4,6 +4,7 @@ import type { Shape } from 'lib/types/core.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { type UpdateData, updateTypes } from 'lib/types/update-types.js';
 
+import { endScript } from './utils.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
@@ -15,7 +16,6 @@ import {
   commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
-import { endScript } from './utils.js';
 
 async function main() {
   try {

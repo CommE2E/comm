@@ -6,10 +6,10 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types.js';
 
+import css from './subchannel-settings.css';
 import CommIcon from '../../../../CommIcon.react.js';
 import EnumSettingsOption from '../../../../components/enum-settings-option.react.js';
 import Input from '../../../input.react.js';
-import css from './subchannel-settings.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
 

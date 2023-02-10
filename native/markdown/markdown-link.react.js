@@ -6,13 +6,13 @@ import { Text, Linking, Alert } from 'react-native';
 
 import { normalizeURL } from 'lib/utils/url-utils.js';
 
-import { MessagePressResponderContext } from '../chat/message-press-responder-context.js';
-import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
 import {
   MarkdownContext,
   type MarkdownContextType,
 } from './markdown-context.js';
 import { MarkdownSpoilerContext } from './markdown-spoiler-context.js';
+import { MessagePressResponderContext } from '../chat/message-press-responder-context.js';
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
 
 function useDisplayLinkPrompt(
   inputURL: string,

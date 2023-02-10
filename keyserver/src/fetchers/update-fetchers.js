@@ -10,8 +10,8 @@ import {
 } from 'lib/types/update-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
-import type { ViewerInfo } from '../creators/update-creator.js';
 import {
+  type ViewerInfo,
   type FetchUpdatesResult,
   fetchUpdateInfosWithRawUpdateInfos,
 } from '../creators/update-creator.js';

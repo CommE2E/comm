@@ -7,9 +7,9 @@ import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Search from '../../../../components/search.react.js';
 import MembersList from './subchannel-members-list.react.js';
 import css from './subchannel-members.css';
+import Search from '../../../../components/search.react.js';
 
 type SubchannelMembersProps = {
   +parentThreadInfo: ThreadInfo,

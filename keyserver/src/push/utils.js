@@ -8,13 +8,13 @@ import invariant from 'invariant';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database.js';
 import {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
   getAPNProvider,
   getFCMProvider,
 } from './providers.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 const fcmTokenInvalidationErrors = new Set([
   'messaging/registration-token-not-registered',

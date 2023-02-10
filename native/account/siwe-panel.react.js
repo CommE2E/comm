@@ -20,12 +20,12 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import type { LoggedOutMode } from './logged-out-modal.react.js';
 import { commCoreModule } from '../native-modules.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
-import type { LoggedOutMode } from './logged-out-modal.react.js';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 

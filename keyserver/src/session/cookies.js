@@ -25,6 +25,8 @@ import type { UserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import { Viewer } from './viewer.js';
+import type { AnonymousViewerData, UserViewerData } from './viewer.js';
 import createIDs from '../creators/id-creator.js';
 import { createSession } from '../creators/session-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
@@ -37,8 +39,6 @@ import {
   type AppURLFacts,
   getAppURLFactsFromRequestURL,
 } from '../utils/urls.js';
-import { Viewer } from './viewer.js';
-import type { AnonymousViewerData, UserViewerData } from './viewer.js';
 
 function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();

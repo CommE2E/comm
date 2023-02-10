@@ -23,6 +23,10 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import ChatList from './chat-list.react.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import { Message } from './message.react.js';
+import RelationshipPrompt from './relationship-prompt.react.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import {
   type KeyboardState,
@@ -46,10 +50,6 @@ import type {
 } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
 import type { ViewableItemsChange } from '../types/react-native.js';
-import ChatList from './chat-list.react.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import { Message } from './message.react.js';
-import RelationshipPrompt from './relationship-prompt.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

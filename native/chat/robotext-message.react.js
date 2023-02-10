@@ -7,6 +7,12 @@ import { View } from 'react-native';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
 
+import { inlineEngagementCenterStyle } from './chat-constants.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import { InlineEngagement } from './inline-engagement.react.js';
+import { InnerRobotextMessage } from './inner-robotext-message.react.js';
+import { Timestamp } from './timestamp.react.js';
+import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils.js';
 import { ChatContext } from '../chat/chat-context.js';
 import { KeyboardContext } from '../keyboard/keyboard-state.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -17,12 +23,6 @@ import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
 import { AnimatedView } from '../types/styles.js';
-import { inlineEngagementCenterStyle } from './chat-constants.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import { InlineEngagement } from './inline-engagement.react.js';
-import { InnerRobotextMessage } from './inner-robotext-message.react.js';
-import { Timestamp } from './timestamp.react.js';
-import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils.js';
 
 type Props = {
   ...React.ElementConfig<typeof View>,

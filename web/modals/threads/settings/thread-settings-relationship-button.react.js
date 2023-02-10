@@ -29,9 +29,9 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import css from './thread-settings-relationship-tab.css';
 import Button, { buttonThemes } from '../../../components/button.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
-import css from './thread-settings-relationship-tab.css';
 
 const loadingStatusSelector = createLoadingStatusSelector(
   updateRelationshipsActionTypes,

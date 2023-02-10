@@ -35,13 +35,13 @@ import {
 } from 'lib/utils/action-utils.js';
 import { prettyDateWithoutDay } from 'lib/utils/date-utils.js';
 
+import HistoryEntry from './history-entry.react.js';
+import HistoryRevision from './history-revision.react.js';
+import css from './history.css';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { allDaysToEntries } from '../../selectors/entry-selectors.js';
 import Modal from '../modal.react.js';
-import HistoryEntry from './history-entry.react.js';
-import HistoryRevision from './history-revision.react.js';
-import css from './history.css';
 
 type BaseProps = {
   +mode: HistoryMode,

@@ -4,10 +4,10 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 
-import Button from '../components/button.react.js';
-import electron from '../electron.js';
 import Modal from './modal.react.js';
 import css from './update-modal.css';
+import Button from '../components/button.react.js';
+import electron from '../electron.js';
 
 type Props = {
   +title: string,

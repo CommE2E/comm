@@ -3,6 +3,9 @@
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
+import { backupDB } from './backups.js';
+import { createDailyUpdatesThread } from './daily-updates.js';
+import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
 import { deleteExpiredCookies } from '../deleters/cookie-deleters.js';
 import { deleteOrphanedDays } from '../deleters/day-deleters.js';
@@ -20,9 +23,6 @@ import { deleteStaleSIWENonceEntries } from '../deleters/siwe-nonce-deleters.js'
 import { deleteInaccessibleThreads } from '../deleters/thread-deleters.js';
 import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
-import { backupDB } from './backups.js';
-import { createDailyUpdatesThread } from './daily-updates.js';
-import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(

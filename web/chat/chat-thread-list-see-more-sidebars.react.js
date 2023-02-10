@@ -7,8 +7,8 @@ import { IoIosMore } from 'react-icons/io';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react.js';
 import css from './chat-thread-list.css';
+import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

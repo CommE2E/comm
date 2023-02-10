@@ -15,11 +15,11 @@ import {
 } from 'lib/types/relationship-types.js';
 import { getAllTuples } from 'lib/utils/array.js';
 
+import { createUpdates } from './update-creator.js';
 import {
   updateUndirectedRelationships,
   updateDatasForUserPairs,
 } from '../updaters/relationship-updaters.js';
-import { createUpdates } from './update-creator.js';
 
 type QueryResult = {
   +thread: number,

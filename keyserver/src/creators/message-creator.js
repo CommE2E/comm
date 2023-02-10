@@ -22,6 +22,9 @@ import { threadPermissions } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import createIDs from './id-creator.js';
+import type { UpdatesForCurrentSession } from './update-creator.js';
+import { createUpdates } from './update-creator.js';
 import {
   dbQuery,
   SQL,
@@ -40,9 +43,6 @@ import type { Viewer } from '../session/viewer.js';
 import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times.js';
 import { publisher } from '../socket/redis.js';
 import { creationString } from '../utils/idempotent.js';
-import createIDs from './id-creator.js';
-import type { UpdatesForCurrentSession } from './update-creator.js';
-import { createUpdates } from './update-creator.js';
 
 type UserThreadInfo = {
   +devices: Map<

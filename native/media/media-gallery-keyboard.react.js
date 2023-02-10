@@ -24,6 +24,9 @@ import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { MediaLibrarySelection } from 'lib/types/media-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import { getCompatibleMediaURI } from './identifier-utils.js';
+import MediaGalleryMedia from './media-gallery-media.react.js';
+import SendMediaButton from './send-media-button.react.js';
 import Button from '../components/button.react.js';
 import type { DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { store } from '../redux/redux-setup.js';
@@ -34,9 +37,6 @@ import type {
   ViewableItemsChange,
 } from '../types/react-native.js';
 import type { ViewStyle } from '../types/styles.js';
-import { getCompatibleMediaURI } from './identifier-utils.js';
-import MediaGalleryMedia from './media-gallery-media.react.js';
-import SendMediaButton from './send-media-button.react.js';
 
 const animationSpec = {
   duration: 400,

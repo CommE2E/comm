@@ -8,8 +8,6 @@ import { messageID } from 'lib/shared/message-utils.js';
 import { messageTypes, type MessageType } from 'lib/types/message-types.js';
 import { entityTextToRawString } from 'lib/utils/entity-text.js';
 
-import NodeHeightMeasurer from '../components/node-height-measurer.react.js';
-import { InputStateContext } from '../input/input-state.js';
 import type { MeasurementTask } from './chat-context-provider.react.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react.js';
@@ -17,6 +15,8 @@ import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.r
 import { MessageListContextProvider } from './message-list-types.js';
 import { multimediaMessageContentSizes } from './multimedia-message-utils.js';
 import { chatMessageItemKey } from './utils.js';
+import NodeHeightMeasurer from '../components/node-height-measurer.react.js';
+import { InputStateContext } from '../input/input-state.js';
 
 type Props = {
   +measurement: MeasurementTask,

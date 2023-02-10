@@ -5,11 +5,11 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { useSelector } from '../redux/redux-utils.js';
-import { useOverlayStyles } from '../themes/colors.js';
 import type { AppNavigationProp } from './app-navigator.react.js';
 import { OverlayContext } from './overlay-context.js';
 import type { NavigationRoute } from './route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useOverlayStyles } from '../themes/colors.js';
 
 export type ActionResultModalParams = {
   +message: string,

@@ -33,6 +33,7 @@ import type { PhotoCapture } from 'lib/types/media-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import SendMediaButton from './send-media-button.react.js';
 import ContentLoading from '../components/content-loading.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
@@ -54,7 +55,6 @@ import {
   type AnimatedViewStyle,
 } from '../types/styles.js';
 import { clamp, gestureJustEnded } from '../utils/animation-utils.js';
-import SendMediaButton from './send-media-button.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

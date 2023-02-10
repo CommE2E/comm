@@ -21,8 +21,8 @@ import {
   type MessageStore,
   messageTypes,
   type ClientDBMessageStoreOperation,
+  type ClientDBMessageInfo,
 } from 'lib/types/message-types.js';
-import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -30,13 +30,13 @@ import {
 } from 'lib/utils/message-ops-utils.js';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
+import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
+import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultGlobalThemeInfo } from '../types/themes.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
-import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
-import type { AppState } from './state-types.js';
 
 const migrations = {
   [1]: (state: AppState) => ({

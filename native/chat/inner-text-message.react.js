@@ -6,11 +6,6 @@ import Animated from 'react-native-reanimated';
 
 import { colorIsDark } from 'lib/shared/thread-utils.js';
 
-import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
-import Markdown from '../markdown/markdown.react.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { useColors, colors } from '../themes/colors.js';
-import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { useTextMessageMarkdownRules } from './message-list-types.js';
 import {
@@ -22,6 +17,11 @@ import {
   TextMessageMarkdownContext,
   useTextMessageMarkdown,
 } from './text-message-markdown-context.js';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
+import Markdown from '../markdown/markdown.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors, colors } from '../themes/colors.js';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;

@@ -22,12 +22,12 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import Action from '../components/action-row.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import type { ProfileNavigationProp } from './profile.react.js';
 
 const CheckIcon = () => (
   <SWMansionIcon

@@ -36,8 +36,8 @@ import {
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
+  type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
@@ -45,6 +45,8 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import css from './chat-input-bar.css';
+import TypeaheadTooltip from './typeahead-tooltip.react.js';
 import Button from '../components/button.react.js';
 import {
   type InputState,
@@ -56,8 +58,6 @@ import Multimedia from '../media/multimedia.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 import { webTypeaheadRegex } from '../utils/typeahead-utils.js';
-import css from './chat-input-bar.css';
-import TypeaheadTooltip from './typeahead-tooltip.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

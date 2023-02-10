@@ -24,8 +24,6 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { useIsReportEnabled } from 'lib/utils/report-utils.js';
 
-import { displayActionResultModal } from '../navigation/action-result-modal.js';
-import { requestAndroidPermission } from '../utils/android-permissions.js';
 import { fetchBlob } from './blob-utils.js';
 import {
   fetchAssetInfo,
@@ -38,6 +36,8 @@ import {
   temporaryDirectoryPath,
 } from './file-utils.js';
 import { getMediaLibraryIdentifier } from './identifier-utils.js';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import { requestAndroidPermission } from '../utils/android-permissions.js';
 
 export type IntentionalSaveMedia = (
   uri: string,

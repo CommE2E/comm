@@ -6,8 +6,8 @@ import { View, Image, StyleSheet } from 'react-native';
 
 import { type MediaInfo } from 'lib/types/media-types.js';
 
-import { type InputState, InputStateContext } from '../input/input-state.js';
 import RemoteImage from './remote-image.react.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
 
 type BaseProps = {
   +mediaInfo: MediaInfo,

@@ -6,11 +6,11 @@ import { saveMessagesActionType } from 'lib/actions/message-actions.js';
 import type { Shape } from 'lib/types/core.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
 
+import type { DimensionsInfo } from './dimensions-updater.react.js';
+import type { AppState } from './state-types.js';
 import type { DeviceCameraInfo } from '../types/camera.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
 import type { GlobalThemeInfo } from '../types/themes.js';
-import type { DimensionsInfo } from './dimensions-updater.react.js';
-import type { AppState } from './state-types.js';
 
 export const resetUserStateActionType = 'RESET_USER_STATE';
 export const recordNotifPermissionAlertActionType =

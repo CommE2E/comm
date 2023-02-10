@@ -5,11 +5,11 @@ import mysql from 'mysql2';
 import mysqlPromise from 'mysql2/promise.js';
 import SQL from 'sql-template-strings';
 
-import { getScriptContext } from '../scripts/script-context.js';
 import { connectionLimit, queryWarnTime } from './consts.js';
 import { getDBConfig } from './db-config.js';
 import DatabaseMonitor from './monitor.js';
 import type { Pool, SQLOrString, SQLStatementType } from './types.js';
+import { getScriptContext } from '../scripts/script-context.js';
 
 const SQLStatement: SQLStatementType = SQL.SQLStatement;
 

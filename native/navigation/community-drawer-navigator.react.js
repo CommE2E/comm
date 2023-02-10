@@ -8,7 +8,6 @@ import {
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 
-import { useStyles } from '../themes/colors.js';
 import type { AppNavigationProp } from './app-navigator.react.js';
 import CommunityDrawerContent from './community-drawer-content.react.js';
 import { drawerSwipeEnabledSelector } from './nav-selectors.js';
@@ -20,6 +19,7 @@ import type {
   CommunityDrawerParamList,
 } from './route-names.js';
 import TabNavigator from './tab-navigator.react.js';
+import { useStyles } from '../themes/colors.js';
 
 const communityDrawerContent = () => <CommunityDrawerContent />;
 

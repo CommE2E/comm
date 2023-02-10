@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import Search from '../components/search.react.js';
 import Modal, { type ModalOverridableProps } from './modal.react.js';
 import css from './search-modal.css';
+import Search from '../components/search.react.js';
 
 type Props = {
   ...ModalOverridableProps,

@@ -24,6 +24,7 @@ import {
 import { dateString } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import { checkIfThreadIsBlocked } from './thread-permission-fetchers.js';
 import {
   dbQuery,
   SQL,
@@ -33,7 +34,6 @@ import {
 import type { SQLStatementType } from '../database/types.js';
 import type { Viewer } from '../session/viewer.js';
 import { creationString } from '../utils/idempotent.js';
-import { checkIfThreadIsBlocked } from './thread-permission-fetchers.js';
 
 async function fetchEntryInfo(
   viewer: Viewer,

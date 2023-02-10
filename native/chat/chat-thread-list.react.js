@@ -34,6 +34,20 @@ import { threadTypes } from 'lib/types/thread-types.js';
 import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
+import {
+  ChatThreadListItem,
+  chatThreadListItemHeight,
+  spacerHeight,
+} from './chat-thread-list-item.react.js';
+import type {
+  ChatTopTabsNavigationProp,
+  ChatNavigationProp,
+} from './chat.react.js';
+import {
+  type MessageListParams,
+  useNavigateToThread,
+} from './message-list-types.js';
+import { sidebarHeight } from './sidebar-item.react.js';
 import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import {
@@ -52,20 +66,6 @@ import {
 import type { ScrollEvent } from '../types/react-native.js';
 import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
 import { animateTowards } from '../utils/animation-utils.js';
-import {
-  ChatThreadListItem,
-  chatThreadListItemHeight,
-  spacerHeight,
-} from './chat-thread-list-item.react.js';
-import type {
-  ChatTopTabsNavigationProp,
-  ChatNavigationProp,
-} from './chat.react.js';
-import {
-  type MessageListParams,
-  useNavigateToThread,
-} from './message-list-types.js';
-import { sidebarHeight } from './sidebar-item.react.js';
 
 const floatingActions = [
   {

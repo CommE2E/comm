@@ -2,10 +2,10 @@
 
 import { threadTypes } from 'lib/types/thread-types.js';
 
+import { main } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { activityUpdater } from '../updaters/activity-updaters.js';
-import { main } from './utils.js';
 
 async function rescindNotifs() {
   const fetchRescindThreadInfo = SQL`

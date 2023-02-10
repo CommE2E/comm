@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { Text } from 'react-native';
 
+import Button from './button.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { ViewStyle } from '../types/styles.js';
-import Button from './button.react.js';
 
 type BaseProps = {
   +text: string,

@@ -9,10 +9,10 @@ import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import css from './inline-engagement.css';
 import CommIcon from '../CommIcon.react.js';
 import MessageReactionsModal from '../modals/chat/message-reactions-modal.react.js';
 import { useOnClickThread } from '../selectors/thread-selectors.js';
-import css from './inline-engagement.css';
 
 type Props = {
   +threadInfo: ?ThreadInfo,

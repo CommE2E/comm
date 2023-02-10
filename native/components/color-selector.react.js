@@ -6,8 +6,8 @@ import tinycolor from 'tinycolor2';
 
 import { selectedThreadColors } from 'lib/shared/thread-utils.js';
 
-import { useStyles } from '../themes/colors.js';
 import ColorSelectorButton from './color-selector-button.react.js';
+import { useStyles } from '../themes/colors.js';
 
 type ColorSelectorProps = {
   +currentColor: string,
