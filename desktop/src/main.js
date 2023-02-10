@@ -8,6 +8,7 @@ import {
   ipcMain,
   systemPreferences,
   autoUpdater,
+  dialog,
   // eslint-disable-next-line import/extensions
 } from 'electron/main';
 import fs from 'fs';
@@ -286,3 +287,13 @@ if (app.isPackaged && process.platform === 'win32') {
 } else {
   run();
 }
+
+process.on('uncaughtException', (error: Error) => {
+  if (error.message === 'The internet connection appears to be offline.') {
+    return;
+  }
+  dialog.showErrorBox(
+    'A JavaScript error occurred in the main process',
+    `Uncaught Exception: ${error.name}: ${error.message}`,
+  );
+});

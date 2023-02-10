@@ -391,6 +391,11 @@ declare module 'electron' {
     senderId: number,
     ports: $ReadOnlyArray<MessagePort>,
   };
+
+  declare export var dialog: Dialog;
+  declare class Dialog {
+    showErrorBox(title: string, content: string): void;
+  }
 }
 
 declare module 'electron/main' {
@@ -402,6 +407,7 @@ declare module 'electron/main' {
     ipcMain,
     systemPreferences,
     autoUpdater,
+    dialog,
   } from 'electron';
 }
 
