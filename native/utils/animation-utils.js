@@ -10,7 +10,7 @@ import Animated, {
   type TimingConfig,
 } from 'react-native-reanimated';
 
-import type { Shape } from 'lib/types/core';
+import type { Shape } from 'lib/types/core.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

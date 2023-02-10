@@ -5,7 +5,7 @@ import {
   deviceIDCharLength,
   deviceTypes,
   deviceIDFormatRegex,
-} from './device-id';
+} from './device-id.js';
 
 describe('generateDeviceID', () => {
   it(

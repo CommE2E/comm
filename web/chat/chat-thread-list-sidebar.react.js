@@ -3,15 +3,15 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { SidebarInfo } from 'lib/types/thread-types';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
 
 import {
   useOnClickThread,
   useThreadIsActive,
-} from '../selectors/thread-selectors';
-import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
+} from '../selectors/thread-selectors.js';
+import ChatThreadListItemMenu from './chat-thread-list-item-menu.react.js';
 import css from './chat-thread-list.css';
-import SidebarItem from './sidebar-item.react';
+import SidebarItem from './sidebar-item.react.js';
 
 type Props = {
   +sidebarInfo: SidebarInfo,

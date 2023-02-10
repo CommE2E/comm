@@ -1,7 +1,7 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
-import _isEqual from 'lodash/fp/isEqual';
+import Icon from '@expo/vector-icons/FontAwesome.js';
+import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import {
   View,
@@ -17,49 +17,52 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { logInActionSources } from 'lib/types/account-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { logInActionSources } from 'lib/types/account-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
 
 import EthereumLogo from '../components/ethereum-logo.react.js';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
-import ConnectedStatusBar from '../connected-status-bar.react';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
+import ConnectedStatusBar from '../connected-status-bar.react.js';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from '../keyboard/keyboard';
-import { createIsForegroundSelector } from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { LoggedOutModalRouteName } from '../navigation/route-names';
-import { resetUserStateActionType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
-import { usePersistedStateLoaded } from '../selectors/app-state-selectors';
+} from '../keyboard/keyboard.js';
+import { createIsForegroundSelector } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { LoggedOutModalRouteName } from '../navigation/route-names.js';
+import { resetUserStateActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
 import {
   type DerivedDimensionsInfo,
   derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors';
-import { splashStyleSelector } from '../splash';
-import { useStyles } from '../themes/colors';
-import type { EventSubscription, KeyboardEvent } from '../types/react-native';
-import type { ImageStyle } from '../types/styles';
+} from '../selectors/dimensions-selectors.js';
+import { splashStyleSelector } from '../splash.js';
+import { useStyles } from '../themes/colors.js';
+import type {
+  EventSubscription,
+  KeyboardEvent,
+} from '../types/react-native.js';
+import type { ImageStyle } from '../types/styles.js';
 import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
-} from '../utils/animation-utils';
+} from '../utils/animation-utils.js';
 import {
   type StateContainer,
   type StateChange,
   setStateForContainer,
-} from '../utils/state-container';
-import { splashBackgroundURI } from './background-info';
-import LogInPanel from './log-in-panel.react';
-import type { LogInState } from './log-in-panel.react';
-import LoggedOutStaffInfo from './logged-out-staff-info.react';
-import RegisterPanel from './register-panel.react';
-import type { RegisterState } from './register-panel.react';
-import SIWEPanel from './siwe-panel.react';
+} from '../utils/state-container.js';
+import { splashBackgroundURI } from './background-info.js';
+import LogInPanel from './log-in-panel.react.js';
+import type { LogInState } from './log-in-panel.react.js';
+import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
+import RegisterPanel from './register-panel.react.js';
+import type { RegisterState } from './register-panel.react.js';
+import SIWEPanel from './siwe-panel.react.js';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];

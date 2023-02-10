@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
-import { useMessageReactionsList } from 'lib/shared/reaction-utils';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
-import Modal from '../modal.react';
+import Modal from '../modal.react.js';
 import css from './message-reactions-modal.css';
 
 type Props = {

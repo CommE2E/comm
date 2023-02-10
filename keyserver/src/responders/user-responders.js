@@ -6,7 +6,7 @@ import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
 import { baseLegalPolicies, policies } from 'lib/facts/policies.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   ResetPasswordRequest,
   LogOutResponse,
@@ -18,14 +18,14 @@ import type {
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
   PolicyAcknowledgmentRequest,
-} from 'lib/types/account-types';
+} from 'lib/types/account-types.js';
 import {
   userSettingsTypes,
   notificationTypeValues,
   logInActionSources,
-} from 'lib/types/account-types';
+} from 'lib/types/account-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
-import { defaultNumberPerThread } from 'lib/types/message-types';
+import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import type {
   SIWEAuthRequest,
   SIWEMessage,
@@ -34,11 +34,11 @@ import type {
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
-} from 'lib/types/subscription-types';
-import type { PasswordUpdate } from 'lib/types/user-types';
-import { ServerError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
-import { promiseAll } from 'lib/utils/promises';
+} from 'lib/types/subscription-types.js';
+import type { PasswordUpdate } from 'lib/types/user-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
+import { promiseAll } from 'lib/utils/promises.js';
 import {
   getPublicKeyFromSIWEStatement,
   isValidSIWEMessage,
@@ -52,47 +52,47 @@ import {
   tEmail,
   tOldValidUsername,
   tRegex,
-} from 'lib/utils/validation-utils';
+} from 'lib/utils/validation-utils.js';
 
 import {
   createAccount,
   processSIWEAccountCreation,
-} from '../creators/account-creator';
-import { dbQuery, SQL } from '../database/database';
-import { deleteAccount } from '../deleters/account-deleters';
-import { deleteCookie } from '../deleters/cookie-deleters';
+} from '../creators/account-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { deleteAccount } from '../deleters/account-deleters.js';
+import { deleteCookie } from '../deleters/cookie-deleters.js';
 import { checkAndInvalidateSIWENonceEntry } from '../deleters/siwe-nonce-deleters.js';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
+import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchKnownUserInfos,
   fetchLoggedInUserInfo,
   fetchUserIDForEthereumAddress,
-} from '../fetchers/user-fetchers';
+} from '../fetchers/user-fetchers.js';
 import {
   createNewAnonymousCookie,
   createNewUserCookie,
   setNewSession,
-} from '../session/cookies';
-import type { Viewer } from '../session/viewer';
+} from '../session/cookies.js';
+import type { Viewer } from '../session/viewer.js';
 import {
   accountUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
   updatePassword,
   updateUserSettings,
-} from '../updaters/account-updaters';
-import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
+} from '../updaters/account-updaters.js';
+import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { validateInput } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils.js';
 import {
   entryQueryInputValidator,
   newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
-} from './entry-responders';
+} from './entry-responders.js';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { MarkdownRules } from '../markdown/rules.react';
+import type { MarkdownRules } from '../markdown/rules.react.js';
 
 export type MessageListContextType = {
   +getTextMessageMarkdownRules: (useDarkStyle: boolean) => MarkdownRules,

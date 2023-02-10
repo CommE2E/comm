@@ -5,15 +5,15 @@ import * as React from 'react';
 import { TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 
-import type { MediaLibrarySelection } from 'lib/types/media-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { type InputState, InputStateContext } from '../input/input-state';
-import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
-import { activeMessageListSelector } from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { useStyles } from '../themes/colors';
-import { type KeyboardState, KeyboardContext } from './keyboard-state';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react.js';
+import { activeMessageListSelector } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { useStyles } from '../themes/colors.js';
+import { type KeyboardState, KeyboardContext } from './keyboard-state.js';
 
 type BaseProps = {
   +textInputRef?: ?React.ElementRef<typeof TextInput>,

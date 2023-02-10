@@ -3,11 +3,11 @@
 import * as React from 'react';
 import { Item, Span, renderEmail } from 'react-html-email';
 
-import ashoat from 'lib/facts/ashoat';
-import type { EmailSubscriptionRequest } from 'lib/types/account-types';
+import ashoat from 'lib/facts/ashoat.js';
+import type { EmailSubscriptionRequest } from 'lib/types/account-types.js';
 
-import getSendmail from './sendmail';
-import Template from './template.react';
+import getSendmail from './sendmail.js';
+import Template from './template.react.js';
 
 async function sendEmailSubscriptionRequestToAshoat(
   request: EmailSubscriptionRequest,

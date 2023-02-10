@@ -1,40 +1,40 @@
 // @flow
 
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 
 import {
   rawEntryInfoWithinCalendarQuery,
   calendarQueryDifference,
-} from 'lib/shared/entry-utils';
+} from 'lib/shared/entry-utils.js';
 import {
   type SaveEntryRequest,
   type SaveEntryResponse,
   type RawEntryInfo,
   type CalendarQuery,
   defaultCalendarQuery,
-} from 'lib/types/entry-types';
-import { messageTypes } from 'lib/types/message-types';
-import { threadPermissions } from 'lib/types/thread-types';
+} from 'lib/types/entry-types.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
 import {
   updateTypes,
   type ServerCreateUpdatesResponse,
-} from 'lib/types/update-types';
-import { dateString } from 'lib/utils/date-utils';
-import { ServerError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
+} from 'lib/types/update-types.js';
+import { dateString } from 'lib/utils/date-utils.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
 
-import createIDs from '../creators/id-creator';
-import createMessages from '../creators/message-creator';
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
+import createIDs from '../creators/id-creator.js';
+import createMessages from '../creators/message-creator.js';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
 import {
   fetchEntryInfo,
   checkThreadPermissionForEntry,
-} from '../fetchers/entry-fetchers';
-import { fetchActiveSessionsForThread } from '../fetchers/session-fetchers';
-import type { Viewer } from '../session/viewer';
-import type { SessionUpdate } from './session-updaters';
+} from '../fetchers/entry-fetchers.js';
+import { fetchActiveSessionsForThread } from '../fetchers/session-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
+import type { SessionUpdate } from './session-updaters.js';
 
 const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };
 async function updateEntry(

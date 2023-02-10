@@ -1,7 +1,7 @@
 // @flow
 
-import { queryWarnTime } from './consts';
-import type { Pool } from './types';
+import { queryWarnTime } from './consts.js';
+import type { Pool } from './types.js';
 
 function countDecimals(num: number) {
   return 1 + (num === 0 ? 0 : Math.floor(Math.log10(num)));

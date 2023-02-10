@@ -7,7 +7,7 @@ import {
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions.js';
 import { searchUsers } from 'lib/actions/user-actions.js';
-import { useENSNames } from 'lib/hooks/ens-cache';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
 import type {

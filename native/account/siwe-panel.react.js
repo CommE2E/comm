@@ -11,21 +11,21 @@ import {
   getSIWENonceActionTypes,
   siweAuth,
   siweAuthActionTypes,
-} from 'lib/actions/siwe-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { LogInStartingPayload } from 'lib/types/account-types';
-import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
+} from 'lib/actions/siwe-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { commCoreModule } from '../native-modules';
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import { defaultLandingURLPrefix } from '../utils/url-utils';
-import type { LoggedOutMode } from './logged-out-modal.react';
+import { commCoreModule } from '../native-modules.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { defaultLandingURLPrefix } from '../utils/url-utils.js';
+import type { LoggedOutMode } from './logged-out-modal.react.js';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 

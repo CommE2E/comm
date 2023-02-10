@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ActivityIndicator } from 'react-native';
 
-import { useStyles, useColors } from '../themes/colors';
+import { useStyles, useColors } from '../themes/colors.js';
 
 function ListLoadingIndicator(): React.Node {
   const styles = useStyles(unboundStyles);

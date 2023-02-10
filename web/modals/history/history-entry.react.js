@@ -7,30 +7,30 @@ import * as React from 'react';
 import {
   restoreEntryActionTypes,
   restoreEntry,
-} from 'lib/actions/entry-actions';
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { colorIsDark } from 'lib/shared/thread-utils';
+} from 'lib/actions/entry-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { colorIsDark } from 'lib/shared/thread-utils.js';
 import {
   type EntryInfo,
   type RestoreEntryInfo,
   type RestoreEntryResult,
   type CalendarQuery,
-} from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ResolvedThreadInfo } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
+} from 'lib/types/entry-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
+import type { UserInfo } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+} from 'lib/utils/action-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import LoadingIndicator from '../../loading-indicator.react';
-import { useSelector } from '../../redux/redux-utils';
-import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
+import LoadingIndicator from '../../loading-indicator.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { nonThreadCalendarQuery } from '../../selectors/nav-selectors.js';
 import css from './history.css';
 
 type BaseProps = {

@@ -8,10 +8,10 @@ import {
   type ThreadRolePermissionsBlob,
   type ThreadType,
   threadTypes,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import createIDs from './id-creator';
+import { dbQuery, SQL } from '../database/database.js';
+import createIDs from './id-creator.js';
 
 type InitialRoles = {
   default: RoleInfo,

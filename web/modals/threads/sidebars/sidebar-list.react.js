@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
+import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 
-import Sidebar from './sidebar.react';
+import Sidebar from './sidebar.react.js';
 import css from './sidebars-modal.css';
 
 type Props = {

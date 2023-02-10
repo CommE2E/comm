@@ -3,11 +3,11 @@
 import {
   type DeviceTokenUpdateRequest,
   isDeviceType,
-} from 'lib/types/device-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/device-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function deviceTokenUpdater(
   viewer: Viewer,

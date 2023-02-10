@@ -9,19 +9,19 @@ import type {
   UploadMultimediaResult,
   UploadDeletionRequest,
   Dimensions,
-} from 'lib/types/media-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/media-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import createUploads from '../creators/upload-creator';
-import { deleteUpload } from '../deleters/upload-deleters';
+import createUploads from '../creators/upload-creator.js';
+import { deleteUpload } from '../deleters/upload-deleters.js';
 import {
   fetchUpload,
   fetchUploadChunk,
   getUploadSize,
-} from '../fetchers/upload-fetchers';
-import type { MulterRequest } from '../responders/handlers';
-import type { Viewer } from '../session/viewer';
-import { validateAndConvert } from './media-utils';
+} from '../fetchers/upload-fetchers.js';
+import type { MulterRequest } from '../responders/handlers.js';
+import type { Viewer } from '../session/viewer.js';
+import { validateAndConvert } from './media-utils.js';
 
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');

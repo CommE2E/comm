@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { importJSON } from './import-json';
+import { importJSON } from './import-json.js';
 
 type OlmConfig = {
   +picklingKey: string,

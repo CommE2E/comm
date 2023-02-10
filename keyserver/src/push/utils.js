@@ -5,16 +5,16 @@ import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 
-import { threadSubscriptions } from 'lib/types/subscription-types';
-import { threadPermissions } from 'lib/types/thread-types';
+import { threadSubscriptions } from 'lib/types/subscription-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
+import { dbQuery, SQL } from '../database/database.js';
 import {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
   getAPNProvider,
   getFCMProvider,
-} from './providers';
+} from './providers.js';
 
 const fcmTokenInvalidationErrors = new Set([
   'messaging/registration-token-not-registered',

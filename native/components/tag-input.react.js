@@ -13,17 +13,17 @@ import {
   Platform,
 } from 'react-native';
 
-import type { Shape } from 'lib/types/core';
+import type { Shape } from 'lib/types/core.js';
 
-import { useSelector } from '../redux/redux-utils';
-import { useColors, type Colors } from '../themes/colors';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors, type Colors } from '../themes/colors.js';
 import type {
   LayoutEvent,
   KeyPressEvent,
   BlurEvent,
-} from '../types/react-native';
-import type { ViewStyle, TextStyle } from '../types/styles';
-import TextInput from './text-input.react';
+} from '../types/react-native.js';
+import type { ViewStyle, TextStyle } from '../types/styles.js';
+import TextInput from './text-input.react.js';
 
 type DefaultProps = {
   /**

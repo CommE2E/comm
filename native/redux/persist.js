@@ -5,35 +5,38 @@ import invariant from 'invariant';
 import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { createMigrate, createTransform } from 'redux-persist';
-import type { Transform } from 'redux-persist/es/types';
+import type { Transform } from 'redux-persist/es/types.js';
 
-import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
-import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
-import { getContainingThreadID, getCommunity } from 'lib/shared/thread-utils';
-import { unshimMessageStore, unshimFunc } from 'lib/shared/unshim-utils';
-import { defaultEnabledApps } from 'lib/types/enabled-apps';
-import { defaultCalendarFilters } from 'lib/types/filter-types';
+import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
+import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
+import {
+  getContainingThreadID,
+  getCommunity,
+} from 'lib/shared/thread-utils.js';
+import { unshimMessageStore, unshimFunc } from 'lib/shared/unshim-utils.js';
+import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
+import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import {
   type LocalMessageInfo,
   type MessageStore,
   messageTypes,
   type ClientDBMessageStoreOperation,
-} from 'lib/types/message-types';
-import type { ClientDBMessageInfo } from 'lib/types/message-types';
-import { defaultConnectionInfo } from 'lib/types/socket-types';
+} from 'lib/types/message-types.js';
+import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
+import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
-} from 'lib/utils/message-ops-utils';
-import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
+} from 'lib/utils/message-ops-utils.js';
+import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
-import { commCoreModule } from '../native-modules';
-import { defaultNotifPermissionAlertInfo } from '../push/alerts';
-import { defaultDeviceCameraInfo } from '../types/camera';
-import { defaultGlobalThemeInfo } from '../types/themes';
-import { isTaskCancelledError } from '../utils/error-handling';
-import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration';
-import type { AppState } from './state-types';
+import { commCoreModule } from '../native-modules.js';
+import { defaultNotifPermissionAlertInfo } from '../push/alerts.js';
+import { defaultDeviceCameraInfo } from '../types/camera.js';
+import { defaultGlobalThemeInfo } from '../types/themes.js';
+import { isTaskCancelledError } from '../utils/error-handling.js';
+import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
+import type { AppState } from './state-types.js';
 
 const migrations = {
   [1]: (state: AppState) => ({

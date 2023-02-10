@@ -3,11 +3,11 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
-import type { AccountUserInfo } from 'lib/types/user-types';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
+import type { AccountUserInfo } from 'lib/types/user-types.js';
 
-import { useSelector } from '../../redux/redux-utils';
+import { useSelector } from '../../redux/redux-utils.js';
 import css from './user-list.css';
 
 export type UserRowProps = {

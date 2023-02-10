@@ -19,21 +19,24 @@ import { Provider } from 'react-redux';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
-} from 'lib/media/file-utils';
-import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
-import type { MediaLibrarySelection } from 'lib/types/media-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+} from 'lib/media/file-utils.js';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import type { DimensionsInfo } from '../redux/dimensions-updater.react';
-import { store } from '../redux/redux-setup';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../themes/colors';
-import type { LayoutEvent, ViewableItemsChange } from '../types/react-native';
-import type { ViewStyle } from '../types/styles';
-import { getCompatibleMediaURI } from './identifier-utils';
-import MediaGalleryMedia from './media-gallery-media.react';
-import SendMediaButton from './send-media-button.react';
+import Button from '../components/button.react.js';
+import type { DimensionsInfo } from '../redux/dimensions-updater.react.js';
+import { store } from '../redux/redux-setup.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type {
+  LayoutEvent,
+  ViewableItemsChange,
+} from '../types/react-native.js';
+import type { ViewStyle } from '../types/styles.js';
+import { getCompatibleMediaURI } from './identifier-utils.js';
+import MediaGalleryMedia from './media-gallery-media.react.js';
+import SendMediaButton from './send-media-button.react.js';
 
 const animationSpec = {
   duration: 400,

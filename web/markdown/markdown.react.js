@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import css from './markdown.css';
-import type { MarkdownRules } from './rules.react';
+import type { MarkdownRules } from './rules.react.js';
 
 type Props = {
   +children: string,

@@ -2,8 +2,8 @@
 
 import { PermissionsAndroid } from 'react-native';
 
-import { getMessageForException } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
+import { getMessageForException } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
 const granted = new Set();
 

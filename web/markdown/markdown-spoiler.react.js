@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { ReactElement } from 'lib/shared/markdown';
+import type { ReactElement } from 'lib/shared/markdown.js';
 
 import css from './markdown.css';
 

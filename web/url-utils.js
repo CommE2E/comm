@@ -5,11 +5,11 @@ import invariant from 'invariant';
 import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,
-} from 'lib/utils/date-utils';
-import { infoFromURL } from 'lib/utils/url-utils';
+} from 'lib/utils/date-utils.js';
+import { infoFromURL } from 'lib/utils/url-utils.js';
 
-import { yearExtractor, monthExtractor } from './selectors/nav-selectors';
-import type { NavInfo } from './types/nav-types';
+import { yearExtractor, monthExtractor } from './selectors/nav-selectors.js';
+import type { NavInfo } from './types/nav-types.js';
 
 function canonicalURLFromReduxState(
   navInfo: NavInfo,

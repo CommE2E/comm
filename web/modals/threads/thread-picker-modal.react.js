@@ -4,15 +4,15 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { createSelector } from 'reselect';
 
-import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors';
-import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
+import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Button from '../../components/button.react';
-import Search from '../../components/search.react';
-import { useSelector } from '../../redux/redux-utils';
-import Modal, { type ModalOverridableProps } from '../modal.react';
+import Button from '../../components/button.react.js';
+import Search from '../../components/search.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import Modal, { type ModalOverridableProps } from '../modal.react.js';
 import css from './thread-picker-modal.css';
 
 type OptionProps = {

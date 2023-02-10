@@ -8,16 +8,16 @@ import {
   XCircle as XCircleIcon,
 } from 'react-feather';
 
-import { useStringForUser } from 'lib/hooks/ens-cache';
-import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { assertComposableMessageType } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { assertComposableMessageType } from 'lib/types/message-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import { type InputState, InputStateContext } from '../input/input-state';
-import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
 import css from './chat-message-list.css';
-import FailedSend from './failed-send.react';
-import InlineEngagement from './inline-engagement.react';
+import FailedSend from './failed-send.react.js';
+import InlineEngagement from './inline-engagement.react.js';
 
 const availableTooltipPositionsForViewerMessage = [
   tooltipPositions.LEFT,

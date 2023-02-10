@@ -5,7 +5,7 @@
 // import generators
 import fs from 'fs';
 import path from 'path';
-import { type SchemaType } from 'react-native-codegen/lib/CodegenSchema';
+import { type SchemaType } from 'react-native-codegen/lib/CodegenSchema.js';
 import generatorCpp from 'react-native-codegen/lib/generators/modules/GenerateModuleCpp.js';
 import generatorH from 'react-native-codegen/lib/generators/modules/GenerateModuleH.js';
 import generatorJavaSpec from 'react-native-codegen/lib/generators/modules/GenerateModuleJavaSpec.js';

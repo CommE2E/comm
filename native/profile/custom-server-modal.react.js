@@ -4,17 +4,17 @@ import * as React from 'react';
 import { Text } from 'react-native';
 import { useDispatch } from 'react-redux';
 
-import type { Dispatch } from 'lib/types/redux-types';
-import { setURLPrefix } from 'lib/utils/url-utils';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { setURLPrefix } from 'lib/utils/url-utils.js';
 
-import Button from '../components/button.react';
-import Modal from '../components/modal.react';
-import TextInput from '../components/text-input.react';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
-import { setCustomServer } from '../utils/url-utils';
+import Button from '../components/button.react.js';
+import Modal from '../components/modal.react.js';
+import TextInput from '../components/text-input.react.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
+import { setCustomServer } from '../utils/url-utils.js';
 
 export type CustomServerModalParams = {
   +presentedFrom: string,

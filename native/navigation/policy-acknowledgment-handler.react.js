@@ -3,10 +3,10 @@
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 
-import { policyTypes } from 'lib/facts/policies';
+import { policyTypes } from 'lib/facts/policies.js';
 
-import { useSelector } from '../redux/redux-utils';
-import { TermsAndPrivacyRouteName } from './route-names';
+import { useSelector } from '../redux/redux-utils.js';
+import { TermsAndPrivacyRouteName } from './route-names.js';
 
 function PolicyAcknowledgmentHandler(): null {
   const userPolicies = useSelector(state => state.userPolicies);

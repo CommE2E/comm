@@ -3,22 +3,22 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { UserInfo } from 'lib/types/user-types';
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { UserInfo } from 'lib/types/user-types.js';
+import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Button from '../components/button.react';
-import ColorSplotch from '../components/color-splotch.react';
-import { SingleLine } from '../components/single-line.react';
-import ThreadAncestorsLabel from '../components/thread-ancestors-label.react';
-import UnreadDot from '../components/unread-dot.react';
-import { useColors, useStyles } from '../themes/colors';
-import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
-import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
-import MessagePreview from './message-preview.react';
-import SwipeableThread from './swipeable-thread.react';
+import Button from '../components/button.react.js';
+import ColorSplotch from '../components/color-splotch.react.js';
+import { SingleLine } from '../components/single-line.react.js';
+import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
+import UnreadDot from '../components/unread-dot.react.js';
+import { useColors, useStyles } from '../themes/colors.js';
+import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react.js';
+import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
+import MessagePreview from './message-preview.react.js';
+import SwipeableThread from './swipeable-thread.react.js';
 
 type Props = {
   +data: ChatThreadItem,

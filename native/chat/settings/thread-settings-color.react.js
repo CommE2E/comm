@@ -3,17 +3,17 @@
 import * as React from 'react';
 import { Text, ActivityIndicator, View, Platform } from 'react-native';
 
-import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import ColorSplotch from '../../components/color-splotch.react';
-import EditSettingButton from '../../components/edit-setting-button.react';
-import { ColorSelectorModalRouteName } from '../../navigation/route-names';
-import { useSelector } from '../../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
-import type { ThreadSettingsNavigate } from './thread-settings.react';
+import ColorSplotch from '../../components/color-splotch.react.js';
+import EditSettingButton from '../../components/edit-setting-button.react.js';
+import { ColorSelectorModalRouteName } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

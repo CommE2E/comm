@@ -5,12 +5,12 @@ import t from 'tcomb';
 import type {
   UserSearchRequest,
   UserSearchResult,
-} from 'lib/types/search-types';
-import { tShape } from 'lib/utils/validation-utils';
+} from 'lib/types/search-types.js';
+import { tShape } from 'lib/utils/validation-utils.js';
 
-import { searchForUsers } from '../search/users';
-import type { Viewer } from '../session/viewer';
-import { validateInput } from '../utils/validation-utils';
+import { searchForUsers } from '../search/users.js';
+import type { Viewer } from '../session/viewer.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const userSearchRequestInputValidator = tShape({
   prefix: t.maybe(t.String),

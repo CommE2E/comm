@@ -6,12 +6,12 @@ import {
   type RelationshipRequest,
   type RelationshipErrors,
   relationshipActionsList,
-} from 'lib/types/relationship-types';
-import { tShape } from 'lib/utils/validation-utils';
+} from 'lib/types/relationship-types.js';
+import { tShape } from 'lib/utils/validation-utils.js';
 
-import type { Viewer } from '../session/viewer';
-import { updateRelationships } from '../updaters/relationship-updaters';
-import { validateInput } from '../utils/validation-utils';
+import type { Viewer } from '../session/viewer.js';
+import { updateRelationships } from '../updaters/relationship-updaters.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const updateRelationshipInputValidator = tShape({
   action: t.enums.of(relationshipActionsList, 'relationship action'),

@@ -4,21 +4,21 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import type { Dispatch } from 'lib/types/redux-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   entityTextToReact,
   useENSNamesForEntityText,
-} from 'lib/utils/entity-text';
+} from 'lib/utils/entity-text.js';
 
-import Markdown from '../markdown/markdown.react';
-import { linkRules } from '../markdown/rules.react';
-import { updateNavInfoActionType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
-import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils';
-import InlineEngagement from './inline-engagement.react';
+import Markdown from '../markdown/markdown.react.js';
+import { linkRules } from '../markdown/rules.react.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
+import InlineEngagement from './inline-engagement.react.js';
 import css from './robotext-message.css';
 
 const availableTooltipPositionsForRobotext = [

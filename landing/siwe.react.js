@@ -10,19 +10,22 @@ import {
   connectorsForWallets,
 } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
-import _merge from 'lodash/fp/merge';
+import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
 import '@rainbow-me/rainbowkit/dist/index.css';
 import { useAccount, useSigner, WagmiConfig } from 'wagmi';
 
-import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
+import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
 import {
   getSIWEStatementForPublicKey,
   siweStatementWithoutPublicKey,
   siweMessageSigningExplanationStatements,
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
-import { configureWagmiChains, createWagmiClient } from 'lib/utils/wagmi-utils';
+import {
+  configureWagmiChains,
+  createWagmiClient,
+} from 'lib/utils/wagmi-utils.js';
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';

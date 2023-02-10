@@ -3,18 +3,24 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 
-import type { Corners, Media, MediaInfo } from 'lib/types/media-types';
+import type { Corners, Media, MediaInfo } from 'lib/types/media-types.js';
 
-import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
-import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
-import type { ViewStyle } from '../types/styles';
-import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
-import { getMediaPerRow, spaceBetweenImages } from './multimedia-message-utils';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
+import type {
+  LayoutCoordinates,
+  VerticalBounds,
+} from '../types/layout-types.js';
+import type { ViewStyle } from '../types/styles.js';
+import MultimediaMessageMultimedia from './multimedia-message-multimedia.react.js';
+import {
+  getMediaPerRow,
+  spaceBetweenImages,
+} from './multimedia-message-utils.js';
 import {
   allCorners,
   filterCorners,
   getRoundedContainerStyle,
-} from './rounded-corners';
+} from './rounded-corners.js';
 
 const borderRadius = 16;
 

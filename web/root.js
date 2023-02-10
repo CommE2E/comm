@@ -4,21 +4,21 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
 import { createStore, applyMiddleware, type Store } from 'redux';
-import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
+import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction.js';
 import { persistReducer, persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 import storage from 'redux-persist/lib/storage';
 import thunk from 'redux-thunk';
 
-import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
+import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
-import App from './app.react';
-import ErrorBoundary from './error-boundary.react';
-import Loading from './loading.react';
-import { reducer } from './redux/redux-setup';
-import type { AppState, Action } from './redux/redux-setup';
-import history from './router-history';
-import Socket from './socket.react';
+import App from './app.react.js';
+import ErrorBoundary from './error-boundary.react.js';
+import Loading from './loading.react.js';
+import { reducer } from './redux/redux-setup.js';
+import type { AppState, Action } from './redux/redux-setup.js';
+import history from './router-history.js';
+import Socket from './socket.react.js';
 
 const persistConfig = {
   key: 'root',

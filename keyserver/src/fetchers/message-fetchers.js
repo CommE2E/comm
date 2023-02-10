@@ -5,10 +5,10 @@ import invariant from 'invariant';
 import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
-} from 'lib/shared/message-utils';
-import { messageSpecs } from 'lib/shared/messages/message-specs';
-import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+} from 'lib/shared/message-utils.js';
+import { messageSpecs } from 'lib/shared/messages/message-specs.js';
+import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
   type RawMessageInfo,
   type RawComposableMessageInfo,
@@ -21,24 +21,27 @@ import {
   messageTruncationStatus,
   type FetchMessageInfosResult,
   defaultMaxMessageAge,
-} from 'lib/types/message-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/message-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
 import {
   dbQuery,
   SQL,
   mergeOrConditions,
   mergeAndConditions,
-} from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import type { PushInfo } from '../push/send';
-import type { Viewer } from '../session/viewer';
-import { creationString, localIDFromCreationString } from '../utils/idempotent';
+} from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import type { PushInfo } from '../push/send.js';
+import type { Viewer } from '../session/viewer.js';
+import {
+  creationString,
+  localIDFromCreationString,
+} from '../utils/idempotent.js';
 import {
   constructMediaFromMediaMessageContentsAndUploadRows,
   mediaFromRow,
-} from './upload-fetchers';
+} from './upload-fetchers.js';
 
 export type CollapsableNotifInfo = {
   collapseKey: ?string,

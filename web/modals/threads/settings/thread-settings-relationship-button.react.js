@@ -12,25 +12,25 @@ import * as React from 'react';
 import {
   updateRelationships,
   updateRelationshipsActionTypes,
-} from 'lib/actions/relationship-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+} from 'lib/actions/relationship-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   getRelationshipActionText,
   getRelationshipDispatchAction,
-} from 'lib/shared/relationship-utils';
-import type { SetState } from 'lib/types/hook-types';
+} from 'lib/shared/relationship-utils.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import {
   relationshipButtons,
   type RelationshipButton,
-} from 'lib/types/relationship-types';
-import type { UserInfo } from 'lib/types/user-types';
+} from 'lib/types/relationship-types.js';
+import type { UserInfo } from 'lib/types/user-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button, { buttonThemes } from '../../../components/button.react';
-import { useSelector } from '../../../redux/redux-utils';
+import Button, { buttonThemes } from '../../../components/button.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
 import css from './thread-settings-relationship-tab.css';
 
 const loadingStatusSelector = createLoadingStatusSelector(

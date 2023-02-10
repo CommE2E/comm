@@ -1,15 +1,15 @@
 // @flow
 
-import _keyBy from 'lodash/fp/keyBy';
+import _keyBy from 'lodash/fp/keyBy.js';
 
-import type { Media } from 'lib/types/media-types';
+import type { Media } from 'lib/types/media-types.js';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
-import { ServerError } from 'lib/utils/errors';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
-import { getAndAssertCommAppURLFacts } from '../utils/urls';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
+import { getAndAssertCommAppURLFacts } from '../utils/urls.js';
 
 type UploadInfo = {
   content: Buffer,

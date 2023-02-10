@@ -8,11 +8,11 @@ import {
   type TypeaheadMatchedStrings,
   type Selection,
   getNewTextAndSelection,
-} from 'lib/shared/typeahead-utils';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
+} from 'lib/shared/typeahead-utils.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import { useStyles } from '../themes/colors';
+import Button from '../components/button.react.js';
+import { useStyles } from '../themes/colors.js';
 
 export type TypeaheadTooltipProps = {
   +text: string,

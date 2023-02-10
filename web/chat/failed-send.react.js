@@ -3,21 +3,21 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { messageID } from 'lib/shared/message-utils';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { messageID } from 'lib/shared/message-utils.js';
 import {
   messageTypes,
   type RawComposableMessageInfo,
   assertComposableMessageType,
-} from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+} from 'lib/types/message-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import { type InputState, InputStateContext } from '../input/input-state';
-import { useSelector } from '../redux/redux-utils';
+import Button from '../components/button.react.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './chat-message-list.css';
-import multimediaMessageSendFailed from './multimedia-message-send-failed';
-import textMessageSendFailed from './text-message-send-failed';
+import multimediaMessageSendFailed from './multimedia-message-send-failed.js';
+import textMessageSendFailed from './text-message-send-failed.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItem,

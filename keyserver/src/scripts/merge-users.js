@@ -1,21 +1,21 @@
 // @flow
 
-import type { Shape } from 'lib/types/core';
-import type { ServerThreadInfo } from 'lib/types/thread-types';
-import { type UpdateData, updateTypes } from 'lib/types/update-types';
+import type { Shape } from 'lib/types/core.js';
+import type { ServerThreadInfo } from 'lib/types/thread-types.js';
+import { type UpdateData, updateTypes } from 'lib/types/update-types.js';
 
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import { deleteAccount } from '../deleters/account-deleters';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
-import { createScriptViewer } from '../session/scripts';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import { deleteAccount } from '../deleters/account-deleters.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import { createScriptViewer } from '../session/scripts.js';
 import {
   changeRole,
   commitMembershipChangeset,
-} from '../updaters/thread-permission-updaters';
-import RelationshipChangeset from '../utils/relationship-changeset';
-import { endScript } from './utils';
+} from '../updaters/thread-permission-updaters.js';
+import RelationshipChangeset from '../utils/relationship-changeset.js';
+import { endScript } from './utils.js';
 
 async function main() {
   try {

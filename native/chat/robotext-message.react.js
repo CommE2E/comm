@@ -4,25 +4,25 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils';
-import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
+import { messageKey } from 'lib/shared/message-utils.js';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
 
-import { ChatContext } from '../chat/chat-context';
-import { KeyboardContext } from '../keyboard/keyboard-state';
-import { OverlayContext } from '../navigation/overlay-context';
-import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
-import { fixedTooltipHeight } from '../tooltip/tooltip.react';
-import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
-import type { VerticalBounds } from '../types/layout-types';
-import { AnimatedView } from '../types/styles';
-import { inlineEngagementCenterStyle } from './chat-constants';
-import type { ChatNavigationProp } from './chat.react';
-import { InlineEngagement } from './inline-engagement.react';
-import { InnerRobotextMessage } from './inner-robotext-message.react';
-import { Timestamp } from './timestamp.react';
-import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils';
+import { ChatContext } from '../chat/chat-context.js';
+import { KeyboardContext } from '../keyboard/keyboard-state.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
+import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useStyles } from '../themes/colors.js';
+import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
+import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { VerticalBounds } from '../types/layout-types.js';
+import { AnimatedView } from '../types/styles.js';
+import { inlineEngagementCenterStyle } from './chat-constants.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import { InlineEngagement } from './inline-engagement.react.js';
+import { InnerRobotextMessage } from './inner-robotext-message.react.js';
+import { Timestamp } from './timestamp.react.js';
+import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils.js';
 
 type Props = {
   ...React.ElementConfig<typeof View>,

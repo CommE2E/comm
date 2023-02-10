@@ -5,22 +5,22 @@ import { Alert } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import { useDispatch } from 'react-redux';
 
-import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   logInActionSources,
   type LogInActionSource,
-} from 'lib/types/account-types';
-import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
-import { getMessageForException } from 'lib/utils/errors';
-import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
+} from 'lib/types/account-types.js';
+import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
+import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils.js';
 
-import { commCoreModule } from '../native-modules';
-import { setStoreLoadedActionType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
-import { StaffContext } from '../staff/staff-context';
-import { isTaskCancelledError } from '../utils/error-handling';
-import { useStaffCanSee } from '../utils/staff-utils';
+import { commCoreModule } from '../native-modules.js';
+import { setStoreLoadedActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { StaffContext } from '../staff/staff-context.js';
+import { isTaskCancelledError } from '../utils/error-handling.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function SQLiteDataHandler(): React.Node {
   const storeLoaded = useSelector(state => state.storeLoaded);

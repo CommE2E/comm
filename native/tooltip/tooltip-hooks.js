@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import type { TooltipModalParamList } from '../navigation/route-names';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
+import type { TooltipModalParamList } from '../navigation/route-names.js';
 
 type TooltipActions = {
   // Hiding will keep the Tooltip ReactNav screen open, which means that the

@@ -3,19 +3,19 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { ENSCacheContext } from 'lib/components/ens-cache-provider.react';
+import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import {
   createPendingSidebar,
   createUnresolvedPendingSidebar,
-} from 'lib/shared/thread-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { GetENSNames } from 'lib/utils/ens-helpers';
+} from 'lib/shared/thread-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { GetENSNames } from 'lib/utils/ens-helpers.js';
 
-import { getDefaultTextMessageRules } from '../markdown/rules.react';
-import { useSelector } from '../redux/redux-utils';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
-import { ChatContext } from './chat-context';
-import { useNavigateToThread } from './message-list-types';
+import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { ChatContext } from './chat-context.js';
+import { useNavigateToThread } from './message-list-types.js';
 
 type GetUnresolvedSidebarThreadInfoInput = {
   +sourceMessage: ChatMessageInfoItemWithHeight,

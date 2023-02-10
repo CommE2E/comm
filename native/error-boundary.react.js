@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import type { ErrorInfo, ErrorData } from 'lib/types/report-types';
+import type { ErrorInfo, ErrorData } from 'lib/types/report-types.js';
 
-import Crash from './crash.react';
+import Crash from './crash.react.js';
 
 let instance: ?ErrorBoundary = null;
 const defaultHandler = global.ErrorUtils.getGlobalHandler();

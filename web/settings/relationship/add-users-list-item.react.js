@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
-import Button from '../../components/button.react';
+import Button from '../../components/button.react.js';
 import css from './add-users-list.css';
 
 type Props = {

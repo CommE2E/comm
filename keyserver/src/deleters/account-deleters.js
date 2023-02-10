@@ -5,20 +5,20 @@ import bcrypt from 'twin-bcrypt';
 import type {
   LogOutResponse,
   DeleteAccountRequest,
-} from 'lib/types/account-types';
-import { updateTypes } from 'lib/types/update-types';
-import type { UserInfo } from 'lib/types/user-types';
-import { ServerError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
-import { promiseAll } from 'lib/utils/promises';
+} from 'lib/types/account-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import type { UserInfo } from 'lib/types/user-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
-import { rescindPushNotifs } from '../push/rescind';
-import { handleAsyncPromise } from '../responders/handlers';
-import { createNewAnonymousCookie } from '../session/cookies';
-import type { Viewer } from '../session/viewer';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
+import { rescindPushNotifs } from '../push/rescind.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
+import { createNewAnonymousCookie } from '../session/cookies.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function deleteAccount(
   viewer: Viewer,

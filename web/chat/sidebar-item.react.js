@@ -3,10 +3,10 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { SidebarInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import { useOnClickThread } from '../selectors/thread-selectors';
+import { useOnClickThread } from '../selectors/thread-selectors.js';
 import css from './chat-thread-list.css';
 
 type Props = {

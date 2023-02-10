@@ -1,17 +1,17 @@
 // @flow
 
-import bots from 'lib/facts/bots';
-import { threadTypes, type ThreadType } from 'lib/types/thread-types';
+import bots from 'lib/facts/bots.js';
+import { threadTypes, type ThreadType } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { createScriptViewer } from '../session/scripts';
-import { updateRoles } from '../updaters/role-updaters';
+import { dbQuery, SQL } from '../database/database.js';
+import { createScriptViewer } from '../session/scripts.js';
+import { updateRoles } from '../updaters/role-updaters.js';
 import {
   recalculateThreadPermissions,
   commitMembershipChangeset,
-} from '../updaters/thread-permission-updaters';
-import RelationshipChangeset from '../utils/relationship-changeset';
-import { main } from './utils';
+} from '../updaters/thread-permission-updaters.js';
+import RelationshipChangeset from '../utils/relationship-changeset.js';
+import { main } from './utils.js';
 
 async function updatePrivateThreads() {
   console.log('updating private threads');

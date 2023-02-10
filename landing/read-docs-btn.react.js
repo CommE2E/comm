@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { assetsCacheURLPrefix } from './asset-meta-data';
+import { assetsCacheURLPrefix } from './asset-meta-data.js';
 import css from './read-docs-btn.css';
 
 function ReadDocsButton(): React.Node {

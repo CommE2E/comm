@@ -2,19 +2,19 @@
 
 import * as React from 'react';
 
-import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
-import DevTools from '../redux/dev-tools.react';
-import { useSelector } from '../redux/redux-utils';
-import type { AppState } from '../redux/state-types';
-import { usePersistedStateLoaded } from '../selectors/app-state-selectors';
-import { logInActionType, logOutActionType } from './action-types';
-import ModalPruner from './modal-pruner.react';
-import NavFromReduxHandler from './nav-from-redux-handler.react';
-import { useIsAppLoggedIn } from './nav-selectors';
-import { NavContext, type NavAction } from './navigation-context';
-import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react';
-import ThreadScreenTracker from './thread-screen-tracker.react';
+import DevTools from '../redux/dev-tools.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { AppState } from '../redux/state-types.js';
+import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
+import { logInActionType, logOutActionType } from './action-types.js';
+import ModalPruner from './modal-pruner.react.js';
+import NavFromReduxHandler from './nav-from-redux-handler.react.js';
+import { useIsAppLoggedIn } from './nav-selectors.js';
+import { NavContext, type NavAction } from './navigation-context.js';
+import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react.js';
+import ThreadScreenTracker from './thread-screen-tracker.react.js';
 
 const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
   function NavigationHandler() {

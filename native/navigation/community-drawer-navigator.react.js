@@ -8,18 +8,18 @@ import {
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 
-import { useStyles } from '../themes/colors';
-import type { AppNavigationProp } from './app-navigator.react';
-import CommunityDrawerContent from './community-drawer-content.react';
-import { drawerSwipeEnabledSelector } from './nav-selectors';
-import { NavContext } from './navigation-context';
-import { TabNavigatorRouteName } from './route-names';
+import { useStyles } from '../themes/colors.js';
+import type { AppNavigationProp } from './app-navigator.react.js';
+import CommunityDrawerContent from './community-drawer-content.react.js';
+import { drawerSwipeEnabledSelector } from './nav-selectors.js';
+import { NavContext } from './navigation-context.js';
+import { TabNavigatorRouteName } from './route-names.js';
 import type {
   NavigationRoute,
   ScreenParamList,
   CommunityDrawerParamList,
-} from './route-names';
-import TabNavigator from './tab-navigator.react';
+} from './route-names.js';
+import TabNavigator from './tab-navigator.react.js';
 
 const communityDrawerContent = () => <CommunityDrawerContent />;
 

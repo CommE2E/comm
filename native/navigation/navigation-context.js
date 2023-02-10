@@ -6,9 +6,9 @@ import type {
 } from '@react-navigation/native';
 import * as React from 'react';
 
-import type { ChatRouterNavigationAction } from '../chat/chat-router';
-import type { OverlayRouterNavigationAction } from './overlay-router';
-import type { RootRouterNavigationAction } from './root-router';
+import type { ChatRouterNavigationAction } from '../chat/chat-router.js';
+import type { OverlayRouterNavigationAction } from './overlay-router.js';
+import type { RootRouterNavigationAction } from './root-router.js';
 
 export type NavAction =
   | CommonAction

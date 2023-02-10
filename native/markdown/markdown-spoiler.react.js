@@ -4,12 +4,12 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import type { ReactElement } from 'lib/shared/markdown';
+import type { ReactElement } from 'lib/shared/markdown.js';
 
-import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
-import { useStyles } from '../themes/colors';
-import { MarkdownContext } from './markdown-context';
-import { MarkdownSpoilerContext } from './markdown-spoiler-context';
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
+import { useStyles } from '../themes/colors.js';
+import { MarkdownContext } from './markdown-context.js';
+import { MarkdownSpoilerContext } from './markdown-spoiler-context.js';
 
 type MarkdownSpoilerProps = {
   +spoilerIdentifier: string | number | void,

@@ -1,8 +1,8 @@
 // @flow
 
-import { threadTypes } from 'lib/types/thread-types';
+import { threadTypes } from 'lib/types/thread-types.js';
 
-import { newThreadRequestInputValidator } from './thread-responders';
+import { newThreadRequestInputValidator } from './thread-responders.js';
 
 describe('Thread responders', () => {
   describe('New thread request validator', () => {

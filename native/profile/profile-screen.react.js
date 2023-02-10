@@ -3,26 +3,26 @@
 import * as React from 'react';
 import { View, Text, Alert, Platform, ScrollView } from 'react-native';
 
-import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
-import { useStringForUser } from 'lib/hooks/ens-cache';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { accountHasPassword } from 'lib/shared/account-utils';
-import type { LogOutResult } from 'lib/types/account-types';
-import { type PreRequestUserState } from 'lib/types/session-types';
-import { type CurrentUserInfo } from 'lib/types/user-types';
+import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
+import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
+import type { LogOutResult } from 'lib/types/account-types.js';
+import { type PreRequestUserState } from 'lib/types/session-types.js';
+import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { deleteNativeCredentialsFor } from '../account/native-credentials';
-import Action from '../components/action-row.react';
-import Button from '../components/button.react';
-import EditSettingButton from '../components/edit-setting-button.react';
-import { SingleLine } from '../components/single-line.react';
-import type { NavigationRoute } from '../navigation/route-names';
+import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
+import Action from '../components/action-row.react.js';
+import Button from '../components/button.react.js';
+import EditSettingButton from '../components/edit-setting-button.react.js';
+import { SingleLine } from '../components/single-line.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   EditPasswordRouteName,
   DeleteAccountRouteName,
@@ -33,11 +33,11 @@ import {
   BlockListRouteName,
   PrivacyPreferencesRouteName,
   DefaultNotificationsPreferencesRouteName,
-} from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../themes/colors';
-import { useStaffCanSee } from '../utils/staff-utils';
-import type { ProfileNavigationProp } from './profile.react';
+} from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
+import type { ProfileNavigationProp } from './profile.react.js';
 
 type ProfileRowProps = {
   +content: string,

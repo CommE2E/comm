@@ -3,16 +3,16 @@
 import geoip from 'geoip-lite';
 import invariant from 'invariant';
 
-import type { Platform, PlatformDetails } from 'lib/types/device-types';
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
   type CookieSource,
   type SessionIdentifierType,
   cookieTypes,
   type CookieType,
   sessionIdentifierTypes,
-} from 'lib/types/session-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/session-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
 export type UserViewerData = {
   +loggedIn: true,

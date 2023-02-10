@@ -2,15 +2,15 @@
 
 import { createSelector } from 'reselect';
 
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
-import type { LogInExtraInfo } from 'lib/types/account-types';
-import type { UserPolicies } from 'lib/types/policy-types';
-import { values } from 'lib/utils/objects';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
+import type { LogInExtraInfo } from 'lib/types/account-types.js';
+import type { UserPolicies } from 'lib/types/policy-types.js';
+import { values } from 'lib/utils/objects.js';
 
-import { calendarActiveSelector } from '../navigation/nav-selectors';
-import type { AppState } from '../redux/state-types';
-import type { ConnectivityInfo } from '../types/connectivity';
-import type { NavPlusRedux } from '../types/selector-types';
+import { calendarActiveSelector } from '../navigation/nav-selectors.js';
+import type { AppState } from '../redux/state-types.js';
+import type { ConnectivityInfo } from '../types/connectivity.js';
+import type { NavPlusRedux } from '../types/selector-types.js';
 
 const nativeLogInExtraInfoSelector: (
   input: NavPlusRedux,

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-import Landing from './landing.react';
+import Landing from './landing.react.js';
 import { SIWEContext } from './siwe-context.js';
 
 declare var routerBasename: string;

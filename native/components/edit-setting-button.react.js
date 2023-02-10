@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { TouchableOpacity, StyleSheet, Platform } from 'react-native';
 
-import { useColors } from '../themes/colors';
-import type { TextStyle } from '../types/styles';
-import SWMansionIcon from './swmansion-icon.react';
+import { useColors } from '../themes/colors.js';
+import type { TextStyle } from '../types/styles.js';
+import SWMansionIcon from './swmansion-icon.react.js';
 
 type Props = {
   +onPress: () => void,

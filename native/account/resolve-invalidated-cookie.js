@@ -1,14 +1,14 @@
 // @flow
 
-import { logInActionTypes, logIn } from 'lib/actions/user-actions';
-import type { LogInActionSource } from 'lib/types/account-types';
-import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
-import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint';
+import { logInActionTypes, logIn } from 'lib/actions/user-actions.js';
+import type { LogInActionSource } from 'lib/types/account-types.js';
+import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils.js';
+import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
 
-import { getGlobalNavContext } from '../navigation/icky-global';
-import { store } from '../redux/redux-setup';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import { fetchNativeKeychainCredentials } from './native-credentials';
+import { getGlobalNavContext } from '../navigation/icky-global.js';
+import { store } from '../redux/redux-setup.js';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { fetchNativeKeychainCredentials } from './native-credentials.js';
 
 async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,

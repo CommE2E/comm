@@ -3,16 +3,16 @@
 import invariant from 'invariant';
 import { createSelector } from 'reselect';
 
-import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
-import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
-import type { CalendarQuery } from 'lib/types/entry-types';
-import type { CalendarFilter } from 'lib/types/filter-types';
+import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
+import { currentCalendarQuery } from 'lib/selectors/nav-selectors.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
+import type { CalendarFilter } from 'lib/types/filter-types.js';
 
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/redux-setup.js';
 import {
   type NavigationTab,
   type NavigationSettingsSection,
-} from '../types/nav-types';
+} from '../types/nav-types.js';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 

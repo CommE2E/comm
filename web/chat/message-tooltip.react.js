@@ -5,20 +5,20 @@ import Picker from '@emoji-mart/react';
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { localIDPrefix } from 'lib/shared/message-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { localIDPrefix } from 'lib/shared/message-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useSelector } from '../redux/redux-utils';
-import { type MessageTooltipAction } from '../utils/tooltip-utils';
+import { useSelector } from '../redux/redux-utils.js';
+import { type MessageTooltipAction } from '../utils/tooltip-utils.js';
 import {
   tooltipButtonStyle,
   tooltipLabelStyle,
   tooltipStyle,
-} from './chat-constants';
+} from './chat-constants.js';
 import css from './message-tooltip.css';
-import { useSendReaction } from './reaction-message-utils';
-import { useTooltipContext } from './tooltip-provider';
+import { useSendReaction } from './reaction-message-utils.js';
+import { useTooltipContext } from './tooltip-provider.js';
 
 type MessageTooltipProps = {
   +actions: $ReadOnlyArray<MessageTooltipAction>,

@@ -3,15 +3,15 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
-import { createPendingThread } from 'lib/shared/thread-utils';
-import { threadTypes } from 'lib/types/thread-types';
+import { createPendingThread } from 'lib/shared/thread-utils.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { MessageListRouteName } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors } from '../themes/colors';
-import type { ChatNavigationProp } from './chat.react';
+import Button from '../components/button.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { MessageListRouteName } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useColors } from '../themes/colors.js';
+import type { ChatNavigationProp } from './chat.react.js';
 
 type BaseProps = {
   +navigate: $PropertyType<ChatNavigationProp<'ChatThreadList'>, 'navigate'>,

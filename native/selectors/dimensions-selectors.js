@@ -2,8 +2,8 @@
 
 import { createSelector } from 'reselect';
 
-import { type DimensionsInfo } from '../redux/dimensions-updater.react';
-import type { AppState } from '../redux/state-types';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
+import type { AppState } from '../redux/state-types.js';
 
 export type DerivedDimensionsInfo = {
   ...DimensionsInfo,

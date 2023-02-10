@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 
-import { type ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Button, { buttonThemes } from '../../components/button.react';
-import Modal from '../modal.react';
+import Button, { buttonThemes } from '../../components/button.react.js';
+import Modal from '../modal.react.js';
 import css from './confirm-leave-thread-modal.css';
 
 type Props = {

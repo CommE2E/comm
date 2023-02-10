@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 
-import CoreTextInput from '../components/text-input.react';
+import CoreTextInput from '../components/text-input.react.js';
 
 type Props = React.ElementConfig<typeof BaseTextInput>;
 class TextInput extends React.PureComponent<Props> {

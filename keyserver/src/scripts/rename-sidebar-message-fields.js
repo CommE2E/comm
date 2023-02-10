@@ -1,9 +1,9 @@
 // @flow
 
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { main } from './utils';
+import { dbQuery, SQL } from '../database/database.js';
+import { main } from './utils.js';
 
 async function renameSidebarSource() {
   const query = SQL`

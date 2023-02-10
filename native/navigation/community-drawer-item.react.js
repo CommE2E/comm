@@ -3,15 +3,15 @@
 import * as React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import type { MessageListParams } from '../chat/message-list-types';
-import { SingleLine } from '../components/single-line.react';
-import { useStyles } from '../themes/colors';
-import type { TextStyle } from '../types/styles';
-import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react';
-import SubchannelsButton from './subchannels-button.react';
+import type { MessageListParams } from '../chat/message-list-types.js';
+import { SingleLine } from '../components/single-line.react.js';
+import { useStyles } from '../themes/colors.js';
+import type { TextStyle } from '../types/styles.js';
+import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';
+import SubchannelsButton from './subchannels-button.react.js';
 
 export type CommunityDrawerItemData = {
   +threadInfo: ThreadInfo,

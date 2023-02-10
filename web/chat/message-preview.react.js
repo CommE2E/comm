@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useMessagePreview } from 'lib/shared/message-utils';
-import { type MessageInfo } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { useMessagePreview } from 'lib/shared/message-utils.js';
+import { type MessageInfo } from 'lib/types/message-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import { getDefaultTextMessageRules } from '../markdown/rules.react';
+import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import css from './chat-thread-list.css';
 
 type Props = {

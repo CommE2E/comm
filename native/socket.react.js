@@ -1,35 +1,35 @@
 // @flow
 
 import * as React from 'react';
-import Alert from 'react-native/Libraries/Alert/Alert';
+import Alert from 'react-native/Libraries/Alert/Alert.js';
 import { useDispatch } from 'react-redux';
 
-import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { accountHasPassword } from 'lib/shared/account-utils';
-import Socket, { type BaseSocketProps } from 'lib/socket/socket.react';
-import { logInActionSources } from 'lib/types/account-types';
+import { logOut, logOutActionTypes } from 'lib/actions/user-actions.js';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
+import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
+import { logInActionSources } from 'lib/types/account-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   fetchNewCookieFromNativeCredentials,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { InputStateContext } from './input/input-state';
+import { InputStateContext } from './input/input-state.js';
 import {
   activeMessageListSelector,
   nativeCalendarQuery,
-} from './navigation/nav-selectors';
-import { NavContext } from './navigation/navigation-context';
-import { useSelector } from './redux/redux-utils';
-import { noDataAfterPolicyAcknowledgmentSelector } from './selectors/account-selectors';
+} from './navigation/nav-selectors.js';
+import { NavContext } from './navigation/navigation-context.js';
+import { useSelector } from './redux/redux-utils.js';
+import { noDataAfterPolicyAcknowledgmentSelector } from './selectors/account-selectors.js';
 import {
   openSocketSelector,
   sessionIdentificationSelector,
   nativeGetClientResponsesSelector,
   nativeSessionStateFuncSelector,
-} from './selectors/socket-selectors';
+} from './selectors/socket-selectors.js';
 
 const NativeSocket: React.ComponentType<BaseSocketProps> = React.memo<BaseSocketProps>(
   function NativeSocket(props: BaseSocketProps) {

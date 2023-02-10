@@ -9,10 +9,10 @@ import {
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
-import CommunityDrawerButton from '../navigation/community-drawer-button.react';
-import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react';
-import HeaderBackButton from '../navigation/header-back-button.react';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
+import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
+import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
+import HeaderBackButton from '../navigation/header-back-button.react.js';
 import {
   ProfileScreenRouteName,
   EditPasswordRouteName,
@@ -26,18 +26,18 @@ import {
   BlockListRouteName,
   type ScreenParamList,
   type ProfileParamList,
-} from '../navigation/route-names';
-import { useStyles, useColors } from '../themes/colors';
-import AppearancePreferences from './appearance-preferences.react';
-import BuildInfo from './build-info.react';
-import DefaultNotificationsPreferences from './default-notifications-preferences.react';
-import DeleteAccount from './delete-account.react';
-import DevTools from './dev-tools.react';
-import EditPassword from './edit-password.react';
-import PrivacyPreferences from './privacy-preferences.react';
-import ProfileHeader from './profile-header.react';
-import ProfileScreen from './profile-screen.react';
-import RelationshipList from './relationship-list.react';
+} from '../navigation/route-names.js';
+import { useStyles, useColors } from '../themes/colors.js';
+import AppearancePreferences from './appearance-preferences.react.js';
+import BuildInfo from './build-info.react.js';
+import DefaultNotificationsPreferences from './default-notifications-preferences.react.js';
+import DeleteAccount from './delete-account.react.js';
+import DevTools from './dev-tools.react.js';
+import EditPassword from './edit-password.react.js';
+import PrivacyPreferences from './privacy-preferences.react.js';
+import ProfileHeader from './profile-header.react.js';
+import ProfileScreen from './profile-screen.react.js';
+import RelationshipList from './relationship-list.react.js';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
 const profileScreenOptions = { headerTitle: 'Profile' };

@@ -6,9 +6,9 @@ import { Text, Platform, Animated, Easing } from 'react-native';
 import {
   useDisconnectedBar,
   useShouldShowDisconnectedBar,
-} from 'lib/hooks/disconnected-bar';
+} from 'lib/hooks/disconnected-bar.js';
 
-import { useStyles } from '../themes/colors';
+import { useStyles } from '../themes/colors.js';
 
 const expandedHeight = Platform.select({
   android: 29.5,

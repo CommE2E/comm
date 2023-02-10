@@ -2,27 +2,27 @@
 
 import invariant from 'invariant';
 
-import ashoat from 'lib/facts/ashoat';
-import bots from 'lib/facts/bots';
-import genesis from 'lib/facts/genesis';
-import testers from 'lib/facts/testers';
-import { messageTypes } from 'lib/types/message-types';
-import { threadTypes, type ThreadType } from 'lib/types/thread-types';
+import ashoat from 'lib/facts/ashoat.js';
+import bots from 'lib/facts/bots.js';
+import genesis from 'lib/facts/genesis.js';
+import testers from 'lib/facts/testers.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { threadTypes, type ThreadType } from 'lib/types/thread-types.js';
 
-import createMessages from '../creators/message-creator';
-import { createThread } from '../creators/thread-creator';
-import { dbQuery, SQL } from '../database/database';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchAllUserIDs } from '../fetchers/user-fetchers';
-import { createScriptViewer } from '../session/scripts';
-import type { Viewer } from '../session/viewer';
+import createMessages from '../creators/message-creator.js';
+import { createThread } from '../creators/thread-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import { fetchAllUserIDs } from '../fetchers/user-fetchers.js';
+import { createScriptViewer } from '../session/scripts.js';
+import type { Viewer } from '../session/viewer.js';
 import {
   recalculateThreadPermissions,
   commitMembershipChangeset,
   saveMemberships,
-} from '../updaters/thread-permission-updaters';
-import { updateThread } from '../updaters/thread-updaters';
-import { main } from './utils';
+} from '../updaters/thread-permission-updaters.js';
+import { updateThread } from '../updaters/thread-updaters.js';
+import { main } from './utils.js';
 
 const batchSize = 10;
 const createThreadOptions = { forceAddMembers: true };

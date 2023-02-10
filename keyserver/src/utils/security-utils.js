@@ -2,7 +2,7 @@
 
 import type { $Request } from 'express';
 
-import { getAppURLFactsFromRequestURL } from './urls';
+import { getAppURLFactsFromRequestURL } from './urls.js';
 
 function assertSecureRequest(req: $Request) {
   const { https, proxy } = getAppURLFactsFromRequestURL(req.originalUrl);

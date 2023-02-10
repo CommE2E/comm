@@ -1,14 +1,14 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons.js';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import { useColors, useStyles } from '../themes/colors';
-import { sidebarHeight } from './sidebar-item.react';
+import Button from '../components/button.react.js';
+import { useColors, useStyles } from '../themes/colors.js';
+import { sidebarHeight } from './sidebar-item.react.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

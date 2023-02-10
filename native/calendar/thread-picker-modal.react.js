@@ -8,17 +8,17 @@ import { useDispatch } from 'react-redux';
 import {
   createLocalEntry,
   createLocalEntryActionType,
-} from 'lib/actions/entry-actions';
-import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors';
-import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
+} from 'lib/actions/entry-actions.js';
+import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
+import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors.js';
 
-import Modal from '../components/modal.react';
-import ThreadList from '../components/thread-list.react';
-import { RootNavigatorContext } from '../navigation/root-navigator-context';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { waitForInteractions } from '../utils/timers';
+import Modal from '../components/modal.react.js';
+import ThreadList from '../components/thread-list.react.js';
+import { RootNavigatorContext } from '../navigation/root-navigator-context.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { waitForInteractions } from '../utils/timers.js';
 
 export type ThreadPickerModalParams = {
   +presentedFrom: string,

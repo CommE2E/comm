@@ -2,25 +2,25 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadTypes } from 'lib/types/thread-types';
+import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
-import { trimText } from 'lib/utils/text-utils';
+} from 'lib/utils/action-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { trimText } from 'lib/utils/text-utils.js';
 
-import Stepper from '../../../components/stepper.react';
-import { updateNavInfoActionType } from '../../../redux/action-types';
-import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors';
-import Modal from '../../modal.react';
+import Stepper from '../../../components/stepper.react.js';
+import { updateNavInfoActionType } from '../../../redux/action-types.js';
+import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors.js';
+import Modal from '../../modal.react.js';
 import css from './compose-subchannel-modal.css';
-import SubchannelMembers from './steps/subchannel-members.react';
-import SubchannelSettings from './steps/subchannel-settings.react';
-import type { VisibilityType } from './steps/subchannel-settings.react';
+import SubchannelMembers from './steps/subchannel-members.react.js';
+import SubchannelSettings from './steps/subchannel-settings.react.js';
+import type { VisibilityType } from './steps/subchannel-settings.react.js';
 
 type Props = {
   +onClose: () => void,

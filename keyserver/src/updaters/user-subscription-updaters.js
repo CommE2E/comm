@@ -1,17 +1,17 @@
 // @flow
 
-import { viewerIsMember } from 'lib/shared/thread-utils';
+import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type {
   ThreadSubscription,
   SubscriptionUpdateRequest,
-} from 'lib/types/subscription-types';
-import { updateTypes } from 'lib/types/update-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/subscription-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import type { Viewer } from '../session/viewer';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function userSubscriptionUpdater(
   viewer: Viewer,

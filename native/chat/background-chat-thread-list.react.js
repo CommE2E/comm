@@ -3,18 +3,18 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
+import { unreadBackgroundCount } from 'lib/selectors/thread-selectors.js';
 import {
   threadInBackgroundChatList,
   emptyItemText,
-} from 'lib/shared/thread-utils';
+} from 'lib/shared/thread-utils.js';
 
-import BackgroundTabIllustration from '../components/background-tab-illustration.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
-import ChatThreadList from './chat-thread-list.react';
-import type { ChatTopTabsNavigationProp } from './chat.react';
+import BackgroundTabIllustration from '../components/background-tab-illustration.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
+import ChatThreadList from './chat-thread-list.react.js';
+import type { ChatTopTabsNavigationProp } from './chat.react.js';
 
 type BackgroundChatThreadListProps = {
   navigation: ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,

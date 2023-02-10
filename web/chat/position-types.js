@@ -1,6 +1,6 @@
 // @flow
 
-import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 
 export type OnMessagePositionWithContainerInfo = {
   +type: 'on',

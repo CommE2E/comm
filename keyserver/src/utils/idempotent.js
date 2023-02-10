@@ -1,6 +1,6 @@
 // @flow
 
-import type { Viewer } from '../session/viewer';
+import type { Viewer } from '../session/viewer.js';
 
 function creationString(viewer: Viewer, localID: string): string {
   return `${viewer.session}|${localID}`;

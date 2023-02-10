@@ -2,7 +2,10 @@
 
 import { Keyboard, Platform, DeviceInfo } from 'react-native';
 
-import type { EventSubscription, KeyboardEvent } from '../types/react-native';
+import type {
+  EventSubscription,
+  KeyboardEvent,
+} from '../types/react-native.js';
 
 export type ScreenRect = $ReadOnly<{
   screenX: number,

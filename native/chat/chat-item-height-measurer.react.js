@@ -3,20 +3,20 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
-import { messageID } from 'lib/shared/message-utils';
-import { messageTypes, type MessageType } from 'lib/types/message-types';
-import { entityTextToRawString } from 'lib/utils/entity-text';
+import type { ChatMessageItem } from 'lib/selectors/chat-selectors.js';
+import { messageID } from 'lib/shared/message-utils.js';
+import { messageTypes, type MessageType } from 'lib/types/message-types.js';
+import { entityTextToRawString } from 'lib/utils/entity-text.js';
 
-import NodeHeightMeasurer from '../components/node-height-measurer.react';
-import { InputStateContext } from '../input/input-state';
-import type { MeasurementTask } from './chat-context-provider.react';
-import { useComposedMessageMaxWidth } from './composed-message-width';
-import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react';
-import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
-import { MessageListContextProvider } from './message-list-types';
-import { multimediaMessageContentSizes } from './multimedia-message-utils';
-import { chatMessageItemKey } from './utils';
+import NodeHeightMeasurer from '../components/node-height-measurer.react.js';
+import { InputStateContext } from '../input/input-state.js';
+import type { MeasurementTask } from './chat-context-provider.react.js';
+import { useComposedMessageMaxWidth } from './composed-message-width.js';
+import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react.js';
+import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react.js';
+import { MessageListContextProvider } from './message-list-types.js';
+import { multimediaMessageContentSizes } from './multimedia-message-utils.js';
+import { chatMessageItemKey } from './utils.js';
 
 type Props = {
   +measurement: MeasurementTask,

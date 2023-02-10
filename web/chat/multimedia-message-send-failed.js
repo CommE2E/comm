@@ -2,10 +2,10 @@
 
 import invariant from 'invariant';
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { messageTypes } from 'lib/types/message-types.js';
 
-import type { InputState } from '../input/input-state';
+import type { InputState } from '../input/input-state.js';
 
 export default function multimediaMessageSendFailed(
   item: ChatMessageInfoItem,

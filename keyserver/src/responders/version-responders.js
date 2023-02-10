@@ -3,15 +3,15 @@
 import type { $Response, $Request } from 'express';
 import t from 'tcomb';
 
-import { isStaff } from 'lib/shared/user-utils';
-import type { CreateNewVersionsRequest } from 'lib/types/version-types';
-import { ServerError } from 'lib/utils/errors';
-import { tShape, tDeviceType } from 'lib/utils/validation-utils';
+import { isStaff } from 'lib/shared/user-utils.js';
+import type { CreateNewVersionsRequest } from 'lib/types/version-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { tShape, tDeviceType } from 'lib/utils/validation-utils.js';
 
-import createIDs from '../creators/id-creator';
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
-import { validateInput } from '../utils/validation-utils';
+import createIDs from '../creators/id-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const createNewVersionInputValidator = tShape({
   codeVersion: t.Number,

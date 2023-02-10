@@ -1,14 +1,14 @@
 // @flow
 
-import _sum from 'lodash/fp/sum';
+import _sum from 'lodash/fp/sum.js';
 import * as React from 'react';
 import { FlatList } from 'react-native';
 
-import type { UserListItem } from 'lib/types/user-types';
+import type { UserListItem } from 'lib/types/user-types.js';
 
-import { type IndicatorStyle, useIndicatorStyle } from '../themes/colors';
-import type { TextStyle } from '../types/styles';
-import { UserListUser, getUserListItemHeight } from './user-list-user.react';
+import { type IndicatorStyle, useIndicatorStyle } from '../themes/colors.js';
+import type { TextStyle } from '../types/styles.js';
+import { UserListUser, getUserListItemHeight } from './user-list-user.react.js';
 
 type BaseProps = {
   +userInfos: $ReadOnlyArray<UserListItem>,

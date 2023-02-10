@@ -12,7 +12,7 @@ import {
   ComposeSubchannelRouteName,
   AppRouteName,
   threadRoutes,
-} from './route-names';
+} from './route-names.js';
 
 function getStateFromNavigatorRoute(
   route: PossiblyStaleRoute<>,

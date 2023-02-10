@@ -2,28 +2,28 @@
 
 import * as React from 'react';
 import { View, Switch, TouchableOpacity, Platform } from 'react-native';
-import Alert from 'react-native/Libraries/Alert/Alert';
-import Linking from 'react-native/Libraries/Linking/Linking';
+import Alert from 'react-native/Libraries/Alert/Alert.js';
+import Linking from 'react-native/Libraries/Linking/Linking.js';
 
 import {
   updateSubscriptionActionTypes,
   updateSubscription,
-} from 'lib/actions/user-actions';
+} from 'lib/actions/user-actions.js';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
-} from 'lib/types/subscription-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+} from 'lib/types/subscription-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
+import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { SingleLine } from '../../components/single-line.react';
-import SWMansionIcon from '../../components/swmansion-icon.react';
-import { useSelector } from '../../redux/redux-utils';
-import { useStyles } from '../../themes/colors';
+import { SingleLine } from '../../components/single-line.react.js';
+import SWMansionIcon from '../../components/swmansion-icon.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { useStyles } from '../../themes/colors.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

@@ -6,24 +6,24 @@ import tinycolor from 'tinycolor2';
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { threadHasPermission } from 'lib/shared/thread-utils';
-import { type SetState } from 'lib/types/hook-types';
+} from 'lib/actions/thread-actions.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { type SetState } from 'lib/types/hook-types.js';
 import {
   type ThreadInfo,
   type ThreadChanges,
   threadPermissions,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
-import { firstLine } from 'lib/utils/string-utils';
+} from 'lib/utils/action-utils.js';
+import { firstLine } from 'lib/utils/string-utils.js';
 
-import LoadingIndicator from '../../../loading-indicator.react';
-import Input from '../../input.react';
-import ColorSelector from '../color-selector.react';
-import SubmitSection from './submit-section.react';
+import LoadingIndicator from '../../../loading-indicator.react.js';
+import Input from '../../input.react.js';
+import ColorSelector from '../color-selector.react.js';
+import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-general-tab.css';
 
 type ThreadSettingsGeneralTabProps = {

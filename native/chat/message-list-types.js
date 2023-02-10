@@ -4,12 +4,12 @@ import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { type UserInfo } from 'lib/types/user-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { type UserInfo } from 'lib/types/user-types.js';
 
-import type { MarkdownRules } from '../markdown/rules.react';
-import { useTextMessageRulesFunc } from '../markdown/rules.react';
-import { MessageListRouteName } from '../navigation/route-names';
+import type { MarkdownRules } from '../markdown/rules.react.js';
+import { useTextMessageRulesFunc } from '../markdown/rules.react.js';
+import { MessageListRouteName } from '../navigation/route-names.js';
 
 export type MessageListParams = {
   +threadInfo: ThreadInfo,

@@ -6,7 +6,7 @@ import fcmAdmin from 'firebase-admin';
 import type { FirebaseApp } from 'firebase-admin';
 import invariant from 'invariant';
 
-import { importJSON } from '../utils/import-json';
+import { importJSON } from '../utils/import-json.js';
 
 type APNPushProfile = 'apn_config' | 'comm_apn_config';
 function getAPNPushProfileForCodeVersion(codeVersion: ?number): APNPushProfile {

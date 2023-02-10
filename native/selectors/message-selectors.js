@@ -2,12 +2,12 @@
 
 import { createSelector } from 'reselect';
 
-import { threadIsPending } from 'lib/shared/thread-utils';
-import type { ThreadMessageInfo } from 'lib/types/message-types';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
+import type { ThreadMessageInfo } from 'lib/types/message-types.js';
 
-import { activeThreadSelector } from '../navigation/nav-selectors';
-import type { AppState } from '../redux/state-types';
-import type { NavPlusRedux } from '../types/selector-types';
+import { activeThreadSelector } from '../navigation/nav-selectors.js';
+import type { AppState } from '../redux/state-types.js';
+import type { NavPlusRedux } from '../types/selector-types.js';
 
 const msInHour = 60 * 60 * 1000;
 

@@ -1,6 +1,6 @@
 // @flow
 
-import { Viewer } from './viewer';
+import { Viewer } from './viewer.js';
 
 // Note that since the returned Viewer doesn't have a valid cookieID or
 // sessionID, a lot of things can go wrong when trying to use it with certain

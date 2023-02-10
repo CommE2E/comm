@@ -8,7 +8,7 @@ import {
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 
-import type { EmitterSubscription } from '../types/react-native';
+import type { EmitterSubscription } from '../types/react-native.js';
 
 type Active = 'active';
 type Background = 'background';

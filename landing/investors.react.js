@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 
-import { shuffledInvestorsData } from './investor-data';
-import InvestorProfileModal from './investor-profile-modal.react';
-import InvestorProfile from './investor-profile.react';
+import { shuffledInvestorsData } from './investor-data.js';
+import InvestorProfileModal from './investor-profile-modal.react.js';
+import InvestorProfile from './investor-profile.react.js';
 import css from './investors.css';
 
 function Investors(): React.Node {

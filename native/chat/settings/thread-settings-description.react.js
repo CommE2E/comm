@@ -13,37 +13,37 @@ import {
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadHasPermission } from 'lib/shared/thread-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type ThreadInfo,
   threadPermissions,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../../components/button.react';
-import EditSettingButton from '../../components/edit-setting-button.react';
-import SWMansionIcon from '../../components/swmansion-icon.react';
-import TextInput from '../../components/text-input.react';
-import { useSelector } from '../../redux/redux-utils';
-import { type Colors, useStyles, useColors } from '../../themes/colors';
+import Button from '../../components/button.react.js';
+import EditSettingButton from '../../components/edit-setting-button.react.js';
+import SWMansionIcon from '../../components/swmansion-icon.react.js';
+import TextInput from '../../components/text-input.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { type Colors, useStyles, useColors } from '../../themes/colors.js';
 import type {
   LayoutEvent,
   ContentSizeChangeEvent,
-} from '../../types/react-native';
-import SaveSettingButton from './save-setting-button.react';
+} from '../../types/react-native.js';
+import SaveSettingButton from './save-setting-button.react.js';
 import {
   ThreadSettingsCategoryHeader,
   ThreadSettingsCategoryFooter,
-} from './thread-settings-category.react';
+} from './thread-settings-category.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

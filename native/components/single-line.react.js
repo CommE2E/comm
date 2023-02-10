@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import { firstLine } from 'lib/utils/string-utils';
+import { firstLine } from 'lib/utils/string-utils.js';
 
 type Props = {
   ...React.ElementConfig<typeof Text>,

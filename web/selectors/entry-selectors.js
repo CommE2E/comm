@@ -1,15 +1,15 @@
 // @flow
 
-import _compact from 'lodash/fp/compact';
-import _flow from 'lodash/fp/flow';
-import _map from 'lodash/fp/map';
-import _mapValues from 'lodash/fp/mapValues';
+import _compact from 'lodash/fp/compact.js';
+import _flow from 'lodash/fp/flow.js';
+import _map from 'lodash/fp/map.js';
+import _mapValues from 'lodash/fp/mapValues.js';
 import { createSelector } from 'reselect';
 
-import { entryInfoSelector } from 'lib/selectors/thread-selectors';
-import type { EntryInfo } from 'lib/types/entry-types';
+import { entryInfoSelector } from 'lib/selectors/thread-selectors.js';
+import type { EntryInfo } from 'lib/types/entry-types.js';
 
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/redux-setup.js';
 
 const allDaysToEntries: (
   state: AppState,

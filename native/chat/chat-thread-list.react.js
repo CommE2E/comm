@@ -1,8 +1,8 @@
 // @flow
 
-import IonIcon from '@expo/vector-icons/Ionicons';
+import IonIcon from '@expo/vector-icons/Ionicons.js';
 import invariant from 'invariant';
-import _sum from 'lodash/fp/sum';
+import _sum from 'lodash/fp/sum.js';
 import * as React from 'react';
 import {
   View,
@@ -16,56 +16,56 @@ import { FloatingAction } from 'react-native-floating-action';
 import Animated from 'react-native-reanimated';
 import { createSelector } from 'reselect';
 
-import { searchUsers } from 'lib/actions/user-actions';
+import { searchUsers } from 'lib/actions/user-actions.js';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
-} from 'lib/selectors/chat-selectors';
-import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors';
-import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors';
-import SearchIndex from 'lib/shared/search-index';
+} from 'lib/selectors/chat-selectors.js';
+import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
+import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors.js';
+import SearchIndex from 'lib/shared/search-index.js';
 import {
   createPendingThread,
   getThreadListSearchResults,
-} from 'lib/shared/thread-utils';
-import type { UserSearchResult } from 'lib/types/search-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadTypes } from 'lib/types/thread-types';
-import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types';
-import { useServerCall } from 'lib/utils/action-utils';
+} from 'lib/shared/thread-utils.js';
+import type { UserSearchResult } from 'lib/types/search-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types.js';
+import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 
-import Button from '../components/button.react';
-import Search from '../components/search.react';
+import Button from '../components/button.react.js';
+import Search from '../components/search.react.js';
 import {
   SidebarListModalRouteName,
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
   type NavigationRoute,
-} from '../navigation/route-names';
-import type { TabNavigationProp } from '../navigation/tab-navigator.react';
-import { useSelector } from '../redux/redux-utils';
+} from '../navigation/route-names.js';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   type IndicatorStyle,
   indicatorStyleSelector,
   useStyles,
-} from '../themes/colors';
-import type { ScrollEvent } from '../types/react-native';
-import { AnimatedView, type AnimatedStyleObj } from '../types/styles';
-import { animateTowards } from '../utils/animation-utils';
+} from '../themes/colors.js';
+import type { ScrollEvent } from '../types/react-native.js';
+import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
+import { animateTowards } from '../utils/animation-utils.js';
 import {
   ChatThreadListItem,
   chatThreadListItemHeight,
   spacerHeight,
-} from './chat-thread-list-item.react';
+} from './chat-thread-list-item.react.js';
 import type {
   ChatTopTabsNavigationProp,
   ChatNavigationProp,
-} from './chat.react';
+} from './chat.react.js';
 import {
   type MessageListParams,
   useNavigateToThread,
-} from './message-list-types';
-import { sidebarHeight } from './sidebar-item.react';
+} from './message-list-types.js';
+import { sidebarHeight } from './sidebar-item.react.js';
 
 const floatingActions = [
   {

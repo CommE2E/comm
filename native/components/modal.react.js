@@ -5,9 +5,9 @@ import * as React from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useStyles } from '../themes/colors';
-import type { ViewStyle } from '../types/styles';
-import KeyboardAvoidingView from './keyboard-avoiding-view.react';
+import { useStyles } from '../themes/colors.js';
+import type { ViewStyle } from '../types/styles.js';
+import KeyboardAvoidingView from './keyboard-avoiding-view.react.js';
 
 type Props = $ReadOnly<{
   +children: React.Node,

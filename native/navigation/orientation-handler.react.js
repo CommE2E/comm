@@ -5,10 +5,10 @@ import type { Orientations } from 'react-native-orientation-locker';
 import Orientation from 'react-native-orientation-locker';
 import { useDispatch } from 'react-redux';
 
-import type { Dispatch } from 'lib/types/redux-types';
+import type { Dispatch } from 'lib/types/redux-types.js';
 
-import { updateDeviceOrientationActionType } from '../redux/action-types';
-import { useSelector } from '../redux/redux-utils';
+import { updateDeviceOrientationActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +deviceOrientation: Orientations,

@@ -3,14 +3,14 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { unreadBackgroundCount } from 'lib/selectors/thread-selectors';
+import { unreadBackgroundCount } from 'lib/selectors/thread-selectors.js';
 
-import Tabs from '../components/tabs.react';
-import { useSelector } from '../redux/redux-utils';
+import Tabs from '../components/tabs.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './chat-tabs.css';
-import ChatThreadList from './chat-thread-list.react';
-import ChatThreadTab from './chat-thread-tab.react';
-import { ThreadListContext } from './thread-list-provider';
+import ChatThreadList from './chat-thread-list.react.js';
+import ChatThreadTab from './chat-thread-tab.react.js';
+import { ThreadListContext } from './thread-list-provider.js';
 
 function ChatTabs(): React.Node {
   let backgroundTitle = 'Background';

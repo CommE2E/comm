@@ -5,8 +5,8 @@ import { Animated, View } from 'react-native';
 import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
 import { useSelector } from 'react-redux';
 
-import { type Colors, useColors, useStyles } from '../themes/colors';
-import Button from './button.react';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import Button from './button.react.js';
 
 type BaseProps = {
   +buttonWidth: number,
