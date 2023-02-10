@@ -119,7 +119,6 @@ class InnerMultimediaMessage extends React.PureComponent<Props> {
     const { pendingUploads } = this.props.item;
     const mediaInfo = {
       ...media,
-      corners: filteredCorners,
       index,
     };
     const pendingUpload = pendingUploads && pendingUploads[media.id];
