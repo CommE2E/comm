@@ -27,6 +27,9 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import type { ChatNavigationProp } from './chat.react.js';
+import { useNavigateToThread } from './message-list-types.js';
+import ParentThreadHeader from './parent-thread-header.react.js';
 import LinkButton from '../components/link-button.react.js';
 import { createTagInput } from '../components/tag-input.react.js';
 import ThreadList from '../components/thread-list.react.js';
@@ -35,9 +38,6 @@ import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import { useNavigateToThread } from './message-list-types.js';
-import ParentThreadHeader from './parent-thread-header.react.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
 

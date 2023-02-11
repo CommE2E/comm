@@ -11,13 +11,13 @@ import {
 } from 'lib/types/message-types.js';
 import type { RawComposableMessageInfo } from 'lib/types/message-types.js';
 
+import { multimediaMessageSendFailed } from './multimedia-message-utils.js';
+import textMessageSendFailed from './text-message-send-failed.js';
 import Button from '../components/button.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
-import { multimediaMessageSendFailed } from './multimedia-message-utils.js';
-import textMessageSendFailed from './text-message-send-failed.js';
 
 const failedSendHeight = 22;
 

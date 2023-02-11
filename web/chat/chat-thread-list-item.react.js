@@ -12,16 +12,16 @@ import {
   useResolvedThreadInfos,
 } from 'lib/utils/entity-helpers.js';
 
-import { useSelector } from '../redux/redux-utils.js';
-import {
-  useOnClickThread,
-  useThreadIsActive,
-} from '../selectors/thread-selectors.js';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react.js';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react.js';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
 import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import {
+  useOnClickThread,
+  useThreadIsActive,
+} from '../selectors/thread-selectors.js';
 
 type Props = {
   +item: ChatThreadItem,

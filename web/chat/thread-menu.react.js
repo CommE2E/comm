@@ -25,6 +25,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import css from './thread-menu.css';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react.js';
@@ -36,7 +37,6 @@ import ThreadSettingsModal from '../modals/threads/settings/thread-settings-moda
 import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react.js';
 import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import css from './thread-menu.css';
 
 type ThreadMenuProps = {
   +threadInfo: ThreadInfo,

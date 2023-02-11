@@ -5,13 +5,13 @@ import { View } from 'react-native';
 
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
+import { SidebarItem, sidebarHeight } from './sidebar-item.react.js';
+import SwipeableThread from './swipeable-thread.react.js';
 import ExtendedArrow from '../components/arrow-extended.react.js';
 import Arrow from '../components/arrow.react.js';
 import Button from '../components/button.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import { SidebarItem, sidebarHeight } from './sidebar-item.react.js';
-import SwipeableThread from './swipeable-thread.react.js';
 
 type Props = {
   +sidebarInfo: SidebarInfo,

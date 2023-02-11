@@ -28,10 +28,10 @@ import {
 } from 'lib/utils/action-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import css from './history.css';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../../selectors/nav-selectors.js';
-import css from './history.css';
 
 type BaseProps = {
   +entryInfo: EntryInfo,

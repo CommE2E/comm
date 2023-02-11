@@ -10,8 +10,8 @@ import { useKeyserverAdmin } from 'lib/shared/user-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import CommIcon from '../CommIcon.react.js';
 import css from './chat-thread-ancestors.css';
+import CommIcon from '../CommIcon.react.js';
 
 const SHOW_SEE_FULL_STRUCTURE = false;
 

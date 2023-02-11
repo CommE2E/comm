@@ -5,8 +5,8 @@ import * as React from 'react';
 
 import { policyTypes } from 'lib/facts/policies.js';
 
-import { useSelector } from '../redux/redux-utils.js';
 import { TermsAndPrivacyRouteName } from './route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 function PolicyAcknowledgmentHandler(): null {
   const userPolicies = useSelector(state => state.userPolicies);

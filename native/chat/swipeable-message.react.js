@@ -18,10 +18,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import tinycolor from 'tinycolor2';
 
+import { useMessageListScreenWidth } from './composed-message-width.js';
 import CommIcon from '../components/comm-icon.react.js';
 import { colors } from '../themes/colors.js';
 import type { ViewStyle } from '../types/styles.js';
-import { useMessageListScreenWidth } from './composed-message-width.js';
 
 const primaryThreshold = 40;
 const secondaryThreshold = 120;

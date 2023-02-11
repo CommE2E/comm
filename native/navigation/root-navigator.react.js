@@ -17,17 +17,6 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 
-import LoggedOutModal from '../account/logged-out-modal.react.js';
-import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
-import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
-import ImagePasteModal from '../chat/image-paste-modal.react.js';
-import MessageReactionsModal from '../chat/message-reactions-modal.react.js';
-import AddUsersModal from '../chat/settings/add-users-modal.react.js';
-import ColorSelectorModal from '../chat/settings/color-selector-modal.react.js';
-import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react.js';
-import SidebarListModal from '../chat/sidebar-list-modal.react.js';
-import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
-import CustomServerModal from '../profile/custom-server-modal.react.js';
 import AppNavigator from './app-navigator.react.js';
 import { defaultStackScreenOptions } from './options.js';
 import { RootNavigatorContext } from './root-navigator-context.js';
@@ -50,6 +39,17 @@ import {
   type RootParamList,
   TermsAndPrivacyRouteName,
 } from './route-names.js';
+import LoggedOutModal from '../account/logged-out-modal.react.js';
+import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
+import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
+import ImagePasteModal from '../chat/image-paste-modal.react.js';
+import MessageReactionsModal from '../chat/message-reactions-modal.react.js';
+import AddUsersModal from '../chat/settings/add-users-modal.react.js';
+import ColorSelectorModal from '../chat/settings/color-selector-modal.react.js';
+import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react.js';
+import SidebarListModal from '../chat/sidebar-list-modal.react.js';
+import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
+import CustomServerModal from '../profile/custom-server-modal.react.js';
 
 enableScreens();
 

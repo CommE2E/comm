@@ -2,10 +2,10 @@
 
 import { undirectedStatus } from 'lib/types/relationship-types.js';
 
+import { endScript } from './utils.js';
 import { createUndirectedRelationships } from '../creators/relationship-creators.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { saveMemberships } from '../updaters/thread-permission-updaters.js';
-import { endScript } from './utils.js';
 
 async function main() {
   try {

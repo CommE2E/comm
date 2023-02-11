@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 import { Animated, View } from 'react-native';
+// eslint-disable-next-line import/extensions
 import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
 import { useSelector } from 'react-redux';
 
-import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import Button from './button.react.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
 
 type BaseProps = {
   +buttonWidth: number,

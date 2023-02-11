@@ -6,13 +6,13 @@ import { messageKey } from 'lib/shared/message-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 import type { MultimediaMessageInfo } from 'lib/types/message-types.js';
 
+import { inlineEngagementStyle, clusterEndHeight } from './chat-constants.js';
+import { failedSendHeight } from './failed-send.react.js';
+import { authorNameHeight } from './message-header.react.js';
 import type {
   ChatMultimediaMessageInfoItem,
   MultimediaContentSizes,
 } from '../types/chat-types.js';
-import { inlineEngagementStyle, clusterEndHeight } from './chat-constants.js';
-import { failedSendHeight } from './failed-send.react.js';
-import { authorNameHeight } from './message-header.react.js';
 
 const spaceBetweenImages = 4;
 

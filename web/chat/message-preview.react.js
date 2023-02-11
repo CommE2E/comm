@@ -8,8 +8,8 @@ import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { type MessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import css from './chat-thread-list.css';
+import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 
 type Props = {
   +messageInfo: ?MessageInfo,

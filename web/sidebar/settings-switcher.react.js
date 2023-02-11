@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { updateNavInfoActionType } from '../redux/action-types.js';
-import { navSettingsSectionSelector } from '../selectors/nav-selectors.js';
 import css from './left-layout-aside.css';
 import NavigationPanel from './navigation-panel.react.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
+import { navSettingsSectionSelector } from '../selectors/nav-selectors.js';
 
 function SettingsSwitcher(): React.Node {
   const dispatch = useDispatch();

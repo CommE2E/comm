@@ -14,6 +14,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import css from './notifications-modal.css';
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
 import BadgeNotifsIllustration from '../../../assets/badge-notifs.react.js';
 import MutedNotifsIllustration from '../../../assets/muted-notifs.react.js';
@@ -21,7 +22,6 @@ import Button from '../../../components/button.react.js';
 import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
-import css from './notifications-modal.css';
 
 type NotificationSettings = 'focused' | 'badge-only' | 'background';
 

@@ -13,11 +13,6 @@ import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import CommIcon from '../components/comm-icon.react.js';
-import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
-import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
-import { useStyles } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import {
   inlineEngagementStyle,
   inlineEngagementCenterStyle,
@@ -25,6 +20,11 @@ import {
   composedMessageStyle,
 } from './chat-constants.js';
 import { useNavigateToThread } from './message-list-types.js';
+import CommIcon from '../components/comm-icon.react.js';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
+import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
   +threadInfo: ?ThreadInfo,

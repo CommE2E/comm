@@ -33,6 +33,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import type { RelationshipListNavigate } from './relationship-list.react.js';
 import PencilIcon from '../components/pencil-icon.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import {
@@ -52,7 +53,6 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
-import type { RelationshipListNavigate } from './relationship-list.react.js';
 
 type BaseProps = {
   +userInfo: AccountUserInfo,

@@ -5,12 +5,12 @@ import * as React from 'react';
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors.js';
 
-import Tabs from '../components/tabs.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 import css from './chat-tabs.css';
 import ChatThreadList from './chat-thread-list.react.js';
 import ChatThreadTab from './chat-thread-tab.react.js';
 import { ThreadListContext } from './thread-list-provider.js';
+import Tabs from '../components/tabs.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 function ChatTabs(): React.Node {
   let backgroundTitle = 'Background';

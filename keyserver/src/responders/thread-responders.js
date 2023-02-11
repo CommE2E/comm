@@ -25,6 +25,10 @@ import {
   tPassword,
 } from 'lib/utils/validation-utils.js';
 
+import {
+  entryQueryInputValidator,
+  verifyCalendarQueryThreadIDs,
+} from './entry-responders.js';
 import { createThread } from '../creators/thread-creator.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
 import type { Viewer } from '../session/viewer.js';
@@ -36,10 +40,6 @@ import {
   joinThread,
 } from '../updaters/thread-updaters.js';
 import { validateInput } from '../utils/validation-utils.js';
-import {
-  entryQueryInputValidator,
-  verifyCalendarQueryThreadIDs,
-} from './entry-responders.js';
 
 const threadDeletionRequestInputValidator = tShape({
   threadID: t.String,

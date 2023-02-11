@@ -5,12 +5,12 @@ import { View } from 'react-native';
 
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 
-import { SingleLine } from '../components/single-line.react.js';
-import { useStyles } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { clusterEndHeight } from './chat-constants.js';
 import type { DisplayType } from './timestamp.react.js';
 import { Timestamp, timestampHeight } from './timestamp.react.js';
+import { SingleLine } from '../components/single-line.react.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
   +item: ChatMessageInfoItemWithHeight,

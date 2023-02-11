@@ -6,8 +6,8 @@ import * as React from 'react';
 
 import type { SetState } from 'lib/types/hook-types.js';
 
-import type { TooltipPositionStyle } from '../utils/tooltip-utils.js';
 import css from './tooltip.css';
+import type { TooltipPositionStyle } from '../utils/tooltip-utils.js';
 
 const onMouseLeaveSourceDisappearTimeoutMs = 200;
 const onMouseLeaveTooltipDisappearTimeoutMs = 100;

@@ -1,7 +1,7 @@
 // @flow
 
-import { dbQuery, SQL } from '../database/database.js';
 import { main, endScript } from './utils.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 async function addOneTimeSettingsTable() {
   await dbQuery(SQL`

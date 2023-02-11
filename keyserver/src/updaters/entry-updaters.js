@@ -24,6 +24,7 @@ import { dateString } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 
+import type { SessionUpdate } from './session-updaters.js';
 import createIDs from '../creators/id-creator.js';
 import createMessages from '../creators/message-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
@@ -34,7 +35,6 @@ import {
 } from '../fetchers/entry-fetchers.js';
 import { fetchActiveSessionsForThread } from '../fetchers/session-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import type { SessionUpdate } from './session-updaters.js';
 
 const defaultUpdateCreationResponse = { viewerUpdates: [], userInfos: [] };
 async function updateEntry(

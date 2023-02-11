@@ -24,14 +24,14 @@ import {
 } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Tabs from '../../../components/tabs.react.js';
-import { useSelector } from '../../../redux/redux-utils.js';
-import Modal from '../../modal.react.js';
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react.js';
 import ThreadSettingsGeneralTab from './thread-settings-general-tab.react.js';
 import css from './thread-settings-modal.css';
 import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react.js';
 import ThreadSettingsRelationshipTab from './thread-settings-relationship-tab.react.js';
+import Tabs from '../../../components/tabs.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
+import Modal from '../../modal.react.js';
 
 type TabType = 'general' | 'privacy' | 'delete' | 'relationship';
 type BaseProps = {

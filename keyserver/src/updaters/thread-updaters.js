@@ -30,6 +30,12 @@ import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 
+import { updateRoles } from './role-updaters.js';
+import {
+  changeRole,
+  recalculateThreadPermissions,
+  commitMembershipChangeset,
+} from './thread-permission-updaters.js';
 import createMessages from '../creators/message-creator.js';
 import { getRolePermissionBlobs } from '../creators/role-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
@@ -53,12 +59,6 @@ import {
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
-import { updateRoles } from './role-updaters.js';
-import {
-  changeRole,
-  recalculateThreadPermissions,
-  commitMembershipChangeset,
-} from './thread-permission-updaters.js';
 
 async function updateRole(
   viewer: Viewer,

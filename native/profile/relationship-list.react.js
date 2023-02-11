@@ -30,6 +30,8 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
+import RelationshipListItem from './relationship-list-item.react.js';
 import LinkButton from '../components/link-button.react.js';
 import { createTagInput, BaseTagInput } from '../components/tag-input.react.js';
 import { KeyboardContext } from '../keyboard/keyboard-state.js';
@@ -42,8 +44,6 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useIndicatorStyle } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
-import type { ProfileNavigationProp } from './profile.react.js';
-import RelationshipListItem from './relationship-list-item.react.js';
 
 const TagInput = createTagInput<GlobalAccountUserInfo>();
 

@@ -28,14 +28,14 @@ import {
   siweMessageSigningExplanationStatements,
 } from 'lib/utils/siwe-utils.js';
 
+import HeaderSeparator from './header-separator.react.js';
+import css from './siwe.css';
 import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import HeaderSeparator from './header-separator.react.js';
-import css from './siwe.css';
 
 type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,

@@ -2,6 +2,7 @@
 
 import type { RouteProp } from '@react-navigation/native';
 
+import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
@@ -24,7 +25,6 @@ import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
-import type { ActionResultModalParams } from './action-result-modal.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
 export const AddUsersModalRouteName = 'AddUsersModal';

@@ -58,8 +58,8 @@ import {
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
+  type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
@@ -67,6 +67,9 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import { ChatContext } from './chat-context.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import TypeaheadTooltip from './typeahead-tooltip.react.js';
 import Button from '../components/button.react.js';
 import ClearableTextInput from '../components/clearable-text-input.react.js';
 import type { SyncedSelectionData } from '../components/selectable-text-input.js';
@@ -95,9 +98,6 @@ import type { LayoutEvent } from '../types/react-native.js';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';
-import { ChatContext } from './chat-context.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import TypeaheadTooltip from './typeahead-tooltip.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

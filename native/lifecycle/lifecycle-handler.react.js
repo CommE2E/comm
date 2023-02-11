@@ -6,8 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer.js';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
 
-import { appBecameInactive } from '../redux/redux-setup.js';
 import { addLifecycleListener } from './lifecycle.js';
+import { appBecameInactive } from '../redux/redux-setup.js';
 
 const LifecycleHandler: React.ComponentType<{}> = React.memo<{}>(
   function LifecycleHandler() {

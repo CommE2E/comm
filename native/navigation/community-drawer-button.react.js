@@ -4,8 +4,8 @@ import Icon from '@expo/vector-icons/Feather.js';
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
-import { useStyles } from '../themes/colors.js';
 import type { CommunityDrawerNavigationProp } from './community-drawer-navigator.react.js';
+import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,

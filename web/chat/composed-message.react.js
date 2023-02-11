@@ -13,11 +13,11 @@ import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import { type InputState, InputStateContext } from '../input/input-state.js';
-import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
 
 const availableTooltipPositionsForViewerMessage = [
   tooltipPositions.LEFT,

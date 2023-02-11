@@ -28,6 +28,7 @@ import {
   type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 
+import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 import PencilIcon from '../../components/pencil-icon.react.js';
 import { SingleLine } from '../../components/single-line.react.js';
 import {
@@ -42,7 +43,6 @@ import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/rout
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { VerticalBounds } from '../../types/layout-types.js';
-import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 
 type BaseProps = {
   +memberInfo: RelativeMemberInfo,

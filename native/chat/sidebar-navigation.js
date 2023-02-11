@@ -11,11 +11,11 @@ import {
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { GetENSNames } from 'lib/utils/ens-helpers.js';
 
+import { ChatContext } from './chat-context.js';
+import { useNavigateToThread } from './message-list-types.js';
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
-import { ChatContext } from './chat-context.js';
-import { useNavigateToThread } from './message-list-types.js';
 
 type GetUnresolvedSidebarThreadInfoInput = {
   +sourceMessage: ChatMessageInfoItemWithHeight,

@@ -20,13 +20,13 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import AddUsersListItem from './add-users-list-item.react.js';
+import css from './add-users-list.css';
 import Button from '../../components/button.react.js';
 import type { ButtonColor } from '../../components/button.react.js';
 import Label from '../../components/label.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import AddUsersListItem from './add-users-list-item.react.js';
-import css from './add-users-list.css';
 
 const loadingStatusSelector = createLoadingStatusSelector(
   updateRelationshipsActionTypes,

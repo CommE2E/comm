@@ -25,13 +25,6 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
-import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { commCoreModule } from '../native-modules.js';
-import { NavContext } from '../navigation/navigation-context.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import type { KeyPressEvent } from '../types/react-native.js';
-import type { StateContainer } from '../utils/state-container.js';
 import { TextInput } from './modal-components.react.js';
 import {
   fetchNativeCredentials,
@@ -39,6 +32,13 @@ import {
 } from './native-credentials.js';
 import { PanelButton, Panel } from './panel-components.react.js';
 import PasswordInput from './password-input.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { commCoreModule } from '../native-modules.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import type { KeyPressEvent } from '../types/react-native.js';
+import type { StateContainer } from '../utils/state-container.js';
 
 export type LogInState = {
   +usernameInputText: ?string,

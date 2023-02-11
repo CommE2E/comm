@@ -2,8 +2,8 @@
 
 import bcrypt from 'twin-bcrypt';
 
-import { dbQuery, SQL } from '../database/database.js';
 import { main } from './utils.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 const userID = '-1';
 const password = 'password';

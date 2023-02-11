@@ -14,11 +14,11 @@ import {
 } from 'lib/utils/action-utils.js';
 import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utlis.js';
 
+import Modal from './modal.react.js';
+import css from './terms-and-privacy-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import Modal from './modal.react.js';
-import css from './terms-and-privacy-modal.css';
 
 const loadingStatusSelector = createLoadingStatusSelector(
   policyAcknowledgmentActionTypes,

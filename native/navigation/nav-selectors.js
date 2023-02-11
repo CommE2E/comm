@@ -10,9 +10,6 @@ import { currentCalendarQuery } from 'lib/selectors/nav-selectors.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
 
-import { useSelector } from '../redux/redux-utils.js';
-import type { NavPlusRedux } from '../types/selector-types.js';
-import type { GlobalTheme } from '../types/themes.js';
 import type { NavContextType } from './navigation-context.js';
 import { NavContext } from './navigation-context.js';
 import {
@@ -33,6 +30,9 @@ import {
   threadRoutes,
   CommunityDrawerNavigatorRouteName,
 } from './route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { NavPlusRedux } from '../types/selector-types.js';
+import type { GlobalTheme } from '../types/themes.js';
 
 const baseCreateIsForegroundSelector = (routeName: string) =>
   createSelector(

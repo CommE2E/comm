@@ -4,6 +4,7 @@ import type { $Response, $Request } from 'express';
 
 import { ServerError } from 'lib/utils/errors.js';
 
+import { getMessageForException } from './utils.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
 import type { PolicyType } from '../lib/facts/policies.js';
 import {
@@ -19,7 +20,6 @@ import {
   getAppURLFactsFromRequestURL,
 } from '../utils/urls.js';
 import { policiesValidator } from '../utils/validation-utils.js';
-import { getMessageForException } from './utils.js';
 
 export type JSONResponder = {
   responder: (viewer: Viewer, input: any) => Promise<*>,

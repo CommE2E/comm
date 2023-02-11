@@ -20,11 +20,11 @@ import {
 } from 'lib/utils/action-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 
+import SubmitSection from './submit-section.react.js';
+import css from './thread-settings-general-tab.css';
 import LoadingIndicator from '../../../loading-indicator.react.js';
 import Input from '../../input.react.js';
 import ColorSelector from '../color-selector.react.js';
-import SubmitSection from './submit-section.react.js';
-import css from './thread-settings-general-tab.css';
 
 type ThreadSettingsGeneralTabProps = {
   +threadSettingsOperationInProgress: boolean,

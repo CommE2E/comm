@@ -5,9 +5,9 @@ import * as React from 'react';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import css from './confirm-leave-thread-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import Modal from '../modal.react.js';
-import css from './confirm-leave-thread-modal.css';
 
 type Props = {
   +threadInfo: ThreadInfo,

@@ -38,23 +38,6 @@ import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils.js';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
-import { commCoreModule } from '../native-modules.js';
-import { defaultNavInfo } from '../navigation/default-state.js';
-import { getGlobalNavContext } from '../navigation/icky-global.js';
-import { activeMessageListSelector } from '../navigation/nav-selectors.js';
-import { defaultNotifPermissionAlertInfo } from '../push/alerts.js';
-import reactotron from '../reactotron.js';
-import { defaultDeviceCameraInfo } from '../types/camera.js';
-import { defaultConnectivityInfo } from '../types/connectivity.js';
-import { defaultGlobalThemeInfo } from '../types/themes.js';
-import { isTaskCancelledError } from '../utils/error-handling.js';
-import { isStaffRelease } from '../utils/staff-utils.js';
-import {
-  defaultURLPrefix,
-  natNodeServer,
-  setCustomServer,
-  getDevServerHostname,
-} from '../utils/url-utils.js';
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,
@@ -73,6 +56,23 @@ import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { defaultDimensionsInfo } from './dimensions-updater.react.js';
 import { persistConfig, setPersistor } from './persist.js';
 import type { AppState } from './state-types.js';
+import { commCoreModule } from '../native-modules.js';
+import { defaultNavInfo } from '../navigation/default-state.js';
+import { getGlobalNavContext } from '../navigation/icky-global.js';
+import { activeMessageListSelector } from '../navigation/nav-selectors.js';
+import { defaultNotifPermissionAlertInfo } from '../push/alerts.js';
+import reactotron from '../reactotron.js';
+import { defaultDeviceCameraInfo } from '../types/camera.js';
+import { defaultConnectivityInfo } from '../types/connectivity.js';
+import { defaultGlobalThemeInfo } from '../types/themes.js';
+import { isTaskCancelledError } from '../utils/error-handling.js';
+import { isStaffRelease } from '../utils/staff-utils.js';
+import {
+  defaultURLPrefix,
+  natNodeServer,
+  setCustomServer,
+  getDevServerHostname,
+} from '../utils/url-utils.js';
 
 const defaultState = ({
   navInfo: defaultNavInfo,
@@ -514,7 +514,7 @@ const middleware = applyMiddleware(thunk, reduxLoggerMiddleware);
 
 let composeFunc = compose;
 if (__DEV__ && global.HermesInternal) {
-  const { composeWithDevTools } = require('remote-redux-devtools/src');
+  const { composeWithDevTools } = require('remote-redux-devtools/src/index.js');
   composeFunc = composeWithDevTools({
     name: 'Redux',
     hostname: getDevServerHostname(),

@@ -17,10 +17,10 @@ import {
 } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
+import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import { useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
-import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
 
 const maxDepth = 2;
 const safeAreaEdges = Platform.select({

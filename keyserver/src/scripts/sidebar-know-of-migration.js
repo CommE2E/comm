@@ -3,6 +3,7 @@
 import bots from 'lib/facts/bots.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types.js';
 
+import { main } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { updateRoles } from '../updaters/role-updaters.js';
@@ -11,7 +12,6 @@ import {
   commitMembershipChangeset,
 } from '../updaters/thread-permission-updaters.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
-import { main } from './utils.js';
 
 async function updatePrivateThreads() {
   console.log('updating private threads');

@@ -43,32 +43,6 @@ import {
   useResolvedOptionalThreadInfos,
 } from 'lib/utils/entity-helpers.js';
 
-import ThreadAncestors from '../../components/thread-ancestors.react.js';
-import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../../keyboard/keyboard-state.js';
-import { defaultStackScreenOptions } from '../../navigation/options.js';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../../navigation/overlay-context.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
-import {
-  AddUsersModalRouteName,
-  ComposeSubchannelModalRouteName,
-} from '../../navigation/route-names.js';
-import type { TabNavigationProp } from '../../navigation/tab-navigator.react.js';
-import { useSelector } from '../../redux/redux-utils.js';
-import type { AppState } from '../../redux/state-types.js';
-import {
-  useStyles,
-  type IndicatorStyle,
-  useIndicatorStyle,
-} from '../../themes/colors.js';
-import type { VerticalBounds } from '../../types/layout-types.js';
-import type { ViewStyle } from '../../types/styles.js';
-import type { ChatNavigationProp } from '../chat.react.js';
 import type { CategoryType } from './thread-settings-category.react.js';
 import {
   ThreadSettingsCategoryHeader,
@@ -92,6 +66,32 @@ import ThreadSettingsParent from './thread-settings-parent.react.js';
 import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react.js';
 import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react.js';
 import ThreadSettingsVisibility from './thread-settings-visibility.react.js';
+import ThreadAncestors from '../../components/thread-ancestors.react.js';
+import {
+  type KeyboardState,
+  KeyboardContext,
+} from '../../keyboard/keyboard-state.js';
+import { defaultStackScreenOptions } from '../../navigation/options.js';
+import {
+  OverlayContext,
+  type OverlayContextType,
+} from '../../navigation/overlay-context.js';
+import {
+  AddUsersModalRouteName,
+  ComposeSubchannelModalRouteName,
+} from '../../navigation/route-names.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
+import type { TabNavigationProp } from '../../navigation/tab-navigator.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import type { AppState } from '../../redux/state-types.js';
+import {
+  useStyles,
+  type IndicatorStyle,
+  useIndicatorStyle,
+} from '../../themes/colors.js';
+import type { VerticalBounds } from '../../types/layout-types.js';
+import type { ViewStyle } from '../../types/styles.js';
+import type { ChatNavigationProp } from '../chat.react.js';
 
 const itemPageLength = 5;
 

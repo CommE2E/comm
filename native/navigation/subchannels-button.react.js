@@ -7,8 +7,8 @@ import { TouchableOpacity, Text, View } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useStyles } from '../themes/colors.js';
 import { SubchannelsListModalRouteName } from './route-names.js';
+import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

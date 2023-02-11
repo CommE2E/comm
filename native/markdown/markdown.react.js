@@ -8,9 +8,9 @@ import * as SimpleMarkdown from 'simple-markdown';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis.js';
 
+import type { MarkdownRules } from './rules.react.js';
 import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
 import type { TextStyle } from '../types/styles.js';
-import type { MarkdownRules } from './rules.react.js';
 
 type Props = {
   +style: TextStyle,

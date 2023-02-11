@@ -5,10 +5,10 @@ import { useDispatch } from 'react-redux';
 
 import { actionLogger } from 'lib/utils/action-logger.js';
 
-import { setNavStateActionType } from '../navigation/action-types.js';
-import { NavContext } from '../navigation/navigation-context.js';
 import { setReduxStateActionType } from './action-types.js';
 import { useSelector } from './redux-utils.js';
+import { setNavStateActionType } from '../navigation/action-types.js';
+import { NavContext } from '../navigation/navigation-context.js';
 
 const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
   const devToolsRef = React.useRef();

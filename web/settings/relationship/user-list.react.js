@@ -7,8 +7,8 @@ import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
-import { useSelector } from '../../redux/redux-utils.js';
 import css from './user-list.css';
+import { useSelector } from '../../redux/redux-utils.js';
 
 export type UserRowProps = {
   +userInfo: AccountUserInfo,

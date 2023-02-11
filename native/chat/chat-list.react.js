@@ -15,6 +15,9 @@ import { FlatList } from 'react-native-gesture-handler';
 
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 
+import type { ChatNavigationProp } from './chat.react.js';
+import NewMessagesPill from './new-messages-pill.react.js';
+import { chatMessageItemHeight, chatMessageItemKey } from './utils.js';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -24,9 +27,6 @@ import { useSelector } from '../redux/redux-utils.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 import type { ScrollEvent } from '../types/react-native.js';
 import type { ViewStyle } from '../types/styles.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import NewMessagesPill from './new-messages-pill.react.js';
-import { chatMessageItemHeight, chatMessageItemKey } from './utils.js';
 
 type FlatListElementRef = React.ElementRef<typeof ReactNativeFlatList>;
 type FlatListProps = React.ElementConfig<typeof ReactNativeFlatList>;
