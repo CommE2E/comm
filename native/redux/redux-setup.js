@@ -514,7 +514,7 @@ const middleware = applyMiddleware(thunk, reduxLoggerMiddleware);
 
 let composeFunc = compose;
 if (__DEV__ && global.HermesInternal) {
-  const { composeWithDevTools } = require('remote-redux-devtools/src');
+  const { composeWithDevTools } = require('remote-redux-devtools/src/index.js');
   composeFunc = composeWithDevTools({
     name: 'Redux',
     hostname: getDevServerHostname(),

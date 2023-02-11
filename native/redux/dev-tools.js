@@ -11,7 +11,7 @@ const remoteReduxDevServerConfig = {
 // can no longer rely on the debugger to set these globals. We have to set them
 // ourselves to work with remote-redux-devtools
 if (__DEV__ && global.HermesInternal && !global.__REDUX_DEVTOOLS_EXTENSION__) {
-  const { connect } = require('remotedev/src');
+  const { connect } = require('remotedev/src/index.js');
   global.__REDUX_DEVTOOLS_EXTENSION__ = {
     connect: ({ name }) =>
       connect({

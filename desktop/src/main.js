@@ -8,6 +8,7 @@ import {
   ipcMain,
   systemPreferences,
   autoUpdater,
+  // eslint-disable-next-line import/extensions
 } from 'electron/main';
 import fs from 'fs';
 import path from 'path';

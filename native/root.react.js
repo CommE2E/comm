@@ -16,7 +16,7 @@ import {
   initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
-import { PersistGate as ReduxPersistGate } from 'redux-persist/integration/react';
+import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/react.js';
 
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
