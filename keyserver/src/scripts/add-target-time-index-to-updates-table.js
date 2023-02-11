@@ -1,8 +1,8 @@
 // @flow
 
-import { dbQuery, SQL } from '../database/database.js';
 import { setScriptContext } from './script-context.js';
 import { main } from './utils.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 setScriptContext({
   allowMultiStatementSQLQueries: true,

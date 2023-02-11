@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 
-import { useIsCurrentUserStaff } from '../utils/staff-utils.js';
 import { StaffContext, type StaffContextType } from './staff-context.js';
+import { useIsCurrentUserStaff } from '../utils/staff-utils.js';
 
 type Props = {
   +children: React.Node,

@@ -21,15 +21,15 @@ import type { Dispatch } from 'lib/types/redux-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { dateString, dateFromString } from 'lib/utils/date-utils.js';
 
+import css from './calendar.css';
+import type { InnerEntry } from './entry.react.js';
+import Entry from './entry.react.js';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react.js';
 import HistoryModal from '../modals/history/history-modal.react.js';
 import ThreadPickerModal from '../modals/threads/thread-picker-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { htmlTargetFromEvent } from '../vector-utils.js';
 import { AddVector, HistoryVector } from '../vectors.react.js';
-import css from './calendar.css';
-import type { InnerEntry } from './entry.react.js';
-import Entry from './entry.react.js';
 
 type BaseProps = {
   +dayString: string,

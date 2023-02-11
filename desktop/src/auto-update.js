@@ -1,5 +1,6 @@
 // @flow
 
+// eslint-disable-next-line import/extensions
 import { app, ipcMain, autoUpdater } from 'electron/main';
 
 const getUpdateUrl = version =>

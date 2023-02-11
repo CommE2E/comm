@@ -21,6 +21,11 @@ import Animated from 'react-native-reanimated';
 
 import { type MediaInfo, type Dimensions } from 'lib/types/media-types.js';
 
+import Multimedia from './multimedia.react.js';
+import {
+  useIntentionalSaveMedia,
+  type IntentionalSaveMedia,
+} from './save-media.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
@@ -47,11 +52,6 @@ import {
   gestureJustEnded,
   runTiming,
 } from '../utils/animation-utils.js';
-import Multimedia from './multimedia.react.js';
-import {
-  useIntentionalSaveMedia,
-  type IntentionalSaveMedia,
-} from './save-media.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

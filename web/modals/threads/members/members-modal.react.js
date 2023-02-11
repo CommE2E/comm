@@ -15,13 +15,13 @@ import {
   threadPermissions,
 } from 'lib/types/thread-types.js';
 
+import AddMembersModal from './add-members-modal.react.js';
+import ThreadMembersList from './members-list.react.js';
+import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
 import Tabs from '../../../components/tabs.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import SearchModal from '../../search-modal.react.js';
-import AddMembersModal from './add-members-modal.react.js';
-import ThreadMembersList from './members-list.react.js';
-import css from './members-modal.css';
 
 type ContentProps = {
   +searchText: string,

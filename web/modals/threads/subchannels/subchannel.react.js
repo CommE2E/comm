@@ -10,10 +10,10 @@ import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import css from './subchannels-modal.css';
 import Button from '../../../components/button.react.js';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react.js';
 import { useOnClickThread } from '../../../selectors/thread-selectors.js';
-import css from './subchannels-modal.css';
 
 type Props = {
   +chatThreadItem: ChatThreadItem,

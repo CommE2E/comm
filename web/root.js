@@ -6,8 +6,8 @@ import { Router, Route } from 'react-router';
 import { createStore, applyMiddleware, type Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction.js';
 import { persistReducer, persistStore } from 'redux-persist';
-import { PersistGate } from 'redux-persist/integration/react';
-import storage from 'redux-persist/lib/storage';
+import { PersistGate } from 'redux-persist/es/integration/react.js';
+import storage from 'redux-persist/es/storage/index.js';
 import thunk from 'redux-thunk';
 
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';

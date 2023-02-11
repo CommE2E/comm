@@ -9,6 +9,7 @@ import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import createMessages from './message-creator.js';
 import { createCommbotThread } from '../bots/commbot.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
@@ -20,7 +21,6 @@ import {
   fetchKeyserverAdminID,
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import createMessages from './message-creator.js';
 
 const { commbot } = bots;
 

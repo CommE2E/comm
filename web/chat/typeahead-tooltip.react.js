@@ -7,6 +7,7 @@ import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { leastPositiveResidue } from 'lib/utils/math-utils.js';
 
+import css from './typeahead-tooltip.css';
 import type { InputState } from '../input/input-state.js';
 import {
   getTypeaheadOverlayScroll,
@@ -14,7 +15,6 @@ import {
   getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
 } from '../utils/typeahead-utils.js';
-import css from './typeahead-tooltip.css';
 
 export type TypeaheadTooltipProps = {
   +inputState: InputState,

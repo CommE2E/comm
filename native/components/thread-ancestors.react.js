@@ -8,12 +8,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useNavigateToThread } from '../chat/message-list-types.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { useColors, useStyles } from '../themes/colors.js';
 import Button from './button.react.js';
 import CommunityPill from './community-pill.react.js';
 import ThreadPill from './thread-pill.react.js';
+import { useNavigateToThread } from '../chat/message-list-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

@@ -3,9 +3,9 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import LoadingIndicator from '../loading-indicator.react.js';
 import Button from './button.react.js';
 import css from './stepper.css';
+import LoadingIndicator from '../loading-indicator.react.js';
 
 export type ButtonProps = {
   +content: React.Node,

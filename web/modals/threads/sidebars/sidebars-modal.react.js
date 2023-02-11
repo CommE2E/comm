@@ -5,10 +5,10 @@ import * as React from 'react';
 import { useFilteredChildThreads } from 'lib/hooks/child-threads.js';
 import { threadInChatList, threadIsSidebar } from 'lib/shared/thread-utils.js';
 
-import Tabs from '../../../components/tabs.react.js';
-import SearchModal from '../../search-modal.react.js';
 import SidebarList from './sidebar-list.react.js';
 import css from './sidebars-modal.css';
+import Tabs from '../../../components/tabs.react.js';
+import SearchModal from '../../search-modal.react.js';
 
 type SidebarTab = 'All Threads' | 'My Threads';
 

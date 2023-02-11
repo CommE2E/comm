@@ -8,12 +8,12 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
+import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 import ColorSplotch from '../../components/color-splotch.react.js';
 import EditSettingButton from '../../components/edit-setting-button.react.js';
 import { ColorSelectorModalRouteName } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
-import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

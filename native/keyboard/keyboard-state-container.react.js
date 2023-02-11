@@ -7,8 +7,6 @@ import { KeyboardUtils } from 'react-native-keyboard-input';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import sleep from 'lib/utils/sleep.js';
 
-import { tabBarAnimationDuration } from '../navigation/tab-bar.react.js';
-import { waitForInteractions } from '../utils/timers.js';
 import KeyboardInputHost from './keyboard-input-host.react.js';
 import { KeyboardContext } from './keyboard-state.js';
 import {
@@ -16,6 +14,8 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from './keyboard.js';
+import { tabBarAnimationDuration } from '../navigation/tab-bar.react.js';
+import { waitForInteractions } from '../utils/timers.js';
 
 type Props = {
   +children: React.Node,

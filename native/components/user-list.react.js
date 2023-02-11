@@ -6,9 +6,9 @@ import { FlatList } from 'react-native';
 
 import type { UserListItem } from 'lib/types/user-types.js';
 
+import { UserListUser, getUserListItemHeight } from './user-list-user.react.js';
 import { type IndicatorStyle, useIndicatorStyle } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
-import { UserListUser, getUserListItemHeight } from './user-list-user.react.js';
 
 type BaseProps = {
   +userInfos: $ReadOnlyArray<UserListItem>,

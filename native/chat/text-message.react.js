@@ -11,6 +11,15 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 
+import type { ChatNavigationProp } from './chat.react.js';
+import ComposedMessage from './composed-message.react.js';
+import { InnerTextMessage } from './inner-text-message.react.js';
+import {
+  MessagePressResponderContext,
+  type MessagePressResponderContextType,
+} from './message-press-responder-context.js';
+import textMessageSendFailed from './text-message-send-failed.js';
+import { getMessageTooltipKey } from './utils.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
 import { MarkdownContext } from '../markdown/markdown-context.js';
 import {
@@ -22,15 +31,6 @@ import { TextMessageTooltipModalRouteName } from '../navigation/route-names.js';
 import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import ComposedMessage from './composed-message.react.js';
-import { InnerTextMessage } from './inner-text-message.react.js';
-import {
-  MessagePressResponderContext,
-  type MessagePressResponderContextType,
-} from './message-press-responder-context.js';
-import textMessageSendFailed from './text-message-send-failed.js';
-import { getMessageTooltipKey } from './utils.js';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,

@@ -6,9 +6,9 @@ import { Text } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import { sidebarHeight } from './sidebar-item.react.js';
 import Button from '../components/button.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import { sidebarHeight } from './sidebar-item.react.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

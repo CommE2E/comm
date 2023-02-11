@@ -20,9 +20,9 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-privacy-tab.css';
+import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
 

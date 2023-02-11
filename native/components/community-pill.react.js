@@ -6,10 +6,10 @@ import { View, StyleSheet } from 'react-native';
 import { useKeyserverAdmin } from 'lib/shared/user-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useColors } from '../themes/colors.js';
 import CommIcon from './comm-icon.react.js';
 import Pill from './pill.react.js';
 import ThreadPill from './thread-pill.react.js';
+import { useColors } from '../themes/colors.js';
 
 type Props = {
   +community: ThreadInfo,

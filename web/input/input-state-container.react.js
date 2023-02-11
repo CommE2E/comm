@@ -76,16 +76,16 @@ import {
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 
-import { validateFile, preloadImage } from '../media/media-utils.js';
-import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 import {
   type PendingMultimediaUpload,
   type InputState,
   type TypeaheadState,
   InputStateContext,
 } from './input-state.js';
+import { validateFile, preloadImage } from '../media/media-utils.js';
+import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 
 const browser = detectBrowser();
 const exifRotate =

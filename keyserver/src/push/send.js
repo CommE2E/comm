@@ -31,6 +31,14 @@ import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import { getAPNsNotificationTopic } from './providers.js';
+import {
+  apnPush,
+  fcmPush,
+  getUnreadCounts,
+  apnMaxNotificationPayloadByteSize,
+  fcmMaxNotificationPayloadByteSize,
+} from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
@@ -40,14 +48,6 @@ import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { fetchUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import { getENSNames } from '../utils/ens-cache.js';
-import { getAPNsNotificationTopic } from './providers.js';
-import {
-  apnPush,
-  fcmPush,
-  getUnreadCounts,
-  apnMaxNotificationPayloadByteSize,
-  fcmMaxNotificationPayloadByteSize,
-} from './utils.js';
 
 type Device = {
   +deviceType: DeviceType,

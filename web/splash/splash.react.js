@@ -4,9 +4,9 @@ import { darkTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
 
+import css from './splash.css';
 import LoginForm from '../account/log-in-form.react.js';
 import { wagmiChains } from '../utils/wagmi-utils.js';
-import css from './splash.css';
 
 function Splash(): React.Node {
   const rainbowKitTheme = React.useMemo(() => {

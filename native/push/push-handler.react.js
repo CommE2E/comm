@@ -27,23 +27,6 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
-import {
-  type MessageListParams,
-  useNavigateToThread,
-} from '../chat/message-list-types.js';
-import {
-  addLifecycleListener,
-  getCurrentLifecycleState,
-} from '../lifecycle/lifecycle.js';
-import { replaceWithThreadActionType } from '../navigation/action-types.js';
-import { activeMessageListSelector } from '../navigation/nav-selectors.js';
-import { NavContext } from '../navigation/navigation-context.js';
-import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
-import { recordNotifPermissionAlertActionType } from '../redux/action-types.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { RootContext, type RootContextType } from '../root-context.js';
-import type { EventSubscription } from '../types/react-native.js';
-import { type GlobalTheme } from '../types/themes.js';
 import { type NotifPermissionAlertInfo } from './alerts.js';
 import {
   androidNotificationChannelID,
@@ -63,7 +46,24 @@ import {
   iosPushPermissionResponseReceived,
   CommIOSNotifications,
   getCommIOSNotificationsEventEmitter,
-} from './ios';
+} from './ios.js';
+import {
+  type MessageListParams,
+  useNavigateToThread,
+} from '../chat/message-list-types.js';
+import {
+  addLifecycleListener,
+  getCurrentLifecycleState,
+} from '../lifecycle/lifecycle.js';
+import { replaceWithThreadActionType } from '../navigation/action-types.js';
+import { activeMessageListSelector } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import { recordNotifPermissionAlertActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { RootContext, type RootContextType } from '../root-context.js';
+import type { EventSubscription } from '../types/react-native.js';
+import { type GlobalTheme } from '../types/themes.js';
 
 LogBox.ignoreLogs([
   // react-native-in-app-message

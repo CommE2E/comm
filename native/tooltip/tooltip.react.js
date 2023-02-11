@@ -12,6 +12,14 @@ import {
 } from 'react-native';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 
+import {
+  TooltipContextProvider,
+  TooltipContext,
+  type TooltipContextType,
+} from './tooltip-context.react.js';
+import BaseTooltipItem, {
+  type TooltipItemBaseProps,
+} from './tooltip-item.react.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -29,14 +37,6 @@ import {
 } from '../types/layout-types.js';
 import type { LayoutEvent } from '../types/react-native.js';
 import { AnimatedView } from '../types/styles.js';
-import {
-  TooltipContextProvider,
-  TooltipContext,
-  type TooltipContextType,
-} from './tooltip-context.react.js';
-import BaseTooltipItem, {
-  type TooltipItemBaseProps,
-} from './tooltip-item.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;

@@ -29,6 +29,11 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import SaveSettingButton from './save-setting-button.react.js';
+import {
+  ThreadSettingsCategoryHeader,
+  ThreadSettingsCategoryFooter,
+} from './thread-settings-category.react.js';
 import Button from '../../components/button.react.js';
 import EditSettingButton from '../../components/edit-setting-button.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
@@ -39,11 +44,6 @@ import type {
   LayoutEvent,
   ContentSizeChangeEvent,
 } from '../../types/react-native.js';
-import SaveSettingButton from './save-setting-button.react.js';
-import {
-  ThreadSettingsCategoryHeader,
-  ThreadSettingsCategoryFooter,
-} from './thread-settings-category.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

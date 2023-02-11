@@ -5,10 +5,10 @@ import { Text, Platform, Alert } from 'react-native';
 
 import type { UserListItem } from 'lib/types/user-types.js';
 
-import { type Colors, useColors, useStyles } from '../themes/colors.js';
-import type { TextStyle } from '../types/styles.js';
 import Button from './button.react.js';
 import { SingleLine } from './single-line.react.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { TextStyle } from '../types/styles.js';
 
 // eslint-disable-next-line no-unused-vars
 const getUserListItemHeight = (item: UserListItem): number => {

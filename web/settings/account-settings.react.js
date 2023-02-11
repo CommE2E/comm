@@ -13,12 +13,12 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import Button from '../components/button.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 import css from './account-settings.css';
 import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
+import Button from '../components/button.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useServerCall(logOut);

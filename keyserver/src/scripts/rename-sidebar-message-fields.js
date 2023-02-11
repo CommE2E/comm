@@ -2,8 +2,8 @@
 
 import { messageTypes } from 'lib/types/message-types.js';
 
-import { dbQuery, SQL } from '../database/database.js';
 import { main } from './utils.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 async function renameSidebarSource() {
   const query = SQL`

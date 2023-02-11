@@ -13,6 +13,7 @@ import { StackRouter, CommonActions } from '@react-navigation/native';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import { createNavigateToThreadAction } from './message-list-types.js';
 import {
   clearScreensActionType,
   replaceWithThreadActionType,
@@ -27,7 +28,6 @@ import {
   ChatThreadListRouteName,
   ComposeSubchannelRouteName,
 } from '../navigation/route-names.js';
-import { createNavigateToThreadAction } from './message-list-types.js';
 
 type ClearScreensAction = {
   +type: 'CLEAR_SCREENS',

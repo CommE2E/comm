@@ -12,12 +12,12 @@ import {
 } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react.js';
-import { type InputState, InputStateContext } from '../input/input-state.js';
-import { useSelector } from '../redux/redux-utils.js';
 import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed.js';
 import textMessageSendFailed from './text-message-send-failed.js';
+import Button from '../components/button.react.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItem,

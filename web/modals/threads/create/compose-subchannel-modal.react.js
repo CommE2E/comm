@@ -13,14 +13,14 @@ import {
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { trimText } from 'lib/utils/text-utils.js';
 
-import Stepper from '../../../components/stepper.react.js';
-import { updateNavInfoActionType } from '../../../redux/action-types.js';
-import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors.js';
-import Modal from '../../modal.react.js';
 import css from './compose-subchannel-modal.css';
 import SubchannelMembers from './steps/subchannel-members.react.js';
 import SubchannelSettings from './steps/subchannel-settings.react.js';
 import type { VisibilityType } from './steps/subchannel-settings.react.js';
+import Stepper from '../../../components/stepper.react.js';
+import { updateNavInfoActionType } from '../../../redux/action-types.js';
+import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors.js';
+import Modal from '../../modal.react.js';
 
 type Props = {
   +onClose: () => void,

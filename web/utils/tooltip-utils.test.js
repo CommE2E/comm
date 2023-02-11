@@ -1,7 +1,7 @@
 // @flow
 
-import type { PositionInfo } from '../chat/position-types.js';
 import { findTooltipPosition, tooltipPositions } from './tooltip-utils.js';
+import type { PositionInfo } from '../chat/position-types.js';
 
 const QHDWindow = {
   width: 2560,

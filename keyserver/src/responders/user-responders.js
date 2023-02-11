@@ -55,6 +55,12 @@ import {
 } from 'lib/utils/validation-utils.js';
 
 import {
+  entryQueryInputValidator,
+  newEntryQueryInputValidator,
+  normalizeCalendarQuery,
+  verifyCalendarQueryThreadIDs,
+} from './entry-responders.js';
+import {
   createAccount,
   processSIWEAccountCreation,
 } from '../creators/account-creator.js';
@@ -87,12 +93,6 @@ import {
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { validateInput } from '../utils/validation-utils.js';
-import {
-  entryQueryInputValidator,
-  newEntryQueryInputValidator,
-  normalizeCalendarQuery,
-  verifyCalendarQueryThreadIDs,
-} from './entry-responders.js';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,

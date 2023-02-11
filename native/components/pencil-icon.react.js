@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { Platform } from 'react-native';
 
-import { useStyles } from '../themes/colors.js';
 import SWMansionIcon from './swmansion-icon.react.js';
+import { useStyles } from '../themes/colors.js';
 
 function PencilIcon(): React.Node {
   const styles = useStyles(unboundStyles);

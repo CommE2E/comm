@@ -15,6 +15,7 @@ import {
 
 import type { Shape } from 'lib/types/core.js';
 
+import TextInput from './text-input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, type Colors } from '../themes/colors.js';
 import type {
@@ -23,7 +24,6 @@ import type {
   BlurEvent,
 } from '../types/react-native.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';
-import TextInput from './text-input.react.js';
 
 type DefaultProps = {
   /**

@@ -6,14 +6,14 @@ import { View } from 'react-native';
 import { useSearchSidebars } from 'lib/hooks/search-threads.js';
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
+import { SidebarItem } from './sidebar-item.react.js';
+import ThreadListModal from './thread-list-modal.react.js';
 import ExtendedArrow from '../components/arrow-extended.react.js';
 import Arrow from '../components/arrow.react.js';
 import Button from '../components/button.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import { SidebarItem } from './sidebar-item.react.js';
-import ThreadListModal from './thread-list-modal.react.js';
 
 export type SidebarListModalParams = {
   +threadInfo: ThreadInfo,

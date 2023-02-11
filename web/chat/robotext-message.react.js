@@ -13,13 +13,13 @@ import {
   useENSNamesForEntityText,
 } from 'lib/utils/entity-text.js';
 
+import InlineEngagement from './inline-engagement.react.js';
+import css from './robotext-message.css';
 import Markdown from '../markdown/markdown.react.js';
 import { linkRules } from '../markdown/rules.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
-import InlineEngagement from './inline-engagement.react.js';
-import css from './robotext-message.css';
 
 const availableTooltipPositionsForRobotext = [
   tooltipPositions.LEFT,

@@ -9,8 +9,8 @@ import {
   userRelationshipStatus,
 } from 'lib/types/relationship-types.js';
 
-import { buttonThemes } from '../../components/button.react.js';
 import AddUsersListModal from './add-users-list-modal.react.js';
+import { buttonThemes } from '../../components/button.react.js';
 
 const excludedStatuses = new Set([
   userRelationshipStatus.BOTH_BLOCKED,

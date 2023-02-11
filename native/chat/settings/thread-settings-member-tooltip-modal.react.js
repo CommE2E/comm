@@ -19,6 +19,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
 import {
   createTooltip,
   type TooltipParams,
@@ -26,7 +27,6 @@ import {
   type BaseTooltipProps,
   type TooltipMenuProps,
 } from '../../tooltip/tooltip.react.js';
-import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
   +memberInfo: RelativeMemberInfo,

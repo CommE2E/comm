@@ -17,6 +17,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Action from '../components/action-row.react.js';
 import Button from '../components/button.react.js';
@@ -37,7 +38,6 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
-import type { ProfileNavigationProp } from './profile.react.js';
 
 type ProfileRowProps = {
   +content: string,

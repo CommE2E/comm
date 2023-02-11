@@ -10,11 +10,11 @@ import { colorIsDark } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Markdown from '../markdown/markdown.react.js';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react.js';
 import { MessageListContext } from './message-list-types.js';
 import textMessageSendFailed from './text-message-send-failed.js';
+import Markdown from '../markdown/markdown.react.js';
 
 type Props = {
   +item: ChatMessageInfoItem,

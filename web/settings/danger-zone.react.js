@@ -4,9 +4,9 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 
-import Button, { buttonThemes } from '../components/button.react.js';
 import AccountDeleteModal from './account-delete-modal.react.js';
 import css from './danger-zone.css';
+import Button, { buttonThemes } from '../components/button.react.js';
 
 function DangerZone(): React.Node {
   const { pushModal } = useModalContext();

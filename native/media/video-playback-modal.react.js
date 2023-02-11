@@ -13,6 +13,7 @@ import Video from 'react-native-video';
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
+import { formatDuration } from './video-utils.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -27,7 +28,6 @@ import type {
 } from '../types/layout-types.js';
 import type { NativeMethods } from '../types/react-native.js';
 import { gestureJustEnded, animateTowards } from '../utils/animation-utils.js';
-import { formatDuration } from './video-utils.js';
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,

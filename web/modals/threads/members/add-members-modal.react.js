@@ -19,12 +19,12 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import AddMembersListContent from './add-members-list-content.react.js';
+import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
 import Label from '../../../components/label.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import SearchModal from '../../search-modal.react.js';
-import AddMembersListContent from './add-members-list-content.react.js';
-import css from './members-modal.css';
 
 type ContentProps = {
   +searchText: string,

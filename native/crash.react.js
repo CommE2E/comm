@@ -22,8 +22,8 @@ import {
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
-import type { ErrorData } from 'lib/types/report-types.js';
 import {
+  type ErrorData,
   type ClientReportCreationRequest,
   type ReportCreationResponse,
   reportTypes,

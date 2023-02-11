@@ -5,11 +5,11 @@ import { Text, View } from 'react-native';
 
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
+import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 import Button from '../../components/button.react.js';
 import { DeleteThreadRouteName } from '../../navigation/route-names.js';
 import { useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
-import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 
 type Props = {
   +threadInfo: ResolvedThreadInfo,

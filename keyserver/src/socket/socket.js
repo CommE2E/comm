@@ -44,6 +44,13 @@ import SequentialPromiseResolver from 'lib/utils/sequential-promise-resolver.js'
 import sleep from 'lib/utils/sleep.js';
 import { tShape, tCookie } from 'lib/utils/validation-utils.js';
 
+import { RedisSubscriber } from './redis.js';
+import {
+  clientResponseInputValidator,
+  processClientResponses,
+  initializeSession,
+  checkState,
+} from './session-utils.js';
 import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator.js';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
@@ -78,13 +85,6 @@ import {
   checkClientSupported,
   policiesValidator,
 } from '../utils/validation-utils.js';
-import { RedisSubscriber } from './redis.js';
-import {
-  clientResponseInputValidator,
-  processClientResponses,
-  initializeSession,
-  checkState,
-} from './session-utils.js';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({

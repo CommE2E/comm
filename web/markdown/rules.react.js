@@ -8,8 +8,8 @@ import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user
 import * as SharedMarkdown from 'lib/shared/markdown.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import { useSelector } from '../redux/redux-utils.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,

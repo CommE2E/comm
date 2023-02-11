@@ -20,11 +20,11 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import css from './account-delete-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
 import Input from '../modals/input.react.js';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import css from './account-delete-modal.css';
 
 type Props = {
   +isAccountWithPassword: boolean,

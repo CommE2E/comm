@@ -5,10 +5,10 @@ import type { LogInActionSource } from 'lib/types/account-types.js';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils.js';
 import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
 
+import { fetchNativeKeychainCredentials } from './native-credentials.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { store } from '../redux/redux-setup.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import { fetchNativeKeychainCredentials } from './native-credentials.js';
 
 async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,
