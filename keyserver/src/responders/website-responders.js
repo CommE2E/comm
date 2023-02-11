@@ -1,10 +1,11 @@
 // @flow
 
-import html from 'common-tags/lib/html';
+import html from 'common-tags/lib/html/index.js';
 import type { $Response, $Request } from 'express';
 import fs from 'fs';
 import _keyBy from 'lodash/fp/keyBy.js';
 import * as React from 'react';
+// eslint-disable-next-line import/extensions
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
