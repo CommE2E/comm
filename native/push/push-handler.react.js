@@ -46,7 +46,7 @@ import {
   iosPushPermissionResponseReceived,
   CommIOSNotifications,
   getCommIOSNotificationsEventEmitter,
-} from './ios';
+} from './ios.js';
 import {
   type MessageListParams,
   useNavigateToThread,

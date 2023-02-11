@@ -2,7 +2,7 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import { IoIosMore } from 'react-icons/io';
+import { IoIosMore } from 'react-icons/io/index.js';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';

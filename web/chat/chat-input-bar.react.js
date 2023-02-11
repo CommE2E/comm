@@ -32,11 +32,11 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types.js';
 import {
+  type RelativeMemberInfo,
   type ThreadInfo,
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
-  type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
