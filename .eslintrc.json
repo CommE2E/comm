@@ -36,6 +36,7 @@
     "react/prop-types": ["error", { "skipUndeclared": true }],
     "no-shadow": 1,
     "no-var": "error",
+    "import/extensions": ["error", "always"],
     "import/order": [
       "warn",
       {
