@@ -3,7 +3,7 @@
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
+import { PersistGate } from 'redux-persist/es/integration/react.js';
 
 import ActionResultModal from './action-result-modal.react.js';
 import { CommunityDrawerNavigator } from './community-drawer-navigator.react.js';

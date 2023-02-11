@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Animated, View } from 'react-native';
+// eslint-disable-next-line import/extensions
 import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
 import { useSelector } from 'react-redux';
 

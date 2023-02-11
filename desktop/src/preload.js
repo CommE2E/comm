@@ -1,5 +1,6 @@
 // @flow
 
+// eslint-disable-next-line import/extensions
 import { contextBridge, ipcRenderer } from 'electron/renderer';
 
 import type { ElectronBridge } from 'lib/types/electron-types.js';

@@ -7,21 +7,20 @@ export type {
   Layout,
   LayoutEvent,
   ScrollEvent,
-} from 'react-native/Libraries/Types/CoreEventTypes';
+} from 'react-native/Libraries/Types/CoreEventTypes.js';
 
 export type {
   ContentSizeChangeEvent,
   KeyPressEvent,
   BlurEvent,
-} from 'react-native/Libraries/Components/TextInput/TextInput';
+  SelectionChangeEvent,
+} from 'react-native/Libraries/Components/TextInput/TextInput.js';
 
-export type { SelectionChangeEvent } from 'react-native/Libraries/Components/TextInput/TextInput';
+export type { NativeMethods } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes.js';
 
-export type { NativeMethods } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
+export type { KeyboardEvent } from 'react-native/Libraries/Components/Keyboard/Keyboard.js';
 
-export type { KeyboardEvent } from 'react-native/Libraries/Components/Keyboard/Keyboard';
-
-export type { EventSubscription } from 'react-native/Libraries/vendor/emitter/EventEmitter';
+export type { EventSubscription } from 'react-native/Libraries/vendor/emitter/EventEmitter.js';
 
 export type AnimatedValue = ReactNativeAnimatedValue;
 

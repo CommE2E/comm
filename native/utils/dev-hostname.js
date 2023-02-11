@@ -22,7 +22,7 @@ function readHostnameFromNetworkJson(): string {
     // example of native/facts/network.json:
     // { "natDevHostname": "192.168.1.x" }
     // $FlowExpectedError: It's a conditional require so the file may not exist
-    const hostname: string = require('../facts/network').natDevHostname;
+    const hostname: string = require('../facts/network.json').natDevHostname;
     warnNatDevHostnameUndefined = false;
     return hostname;
   } catch (e) {
