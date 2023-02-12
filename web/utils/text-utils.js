@@ -1,9 +1,13 @@
 // @flow
 
-import crypto from 'crypto';
 import invariant from 'invariant';
 
 let canvas;
+
+declare var crypto: {
+  getRandomValues<NumArray: $TypedArray>(typedArray: NumArray): NumArray,
+  ...
+};
 
 function calculateMaxTextWidth(
   texts: $ReadOnlyArray<string>,
@@ -46,7 +50,8 @@ function generateRandomString(length: number, availableSigns: string): string {
   let str = '';
 
   while (str.length < length) {
-    const rand = crypto.randomBytes(drawBytes);
+    const rand = new Uint8Array(drawBytes);
+    crypto.getRandomValues(rand);
 
     for (let i = 0; str.length < length && i < drawBytes; i++) {
       if (rand[i] < validByteUpperBound) {
