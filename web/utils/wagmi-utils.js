@@ -1,6 +1,13 @@
 // @flow
 
-import { connectorsForWallets, wallet } from '@rainbow-me/rainbowkit';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import {
+  injectedWallet,
+  rainbowWallet,
+  metaMaskWallet,
+  walletConnectWallet,
+  // eslint-disable-next-line import/extensions
+} from '@rainbow-me/rainbowkit/wallets';
 import * as React from 'react';
 import { useProvider } from 'wagmi';
 
@@ -15,10 +22,10 @@ const connectors = connectorsForWallets([
   {
     groupName: 'Recommended',
     wallets: [
-      wallet.injected({ chains }),
-      wallet.rainbow({ chains }),
-      wallet.metaMask({ chains }),
-      wallet.walletConnect({ chains }),
+      injectedWallet({ chains }),
+      rainbowWallet({ chains }),
+      metaMaskWallet({ chains }),
+      walletConnectWallet({ chains }),
     ],
   },
 ]);

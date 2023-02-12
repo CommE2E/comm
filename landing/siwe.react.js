@@ -2,17 +2,23 @@
 
 import {
   useConnectModal,
-  wallet,
   RainbowKitProvider,
   darkTheme,
   useModalState,
   ConnectButton,
   connectorsForWallets,
 } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
+import {
+  injectedWallet,
+  rainbowWallet,
+  metaMaskWallet,
+  walletConnectWallet,
+  // eslint-disable-next-line import/extensions
+} from '@rainbow-me/rainbowkit/wallets';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
-import '@rainbow-me/rainbowkit/dist/index.css';
 import { useAccount, useSigner, WagmiConfig } from 'wagmi';
 
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
@@ -34,10 +40,10 @@ const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
 const connectors = connectorsForWallets([
   {
     wallets: [
-      wallet.injected({ chains }),
-      wallet.rainbow({ chains }),
-      wallet.metaMask({ chains }),
-      wallet.walletConnect({ chains }),
+      injectedWallet({ chains }),
+      rainbowWallet({ chains }),
+      metaMaskWallet({ chains }),
+      walletConnectWallet({ chains }),
     ],
   },
 ]);

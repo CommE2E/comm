@@ -1,8 +1,8 @@
-diff --git a/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js b/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js
-index 275c804..bda1cc3 100644
---- a/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js
-+++ b/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js
-@@ -1625,8 +1625,8 @@ function abbreviateETHBalance(number) {
+diff --git a/node_modules/@rainbow-me/rainbowkit/dist/chunk-GEBDUYT7.js b/node_modules/@rainbow-me/rainbowkit/dist/chunk-GEBDUYT7.js
+index f3c306e..1b529de 100644
+--- a/node_modules/@rainbow-me/rainbowkit/dist/chunk-GEBDUYT7.js
++++ b/node_modules/@rainbow-me/rainbowkit/dist/chunk-GEBDUYT7.js
+@@ -1632,8 +1632,8 @@ function abbreviateETHBalance(number) {
  
  // src/components/ConnectButton/formatAddress.ts
  function formatAddress(address) {
@@ -13,7 +13,7 @@ index 275c804..bda1cc3 100644
    return address.length < leadingChars + trailingChars ? address : `${address.substring(0, leadingChars)}\u2026${address.substring(address.length - trailingChars)}`;
  }
  
-@@ -4590,5 +4590,7 @@ export {
+@@ -4731,5 +4731,7 @@ export {
    useAccountModal,
    useChainModal,
    useConnectModal,
@@ -23,10 +23,10 @@ index 275c804..bda1cc3 100644
 +  emojiAvatarForAddress,
  };
 diff --git a/node_modules/@rainbow-me/rainbowkit/dist/index.js b/node_modules/@rainbow-me/rainbowkit/dist/index.js
-index 8630ea1..d871509 100644
+index 3e7f5f6..9e86477 100644
 --- a/node_modules/@rainbow-me/rainbowkit/dist/index.js
 +++ b/node_modules/@rainbow-me/rainbowkit/dist/index.js
-@@ -22,7 +22,9 @@ import {
+@@ -23,7 +23,9 @@ import {
    useChainId,
    useChainModal,
    useConnectModal,
@@ -34,15 +34,15 @@ index 8630ea1..d871509 100644
 +  useTransactionStore,
 +  useModalState,
 +  emojiAvatarForAddress,
- } from "./chunk-R7UVC5N6.js";
+ } from "./chunk-GEBDUYT7.js";
  import {
    lightTheme
-@@ -701,5 +703,7 @@ export {
+@@ -530,5 +532,7 @@ export {
+   useAccountModal,
    useAddRecentTransaction,
    useChainModal,
-   useConnectModal,
--  wallet
-+  wallet,
+-  useConnectModal
++  useConnectModal,
 +  useModalState,
 +  emojiAvatarForAddress,
  };

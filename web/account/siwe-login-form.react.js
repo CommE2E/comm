@@ -1,6 +1,6 @@
 // @flow
 
-import '@rainbow-me/rainbowkit/dist/index.css';
+import '@rainbow-me/rainbowkit/styles.css';
 
 import olm from '@matrix-org/olm';
 import invariant from 'invariant';
