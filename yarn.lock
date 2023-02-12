@@ -6676,15 +6676,14 @@ assert-plus@1.0.0, assert-plus@^1.0.0:
   resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-1.0.0.tgz#f12e0f3c5d77b0b1cdd9146942e4e96c1e4dd525"
   integrity sha1-8S4PPF13sLHN2RRpQuTpbB5N1SU=
 
-assets-webpack-plugin@^5.1.2:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/assets-webpack-plugin/-/assets-webpack-plugin-5.1.2.tgz#aad63438a7203d3b9d2013673d59ceaa1ff90cba"
-  integrity sha512-B8bOVw6Tj3jdQ6UesO7/XUCdRjXj5N4258WkaBInbGCY5Vuwnec0Tm/RGxQS8vCnbWAFS1OBx8aABDBtjkJ2bA==
+assets-webpack-plugin@^7.1.1:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/assets-webpack-plugin/-/assets-webpack-plugin-7.1.1.tgz#0b988bf904a1895cae5820957ad82aa402673894"
+  integrity sha512-HwsDcu9UR9kv7AtiyMpUO9fARn94SbrLzw5+aQ59RnOZJeet+EVHmOrMwXl8fZ8cZmdZ9Sbl1/l+fn7ymiyfMg==
   dependencies:
     camelcase "^6.0.0"
     escape-string-regexp "^4.0.0"
-    lodash "^4.17.20"
-    mkdirp "^1.0.4"
+    lodash "^4.17.21"
 
 assign-symbols@^1.0.0:
   version "1.0.0"

@@ -66,6 +66,7 @@ const baseProdBrowserConfig = {
     new AssetsPlugin({
       filename: 'assets.json',
       path: path.join(__dirname, 'dist'),
+      removeFullPathAutoPrefix: true,
     }),
   ],
 };
