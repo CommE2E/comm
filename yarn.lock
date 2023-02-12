@@ -19395,10 +19395,10 @@ react-html-email@^3.0.0:
   dependencies:
     prop-types "^15.5.10"
 
-react-icomoon@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/react-icomoon/-/react-icomoon-2.4.1.tgz#cae0483f59a66d8e43e5f6e310f4693e60cb1e03"
-  integrity sha512-DEiilFNHoLpQq71t3jmNRyKf6BEUc9+yOE4wJolVrLCnmJF+cDViPgnL47i3GHHAak1Qf9Yj6xF5Ltwot2T6LA==
+react-icomoon@^2.5.7:
+  version "2.5.7"
+  resolved "https://registry.yarnpkg.com/react-icomoon/-/react-icomoon-2.5.7.tgz#628494b5cf2531af3f2beca30763be5f989f3139"
+  integrity sha512-o6jsNviL7d2/fk83JXycvMSX76KSQ5GuC+q8xi+3anL4KY8EZH4D1BfXdqL8SF+ppOigrq4epUhfnWX8U/gM7g==
 
 react-icons@^4.3.1:
   version "4.3.1"

@@ -5,6 +5,8 @@ import IcomoonReact from 'react-icomoon';
 
 import iconSet from 'lib/shared/comm-icon-config.json';
 
+const IcomoonIcon = IcomoonReact.default;
+
 export type CommIcons =
   | 'cloud-filled'
   | 'sidebar'
@@ -30,7 +32,7 @@ const iconStyle = {
 };
 
 function CommIcon(props: CommIconProps): React.Node {
-  return <IcomoonReact {...props} style={iconStyle} iconSet={iconSet} />;
+  return <IcomoonIcon {...props} style={iconStyle} iconSet={iconSet} />;
 }
 
 export default CommIcon;
