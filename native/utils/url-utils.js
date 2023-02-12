@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import urlParseLax from 'url-parse-lax';
 
 import {
   natDevHostname,
@@ -63,6 +64,10 @@ const natNodeServer: string = getDevNodeServerURLFromHostname(natDevHostname);
 
 const setCustomServer = 'SET_CUSTOM_SERVER';
 
+function normalizeURL(url: string): string {
+  return urlParseLax(url).href;
+}
+
 export {
   defaultURLPrefix,
   defaultLandingURLPrefix,
@@ -70,4 +75,5 @@ export {
   nodeServerOptions,
   natNodeServer,
   setCustomServer,
+  normalizeURL,
 };
