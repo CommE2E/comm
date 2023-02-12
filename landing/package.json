@@ -28,7 +28,6 @@
     "flow-bin": "^0.182.0",
     "flow-typed": "^3.2.1",
     "style-loader": "^1.2.1",
-    "url-loader": "^2.2.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1"
   },
