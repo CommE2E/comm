@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 
-import AppSwitcher from './app-switcher.react.js';
 import CommunityPicker from './community-picker.react.js';
 import css from './left-layout-aside.css';
 import SettingsSwitcher from './settings-switcher.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import AppSwitcher from '../topbar/app-switcher.react.js';
 
 function LeftLayoutAside(): React.Node {
   const navInfo = useSelector(state => state.navInfo);
