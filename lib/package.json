@@ -27,7 +27,7 @@
     "flow-typed": "^3.2.1",
     "mini-css-extract-plugin": "^2.7.2",
     "react-refresh": "^0.14.0",
-    "terser-webpack-plugin": "^4.2.3",
+    "terser-webpack-plugin": "^5.3.6",
     "webpack": "^5.75.0"
   },
   "dependencies": {
