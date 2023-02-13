@@ -35,6 +35,7 @@ function Search(props: Props, ref): React.Node {
         <SWMansionIcon size={24} icon="search" />
       </div>
       <input
+        id={css.searchInputID}
         className={css.searchInput}
         onChange={onChange}
         value={searchText}
