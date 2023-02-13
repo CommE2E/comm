@@ -112,6 +112,7 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
   - [Codegen](./nix_shared_workflows.md#codegen)
     - [Codegen for JSI](./nix_shared_workflows.md#codegen-for-jsi)
   - [Working with Phabricator](./nix_shared_workflows.md#working-with-phabricator)
+    - [Setup](./nix_shared_workflows.md#setup)
     - [Creating a new diff](./nix_shared_workflows.md#creating-a-new-diff)
     - [Updating a diff](./nix_shared_workflows.md#updating-a-diff)
     - [Working with a stack](./nix_shared_workflows.md#working-with-a-stack)
