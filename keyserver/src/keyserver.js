@@ -24,6 +24,7 @@ import {
   markVersionDeployedResponder,
 } from './responders/version-responders.js';
 import { websiteResponder } from './responders/website-responders.js';
+import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
 import {
   multerProcessor,
@@ -119,6 +120,7 @@ import {
 
       // $FlowFixMe express-ws has side effects that can't be typed
       router.ws('/ws', onConnection);
+      router.get('/worker/:worker', webWorkerResponder);
       router.get('*', htmlHandler(websiteResponder));
 
       router.post(
