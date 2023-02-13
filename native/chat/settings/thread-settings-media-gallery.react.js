@@ -28,6 +28,8 @@ type ThreadSettingsMediaGalleryProps = {
   +threadID: string,
   +limit: number,
   +verticalBounds: ?VerticalBounds,
+  +offset?: number,
+  +activeTab?: string,
 };
 
 function ThreadSettingsMediaGallery(
@@ -47,8 +49,7 @@ function ThreadSettingsMediaGallery(
   // E.g. 16px, media, galleryItemGap, media, galleryItemGap, media, 16px
   const galleryItemWidth =
     (width - 32 - (numColumns - 1) * galleryItemGap) / numColumns;
-
-  const { threadID, limit, verticalBounds } = props;
+  const { threadID, limit, verticalBounds, offset, activeTab } = props;
   const [mediaInfos, setMediaInfos] = React.useState([]);
   const callFetchThreadMedia = useServerCall(fetchThreadMedia);
 
@@ -175,12 +176,44 @@ function ThreadSettingsMediaGallery(
     ],
   );
 
+  const filteredMediaInfos = React.useMemo(() => {
+    if (!activeTab || activeTab === 'ALL') {
+      return mediaInfos;
+    } else if (activeTab === 'IMAGES') {
+      return mediaInfos.filter(mediaInfo => mediaInfo.type === 'photo');
+    } else if (activeTab === 'VIDEOS') {
+      return mediaInfos.filter(mediaInfo => mediaInfo.type === 'video');
+    }
+  }, [activeTab, mediaInfos]);
+
+  const onEndReached = React.useCallback(async () => {
+    // Offset will be undefined if the media gallery is rendered in the
+    // thread settings (since no offset prop is passed in). If rendered in
+    // the full screen media gallery, offset will be defined and onEndReached
+    // will actually do something.
+    if (offset === undefined) {
+      return;
+    }
+
+    // As the FlatList fetches more media, we set the offset to be the length
+    // of mediaInfos. This will ensure that the next set of media is retrieved
+    // from the starting point.
+    const result = await callFetchThreadMedia({
+      threadID,
+      limit,
+      offset: mediaInfos.length,
+    });
+    setMediaInfos([...mediaInfos, ...result.media]);
+  }, [callFetchThreadMedia, mediaInfos, threadID, limit, offset]);
+
   return (
     <View style={styles.flatListContainer}>
       <FlatList
-        data={mediaInfos}
+        data={filteredMediaInfos}
         numColumns={numColumns}
         renderItem={renderItem}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={1}
       />
     </View>
   );
