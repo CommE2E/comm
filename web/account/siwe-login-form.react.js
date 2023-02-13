@@ -2,10 +2,8 @@
 
 import '@rainbow-me/rainbowkit/styles.css';
 
-import olm from '@matrix-org/olm';
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import { useAccount, useSigner } from 'wagmi';
 
 import {
@@ -33,7 +31,6 @@ import css from './siwe.css';
 import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
-import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
@@ -47,7 +44,6 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
   const { data: signer } = useSigner();
-  const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const getSIWENonceCall = useServerCall(getSIWENonce);
   const getSIWENonceCallLoadingStatus = useSelector(
@@ -77,18 +73,6 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const primaryIdentityPublicKey = useSelector(
     state => state.primaryIdentityPublicKey,
   );
-  React.useEffect(() => {
-    (async () => {
-      await olm.init();
-      const account = new olm.Account();
-      account.create();
-      const { ed25519 } = JSON.parse(account.identity_keys());
-      dispatch({
-        type: setPrimaryIdentityPublicKey,
-        payload: ed25519,
-      });
-    })();
-  }, [dispatch]);
 
   const callSIWEAuthEndpoint = React.useCallback(
     (message: string, signature: string, extraInfo) =>
