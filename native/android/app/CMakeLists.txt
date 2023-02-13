@@ -88,6 +88,7 @@ if (NOT LIBRN_DIR)
 endif ()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/folly-target.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/openssl-target.cmake)
 
 add_subdirectory(../../node_modules/olm ./build)
 
@@ -154,9 +155,6 @@ target_include_directories(
   ${_react_native_dir}/ReactCommon/callinvoker
   ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon
 
-  # OpenSSL
-  ${_third_party_dir}/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/include
-
   # SQLCipher amalgamation
   ${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src
 
@@ -193,34 +191,6 @@ add_definitions(
 )
 
 find_library(log-lib log)
-
-add_library(
-  # OpenSSL Crypto lib
-  openssl-crypto
-  STATIC
-  IMPORTED
-)
-
-set_target_properties(
-  # OpenSSL Crypto lib
-  openssl-crypto
-  PROPERTIES IMPORTED_LOCATION
-  "${_third_party_dir}/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/lib/libcrypto.a"
-)
-
-add_library(
-  # OpenSSL SSL lib
-  openssl-ssl
-  STATIC
-  IMPORTED
-)
-
-set_target_properties(
-  # OpenSSL SSL lib
-  openssl-ssl
-  PROPERTIES IMPORTED_LOCATION
-  "${_third_party_dir}/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/lib/libssl.a"
-)
 
 target_link_libraries(
   ${PACKAGE_NAME}
