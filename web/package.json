@@ -6,7 +6,7 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "clean": "rm -rf dist/ && rm -rf node_modules/",
-    "dev": "yarn concurrently --names=\"NODESSR,BROWSER\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn webpack --config webpack.config.cjs --config-name=server --watch\" \"yarn webpack-dev-server --config webpack.config.cjs --config-name=browser\"",
+    "dev": "yarn concurrently --names=\"NODESSR,BROWSER,WORKERS\" -c \"bgBlue.bold,bgMagenta.bold,bgCyan.bold\" \"yarn webpack --config webpack.config.cjs --config-name=server --watch\" \"yarn webpack-dev-server --config webpack.config.cjs --config-name=browser\" \"yarn webpack --config webpack.config.cjs --config-name=webworkers --watch\"",
     "prod": "yarn webpack --config webpack.config.cjs --env prod --progress",
     "test": "jest"
   },
