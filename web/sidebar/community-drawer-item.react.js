@@ -16,13 +16,18 @@ export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
   +toggleExpanded: (threadID: string) => void,
   +expanded: boolean,
+  +paddingLeft: number,
 };
+
+const indentation = 14;
+const subchannelsButtonIndentation = 24;
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const {
     itemData: { threadInfo, itemChildren, hasSubchannelsButton, labelStyle },
     expanded,
     toggleExpanded,
+    paddingLeft,
   } = props;
 
   const children = React.useMemo(() => {
@@ -30,8 +35,12 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
       return null;
     }
     if (hasSubchannelsButton) {
+      const buttonPaddingLeft = paddingLeft + subchannelsButtonIndentation;
       return (
-        <div className={css.subchannelsButton}>
+        <div
+          className={css.subchannelsButton}
+          style={{ paddingLeft: buttonPaddingLeft }}
+        >
           <SubchannelsButton threadInfo={threadInfo} />
         </div>
       );
@@ -43,9 +52,10 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
       <MemoizedCommunityDrawerItemChat
         itemData={item}
         key={item.threadInfo.id}
+        paddingLeft={paddingLeft + indentation}
       />
     ));
-  }, [expanded, hasSubchannelsButton, itemChildren, threadInfo]);
+  }, [expanded, hasSubchannelsButton, itemChildren, paddingLeft, threadInfo]);
 
   const onExpandToggled = React.useCallback(
     () => toggleExpanded(threadInfo.id),
@@ -79,10 +89,12 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const { uiName } = useResolvedThreadInfo(threadInfo);
   const titleLabel = classnames(css.title, css[labelStyle]);
 
+  const style = React.useMemo(() => ({ paddingLeft }), [paddingLeft]);
+
   return (
     <>
       <Handler setHandler={setHandler} threadInfo={threadInfo} />
-      <div className={css.threadEntry}>
+      <div className={css.threadEntry} style={style}>
         {itemExpandButton}
         <a onClick={handler.onClick} className={css.titleWrapper}>
           <div className={titleLabel}>{uiName}</div>
@@ -95,6 +107,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
 
 export type CommunityDrawerItemChatProps = {
   +itemData: CommunityDrawerItemData<string>,
+  +paddingLeft: number,
 };
 
 function CommunityDrawerItemChat(
@@ -107,13 +120,11 @@ function CommunityDrawerItemChat(
   }, []);
 
   return (
-    <div className={css.chatItem}>
-      <MemoizedCommunityDrawerItem
-        {...props}
-        expanded={expanded}
-        toggleExpanded={toggleExpanded}
-      />
-    </div>
+    <MemoizedCommunityDrawerItem
+      {...props}
+      expanded={expanded}
+      toggleExpanded={toggleExpanded}
+    />
   );
 }
 
