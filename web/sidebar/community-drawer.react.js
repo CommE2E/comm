@@ -19,7 +19,7 @@ import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.
 import css from './community-drawer.css';
 
 const maxDepth = 2;
-const labelStyles = ['titleLevel0', 'titleLevel1', 'titleLevel2'];
+const labelStyles = ['title'];
 
 const HandlerChat = getCommunityDrawerItemHandler('chat');
 const HandlerCal = getCommunityDrawerItemHandler('calendar');
