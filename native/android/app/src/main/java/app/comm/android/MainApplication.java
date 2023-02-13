@@ -31,6 +31,7 @@ public class MainApplication
 
   static {
     System.loadLibrary("fbjni");
+    System.loadLibrary("comm-tools");
     System.loadLibrary("comm_jni_module");
   }
 
