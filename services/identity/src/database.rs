@@ -2,12 +2,11 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::sync::Arc;
 
-use aws_sdk_dynamodb::error::GetItemError;
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::output::{
   GetItemOutput, PutItemOutput, QueryOutput, UpdateItemOutput,
 };
-use aws_sdk_dynamodb::types::{Blob, SdkError};
+use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use aws_types::sdk_config::SdkConfig;
 use chrono::{DateTime, Utc};
@@ -65,7 +64,7 @@ impl DatabaseClient {
           "DynamoDB client failed to get registration data for user {}: {}",
           user_id, e
         );
-        Err(Error::AwsSdk(e.into()))
+        Err(e)
       }
     }
   }
@@ -391,15 +390,15 @@ impl DatabaseClient {
           "DynamoDB client failed to get user public key for user {}: {}",
           user_id, e
         );
-        Err(Error::AwsSdk(e.into()))
+        Err(e)
       }
     }
   }
 
-  async fn get_item_from_users_table(
+  pub async fn get_item_from_users_table(
     &self,
     user_id: &str,
-  ) -> Result<GetItemOutput, SdkError<GetItemError>> {
+  ) -> Result<GetItemOutput, Error> {
     let primary_key = create_simple_primary_key((
       USERS_TABLE_PARTITION_KEY.to_string(),
       user_id.to_string(),
@@ -412,6 +411,7 @@ impl DatabaseClient {
       .consistent_read(true)
       .send()
       .await
+      .map_err(|e| Error::AwsSdk(e.into()))
   }
 }
 
