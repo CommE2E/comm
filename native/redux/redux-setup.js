@@ -409,6 +409,9 @@ function reducer(state: AppState = defaultState, action: Action) {
       if (isTaskCancelledError(e)) {
         return;
       }
+      // this code will make an entry in SecureStore and cause re-creating
+      // database when user will open app again
+      commCoreModule.reportDBOperationsFailure();
       commCoreModule.terminate();
     }
   })();
