@@ -13,12 +13,16 @@ import {
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
+import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer.css';
 import { ThreadListProvider } from '../chat/thread-list-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const maxDepth = 2;
 const labelStyles = ['titleLevel0', 'titleLevel1', 'titleLevel2'];
+
+const HandlerChat = getCommunityDrawerItemHandler('chat');
+const HandlerCal = getCommunityDrawerItemHandler('calendar');
 
 function CommunityDrawer(): React.Node {
   const tab = useSelector(state => state.navInfo.tab);
@@ -55,6 +59,7 @@ function CommunityDrawer(): React.Node {
           expanded={item.threadInfo.id === openCommunity}
           paddingLeft={10}
           expandable={true}
+          handler={HandlerChat}
         />
       )),
     [drawerItemsData, openCommunity, setOpenCommunityOrClose],
@@ -69,6 +74,7 @@ function CommunityDrawer(): React.Node {
           expanded={false}
           paddingLeft={10}
           expandable={false}
+          handler={HandlerCal}
         />
       )),
     [drawerItemsData],
