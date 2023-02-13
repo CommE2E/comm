@@ -25,7 +25,7 @@
     "css-minimizer-webpack-plugin": "^4.2.2",
     "flow-bin": "^0.182.0",
     "flow-typed": "^3.2.1",
-    "mini-css-extract-plugin": "^1.6.2",
+    "mini-css-extract-plugin": "^2.7.2",
     "react-refresh": "^0.14.0",
     "terser-webpack-plugin": "^4.2.3",
     "webpack": "^5.75.0"
