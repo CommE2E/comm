@@ -36,6 +36,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import {
   useFilterThreadInfos,
   useFilterThreadSearchIndex,
+  filterThreadIDsBelongingToCommunitySelector,
 } from '../selectors/calendar-selectors.js';
 import { MagnifyingGlass } from '../vectors.react.js';
 
@@ -43,6 +44,7 @@ type Props = {
   +filterThreadInfos: $ReadOnlyArray<FilterThreadInfo>,
   +filterThreadSearchIndex: SearchIndex,
   +filteredThreadIDs: ?$ReadOnlySet<string>,
+  +filteredCommunityThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
   +pushModal: PushModal,
@@ -66,20 +68,34 @@ class FilterPanel extends React.PureComponent<Props, State> {
     return this.props.filteredThreadIDs.has(threadID);
   }
 
+  inCurrentCommunity(threadID: string): boolean {
+    if (!this.props.filteredCommunityThreadIDs) {
+      return true;
+    }
+    return this.props.filteredCommunityThreadIDs.has(threadID);
+  }
+
   render() {
     const filterThreadInfos = this.state.query
       ? this.state.searchResults
       : this.props.filterThreadInfos;
+    const filterThreadInfosInCurrentCommunity = filterThreadInfos.filter(item =>
+      this.inCurrentCommunity(item.threadInfo.id),
+    );
 
     let filters = [];
-    if (!this.state.query || filterThreadInfos.length > 0) {
+    if (!this.state.query || filterThreadInfosInCurrentCommunity.length > 0) {
       filters.push(
         <Category
-          numThreads={filterThreadInfos.length}
+          numThreads={filterThreadInfosInCurrentCommunity.length}
           onToggle={this.onToggleAll}
           collapsed={this.state.collapsed}
           onCollapse={this.onCollapse}
-          selected={!this.props.filteredThreadIDs}
+          selected={
+            !this.props.filteredThreadIDs ||
+            this.props.filteredThreadIDs.size ===
+              this.props.filteredCommunityThreadIDs?.size
+          }
           key="all"
         />,
       );
@@ -91,16 +107,18 @@ class FilterPanel extends React.PureComponent<Props, State> {
       );
     }
     if (!this.state.collapsed) {
-      const options = filterThreadInfos.map(filterThreadInfo => (
-        <Item
-          filterThreadInfo={filterThreadInfo}
-          onToggle={this.onToggle}
-          onClickOnly={this.onClickOnly}
-          onClickSettings={this.onClickSettings}
-          selected={this.currentlySelected(filterThreadInfo.threadInfo.id)}
-          key={filterThreadInfo.threadInfo.id}
-        />
-      ));
+      const options = filterThreadInfosInCurrentCommunity.map(
+        filterThreadInfo => (
+          <Item
+            filterThreadInfo={filterThreadInfo}
+            onToggle={this.onToggle}
+            onClickOnly={this.onClickOnly}
+            onClickSettings={this.onClickSettings}
+            selected={this.currentlySelected(filterThreadInfo.threadInfo.id)}
+            key={filterThreadInfo.threadInfo.id}
+          />
+        ),
+      );
       filters = [...filters, ...options];
     }
 
@@ -180,7 +198,14 @@ class FilterPanel extends React.PureComponent<Props, State> {
   };
 
   onToggleAll = (value: boolean) => {
-    this.setFilterThreads(value ? null : []);
+    if (!value) {
+      this.setFilterThreads([]);
+      return;
+    }
+    const allChats = this.props.filteredCommunityThreadIDs
+      ? Array.from(this.props.filteredCommunityThreadIDs)
+      : null;
+    this.setFilterThreads(allChats);
   };
 
   onClickOnly = (threadID: string) => {
@@ -362,6 +387,9 @@ class Category extends React.PureComponent<CategoryProps> {
 const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedFilterPanel(): React.Node {
     const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
+    const filteredCommunityThreadIDs = useSelector(
+      filterThreadIDsBelongingToCommunitySelector,
+    );
     const filterThreadInfos = useFilterThreadInfos();
     const filterThreadSearchIndex = useFilterThreadSearchIndex();
     const includeDeleted = useSelector(includeDeletedSelector);
@@ -371,6 +399,7 @@ const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
     return (
       <FilterPanel
         filteredThreadIDs={filteredThreadIDs}
+        filteredCommunityThreadIDs={filteredCommunityThreadIDs}
         filterThreadInfos={filterThreadInfos}
         filterThreadSearchIndex={filterThreadSearchIndex}
         includeDeleted={includeDeleted}
