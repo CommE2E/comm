@@ -1046,6 +1046,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   onPressSeeMoreMediaGallery = () => {
     this.props.navigation.navigate(FullScreenThreadMediaGalleryRouteName, {
       threadInfo: this.props.threadInfo,
+      verticalBounds: this.state.verticalBounds,
     });
   };
 }
