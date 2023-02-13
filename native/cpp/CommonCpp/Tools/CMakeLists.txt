@@ -12,15 +12,24 @@ set(TOOLS_HDRS
 
 set(TOOLS_SRCS
   "WorkerThread.cpp"
+
+  # Can be moved to local directory in https://linear.app/comm/issue/ENG-2996
+  ${_android_cpp_source_dir}/CommSecureStore.cpp
+  ${_android_cpp_source_dir}/Logger.cpp
+  ${_android_cpp_source_dir}/PlatformSpecificTools.cpp
 )
 
 add_library(comm-tools
+  SHARED
   ${TOOLS_HDRS}
   ${TOOLS_SRCS}
 )
 
 target_link_libraries(comm-tools
+  fbjni::fbjni
   Folly::folly
+  Olm::Olm
+  ${log-lib}
 )
 
 target_include_directories(comm-tools

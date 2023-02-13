@@ -401,7 +401,7 @@ def isCleanRunning() {
 // Release keystore via macOS Keychain Access
 def getPassword(String keyLabel) {
     if (System.getenv('ANDROID_SIGNING_PASSWORD')) {
-        return System.getenv('ANDROID_SIGNING_PASSWORD') 
+        return System.getenv('ANDROID_SIGNING_PASSWORD')
     }
     def stdout = new ByteArrayOutputStream()
     exec {
@@ -419,7 +419,7 @@ def getPassword(String keyLabel) {
 // or only from 'adb devices' if running debug release.
 def getBuildTypeABIs(nativeArchitectures) {
     if (System.getenv("BUILDKITE") == "true") {
-        return ["arm64-v8a"] 
+        return ["arm64-v8a"]
     }
     def isBundleRelease = gradle.startParameter.taskRequests.any {
         !it.args.isEmpty() && it.args.first().contains("bundleRelease")
@@ -598,7 +598,7 @@ android {
                     "-DNDK_VERSION=" + rootProject.ext.ndkVersion,
                     "-DREACT_NATIVE_SO_DIR=${REACT_NATIVE_SO_DIR}",
                     "-DBOOST_VERSION=${BOOST_VERSION}"
-                targets "comm_jni_module", "turbomodulejsijni"
+                targets "comm_jni_module", "turbomodulejsijni", "comm-tools"
             }
         }
     }
