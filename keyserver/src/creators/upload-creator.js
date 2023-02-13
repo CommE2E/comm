@@ -2,7 +2,6 @@
 
 import crypto from 'crypto';
 
-import { shimUploadURI } from 'lib/media/media-utils.js';
 import type {
   MediaType,
   UploadMultimediaResult,
@@ -39,7 +38,7 @@ async function createUploads(
     return {
       uploadResult: {
         id,
-        uri: shimUploadURI(getUploadURL(id, secret), viewer.platformDetails),
+        uri: getUploadURL(id, secret),
         dimensions,
         mediaType,
         loop,
