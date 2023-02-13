@@ -1071,4 +1071,8 @@ bool CommCoreModule::checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) {
   return DatabaseManager::checkIfDatabaseNeedsDeletion();
 }
 
+void CommCoreModule::reportDBOperationsFailure(jsi::Runtime &rt) {
+  DatabaseManager::reportDBOperationsFailure();
+}
+
 } // namespace comm

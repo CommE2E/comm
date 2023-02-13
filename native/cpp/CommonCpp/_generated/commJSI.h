@@ -45,6 +45,7 @@ public:
   virtual jsi::Value getDeviceID(jsi::Runtime &rt) = 0;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) = 0;
+  virtual void reportDBOperationsFailure(jsi::Runtime &rt) = 0;
 
 };
 
@@ -265,6 +266,14 @@ private:
 
       return bridging::callFromJs<bool>(
           rt, &T::checkIfDatabaseNeedsDeletion, jsInvoker_, instance_);
+    }
+    void reportDBOperationsFailure(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::reportDBOperationsFailure) == 1,
+          "Expected reportDBOperationsFailure(...) to have 1 parameters");
+
+      return bridging::callFromJs<void>(
+          rt, &T::reportDBOperationsFailure, jsInvoker_, instance_);
     }
 
   private:
