@@ -50,7 +50,7 @@ import VisibilityHandler from './redux/visibility-handler.react.js';
 import history from './router-history.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
-import LeftLayoutAside from './sidebar/left-layout-aside.react.js';
+import CommunityPicker from './sidebar/community-picker.react.js';
 import SettingsSwitcher from './sidebar/settings-switcher.react.js';
 import Splash from './splash/splash.react.js';
 import './typography.css';
@@ -227,7 +227,9 @@ class App extends React.PureComponent<Props> {
           </div>
         </header>
         <InputStateContainer>{mainContent}</InputStateContainer>
-        <LeftLayoutAside />
+        <div className={css.sidebar}>
+          <CommunityPicker />
+        </div>
       </div>
     );
   }
