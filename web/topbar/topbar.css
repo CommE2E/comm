@@ -2,3 +2,63 @@
   border-bottom: 1px solid var(--border);
   height: 60px;
 }
+
+.navigationPanelContainer {
+  flex-direction: row;
+  display: flex;
+  height: 60px;
+}
+
+.navigationPanelTab {
+  display: flex;
+  flex-direction: row;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.navigationPanelTab svg {
+  color: var(--color-disabled);
+  stroke: var(--color-disabled);
+  fill: var(--color-disabled);
+}
+
+.navigationPanelTab p {
+  color: var(--color-disabled);
+  margin-right: 8px;
+  margin-left: 8px;
+}
+
+.navigationPanelTab:hover p,
+.navigationPanelTab:hover svg,
+div.current_tab p,
+div.current_tab svg {
+  color: var(--fg);
+  stroke: var(--fg);
+  fill: var(--fg);
+}
+
+div.current_tab {
+  border-bottom: 2px solid var(--tabs-header-active-border);
+  height: 58px;
+}
+
+.chatIconWrapper {
+  position: relative;
+}
+
+span.chatBadge {
+  position: absolute;
+  top: -4px;
+  left: 13px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--fg);
+  background: var(--unread-bg);
+  border-radius: 13px;
+  font-size: 8px;
+  line-height: 1.25;
+}
