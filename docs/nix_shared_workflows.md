@@ -34,9 +34,9 @@ The input Flow schemas are located in `native/schema`.
 
 # Working with Phabricator
 
-## Phabricator
+## Creating an account
 
-The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phab.comm.dev) using your GitHub account.
+First step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phab.comm.dev) using your GitHub account.
 
 Next, make sure you’re inside the directory containing the Comm Git repository, and run the following command:
 
