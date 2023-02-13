@@ -8,7 +8,10 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
 import CommunityDrawer from './community-drawer.react.js';
 import css from './community-picker.css';
-import { updateNavInfoActionType } from '../redux/action-types.js';
+import {
+  clearCalendarCommunityFilter,
+  updateNavInfoActionType,
+} from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function CommunityPicker(): React.Node {
@@ -30,15 +33,23 @@ function CommunityPicker(): React.Node {
     [css.inactiveContainer]: !isSettingsOpen,
   });
 
-  const openChat = React.useCallback(
+  const isCalendarOpen = useSelector(state => state.navInfo.tab === 'calendar');
+
+  const onPressInbox = React.useCallback(
     (event: SyntheticEvent<HTMLAnchorElement>) => {
       event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: { tab: 'chat' },
-      });
+      if (isCalendarOpen) {
+        dispatch({
+          type: clearCalendarCommunityFilter,
+        });
+      } else {
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: { tab: 'chat' },
+        });
+      }
     },
-    [dispatch],
+    [dispatch, isCalendarOpen],
   );
   const isInboxOpen = useSelector(
     state =>
@@ -51,10 +62,13 @@ function CommunityPicker(): React.Node {
     [css.inactiveContainer]: !isInboxOpen,
   });
 
+  const inboxButtonTitle = isCalendarOpen ? 'All communities' : 'Inbox';
+
   return (
     <div className={css.container}>
-      <a className={inboxButtonContainerClass} onClick={openChat}>
+      <a className={inboxButtonContainerClass} onClick={onPressInbox}>
         <SWMansionIcon icon="inbox" size={36} />
+        <div className={css.inboxButtonTitle}> {inboxButtonTitle} </div>
       </a>
       <div className={css.drawerWrapper}>
         <CommunityDrawer />
