@@ -1,3 +1,4 @@
+use aws_sdk_dynamodb::output::GetItemOutput;
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::Utc;
 use comm_opaque::Cipher;
@@ -79,132 +80,44 @@ impl IdentityService for MyIdentityService {
   ) -> Result<Response<Self::RegisterUserStream>, Status> {
     let mut in_stream = request.into_inner();
     let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
-    let config = self.config.clone();
-    let client = self.client.clone();
-    tokio::spawn(async move {
-      let mut user_id: String = String::new();
-      let mut device_id: String = String::new();
-      let mut server_registration: Option<ServerRegistration<Cipher>> = None;
-      let mut server_login: Option<ServerLogin<Cipher>> = None;
-      let mut username: String = String::new();
-      let mut user_public_key: String = String::new();
-      let mut num_messages_received = 0;
-      while let Some(message) = in_stream.next().await {
-        match message {
-          Ok(RegistrationRequest {
-            data:
-              Some(PakeRegistrationRequestAndUserId(
-                pake_registration_request_and_user_id,
-              )),
-          }) => {
-            let registration_start_result = pake_registration_start(
-              config.clone(),
-              &mut OsRng,
-              &pake_registration_request_and_user_id.pake_registration_request,
-              num_messages_received,
-            )
-            .await
-            .map(|registration_response_and_server_registration| {
-              server_registration =
-                Some(registration_response_and_server_registration.1);
-              registration_response_and_server_registration.0
-            });
-            if let Err(e) = tx.send(registration_start_result).await {
-              error!("Response was dropped: {}", e);
-              break;
-            }
-            user_id = pake_registration_request_and_user_id.user_id;
-            device_id = pake_registration_request_and_user_id.device_id;
-            username = pake_registration_request_and_user_id.username;
-            user_public_key =
-              pake_registration_request_and_user_id.user_public_key;
-          }
-          Ok(RegistrationRequest {
-            data:
-              Some(PakeRegistrationUploadAndCredentialRequest(
-                pake_registration_upload_and_credential_request,
-              )),
-          }) => {
-            let registration_finish_and_login_start_result =
-              match pake_registration_finish(
-                &user_id,
-                &device_id,
-                client.clone(),
-                &pake_registration_upload_and_credential_request
-                  .pake_registration_upload,
-                server_registration,
-                &username,
-                &user_public_key,
-                num_messages_received,
-              )
-              .await
-              {
-                Ok(_) => pake_login_start(
-                  config.clone(),
-                  client.clone(),
-                  &user_id.clone(),
-                  &pake_registration_upload_and_credential_request
-                    .pake_credential_request,
-                  num_messages_received,
-                  PakeWorkflow::Registration,
-                )
-                .await
-                .map(|pake_login_response_and_server_login| {
-                  server_login = Some(pake_login_response_and_server_login.1);
-                  RegistrationResponse {
-                    data: Some(PakeRegistrationLoginResponse(
-                      pake_login_response_and_server_login.0,
-                    )),
-                  }
-                }),
-                Err(e) => Err(e),
-              };
-            if let Err(e) =
-              tx.send(registration_finish_and_login_start_result).await
-            {
-              error!("Response was dropped: {}", e);
-              break;
-            }
-            server_registration = None;
-          }
-          Ok(RegistrationRequest {
-            data:
-              Some(PakeRegistrationCredentialFinalization(
-                pake_credential_finalization,
-              )),
-          }) => {
-            let login_finish_result = pake_login_finish(
-              &user_id,
-              &device_id,
-              &user_public_key,
-              client,
-              server_login,
-              &pake_credential_finalization,
-              &mut OsRng,
-              num_messages_received,
-              PakeWorkflow::Registration,
-            )
-            .await
-            .map(|pake_login_response| RegistrationResponse {
-              data: Some(PakeRegistrationLoginResponse(pake_login_response)),
-            });
-            if let Err(e) = tx.send(login_finish_result).await {
-              error!("Response was dropped: {}", e);
-            }
-            break;
-          }
-          unexpected => {
-            error!("Received an unexpected Result: {:?}", unexpected);
-            if let Err(e) = tx.send(Err(Status::unknown("unknown error"))).await
-            {
-              error!("Response was dropped: {}", e);
-            }
-            break;
-          }
-        }
-        num_messages_received += 1;
-      }
-    });
+    let first_message = in_stream.next().await;
+    let mut registration_state = registration::handle_registration_request(
+      first_message,
+      self.client.clone(),
+      tx.clone(),
+      self.config.clone(),
+    )
+    .await?;
+    // ServerRegistration in opaque-ke v1.2 doesn't implement Clone, so we
+    // have to take the value out of registration_state, replacing it with None
+    let pake_state =
+      if let Some(pake_state) = registration_state.pake_state.take() {
+        pake_state
+      } else {
+        error!("registration_state is missing opaque-ke ServerRegistration");
+        return Err(Status::failed_precondition("internal error"));
+      };
+    let second_message = in_stream.next().await;
+    let server_login =
+      registration::handle_registration_upload_and_credential_request(
+        second_message,
+        tx.clone(),
+        self.client.clone(),
+        &registration_state,
+        pake_state,
+        self.config.clone(),
+      )
+      .await?;
+    let third_message = in_stream.next().await;
+    registration::handle_credential_finalization(
+      third_message,
+      tx,
+      self.client.clone(),
+      &registration_state,
+      server_login,
+    )
+    .await?;
+
     let out_stream = ReceiverStream::new(rx);
     Ok(Response::new(
       Box::pin(out_stream) as Self::RegisterUserStream
@@ -223,103 +136,23 @@ impl IdentityService for MyIdentityService {
     let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let config = self.config.clone();
     let client = self.client.clone();
-    tokio::spawn(async move {
-      let mut user_id: String = String::new();
-      let mut device_id: String = String::new();
-      let mut server_login: Option<ServerLogin<Cipher>> = None;
-      let mut user_public_key: String = String::new();
-      let mut num_messages_received = 0;
-      while let Some(message) = in_stream.next().await {
-        match message {
-          Ok(LoginRequest {
-            data: Some(WalletLoginRequest(req)),
-          }) => {
-            let wallet_login_result = wallet_login_helper(
-              client,
-              req,
-              &mut OsRng,
-              num_messages_received,
-            )
-            .await;
-            if let Err(e) = tx.send(wallet_login_result).await {
-              error!("Response was dropped: {}", e);
-            }
-            break;
-          }
-          Ok(LoginRequest {
-            data:
-              Some(PakeLoginRequest(PakeLoginRequestStruct {
-                data:
-                  Some(PakeCredentialRequestAndUserId(
-                    pake_credential_request_and_user_id,
-                  )),
-              })),
-          }) => {
-            let login_start_result = pake_login_start(
-              config.clone(),
-              client.clone(),
-              &pake_credential_request_and_user_id.user_id,
-              &pake_credential_request_and_user_id.pake_credential_request,
-              num_messages_received,
-              PakeWorkflow::Login,
-            )
-            .await
-            .map(|pake_login_response_and_server_login| {
-              server_login = Some(pake_login_response_and_server_login.1);
-              LoginResponse {
-                data: Some(PakeLoginResponse(
-                  pake_login_response_and_server_login.0,
-                )),
-              }
-            });
-            if let Err(e) = tx.send(login_start_result).await {
-              error!("Response was dropped: {}", e);
-              break;
-            }
-            user_id = pake_credential_request_and_user_id.user_id;
-            device_id = pake_credential_request_and_user_id.device_id;
-            user_public_key =
-              pake_credential_request_and_user_id.user_public_key;
-          }
-          Ok(LoginRequest {
-            data:
-              Some(PakeLoginRequest(PakeLoginRequestStruct {
-                data:
-                  Some(PakeCredentialFinalization(pake_credential_finalization)),
-              })),
-          }) => {
-            let login_finish_result = pake_login_finish(
-              &user_id,
-              &device_id,
-              &user_public_key,
-              client,
-              server_login,
-              &pake_credential_finalization,
-              &mut OsRng,
-              num_messages_received,
-              PakeWorkflow::Login,
-            )
-            .await
-            .map(|pake_login_response| LoginResponse {
-              data: Some(PakeLoginResponse(pake_login_response)),
-            });
-            if let Err(e) = tx.send(login_finish_result).await {
-              error!("Response was dropped: {}", e);
-            }
-            break;
-          }
-          unexpected => {
-            error!("Received an unexpected Result: {:?}", unexpected);
-            if let Err(e) = tx.send(Err(Status::unknown("unknown error"))).await
-            {
-              error!("Response was dropped: {}", e);
-            }
-            break;
-          }
-        }
-        num_messages_received += 1;
-      }
-    });
+
+    let first_message = in_stream.next().await;
+    let login_state = login::handle_login_request(
+      first_message,
+      tx.clone(),
+      client.clone(),
+      config,
+    )
+    .await?;
+
+    // login_state will be None if user is logging in with a wallet
+    if let Some(state) = login_state {
+      let second_message = in_stream.next().await;
+      login::handle_credential_finalization(second_message, tx, client, state)
+        .await?;
+    }
+
     let out_stream = ReceiverStream::new(rx);
     Ok(Response::new(Box::pin(out_stream) as Self::LoginUserStream))
   }
@@ -474,12 +307,7 @@ async fn wallet_login_helper(
   client: DatabaseClient,
   wallet_login_request: WalletLoginRequestStruct,
   rng: &mut (impl Rng + CryptoRng),
-  num_messages_received: u8,
 ) -> Result<LoginResponse, Status> {
-  if num_messages_received != 0 {
-    error!("Too many messages received in stream, aborting");
-    return Err(Status::aborted("please retry"));
-  }
   parse_and_verify_siwe_message(
     &wallet_login_request.user_id,
     &wallet_login_request.device_id,
@@ -515,17 +343,7 @@ async fn pake_login_start(
   client: DatabaseClient,
   user_id: &str,
   pake_credential_request: &[u8],
-  num_messages_received: u8,
-  pake_workflow: PakeWorkflow,
-) -> Result<(PakeLoginResponseStruct, ServerLogin<Cipher>), Status> {
-  if (num_messages_received != 0
-    && matches!(pake_workflow, PakeWorkflow::Login))
-    || (num_messages_received != 1
-      && matches!(pake_workflow, PakeWorkflow::Registration))
-  {
-    error!("Too many messages received in stream, aborting");
-    return Err(Status::aborted("please retry"));
-  }
+) -> Result<LoginResponseAndPakeState, Status> {
   if user_id.is_empty() {
     error!("Incomplete data: user ID not provided");
     return Err(Status::aborted("user not found"));
@@ -550,8 +368,8 @@ async fn pake_login_start(
     credential_request,
     ServerLoginStartParameters::default(),
   ) {
-    Ok(server_login_start_result) => Ok((
-      PakeLoginResponseStruct {
+    Ok(server_login_start_result) => Ok(LoginResponseAndPakeState {
+      response: PakeLoginResponseStruct {
         data: Some(PakeCredentialResponse(
           server_login_start_result.message.serialize().map_err(|e| {
             error!("Failed to serialize PAKE message: {}", e);
@@ -559,8 +377,8 @@ async fn pake_login_start(
           })?,
         )),
       },
-      server_login_start_result.state,
-    )),
+      pake_state: server_login_start_result.state,
+    }),
     Err(e) => {
       error!(
         "Encountered a PAKE protocol error when starting login: {}",
@@ -576,20 +394,11 @@ async fn pake_login_finish(
   device_id: &str,
   user_public_key: &str,
   client: DatabaseClient,
-  server_login: Option<ServerLogin<Cipher>>,
+  server_login: ServerLogin<Cipher>,
   pake_credential_finalization: &[u8],
   rng: &mut (impl Rng + CryptoRng),
-  num_messages_received: u8,
   pake_workflow: PakeWorkflow,
 ) -> Result<PakeLoginResponseStruct, Status> {
-  if (num_messages_received != 1
-    && matches!(pake_workflow, PakeWorkflow::Login))
-    || (num_messages_received != 2
-      && matches!(pake_workflow, PakeWorkflow::Registration))
-  {
-    error!("Too many messages received in stream, aborting");
-    return Err(Status::aborted("please retry"));
-  }
   if user_id.is_empty() || device_id.is_empty() {
     error!(
       "Incomplete data: user ID {}, device ID {}",
@@ -598,10 +407,6 @@ async fn pake_login_finish(
     return Err(Status::aborted("user not found"));
   }
   server_login
-    .ok_or_else(|| {
-      error!("Server login missing in {:?} PAKE workflow", pake_workflow);
-      Status::aborted("login failed")
-    })?
     .finish(
       CredentialFinalization::deserialize(pake_credential_finalization)
         .map_err(|e| {
@@ -640,25 +445,22 @@ async fn pake_registration_start(
   config: Config,
   rng: &mut (impl Rng + CryptoRng),
   registration_request_bytes: &[u8],
-  num_messages_received: u8,
-) -> Result<(RegistrationResponse, ServerRegistration<Cipher>), Status> {
-  if num_messages_received != 0 {
-    error!("Too many messages received in stream, aborting");
-    return Err(Status::aborted("please retry"));
-  }
+) -> Result<RegistrationResponseAndPakeState, Status> {
   match ServerRegistration::<Cipher>::start(
     rng,
     PakeRegistrationRequest::deserialize(registration_request_bytes).unwrap(),
     config.server_keypair.public(),
   ) {
-    Ok(server_registration_start_result) => Ok((
-      RegistrationResponse {
-        data: Some(PakeRegistrationResponse(
-          server_registration_start_result.message.serialize(),
-        )),
-      },
-      server_registration_start_result.state,
-    )),
+    Ok(server_registration_start_result) => {
+      Ok(RegistrationResponseAndPakeState {
+        response: RegistrationResponse {
+          data: Some(PakeRegistrationResponse(
+            server_registration_start_result.message.serialize(),
+          )),
+        },
+        pake_state: server_registration_start_result.state,
+      })
+    }
     Err(e) => {
       error!(
         "Encountered a PAKE protocol error when starting registration: {}",
@@ -677,12 +479,7 @@ async fn pake_registration_finish(
   server_registration: Option<ServerRegistration<Cipher>>,
   username: &str,
   user_public_key: &str,
-  num_messages_received: u8,
 ) -> Result<(), Status> {
-  if num_messages_received != 1 {
-    error!("Too many messages received in stream, aborting");
-    return Err(Status::aborted("please retry"));
-  }
   if user_id.is_empty() {
     error!("Incomplete data: user ID not provided");
     return Err(Status::aborted("user not found"));
@@ -706,12 +503,12 @@ async fn pake_registration_finish(
     })?;
 
   match client
-    .update_users_table(
+    .add_user_to_users_table(
       user_id.to_string(),
       device_id.to_string(),
-      Some(server_registration_finish_result),
-      Some(username.to_string()),
-      Some(user_public_key.to_string()),
+      server_registration_finish_result,
+      username.to_string(),
+      user_public_key.to_string(),
     )
     .await
   {
@@ -734,4 +531,275 @@ fn handle_db_error(db_error: DBError) -> Status {
       Status::failed_precondition("unexpected error")
     }
   }
+}
+
+mod registration {
+  use super::*;
+  pub struct RegistrationState {
+    user_id: String,
+    device_id: String,
+    username: String,
+    user_public_key: String,
+    pub pake_state: Option<ServerRegistration<Cipher>>,
+  }
+
+  pub async fn handle_registration_request(
+    message: Option<Result<RegistrationRequest, Status>>,
+    client: DatabaseClient,
+    tx: mpsc::Sender<Result<RegistrationResponse, Status>>,
+    config: Config,
+  ) -> Result<RegistrationState, Status> {
+    match message {
+      Some(Ok(RegistrationRequest {
+        data:
+          Some(PakeRegistrationRequestAndUserId(
+            pake_registration_request_and_user_id,
+          )),
+      })) => {
+        let get_item_output = client
+          .get_item_from_users_table(
+            &pake_registration_request_and_user_id.user_id,
+          )
+          .await;
+        match get_item_output {
+          Ok(GetItemOutput { item: Some(_), .. }) => {
+            error!("User already exists");
+            if let Err(e) = tx
+              .send(Err(Status::already_exists("User already exists")))
+              .await
+            {
+              error!("Response was dropped: {}", e);
+            }
+          }
+          Err(e) => return Err(handle_db_error(e)),
+          _ => {}
+        };
+        let response_and_state = pake_registration_start(
+          config.clone(),
+          &mut OsRng,
+          &pake_registration_request_and_user_id.pake_registration_request,
+        )
+        .await?;
+        if let Err(e) = tx.send(Ok(response_and_state.response)).await {
+          error!("Response was dropped: {}", e);
+        }
+
+        Ok(RegistrationState {
+          user_id: pake_registration_request_and_user_id.user_id,
+          device_id: pake_registration_request_and_user_id.device_id,
+          username: pake_registration_request_and_user_id.username,
+          user_public_key: pake_registration_request_and_user_id
+            .user_public_key,
+          pake_state: Some(response_and_state.pake_state),
+        })
+      }
+      None | Some(_) => Err(Status::aborted("failure")),
+    }
+  }
+
+  pub async fn handle_registration_upload_and_credential_request(
+    message: Option<Result<RegistrationRequest, Status>>,
+    tx: mpsc::Sender<Result<RegistrationResponse, Status>>,
+    client: DatabaseClient,
+    registration_state: &RegistrationState,
+    pake_state: ServerRegistration<Cipher>,
+    config: Config,
+  ) -> Result<ServerLogin<Cipher>, Status> {
+    match message {
+      Some(Ok(RegistrationRequest {
+        data:
+          Some(PakeRegistrationUploadAndCredentialRequest(
+            pake_registration_upload_and_credential_request,
+          )),
+      })) => {
+        let response_and_state = match pake_registration_finish(
+          &registration_state.user_id,
+          &registration_state.device_id,
+          client.clone(),
+          &pake_registration_upload_and_credential_request
+            .pake_registration_upload,
+          Some(pake_state),
+          &registration_state.username,
+          &registration_state.user_public_key,
+        )
+        .await
+        {
+          Ok(_) => {
+            pake_login_start(
+              config.clone(),
+              client.clone(),
+              &registration_state.user_id,
+              &pake_registration_upload_and_credential_request
+                .pake_credential_request,
+            )
+            .await?
+          }
+
+          Err(e) => {
+            return Err(e);
+          }
+        };
+        let registration_response = RegistrationResponse {
+          data: Some(PakeRegistrationLoginResponse(
+            response_and_state.response,
+          )),
+        };
+        if let Err(e) = tx.send(Ok(registration_response)).await {
+          error!("Response was dropped: {}", e);
+          Err(Status::aborted("failure"))
+        } else {
+          Ok(response_and_state.pake_state)
+        }
+      }
+      None | Some(_) => Err(Status::aborted("failure")),
+    }
+  }
+
+  pub async fn handle_credential_finalization(
+    message: Option<Result<RegistrationRequest, Status>>,
+    tx: mpsc::Sender<Result<RegistrationResponse, Status>>,
+    client: DatabaseClient,
+    registration_state: &RegistrationState,
+    server_login: ServerLogin<Cipher>,
+  ) -> Result<(), Status> {
+    match message {
+      Some(Ok(RegistrationRequest {
+        data:
+          Some(PakeRegistrationCredentialFinalization(
+            pake_credential_finalization,
+          )),
+      })) => {
+        let login_finish_result = pake_login_finish(
+          &registration_state.user_id,
+          &registration_state.device_id,
+          &registration_state.user_public_key,
+          client,
+          server_login,
+          &pake_credential_finalization,
+          &mut OsRng,
+          PakeWorkflow::Registration,
+        )
+        .await
+        .map(|pake_login_response| RegistrationResponse {
+          data: Some(PakeRegistrationLoginResponse(pake_login_response)),
+        });
+        if let Err(e) = tx.send(login_finish_result).await {
+          error!("Response was dropped: {}", e);
+          return Err(Status::aborted("failure"));
+        }
+        Ok(())
+      }
+      Some(_) | None => Err(Status::aborted("failure")),
+    }
+  }
+}
+
+mod login {
+  use super::*;
+  pub struct LoginState {
+    user_id: String,
+    device_id: String,
+    user_public_key: String,
+    pake_state: ServerLogin<Cipher>,
+  }
+  pub async fn handle_login_request(
+    message: Option<Result<LoginRequest, Status>>,
+    tx: mpsc::Sender<Result<LoginResponse, Status>>,
+    client: DatabaseClient,
+    config: Config,
+  ) -> Result<Option<LoginState>, Status> {
+    match message {
+      Some(Ok(LoginRequest {
+        data: Some(WalletLoginRequest(req)),
+      })) => {
+        let wallet_login_result =
+          wallet_login_helper(client, req, &mut OsRng).await;
+        if let Err(e) = tx.send(wallet_login_result).await {
+          error!("Response was dropped: {}", e);
+          Err(Status::aborted("failure"))
+        } else {
+          Ok(None)
+        }
+      }
+      Some(Ok(LoginRequest {
+        data:
+          Some(PakeLoginRequest(PakeLoginRequestStruct {
+            data:
+              Some(PakeCredentialRequestAndUserId(
+                pake_credential_request_and_user_id,
+              )),
+          })),
+      })) => {
+        let response_and_state = pake_login_start(
+          config.clone(),
+          client.clone(),
+          &pake_credential_request_and_user_id.user_id,
+          &pake_credential_request_and_user_id.pake_credential_request,
+        )
+        .await?;
+        let login_response = LoginResponse {
+          data: Some(PakeLoginResponse(response_and_state.response)),
+        };
+        if let Err(e) = tx.send(Ok(login_response)).await {
+          error!("Response was dropped: {}", e);
+          return Err(Status::aborted("failure"));
+        }
+
+        Ok(Some(LoginState {
+          user_id: pake_credential_request_and_user_id.user_id,
+          device_id: pake_credential_request_and_user_id.device_id,
+          user_public_key: pake_credential_request_and_user_id.user_public_key,
+          pake_state: response_and_state.pake_state,
+        }))
+      }
+      Some(_) | None => Err(Status::aborted("failure")),
+    }
+  }
+
+  pub async fn handle_credential_finalization(
+    message: Option<Result<LoginRequest, Status>>,
+    tx: mpsc::Sender<Result<LoginResponse, Status>>,
+    client: DatabaseClient,
+    login_state: LoginState,
+  ) -> Result<(), Status> {
+    match message {
+      Some(Ok(LoginRequest {
+        data:
+          Some(PakeLoginRequest(PakeLoginRequestStruct {
+            data: Some(PakeCredentialFinalization(pake_credential_finalization)),
+          })),
+      })) => {
+        let login_finish_result = pake_login_finish(
+          &login_state.user_id,
+          &login_state.device_id,
+          &login_state.user_public_key,
+          client,
+          login_state.pake_state,
+          &pake_credential_finalization,
+          &mut OsRng,
+          PakeWorkflow::Login,
+        )
+        .await
+        .map(|pake_login_response| LoginResponse {
+          data: Some(PakeLoginResponse(pake_login_response)),
+        });
+        if let Err(e) = tx.send(login_finish_result).await {
+          error!("Response was dropped: {}", e);
+          return Err(Status::aborted("failure"));
+        }
+        Ok(())
+      }
+      Some(_) | None => Err(Status::aborted("failure")),
+    }
+  }
+}
+
+struct RegistrationResponseAndPakeState {
+  response: RegistrationResponse,
+  pake_state: ServerRegistration<Cipher>,
+}
+
+struct LoginResponseAndPakeState {
+  response: PakeLoginResponseStruct,
+  pake_state: ServerLogin<Cipher>,
 }
