@@ -6,6 +6,7 @@ const {
   createProdBrowserConfig,
   createDevBrowserConfig,
   createNodeServerRenderingConfig,
+  createWebWorkersConfig,
 } = require('lib/webpack/shared.cjs');
 
 const babelConfig = require('./babel.config.cjs');
@@ -84,6 +85,16 @@ const baseNodeServerRenderingConfig = {
   },
 };
 
+const baseWebWorkersConfig = {
+  entry: {
+    pushNotif: './push-notif/service-worker.js',
+  },
+  output: {
+    filename: '[name].build.js',
+    path: path.join(__dirname, 'dist', 'webworkers'),
+  },
+};
+
 module.exports = function (env) {
   const browserConfig = env.prod
     ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
@@ -96,5 +107,10 @@ module.exports = function (env) {
     ...nodeConfig,
     mode: env.prod ? 'production' : 'development',
   };
-  return [browserConfig, nodeServerRenderingConfig];
+  const webWorkersConfig = createWebWorkersConfig(
+    env,
+    baseWebWorkersConfig,
+    babelConfig,
+  );
+  return [browserConfig, nodeServerRenderingConfig, webWorkersConfig];
 };
