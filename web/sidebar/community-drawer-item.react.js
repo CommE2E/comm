@@ -105,7 +105,10 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   });
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
-  const titleLabel = classnames(css.title, css[labelStyle]);
+  const titleLabel = classnames({
+    [css[labelStyle]]: true,
+    [css.activeTitle]: handler.isActive,
+  });
 
   const style = React.useMemo(() => ({ paddingLeft }), [paddingLeft]);
   const threadEntry = classnames({
