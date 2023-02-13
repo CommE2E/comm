@@ -34,6 +34,18 @@ The input Flow schemas are located in `native/schema`.
 
 # Working with Phabricator
 
+## Phabricator
+
+The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phab.comm.dev) using your GitHub account.
+
+Next, make sure you’re inside the directory containing the Comm Git repository, and run the following command:
+
+```
+arc install-certificate
+```
+
+This command will help you connect your Phabricator account with the local Arcanist instance, allowing you to run `arc diff` and `arc land` commands.
+
 ## Creating a new diff
 
 The biggest difference between GitHub PRs and Phabricator diffs is that a PR corresponds to a branch, whereas a diff corresponds to a commit.
