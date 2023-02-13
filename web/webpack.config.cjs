@@ -84,6 +84,18 @@ const baseNodeServerRenderingConfig = {
   },
 };
 
+const baseWebWorkersConfig = {
+  name: 'webworkers',
+  target: 'webworker',
+  entry: {
+    pushNotif: './push-notif/service-worker.js',
+  },
+  output: {
+    filename: '[name].build.cjs',
+    path: path.join(__dirname, 'dist', 'webworkers'),
+  },
+};
+
 module.exports = function (env) {
   const browserConfig = env.prod
     ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
@@ -96,5 +108,9 @@ module.exports = function (env) {
     ...nodeConfig,
     mode: env.prod ? 'production' : 'development',
   };
-  return [browserConfig, nodeServerRenderingConfig];
+  const webWorkersConfig = {
+    ...baseWebWorkersConfig,
+    mode: env.prod ? 'production' : 'development',
+  };
+  return [browserConfig, nodeServerRenderingConfig, webWorkersConfig];
 };
