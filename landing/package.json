@@ -21,7 +21,6 @@
     "@babel/preset-flow": "^7.13.13",
     "@babel/preset-react": "^7.13.13",
     "assets-webpack-plugin": "^7.1.1",
-    "babel-loader": "^8.1.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "concurrently": "^5.3.0",
     "flow-bin": "^0.182.0",
