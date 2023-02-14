@@ -44,19 +44,27 @@ function filterThreadIDsBelongingToCommunity(
 const filterThreadIDsBelongingToCommunitySelector: (
   state: AppState,
 ) => ?$ReadOnlySet<string> = createSelector(
-  (state: AppState) => state.communityIDFilter,
+  (state: AppState) => state.calendarPickedCommunityID,
   threadInfoSelector,
-  (communityIDFilter: ?string, threadInfos: { +[id: string]: ThreadInfo }) => {
-    if (!communityIDFilter) {
+  (
+    calendarPickedCommunityID: ?string,
+    threadInfos: { +[id: string]: ThreadInfo },
+  ) => {
+    if (!calendarPickedCommunityID) {
       return null;
     }
-    return filterThreadIDsBelongingToCommunity(communityIDFilter, threadInfos);
+    return filterThreadIDsBelongingToCommunity(
+      calendarPickedCommunityID,
+      threadInfos,
+    );
   },
 );
 
 function useCommunityIsPicked(communityID: string): boolean {
-  const communityIDFilter = useSelector(state => state.communityIDFilter);
-  return communityID === communityIDFilter;
+  const calendarPickedCommunityID = useSelector(
+    state => state.calendarPickedCommunityID,
+  );
+  return communityID === calendarPickedCommunityID;
 }
 
 export {
