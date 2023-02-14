@@ -37,6 +37,10 @@ function TraditionalLoginForm(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
+  const primaryIdentityPublicKey = useSelector(
+    state => state.primaryIdentityPublicKey,
+  );
+
   const usernameInputRef = React.useRef();
   React.useEffect(() => {
     usernameInputRef.current?.focus();
@@ -63,11 +67,16 @@ function TraditionalLoginForm(): React.Node {
   const logInAction = React.useCallback(
     async (extraInfo: LogInExtraInfo) => {
       try {
+        invariant(
+          primaryIdentityPublicKey,
+          'primaryIdentityPublicKey must be set in logInAction',
+        );
         const result = await callLogIn({
           ...extraInfo,
           username,
           password,
           logInActionSource: logInActionSources.logInFromWebForm,
+          primaryIdentityPublicKey,
         });
         modalContext.popModal();
         return result;
@@ -83,7 +92,7 @@ function TraditionalLoginForm(): React.Node {
         throw e;
       }
     },
-    [callLogIn, modalContext, password, username],
+    [callLogIn, modalContext, password, primaryIdentityPublicKey, username],
   );
 
   const onSubmit = React.useCallback(
@@ -158,7 +167,11 @@ function TraditionalLoginForm(): React.Node {
         <Button
           variant="filled"
           type="submit"
-          disabled={inputDisabled}
+          disabled={
+            primaryIdentityPublicKey === null ||
+            primaryIdentityPublicKey === undefined ||
+            inputDisabled
+          }
           onClick={onSubmit}
         >
           {loginButtonContent}

@@ -12,14 +12,25 @@ import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import OrBreak from '../components/or-break.react.js';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 function LoginForm(): React.Node {
   const { openConnectModal } = useConnectModal();
   const { data: signer } = useSigner();
   const dispatch = useDispatch();
 
+  const primaryIdentityPublicKey = useSelector(
+    state => state.primaryIdentityPublicKey,
+  );
+
   React.useEffect(() => {
     (async () => {
+      if (
+        primaryIdentityPublicKey !== null &&
+        primaryIdentityPublicKey !== undefined
+      ) {
+        return;
+      }
       await olm.init();
       const account = new olm.Account();
       account.create();
@@ -29,7 +40,7 @@ function LoginForm(): React.Node {
         payload: ed25519,
       });
     })();
-  }, [dispatch]);
+  }, [dispatch, primaryIdentityPublicKey]);
 
   const [
     siweAuthFlowSelected,
