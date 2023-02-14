@@ -1,8 +1,8 @@
 .threadEntry {
   display: flex;
   flex-direction: row;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .threadListContainer {
@@ -12,6 +12,7 @@
 
 .titleWrapper {
   overflow: hidden;
+  width: 100%;
 }
 
 .title {
@@ -40,14 +41,9 @@
   display: flex;
 }
 
-.chatItem {
-  margin-left: 16px;
-}
-
 .communityBase {
   padding: 2px;
-  padding-right: 24px;
-  padding-left: 8px;
+  padding-right: 4px;
   overflow: hidden;
 }
 
@@ -58,7 +54,6 @@
 }
 
 .subchannelsButton {
-  margin-left: 24px;
   margin-bottom: 6px;
   margin-top: 4px;
   display: flex;
