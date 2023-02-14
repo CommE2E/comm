@@ -21,6 +21,7 @@ type ButtonProps = {
   +text: string,
   +loadingStatus: LoadingStatus,
   +onSubmit: () => void,
+  +disabled?: boolean,
 };
 function PanelButton(props: ButtonProps): React.Node {
   let buttonIcon;
@@ -42,7 +43,7 @@ function PanelButton(props: ButtonProps): React.Node {
       <View style={styles.submitButtonVerticalContainer}>
         <Button
           onPress={props.onSubmit}
-          disabled={props.loadingStatus === 'loading'}
+          disabled={props.disabled || props.loadingStatus === 'loading'}
           topStyle={styles.submitButton}
           style={styles.innerSubmitButton}
           iosFormat="highlight"

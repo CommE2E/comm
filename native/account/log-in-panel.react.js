@@ -152,6 +152,10 @@ class LogInPanel extends React.PureComponent<Props> {
             text="LOG IN"
             loadingStatus={this.props.loadingStatus}
             onSubmit={this.onSubmit}
+            disabled={
+              this.props.primaryIdentityPublicKey === undefined ||
+              this.props.primaryIdentityPublicKey === null
+            }
           />
         </View>
       </Panel>
@@ -389,7 +393,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps
     return (
       <LogInPanel
         {...props}
-        loadingStatus={!primaryIdentityPublicKey ? 'loading' : loadingStatus}
+        loadingStatus={loadingStatus}
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         logIn={callLogIn}
