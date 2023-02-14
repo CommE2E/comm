@@ -8,23 +8,39 @@ div.tabsContainer {
 }
 
 div.tabsHeaderContainer {
+  border-bottom: 1px solid var(--border);
+  height: 56px;
+}
+
+.tabsHeaderContainerPill {
   display: flex;
+  background-color: var(--menu-bg);
+  border-radius: 8px;
+  margin: 8px;
+  align-items: center;
 }
 
 .tabHeader {
   flex: 1;
-  padding: 16px;
-  font-size: var(--m-font-16);
+  font-size: var(--s-font-14);
+  font-weight: var(--semi-bold);
   color: var(--tabs-header-active-color);
-  border-bottom: 2px solid var(--tabs-header-active-border);
+  height: 32px;
+  border-radius: 4px;
+  background-color: var(--tabs-header-active-background);
+  margin: 4px;
 }
 
 .backgroundTabHeader {
   color: var(--tabs-header-background-color);
-  border-bottom-color: var(--tabs-header-background-border);
+  background-color: transparent;
 }
 
 .backgroundTabHeader:hover {
   color: var(--tabs-header-background-color-hover);
-  border-bottom-color: var(--tabs-header-background-border-hover);
+  transition: color 100ms;
+}
+
+.backgroundTabHeader:not(:hover) {
+  transition: color 100ms;
 }
