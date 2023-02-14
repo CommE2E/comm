@@ -27,14 +27,8 @@ function CommunityPicker(): React.Node {
     },
     [dispatch],
   );
-  const isSettingsOpen = useSelector(state => state.navInfo.tab === 'settings');
-  const settingsButtonContainerClass = classNames({
-    [css.activeContainer]: isSettingsOpen,
-    [css.inactiveContainer]: !isSettingsOpen,
-  });
 
   const isCalendarOpen = useSelector(state => state.navInfo.tab === 'calendar');
-
   const onPressInbox = React.useCallback(
     (event: SyntheticEvent<HTMLAnchorElement>) => {
       event.preventDefault();
@@ -51,32 +45,46 @@ function CommunityPicker(): React.Node {
     },
     [dispatch, isCalendarOpen],
   );
+
+  const inboxButtonTitle = isCalendarOpen ? 'All communities' : 'Inbox';
+
   const isInboxOpen = useSelector(
     state =>
       state.navInfo.tab === 'chat' ||
       state.navInfo.tab === 'apps' ||
       state.navInfo.tab === 'calendar',
   );
-  const inboxButtonContainerClass = classNames({
-    [css.activeContainer]: isInboxOpen,
-    [css.inactiveContainer]: !isInboxOpen,
-  });
+  const isSettingsOpen = useSelector(state => state.navInfo.tab === 'settings');
 
-  const inboxButtonTitle = isCalendarOpen ? 'All communities' : 'Inbox';
+  const sideLineInbox = classNames({
+    [css.sideLine]: true,
+    [css.sideLineActive]: isInboxOpen,
+  });
+  const sideLineSettings = classNames({
+    [css.sideLine]: true,
+    [css.sideLineActive]: isSettingsOpen,
+  });
 
   return (
     <div className={css.container}>
-      <a className={inboxButtonContainerClass} onClick={onPressInbox}>
-        <SWMansionIcon icon="inbox" size={36} />
-        <div className={css.inboxButtonTitle}> {inboxButtonTitle} </div>
-      </a>
+      <div className={css.header}>
+        <a className={css.itemContainer} onClick={onPressInbox}>
+          <div className={sideLineInbox} />
+          <SWMansionIcon icon="inbox" size={24} />
+          <div className={css.buttonTitle}> {inboxButtonTitle} </div>
+        </a>
+      </div>
       <div className={css.drawerWrapper}>
         <CommunityDrawer />
       </div>
       <div className={css.spacer} />
-      <div className={settingsButtonContainerClass}>
-        <a className={css.settingsIcon} onClick={openAccountSettings}>
-          <SWMansionIcon icon="settings" size={22} />
+      <div className={css.footer}>
+        <a className={css.itemContainer} onClick={openAccountSettings}>
+          <div className={sideLineSettings} />
+          <div className={css.settingsIcon} onClick={openAccountSettings}>
+            <SWMansionIcon icon="settings" size={22} />
+          </div>
+          <div className={css.buttonTitle}>Settings</div>
         </a>
       </div>
     </div>
