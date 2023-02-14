@@ -39,6 +39,7 @@ import css from './siwe.css';
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
 const connectors = connectorsForWallets([
   {
+    groupName: 'Recommended',
     wallets: [
       injectedWallet({ chains }),
       rainbowWallet({ chains }),
@@ -94,10 +95,17 @@ function SIWE(): React.Node {
 
   const prevConnectModalOpen = React.useRef(false);
   const modalState = useModalState();
+  const closeTimeoutRef = React.useRef();
   const { connectModalOpen } = modalState;
   React.useEffect(() => {
     if (!connectModalOpen && prevConnectModalOpen.current && !signer) {
-      postMessageToNativeWebView({ type: 'siwe_closed' });
+      closeTimeoutRef.current = setTimeout(
+        () => postMessageToNativeWebView({ type: 'siwe_closed' }),
+        50,
+      );
+    } else if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = undefined;
     }
     prevConnectModalOpen.current = connectModalOpen;
   }, [connectModalOpen, signer]);
