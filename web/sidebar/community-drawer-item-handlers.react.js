@@ -10,7 +10,10 @@ import {
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
-import { useOnClickThread } from '../selectors/thread-selectors.js';
+import {
+  useOnClickThread,
+  useThreadIsActive,
+} from '../selectors/thread-selectors.js';
 import type { NavigationTab } from '../types/nav-types';
 
 type HandlerProps = {
@@ -21,8 +24,12 @@ type HandlerProps = {
 function ChatDrawerItemHandler(props: HandlerProps): React.Node {
   const { setHandler, threadInfo } = props;
   const onClick = useOnClickThread(threadInfo);
-  const handler = React.useMemo(() => ({ onClick }), [onClick]);
+  const isActive = useThreadIsActive(threadInfo.id);
 
+  const handler = React.useMemo(() => ({ onClick, isActive }), [
+    isActive,
+    onClick,
+  ]);
   React.useEffect(() => {
     setHandler(handler);
   }, [handler, setHandler]);
@@ -45,8 +52,12 @@ function CalendarDrawerItemHandler(props: HandlerProps): React.Node {
       }),
     [dispatch, threadInfo.id],
   );
-  const handler = React.useMemo(() => ({ onClick }), [onClick]);
+  const isActive = false;
 
+  const handler = React.useMemo(() => ({ onClick, isActive }), [
+    onClick,
+    isActive,
+  ]);
   React.useEffect(() => {
     setHandler(handler);
   }, [handler, setHandler]);
