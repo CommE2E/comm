@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 
-import ClearableTextInput from './clearable-text-input.react.js';
+// eslint-disable-next-line import/extensions
+import ClearableTextInput from './clearable-text-input.react';
 import type {
   SelectableTextInputProps,
   SelectableTextInputRef,
