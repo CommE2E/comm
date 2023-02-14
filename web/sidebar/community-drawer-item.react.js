@@ -6,11 +6,10 @@ import * as React from 'react';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react.js';
+import type { HandlerProps } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer-item.css';
 import { ExpandButton } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
@@ -18,6 +17,7 @@ export type DrawerItemProps = {
   +expanded: boolean,
   +paddingLeft: number,
   +expandable?: boolean,
+  +handler: React.ComponentType<HandlerProps>,
 };
 
 const indentation = 14;
@@ -30,6 +30,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     toggleExpanded,
     paddingLeft,
     expandable = true,
+    handler: Handler,
   } = props;
 
   const children = React.useMemo(() => {
@@ -56,6 +57,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         key={item.threadInfo.id}
         paddingLeft={paddingLeft + indentation}
         expandable={expandable}
+        handler={Handler}
       />
     ));
   }, [
@@ -63,8 +65,9 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     hasSubchannelsButton,
     itemChildren,
     paddingLeft,
-    expandable,
     threadInfo,
+    expandable,
+    Handler,
   ]);
 
   const onExpandToggled = React.useCallback(
@@ -95,10 +98,6 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     onExpandToggled,
     expanded,
   ]);
-
-  const Handler = useSelector(state =>
-    getCommunityDrawerItemHandler(state.navInfo.tab),
-  );
 
   const [handler, setHandler] = React.useState({
     // eslint-disable-next-line no-unused-vars
@@ -132,6 +131,7 @@ export type CommunityDrawerItemChatProps = {
   +itemData: CommunityDrawerItemData<string>,
   +paddingLeft: number,
   +expandable?: boolean,
+  +handler: React.ComponentType<HandlerProps>,
 };
 
 function CommunityDrawerItemChat(

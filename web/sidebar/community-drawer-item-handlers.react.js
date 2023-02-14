@@ -14,7 +14,7 @@ import {
 } from '../selectors/thread-selectors.js';
 import type { NavigationTab } from '../types/nav-types.js';
 
-type HandlerProps = {
+export type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemHandler) => void,
   +threadInfo: ThreadInfo,
 };
