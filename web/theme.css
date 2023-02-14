@@ -197,7 +197,8 @@
   --drawer-expand-button: var(--shades-black-60);
   --drawer-expand-button-disabled: var(--shades-black-80);
   --drawer-item-color: var(--shades-white-60);
+  --drawer-active-item-color: var(--shades-white-100);
   --drawer-open-community-bg: #191919;
-  --drawer-bg: var(--shades-black-90);
-  --active-drawer-item: rgba(0, 0, 0, 0.5);
+  --active-drawer-item-bg: rgba(0, 0, 0, 0.5);
+  --community-drawer-lines: rgba(255, 255, 255, 0.08);
 }
