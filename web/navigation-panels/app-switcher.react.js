@@ -97,36 +97,10 @@ function AppSwitcher(): React.Node {
     );
   }, [isCalendarEnabled, onClickCalendar]);
 
-  const onClickApps = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          tab: 'apps',
-        },
-      });
-    },
-    [dispatch],
-  );
-
-  const appNavigationItem = React.useMemo(
-    () => (
-      <NavigationPanel.Item tab="apps">
-        <a className={css.navigationPanelTab} onClick={onClickApps}>
-          <SWMansionIcon icon="globe-1" size={24} />
-          <p>Apps</p>
-        </a>
-      </NavigationPanel.Item>
-    ),
-    [onClickApps],
-  );
-
   return (
     <NavigationPanel.Container tabSelector={navTabSelector} horizontal={true}>
       {chatNavigationItem}
       {calendarNavigationItem}
-      {appNavigationItem}
     </NavigationPanel.Container>
   );
 }

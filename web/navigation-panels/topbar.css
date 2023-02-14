@@ -1,12 +1,28 @@
 .container {
   border-bottom: 1px solid var(--border);
   height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .navigationPanelContainer {
   flex-direction: row;
   display: flex;
   height: 60px;
+}
+
+.plusButton {
+  margin: 8px;
+  display: flex;
+  cursor: pointer;
+  color: var(--fg);
+  align-items: center;
+  justify-content: center;
+  background-color: var(--topbar-button-bg);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
 }
 
 .navigationPanelTab {
