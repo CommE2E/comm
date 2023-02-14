@@ -9,11 +9,11 @@ import {
   unreadCount,
 } from 'lib/selectors/thread-selectors.js';
 
-import css from './left-layout-aside.css';
-import NavigationPanel from './navigation-panel.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { navTabSelector } from '../selectors/nav-selectors.js';
+import css from '../sidebar/left-layout-aside.css';
+import NavigationPanel from '../sidebar/navigation-panel.react.js';
 
 function AppSwitcher(): React.Node {
   const activeChatThreadID = useSelector(
