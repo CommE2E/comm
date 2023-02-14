@@ -19,7 +19,7 @@ import { ThreadListProvider } from '../chat/thread-list-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const maxDepth = 2;
-const labelStyles = ['titleLevel0', 'titleLevel1', 'titleLevel2'];
+const labelStyles = ['title'];
 
 const HandlerChat = getCommunityDrawerItemHandler('chat');
 const HandlerCal = getCommunityDrawerItemHandler('calendar');

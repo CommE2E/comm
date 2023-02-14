@@ -54,7 +54,7 @@ button svg {
 div.layout {
   height: 100vh;
   display: grid;
-  grid-template-columns: 400px repeat(12, 1fr);
+  grid-template-columns: 300px repeat(12, 1fr);
   grid-template-rows: 65px calc(100vh - 65px);
   grid-template-areas:
     'nav nav nav nav nav nav nav nav nav nav nav nav nav'
