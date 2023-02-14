@@ -8,6 +8,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import Animated from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
@@ -574,41 +575,45 @@ function VideoPlaybackModal(props: Props): React.Node {
       style={[styles.controls, { opacity: controlsOpacity }]}
       pointerEvents={controlsEnabled ? 'box-none' : 'none'}
     >
-      <View style={styles.header}>
-        <View style={styles.closeButton}>
-          <TouchableOpacity
-            onPress={navigation.goBackOnce}
-            ref={(closeButtonRef: any)}
-            onLayout={onCloseButtonLayout}
-          >
-            <Icon name="close" size={30} style={styles.iconButton} />
-          </TouchableOpacity>
+      <SafeAreaView style={styles.fill}>
+        <View style={styles.fill}>
+          <View style={styles.header}>
+            <View style={styles.closeButton}>
+              <TouchableOpacity
+                onPress={navigation.goBackOnce}
+                ref={(closeButtonRef: any)}
+                onLayout={onCloseButtonLayout}
+              >
+                <Icon name="close" size={30} style={styles.iconButton} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.footer} ref={footerRef} onLayout={onFooterLayout}>
+            <TouchableOpacity
+              onPress={togglePlayback}
+              style={styles.playPauseButton}
+            >
+              <Icon
+                name={paused ? 'play' : 'pause'}
+                size={28}
+                style={styles.iconButton}
+              />
+            </TouchableOpacity>
+            <View style={styles.progressBar}>
+              <Progress.Bar
+                progress={percentElapsed / 100}
+                height={4}
+                width={null}
+                color={styles.progressBar.color}
+                style={styles.expand}
+              />
+            </View>
+            <Text style={styles.durationText}>
+              {timeElapsed} / {totalDuration}
+            </Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.footer} ref={footerRef} onLayout={onFooterLayout}>
-        <TouchableOpacity
-          onPress={togglePlayback}
-          style={styles.playPauseButton}
-        >
-          <Icon
-            name={paused ? 'play' : 'pause'}
-            size={28}
-            style={styles.iconButton}
-          />
-        </TouchableOpacity>
-        <View style={styles.progressBar}>
-          <Progress.Bar
-            progress={percentElapsed / 100}
-            height={4}
-            width={null}
-            color={styles.progressBar.color}
-            style={styles.expand}
-          />
-        </View>
-        <Text style={styles.durationText}>
-          {timeElapsed} / {totalDuration}
-        </Text>
-      </View>
+      </SafeAreaView>
     </Animated.View>
   );
 
@@ -738,6 +743,9 @@ const unboundStyles = {
   contentContainer: {
     flex: 1,
     overflow: 'hidden',
+  },
+  fill: {
+    flex: 1,
   },
 };
 
