@@ -51,10 +51,12 @@ import history from './router-history.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
 import LeftLayoutAside from './sidebar/left-layout-aside.react.js';
+import SettingsSwitcher from './sidebar/settings-switcher.react.js';
 import Splash from './splash/splash.react.js';
 import './typography.css';
 import css from './style.css';
 import getTitle from './title/getTitle.js';
+import Topbar from './topbar/topbar.react.js';
 import { type NavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 import { WagmiENSCacheProvider, wagmiClient } from './utils/wagmi-utils.js';
@@ -176,21 +178,7 @@ class App extends React.PureComponent<Props> {
   stopDoubleClickPropagation = electron ? e => e.stopPropagation() : null;
 
   renderMainContent() {
-    let mainContent;
-    const { tab, settingsSection } = this.props.navInfo;
-    if (tab === 'calendar') {
-      mainContent = <Calendar url={this.props.location.pathname} />;
-    } else if (tab === 'chat') {
-      mainContent = <Chat />;
-    } else if (tab === 'apps') {
-      mainContent = <AppsDirectory />;
-    } else if (tab === 'settings') {
-      if (settingsSection === 'account') {
-        mainContent = <AccountSettings />;
-      } else if (settingsSection === 'danger-zone') {
-        mainContent = <DangerZone />;
-      }
-    }
+    const mainContent = this.getMainContentWithSwitcher();
 
     let navigationArrows = null;
     if (electron) {
@@ -238,12 +226,48 @@ class App extends React.PureComponent<Props> {
             </div>
           </div>
         </header>
-        <InputStateContainer>
-          <div className={css['main-content-container']}>
-            <div className={css['main-content']}>{mainContent}</div>
-          </div>
-        </InputStateContainer>
+        <InputStateContainer>{mainContent}</InputStateContainer>
         <LeftLayoutAside />
+      </div>
+    );
+  }
+
+  getMainContentWithSwitcher() {
+    const { tab, settingsSection } = this.props.navInfo;
+    let mainContent;
+
+    if (tab === 'settings') {
+      if (settingsSection === 'account') {
+        mainContent = <AccountSettings />;
+      } else if (settingsSection === 'danger-zone') {
+        mainContent = <DangerZone />;
+      }
+      return (
+        <div className={css['main-content-container']}>
+          <div className={css.switcher}>
+            <SettingsSwitcher />
+          </div>
+          <div className={css['main-content']}>{mainContent}</div>
+        </div>
+      );
+    }
+
+    if (tab === 'calendar') {
+      mainContent = <Calendar url={this.props.location.pathname} />;
+    } else if (tab === 'chat') {
+      mainContent = <Chat />;
+    } else if (tab === 'apps') {
+      mainContent = <AppsDirectory />;
+    }
+
+    const mainContentClass = classnames(
+      css['main-content-container'],
+      css['main-content-container-column'],
+    );
+    return (
+      <div className={mainContentClass}>
+        <Topbar />
+        <div className={css['main-content']}>{mainContent}</div>
       </div>
     );
   }
