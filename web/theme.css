@@ -194,4 +194,6 @@
   --spoiler-text-color: var(--spoiler-color);
   --spoiler-background-color: var(--spoiler-color);
   --purple-link: var(--violet-light-100);
+  --drawer-expand-button: var(--shades-black-60);
+  --drawer-expand-button-disabled: var(--shades-black-80);
 }

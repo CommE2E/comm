@@ -1,0 +1,13 @@
+.buttonIcon {
+  color: var(--drawer-expand-button);
+}
+
+.disabledButtonIcon {
+  color: var(--drawer-expand-button-disabled);
+}
+
+.button {
+  font-size: var(--xs-font-12);
+  width: 24px;
+  height: 24px;
+}
