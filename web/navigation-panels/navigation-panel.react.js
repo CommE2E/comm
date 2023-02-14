@@ -3,10 +3,10 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import verticalCSS from './left-layout-aside.css';
+import verticalCSS from './settings-switcher.css';
+import horizontalCSS from './topbar.css';
 import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
-import horizontalCSS from '../topbar/topbar.css';
 
 type NavigationPanelItemProps = {
   +tab: string,
