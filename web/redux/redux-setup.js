@@ -65,7 +65,7 @@ export type AppState = {
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  communityIDFilter: ?string,
+  calendarPickedCommunityID: ?string,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
@@ -141,14 +141,14 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
           threadIDs,
         },
       ],
-      communityIDFilter: action.payload,
+      calendarPickedCommunityID: action.payload,
     };
   } else if (action.type === clearCalendarCommunityFilter) {
     const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
     return {
       ...state,
       calendarFilters: nonThreadFilters,
-      communityIDFilter: null,
+      calendarPickedCommunityID: null,
     };
   } else if (action.type === setNewSessionActionType) {
     if (
