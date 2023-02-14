@@ -357,7 +357,14 @@ async function logInResponder(
   }
 
   const id = userRow.id.toString();
-  return await processSuccessfulLogin(viewer, input, id, calendarQuery);
+  const { primaryIdentityPublicKey } = input;
+  return await processSuccessfulLogin(
+    viewer,
+    input,
+    id,
+    calendarQuery,
+    primaryIdentityPublicKey,
+  );
 }
 
 const siweAuthRequestInputValidator = tShape({
