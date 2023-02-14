@@ -1,5 +1,7 @@
 # Requirements
 
+:warning: **This document has been deprecated in favor of our [Nix development environemnt](./nix_dev_env.md).**
+
 Please note that our dev environment currently only works on macOS and Linux.
 
 For the Linux instructions [head to the Linux configuration steps](linux_dev_environment.md).
