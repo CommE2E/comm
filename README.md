@@ -16,4 +16,4 @@ The whole project is written in Flow-typed Javascript. The code is organized in 
 
 Note that it’s currently it’s only possible to contribute to this project from macOS. This is primarily due to iOS native development only being supported in macOS.
 
-Check out our [doc on how to set up our dev environment](docs/dev_environment.md).
+Check out our [doc on how to set up our dev environment](docs/nix_dev_env.md).

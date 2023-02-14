@@ -1,5 +1,7 @@
 # Requirements
 
+:warning: **This document is outdated. Click [here](./nix_dev_env.md) for the latest dev environment setup instructions.**
+
 Please note that our dev environment currently only works on macOS and Linux.
 
 For the Linux instructions [head to the Linux configuration steps](linux_dev_environment.md).
