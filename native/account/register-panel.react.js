@@ -33,6 +33,7 @@ import { TextInput } from './modal-components.react.js';
 import { setNativeCredentials } from './native-credentials.js';
 import { PanelButton, Panel } from './panel-components.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { commCoreModule } from '../native-modules.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
@@ -51,13 +52,11 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => LogInExtraInfo,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
+  +primaryIdentityPublicKey: ?string,
 };
 type State = {
   +confirmPasswordFocused: boolean,
@@ -329,11 +328,18 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   };
 
   async registerAction(extraInfo: LogInExtraInfo) {
+    const { primaryIdentityPublicKey } = this.props;
     try {
+      invariant(
+        primaryIdentityPublicKey !== null &&
+          primaryIdentityPublicKey !== undefined,
+        'primaryIdentityPublicKey must exist in logInAction',
+      );
       const result = await this.props.register({
+        ...extraInfo,
         username: this.props.registerState.state.usernameInputText,
         password: this.props.registerState.state.passwordInputText,
-        ...extraInfo,
+        primaryIdentityPublicKey: primaryIdentityPublicKey,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
@@ -461,13 +467,26 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> = React.memo<BasePr
     const dispatchActionPromise = useDispatchActionPromise();
     const callRegister = useServerCall(register);
 
+    const [
+      primaryIdentityPublicKey,
+      setPrimaryIdentityPublicKey,
+    ] = React.useState<?string>(null);
+    React.useEffect(() => {
+      (async () => {
+        await commCoreModule.initializeCryptoAccount('PLACEHOLDER');
+        const { ed25519 } = await commCoreModule.getUserPublicKey();
+        setPrimaryIdentityPublicKey(ed25519);
+      })();
+    }, []);
+
     return (
       <RegisterPanel
         {...props}
-        loadingStatus={loadingStatus}
+        loadingStatus={!primaryIdentityPublicKey ? 'loading' : loadingStatus}
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         register={callRegister}
+        primaryIdentityPublicKey={primaryIdentityPublicKey}
       />
     );
   },
