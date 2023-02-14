@@ -71,9 +71,11 @@ import { ChatContext } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react.js';
 import TypeaheadTooltip from './typeahead-tooltip.react.js';
 import Button from '../components/button.react.js';
-import ClearableTextInput from '../components/clearable-text-input.react.js';
+// eslint-disable-next-line import/extensions
+import ClearableTextInput from '../components/clearable-text-input.react';
 import type { SyncedSelectionData } from '../components/selectable-text-input.js';
-import SelectableTextInput from '../components/selectable-text-input.react.js';
+// eslint-disable-next-line import/extensions
+import SelectableTextInput from '../components/selectable-text-input.react';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react.js';
