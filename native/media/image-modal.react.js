@@ -18,6 +18,7 @@ import {
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type MediaInfo, type Dimensions } from 'lib/types/media-types.js';
 
@@ -1028,11 +1029,9 @@ class ImageModal extends React.PureComponent<Props, State> {
     const backdropStyle = { opacity: this.backdropOpacity };
     const closeButtonStyle = {
       opacity: this.closeButtonOpacity,
-      top: Math.max(this.props.dimensions.topInset - 2, 4),
     };
     const mediaIconsButtonStyle = {
       opacity: this.actionLinksOpacity,
-      bottom: this.props.dimensions.bottomInset + 8,
     };
 
     let copyButton;
@@ -1058,35 +1057,41 @@ class ImageModal extends React.PureComponent<Props, State> {
             <Multimedia mediaInfo={mediaInfo} spinnerColor="white" />
           </Animated.View>
         </View>
-        <Animated.View style={[styles.closeButtonContainer, closeButtonStyle]}>
-          <TouchableOpacity
-            onPress={this.close}
-            disabled={!this.state.closeButtonEnabled}
-            onLayout={this.onCloseButtonLayout}
-            ref={this.closeButtonRef}
-          >
-            <Text style={styles.closeButton}>×</Text>
-          </TouchableOpacity>
-        </Animated.View>
-        <Animated.View
-          style={[styles.mediaIconsContainer, mediaIconsButtonStyle]}
-        >
-          <View
-            style={styles.mediaIconsRow}
-            onLayout={this.onMediaIconsLayout}
-            ref={this.mediaIconsRef}
-          >
-            <TouchableOpacity
-              onPress={this.save}
-              disabled={!this.state.actionLinksEnabled}
-              style={styles.mediaIconButtons}
+        <SafeAreaView style={[styles.fill, styles.buttonsOverlay]}>
+          <View style={styles.fill}>
+            <Animated.View
+              style={[styles.closeButtonContainer, closeButtonStyle]}
             >
-              <SWMansionIcon name="save" style={styles.mediaIcon} />
-              <Text style={styles.mediaIconText}>Save</Text>
-            </TouchableOpacity>
-            {copyButton}
+              <TouchableOpacity
+                onPress={this.close}
+                disabled={!this.state.closeButtonEnabled}
+                onLayout={this.onCloseButtonLayout}
+                ref={this.closeButtonRef}
+              >
+                <Text style={styles.closeButton}>×</Text>
+              </TouchableOpacity>
+            </Animated.View>
+            <Animated.View
+              style={[styles.mediaIconsContainer, mediaIconsButtonStyle]}
+            >
+              <View
+                style={styles.mediaIconsRow}
+                onLayout={this.onMediaIconsLayout}
+                ref={this.mediaIconsRef}
+              >
+                <TouchableOpacity
+                  onPress={this.save}
+                  disabled={!this.state.actionLinksEnabled}
+                  style={styles.mediaIconButtons}
+                >
+                  <SWMansionIcon name="save" style={styles.mediaIcon} />
+                  <Text style={styles.mediaIconText}>Save</Text>
+                </TouchableOpacity>
+                {copyButton}
+              </View>
+            </Animated.View>
           </View>
-        </Animated.View>
+        </SafeAreaView>
       </Animated.View>
     );
     return (
@@ -1211,6 +1216,13 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
   },
+  buttonsOverlay: {
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   closeButton: {
     color: 'white',
     fontSize: 36,
@@ -1223,6 +1235,7 @@ const styles = StyleSheet.create({
   closeButtonContainer: {
     position: 'absolute',
     right: 4,
+    top: 4,
   },
   container: {
     flex: 1,
@@ -1230,6 +1243,9 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     overflow: 'hidden',
+  },
+  fill: {
+    flex: 1,
   },
   mediaIcon: {
     color: '#D7D7DC',
@@ -1253,6 +1269,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
   },
   mediaIconsContainer: {
+    bottom: 8,
     left: 16,
     position: 'absolute',
   },
