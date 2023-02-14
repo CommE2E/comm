@@ -1,34 +1,40 @@
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 84px;
   background: var(--community-bg);
   padding: 24px 0 32px 0;
   border-right: 1px solid var(--border-color);
   flex-grow: 1;
+  overflow: auto;
+  width: 400px;
 }
 
 .spacer {
   flex-grow: 1;
 }
 
-.container button {
-  color: var(--fg);
-}
-
-.container svg {
-  color: var(--fg);
-  padding: 0;
-}
-
 .activeContainer {
   display: flex;
-  justify-content: center;
   width: 100%;
   box-sizing: border-box;
   border-left: 8px solid var(--community-settings-selected);
   border-right: 8px solid transparent;
+  padding-left: 12px;
+  height: 40px;
+  align-items: center;
+}
+
+.inactiveContainer {
+  display: flex;
+  padding-left: 20px;
+  height: 40px;
+  align-items: center;
+}
+
+.inactiveContainer svg,
+.activeContainer svg {
+  color: var(--fg);
+  padding: 0;
 }
 
 .settingsIcon {
@@ -39,4 +45,9 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
+}
+
+.drawerWrapper {
+  align-self: flex-start;
+  width: 100%;
 }
