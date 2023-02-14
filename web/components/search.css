@@ -12,7 +12,8 @@ div.searchIcon {
   color: var(--search-icon-color);
 }
 
-input.searchInput {
+input.searchInput,
+#searchInputID {
   background-color: transparent;
   font-size: var(--m-font-16);
   line-height: 1.5;
