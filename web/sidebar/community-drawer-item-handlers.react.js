@@ -7,14 +7,14 @@ import {
   updateCalendarThreadFilter,
   calendarThreadFilterTypes,
 } from 'lib/types/filter-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
 import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/thread-selectors.js';
-import type { NavigationTab } from '../types/nav-types';
+import type { NavigationTab } from '../types/nav-types.js';
 
 type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemHandler) => void,
