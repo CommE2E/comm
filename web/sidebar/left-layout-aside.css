@@ -1,9 +1,8 @@
 .container {
   grid-area: sBar;
   background: var(--bg);
-  border-right: 1px solid var(--border-color);
   display: flex;
-  width: 560px;
+  width: 400px;
 }
 
 .navigationPanelContainer {
