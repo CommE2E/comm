@@ -25,6 +25,7 @@ import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
   EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
@@ -33,6 +34,7 @@ import type { PhotoCapture } from 'lib/types/media-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import SendMediaButton from './send-media-button.react';
 import ContentLoading from '../components/content-loading.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { type InputState, InputStateContext } from '../input/input-state';
@@ -54,7 +56,6 @@ import {
   type AnimatedViewStyle,
 } from '../types/styles';
 import { clamp, gestureJustEnded } from '../utils/animation-utils';
-import SendMediaButton from './send-media-button.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -612,21 +613,21 @@ class CameraModal extends React.PureComponent<Props, State> {
     if (this.state.stagingMode) {
       return this.renderStagingView();
     }
-    const topButtonStyle = {
-      top: Math.max(this.props.dimensions.topInset, 6),
-    };
+
     return (
-      <>
-        {this.renderCameraContent(status)}
-        <TouchableOpacity
-          onPress={this.close}
-          onLayout={this.onCloseButtonLayout}
-          style={[styles.closeButton, topButtonStyle]}
-          ref={this.closeButtonRef}
-        >
-          <Text style={styles.closeIcon}>×</Text>
-        </TouchableOpacity>
-      </>
+      <SafeAreaView style={styles.fill}>
+        <View style={styles.fill}>
+          {this.renderCameraContent(status)}
+          <TouchableOpacity
+            onPress={this.close}
+            onLayout={this.onCloseButtonLayout}
+            style={styles.closeButton}
+            ref={this.closeButtonRef}
+          >
+            <Text style={styles.closeIcon}>×</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   };
 
@@ -640,30 +641,25 @@ class CameraModal extends React.PureComponent<Props, State> {
       image = <ContentLoading fillType="flex" colors={colors.dark} />;
     }
 
-    const topButtonStyle = {
-      top: Math.max(this.props.dimensions.topInset - 3, 3),
-    };
-    const sendButtonContainerStyle = {
-      bottom: this.props.dimensions.bottomInset + 22,
-    };
     return (
       <>
         {image}
-        <TouchableOpacity
-          onPress={this.clearPendingImage}
-          style={[styles.retakeButton, topButtonStyle]}
-        >
-          <Icon name="ios-arrow-back" style={styles.retakeIcon} />
-        </TouchableOpacity>
-        <SendMediaButton
-          onPress={this.sendPhoto}
-          pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
-          containerStyle={[
-            styles.sendButtonContainer,
-            sendButtonContainerStyle,
-          ]}
-          style={this.sendButtonStyle}
-        />
+        <SafeAreaView style={[styles.fill, styles.stagingViewOverlay]}>
+          <View style={styles.fill}>
+            <TouchableOpacity
+              onPress={this.clearPendingImage}
+              style={styles.retakeButton}
+            >
+              <Icon name="ios-arrow-back" style={styles.retakeIcon} />
+            </TouchableOpacity>
+            <SendMediaButton
+              onPress={this.sendPhoto}
+              pointerEvents={pendingPhotoCapture ? 'auto' : 'none'}
+              containerStyle={styles.sendButtonContainer}
+              style={this.sendButtonStyle}
+            />
+          </View>
+        </SafeAreaView>
       </>
     );
   }
@@ -709,12 +705,6 @@ class CameraModal extends React.PureComponent<Props, State> {
       );
     }
 
-    const topButtonStyle = {
-      top: Math.max(this.props.dimensions.topInset - 3, 3),
-    };
-    const bottomButtonsContainerStyle = {
-      bottom: this.props.dimensions.bottomInset + 20,
-    };
     return (
       <PinchGestureHandler
         onGestureEvent={this.pinchEvent}
@@ -734,17 +724,12 @@ class CameraModal extends React.PureComponent<Props, State> {
               <TouchableOpacity
                 onPress={this.changeFlashMode}
                 onLayout={this.onFlashButtonLayout}
-                style={[styles.flashButton, topButtonStyle]}
+                style={styles.flashButton}
                 ref={this.flashButtonRef}
               >
                 {flashIcon}
               </TouchableOpacity>
-              <View
-                style={[
-                  styles.bottomButtonsContainer,
-                  bottomButtonsContainerStyle,
-                ]}
-              >
+              <View style={styles.bottomButtonsContainer}>
                 <TouchableOpacity
                   onPress={this.takePhoto}
                   onLayout={this.onPhotoButtonLayout}
@@ -1060,7 +1045,9 @@ const styles = StyleSheet.create({
   },
   bottomButtonsContainer: {
     alignItems: 'center',
+    bottom: 20,
     flexDirection: 'row',
+    flex: 1,
     justifyContent: 'center',
     left: 0,
     position: 'absolute',
@@ -1071,6 +1058,7 @@ const styles = StyleSheet.create({
     paddingBottom: 2,
     paddingHorizontal: 8,
     position: 'absolute',
+    top: 6,
   },
   closeIcon: {
     color: 'white',
@@ -1092,6 +1080,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     position: 'absolute',
     right: 15,
+    top: 3,
   },
   flashIcon: {
     color: 'white',
@@ -1135,6 +1124,7 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     paddingHorizontal: 10,
     position: 'absolute',
+    top: 6,
   },
   retakeIcon: {
     color: 'white',
@@ -1159,6 +1149,7 @@ const styles = StyleSheet.create({
     width: 60,
   },
   sendButtonContainer: {
+    bottom: 22,
     position: 'absolute',
     right: 32,
   },
@@ -1166,6 +1157,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     flex: 1,
     resizeMode: 'contain',
+  },
+  stagingViewOverlay: {
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
   switchCameraButton: {
     justifyContent: 'center',
