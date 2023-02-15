@@ -111,10 +111,13 @@ async function createAccount(
     INSERT INTO users(id, username, hash, creation_time)
     VALUES ${[newUserRow]}
   `;
+
+  const { primaryIdentityPublicKey } = request;
   const [userViewerData] = await Promise.all([
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
+      primaryIdentityPublicKey,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
