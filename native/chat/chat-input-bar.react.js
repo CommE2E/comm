@@ -32,6 +32,11 @@ import {
   relativeMemberInfoSelectorForMembersOfThread,
   userStoreSearchIndex,
 } from 'lib/selectors/user-selectors.js';
+import {
+  getTypeaheadUserSuggestions,
+  getTypeaheadRegexMatches,
+  type Selection,
+} from 'lib/shared/mention-utils.js';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
 import SearchIndex from 'lib/shared/search-index.js';
 import {
@@ -43,11 +48,6 @@ import {
   draftKeyFromThreadID,
   colorIsDark,
 } from 'lib/shared/thread-utils.js';
-import {
-  getTypeaheadUserSuggestions,
-  getTypeaheadRegexMatches,
-  type Selection,
-} from 'lib/shared/typeahead-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PhotoPaste } from 'lib/types/media-types.js';

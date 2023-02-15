@@ -15,6 +15,11 @@ import {
   userStoreSearchIndex,
   relativeMemberInfoSelectorForMembersOfThread,
 } from 'lib/selectors/user-selectors.js';
+import {
+  getTypeaheadUserSuggestions,
+  getTypeaheadRegexMatches,
+} from 'lib/shared/mention-utils.js';
+import type { TypeaheadMatchedStrings } from 'lib/shared/mention-utils.js';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
@@ -23,11 +28,6 @@ import {
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
 } from 'lib/shared/thread-utils.js';
-import {
-  getTypeaheadUserSuggestions,
-  getTypeaheadRegexMatches,
-} from 'lib/shared/typeahead-utils.js';
-import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types.js';
