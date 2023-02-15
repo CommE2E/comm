@@ -9,6 +9,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
+import { ChevronsLeft } from 'react-feather';
 import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
 
@@ -144,6 +145,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
             />
             {clearQueryButton}
           </div>
+          <ChevronsLeft className={css.collapseButton} size={30} />
         </div>
         <div className={css.filters}>{filters}</div>
         <div className={css.extras}>
