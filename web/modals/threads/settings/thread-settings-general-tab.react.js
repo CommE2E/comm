@@ -7,7 +7,10 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions.js';
-import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import {
+  threadHasPermission,
+  chatNameMaxLength,
+} from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import {
   type ThreadInfo,
@@ -153,6 +156,7 @@ function ThreadSettingsGeneralTab(
         <div className={css.form_content}>
           <Input
             type="text"
+            maxLength={chatNameMaxLength}
             value={firstLine(queuedChanges.name ?? threadInfo.name)}
             placeholder={threadNamePlaceholder}
             onChange={onChangeName}

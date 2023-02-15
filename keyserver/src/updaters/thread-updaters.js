@@ -6,6 +6,7 @@ import {
   roleIsAdminRole,
   viewerIsMember,
   getThreadTypeParentRequirement,
+  validChatNameRegex,
 } from 'lib/shared/thread-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
@@ -333,6 +334,9 @@ async function updateThread(
   const untrimmedName = request.changes.name;
   if (untrimmedName !== undefined && untrimmedName !== null) {
     const name = firstLine(untrimmedName);
+    if (name.search(validChatNameRegex) === -1) {
+      throw new ServerError('invalid_chat_name');
+    }
     changedFields.name = name;
     sqlUpdate.name = name ?? null;
   }

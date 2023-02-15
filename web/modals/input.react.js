@@ -19,6 +19,7 @@ export type InputProps = {
   ...BaseInputProps,
   +type: string,
   +placeholder: string,
+  +maxLength?: number,
 };
 
 function Input(props: InputProps, ref): React.Node {
