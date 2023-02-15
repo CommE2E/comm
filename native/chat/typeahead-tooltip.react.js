@@ -8,7 +8,7 @@ import {
   type TypeaheadMatchedStrings,
   type Selection,
   getNewTextAndSelection,
-} from 'lib/shared/typeahead-utils.js';
+} from 'lib/shared/mention-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
 import Button from '../components/button.react.js';

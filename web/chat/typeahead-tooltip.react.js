@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils.js';
+import type { TypeaheadMatchedStrings } from 'lib/shared/mention-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { leastPositiveResidue } from 'lib/utils/math-utils.js';
 

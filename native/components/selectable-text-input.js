@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { Selection } from 'lib/shared/typeahead-utils.js';
+import type { Selection } from 'lib/shared/mention-utils.js';
 
 import type { ClearableTextInputProps } from './clearable-text-input.js';
 // eslint-disable-next-line import/extensions
