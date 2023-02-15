@@ -15,6 +15,7 @@ import {
   changeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { chatNameMaxLength } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type ResolvedThreadInfo,
@@ -108,6 +109,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
           editable={this.props.loadingStatus !== 'loading'}
           ref={this.textInputRef}
           selectionColor={`#${this.props.threadInfo.color}`}
+          maxLength={chatNameMaxLength}
         />
         {button}
       </React.Fragment>
