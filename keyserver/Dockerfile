@@ -129,8 +129,12 @@ RUN cargo init keyserver/addons/rust-node-addon --lib
 COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
   keyserver/addons/rust-node-addon/
 
-# Copy in comm-opaque library, a dependency of rust-node-addon
+# Copy in local dependencies of rust-node-addon
 COPY --chown=comm shared/comm-opaque shared/comm-opaque/
+COPY --chown=comm shared/tunnelbroker-client shared/tunnelbroker-client/
+
+# Copy protobuf files as a dependency for the shared client libraries
+COPY --chown=comm shared/protos shared/protos/
 
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
