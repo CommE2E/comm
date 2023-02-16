@@ -155,7 +155,7 @@ function ChatItemHeightMeasurer(props: Props) {
 
   return (
     <MessageListContextProvider
-      threadID={threadInfo.id}
+      threadInfo={threadInfo}
       key={measurement.measurerID}
     >
       <NodeHeightMeasurer

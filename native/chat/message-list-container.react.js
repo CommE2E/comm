@@ -321,7 +321,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
       [setParams, existingThreadInfoFinder, addReply],
     );
 
-    const threadID = threadInfo.id;
     const messageListData = useMessageListData({
       searching: isSearching,
       userInfoInputArray,
@@ -337,7 +336,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
     );
 
     return (
-      <MessageListContextProvider threadID={threadID}>
+      <MessageListContextProvider threadInfo={threadInfo}>
         <MessageListContainer
           {...props}
           usernameInputText={usernameInputText}
