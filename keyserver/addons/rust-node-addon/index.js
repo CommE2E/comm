@@ -17,6 +17,7 @@ type RustAPI = {
     password: string,
     userPublicKey: string,
   ) => Promise<string>,
+  +deleteUser: (userId: string) => Promise<boolean>,
 };
 
 async function getRustAPI(): Promise<RustAPI> {
@@ -41,8 +42,8 @@ async function getRustAPI(): Promise<RustAPI> {
     throw new Error('Failed to load native binding');
   }
 
-  const { registerUser } = nativeBinding;
-  return { registerUser };
+  const { registerUser, deleteUser } = nativeBinding;
+  return { registerUser, deleteUser };
 }
 
 export { getRustAPI };
