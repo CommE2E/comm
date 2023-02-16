@@ -170,6 +170,11 @@ SessionItem getSessionItem(rust::Str sessionID) {
 }
 
 void updateSessionItemIsOnline(rust::Str sessionID, bool isOnline) {
+  if (comm::network::config::ConfigManager::getInstance().isParameterSet(
+          comm::network::config::ConfigManager::
+              OPTION_SESSIONS_SKIP_AUTH_KEY)) {
+    return;
+  }
   comm::network::database::DatabaseManager::getInstance()
       .updateSessionItemIsOnline(std::string{sessionID}, isOnline);
 }
