@@ -75,8 +75,6 @@ function TextMessageTooltipButton(props: Props): React.Node {
     };
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
-  const threadID = item.threadInfo.id;
-
   const messagePressResponderContext = React.useMemo(
     () => ({
       onPressMessage: navigation.goBackOnce,
@@ -164,7 +162,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
   );
 
   return (
-    <MessageListContextProvider threadID={threadID}>
+    <MessageListContextProvider threadInfo={threadInfo}>
       <SidebarInputBarHeightMeasurer
         sourceMessage={item}
         onInputBarMeasured={onInputBarMeasured}
