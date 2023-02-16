@@ -156,6 +156,9 @@ class ChatList extends React.PureComponent<Props, State> {
         curItem = this.props.data[curDataIndex];
       }
       if (!curItem) {
+        if (prevItemKey === 'loader') {
+          break;
+        }
         // Should never happen...
         console.log(
           `items not removed from ChatList, but ${prevItemKey} now missing`,
