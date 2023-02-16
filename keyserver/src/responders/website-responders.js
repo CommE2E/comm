@@ -277,8 +277,15 @@ async function websiteResponder(
         currentUserInfo.id
       ) {
         const { userInfos } = userStore;
-        const members = pendingThreadData.memberIDs
-          .map(id => userInfos[id])
+        const members = [...pendingThreadData.memberIDs, currentUserInfo.id]
+          .map(id => {
+            const userInfo = userInfos[id];
+            if (!userInfo || !userInfo.username) {
+              return undefined;
+            }
+            const { username } = userInfo;
+            return { id, username };
+          })
           .filter(Boolean);
         const newPendingThread = createPendingThread({
           viewerID: currentUserInfo.id,

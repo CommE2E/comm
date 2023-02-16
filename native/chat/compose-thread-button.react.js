@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { createPendingThread } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types.js';
 
@@ -10,7 +11,6 @@ import type { ChatNavigationProp } from './chat.react.js';
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { MessageListRouteName } from '../navigation/route-names.js';
-import { useSelector } from '../redux/redux-utils.js';
 import { useColors } from '../themes/colors.js';
 
 type Props = {
@@ -18,24 +18,23 @@ type Props = {
 };
 function ComposeThreadButton(props: Props) {
   const { navigate } = props;
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
+  const loggedInUserInfo = useLoggedInUserInfo();
   const onPress = React.useCallback(() => {
-    if (!viewerID) {
+    if (!loggedInUserInfo) {
       return;
     }
     navigate<'MessageList'>({
       name: MessageListRouteName,
       params: {
         threadInfo: createPendingThread({
-          viewerID,
+          viewerID: loggedInUserInfo.id,
           threadType: threadTypes.PRIVATE,
+          members: [loggedInUserInfo],
         }),
         searching: true,
       },
     });
-  }, [navigate, viewerID]);
+  }, [navigate, loggedInUserInfo]);
 
   const { listForegroundSecondaryLabel } = useColors();
   return (

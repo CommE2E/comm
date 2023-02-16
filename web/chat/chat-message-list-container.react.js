@@ -8,6 +8,7 @@ import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import { useDispatch } from 'react-redux';
 
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
@@ -43,13 +44,15 @@ function ChatMessageListContainer(props: Props): React.Node {
     () => selectedUserIDs?.map(id => otherUserInfos[id]).filter(Boolean) ?? [],
     [otherUserInfos, selectedUserIDs],
   );
-  const viewerID = useSelector(state => state.currentUserInfo?.id);
-  invariant(viewerID, 'should be set');
+
+  const loggedInUserInfo = useLoggedInUserInfo();
+  invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
 
   const pendingPrivateThread = React.useRef(
     createPendingThread({
-      viewerID,
+      viewerID: loggedInUserInfo.id,
       threadType: threadTypes.PRIVATE,
+      members: [loggedInUserInfo],
     }),
   );
 
@@ -57,13 +60,14 @@ function ChatMessageListContainer(props: Props): React.Node {
   const pendingNewThread = React.useMemo(
     () => ({
       ...createPendingThread({
-        viewerID,
+        viewerID: loggedInUserInfo.id,
         threadType: threadTypes.PRIVATE,
+        members: [loggedInUserInfo],
         name: 'New thread',
       }),
       id: newThreadID,
     }),
-    [viewerID],
+    [loggedInUserInfo],
   );
 
   const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
