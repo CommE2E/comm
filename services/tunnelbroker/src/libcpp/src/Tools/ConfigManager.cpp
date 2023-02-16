@@ -119,9 +119,11 @@ void ConfigManager::loadConfigFile(const std::string configFilePath) {
 
     description.add_options()(
         this->OPTION_SESSIONS_SKIP_AUTH_KEY.c_str(),
+        boost::program_options::value<bool>()->default_value(false),
         "Skip sessions authentication mechanism");
     description.add_options()(
         this->OPTION_DISABLE_DEVICEID_VALIDATION.c_str(),
+        boost::program_options::value<bool>()->default_value(false),
         "Disable deviceID format validation");
 
     boost::program_options::parsed_options parsedDescription =
