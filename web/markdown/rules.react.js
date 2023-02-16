@@ -4,12 +4,10 @@ import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors.js';
 import * as SharedMarkdown from 'lib/shared/markdown.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
+import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import MarkdownSpoiler from './markdown-spoiler.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 
 export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,
@@ -160,19 +158,16 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
 });
 
 function useTextMessageRulesFunc(
-  threadID: ?string,
-): ?(boolean) => MarkdownRules {
-  const threadMembers = useSelector(
-    relativeMemberInfoSelectorForMembersOfThread(threadID),
+  threadInfo: ThreadInfo,
+): boolean => MarkdownRules {
+  const { members } = threadInfo;
+  return React.useMemo(
+    () =>
+      _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
+        textMessageRules(members, useDarkStyle),
+      ),
+    [members],
   );
-  return React.useMemo(() => {
-    if (!threadMembers) {
-      return undefined;
-    }
-    return _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
-      textMessageRules(threadMembers, useDarkStyle),
-    );
-  }, [threadMembers]);
 }
 
 function textMessageRules(
