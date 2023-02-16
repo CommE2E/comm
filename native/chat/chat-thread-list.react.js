@@ -17,6 +17,7 @@ import Animated from 'react-native-reanimated';
 import { createSelector } from 'reselect';
 
 import { searchUsers } from 'lib/actions/user-actions.js';
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
@@ -31,7 +32,11 @@ import {
 import type { UserSearchResult } from 'lib/types/search-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { threadTypes } from 'lib/types/thread-types.js';
-import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types.js';
+import type {
+  GlobalAccountUserInfo,
+  UserInfo,
+  LoggedInUserInfo,
+} from 'lib/types/user-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
 import {
@@ -99,7 +104,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +chatListData: $ReadOnlyArray<ChatThreadItem>,
-  +viewerID: ?string,
+  +loggedInUserInfo: ?LoggedInUserInfo,
   +threadSearchIndex: SearchIndex,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
@@ -385,7 +390,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.emptyItem,
     (propsAndState: PropsAndState) => propsAndState.usersSearchResults,
     (propsAndState: PropsAndState) => propsAndState.filterThreads,
-    (propsAndState: PropsAndState) => propsAndState.viewerID,
+    (propsAndState: PropsAndState) => propsAndState.loggedInUserInfo,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchStatus: SearchStatus,
@@ -394,7 +399,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       emptyItem?: React.ComponentType<{}>,
       usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
       filterThreads: ThreadInfo => boolean,
-      viewerID: ?string,
+      loggedInUserInfo: ?LoggedInUserInfo,
     ): $ReadOnlyArray<Item> => {
       const chatThreadItems = getThreadListSearchResults(
         reduxChatListData,
@@ -402,7 +407,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         filterThreads,
         threadsSearchResults,
         usersSearchResults,
-        viewerID,
+        loggedInUserInfo?.id,
       );
 
       const chatItems: Item[] = [...chatThreadItems];
@@ -462,8 +467,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     }
     const scrollEnabled =
       searchStatus === 'inactive' || searchStatus === 'active';
-    // this.props.viewerID is in extraData since it's used by MessagePreview
+    // viewerID is in extraData since it's used by MessagePreview
     // within ChatThreadListItem
+    const viewerID = this.props.loggedInUserInfo?.id;
+    const extraData = `${viewerID || ''} ${this.state.openedSwipeableId}`;
     return (
       <View style={this.props.styles.container}>
         {fixedSearch}
@@ -472,9 +479,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           renderItem={this.renderItem}
           keyExtractor={ChatThreadList.keyExtractor}
           getItemLayout={ChatThreadList.getItemLayout}
-          extraData={`${this.props.viewerID || ''} ${
-            this.state.openedSwipeableId
-          }`}
+          extraData={extraData}
           initialNumToRender={11}
           keyboardShouldPersistTaps="handled"
           onScroll={this.onScroll}
@@ -514,7 +519,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     return userInfos.filter(
       info =>
         !this.props.usersWithPersonalThread.has(info.id) &&
-        info.id !== this.props.viewerID,
+        info.id !== this.props.loggedInUserInfo?.id,
     );
   }
 
@@ -556,11 +561,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   composeThread = () => {
-    if (!this.props.viewerID) {
+    const { loggedInUserInfo } = this.props;
+    if (!loggedInUserInfo) {
       return;
     }
     const threadInfo = createPendingThread({
-      viewerID: this.props.viewerID,
+      viewerID: loggedInUserInfo.id,
       threadType: threadTypes.PRIVATE,
     });
     this.props.navigateToThread({ threadInfo, searching: true });
@@ -611,9 +617,7 @@ const unboundStyles = {
 const ConnectedChatThreadList: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedChatThreadList(props: BaseProps) {
     const boundChatListData = useFlattenedChatListData();
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
+    const loggedInUserInfo = useLoggedInUserInfo();
     const threadSearchIndex = useGlobalThreadSearchIndex();
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useSelector(indicatorStyleSelector);
@@ -628,7 +632,7 @@ const ConnectedChatThreadList: React.ComponentType<BaseProps> =
       <ChatThreadList
         {...props}
         chatListData={boundChatListData}
-        viewerID={viewerID}
+        loggedInUserInfo={loggedInUserInfo}
         threadSearchIndex={threadSearchIndex}
         styles={styles}
         indicatorStyle={indicatorStyle}
