@@ -1,22 +1,5 @@
-use lazy_static::lazy_static;
-use napi::bindgen_prelude::*;
-use opaque_ke::{
-  ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
-  ClientLoginStartResult, ClientRegistration,
-  ClientRegistrationFinishParameters, CredentialFinalization,
-  CredentialResponse, RegistrationResponse, RegistrationUpload,
-};
-use rand::{rngs::OsRng, CryptoRng, Rng};
-use tokio::sync::mpsc;
-use tokio_stream::wrappers::ReceiverStream;
-use tonic::Request;
-use tracing::{error, instrument};
-mod identity {
-  tonic::include_proto!("identity");
-}
-use comm_opaque::Cipher;
-use identity::identity_service_client::IdentityServiceClient;
-use identity::{
+use crate::identity::identity_service_client::IdentityServiceClient;
+use crate::identity::{
   pake_login_response::Data::AccessToken,
   pake_login_response::Data::PakeCredentialResponse,
   registration_request::Data::PakeCredentialFinalization as RegistrationPakeCredentialFinalization,
@@ -29,13 +12,20 @@ use identity::{
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
   RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
 };
-use std::env::var;
-
-lazy_static! {
-  static ref IDENTITY_SERVICE_SOCKET_ADDR: String =
-    var("COMM_IDENTITY_SERVICE_SOCKET_ADDR")
-      .unwrap_or("https://[::1]:50051".to_string());
-}
+use crate::IDENTITY_SERVICE_SOCKET_ADDR;
+use comm_opaque::Cipher;
+use napi::bindgen_prelude::*;
+use opaque_ke::{
+  ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
+  ClientLoginStartResult, ClientRegistration,
+  ClientRegistrationFinishParameters, CredentialFinalization,
+  CredentialResponse, RegistrationResponse, RegistrationUpload,
+};
+use rand::{rngs::OsRng, CryptoRng, Rng};
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
+use tonic::Request;
+use tracing::{error, instrument};
 
 #[napi]
 #[instrument(skip_all)]
