@@ -3,18 +3,15 @@
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { Text, View, Platform } from 'react-native';
-import { createSelector } from 'reselect';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors.js';
 import * as SharedMarkdown from 'lib/shared/markdown.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
+import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import MarkdownLink from './markdown-link.react.js';
 import MarkdownParagraph from './markdown-paragraph.react.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
 import { getMarkdownStyles } from './styles.js';
-import { useSelector } from '../redux/redux-utils.js';
 
 export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,
@@ -355,26 +352,17 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
 });
 
 function useTextMessageRulesFunc(
-  threadID: ?string,
+  threadInfo: ThreadInfo,
 ): (useDarkStyle: boolean) => MarkdownRules {
-  return useSelector(getTextMessageRulesFunction(threadID));
+  const { members } = threadInfo;
+  return React.useMemo(
+    () =>
+      _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
+        textMessageRules(members, useDarkStyle),
+      ),
+    [members],
+  );
 }
-
-const getTextMessageRulesFunction = _memoize((threadID: ?string) =>
-  createSelector(
-    relativeMemberInfoSelectorForMembersOfThread(threadID),
-    (
-      threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
-    ): (boolean => MarkdownRules) => {
-      if (!threadID) {
-        return fullMarkdownRules;
-      }
-      return _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
-        textMessageRules(threadMembers, useDarkStyle),
-      );
-    },
-  ),
-);
 
 function textMessageRules(
   members: $ReadOnlyArray<RelativeMemberInfo>,
