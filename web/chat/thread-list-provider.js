@@ -187,7 +187,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     threadFilter,
     threadSearchResults,
     usersSearchResults,
-    viewerID,
+    loggedInUserInfo,
   );
   const activeTopLevelChatThreadItem = useChatThreadItem(
     activeTopLevelThreadInfo,
