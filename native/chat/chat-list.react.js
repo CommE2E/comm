@@ -156,7 +156,14 @@ class ChatList extends React.PureComponent<Props, State> {
         curItem = this.props.data[curDataIndex];
       }
       if (!curItem) {
-        // Should never happen...
+        // The only case in which we would expect the length of data to
+        // decrease, but find that an item was removed, is if the start
+        // of the chat is reached. In that case, the spinner at the top
+        // will no longer be rendered. We break here as we expect the
+        // spinner to be the last item.
+        if (prevItemKey === 'loader') {
+          break;
+        }
         console.log(
           `items not removed from ChatList, but ${prevItemKey} now missing`,
         );
