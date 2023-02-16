@@ -313,7 +313,7 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
 
     const { clearTooltip } = useTooltipContext();
 
-    const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo.id);
+    const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo);
     const messageListContext = React.useMemo(() => {
       if (!getTextMessageMarkdownRules) {
         return undefined;
