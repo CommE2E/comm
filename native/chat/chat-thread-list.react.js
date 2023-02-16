@@ -407,7 +407,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         filterThreads,
         threadsSearchResults,
         usersSearchResults,
-        loggedInUserInfo?.id,
+        loggedInUserInfo,
       );
 
       const chatItems: Item[] = [...chatThreadItems];
