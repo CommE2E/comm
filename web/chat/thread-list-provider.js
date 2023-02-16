@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
@@ -168,9 +169,8 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   const chatListData = useFlattenedChatListData();
   const [searchText, setSearchText] = React.useState('');
 
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
+  const loggedInUserInfo = useLoggedInUserInfo();
+  const viewerID = loggedInUserInfo?.id;
 
   const { threadSearchResults, usersSearchResults } = useThreadListSearch(
     chatListData,
