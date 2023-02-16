@@ -1,3 +1,4 @@
+pub mod delete_user;
 pub mod identity_client;
 pub mod identity {
   tonic::include_proto!("identity");

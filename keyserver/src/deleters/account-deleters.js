@@ -1,5 +1,6 @@
 // @flow
 
+import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import type {
@@ -48,6 +49,7 @@ async function deleteAccount(
 
   const deletedUserID = viewer.userID;
   await rescindPushNotifs(SQL`n.user = ${deletedUserID}`, SQL`NULL`);
+  const rustAPI = await getRustAPI();
   const knownUserInfos = await fetchKnownUserInfos(viewer);
   const usersToUpdate = values(knownUserInfos).filter(
     userID => userID !== deletedUserID,
@@ -96,6 +98,7 @@ async function deleteAccount(
     });
   }
   const { anonymousViewerData } = await promiseAll(promises);
+  handleAsyncPromise(rustAPI.deleteUser(deletedUserID));
   if (anonymousViewerData) {
     viewer.setNewCookie(anonymousViewerData);
   }
