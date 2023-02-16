@@ -11,45 +11,43 @@ import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { MessageListRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { type Colors, useColors } from '../themes/colors.js';
+import { useColors } from '../themes/colors.js';
 
-type BaseProps = {
+type Props = {
   +navigate: $PropertyType<ChatNavigationProp<'ChatThreadList'>, 'navigate'>,
 };
-type Props = {
-  ...BaseProps,
-  +colors: Colors,
-  +viewerID: ?string,
-};
-class ComposeThreadButton extends React.PureComponent<Props> {
-  render() {
-    const { listForegroundSecondaryLabel } = this.props.colors;
-    return (
-      <Button onPress={this.onPress} androidBorderlessRipple={true}>
-        <SWMansionIcon
-          name="edit-4"
-          size={26}
-          style={styles.composeButton}
-          color={listForegroundSecondaryLabel}
-        />
-      </Button>
-    );
-  }
-
-  onPress = () => {
-    if (this.props.viewerID) {
-      this.props.navigate<'MessageList'>({
-        name: MessageListRouteName,
-        params: {
-          threadInfo: createPendingThread({
-            viewerID: this.props.viewerID,
-            threadType: threadTypes.PRIVATE,
-          }),
-          searching: true,
-        },
-      });
+function ComposeThreadButton(props: Props) {
+  const { navigate } = props;
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const onPress = React.useCallback(() => {
+    if (!viewerID) {
+      return;
     }
-  };
+    navigate<'MessageList'>({
+      name: MessageListRouteName,
+      params: {
+        threadInfo: createPendingThread({
+          viewerID,
+          threadType: threadTypes.PRIVATE,
+        }),
+        searching: true,
+      },
+    });
+  }, [navigate, viewerID]);
+
+  const { listForegroundSecondaryLabel } = useColors();
+  return (
+    <Button onPress={onPress} androidBorderlessRipple={true}>
+      <SWMansionIcon
+        name="edit-4"
+        size={26}
+        style={styles.composeButton}
+        color={listForegroundSecondaryLabel}
+      />
+    </Button>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -58,16 +56,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedComposeThreadButton: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedComposeThreadButton(props) {
-    const colors = useColors();
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
+const MemoizedComposeThreadButton: React.ComponentType<Props> =
+  React.memo<Props>(ComposeThreadButton);
 
-    return (
-      <ComposeThreadButton {...props} colors={colors} viewerID={viewerID} />
-    );
-  });
-
-export default ConnectedComposeThreadButton;
+export default MemoizedComposeThreadButton;
