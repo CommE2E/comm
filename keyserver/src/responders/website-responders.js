@@ -281,7 +281,7 @@ async function websiteResponder(
         currentUserInfo.id
       ) {
         const { userInfos } = userStore;
-        const members = pendingThreadData.memberIDs
+        const members = [...pendingThreadData.memberIDs, currentUserInfo.id]
           .map(id => userInfos[id])
           .filter(Boolean);
         const newPendingThread = createPendingThread({
