@@ -52,7 +52,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
-  +logInExtraInfo: () => LogInExtraInfo,
+  +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
   +primaryIdentityPublicKey: ?string,
@@ -203,7 +203,7 @@ class LogInPanel extends React.PureComponent<Props> {
     this.props.logInState.setState({ passwordInputText: text });
   };
 
-  onSubmit: () => void = () => {
+  onSubmit: () => Promise<void> = async () => {
     this.props.setActiveAlert(true);
     if (this.usernameInputText.search(validEmailRegex) > -1) {
       Alert.alert(
@@ -232,7 +232,7 @@ class LogInPanel extends React.PureComponent<Props> {
     }
 
     Keyboard.dismiss();
-    const extraInfo = this.props.logInExtraInfo();
+    const extraInfo = await this.props.logInExtraInfo();
     this.props.dispatchActionPromise(
       logInActionTypes,
       this.logInAction(extraInfo),
