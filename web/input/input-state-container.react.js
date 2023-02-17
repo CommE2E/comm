@@ -525,7 +525,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           sendTextMessage: (
             messageInfo: RawTextMessageInfo,
             threadInfo: ThreadInfo,
-          ) => this.sendTextMessage(messageInfo, threadInfo),
+            parentThreadInfo: ?ThreadInfo,
+          ) => this.sendTextMessage(messageInfo, threadInfo, parentThreadInfo),
           createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) =>
             this.createMultimediaMessage(localID, threadInfo),
           setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
@@ -999,6 +1000,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
@@ -1014,7 +1016,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!threadIsPending(threadInfo.id)) {
       this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
-        this.sendTextMessageAction(messageInfo),
+        this.sendTextMessageAction(messageInfo, threadInfo, parentThreadInfo),
         undefined,
         messageInfo,
       );
@@ -1048,9 +1050,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       threadID: newThreadID,
       time: Date.now(),
     };
+    const newThreadInfo = {
+      ...threadInfo,
+      id: newThreadID,
+    };
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
-      this.sendTextMessageAction(newMessageInfo),
+      this.sendTextMessageAction(
+        newMessageInfo,
+        newThreadInfo,
+        parentThreadInfo,
+      ),
       undefined,
       newMessageInfo,
     );
@@ -1058,6 +1068,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
+    // eslint-disable-next-line no-unused-vars
+    threadInfo: ThreadInfo,
+    // eslint-disable-next-line no-unused-vars
+    parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
       const { localID } = messageInfo;

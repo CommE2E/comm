@@ -11,6 +11,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   userStoreSearchIndex,
   relativeMemberInfoSelectorForMembersOfThread,
@@ -65,7 +66,6 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +viewerID: ?string,
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
@@ -73,12 +73,11 @@ type Props = {
   +nextLocalID: number,
   +isThreadActive: boolean,
   +userInfos: UserInfos,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  +parentThreadInfo: ?ThreadInfo,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -478,6 +477,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         time: Date.now(),
       },
       this.props.threadInfo,
+      this.props.parentThreadInfo,
     );
   }
 
@@ -609,6 +609,11 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         typeaheadMatchedStrings,
       ]);
 
+    const { parentThreadID } = props.threadInfo;
+    const parentThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
+
     return (
       <ChatInputBar
         {...props}
@@ -623,6 +628,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         joinThread={callJoinThread}
         typeaheadMatchedStrings={typeaheadMatchedStrings}
         suggestedUsers={suggestedUsers}
+        parentThreadInfo={parentThreadInfo}
       />
     );
   });

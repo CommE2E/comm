@@ -28,6 +28,7 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   relativeMemberInfoSelectorForMembersOfThread,
   userStoreSearchIndex,
@@ -120,7 +121,6 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +viewerID: ?string,
   +draft: string,
   +joinThreadLoadingStatus: LoadingStatus,
@@ -132,19 +132,15 @@ type Props = {
   +styles: typeof unboundStyles,
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
   +openCamera: () => mixed,
-  // connectNav
   +isActive: boolean,
-  // withKeyboardState
   +keyboardState: ?KeyboardState,
-  // Redux dispatch functions
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
-  // withInputState
   +inputState: ?InputState,
   +userSearchIndex: SearchIndex,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
+  +parentThreadInfo: ?ThreadInfo,
 };
 type State = {
   +text: string,
@@ -738,6 +734,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         time: Date.now(),
       },
       this.props.threadInfo,
+      this.props.parentThreadInfo,
     );
   };
 
@@ -946,6 +943,11 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
   );
 
+  const { parentThreadID } = props.threadInfo;
+  const parentThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+
   return (
     <ChatInputBar
       {...props}
@@ -966,6 +968,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       inputState={inputState}
       userSearchIndex={userSearchIndex}
       threadMembers={threadMembers}
+      parentThreadInfo={parentThreadInfo}
     />
   );
 }

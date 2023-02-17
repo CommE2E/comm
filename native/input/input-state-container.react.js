@@ -400,6 +400,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   sendTextMessage = async (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
 
@@ -415,7 +416,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!threadIsPending(threadInfo.id)) {
       this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
-        this.sendTextMessageAction(messageInfo),
+        this.sendTextMessageAction(messageInfo, threadInfo, parentThreadInfo),
         undefined,
         messageInfo,
       );
@@ -449,9 +450,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       threadID: newThreadID,
       time: Date.now(),
     };
+    const newThreadInfo = {
+      ...threadInfo,
+      id: newThreadID,
+    };
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
-      this.sendTextMessageAction(newMessageInfo),
+      this.sendTextMessageAction(
+        newMessageInfo,
+        newThreadInfo,
+        parentThreadInfo,
+      ),
       undefined,
       newMessageInfo,
     );
@@ -479,6 +488,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
+    // eslint-disable-next-line no-unused-vars
+    threadInfo: ThreadInfo,
+    // eslint-disable-next-line no-unused-vars
+    parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
       const { localID } = messageInfo;
@@ -1082,6 +1095,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   retryTextMessage = async (
     rawMessageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) => {
     await this.sendTextMessage(
       {
@@ -1089,6 +1103,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         time: Date.now(),
       },
       threadInfo,
+      parentThreadInfo,
     );
   };
 
@@ -1302,12 +1317,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     await this.uploadFiles(localMessageID, uploadFileInputs);
   };
 
-  retryMessage = async (localMessageID: string, threadInfo: ThreadInfo) => {
+  retryMessage = async (
+    localMessageID: string,
+    threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
+  ) => {
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
     invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
 
     if (rawMessageInfo.type === messageTypes.TEXT) {
-      await this.retryTextMessage(rawMessageInfo, threadInfo);
+      await this.retryTextMessage(rawMessageInfo, threadInfo, parentThreadInfo);
     } else if (
       rawMessageInfo.type === messageTypes.IMAGES ||
       rawMessageInfo.type === messageTypes.MULTIMEDIA
