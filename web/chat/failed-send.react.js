@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { messageID } from 'lib/shared/message-utils.js';
 import {
   messageTypes,
@@ -25,10 +26,9 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +rawMessageInfo: RawComposableMessageInfo,
-  // withInputState
   +inputState: ?InputState,
+  +parentThreadInfo: ?ThreadInfo,
 };
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;
@@ -112,6 +112,7 @@ class FailedSend extends React.PureComponent<Props> {
           time: Date.now(),
         },
         this.props.threadInfo,
+        this.props.parentThreadInfo,
       );
     } else if (
       rawMessageInfo.type === messageTypes.IMAGES ||
@@ -144,11 +145,16 @@ const ConnectedFailedSend: React.ComponentType<BaseProps> =
       'FailedSend should only be used for composable message types',
     );
     const inputState = React.useContext(InputStateContext);
+    const { parentThreadID } = props.threadInfo;
+    const parentThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
     return (
       <FailedSend
         {...props}
         rawMessageInfo={rawMessageInfo}
         inputState={inputState}
+        parentThreadInfo={parentThreadInfo}
       />
     );
   });

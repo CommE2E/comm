@@ -58,6 +58,7 @@ export type InputState = {
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) => Promise<void>,
   +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
   +setDraft: (draft: string) => void,
