@@ -20,7 +20,7 @@ import type { ViewStyle } from '../types/styles.js';
 type ButtonProps = {
   +text: string,
   +loadingStatus: LoadingStatus,
-  +onSubmit: () => void,
+  +onSubmit: () => mixed,
   +disabled?: boolean,
 };
 function PanelButton(props: ButtonProps): React.Node {
