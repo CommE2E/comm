@@ -33,7 +33,6 @@ import {
 import { PanelButton, Panel } from './panel-components.react.js';
 import PasswordInput from './password-input.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { commCoreModule } from '../native-modules.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
@@ -55,7 +54,6 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-  +primaryIdentityPublicKey: ?string,
 };
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
@@ -152,10 +150,6 @@ class LogInPanel extends React.PureComponent<Props> {
             text="LOG IN"
             loadingStatus={this.props.loadingStatus}
             onSubmit={this.onSubmit}
-            disabled={
-              this.props.primaryIdentityPublicKey === undefined ||
-              this.props.primaryIdentityPublicKey === null
-            }
           />
         </View>
       </Panel>
@@ -242,19 +236,12 @@ class LogInPanel extends React.PureComponent<Props> {
   };
 
   async logInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
-    const { primaryIdentityPublicKey } = this.props;
     try {
-      invariant(
-        primaryIdentityPublicKey !== null &&
-          primaryIdentityPublicKey !== undefined,
-        'primaryIdentityPublicKey must exist in logInAction',
-      );
       const result = await this.props.logIn({
         ...extraInfo,
         username: this.usernameInputText,
         password: this.passwordInputText,
         logInActionSource: logInActionSources.logInFromNativeForm,
-        primaryIdentityPublicKey: primaryIdentityPublicKey,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
@@ -378,18 +365,6 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogIn = useServerCall(logIn);
 
-    const [
-      primaryIdentityPublicKey,
-      setPrimaryIdentityPublicKey,
-    ] = React.useState<?string>(null);
-    React.useEffect(() => {
-      (async () => {
-        await commCoreModule.initializeCryptoAccount('PLACEHOLDER');
-        const { ed25519 } = await commCoreModule.getUserPublicKey();
-        setPrimaryIdentityPublicKey(ed25519);
-      })();
-    }, []);
-
     return (
       <LogInPanel
         {...props}
@@ -397,7 +372,6 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         logIn={callLogIn}
-        primaryIdentityPublicKey={primaryIdentityPublicKey}
       />
     );
   },
