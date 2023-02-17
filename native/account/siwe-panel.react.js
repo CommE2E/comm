@@ -140,8 +140,8 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   const handleSIWE = React.useCallback(
-    ({ message, signature }) => {
-      const extraInfo = logInExtraInfo();
+    async ({ message, signature }) => {
+      const extraInfo = await logInExtraInfo();
       dispatchActionPromise(
         siweAuthActionTypes,
         callSIWE(message, signature, extraInfo),
@@ -155,14 +155,14 @@ function SIWEPanel(props: Props): React.Node {
   const { nextMode } = props;
   const disableOnClose = React.useRef(false);
   const handleMessage = React.useCallback(
-    event => {
+    async event => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
       if (data.type === 'siwe_success') {
         const { address, message, signature } = data;
         if (address && signature) {
           disableOnClose.current = true;
           closeBottomSheet?.();
-          handleSIWE({ message, signature });
+          await handleSIWE({ message, signature });
         }
       } else if (data.type === 'siwe_closed') {
         onClose();
