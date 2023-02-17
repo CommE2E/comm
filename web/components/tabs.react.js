@@ -33,7 +33,9 @@ function TabsContainer<T: string>(props: TabsContainerProps<T>): React.Node {
 
   return (
     <div className={css.tabsContainer}>
-      <div className={css.tabsHeaderContainer}>{headers}</div>
+      <div className={css.tabsHeaderContainer}>
+        <div className={css.tabsHeaderContainerPill}>{headers}</div>
+      </div>
       {currentContent}
     </div>
   );

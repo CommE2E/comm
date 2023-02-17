@@ -43,10 +43,7 @@ function ChatTabs(): React.Node {
 
   const focusTabsItem = React.useMemo(
     () => (
-      <Tabs.Item
-        id="Focus"
-        header={<ChatThreadTab title="Focus" icon="home-1" />}
-      >
+      <Tabs.Item id="Focus" header={<ChatThreadTab title="Focused" />}>
         {chatThreadList}
       </Tabs.Item>
     ),
@@ -57,7 +54,7 @@ function ChatTabs(): React.Node {
     () => (
       <Tabs.Item
         id="Background"
-        header={<ChatThreadTab title={backgroundTitle} icon="bell-disabled" />}
+        header={<ChatThreadTab title={backgroundTitle} />}
       >
         {chatThreadList}
       </Tabs.Item>
