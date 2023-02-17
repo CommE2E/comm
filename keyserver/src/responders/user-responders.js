@@ -206,14 +206,27 @@ async function accountCreationResponder(
   return await createAccount(viewer, request);
 }
 
+type ProcessSuccessfulLoginParams = {
+  +viewer: Viewer,
+  +input: any,
+  +userID: string,
+  +calendarQuery: ?CalendarQuery,
+  +primaryIdentityPublicKey?: ?string,
+  +socialProof?: ?SIWESocialProof,
+};
+
 async function processSuccessfulLogin(
-  viewer: Viewer,
-  input: any,
-  userID: string,
-  calendarQuery: ?CalendarQuery,
-  primaryIdentityPublicKey?: ?string,
-  socialProof?: ?SIWESocialProof,
+  params: ProcessSuccessfulLoginParams,
 ): Promise<LogInResponse> {
+  const {
+    viewer,
+    input,
+    userID,
+    calendarQuery,
+    primaryIdentityPublicKey,
+    socialProof,
+  } = params;
+
   const request: LogInRequest = input;
   const newServerTime = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
@@ -358,13 +371,13 @@ async function logInResponder(
 
   const id = userRow.id.toString();
   const { primaryIdentityPublicKey } = input;
-  return await processSuccessfulLogin(
+  return await processSuccessfulLogin({
     viewer,
     input,
-    id,
+    userID: id,
     calendarQuery,
     primaryIdentityPublicKey,
-  );
+  });
 }
 
 const siweAuthRequestInputValidator = tShape({
@@ -459,14 +472,14 @@ async function siweAuthResponder(
   }
 
   // 7. Complete login with call to `processSuccessfulLogin(...)`.
-  return await processSuccessfulLogin(
+  return await processSuccessfulLogin({
     viewer,
     input,
     userID,
     calendarQuery,
     primaryIdentityPublicKey,
     socialProof,
-  );
+  });
 }
 
 const updatePasswordRequestInputValidator = tShape({
