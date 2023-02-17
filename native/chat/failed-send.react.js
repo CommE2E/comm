@@ -4,12 +4,14 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { messageID } from 'lib/shared/message-utils.js';
 import {
   assertComposableRawMessage,
   messageTypes,
 } from 'lib/types/message-types.js';
 import type { RawComposableMessageInfo } from 'lib/types/message-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { multimediaMessageSendFailed } from './multimedia-message-utils.js';
 import textMessageSendFailed from './text-message-send-failed.js';
@@ -26,11 +28,10 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +rawMessageInfo: ?RawComposableMessageInfo,
   +styles: typeof unboundStyles,
-  // withInputState
   +inputState: ?InputState,
+  +parentThreadInfo: ?ThreadInfo,
 };
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;
@@ -126,7 +127,11 @@ class FailedSend extends React.PureComponent<Props> {
     );
     const { localID } = rawMessageInfo;
     invariant(localID, 'failed RawMessageInfo should have localID');
-    inputState.retryMessage(localID, this.props.item.threadInfo);
+    inputState.retryMessage(
+      localID,
+      this.props.item.threadInfo,
+      this.props.parentThreadInfo,
+    );
   };
 }
 
@@ -156,12 +161,17 @@ const ConnectedFailedSend: React.ComponentType<BaseProps> =
     });
     const styles = useStyles(unboundStyles);
     const inputState = React.useContext(InputStateContext);
+    const { parentThreadID } = props.item.threadInfo;
+    const parentThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
     return (
       <FailedSend
         {...props}
         rawMessageInfo={rawMessageInfo}
         styles={styles}
         inputState={inputState}
+        parentThreadInfo={parentThreadInfo}
       />
     );
   });

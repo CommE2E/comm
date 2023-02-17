@@ -27,6 +27,7 @@ export type InputState = {
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) => Promise<void>,
   +sendMultimediaMessage: (
     selections: $ReadOnlyArray<NativeMediaSelection>,
@@ -39,6 +40,7 @@ export type InputState = {
   +retryMessage: (
     localMessageID: string,
     threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) => Promise<void>,
   +registerSendCallback: (() => void) => void,
   +unregisterSendCallback: (() => void) => void,
