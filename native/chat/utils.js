@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useMessageListData } from 'lib/selectors/chat-selectors.js';
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors.js';
 import { messageKey } from 'lib/shared/message-utils.js';
@@ -25,7 +26,6 @@ import {
   RobotextMessageTooltipModalRouteName,
   TextMessageTooltipModalRouteName,
 } from '../navigation/route-names.js';
-import { useSelector } from '../redux/redux-utils.js';
 import type {
   ChatMessageInfoItemWithHeight,
   ChatMessageItemWithHeight,
@@ -219,12 +219,10 @@ function useAnimatedMessageTooltipButton({
     setSidebarAnimationType,
   } = chatContext;
 
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
+  const loggedInUserInfo = useLoggedInUserInfo();
   const sidebarThreadInfo = React.useMemo(
-    () => getUnresolvedSidebarThreadInfo({ sourceMessage, viewerID }),
-    [sourceMessage, viewerID],
+    () => getUnresolvedSidebarThreadInfo({ sourceMessage, loggedInUserInfo }),
+    [sourceMessage, loggedInUserInfo],
   );
 
   const currentInputBarHeight =

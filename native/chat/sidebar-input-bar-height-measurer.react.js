@@ -3,10 +3,11 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+
 import { DummyChatInputBar } from './chat-input-bar.react.js';
 import { useMessageListScreenWidth } from './composed-message-width.js';
 import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
-import { useSelector } from '../redux/redux-utils.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
@@ -19,12 +20,11 @@ function SidebarInputBarHeightMeasurer(props: Props): React.Node {
 
   const width = useMessageListScreenWidth();
 
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
+  const loggedInUserInfo = useLoggedInUserInfo();
+  const sidebarThreadInfo = React.useMemo(
+    () => getUnresolvedSidebarThreadInfo({ sourceMessage, loggedInUserInfo }),
+    [sourceMessage, loggedInUserInfo],
   );
-  const sidebarThreadInfo = React.useMemo(() => {
-    return getUnresolvedSidebarThreadInfo({ sourceMessage, viewerID });
-  }, [sourceMessage, viewerID]);
   if (!sidebarThreadInfo) {
     return null;
   }

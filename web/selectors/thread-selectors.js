@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { createPendingSidebar } from 'lib/shared/thread-utils.js';
 import type {
   ComposableMessageInfo,
@@ -60,7 +61,7 @@ function useOnClickPendingSidebar(
   threadInfo: ThreadInfo,
 ): (event: SyntheticEvent<HTMLElement>) => mixed {
   const dispatch = useDispatch();
-  const viewerID = useSelector(state => state.currentUserInfo?.id);
+  const loggedInUserInfo = useLoggedInUserInfo();
 
   const cacheContext = React.useContext(ENSCacheContext);
   const { getENSNames } = cacheContext;
@@ -68,13 +69,13 @@ function useOnClickPendingSidebar(
   return React.useCallback(
     async (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
-      if (!viewerID) {
+      if (!loggedInUserInfo) {
         return;
       }
       const pendingSidebarInfo = await createPendingSidebar({
         sourceMessageInfo: messageInfo,
         parentThreadInfo: threadInfo,
-        viewerID,
+        loggedInUserInfo,
         markdownRules: getDefaultTextMessageRules().simpleMarkdownRules,
         getENSNames,
       });
@@ -86,7 +87,7 @@ function useOnClickPendingSidebar(
         },
       });
     },
-    [viewerID, messageInfo, threadInfo, dispatch, getENSNames],
+    [loggedInUserInfo, messageInfo, threadInfo, dispatch, getENSNames],
   );
 }
 
