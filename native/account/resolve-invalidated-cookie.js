@@ -19,7 +19,7 @@ async function resolveInvalidatedCookie(
   if (!keychainCredentials) {
     return;
   }
-  const extraInfo = nativeLogInExtraInfoSelector({
+  const extraInfo = await nativeLogInExtraInfoSelector({
     redux: store.getState(),
     navContext: getGlobalNavContext(),
   })();

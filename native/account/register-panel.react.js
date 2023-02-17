@@ -53,7 +53,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
-  +logInExtraInfo: () => LogInExtraInfo,
+  +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
   +primaryIdentityPublicKey: ?string,
@@ -260,7 +260,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     this.setState({ confirmPasswordFocused: true });
   };
 
-  onSubmit = () => {
+  onSubmit = async () => {
     this.props.setActiveAlert(true);
     if (this.props.registerState.state.passwordInputText === '') {
       Alert.alert(
@@ -294,7 +294,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       );
     } else {
       Keyboard.dismiss();
-      const extraInfo = this.props.logInExtraInfo();
+      const extraInfo = await this.props.logInExtraInfo();
       this.props.dispatchActionPromise(
         registerActionTypes,
         this.registerAction(extraInfo),
