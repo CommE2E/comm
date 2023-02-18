@@ -37,7 +37,9 @@ import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selecto
 import {
   createMediaMessageInfo,
   localIDPrefix,
+  useMessageCreationSideEffectsFunc,
 } from 'lib/shared/message-utils.js';
+import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
 import {
   createRealThreadFromPendingThread,
   draftKeyFromThreadID,
@@ -128,6 +130,7 @@ type Props = {
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,
+  +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
 };
 type State = {
   +pendingUploads: {
@@ -1068,12 +1071,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
-    // eslint-disable-next-line no-unused-vars
     threadInfo: ThreadInfo,
-    // eslint-disable-next-line no-unused-vars
     parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
+      await this.props.textMessageCreationSideEffectsFunc(
+        messageInfo,
+        threadInfo,
+        parentThreadInfo,
+      );
       const { localID } = messageInfo;
       invariant(
         localID !== null && localID !== undefined,
@@ -1397,6 +1403,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
       },
       [],
     );
+    const textMessageCreationSideEffectsFunc =
+      useMessageCreationSideEffectsFunc(messageTypes.TEXT);
 
     return (
       <InputStateContainer
@@ -1418,6 +1426,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         sendCallbacks={sendCallbacks}
         registerSendCallback={registerSendCallback}
         unregisterSendCallback={unregisterSendCallback}
+        textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
       />
     );
   });
