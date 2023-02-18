@@ -1,16 +1,26 @@
 // @flow
 
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
+import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 import { FlatList } from 'react-native-gesture-handler';
 
 import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
-import type { MediaInfo } from 'lib/types/media-types';
+import type { MediaInfo, Media } from 'lib/types/media-types';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
 import GestureTouchableOpacity from '../../components/gesture-touchable-opacity.react.js';
 import Multimedia from '../../media/multimedia.react.js';
+import {
+  ImageModalRouteName,
+  VideoPlaybackModalRouteName,
+} from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import type {
+  LayoutCoordinates,
+  VerticalBounds,
+} from '../../types/layout-types.js';
 
 const galleryItemGap = 8;
 const numColumns = 3;
@@ -18,6 +28,7 @@ const numColumns = 3;
 type ThreadSettingsMediaGalleryProps = {
   +threadID: string,
   +limit: number,
+  +verticalBounds: ?VerticalBounds,
 };
 
 function ThreadSettingsMediaGallery(
@@ -36,7 +47,7 @@ function ThreadSettingsMediaGallery(
   const galleryItemWidth =
     (width - 32 - (numColumns - 1) * galleryItemGap) / numColumns;
 
-  const { threadID, limit } = props;
+  const { threadID, limit, verticalBounds } = props;
   const [mediaInfos, setMediaInfos] = React.useState([]);
   const callFetchThreadMedia = useServerCall(fetchThreadMedia);
 
@@ -75,29 +86,17 @@ function ThreadSettingsMediaGallery(
 
   const renderItem = React.useCallback(
     ({ item, index }) => {
-      const containerStyle =
-        index % numColumns === 0
-          ? memoizedStyles.mediaContainer
-          : memoizedStyles.mediaContainerWithMargin;
-
-      const mediaInfoItem: MediaInfo = {
-        ...item,
-        index,
-      };
-
       return (
-        <View key={item.id} style={containerStyle}>
-          <GestureTouchableOpacity style={memoizedStyles.media}>
-            <Multimedia mediaInfo={mediaInfoItem} spinnerColor="black" />
-          </GestureTouchableOpacity>
-        </View>
+        <MediaGalleryItem
+          mediaItem={item}
+          mediaIndex={index}
+          memoizedStyles={memoizedStyles}
+          threadID={threadID}
+          verticalBounds={verticalBounds}
+        />
       );
     },
-    [
-      memoizedStyles.media,
-      memoizedStyles.mediaContainer,
-      memoizedStyles.mediaContainerWithMargin,
-    ],
+    [threadID, verticalBounds, memoizedStyles],
   );
 
   return (
@@ -107,6 +106,96 @@ function ThreadSettingsMediaGallery(
         numColumns={numColumns}
         renderItem={renderItem}
       />
+    </View>
+  );
+}
+
+type MediaGalleryItemProps = {
+  +mediaItem: Media,
+  +mediaIndex: number,
+  +memoizedStyles: {
+    +mediaContainer: ViewStyleProp,
+    +mediaContainerWithMargin: ViewStyleProp,
+    +media: ViewStyleProp,
+  },
+  +threadID: string,
+  +verticalBounds: ?VerticalBounds,
+};
+
+function MediaGalleryItem(props: MediaGalleryItemProps): React.Node {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const ref = React.useRef(null);
+  const onLayout = React.useCallback(() => {}, []);
+  const {
+    threadID,
+    verticalBounds,
+    memoizedStyles,
+    mediaItem,
+    mediaIndex,
+  } = props;
+
+  const navigateToMedia = React.useCallback(
+    (item: Media, index: number) => {
+      ref.current?.measure((x, y, width, height, pageX, pageY) => {
+        const initialCoordinates: LayoutCoordinates = {
+          x: pageX,
+          y: pageY,
+          width,
+          height,
+        };
+
+        const mediaInfo: MediaInfo = {
+          ...item,
+          index,
+        };
+
+        navigation.navigate<'VideoPlaybackModal' | 'ImageModal'>({
+          name:
+            mediaInfo.type === 'video'
+              ? VideoPlaybackModalRouteName
+              : ImageModalRouteName,
+          key: `multimedia|${threadID}|${mediaInfo.index}`,
+          params: {
+            presentedFrom: route.key,
+            mediaInfo,
+            item,
+            initialCoordinates,
+            verticalBounds,
+          },
+        });
+      });
+    },
+    [navigation, route, threadID, verticalBounds],
+  );
+
+  const containerStyle =
+    mediaIndex % numColumns === 0
+      ? memoizedStyles.mediaContainer
+      : memoizedStyles.mediaContainerWithMargin;
+
+  // Cannot assign object literal to `mediaInfoItem` because  possibly
+  // missing property `thumbnailID` in `Image` [1] is incompatible with
+  // string [2] in property `thumbnailID`.
+  // $FlowFixMe
+  const mediaInfoItem: MediaInfo = {
+    ...mediaItem,
+    index: mediaIndex,
+  };
+
+  return (
+    <View
+      key={mediaItem.id}
+      style={containerStyle}
+      onLayout={onLayout}
+      ref={ref}
+    >
+      <GestureTouchableOpacity
+        onPress={() => navigateToMedia(mediaItem, mediaIndex)}
+        style={memoizedStyles.media}
+      >
+        <Multimedia mediaInfo={mediaInfoItem} spinnerColor="black" />
+      </GestureTouchableOpacity>
     </View>
   );
 }
