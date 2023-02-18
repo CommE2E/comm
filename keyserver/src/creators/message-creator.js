@@ -87,45 +87,65 @@ async function createMessages(
     return [];
   }
 
-  const messageInfos: RawMessageInfo[] = [];
-  const newMessageDatas: MessageData[] = [];
   const existingMessages = await Promise.all(
     messageDatas.map(messageData =>
       fetchMessageInfoForLocalID(viewer, messageDataLocalID(messageData)),
     ),
   );
-  for (let i = 0; i < existingMessages.length; i++) {
+
+  const existingMessageInfos: RawMessageInfo[] = [];
+  const newMessageDatas: MessageData[] = [];
+  for (let i = 0; i < messageDatas.length; i++) {
     const existingMessage = existingMessages[i];
     if (existingMessage) {
-      messageInfos.push(existingMessage);
+      existingMessageInfos.push(existingMessage);
     } else {
       newMessageDatas.push(messageDatas[i]);
     }
   }
   if (newMessageDatas.length === 0) {
-    return shimUnsupportedRawMessageInfos(messageInfos, viewer.platformDetails);
+    return shimUnsupportedRawMessageInfos(
+      existingMessageInfos,
+      viewer.platformDetails,
+    );
   }
 
   const ids = await createIDs('messages', newMessageDatas.length);
 
+  const returnMessageInfos: RawMessageInfo[] = [];
   const subthreadPermissionsToCheck: Set<string> = new Set();
-  const threadsToMessageIndices: Map<string, number[]> = new Map();
   const messageInsertRows = [];
-  for (let i = 0; i < newMessageDatas.length; i++) {
-    const messageData = newMessageDatas[i];
+
+  // Indices in threadsToMessageIndices point to newMessageInfos
+  const newMessageInfos: RawMessageInfo[] = [];
+  const threadsToMessageIndices: Map<string, number[]> = new Map();
+
+  let nextNewMessageIndex = 0;
+  for (let i = 0; i < messageDatas.length; i++) {
+    const existingMessage = existingMessages[i];
+    if (existingMessage) {
+      returnMessageInfos.push(existingMessage);
+      continue;
+    }
+
+    const messageData = messageDatas[i];
     const threadID = messageData.threadID;
     const creatorID = messageData.creatorID;
-
-    if (messageData.type === messageTypes.CREATE_SUB_THREAD) {
-      subthreadPermissionsToCheck.add(messageData.childThreadID);
-    }
 
     let messageIndices = threadsToMessageIndices.get(threadID);
     if (!messageIndices) {
       messageIndices = [];
       threadsToMessageIndices.set(threadID, messageIndices);
     }
-    messageIndices.push(i);
+
+    const newMessageIndex = nextNewMessageIndex++;
+    messageIndices.push(newMessageIndex);
+
+    const serverID = ids[newMessageIndex];
+
+    if (messageData.type === messageTypes.CREATE_SUB_THREAD) {
+      subthreadPermissionsToCheck.add(messageData.childThreadID);
+    }
 
     const content =
       messageSpecs[messageData.type].messageContentForServerDB?.(messageData);
@@ -140,7 +160,7 @@ async function createMessages(
       : null;
 
     messageInsertRows.push([
-      ids[i],
+      serverID,
       threadID,
       creatorID,
       messageData.type,
@@ -149,7 +169,9 @@ async function createMessages(
       creation,
       targetMessageID,
     ]);
-    messageInfos.push(rawMessageInfoFromMessageData(messageData, ids[i]));
+    const rawMessageInfo = rawMessageInfoFromMessageData(messageData, serverID);
+    newMessageInfos.push(rawMessageInfo); // at newMessageIndex
+    returnMessageInfos.push(rawMessageInfo); // at i
   }
 
   if (viewer.isScriptViewer) {
@@ -157,7 +179,7 @@ async function createMessages(
       viewer,
       threadsToMessageIndices,
       subthreadPermissionsToCheck,
-      stripLocalIDs(messageInfos),
+      stripLocalIDs(newMessageInfos),
       updatesForCurrentSession,
     );
   } else {
@@ -168,7 +190,7 @@ async function createMessages(
         viewer,
         threadsToMessageIndices,
         subthreadPermissionsToCheck,
-        stripLocalIDs(messageInfos),
+        stripLocalIDs(newMessageInfos),
         updatesForCurrentSession,
       ),
     );
@@ -188,7 +210,10 @@ async function createMessages(
     return [];
   }
 
-  return shimUnsupportedRawMessageInfos(messageInfos, viewer.platformDetails);
+  return shimUnsupportedRawMessageInfos(
+    returnMessageInfos,
+    viewer.platformDetails,
+  );
 }
 
 async function updateRepliesCount(
