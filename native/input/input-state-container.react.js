@@ -158,6 +158,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   activeURIs = new Map();
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
+  pendingThreadUpdateHandlers = new Map<string, (ThreadInfo) => mixed>();
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -389,6 +390,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       unregisterSendCallback: this.unregisterSendCallback,
       uploadInProgress: this.uploadInProgress,
       reportURIDisplayed: this.reportURIDisplayed,
+      setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
     }),
   );
 
@@ -447,6 +449,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         messageInfo.text,
         viewerID,
       );
+      if (threadInfo !== inputThreadInfo) {
+        const pendingThreadUpdateHandler = this.pendingThreadUpdateHandlers.get(
+          threadInfo.id,
+        );
+        pendingThreadUpdateHandler?.(threadInfo);
+      }
     }
 
     let newThreadID = null;
@@ -1434,6 +1442,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.activeURIs.set(uri, newActiveURI);
     });
   }
+
+  setPendingThreadUpdateHandler = (
+    threadID: string,
+    pendingThreadUpdateHandler: ?(ThreadInfo) => mixed,
+  ) => {
+    if (!pendingThreadUpdateHandler) {
+      this.pendingThreadUpdateHandlers.delete(threadID);
+    } else {
+      this.pendingThreadUpdateHandlers.set(
+        threadID,
+        pendingThreadUpdateHandler,
+      );
+    }
+  };
 
   render() {
     const inputState = this.inputStateSelector(this.state);
