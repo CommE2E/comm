@@ -30,9 +30,20 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
   };
 
   getValueAndReset(): Promise<string> {
+    this.props.onChangeText('');
+
+    // We are doing something very naughty here, which is that we are
+    // constructing a fake nativeEvent. We are certainly not including all the
+    // fields that the type is expected to have, which is why we need to
+    // any-type it. We know this is okay because the code that uses
+    // ClearableTextInput only accesses event.nativeEvent.selection
+    const fakeSelectionEvent: any = {
+      nativeEvent: { selection: { end: 0, start: 0 } },
+    };
+    this.props.onSelectionChange?.(fakeSelectionEvent);
+
     const { value } = this.props;
     this.lastMessageSent = value;
-    this.props.onChangeText('');
     if (this.textInput) {
       this.textInput.clear();
     }
@@ -60,7 +71,6 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
         <TextInput
           {...props}
           onChangeText={this.onChangeText}
-          onSelectionChange={this.props.onSelectionChange}
           ref={this.textInputRef}
         />
       </View>
