@@ -139,7 +139,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
   +userSearchIndex: SearchIndex,
-  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
+  +mentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +parentThreadInfo: ?ThreadInfo,
 };
 type State = {
@@ -477,7 +477,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
       const suggestedUsers = getTypeaheadUserSuggestions(
         this.props.userSearchIndex,
-        this.props.threadMembers,
+        this.props.mentionsCandidates,
         this.props.viewerID,
         typeaheadMatchedStrings.usernamePrefix,
       );
@@ -939,7 +939,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const callJoinThread = useServerCall(joinThread);
 
   const userSearchIndex = useSelector(userStoreSearchIndex);
-  const threadMembers = useSelector(
+  const mentionsCandidates = useSelector(
     relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
   );
 
@@ -967,7 +967,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       joinThread={callJoinThread}
       inputState={inputState}
       userSearchIndex={userSearchIndex}
-      threadMembers={threadMembers}
+      mentionsCandidates={mentionsCandidates}
       parentThreadInfo={parentThreadInfo}
     />
   );
