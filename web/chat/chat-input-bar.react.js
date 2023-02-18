@@ -549,7 +549,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callJoinThread = useServerCall(joinThread);
     const userSearchIndex = useSelector(userStoreSearchIndex);
-    const threadMembers = useSelector(
+    const mentionsCandidates = useSelector(
       relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
     );
 
@@ -582,11 +582,11 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       if (props.inputState.typeaheadState.keepUpdatingThreadMembers) {
         const setter = props.inputState.setTypeaheadState;
         setter({
-          frozenThreadMembers: threadMembers,
+          frozenMentionsCandidates: mentionsCandidates,
         });
       }
     }, [
-      threadMembers,
+      mentionsCandidates,
       props.inputState.setTypeaheadState,
       props.inputState.typeaheadState.keepUpdatingThreadMembers,
     ]);
@@ -598,13 +598,13 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         }
         return getTypeaheadUserSuggestions(
           userSearchIndex,
-          props.inputState.typeaheadState.frozenThreadMembers,
+          props.inputState.typeaheadState.frozenMentionsCandidates,
           viewerID,
           typeaheadMatchedStrings.usernamePrefix,
         );
       }, [
         userSearchIndex,
-        props.inputState.typeaheadState.frozenThreadMembers,
+        props.inputState.typeaheadState.frozenMentionsCandidates,
         viewerID,
         typeaheadMatchedStrings,
       ]);
