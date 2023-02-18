@@ -265,6 +265,21 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       'threadInfo must be specified in messageListContainer',
     );
 
+    const inputState = React.useContext(InputStateContext);
+    invariant(inputState, 'inputState should be set in MessageListContainer');
+
+    const isFocused = props.navigation.isFocused();
+    const { setPendingThreadUpdateHandler } = inputState;
+    React.useEffect(() => {
+      if (!isFocused) {
+        return;
+      }
+      setPendingThreadUpdateHandler(threadInfo.id, setBaseThreadInfo);
+      return () => {
+        setPendingThreadUpdateHandler(threadInfo.id, undefined);
+      };
+    }, [setPendingThreadUpdateHandler, isFocused, threadInfo.id]);
+
     const { setParams } = props.navigation;
     const navigationStack = useNavigationState(state => state.routes);
     React.useEffect(() => {
@@ -278,8 +293,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       }
     }, [isSearching, navigationStack, setParams, threadInfo]);
 
-    const inputState = React.useContext(InputStateContext);
-    invariant(inputState, 'inputState should be set in MessageListContainer');
     const hideSearch = React.useCallback(() => {
       setBaseThreadInfo(threadInfo);
       setParams({ searching: false });

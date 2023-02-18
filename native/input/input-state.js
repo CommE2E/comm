@@ -46,6 +46,10 @@ export type InputState = {
   +unregisterSendCallback: (() => void) => void,
   +uploadInProgress: () => boolean,
   +reportURIDisplayed: (uri: string, loaded: boolean) => void,
+  +setPendingThreadUpdateHandler: (
+    threadID: string,
+    pendingThreadUpdateHandler: ?(ThreadInfo) => mixed,
+  ) => void,
 };
 
 const InputStateContext: React.Context<?InputState> =
