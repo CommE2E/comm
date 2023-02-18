@@ -89,6 +89,7 @@ import {
 } from './input-state.js';
 import { validateFile, preloadImage } from '../media/media-utils.js';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 
@@ -1047,6 +1048,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         messageInfo.text,
         viewerID,
       );
+      if (threadInfo !== inputThreadInfo) {
+        this.props.dispatch({
+          type: updateNavInfoActionType,
+          payload: { pendingThread: threadInfo },
+        });
+      }
     }
 
     let newThreadID = null;
