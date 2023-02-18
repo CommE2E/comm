@@ -35,7 +35,9 @@ import {
 import {
   createMediaMessageInfo,
   localIDPrefix,
+  useMessageCreationSideEffectsFunc,
 } from 'lib/shared/message-utils.js';
+import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
 import {
   createRealThreadFromPendingThread,
   threadIsPending,
@@ -138,6 +140,7 @@ type Props = {
     text: string,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
+  +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
@@ -466,12 +469,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
-    // eslint-disable-next-line no-unused-vars
     threadInfo: ThreadInfo,
-    // eslint-disable-next-line no-unused-vars
     parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
+      await this.props.textMessageCreationSideEffectsFunc(
+        messageInfo,
+        threadInfo,
+        parentThreadInfo,
+      );
       const { localID } = messageInfo;
       invariant(
         localID !== null && localID !== undefined,
@@ -1422,6 +1428,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const dispatch = useDispatch();
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');
     const staffCanSee = useStaffCanSee();
+    const textMessageCreationSideEffectsFunc =
+      useMessageCreationSideEffectsFunc(messageTypes.TEXT);
 
     return (
       <InputStateContainer
@@ -1440,6 +1448,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
         staffCanSee={staffCanSee}
+        textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
       />
     );
   });
