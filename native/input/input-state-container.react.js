@@ -41,6 +41,7 @@ import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.j
 import {
   createRealThreadFromPendingThread,
   threadIsPending,
+  patchThreadInfoToIncludeMentionedMembersOfParent,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
@@ -69,10 +70,11 @@ import {
   type MediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types.js';
-import type {
-  ClientNewThreadRequest,
-  NewThreadResult,
-  ThreadInfo,
+import {
+  type ClientNewThreadRequest,
+  type NewThreadResult,
+  type ThreadInfo,
+  threadTypes,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -389,15 +391,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   sendTextMessage = async (
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
+    inputThreadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
 
-    if (!threadIsPending(threadInfo.id)) {
+    if (!threadIsPending(inputThreadInfo.id)) {
       this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
-        this.sendTextMessageAction(messageInfo, threadInfo, parentThreadInfo),
+        this.sendTextMessageAction(
+          messageInfo,
+          inputThreadInfo,
+          parentThreadInfo,
+        ),
         undefined,
         messageInfo,
       );
@@ -408,6 +414,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       type: sendTextMessageActionTypes.started,
       payload: messageInfo,
     });
+
+    let threadInfo = inputThreadInfo;
+    const { viewerID } = this.props;
+    if (viewerID && inputThreadInfo.type === threadTypes.SIDEBAR) {
+      invariant(parentThreadInfo, 'sidebar should have parent');
+      threadInfo = patchThreadInfoToIncludeMentionedMembersOfParent(
+        inputThreadInfo,
+        parentThreadInfo,
+        messageInfo.text,
+        viewerID,
+      );
+    }
 
     let newThreadID = null;
     try {
@@ -447,9 +465,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  async startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
+  startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
-      return threadInfo.id;
+      return Promise.resolve(threadInfo.id);
     }
     let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
     if (!threadCreationPromise) {
