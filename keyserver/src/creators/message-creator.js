@@ -175,36 +175,32 @@ async function createMessages(
     returnMessageInfos.push(rawMessageInfo); // at i
   }
 
-  if (viewer.isScriptViewer) {
-    await postMessageSend(
-      viewer,
-      threadsToMessageIndices,
-      subthreadPermissionsToCheck,
-      stripLocalIDs(newMessageInfos),
-      updatesForCurrentSession,
-    );
-  } else {
-    // We aren't awaiting because this function calls external services and we
-    // don't want to delay the response
-    handleAsyncPromise(
-      postMessageSend(
-        viewer,
-        threadsToMessageIndices,
-        subthreadPermissionsToCheck,
-        stripLocalIDs(newMessageInfos),
-        updatesForCurrentSession,
-      ),
-    );
-  }
-
   const messageInsertQuery = SQL`
     INSERT INTO messages(id, thread, user, type, content, time,
       creation, target_message)
     VALUES ${messageInsertRows}
   `;
+  const messageInsertPromise = dbQuery(messageInsertQuery);
+
+  const postMessageSendPromise = postMessageSend(
+    viewer,
+    threadsToMessageIndices,
+    subthreadPermissionsToCheck,
+    stripLocalIDs(newMessageInfos),
+    updatesForCurrentSession,
+  );
+  if (!viewer.isScriptViewer) {
+    // If we're not being called from a script, then we avoid awaiting
+    // postMessageSendPromise below so that we don't delay the response to the
+    // user on external services. In that case, we use handleAsyncPromise to
+    // make sure any exceptions are caught and logged.
+    handleAsyncPromise(postMessageSendPromise);
+  }
+
   await Promise.all([
-    dbQuery(messageInsertQuery),
+    messageInsertPromise,
     updateRepliesCount(threadsToMessageIndices, newMessageDatas),
+    viewer.isScriptViewer ? postMessageSendPromise : undefined,
   ]);
 
   if (updatesForCurrentSession !== 'return') {
