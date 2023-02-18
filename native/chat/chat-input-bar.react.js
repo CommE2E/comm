@@ -29,14 +29,12 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  relativeMemberInfoSelectorForMembersOfThread,
-  userStoreSearchIndex,
-} from 'lib/selectors/user-selectors.js';
+import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import {
   getTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
   type Selection,
+  getMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
 import SearchIndex from 'lib/shared/search-index.js';
@@ -939,13 +937,15 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const callJoinThread = useServerCall(joinThread);
 
   const userSearchIndex = useSelector(userStoreSearchIndex);
-  const mentionsCandidates = useSelector(
-    relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
-  );
 
   const { parentThreadID } = props.threadInfo;
   const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+
+  const mentionsCandidates = getMentionsCandidates(
+    props.threadInfo,
+    parentThreadInfo,
   );
 
   return (

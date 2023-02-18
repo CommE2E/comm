@@ -12,13 +12,11 @@ import {
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  userStoreSearchIndex,
-  relativeMemberInfoSelectorForMembersOfThread,
-} from 'lib/selectors/user-selectors.js';
+import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import {
   getTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
+  getMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
 import type { TypeaheadMatchedStrings } from 'lib/shared/mention-utils.js';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
@@ -549,8 +547,15 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callJoinThread = useServerCall(joinThread);
     const userSearchIndex = useSelector(userStoreSearchIndex);
-    const mentionsCandidates = useSelector(
-      relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
+
+    const { parentThreadID } = props.threadInfo;
+    const parentThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
+
+    const mentionsCandidates = getMentionsCandidates(
+      props.threadInfo,
+      parentThreadInfo,
     );
 
     const typeaheadRegexMatches = React.useMemo(
@@ -608,11 +613,6 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         viewerID,
         typeaheadMatchedStrings,
       ]);
-
-    const { parentThreadID } = props.threadInfo;
-    const parentThreadInfo = useSelector(state =>
-      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-    );
 
     return (
       <ChatInputBar
