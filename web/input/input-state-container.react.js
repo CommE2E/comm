@@ -45,6 +45,7 @@ import {
   draftKeyFromThreadID,
   threadIsPending,
   threadIsPendingSidebar,
+  patchThreadInfoToIncludeMentionedMembersOfParent,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
@@ -66,10 +67,11 @@ import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
-import type {
-  ClientNewThreadRequest,
-  NewThreadResult,
-  ThreadInfo,
+import {
+  type ClientNewThreadRequest,
+  type NewThreadResult,
+  type ThreadInfo,
+  threadTypes,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -470,9 +472,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  async startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
+  startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
-      return threadInfo.id;
+      return Promise.resolve(threadInfo.id);
     }
     let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
     if (!threadCreationPromise) {
@@ -1002,7 +1004,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
+    inputThreadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
@@ -1012,14 +1014,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       localID !== null && localID !== undefined,
       'localID should be set',
     );
-    if (threadIsPendingSidebar(threadInfo.id)) {
+    if (threadIsPendingSidebar(inputThreadInfo.id)) {
       this.pendingSidebarCreationMessageLocalIDs.add(localID);
     }
 
-    if (!threadIsPending(threadInfo.id)) {
+    if (!threadIsPending(inputThreadInfo.id)) {
       this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
-        this.sendTextMessageAction(messageInfo, threadInfo, parentThreadInfo),
+        this.sendTextMessageAction(
+          messageInfo,
+          inputThreadInfo,
+          parentThreadInfo,
+        ),
         undefined,
         messageInfo,
       );
@@ -1030,6 +1036,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       type: sendTextMessageActionTypes.started,
       payload: messageInfo,
     });
+
+    let threadInfo = inputThreadInfo;
+    const { viewerID } = this.props;
+    if (viewerID && inputThreadInfo.type === threadTypes.SIDEBAR) {
+      invariant(parentThreadInfo, 'sidebar should have parent');
+      threadInfo = patchThreadInfoToIncludeMentionedMembersOfParent(
+        inputThreadInfo,
+        parentThreadInfo,
+        messageInfo.text,
+        viewerID,
+      );
+    }
 
     let newThreadID = null;
     try {
