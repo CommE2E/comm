@@ -78,7 +78,7 @@ async function textMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const messageData: TextMessageData = {
+  let messageData: TextMessageData = {
     type: messageTypes.TEXT,
     threadID,
     creatorID: viewer.id,
@@ -86,7 +86,7 @@ async function textMessageCreationResponder(
     text,
   };
   if (localID) {
-    messageData.localID = localID;
+    messageData = { ...messageData, localID };
   }
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
