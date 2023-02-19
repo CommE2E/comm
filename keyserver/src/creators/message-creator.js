@@ -186,6 +186,7 @@ async function createMessages(
     threadsToMessageIndices,
     subthreadPermissionsToCheck,
     stripLocalIDs(newMessageInfos),
+    newMessageDatas,
     updatesForCurrentSession,
   );
   if (!viewer.isScriptViewer) {
@@ -291,6 +292,7 @@ async function postMessageSend(
   threadsToMessageIndices: Map<string, number[]>,
   subthreadPermissionsToCheck: Set<string>,
   messageInfos: RawMessageInfo[],
+  messageDatas: MessageData[],
   updatesForCurrentSession: UpdatesForCurrentSession,
 ) {
   let joinIndex = 0;
@@ -435,12 +437,17 @@ async function postMessageSend(
             return undefined;
           }
           const { generatesNotifs } = messageSpecs[type];
-          const doesGenerateNotif = await generatesNotifs(messageInfo, {
-            notifTargetUserID: userID,
-            userNotMemberOfSubthreads,
-            fetchMessageInfoByID: (messageID: string) =>
-              fetchMessageInfoByID(viewer, messageID),
-          });
+          const messageData = messageDatas[messageIndex];
+          const doesGenerateNotif = await generatesNotifs(
+            messageInfo,
+            messageData,
+            {
+              notifTargetUserID: userID,
+              userNotMemberOfSubthreads,
+              fetchMessageInfoByID: (messageID: string) =>
+                fetchMessageInfoByID(viewer, messageID),
+            },
+          );
           return doesGenerateNotif === pushTypes.NOTIF
             ? messageInfo
             : undefined;
