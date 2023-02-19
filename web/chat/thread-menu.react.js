@@ -31,6 +31,7 @@ import Menu from '../components/menu.react.js';
 import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react.js';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react.js';
 import ComposeSubchannelModal from '../modals/threads/create/compose-subchannel-modal.react.js';
+import ThreadSettingsMediaGalleryModal from '../modals/threads/gallery/thread-settings-media-gallery.react.js';
 import ThreadMembersModal from '../modals/threads/members/members-modal.react.js';
 import ThreadNotificationsModal from '../modals/threads/notifications/notifications-modal.react.js';
 import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react.js';
@@ -83,6 +84,37 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       />
     );
   }, [onClickMembers, threadInfo.type]);
+
+  const canViewThreadMediaGallery = React.useMemo(() => {
+    return threadInfo.parentThreadID === '1';
+  }, [threadInfo]);
+
+  const onClickThreadMediaGallery = React.useCallback(
+    () =>
+      pushModal(
+        <ThreadSettingsMediaGalleryModal
+          onClose={popModal}
+          parentThreadInfo={threadInfo}
+          limit={36}
+          activeTab="All"
+        />,
+      ),
+    [popModal, pushModal, threadInfo],
+  );
+
+  const threadMediaGalleryItem = React.useMemo(() => {
+    if (!canViewThreadMediaGallery) {
+      return null;
+    }
+    return (
+      <MenuItem
+        key="threadMediaGallery"
+        text="Media"
+        icon="image-1"
+        onClick={onClickThreadMediaGallery}
+      />
+    );
+  }, [canViewThreadMediaGallery, onClickThreadMediaGallery]);
 
   const childThreads = useSelector(
     state => childThreadInfos(state)[threadInfo.id],
@@ -262,6 +294,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       settingsItem,
       notificationsItem,
       membersItem,
+      threadMediaGalleryItem,
       sidebarItem,
       viewSubchannelsItem,
       createSubchannelsItem,
@@ -274,6 +307,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     settingsItem,
     notificationsItem,
     membersItem,
+    threadMediaGalleryItem,
     sidebarItem,
     viewSubchannelsItem,
     promoteSidebar,
