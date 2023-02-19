@@ -55,6 +55,7 @@ const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,
   localID: t.maybe(t.String),
   text: t.String,
+  sidebarCreation: t.maybe(t.Boolean),
 });
 async function textMessageCreationResponder(
   viewer: Viewer,
@@ -63,7 +64,7 @@ async function textMessageCreationResponder(
   const request: SendTextMessageRequest = input;
   await validateInput(viewer, sendTextMessageRequestInputValidator, request);
 
-  const { threadID, localID, text: rawText } = request;
+  const { threadID, localID, text: rawText, sidebarCreation } = request;
   const text = trimMessage(rawText);
   if (!text) {
     throw new ServerError('invalid_parameters');
@@ -87,6 +88,9 @@ async function textMessageCreationResponder(
   };
   if (localID) {
     messageData = { ...messageData, localID };
+  }
+  if (sidebarCreation) {
+    messageData = { ...messageData, sidebarCreation };
   }
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
@@ -115,11 +119,13 @@ const sendMultimediaMessageRequestInputValidator = t.union([
   tShape({
     threadID: t.String,
     localID: t.String,
+    sidebarCreation: t.maybe(t.Boolean),
     mediaIDs: t.list(t.String),
   }),
   tShape({
     threadID: t.String,
     localID: t.String,
+    sidebarCreation: t.maybe(t.Boolean),
     mediaMessageContents: t.list(tMediaMessageMedia),
   }),
 ]);
@@ -141,7 +147,7 @@ async function multimediaMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const { threadID, localID } = request;
+  const { threadID, localID, sidebarCreation } = request;
   const hasPermission = await checkThreadPermission(
     viewer,
     threadID,
@@ -173,6 +179,7 @@ async function multimediaMessageCreationResponder(
     threadID,
     creatorID: viewer.id,
     media,
+    sidebarCreation,
   });
   const [newMessageInfo] = await createMessages(viewer, [messageData]);
   const { id } = newMessageInfo;
