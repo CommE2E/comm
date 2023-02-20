@@ -86,36 +86,36 @@ function activeThreadSelector(state: AppState): ?string {
   return state.navInfo.tab === 'chat' ? state.navInfo.activeChatThreadID : null;
 }
 
-const webCalendarQuery: (
-  state: AppState,
-) => () => CalendarQuery = createSelector(
-  currentCalendarQuery,
-  (state: AppState) => state.navInfo.tab === 'calendar',
-  (
-    calendarQuery: (calendarActive: boolean) => CalendarQuery,
-    calendarActive: boolean,
-  ) => () => calendarQuery(calendarActive),
-);
+const webCalendarQuery: (state: AppState) => () => CalendarQuery =
+  createSelector(
+    currentCalendarQuery,
+    (state: AppState) => state.navInfo.tab === 'calendar',
+    (
+        calendarQuery: (calendarActive: boolean) => CalendarQuery,
+        calendarActive: boolean,
+      ) =>
+      () =>
+        calendarQuery(calendarActive),
+  );
 
-const nonThreadCalendarQuery: (
-  state: AppState,
-) => () => CalendarQuery = createSelector(
-  webCalendarQuery,
-  nonThreadCalendarFiltersSelector,
-  (
-    calendarQuery: () => CalendarQuery,
-    filters: $ReadOnlyArray<CalendarFilter>,
-  ) => {
-    return (): CalendarQuery => {
-      const query = calendarQuery();
-      return {
-        startDate: query.startDate,
-        endDate: query.endDate,
-        filters,
+const nonThreadCalendarQuery: (state: AppState) => () => CalendarQuery =
+  createSelector(
+    webCalendarQuery,
+    nonThreadCalendarFiltersSelector,
+    (
+      calendarQuery: () => CalendarQuery,
+      filters: $ReadOnlyArray<CalendarFilter>,
+    ) => {
+      return (): CalendarQuery => {
+        const query = calendarQuery();
+        return {
+          startDate: query.startDate,
+          endDate: query.endDate,
+          filters,
+        };
       };
-    };
-  },
-);
+    },
+  );
 
 function navTabSelector(state: AppState): NavigationTab {
   return state.navInfo.tab;

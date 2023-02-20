@@ -23,8 +23,8 @@ import {
   webSessionStateFuncSelector,
 } from './selectors/socket-selectors.js';
 
-const WebSocket: React.ComponentType<BaseSocketProps> = React.memo<BaseSocketProps>(
-  function WebSocket(props) {
+const WebSocket: React.ComponentType<BaseSocketProps> =
+  React.memo<BaseSocketProps>(function WebSocket(props) {
     const cookie = useSelector(state => state.cookie);
     const urlPrefix = useSelector(state => state.urlPrefix);
     const connection = useSelector(state => state.connection);
@@ -76,7 +76,6 @@ const WebSocket: React.ComponentType<BaseSocketProps> = React.memo<BaseSocketPro
         logOut={callLogOut}
       />
     );
-  },
-);
+  });
 
 export default WebSocket;

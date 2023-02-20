@@ -147,8 +147,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedFailedSend: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedFailedSend(props: BaseProps) {
+const ConnectedFailedSend: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedFailedSend(props: BaseProps) {
     const id = messageID(props.item.messageInfo);
     const rawMessageInfo = useSelector(state => {
       const message = state.messageStore.messages[id];
@@ -164,7 +164,6 @@ const ConnectedFailedSend: React.ComponentType<BaseProps> = React.memo<BaseProps
         inputState={inputState}
       />
     );
-  },
-);
+  });
 
 export { ConnectedFailedSend as FailedSend, failedSendHeight };

@@ -40,7 +40,8 @@ async function requestIOSPushPermissions(missingDeviceToken: boolean) {
   firstRun = false;
 
   if (!permissionNeeded) {
-    const permissions: PushPermissions = await CommIOSNotifications.checkPermissions();
+    const permissions: PushPermissions =
+      await CommIOSNotifications.checkPermissions();
     permissionNeeded = permissionMissing(permissions);
   }
 

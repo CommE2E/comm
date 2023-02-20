@@ -20,8 +20,7 @@ function ThreadSettingsHeaderTitle(props: Props): React.Node {
   return <HeaderTitle {...rest}>{firstLine(uiName)}</HeaderTitle>;
 }
 
-const MemoizedThreadSettingsHeaderTitle: React.ComponentType<Props> = React.memo<Props>(
-  ThreadSettingsHeaderTitle,
-);
+const MemoizedThreadSettingsHeaderTitle: React.ComponentType<Props> =
+  React.memo<Props>(ThreadSettingsHeaderTitle);
 
 export default MemoizedThreadSettingsHeaderTitle;

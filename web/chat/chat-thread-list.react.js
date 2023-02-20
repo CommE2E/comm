@@ -20,12 +20,8 @@ function ChatThreadList(): React.Node {
     threadListContext,
     'threadListContext should be set in ChatThreadList',
   );
-  const {
-    activeTab,
-    threadList,
-    setSearchText,
-    searchText,
-  } = threadListContext;
+  const { activeTab, threadList, setSearchText, searchText } =
+    threadListContext;
 
   const onClickNewThread = useOnClickNewThread();
 

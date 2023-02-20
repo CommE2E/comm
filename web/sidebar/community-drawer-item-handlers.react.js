@@ -24,10 +24,10 @@ function ChatDrawerItemHandler(props: HandlerProps): React.Node {
   const onClick = useOnClickThread(threadInfo);
   const isActive = useThreadIsActive(threadInfo.id);
 
-  const handler = React.useMemo(() => ({ onClick, isActive }), [
-    isActive,
-    onClick,
-  ]);
+  const handler = React.useMemo(
+    () => ({ onClick, isActive }),
+    [isActive, onClick],
+  );
   React.useEffect(() => {
     setHandler(handler);
   }, [handler, setHandler]);
@@ -47,10 +47,10 @@ function CalendarDrawerItemHandler(props: HandlerProps): React.Node {
   }, [dispatch, threadInfo.id]);
   const isActive = useCommunityIsPicked(threadInfo.id);
 
-  const handler = React.useMemo(() => ({ onClick, isActive }), [
-    onClick,
-    isActive,
-  ]);
+  const handler = React.useMemo(
+    () => ({ onClick, isActive }),
+    [onClick, isActive],
+  );
   React.useEffect(() => {
     setHandler(handler);
   }, [handler, setHandler]);

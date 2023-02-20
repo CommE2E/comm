@@ -102,17 +102,8 @@ import { runTiming } from '../utils/animation-utils.js';
 import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
-const {
-  Value,
-  Clock,
-  block,
-  set,
-  cond,
-  neq,
-  sub,
-  interpolateNode,
-  stopClock,
-} = Animated;
+const { Value, Clock, block, set, cond, neq, sub, interpolateNode, stopClock } =
+  Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 const expandoButtonsAnimationConfig = {
@@ -364,9 +355,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const systemKeyboardIsShowing = ChatInputBar.systemKeyboardShowing(
       this.props,
     );
-    const systemKeyboardWasShowing = ChatInputBar.systemKeyboardShowing(
-      prevProps,
-    );
+    const systemKeyboardWasShowing =
+      ChatInputBar.systemKeyboardShowing(prevProps);
     if (systemKeyboardIsShowing && !systemKeyboardWasShowing) {
       this.hideButtons();
     } else if (!systemKeyboardIsShowing && systemKeyboardWasShowing) {
@@ -905,9 +895,8 @@ const unboundStyles = {
 const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
-const createThreadLoadingStatusSelector = createLoadingStatusSelector(
-  newThreadActionTypes,
-);
+const createThreadLoadingStatusSelector =
+  createLoadingStatusSelector(newThreadActionTypes);
 
 type ConnectedChatInputBarBaseProps = {
   ...BaseProps,
@@ -1011,8 +1000,10 @@ type ChatInputBarProps = {
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
 };
-const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo<ChatInputBarProps>(
-  function ConnectedChatInputBar(props: ChatInputBarProps) {
+const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
+  React.memo<ChatInputBarProps>(function ConnectedChatInputBar(
+    props: ChatInputBarProps,
+  ) {
     const { navigation, route, ...restProps } = props;
     const keyboardState = React.useContext(KeyboardContext);
 
@@ -1088,7 +1079,6 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
         openCamera={openCamera}
       />
     );
-  },
-);
+  });
 
 export { ConnectedChatInputBar as ChatInputBar, DummyChatInputBar };

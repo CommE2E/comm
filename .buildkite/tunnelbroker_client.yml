@@ -1,5 +1,5 @@
 env:
-  PATH: "$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+  PATH: '$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH'
 steps:
   - label: ':nix: Tunnelbroker Client (Shared)'
     command:

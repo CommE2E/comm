@@ -223,11 +223,8 @@ function createTooltip<
 
     get tooltipContainerStyle() {
       const { dimensions, route } = this.props;
-      const {
-        initialCoordinates,
-        verticalBounds,
-        chatInputBarHeight,
-      } = route.params;
+      const { initialCoordinates, verticalBounds, chatInputBarHeight } =
+        route.params;
       const { x, y, width, height } = initialCoordinates;
       const { margin, tooltipLocation } = this;
 

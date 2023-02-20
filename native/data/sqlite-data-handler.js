@@ -145,14 +145,10 @@ function SQLiteDataHandler(): React.Node {
     (async () => {
       await sensitiveDataHandled;
       try {
-        const {
-          threads,
-          messages,
-          drafts,
-        } = await commCoreModule.getClientDBStore();
-        const threadInfosFromDB = convertClientDBThreadInfosToRawThreadInfos(
-          threads,
-        );
+        const { threads, messages, drafts } =
+          await commCoreModule.getClientDBStore();
+        const threadInfosFromDB =
+          convertClientDBThreadInfosToRawThreadInfos(threads);
         dispatch({
           type: setClientDBStoreActionType,
           payload: {

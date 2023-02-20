@@ -108,10 +108,8 @@ function NotificationsModal(props: Props): React.Node {
     return 'focused';
   }, [subscription.home, subscription.pushNotifs]);
 
-  const [
-    notificationSettings,
-    setNotificationSettings,
-  ] = React.useState<NotificationSettings>(initialThreadSetting);
+  const [notificationSettings, setNotificationSettings] =
+    React.useState<NotificationSettings>(initialThreadSetting);
 
   const onFocusedSelected = React.useCallback(
     () => setNotificationSettings('focused'),

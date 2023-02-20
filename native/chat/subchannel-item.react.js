@@ -16,11 +16,8 @@ type Props = {
   +subchannelInfo: ChatThreadItem,
 };
 function SubchannelItem(props: Props): React.Node {
-  const {
-    lastUpdatedTime,
-    threadInfo,
-    mostRecentMessageInfo,
-  } = props.subchannelInfo;
+  const { lastUpdatedTime, threadInfo, mostRecentMessageInfo } =
+    props.subchannelInfo;
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
   const lastActivity = shortAbsoluteDate(lastUpdatedTime);

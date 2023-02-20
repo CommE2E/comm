@@ -120,9 +120,8 @@ async function fetchUploadsForMessage(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
 ): Promise<$ReadOnlyArray<Object>> {
-  const uploadIDs = getUploadIDsFromMediaMessageServerDBContents(
-    mediaMessageContents,
-  );
+  const uploadIDs =
+    getUploadIDsFromMediaMessageServerDBContents(mediaMessageContents);
   const query = SQL`
     SELECT id AS uploadID, secret AS uploadSecret,
       type AS uploadType, extra AS uploadExtra

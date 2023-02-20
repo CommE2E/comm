@@ -333,9 +333,8 @@ async function logInResponder(
     : null;
   const promises = {};
   if (calendarQuery) {
-    promises.verifyCalendarQueryThreadIDs = verifyCalendarQueryThreadIDs(
-      calendarQuery,
-    );
+    promises.verifyCalendarQueryThreadIDs =
+      verifyCalendarQueryThreadIDs(calendarQuery);
   }
   const username = request.username ?? request.usernameOrEmail;
   if (!username) {
@@ -395,12 +394,8 @@ async function siweAuthResponder(
 ): Promise<LogInResponse> {
   await validateInput(viewer, siweAuthRequestInputValidator, input);
   const request: SIWEAuthRequest = input;
-  const {
-    message,
-    signature,
-    deviceTokenUpdateRequest,
-    platformDetails,
-  } = request;
+  const { message, signature, deviceTokenUpdateRequest, platformDetails } =
+    request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
   // 1. Ensure that `message` is a well formed Comm SIWE Auth message.

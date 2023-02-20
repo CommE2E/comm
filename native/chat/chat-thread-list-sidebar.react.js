@@ -49,10 +49,10 @@ function ChatThreadListSidebar(props: Props): React.Node {
 
   const { threadInfo } = sidebarInfo;
 
-  const onPress = React.useCallback(() => onPressItem(threadInfo), [
-    threadInfo,
-    onPressItem,
-  ]);
+  const onPress = React.useCallback(
+    () => onPressItem(threadInfo),
+    [threadInfo, onPressItem],
+  );
 
   return (
     <Button

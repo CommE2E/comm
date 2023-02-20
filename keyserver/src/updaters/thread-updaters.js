@@ -629,10 +629,8 @@ async function updateThread(
     })();
   }
 
-  const {
-    addMembersChangeset,
-    recalculatePermissionsChangeset,
-  } = await promiseAll(intermediatePromises);
+  const { addMembersChangeset, recalculatePermissionsChangeset } =
+    await promiseAll(intermediatePromises);
 
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();

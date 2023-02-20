@@ -11,9 +11,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { probeFile } from './blob-utils.js';
 import { getOrientation } from './image-utils.js';
 
-async function preloadImage(
-  uri: string,
-): Promise<{
+async function preloadImage(uri: string): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: ?Image,
 }> {

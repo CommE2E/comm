@@ -15,10 +15,10 @@ type Props = {
 function SearchModal(props: Props): React.Node {
   const [searchText, setSearchText] = React.useState('');
   const { children, searchPlaceholder, ...modalProps } = props;
-  const child = React.useMemo(() => children(searchText), [
-    children,
-    searchText,
-  ]);
+  const child = React.useMemo(
+    () => children(searchText),
+    [children, searchText],
+  );
 
   return (
     <Modal {...modalProps}>

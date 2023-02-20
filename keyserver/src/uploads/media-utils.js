@@ -143,10 +143,8 @@ async function convertImage(
   });
   const convertedDimensions = { width: info.width, height: info.height };
 
-  const {
-    mime: convertedMIME,
-    mediaType: convertedMediaType,
-  } = deepFileInfoFromData(convertedBuffer);
+  const { mime: convertedMIME, mediaType: convertedMediaType } =
+    deepFileInfoFromData(convertedBuffer);
   if (
     !convertedMIME ||
     !convertedMediaType ||

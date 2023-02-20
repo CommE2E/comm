@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedComposedMessage(props: BaseProps) {
+const ConnectedComposedMessage: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedComposedMessage(props: BaseProps) {
     const composedMessageMaxWidth = useComposedMessageMaxWidth();
     const colors = useColors();
     const inputState = React.useContext(InputStateContext);
@@ -241,7 +241,6 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<Base
         deliveryIconOpacity={deliveryIconOpacity}
       />
     );
-  },
-);
+  });
 
 export default ConnectedComposedMessage;

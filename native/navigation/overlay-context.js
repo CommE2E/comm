@@ -18,8 +18,7 @@ export type OverlayContextType = {
   +scrollBlockingModalStatus: ScrollBlockingModalStatus,
   +setScrollBlockingModalStatus: ScrollBlockingModalStatus => void,
 };
-const OverlayContext: React.Context<?OverlayContextType> = React.createContext(
-  null,
-);
+const OverlayContext: React.Context<?OverlayContextType> =
+  React.createContext(null);
 
 export { OverlayContext };

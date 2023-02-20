@@ -103,8 +103,10 @@ const unboundStyles = {
   },
 };
 
-const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedMessageListHeaderTitle(props: BaseProps) {
+const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedMessageListHeaderTitle(
+    props: BaseProps,
+  ) {
     const styles = useStyles(unboundStyles);
 
     const { uiName } = useResolvedThreadInfo(props.threadInfo);
@@ -112,7 +114,6 @@ const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> = React.me
     const title = isSearchEmpty ? 'New Message' : uiName;
 
     return <MessageListHeaderTitle {...props} styles={styles} title={title} />;
-  },
-);
+  });
 
 export default ConnectedMessageListHeaderTitle;

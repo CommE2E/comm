@@ -24,32 +24,27 @@ type Props = {
   +route: NavigationRoute<'SidebarListModal'>,
 };
 function SidebarListModal(props: Props): React.Node {
-  const {
-    listData,
-    searchState,
-    setSearchState,
-    onChangeSearchInputText,
-  } = useSearchSidebars(props.route.params.threadInfo);
+  const { listData, searchState, setSearchState, onChangeSearchInputText } =
+    useSearchSidebars(props.route.params.threadInfo);
 
   const numOfSidebarsWithExtendedArrow = listData.length - 1;
 
   const createRenderItem = React.useCallback(
-    (
-      onPressItem: (threadInfo: ThreadInfo) => void,
+    (onPressItem: (threadInfo: ThreadInfo) => void) =>
       // eslint-disable-next-line react/display-name
-    ) => (row: { +item: SidebarInfo, +index: number, ... }) => {
-      let extendArrow: boolean = false;
-      if (row.index < numOfSidebarsWithExtendedArrow) {
-        extendArrow = true;
-      }
-      return (
-        <Item
-          item={row.item}
-          onPressItem={onPressItem}
-          extendArrow={extendArrow}
-        />
-      );
-    },
+      (row: { +item: SidebarInfo, +index: number, ... }) => {
+        let extendArrow: boolean = false;
+        if (row.index < numOfSidebarsWithExtendedArrow) {
+          extendArrow = true;
+        }
+        return (
+          <Item
+            item={row.item}
+            onPressItem={onPressItem}
+            extendArrow={extendArrow}
+          />
+        );
+      },
     [numOfSidebarsWithExtendedArrow],
   );
 
@@ -75,10 +70,10 @@ function Item(props: {
   const { item, onPressItem, extendArrow } = props;
   const { threadInfo } = item;
 
-  const onPressButton = React.useCallback(() => onPressItem(threadInfo), [
-    onPressItem,
-    threadInfo,
-  ]);
+  const onPressButton = React.useCallback(
+    () => onPressItem(threadInfo),
+    [onPressItem, threadInfo],
+  );
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);

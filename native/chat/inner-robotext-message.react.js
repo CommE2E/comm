@@ -137,9 +137,8 @@ const unboundStyles = {
   },
 };
 
-const MemoizedInnerRobotextMessage: React.ComponentType<InnerRobotextMessageProps> = React.memo<InnerRobotextMessageProps>(
-  InnerRobotextMessage,
-);
+const MemoizedInnerRobotextMessage: React.ComponentType<InnerRobotextMessageProps> =
+  React.memo<InnerRobotextMessageProps>(InnerRobotextMessage);
 
 export {
   dummyNodeForRobotextMessageHeightMeasurement,

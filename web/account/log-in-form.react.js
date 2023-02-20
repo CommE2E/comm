@@ -42,10 +42,8 @@ function LoginForm(): React.Node {
     })();
   }, [dispatch, primaryIdentityPublicKey]);
 
-  const [
-    siweAuthFlowSelected,
-    setSIWEAuthFlowSelected,
-  ] = React.useState<boolean>(false);
+  const [siweAuthFlowSelected, setSIWEAuthFlowSelected] =
+    React.useState<boolean>(false);
 
   const onSIWEButtonClick = React.useCallback(() => {
     setSIWEAuthFlowSelected(true);

@@ -37,10 +37,8 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
-  const [
-    sidebarInputBarHeight,
-    setSidebarInputBarHeight,
-  ] = React.useState<?number>(null);
+  const [sidebarInputBarHeight, setSidebarInputBarHeight] =
+    React.useState<?number>(null);
   const onInputBarMeasured = React.useCallback((height: number) => {
     setSidebarInputBarHeight(height);
   }, []);

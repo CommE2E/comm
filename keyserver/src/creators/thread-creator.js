@@ -301,15 +301,13 @@ async function createThread(
         newMessageInfos = joinThreadResult.rawMessageInfos;
       }
 
-      const {
-        viewerUpdates: newUpdates,
-        userInfos: changesetUserInfos,
-      } = await getChangesetCommitResultForExistingThread(
-        viewer,
-        existingThreadID,
-        joinUpdateInfos,
-        { calendarQuery, updatesForCurrentSession },
-      );
+      const { viewerUpdates: newUpdates, userInfos: changesetUserInfos } =
+        await getChangesetCommitResultForExistingThread(
+          viewer,
+          existingThreadID,
+          joinUpdateInfos,
+          { calendarQuery, updatesForCurrentSession },
+        );
       userInfos = { ...userInfos, ...changesetUserInfos };
 
       return {
@@ -390,13 +388,10 @@ async function createThread(
   }
 
   const changeset = { membershipRows, relationshipChangeset };
-  const {
-    threadInfos,
-    viewerUpdates,
-    userInfos,
-  } = await commitMembershipChangeset(viewer, changeset, {
-    updatesForCurrentSession,
-  });
+  const { threadInfos, viewerUpdates, userInfos } =
+    await commitMembershipChangeset(viewer, changeset, {
+      updatesForCurrentSession,
+    });
 
   const initialMemberAndCreatorIDs = initialMemberIDs
     ? [...initialMemberIDs, viewer.userID]

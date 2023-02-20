@@ -303,17 +303,15 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     );
   }
 
-  tagInputRef: (
-    tagInput: ?React.ElementRef<typeof BaseTextInput>,
-  ) => void = tagInput => {
-    this.tagInput = tagInput;
-  };
+  tagInputRef: (tagInput: ?React.ElementRef<typeof BaseTextInput>) => void =
+    tagInput => {
+      this.tagInput = tagInput;
+    };
 
-  scrollViewRef: (
-    scrollView: ?React.ElementRef<typeof ScrollView>,
-  ) => void = scrollView => {
-    this.scrollView = scrollView;
-  };
+  scrollViewRef: (scrollView: ?React.ElementRef<typeof ScrollView>) => void =
+    scrollView => {
+      this.scrollView = scrollView;
+    };
 
   onScrollViewContentSizeChange: (w: number, h: number) => void = (w, h) => {
     const oldContentHeight = this.state.contentHeight;

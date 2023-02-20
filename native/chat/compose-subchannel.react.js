@@ -63,9 +63,8 @@ function ComposeSubchannel(props: Props): React.Node {
   const [userInfoInputArray, setUserInfoInputArray] = React.useState<
     $ReadOnlyArray<AccountUserInfo>,
   >([]);
-  const [createButtonEnabled, setCreateButtonEnabled] = React.useState<boolean>(
-    true,
-  );
+  const [createButtonEnabled, setCreateButtonEnabled] =
+    React.useState<boolean>(true);
 
   const tagInputRef = React.useRef();
   const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
@@ -381,8 +380,7 @@ const unboundStyles = {
   },
 };
 
-const MemoizedComposeSubchannel: React.ComponentType<Props> = React.memo<Props>(
-  ComposeSubchannel,
-);
+const MemoizedComposeSubchannel: React.ComponentType<Props> =
+  React.memo<Props>(ComposeSubchannel);
 
 export default MemoizedComposeSubchannel;

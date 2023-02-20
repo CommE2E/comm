@@ -472,9 +472,8 @@ async function updateDescendantPermissions(
           threadID,
           threadType,
         );
-        const permissionsForChildren = makePermissionsForChildrenBlob(
-          permissions,
-        );
+        const permissionsForChildren =
+          makePermissionsForChildrenBlob(permissions);
         const newRole = getRoleForPermissions(targetRole, permissions);
         const userLostMembership = Number(curRole) > 0 && Number(newRole) <= 0;
 
@@ -628,11 +627,8 @@ async function fetchDescendantsForUpdate(
     const { threadID, changesByUser } = ancestor;
     for (const [userID, changes] of changesByUser) {
       for (const descendantThreadInfo of descendantThreadInfos.values()) {
-        const {
-          users,
-          parentThreadID,
-          containingThreadID,
-        } = descendantThreadInfo;
+        const { users, parentThreadID, containingThreadID } =
+          descendantThreadInfo;
         if (threadID !== parentThreadID && threadID !== containingThreadID) {
           continue;
         }
@@ -723,15 +719,12 @@ async function recalculateThreadPermissions(
     INNER JOIN memberships pm ON pm.thread = t.parent_thread_id
     WHERE t.id = ${threadID}
   `;
-  const [
-    [threadResults],
-    [membershipResults],
-    [parentMembershipResults],
-  ] = await Promise.all([
-    dbQuery(threadQuery),
-    dbQuery(membershipQuery),
-    dbQuery(parentMembershipQuery),
-  ]);
+  const [[threadResults], [membershipResults], [parentMembershipResults]] =
+    await Promise.all([
+      dbQuery(threadQuery),
+      dbQuery(membershipQuery),
+      dbQuery(parentMembershipQuery),
+    ]);
 
   if (threadResults.length !== 1) {
     throw new ServerError('internal_error');
@@ -742,10 +735,8 @@ async function recalculateThreadPermissions(
   const hasContainingThreadID = threadResult.containing_thread_id !== null;
   const parentThreadID = threadResult.parent_thread_id?.toString();
 
-  const membershipInfo: Map<
-    string,
-    RecalculatePermissionsMemberInfo,
-  > = new Map();
+  const membershipInfo: Map<string, RecalculatePermissionsMemberInfo> =
+    new Map();
   for (const row of membershipResults) {
     const userID = row.user.toString();
     membershipInfo.set(userID, {
@@ -786,10 +777,8 @@ async function recalculateThreadPermissions(
   const membershipRows = [];
   const toUpdateDescendants = new Map();
   for (const [userID, membership] of membershipInfo) {
-    const {
-      rolePermissions: intendedRolePermissions,
-      permissionsFromParent,
-    } = membership;
+    const { rolePermissions: intendedRolePermissions, permissionsFromParent } =
+      membership;
     const oldPermissions = membership?.permissions ?? null;
     const oldPermissionsForChildren =
       membership?.permissionsForChildren ?? null;

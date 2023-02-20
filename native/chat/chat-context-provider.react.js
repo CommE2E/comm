@@ -126,10 +126,8 @@ function ChatContextProvider(props: Props): React.Node {
     [],
   );
 
-  const [
-    sidebarAnimationType,
-    setSidebarAnimationType,
-  ] = React.useState<SidebarAnimationType>('move_source_message');
+  const [sidebarAnimationType, setSidebarAnimationType] =
+    React.useState<SidebarAnimationType>('move_source_message');
 
   const contextValue = React.useMemo(
     () => ({

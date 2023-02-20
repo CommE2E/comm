@@ -1278,8 +1278,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedImageModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedImageModal(props: BaseProps) {
+const ConnectedImageModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedImageModal(props: BaseProps) {
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const overlayContext = React.useContext(OverlayContext);
     const intentionalSaveMedia = useIntentionalSaveMedia();
@@ -1291,7 +1291,6 @@ const ConnectedImageModal: React.ComponentType<BaseProps> = React.memo<BaseProps
         intentionalSaveMedia={intentionalSaveMedia}
       />
     );
-  },
-);
+  });
 
 export default ConnectedImageModal;

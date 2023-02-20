@@ -182,12 +182,8 @@ class MessageList extends React.PureComponent<Props, State> {
       );
     }
     const messageInfoItem: ChatMessageInfoItemWithHeight = row.item;
-    const {
-      messageListVerticalBounds,
-      focusedMessageKey,
-      navigation,
-      route,
-    } = this.flatListExtraData;
+    const { messageListVerticalBounds, focusedMessageKey, navigation, route } =
+      this.flatListExtraData;
     const focused =
       messageKey(messageInfoItem.messageInfo) === focusedMessageKey;
     return (
@@ -340,8 +336,8 @@ const unboundStyles = {
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedMessageList(props: BaseProps) {
+const ConnectedMessageList: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedMessageList(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
 
@@ -378,7 +374,6 @@ const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo<BaseProp
         keyboardState={keyboardState}
       />
     );
-  },
-);
+  });
 
 export default ConnectedMessageList;
