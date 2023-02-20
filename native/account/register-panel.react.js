@@ -477,7 +477,7 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> = React.memo<BasePr
     ] = React.useState<?string>(null);
     React.useEffect(() => {
       (async () => {
-        await commCoreModule.initializeCryptoAccount('PLACEHOLDER');
+        await commCoreModule.initializeCryptoAccount();
         const { ed25519 } = await commCoreModule.getUserPublicKey();
         setPrimaryIdentityPublicKey(ed25519);
       })();
