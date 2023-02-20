@@ -75,9 +75,7 @@ mkShell {
     cmake
     cmake-format # linting
     libuv
-    # Localstack is currently broken by partial update
-    # See https://github.com/NixOS/nixpkgs/pull/197572
-    #localstack
+    localstack
     pkg-config
     protobuf_3_15_cmake
     grpc
