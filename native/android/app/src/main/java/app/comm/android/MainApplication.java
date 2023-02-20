@@ -34,6 +34,8 @@ public class MainApplication
     System.loadLibrary("comm_jni_module");
   }
 
+  private static Context context;
+
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHostWrapper(this, new ReactNativeHost(this) {
         @Override
@@ -80,6 +82,7 @@ public class MainApplication
     super.onCreate();
     // If you opted-in for the New Architecture, we enable the TurboModule
     // system
+    MainApplication.context = this.getApplicationContext();
     ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
 
     Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
@@ -102,6 +105,10 @@ public class MainApplication
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig);
+  }
+
+  public static Context getMainApplicationContext() {
+    return MainApplication.context;
   }
 
   private void initializeDatabase() {
