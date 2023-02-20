@@ -50,3 +50,6 @@ mkdir -p "$TMP"
 if [[ ! "$PATH" =~ \.cargo/bin ]]; then
   export PATH="$PATH":${HOME}/.cargo/bin
 fi
+
+# For development and local testing, point to localstack
+export AWS_ENDPOINT=http://localhost:4566
