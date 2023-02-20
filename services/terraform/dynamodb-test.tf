@@ -154,3 +154,20 @@ resource "aws_dynamodb_table" "tunnelbroker-messages-test" {
     enabled        = true
   }
 }
+
+resource "aws_dynamodb_table" "feature-flags-test" {
+  name         = "feature-flags-test"
+  hash_key     = "platform"
+  range_key    = "feature"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "platform"
+    type = "S"
+  }
+
+  attribute {
+    name = "feature"
+    type = "S"
+  }
+}
