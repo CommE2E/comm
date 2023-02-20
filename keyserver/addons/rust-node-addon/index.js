@@ -3,24 +3,15 @@
 import invariant from 'invariant';
 import { createRequire } from 'module';
 
+import type { RustNativeBindingAPI } from 'lib/types/rust-binding-types.js';
+
 const { platform, arch } = process;
 
 const importMetaURL = import.meta.url;
 invariant(importMetaURL, 'import.meta.url should be set');
 const require = createRequire(importMetaURL);
 
-type RustAPI = {
-  +registerUser: (
-    userId: string,
-    deviceId: string,
-    username: string,
-    password: string,
-    userPublicKey: string,
-  ) => Promise<string>,
-  +deleteUser: (userId: string) => Promise<boolean>,
-};
-
-async function getRustAPI(): Promise<RustAPI> {
+async function getRustAPI(): Promise<RustNativeBindingAPI> {
   let nativeBinding = null;
   if (platform === 'darwin' && arch === 'x64') {
     // $FlowFixMe
@@ -39,11 +30,10 @@ async function getRustAPI(): Promise<RustAPI> {
   }
 
   if (!nativeBinding) {
-    throw new Error('Failed to load native binding');
+    throw new Error('Failed to load Rust native binding');
   }
 
-  const { registerUser, deleteUser } = nativeBinding;
-  return { registerUser, deleteUser };
+  return nativeBinding.default;
 }
 
 export { getRustAPI };
