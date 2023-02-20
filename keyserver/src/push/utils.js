@@ -4,6 +4,7 @@ import apn from '@parse/node-apn';
 import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
+import webpush from 'web-push';
 
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
@@ -13,6 +14,7 @@ import {
   getFCMPushProfileForCodeVersion,
   getAPNProvider,
   getFCMProvider,
+  ensureWebPushInitialized,
 } from './providers.js';
 import { dbQuery, SQL } from '../database/database.js';
 
@@ -198,9 +200,69 @@ async function getUnreadCounts(
   return usersToUnreadCounts;
 }
 
+type WebPushResult = {
+  +success?: true,
+  +errors?: $ReadOnlyArray<Object>,
+  +invalidTokens?: $ReadOnlyArray<string>,
+};
+async function webPush({
+  notification,
+  deviceTokens,
+}: {
+  +notification: Object,
+  +deviceTokens: $ReadOnlyArray<string>,
+}): Promise<WebPushResult> {
+  await ensureWebPushInitialized();
+  const notificationString = JSON.stringify(notification);
+
+  const promises = [];
+  for (const deviceTokenString of deviceTokens) {
+    const deviceToken: PushSubscriptionJSON = JSON.parse(deviceTokenString);
+    promises.push(
+      (async () => {
+        try {
+          await webpush.sendNotification(deviceToken, notificationString);
+        } catch (error) {
+          return { error };
+        }
+        return {};
+      })(),
+    );
+  }
+
+  const pushResults = await Promise.all(promises);
+
+  const errors = [];
+  const invalidTokens = [];
+  for (let i = 0; i < pushResults.length; i++) {
+    const pushResult = pushResults[i];
+    if (pushResult.error) {
+      errors.push(pushResult.error);
+      if (
+        pushResult.error.statusCode === 404 ||
+        pushResult.error.statusCode === 410
+      ) {
+        invalidTokens.push(deviceTokens[i]);
+      }
+    }
+  }
+
+  const result = {};
+  if (errors.length > 0) {
+    result.errors = errors;
+  } else {
+    result.success = true;
+  }
+  if (invalidTokens.length > 0) {
+    result.invalidTokens = invalidTokens;
+  }
+  return { ...result };
+}
+
 export {
   apnPush,
   fcmPush,
+  webPush,
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
   fcmMaxNotificationPayloadByteSize,
