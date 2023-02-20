@@ -172,4 +172,14 @@ std::string NotificationsCryptoModule::getNotificationsIdentityKeys() {
           path, picklingKey.value());
   return cryptoModule.getIdentityKeys();
 }
+
+void NotificationsCryptoModule::clearSensitiveData() {
+  std::string notificationsCryptoAccountPath =
+      PlatformSpecificTools::getNotificationsCryptoAccountPath();
+  if (remove(notificationsCryptoAccountPath.c_str()) == -1 && errno != ENOENT) {
+    throw std::runtime_error(
+        "Unable to remove notifications crypto account. Security requirements "
+        "might be violated.");
+  }
+}
 } // namespace comm
