@@ -5,7 +5,7 @@ steps:
       - 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
       - 'source /Users/comm/.cargo/env'
       - 'yarn ci-cleaninstall'
-      - 'cd native/ios && xcodebuild -workspace Comm.xcworkspace -scheme Comm -destination generic/platform=iOS -allowProvisioningUpdates'
+      - 'cd native/ios && PATH=/usr/bin:"$PATH" xcodebuild -workspace Comm.xcworkspace -scheme Comm -destination generic/platform=iOS -allowProvisioningUpdates'
     retry:
       automatic: true
     env:
