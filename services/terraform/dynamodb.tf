@@ -222,3 +222,20 @@ resource "aws_dynamodb_table" "identity-nonces" {
     type = "S"
   }
 }
+
+resource "aws_dynamodb_table" "feature-flags" {
+  name         = "feature-flags"
+  hash_key     = "platform"
+  range_key    = "feature"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "platform"
+    type = "S"
+  }
+
+  attribute {
+    name = "feature"
+    type = "S"
+  }
+}
