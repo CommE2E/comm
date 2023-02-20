@@ -137,7 +137,9 @@ function SIWEPanel(props: Props): React.Node {
 
   const handleSIWE = React.useCallback(
     async ({ message, signature }) => {
-      const extraInfo = await logInExtraInfo();
+      const { primaryIdentityPublicKey: publicKey, ...extraInfo } =
+        await logInExtraInfo();
+
       dispatchActionPromise(
         siweAuthActionTypes,
         callSIWE(message, signature, extraInfo),
