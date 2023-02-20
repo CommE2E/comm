@@ -39,6 +39,7 @@ import {
 import {
   createRealThreadFromPendingThread,
   threadIsPending,
+  threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
@@ -131,11 +132,13 @@ type Props = {
     threadID: string,
     localID: string,
     mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
+    sidebarCreation?: boolean,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
+    sidebarCreation?: boolean,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
 };
@@ -150,6 +153,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   activeURIs = new Map();
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
+
+  // When the user sends a multimedia message that triggers the creation of a
+  // sidebar, the sidebar gets created right away, but the message needs to wait
+  // for the uploads to complete before sending. We use this Set to track the
+  // message localIDs that need sidebarCreation: true.
+  pendingSidebarCreationMessageLocalIDs = new Set<string>();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads = {};
@@ -332,6 +341,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       localID !== null && localID !== undefined,
       'localID should be set',
     );
+    const sidebarCreation =
+      this.pendingSidebarCreationMessageLocalIDs.has(localID);
     const mediaMessageContents = getMediaMessageServerDBContentsFromMedia(
       messageInfo.media,
     );
@@ -340,7 +351,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         threadID,
         localID,
         mediaMessageContents,
+        sidebarCreation,
       );
+      this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return {
         localID,
         serverID: result.id,
@@ -389,6 +402,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadInfo: ThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
+
+    const { localID } = messageInfo;
+    invariant(
+      localID !== null && localID !== undefined,
+      'localID should be set',
+    );
+    if (threadIsPendingSidebar(threadInfo.id)) {
+      this.pendingSidebarCreationMessageLocalIDs.add(localID);
+    }
 
     if (!threadIsPending(threadInfo.id)) {
       this.props.dispatchActionPromise(
@@ -464,11 +486,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         localID !== null && localID !== undefined,
         'localID should be set',
       );
+      const sidebarCreation =
+        this.pendingSidebarCreationMessageLocalIDs.has(localID);
       const result = await this.props.sendTextMessage(
         messageInfo.threadID,
         localID,
         messageInfo.text,
+        sidebarCreation,
       );
+      this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return {
         localID,
         serverID: result.id,
@@ -491,6 +517,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.sendCallbacks.forEach(callback => callback());
     const localMessageID = `${localIDPrefix}${this.props.nextLocalID}`;
     this.startThreadCreation(threadInfo);
+
+    if (threadIsPendingSidebar(threadInfo.id)) {
+      this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
+    }
 
     const uploadFileInputs = [],
       media = [];
@@ -1072,6 +1102,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const now = Date.now();
 
     this.startThreadCreation(threadInfo);
+
+    if (threadIsPendingSidebar(threadInfo.id)) {
+      this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
+    }
 
     const updateMedia = <T: Media>(media: $ReadOnlyArray<T>): T[] =>
       media.map(singleMedia => {
