@@ -112,6 +112,7 @@ file(GLOB DB_ENTITIES_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/entities
 file(GLOB_RECURSE MODULE_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/**/*.cpp")
 file(GLOB MODULE_ROOT_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/*.cpp")
 file(GLOB TOOLS_NATIVE_CODE "../../cpp/CommonCpp/Tools/*.cpp")
+file(GLOB NOTIFICATIONS_NATIVE_CODE "../../cpp/CommonCpp/Notifications/**/*.cpp")
 
 add_library(
   # Sets the name of the library
@@ -139,6 +140,7 @@ add_library(
   ${MODULE_NATIVE_CODE}
   ${MODULE_ROOT_NATIVE_CODE}
   ${TOOLS_NATIVE_CODE}
+  ${NOTIFICATIONS_NATIVE_CODE}
 )
 
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
@@ -177,6 +179,8 @@ target_include_directories(
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
+  ../../cpp/CommonCpp/Notifications
+  ../../cpp/CommonCpp/Notifications/BackgroundDataStorage
 
   # native rust library
   ${native_rust_library_include_dir}
