@@ -154,4 +154,22 @@ void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
       picklingKey,
       callingProcessName);
 }
+
+std::string NotificationsCryptoModule::getNotificationsIdentityKeys() {
+  CommSecureStore secureStore{};
+  folly::Optional<std::string> picklingKey = secureStore.get(
+      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
+  if (!picklingKey.hasValue()) {
+    throw std::runtime_error(
+        "Attempt to retrieve notifications crypto account before it was "
+        "correctly initialized.");
+  }
+
+  const std::string path =
+      PlatformSpecificTools::getNotificationsCryptoAccountPath();
+  crypto::CryptoModule cryptoModule =
+      NotificationsCryptoModule::deserializeCryptoModule(
+          path, picklingKey.value());
+  return cryptoModule.getIdentityKeys();
+}
 } // namespace comm
