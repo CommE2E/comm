@@ -11,9 +11,9 @@
     "rsync": "rsync -rLpmuv --exclude '*/package.json' --exclude '*/node_modules/*' --include '*.json' --include '*.cjs' --include '*.node' --exclude '*.*' src/ dist/",
     "prod-build": "yarn babel-build && yarn rsync && yarn update-geoip",
     "update-geoip": "yarn script dist/scripts/update-geoip.js",
-    "prod": "node --trace-warnings --loader=./loader.mjs dist/keyserver",
+    "prod": "yarn workspace rust-node-addon build && node --trace-warnings --loader=./loader.mjs dist/keyserver",
     "dev-rsync": "yarn --silent chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'yarn rsync > /dev/null 2>&1'",
-    "dev": ". bash/source-nvm.sh && yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build --source-maps --watch\" \"yarn dev-rsync\" \". bash/source-nvm.sh && NODE_ENV=development nodemon -e js,json,cjs --watch dist --loader=./loader.mjs dist/keyserver\"",
+    "dev": "yarn workspace rust-node-addon build:debug && . bash/source-nvm.sh && yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build --source-maps --watch\" \"yarn dev-rsync\" \". bash/source-nvm.sh && NODE_ENV=development nodemon -e js,json,cjs --watch dist --loader=./loader.mjs dist/keyserver\"",
     "script": ". bash/source-nvm.sh && NODE_ENV=development node --loader=./loader.mjs",
     "test": "jest"
   },
