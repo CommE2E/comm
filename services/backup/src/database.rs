@@ -1,12 +1,7 @@
-use aws_sdk_dynamodb::{
-  model::AttributeValue, output::GetItemOutput, Error as DynamoDBError,
-};
+use aws_sdk_dynamodb::{model::AttributeValue, output::GetItemOutput};
 use chrono::{DateTime, Utc};
-use std::{
-  collections::HashMap,
-  fmt::{Display, Formatter},
-  sync::Arc,
-};
+use comm_services_lib::database::{self, DBItemError, Error};
+use std::{collections::HashMap, sync::Arc};
 use tracing::error;
 
 use crate::constants::{
@@ -391,137 +386,30 @@ impl DatabaseClient {
   }
 }
 
-#[derive(
-  Debug, derive_more::Display, derive_more::From, derive_more::Error,
-)]
-pub enum Error {
-  #[display(...)]
-  AwsSdk(DynamoDBError),
-  #[display(...)]
-  Attribute(DBItemError),
-}
-
-#[derive(Debug, derive_more::Error, derive_more::Constructor)]
-pub struct DBItemError {
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-  attribute_error: DBItemAttributeError,
-}
-
-impl Display for DBItemError {
-  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    match &self.attribute_error {
-      DBItemAttributeError::Missing => {
-        write!(f, "Attribute {} is missing", self.attribute_name)
-      }
-      DBItemAttributeError::IncorrectType => write!(
-        f,
-        "Value for attribute {} has incorrect type: {:?}",
-        self.attribute_name, self.attribute_value
-      ),
-      error => write!(
-        f,
-        "Error regarding attribute {} with value {:?}: {}",
-        self.attribute_name, self.attribute_value, error
-      ),
-    }
-  }
-}
-
-#[derive(Debug, derive_more::Display, derive_more::Error)]
-pub enum DBItemAttributeError {
-  #[display(...)]
-  Missing,
-  #[display(...)]
-  IncorrectType,
-  #[display(...)]
-  InvalidTimestamp(chrono::ParseError),
-}
-
-fn parse_string_attribute(
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<String, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::S(value)) => Ok(value),
-    Some(_) => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::Missing,
-    )),
-  }
-}
-
-fn parse_bool_attribute(
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<bool, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::Bool(value)) => Ok(value),
-    Some(_) => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::Missing,
-    )),
-  }
-}
-
-fn parse_datetime_attribute(
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<DateTime<Utc>, DBItemError> {
-  if let Some(AttributeValue::S(datetime)) = &attribute_value {
-    // parse() accepts a relaxed RFC3339 string
-    datetime.parse().map_err(|e| {
-      DBItemError::new(
-        attribute_name,
-        attribute_value,
-        DBItemAttributeError::InvalidTimestamp(e),
-      )
-    })
-  } else {
-    Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::Missing,
-    ))
-  }
-}
-
 fn parse_backup_item(
   mut item: HashMap<String, AttributeValue>,
 ) -> Result<BackupItem, DBItemError> {
-  let user_id = parse_string_attribute(
+  let user_id = database::parse_string_attribute(
     BACKUP_TABLE_FIELD_USER_ID,
     item.remove(BACKUP_TABLE_FIELD_USER_ID),
   )?;
-  let backup_id = parse_string_attribute(
+  let backup_id = database::parse_string_attribute(
     BACKUP_TABLE_FIELD_BACKUP_ID,
     item.remove(BACKUP_TABLE_FIELD_BACKUP_ID),
   )?;
-  let created = parse_datetime_attribute(
+  let created = database::parse_datetime_attribute(
     BACKUP_TABLE_FIELD_CREATED,
     item.remove(BACKUP_TABLE_FIELD_CREATED),
   )?;
-  let recovery_data = parse_string_attribute(
+  let recovery_data = database::parse_string_attribute(
     BACKUP_TABLE_FIELD_RECOVERY_DATA,
     item.remove(BACKUP_TABLE_FIELD_RECOVERY_DATA),
   )?;
-  let compaction_holder = parse_string_attribute(
+  let compaction_holder = database::parse_string_attribute(
     BACKUP_TABLE_FIELD_COMPACTION_HOLDER,
     item.remove(BACKUP_TABLE_FIELD_COMPACTION_HOLDER),
   )?;
-  let attachment_holders = parse_string_attribute(
+  let attachment_holders = database::parse_string_attribute(
     BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS,
     item.remove(BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS),
   )?;
@@ -538,27 +426,27 @@ fn parse_backup_item(
 fn parse_log_item(
   mut item: HashMap<String, AttributeValue>,
 ) -> Result<LogItem, DBItemError> {
-  let backup_id = parse_string_attribute(
+  let backup_id = database::parse_string_attribute(
     LOG_TABLE_FIELD_BACKUP_ID,
     item.remove(LOG_TABLE_FIELD_BACKUP_ID),
   )?;
-  let log_id = parse_string_attribute(
+  let log_id = database::parse_string_attribute(
     LOG_TABLE_FIELD_LOG_ID,
     item.remove(LOG_TABLE_FIELD_LOG_ID),
   )?;
-  let persisted_in_blob = parse_bool_attribute(
+  let persisted_in_blob = database::parse_bool_attribute(
     LOG_TABLE_FIELD_PERSISTED_IN_BLOB,
     item.remove(LOG_TABLE_FIELD_PERSISTED_IN_BLOB),
   )?;
-  let value = parse_string_attribute(
+  let value = database::parse_string_attribute(
     LOG_TABLE_FIELD_VALUE,
     item.remove(LOG_TABLE_FIELD_VALUE),
   )?;
-  let data_hash = parse_string_attribute(
+  let data_hash = database::parse_string_attribute(
     LOG_TABLE_FIELD_DATA_HASH,
     item.remove(LOG_TABLE_FIELD_DATA_HASH),
   )?;
-  let attachment_holders = parse_string_attribute(
+  let attachment_holders = database::parse_string_attribute(
     LOG_TABLE_FIELD_ATTACHMENT_HOLDERS,
     item.remove(LOG_TABLE_FIELD_ATTACHMENT_HOLDERS),
   )?;

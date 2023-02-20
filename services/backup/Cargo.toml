@@ -14,7 +14,7 @@ aws-sdk-dynamodb = "0.21.0"
 aws-types = "0.51.0"
 chrono = "0.4"
 clap = { version = "4.0", features = ["derive", "env"] }
-derive_more = "0.99"
+comm-services-lib = { path = "../comm-services-lib" }
 once_cell = "1.17"
 prost = "0.11"
 rand = "0.8.5"

@@ -16,6 +16,7 @@ RUN cargo init --bin
 
 # Cache build dependencies in a new layer
 COPY services/backup/Cargo.toml services/backup/Cargo.lock ./
+COPY services/comm-services-lib ../comm-services-lib
 RUN cargo build --release && rm src/*.rs 
 
 # Copy actual application sources

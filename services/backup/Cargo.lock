@@ -407,7 +407,7 @@ dependencies = [
  "aws-types",
  "chrono",
  "clap",
- "derive_more",
+ "comm-services-lib",
  "once_cell",
  "prost",
  "rand",
@@ -527,6 +527,17 @@ checksum = "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
 dependencies = [
  "termcolor",
  "unicode-width",
+]
+
+[[package]]
+name = "comm-services-lib"
+version = "0.1.0"
+dependencies = [
+ "aws-config",
+ "aws-sdk-dynamodb",
+ "aws-types",
+ "chrono",
+ "derive_more",
 ]
 
 [[package]]

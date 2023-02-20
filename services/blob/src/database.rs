@@ -2,6 +2,7 @@ use aws_sdk_dynamodb::{
   model::AttributeValue, output::GetItemOutput, Error as DynamoDBError,
 };
 use chrono::{DateTime, Utc};
+use comm_services_lib::database::{self, DBItemError};
 use std::{
   collections::HashMap,
   fmt::{Display, Formatter},
@@ -101,15 +102,15 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       } => {
-        let blob_hash = parse_string_attribute(
+        let blob_hash = database::parse_string_attribute(
           BLOB_TABLE_BLOB_HASH_FIELD,
           item.remove(BLOB_TABLE_BLOB_HASH_FIELD),
         )?;
-        let s3_path = parse_string_attribute(
+        let s3_path = database::parse_string_attribute(
           BLOB_TABLE_S3_PATH_FIELD,
           item.remove(BLOB_TABLE_S3_PATH_FIELD),
         )?;
-        let created = parse_datetime_attribute(
+        let created = database::parse_datetime_attribute(
           BLOB_TABLE_CREATED_FIELD,
           item.remove(BLOB_TABLE_CREATED_FIELD),
         )?;
@@ -206,11 +207,11 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       } => {
-        let holder = parse_string_attribute(
+        let holder = database::parse_string_attribute(
           BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD,
           item.remove(BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD),
         )?;
-        let blob_hash = parse_string_attribute(
+        let blob_hash = database::parse_string_attribute(
           BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD,
           item.remove(BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD),
         )?;
@@ -253,11 +254,11 @@ impl DatabaseClient {
     let mut results: Vec<ReverseIndexItem> =
       Vec::with_capacity(response.count() as usize);
     for mut item in response.items.unwrap_or_default() {
-      let holder = parse_string_attribute(
+      let holder = database::parse_string_attribute(
         BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD,
         item.remove(BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD),
       )?;
-      let blob_hash = parse_string_attribute(
+      let blob_hash = database::parse_string_attribute(
         BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD,
         item.remove(BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD),
       )?;
@@ -321,81 +322,3 @@ impl Display for BlobDBError {
 }
 
 impl std::error::Error for BlobDBError {}
-
-#[derive(Debug, derive_more::Error, derive_more::Constructor)]
-pub struct DBItemError {
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-  attribute_error: DBItemAttributeError,
-}
-
-impl Display for DBItemError {
-  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    match &self.attribute_error {
-      DBItemAttributeError::Missing => {
-        write!(f, "Attribute {} is missing", self.attribute_name)
-      }
-      DBItemAttributeError::IncorrectType => write!(
-        f,
-        "Value for attribute {} has incorrect type: {:?}",
-        self.attribute_name, self.attribute_value
-      ),
-      error => write!(
-        f,
-        "Error regarding attribute {} with value {:?}: {}",
-        self.attribute_name, self.attribute_value, error
-      ),
-    }
-  }
-}
-
-#[derive(Debug, derive_more::Display, derive_more::Error)]
-pub enum DBItemAttributeError {
-  #[display(...)]
-  Missing,
-  #[display(...)]
-  IncorrectType,
-  #[display(...)]
-  InvalidTimestamp(chrono::ParseError),
-}
-
-fn parse_string_attribute(
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<String, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::S(value)) => Ok(value),
-    Some(_) => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::Missing,
-    )),
-  }
-}
-
-fn parse_datetime_attribute(
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<DateTime<Utc>, DBItemError> {
-  if let Some(AttributeValue::S(datetime)) = &attribute_value {
-    // parse() accepts a relaxed RFC3339 string
-    datetime.parse().map_err(|e| {
-      DBItemError::new(
-        attribute_name,
-        attribute_value,
-        DBItemAttributeError::InvalidTimestamp(e),
-      )
-    })
-  } else {
-    Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::Missing,
-    ))
-  }
-}
