@@ -24,6 +24,13 @@ public:
     }
     return result;
   }
+
+  static std::string getNotificationsCryptoAccountPath() {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JString()>("getNotificationsCryptoAccountPath");
+    return method(cls)->toStdString();
+  }
 };
 
 namespace comm {
@@ -38,6 +45,14 @@ void PlatformSpecificTools::generateSecureRandomBytes(
 
 std::string PlatformSpecificTools::getDeviceOS() {
   return std::string{"android"};
+}
+
+std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
+  std::string path;
+  NativeAndroidAccessProvider::runTask([&path]() {
+    path = PlatformSpecificToolsJavaClass::getNotificationsCryptoAccountPath();
+  });
+  return path;
 }
 
 } // namespace comm

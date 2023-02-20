@@ -23,4 +23,18 @@ std::string PlatformSpecificTools::getDeviceOS() {
   return std::string{"ios"};
 }
 
+std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
+  NSURL *groupUrl = [NSFileManager.defaultManager
+      containerURLForSecurityApplicationGroupIdentifier:@"group.app.comm"];
+  if (groupUrl == nil) {
+    throw std::runtime_error(
+        "Failed to resolve notifications crypto account path - could not find "
+        "groupUrl");
+  }
+  return std::string(
+      [[groupUrl
+           URLByAppendingPathComponent:@"comm_notifications_crypto_account"]
+              .path UTF8String]);
+}
+
 }; // namespace comm
