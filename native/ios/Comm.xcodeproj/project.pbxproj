@@ -182,6 +182,7 @@
 		B7906F6C27209091009BBBF5 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		B7E937CA26F448E700022A7C /* Media.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
+		CB24361629A397AB00FEC4E1 /* NotificationsCryptoModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationsCryptoModule.h; path = Notifications/BackgroundDataStorage/NotificationsCryptoModule.h; sourceTree = "<group>"; };
 		CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
 		CB38B4792877179A00171182 /* NonBlockingLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NonBlockingLock.h; path = Comm/TemporaryMessageStorage/NonBlockingLock.h; sourceTree = "<group>"; };
 		CB38B47B287718A200171182 /* NonBlockingLock.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NonBlockingLock.mm; path = Comm/TemporaryMessageStorage/NonBlockingLock.mm; sourceTree = "<group>"; };
@@ -330,6 +331,7 @@
 		71BE84372636A944002849D2 /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
+				CB24361429A3978800FEC4E1 /* Notifications */,
 				71F971B4270726C000DDC5BF /* _generated */,
 				71BF5B6A26B3FCFF00EDE27D /* CryptoTools */,
 				71BE84382636A944002849D2 /* Tools */,
@@ -511,6 +513,22 @@
 				5F5A6FB2C6AD630620BBF58C /* NotificationService */,
 			);
 			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		CB24361429A3978800FEC4E1 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				CB24361529A3979500FEC4E1 /* BackgroundDataStorage */,
+			);
+			name = Notifications;
+			sourceTree = "<group>";
+		};
+		CB24361529A3979500FEC4E1 /* BackgroundDataStorage */ = {
+			isa = PBXGroup;
+			children = (
+				CB24361629A397AB00FEC4E1 /* NotificationsCryptoModule.h */,
+			);
+			name = BackgroundDataStorage;
 			sourceTree = "<group>";
 		};
 		CB38B4782877177B00171182 /* TemporaryMessageStorage */ = {
