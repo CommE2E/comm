@@ -208,6 +208,7 @@ type ChatSettingsItem =
       +key: string,
       +threadInfo: ThreadInfo,
       +limit: number,
+      +verticalBounds: ?VerticalBounds,
     }
   | {
       +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
@@ -635,7 +636,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   mediaGalleryListDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.threadInfo,
-    (threadInfo: ThreadInfo) => {
+    (propsAndState: PropsAndState) => propsAndState.verticalBounds,
+    (threadInfo: ThreadInfo, verticalBounds: ?VerticalBounds) => {
       const listData: ChatSettingsItem[] = [];
       const limit = 6;
 
@@ -652,6 +654,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         key: 'mediaGallery',
         threadInfo,
         limit,
+        verticalBounds,
       });
 
       listData.push({
@@ -953,6 +956,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         <ThreadSettingsMediaGallery
           threadID={item.threadInfo.id}
           limit={item.limit}
+          verticalBounds={item.verticalBounds}
         />
       );
     } else if (item.itemType === 'leaveThread') {
