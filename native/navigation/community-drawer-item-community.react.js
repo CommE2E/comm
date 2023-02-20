@@ -39,7 +39,6 @@ const unboundStyles = {
   },
 };
 
-const MemoizedCommunityDrawerItemCommunity: React.ComponentType<DrawerItemProps> = React.memo(
-  CommunityDrawerItemCommunity,
-);
+const MemoizedCommunityDrawerItemCommunity: React.ComponentType<DrawerItemProps> =
+  React.memo(CommunityDrawerItemCommunity);
 export default MemoizedCommunityDrawerItemCommunity;

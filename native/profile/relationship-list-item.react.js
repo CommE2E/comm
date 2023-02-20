@@ -312,8 +312,10 @@ const unboundStyles = {
   },
 };
 
-const ConnectedRelationshipListItem: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedRelationshipListItem(props: BaseProps) {
+const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedRelationshipListItem(
+    props: BaseProps,
+  ) {
     const removeUserLoadingStatus = useSelector(state =>
       createLoadingStatusSelector(
         updateRelationshipsActionTypes,
@@ -338,7 +340,6 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> = React.memo
         keyboardState={keyboardState}
       />
     );
-  },
-);
+  });
 
 export default ConnectedRelationshipListItem;

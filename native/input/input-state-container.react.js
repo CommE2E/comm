@@ -800,10 +800,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const { uploadThumbnailURI } = processedMedia;
       cleanupPromises.push(
         (async () => {
-          const {
-            steps: clearSteps,
-            result: thumbnailPath,
-          } = await this.waitForCaptureURIUnload(uploadThumbnailURI);
+          const { steps: clearSteps, result: thumbnailPath } =
+            await this.waitForCaptureURIUnload(uploadThumbnailURI);
           steps.push(...clearSteps);
           if (!thumbnailPath) {
             return;
@@ -825,10 +823,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const captureURI = selection.uri;
       cleanupPromises.push(
         (async () => {
-          const {
-            steps: clearSteps,
-            result: capturePath,
-          } = await this.waitForCaptureURIUnload(captureURI);
+          const { steps: clearSteps, result: capturePath } =
+            await this.waitForCaptureURIUnload(captureURI);
           steps.push(...clearSteps);
           if (!capturePath) {
             return;
@@ -1379,8 +1375,10 @@ const textCreationLoadingStatusSelector = createLoadingStatusSelector(
   sendTextMessageActionTypes,
 );
 
-const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedInputStateContainer(props: BaseProps) {
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedInputStateContainer(
+    props: BaseProps,
+  ) {
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
@@ -1425,7 +1423,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
         staffCanSee={staffCanSee}
       />
     );
-  },
-);
+  });
 
 export default ConnectedInputStateContainer;

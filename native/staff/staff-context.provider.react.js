@@ -9,10 +9,8 @@ type Props = {
   +children: React.Node,
 };
 function StaffContextProvider(props: Props): React.Node {
-  const [
-    staffUserHasBeenLoggedIn,
-    setStaffUserHasBeenLoggedIn,
-  ] = React.useState(false);
+  const [staffUserHasBeenLoggedIn, setStaffUserHasBeenLoggedIn] =
+    React.useState(false);
 
   const isCurrentUserStaff = useIsCurrentUserStaff();
 

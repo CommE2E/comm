@@ -47,21 +47,19 @@ class MultimediaModal extends React.PureComponent<Props> {
     this.overlay = overlay;
   };
 
-  onBackgroundClick: (
-    event: SyntheticEvent<HTMLDivElement>,
-  ) => void = event => {
-    if (event.target === this.overlay) {
-      this.props.popModal();
-    }
-  };
+  onBackgroundClick: (event: SyntheticEvent<HTMLDivElement>) => void =
+    event => {
+      if (event.target === this.overlay) {
+        this.props.popModal();
+      }
+    };
 
-  onKeyDown: (
-    event: SyntheticKeyboardEvent<HTMLDivElement>,
-  ) => void = event => {
-    if (event.key === 'Escape') {
-      this.props.popModal();
-    }
-  };
+  onKeyDown: (event: SyntheticKeyboardEvent<HTMLDivElement>) => void =
+    event => {
+      if (event.key === 'Escape') {
+        this.props.popModal();
+      }
+    };
 }
 
 function ConnectedMultiMediaModal(props: BaseProps): React.Node {

@@ -83,12 +83,11 @@ const unboundStyles = {
   },
 };
 
-const ConnectedUserListUser: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedUserListUser(props: BaseProps) {
+const ConnectedUserListUser: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedUserListUser(props: BaseProps) {
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     return <UserListUser {...props} colors={colors} styles={styles} />;
-  },
-);
+  });
 
 export { ConnectedUserListUser as UserListUser, getUserListItemHeight };

@@ -159,9 +159,8 @@ function RelationshipList(props: Props): React.Node {
   const keyboardNotShowing = !!(
     keyboardState && !keyboardState.keyboardShowing
   );
-  const [verticalBounds, setVerticalBounds] = React.useState<?VerticalBounds>(
-    null,
-  );
+  const [verticalBounds, setVerticalBounds] =
+    React.useState<?VerticalBounds>(null);
   const onFlatListContainerLayout = React.useCallback(() => {
     if (!flatListContainerRef.current) {
       return;
@@ -489,9 +488,8 @@ const unboundStyles = {
 registerFetchKey(searchUsersActionTypes);
 registerFetchKey(updateRelationshipsActionTypes);
 
-const MemoizedRelationshipList: React.ComponentType<Props> = React.memo<Props>(
-  RelationshipList,
-);
+const MemoizedRelationshipList: React.ComponentType<Props> =
+  React.memo<Props>(RelationshipList);
 MemoizedRelationshipList.displayName = 'RelationshipList';
 
 export default MemoizedRelationshipList;

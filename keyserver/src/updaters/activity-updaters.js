@@ -138,13 +138,11 @@ async function activityUpdater(
       unfocusedLatestMessages.set(threadID, newLastReadMessage ?? 0);
     }
   }
-  const [
-    unfocusedThreadsWithNewerMessages,
-    lastMessageInfos,
-  ] = await Promise.all([
-    checkForNewerMessages(viewer, unfocusedLatestMessages),
-    fetchLastMessageInfo(viewer, [...memberThreadIDs]),
-  ]);
+  const [unfocusedThreadsWithNewerMessages, lastMessageInfos] =
+    await Promise.all([
+      checkForNewerMessages(viewer, unfocusedLatestMessages),
+      fetchLastMessageInfo(viewer, [...memberThreadIDs]),
+    ]);
 
   const threadStatuses: ThreadStatus[] = [];
   for (const partialThreadStatus of memberPartialThreadStatuses) {
@@ -155,10 +153,8 @@ async function activityUpdater(
       lastMessageInfo !== undefined,
       `no lastMessageInfo for thread ID ${threadID}`,
     );
-    const {
-      lastMessage,
-      lastReadMessage: curLastReadMessage,
-    } = lastMessageInfo;
+    const { lastMessage, lastReadMessage: curLastReadMessage } =
+      lastMessageInfo;
 
     if (focusActive) {
       threadStatuses.push({
@@ -179,9 +175,8 @@ async function activityUpdater(
         rescindCondition: newLastReadMessage
           ? SQL`(n.thread = ${threadID} AND n.message <= ${newLastReadMessage})`
           : null,
-        newerMessageFromOtherAuthor: unfocusedThreadsWithNewerMessages.has(
-          threadID,
-        ),
+        newerMessageFromOtherAuthor:
+          unfocusedThreadsWithNewerMessages.has(threadID),
       });
     }
   }

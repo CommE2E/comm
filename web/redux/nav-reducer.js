@@ -23,9 +23,8 @@ export default function reduceNavInfo(
 
   const { activeChatThreadID } = state;
   if (activeChatThreadID) {
-    const pendingToRealizedThreadIDs = pendingToRealizedThreadIDsSelector(
-      newThreadInfos,
-    );
+    const pendingToRealizedThreadIDs =
+      pendingToRealizedThreadIDsSelector(newThreadInfos);
     const realizedThreadID = pendingToRealizedThreadIDs.get(activeChatThreadID);
     if (realizedThreadID) {
       state = {

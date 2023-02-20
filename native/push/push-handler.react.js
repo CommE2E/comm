@@ -124,7 +124,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
     this.onForeground();
     if (Platform.OS === 'ios') {
-      const commIOSNotificationsEventEmitter = getCommIOSNotificationsEventEmitter();
+      const commIOSNotificationsEventEmitter =
+        getCommIOSNotificationsEventEmitter();
       this.iosNotificationEventSubscriptions.push(
         commIOSNotificationsEventEmitter.addListener(
           'remoteNotificationsRegistered',
@@ -151,7 +152,8 @@ class PushHandler extends React.PureComponent<Props, State> {
         CommAndroidNotifications.getConstants().NOTIFICATIONS_IMPORTANCE_HIGH,
         'Comm notifications channel',
       );
-      const commAndroidNotificationsEventEmitter = getCommAndroidNotificationsEventEmitter();
+      const commAndroidNotificationsEventEmitter =
+        getCommAndroidNotificationsEventEmitter();
       this.androidNotificationsEventSubscriptions.push(
         commAndroidNotificationsEventEmitter.addListener(
           'commAndroidNotificationsToken',
@@ -344,7 +346,8 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     this.initialAndroidNotifHandled = true;
-    const initialNotif = await CommAndroidNotifications.getInitialNotification();
+    const initialNotif =
+      await CommAndroidNotifications.getInitialNotification();
     if (initialNotif) {
       await this.androidNotificationOpened(initialNotif);
     }
@@ -434,9 +437,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (!messageInfosString) {
       return;
     }
-    const rawMessageInfos: $ReadOnlyArray<RawMessageInfo> = JSON.parse(
-      messageInfosString,
-    );
+    const rawMessageInfos: $ReadOnlyArray<RawMessageInfo> =
+      JSON.parse(messageInfosString);
     const { updatesCurrentAsOf } = this.props;
     this.props.dispatch({
       type: saveMessagesActionType,
@@ -569,8 +571,8 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedPushHandler(props: BaseProps) {
+const ConnectedPushHandler: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedPushHandler(props: BaseProps) {
     const navContext = React.useContext(NavContext);
     const activeThread = activeMessageListSelector(navContext);
     const boundUnreadCount = useSelector(unreadCount);
@@ -607,7 +609,6 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo<BaseProp
         rootContext={rootContext}
       />
     );
-  },
-);
+  });
 
 export default ConnectedPushHandler;

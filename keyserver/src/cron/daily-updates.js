@@ -48,10 +48,8 @@ async function createDailyUpdatesThread() {
 
   // Figure out which day the dev sync is on
   let devSyncDay = 1; // default to Monday
-  const entryInfosInDevSyncScheduleThreadThisWeek = await fetchEntryInfosForThreadThisWeek(
-    viewer,
-    weeklyDevSyncScheduleThread,
-  );
+  const entryInfosInDevSyncScheduleThreadThisWeek =
+    await fetchEntryInfosForThreadThisWeek(viewer, weeklyDevSyncScheduleThread);
   for (const entryInfo of entryInfosInDevSyncScheduleThreadThisWeek) {
     const entryInfoDate = getDate(
       entryInfo.year,

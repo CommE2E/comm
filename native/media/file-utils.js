@@ -61,10 +61,8 @@ async function fetchFileInfo(
   const inputPath = pathFromURI(inputURI);
   if (mediaNativeID && (!inputPath || optionalFields.orientation)) {
     assetInfoPromise = (async () => {
-      const {
-        steps: assetInfoSteps,
-        result: assetInfoResult,
-      } = await fetchAssetInfo(mediaNativeID);
+      const { steps: assetInfoSteps, result: assetInfoResult } =
+        await fetchAssetInfo(mediaNativeID);
       steps.push(...assetInfoSteps);
       newLocalURI = assetInfoResult.localURI;
       return assetInfoResult;
@@ -128,10 +126,8 @@ async function fetchFileInfo(
     if (!optionalFields.mediaType || !mime || !baseMediaType) {
       return { mime, mediaType: null };
     }
-    const {
-      steps: getMediaTypeSteps,
-      result: mediaType,
-    } = await getMediaTypeInfo(path, mime, baseMediaType);
+    const { steps: getMediaTypeSteps, result: mediaType } =
+      await getMediaTypeInfo(path, mime, baseMediaType);
     steps.push(...getMediaTypeSteps);
     return { mime, mediaType };
   })();
@@ -175,9 +171,7 @@ async function fetchFileInfo(
   };
 }
 
-async function fetchAssetInfo(
-  mediaNativeID: string,
-): Promise<{
+async function fetchAssetInfo(mediaNativeID: string): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: { localURI: ?string, orientation: ?number },
 }> {
@@ -216,9 +210,7 @@ async function fetchAssetInfo(
   };
 }
 
-async function fetchFileSize(
-  uri: string,
-): Promise<{
+async function fetchFileSize(uri: string): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: ?number,
 }> {

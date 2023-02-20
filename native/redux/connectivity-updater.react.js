@@ -35,8 +35,9 @@ export default function ConnectivityUpdater(): null {
     NetInfo.fetch().then(onConnectionChange);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  React.useEffect(() => NetInfo.addEventListener(onConnectionChange), [
-    onConnectionChange,
-  ]);
+  React.useEffect(
+    () => NetInfo.addEventListener(onConnectionChange),
+    [onConnectionChange],
+  );
   return null;
 }

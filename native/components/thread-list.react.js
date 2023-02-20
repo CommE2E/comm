@@ -137,15 +137,14 @@ const unboundStyles = {
   },
 };
 
-const ConnectedThreadList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadList(props: BaseProps) {
+const ConnectedThreadList: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadList(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useIndicatorStyle();
 
     return (
       <ThreadList {...props} styles={styles} indicatorStyle={indicatorStyle} />
     );
-  },
-);
+  });
 
 export default ConnectedThreadList;

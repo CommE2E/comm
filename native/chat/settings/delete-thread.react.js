@@ -223,8 +223,8 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
 );
 
-const ConnectedDeleteThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedDeleteThread(props: BaseProps) {
+const ConnectedDeleteThread: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedDeleteThread(props: BaseProps) {
     const threadID = props.route.params.threadInfo.id;
     const reduxThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
@@ -265,7 +265,6 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> = React.memo<BasePro
         navDispatch={navDispatch}
       />
     );
-  },
-);
+  });
 
 export default ConnectedDeleteThread;

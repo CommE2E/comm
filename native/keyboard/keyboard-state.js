@@ -15,8 +15,7 @@ export type KeyboardState = {
   +getMediaGalleryThread: () => ?ThreadInfo,
 };
 
-const KeyboardContext: React.Context<?KeyboardState> = React.createContext<?KeyboardState>(
-  null,
-);
+const KeyboardContext: React.Context<?KeyboardState> =
+  React.createContext<?KeyboardState>(null);
 
 export { KeyboardContext };

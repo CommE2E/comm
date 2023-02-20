@@ -39,26 +39,28 @@ const webGetClientResponsesSelector: (
   getClientResponsesSelector,
   (state: AppState) => state.navInfo.tab === 'calendar',
   (
-    getClientResponsesFunc: (
+      getClientResponsesFunc: (
+        calendarActive: boolean,
+        oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+        serverRequests: $ReadOnlyArray<ClientServerRequest>,
+      ) => $ReadOnlyArray<ClientClientResponse>,
       calendarActive: boolean,
-      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-      serverRequests: $ReadOnlyArray<ClientServerRequest>,
-    ) => $ReadOnlyArray<ClientClientResponse>,
-    calendarActive: boolean,
-  ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
-    getClientResponsesFunc(calendarActive, null, serverRequests),
+    ) =>
+    (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
+      getClientResponsesFunc(calendarActive, null, serverRequests),
 );
 
-const webSessionStateFuncSelector: (
-  state: AppState,
-) => () => SessionState = createSelector(
-  sessionStateFuncSelector,
-  (state: AppState) => state.navInfo.tab === 'calendar',
-  (
-    sessionStateFunc: (calendarActive: boolean) => SessionState,
-    calendarActive: boolean,
-  ) => () => sessionStateFunc(calendarActive),
-);
+const webSessionStateFuncSelector: (state: AppState) => () => SessionState =
+  createSelector(
+    sessionStateFuncSelector,
+    (state: AppState) => state.navInfo.tab === 'calendar',
+    (
+        sessionStateFunc: (calendarActive: boolean) => SessionState,
+        calendarActive: boolean,
+      ) =>
+      () =>
+        sessionStateFunc(calendarActive),
+  );
 
 export {
   openSocketSelector,

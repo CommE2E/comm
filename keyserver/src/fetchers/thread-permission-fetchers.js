@@ -275,15 +275,12 @@ async function validateCandidateMembers(
     return results;
   })();
 
-  const [
-    fetchedMembers,
-    parentPermissions,
-    memberOfContainingThread,
-  ] = await Promise.all([
-    fetchMembersPromise,
-    parentPermissionsPromise,
-    memberOfContainingThreadPromise,
-  ]);
+  const [fetchedMembers, parentPermissions, memberOfContainingThread] =
+    await Promise.all([
+      fetchMembersPromise,
+      parentPermissionsPromise,
+      memberOfContainingThreadPromise,
+    ]);
 
   const ignoreMembers = new Set();
   for (const memberID of allCandidates) {

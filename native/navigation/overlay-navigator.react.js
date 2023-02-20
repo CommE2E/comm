@@ -29,13 +29,12 @@ import type { OverlayRouterExtraNavigationHelpers } from './overlay-router.js';
 import { scrollBlockingModals, TabNavigatorRouteName } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
 
-export type OverlayNavigationHelpers<
-  ParamList: ParamListBase = ParamListBase,
-> = {
-  ...$Exact<StackNavigationHelpers<ParamList, {}>>,
-  ...OverlayRouterExtraNavigationHelpers,
-  ...
-};
+export type OverlayNavigationHelpers<ParamList: ParamListBase = ParamListBase> =
+  {
+    ...$Exact<StackNavigationHelpers<ParamList, {}>>,
+    ...OverlayRouterExtraNavigationHelpers,
+    ...
+  };
 
 export type OverlayNavigationProp<
   ParamList: ParamListBase = ParamListBase,
@@ -156,10 +155,8 @@ const OverlayNavigator = React.memo<Props>(
       }
       return status;
     };
-    const [
-      scrollBlockingModalStatus,
-      setScrollBlockingModalStatus,
-    ] = React.useState(() => getScrollBlockingModalStatus(scenes));
+    const [scrollBlockingModalStatus, setScrollBlockingModalStatus] =
+      React.useState(() => getScrollBlockingModalStatus(scenes));
     const sceneDataForNewScene = scene => ({
       ...scene,
       context: {
@@ -403,7 +400,8 @@ const OverlayNavigator = React.memo<Props>(
       ) {
         newScrollBlockingModalStatus = statusFromSceneData;
       }
-      prevScrollBlockingModalStatusFromSceneDataRef.current = statusFromSceneData;
+      prevScrollBlockingModalStatusFromSceneDataRef.current =
+        statusFromSceneData;
     }
     if (
       !newScrollBlockingModalStatus &&

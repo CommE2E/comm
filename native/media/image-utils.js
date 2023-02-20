@@ -23,9 +23,7 @@ type ProcessImageResponse = {
   mime: string,
   dimensions: Dimensions,
 };
-async function processImage(
-  input: ProcessImageInfo,
-): Promise<{
+async function processImage(input: ProcessImageInfo): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessImageResponse,
 }> {

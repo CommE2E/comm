@@ -437,17 +437,15 @@ class Socket {
       joinedThreads: true,
       newerThan: oldMessagesCurrentAsOf,
     };
-    const [
-      fetchMessagesResult,
-      { serverRequests, activityUpdateResult },
-    ] = await Promise.all([
-      fetchMessageInfosSince(
-        viewer,
-        messageSelectionCriteria,
-        defaultNumberPerThread,
-      ),
-      processClientResponses(viewer, clientResponses),
-    ]);
+    const [fetchMessagesResult, { serverRequests, activityUpdateResult }] =
+      await Promise.all([
+        fetchMessageInfosSince(
+          viewer,
+          messageSelectionCriteria,
+          defaultNumberPerThread,
+        ),
+        processClientResponses(viewer, clientResponses),
+      ]);
     const messagesResult = {
       rawMessageInfos: fetchMessagesResult.rawMessageInfos,
       truncationStatuses: fetchMessagesResult.truncationStatuses,
@@ -458,17 +456,13 @@ class Socket {
     };
 
     if (!sessionInitializationResult.sessionContinued) {
-      const [
-        threadsResult,
-        entriesResult,
-        currentUserInfo,
-        knownUserInfos,
-      ] = await Promise.all([
-        fetchThreadInfos(viewer),
-        fetchEntryInfos(viewer, [calendarQuery]),
-        fetchCurrentUserInfo(viewer),
-        fetchKnownUserInfos(viewer),
-      ]);
+      const [threadsResult, entriesResult, currentUserInfo, knownUserInfos] =
+        await Promise.all([
+          fetchThreadInfos(viewer),
+          fetchEntryInfos(viewer, [calendarQuery]),
+          fetchCurrentUserInfo(viewer),
+          fetchKnownUserInfos(viewer),
+        ]);
       const payload: ServerStateSyncFullSocketPayload = {
         type: stateSyncPayloadTypes.FULL,
         messagesResult,
@@ -497,10 +491,8 @@ class Socket {
         payload,
       });
     } else {
-      const {
-        sessionUpdate,
-        deltaEntryInfoResult,
-      } = sessionInitializationResult;
+      const { sessionUpdate, deltaEntryInfoResult } =
+        sessionInitializationResult;
 
       const promises = {};
       promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargetingSession(
@@ -665,12 +657,10 @@ class Socket {
       const rawUpdateInfos = message.updates;
       this.redisPromiseResolver.add(
         (async () => {
-          const {
-            updateInfos,
-            userInfos,
-          } = await fetchUpdateInfosWithRawUpdateInfos(rawUpdateInfos, {
-            viewer,
-          });
+          const { updateInfos, userInfos } =
+            await fetchUpdateInfosWithRawUpdateInfos(rawUpdateInfos, {
+              viewer,
+            });
           if (updateInfos.length === 0) {
             console.warn(
               'could not get any UpdateInfos from redisMessageTypes.NEW_UPDATES',

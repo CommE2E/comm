@@ -316,12 +316,8 @@ class Calendar extends React.PureComponent<Props, State> {
       }
     }
 
-    const {
-      lastStartDate,
-      newStartDate,
-      lastEndDate,
-      newEndDate,
-    } = Calendar.datesFromListData(lastLDWH, newLDWH);
+    const { lastStartDate, newStartDate, lastEndDate, newEndDate } =
+      Calendar.datesFromListData(lastLDWH, newLDWH);
 
     if (newStartDate > lastStartDate || newEndDate < lastEndDate) {
       // If there are fewer items in our new data, which happens when the

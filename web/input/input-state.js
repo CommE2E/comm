@@ -75,8 +75,7 @@ export type InputState = {
   +unregisterSendCallback: (() => mixed) => void,
 };
 
-const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(
-  null,
-);
+const InputStateContext: React.Context<?InputState> =
+  React.createContext<?InputState>(null);
 
 export { InputStateContext };

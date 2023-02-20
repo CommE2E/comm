@@ -236,10 +236,10 @@ function styleSelector<IS: Styles>(
 
 function useStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
   const ourColors = useColors();
-  return React.useMemo(() => stylesFromColors(obj, ourColors), [
-    obj,
-    ourColors,
-  ]);
+  return React.useMemo(
+    () => stylesFromColors(obj, ourColors),
+    [obj, ourColors],
+  );
 }
 
 function useOverlayStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
@@ -256,10 +256,10 @@ function useOverlayStyles<IS: Styles>(obj: IS): StyleSheetOf<IS> {
   );
   const syntheticTheme = backgroundIsDark ? 'dark' : 'light';
 
-  return React.useMemo(() => stylesFromColors(obj, colors[syntheticTheme]), [
-    obj,
-    syntheticTheme,
-  ]);
+  return React.useMemo(
+    () => stylesFromColors(obj, colors[syntheticTheme]),
+    [obj, syntheticTheme],
+  );
 }
 
 function useColors(): Colors {
@@ -280,24 +280,22 @@ function useIndicatorStyle(): IndicatorStyle {
   );
   return theme && theme === 'dark' ? 'white' : 'black';
 }
-const indicatorStyleSelector: (
-  state: AppState,
-) => IndicatorStyle = createSelector(
-  (state: AppState) => state.globalThemeInfo.activeTheme,
-  (theme: ?GlobalTheme) => {
-    return theme && theme === 'dark' ? 'white' : 'black';
-  },
-);
+const indicatorStyleSelector: (state: AppState) => IndicatorStyle =
+  createSelector(
+    (state: AppState) => state.globalThemeInfo.activeTheme,
+    (theme: ?GlobalTheme) => {
+      return theme && theme === 'dark' ? 'white' : 'black';
+    },
+  );
 
 export type KeyboardAppearance = 'default' | 'light' | 'dark';
-const keyboardAppearanceSelector: (
-  state: AppState,
-) => KeyboardAppearance = createSelector(
-  (state: AppState) => state.globalThemeInfo.activeTheme,
-  (theme: ?GlobalTheme) => {
-    return theme && theme === 'dark' ? 'dark' : 'light';
-  },
-);
+const keyboardAppearanceSelector: (state: AppState) => KeyboardAppearance =
+  createSelector(
+    (state: AppState) => state.globalThemeInfo.activeTheme,
+    (theme: ?GlobalTheme) => {
+      return theme && theme === 'dark' ? 'dark' : 'light';
+    },
+  );
 
 function useKeyboardAppearance(): KeyboardAppearance {
   return useSelector(keyboardAppearanceSelector);

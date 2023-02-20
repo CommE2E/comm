@@ -70,10 +70,8 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
     setNavStateInitialized && setNavStateInitialized();
   }, [setNavStateInitialized]);
 
-  const [
-    localSplashScreenHasHidden,
-    setLocalSplashScreenHasHidden,
-  ] = React.useState(splashScreenHasHidden);
+  const [localSplashScreenHasHidden, setLocalSplashScreenHasHidden] =
+    React.useState(splashScreenHasHidden);
 
   React.useEffect(() => {
     if (localSplashScreenHasHidden || !fontsLoaded) {

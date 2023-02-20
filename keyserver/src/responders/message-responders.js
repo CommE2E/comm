@@ -220,15 +220,12 @@ async function reactionMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const [
-    serverThreadInfos,
-    hasPermission,
-    targetMessageUserInfos,
-  ] = await Promise.all([
-    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
-    checkThreadPermission(viewer, threadID, threadPermissions.VOICED),
-    fetchKnownUserInfos(viewer, [targetMessageInfo.creatorID]),
-  ]);
+  const [serverThreadInfos, hasPermission, targetMessageUserInfos] =
+    await Promise.all([
+      fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+      checkThreadPermission(viewer, threadID, threadPermissions.VOICED),
+      fetchKnownUserInfos(viewer, [targetMessageInfo.creatorID]),
+    ]);
 
   const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];
   if (targetMessageThreadInfo.sourceMessageID === targetMessageID) {

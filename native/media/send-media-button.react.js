@@ -21,13 +21,8 @@ type Props = {
   +style?: ViewStyle,
 };
 function SendMediaButton(props: Props): React.Node {
-  const {
-    onPress,
-    queueCount,
-    containerStyle,
-    style,
-    ...containerProps
-  } = props;
+  const { onPress, queueCount, containerStyle, style, ...containerProps } =
+    props;
 
   let queueCountText = null;
   if (queueCount !== undefined && queueCount !== null) {

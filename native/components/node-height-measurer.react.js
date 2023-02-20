@@ -241,12 +241,8 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     measuredHeights: Map<string, number>,
     mustTrigger: boolean,
   ) {
-    const {
-      listData,
-      itemToID,
-      itemToMeasureKey,
-      allHeightsMeasured,
-    } = this.props;
+    const { listData, itemToID, itemToMeasureKey, allHeightsMeasured } =
+      this.props;
 
     if (!listData) {
       return;

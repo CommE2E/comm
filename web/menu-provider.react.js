@@ -17,20 +17,19 @@ type Props = {
 type MenuContextType = {
   +renderMenu: React.Node => void,
   +setMenuPosition: SetState<MenuPosition>,
-  +closeMenu: (symbol) => void,
+  +closeMenu: symbol => void,
   +currentOpenMenu: ?symbol,
-  +setCurrentOpenMenu: (symbol) => void,
+  +setCurrentOpenMenu: symbol => void,
 };
 
-const MenuContext: React.Context<MenuContextType> = React.createContext<MenuContextType>(
-  {
+const MenuContext: React.Context<MenuContextType> =
+  React.createContext<MenuContextType>({
     renderMenu: () => {},
     setMenuPosition: () => {},
     closeMenu: () => {},
     currentOpenMenu: null,
     setCurrentOpenMenu: () => {},
-  },
-);
+  });
 
 type Menu = {
   +node: ?React.Node,

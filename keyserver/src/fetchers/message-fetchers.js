@@ -275,10 +275,8 @@ async function fetchMessageInfos(
   criteria: MessageSelectionCriteria,
   numberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
-  const {
-    sqlClause: selectionClause,
-    timeFilterData,
-  } = parseMessageSelectionCriteria(viewer, criteria);
+  const { sqlClause: selectionClause, timeFilterData } =
+    parseMessageSelectionCriteria(viewer, criteria);
   const truncationStatuses = {};
 
   const viewerID = viewer.id;
@@ -502,10 +500,11 @@ async function fetchMessageInfosSince(
     viewer,
     criteria,
   );
-  const truncationStatuses = messageSelectionCriteriaToInitialTruncationStatuses(
-    criteria,
-    messageTruncationStatus.UNCHANGED,
-  );
+  const truncationStatuses =
+    messageSelectionCriteriaToInitialTruncationStatuses(
+      criteria,
+      messageTruncationStatus.UNCHANGED,
+    );
 
   const viewerID = viewer.id;
   const query = SQL`

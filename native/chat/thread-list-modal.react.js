@@ -35,9 +35,7 @@ function getItemLayout(
 
 type Props<U> = {
   +threadInfo: ThreadInfo,
-  +createRenderItem: (
-    onPressItem: (threadInfo: ThreadInfo) => void,
-  ) => (row: {
+  +createRenderItem: (onPressItem: (threadInfo: ThreadInfo) => void) => (row: {
     +item: U,
     +index: number,
     ...
@@ -93,10 +91,10 @@ function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
     [navigateToThread, setSearchState],
   );
 
-  const renderItem = React.useMemo(() => createRenderItem(onPressItem), [
-    createRenderItem,
-    onPressItem,
-  ]);
+  const renderItem = React.useMemo(
+    () => createRenderItem(onPressItem),
+    [createRenderItem, onPressItem],
+  );
 
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useIndicatorStyle();

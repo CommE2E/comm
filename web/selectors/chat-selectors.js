@@ -19,42 +19,41 @@ import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-const activeChatThreadItem: (
-  state: AppState,
-) => ?ChatThreadItem = createSelector(
-  threadInfoSelector,
-  (state: AppState) => state.messageStore,
-  messageInfoSelector,
-  (state: AppState) => state.navInfo.activeChatThreadID,
-  (state: AppState) => state.navInfo.pendingThread,
-  sidebarInfoSelector,
-  (
-    threadInfos: { +[id: string]: ThreadInfo },
-    messageStore: MessageStore,
-    messageInfos: { +[id: string]: ?MessageInfo },
-    activeChatThreadID: ?string,
-    pendingThreadInfo: ?ThreadInfo,
-    sidebarInfos: { +[id: string]: $ReadOnlyArray<SidebarInfo> },
-  ): ?ChatThreadItem => {
-    if (!activeChatThreadID) {
-      return null;
-    }
-    const isPending = threadIsPending(activeChatThreadID);
-    const threadInfo = isPending
-      ? pendingThreadInfo
-      : threadInfos[activeChatThreadID];
+const activeChatThreadItem: (state: AppState) => ?ChatThreadItem =
+  createSelector(
+    threadInfoSelector,
+    (state: AppState) => state.messageStore,
+    messageInfoSelector,
+    (state: AppState) => state.navInfo.activeChatThreadID,
+    (state: AppState) => state.navInfo.pendingThread,
+    sidebarInfoSelector,
+    (
+      threadInfos: { +[id: string]: ThreadInfo },
+      messageStore: MessageStore,
+      messageInfos: { +[id: string]: ?MessageInfo },
+      activeChatThreadID: ?string,
+      pendingThreadInfo: ?ThreadInfo,
+      sidebarInfos: { +[id: string]: $ReadOnlyArray<SidebarInfo> },
+    ): ?ChatThreadItem => {
+      if (!activeChatThreadID) {
+        return null;
+      }
+      const isPending = threadIsPending(activeChatThreadID);
+      const threadInfo = isPending
+        ? pendingThreadInfo
+        : threadInfos[activeChatThreadID];
 
-    if (!threadInfo) {
-      return null;
-    }
-    return createChatThreadItem(
-      threadInfo,
-      messageStore,
-      messageInfos,
-      sidebarInfos[threadInfo.id],
-    );
-  },
-);
+      if (!threadInfo) {
+        return null;
+      }
+      return createChatThreadItem(
+        threadInfo,
+        messageStore,
+        messageInfos,
+        sidebarInfos[threadInfo.id],
+      );
+    },
+  );
 
 function useChatThreadItem(threadInfo: ?ThreadInfo): ?ChatThreadItem {
   const messageInfos = useSelector(messageInfoSelector);

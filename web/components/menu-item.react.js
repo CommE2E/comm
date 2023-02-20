@@ -34,8 +34,7 @@ function MenuItem(props: MenuItemProps): React.Node {
   );
 }
 
-const MemoizedMenuItem: React.ComponentType<MenuItemProps> = React.memo(
-  MenuItem,
-);
+const MemoizedMenuItem: React.ComponentType<MenuItemProps> =
+  React.memo(MenuItem);
 
 export default MemoizedMenuItem;

@@ -28,14 +28,11 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
   const { textBeforeAtSymbol, usernamePrefix } = matchedStrings;
 
-  const [isVisibleForAnimation, setIsVisibleForAnimation] = React.useState(
-    false,
-  );
+  const [isVisibleForAnimation, setIsVisibleForAnimation] =
+    React.useState(false);
 
-  const [
-    chosenPositionInOverlay,
-    setChosenPositionInOverlay,
-  ] = React.useState<number>(0);
+  const [chosenPositionInOverlay, setChosenPositionInOverlay] =
+    React.useState<number>(0);
 
   const overlayRef = React.useRef<?HTMLDivElement>();
 

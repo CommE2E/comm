@@ -157,9 +157,8 @@ export type ScreenParamList = {
   ...CommunityDrawerParamList,
 };
 
-export type NavigationRoute<
-  RouteName: string = $Keys<ScreenParamList>,
-> = RouteProp<ScreenParamList, RouteName>;
+export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
+  RouteProp<ScreenParamList, RouteName>;
 
 export const accountModals = [LoggedOutModalRouteName];
 

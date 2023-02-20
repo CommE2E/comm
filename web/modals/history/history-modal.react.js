@@ -251,8 +251,8 @@ const entryLoadingStatusSelector = createLoadingStatusSelector(
   fetchRevisionsForEntryActionTypes,
 );
 
-const ConnectedHistoryModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedHistoryModal(props) {
+const ConnectedHistoryModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedHistoryModal(props) {
     const entryInfos = useSelector(
       state => allDaysToEntries(state)[props.dayString],
     );
@@ -279,7 +279,6 @@ const ConnectedHistoryModal: React.ComponentType<BaseProps> = React.memo<BasePro
         onClose={modalContext.popModal}
       />
     );
-  },
-);
+  });
 
 export default ConnectedHistoryModal;
