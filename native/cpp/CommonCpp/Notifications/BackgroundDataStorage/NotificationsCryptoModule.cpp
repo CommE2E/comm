@@ -61,4 +61,68 @@ crypto::CryptoModule NotificationsCryptoModule::deserializeCryptoModule(
   return crypto::CryptoModule{
       notificationsCryptoAccountID, picklingKey, {account, sessions}};
 }
+
+void NotificationsCryptoModule::serializeAndFlushCryptoModule(
+    crypto::CryptoModule &cryptoModule,
+    const std::string &path,
+    const std::string &picklingKey,
+    const std::string &callingProcessName) {
+  crypto::Persist persist = cryptoModule.storeAsB64(picklingKey);
+
+  folly::dynamic sessions = folly::dynamic::object;
+  for (auto &sessionKeyValuePair : persist.sessions) {
+    std::string targetUserID = sessionKeyValuePair.first;
+    crypto::OlmBuffer sessionData = sessionKeyValuePair.second;
+    sessions[targetUserID] =
+        std::string(sessionData.begin(), sessionData.end());
+  }
+
+  std::string account =
+      std::string(persist.account.begin(), persist.account.end());
+  folly::dynamic persistJSON =
+      folly::dynamic::object("account", account)("sessions", sessions);
+  std::string pickledPersist = folly::toJson(persistJSON);
+
+  std::string temporaryPath = path + callingProcessName;
+  // This is for the case if any of the steps below failed/app was killed
+  // in a previous call to this method leaving temporary file unremoved.
+  // We supply `callingProcessName` as function argument in order to name
+  // temporary file in a deterministic way. Otherwise we would need to use
+  // directory search API to retrieve unremoved files paths.
+  remove(temporaryPath.c_str());
+  mode_t readWritePermissionsMode = 0666;
+  int temporaryFD =
+      open(temporaryPath.c_str(), O_CREAT | O_WRONLY, readWritePermissionsMode);
+  if (temporaryFD == -1) {
+    throw std::runtime_error(
+        "Failed to create temporary file. Unable to atomically update "
+        "notifications crypto account. Details: " +
+        std::string(strerror(errno)));
+  }
+  ssize_t bytesWritten =
+      write(temporaryFD, pickledPersist.c_str(), pickledPersist.length());
+  if (bytesWritten == -1 || bytesWritten != pickledPersist.length()) {
+    remove(temporaryPath.c_str());
+    throw std::runtime_error(
+        "Failed to write all data to temporary file. Unable to atomically "
+        "update notifications crypto account. Details: " +
+        std::string(strerror(errno)));
+  }
+  if (fsync(temporaryFD) == -1) {
+    remove(temporaryPath.c_str());
+    throw std::runtime_error(
+        "Failed to synchronize temporary file data with hardware storage. "
+        "Unable to atomically update notifications crypto account. Details: " +
+        std::string(strerror(errno)));
+  };
+  close(temporaryFD);
+  if (rename(temporaryPath.c_str(), path.c_str()) == -1) {
+    remove(temporaryPath.c_str());
+    throw std::runtime_error(
+        "Failed to replace temporary file content with notifications crypto "
+        "account. Unable to atomically update notifications crypto account. "
+        "Details: " +
+        std::string(strerror(errno)));
+  }
+}
 } // namespace comm
