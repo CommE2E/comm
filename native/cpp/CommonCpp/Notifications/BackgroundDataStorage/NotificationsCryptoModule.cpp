@@ -125,4 +125,33 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
         std::string(strerror(errno)));
   }
 }
+
+void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
+    const std::string &callingProcessName) {
+  const std::string notificationsCryptoAccountPath =
+      PlatformSpecificTools::getNotificationsCryptoAccountPath();
+  std::ifstream notificationCryptoAccountCheck(notificationsCryptoAccountPath);
+  if (notificationCryptoAccountCheck.good()) {
+    // Implemented in CommmCoreModule semantics regarding public olm account
+    // initialization is idempotent. We should follow the same approach when it
+    // comes to notifications
+    notificationCryptoAccountCheck.close();
+    return;
+  }
+  // There is no reason to check if the key is already present since if we are
+  // in this place in the code we are about to create new account
+  CommSecureStore secureStore{};
+  std::string picklingKey = crypto::Tools::generateRandomString(64);
+  secureStore.set(
+      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey,
+      picklingKey);
+
+  crypto::CryptoModule cryptoModule{
+      NotificationsCryptoModule::notificationsCryptoAccountID};
+  NotificationsCryptoModule::serializeAndFlushCryptoModule(
+      cryptoModule,
+      notificationsCryptoAccountPath,
+      picklingKey,
+      callingProcessName);
+}
 } // namespace comm
