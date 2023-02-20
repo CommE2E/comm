@@ -1,5 +1,7 @@
 use aws_sdk_dynamodb::{model::AttributeValue, Error as DynamoDBError};
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+use std::num::ParseIntError;
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -11,10 +13,16 @@ pub enum Error {
   Attribute(DBItemError),
 }
 
+#[derive(Debug)]
+pub enum Value {
+  AttributeValue(Option<AttributeValue>),
+  String(String),
+}
+
 #[derive(Debug, derive_more::Error, derive_more::Constructor)]
 pub struct DBItemError {
   attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
+  attribute_value: Value,
   attribute_error: DBItemAttributeError,
 }
 
@@ -29,6 +37,11 @@ impl Display for DBItemError {
         "Value for attribute {} has incorrect type: {:?}",
         self.attribute_name, self.attribute_value
       ),
+      error => write!(
+        f,
+        "Error regarding attribute {} with value {:?}: {}",
+        self.attribute_name, self.attribute_value, error
+      ),
     }
   }
 }
@@ -39,6 +52,8 @@ pub enum DBItemAttributeError {
   Missing,
   #[display(...)]
   IncorrectType,
+  #[display(...)]
+  InvalidNumberFormat(ParseIntError),
 }
 
 fn _parse_string_attribute(
@@ -49,12 +64,12 @@ fn _parse_string_attribute(
     Some(AttributeValue::S(value)) => Ok(value),
     Some(_) => Err(DBItemError::new(
       attribute_name,
-      attribute_value,
+      Value::AttributeValue(attribute_value),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
       attribute_name,
-      attribute_value,
+      Value::AttributeValue(attribute_value),
       DBItemAttributeError::Missing,
     )),
   }
@@ -68,13 +83,42 @@ fn _parse_bool_attribute(
     Some(AttributeValue::Bool(value)) => Ok(value),
     Some(_) => Err(DBItemError::new(
       attribute_name,
-      attribute_value,
+      Value::AttributeValue(attribute_value),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
       attribute_name,
-      attribute_value,
+      Value::AttributeValue(attribute_value),
       DBItemAttributeError::Missing,
     )),
   }
+}
+
+fn _parse_map_attribute(
+  attribute_name: &'static str,
+  attribute_value: Option<AttributeValue>,
+) -> Result<HashMap<String, AttributeValue>, DBItemError> {
+  if let Some(AttributeValue::M(map)) = attribute_value {
+    Ok(map)
+  } else {
+    Err(DBItemError::new(
+      attribute_name,
+      Value::AttributeValue(attribute_value),
+      DBItemAttributeError::Missing,
+    ))
+  }
+}
+
+fn _parse_number(
+  attribute_name: &'static str,
+  attribute_value: &str,
+) -> Result<i32, DBItemError> {
+  let result = attribute_value.parse::<i32>().map_err(|e| {
+    DBItemError::new(
+      attribute_name,
+      Value::String(attribute_value.to_string()),
+      DBItemAttributeError::InvalidNumberFormat(e),
+    )
+  })?;
+  Ok(result)
 }
