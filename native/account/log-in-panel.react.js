@@ -384,7 +384,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps
     ] = React.useState<?string>(null);
     React.useEffect(() => {
       (async () => {
-        await commCoreModule.initializeCryptoAccount('PLACEHOLDER');
+        await commCoreModule.initializeCryptoAccount();
         const { ed25519 } = await commCoreModule.getUserPublicKey();
         setPrimaryIdentityPublicKey(ed25519);
       })();
