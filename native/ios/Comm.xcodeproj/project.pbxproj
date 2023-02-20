@@ -45,6 +45,7 @@
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
+		CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */; };
 		CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47B287718A200171182 /* NonBlockingLock.mm */; };
 		CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47B287718A200171182 /* NonBlockingLock.mm */; };
 		CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47D2877194100171182 /* EncryptedFileUtils.mm */; };
@@ -183,6 +184,7 @@
 		B7E937CA26F448E700022A7C /* Media.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
 		CB24361629A397AB00FEC4E1 /* NotificationsCryptoModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationsCryptoModule.h; path = Notifications/BackgroundDataStorage/NotificationsCryptoModule.h; sourceTree = "<group>"; };
+		CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationsCryptoModule.cpp; path = Notifications/BackgroundDataStorage/NotificationsCryptoModule.cpp; sourceTree = "<group>"; };
 		CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
 		CB38B4792877179A00171182 /* NonBlockingLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NonBlockingLock.h; path = Comm/TemporaryMessageStorage/NonBlockingLock.h; sourceTree = "<group>"; };
 		CB38B47B287718A200171182 /* NonBlockingLock.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NonBlockingLock.mm; path = Comm/TemporaryMessageStorage/NonBlockingLock.mm; sourceTree = "<group>"; };
@@ -526,6 +528,7 @@
 		CB24361529A3979500FEC4E1 /* BackgroundDataStorage */ = {
 			isa = PBXGroup;
 			children = (
+				CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */,
 				CB24361629A397AB00FEC4E1 /* NotificationsCryptoModule.h */,
 			);
 			name = BackgroundDataStorage;
@@ -966,6 +969,7 @@
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				71BF5B7F26BBDD7400EDE27D /* CryptoModule.cpp in Sources */,
+				CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */,
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
 				71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
