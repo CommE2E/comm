@@ -1,18 +1,10 @@
 // @flow
 
+import type { RustNativeBindingAPI } from 'lib/types/rust-binding-types.js';
+
 const { platform, arch } = process;
 
-type RustAPI = {
-  +registerUser: (
-    userId: string,
-    deviceId: string,
-    username: string,
-    password: string,
-    userPublicKey: string,
-  ) => Promise<string>,
-};
-
-async function getRustAPI(): Promise<RustAPI> {
+async function getRustAPI(): Promise<RustNativeBindingAPI> {
   let nativeBinding = null;
   if (platform === 'darwin' && arch === 'x64') {
     // $FlowFixMe
@@ -31,11 +23,10 @@ async function getRustAPI(): Promise<RustAPI> {
   }
 
   if (!nativeBinding) {
-    throw new Error('Failed to load native binding');
+    throw new Error('Failed to load Rust native binding');
   }
 
-  const { registerUser } = nativeBinding.default;
-  return { registerUser };
+  return nativeBinding.default;
 }
 
 export { getRustAPI };
