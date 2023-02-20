@@ -22,6 +22,9 @@
     }
   },
   "license": "BSD-3-Clause",
+  "dependencies": {
+    "invariant": "^2.2.4"
+  },
   "devDependencies": {
     "@napi-rs/cli": "^2.13.0"
   },
