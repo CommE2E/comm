@@ -5,6 +5,10 @@ import _keyBy from 'lodash/fp/keyBy.js';
 import type { Media } from 'lib/types/media-types.js';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
+import type {
+  ThreadFetchMediaResult,
+  ThreadFetchMediaRequest,
+} from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
@@ -116,7 +120,9 @@ async function fetchMedia(
   return result.map(mediaFromRow);
 }
 
-async function fetchMediaForThread(request: any): Promise<any> {
+async function fetchMediaForThread(
+  request: ThreadFetchMediaRequest,
+): Promise<ThreadFetchMediaResult> {
   // These are the paginated uploads that will be returned. We fetch
   // twice as many as the limit to account for the worst situation of
   // `limit` uploads being videos, which will each require their adjacent
