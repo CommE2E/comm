@@ -18,8 +18,9 @@
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
     "redux-devtools": "redux-devtools --port=8043 --open",
     "codegen-jsi": "flow && babel codegen/src/ -d codegen/dist/ && node codegen/dist",
-    "react-native": "PATH=/usr/bin:\"$PATH\" react-native",
-    "expo": "PATH=/usr/bin:\"$PATH\" expo"
+    "react-native": "PATH=/usr/bin:/bin:\"$PATH\" react-native",
+    "expo": "PATH=/usr/bin:/bin:\"$PATH\" expo",
+    "xcodebuild": "cd ios && PATH=/usr/bin:/bin:\"$PATH\" xcodebuild"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

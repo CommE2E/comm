@@ -14,5 +14,5 @@ yarn flow-mono create-symlinks native
 yarn workspace native jetify
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  (cd native/ios && PATH=/usr/bin:"$PATH" pod install)
+  (cd native/ios && PATH=/usr/bin:/bin:"$PATH" pod install)
 fi
