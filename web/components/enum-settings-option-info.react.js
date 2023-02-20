@@ -15,12 +15,8 @@ type Props = {
 };
 
 function EnumSettingsOptionInfo(props: Props): React.Node {
-  const {
-    optionSelected,
-    valid,
-    styleStatementBasedOnValidity,
-    children,
-  } = props;
+  const { optionSelected, valid, styleStatementBasedOnValidity, children } =
+    props;
 
   const optionInfoClasses = classnames({
     [css.optionInfo]: true,

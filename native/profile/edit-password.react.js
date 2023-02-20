@@ -342,8 +342,8 @@ const loadingStatusSelector = createLoadingStatusSelector(
   changeUserPasswordActionTypes,
 );
 
-const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedEditPassword(props: BaseProps) {
+const ConnectedEditPassword: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedEditPassword(props: BaseProps) {
     const loadingStatus = useSelector(loadingStatusSelector);
     const username = useSelector(state => {
       if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
@@ -370,7 +370,6 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<BasePro
         changeUserPassword={callChangeUserPassword}
       />
     );
-  },
-);
+  });
 
 export default ConnectedEditPassword;

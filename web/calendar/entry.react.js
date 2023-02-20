@@ -271,17 +271,16 @@ class Entry extends React.PureComponent<Props, State> {
     this.setState({ text: target.value }, this.updateHeight);
   };
 
-  onKeyDown: (
-    event: SyntheticKeyboardEvent<HTMLTextAreaElement>,
-  ) => void = event => {
-    if (event.key === 'Escape') {
-      invariant(
-        this.textarea instanceof HTMLTextAreaElement,
-        'textarea ref not set',
-      );
-      this.textarea.blur();
-    }
-  };
+  onKeyDown: (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => void =
+    event => {
+      if (event.key === 'Escape') {
+        invariant(
+          this.textarea instanceof HTMLTextAreaElement,
+          'textarea ref not set',
+        );
+        this.textarea.blur();
+      }
+    };
 
   dispatchSave(serverID: ?string, newText: string) {
     if (this.currentlySaving === newText) {

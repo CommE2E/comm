@@ -14,10 +14,10 @@ type Props = {
 
 function AddUsersListItem(props: Props): React.Node {
   const { userInfo, selectUser } = props;
-  const addUser = React.useCallback(() => selectUser(userInfo.id), [
-    selectUser,
-    userInfo.id,
-  ]);
+  const addUser = React.useCallback(
+    () => selectUser(userInfo.id),
+    [selectUser, userInfo.id],
+  );
   return (
     <Button className={css.addUserButton} onClick={addUser}>
       <div className={css.addUserButtonUsername}>{userInfo.username}</div>

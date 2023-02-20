@@ -112,11 +112,8 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     this.state.mediaGalleryThread;
 
   render(): React.Node {
-    const {
-      systemKeyboardShowing,
-      mediaGalleryOpen,
-      renderKeyboardInputHost,
-    } = this.state;
+    const { systemKeyboardShowing, mediaGalleryOpen, renderKeyboardInputHost } =
+      this.state;
     const {
       keyboardShowing,
       dismissKeyboard,

@@ -45,8 +45,8 @@ const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
 );
 
-const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadSettingsModal(props) {
+const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadSettingsModal(props) {
     const changeInProgress = useSelector(
       state =>
         deleteThreadLoadingStatusSelector(state) === 'loading' ||
@@ -57,9 +57,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     );
     const modalContext = useModalContext();
     const [errorMessage, setErrorMessage] = React.useState<?string>('');
-    const [currentTabType, setCurrentTabType] = React.useState<TabType>(
-      'general',
-    );
+    const [currentTabType, setCurrentTabType] =
+      React.useState<TabType>('general');
     const [queuedChanges, setQueuedChanges] = React.useState<ThreadChanges>(
       Object.freeze({}),
     );
@@ -232,7 +231,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         </div>
       </Modal>
     );
-  },
-);
+  });
 
 export default ConnectedThreadSettingsModal;

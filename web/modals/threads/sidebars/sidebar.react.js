@@ -41,9 +41,10 @@ function Sidebar(props: Props): React.Node {
     [css.unread]: unread,
   });
 
-  const lastActivity = React.useMemo(() => shortAbsoluteDate(lastUpdatedTime), [
-    lastUpdatedTime,
-  ]);
+  const lastActivity = React.useMemo(
+    () => shortAbsoluteDate(lastUpdatedTime),
+    [lastUpdatedTime],
+  );
 
   const messagePreviewResult = useMessagePreview(
     mostRecentMessageInfo,

@@ -69,9 +69,8 @@ function RootNavigator({
   id,
   ...rest
 }: RootNavigatorProps) {
-  const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] = React.useState(
-    true,
-  );
+  const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] =
+    React.useState(true);
   const mergedScreenOptions = React.useMemo(() => {
     if (typeof screenOptions === 'function') {
       return input => ({
@@ -126,9 +125,8 @@ const baseTransitionPreset = Platform.select({
 const transitionPreset = {
   ...baseTransitionPreset,
   cardStyleInterpolator: interpolatorProps => {
-    const baseCardStyleInterpolator = baseTransitionPreset.cardStyleInterpolator(
-      interpolatorProps,
-    );
+    const baseCardStyleInterpolator =
+      baseTransitionPreset.cardStyleInterpolator(interpolatorProps);
     const overlayOpacity = interpolatorProps.current.progress.interpolate({
       inputRange: [0, 1],
       outputRange: ([0, 0.7]: number[]), // Flow...

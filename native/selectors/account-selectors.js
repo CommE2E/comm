@@ -34,21 +34,20 @@ const nativeLogInExtraInfoSelector: (
   },
 );
 
-const noDataAfterPolicyAcknowledgmentSelector: (
-  state: AppState,
-) => boolean = createSelector(
-  (state: AppState) => state.connectivity,
-  (state: AppState) => state.messageStore.currentAsOf,
-  (state: AppState) => state.userPolicies,
-  (
-    connectivity: ConnectivityInfo,
-    currentAsOf: number,
-    userPolicies: UserPolicies,
-  ) =>
-    connectivity.connected &&
-    currentAsOf === 0 &&
-    values(userPolicies).every(policy => policy.isAcknowledged),
-);
+const noDataAfterPolicyAcknowledgmentSelector: (state: AppState) => boolean =
+  createSelector(
+    (state: AppState) => state.connectivity,
+    (state: AppState) => state.messageStore.currentAsOf,
+    (state: AppState) => state.userPolicies,
+    (
+      connectivity: ConnectivityInfo,
+      currentAsOf: number,
+      userPolicies: UserPolicies,
+    ) =>
+      connectivity.connected &&
+      currentAsOf === 0 &&
+      values(userPolicies).every(policy => policy.isAcknowledged),
+  );
 
 export {
   nativeLogInExtraInfoSelector,

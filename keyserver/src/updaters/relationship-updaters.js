@@ -61,10 +61,8 @@ async function updateRelationships(
     // one PERSONAL thread per a pair of users and we can safely call it
     // repeatedly.
     const threadIDPerUser = await createPersonalThreads(viewer, request);
-    const {
-      userRelationshipOperations,
-      errors: friendRequestErrors,
-    } = await fetchFriendRequestRelationshipOperations(viewer, userIDs);
+    const { userRelationshipOperations, errors: friendRequestErrors } =
+      await fetchFriendRequestRelationshipOperations(viewer, userIDs);
     errors = { ...errors, ...friendRequestErrors };
 
     const undirectedInsertRows = [];

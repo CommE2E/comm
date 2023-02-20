@@ -12,8 +12,7 @@ export type MarkdownContextType = {
   +clearMarkdownContextData: () => void,
 };
 
-const MarkdownContext: React.Context<?MarkdownContextType> = React.createContext<?MarkdownContextType>(
-  null,
-);
+const MarkdownContext: React.Context<?MarkdownContextType> =
+  React.createContext<?MarkdownContextType>(null);
 
 export { MarkdownContext };

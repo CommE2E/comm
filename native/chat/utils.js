@@ -124,10 +124,8 @@ function useMessageTargetParameters(
     threadInfo: sidebarThreadInfo,
   });
 
-  const [
-    messagesWithHeight,
-    setMessagesWithHeight,
-  ] = React.useState<?$ReadOnlyArray<ChatMessageItemWithHeight>>(null);
+  const [messagesWithHeight, setMessagesWithHeight] =
+    React.useState<?$ReadOnlyArray<ChatMessageItemWithHeight>>(null);
   const measureMessages = useHeightMeasurer();
 
   React.useEffect(() => {
@@ -242,17 +240,15 @@ function useAnimatedMessageTooltipButton({
     setSidebarAnimationType(newSidebarAnimationType);
   }, [setSidebarAnimationType, newSidebarAnimationType]);
 
-  const {
-    position: targetPosition,
-    color: targetColor,
-  } = useMessageTargetParameters(
-    sourceMessage,
-    initialCoordinates,
-    messageListVerticalBounds,
-    currentInputBarHeight,
-    targetInputBarHeight ?? currentInputBarHeight,
-    sidebarThreadInfo,
-  );
+  const { position: targetPosition, color: targetColor } =
+    useMessageTargetParameters(
+      sourceMessage,
+      initialCoordinates,
+      messageListVerticalBounds,
+      currentInputBarHeight,
+      targetInputBarHeight ?? currentInputBarHeight,
+      sidebarThreadInfo,
+    );
 
   React.useEffect(() => {
     return () => setCurrentTransitionSidebarSourceID(null);
@@ -268,10 +264,8 @@ function useAnimatedMessageTooltipButton({
     [progress, targetPosition],
   );
 
-  const [
-    isThreadColorDarkOverride,
-    setThreadColorDarkOverride,
-  ] = React.useState<?boolean>(null);
+  const [isThreadColorDarkOverride, setThreadColorDarkOverride] =
+    React.useState<?boolean>(null);
   const setThreadColorBrightness = React.useCallback(() => {
     const isSourceThreadDark = colorIsDark(sourceMessage.threadInfo.color);
     const isTargetThreadDark = colorIsDark(targetColor);

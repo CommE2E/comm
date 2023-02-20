@@ -32,9 +32,8 @@ const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
-const siweAuthLoadingStatusSelector = createLoadingStatusSelector(
-  siweAuthActionTypes,
-);
+const siweAuthLoadingStatusSelector =
+  createLoadingStatusSelector(siweAuthActionTypes);
 
 type Props = {
   +onClose: () => mixed,
@@ -74,10 +73,8 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   const [nonce, setNonce] = React.useState<?string>(null);
-  const [
-    primaryIdentityPublicKey,
-    setPrimaryIdentityPublicKey,
-  ] = React.useState<?string>(null);
+  const [primaryIdentityPublicKey, setPrimaryIdentityPublicKey] =
+    React.useState<?string>(null);
 
   React.useEffect(() => {
     (async () => {
@@ -95,9 +92,8 @@ function SIWEPanel(props: Props): React.Node {
   }, [dispatchActionPromise, getSIWENonceCall]);
 
   const [isLoading, setLoading] = React.useState(true);
-  const [isWalletConnectModalOpen, setWalletConnectModalOpen] = React.useState(
-    false,
-  );
+  const [isWalletConnectModalOpen, setWalletConnectModalOpen] =
+    React.useState(false);
   const insets = useSafeAreaInsets();
   const bottomInset = insets.bottom;
   const snapPoints = React.useMemo(() => {

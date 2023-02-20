@@ -443,8 +443,8 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
-const ConnectedRegisterPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedRegisterPanel(props: BaseProps) {
+const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedRegisterPanel(props: BaseProps) {
     const loadingStatus = useSelector(loadingStatusSelector);
 
     const navContext = React.useContext(NavContext);
@@ -467,7 +467,6 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> = React.memo<BasePr
         register={callRegister}
       />
     );
-  },
-);
+  });
 
 export default ConnectedRegisterPanel;

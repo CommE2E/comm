@@ -137,8 +137,7 @@ function ColorEntity(props: { color: string }) {
   return <span style={colorStyle}>{props.color}</span>;
 }
 
-const MemoizedRobotextMessage: React.ComponentType<Props> = React.memo<Props>(
-  RobotextMessage,
-);
+const MemoizedRobotextMessage: React.ComponentType<Props> =
+  React.memo<Props>(RobotextMessage);
 
 export default MemoizedRobotextMessage;

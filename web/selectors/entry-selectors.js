@@ -11,9 +11,9 @@ import type { EntryInfo } from 'lib/types/entry-types.js';
 
 import type { AppState } from '../redux/redux-setup.js';
 
-const allDaysToEntries: (
-  state: AppState,
-) => { +[dayString: string]: EntryInfo[] } = createSelector(
+const allDaysToEntries: (state: AppState) => {
+  +[dayString: string]: EntryInfo[],
+} = createSelector(
   entryInfoSelector,
   (state: AppState) => state.entryStore.daysToEntries,
   (

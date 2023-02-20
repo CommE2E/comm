@@ -249,8 +249,10 @@ const unboundStyles = {
   },
 };
 
-const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadSettingsMember(props: BaseProps) {
+const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadSettingsMember(
+    props: BaseProps,
+  ) {
     const memberID = props.memberInfo.id;
     const removeUserLoadingStatus = useSelector(state =>
       createLoadingStatusSelector(
@@ -283,7 +285,6 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> = React.memo
         overlayContext={overlayContext}
       />
     );
-  },
-);
+  });
 
 export default ConnectedThreadSettingsMember;

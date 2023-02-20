@@ -56,9 +56,7 @@ function Input(props: InputProps, ref): React.Node {
   );
 }
 
-const ForwardedInput: React.AbstractComponent<
-  InputProps,
-  HTMLInputElement,
-> = React.forwardRef<InputProps, HTMLInputElement>(Input);
+const ForwardedInput: React.AbstractComponent<InputProps, HTMLInputElement> =
+  React.forwardRef<InputProps, HTMLInputElement>(Input);
 
 export default ForwardedInput;

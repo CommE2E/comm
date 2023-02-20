@@ -17,10 +17,10 @@ type Props = {
 };
 function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const { onPress, threadInfo, unread } = props;
-  const onPressButton = React.useCallback(() => onPress(threadInfo), [
-    onPress,
-    threadInfo,
-  ]);
+  const onPressButton = React.useCallback(
+    () => onPress(threadInfo),
+    [onPress, threadInfo],
+  );
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);

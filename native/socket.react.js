@@ -31,8 +31,8 @@ import {
   nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors.js';
 
-const NativeSocket: React.ComponentType<BaseSocketProps> = React.memo<BaseSocketProps>(
-  function NativeSocket(props: BaseSocketProps) {
+const NativeSocket: React.ComponentType<BaseSocketProps> =
+  React.memo<BaseSocketProps>(function NativeSocket(props: BaseSocketProps) {
     const inputState = React.useContext(InputStateContext);
     const navContext = React.useContext(NavContext);
 
@@ -142,7 +142,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> = React.memo<BaseSocket
         socketCrashLoopRecovery={socketCrashLoopRecovery}
       />
     );
-  },
-);
+  });
 
 export default NativeSocket;

@@ -214,10 +214,8 @@ async function saveMediaAndroid(
   if (uri.startsWith('http')) {
     promises.push(
       (async () => {
-        const {
-          result: tempSaveResult,
-          steps: tempSaveSteps,
-        } = await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
+        const { result: tempSaveResult, steps: tempSaveSteps } =
+          await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
         steps.push(...tempSaveSteps);
         if (!tempSaveResult.success) {
           success = false;
@@ -280,10 +278,8 @@ async function saveMediaIOS(
   let uri = inputURI;
   let tempFile;
   if (uri.startsWith('http')) {
-    const {
-      result: tempSaveResult,
-      steps: tempSaveSteps,
-    } = await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
+    const { result: tempSaveResult, steps: tempSaveSteps } =
+      await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
     steps.push(...tempSaveSteps);
     if (!tempSaveResult.success) {
       sendResult(tempSaveResult);
@@ -294,10 +290,8 @@ async function saveMediaIOS(
   } else if (!uri.startsWith('file://')) {
     const mediaNativeID = getMediaLibraryIdentifier(uri);
     if (mediaNativeID) {
-      const {
-        result: fetchAssetInfoResult,
-        steps: fetchAssetInfoSteps,
-      } = await fetchAssetInfo(mediaNativeID);
+      const { result: fetchAssetInfoResult, steps: fetchAssetInfoSteps } =
+        await fetchAssetInfo(mediaNativeID);
       steps.push(...fetchAssetInfoSteps);
       const { localURI } = fetchAssetInfoResult;
       if (localURI) {

@@ -10,12 +10,11 @@ import { ProfileRouteName } from '../navigation/route-names.js';
 
 const activeTabSelector = createActiveTabSelector(ProfileRouteName);
 
-const ProfileHeader: React.ComponentType<StackHeaderProps> = React.memo<StackHeaderProps>(
-  function ProfileHeader(props: StackHeaderProps) {
+const ProfileHeader: React.ComponentType<StackHeaderProps> =
+  React.memo<StackHeaderProps>(function ProfileHeader(props: StackHeaderProps) {
     const navContext = React.useContext(NavContext);
     const activeTab = activeTabSelector(navContext);
     return <Header {...props} activeTab={activeTab} />;
-  },
-);
+  });
 
 export default ProfileHeader;

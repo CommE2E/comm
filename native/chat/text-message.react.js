@@ -218,8 +218,8 @@ class TextMessage extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedTextMessage(props: BaseProps) {
+const ConnectedTextMessage: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedTextMessage(props: BaseProps) {
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
     const markdownContext = React.useContext(MarkdownContext);
@@ -250,7 +250,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
         isLinkModalActive={isLinkModalActive}
       />
     );
-  },
-);
+  });
 
 export { ConnectedTextMessage as TextMessage };

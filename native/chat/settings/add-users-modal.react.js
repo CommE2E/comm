@@ -294,8 +294,7 @@ const unboundStyles = {
   },
 };
 
-const MemoizedAddUsersModal: React.ComponentType<Props> = React.memo<Props>(
-  AddUsersModal,
-);
+const MemoizedAddUsersModal: React.ComponentType<Props> =
+  React.memo<Props>(AddUsersModal);
 
 export default MemoizedAddUsersModal;

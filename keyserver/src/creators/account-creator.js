@@ -178,17 +178,13 @@ async function createAccount(
     text: message,
   }));
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
-  const [
-    messageInfos,
-    threadsResult,
-    userInfos,
-    currentUserInfo,
-  ] = await Promise.all([
-    createMessages(viewer, messageDatas),
-    fetchThreadInfos(viewer),
-    fetchKnownUserInfos(viewer),
-    fetchLoggedInUserInfo(viewer),
-  ]);
+  const [messageInfos, threadsResult, userInfos, currentUserInfo] =
+    await Promise.all([
+      createMessages(viewer, messageDatas),
+      fetchThreadInfos(viewer),
+      fetchKnownUserInfos(viewer),
+      fetchLoggedInUserInfo(viewer),
+    ]);
   const rawMessageInfos = [
     ...ashoatThreadResult.newMessageInfos,
     ...privateThreadResult.newMessageInfos,

@@ -98,8 +98,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedSwipeable: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedSwipeable(props: BaseProps) {
+const ConnectedSwipeable: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedSwipeable(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const windowWidth = useSelector(state => state.dimensions.width);
     const colors = useColors();
@@ -112,7 +112,6 @@ const ConnectedSwipeable: React.ComponentType<BaseProps> = React.memo<BaseProps>
         colors={colors}
       />
     );
-  },
-);
+  });
 
 export default ConnectedSwipeable;

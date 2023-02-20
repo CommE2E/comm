@@ -341,12 +341,11 @@ const unboundStyles = {
   },
 };
 
-const logOutLoadingStatusSelector = createLoadingStatusSelector(
-  logOutActionTypes,
-);
+const logOutLoadingStatusSelector =
+  createLoadingStatusSelector(logOutActionTypes);
 
-const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedProfileScreen(props: BaseProps) {
+const ConnectedProfileScreen: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedProfileScreen(props: BaseProps) {
     const currentUserInfo = useSelector(state => state.currentUserInfo);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
     const logOutLoading =
@@ -372,7 +371,6 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<BasePr
         stringForUser={stringForUser}
       />
     );
-  },
-);
+  });
 
 export default ConnectedProfileScreen;

@@ -15,13 +15,8 @@ type Props = {
   ...React.ElementConfig<typeof View>,
 };
 function NewMessagesPill(props: Props): React.Node {
-  const {
-    onPress,
-    newMessageCount,
-    containerStyle,
-    style,
-    ...containerProps
-  } = props;
+  const { onPress, newMessageCount, containerStyle, style, ...containerProps } =
+    props;
   const styles = useStyles(unboundStyles);
   return (
     <View {...containerProps} style={containerStyle}>

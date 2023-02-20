@@ -30,13 +30,11 @@ async function deleteThread(
   }
   const { threadID } = threadDeletionRequest;
 
-  const [
-    permissionsBlob,
-    { threadInfos: serverThreadInfos },
-  ] = await Promise.all([
-    fetchThreadPermissionsBlob(viewer, threadID),
-    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
-  ]);
+  const [permissionsBlob, { threadInfos: serverThreadInfos }] =
+    await Promise.all([
+      fetchThreadPermissionsBlob(viewer, threadID),
+      fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+    ]);
 
   if (!permissionsBlob) {
     // This should only occur if the first request goes through but the client

@@ -104,8 +104,7 @@ function RelationshipPrompt(props: Props) {
   }
 }
 
-const MemoizedRelationshipPrompt: React.ComponentType<Props> = React.memo(
-  RelationshipPrompt,
-);
+const MemoizedRelationshipPrompt: React.ComponentType<Props> =
+  React.memo(RelationshipPrompt);
 
 export default MemoizedRelationshipPrompt;

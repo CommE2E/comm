@@ -41,10 +41,8 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
   };
 
   render() {
-    const {
-      panelIosHighlightUnderlay,
-      panelForegroundSecondaryLabel,
-    } = this.props.colors;
+    const { panelIosHighlightUnderlay, panelForegroundSecondaryLabel } =
+      this.props.colors;
     const loadingIndicator =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
@@ -89,8 +87,10 @@ const onError = () => {
   });
 };
 
-const ConnectedThreadSettingsPromoteSidebar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadSettingsPromoteSidebar(props: BaseProps) {
+const ConnectedThreadSettingsPromoteSidebar: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadSettingsPromoteSidebar(
+    props: BaseProps,
+  ) {
     const { threadInfo } = props;
     const colors = useColors();
     const styles = useStyles(unboundStyles);
@@ -108,7 +108,6 @@ const ConnectedThreadSettingsPromoteSidebar: React.ComponentType<BaseProps> = Re
         loadingStatus={loading}
       />
     );
-  },
-);
+  });
 
 export default ConnectedThreadSettingsPromoteSidebar;

@@ -377,12 +377,12 @@ function reducer(state: AppState = defaultState, action: Action) {
     ...fixUnreadActiveThreadResult.threadStoreOperations,
   ];
 
-  const convertedThreadStoreOperations = convertThreadStoreOperationsToClientDBOperations(
-    threadStoreOperationsWithUnreadFix,
-  );
-  const convertedMessageStoreOperations = convertMessageStoreOperationsToClientDBOperations(
-    messageStoreOperations,
-  );
+  const convertedThreadStoreOperations =
+    convertThreadStoreOperationsToClientDBOperations(
+      threadStoreOperationsWithUnreadFix,
+    );
+  const convertedMessageStoreOperations =
+    convertMessageStoreOperationsToClientDBOperations(messageStoreOperations);
   (async () => {
     try {
       const promises = [];

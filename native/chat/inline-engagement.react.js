@@ -41,10 +41,10 @@ function InlineEngagement(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const unreadStyle = threadInfo?.currentUser.unread ? styles.unread : null;
-  const repliesStyles = React.useMemo(() => [styles.repliesText, unreadStyle], [
-    styles.repliesText,
-    unreadStyle,
-  ]);
+  const repliesStyles = React.useMemo(
+    () => [styles.repliesText, unreadStyle],
+    [styles.repliesText, unreadStyle],
+  );
 
   const onPressThread = React.useCallback(() => {
     if (threadInfo && !disabled) {

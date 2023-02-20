@@ -77,12 +77,8 @@ type SwipeSnakeProps<IconGlyphs: string> = {
 function SwipeSnake<IconGlyphs: string>(
   props: SwipeSnakeProps<IconGlyphs>,
 ): React.Node {
-  const {
-    translateX,
-    isViewer,
-    opacityInterpolator,
-    translateXInterpolator,
-  } = props;
+  const { translateX, isViewer, opacityInterpolator, translateXInterpolator } =
+    props;
   const transformStyle = useAnimatedStyle(() => {
     const opacity = opacityInterpolator
       ? opacityInterpolator(translateX.value)

@@ -350,8 +350,8 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
-const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedLogInPanel(props: BaseProps) {
+const ConnectedLogInPanel: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedLogInPanel(props: BaseProps) {
     const loadingStatus = useSelector(loadingStatusSelector);
 
     const navContext = React.useContext(NavContext);
@@ -374,7 +374,6 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps
         logIn={callLogIn}
       />
     );
-  },
-);
+  });
 
 export default ConnectedLogInPanel;

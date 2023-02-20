@@ -25,9 +25,8 @@ const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
   // React Native doesn't handle controlled selection well, so we only set the
   // selection prop when we need to mutate the selection
   // https://github.com/facebook/react-native/issues/29063
-  const [controlSelection, setControlSelection] = React.useState<boolean>(
-    false,
-  );
+  const [controlSelection, setControlSelection] =
+    React.useState<boolean>(false);
 
   const clearableTextInputRefCallback = React.useCallback(
     (clearableTextInput: ?React.ElementRef<typeof ClearableTextInput>) => {

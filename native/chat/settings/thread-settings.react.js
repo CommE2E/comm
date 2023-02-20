@@ -675,9 +675,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         const otherMemberID = getSingleOtherUser(threadInfo, viewerID);
         if (otherMemberID) {
           const otherUserInfo = userInfos[otherMemberID];
-          const availableRelationshipActions = getAvailableRelationshipButtons(
-            otherUserInfo,
-          );
+          const availableRelationshipActions =
+            getAvailableRelationshipButtons(otherUserInfo);
 
           for (const action of availableRelationshipActions) {
             buttons.push({
@@ -1039,8 +1038,8 @@ const somethingIsSaving = (
   return false;
 };
 
-const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadSettings(props: BaseProps) {
+const ConnectedThreadSettings: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadSettings(props: BaseProps) {
     const userInfos = useSelector(state => state.userStore.userInfos);
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
@@ -1082,9 +1081,8 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
     const parentThreadInfo: ?ThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
-    const resolvedParentThreadInfo = useResolvedOptionalThreadInfo(
-      parentThreadInfo,
-    );
+    const resolvedParentThreadInfo =
+      useResolvedOptionalThreadInfo(parentThreadInfo);
     const threadMembers = threadInfo.members;
     const boundChildThreadInfos = useSelector(
       state => childThreadInfos(state)[threadID],
@@ -1132,7 +1130,6 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
         canPromoteSidebar={canPromoteSidebar}
       />
     );
-  },
-);
+  });
 
 export default ConnectedThreadSettings;

@@ -118,9 +118,8 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     const overlayPosition = MultimediaMessageMultimedia.getModalOverlayPosition(
       this.props,
     );
-    const prevOverlayPosition = MultimediaMessageMultimedia.getModalOverlayPosition(
-      prevProps,
-    );
+    const prevOverlayPosition =
+      MultimediaMessageMultimedia.getModalOverlayPosition(prevProps);
     if (overlayPosition !== prevOverlayPosition) {
       this.setState({ opacity: this.getOpacity() });
     }
@@ -218,8 +217,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedMultimediaMessageMultimedia(props: BaseProps) {
+const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedMultimediaMessageMultimedia(
+    props: BaseProps,
+  ) {
     const colors = useColors();
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
@@ -233,7 +234,6 @@ const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> = Rea
         overlayContext={overlayContext}
       />
     );
-  },
-);
+  });
 
 export default ConnectedMultimediaMessageMultimedia;

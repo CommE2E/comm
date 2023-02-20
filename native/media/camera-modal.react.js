@@ -869,10 +869,8 @@ class CameraModal extends React.PureComponent<Props, State> {
     // actually have a back camera since it causes a bit of lag, but this
     // means there are cases where it is false but we are actually using the
     // front camera
-    const {
-      hasCamerasOnBothSides,
-      defaultUseFrontCamera,
-    } = this.props.deviceCameraInfo;
+    const { hasCamerasOnBothSides, defaultUseFrontCamera } =
+      this.props.deviceCameraInfo;
     const usingFrontCamera =
       this.state.useFrontCamera ||
       (!hasCamerasOnBothSides && defaultUseFrontCamera);
@@ -1181,8 +1179,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedCameraModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedCameraModal(props: BaseProps) {
+const ConnectedCameraModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedCameraModal(props: BaseProps) {
     const dimensions = useSelector(state => state.dimensions);
     const deviceCameraInfo = useSelector(state => state.deviceCameraInfo);
     const deviceOrientation = useSelector(state => state.deviceOrientation);
@@ -1203,7 +1201,6 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> = React.memo<BaseProp
         inputState={inputState}
       />
     );
-  },
-);
+  });
 
 export default ConnectedCameraModal;

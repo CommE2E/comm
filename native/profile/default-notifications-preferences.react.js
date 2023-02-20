@@ -178,8 +178,10 @@ const unboundStyles = {
 };
 
 registerFetchKey(setUserSettingsActionTypes);
-const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedDefaultNotificationPreferences(props: BaseProps) {
+const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedDefaultNotificationPreferences(
+    props: BaseProps,
+  ) {
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
     const changeNotificationSettings = useServerCall(setUserSettings);
@@ -206,7 +208,6 @@ const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = 
         selectedDefaultNotification={selectedDefaultNotification}
       />
     );
-  },
-);
+  });
 
 export default ConnectedDefaultNotificationPreferences;

@@ -163,8 +163,8 @@ type ConnectedConfig = React.Config<
   BaseProps,
   typeof ComposedMessage.defaultProps,
 >;
-const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.memo<BaseConfig>(
-  function ConnectedComposedMessage(props) {
+const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
+  React.memo<BaseConfig>(function ConnectedComposedMessage(props) {
     const { item, threadInfo } = props;
     const inputState = React.useContext(InputStateContext);
     const { creator } = props.item.messageInfo;
@@ -193,7 +193,6 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.mem
         stringForUser={stringForUser}
       />
     );
-  },
-);
+  });
 
 export default ConnectedComposedMessage;

@@ -23,12 +23,8 @@ type Props = {
   +route: NavigationRoute<'SubchannelsListModal'>,
 };
 function SubchannelListModal(props: Props): React.Node {
-  const {
-    listData,
-    searchState,
-    setSearchState,
-    onChangeSearchInputText,
-  } = useSearchSubchannels(props.route.params.threadInfo);
+  const { listData, searchState, setSearchState, onChangeSearchInputText } =
+    useSearchSubchannels(props.route.params.threadInfo);
 
   return (
     <ThreadListModal
@@ -44,12 +40,12 @@ function SubchannelListModal(props: Props): React.Node {
   );
 }
 
-const createRenderItem = (
-  onPressItem: (threadInfo: ThreadInfo) => void,
+const createRenderItem =
+  (onPressItem: (threadInfo: ThreadInfo) => void) =>
   // eslint-disable-next-line react/display-name
-) => (row: { +item: ChatThreadItem, +index: number, ... }) => {
-  return <Item subchannelInfo={row.item} onPressItem={onPressItem} />;
-};
+  (row: { +item: ChatThreadItem, +index: number, ... }) => {
+    return <Item subchannelInfo={row.item} onPressItem={onPressItem} />;
+  };
 
 function Item(props: {
   onPressItem: (threadInfo: ThreadInfo) => void,
@@ -58,10 +54,10 @@ function Item(props: {
   const { onPressItem, subchannelInfo } = props;
   const { threadInfo } = subchannelInfo;
 
-  const onPressButton = React.useCallback(() => onPressItem(threadInfo), [
-    onPressItem,
-    threadInfo,
-  ]);
+  const onPressButton = React.useCallback(
+    () => onPressItem(threadInfo),
+    [onPressItem, threadInfo],
+  );
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);

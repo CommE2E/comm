@@ -287,8 +287,10 @@ const loadingStatusSelector = createLoadingStatusSelector(
   `${changeThreadSettingsActionTypes.started}:description`,
 );
 
-const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadSettingsDescription(props: BaseProps) {
+const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadSettingsDescription(
+    props: BaseProps,
+  ) {
     const loadingStatus = useSelector(loadingStatusSelector);
     const colors = useColors();
     const styles = useStyles(unboundStyles);
@@ -305,7 +307,6 @@ const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> = React
         changeThreadSettings={callChangeThreadSettings}
       />
     );
-  },
-);
+  });
 
 export default ConnectedThreadSettingsDescription;

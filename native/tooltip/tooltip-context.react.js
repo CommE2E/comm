@@ -18,7 +18,8 @@ export type TooltipContextType = {
   +shouldShowMore: () => boolean,
   +getNumVisibleEntries: () => number,
 };
-const TooltipContext: React.Context<?TooltipContextType> = React.createContext<?TooltipContextType>();
+const TooltipContext: React.Context<?TooltipContextType> =
+  React.createContext<?TooltipContextType>();
 
 type ProviderProps = {
   +maxOptionsToDisplay: number,

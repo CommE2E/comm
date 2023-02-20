@@ -49,12 +49,11 @@ const unboundStyles = {
   },
 };
 
-const ConnectedLinkButton: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedLinkButton(props: BaseProps) {
+const ConnectedLinkButton: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedLinkButton(props: BaseProps) {
     const styles = useStyles(unboundStyles);
 
     return <LinkButton {...props} styles={styles} />;
-  },
-);
+  });
 
 export default ConnectedLinkButton;

@@ -438,14 +438,13 @@ class InternalEntry extends React.Component<Props, State> {
     );
   }
 
-  textInputRef: (
-    textInput: ?React.ElementRef<typeof BaseTextInput>,
-  ) => void = textInput => {
-    this.textInput = textInput;
-    if (textInput && this.state.editing) {
-      this.enterEditMode();
-    }
-  };
+  textInputRef: (textInput: ?React.ElementRef<typeof BaseTextInput>) => void =
+    textInput => {
+      this.textInput = textInput;
+      if (textInput && this.state.editing) {
+        this.enterEditMode();
+      }
+    };
 
   enterEditMode: () => Promise<void> = async () => {
     this.setActive();

@@ -225,8 +225,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedMultimediaMessage(props: BaseProps) {
+const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedMultimediaMessage(props: BaseProps) {
     const navigation = useNavigation();
     const route = useRoute();
     const overlayContext = React.useContext(OverlayContext);
@@ -246,7 +246,6 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<Ba
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
       />
     );
-  },
-);
+  });
 
 export default ConnectedMultimediaMessage;
