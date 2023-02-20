@@ -1,0 +1,14 @@
+[package]
+name = "rust-lib"
+version = "0.1.0"
+edition = "2021"
+license = "BSD-3-Clause"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aws-config = "0.51.0"
+aws-types = "0.51.0"
+aws-sdk-dynamodb = "0.21.0"
+chrono = "0.4"
+derive_more = "0.99"

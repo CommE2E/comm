@@ -485,6 +485,7 @@ dependencies = [
  "derive_more",
  "once_cell",
  "prost",
+ "rust-lib",
  "tokio",
  "tokio-stream",
  "tonic",
@@ -1490,6 +1491,17 @@ dependencies = [
  "untrusted",
  "web-sys",
  "winapi",
+]
+
+[[package]]
+name = "rust-lib"
+version = "0.1.0"
+dependencies = [
+ "aws-config",
+ "aws-sdk-dynamodb",
+ "aws-types",
+ "chrono",
+ "derive_more",
 ]
 
 [[package]]

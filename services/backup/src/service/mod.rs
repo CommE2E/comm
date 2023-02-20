@@ -1,5 +1,6 @@
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use proto::backup_service_server::BackupService;
+use rust_lib::database::Error as DBError;
 use std::pin::Pin;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
@@ -8,9 +9,8 @@ use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_futures::Instrument;
 
 use crate::{
-  blob::BlobClient,
-  constants::MPSC_CHANNEL_BUFFER_CAPACITY,
-  database::{DatabaseClient, Error as DBError},
+  blob::BlobClient, constants::MPSC_CHANNEL_BUFFER_CAPACITY,
+  database::DatabaseClient,
 };
 
 mod proto {
