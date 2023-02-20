@@ -4,7 +4,9 @@ import apn from '@parse/node-apn';
 import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
+import webpush from 'web-push';
 
+import type { WebNotification } from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 
@@ -13,6 +15,7 @@ import {
   getFCMPushProfileForCodeVersion,
   getAPNProvider,
   getFCMProvider,
+  ensureWebPushInitialized,
 } from './providers.js';
 import { dbQuery, SQL } from '../database/database.js';
 
@@ -25,6 +28,7 @@ const apnTokenInvalidationErrorCode = 410;
 const apnBadRequestErrorCode = 400;
 const apnBadTokenErrorString = 'BadDeviceToken';
 const apnMaxNotificationPayloadByteSize = 4096;
+const webInvalidTokenErrorCodes = [404, 410];
 
 type APNPushResult =
   | { +success: true }
@@ -198,9 +202,66 @@ async function getUnreadCounts(
   return usersToUnreadCounts;
 }
 
+export type WebPushError = {
+  +statusCode: number,
+  +headers: { +[string]: string },
+  +body: string,
+};
+type WebPushResult = {
+  +success?: true,
+  +errors?: $ReadOnlyArray<WebPushError>,
+  +invalidTokens?: $ReadOnlyArray<string>,
+};
+async function webPush({
+  notification,
+  deviceTokens,
+}: {
+  +notification: WebNotification,
+  +deviceTokens: $ReadOnlyArray<string>,
+}): Promise<WebPushResult> {
+  await ensureWebPushInitialized();
+  const notificationString = JSON.stringify(notification);
+
+  const pushResults = await Promise.all(
+    deviceTokens.map(async deviceTokenString => {
+      const deviceToken: PushSubscriptionJSON = JSON.parse(deviceTokenString);
+      try {
+        await webpush.sendNotification(deviceToken, notificationString);
+      } catch (error) {
+        return { error };
+      }
+      return {};
+    }),
+  );
+
+  const errors = [];
+  const invalidTokens = [];
+  for (let i = 0; i < pushResults.length; i++) {
+    const pushResult = pushResults[i];
+    if (pushResult.error) {
+      errors.push(pushResult.error);
+      if (webInvalidTokenErrorCodes.includes(pushResult.error.statusCode)) {
+        invalidTokens.push(deviceTokens[i]);
+      }
+    }
+  }
+
+  const result = {};
+  if (errors.length > 0) {
+    result.errors = errors;
+  } else {
+    result.success = true;
+  }
+  if (invalidTokens.length > 0) {
+    result.invalidTokens = invalidTokens;
+  }
+  return { ...result };
+}
+
 export {
   apnPush,
   fcmPush,
+  webPush,
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
   fcmMaxNotificationPayloadByteSize,
