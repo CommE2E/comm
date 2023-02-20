@@ -80,7 +80,8 @@ function VideoPlaybackModal(props: Props): React.Node {
   const closeButtonY = useValue(-1);
   const closeButtonWidth = useValue(-1);
   const closeButtonHeight = useValue(-1);
-  const closeButtonRef = React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
+  const closeButtonRef =
+    React.useRef<?React.ElementRef<TouchableOpacityInstance>>();
   const closeButton = closeButtonRef.current;
   const onCloseButtonLayoutCalledRef = React.useRef(false);
   const onCloseButtonLayout = React.useCallback(() => {
@@ -227,9 +228,10 @@ function VideoPlaybackModal(props: Props): React.Node {
   );
 
   const previousOpacityCeiling = useValue(-1);
-  const opacityCeiling = React.useMemo(() => ceil(activeControlsOpacity), [
-    activeControlsOpacity,
-  ]);
+  const opacityCeiling = React.useMemo(
+    () => ceil(activeControlsOpacity),
+    [activeControlsOpacity],
+  );
 
   const opacityJustChanged = React.useMemo(
     () =>
@@ -329,14 +331,14 @@ function VideoPlaybackModal(props: Props): React.Node {
     imageHeight,
   ]);
 
-  const left = React.useMemo(() => sub(centerX, divide(imageWidth, 2)), [
-    centerX,
-    imageWidth,
-  ]);
-  const top = React.useMemo(() => sub(centerY, divide(imageHeight, 2)), [
-    centerY,
-    imageHeight,
-  ]);
+  const left = React.useMemo(
+    () => sub(centerX, divide(imageWidth, 2)),
+    [centerX, imageWidth],
+  );
+  const top = React.useMemo(
+    () => sub(centerY, divide(imageHeight, 2)),
+    [centerY, imageHeight],
+  );
 
   const { initialCoordinates } = props.route.params;
 
@@ -385,10 +387,10 @@ function VideoPlaybackModal(props: Props): React.Node {
     () => [toggleControls, set(curBackdropOpacity, progressiveOpacity)],
     [curBackdropOpacity, progressiveOpacity, toggleControls],
   );
-  const updatedScale = React.useMemo(() => [updates, curScale], [
-    updates,
-    curScale,
-  ]);
+  const updatedScale = React.useMemo(
+    () => [updates, curScale],
+    [updates, curScale],
+  );
   const updatedCurX = React.useMemo(() => [updates, curX], [updates, curX]);
   const updatedCurY = React.useMemo(() => [updates, curY], [updates, curY]);
   const updatedBackdropOpacity = React.useMemo(
@@ -549,9 +551,10 @@ function VideoPlaybackModal(props: Props): React.Node {
     <ConnectedStatusBar hidden />
   );
 
-  const backdropStyle = React.useMemo(() => ({ opacity: backdropOpacity }), [
-    backdropOpacity,
-  ]);
+  const backdropStyle = React.useMemo(
+    () => ({ opacity: backdropOpacity }),
+    [backdropOpacity],
+  );
 
   const contentContainerStyle = React.useMemo(() => {
     const fullScreenHeight = screenDimensions.height;

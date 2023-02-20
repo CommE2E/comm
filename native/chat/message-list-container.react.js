@@ -222,8 +222,10 @@ const unboundStyles = {
   },
 };
 
-const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedMessageListContainer(props: BaseProps) {
+const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedMessageListContainer(
+    props: BaseProps,
+  ) {
     const [usernameInputText, setUsernameInputText] = React.useState('');
     const [userInfoInputArray, setUserInfoInputArray] = React.useState<
       $ReadOnlyArray<AccountUserInfo>,
@@ -246,9 +248,8 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
       props.route.params.threadInfo,
     );
 
-    const existingThreadInfoFinder = useExistingThreadInfoFinder(
-      baseThreadInfo,
-    );
+    const existingThreadInfoFinder =
+      useExistingThreadInfoFinder(baseThreadInfo);
 
     const isSearching = !!props.route.params.searching;
     const threadInfo = React.useMemo(
@@ -357,7 +358,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
         />
       </MessageListContextProvider>
     );
-  },
-);
+  });
 
 export default ConnectedMessageListContainer;

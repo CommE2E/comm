@@ -417,12 +417,8 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
-    const {
-      accept,
-      close,
-      moveChoiceUp,
-      moveChoiceDown,
-    } = this.props.inputState.typeaheadState;
+    const { accept, close, moveChoiceUp, moveChoiceDown } =
+      this.props.inputState.typeaheadState;
 
     const actions = {
       Enter: accept,
@@ -529,12 +525,11 @@ class ChatInputBar extends React.PureComponent<Props> {
 const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,
 );
-const createThreadLoadingStatusSelector = createLoadingStatusSelector(
-  newThreadActionTypes,
-);
+const createThreadLoadingStatusSelector =
+  createLoadingStatusSelector(newThreadActionTypes);
 
-const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedChatInputBar(props) {
+const ConnectedChatInputBar: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedChatInputBar(props) {
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
@@ -596,22 +591,23 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       props.inputState.typeaheadState.keepUpdatingThreadMembers,
     ]);
 
-    const suggestedUsers: $ReadOnlyArray<RelativeMemberInfo> = React.useMemo(() => {
-      if (!typeaheadMatchedStrings) {
-        return [];
-      }
-      return getTypeaheadUserSuggestions(
+    const suggestedUsers: $ReadOnlyArray<RelativeMemberInfo> =
+      React.useMemo(() => {
+        if (!typeaheadMatchedStrings) {
+          return [];
+        }
+        return getTypeaheadUserSuggestions(
+          userSearchIndex,
+          props.inputState.typeaheadState.frozenThreadMembers,
+          viewerID,
+          typeaheadMatchedStrings.usernamePrefix,
+        );
+      }, [
         userSearchIndex,
         props.inputState.typeaheadState.frozenThreadMembers,
         viewerID,
-        typeaheadMatchedStrings.usernamePrefix,
-      );
-    }, [
-      userSearchIndex,
-      props.inputState.typeaheadState.frozenThreadMembers,
-      viewerID,
-      typeaheadMatchedStrings,
-    ]);
+        typeaheadMatchedStrings,
+      ]);
 
     return (
       <ChatInputBar
@@ -629,7 +625,6 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
         suggestedUsers={suggestedUsers}
       />
     );
-  },
-);
+  });
 
 export default ConnectedChatInputBar;

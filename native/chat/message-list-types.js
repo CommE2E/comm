@@ -21,7 +21,8 @@ export type MessageListContextType = {
   +getTextMessageMarkdownRules: (useDarkStyle: boolean) => MarkdownRules,
 };
 
-const MessageListContext: React.Context<?MessageListContextType> = React.createContext<?MessageListContextType>();
+const MessageListContext: React.Context<?MessageListContextType> =
+  React.createContext<?MessageListContextType>();
 
 function useMessageListContext(threadID: ?string) {
   const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadID);

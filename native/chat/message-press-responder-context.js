@@ -6,8 +6,7 @@ export type MessagePressResponderContextType = {
   +onPressMessage: () => void,
 };
 
-const MessagePressResponderContext: React.Context<?MessagePressResponderContextType> = React.createContext<?MessagePressResponderContextType>(
-  null,
-);
+const MessagePressResponderContext: React.Context<?MessagePressResponderContextType> =
+  React.createContext<?MessagePressResponderContextType>(null);
 
 export { MessagePressResponderContext };

@@ -136,15 +136,16 @@ const unboundStyles = {
   },
 };
 
-const ConnectedComposeSubchannelModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedComposeSubchannelModal(props: BaseProps) {
+const ConnectedComposeSubchannelModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedComposeSubchannelModal(
+    props: BaseProps,
+  ) {
     const styles = useStyles(unboundStyles);
     const colors = useColors();
 
     return (
       <ComposeSubchannelModal {...props} styles={styles} colors={colors} />
     );
-  },
-);
+  });
 
 export default ConnectedComposeSubchannelModal;

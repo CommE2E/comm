@@ -158,8 +158,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedColorSelectorModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedColorSelectorModal(props: BaseProps) {
+const ConnectedColorSelectorModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedColorSelectorModal(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const colors = useColors();
     const windowWidth = useSelector(state => state.dimensions.width);
@@ -177,7 +177,6 @@ const ConnectedColorSelectorModal: React.ComponentType<BaseProps> = React.memo<B
         changeThreadSettings={callChangeThreadSettings}
       />
     );
-  },
-);
+  });
 
 export default ConnectedColorSelectorModal;

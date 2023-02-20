@@ -77,17 +77,15 @@ class ChatList extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = this.props.navigation.getParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
   }
 
   componentWillUnmount() {
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = this.props.navigation.getParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      this.props.navigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
   }

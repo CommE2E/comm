@@ -49,10 +49,8 @@ type Props = {
 };
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   render() {
-    const {
-      panelIosHighlightUnderlay,
-      panelForegroundSecondaryLabel,
-    } = this.props.colors;
+    const { panelIosHighlightUnderlay, panelForegroundSecondaryLabel } =
+      this.props.colors;
     const loadingIndicator =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
@@ -149,8 +147,10 @@ const loadingStatusSelector = createLoadingStatusSelector(
   leaveThreadActionTypes,
 );
 
-const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadSettingsLeaveThread(props: BaseProps) {
+const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadSettingsLeaveThread(
+    props: BaseProps,
+  ) {
     const loadingStatus = useSelector(loadingStatusSelector);
     const otherUsersButNoOtherAdminsValue = useSelector(
       otherUsersButNoOtherAdmins(props.threadInfo.id),
@@ -172,7 +172,6 @@ const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> = React
         navContext={navContext}
       />
     );
-  },
-);
+  });
 
 export default ConnectedThreadSettingsLeaveThread;

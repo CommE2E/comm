@@ -779,12 +779,10 @@ const investorsData: $ReadOnlyArray<Investors> = [
   },
 ];
 
-const shuffledInvestorsData: $ReadOnlyArray<Investors> = _shuffle(
-  investorsData,
-);
+const shuffledInvestorsData: $ReadOnlyArray<Investors> =
+  _shuffle(investorsData);
 
-const keyedInvestorData: { [key: string]: Investors } = _keyBy('id')(
-  investorsData,
-);
+const keyedInvestorData: { [key: string]: Investors } =
+  _keyBy('id')(investorsData);
 
 export { shuffledInvestorsData, keyedInvestorData };

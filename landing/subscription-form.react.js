@@ -14,10 +14,8 @@ type SubscriptionFormStatus =
 
 function SubscriptionForm(): React.Node {
   const [email, setEmail] = React.useState('');
-  const [
-    subscriptionFormStatus,
-    setSubscriptionFormStatus,
-  ] = React.useState<SubscriptionFormStatus>({ status: 'pending' });
+  const [subscriptionFormStatus, setSubscriptionFormStatus] =
+    React.useState<SubscriptionFormStatus>({ status: 'pending' });
 
   const onEmailSubmitted = React.useCallback(
     async (e: Event) => {

@@ -24,9 +24,8 @@ async function assignMessageContainerToMedia(
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
   containerID: string,
 ): Promise<void> {
-  const uploadIDs = getUploadIDsFromMediaMessageServerDBContents(
-    mediaMessageContents,
-  );
+  const uploadIDs =
+    getUploadIDsFromMediaMessageServerDBContents(mediaMessageContents);
   const query = SQL`
     UPDATE uploads
     SET container = ${containerID}

@@ -58,14 +58,19 @@ const nativeGetClientResponsesSelector: (
   (input: NavPlusRedux) => getClientResponsesSelector(input.redux),
   (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
-    getClientResponsesFunc: (
+      getClientResponsesFunc: (
+        calendarActive: boolean,
+        oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+        serverRequests: $ReadOnlyArray<ClientServerRequest>,
+      ) => $ReadOnlyArray<ClientClientResponse>,
       calendarActive: boolean,
-      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-      serverRequests: $ReadOnlyArray<ClientServerRequest>,
-    ) => $ReadOnlyArray<ClientClientResponse>,
-    calendarActive: boolean,
-  ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
-    getClientResponsesFunc(calendarActive, oneTimeKeyGenerator, serverRequests),
+    ) =>
+    (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
+      getClientResponsesFunc(
+        calendarActive,
+        oneTimeKeyGenerator,
+        serverRequests,
+      ),
 );
 
 const nativeSessionStateFuncSelector: (
@@ -74,9 +79,11 @@ const nativeSessionStateFuncSelector: (
   (input: NavPlusRedux) => sessionStateFuncSelector(input.redux),
   (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
-    sessionStateFunc: (calendarActive: boolean) => SessionState,
-    calendarActive: boolean,
-  ) => () => sessionStateFunc(calendarActive),
+      sessionStateFunc: (calendarActive: boolean) => SessionState,
+      calendarActive: boolean,
+    ) =>
+    () =>
+      sessionStateFunc(calendarActive),
 );
 
 export {

@@ -155,13 +155,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       },
     );
 
-    const chatNavigation: ?ChatNavigationProp<
-      'ChatThreadList',
-    > = this.props.navigation.getParent();
+    const chatNavigation: ?ChatNavigationProp<'ChatThreadList'> =
+      this.props.navigation.getParent();
     invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = chatNavigation.getParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      chatNavigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
 
@@ -171,13 +169,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.clearNavigationBlurListener && this.clearNavigationBlurListener();
 
-    const chatNavigation: ?ChatNavigationProp<
-      'ChatThreadList',
-    > = this.props.navigation.getParent();
+    const chatNavigation: ?ChatNavigationProp<'ChatThreadList'> =
+      this.props.navigation.getParent();
     invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = chatNavigation.getParent();
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      chatNavigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
 
@@ -612,8 +608,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedChatThreadList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedChatThreadList(props: BaseProps) {
+const ConnectedChatThreadList: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedChatThreadList(props: BaseProps) {
     const boundChatListData = useFlattenedChatListData();
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
@@ -641,7 +637,6 @@ const ConnectedChatThreadList: React.ComponentType<BaseProps> = React.memo<BaseP
         navigateToThread={navigateToThread}
       />
     );
-  },
-);
+  });
 
 export default ConnectedChatThreadList;

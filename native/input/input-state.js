@@ -46,8 +46,7 @@ export type InputState = {
   +reportURIDisplayed: (uri: string, loaded: boolean) => void,
 };
 
-const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(
-  null,
-);
+const InputStateContext: React.Context<?InputState> =
+  React.createContext<?InputState>(null);
 
 export { InputStateContext };

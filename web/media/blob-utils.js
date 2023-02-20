@@ -34,9 +34,7 @@ type ProbeFileSuccess = {
   file: File,
   mediaType: MediaType,
 };
-async function probeFile(
-  file: File,
-): Promise<{
+async function probeFile(file: File): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProbeFileSuccess,
 }> {

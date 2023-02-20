@@ -155,8 +155,10 @@ const unboundStyles = {
   },
 };
 
-const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedThreadSettingsPushNotifs(props: BaseProps) {
+const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedThreadSettingsPushNotifs(
+    props: BaseProps,
+  ) {
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
     const callUpdateSubscription = useServerCall(updateSubscription);
@@ -172,7 +174,6 @@ const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> = React.
         hasPushPermissions={hasPushPermissions}
       />
     );
-  },
-);
+  });
 
 export default ConnectedThreadSettingsPushNotifs;

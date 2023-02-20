@@ -232,17 +232,13 @@ async function websiteResponder(
   })();
 
   const navInfoPromise = (async () => {
-    const [
-      { threadInfos },
-      messageStore,
-      currentUserInfo,
-      userStore,
-    ] = await Promise.all([
-      threadInfoPromise,
-      messageStorePromise,
-      currentUserInfoPromise,
-      userStorePromise,
-    ]);
+    const [{ threadInfos }, messageStore, currentUserInfo, userStore] =
+      await Promise.all([
+        threadInfoPromise,
+        messageStorePromise,
+        currentUserInfoPromise,
+        userStorePromise,
+      ]);
     const finalNavInfo = initialNavInfo;
 
     const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;

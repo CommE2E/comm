@@ -67,12 +67,11 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
     );
   }
 
-  textInputRef: (
-    textInput: ?React.ElementRef<typeof BaseTextInput>,
-  ) => void = textInput => {
-    this.textInput = textInput;
-    this.props.textInputRef(textInput);
-  };
+  textInputRef: (textInput: ?React.ElementRef<typeof BaseTextInput>) => void =
+    textInput => {
+      this.textInput = textInput;
+      this.props.textInputRef(textInput);
+    };
 }
 
 const styles = StyleSheet.create({

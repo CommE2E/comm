@@ -31,10 +31,8 @@ function SubchannelMembersList(props: Props): React.Node {
 
   const { members: parentMembers } = parentThreadInfo;
 
-  const {
-    members: communityMembers,
-    name: communityName,
-  } = communityThreadInfo;
+  const { members: communityMembers, name: communityName } =
+    communityThreadInfo;
 
   const currentUserId = useSelector(state => state.currentUserInfo.id);
 

@@ -127,9 +127,8 @@ async function createMessages(
     }
     messageIndices.push(i);
 
-    const content = messageSpecs[messageData.type].messageContentForServerDB?.(
-      messageData,
-    );
+    const content =
+      messageSpecs[messageData.type].messageContentForServerDB?.(messageData);
 
     const creation =
       messageData.localID && viewer.hasSessionInfo
@@ -497,11 +496,8 @@ function determineLatestMessagesPerThread(
   threadsToMessageIndices: $ReadOnlyMap<string, $ReadOnlyArray<number>>,
   messageInfos: $ReadOnlyArray<RawMessageInfo>,
 ) {
-  const {
-    threadIDs,
-    notFocusedThreadIDs,
-    subthreadsCanSetToUnread,
-  } = preUserPushInfo;
+  const { threadIDs, notFocusedThreadIDs, subthreadsCanSetToUnread } =
+    preUserPushInfo;
   const latestMessagesPerThread = new Map();
   for (const threadID of threadIDs) {
     const messageIndices = threadsToMessageIndices.get(threadID);

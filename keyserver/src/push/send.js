@@ -122,10 +122,8 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         ...newMessageInfos,
         ...existingMessageInfos,
       ]);
-      const [
-        firstNewMessageInfo,
-        ...remainingNewMessageInfos
-      ] = newMessageInfos;
+      const [firstNewMessageInfo, ...remainingNewMessageInfos] =
+        newMessageInfos;
       const threadID = firstNewMessageInfo.threadID;
 
       const threadInfo = threadInfos[threadID];

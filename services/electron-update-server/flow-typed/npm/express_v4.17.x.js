@@ -53,7 +53,8 @@ declare type express$RequestParams = { [param: string]: string, ... };
 */
 declare class express$Request
   extends http$IncomingMessage
-  mixins express$RequestResponseBase {
+  mixins express$RequestResponseBase
+{
   baseUrl: string;
   body: mixed;
   cookies: { [cookie: string]: string, ... };
@@ -119,7 +120,8 @@ declare type express$SendFileOptions = {
 
 declare class express$Response
   extends http$ServerResponse
-  mixins express$RequestResponseBase {
+  mixins express$RequestResponseBase
+{
   headersSent: boolean;
   locals: { [name: string]: mixed, ... };
   append(field: string, value?: string): this;
@@ -229,7 +231,8 @@ declare class express$Router<
     Req: express$Request = express$Request,
     Res: express$Response = express$Response,
   >
-  extends express$Route<Req, Res> {
+  extends express$Route<Req, Res>
+{
   constructor(options?: express$RouterOptions): void;
   route(path: string): express$Route<Req, Res>;
   static <Req2: express$Request, Res2: express$Response>(
@@ -279,7 +282,8 @@ declare class express$Application<
     Res: express$Response = express$Response,
   >
   extends express$Router<Req, Res>
-  mixins events$EventEmitter {
+  mixins events$EventEmitter
+{
   constructor(): void;
   locals: { [name: string]: mixed, ... };
   mountpath: string;

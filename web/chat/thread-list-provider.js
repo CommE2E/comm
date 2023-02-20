@@ -33,7 +33,8 @@ type ThreadListContextType = {
   +setSearchText: (searchText: string) => void,
 };
 
-const ThreadListContext: React.Context<?ThreadListContextType> = React.createContext<?ThreadListContextType>();
+const ThreadListContext: React.Context<?ThreadListContextType> =
+  React.createContext<?ThreadListContextType>();
 
 type ThreadListProviderProps = {
   +children: React.Node,
@@ -205,9 +206,8 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
         ...threadListWithTopLevelItem,
       ];
     }
-    const threadListWithCurrentPendingThread = makeSureActivePendingThreadIsIncluded(
-      threadListWithTopLevelItem,
-    );
+    const threadListWithCurrentPendingThread =
+      makeSureActivePendingThreadIsIncluded(threadListWithTopLevelItem);
     return makeSureActiveSidebarIsIncluded(threadListWithCurrentPendingThread);
   }, [
     activeTab,

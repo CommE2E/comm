@@ -302,9 +302,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const currentlyCompleted = InputStateContainer.completedMessageIDs(
       this.state,
     );
-    const previouslyCompleted = InputStateContainer.completedMessageIDs(
-      prevState,
-    );
+    const previouslyCompleted =
+      InputStateContainer.completedMessageIDs(prevState);
     for (const messageID of currentlyCompleted) {
       if (previouslyCompleted.has(messageID)) {
         continue;
@@ -490,9 +489,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         let threadPendingUploads = [];
         const assignedUploads = {};
         if (pendingUploads) {
-          const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] = _partition(
-            'messageID',
-          )(pendingUploads);
+          const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] =
+            _partition('messageID')(pendingUploads);
           threadPendingUploads = _sortBy('localID')(uploadsWithoutMessageIDs);
           const threadAssignedUploads = _groupBy('messageID')(
             uploadsWithMessageIDs,
@@ -759,9 +757,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const result = uploadResult;
 
     const successThreadID = this.getRealizedOrPendingThreadID(threadID);
-    const uploadAfterSuccess = this.state.pendingUploads[successThreadID][
-      localID
-    ];
+    const uploadAfterSuccess =
+      this.state.pendingUploads[successThreadID][localID];
     invariant(
       uploadAfterSuccess,
       `pendingUpload ${localID}/${result.id} for ${successThreadID} missing ` +
@@ -809,9 +806,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     sendReport({ success: true });
 
     const preloadThreadID = this.getRealizedOrPendingThreadID(threadID);
-    const uploadAfterPreload = this.state.pendingUploads[preloadThreadID][
-      localID
-    ];
+    const uploadAfterPreload =
+      this.state.pendingUploads[preloadThreadID][localID];
     invariant(
       uploadAfterPreload,
       `pendingUpload ${localID}/${result.id} for ${preloadThreadID} missing ` +
@@ -1312,8 +1308,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedInputStateContainer(props) {
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedInputStateContainer(props) {
     const activeChatThreadID = useSelector(
       state => state.navInfo.activeChatThreadID,
     );
@@ -1376,7 +1372,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
         unregisterSendCallback={unregisterSendCallback}
       />
     );
-  },
-);
+  });
 
 export default ConnectedInputStateContainer;

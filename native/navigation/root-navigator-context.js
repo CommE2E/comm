@@ -6,8 +6,7 @@ export type RootNavigatorContextType = {
   setKeyboardHandlingEnabled: (enabled: boolean) => void,
 };
 
-const RootNavigatorContext: React.Context<?RootNavigatorContextType> = React.createContext<?RootNavigatorContextType>(
-  null,
-);
+const RootNavigatorContext: React.Context<?RootNavigatorContextType> =
+  React.createContext<?RootNavigatorContextType>(null);
 
 export { RootNavigatorContext };

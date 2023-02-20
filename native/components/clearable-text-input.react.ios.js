@@ -104,15 +104,14 @@ class ClearableTextInput extends React.PureComponent<
     }
   };
 
-  textInputRef: (
-    textInput: ?React.ElementRef<typeof BaseTextInput>,
-  ) => void = textInput => {
-    if (this.focused && textInput) {
-      textInput.focus();
-    }
-    this.currentTextInput = textInput;
-    this.props.textInputRef(textInput);
-  };
+  textInputRef: (textInput: ?React.ElementRef<typeof BaseTextInput>) => void =
+    textInput => {
+      if (this.focused && textInput) {
+        textInput.focus();
+      }
+      this.currentTextInput = textInput;
+      this.props.textInputRef(textInput);
+    };
 
   async getValueAndReset(): Promise<string> {
     const { value } = this.props;

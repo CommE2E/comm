@@ -155,12 +155,10 @@ function CommunityDrawerItemChat(
   );
 }
 
-const MemoizedCommunityDrawerItemChat: React.ComponentType<CommunityDrawerItemChatProps> = React.memo(
-  CommunityDrawerItemChat,
-);
+const MemoizedCommunityDrawerItemChat: React.ComponentType<CommunityDrawerItemChatProps> =
+  React.memo(CommunityDrawerItemChat);
 
-const MemoizedCommunityDrawerItem: React.ComponentType<DrawerItemProps> = React.memo(
-  CommunityDrawerItem,
-);
+const MemoizedCommunityDrawerItem: React.ComponentType<DrawerItemProps> =
+  React.memo(CommunityDrawerItem);
 
 export default MemoizedCommunityDrawerItem;

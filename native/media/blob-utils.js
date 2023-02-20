@@ -67,9 +67,7 @@ type FetchBlobResult = {
   base64: string,
   mime: string,
 };
-async function fetchBlob(
-  inputURI: string,
-): Promise<{
+async function fetchBlob(inputURI: string): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FetchBlobResult,
 }> {

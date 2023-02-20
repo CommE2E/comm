@@ -74,9 +74,8 @@ async function signInWithEthereum(
 function SIWE(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useSigner();
-  const { siweNonce, siwePrimaryIdentityPublicKey } = React.useContext(
-    SIWEContext,
-  );
+  const { siweNonce, siwePrimaryIdentityPublicKey } =
+    React.useContext(SIWEContext);
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
     const statement = siwePrimaryIdentityPublicKey

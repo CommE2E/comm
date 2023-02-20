@@ -277,8 +277,10 @@ class ChatMessageList extends React.PureComponent<Props> {
 
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
-const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedChatMessageList(props: BaseProps): React.Node {
+const ConnectedChatMessageList: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedChatMessageList(
+    props: BaseProps,
+  ): React.Node {
     const { threadInfo } = props;
     const messageListData = useMessageListData({
       threadInfo,
@@ -336,7 +338,6 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
         />
       </MessageListContext.Provider>
     );
-  },
-);
+  });
 
 export default ConnectedChatMessageList;

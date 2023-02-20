@@ -15,9 +15,8 @@ export type TextMessageMarkdownContextType = {
   +markdownHasPressable: boolean,
 };
 
-const TextMessageMarkdownContext: React.Context<?TextMessageMarkdownContextType> = React.createContext<?TextMessageMarkdownContextType>(
-  null,
-);
+const TextMessageMarkdownContext: React.Context<?TextMessageMarkdownContextType> =
+  React.createContext<?TextMessageMarkdownContextType>(null);
 const pressableMarkdownTypes = new Set(['link', 'spoiler']);
 const markdownASTHasPressable = (node: ASTNode): boolean => {
   if (Array.isArray(node)) {

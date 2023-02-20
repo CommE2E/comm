@@ -57,9 +57,8 @@ function ComposeSubchannelHeader(props: HeaderProps): React.Node {
   );
 }
 
-const createSubchannelLoadingStatusSelector = createLoadingStatusSelector(
-  newThreadActionTypes,
-);
+const createSubchannelLoadingStatusSelector =
+  createLoadingStatusSelector(newThreadActionTypes);
 
 function ComposeSubchannelModal(props: Props): React.Node {
   const { parentThreadInfo, onClose } = props;
@@ -68,9 +67,8 @@ function ComposeSubchannelModal(props: Props): React.Node {
   const [activeStep, setActiveStep] = React.useState<Steps>('settings');
 
   const [channelName, setChannelName] = React.useState<string>('');
-  const [visibilityType, setVisibilityType] = React.useState<VisibilityType>(
-    'open',
-  );
+  const [visibilityType, setVisibilityType] =
+    React.useState<VisibilityType>('open');
   const [announcement, setAnnouncement] = React.useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = React.useState<
     $ReadOnlySet<string>,

@@ -115,8 +115,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedCustomServerModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedCustomServerModal(props: BaseProps) {
+const ConnectedCustomServerModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedCustomServerModal(props: BaseProps) {
     const urlPrefix = useSelector(state => state.urlPrefix);
     const customServer = useSelector(state => state.customServer);
     const styles = useStyles(unboundStyles);
@@ -131,7 +131,6 @@ const ConnectedCustomServerModal: React.ComponentType<BaseProps> = React.memo<Ba
         dispatch={dispatch}
       />
     );
-  },
-);
+  });
 
 export default ConnectedCustomServerModal;

@@ -194,16 +194,16 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       if (!hasPermission) {
         return;
       }
-      const {
-        assets,
-        endCursor,
-        hasNextPage,
-      } = await MediaLibrary.getAssetsAsync({
-        first: 20,
-        after,
-        mediaType: [MediaLibrary.MediaType.photo, MediaLibrary.MediaType.video],
-        sortBy: [MediaLibrary.SortBy.modificationTime],
-      });
+      const { assets, endCursor, hasNextPage } =
+        await MediaLibrary.getAssetsAsync({
+          first: 20,
+          after,
+          mediaType: [
+            MediaLibrary.MediaType.photo,
+            MediaLibrary.MediaType.video,
+          ],
+          sortBy: [MediaLibrary.SortBy.modificationTime],
+        });
 
       let firstRemoved = false,
         lastRemoved = false;
