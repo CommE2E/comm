@@ -42,6 +42,7 @@ import {
   createRealThreadFromPendingThread,
   draftKeyFromThreadID,
   threadIsPending,
+  threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
@@ -114,11 +115,13 @@ type Props = {
     threadID: string,
     localID: string,
     mediaIDs: $ReadOnlyArray<string>,
+    sidebarCreation?: boolean,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (
     threadID: string,
     localID: string,
     text: string,
+    sidebarCreation?: boolean,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
   +pushModal: PushModal,
@@ -154,6 +157,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
+
+  // When the user sends a multimedia message that triggers the creation of a
+  // sidebar, the sidebar gets created right away, but the message needs to wait
+  // for the uploads to complete before sending. We use this Set to track the
+  // message localIDs that need sidebarCreation: true.
+  pendingSidebarCreationMessageLocalIDs = new Set<string>();
 
   static reassignToRealizedThreads<T>(
     state: { +[threadID: string]: T },
@@ -407,6 +416,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       localID !== null && localID !== undefined,
       'localID should be set',
     );
+    const sidebarCreation =
+      this.pendingSidebarCreationMessageLocalIDs.has(localID);
     const mediaIDs = [];
     for (const { id } of messageInfo.media) {
       mediaIDs.push(id);
@@ -416,7 +427,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         threadID,
         localID,
         mediaIDs,
+        sidebarCreation,
       );
+      this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       this.setState(prevState => {
         const newThreadID = this.getRealizedOrPendingThreadID(threadID);
         const prevUploads = prevState.pendingUploads[newThreadID];
@@ -989,6 +1002,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
+    const { localID } = messageInfo;
+    invariant(
+      localID !== null && localID !== undefined,
+      'localID should be set',
+    );
+    if (threadIsPendingSidebar(threadInfo.id)) {
+      this.pendingSidebarCreationMessageLocalIDs.add(localID);
+    }
+
     if (!threadIsPending(threadInfo.id)) {
       this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
@@ -1043,11 +1065,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         localID !== null && localID !== undefined,
         'localID should be set',
       );
+      const sidebarCreation =
+        this.pendingSidebarCreationMessageLocalIDs.has(localID);
       const result = await this.props.sendTextMessage(
         messageInfo.threadID,
         localID,
         messageInfo.text,
+        sidebarCreation,
       );
+      this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return {
         localID,
         serverID: result.id,
@@ -1068,6 +1094,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   createMultimediaMessage(localID: number, threadInfo: ThreadInfo) {
     const localMessageID = `${localIDPrefix}${localID}`;
     this.startThreadCreation(threadInfo);
+
+    if (threadIsPendingSidebar(threadInfo.id)) {
+      this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
+    }
 
     this.setState(prevState => {
       const newThreadID = this.getRealizedOrPendingThreadID(threadInfo.id);
@@ -1195,6 +1225,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     this.startThreadCreation(threadInfo);
+
+    if (threadIsPendingSidebar(threadInfo.id)) {
+      this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
+    }
 
     const completed = InputStateContainer.completedMessageIDs(this.state);
     if (completed.has(localMessageID)) {
