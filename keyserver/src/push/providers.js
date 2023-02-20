@@ -101,6 +101,13 @@ async function getWebPushConfig(): Promise<?WebPushConfig> {
   return cachedWebPushConfig;
 }
 
+async function ensureWebPushInitialized() {
+  if (cachedWebPushConfig) {
+    return;
+  }
+  await getWebPushConfig();
+}
+
 export {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
@@ -110,4 +117,5 @@ export {
   endAPNs,
   getAPNsNotificationTopic,
   getWebPushConfig,
+  ensureWebPushInitialized,
 };

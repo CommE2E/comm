@@ -28,6 +28,7 @@ import {
   type MessageInfo,
   messageTypes,
 } from 'lib/types/message-types.js';
+import type { WebNotification } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
@@ -41,6 +42,8 @@ import {
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
   fcmMaxNotificationPayloadByteSize,
+  webPush,
+  type WebPushError,
 } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
@@ -61,7 +64,7 @@ type PushUserInfo = {
   +devices: Device[],
   +messageInfos: RawMessageInfo[],
 };
-type Delivery = IOSDelivery | AndroidDelivery | { collapsedInto: string };
+type Delivery = PushDelivery | { collapsedInto: string };
 type NotificationRow = {
   +dbID: string,
   +userID: string,
@@ -231,6 +234,27 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           deliveryPromises.push(deliveryPromise);
         }
       }
+      const webVersionsToTokens = byPlatform.get('web');
+      if (webVersionsToTokens) {
+        for (const [codeVersion, deviceTokens] of webVersionsToTokens) {
+          const deliveryPromise = (async () => {
+            const notification = await prepareWebNotification(
+              allMessageInfos,
+              threadInfo,
+              unreadCounts[userID],
+              {
+                id: userID,
+                username,
+              },
+            );
+            return await sendWebNotification(notification, [...deviceTokens], {
+              ...notificationInfo,
+              codeVersion,
+            });
+          })();
+          deliveryPromises.push(deliveryPromise);
+        }
+      }
 
       for (const newMessageInfo of remainingNewMessageInfos) {
         const newDBID = dbIDs.shift();
@@ -290,7 +314,7 @@ async function sendRescindNotifs(rescindInfo: PushInfo) {
 // The results in deliveryResults will be combined with the rows
 // in rowsToSave and then written to the notifications table
 async function saveNotifResults(
-  deliveryResults: $ReadOnlyArray<IOSResult | AndroidResult>,
+  deliveryResults: $ReadOnlyArray<PushResult>,
   inputRowsToSave: Map<string, NotificationRow>,
   rescindable: boolean,
 ) {
@@ -666,6 +690,28 @@ async function prepareAndroidNotification(
   return notification;
 }
 
+async function prepareWebNotification(
+  allMessageInfos: MessageInfo[],
+  threadInfo: ThreadInfo,
+  unreadCount: number,
+  notifTargetUserInfo: UserInfo,
+): Promise<WebNotification> {
+  const id = uuidv4();
+  const { merged, ...rest } = await notifTextsForMessageInfo(
+    allMessageInfos,
+    threadInfo,
+    notifTargetUserInfo,
+    getENSNames,
+  );
+  const notification = {
+    ...rest,
+    unreadCount,
+    id,
+    threadID: threadInfo.id,
+  };
+  return notification;
+}
+
 type NotificationInfo =
   | {
       +source: 'new_message',
@@ -723,6 +769,8 @@ async function sendIOSNotification(
   return result;
 }
 
+type PushResult = AndroidResult | IOSResult | WebResult;
+type PushDelivery = AndroidDelivery | IOSDelivery | WebDelivery;
 type AndroidDelivery = {
   source: $PropertyType<NotificationInfo, 'source'>,
   deviceType: 'android',
@@ -769,6 +817,45 @@ async function sendAndroidNotification(
   if (response.invalidTokens) {
     result.invalidTokens = response.invalidTokens;
   }
+  return result;
+}
+
+type WebDelivery = {
+  +source: $PropertyType<NotificationInfo, 'source'>,
+  +deviceType: 'web',
+  +deviceTokens: $ReadOnlyArray<string>,
+  +codeVersion?: number,
+  +errors?: $ReadOnlyArray<WebPushError>,
+};
+type WebResult = {
+  +info: NotificationInfo,
+  +delivery: WebDelivery,
+  +invalidTokens?: $ReadOnlyArray<string>,
+};
+async function sendWebNotification(
+  notification: WebNotification,
+  deviceTokens: $ReadOnlyArray<string>,
+  notificationInfo: NotificationInfo,
+): Promise<WebResult> {
+  const { source, codeVersion } = notificationInfo;
+
+  const response = await webPush({
+    notification,
+    deviceTokens,
+  });
+
+  const delivery: WebDelivery = {
+    source,
+    deviceType: 'web',
+    deviceTokens,
+    codeVersion,
+    errors: response.errors,
+  };
+  const result: WebResult = {
+    info: notificationInfo,
+    delivery,
+    invalidTokens: response.invalidTokens,
+  };
   return result;
 }
 
