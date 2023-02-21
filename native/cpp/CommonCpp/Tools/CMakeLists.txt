@@ -4,9 +4,6 @@ cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
 
 set(TOOLS_HDRS
-  "CommSecureStore.h"
-  "Logger.h"
-  "PlatformSpecificTools.h"
   "WorkerThread.h"
 )
 
@@ -15,6 +12,7 @@ set(TOOLS_SRCS
 )
 
 add_library(comm-tools
+  STATIC
   ${TOOLS_HDRS}
   ${TOOLS_SRCS}
 )

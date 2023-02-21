@@ -19,6 +19,7 @@ cmake_minimum_required(VERSION 3.18)
 # Gradle automatically packages shared libraries with your APK.
 set(PACKAGE_NAME "comm_jni_module")
 
+find_library(log-lib log)
 find_package(fbjni REQUIRED CONFIG)
 
 set(BUILD_TESTING OFF)
@@ -103,7 +104,19 @@ add_subdirectory(../../cpp/CommonCpp/
 file(GLOB SQLCIPHER
   "${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src/*.c"
 )
-file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
+
+# Add files which aren't a part of comm-tools
+list(APPEND ANDROID_NATIVE_CODE
+  "./src/cpp/CommSecureStore.cpp"
+  "./src/cpp/DatabaseInitializerJNIHelper.cpp"
+  "./src/cpp/GlobalDBSingleton.cpp"
+  "./src/cpp/Logger.cpp"
+  "./src/cpp/MessageOperationsUtilitiesJNIHelper.cpp"
+  "./src/cpp/PlatformSpecificTools.cpp"
+  "./src/cpp/TerminateApp.cpp"
+  "./src/cpp/ThreadOperationsJNIHelper.cpp"
+  "./src/cpp/jsiInstaller.cpp"
+)
 
 set(GENERATED_NATIVE_CODE "../../cpp/CommonCpp/_generated/commJSI-generated.cpp")
 file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
@@ -111,7 +124,6 @@ file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
 file(GLOB DB_ENTITIES_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/entities/*.cpp")
 file(GLOB_RECURSE MODULE_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/**/*.cpp")
 file(GLOB MODULE_ROOT_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/*.cpp")
-file(GLOB TOOLS_NATIVE_CODE "../../cpp/CommonCpp/Tools/*.cpp")
 file(GLOB NOTIFICATIONS_NATIVE_CODE "../../cpp/CommonCpp/Notifications/**/*.cpp")
 
 add_library(
@@ -178,7 +190,6 @@ target_include_directories(
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
   ../../cpp/CommonCpp/DatabaseManagers
-  ../../cpp/CommonCpp/Tools
   ../../cpp/CommonCpp/Notifications
   ../../cpp/CommonCpp/Notifications/BackgroundDataStorage
 
@@ -194,8 +205,6 @@ add_definitions(
   -DSQLCIPHER_CRYPTO_OPENSSL
 )
 
-find_library(log-lib log)
-
 target_link_libraries(
   ${PACKAGE_NAME}
   fbjni::fbjni
@@ -207,6 +216,7 @@ target_link_libraries(
   openssl-crypto
   openssl-ssl
   comm::native_rust_library
+  comm-tools
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
