@@ -24,7 +24,9 @@ const nativeLogInExtraInfoSelector: (
   ) => {
     const loginExtraFuncWithIdentityKey = async () => {
       await commCoreModule.initializeCryptoAccount();
-      const { ed25519 } = await commCoreModule.getUserPublicKey();
+      const {
+        primaryIdentityPublicKeys: { ed25519 },
+      } = await commCoreModule.getUserPublicKey();
       return {
         ...logInExtraInfoFunc(calendarActive),
         primaryIdentityPublicKey: ed25519,
