@@ -1,0 +1,14 @@
+.container {
+  padding: 0 40px 32px;
+  border-radius: 8px;
+  color: var(--modal-fg);
+}
+.text {
+  font-size: var(--xl-font-20);
+  padding: 5px 0px 20px;
+}
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+}
