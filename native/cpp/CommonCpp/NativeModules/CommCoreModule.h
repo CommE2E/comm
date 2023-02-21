@@ -18,6 +18,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   CommSecureStore secureStore;
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
+  const std::string publicCryptoAccountID = "publicCryptoAccountID";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
 
   template <class T>
@@ -45,8 +46,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void processThreadStoreOperationsSync(
       jsi::Runtime &rt,
       jsi::Array operations) override;
-  virtual jsi::Value
-  initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) override;
+  virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
   virtual void terminate(jsi::Runtime &rt) override;
