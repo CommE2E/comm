@@ -1,11 +1,15 @@
 use crate::constants::{
   FEATURE_FLAGS_CONFIG_FIELD, FEATURE_FLAGS_FEATURE_FIELD,
-  FEATURE_FLAGS_NON_STAFF_FIELD, FEATURE_FLAGS_STAFF_FIELD,
+  FEATURE_FLAGS_NON_STAFF_FIELD, FEATURE_FLAGS_PLATFORM_FIELD,
+  FEATURE_FLAGS_STAFF_FIELD, FEATURE_FLAGS_TABLE_NAME,
 };
+use aws_sdk_dynamodb::model::Select;
 use aws_sdk_dynamodb::{model::AttributeValue, Error as DynamoDBError};
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::num::ParseIntError;
+use std::sync::Arc;
+use tracing::error;
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -60,7 +64,7 @@ pub enum DBItemAttributeError {
   InvalidNumberFormat(ParseIntError),
 }
 
-fn _parse_string_attribute(
+fn parse_string_attribute(
   attribute_name: &'static str,
   attribute_value: Option<AttributeValue>,
 ) -> Result<String, DBItemError> {
@@ -79,7 +83,7 @@ fn _parse_string_attribute(
   }
 }
 
-fn _parse_bool_attribute(
+fn parse_bool_attribute(
   attribute_name: &'static str,
   attribute_value: Option<AttributeValue>,
 ) -> Result<bool, DBItemError> {
@@ -98,7 +102,7 @@ fn _parse_bool_attribute(
   }
 }
 
-fn _parse_map_attribute(
+fn parse_map_attribute(
   attribute_name: &'static str,
   attribute_value: Option<AttributeValue>,
 ) -> Result<HashMap<String, AttributeValue>, DBItemError> {
@@ -113,7 +117,7 @@ fn _parse_map_attribute(
   }
 }
 
-fn _parse_number(
+fn parse_number(
   attribute_name: &'static str,
   attribute_value: &str,
 ) -> Result<i32, DBItemError> {
@@ -133,16 +137,16 @@ pub struct CodeVersionSpecificFeatureConfig {
   pub non_staff: bool,
 }
 
-fn _parse_code_version_specific_feature_config(
+fn parse_code_version_specific_feature_config(
   value: Option<AttributeValue>,
 ) -> Result<CodeVersionSpecificFeatureConfig, DBItemError> {
   let mut code_version_config_map =
-    _parse_map_attribute(FEATURE_FLAGS_CONFIG_FIELD, value)?;
-  let staff = _parse_bool_attribute(
+    parse_map_attribute(FEATURE_FLAGS_CONFIG_FIELD, value)?;
+  let staff = parse_bool_attribute(
     FEATURE_FLAGS_STAFF_FIELD,
     code_version_config_map.remove(FEATURE_FLAGS_STAFF_FIELD),
   )?;
-  let non_staff = _parse_bool_attribute(
+  let non_staff = parse_bool_attribute(
     FEATURE_FLAGS_NON_STAFF_FIELD,
     code_version_config_map.remove(FEATURE_FLAGS_NON_STAFF_FIELD),
   )?;
@@ -155,27 +159,83 @@ pub struct FeatureConfig {
   pub config: HashMap<i32, CodeVersionSpecificFeatureConfig>,
 }
 
-fn _parse_feature_config(
+fn parse_feature_config(
   mut attribute_value: HashMap<String, AttributeValue>,
 ) -> Result<FeatureConfig, DBItemError> {
-  let feature_name = _parse_string_attribute(
+  let feature_name = parse_string_attribute(
     FEATURE_FLAGS_FEATURE_FIELD,
     attribute_value.remove(FEATURE_FLAGS_FEATURE_FIELD),
   )?;
-  let config_map = _parse_map_attribute(
+  let config_map = parse_map_attribute(
     FEATURE_FLAGS_CONFIG_FIELD,
     attribute_value.remove(FEATURE_FLAGS_CONFIG_FIELD),
   )?;
   let mut config = HashMap::new();
   for (code_version_string, code_version_config) in config_map {
     let code_version: i32 =
-      _parse_number("code_version", code_version_string.as_str())?;
+      parse_number("code_version", code_version_string.as_str())?;
     let version_config =
-      _parse_code_version_specific_feature_config(Some(code_version_config))?;
+      parse_code_version_specific_feature_config(Some(code_version_config))?;
     config.insert(code_version, version_config);
   }
   Ok(FeatureConfig {
     name: feature_name,
     config,
   })
+}
+
+pub enum Platform {
+  IOS,
+  ANDROID,
+}
+
+#[derive(Clone)]
+pub struct DatabaseClient {
+  client: Arc<aws_sdk_dynamodb::Client>,
+}
+
+impl DatabaseClient {
+  pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
+    DatabaseClient {
+      client: Arc::new(aws_sdk_dynamodb::Client::new(aws_config)),
+    }
+  }
+
+  pub async fn get_features_configuration(
+    &self,
+    platform: Platform,
+  ) -> Result<HashMap<String, FeatureConfig>, Error> {
+    let platform_value = match platform {
+      Platform::IOS => "IOS",
+      Platform::ANDROID => "ANDROID",
+    };
+    let result = self
+      .client
+      .query()
+      .select(Select::AllAttributes)
+      .table_name(FEATURE_FLAGS_TABLE_NAME)
+      .consistent_read(true)
+      .key_condition_expression("#platform = :platform")
+      .expression_attribute_names("#platform", FEATURE_FLAGS_PLATFORM_FIELD)
+      .expression_attribute_values(
+        ":platform",
+        AttributeValue::S(platform_value.to_string()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to find feature flags configuration");
+        Error::AwsSdk(e.into())
+      })?;
+    if let Some(items) = result.items {
+      let mut config = HashMap::new();
+      for item in items {
+        let feature_config = parse_feature_config(item)?;
+        config.insert(feature_config.name.clone(), feature_config);
+      }
+      Ok(config)
+    } else {
+      Ok(HashMap::new())
+    }
+  }
 }
