@@ -834,23 +834,38 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
           } catch (const std::exception &e) {
             error = e.what();
           }
+
+          folly::dynamic parsedPublic = folly::parseJson(publicKeysResult);
+          auto curve25519Cpp{parsedPublic["curve25519"].asString()};
+          auto ed25519Cpp{parsedPublic["ed25519"].asString()};
+
+          folly::dynamic parsedNotifications =
+              folly::parseJson(notificationsKeysResult);
+          auto notificationsCurve25519Cpp{
+              parsedNotifications["curve25519"].asString()};
+          auto notificationsEd25519Cpp{
+              parsedNotifications["ed25519"].asString()};
+          std::string concatenated{
+              ed25519Cpp + curve25519Cpp + notificationsEd25519Cpp +
+              notificationsCurve25519Cpp};
+          std::string ed25519SignatureCpp =
+              this->cryptoModule->signMessage(concatenated);
+
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            folly::dynamic parsedPublic = folly::parseJson(publicKeysResult);
-            auto curve25519{jsi::String::createFromUtf8(
-                innerRt, parsedPublic["curve25519"].asString())};
-            auto ed25519{jsi::String::createFromUtf8(
-                innerRt, parsedPublic["ed25519"].asString())};
 
-            folly::dynamic parsedNotifications =
-                folly::parseJson(notificationsKeysResult);
+            auto curve25519{
+                jsi::String::createFromUtf8(innerRt, curve25519Cpp)};
+            auto ed25519{jsi::String::createFromUtf8(innerRt, ed25519Cpp)};
             auto notificationsCurve25519{jsi::String::createFromUtf8(
-                innerRt, parsedNotifications["curve25519"].asString())};
-            auto notificationsEd25519{jsi::String::createFromUtf8(
-                innerRt, parsedNotifications["ed25519"].asString())};
+                innerRt, notificationsCurve25519Cpp)};
+            auto notificationsEd25519{
+                jsi::String::createFromUtf8(innerRt, notificationsEd25519Cpp)};
+            auto ed25519Signature{
+                jsi::String::createFromUtf8(innerRt, ed25519SignatureCpp)};
 
             auto jsiClientPublicKeys = jsi::Object(innerRt);
             jsiClientPublicKeys.setProperty(innerRt, "curve25519", curve25519);
@@ -859,6 +874,8 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
                 innerRt, "notificationsCurve25519", notificationsCurve25519);
             jsiClientPublicKeys.setProperty(
                 innerRt, "notificationsEd25519", notificationsEd25519);
+            jsiClientPublicKeys.setProperty(
+                innerRt, "ed25519Signature", ed25519Signature);
             promise->resolve(std::move(jsiClientPublicKeys));
           });
         };

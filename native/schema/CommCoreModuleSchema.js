@@ -29,6 +29,7 @@ type ClientPublicKeys = {
   +ed25519: string,
   +notificationsEd25519: string,
   +notificationsCurve25519: string,
+  +ed25519Signature: string,
 };
 
 export interface Spec extends TurboModule {
