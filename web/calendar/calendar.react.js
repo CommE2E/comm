@@ -1,7 +1,5 @@
 // @flow
 
-import { faFilter } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import dateFormat from 'dateformat';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -179,8 +177,7 @@ class Calendar extends React.PureComponent<Props, State> {
               onClick={this.toggleFilters}
               style={filterButtonStyle}
             >
-              <FontAwesomeIcon icon={faFilter} />
-              Filters
+              <SWMansionIcon icon="filters-2" size={16} />
             </a>
             <nav className={css.nav}>
               <a
