@@ -302,5 +302,41 @@ std::string CryptoModule::decrypt(
   return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
 
+std::string CryptoModule::signMessage(const std::string &message) {
+  OlmBuffer signature;
+  signature.resize(::olm_account_signature_length(this->account));
+  size_t signatureLength = ::olm_account_sign(
+      this->account,
+      (uint8_t *)message.data(),
+      message.length(),
+      signature.data(),
+      signature.size());
+  if (signatureLength == -1) {
+    throw std::runtime_error{
+        "olm error: " + std::string{::olm_account_last_error(this->account)}};
+  }
+  return std::string{(char *)signature.data(), signatureLength};
+}
+
+void CryptoModule::verifySignature(
+    const std::string &publicKey,
+    const std::string &message,
+    const std::string &signature) {
+  OlmBuffer utilityBuffer;
+  utilityBuffer.resize(::olm_utility_size());
+  OlmUtility *olmUtility = ::olm_utility(utilityBuffer.data());
+  ssize_t verificationResult = ::olm_ed25519_verify(
+      olmUtility,
+      (uint8_t *)publicKey.data(),
+      publicKey.length(),
+      (uint8_t *)message.data(),
+      message.length(),
+      (uint8_t *)signature.data(),
+      signature.length());
+  if (verificationResult == -1) {
+    throw std::runtime_error{"olm error: " + std::string{}};
+  }
+}
+
 } // namespace crypto
 } // namespace comm
