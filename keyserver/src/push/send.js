@@ -126,7 +126,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       ]);
       const [firstNewMessageInfo, ...remainingNewMessageInfos] =
         newMessageInfos;
-      const threadID = firstNewMessageInfo.threadID;
+      const { threadID } = firstNewMessageInfo;
 
       const threadInfo = threadInfos[threadID];
       const updateBadge = threadInfo.currentUser.subscription.home;
@@ -136,8 +136,11 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         username &&
         threadInfo.currentUser.role &&
         oldValidUsernameRegex.test(username) &&
-        firstNewMessageInfo.type === messageTypes.TEXT &&
-        isMentioned(username, firstNewMessageInfo.text);
+        newMessageInfos.some(
+          newMessageInfo =>
+            newMessageInfo.type === messageTypes.TEXT &&
+            isMentioned(username, newMessageInfo.text),
+        );
       if (!updateBadge && !displayBanner && !userWasMentioned) {
         continue;
       }
