@@ -18,7 +18,7 @@ type CommAndroidNotificationsModuleType = {
   +removeAllDeliveredNotifications: () => void,
   +hasPermission: () => Promise<boolean>,
   +getToken: () => Promise<string>,
-  ...
+  +NOTIFICATIONS_IMPORTANCE_HIGH: string,
 };
 export type AndroidForegroundMessage = {
   +body: string,
