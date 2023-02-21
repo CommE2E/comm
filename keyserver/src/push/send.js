@@ -135,11 +135,16 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         username &&
         threadInfo.currentUser.role &&
         oldValidUsernameRegex.test(username) &&
-        newMessageInfos.some(
-          newMessageInfo =>
-            newMessageInfo.type === messageTypes.TEXT &&
-            isMentioned(username, newMessageInfo.text),
-        );
+        newMessageInfos.some(newMessageInfo => {
+          const unwrappedMessageInfo =
+            newMessageInfo.type === messageTypes.SIDEBAR_SOURCE
+              ? newMessageInfo.sourceMessage
+              : newMessageInfo;
+          return (
+            unwrappedMessageInfo.type === messageTypes.TEXT &&
+            isMentioned(username, unwrappedMessageInfo.text)
+          );
+        });
       if (!updateBadge && !displayBanner && !userWasMentioned) {
         continue;
       }
