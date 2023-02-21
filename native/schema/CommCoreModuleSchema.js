@@ -33,6 +33,8 @@ type ClientPublicKeys = {
     +ed25519: string,
     +curve25519: string,
   },
+  +blobPayload: string,
+  +signature: string,
 };
 
 export interface Spec extends TurboModule {
