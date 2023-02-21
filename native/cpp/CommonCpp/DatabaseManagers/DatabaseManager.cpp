@@ -1,4 +1,5 @@
 #include "DatabaseManager.h"
+#include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
 #include "../Tools/CommSecureStore.h"
 #include "Logger.h"
 #include "SQLiteQueryExecutor.h"
@@ -30,6 +31,7 @@ const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
 
 void DatabaseManager::clearSensitiveData() {
   SQLiteQueryExecutor::clearSensitiveData();
+  NotificationsCryptoModule::clearSensitiveData();
   DatabaseManager::setDatabaseStatusAsWorkable();
 }
 

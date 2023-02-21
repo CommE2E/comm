@@ -86,7 +86,9 @@ function SIWEPanel(props: Props): React.Node {
         })(),
       );
       await commCoreModule.initializeCryptoAccount();
-      const { ed25519 } = await commCoreModule.getUserPublicKey();
+      const {
+        primaryIdentityPublicKeys: { ed25519 },
+      } = await commCoreModule.getUserPublicKey();
       setPrimaryIdentityPublicKey(ed25519);
     })();
   }, [dispatchActionPromise, getSIWENonceCall]);
