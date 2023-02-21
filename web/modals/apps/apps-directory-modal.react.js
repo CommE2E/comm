@@ -1,10 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 
+import { useSelector } from '../../redux/redux-utils.js';
 import AppListing from '../apps/app-listing.react.js';
 import css from '../apps/apps.css';
 import Modal from '../modal.react.js';
@@ -37,9 +37,15 @@ function AppsModal(): React.Node {
     () =>
       APP_DIRECTORY_DATA.map(app => {
         const { defaultEnabled, ...data } = app;
+        if (app.id === 'chat') {
+          return {
+            ...data,
+            enabled: defaultEnabled,
+          };
+        }
         return {
           ...data,
-          enabled: enabledApps[app.id] ?? defaultEnabled,
+          enabled: enabledApps[app.id],
         };
       }),
     [enabledApps],
