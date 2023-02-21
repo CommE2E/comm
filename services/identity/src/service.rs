@@ -19,10 +19,10 @@ use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tonic::{Request, Response, Status};
 use tracing::{error, info, instrument};
 
+use crate::config::CONFIG;
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
-use crate::database::DatabaseClient;
+use crate::database::{DatabaseClient, Error as DBError};
 use crate::token::{AccessTokenData, AuthType};
-use crate::{config::Config, database::Error as DBError};
 
 pub use proto::identity_service_server::IdentityServiceServer;
 use proto::{
@@ -64,7 +64,6 @@ enum PakeWorkflow {
 
 #[derive(derive_more::Constructor)]
 pub struct MyIdentityService {
-  config: Config,
   client: DatabaseClient,
 }
 
@@ -88,7 +87,6 @@ impl IdentityService for MyIdentityService {
       first_message,
       self.client.clone(),
       tx.clone(),
-      &self.config,
     )
     .await?;
     // ServerRegistration in opaque-ke v1.2 doesn't implement Clone, so we
@@ -108,7 +106,6 @@ impl IdentityService for MyIdentityService {
         self.client.clone(),
         &registration_state,
         pake_state,
-        &self.config,
       )
       .await?;
     let third_message = in_stream.next().await;
@@ -143,7 +140,6 @@ impl IdentityService for MyIdentityService {
       first_message,
       tx.clone(),
       self.client.clone(),
-      &self.config,
     )
     .await?;
 
@@ -345,7 +341,6 @@ async fn wallet_login_helper(
 }
 
 async fn pake_login_start(
-  config: &Config,
   client: DatabaseClient,
   user_id: &str,
   pake_credential_request: &[u8],
@@ -370,7 +365,7 @@ async fn pake_login_start(
   match ServerLogin::start(
     &mut OsRng,
     server_registration,
-    config.server_keypair.private(),
+    CONFIG.server_keypair.private(),
     credential_request,
     ServerLoginStartParameters::default(),
   ) {
@@ -448,14 +443,13 @@ async fn pake_login_finish(
 }
 
 async fn pake_registration_start(
-  config: &Config,
   rng: &mut (impl Rng + CryptoRng),
   registration_request_bytes: &[u8],
 ) -> Result<RegistrationResponseAndPakeState, Status> {
   match ServerRegistration::<Cipher>::start(
     rng,
     PakeRegistrationRequest::deserialize(registration_request_bytes).unwrap(),
-    config.server_keypair.public(),
+    CONFIG.server_keypair.public(),
   ) {
     Ok(server_registration_start_result) => {
       Ok(RegistrationResponseAndPakeState {
