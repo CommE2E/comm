@@ -9,6 +9,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
+import { ChevronsLeft } from 'react-feather';
 import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
 
@@ -48,6 +49,7 @@ type Props = {
   +includeDeleted: boolean,
   +dispatch: Dispatch,
   +pushModal: PushModal,
+  +toggleFilters: (event: SyntheticEvent<HTMLAnchorElement>) => void,
 };
 type State = {
   +query: string,
@@ -144,6 +146,9 @@ class FilterPanel extends React.PureComponent<Props, State> {
             />
             {clearQueryButton}
           </div>
+          <a onClick={this.props.toggleFilters} className={css.collapseButton}>
+            <ChevronsLeft size={30} />
+          </a>
         </div>
         <div className={css.filters}>{filters}</div>
         <div className={css.extras}>
@@ -384,8 +389,12 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 }
 
-const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
-  function ConnectedFilterPanel(): React.Node {
+type ConnectedFilterPanelProps = {
+  +toggleFilters: (event: SyntheticEvent<HTMLAnchorElement>) => void,
+};
+
+const ConnectedFilterPanel: React.ComponentType<ConnectedFilterPanelProps> = React.memo<ConnectedFilterPanelProps>(
+  function ConnectedFilterPanel(props: ConnectedFilterPanelProps): React.Node {
     const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
     const filteredCommunityThreadIDs = useSelector(
       filterThreadIDsBelongingToCommunitySelector,
@@ -405,6 +414,7 @@ const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
         includeDeleted={includeDeleted}
         dispatch={dispatch}
         pushModal={modalContext.pushModal}
+        toggleFilters={props.toggleFilters}
       />
     );
   },
