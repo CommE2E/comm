@@ -34,3 +34,7 @@ pub const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50051";
 // Token
 
 pub const ACCESS_TOKEN_LENGTH: usize = 512;
+
+// Temporary config
+
+pub const AUTH_TOKEN: &str = "COMM_IDENTITY_SERVICE_AUTH_TOKEN";

@@ -1,4 +1,4 @@
-FROM rust:1.61
+FROM rust:1.67
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   protobuf-compiler && rm -rf /var/lib/apt/lists/*
