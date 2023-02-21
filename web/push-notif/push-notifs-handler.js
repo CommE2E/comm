@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   setDeviceToken,
@@ -15,6 +16,7 @@ import {
 
 import electron from '../electron.js';
 import { PushNotifModal } from '../modals/push-notif-modal.react.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function useCreatePushSubscription(): () => Promise<void> {
@@ -51,6 +53,8 @@ function PushNotificationsHandler(): React.Node {
   const modalContext = useModalContext();
   const loggedIn = useSelector(isLoggedIn);
 
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
     (async () => {
       if (!navigator.serviceWorker || electron) {
@@ -86,6 +90,33 @@ function PushNotificationsHandler(): React.Node {
     }
     prevLoggedIn.current = loggedIn;
   }, [createPushSubscription, loggedIn, modalContext, prevLoggedIn]);
+
+  // Redirect to thread on notification click
+  React.useEffect(() => {
+    if (!navigator.serviceWorker || electron) {
+      return;
+    }
+
+    const callback = (event: MessageEvent) => {
+      if (typeof event.data !== 'object' || !event.data) {
+        return;
+      }
+
+      if (event.data.targetThreadID) {
+        const payload = {
+          chatMode: 'view',
+          activeChatThreadID: event.data.targetThreadID,
+          tab: 'chat',
+        };
+
+        dispatch({ type: updateNavInfoActionType, payload });
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', callback);
+    return () =>
+      navigator.serviceWorker?.removeEventListener('message', callback);
+  }, [dispatch]);
 
   return null;
 }
