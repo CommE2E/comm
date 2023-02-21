@@ -834,34 +834,58 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
           } catch (const std::exception &e) {
             error = e.what();
           }
+
+          folly::dynamic parsedPrimary = folly::parseJson(primaryKeysResult);
+          auto primaryCurve25519Cpp{parsedPrimary["curve25519"].asString()};
+          auto primaryEd25519Cpp{parsedPrimary["ed25519"].asString()};
+
+          folly::dynamic parsedNotifications =
+              folly::parseJson(notificationsKeysResult);
+          auto notificationsCurve25519Cpp{
+              parsedNotifications["curve25519"].asString()};
+          auto notificationsEd25519Cpp{
+              parsedNotifications["ed25519"].asString()};
+
+          folly::dynamic blobPayloadJSON = folly::dynamic::object(
+              "primaryIdentityPublicKeys",
+              folly::dynamic::object("ed25519", primaryEd25519Cpp)(
+                  "curve25519", primaryCurve25519Cpp))(
+              "notificationIdentityPublicKeys",
+              folly::dynamic::object("ed25519", notificationsEd25519Cpp)(
+                  "curve25519", notificationsCurve25519Cpp));
+
+          auto blobPayloadCpp = folly::toJson(blobPayloadJSON);
+          auto signatureCpp = this->cryptoModule->signMessage(blobPayloadCpp);
+
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
 
-            folly::dynamic parsedPrimary = folly::parseJson(primaryKeysResult);
-            auto primaryCurve25519{jsi::String::createFromUtf8(
-                innerRt, parsedPrimary["curve25519"].asString())};
-            auto primaryEd25519{jsi::String::createFromUtf8(
-                innerRt, parsedPrimary["ed25519"].asString())};
+            auto primaryCurve25519{
+                jsi::String::createFromUtf8(innerRt, primaryCurve25519Cpp)};
+            auto primaryEd25519{
+                jsi::String::createFromUtf8(innerRt, primaryEd25519Cpp)};
             auto jsiPrimaryIdentityPublicKeys = jsi::Object(innerRt);
             jsiPrimaryIdentityPublicKeys.setProperty(
                 innerRt, "ed25519", primaryEd25519);
             jsiPrimaryIdentityPublicKeys.setProperty(
                 innerRt, "curve25519", primaryCurve25519);
 
-            folly::dynamic parsedNotifications =
-                folly::parseJson(notificationsKeysResult);
             auto notificationsCurve25519{jsi::String::createFromUtf8(
-                innerRt, parsedNotifications["curve25519"].asString())};
-            auto notificationsEd25519{jsi::String::createFromUtf8(
-                innerRt, parsedNotifications["ed25519"].asString())};
+                innerRt, notificationsCurve25519Cpp)};
+            auto notificationsEd25519{
+                jsi::String::createFromUtf8(innerRt, notificationsEd25519Cpp)};
             auto jsiNotificationIdentityPublicKeys = jsi::Object(innerRt);
             jsiNotificationIdentityPublicKeys.setProperty(
                 innerRt, "ed25519", notificationsEd25519);
             jsiNotificationIdentityPublicKeys.setProperty(
                 innerRt, "curve25519", notificationsCurve25519);
+
+            auto blobPayload{
+                jsi::String::createFromUtf8(innerRt, blobPayloadCpp)};
+            auto signature{jsi::String::createFromUtf8(innerRt, signatureCpp)};
 
             auto jsiClientPublicKeys = jsi::Object(innerRt);
             jsiClientPublicKeys.setProperty(
@@ -872,6 +896,9 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
                 innerRt,
                 "notificationIdentityPublicKeys",
                 jsiNotificationIdentityPublicKeys);
+            jsiClientPublicKeys.setProperty(
+                innerRt, "blobPayload", blobPayload);
+            jsiClientPublicKeys.setProperty(innerRt, "signature", signature);
             promise->resolve(std::move(jsiClientPublicKeys));
           });
         };
