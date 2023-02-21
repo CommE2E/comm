@@ -43,4 +43,30 @@ self.addEventListener('push', (event: PushEvent) => {
 
 self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();
+  event.waitUntil(
+    (async () => {
+      const clientList: Array<WindowClient> = (await clients.matchAll({
+        type: 'window',
+      }): any);
+
+      const selectedClient =
+        clientList.find(client => client.focused) ?? clientList[0];
+
+      if (selectedClient) {
+        if (!selectedClient.focused) {
+          await selectedClient.focus();
+        }
+        selectedClient.postMessage({
+          targetThreadID: event.notification.data.threadID,
+        });
+      } else {
+        const url =
+          (process.env.NODE_ENV === 'production'
+            ? 'https://web.comm.app'
+            : 'http://localhost:3000/comm') +
+          `/chat/thread/${event.notification.data.threadID}/`;
+        clients.openWindow(url);
+      }
+    })(),
+  );
 });
