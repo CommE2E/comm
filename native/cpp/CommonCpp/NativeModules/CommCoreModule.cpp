@@ -1,5 +1,6 @@
 #include "CommCoreModule.h"
 #include "../CryptoTools/DeviceID.h"
+#include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
@@ -778,7 +779,6 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                         promise->reject(error);
                         return;
                       }
-                      promise->resolve(jsi::Value::undefined());
                     });
                   },
                   promise,
@@ -792,9 +792,21 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                   promise->reject(error);
                   return;
                 }
-                promise->resolve(jsi::Value::undefined());
               });
             }
+            try {
+              NotificationsCryptoModule::initializeNotificationsCryptoAccount(
+                  "Comm");
+            } catch (const std::exception &e) {
+              error = e.what();
+            }
+            this->jsInvoker_->invokeAsync([=]() {
+              if (error.size()) {
+                promise->reject(error);
+                return;
+              }
+              promise->resolve(jsi::Value::undefined());
+            });
           });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
@@ -807,26 +819,46 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::string result;
+          std::string publicKeysResult;
+          std::string notificationsKeysResult;
           if (this->cryptoModule == nullptr) {
             error = "user has not been initialized";
           } else {
-            result = this->cryptoModule->getIdentityKeys();
+            publicKeysResult = this->cryptoModule->getIdentityKeys();
+          }
+          try {
+            if (!error.size()) {
+              notificationsKeysResult =
+                  NotificationsCryptoModule::getNotificationsIdentityKeys();
+            }
+          } catch (const std::exception &e) {
+            error = e.what();
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            folly::dynamic parsed = folly::parseJson(result);
+            folly::dynamic parsedPublic = folly::parseJson(publicKeysResult);
             auto curve25519{jsi::String::createFromUtf8(
-                innerRt, parsed["curve25519"].asString())};
+                innerRt, parsedPublic["curve25519"].asString())};
             auto ed25519{jsi::String::createFromUtf8(
-                innerRt, parsed["ed25519"].asString())};
+                innerRt, parsedPublic["ed25519"].asString())};
+
+            folly::dynamic parsedNotifications =
+                folly::parseJson(notificationsKeysResult);
+            auto notificationsCurve25519{jsi::String::createFromUtf8(
+                innerRt, parsedNotifications["curve25519"].asString())};
+            auto notificationsEd25519{jsi::String::createFromUtf8(
+                innerRt, parsedNotifications["ed25519"].asString())};
 
             auto jsiClientPublicKeys = jsi::Object(innerRt);
             jsiClientPublicKeys.setProperty(innerRt, "curve25519", curve25519);
             jsiClientPublicKeys.setProperty(innerRt, "ed25519", ed25519);
+            jsiClientPublicKeys.setProperty(
+                innerRt, "notificationsCurve25519", notificationsCurve25519);
+            jsiClientPublicKeys.setProperty(
+                innerRt, "notificationsEd25519", notificationsEd25519);
             promise->resolve(std::move(jsiClientPublicKeys));
           });
         };
