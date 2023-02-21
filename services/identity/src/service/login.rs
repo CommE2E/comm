@@ -9,7 +9,6 @@ pub async fn handle_login_request(
   message: Option<Result<LoginRequest, Status>>,
   tx: mpsc::Sender<Result<LoginResponse, Status>>,
   client: DatabaseClient,
-  config: &Config,
 ) -> Result<Option<LoginState>, Status> {
   match message {
     Some(Ok(LoginRequest {
@@ -34,7 +33,6 @@ pub async fn handle_login_request(
         })),
     })) => {
       let response_and_state = pake_login_start(
-        config,
         client,
         &pake_credential_request_and_user_id.user_id,
         &pake_credential_request_and_user_id.pake_credential_request,

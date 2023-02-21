@@ -11,7 +11,6 @@ pub async fn handle_registration_request(
   message: Option<Result<RegistrationRequest, Status>>,
   client: DatabaseClient,
   tx: mpsc::Sender<Result<RegistrationResponse, Status>>,
-  config: &Config,
 ) -> Result<RegistrationState, Status> {
   match message {
     Some(Ok(RegistrationRequest {
@@ -39,7 +38,6 @@ pub async fn handle_registration_request(
         _ => {}
       };
       let response_and_state = pake_registration_start(
-        config,
         &mut OsRng,
         &pake_registration_request_and_user_id.pake_registration_request,
       )
@@ -66,7 +64,6 @@ pub async fn handle_registration_upload_and_credential_request(
   client: DatabaseClient,
   registration_state: &RegistrationState,
   pake_state: ServerRegistration<Cipher>,
-  config: &Config,
 ) -> Result<ServerLogin<Cipher>, Status> {
   match message {
     Some(Ok(RegistrationRequest {
@@ -89,7 +86,6 @@ pub async fn handle_registration_upload_and_credential_request(
       {
         Ok(_) => {
           pake_login_start(
-            config,
             client,
             &registration_state.user_id,
             &pake_registration_upload_and_credential_request
