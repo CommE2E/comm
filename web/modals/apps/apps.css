@@ -2,6 +2,9 @@ div.appsDirectoryContainer {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  align-items: center;
 }
 
 h4.appsHeader {
@@ -11,17 +14,19 @@ h4.appsHeader {
 }
 
 div.appsDirectoryList {
-  margin-left: 20px;
   display: flex;
   flex-direction: column;
-  row-gap: 10px;
+  row-gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 32px 12px 32px;
 }
 
 div.appListingContainer {
   color: var(--fg);
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: space-between;
 }
 
 div.appListingTextContainer {
@@ -39,15 +44,15 @@ small.appCopy {
   font-size: var(--xs-font-12);
 }
 
-div.appListingIcon {
-  padding: 0 20px;
+.appListingIcon {
+  padding: 0 20px 0 0;
   align-self: stretch;
   display: flex;
   align-items: center;
 }
 
 .appListingIconState {
-  padding: 0 20px;
+  padding: 0 0 0 20px;
   font-size: var(--xl-font-20);
 }
 
