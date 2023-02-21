@@ -3,23 +3,35 @@
 import * as React from 'react';
 
 import TabsHeader from './tabs-header.js';
-import css from './tabs.css';
+import cssPill from './tabs-pill.css';
+import cssUnderline from './tabs-underline.css';
 
 type TabsContainerProps<T: string> = {
   +children?: React.ChildrenArray<?React.Element<typeof TabsItem>>,
   +activeTab: T,
   +setTab: T => mixed,
+  +headerStyle?: 'pill' | 'underline',
 };
 
 function TabsContainer<T: string>(props: TabsContainerProps<T>): React.Node {
-  const { children, activeTab, setTab } = props;
+  const { children, activeTab, setTab, headerStyle = 'underline' } = props;
+
+  const css = React.useMemo(
+    () => (headerStyle === 'pill' ? cssPill : cssUnderline),
+    [headerStyle],
+  );
 
   const headers = React.Children.map(children, tab => {
     const { id, header } = tab.props;
 
     const isActive = id === activeTab;
     return (
-      <TabsHeader id={id} isActive={isActive} setTab={setTab}>
+      <TabsHeader
+        id={id}
+        isActive={isActive}
+        setTab={setTab}
+        headerStyle={headerStyle}
+      >
         {header}
       </TabsHeader>
     );

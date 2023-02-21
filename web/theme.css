@@ -140,7 +140,8 @@
   --tabs-header-active-color: var(--shades-white-100);
   --tabs-header-active-border: var(--violet-light-100);
   --tabs-header-active-background: var(--violet-dark-100);
-  --tabs-header-background-color: var(--shades-white-60);
+  --tabs-header-background-color: var(--shades-black-60);
+  --tabs-header-background-color-pill: var(--shades-white-60);
   --tabs-header-background-border: var(--shades-black-80);
   --tabs-header-background-color-hover: var(--shades-white-80);
   --tabs-header-background-border-hover: var(--shades-black-70);

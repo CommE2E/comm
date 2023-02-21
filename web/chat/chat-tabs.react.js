@@ -64,7 +64,11 @@ function ChatTabs(): React.Node {
 
   return (
     <div className={css.container}>
-      <Tabs.Container activeTab={activeTab} setTab={setActiveChatTab}>
+      <Tabs.Container
+        activeTab={activeTab}
+        setTab={setActiveChatTab}
+        headerStyle="pill"
+      >
         {focusTabsItem}
         {backgroundTabsItem}
       </Tabs.Container>
