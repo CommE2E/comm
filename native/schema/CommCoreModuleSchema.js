@@ -25,8 +25,14 @@ type ClientDBStore = {
 };
 
 type ClientPublicKeys = {
-  +curve25519: string,
-  +ed25519: string,
+  +primaryIdentityPublicKeys: {
+    +ed25519: string,
+    +curve25519: string,
+  },
+  +notificationIdentityPublicKeys: {
+    +ed25519: string,
+    +curve25519: string,
+  },
 };
 
 export interface Spec extends TurboModule {
