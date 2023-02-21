@@ -14,12 +14,17 @@ body {
   font-family: sans-serif;
   padding: 20px;
 }
-.walletDisplay {
+
+div.connectedWalletInfo {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+  flex-direction: row;
 }
+
+div.connectedWalletInfo > div {
+  width: 100%;
+}
+
 .walletDisplayText {
   font-size: 24px;
   padding: 5px;

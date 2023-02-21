@@ -5,7 +5,6 @@ import {
   RainbowKitProvider,
   darkTheme,
   useModalState,
-  ConnectButton,
   connectorsForWallets,
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -21,6 +20,7 @@ import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
 import { useAccount, useSigner, WagmiConfig } from 'wagmi';
 
+import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
 import {
   getSIWEStatementForPublicKey,
@@ -157,9 +157,9 @@ function SIWE(): React.Node {
   } else {
     return (
       <div className={css.wrapper}>
-        <div className={css.walletDisplay}>
-          <span className={css.walletDisplayText}>Wallet Connected:</span>
-          <ConnectButton />
+        <span className={css.walletDisplayText}>Wallet Connected:</span>
+        <div className={css.connectedWalletInfo}>
+          <ConnectedWalletInfo />
         </div>
         <p>{siweMessageSigningExplanationStatements}</p>
         <p>
