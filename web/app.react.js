@@ -42,6 +42,7 @@ import { MenuProvider } from './menu-provider.react.js';
 import UpdateModalHandler from './modals/update-modal.react.js';
 import SettingsSwitcher from './navigation-panels/settings-switcher.react.js';
 import Topbar from './navigation-panels/topbar.react.js';
+import { PushNotificationsHandler } from './push-notif/push-notifs-handler.js';
 import { updateNavInfoActionType } from './redux/action-types.js';
 import DeviceIDUpdater from './redux/device-id-updater.js';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler.js';
@@ -164,6 +165,7 @@ class App extends React.PureComponent<Props> {
                 <VisibilityHandler />
                 <DeviceIDUpdater />
                 <PolicyAcknowledgmentHandler />
+                <PushNotificationsHandler />
                 {content}
                 {this.props.modals}
               </WagmiENSCacheProvider>
