@@ -15,7 +15,7 @@ import {
 import type { SupportedApps } from 'lib/types/enabled-apps.js';
 
 import css from './apps.css';
-import Button from '../components/button.react.js';
+import Button from '../../components/button.react.js';
 
 type Props = {
   +id: SupportedApps | 'chat',
