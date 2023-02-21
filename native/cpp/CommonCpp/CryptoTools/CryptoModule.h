@@ -66,6 +66,12 @@ public:
       const std::string &targetUserId,
       EncryptedData encryptedData,
       const OlmBuffer &theirIdentityKey);
+
+  std::string signMessage(const std::string &message);
+  static void verifySignature(
+      const std::string &publicKey,
+      const std::string &message,
+      const std::string &signature);
 };
 
 } // namespace crypto
