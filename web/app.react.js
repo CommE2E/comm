@@ -28,6 +28,7 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { registerConfig } from 'lib/utils/config.js';
+import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
 import AppsDirectory from './apps/apps-directory.react.js';
 import Calendar from './calendar/calendar.react.js';
@@ -59,7 +60,6 @@ import css from './style.css';
 import getTitle from './title/getTitle.js';
 import { type NavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
-import { WagmiENSCacheProvider, wagmiClient } from './utils/wagmi-utils.js';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every
