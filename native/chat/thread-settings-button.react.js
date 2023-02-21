@@ -1,12 +1,12 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Ionicons.js';
 import * as React from 'react';
 
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import Button from '../components/button.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { ThreadSettingsRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
@@ -23,7 +23,11 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
   render() {
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
-        <Icon name="md-settings" size={30} style={this.props.styles.button} />
+        <SWMansionIcon
+          name="settings"
+          size={24}
+          style={this.props.styles.button}
+        />
       </Button>
     );
   }
@@ -40,7 +44,7 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
 
 const unboundStyles = {
   button: {
-    color: 'link',
+    color: 'panelForegroundLabel',
     paddingHorizontal: 10,
   },
 };
