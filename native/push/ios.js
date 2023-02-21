@@ -26,7 +26,9 @@ type CommIOSNotificationsModuleType = {
   // required since CommIOSNotifications subclasses RCTEventEmitter
   +addListener: (eventName: string) => void,
   +removeListeners: (count: number) => void,
-  ...
+  +FETCH_RESULT_NO_DATA: string,
+  +FETCH_RESULT_NO_DATA: string,
+  +FETCH_RESULT_FAILED: string,
 };
 
 const CommIOSNotifications: CommIOSNotificationsModuleType =
