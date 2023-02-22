@@ -1,29 +1,24 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
 import AppSwitcher from './app-switcher.react.js';
 import css from './topbar.css';
 import Button from '../components/button.react.js';
-import { updateNavInfoActionType } from '../redux/action-types.js';
+import AppsDirectory from '../modals/apps/apps-directory-modal.react.js';
 
 function Topbar(): React.Node {
-  const dispatch = useDispatch();
+  const { pushModal } = useModalContext();
 
   const onClickApps = React.useCallback(
     (event: SyntheticEvent<HTMLAnchorElement>) => {
       event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          tab: 'apps',
-        },
-      });
+      pushModal(<AppsDirectory />);
     },
-    [dispatch],
+    [pushModal],
   );
 
   const appNavigationItem = React.useMemo(
