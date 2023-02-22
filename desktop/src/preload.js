@@ -22,6 +22,7 @@ const bridge: ElectronBridge = {
       ipcRenderer.removeListener('on-new-version-available', withEvent);
   },
   updateToNewVersion: () => ipcRenderer.send('update-to-new-version'),
+  platform: { win32: 'windows', darwin: 'macos' }[process.platform],
 };
 
 contextBridge.exposeInMainWorld('electronContextBridge', bridge);
