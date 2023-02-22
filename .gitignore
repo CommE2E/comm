@@ -44,3 +44,4 @@ result*
 desktop/out/
 desktop/assets/
 desktop/dist/
+desktop/*.provisionprofile
