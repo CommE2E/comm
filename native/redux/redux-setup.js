@@ -1,7 +1,6 @@
 // @flow
 
 import { AppState as NativeAppState, Platform, Alert } from 'react-native';
-import ExitApp from 'react-native-exit-app';
 import Orientation from 'react-native-orientation-locker';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
@@ -410,7 +409,7 @@ function reducer(state: AppState = defaultState, action: Action) {
       if (isTaskCancelledError(e)) {
         return;
       }
-      ExitApp.exitApp();
+      commCoreModule.terminate();
     }
   })();
 

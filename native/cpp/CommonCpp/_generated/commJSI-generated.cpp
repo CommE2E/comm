@@ -62,6 +62,10 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKe
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getCodeVersion(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_terminate(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->terminate(rt);
+  return jsi::Value::undefined();
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setNotifyToken(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setNotifyToken(rt, args[0].asString(rt));
 }
@@ -105,6 +109,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
   methodMap_["getUserOneTimeKeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
   methodMap_["getCodeVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion};
+  methodMap_["terminate"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_terminate};
   methodMap_["setNotifyToken"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setNotifyToken};
   methodMap_["clearNotifyToken"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearNotifyToken};
   methodMap_["setCurrentUserID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCurrentUserID};

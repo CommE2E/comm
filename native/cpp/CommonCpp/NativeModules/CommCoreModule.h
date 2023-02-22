@@ -49,6 +49,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) override;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
+  virtual void terminate(jsi::Runtime &rt) override;
   virtual double getCodeVersion(jsi::Runtime &rt) override;
   virtual jsi::Value
   setNotifyToken(jsi::Runtime &rt, jsi::String token) override;

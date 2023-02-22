@@ -4,6 +4,7 @@
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
 #include "MessageStoreOperations.h"
+#include "TerminateApp.h"
 #include "ThreadStoreOperations.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
@@ -719,6 +720,10 @@ void CommCoreModule::processThreadStoreOperationsSync(
       throw e;
     }
   });
+}
+
+void CommCoreModule::terminate(jsi::Runtime &rt) {
+  TerminateApp::terminate();
 }
 
 jsi::Value
