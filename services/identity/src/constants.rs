@@ -11,7 +11,6 @@ pub const USERS_TABLE_PARTITION_KEY: &str = "userID";
 pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "pakeRegistrationData";
 pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
 pub const USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE: &str = "userPublicKey";
-pub const USERS_TABLE_DEVICE_ATTRIBUTE: &str = "device";
 pub const USERS_TABLE_DEVICES_ATTRIBUTE: &str = "devices";
 pub const USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME: &str = "deviceID";
 pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";

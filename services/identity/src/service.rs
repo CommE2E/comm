@@ -45,8 +45,8 @@ use proto::{
   registration_response::Data::PakeRegistrationResponse, CompareUsersRequest,
   CompareUsersResponse, DeleteUserRequest, DeleteUserResponse,
   GenerateNonceRequest, GenerateNonceResponse, GetUserIdRequest,
-  GetUserIdResponse, GetUserPublicKeyRequest, GetUserPublicKeyResponse,
-  LoginRequest, LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
+  GetUserIdResponse, LoginRequest, LoginResponse,
+  PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -214,25 +214,6 @@ impl IdentityService for MyIdentityService {
       Err(e) => return Err(handle_db_error(e)),
     };
     let response = Response::new(GetUserIdResponse { user_id });
-    Ok(response)
-  }
-
-  #[instrument(skip(self))]
-  async fn get_user_public_key(
-    &self,
-    request: Request<GetUserPublicKeyRequest>,
-  ) -> Result<Response<GetUserPublicKeyResponse>, Status> {
-    let message = request.into_inner();
-    let public_key = match self
-      .client
-      .get_user_public_key(message.user_id, message.device_id)
-      .await
-    {
-      Ok(Some(public_key)) => public_key,
-      Ok(None) => return Err(Status::not_found("no public key found")),
-      Err(e) => return Err(handle_db_error(e)),
-    };
-    let response = Response::new(GetUserPublicKeyResponse { public_key });
     Ok(response)
   }
 
