@@ -3,7 +3,7 @@
 import type { BaseNavInfo } from 'lib/types/nav-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-export type NavigationTab = 'calendar' | 'chat' | 'apps' | 'settings';
+export type NavigationTab = 'calendar' | 'chat' | 'settings';
 
 export type NavigationSettingsSection = 'account' | 'danger-zone';
 

@@ -49,10 +49,7 @@ function CommunityPicker(): React.Node {
   const inboxButtonTitle = isCalendarOpen ? 'All communities' : 'Inbox';
 
   const isInboxOpen = useSelector(
-    state =>
-      state.navInfo.tab === 'chat' ||
-      state.navInfo.tab === 'apps' ||
-      state.navInfo.tab === 'calendar',
+    state => state.navInfo.tab === 'chat' || state.navInfo.tab === 'calendar',
   );
   const isSettingsOpen = useSelector(state => state.navInfo.tab === 'settings');
 
