@@ -1,5 +1,7 @@
+use crate::database::DatabaseClient;
+use crate::service::FeatureFlagsService;
 use anyhow::Result;
-use tracing::{info, Level};
+use tracing::Level;
 use tracing_subscriber::EnvFilter;
 
 pub mod config;
@@ -23,7 +25,8 @@ async fn main() -> Result<()> {
   config::parse_cmdline_args();
   configure_logging()?;
 
-  let _aws_config = config::load_aws_config().await;
-  info!("Starting the service");
-  Ok(())
+  let aws_config = config::load_aws_config().await;
+  let db = DatabaseClient::new(&aws_config);
+  let server = FeatureFlagsService::new(db);
+  server.start().await.map_err(|e| e.into())
 }
