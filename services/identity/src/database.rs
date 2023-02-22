@@ -17,13 +17,15 @@ use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
-  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, USERS_TABLE,
+  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
+  NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY, USERS_TABLE,
   USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICE_ATTRIBUTE, USERS_TABLE_PARTITION_KEY,
   USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_USERNAME_ATTRIBUTE,
   USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
   USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
+use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
 use comm_opaque::Cipher;
 
@@ -436,6 +438,30 @@ impl DatabaseClient {
       }
     }
     Ok(result)
+  }
+
+  pub async fn add_nonce_to_nonces_table(
+    &self,
+    nonce_data: NonceData,
+  ) -> Result<PutItemOutput, Error> {
+    let item = HashMap::from([
+      (
+        NONCE_TABLE_PARTITION_KEY.to_string(),
+        AttributeValue::S(nonce_data.nonce),
+      ),
+      (
+        NONCE_TABLE_CREATED_ATTRIBUTE.to_string(),
+        AttributeValue::S(nonce_data.created.to_rfc3339()),
+      ),
+    ]);
+    self
+      .client
+      .put_item()
+      .table_name(NONCE_TABLE)
+      .set_item(Some(item))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
   }
 }
 

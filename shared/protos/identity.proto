@@ -21,6 +21,8 @@ service IdentityService {
   // Called by Ashoat's keyserver with a list of user IDs in MySQL and returns
   // any user IDs that are in DynamoDB but not in the supplied list
   rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
+  // Called by clients to get a nonce for a Sign-In with Ethereum message
+  rpc GenerateNonce(GenerateNonceRequest) returns (GenerateNonceResponse) {}
 }
 
 // Helper types
@@ -165,4 +167,13 @@ message CompareUsersRequest {
 
 message CompareUsersResponse {
   repeated string users = 1;
+}
+
+// GenerateNonce
+
+message GenerateNonceRequest {
+}
+
+message GenerateNonceResponse{
+  string nonce = 1;
 }
