@@ -461,6 +461,7 @@ async function fetchNotifUserInfos(
   };
 
   for (const userID in usersToCollapsableNotifInfo) {
+    missingUserIDs.add(userID);
     for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
       for (const rawMessageInfo of notifInfo.existingMessageInfos) {
         addUserIDsFromMessageInfos(rawMessageInfo);
