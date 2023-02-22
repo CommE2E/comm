@@ -1,4 +1,6 @@
+use crate::config::CONFIG;
 use crate::database::{DatabaseClient, FeatureConfig, Platform};
+use actix_web::{web, App, HttpServer};
 use comm_services_lib::database::Error;
 use std::collections::HashSet;
 
@@ -11,7 +13,16 @@ impl FeatureFlagsService {
     FeatureFlagsService { _db: db_client }
   }
 
-  pub async fn _enabled_features_set(
+  pub async fn start(&self) -> std::io::Result<()> {
+    HttpServer::new(|| {
+      App::new().service(web::resource("/").to(|| async { "HELLO" }))
+    })
+    .bind(("localhost", CONFIG.http_port))?
+    .run()
+    .await
+  }
+
+  async fn _enabled_features_set(
     db: &DatabaseClient,
     platform: Platform,
     code_version: i32,
