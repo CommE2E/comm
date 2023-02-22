@@ -22,6 +22,7 @@ use tracing::{error, info, instrument};
 use crate::config::CONFIG;
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 use crate::database::{DatabaseClient, Error as DBError};
+use crate::nonce::generate_nonce_data;
 use crate::token::{AccessTokenData, AuthType};
 
 pub use proto::identity_service_server::IdentityServiceServer;
@@ -41,9 +42,10 @@ use proto::{
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as PakeRegistrationLoginResponse,
   registration_response::Data::PakeRegistrationResponse, CompareUsersRequest,
-  CompareUsersResponse, GetUserIdRequest, GetUserIdResponse,
-  GetUserPublicKeyRequest, GetUserPublicKeyResponse, LoginRequest,
-  LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
+  CompareUsersResponse, GenerateNonceRequest, GenerateNonceResponse,
+  GetUserIdRequest, GetUserIdResponse, GetUserPublicKeyRequest,
+  GetUserPublicKeyResponse, LoginRequest, LoginResponse,
+  PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -251,6 +253,24 @@ impl IdentityService for MyIdentityService {
       }
     }
     Ok(Response::new(CompareUsersResponse { users: response }))
+  }
+
+  #[instrument(skip(self))]
+  async fn generate_nonce(
+    &self,
+    _request: Request<GenerateNonceRequest>,
+  ) -> Result<Response<GenerateNonceResponse>, Status> {
+    let nonce_data = generate_nonce_data(&mut OsRng);
+    match self
+      .client
+      .add_nonce_to_nonces_table(nonce_data.clone())
+      .await
+    {
+      Ok(_) => Ok(Response::new(GenerateNonceResponse {
+        nonce: nonce_data.nonce,
+      })),
+      Err(e) => Err(handle_db_error(e)),
+    }
   }
 }
 
