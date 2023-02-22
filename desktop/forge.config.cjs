@@ -57,14 +57,44 @@ class BabelPlugin extends PluginBase {
   }
 }
 
+const optionsForFile = filePath => {
+  const entitlements =
+    process.env?.ENV === 'dev'
+      ? 'entitlements-dev.plist'
+      : 'entitlements.plist';
+
+  const basename = path.basename(filePath);
+  if (basename === 'Comm' || basename === 'Comm.app') {
+    return { entitlements };
+  }
+
+  return {};
+};
+
 const signingOptions = {
   packagerMacos: {},
   makerMacos: {},
   makerWindows: {},
 };
-if (process.env?.ENV !== 'dev') {
+if (process.env?.ENV === 'dev') {
+  if (fs.existsSync('macOS_App_Development_Profile.provisionprofile')) {
+    signingOptions.packagerMacos = {
+      osxSign: {
+        identity: 'Development',
+        preEmbedProvisioningProfile: true,
+        provisioningProfile: 'macOS_App_Development_Profile.provisionprofile',
+        optionsForFile,
+      },
+    };
+  }
+} else {
   signingOptions.packagerMacos = {
-    osxSign: { identity: 'Developer ID Application' },
+    osxSign: {
+      identity: 'Developer ID Application',
+      preEmbedProvisioningProfile: true,
+      provisioningProfile: 'macOS_App_Provisioning_Profile.provisionprofile',
+      optionsForFile,
+    },
     osxNotarize: {
       tool: 'notarytool',
       appleId: process.env?.APPLE_USER_NAME,
