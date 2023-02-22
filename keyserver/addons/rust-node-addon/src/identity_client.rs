@@ -43,10 +43,9 @@ lazy_static! {
 #[instrument(skip_all)]
 pub async fn register_user(
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   username: String,
   password: String,
-  user_public_key: String,
 ) -> Result<String> {
   let channel = Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
     .connect()
@@ -80,10 +79,9 @@ pub async fn register_user(
   let (registration_request, client_registration) = pake_registration_start(
     &mut client_rng,
     user_id,
+    signing_public_key,
     &password,
-    device_id,
     username,
-    user_public_key,
   )?;
   send_to_mpsc(tx.clone(), registration_request).await?;
 
@@ -175,10 +173,9 @@ fn pake_login_finish(
 fn pake_registration_start(
   rng: &mut (impl Rng + CryptoRng),
   user_id: String,
+  signing_public_key: String,
   password: &str,
-  device_id: String,
   username: String,
-  user_public_key: String,
 ) -> Result<(RegistrationRequest, ClientRegistration<Cipher>)> {
   let client_registration_start_result =
     ClientRegistration::<Cipher>::start(rng, password.as_bytes()).map_err(
@@ -194,10 +191,9 @@ fn pake_registration_start(
       data: Some(PakeRegistrationRequestAndUserId(
         PakeRegistrationRequestAndUserIdStruct {
           user_id,
-          device_id,
           pake_registration_request,
           username,
-          user_public_key,
+          signing_public_key,
         },
       )),
     },

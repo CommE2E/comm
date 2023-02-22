@@ -1,9 +1,8 @@
 use super::*;
 pub struct RegistrationState {
   user_id: String,
-  device_id: String,
   username: String,
-  user_public_key: String,
+  signing_public_key: String,
   pub pake_state: Option<ServerRegistration<Cipher>>,
 }
 
@@ -48,9 +47,9 @@ pub async fn handle_registration_request(
 
       Ok(RegistrationState {
         user_id: pake_registration_request_and_user_id.user_id,
-        device_id: pake_registration_request_and_user_id.device_id,
         username: pake_registration_request_and_user_id.username,
-        user_public_key: pake_registration_request_and_user_id.user_public_key,
+        signing_public_key: pake_registration_request_and_user_id
+          .signing_public_key,
         pake_state: Some(response_and_state.pake_state),
       })
     }
@@ -74,13 +73,12 @@ pub async fn handle_registration_upload_and_credential_request(
     })) => {
       let response_and_state = match pake_registration_finish(
         &registration_state.user_id,
-        &registration_state.device_id,
         client.clone(),
         &pake_registration_upload_and_credential_request
           .pake_registration_upload,
         Some(pake_state),
         &registration_state.username,
-        &registration_state.user_public_key,
+        &registration_state.signing_public_key,
       )
       .await
       {
@@ -126,8 +124,7 @@ pub async fn handle_credential_finalization(
     })) => {
       let login_finish_result = pake_login_finish(
         &registration_state.user_id,
-        &registration_state.device_id,
-        &registration_state.user_public_key,
+        &registration_state.signing_public_key,
         client,
         server_login,
         &pake_credential_finalization,

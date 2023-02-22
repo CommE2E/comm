@@ -170,7 +170,7 @@ impl IdentityService for MyIdentityService {
     let message = request.into_inner();
     let token_valid = match self
       .client
-      .get_access_token_data(message.user_id, message.device_id)
+      .get_access_token_data(message.user_id, message.signing_public_key)
       .await
     {
       Ok(Some(access_token_data)) => constant_time_eq(
@@ -258,19 +258,19 @@ async fn put_token_helper(
   client: DatabaseClient,
   auth_type: AuthType,
   user_id: &str,
-  device_id: &str,
+  signing_public_key: &str,
   rng: &mut (impl Rng + CryptoRng),
 ) -> Result<String, Status> {
-  if user_id.is_empty() || device_id.is_empty() {
+  if user_id.is_empty() || signing_public_key.is_empty() {
     error!(
-      "Incomplete data: user ID \"{}\", device ID \"{}\"",
-      user_id, device_id
+      "Incomplete data: user ID \"{}\", signing public key \"{}\"",
+      user_id, signing_public_key
     );
     return Err(Status::aborted("user not found"));
   }
   let access_token_data = AccessTokenData::new(
     user_id.to_string(),
-    device_id.to_string(),
+    signing_public_key.to_string(),
     auth_type,
     rng,
   );
@@ -285,14 +285,14 @@ async fn put_token_helper(
 
 fn parse_and_verify_siwe_message(
   user_id: &str,
-  device_id: &str,
+  signing_public_key: &str,
   siwe_message: &str,
   siwe_signature: Vec<u8>,
 ) -> Result<(), Status> {
-  if user_id.is_empty() || device_id.is_empty() {
+  if user_id.is_empty() || signing_public_key.is_empty() {
     error!(
-      "Incomplete data: user ID {}, device ID {}",
-      user_id, device_id
+      "Incomplete data: user ID {}, signing public key {}",
+      user_id, signing_public_key
     );
     return Err(Status::aborted("user not found"));
   }
@@ -317,8 +317,8 @@ fn parse_and_verify_siwe_message(
   ) {
     Err(e) => {
       error!(
-        "Signature verification failed for user {} on device {}: {}",
-        user_id, device_id, e
+        "Signature verification failed for user {} with signing public key {}: {}",
+        user_id, signing_public_key, e
       );
       Err(Status::unauthenticated("message not authenticated"))
     }
@@ -333,17 +333,16 @@ async fn wallet_login_helper(
 ) -> Result<LoginResponse, Status> {
   parse_and_verify_siwe_message(
     &wallet_login_request.user_id,
-    &wallet_login_request.device_id,
+    &wallet_login_request.signing_public_key,
     &wallet_login_request.siwe_message,
     wallet_login_request.siwe_signature,
   )?;
   client
     .update_users_table(
       wallet_login_request.user_id.clone(),
-      wallet_login_request.device_id.clone(),
+      Some(wallet_login_request.signing_public_key.clone()),
       None,
       None,
-      Some(wallet_login_request.user_public_key),
     )
     .await
     .map_err(handle_db_error)?;
@@ -353,7 +352,7 @@ async fn wallet_login_helper(
         client,
         AuthType::Wallet,
         &wallet_login_request.user_id,
-        &wallet_login_request.device_id,
+        &wallet_login_request.signing_public_key,
         rng,
       )
       .await?,
@@ -413,18 +412,17 @@ async fn pake_login_start(
 
 async fn pake_login_finish(
   user_id: &str,
-  device_id: &str,
-  user_public_key: &str,
+  signing_public_key: &str,
   client: DatabaseClient,
   server_login: ServerLogin<Cipher>,
   pake_credential_finalization: &[u8],
   rng: &mut (impl Rng + CryptoRng),
   pake_workflow: PakeWorkflow,
 ) -> Result<PakeLoginResponseStruct, Status> {
-  if user_id.is_empty() || device_id.is_empty() {
+  if user_id.is_empty() || signing_public_key.is_empty() {
     error!(
-      "Incomplete data: user ID {}, device ID {}",
-      user_id, device_id
+      "Incomplete data: user ID {}, signing public key {}",
+      user_id, signing_public_key
     );
     return Err(Status::aborted("user not found"));
   }
@@ -447,18 +445,23 @@ async fn pake_login_finish(
     client
       .update_users_table(
         user_id.to_string(),
-        device_id.to_string(),
+        Some(signing_public_key.to_string()),
         None,
         None,
-        Some(user_public_key.to_string()),
       )
       .await
       .map_err(handle_db_error)?;
   }
   Ok(PakeLoginResponseStruct {
     data: Some(AccessToken(
-      put_token_helper(client, AuthType::Password, user_id, device_id, rng)
-        .await?,
+      put_token_helper(
+        client,
+        AuthType::Password,
+        user_id,
+        signing_public_key,
+        rng,
+      )
+      .await?,
     )),
   })
 }
@@ -494,12 +497,11 @@ async fn pake_registration_start(
 
 async fn pake_registration_finish(
   user_id: &str,
-  device_id: &str,
   client: DatabaseClient,
   registration_upload_bytes: &[u8],
   server_registration: Option<ServerRegistration<Cipher>>,
   username: &str,
-  user_public_key: &str,
+  signing_public_key: &str,
 ) -> Result<(), Status> {
   if user_id.is_empty() {
     error!("Incomplete data: user ID not provided");
@@ -526,10 +528,9 @@ async fn pake_registration_finish(
   match client
     .add_user_to_users_table(
       user_id.to_string(),
-      device_id.to_string(),
       server_registration_finish_result,
       username.to_string(),
-      user_public_key.to_string(),
+      signing_public_key.to_string(),
     )
     .await
   {

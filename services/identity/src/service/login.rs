@@ -1,8 +1,7 @@
 use super::*;
 pub struct LoginState {
   user_id: String,
-  device_id: String,
-  user_public_key: String,
+  signing_public_key: String,
   pake_state: ServerLogin<Cipher>,
 }
 pub async fn handle_login_request(
@@ -48,8 +47,8 @@ pub async fn handle_login_request(
 
       Ok(Some(LoginState {
         user_id: pake_credential_request_and_user_id.user_id,
-        device_id: pake_credential_request_and_user_id.device_id,
-        user_public_key: pake_credential_request_and_user_id.user_public_key,
+        signing_public_key: pake_credential_request_and_user_id
+          .signing_public_key,
         pake_state: response_and_state.pake_state,
       }))
     }
@@ -72,8 +71,7 @@ pub async fn handle_credential_finalization(
     })) => {
       let login_finish_result = pake_login_finish(
         &login_state.user_id,
-        &login_state.device_id,
-        &login_state.user_public_key,
+        &login_state.signing_public_key,
         client,
         login_state.pake_state,
         &pake_credential_finalization,

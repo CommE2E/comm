@@ -55,7 +55,7 @@ mod ffi {
     fn identity_verify_user_token_blocking(
       client: Box<IdentityClient>,
       user_id: String,
-      device_id: String,
+      signing_public_key: String,
       access_token: String,
     ) -> Result<bool>;
 
@@ -63,29 +63,26 @@ mod ffi {
     fn identity_register_user_blocking(
       client: Box<IdentityClient>,
       user_id: String,
-      device_id: String,
+      signing_public_key: String,
       username: String,
       password: String,
-      user_public_key: String,
     ) -> Result<String>;
 
     #[cxx_name = "identityLoginUserPakeBlocking"]
     fn identity_login_user_pake_blocking(
       client: Box<IdentityClient>,
       user_id: String,
-      device_id: String,
+      signing_public_key: String,
       password: String,
-      user_public_key: String,
     ) -> Result<String>;
 
     #[cxx_name = "identityLoginUserWalletBlocking"]
     fn identity_login_user_wallet_blocking(
       client: Box<IdentityClient>,
       user_id: String,
-      device_id: String,
+      signing_public_key: String,
       siwe_message: String,
       siwe_signature: Vec<u8>,
-      user_public_key: String,
     ) -> Result<String>;
 
     // Tunnelbroker Service Client
@@ -125,13 +122,13 @@ fn identity_get_user_id_blocking(
 fn identity_verify_user_token_blocking(
   client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   access_token: String,
 ) -> Result<bool, Status> {
   RUNTIME.block_on(identity_client::verify_user_token(
     client,
     user_id,
-    device_id,
+    signing_public_key,
     access_token,
   ))
 }
@@ -140,18 +137,16 @@ fn identity_verify_user_token_blocking(
 fn identity_register_user_blocking(
   client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   username: String,
   password: String,
-  user_public_key: String,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::register_user(
     client,
     user_id,
-    device_id,
+    signing_public_key,
     username,
     password,
-    user_public_key,
   ))
 }
 
@@ -159,16 +154,14 @@ fn identity_register_user_blocking(
 fn identity_login_user_pake_blocking(
   client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   password: String,
-  user_public_key: String,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::login_user_pake(
     client,
     user_id,
-    device_id,
+    signing_public_key,
     password,
-    user_public_key,
   ))
 }
 
@@ -176,18 +169,16 @@ fn identity_login_user_pake_blocking(
 fn identity_login_user_wallet_blocking(
   client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   siwe_message: String,
   siwe_signature: Vec<u8>,
-  user_public_key: String,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::login_user_wallet(
     client,
     user_id,
-    device_id,
+    signing_public_key,
     siwe_message,
     siwe_signature,
-    user_public_key,
   ))
 }
 

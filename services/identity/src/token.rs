@@ -15,7 +15,7 @@ pub enum AuthType {
 #[derive(Clone)]
 pub struct AccessTokenData {
   pub user_id: String,
-  pub device_id: String,
+  pub signing_public_key: String,
   pub access_token: String,
   pub created: DateTime<Utc>,
   pub auth_type: AuthType,
@@ -25,13 +25,13 @@ pub struct AccessTokenData {
 impl AccessTokenData {
   pub fn new(
     user_id: String,
-    device_id: String,
+    signing_public_key: String,
     auth_type: AuthType,
     rng: &mut (impl Rng + CryptoRng),
   ) -> Self {
     AccessTokenData {
       user_id,
-      device_id,
+      signing_public_key,
       access_token: Alphanumeric.sample_string(rng, ACCESS_TOKEN_LENGTH),
       created: Utc::now(),
       auth_type,
