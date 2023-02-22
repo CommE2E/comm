@@ -19,6 +19,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
+import { getAppContainerPositionInfo } from './window-utils.js';
 import {
   tooltipButtonStyle,
   tooltipLabelStyle,
@@ -69,8 +70,6 @@ export type MessageTooltipAction = {
   +actionButtonContent: React.Node,
 };
 
-const appTopBarHeight = 65;
-
 const font =
   '14px "Inter", -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
   '"Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", ui-sans-serif';
@@ -90,17 +89,11 @@ function findTooltipPosition({
   defaultPosition,
   preventDisplayingBelowSource,
 }: FindTooltipPositionArgs): TooltipPosition {
-  if (!window) {
+  const appContainerPositionInfo = getAppContainerPositionInfo();
+
+  if (!appContainerPositionInfo) {
     return defaultPosition;
   }
-  const appContainerPositionInfo: PositionInfo = {
-    height: window.innerHeight - appTopBarHeight,
-    width: window.innerWidth,
-    top: appTopBarHeight,
-    bottom: window.innerHeight,
-    left: 0,
-    right: window.innerWidth,
-  };
 
   const pointingTo = sourcePositionInfo;
   const {
