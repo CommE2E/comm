@@ -13,6 +13,7 @@ use opaque_ke::{RegistrationUpload, ServerRegistration};
 use rand::rngs::OsRng;
 use rand::{CryptoRng, Rng};
 use siwe::Message;
+use std::collections::HashSet;
 use std::pin::Pin;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
@@ -40,10 +41,11 @@ use proto::{
   registration_request::Data::PakeRegistrationRequestAndUserId,
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as PakeRegistrationLoginResponse,
-  registration_response::Data::PakeRegistrationResponse, DeleteUserRequest,
-  DeleteUserResponse, GetUserIdRequest, GetUserIdResponse,
-  GetUserPublicKeyRequest, GetUserPublicKeyResponse, LoginRequest,
-  LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
+  registration_response::Data::PakeRegistrationResponse, CompareUsersRequest,
+  CompareUsersResponse, DeleteUserRequest, DeleteUserResponse,
+  GetUserIdRequest, GetUserIdResponse, GetUserPublicKeyRequest,
+  GetUserPublicKeyResponse, LoginRequest, LoginResponse,
+  PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -243,6 +245,29 @@ impl IdentityService for MyIdentityService {
       Ok(_) => Ok(Response::new(DeleteUserResponse {})),
       Err(e) => Err(handle_db_error(e)),
     }
+  }
+
+  #[instrument(skip(self))]
+  async fn compare_users(
+    &self,
+    request: Request<CompareUsersRequest>,
+  ) -> Result<Response<CompareUsersResponse>, Status> {
+    let message = request.into_inner();
+    let mut mysql_users_vec = message.users;
+    let mut ddb_users_vec = match self.client.get_users().await {
+      Ok(user_list) => user_list,
+      Err(e) => return Err(handle_db_error(e)),
+    };
+    // We use HashSets here for faster lookups
+    let mysql_users_set = HashSet::<String>::from_iter(mysql_users_vec.clone());
+    let ddb_users_set = HashSet::<String>::from_iter(ddb_users_vec.clone());
+
+    ddb_users_vec.retain(|user| !mysql_users_set.contains(user));
+    mysql_users_vec.retain(|user| !ddb_users_set.contains(user));
+    Ok(Response::new(CompareUsersResponse {
+      users_missing_from_keyserver: ddb_users_vec,
+      users_missing_from_identity: mysql_users_vec,
+    }))
   }
 }
 

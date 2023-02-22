@@ -441,6 +441,30 @@ impl DatabaseClient {
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
   }
+
+  pub async fn get_users(&self) -> Result<Vec<String>, Error> {
+    let scan_output = self
+      .client
+      .scan()
+      .table_name(USERS_TABLE)
+      .projection_expression(USERS_TABLE_PARTITION_KEY)
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    let mut result = Vec::new();
+    if let Some(attributes) = scan_output.items {
+      for mut attribute in attributes {
+        let id = parse_string_attribute(
+          USERS_TABLE_PARTITION_KEY,
+          attribute.remove(USERS_TABLE_PARTITION_KEY),
+        )
+        .map_err(Error::Attribute)?;
+        result.push(id);
+      }
+    }
+    Ok(result)
+  }
 }
 
 #[derive(
