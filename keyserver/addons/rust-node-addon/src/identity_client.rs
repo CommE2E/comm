@@ -9,7 +9,7 @@ use opaque_ke::{
 use rand::{rngs::OsRng, CryptoRng, Rng};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::Request;
+use tonic::{metadata::MetadataValue, transport::Channel, Request};
 use tracing::{error, instrument};
 mod identity {
   tonic::include_proto!("identity");
@@ -34,7 +34,9 @@ use std::env::var;
 lazy_static! {
   static ref IDENTITY_SERVICE_SOCKET_ADDR: String =
     var("COMM_IDENTITY_SERVICE_SOCKET_ADDR")
-      .unwrap_or("https://[::1]:50051".to_string());
+      .unwrap_or_else(|_| "https://[::1]:50051".to_string());
+  static ref AUTH_TOKEN: String = var("COMM_IDENTITY_SERVICE_AUTH_TOKEN")
+    .unwrap_or_else(|_| "test".to_string());
 }
 
 #[napi]
@@ -46,10 +48,18 @@ pub async fn register_user(
   password: String,
   user_public_key: String,
 ) -> Result<String> {
+  let channel = Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
+    .connect()
+    .await
+    .map_err(|_| Error::from_status(Status::GenericFailure))?;
+  let token: MetadataValue<_> = AUTH_TOKEN
+    .parse()
+    .map_err(|_| Error::from_status(Status::GenericFailure))?;
   let mut identity_client =
-    IdentityServiceClient::connect(IDENTITY_SERVICE_SOCKET_ADDR.as_str())
-      .await
-      .map_err(|_| Error::from_status(Status::GenericFailure))?;
+    IdentityServiceClient::with_interceptor(channel, |mut req: Request<()>| {
+      req.metadata_mut().insert("authorization", token.clone());
+      Ok(req)
+    });
 
   // Create a RegistrationRequest channel and use ReceiverStream to turn the
   // MPSC receiver into a Stream for outbound messages
