@@ -56,6 +56,7 @@ export interface Spec extends TurboModule {
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getUserOneTimeKeys: () => Promise<string>;
   +getCodeVersion: () => number;
+  +terminate: () => void;
   +setNotifyToken: (token: string) => Promise<void>;
   +clearNotifyToken: () => Promise<void>;
   +setCurrentUserID: (userID: string) => Promise<void>;
