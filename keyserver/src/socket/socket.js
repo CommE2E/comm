@@ -17,6 +17,7 @@ import type { Shape } from 'lib/types/core.js';
 import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
+import { serverRequestTypes } from 'lib/types/request-types.js';
 import {
   cookieSources,
   sessionCheckFrequency,
@@ -454,6 +455,16 @@ class Socket {
         oldMessagesCurrentAsOf,
       ),
     };
+
+    if (
+      viewer.userAgent?.includes('Electron') &&
+      viewer.platform === 'web' &&
+      !serverRequests.find(
+        request => request.type === serverRequestTypes.PLATFORM_DETAILS,
+      )
+    ) {
+      serverRequests.push({ type: serverRequestTypes.PLATFORM_DETAILS });
+    }
 
     if (!sessionInitializationResult.sessionContinued) {
       const [threadsResult, entriesResult, currentUserInfo, knownUserInfos] =
