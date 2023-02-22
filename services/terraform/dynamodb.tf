@@ -196,7 +196,7 @@ resource "aws_dynamodb_table" "identity-users" {
 resource "aws_dynamodb_table" "identity-tokens" {
   name           = "identity-tokens"
   hash_key       = "userID"
-  range_key      = "deviceID"
+  range_key      = "signingPublicKey"
   write_capacity = 10
   read_capacity  = 10
 
@@ -206,7 +206,7 @@ resource "aws_dynamodb_table" "identity-tokens" {
   }
 
   attribute {
-    name = "deviceID"
+    name = "signingPublicKey"
     type = "S"
   }
 }

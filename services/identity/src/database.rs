@@ -22,8 +22,7 @@ use crate::constants::{
   USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
   USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
   USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
-  USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
-  USERS_TABLE_WALLET_ADDRESS_INDEX,
+  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
@@ -74,10 +73,9 @@ impl DatabaseClient {
   pub async fn update_users_table(
     &self,
     user_id: String,
-    device_id: String,
+    signing_public_key: Option<String>,
     registration: Option<ServerRegistration<Cipher>>,
     username: Option<String>,
-    user_public_key: Option<String>,
   ) -> Result<UpdateItemOutput, Error> {
     let mut update_expression_parts = Vec::new();
     let mut expression_attribute_names = HashMap::new();
@@ -96,22 +94,17 @@ impl DatabaseClient {
       expression_attribute_values
         .insert(":u".to_string(), AttributeValue::S(username));
     };
-    if let Some(public_key) = user_public_key {
+    if let Some(public_key) = signing_public_key {
       update_expression_parts.push(format!(
         "{}.#{} = :k",
         USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
       ));
       expression_attribute_names.insert(
         format!("#{}", USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME),
-        device_id,
+        public_key,
       );
-      expression_attribute_values.insert(
-        ":k".to_string(),
-        AttributeValue::M(HashMap::from([(
-          USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE.to_string(),
-          AttributeValue::S(public_key),
-        )])),
-      );
+      expression_attribute_values
+        .insert(":k".to_string(), AttributeValue::M(HashMap::new()));
     };
 
     self
@@ -142,10 +135,9 @@ impl DatabaseClient {
   pub async fn add_user_to_users_table(
     &self,
     user_id: String,
-    device_id: String,
     registration: ServerRegistration<Cipher>,
     username: String,
-    user_public_key: String,
+    signing_public_key: String,
   ) -> Result<PutItemOutput, Error> {
     let item = HashMap::from([
       (
@@ -163,11 +155,8 @@ impl DatabaseClient {
       (
         USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
         AttributeValue::M(HashMap::from([(
-          device_id,
-          AttributeValue::M(HashMap::from([(
-            USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE.to_string(),
-            AttributeValue::S(user_public_key),
-          )])),
+          signing_public_key,
+          AttributeValue::M(HashMap::new()),
         )])),
       ),
     ]);
@@ -213,14 +202,17 @@ impl DatabaseClient {
   pub async fn get_access_token_data(
     &self,
     user_id: String,
-    device_id: String,
+    signing_public_key: String,
   ) -> Result<Option<AccessTokenData>, Error> {
     let primary_key = create_composite_primary_key(
       (
         ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
         user_id.clone(),
       ),
-      (ACCESS_TOKEN_SORT_KEY.to_string(), device_id.clone()),
+      (
+        ACCESS_TOKEN_SORT_KEY.to_string(),
+        signing_public_key.clone(),
+      ),
     );
     let get_item_result = self
       .client
@@ -249,7 +241,7 @@ impl DatabaseClient {
         )?;
         Ok(Some(AccessTokenData {
           user_id,
-          device_id,
+          signing_public_key,
           access_token,
           created,
           auth_type,
@@ -258,15 +250,15 @@ impl DatabaseClient {
       }
       Ok(_) => {
         info!(
-          "No item found for user {} and device {} in token table",
-          user_id, device_id
+          "No item found for user {} and signing public key {} in token table",
+          user_id, signing_public_key
         );
         Ok(None)
       }
       Err(e) => {
         error!(
-          "DynamoDB client failed to get token for user {} on device {}: {}",
-          user_id, device_id, e
+          "DynamoDB client failed to get token for user {} with signing public key {}: {}",
+          user_id, signing_public_key, e
         );
         Err(Error::AwsSdk(e.into()))
       }
@@ -284,7 +276,7 @@ impl DatabaseClient {
       ),
       (
         ACCESS_TOKEN_SORT_KEY.to_string(),
-        AttributeValue::S(access_token_data.device_id),
+        AttributeValue::S(access_token_data.signing_public_key),
       ),
       (
         ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),

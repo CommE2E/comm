@@ -28,19 +28,19 @@ service IdentityService {
 
 message PakeRegistrationRequestAndUserID {
   string userID = 1;
-  string deviceID = 2;
+  // ed25519 key for the given user's device
+  string signingPublicKey = 2;
   // Message sent to initiate PAKE registration (step 1)
   bytes pakeRegistrationRequest = 3;
   string username = 4;
-  string userPublicKey = 5;
 }
 
 message PakeCredentialRequestAndUserID {
   string userID = 1;
-  string deviceID = 2;
+  // ed25519 key for the given user's device
+  string signingPublicKey = 2;
   // Message sent to initiate PAKE login (step 1)
   bytes pakeCredentialRequest = 3;
-  string userPublicKey = 4;
 }
 
 message PakeLoginRequest {
@@ -71,10 +71,10 @@ message PakeRegistrationUploadAndCredentialRequest {
 
 message WalletLoginRequest {
   string userID = 1;
-  string deviceID = 2;
+  // ed25519 key for the given user's device
+  string signingPublicKey = 2;
   string siweMessage = 3;
   bytes siweSignature = 4;
-  string userPublicKey = 5;
 }
 
 message WalletLoginResponse {
@@ -124,7 +124,8 @@ message LoginResponse {
 
 message VerifyUserTokenRequest {
   string userID = 1;
-  string deviceID = 2;
+  // ed25519 key for the given user's device
+  string signingPublicKey = 2;
   string accessToken = 3;
 }
 

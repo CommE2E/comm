@@ -58,7 +58,7 @@ pub async fn get_user_id(
 pub async fn verify_user_token(
   mut client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   access_token: String,
 ) -> Result<bool, Status> {
   Ok(
@@ -66,7 +66,7 @@ pub async fn verify_user_token(
       .identity_client
       .verify_user_token(VerifyUserTokenRequest {
         user_id,
-        device_id,
+        signing_public_key,
         access_token,
       })
       .await?
@@ -78,10 +78,9 @@ pub async fn verify_user_token(
 pub async fn register_user(
   mut client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   username: String,
   password: String,
-  user_public_key: String,
 ) -> Result<String, Status> {
   // Create a RegistrationRequest channel and use ReceiverStream to turn the
   // MPSC receiver into a Stream for outbound messages
@@ -103,9 +102,8 @@ pub async fn register_user(
     &mut client_rng,
     user_id,
     &password,
-    device_id,
+    signing_public_key,
     username,
-    user_public_key,
   )?;
   if let Err(e) = tx.send(registration_request).await {
     error!("Response was dropped: {}", e);
@@ -140,9 +138,8 @@ pub async fn register_user(
 pub async fn login_user_pake(
   mut client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   password: String,
-  user_public_key: String,
 ) -> Result<String, Status> {
   // Create a LoginRequest channel and use ReceiverStream to turn the
   // MPSC receiver into a Stream for outbound messages
@@ -166,7 +163,7 @@ pub async fn login_user_pake(
       data: Some(PakeCredentialRequestAndUserId(
         PakeCredentialRequestAndUserIdStruct {
           user_id,
-          device_id,
+          signing_public_key,
           pake_credential_request: client_login_start_result
             .message
             .serialize()
@@ -174,7 +171,6 @@ pub async fn login_user_pake(
               error!("Could not serialize credential request: {}", e);
               Status::failed_precondition("PAKE failure")
             })?,
-          user_public_key,
         },
       )),
     })),
@@ -204,10 +200,9 @@ pub async fn login_user_pake(
 pub async fn login_user_wallet(
   mut client: Box<IdentityClient>,
   user_id: String,
-  device_id: String,
+  signing_public_key: String,
   siwe_message: String,
   siwe_signature: Vec<u8>,
-  user_public_key: String,
 ) -> Result<String, Status> {
   // Create a LoginRequest channel and use ReceiverStream to turn the
   // MPSC receiver into a Stream for outbound messages
@@ -227,10 +222,9 @@ pub async fn login_user_wallet(
   let login_request = LoginRequest {
     data: Some(WalletLoginRequest(WalletLoginRequestStruct {
       user_id,
-      device_id,
+      signing_public_key,
       siwe_message,
       siwe_signature,
-      user_public_key,
     })),
   };
   if let Err(e) = tx.send(login_request).await {
@@ -247,9 +241,8 @@ fn pake_registration_start(
   rng: &mut (impl Rng + CryptoRng),
   user_id: String,
   password: &str,
-  device_id: String,
+  signing_public_key: String,
   username: String,
-  user_public_key: String,
 ) -> Result<(RegistrationRequest, ClientRegistration<Cipher>), Status> {
   let client_registration_start_result =
     ClientRegistration::<Cipher>::start(rng, password.as_bytes()).map_err(
@@ -265,10 +258,9 @@ fn pake_registration_start(
       data: Some(PakeRegistrationRequestAndUserId(
         PakeRegistrationRequestAndUserIdStruct {
           user_id,
-          device_id,
+          signing_public_key,
           pake_registration_request,
           username,
-          user_public_key,
         },
       )),
     },
