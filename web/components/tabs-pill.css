@@ -32,7 +32,7 @@ div.tabsHeaderContainer {
 }
 
 .backgroundTabHeader {
-  color: var(--tabs-header-background-color);
+  color: var(--tabs-header-background-color-pill);
   background-color: transparent;
 }
 
