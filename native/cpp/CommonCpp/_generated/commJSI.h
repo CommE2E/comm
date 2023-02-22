@@ -36,6 +36,7 @@ public:
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
+  virtual void terminate(jsi::Runtime &rt) = 0;
   virtual jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) = 0;
   virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
   virtual jsi::Value setCurrentUserID(jsi::Runtime &rt, jsi::String userID) = 0;
@@ -192,6 +193,14 @@ private:
 
       return bridging::callFromJs<double>(
           rt, &T::getCodeVersion, jsInvoker_, instance_);
+    }
+    void terminate(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::terminate) == 1,
+          "Expected terminate(...) to have 1 parameters");
+
+      return bridging::callFromJs<void>(
+          rt, &T::terminate, jsInvoker_, instance_);
     }
     jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) override {
       static_assert(
