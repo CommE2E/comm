@@ -33,6 +33,7 @@ import { updateTypes } from 'lib/types/update-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import { getAPNsNotificationTopic } from './providers.js';
+import { rescindPushNotifs } from './rescind.js';
 import {
   apnPush,
   fcmPush,
@@ -242,6 +243,31 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   ]);
 
   await saveNotifResults(deliveryResults, notifications, true);
+}
+
+async function sendRescindNotifs(rescindInfo: PushInfo) {
+  if (Object.keys(rescindInfo).length === 0) {
+    return;
+  }
+
+  const usersToCollapsableNotifInfo = await fetchCollapsableNotifs(rescindInfo);
+
+  const promises = [];
+  for (const userID in usersToCollapsableNotifInfo) {
+    for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
+      for (const existingMessageInfo of notifInfo.existingMessageInfos) {
+        const rescindCondition = SQL`
+          n.user = ${userID} AND
+          n.thread = ${existingMessageInfo.threadID} AND
+          n.message = ${existingMessageInfo.id}
+        `;
+
+        promises.push(rescindPushNotifs(rescindCondition));
+      }
+    }
+  }
+
+  await Promise.all(promises);
 }
 
 // The results in deliveryResults will be combined with the rows
@@ -840,4 +866,4 @@ async function updateBadgeCount(
   await saveNotifResults(deliveryResults, new Map(), false);
 }
 
-export { sendPushNotifs, updateBadgeCount };
+export { sendPushNotifs, sendRescindNotifs, updateBadgeCount };

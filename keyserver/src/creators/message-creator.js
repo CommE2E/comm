@@ -38,7 +38,7 @@ import {
 } from '../fetchers/message-fetchers.js';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
-import { sendPushNotifs } from '../push/send.js';
+import { sendPushNotifs, sendRescindNotifs } from '../push/send.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times.js';
@@ -393,6 +393,8 @@ async function postMessageSend(
   const messageInfosPerUser = {};
   const latestMessagesPerUser: LatestMessagesPerUser = new Map();
   const userPushInfoPromises = {};
+  const userRescindInfoPromises = {};
+
   for (const pair of perUserInfo) {
     const [userID, preUserPushInfo] = pair;
 
@@ -475,20 +477,28 @@ async function postMessageSend(
     };
 
     const userPushInfoPromise = generateNotifUserInfoPromise(pushTypes.NOTIF);
+    const userRescindInfoPromise = generateNotifUserInfoPromise(
+      pushTypes.RESCIND,
+    );
 
     userPushInfoPromises[userID] = userPushInfoPromise;
+    userRescindInfoPromises[userID] = userRescindInfoPromise;
   }
 
   const latestMessages = flattenLatestMessagesPerUser(latestMessagesPerUser);
 
-  const [pushInfo] = await Promise.all([
+  const [pushInfo, rescindInfo] = await Promise.all([
     promiseAll(userPushInfoPromises),
+    promiseAll(userRescindInfoPromises),
     createReadStatusUpdates(latestMessages),
     redisPublish(viewer, messageInfosPerUser, updatesForCurrentSession),
     updateLatestMessages(latestMessages),
   ]);
 
-  await sendPushNotifs(_pickBy(Boolean)(pushInfo));
+  await Promise.all([
+    sendPushNotifs(_pickBy(Boolean)(pushInfo)),
+    sendRescindNotifs(_pickBy(Boolean)(rescindInfo)),
+  ]);
 }
 
 async function redisPublish(
