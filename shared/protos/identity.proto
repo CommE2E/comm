@@ -14,10 +14,6 @@ service IdentityService {
   // Called by users and keyservers to get userID corresponding to a wallet
   // address or username
   rpc GetUserID(GetUserIDRequest) returns (GetUserIDResponse) {}
-  // Called by keyservers to get the public key corresponding to a given user ID
-  // and device ID
-  rpc GetUserPublicKey(GetUserPublicKeyRequest) returns
-    (GetUserPublicKeyResponse) {}
   // Called by Ashoat's keyserver with a list of user IDs in MySQL and returns
   // any user IDs that are in DynamoDB but not in the supplied list
   rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
@@ -146,17 +142,6 @@ message GetUserIDRequest {
 
 message GetUserIDResponse {
   string userID = 1;
-}
-
-// GetUserPublicKey
-
-message GetUserPublicKeyRequest {
-  string userID = 1;
-  string deviceID = 2;
-}
-
-message GetUserPublicKeyResponse {
-  string publicKey = 1;
 }
 
 // CompareUsers

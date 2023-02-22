@@ -20,10 +20,10 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
   NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY, USERS_TABLE,
   USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICE_ATTRIBUTE, USERS_TABLE_PARTITION_KEY,
-  USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_USERNAME_ATTRIBUTE,
-  USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
-  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
+  USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
+  USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
+  USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+  USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
@@ -350,53 +350,6 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn get_user_public_key(
-    &self,
-    user_id: String,
-    device_id: String,
-  ) -> Result<Option<String>, Error> {
-    match self.get_item_from_users_table(&user_id).await {
-      Ok(GetItemOutput {
-        item: Some(mut item),
-        ..
-      }) => {
-        // `devices` is a HashMap that maps device IDs to a HashMap of
-        // device-specific attributes
-        let mut devices = parse_map_attribute(
-          USERS_TABLE_DEVICES_ATTRIBUTE,
-          item.remove(USERS_TABLE_DEVICES_ATTRIBUTE),
-        )?;
-        if devices.get(&device_id).is_none() {
-          return Ok(None);
-        }
-        let mut device = parse_map_attribute(
-          USERS_TABLE_DEVICE_ATTRIBUTE,
-          devices.remove(&device_id),
-        )?;
-        parse_string_attribute(
-          USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
-          device.remove(USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE),
-        )
-        .map(Some)
-        .map_err(Error::Attribute)
-      }
-      Ok(_) => {
-        info!(
-          "No item found for user {} and device {} in users table",
-          user_id, device_id
-        );
-        Ok(None)
-      }
-      Err(e) => {
-        error!(
-          "DynamoDB client failed to get user public key for user {}: {}",
-          user_id, e
-        );
-        Err(e)
-      }
-    }
-  }
-
   pub async fn get_item_from_users_table(
     &self,
     user_id: &str,
@@ -644,25 +597,6 @@ fn parse_string_attribute(
 ) -> Result<String, DBItemError> {
   match attribute_value {
     Some(AttributeValue::S(value)) => Ok(value),
-    Some(_) => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name,
-      attribute_value,
-      DBItemAttributeError::Missing,
-    )),
-  }
-}
-
-fn parse_map_attribute(
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<HashMap<String, AttributeValue>, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::M(value)) => Ok(value),
     Some(_) => Err(DBItemError::new(
       attribute_name,
       attribute_value,
