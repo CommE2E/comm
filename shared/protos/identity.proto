@@ -20,6 +20,10 @@ service IdentityService {
     (GetUserPublicKeyResponse) {}
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+  // Called by Ashoat's keyserver with a list of user IDs in MySQL and returns:
+  // 1. a list of user IDs that are in DynamoDB but not in the supplied list
+  // 2. a list of user IDs that are in the supplied list but not in DynamoDB
+  rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
 }
 
 // Helper types
@@ -165,3 +169,14 @@ message DeleteUserRequest {
 // Need to respond with a message to show success, an
 // empty reponse should work just fine
 message DeleteUserResponse {}
+
+// CompareUsers
+
+message CompareUsersRequest {
+  repeated string users = 1;
+}
+
+message CompareUsersResponse {
+  repeated string usersMissingFromKeyserver = 1;
+  repeated string usersMissingFromIdentity = 2;
+}
