@@ -210,3 +210,15 @@ resource "aws_dynamodb_table" "identity-tokens" {
     type = "S"
   }
 }
+
+resource "aws_dynamodb_table" "identity-nonces" {
+  name           = "identity-nonces"
+  hash_key       = "nonce"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "nonce"
+    type = "S"
+  }
+}
