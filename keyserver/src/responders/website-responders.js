@@ -384,7 +384,7 @@ async function websiteResponder(
     windowDimensions: { width: 0, height: 0 },
     baseHref,
     connection: {
-      ...defaultConnectionInfo('web', viewer.timeZone),
+      ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
       actualizedCalendarQuery: calendarQuery,
     },
     watchedThreadIDs: [],
