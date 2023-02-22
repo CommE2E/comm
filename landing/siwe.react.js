@@ -24,7 +24,6 @@ import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
 import {
   getSIWEStatementForPublicKey,
-  siweStatementWithoutPublicKey,
   siweMessageSigningExplanationStatements,
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
@@ -79,9 +78,13 @@ function SIWE(): React.Node {
     React.useContext(SIWEContext);
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
-    const statement = siwePrimaryIdentityPublicKey
-      ? getSIWEStatementForPublicKey(siwePrimaryIdentityPublicKey)
-      : siweStatementWithoutPublicKey;
+    invariant(
+      siwePrimaryIdentityPublicKey,
+      'primaryIdentityPublicKey must be present during SIWE attempt',
+    );
+    const statement = getSIWEStatementForPublicKey(
+      siwePrimaryIdentityPublicKey,
+    );
     signInWithEthereum(address, signer, siweNonce, statement);
   }, [address, signer, siweNonce, siwePrimaryIdentityPublicKey]);
 
