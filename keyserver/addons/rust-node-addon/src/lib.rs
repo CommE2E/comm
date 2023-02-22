@@ -14,5 +14,7 @@ use std::env::var;
 lazy_static! {
   pub static ref IDENTITY_SERVICE_SOCKET_ADDR: String =
     var("COMM_IDENTITY_SERVICE_SOCKET_ADDR")
-      .unwrap_or("https://[::1]:50051".to_string());
+      .unwrap_or_else(|_| "https://[::1]:50051".to_string());
+  pub static ref AUTH_TOKEN: String = var("COMM_IDENTITY_SERVICE_AUTH_TOKEN")
+    .unwrap_or_else(|_| "test".to_string());
 }
