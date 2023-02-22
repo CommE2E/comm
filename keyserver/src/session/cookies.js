@@ -9,6 +9,7 @@ import url from 'url';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
+import { isWebPlatform } from 'lib/types/device-types.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
@@ -317,7 +318,7 @@ async function fetchViewerFromCookieData(
     invariant(
       req.method === 'GET' ||
         viewer.sessionIdentifierType !== sessionIdentifierTypes.COOKIE_ID ||
-        viewer.platform !== 'web',
+        !isWebPlatform(viewer.platform),
       'non-GET request from web using sessionIdentifierTypes.COOKIE_ID',
     );
   }
