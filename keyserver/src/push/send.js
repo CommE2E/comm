@@ -30,6 +30,7 @@ import {
 } from 'lib/types/message-types.js';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
+import type { UserInfo } from 'lib/types/user-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import { getAPNsNotificationTopic } from './providers.js';
@@ -181,6 +182,10 @@ async function sendPushNotifs(pushInfo: PushInfo) {
               badgeOnly,
               unreadCount: unreadCounts[userID],
               codeVersion,
+              notifTargetUserInfo: {
+                id: userID,
+                username,
+              },
             });
             return await sendIOSNotification(notification, [...deviceTokens], {
               ...notificationInfo,
@@ -207,6 +212,10 @@ async function sendPushNotifs(pushInfo: PushInfo) {
               badgeOnly,
               unreadCount: unreadCounts[userID],
               codeVersion,
+              notifTargetUserInfo: {
+                id: userID,
+                username,
+              },
               dbID,
             });
             return await sendAndroidNotification(
@@ -489,6 +498,7 @@ type IOSNotifInputData = {
   +badgeOnly: boolean,
   +unreadCount: number,
   +codeVersion: number,
+  +notifTargetUserInfo: UserInfo,
 };
 async function prepareIOSNotification(
   inputData: IOSNotifInputData,
@@ -501,6 +511,7 @@ async function prepareIOSNotification(
     badgeOnly,
     unreadCount,
     codeVersion,
+    notifTargetUserInfo,
   } = inputData;
 
   const uniqueID = uuidv4();
@@ -510,6 +521,7 @@ async function prepareIOSNotification(
   const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
+    notifTargetUserInfo,
     getENSNames,
   );
   if (!badgeOnly) {
@@ -571,6 +583,7 @@ async function prepareAndroidNotification(
     badgeOnly,
     unreadCount,
     codeVersion,
+    notifTargetUserInfo,
     dbID,
   } = inputData;
 
@@ -578,6 +591,7 @@ async function prepareAndroidNotification(
   const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
+    notifTargetUserInfo,
     getENSNames,
   );
   const notification = {
