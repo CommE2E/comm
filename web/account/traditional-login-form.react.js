@@ -133,6 +133,11 @@ function TraditionalLoginForm(): React.Node {
     return 'Sign in';
   }, [inputDisabled]);
 
+  const signInButtonColor = React.useMemo(
+    () => ({ backgroundColor: '#6A20E3' }),
+    [],
+  );
+
   return (
     <form method="POST">
       <div>
@@ -173,6 +178,7 @@ function TraditionalLoginForm(): React.Node {
             inputDisabled
           }
           onClick={onSubmit}
+          buttonColor={signInButtonColor}
         >
           {loginButtonContent}
         </Button>

@@ -117,6 +117,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [],
   );
 
+  const signInButtonColor = React.useMemo(
+    () => ({ backgroundColor: '#6A20E3' }),
+    [],
+  );
+
   if (!siweNonce || !primaryIdentityPublicKey) {
     return (
       <div className={css.loadingIndicator}>
@@ -143,7 +148,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
           <a href="https://comm.app/privacy">Privacy Policy</a>.
         </p>
       </div>
-      <Button variant="filled" onClick={onSignInButtonClick}>
+      <Button
+        variant="filled"
+        onClick={onSignInButtonClick}
+        buttonColor={signInButtonColor}
+      >
         Sign in using this wallet
       </Button>
       <OrBreak />
