@@ -4,7 +4,9 @@ use http::Uri;
 use once_cell::sync::Lazy;
 use tracing::info;
 
-use crate::constants::{AWS_REGION, DEFAULT_LOCALSTACK_URL};
+use crate::constants::{
+  AWS_REGION, DEFAULT_LOCALSTACK_URL, HTTP_SERVER_DEFAULT_PORT,
+};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -16,6 +18,8 @@ pub struct AppConfig {
   /// AWS Localstack service URL, applicable in sandbox mode
   #[arg(long, default_value_t = DEFAULT_LOCALSTACK_URL.to_string())]
   pub localstack_url: String,
+  #[arg(long = "port", default_value_t = HTTP_SERVER_DEFAULT_PORT)]
+  pub http_port: u16,
 }
 
 pub static CONFIG: Lazy<AppConfig> = Lazy::new(|| AppConfig::parse());
