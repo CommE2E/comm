@@ -24,6 +24,8 @@ service IdentityService {
   // 1. a list of user IDs that are in DynamoDB but not in the supplied list
   // 2. a list of user IDs that are in the supplied list but not in DynamoDB
   rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
+  // Called by clients to get a nonce for a Sign-In with Ethereum message
+  rpc GenerateNonce(GenerateNonceRequest) returns (GenerateNonceResponse) {}
 }
 
 // Helper types
@@ -179,4 +181,13 @@ message CompareUsersRequest {
 message CompareUsersResponse {
   repeated string usersMissingFromKeyserver = 1;
   repeated string usersMissingFromIdentity = 2;
+}
+
+// GenerateNonce
+
+message GenerateNonceRequest {
+}
+
+message GenerateNonceResponse{
+  string nonce = 1;
 }

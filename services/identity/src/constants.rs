@@ -26,6 +26,10 @@ pub const ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE: &str = "authType";
 pub const ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE: &str = "valid";
 pub const ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE: &str = "token";
 
+pub const NONCE_TABLE: &str = "identity-nonces";
+pub const NONCE_TABLE_PARTITION_KEY: &str = "nonce";
+pub const NONCE_TABLE_CREATED_ATTRIBUTE: &str = "created";
+
 // Tokio
 
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
@@ -38,3 +42,7 @@ pub const ACCESS_TOKEN_LENGTH: usize = 512;
 // Temporary config
 
 pub const AUTH_TOKEN: &str = "COMM_IDENTITY_SERVICE_AUTH_TOKEN";
+
+// Nonce
+
+pub const NONCE_LENGTH: usize = 17;
