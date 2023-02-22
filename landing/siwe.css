@@ -26,17 +26,28 @@ div.connectedWalletInfo > div {
 }
 
 .walletDisplayText {
-  font-size: 24px;
-  padding: 5px;
+  display: flex;
+  width: 100%;
+  padding-bottom: 6px;
 }
+
+.walletDisplayText p {
+  font-size: 16px;
+  font-weight: bold;
+}
+
 .wrapper > p {
-  text-align: center;
-  padding: 5px;
+  padding-top: 16px;
   font-size: 15px;
 }
+
+.wrapper a {
+  color: #2a5db0;
+}
+
 .button {
   margin-top: 20px;
-  background: #7e57c2;
+  background: #6a20e3;
   border-radius: 4px;
   text-align: center;
   padding: 10px;

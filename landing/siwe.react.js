@@ -157,7 +157,9 @@ function SIWE(): React.Node {
   } else {
     return (
       <div className={css.wrapper}>
-        <span className={css.walletDisplayText}>Wallet Connected:</span>
+        <span className={css.walletDisplayText}>
+          <p>Wallet Connected</p>
+        </span>
         <div className={css.connectedWalletInfo}>
           <ConnectedWalletInfo />
         </div>
