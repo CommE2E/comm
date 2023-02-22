@@ -13,7 +13,6 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import ExitApp from 'react-native-exit-app';
 
 import {
   sendReportActionTypes,
@@ -44,6 +43,7 @@ import sleep from 'lib/utils/sleep.js';
 
 import Button from './components/button.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
+import { commCoreModule } from './native-modules.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
 import { useSelector } from './redux/redux-utils.js';
 import { wipeAndExit } from './utils/crash-utils.js';
@@ -183,7 +183,7 @@ class Crash extends React.PureComponent<Props, State> {
     if (!this.state.doneWaiting) {
       return;
     }
-    ExitApp.exitApp();
+    commCoreModule.terminate();
   };
 
   onPressWipe = async () => {

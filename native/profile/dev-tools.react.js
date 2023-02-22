@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
-import ExitApp from 'react-native-exit-app';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 
@@ -12,6 +11,7 @@ import { setURLPrefix } from 'lib/utils/url-utils.js';
 import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { CustomServerModalRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -151,7 +151,7 @@ class DevTools extends React.PureComponent<Props> {
   };
 
   onPressKill = () => {
-    ExitApp.exitApp();
+    commCoreModule.terminate();
   };
 
   onPressWipe = async () => {

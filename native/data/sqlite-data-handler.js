@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Alert } from 'react-native';
-import ExitApp from 'react-native-exit-app';
 import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
@@ -57,7 +56,7 @@ function SQLiteDataHandler(): React.Node {
             }. Please kill the app.`,
           );
         } else {
-          ExitApp.exitApp();
+          commCoreModule.terminate();
         }
       }
     },
@@ -104,7 +103,7 @@ function SQLiteDataHandler(): React.Node {
         throw e;
       } else {
         console.log(e);
-        ExitApp.exitApp();
+        commCoreModule.terminate();
       }
     }
   }, [callClearSensitiveData, currentLoggedInUserID]);
@@ -124,7 +123,7 @@ function SQLiteDataHandler(): React.Node {
             throw e;
           } else {
             console.log(e);
-            ExitApp.exitApp();
+            commCoreModule.terminate();
           }
         }
         await callFetchNewCookieFromNativeCredentials(

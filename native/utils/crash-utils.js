@@ -1,10 +1,10 @@
 // @flow
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ExitApp from 'react-native-exit-app';
 
 import sleep from 'lib/utils/sleep.js';
 
+import { commCoreModule } from '../native-modules.js';
 import { navStateAsyncStorageKey } from '../navigation/persistance.js';
 import { getPersistor } from '../redux/persist.js';
 
@@ -14,7 +14,7 @@ async function wipeAndExit() {
     __DEV__ ? AsyncStorage.removeItem(navStateAsyncStorageKey) : null,
   ]);
   await sleep(50);
-  ExitApp.exitApp();
+  commCoreModule.terminate();
 }
 
 export { wipeAndExit };

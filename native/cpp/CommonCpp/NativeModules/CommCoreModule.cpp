@@ -4,6 +4,7 @@
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
 #include "MessageStoreOperations.h"
+#include "TerminateApp.h"
 #include "ThreadStoreOperations.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
@@ -721,6 +722,10 @@ void CommCoreModule::processThreadStoreOperationsSync(
   });
 }
 
+void CommCoreModule::terminate(jsi::Runtime &rt) {
+  TerminateApp::terminate();
+}
+
 jsi::Value
 CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) {
   std::string userIdStr = userId.utf8(rt);
@@ -1044,7 +1049,7 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
         taskType job = [this, promise]() {
           std::string error;
           try {
-            DatabaseManager::clearSensitiveData();
+            DatabaseManager::clearSensitiveData(); // TODO
           } catch (const std::exception &e) {
             error = e.what();
           }
