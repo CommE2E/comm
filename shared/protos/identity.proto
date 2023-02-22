@@ -18,6 +18,9 @@ service IdentityService {
   // and device ID
   rpc GetUserPublicKey(GetUserPublicKeyRequest) returns
     (GetUserPublicKeyResponse) {}
+  // Called by Ashoat's keyserver with a list of user IDs in MySQL and returns
+  // any user IDs that are in DynamoDB but not in the supplied list
+  rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
 }
 
 // Helper types
@@ -152,4 +155,14 @@ message GetUserPublicKeyRequest {
 
 message GetUserPublicKeyResponse {
   string publicKey = 1;
+}
+
+// CompareUsers
+
+message CompareUsersRequest {
+  repeated string users = 1;
+}
+
+message CompareUsersResponse {
+  repeated string users = 1;
 }
