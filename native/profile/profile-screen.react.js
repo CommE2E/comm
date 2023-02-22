@@ -70,6 +70,7 @@ type Props = {
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   +staffCanSee: boolean,
   +stringForUser: ?string,
+  +isAccountWithPassword: boolean,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -174,6 +175,22 @@ class ProfileScreen extends React.PureComponent<Props> {
     if (this.loggedOutOrLoggingOut) {
       return;
     }
+    if (!this.props.isAccountWithPassword) {
+      Alert.alert(
+        'Log out',
+        'Are you sure you want to log out?',
+        [
+          { text: 'No', style: 'cancel' },
+          {
+            text: 'Yes',
+            onPress: this.logOutWithoutDeletingNativeCredentialsWrapper,
+            style: 'destructive',
+          },
+        ],
+        { cancelable: true },
+      );
+      return;
+    }
     const alertTitle =
       Platform.OS === 'ios' ? 'Keep Login Info in Keychain' : 'Keep Login Info';
     const alertDescription =
@@ -184,7 +201,10 @@ class ProfileScreen extends React.PureComponent<Props> {
       alertDescription,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Keep', onPress: this.logOutButKeepNativeCredentialsWrapper },
+        {
+          text: 'Keep',
+          onPress: this.logOutWithoutDeletingNativeCredentialsWrapper,
+        },
         {
           text: 'Remove',
           onPress: this.logOutAndDeleteNativeCredentialsWrapper,
@@ -195,7 +215,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     );
   };
 
-  logOutButKeepNativeCredentialsWrapper = () => {
+  logOutWithoutDeletingNativeCredentialsWrapper = () => {
     if (this.loggedOutOrLoggingOut) {
       return;
     }
@@ -356,6 +376,9 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const staffCanSee = useStaffCanSee();
     const stringForUser = useStringForUser(currentUserInfo);
+    const isAccountWithPassword = useSelector(state =>
+      accountHasPassword(state.currentUserInfo),
+    );
 
     return (
       <ProfileScreen
@@ -369,6 +392,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         dispatchActionPromise={dispatchActionPromise}
         staffCanSee={staffCanSee}
         stringForUser={stringForUser}
+        isAccountWithPassword={isAccountWithPassword}
       />
     );
   });
