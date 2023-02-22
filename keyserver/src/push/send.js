@@ -174,15 +174,15 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             { platform: 'ios', codeVersion },
           );
           const deliveryPromise = (async () => {
-            const notification = await prepareIOSNotification(
+            const notification = await prepareIOSNotification({
               allMessageInfos,
-              shimmedNewRawMessageInfos,
+              newRawMessageInfos: shimmedNewRawMessageInfos,
               threadInfo,
-              notifInfo.collapseKey,
+              collapseKey: notifInfo.collapseKey,
               badgeOnly,
-              unreadCounts[userID],
+              unreadCount: unreadCounts[userID],
               codeVersion,
-            );
+            });
             return await sendIOSNotification(notification, [...deviceTokens], {
               ...notificationInfo,
               codeVersion,
@@ -200,16 +200,16 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             { platform: 'android', codeVersion },
           );
           const deliveryPromise = (async () => {
-            const notification = await prepareAndroidNotification(
+            const notification = await prepareAndroidNotification({
               allMessageInfos,
-              shimmedNewRawMessageInfos,
+              newRawMessageInfos: shimmedNewRawMessageInfos,
               threadInfo,
-              notifInfo.collapseKey,
+              collapseKey: notifInfo.collapseKey,
               badgeOnly,
-              unreadCounts[userID],
-              dbID,
+              unreadCount: unreadCounts[userID],
               codeVersion,
-            );
+              dbID,
+            });
             return await sendAndroidNotification(
               notification,
               [...deviceTokens],
@@ -507,15 +507,28 @@ function getDevicesByDeviceType(
   return byDeviceType;
 }
 
+type IOSNotifInputData = {
+  +allMessageInfos: MessageInfo[],
+  +newRawMessageInfos: RawMessageInfo[],
+  +threadInfo: ThreadInfo,
+  +collapseKey: ?string,
+  +badgeOnly: boolean,
+  +unreadCount: number,
+  +codeVersion: number,
+};
 async function prepareIOSNotification(
-  allMessageInfos: MessageInfo[],
-  newRawMessageInfos: RawMessageInfo[],
-  threadInfo: ThreadInfo,
-  collapseKey: ?string,
-  badgeOnly: boolean,
-  unreadCount: number,
-  codeVersion: number,
+  inputData: IOSNotifInputData,
 ): Promise<apn.Notification> {
+  const {
+    allMessageInfos,
+    newRawMessageInfos,
+    threadInfo,
+    collapseKey,
+    badgeOnly,
+    unreadCount,
+    codeVersion,
+  } = inputData;
+
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
   notification.topic = getAPNsNotificationTopic(codeVersion);
@@ -569,16 +582,24 @@ async function prepareIOSNotification(
   return notification;
 }
 
+type AndroidNotifInputData = {
+  ...IOSNotifInputData,
+  +dbID: string,
+};
 async function prepareAndroidNotification(
-  allMessageInfos: MessageInfo[],
-  newRawMessageInfos: RawMessageInfo[],
-  threadInfo: ThreadInfo,
-  collapseKey: ?string,
-  badgeOnly: boolean,
-  unreadCount: number,
-  dbID: string,
-  codeVersion: number,
+  inputData: AndroidNotifInputData,
 ): Promise<Object> {
+  const {
+    allMessageInfos,
+    newRawMessageInfos,
+    threadInfo,
+    collapseKey,
+    badgeOnly,
+    unreadCount,
+    codeVersion,
+    dbID,
+  } = inputData;
+
   const notifID = collapseKey ? collapseKey : dbID;
   const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
