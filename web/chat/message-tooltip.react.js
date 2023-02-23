@@ -121,7 +121,10 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   const onEmojiSelect = React.useCallback(
     emoji => {
       const reactionInput = emoji.native;
-      const viewerReacted = !!reactions.get(reactionInput)?.viewerReacted;
+      let viewerReacted = false;
+      if (Object.keys(reactions).length > 0) {
+        viewerReacted = reactions[reactionInput].viewerReacted;
+      }
       const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
 
       sendReaction(reactionInput, action);

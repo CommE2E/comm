@@ -123,7 +123,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     let inlineEngagement = null;
     if (
       (this.props.containsInlineEngagement && item.threadCreatedFromMessage) ||
-      item.reactions.size > 0
+      Object.keys(item.reactions).length > 0
     ) {
       const positioning = isViewer ? 'right' : 'left';
       inlineEngagement = (

@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
+import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -28,7 +28,7 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
   +threadInfo: ?ThreadInfo,
-  +reactions?: $ReadOnlyMap<string, MessageReactionInfo>,
+  +reactions?: ReactionInfo,
   +disabled?: boolean,
 };
 function InlineEngagement(props: Props): React.Node {
@@ -88,7 +88,7 @@ function InlineEngagement(props: Props): React.Node {
   );
 
   const reactionList = React.useMemo(() => {
-    if (!reactions || reactions.size === 0) {
+    if (!reactions || Object.keys(reactions).length === 0) {
       return null;
     }
 
