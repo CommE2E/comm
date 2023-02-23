@@ -11,7 +11,7 @@ import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import OrBreak from '../components/or-break.react.js';
-import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer.js';
+import { setPrimaryIdentityKeys } from '../redux/primary-identity-public-key-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function LoginForm(): React.Node {
@@ -32,12 +32,14 @@ function LoginForm(): React.Node {
         return;
       }
       await olm.init();
-      const account = new olm.Account();
-      account.create();
-      const { ed25519 } = JSON.parse(account.identity_keys());
+      const identityAccount = new olm.Account();
+      identityAccount.create();
+      const { ed25519: identityED25519 } = JSON.parse(
+        identityAccount.identity_keys(),
+      );
       dispatch({
-        type: setPrimaryIdentityPublicKey,
-        payload: ed25519,
+        type: setPrimaryIdentityKeys,
+        payload: identityED25519,
       });
     })();
   }, [dispatch, primaryIdentityPublicKey]);
