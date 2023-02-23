@@ -1,6 +1,5 @@
 .container {
   border-bottom: 1px solid var(--border);
-  height: 60px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -9,7 +8,7 @@
 .navigationPanelContainer {
   flex-direction: row;
   display: flex;
-  height: 60px;
+  height: 56px;
 }
 
 .plusButton {
@@ -46,6 +45,8 @@
   color: var(--color-disabled);
   margin-right: 8px;
   margin-left: 8px;
+  font-size: var(--s-font-14);
+  font-weight: var(--semi-bold);
 }
 
 .navigationPanelTab:hover p,
@@ -59,7 +60,7 @@ div.current_tab svg {
 
 div.current_tab {
   border-bottom: 2px solid var(--tabs-header-active-border);
-  height: 58px;
+  box-sizing: border-box;
 }
 
 .chatIconWrapper {
@@ -74,8 +75,8 @@ span.chatBadge {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   color: var(--fg);
   background: var(--unread-bg);
   border-radius: 13px;
