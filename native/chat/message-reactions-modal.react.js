@@ -6,7 +6,7 @@ import * as React from 'react';
 import { View, Text, FlatList, TouchableHighlight } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
+import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
 import Modal from '../components/modal.react.js';
@@ -15,7 +15,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 export type MessageReactionsModalParams = {
-  +reactions: $ReadOnlyMap<string, MessageReactionInfo>,
+  +reactions: ReactionInfo,
 };
 
 type Props = {
