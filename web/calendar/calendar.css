@@ -1,3 +1,8 @@
+.container {
+  display: flex;
+  flex-direction: row;
+}
+
 .filtersButton {
   color: var(--fg);
   background-color: var(--filters-button-bg);
@@ -20,7 +25,6 @@
 
 div.content {
   height: 100%;
-  position: relative;
   overflow: auto;
 }
 
