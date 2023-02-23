@@ -29,13 +29,32 @@ impl FeatureFlagsService {
   }
 
   async fn features_handler(
-    _client: web::Data<DatabaseClient>,
-    _query: web::Query<FeatureQuery>,
-  ) -> Result<HttpResponse, actix_web::Error> {
-    Ok(HttpResponse::Ok().body("HELLO"))
+    client: web::Data<DatabaseClient>,
+    query: web::Query<FeatureQuery>,
+  ) -> HttpResponse {
+    let platform = match query.platform.as_str() {
+      "iOS" => Some(Platform::IOS),
+      "Android" => Some(Platform::ANDROID),
+      _ => None,
+    };
+    match platform {
+      Some(p) => match Self::enabled_features_set(
+        client.get_ref(),
+        p,
+        query.code_version,
+        query.is_staff,
+      )
+      .await
+      {
+        Ok(features) => HttpResponse::Ok()
+          .body(features.into_iter().collect::<Vec<_>>().join(", ")),
+        _ => HttpResponse::InternalServerError().finish(),
+      },
+      None => HttpResponse::BadRequest().finish(),
+    }
   }
 
-  async fn _enabled_features_set(
+  async fn enabled_features_set(
     db: &DatabaseClient,
     platform: Platform,
     code_version: i32,
@@ -46,13 +65,13 @@ impl FeatureFlagsService {
       features_config
         .into_values()
         .filter_map(|config| {
-          Self::_check_if_feature_is_enabled(code_version, is_staff, config)
+          Self::check_if_feature_is_enabled(code_version, is_staff, config)
         })
         .collect(),
     )
   }
 
-  fn _check_if_feature_is_enabled(
+  fn check_if_feature_is_enabled(
     code_version: i32,
     is_staff: bool,
     feature_config: FeatureConfig,
@@ -82,7 +101,7 @@ impl FeatureFlagsService {
 
 #[derive(Deserialize, Debug)]
 struct FeatureQuery {
-  _code_version: i32,
-  _is_staff: bool,
-  _platform: String,
+  code_version: i32,
+  is_staff: bool,
+  platform: String,
 }
