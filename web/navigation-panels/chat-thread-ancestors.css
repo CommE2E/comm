@@ -1,51 +1,39 @@
-div.ancestorThreadsContainer {
+.container {
   font-size: var(--xs-font-12);
   display: flex;
   align-items: center;
-  column-gap: 5px;
+  column-gap: 12px;
 }
 
-div.ancestorName {
+.communityName {
+  color: var(--thread-ancestor-color);
+  font-size: var(--l-font-18);
+  font-weight: var(--semi-bold);
+  white-space: nowrap;
+}
+
+.ancestorThreadsContainer {
+  border: 1px solid var(--topbar-lines);
+  border-radius: 8px;
   display: flex;
-  align-items: center;
-  padding: 2px 6px;
-  border-radius: 2px;
-  box-sizing: border-box;
+  padding: 7px 12px;
+  margin-right: 16px;
+}
+
+.ancestorName {
+  color: var(--thread-ancestor-color);
+  font-size: var(--xs-font-12);
+  font-weight: var(--semi-bold);
   line-height: 1.5;
+  white-space: nowrap;
 }
 
-button.seeFullStructure {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-div.ancestorKeyserver {
-  display: flex;
-  align-items: center;
-}
-
-div.ancestorKeyserverName {
-  border-radius: 0 2px 2px 0;
+svg.chevronRight {
+  color: var(--thread-ancestor-separator-color);
+  flex-shrink: 0;
 }
 
 svg.ancestorSeparator {
-  color: var(--thread-ancestor-separator-color);
-}
-
-div.ancestorKeyserverOperator {
-  display: flex;
-  column-gap: 5px;
-  padding: 0 5px;
-  align-items: center;
-  border: 1px solid var(--thread-ancestor-keyserver-border);
-  border-radius: 2px 0 0 2px;
-  height: 22px;
-  box-sizing: border-box;
-}
-
-button.seeFullAncestor {
-  font-size: var(--xs-font-12);
-  font-weight: var(--semi-bold);
-  cursor: pointer;
+  align-self: center;
+  padding: 0 8px;
 }
