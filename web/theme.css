@@ -108,8 +108,7 @@
   --thread-top-bar-color: var(--shades-white-100);
   --thread-top-bar-menu-color: var(--shades-white-70);
   --thread-ancestor-keyserver-border: var(--shades-black-70);
-  --thread-ancestor-color-light: var(--shades-white-70);
-  --thread-ancestor-color-dark: var(--shades-black-100);
+  --thread-ancestor-color: var(--shades-white-100);
   --thread-ancestor-separator-color: var(--shades-white-60);
   --text-message-default-background: var(--shades-black-80);
   --message-action-tooltip-bg: var(--shades-black-90);
@@ -210,4 +209,5 @@
   --filter-panel-bg: #0d0d0d;
   --topbar-button-bg-hover: var(--shades-black-80);
   --topbar-button-fg: var(--shades-white-60);
+  --topbar-lines: rgba(255, 255, 255, 0.08);
 }

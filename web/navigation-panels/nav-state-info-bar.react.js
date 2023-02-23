@@ -4,7 +4,6 @@ import classnames from 'classnames';
 import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadAncestors from './chat-thread-ancestors.react.js';
 import css from './nav-state-info-bar.css';
@@ -22,7 +21,6 @@ function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
     [threadInfo.color],
   );
 
-  const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
     <>
       <div className={css.topBarThreadInfo}>
@@ -30,7 +28,6 @@ function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
           className={css.threadColorSquare}
           style={threadBackgroundColorStyle}
         />
-        <p className={css.threadTitle}>{uiName}</p>
         <ThreadAncestors threadInfo={threadInfo} />
       </div>
     </>
