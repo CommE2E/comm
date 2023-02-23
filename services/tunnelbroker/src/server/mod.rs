@@ -264,8 +264,14 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
       let tx = tx.clone();
       async move {
         loop {
+          let device_id = device_id.clone();
           let message_to_deliver =
-            match waitMessageFromDeliveryBroker(&device_id) {
+            match tokio::task::spawn_blocking(move || {
+              waitMessageFromDeliveryBroker(&device_id)
+            })
+            .await
+            .expect("Error on waiting messages from DeliveryBroker")
+            {
               Ok(message_item) => message_item,
               Err(err) => {
                 error!(
