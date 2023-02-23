@@ -117,7 +117,7 @@ function multimediaMessageItemHeight(
   if (multimediaMessageSendFailed(item)) {
     height += failedSendHeight;
   }
-  if (item.threadCreatedFromMessage || item.reactions.size > 0) {
+  if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
     height +=
       inlineEngagementStyle.height +
       inlineEngagementStyle.marginTop +
