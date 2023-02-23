@@ -1,0 +1,28 @@
+.backContainer {
+  position: absolute;
+  top: 10%;
+  left: 15%;
+}
+
+.backButton {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+.mediaContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+}
+
+.mediaItem {
+  width: 100%;
+  height: 100%;
+}

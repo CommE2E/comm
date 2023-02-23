@@ -18,6 +18,7 @@ export type ModalOverridableProps = {
   +icon?: Icon,
   +onClose: () => void,
   +withCloseButton?: boolean,
+  +transparent?: boolean,
   +size?: ModalSize,
   +modalHeaderCentered?: boolean,
 };
@@ -34,11 +35,14 @@ function Modal(props: ModalProps): React.Node {
     onClose,
     name,
     icon,
+    transparent = false,
     withCloseButton = true,
     modalHeaderCentered = false,
   } = props;
 
-  const modalContainerClasses = classNames(css.modalContainer, {
+  const modalContainerClasses = classNames({
+    [css.modalContainer]: transparent === false,
+    [css.modalContainerTransparent]: transparent === true,
     [css.modalContainerLarge]: size === 'large',
     [css.modalContainerSmall]: size === 'small',
   });

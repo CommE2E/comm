@@ -3,9 +3,12 @@
 import * as React from 'react';
 
 import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { Media } from 'lib/types/media-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
+import ThreadSettingsMediaGaleryItem from './thread-settings-media-gallery-item.react.js';
 import css from './thread-settings-media-gallery.css';
 import Tabs from '../../../components/tabs.react.js';
 import Modal from '../../modal.react.js';
@@ -22,6 +25,7 @@ type ThreadSettingsMediaGalleryModalProps = {
 function ThreadSettingsMediaGalleryModal(
   props: ThreadSettingsMediaGalleryModalProps,
 ): React.Node {
+  const { pushModal, popModal } = useModalContext();
   const { onClose, parentThreadInfo, limit, activeTab } = props;
   const { id: threadID } = parentThreadInfo;
   const modalName = 'Media';
@@ -45,6 +49,15 @@ function ThreadSettingsMediaGalleryModal(
     fetchData();
   }, [callFetchThreadMedia, threadID, limit]);
 
+  const onClick = React.useCallback(
+    (media: Media) => {
+      pushModal(
+        <ThreadSettingsMediaGaleryItem media={media} onClose={popModal} />,
+      );
+    },
+    [pushModal, popModal],
+  );
+
   const filteredMediaInfos = React.useMemo(() => {
     if (tab === 'All') {
       return mediaInfos;
@@ -65,12 +78,16 @@ function ThreadSettingsMediaGalleryModal(
   const mediaGalleryItems = React.useMemo(() => {
     return filteredMediaInfos.map((media, i) => {
       return (
-        <div key={i} className={css.mediaContainer}>
+        <div
+          key={i}
+          onClick={() => onClick(media)}
+          className={css.mediaContainer}
+        >
           <img src={mediaCoverPhotos[i]} className={css.media} />
         </div>
       );
     });
-  }, [filteredMediaInfos, mediaCoverPhotos]);
+  }, [filteredMediaInfos, onClick, mediaCoverPhotos]);
 
   const handleScroll = React.useCallback(
     async event => {
