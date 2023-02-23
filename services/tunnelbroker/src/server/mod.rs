@@ -187,7 +187,9 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
     }
 
     // Checking for an empty notif token and requesting the new one from the client
-    if session_item.notifyToken.is_empty()
+    if !isConfigParameterSet("notifications.disable").expect(
+      "Error while checking the `notifications.disable` config file parameter",
+    ) && session_item.notifyToken.is_empty()
       && session_item.deviceType
         == tunnelbroker::new_session_request::DeviceTypes::Mobile as i32
     {
