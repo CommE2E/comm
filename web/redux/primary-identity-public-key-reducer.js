@@ -8,12 +8,12 @@ import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
 import type { Action } from './redux-setup.js';
 
-const setPrimaryIdentityPublicKey = 'SET_PRIMARY_IDENTITY_PUBLIC_KEY';
+const setPrimaryIdentityKeys = 'SET_PRIMARY_IDENTITY_KEYS';
 function reducePrimaryIdentityPublicKey(
   state: ?string,
   action: Action,
 ): ?string {
-  if (action.type === setPrimaryIdentityPublicKey) {
+  if (action.type === setPrimaryIdentityKeys) {
     return action.payload;
   } else if (
     action.type === logOutActionTypes.success ||
@@ -26,4 +26,4 @@ function reducePrimaryIdentityPublicKey(
   return state;
 }
 
-export { setPrimaryIdentityPublicKey, reducePrimaryIdentityPublicKey };
+export { setPrimaryIdentityKeys, reducePrimaryIdentityPublicKey };
