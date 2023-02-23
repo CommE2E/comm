@@ -71,7 +71,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   }, [dispatchActionPromise, getSIWENonceCall, siweNonceShouldBeFetched]);
 
   const primaryIdentityPublicKey = useSelector(
-    state => state.primaryIdentityPublicKey,
+    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
   );
 
   const callSIWEAuthEndpoint = React.useCallback(
