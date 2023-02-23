@@ -38,7 +38,7 @@ function TraditionalLoginForm(): React.Node {
   const modalContext = useModalContext();
 
   const primaryIdentityPublicKey = useSelector(
-    state => state.primaryIdentityPublicKey,
+    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
   );
 
   const usernameInputRef = React.useRef();

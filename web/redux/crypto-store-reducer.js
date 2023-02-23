@@ -4,26 +4,30 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
+import type { CryptoStore } from 'lib/types/crypto-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
 import type { Action } from './redux-setup.js';
 
 const setPrimaryIdentityKeys = 'SET_PRIMARY_IDENTITY_KEYS';
-function reducePrimaryIdentityPublicKey(
-  state: ?string,
-  action: Action,
-): ?string {
+function reduceCryptoStore(state: CryptoStore, action: Action): CryptoStore {
   if (action.type === setPrimaryIdentityKeys) {
-    return action.payload;
+    return {
+      ...state,
+      primaryIdentityKeys: action.payload,
+    };
   } else if (
     action.type === logOutActionTypes.success ||
     action.type === deleteAccountActionTypes.success ||
     (action.type === setNewSessionActionType &&
       action.payload.sessionChange.cookieInvalidated)
   ) {
-    return null;
+    return {
+      primaryIdentityKeys: null,
+      notificationIdentityKeys: null,
+    };
   }
   return state;
 }
 
-export { setPrimaryIdentityKeys, reducePrimaryIdentityPublicKey };
+export { setPrimaryIdentityKeys, reduceCryptoStore };

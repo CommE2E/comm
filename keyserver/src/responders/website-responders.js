@@ -388,7 +388,10 @@ async function websiteResponder(
     dataLoaded: viewer.loggedIn,
     windowActive: true,
     userPolicies: {},
-    primaryIdentityPublicKey: null,
+    cryptoStore: {
+      primaryIdentityKeys: null,
+      notificationIdentityKeys: null,
+    },
     _persist: null,
   });
   const jsonStream = streamJSON(res, initialReduxState);
