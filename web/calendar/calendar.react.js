@@ -159,18 +159,16 @@ class Calendar extends React.PureComponent<Props, State> {
     }
 
     let filterPanel = null;
-    let calendarContentStyle = null;
     let filterButtonStyle = null;
     if (this.state.filterPanelOpen) {
       filterPanel = <FilterPanel toggleFilters={this.toggleFilters} />;
-      calendarContentStyle = { marginLeft: '300px' };
       filterButtonStyle = { display: 'none' };
     }
 
     return (
-      <div>
+      <div className={css.container}>
         {filterPanel}
-        <div className={css.content} style={calendarContentStyle}>
+        <div className={css.content}>
           <div>
             <a
               className={css.filtersButton}
