@@ -37,7 +37,7 @@ function RobotextMessage(props: Props): React.Node {
   let inlineEngagement;
   const { item } = props;
   const { threadCreatedFromMessage, reactions } = item;
-  if (threadCreatedFromMessage || reactions.size > 0) {
+  if (threadCreatedFromMessage || Object.keys(reactions).length > 0) {
     inlineEngagement = (
       <div className={css.sidebarMarginTop}>
         <InlineEngagement

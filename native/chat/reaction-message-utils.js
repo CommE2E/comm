@@ -8,7 +8,7 @@ import {
   sendReactionMessage,
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions';
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
+import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction';
 import {
@@ -25,7 +25,7 @@ function useSendReaction(
   messageID: ?string,
   localID: string,
   threadID: string,
-  reactions: $ReadOnlyMap<string, MessageReactionInfo>,
+  reactions: ReactionInfo,
 ): (reaction: string) => mixed {
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
@@ -42,7 +42,10 @@ function useSendReaction(
 
       invariant(viewerID, 'viewerID should be set');
 
-      const viewerReacted = reactions.get(reaction)?.viewerReacted;
+      let viewerReacted = false;
+      if (Object.keys(reactions).length > 0) {
+        viewerReacted = reactions[reaction].viewerReacted;
+      }
       const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
 
       const reactionMessagePromise = (async () => {

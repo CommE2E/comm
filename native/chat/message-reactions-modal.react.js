@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, Text, FlatList, TouchableHighlight } from 'react-native';
 
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
+import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils';
 
 import Modal from '../components/modal.react';
@@ -14,7 +14,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 import { useColors, useStyles } from '../themes/colors';
 
 export type MessageReactionsModalParams = {
-  +reactions: $ReadOnlyMap<string, MessageReactionInfo>,
+  +reactions: ReactionInfo,
 };
 
 type Props = {

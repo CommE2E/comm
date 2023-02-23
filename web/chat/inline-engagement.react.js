@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react';
 import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
+import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { stringForReactionList } from 'lib/shared/reaction-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
@@ -16,7 +16,7 @@ import css from './inline-engagement.css';
 
 type Props = {
   +threadInfo: ?ThreadInfo,
-  +reactions?: $ReadOnlyMap<string, MessageReactionInfo>,
+  +reactions?: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
 };
 function InlineEngagement(props: Props): React.Node {
@@ -33,7 +33,7 @@ function InlineEngagement(props: Props): React.Node {
     },
   ]);
 
-  const reactionsExist = reactions && reactions.size > 0;
+  const reactionsExist = reactions && Object.keys(reactions).length > 0;
 
   const threadsContainerClasses = classNames({
     [css.threadsContainer]: threadInfo && !reactionsExist,
@@ -74,7 +74,7 @@ function InlineEngagement(props: Props): React.Node {
   );
 
   const reactionsList = React.useMemo(() => {
-    if (!reactions || reactions.size === 0) {
+    if (!reactions || Object.keys(reactions).length === 0) {
       return null;
     }
 

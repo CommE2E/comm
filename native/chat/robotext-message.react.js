@@ -53,7 +53,7 @@ function RobotextMessage(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   let inlineEngagement = null;
-  if (item.threadCreatedFromMessage || item.reactions.size > 0) {
+  if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
     inlineEngagement = (
       <View style={styles.sidebar}>
         <InlineEngagement
