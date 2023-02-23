@@ -11,7 +11,7 @@ import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import OrBreak from '../components/or-break.react.js';
-import { setPrimaryIdentityKeys } from '../redux/primary-identity-public-key-reducer.js';
+import { setPrimaryIdentityKeys } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function LoginForm(): React.Node {
@@ -20,7 +20,7 @@ function LoginForm(): React.Node {
   const dispatch = useDispatch();
 
   const primaryIdentityPublicKey = useSelector(
-    state => state.primaryIdentityPublicKey,
+    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
   );
 
   React.useEffect(() => {
@@ -34,12 +34,11 @@ function LoginForm(): React.Node {
       await olm.init();
       const identityAccount = new olm.Account();
       identityAccount.create();
-      const { ed25519: identityED25519 } = JSON.parse(
-        identityAccount.identity_keys(),
-      );
+      const { ed25519: identityED25519, curve25519: identityCurve25519 } =
+        JSON.parse(identityAccount.identity_keys());
       dispatch({
         type: setPrimaryIdentityKeys,
-        payload: identityED25519,
+        payload: { ed25519: identityED25519, curve25519: identityCurve25519 },
       });
     })();
   }, [dispatch, primaryIdentityPublicKey]);

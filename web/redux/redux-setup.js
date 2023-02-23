@@ -13,6 +13,7 @@ import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.j
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils.js';
 import type { Shape } from 'lib/types/core.js';
+import type { CryptoStore, OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -39,12 +40,12 @@ import {
   updateCalendarCommunityFilter,
   clearCalendarCommunityFilter,
 } from './action-types.js';
+import {
+  reduceCryptoStore,
+  setPrimaryIdentityKeys,
+} from './crypto-store-reducer.js';
 import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
-import {
-  reducePrimaryIdentityPublicKey,
-  setPrimaryIdentityKeys,
-} from './primary-identity-public-key-reducer.js';
 import { getVisibility } from './visibility.js';
 import { filterThreadIDsBelongingToCommunity } from '../selectors/calendar-selectors.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
@@ -80,7 +81,7 @@ export type AppState = {
   dataLoaded: boolean,
   windowActive: boolean,
   userPolicies: UserPolicies,
-  primaryIdentityPublicKey: ?string,
+  cryptoStore: CryptoStore,
   _persist: ?PersistState,
 };
 
@@ -99,7 +100,7 @@ export type Action =
       type: 'SET_DEVICE_ID',
       payload: string,
     }
-  | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?string }
+  | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | {
       +type: 'UPDATE_CALENDAR_COMMUNITY_FILTER',
       +payload: string,
@@ -197,10 +198,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       state.threadStore.threadInfos,
     ),
     deviceID: reduceDeviceID(state.deviceID, action),
-    primaryIdentityPublicKey: reducePrimaryIdentityPublicKey(
-      state.primaryIdentityPublicKey,
-      action,
-    ),
+    cryptoStore: reduceCryptoStore(state.cryptoStore, action),
   };
 
   return validateState(oldState, state);
