@@ -1,5 +1,7 @@
 use crate::config::CONFIG;
+use crate::constants::{PLATFORM_ANDROID, PLATFORM_IOS};
 use crate::database::{DatabaseClient, FeatureConfig, Platform};
+use actix_web::http::header::ContentType;
 use actix_web::{web, App, HttpResponse, HttpServer};
 use comm_services_lib::database::Error;
 use serde::Deserialize;
@@ -30,13 +32,33 @@ impl FeatureFlagsService {
   }
 
   async fn features_handler(
-    _client: web::Data<DatabaseClient>,
-    _query: web::Query<FeatureQuery>,
-  ) -> Result<HttpResponse, actix_web::Error> {
-    Ok(HttpResponse::Ok().body("HELLO"))
+    client: web::Data<DatabaseClient>,
+    query: web::Query<FeatureQuery>,
+  ) -> HttpResponse {
+    let platform = match query.platform.as_str().to_uppercase().as_str() {
+      PLATFORM_IOS => Platform::IOS,
+      PLATFORM_ANDROID => Platform::ANDROID,
+      _ => return HttpResponse::BadRequest().finish(),
+    };
+    match Self::enabled_features_set(
+      client.get_ref(),
+      platform,
+      query.code_version,
+      query.is_staff,
+    )
+    .await
+    {
+      Ok(features) => {
+        let response_body = features.into_iter().collect::<Vec<_>>().join(",");
+        HttpResponse::Ok()
+          .content_type(ContentType::plaintext())
+          .body(response_body)
+      }
+      _ => HttpResponse::InternalServerError().finish(),
+    }
   }
 
-  async fn _enabled_features_set(
+  async fn enabled_features_set(
     db: &DatabaseClient,
     platform: Platform,
     code_version: i32,
@@ -47,13 +69,13 @@ impl FeatureFlagsService {
       features_config
         .into_values()
         .filter_map(|config| {
-          Self::_feature_name_if_enabled(code_version, is_staff, config)
+          Self::feature_name_if_enabled(code_version, is_staff, config)
         })
         .collect(),
     )
   }
 
-  fn _feature_name_if_enabled(
+  fn feature_name_if_enabled(
     code_version: i32,
     is_staff: bool,
     feature_config: FeatureConfig,
@@ -81,7 +103,6 @@ impl FeatureFlagsService {
   }
 }
 
-#[allow(dead_code)]
 #[derive(Deserialize, Debug)]
 struct FeatureQuery {
   code_version: i32,
