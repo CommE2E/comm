@@ -43,7 +43,7 @@ import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import {
   reducePrimaryIdentityPublicKey,
-  setPrimaryIdentityPublicKey,
+  setPrimaryIdentityKeys,
 } from './primary-identity-public-key-reducer.js';
 import { getVisibility } from './visibility.js';
 import { filterThreadIDsBelongingToCommunity } from '../selectors/calendar-selectors.js';
@@ -99,7 +99,7 @@ export type Action =
       type: 'SET_DEVICE_ID',
       payload: string,
     }
-  | { +type: 'SET_PRIMARY_IDENTITY_PUBLIC_KEY', payload: ?string }
+  | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?string }
   | {
       +type: 'UPDATE_CALENDAR_COMMUNITY_FILTER',
       +payload: string,
@@ -184,7 +184,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
   if (
     action.type !== updateNavInfoActionType &&
     action.type !== setDeviceIDActionType &&
-    action.type !== setPrimaryIdentityPublicKey
+    action.type !== setPrimaryIdentityKeys
   ) {
     state = baseReducer(state, action).state;
   }
