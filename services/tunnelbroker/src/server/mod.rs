@@ -2,11 +2,11 @@ use crate::cxx_bridge::ffi::{MessageItem, SessionItem};
 
 use super::constants;
 use super::cxx_bridge::ffi::{
-  ackMessageFromAMQP, eraseMessagesFromAMQP, getMessagesFromDatabase,
-  getSavedNonceToSign, getSessionItem, isConfigParameterSet, newSessionHandler,
-  removeMessages, sendMessages, sessionSignatureHandler,
-  updateSessionItemDeviceToken, updateSessionItemIsOnline,
-  waitMessageFromDeliveryBroker, GRPCStatusCodes,
+  ackMessageFromAMQP, deleteDeliveryBrokerQueueIfEmpty, eraseMessagesFromAMQP,
+  getMessagesFromDatabase, getSavedNonceToSign, getSessionItem,
+  isConfigParameterSet, newSessionHandler, removeMessages, sendMessages,
+  sessionSignatureHandler, updateSessionItemDeviceToken,
+  updateSessionItemIsOnline, waitMessageFromDeliveryBroker, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
@@ -387,6 +387,14 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
                   err.what()
                 );
               };
+              if let Err(err) =
+                deleteDeliveryBrokerQueueIfEmpty(&session_item.deviceID)
+              {
+                error!(
+                  "Error deleting delivery broker queue when empty: {}",
+                  err.what()
+                );
+              }
             }
           }
         }

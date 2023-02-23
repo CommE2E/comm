@@ -84,5 +84,6 @@ pub mod ffi {
       deviceID: &str,
       messagesIDs: &Vec<String>,
     ) -> Result<()>;
+    pub fn deleteDeliveryBrokerQueueIfEmpty(deviceID: &str) -> Result<()>;
   }
 }
