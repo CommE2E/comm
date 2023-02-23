@@ -7,6 +7,14 @@ div.modalContainer {
   overflow: hidden;
 }
 
+div.transparentModalContainer {
+  display: flex;
+  border-radius: 8px;
+  flex-direction: column;
+  margin: 20px;
+  overflow: hidden;
+}
+
 div.modalContainerSmall {
   width: 330px;
 }

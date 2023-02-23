@@ -9,6 +9,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import css from './media.css';
 
 type BaseProps = {
+  +type: string,
   +uri: string,
 };
 
@@ -26,6 +27,17 @@ class MultimediaModal extends React.PureComponent<Props> {
   }
 
   render(): React.Node {
+    let mediaModalItem;
+    if (this.props.type === 'photo') {
+      mediaModalItem = <img src={this.props.uri} />;
+    } else {
+      mediaModalItem = (
+        <video controls>
+          <source src={this.props.uri} />
+        </video>
+      );
+    }
+
     return (
       <div
         className={css.multimediaModalOverlay}
@@ -34,7 +46,7 @@ class MultimediaModal extends React.PureComponent<Props> {
         tabIndex={0}
         onKeyDown={this.onKeyDown}
       >
-        <img src={this.props.uri} />
+        {mediaModalItem}
         <XCircleIcon
           onClick={this.props.popModal}
           className={css.closeMultimediaModal}

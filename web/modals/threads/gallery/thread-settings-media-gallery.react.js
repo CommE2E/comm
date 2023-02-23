@@ -3,11 +3,14 @@
 import * as React from 'react';
 
 import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { Media } from 'lib/types/media-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
 import css from './thread-settings-media-gallery.css';
 import Tabs from '../../../components/tabs.react.js';
+import MultimediaModal from '../../../media/multimedia-modal.react.js';
 import Modal from '../../modal.react.js';
 
 type MediaGalleryTab = 'All' | 'Images' | 'Videos';
@@ -22,6 +25,7 @@ type ThreadSettingsMediaGalleryModalProps = {
 function ThreadSettingsMediaGalleryModal(
   props: ThreadSettingsMediaGalleryModalProps,
 ): React.Node {
+  const { pushModal } = useModalContext();
   const { onClose, parentThreadInfo, limit, activeTab } = props;
   const { id: threadID } = parentThreadInfo;
   const modalName = 'Media';
@@ -42,6 +46,13 @@ function ThreadSettingsMediaGalleryModal(
     fetchData();
   }, [callFetchThreadMedia, threadID, limit]);
 
+  const onClick = React.useCallback(
+    (media: Media) => {
+      pushModal(<MultimediaModal type={media.type} uri={media.uri} />);
+    },
+    [pushModal],
+  );
+
   const filteredMediaInfos = React.useMemo(() => {
     if (tab === 'Images') {
       return mediaInfos.filter(mediaInfo => mediaInfo.type === 'photo');
@@ -59,11 +70,15 @@ function ThreadSettingsMediaGalleryModal(
   const mediaGalleryItems = React.useMemo(
     () =>
       filteredMediaInfos.map((media, i) => (
-        <div key={i} className={css.mediaContainer}>
+        <div
+          key={i}
+          onClick={() => onClick(media)}
+          className={css.mediaContainer}
+        >
           <img src={mediaCoverPhotos[i]} className={css.media} />
         </div>
       )),
-    [filteredMediaInfos, mediaCoverPhotos],
+    [filteredMediaInfos, onClick, mediaCoverPhotos],
   );
 
   const handleScroll = React.useCallback(
