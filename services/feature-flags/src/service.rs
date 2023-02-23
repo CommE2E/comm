@@ -1,24 +1,38 @@
 use crate::config::CONFIG;
 use crate::database::{DatabaseClient, Error, FeatureConfig, Platform};
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpResponse, HttpServer};
+use serde::Deserialize;
 use std::collections::HashSet;
 
 pub struct FeatureFlagsService {
-  _db: DatabaseClient,
+  db: DatabaseClient,
 }
 
 impl FeatureFlagsService {
   pub fn new(db_client: DatabaseClient) -> Self {
-    FeatureFlagsService { _db: db_client }
+    FeatureFlagsService { db: db_client }
   }
 
   pub async fn start(&self) -> std::io::Result<()> {
-    HttpServer::new(|| {
-      App::new().service(web::resource("/").to(|| async { "HELLO" }))
+    let db_clone = self.db.clone();
+    HttpServer::new(move || {
+      App::new()
+        .app_data(web::Data::new(db_clone.clone()))
+        .service(
+          web::resource("/features")
+            .route(web::get().to(Self::features_handler)),
+        )
     })
     .bind(("127.0.0.1", CONFIG.http_port))?
     .run()
     .await
+  }
+
+  async fn features_handler(
+    _client: web::Data<DatabaseClient>,
+    _query: web::Query<FeatureQuery>,
+  ) -> Result<HttpResponse, actix_web::Error> {
+    Ok(HttpResponse::Ok().body("HELLO"))
   }
 
   async fn _enabled_features_set(
@@ -64,4 +78,11 @@ impl FeatureFlagsService {
         }
       })
   }
+}
+
+#[derive(Deserialize, Debug)]
+struct FeatureQuery {
+  _code_version: i32,
+  _is_staff: bool,
+  _platform: String,
 }
