@@ -14,6 +14,8 @@
     "build-blob-base": "./scripts/build_base_image.sh && docker-compose build blob-base",
     "run-blob-service": "./scripts/run_server_image.sh blob",
     "run-blob-service-in-sandbox": "COMM_SERVICES_SANDBOX=1 ./scripts/run_server_image.sh blob",
+    "run-feature-flags-service": "./scripts/run_server_image.sh feature-flags",
+    "run-feature-flags-service-in-sandbox": "COMM_SERVICES_SANDBOX=1 ./scripts/run_server_image.sh feature-flags",
     "run-all-services": "./scripts/run_all_services.sh",
     "run-unit-tests": "./scripts/run_unit_tests.sh",
     "run-integration-tests": "./scripts/run_integration_tests.sh",

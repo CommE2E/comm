@@ -24,6 +24,10 @@ elif [[ "$SERVICE" == "blob" ]]; then
   if [[ -n "$2" ]]; then
     export COMM_SERVICES_PORT_BLOB=$2
   fi
+elif [[ "$SERVICE" == "feature-flags" ]]; then
+  if [[ -n "$2" ]]; then
+    export COMM_SERVICES_PORT_FEATURE_FLAGS=$2
+  fi
 else
   echo "No such service ${SERVICE}, aborting"
   exit 1
