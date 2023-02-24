@@ -8,13 +8,13 @@ import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
-import { setDeviceTokenActionTypes } from 'lib/actions/device-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
   logInActionTypes,
 } from 'lib/actions/user-actions.js';
+import { reduceDeviceToken } from 'lib/reducers/device-token-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
 import {
@@ -27,12 +27,8 @@ import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
-import {
-  defaultConnectionInfo,
-  incrementalStateSyncActionType,
-} from 'lib/types/socket-types.js';
+import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import type { ThreadStoreOperation } from 'lib/types/thread-types.js';
-import { updateTypes } from 'lib/types/update-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils.js';
@@ -283,11 +279,6 @@ function reducer(state: AppState = defaultState, action: Action) {
       ...state,
       deviceOrientation: action.payload,
     };
-  } else if (action.type === setDeviceTokenActionTypes.success) {
-    return {
-      ...state,
-      deviceToken: action.payload,
-    };
   } else if (action.type === updateThreadLastNavigatedActionType) {
     const { threadID, time } = action.payload;
     if (state.messageStore.threads[threadID]) {
@@ -314,23 +305,6 @@ function reducer(state: AppState = defaultState, action: Action) {
       ...state,
       cookie: action.payload.sessionChange.cookie,
     };
-  } else if (action.type === incrementalStateSyncActionType) {
-    let wipeDeviceToken = false;
-    for (const update of action.payload.updatesResult.newUpdates) {
-      if (
-        update.type === updateTypes.BAD_DEVICE_TOKEN &&
-        update.deviceToken === state.deviceToken
-      ) {
-        wipeDeviceToken = true;
-        break;
-      }
-    }
-    if (wipeDeviceToken) {
-      state = {
-        ...state,
-        deviceToken: null,
-      };
-    }
   }
   if (action.type === setStoreLoadedActionType) {
     return {
@@ -359,6 +333,10 @@ function reducer(state: AppState = defaultState, action: Action) {
     }
   }
 
+  state = {
+    ...state,
+    deviceToken: reduceDeviceToken(state.deviceToken, action),
+  };
   const baseReducerResult = baseReducer(state, (action: BaseAction));
   state = baseReducerResult.state;
 
