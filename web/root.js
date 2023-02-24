@@ -30,7 +30,9 @@ const migrations = {
     return {
       ...stateWithoutPrimaryIdentityPublicKey,
       cryptoStore: {
+        primaryAccount: null,
         primaryIdentityKeys: null,
+        notificationAccount: null,
         notificationIdentityKeys: null,
       },
     };
