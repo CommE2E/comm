@@ -22,7 +22,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import type { Platform } from 'lib/types/device-types.js';
+import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import {
   type RawMessageInfo,
   type MessageInfo,
@@ -167,14 +167,14 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             { platform: 'ios', codeVersion },
           );
           const deliveryPromise = (async () => {
-            const notification = await prepareIOSNotification(
+            const notification = await prepareAPNsNotification(
               allMessageInfos,
               shimmedNewRawMessageInfos,
               threadInfo,
               notifInfo.collapseKey,
               badgeOnly,
               unreadCounts[userID],
-              codeVersion,
+              { platform: 'ios', codeVersion },
             );
             return await sendIOSNotification(notification, [...deviceTokens], {
               ...notificationInfo,
@@ -491,19 +491,18 @@ function getDevicesByPlatform(
   return byPlatform;
 }
 
-async function prepareIOSNotification(
+async function prepareAPNsNotification(
   allMessageInfos: MessageInfo[],
   newRawMessageInfos: RawMessageInfo[],
   threadInfo: ThreadInfo,
   collapseKey: ?string,
   badgeOnly: boolean,
   unreadCount: number,
-  codeVersion: number,
+  platformDetails: PlatformDetails,
 ): Promise<apn.Notification> {
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
-  notification.topic = getAPNsNotificationTopic(codeVersion);
-
+  notification.topic = getAPNsNotificationTopic(platformDetails);
   const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
@@ -524,7 +523,7 @@ async function prepareIOSNotification(
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadInfo.id;
-  if (codeVersion > 1000) {
+  if (platformDetails.codeVersion && platformDetails.codeVersion > 1000) {
     notification.mutableContent = true;
   }
   if (collapseKey) {
@@ -547,7 +546,8 @@ async function prepareIOSNotification(
   const notificationCopy = _cloneDeep(notification);
   if (notificationCopy.length() > apnMaxNotificationPayloadByteSize) {
     console.warn(
-      `iOS notification ${uniqueID} exceeds size limit, even with messageInfos omitted`,
+      `${platformDetails.platform} notification ${uniqueID} ` +
+        `exceeds size limit, even with messageInfos omitted`,
     );
   }
   return notification;
@@ -671,7 +671,11 @@ async function sendIOSNotification(
   notificationInfo: NotificationInfo,
 ): Promise<IOSResult> {
   const { source, codeVersion } = notificationInfo;
-  const response = await apnPush({ notification, deviceTokens, codeVersion });
+  const response = await apnPush({
+    notification,
+    deviceTokens,
+    platformDetails: { platform: 'ios', codeVersion },
+  });
   const delivery: IOSDelivery = {
     source,
     deviceType: 'ios',
@@ -882,7 +886,10 @@ async function updateBadgeCount(
     for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
       const codeVersion = parseInt(codeVer, 10); // only for Flow
       const notification = new apn.Notification();
-      notification.topic = getAPNsNotificationTopic(codeVersion);
+      notification.topic = getAPNsNotificationTopic({
+        platform: 'ios',
+        codeVersion,
+      });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
       deliveryPromises.push(

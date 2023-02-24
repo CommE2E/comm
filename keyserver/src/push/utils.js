@@ -6,6 +6,7 @@ import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 import webpush from 'web-push';
 
+import type { PlatformDetails } from 'lib/types/device-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 
@@ -38,13 +39,13 @@ type APNPushResult =
 async function apnPush({
   notification,
   deviceTokens,
-  codeVersion,
+  platformDetails,
 }: {
   +notification: apn.Notification,
   +deviceTokens: $ReadOnlyArray<string>,
-  +codeVersion: ?number,
+  +platformDetails: PlatformDetails,
 }): Promise<APNPushResult> {
-  const pushProfile = getAPNPushProfileForCodeVersion(codeVersion);
+  const pushProfile = getAPNPushProfileForCodeVersion(platformDetails);
   const apnProvider = await getAPNProvider(pushProfile);
   if (!apnProvider && process.env.NODE_ENV === 'development') {
     console.log(`no keyserver/secrets/${pushProfile}.json so ignoring notifs`);
