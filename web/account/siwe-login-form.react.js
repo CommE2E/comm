@@ -16,6 +16,7 @@ import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -70,8 +71,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     );
   }, [dispatchActionPromise, getSIWENonceCall, siweNonceShouldBeFetched]);
 
-  const primaryIdentityPublicKey = useSelector(
-    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
+  const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
+    state => state.cryptoStore.primaryIdentityKeys,
   );
 
   const callSIWEAuthEndpoint = React.useCallback(
@@ -101,14 +102,16 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     invariant(signer, 'signer must be present during SIWE attempt');
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
     invariant(
-      primaryIdentityPublicKey,
-      'primaryIdentityPublicKey must be present during SIWE attempt',
+      primaryIdentityPublicKeys,
+      'primaryIdentityPublicKeys must be present during SIWE attempt',
     );
-    const statement = getSIWEStatementForPublicKey(primaryIdentityPublicKey);
+    const statement = getSIWEStatementForPublicKey(
+      primaryIdentityPublicKeys.ed25519,
+    );
     const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage(message);
     attemptSIWEAuth(message, signature);
-  }, [address, attemptSIWEAuth, primaryIdentityPublicKey, signer, siweNonce]);
+  }, [address, attemptSIWEAuth, primaryIdentityPublicKeys, signer, siweNonce]);
 
   const { cancelSIWEAuthFlow } = props;
 
@@ -122,7 +125,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [],
   );
 
-  if (!siweNonce || !primaryIdentityPublicKey) {
+  if (!siweNonce || !primaryIdentityPublicKeys) {
     return (
       <div className={css.loadingIndicator}>
         <LoadingIndicator status="loading" size="large" />

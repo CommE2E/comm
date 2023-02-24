@@ -15,6 +15,7 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
+import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -37,8 +38,8 @@ function TraditionalLoginForm(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
-  const primaryIdentityPublicKey = useSelector(
-    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
+  const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
+    state => state.cryptoStore.primaryIdentityKeys,
   );
 
   const usernameInputRef = React.useRef();
@@ -68,15 +69,15 @@ function TraditionalLoginForm(): React.Node {
     async (extraInfo: LogInExtraInfo) => {
       try {
         invariant(
-          primaryIdentityPublicKey,
-          'primaryIdentityPublicKey must be set in logInAction',
+          primaryIdentityPublicKeys,
+          'primaryIdentityPublicKeys must be set in logInAction',
         );
         const result = await callLogIn({
           ...extraInfo,
           username,
           password,
           logInActionSource: logInActionSources.logInFromWebForm,
-          primaryIdentityPublicKey,
+          primaryIdentityPublicKey: primaryIdentityPublicKeys.ed25519,
         });
         modalContext.popModal();
         return result;
@@ -92,7 +93,7 @@ function TraditionalLoginForm(): React.Node {
         throw e;
       }
     },
-    [callLogIn, modalContext, password, primaryIdentityPublicKey, username],
+    [callLogIn, modalContext, password, primaryIdentityPublicKeys, username],
   );
 
   const onSubmit = React.useCallback(
@@ -173,8 +174,8 @@ function TraditionalLoginForm(): React.Node {
           variant="filled"
           type="submit"
           disabled={
-            primaryIdentityPublicKey === null ||
-            primaryIdentityPublicKey === undefined ||
+            primaryIdentityPublicKeys === null ||
+            primaryIdentityPublicKeys === undefined ||
             inputDisabled
           }
           onClick={onSubmit}
