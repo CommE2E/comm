@@ -1,5 +1,6 @@
 // @flow
 
+import olm from '@matrix-org/olm';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -15,7 +16,11 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
-import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
+import type {
+  OLMIdentityKeys,
+  PickledOLMAccount,
+  SignedIdentityKeysBlob,
+} from 'lib/types/crypto-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -43,6 +48,9 @@ function TraditionalLoginForm(): React.Node {
   );
   const notificationIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
     state => state.cryptoStore.notificationIdentityKeys,
+  );
+  const primaryAccount: ?PickledOLMAccount = useSelector(
+    state => state.cryptoStore.primaryAccount,
   );
 
   const usernameInputRef = React.useRef();
@@ -79,14 +87,30 @@ function TraditionalLoginForm(): React.Node {
           notificationIdentityPublicKeys,
           'notificationIdentityPublicKeys must be set in logInAction',
         );
+        invariant(primaryAccount, 'primaryAccount must be set in logInAction');
+
+        const primaryOLMAccount = new olm.Account();
+        primaryOLMAccount.unpickle(
+          primaryAccount.picklingKey,
+          primaryAccount.pickledAccount,
+        );
+
+        const payloadToBeSigned = JSON.stringify({
+          primaryIdentityPublicKeys,
+          notificationIdentityPublicKeys,
+        });
+        const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+          payload: payloadToBeSigned,
+          signature: primaryOLMAccount.sign(payloadToBeSigned),
+        };
+
         const result = await callLogIn({
           ...extraInfo,
           username,
           password,
           logInActionSource: logInActionSources.logInFromWebForm,
           primaryIdentityPublicKey: primaryIdentityPublicKeys.ed25519,
-          primaryIdentityPublicKeys,
-          notificationIdentityPublicKeys,
+          signedIdentityKeysBlob,
         });
         modalContext.popModal();
         return result;
@@ -107,6 +131,7 @@ function TraditionalLoginForm(): React.Node {
       modalContext,
       notificationIdentityPublicKeys,
       password,
+      primaryAccount,
       primaryIdentityPublicKeys,
       username,
     ],
@@ -194,6 +219,8 @@ function TraditionalLoginForm(): React.Node {
             primaryIdentityPublicKeys === undefined ||
             notificationIdentityPublicKeys === null ||
             notificationIdentityPublicKeys === undefined ||
+            primaryAccount === null ||
+            primaryAccount === undefined ||
             inputDisabled
           }
           onClick={onSubmit}
