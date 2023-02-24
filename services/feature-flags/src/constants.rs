@@ -3,6 +3,7 @@ pub const DEFAULT_LOCALSTACK_URL: &str = "http://localhost:4566";
 pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 pub const HTTP_SERVER_DEFAULT_PORT: u16 = 50051;
+pub const SANDBOX_ENV_VAR: &str = "COMM_SERVICES_SANDBOX";
 
 // The configuration of feature flags is stored in a table in DynamoDB.
 // Each row is identified by a compound primary key consisting of
