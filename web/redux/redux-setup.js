@@ -13,7 +13,11 @@ import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.j
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils.js';
 import type { Shape } from 'lib/types/core.js';
-import type { CryptoStore, OLMIdentityKeys } from 'lib/types/crypto-types.js';
+import type {
+  CryptoStore,
+  OLMIdentityKeys,
+  PickledOLMAccount,
+} from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -44,6 +48,8 @@ import {
   reduceCryptoStore,
   setPrimaryIdentityKeys,
   setNotificationIdentityKeys,
+  setPickledNotificationAccount,
+  setPickledPrimaryAccount,
 } from './crypto-store-reducer.js';
 import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
@@ -103,6 +109,8 @@ export type Action =
     }
   | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | { +type: 'SET_NOTIFICATION_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
+  | { +type: 'SET_PICKLED_PRIMARY_ACCOUNT', payload: ?PickledOLMAccount }
+  | { +type: 'SET_PICKLED_NOTIFICATION_ACCOUNT', payload: ?PickledOLMAccount }
   | {
       +type: 'UPDATE_CALENDAR_COMMUNITY_FILTER',
       +payload: string,
@@ -188,7 +196,9 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     action.type !== updateNavInfoActionType &&
     action.type !== setDeviceIDActionType &&
     action.type !== setPrimaryIdentityKeys &&
-    action.type !== setNotificationIdentityKeys
+    action.type !== setNotificationIdentityKeys &&
+    action.type !== setPickledPrimaryAccount &&
+    action.type !== setPickledNotificationAccount
   ) {
     state = baseReducer(state, action).state;
   }

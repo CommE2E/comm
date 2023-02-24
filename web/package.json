@@ -79,6 +79,7 @@
     "simple-markdown": "^0.7.2",
     "siwe": "^1.1.6",
     "tinycolor2": "^1.4.1",
+    "uuid": "^3.3.3",
     "visibilityjs": "^2.0.2",
     "wagmi": "^0.8.10"
   },
