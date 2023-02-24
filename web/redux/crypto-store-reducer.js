@@ -11,6 +11,8 @@ import type { Action } from './redux-setup.js';
 
 const setPrimaryIdentityKeys = 'SET_PRIMARY_IDENTITY_KEYS';
 const setNotificationIdentityKeys = 'SET_NOTIFICATION_IDENTITY_KEYS';
+const setPickledPrimaryAccount = 'SET_PICKLED_PRIMARY_ACCOUNT';
+const setPickledNotificationAccount = 'SET_PICKLED_NOTIFICATION_ACCOUNT';
 
 function reduceCryptoStore(state: CryptoStore, action: Action): CryptoStore {
   if (action.type === setPrimaryIdentityKeys) {
@@ -22,6 +24,16 @@ function reduceCryptoStore(state: CryptoStore, action: Action): CryptoStore {
     return {
       ...state,
       notificationIdentityKeys: action.payload,
+    };
+  } else if (action.type === setPickledPrimaryAccount) {
+    return {
+      ...state,
+      primaryAccount: action.payload,
+    };
+  } else if (action.type === setPickledNotificationAccount) {
+    return {
+      ...state,
+      notificationAccount: action.payload,
     };
   } else if (
     action.type === logOutActionTypes.success ||
@@ -42,5 +54,7 @@ function reduceCryptoStore(state: CryptoStore, action: Action): CryptoStore {
 export {
   setPrimaryIdentityKeys,
   setNotificationIdentityKeys,
+  setPickledPrimaryAccount,
+  setPickledNotificationAccount,
   reduceCryptoStore,
 };
