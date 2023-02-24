@@ -23,6 +23,18 @@ const bridge: ElectronBridge = {
   },
   updateToNewVersion: () => ipcRenderer.send('update-to-new-version'),
   platform: { win32: 'windows', darwin: 'macos' }[process.platform],
+  onDeviceTokenRegistered: callback => {
+    const withEvent = (event, ...args) => callback(...args);
+    ipcRenderer.on('on-device-token-registered', withEvent);
+    return () =>
+      ipcRenderer.removeListener('on-device-token-registered', withEvent);
+  },
+  onNotificationClicked: callback => {
+    const withEvent = (event, ...args) => callback(...args);
+    ipcRenderer.on('on-notification-clicked', withEvent);
+    return () =>
+      ipcRenderer.removeListener('on-notification-clicked', withEvent);
+  },
 };
 
 contextBridge.exposeInMainWorld('electronContextBridge', bridge);

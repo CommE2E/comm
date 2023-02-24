@@ -19,6 +19,38 @@ import { PushNotifModal } from '../modals/push-notif-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
+function useCreateDesktopPushSubscription() {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callSetDeviceToken = useServerCall(setDeviceToken);
+
+  React.useEffect(
+    () =>
+      electron?.onDeviceTokenRegistered?.(token => {
+        dispatchActionPromise(
+          setDeviceTokenActionTypes,
+          callSetDeviceToken(token),
+        );
+      }),
+    [callSetDeviceToken, dispatchActionPromise],
+  );
+
+  const dispatch = useDispatch();
+
+  React.useEffect(
+    () =>
+      electron?.onNotificationClicked?.(({ threadID }) => {
+        const payload = {
+          chatMode: 'view',
+          activeChatThreadID: threadID,
+          tab: 'chat',
+        };
+
+        dispatch({ type: updateNavInfoActionType, payload });
+      }),
+    [dispatch],
+  );
+}
+
 function useCreatePushSubscription(): () => Promise<void> {
   const publicKey = useSelector(state => state.pushApiPublicKey);
 
@@ -48,6 +80,7 @@ function useCreatePushSubscription(): () => Promise<void> {
 }
 
 function PushNotificationsHandler(): React.Node {
+  useCreateDesktopPushSubscription();
   const createPushSubscription = useCreatePushSubscription();
 
   const modalContext = useModalContext();
