@@ -22,15 +22,20 @@ function LoginForm(): React.Node {
   const { data: signer } = useSigner();
   const dispatch = useDispatch();
 
-  const primaryIdentityPublicKey = useSelector(
-    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
+  const primaryIdentityPublicKeys = useSelector(
+    state => state.cryptoStore.primaryIdentityKeys,
+  );
+  const notificationIdentityPublicKeys = useSelector(
+    state => state.cryptoStore.notificationIdentityKeys,
   );
 
   React.useEffect(() => {
     (async () => {
       if (
-        primaryIdentityPublicKey !== null &&
-        primaryIdentityPublicKey !== undefined
+        primaryIdentityPublicKeys !== null &&
+        primaryIdentityPublicKeys !== undefined &&
+        notificationIdentityPublicKeys !== null &&
+        notificationIdentityPublicKeys !== undefined
       ) {
         return;
       }
@@ -61,7 +66,7 @@ function LoginForm(): React.Node {
         },
       });
     })();
-  }, [dispatch, primaryIdentityPublicKey]);
+  }, [dispatch, notificationIdentityPublicKeys, primaryIdentityPublicKeys]);
 
   const [siweAuthFlowSelected, setSIWEAuthFlowSelected] =
     React.useState<boolean>(false);
