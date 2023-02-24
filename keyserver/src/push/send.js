@@ -262,6 +262,40 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           deliveryPromises.push(deliveryPromise);
         }
       }
+      const macosVersionsToTokens = byPlatform.get('macos');
+      if (macosVersionsToTokens) {
+        for (const [codeVersion, deviceTokens] of macosVersionsToTokens) {
+          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
+            newRawMessageInfos,
+            { platform: 'macos', codeVersion },
+          );
+          const deliveryPromise = (async () => {
+            const notification = await prepareAPNsNotification({
+              allMessageInfos,
+              newRawMessageInfos: shimmedNewRawMessageInfos,
+              threadInfo,
+              collapseKey: notifInfo.collapseKey,
+              badgeOnly,
+              unreadCount: unreadCounts[userID],
+              platformDetails: { platform: 'macos', codeVersion },
+              notifTargetUserInfo: {
+                id: userID,
+                username,
+              },
+            });
+            return await sendAPNsNotification(
+              'macos',
+              notification,
+              [...deviceTokens],
+              {
+                ...notificationInfo,
+                codeVersion,
+              },
+            );
+          })();
+          deliveryPromises.push(deliveryPromise);
+        }
+      }
 
       for (const newMessageInfo of remainingNewMessageInfos) {
         const newDBID = dbIDs.shift();
@@ -580,7 +614,11 @@ async function prepareAPNsNotification(
     notifTargetUserInfo,
     getENSNames,
   );
-  if (!badgeOnly) {
+
+  // We don't include alert's body on macos because we
+  // handle displaying the notification ourselves and
+  // we don't want macOS to display it automatically.
+  if (!badgeOnly && platformDetails.platform !== 'macos') {
     notification.body = merged;
     notification.sound = 'default';
   }
