@@ -43,6 +43,7 @@ import {
 import {
   reduceCryptoStore,
   setPrimaryIdentityKeys,
+  setNotificationIdentityKeys,
 } from './crypto-store-reducer.js';
 import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
@@ -101,6 +102,7 @@ export type Action =
       payload: string,
     }
   | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
+  | { +type: 'SET_NOTIFICATION_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | {
       +type: 'UPDATE_CALENDAR_COMMUNITY_FILTER',
       +payload: string,
@@ -185,7 +187,8 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
   if (
     action.type !== updateNavInfoActionType &&
     action.type !== setDeviceIDActionType &&
-    action.type !== setPrimaryIdentityKeys
+    action.type !== setPrimaryIdentityKeys &&
+    action.type !== setNotificationIdentityKeys
   ) {
     state = baseReducer(state, action).state;
   }

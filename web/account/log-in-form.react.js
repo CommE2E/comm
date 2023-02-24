@@ -11,7 +11,10 @@ import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import OrBreak from '../components/or-break.react.js';
-import { setPrimaryIdentityKeys } from '../redux/crypto-store-reducer.js';
+import {
+  setPrimaryIdentityKeys,
+  setNotificationIdentityKeys,
+} from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function LoginForm(): React.Node {
@@ -32,13 +35,30 @@ function LoginForm(): React.Node {
         return;
       }
       await olm.init();
+
       const identityAccount = new olm.Account();
       identityAccount.create();
       const { ed25519: identityED25519, curve25519: identityCurve25519 } =
         JSON.parse(identityAccount.identity_keys());
+
       dispatch({
         type: setPrimaryIdentityKeys,
         payload: { ed25519: identityED25519, curve25519: identityCurve25519 },
+      });
+
+      const notificationAccount = new olm.Account();
+      notificationAccount.create();
+      const {
+        ed25519: notificationED25519,
+        curve25519: notificationCurve25519,
+      } = JSON.parse(notificationAccount.identity_keys());
+
+      dispatch({
+        type: setNotificationIdentityKeys,
+        payload: {
+          ed25519: notificationED25519,
+          curve25519: notificationCurve25519,
+        },
       });
     })();
   }, [dispatch, primaryIdentityPublicKey]);
