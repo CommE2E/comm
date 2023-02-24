@@ -41,6 +41,9 @@ function TraditionalLoginForm(): React.Node {
   const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
     state => state.cryptoStore.primaryIdentityKeys,
   );
+  const notificationIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
+    state => state.cryptoStore.notificationIdentityKeys,
+  );
 
   const usernameInputRef = React.useRef();
   React.useEffect(() => {
@@ -72,12 +75,18 @@ function TraditionalLoginForm(): React.Node {
           primaryIdentityPublicKeys,
           'primaryIdentityPublicKeys must be set in logInAction',
         );
+        invariant(
+          notificationIdentityPublicKeys,
+          'notificationIdentityPublicKeys must be set in logInAction',
+        );
         const result = await callLogIn({
           ...extraInfo,
           username,
           password,
           logInActionSource: logInActionSources.logInFromWebForm,
           primaryIdentityPublicKey: primaryIdentityPublicKeys.ed25519,
+          primaryIdentityPublicKeys,
+          notificationIdentityPublicKeys,
         });
         modalContext.popModal();
         return result;
@@ -93,7 +102,14 @@ function TraditionalLoginForm(): React.Node {
         throw e;
       }
     },
-    [callLogIn, modalContext, password, primaryIdentityPublicKeys, username],
+    [
+      callLogIn,
+      modalContext,
+      notificationIdentityPublicKeys,
+      password,
+      primaryIdentityPublicKeys,
+      username,
+    ],
   );
 
   const onSubmit = React.useCallback(
@@ -176,6 +192,8 @@ function TraditionalLoginForm(): React.Node {
           disabled={
             primaryIdentityPublicKeys === null ||
             primaryIdentityPublicKeys === undefined ||
+            notificationIdentityPublicKeys === null ||
+            notificationIdentityPublicKeys === undefined ||
             inputDisabled
           }
           onClick={onSubmit}
