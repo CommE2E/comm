@@ -4,6 +4,7 @@ import olm from '@matrix-org/olm';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
+import uuid from 'uuid';
 import { useSigner } from 'wagmi';
 
 import css from './log-in-form.css';
@@ -14,6 +15,8 @@ import OrBreak from '../components/or-break.react.js';
 import {
   setPrimaryIdentityKeys,
   setNotificationIdentityKeys,
+  setPickledPrimaryAccount,
+  setPickledNotificationAccount,
 } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -51,6 +54,19 @@ function LoginForm(): React.Node {
         payload: { ed25519: identityED25519, curve25519: identityCurve25519 },
       });
 
+      const identityAccountPicklingKey = uuid.v4();
+      const pickledIdentityAccount = identityAccount.pickle(
+        identityAccountPicklingKey,
+      );
+
+      dispatch({
+        type: setPickledPrimaryAccount,
+        payload: {
+          picklingKey: identityAccountPicklingKey,
+          pickledAccount: pickledIdentityAccount,
+        },
+      });
+
       const notificationAccount = new olm.Account();
       notificationAccount.create();
       const {
@@ -63,6 +79,19 @@ function LoginForm(): React.Node {
         payload: {
           ed25519: notificationED25519,
           curve25519: notificationCurve25519,
+        },
+      });
+
+      const notificationAccountPicklingKey = uuid.v4();
+      const pickledNotificationAccount = notificationAccount.pickle(
+        notificationAccountPicklingKey,
+      );
+
+      dispatch({
+        type: setPickledNotificationAccount,
+        payload: {
+          picklingKey: notificationAccountPicklingKey,
+          pickledAccount: pickledNotificationAccount,
         },
       });
     })();
