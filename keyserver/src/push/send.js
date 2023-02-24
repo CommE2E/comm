@@ -22,7 +22,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import type { Platform } from 'lib/types/device-types.js';
+import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import {
   type RawMessageInfo,
   type MessageInfo,
@@ -167,19 +167,24 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             { platform: 'ios', codeVersion },
           );
           const deliveryPromise = (async () => {
-            const notification = await prepareIOSNotification(
+            const notification = await prepareAPNsNotification(
               allMessageInfos,
               shimmedNewRawMessageInfos,
               threadInfo,
               notifInfo.collapseKey,
               badgeOnly,
               unreadCounts[userID],
-              codeVersion,
+              { platform: 'ios', codeVersion },
             );
-            return await sendIOSNotification(notification, [...deviceTokens], {
-              ...notificationInfo,
-              codeVersion,
-            });
+            return await sendAPNsNotification(
+              'ios',
+              notification,
+              [...deviceTokens],
+              {
+                ...notificationInfo,
+                codeVersion,
+              },
+            );
           })();
           deliveryPromises.push(deliveryPromise);
         }
@@ -491,19 +496,18 @@ function getDevicesByPlatform(
   return byPlatform;
 }
 
-async function prepareIOSNotification(
+async function prepareAPNsNotification(
   allMessageInfos: MessageInfo[],
   newRawMessageInfos: RawMessageInfo[],
   threadInfo: ThreadInfo,
   collapseKey: ?string,
   badgeOnly: boolean,
   unreadCount: number,
-  codeVersion: number,
+  platformDetails: PlatformDetails,
 ): Promise<apn.Notification> {
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
-  notification.topic = getAPNsNotificationTopic(codeVersion);
-
+  notification.topic = getAPNsNotificationTopic(platformDetails);
   const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
@@ -524,7 +528,7 @@ async function prepareIOSNotification(
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadInfo.id;
-  if (codeVersion > 1000) {
+  if (platformDetails.codeVersion && platformDetails.codeVersion > 1000) {
     notification.mutableContent = true;
   }
   if (collapseKey) {
@@ -547,7 +551,8 @@ async function prepareIOSNotification(
   const notificationCopy = _cloneDeep(notification);
   if (notificationCopy.length() > apnMaxNotificationPayloadByteSize) {
     console.warn(
-      `iOS notification ${uniqueID} exceeds size limit, even with messageInfos omitted`,
+      `${platformDetails.platform} notification ${uniqueID} ` +
+        `exceeds size limit, even with messageInfos omitted`,
     );
   }
   return notification;
@@ -652,29 +657,34 @@ type NotificationInfo =
       +codeVersion: number,
     };
 
-type IOSDelivery = {
+type APNsDelivery = {
   source: $PropertyType<NotificationInfo, 'source'>,
-  deviceType: 'ios',
+  deviceType: 'ios' | 'macos',
   iosID: string,
   deviceTokens: $ReadOnlyArray<string>,
   codeVersion: number,
   errors?: $ReadOnlyArray<ResponseFailure>,
 };
-type IOSResult = {
+type APNsResult = {
   info: NotificationInfo,
-  delivery: IOSDelivery,
+  delivery: APNsDelivery,
   invalidTokens?: $ReadOnlyArray<string>,
 };
-async function sendIOSNotification(
+async function sendAPNsNotification(
+  platform: 'ios' | 'macos',
   notification: apn.Notification,
   deviceTokens: $ReadOnlyArray<string>,
   notificationInfo: NotificationInfo,
-): Promise<IOSResult> {
+): Promise<APNsResult> {
   const { source, codeVersion } = notificationInfo;
-  const response = await apnPush({ notification, deviceTokens, codeVersion });
-  const delivery: IOSDelivery = {
+  const response = await apnPush({
+    notification,
+    deviceTokens,
+    platformDetails: { platform, codeVersion },
+  });
+  const delivery: APNsDelivery = {
     source,
-    deviceType: 'ios',
+    deviceType: platform,
     iosID: notification.id,
     deviceTokens,
     codeVersion,
@@ -682,7 +692,7 @@ async function sendIOSNotification(
   if (response.errors) {
     delivery.errors = response.errors;
   }
-  const result: IOSResult = {
+  const result: APNsResult = {
     info: notificationInfo,
     delivery,
   };
@@ -692,8 +702,8 @@ async function sendIOSNotification(
   return result;
 }
 
-type PushResult = AndroidResult | IOSResult | WebResult;
-type PushDelivery = AndroidDelivery | IOSDelivery | WebDelivery;
+type PushResult = AndroidResult | APNsResult | WebResult;
+type PushDelivery = AndroidDelivery | APNsDelivery | WebDelivery;
 type AndroidDelivery = {
   source: $PropertyType<NotificationInfo, 'source'>,
   deviceType: 'android',
@@ -882,11 +892,14 @@ async function updateBadgeCount(
     for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
       const codeVersion = parseInt(codeVer, 10); // only for Flow
       const notification = new apn.Notification();
-      notification.topic = getAPNsNotificationTopic(codeVersion);
+      notification.topic = getAPNsNotificationTopic({
+        platform: 'ios',
+        codeVersion,
+      });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
       deliveryPromises.push(
-        sendIOSNotification(notification, [...deviceTokens], {
+        sendAPNsNotification('ios', notification, [...deviceTokens], {
           source,
           dbID,
           userID,

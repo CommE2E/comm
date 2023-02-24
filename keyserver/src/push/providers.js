@@ -7,11 +7,20 @@ import type { FirebaseApp } from 'firebase-admin';
 import invariant from 'invariant';
 import webpush from 'web-push';
 
+import type { PlatformDetails } from 'lib/types/device-types';
+
 import { importJSON } from '../utils/import-json.js';
 
 type APNPushProfile = 'apn_config' | 'comm_apn_config';
-function getAPNPushProfileForCodeVersion(codeVersion: ?number): APNPushProfile {
-  return codeVersion && codeVersion >= 87 ? 'comm_apn_config' : 'apn_config';
+function getAPNPushProfileForCodeVersion(
+  platformDetails: PlatformDetails,
+): APNPushProfile {
+  if (platformDetails.platform === 'macos') {
+    return 'comm_apn_config';
+  }
+  return platformDetails.codeVersion && platformDetails.codeVersion >= 87
+    ? 'comm_apn_config'
+    : 'apn_config';
 }
 
 type FCMPushProfile = 'fcm_config' | 'comm_fcm_config';
@@ -77,8 +86,13 @@ function endAPNs() {
   }
 }
 
-function getAPNsNotificationTopic(codeVersion: ?number): string {
-  return codeVersion && codeVersion >= 87 ? 'app.comm' : 'org.squadcal.app';
+function getAPNsNotificationTopic(platformDetails: PlatformDetails): string {
+  if (platformDetails.platform === 'macos') {
+    return 'app.comm.macos';
+  }
+  return platformDetails.codeVersion && platformDetails.codeVersion >= 87
+    ? 'app.comm'
+    : 'org.squadcal.app';
 }
 
 type WebPushConfig = { +publicKey: string, +privateKey: string };
