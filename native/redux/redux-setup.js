@@ -14,7 +14,6 @@ import {
   deleteAccountActionTypes,
   logInActionTypes,
 } from 'lib/actions/user-actions.js';
-import { reduceDeviceToken } from 'lib/reducers/device-token-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
 import {
@@ -333,10 +332,6 @@ function reducer(state: AppState = defaultState, action: Action) {
     }
   }
 
-  state = {
-    ...state,
-    deviceToken: reduceDeviceToken(state.deviceToken, action),
-  };
   const baseReducerResult = baseReducer(state, (action: BaseAction));
   state = baseReducerResult.state;
 
