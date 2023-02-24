@@ -15,6 +15,10 @@ import path from 'path';
 
 import { initAutoUpdate } from './auto-update.js';
 import { handleSquirrelEvent } from './handle-squirrel-event.js';
+import {
+  listenForNotifications,
+  registerForNotifications,
+} from './push-notifications.js';
 
 const isDev = process.env.ENV === 'dev';
 const url = isDev ? 'http://localhost:3000/comm/' : 'https://web.comm.app';
@@ -83,7 +87,8 @@ const setApplicationMenu = () => {
   Menu.setApplicationMenu(menu);
 };
 
-const createMainWindow = () => {
+let mainWindow = null;
+const createMainWindow = (urlPath?: string) => {
   const win = new BrowserWindow({
     show: false,
     width: 1300,
@@ -149,6 +154,7 @@ const createMainWindow = () => {
   autoUpdater.on('update-downloaded', updateDownloaded);
 
   win.on('closed', () => {
+    mainWindow = null;
     ipcMain.removeListener('clear-history', clearHistory);
     ipcMain.removeListener('double-click-top-bar', doubleClickTopBar);
     autoUpdater.removeListener('update-downloaded', updateDownloaded);
@@ -165,7 +171,8 @@ const createMainWindow = () => {
     win.webContents.insertCSS(css);
   })();
 
-  win.loadURL(url);
+  win.loadURL(url + (urlPath ?? ''));
+  mainWindow = win;
 
   return win;
 };
@@ -204,10 +211,10 @@ const createErrorWindow = () => {
   return win;
 };
 
-const show = () => {
+const show = (urlPath?: string) => {
   const splash = createSplashWindow();
   const error = createErrorWindow();
-  const main = createMainWindow();
+  const main = createMainWindow(urlPath);
 
   let loadedSuccessfully = true;
   main.webContents.on('did-fail-load', () => {
@@ -235,6 +242,13 @@ const show = () => {
       }
 
       main.show();
+
+      if (app.isPackaged) {
+        (async () => {
+          const token = await registerForNotifications();
+          main.webContents.send('on-device-token-registered', token);
+        })();
+      }
     }
   });
 };
@@ -252,6 +266,15 @@ const run = () => {
       } catch (error) {
         console.error(error);
       }
+      listenForNotifications(threadID => {
+        if (mainWindow) {
+          mainWindow.webContents.send('on-notification-clicked', {
+            threadID,
+          });
+        } else {
+          show(`chat/thread/${threadID}/`);
+        }
+      });
     }
 
     ipcMain.on('set-badge', (event, value) => {
