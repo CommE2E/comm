@@ -77,7 +77,7 @@ export type AppState = {
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
-  deviceToken?: void,
+  deviceToken: ?string,
   baseHref: string,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
