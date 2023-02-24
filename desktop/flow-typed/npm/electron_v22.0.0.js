@@ -297,6 +297,75 @@ declare module 'electron' {
     ): Menu;
   }
 
+  declare export var pushNotifications: PushNotifications;
+  declare class PushNotifications {
+    registerForAPNSNotifications(): Promise<string>;
+    unregisterForAPNSNotifications(): void;
+
+    on<T: $Keys<PushNotificationsEvents>>(
+      event: T,
+      listener: $ElementType<PushNotificationsEvents, T>,
+    ): void;
+    removeListener<T: $Keys<PushNotificationsEvents>>(
+      event: T,
+      listener: $ElementType<PushNotificationsEvents, T>,
+    ): void;
+  }
+  declare type PushNotificationsEvents = {
+    'received-apns-notification': (
+      event: Event,
+      userInfo: { +[string]: mixed },
+    ) => void,
+  };
+
+  declare export class Notification {
+    constructor(options?: {
+      +title?: string,
+      +subtitle?: string,
+      +body?: string,
+      +silent?: boolean,
+      +hasReply?: boolean,
+      +timeoutType?: 'default' | 'never',
+      +replyPlaceholder?: string,
+      +sound?: string,
+      +urgency?: 'normal' | 'critical' | 'low',
+      +actions?: NotificationAction[],
+      +closeButtonText?: string,
+      +toastXml?: string,
+    }): void;
+    static isSupported(): boolean;
+    show(): void;
+    close(): void;
+    +title: string;
+    +subtitle: string;
+    +body: string;
+    +replyPlaceholder: string;
+    +sound: string;
+    +closeButtonText: string;
+    +silent: boolean;
+    +hasReply: boolean;
+    +urgency: 'normal' | 'critical' | 'low';
+    +timeoutType: 'default' | 'never';
+    +toastXml: string;
+
+    on<T: $Keys<NotificationEvents>>(
+      event: T,
+      listener: $ElementType<NotificationEvents, T>,
+    ): void;
+    removeListener<T: $Keys<NotificationEvents>>(
+      event: T,
+      listener: $ElementType<NotificationEvents, T>,
+    ): void;
+  }
+  declare type NotificationEvents = {
+    show: (event: Event) => void,
+    click: (event: Event) => void,
+    close: (event: Event) => void,
+    reply: (event: Event, reply: string) => void,
+    action: (event: Event, index: number) => void,
+    failed: (event: Event, error: string) => void,
+  };
+
   declare export var shell: Shell;
   declare type Shell = {
     openExternal(
@@ -402,6 +471,8 @@ declare module 'electron/main' {
     ipcMain,
     systemPreferences,
     autoUpdater,
+    pushNotifications,
+    Notification,
   } from 'electron';
 }
 
