@@ -5,7 +5,7 @@ use once_cell::sync::Lazy;
 use tracing::info;
 
 use crate::constants::{
-  AWS_REGION, DEFAULT_LOCALSTACK_URL, HTTP_SERVER_DEFAULT_PORT,
+  AWS_REGION, DEFAULT_LOCALSTACK_URL, HTTP_SERVER_DEFAULT_PORT, SANDBOX_ENV_VAR,
 };
 
 #[derive(Parser)]
@@ -13,6 +13,7 @@ use crate::constants::{
 pub struct AppConfig {
   /// Run the service in sandbox
   #[arg(long = "sandbox", default_value_t = false)]
+  #[arg(env = SANDBOX_ENV_VAR)]
   #[arg(value_parser = FalseyValueParser::new())]
   pub is_sandbox: bool,
   /// AWS Localstack service URL, applicable in sandbox mode
