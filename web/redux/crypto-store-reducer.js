@@ -29,7 +29,9 @@ function reduceCryptoStore(state: CryptoStore, action: Action): CryptoStore {
       action.payload.sessionChange.cookieInvalidated)
   ) {
     return {
+      primaryAccount: null,
       primaryIdentityKeys: null,
+      notificationAccount: null,
       notificationIdentityKeys: null,
     };
   }
