@@ -65,6 +65,18 @@ services:
     image: commapp/identity-server:0.1
     ports:
       - '${COMM_SERVICES_PORT_IDENTITY}:50051'
+  feature-flags-server:
+    depends_on:
+      - localstack
+    build:
+      dockerfile: services/feature-flags/Dockerfile
+      context: ../
+    image: commapp/feature-flags:0.1
+    ports:
+      - '${COMM_SERVICES_PORT_FEATURE_FLAGS}:50051'
+    volumes:
+      - $HOME/.aws/config:/home/comm/.aws/config:ro
+      - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
   # localstack
   localstack:
     image: localstack/localstack

@@ -26,7 +26,7 @@ impl FeatureFlagsService {
             .route(web::get().to(Self::features_handler)),
         )
     })
-    .bind(("localhost", CONFIG.http_port))?
+    .bind(("0.0.0.0", CONFIG.http_port))?
     .run()
     .await
   }
