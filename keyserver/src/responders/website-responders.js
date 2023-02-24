@@ -396,7 +396,7 @@ async function websiteResponder(
     },
     nextLocalID: 0,
     cookie: undefined,
-    deviceToken: undefined,
+    deviceToken: null,
     dataLoaded: viewer.loggedIn,
     windowActive: true,
     userPolicies: {},

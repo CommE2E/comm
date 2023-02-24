@@ -1,9 +1,6 @@
 // @flow
 
-import {
-  type DeviceTokenUpdateRequest,
-  isDeviceType,
-} from 'lib/types/device-types.js';
+import { type DeviceTokenUpdateRequest } from 'lib/types/device-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
@@ -14,7 +11,7 @@ async function deviceTokenUpdater(
   update: DeviceTokenUpdateRequest,
 ): Promise<void> {
   const deviceType = update.platformDetails?.platform ?? update.deviceType;
-  if (!isDeviceType(deviceType)) {
+  if (deviceType === undefined) {
     throw new ServerError('invalid_parameters');
   }
 
