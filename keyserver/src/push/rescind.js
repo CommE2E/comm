@@ -61,7 +61,7 @@ async function rescindPushNotifs(
         deliveryPromises[id] = apnPush({
           notification,
           deviceTokens: delivery.iosDeviceTokens,
-          codeVersion: null,
+          platformDetails: { platform: 'ios' },
         });
       } else if (delivery.androidID) {
         // Old Android
@@ -87,7 +87,7 @@ async function rescindPushNotifs(
         deliveryPromises[id] = apnPush({
           notification,
           deviceTokens,
-          codeVersion,
+          platformDetails: { platform: 'ios', codeVersion },
         });
       } else if (delivery.deviceType === 'android') {
         // New Android
@@ -162,7 +162,10 @@ function prepareIOSNotification(
 ): apn.Notification {
   const notification = new apn.Notification();
   notification.contentAvailable = true;
-  notification.topic = getAPNsNotificationTopic(codeVersion);
+  notification.topic = getAPNsNotificationTopic({
+    platform: 'ios',
+    codeVersion: codeVersion ?? undefined,
+  });
   notification.priority = 5;
   notification.pushType = 'background';
   notification.payload =
