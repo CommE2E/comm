@@ -309,6 +309,11 @@ async function processSuccessfulLogin(
   return response;
 }
 
+const signedIdentityKeysBlobValidator = tShape({
+  payload: t.String,
+  signature: t.String,
+});
+
 const logInRequestInputValidator = tShape({
   username: t.maybe(t.String),
   usernameOrEmail: t.maybe(t.union([tEmail, tOldValidUsername])),
@@ -319,6 +324,7 @@ const logInRequestInputValidator = tShape({
   platformDetails: tPlatformDetails,
   source: t.maybe(t.enums.of(values(logInActionSources))),
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
+  signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
 });
 
 async function logInResponder(
