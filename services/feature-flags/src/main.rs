@@ -4,6 +4,7 @@ use tracing_subscriber::EnvFilter;
 
 pub mod config;
 pub mod constants;
+pub mod database;
 
 fn configure_logging() -> Result<()> {
   let filter = EnvFilter::builder()
