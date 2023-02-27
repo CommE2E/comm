@@ -1,5 +1,6 @@
 // @flow
 
+import olm from '@matrix-org/olm';
 import cluster from 'cluster';
 import cookieParser from 'cookie-parser';
 import express from 'express';
@@ -38,6 +39,7 @@ import {
 } from './utils/urls.js';
 
 (async () => {
+  await olm.init();
   await prefetchAllURLFacts();
 
   const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
