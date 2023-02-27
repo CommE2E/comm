@@ -1,6 +1,5 @@
 // @flow
 
-import olm from '@matrix-org/olm';
 import invariant from 'invariant';
 import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
@@ -94,6 +93,8 @@ import {
 } from '../updaters/account-updaters.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
+import { getOLMUtility } from '../utils/olm-utils.js';
+import type { OLMUtility } from '../utils/olm-utils.js';
 import { validateInput } from '../utils/validation-utils.js';
 
 const subscriptionUpdateRequestInputValidator = tShape({
@@ -342,8 +343,7 @@ async function logInResponder(
       signedIdentityKeysBlob.payload,
     );
 
-    await olm.init();
-    const olmUtil = new olm.Utility();
+    const olmUtil: OLMUtility = getOLMUtility();
     try {
       olmUtil.ed25519_verify(
         identityKeys.primaryIdentityPublicKeys.ed25519,
