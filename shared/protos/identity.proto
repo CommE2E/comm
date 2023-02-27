@@ -20,6 +20,9 @@ service IdentityService {
     (GetUserPublicKeyResponse) {}
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+
+  rpc UpdateUser(stream UpdateUserClientMessages) returns
+    (stream UpdatePasswordPakeRegistrationReponse) {}
 }
 
 // Helper types
@@ -165,3 +168,29 @@ message DeleteUserRequest {
 // Need to respond with a message to show success, an
 // empty reponse should work just fine
 message DeleteUserResponse {}
+
+// UpdateUser
+
+// For password updates, we need to redo the PAKE registration
+// Client sends update request -> server authenticates request, then starts
+// PAKE registration of account -> server returns opaque response ->
+// Client sends back a final message containing the sealed PAKE which we
+// can use to validate logins.
+message UpdatePasswordPakeRegistrationRequestAndToken {
+  // Used to authenticate user
+  string userID = 1;
+  string accessToken = 2;
+  // Message sent to initiate PAKE registration (step 1)
+  bytes pakeRegistrationRequest = 3;
+}
+
+message UpdatePasswordPakeRegistrationReponse {
+  bytes pakeRegistrationResponse = 1;
+}
+
+message UpdateUserClientMessages {
+  oneof {
+    UpdatePasswordPakeRegistrationRequestAndToken request = 1;
+    bytes pakeRegistrationFinalizationMessage = 2;
+  }
+}
