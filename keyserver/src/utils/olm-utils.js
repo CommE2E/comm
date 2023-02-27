@@ -1,5 +1,6 @@
 // @flow
 
+import olm from '@matrix-org/olm';
 import invariant from 'invariant';
 
 import { importJSON } from './import-json.js';
@@ -25,4 +26,13 @@ export type OLMUtility = {
   ) => void,
 };
 
-export { getOlmConfig };
+let cachedOLMUtility: OLMUtility;
+function getOLMUtility(): OLMUtility {
+  if (cachedOLMUtility) {
+    return cachedOLMUtility;
+  }
+  cachedOLMUtility = new olm.Utility();
+  return cachedOLMUtility;
+}
+
+export { getOlmConfig, getOLMUtility };
