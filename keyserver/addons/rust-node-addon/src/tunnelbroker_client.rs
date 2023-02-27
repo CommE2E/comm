@@ -18,6 +18,13 @@ lazy_static! {
       .unwrap_or("https://[::1]:50051".to_string());
 }
 
+#[napi(object)]
+pub struct MessageToDeliver {
+  pub message_id: String,
+  pub from_device_id: String,
+  pub payload: String,
+}
+
 #[napi]
 pub struct TunnelbrokerClient {
   tx: mpsc::Sender<tunnelbroker::tunnelbroker_pb::MessageToTunnelbroker>,
@@ -28,7 +35,7 @@ impl TunnelbrokerClient {
   #[napi(constructor)]
   pub fn new(
     device_id: String,
-    on_receive_callback: ThreadsafeFunction<String>,
+    on_receive_callback: ThreadsafeFunction<MessageToDeliver>,
   ) -> Self {
     let mut client =
       tunnelbroker::initialize_client(TUNNELBROKER_SERVICE_ADDR.to_string());
@@ -57,7 +64,11 @@ impl TunnelbrokerClient {
               MessagesToDeliver(messages_to_send) => {
                 for message in messages_to_send.messages {
                   on_receive_callback.call(
-                    Ok(message.payload),
+                    Ok(MessageToDeliver {
+                      message_id: message.message_id,
+                      from_device_id: message.from_device_id,
+                      payload: message.payload,
+                    }),
                     ThreadsafeFunctionCallMode::NonBlocking,
                   );
                 }
