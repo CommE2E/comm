@@ -26,7 +26,10 @@ pub struct TunnelbrokerClient {
 #[napi]
 impl TunnelbrokerClient {
   #[napi(constructor)]
-  pub fn new(on_receive_callback: ThreadsafeFunction<String>) -> Self {
+  pub fn new(
+    device_id: String,
+    on_receive_callback: ThreadsafeFunction<String>,
+  ) -> Self {
     let mut client =
       tunnelbroker::initialize_client(TUNNELBROKER_SERVICE_ADDR.to_string());
     let (tx, rx) = mpsc::channel(1);
@@ -36,8 +39,13 @@ impl TunnelbrokerClient {
     // and calling the callback function with the received payload
     tunnelbroker::RUNTIME.spawn({
       async move {
+        let mut request = Request::new(stream);
+        request.metadata_mut().insert(
+          "deviceid",
+          device_id.parse().expect("Failed to parse deviceID"),
+        );
         let response = client
-          .messages_stream(Request::new(stream))
+          .messages_stream(request)
           .await
           .expect("Failed to receive messages stream from Tunnelbroker");
         let mut resp_stream = response.into_inner();
