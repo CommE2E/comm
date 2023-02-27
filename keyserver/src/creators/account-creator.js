@@ -112,12 +112,10 @@ async function createAccount(
     VALUES ${[newUserRow]}
   `;
 
-  const { primaryIdentityPublicKey } = request;
   const [userViewerData] = await Promise.all([
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
-      primaryIdentityPublicKey,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
@@ -207,7 +205,6 @@ export type ProcessSIWEAccountCreationRequest = {
   +calendarQuery: CalendarQuery,
   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
   +platformDetails: PlatformDetails,
-  +primaryIdentityPublicKey: ?string,
   +socialProof: SIWESocialProof,
 };
 // Note: `processSIWEAccountCreation(...)` assumes that the validity of
@@ -233,7 +230,6 @@ async function processSIWEAccountCreation(
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
-      primaryIdentityPublicKey: request.primaryIdentityPublicKey,
       socialProof: request.socialProof,
     }),
     deleteCookie(viewer.cookieID),
