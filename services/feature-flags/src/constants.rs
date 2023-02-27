@@ -25,3 +25,6 @@ pub const FEATURE_FLAGS_CONFIG_FIELD: &str = "configuration";
 pub const FEATURE_FLAGS_FEATURE_FIELD: &str = "feature";
 pub const FEATURE_FLAGS_STAFF_FIELD: &str = "staff";
 pub const FEATURE_FLAGS_NON_STAFF_FIELD: &str = "non-staff";
+
+pub const PLATFORM_IOS: &str = "IOS";
+pub const PLATFORM_ANDROID: &str = "ANDROID";
