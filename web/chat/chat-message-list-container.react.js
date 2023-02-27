@@ -229,6 +229,9 @@ function ChatMessageListContainer(props: Props): React.Node {
       <ChatThreadComposer
         userInfoInputArray={userInfoInputArray}
         setUserInfoInputArray={setUserInfoInputArray}
+        existingThreadInfoFinderForCreatingThread={
+          existingThreadInfoFinderForCreatingThread
+        }
         otherUserInfos={otherUserInfos}
         threadID={threadInfo.id}
         inputState={inputState}
@@ -246,6 +249,7 @@ function ChatMessageListContainer(props: Props): React.Node {
       </>
     );
   }, [
+    existingThreadInfoFinderForCreatingThread,
     inputState,
     isChatCreation,
     otherUserInfos,
