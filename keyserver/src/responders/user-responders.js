@@ -1,5 +1,6 @@
 // @flow
 
+import olm from '@matrix-org/olm';
 import invariant from 'invariant';
 import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
@@ -24,6 +25,7 @@ import {
   notificationTypeValues,
   logInActionSources,
 } from 'lib/types/account-types.js';
+import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import type {
@@ -333,6 +335,25 @@ async function logInResponder(
 ): Promise<LogInResponse> {
   await validateInput(viewer, logInRequestInputValidator, input);
   const request: LogInRequest = input;
+
+  const { signedIdentityKeysBlob } = request;
+  if (signedIdentityKeysBlob) {
+    const identityKeys: IdentityKeysBlob = JSON.parse(
+      signedIdentityKeysBlob.payload,
+    );
+
+    await olm.init();
+    const olmUtil = new olm.Utility();
+    try {
+      olmUtil.ed25519_verify(
+        identityKeys.primaryIdentityPublicKeys.ed25519,
+        signedIdentityKeysBlob.payload,
+        signedIdentityKeysBlob.signature,
+      );
+    } catch (e) {
+      throw new ServerError('invalid_signature');
+    }
+  }
 
   const calendarQuery = request.calendarQuery
     ? normalizeCalendarQuery(request.calendarQuery)
