@@ -392,6 +392,7 @@ const siweAuthRequestInputValidator = tShape({
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
   watchedIDs: t.list(t.String),
+  signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
 });
 
 async function siweAuthResponder(
