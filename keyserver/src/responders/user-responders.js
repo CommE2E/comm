@@ -214,21 +214,13 @@ type ProcessSuccessfulLoginParams = {
   +input: any,
   +userID: string,
   +calendarQuery: ?CalendarQuery,
-  +primaryIdentityPublicKey?: ?string,
   +socialProof?: ?SIWESocialProof,
 };
 
 async function processSuccessfulLogin(
   params: ProcessSuccessfulLoginParams,
 ): Promise<LogInResponse> {
-  const {
-    viewer,
-    input,
-    userID,
-    calendarQuery,
-    primaryIdentityPublicKey,
-    socialProof,
-  } = params;
+  const { viewer, input, userID, calendarQuery, socialProof } = params;
 
   const request: LogInRequest = input;
   const newServerTime = Date.now();
@@ -239,7 +231,6 @@ async function processSuccessfulLogin(
     createNewUserCookie(userID, {
       platformDetails: request.platformDetails,
       deviceToken,
-      primaryIdentityPublicKey,
       socialProof,
     }),
     fetchNotAcknowledgedPolicies(userID, baseLegalPolicies),
@@ -500,7 +491,6 @@ async function siweAuthResponder(
     input,
     userID,
     calendarQuery,
-    primaryIdentityPublicKey,
     socialProof,
   });
 }

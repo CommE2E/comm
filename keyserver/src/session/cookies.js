@@ -648,7 +648,6 @@ async function createNewAnonymousCookie(
 type UserCookieCreationParams = {
   platformDetails: PlatformDetails,
   deviceToken?: ?string,
-  primaryIdentityPublicKey?: ?string,
   socialProof?: ?SIWESocialProof,
 };
 
@@ -663,12 +662,7 @@ async function createNewUserCookie(
   userID: string,
   params: UserCookieCreationParams,
 ): Promise<UserViewerData> {
-  const {
-    platformDetails,
-    deviceToken,
-    primaryIdentityPublicKey,
-    socialProof,
-  } = params;
+  const { platformDetails, deviceToken, socialProof } = params;
   const { platform, ...versions } = platformDetails || defaultPlatformDetails;
   const versionsString =
     Object.keys(versions).length > 0 ? JSON.stringify(versions) : null;
@@ -690,12 +684,11 @@ async function createNewUserCookie(
     time,
     deviceToken,
     versionsString,
-    primaryIdentityPublicKey,
     JSON.stringify(socialProof),
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      device_token, versions, public_key, social_proof)
+      device_token, versions, social_proof)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
