@@ -15,4 +15,14 @@ async function getOlmConfig(): Promise<OlmConfig> {
   return olmConfig;
 }
 
+export type OLMUtility = {
+  +free: () => void,
+  +sha256: (input: string | Uint8Array) => string,
+  +ed25519_verify: (
+    key: string,
+    message: string | Uint8Array,
+    signature: string,
+  ) => void,
+};
+
 export { getOlmConfig };
