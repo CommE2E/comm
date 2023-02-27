@@ -22,6 +22,10 @@ service IdentityService {
   rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
   // Called by clients to get a nonce for a Sign-In with Ethereum message
   rpc GenerateNonce(GenerateNonceRequest) returns (GenerateNonceResponse) {}
+  // Called by clients to get session initialization info needed to open a new
+  // channel of communication with a given user
+  rpc GetSessionInitializationInfo(GetSessionInitializationInfoRequest) returns
+    (GetSessionInitializationInfoResponse) {}
 }
 
 // Helper types
@@ -79,6 +83,14 @@ message WalletLoginRequest {
 
 message WalletLoginResponse {
   string accessToken = 1;
+}
+
+message SessionInitializationInfo {
+  // Initially, the key-value pairs will be as follows:
+  // payload -> stringified JSON containing primary and notification public keys
+  // signature -> above payload signed with the signing ed25519 key
+  // socialProof -> a signed message used for SIWE (optional)
+  map<string, string> info = 1;
 }
 
 // RegisterUser
@@ -176,4 +188,15 @@ message GenerateNonceRequest {
 
 message GenerateNonceResponse{
   string nonce = 1;
+}
+
+// GetSessionInitializationInfo
+
+message GetSessionInitializationInfoRequest {
+  string userID = 1;
+}
+
+message GetSessionInitializationInfoResponse {
+  // Map is keyed on devices' public ed25519 key used for signing
+  map<string, SessionInitializationInfo> devices = 1;
 }

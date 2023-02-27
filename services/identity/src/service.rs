@@ -13,7 +13,7 @@ use opaque_ke::{RegistrationUpload, ServerRegistration};
 use rand::rngs::OsRng;
 use rand::{CryptoRng, Rng};
 use siwe::Message;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::pin::Pin;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
@@ -44,12 +44,13 @@ use proto::{
   registration_response::Data::PakeLoginResponse as PakeRegistrationLoginResponse,
   registration_response::Data::PakeRegistrationResponse, CompareUsersRequest,
   CompareUsersResponse, DeleteUserRequest, DeleteUserResponse,
-  GenerateNonceRequest, GenerateNonceResponse, GetUserIdRequest,
-  GetUserIdResponse, LoginRequest, LoginResponse,
+  GenerateNonceRequest, GenerateNonceResponse,
+  GetSessionInitializationInfoRequest, GetSessionInitializationInfoResponse,
+  GetUserIdRequest, GetUserIdResponse, LoginRequest, LoginResponse,
   PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
-  RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
-  WalletLoginRequest as WalletLoginRequestStruct,
+  RegistrationResponse, SessionInitializationInfo, VerifyUserTokenRequest,
+  VerifyUserTokenResponse, WalletLoginRequest as WalletLoginRequestStruct,
   WalletLoginResponse as WalletLoginResponseStruct,
 };
 
@@ -266,6 +267,31 @@ impl IdentityService for MyIdentityService {
       Ok(_) => Ok(Response::new(GenerateNonceResponse {
         nonce: nonce_data.nonce,
       })),
+      Err(e) => Err(handle_db_error(e)),
+    }
+  }
+
+  #[instrument(skip(self))]
+  async fn get_session_initialization_info(
+    &self,
+    request: Request<GetSessionInitializationInfoRequest>,
+  ) -> Result<Response<GetSessionInitializationInfoResponse>, Status> {
+    let message = request.into_inner();
+    match self
+      .client
+      .get_session_initialization_info(&message.user_id)
+      .await
+    {
+      Ok(Some(session_initialization_info)) => {
+        let mut devices = HashMap::new();
+        for (device, info) in session_initialization_info {
+          devices.insert(device, SessionInitializationInfo { info });
+        }
+        Ok(Response::new(GetSessionInitializationInfoResponse {
+          devices,
+        }))
+      }
+      Ok(None) => return Err(Status::not_found("user not found")),
       Err(e) => Err(handle_db_error(e)),
     }
   }
