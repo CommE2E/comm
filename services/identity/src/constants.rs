@@ -11,10 +11,12 @@ pub const USERS_TABLE_PARTITION_KEY: &str = "userID";
 pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "pakeRegistrationData";
 pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
 pub const USERS_TABLE_DEVICES_ATTRIBUTE: &str = "devices";
+pub const USERS_TABLE_DEVICE_ATTRIBUTE_NAME: &str = "device";
 pub const USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME: &str = "signingPublicKey";
 pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
+pub const USERS_TABLE_INITIALIZATION_INFO: &str = "initializationInfo";
 
 pub const ACCESS_TOKEN_TABLE: &str = "identity-tokens";
 pub const ACCESS_TOKEN_TABLE_PARTITION_KEY: &str = "userID";
