@@ -8,17 +8,7 @@ import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 import { useDispatch } from 'react-redux';
 
-import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
-import {
-  useWatchThread,
-  useExistingThreadInfoFinder,
-  createPendingThread,
-  threadIsPending,
-} from 'lib/shared/thread-utils.js';
-import { threadTypes } from 'lib/types/thread-types.js';
-import type { AccountUserInfo } from 'lib/types/user-types.js';
+import { useWatchThread, threadIsPending } from 'lib/shared/thread-utils.js';
 
 import ChatInputBar from './chat-input-bar.react.js';
 import css from './chat-message-list-container.css';
@@ -27,7 +17,10 @@ import ChatThreadComposer from './chat-thread-composer.react.js';
 import ThreadTopBar from './thread-top-bar.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
-import { useSelector } from '../redux/redux-utils.js';
+import {
+  useThreadInfoForPossiblyPendingThread,
+  useInfosForPendingThread,
+} from '../utils/thread-utils.js';
 
 type Props = {
   +activeChatThreadID: string,
@@ -35,78 +28,14 @@ type Props = {
 
 function ChatMessageListContainer(props: Props): React.Node {
   const { activeChatThreadID } = props;
-  const isChatCreation =
-    useSelector(state => state.navInfo.chatMode) === 'create';
-
-  const selectedUserIDs = useSelector(state => state.navInfo.selectedUserList);
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userInfoInputArray: $ReadOnlyArray<AccountUserInfo> = React.useMemo(
-    () => selectedUserIDs?.map(id => otherUserInfos[id]).filter(Boolean) ?? [],
-    [otherUserInfos, selectedUserIDs],
-  );
-
-  const loggedInUserInfo = useLoggedInUserInfo();
-  invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
-
-  const pendingPrivateThread = React.useRef(
-    createPendingThread({
-      viewerID: loggedInUserInfo.id,
-      threadType: threadTypes.PRIVATE,
-      members: [loggedInUserInfo],
-    }),
-  );
-
-  const newThreadID = 'pending/new_thread';
-  const pendingNewThread = React.useMemo(
-    () => ({
-      ...createPendingThread({
-        viewerID: loggedInUserInfo.id,
-        threadType: threadTypes.PRIVATE,
-        members: [loggedInUserInfo],
-        name: 'New thread',
-      }),
-      id: newThreadID,
-    }),
-    [loggedInUserInfo],
-  );
-
-  const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
-    pendingPrivateThread.current,
-  );
-
-  const baseThreadInfo = useSelector(state => {
-    if (!activeChatThreadID) {
-      return null;
-    }
-    return (
-      threadInfoSelector(state)[activeChatThreadID] ??
-      state.navInfo.pendingThread
-    );
-  });
-  const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
-  const threadInfo = React.useMemo(() => {
-    if (isChatCreation) {
-      if (userInfoInputArray.length === 0) {
-        return pendingNewThread;
-      }
-
-      return existingThreadInfoFinderForCreatingThread({
-        searching: true,
-        userInfoInputArray,
-      });
-    }
-
-    return existingThreadInfoFinder({
-      searching: false,
-      userInfoInputArray: [],
-    });
-  }, [
-    existingThreadInfoFinder,
-    existingThreadInfoFinderForCreatingThread,
+  const {
     isChatCreation,
+    selectedUserIDs,
+    otherUserInfos,
     userInfoInputArray,
-    pendingNewThread,
-  ]);
+  } = useInfosForPendingThread();
+
+  const threadInfo = useThreadInfoForPossiblyPendingThread(activeChatThreadID);
   invariant(threadInfo, 'ThreadInfo should be set');
 
   const dispatch = useDispatch();
