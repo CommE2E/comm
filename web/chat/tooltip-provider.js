@@ -26,8 +26,8 @@ export type RenderTooltipResult = {
 type TooltipContextType = {
   +renderTooltip: (params: RenderTooltipParams) => RenderTooltipResult,
   +clearTooltip: () => mixed,
-  +renderEmojiKeyboard: boolean,
-  +setRenderEmojiKeyboard: SetState<boolean>,
+  +shouldRenderEmojiKeyboard: boolean,
+  +setShouldRenderEmojiKeyboard: SetState<boolean>,
 };
 
 const TooltipContext: React.Context<TooltipContextType> =
@@ -38,8 +38,8 @@ const TooltipContext: React.Context<TooltipContextType> =
       updateTooltip: () => {},
     }),
     clearTooltip: () => {},
-    renderEmojiKeyboard: false,
-    setRenderEmojiKeyboard: () => {},
+    shouldRenderEmojiKeyboard: false,
+    setShouldRenderEmojiKeyboard: () => {},
   });
 
 type Props = {
@@ -53,7 +53,7 @@ function TooltipProvider(props: Props): React.Node {
   const [tooltipNode, setTooltipNode] = React.useState<React.Node>(null);
   const [tooltipPosition, setTooltipPosition] =
     React.useState<?TooltipPositionStyle>(null);
-  const [renderEmojiKeyboard, setRenderEmojiKeyboard] =
+  const [shouldRenderEmojiKeyboard, setShouldRenderEmojiKeyboard] =
     React.useState<boolean>(false);
 
   const clearTooltip = React.useCallback((tooltipToClose: symbol) => {
@@ -63,7 +63,7 @@ function TooltipProvider(props: Props): React.Node {
     tooltipCancelTimer.current = null;
     setTooltipNode(null);
     setTooltipPosition(null);
-    setRenderEmojiKeyboard(false);
+    setShouldRenderEmojiKeyboard(false);
     tooltipSymbol.current = null;
   }, []);
 
@@ -156,10 +156,10 @@ function TooltipProvider(props: Props): React.Node {
     () => ({
       renderTooltip,
       clearTooltip: clearCurrentTooltip,
-      renderEmojiKeyboard,
-      setRenderEmojiKeyboard,
+      shouldRenderEmojiKeyboard,
+      setShouldRenderEmojiKeyboard,
     }),
-    [renderTooltip, clearCurrentTooltip, renderEmojiKeyboard],
+    [renderTooltip, clearCurrentTooltip, shouldRenderEmojiKeyboard],
   );
 
   return (

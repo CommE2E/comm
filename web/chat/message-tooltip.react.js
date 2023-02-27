@@ -50,17 +50,36 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
 
   const [activeTooltipLabel, setActiveTooltipLabel] = React.useState<?string>();
 
-  const { renderEmojiKeyboard } = useTooltipContext();
+  const { shouldRenderEmojiKeyboard } = useTooltipContext();
 
-  const [emojiKeyboardNode, setEmojiKeyboardNode] = React.useState(null);
+  // const [emojiKeyboardNode, setEmojiKeyboardNode] = React.useState(null);
+  const [positionState, setPositionState] = React.useState(null);
 
-  const emojiKeyboardRef = React.useRef();
+  // const emojiKeyboardRef = React.useRef();
 
-  React.useEffect(() => {
-    if (emojiKeyboardRef.current) {
-      setEmojiKeyboardNode(emojiKeyboardRef.current);
-    }
-  }, [renderEmojiKeyboard]);
+  // React.useEffect(() => {
+  //   if (emojiKeyboardRef.current) {
+  //     setEmojiKeyboardNode(emojiKeyboardRef.current);
+  //   }
+  // }, [shouldRenderEmojiKeyboard]);
+
+  const emojiKeyboardRef = React.useCallback(
+    node => {
+      if (node) {
+        const { width, height } = node.getBoundingClientRect();
+        console.log(node.getBoundingClientRect());
+        if (width > 0 && height > 0) {
+          const emojiKeyboardPosition = getEmojiKeyboardPosition(
+            node,
+            tooltipPositionStyle,
+            tooltipSize,
+          );
+          setPositionState(emojiKeyboardPosition);
+        }
+      }
+    },
+    [tooltipPositionStyle, tooltipSize],
+  );
 
   const messageActionButtonsContainerClassName = classNames(
     css.messageActionContainer,
@@ -134,26 +153,26 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     );
   }, [messageTimestamp, messageTooltipLabelStyle]);
 
-  const emojiKeyboardPosition = React.useMemo(
-    () =>
-      getEmojiKeyboardPosition(
-        emojiKeyboardNode,
-        tooltipPositionStyle,
-        tooltipSize,
-      ),
-    [emojiKeyboardNode, tooltipPositionStyle, tooltipSize],
-  );
+  // const emojiKeyboardPosition = React.useMemo(
+  //   () =>
+  //     getEmojiKeyboardPosition(
+  //       emojiKeyboardNode,
+  //       tooltipPositionStyle,
+  //       tooltipSize,
+  //     ),
+  //   [emojiKeyboardNode, tooltipPositionStyle, tooltipSize],
+  // );
 
   const emojiKeyboardPositionStyle = React.useMemo(() => {
-    if (!emojiKeyboardPosition) {
+    if (!positionState) {
       return null;
     }
 
     return {
-      bottom: emojiKeyboardPosition.bottom,
-      left: emojiKeyboardPosition.left,
+      bottom: positionState.bottom,
+      left: positionState.left,
     };
-  }, [emojiKeyboardPosition]);
+  }, [positionState]);
 
   const nextLocalID = useSelector(state => state.nextLocalID);
   const localID = `${localIDPrefix}${nextLocalID}`;
@@ -175,20 +194,32 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   );
 
   const emojiKeyboard = React.useMemo(() => {
-    if (!renderEmojiKeyboard) {
-      return null;
-    }
+    // if (!shouldRenderEmojiKeyboard) {
+    //   return null;
+    // }
 
     return (
       <div
-        ref={emojiKeyboardRef}
+        // ref={emojiKeyboardRef}
         style={emojiKeyboardPositionStyle}
         className={css.emojiKeyboard}
       >
-        <Picker data={data} onEmojiSelect={onEmojiSelect} />
+        {shouldRenderEmojiKeyboard && (
+          <Picker
+            ref={emojiKeyboardRef}
+            data={data}
+            onEmojiSelect={onEmojiSelect}
+            // onClickOu
+          />
+        )}
       </div>
     );
-  }, [emojiKeyboardPositionStyle, onEmojiSelect, renderEmojiKeyboard]);
+  }, [
+    emojiKeyboardPositionStyle,
+    emojiKeyboardRef,
+    onEmojiSelect,
+    shouldRenderEmojiKeyboard,
+  ]);
 
   const messageTooltipContainerStyle = React.useMemo(() => tooltipStyle, []);
 

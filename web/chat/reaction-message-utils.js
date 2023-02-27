@@ -134,6 +134,7 @@ function getEmojiKeyboardPosition(
 
   if (emojiKeyboard) {
     const { width, height } = emojiKeyboard.getBoundingClientRect();
+    console.log(emojiKeyboard.getBoundingClientRect());
     emojiKeyboardWidth = width;
     emojiKeyboardHeight = height;
   }
