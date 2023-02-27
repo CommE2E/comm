@@ -22,6 +22,9 @@ service IdentityService {
   rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
   // Called by clients to get a nonce for a Sign-In with Ethereum message
   rpc GenerateNonce(GenerateNonceRequest) returns (GenerateNonceResponse) {}
+
+  rpc UpdateUser(stream UpdateUserRequest) returns
+    (stream UpdateUserResponse) {}
 }
 
 // Helper types
@@ -176,4 +179,38 @@ message GenerateNonceRequest {
 
 message GenerateNonceResponse{
   string nonce = 1;
+}
+
+// UpdateUser
+
+// For password updates, we need to redo the PAKE registration, then login the user
+// using the new credentials.
+message UpdatePasswordPakeRegistrationRequestAndToken {
+  // Used to authenticate user
+  string username = 1;
+  string accessToken = 2;
+  // Message sent to initiate PAKE registration (step 1)
+  bytes pakeRegistrationRequest = 3;
+}
+
+// Messages sent from a client to identity service
+message UpdateUserRequest {
+  oneof data {
+    // Only need user information on initial call, subsequent PAKE commands
+    // can infer parameters from first Request + userID
+    UpdatePasswordPakeRegistrationRequestAndToken request = 1;
+    // We combine the last step of PAKE registration with the first step of PAKE
+    // login here to reduce the number of messages sent
+    PakeRegistrationUploadAndCredentialRequest
+      pakeRegistrationUploadAndCredentialRequest = 2;
+    bytes pakeLoginFinalizationMessage = 4;
+  }
+}
+
+// Messages sent from identity service to a client
+message UpdateUserResponse {
+  oneof data {
+    bytes pakeRegistrationResponse = 1;
+    PakeLoginResponse pakeLoginResponse = 2;
+  }
 }
