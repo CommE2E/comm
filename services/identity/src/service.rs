@@ -49,8 +49,9 @@ use proto::{
   GetUserIdRequest, GetUserIdResponse, LoginRequest, LoginResponse,
   PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
-  RegistrationResponse, SessionInitializationInfo, VerifyUserTokenRequest,
-  VerifyUserTokenResponse, WalletLoginRequest as WalletLoginRequestStruct,
+  RegistrationResponse, SessionInitializationInfo, UpdateUserRequest,
+  UpdateUserResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
+  WalletLoginRequest as WalletLoginRequestStruct,
   WalletLoginResponse as WalletLoginResponseStruct,
 };
 
@@ -292,6 +293,18 @@ impl IdentityService for MyIdentityService {
       Err(e) => Err(handle_db_error(e)),
     }
   }
+
+  #[instrument(skip(self))]
+  async fn update_user(
+    &self,
+    request: Request<tonic::Streaming<UpdateUserRequest>>,
+  ) -> Result<Response<Self::UpdateUserStream>, Status> {
+    unimplemented!();
+  }
+
+  type UpdateUserStream = Pin<
+    Box<dyn Stream<Item = Result<UpdateUserResponse, Status>> + Send + 'static>,
+  >;
 }
 
 async fn put_token_helper(
