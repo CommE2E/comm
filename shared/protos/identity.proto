@@ -26,6 +26,9 @@ service IdentityService {
   // channel of communication with a given user
   rpc GetSessionInitializationInfo(GetSessionInitializationInfoRequest) returns
     (GetSessionInitializationInfoResponse) {}
+
+  rpc UpdateUser(stream UpdateUserRequest) returns
+    (stream UpdateUserResponse) {}
 }
 
 // Helper types
@@ -208,4 +211,28 @@ message GetSessionInitializationInfoRequest {
 message GetSessionInitializationInfoResponse {
   // Map is keyed on devices' public ed25519 key used for signing
   map<string, SessionInitializationInfo> devices = 1;
+}
+
+// UpdateUser
+
+// Messages sent from a client to Identity Service
+message UpdateUserRequest {
+  oneof data {
+    // Only need user information on initial call, subsequent PAKE commands
+    // can infer parameters from first Request + userID
+    PakeRegistrationRequestAndUserID request = 1;
+    // We combine the last step of PAKE registration with the first step of PAKE
+    // login here to reduce the number of messages sent
+    PakeRegistrationUploadAndCredentialRequest
+      pakeRegistrationUploadAndCredentialRequest = 2;
+    bytes pakeLoginFinalizationMessage = 4;
+  }
+}
+
+// Messages sent from Identity Service to a client
+message UpdateUserResponse {
+  oneof data {
+    bytes pakeRegistrationResponse = 1;
+    PakeLoginResponse pakeLoginResponse = 2;
+  }
 }
