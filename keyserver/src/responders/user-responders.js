@@ -326,6 +326,8 @@ const logInRequestInputValidator = tShape({
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
   source: t.maybe(t.enums.of(values(logInActionSources))),
+  // We include `primaryIdentityPublicKey` to avoid breaking
+  // old clients, but we no longer do anything with it.
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
 });
@@ -396,13 +398,11 @@ async function logInResponder(
   }
 
   const id = userRow.id.toString();
-  const { primaryIdentityPublicKey } = input;
   return await processSuccessfulLogin({
     viewer,
     input,
     userID: id,
     calendarQuery,
-    primaryIdentityPublicKey,
   });
 }
 
