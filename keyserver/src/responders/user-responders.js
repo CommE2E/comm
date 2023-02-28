@@ -24,7 +24,10 @@ import {
   notificationTypeValues,
   logInActionSources,
 } from 'lib/types/account-types.js';
-import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
+import type {
+  IdentityKeysBlob,
+  SignedIdentityKeysBlob,
+} from 'lib/types/crypto-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import type {
@@ -217,12 +220,20 @@ type ProcessSuccessfulLoginParams = {
   +userID: string,
   +calendarQuery: ?CalendarQuery,
   +socialProof?: ?SIWESocialProof,
+  +signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
 };
 
 async function processSuccessfulLogin(
   params: ProcessSuccessfulLoginParams,
 ): Promise<LogInResponse> {
-  const { viewer, input, userID, calendarQuery, socialProof } = params;
+  const {
+    viewer,
+    input,
+    userID,
+    calendarQuery,
+    socialProof,
+    signedIdentityKeysBlob,
+  } = params;
 
   const request: LogInRequest = input;
   const newServerTime = Date.now();
@@ -234,6 +245,7 @@ async function processSuccessfulLogin(
       platformDetails: request.platformDetails,
       deviceToken,
       socialProof,
+      signedIdentityKeysBlob,
     }),
     fetchNotAcknowledgedPolicies(userID, baseLegalPolicies),
     deleteCookie(viewer.cookieID),
@@ -396,6 +408,7 @@ async function logInResponder(
     input,
     userID: id,
     calendarQuery,
+    signedIdentityKeysBlob,
   });
 }
 
