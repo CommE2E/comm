@@ -1,20 +1,5 @@
-pub mod delete_user;
 pub mod identity_client;
-pub mod identity {
-  tonic::include_proto!("identity");
-}
 pub mod tunnelbroker_client;
 
 #[macro_use]
 extern crate napi_derive;
-
-use lazy_static::lazy_static;
-use std::env::var;
-
-lazy_static! {
-  pub static ref IDENTITY_SERVICE_SOCKET_ADDR: String =
-    var("COMM_IDENTITY_SERVICE_SOCKET_ADDR")
-      .unwrap_or_else(|_| "https://[::1]:50051".to_string());
-  pub static ref AUTH_TOKEN: String = var("COMM_IDENTITY_SERVICE_AUTH_TOKEN")
-    .unwrap_or_else(|_| "test".to_string());
-}
