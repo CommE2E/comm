@@ -30,7 +30,6 @@ import type { Dispatch } from 'lib/types/redux-types.js';
 import { registerConfig } from 'lib/utils/config.js';
 import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
-import AppsDirectory from './apps/apps-directory.react.js';
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { TooltipProvider } from './chat/tooltip-provider.js';
@@ -39,6 +38,7 @@ import electron from './electron.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import LoadingIndicator from './loading-indicator.react.js';
 import { MenuProvider } from './menu-provider.react.js';
+import AppsDirectory from './modals/apps/apps-directory.react.js';
 import UpdateModalHandler from './modals/update-modal.react.js';
 import SettingsSwitcher from './navigation-panels/settings-switcher.react.js';
 import Topbar from './navigation-panels/topbar.react.js';
