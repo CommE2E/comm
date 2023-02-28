@@ -197,6 +197,8 @@ const registerRequestInputValidator = tShape({
   calendarQuery: t.maybe(newEntryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
+  // We include `primaryIdentityPublicKey` to avoid breaking
+  // old clients, but we no longer do anything with it.
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
 });
 
@@ -214,21 +216,13 @@ type ProcessSuccessfulLoginParams = {
   +input: any,
   +userID: string,
   +calendarQuery: ?CalendarQuery,
-  +primaryIdentityPublicKey?: ?string,
   +socialProof?: ?SIWESocialProof,
 };
 
 async function processSuccessfulLogin(
   params: ProcessSuccessfulLoginParams,
 ): Promise<LogInResponse> {
-  const {
-    viewer,
-    input,
-    userID,
-    calendarQuery,
-    primaryIdentityPublicKey,
-    socialProof,
-  } = params;
+  const { viewer, input, userID, calendarQuery, socialProof } = params;
 
   const request: LogInRequest = input;
   const newServerTime = Date.now();
@@ -239,7 +233,6 @@ async function processSuccessfulLogin(
     createNewUserCookie(userID, {
       platformDetails: request.platformDetails,
       deviceToken,
-      primaryIdentityPublicKey,
       socialProof,
     }),
     fetchNotAcknowledgedPolicies(userID, baseLegalPolicies),
@@ -464,6 +457,7 @@ async function siweAuthResponder(
   //    if it was included. We expect it to be included for native clients,
   //    and we expect it to be EXCLUDED for web clients.
   const { statement } = siweMessage;
+  // eslint-disable-next-line no-unused-vars
   const primaryIdentityPublicKey =
     statement && isValidSIWEStatementWithPublicKey(statement)
       ? getPublicKeyFromSIWEStatement(statement)
@@ -485,7 +479,6 @@ async function siweAuthResponder(
       calendarQuery,
       deviceTokenUpdateRequest,
       platformDetails,
-      primaryIdentityPublicKey,
       socialProof,
     };
     userID = await processSIWEAccountCreation(
@@ -500,7 +493,6 @@ async function siweAuthResponder(
     input,
     userID,
     calendarQuery,
-    primaryIdentityPublicKey,
     socialProof,
   });
 }
