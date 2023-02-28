@@ -36,6 +36,7 @@ import {
   fetchMessageInfos,
   fetchMessageInfoForLocalID,
   fetchMessageInfoByID,
+  fetchThreadMessagesCount,
 } from '../fetchers/message-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
@@ -90,7 +91,16 @@ async function textMessageCreationResponder(
     messageData = { ...messageData, localID };
   }
   if (sidebarCreation) {
-    messageData = { ...messageData, sidebarCreation };
+    const numMessages = await fetchThreadMessagesCount(threadID);
+    if (numMessages === 2) {
+      // sidebarCreation is set below to prevent double notifs from a sidebar
+      // creation. We expect precisely two messages to appear before a
+      // sidebarCreation: a SIDEBAR_SOURCE and a CREATE_SIDEBAR. If two users
+      // attempt to create a sidebar at the same time, then both clients will
+      // attempt to set sidebarCreation here, but we only want to suppress
+      // notifs for the client that won the race.
+      messageData = { ...messageData, sidebarCreation };
+    }
   }
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 

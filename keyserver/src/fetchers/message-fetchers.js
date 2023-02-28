@@ -708,6 +708,16 @@ async function fetchMessageInfoByID(
   return rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
+async function fetchThreadMessagesCount(threadID: string): Promise<number> {
+  const query = SQL`
+    SELECT COUNT(*) AS count
+    FROM messages
+    WHERE thread = ${threadID}
+  `;
+  const [result] = await dbQuery(query);
+  return result[0].count;
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -716,4 +726,5 @@ export {
   fetchMessageInfoForLocalID,
   fetchMessageInfoForEntryAction,
   fetchMessageInfoByID,
+  fetchThreadMessagesCount,
 };
