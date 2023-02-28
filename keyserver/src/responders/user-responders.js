@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { getRustAPI } from 'rust-node-addon';
 import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
@@ -64,6 +65,7 @@ import {
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
+import { handleAsyncPromise } from './handlers.js';
 import {
   createAccount,
   processSIWEAccountCreation,
@@ -344,11 +346,10 @@ async function logInResponder(
   await validateInput(viewer, logInRequestInputValidator, input);
   const request: LogInRequest = input;
 
+  let identityKeys: ?IdentityKeysBlob;
   const { signedIdentityKeysBlob } = request;
   if (signedIdentityKeysBlob) {
-    const identityKeys: IdentityKeysBlob = JSON.parse(
-      signedIdentityKeysBlob.payload,
-    );
+    identityKeys = JSON.parse(signedIdentityKeysBlob.payload);
 
     const olmUtil: OLMUtility = getOLMUtility();
     try {
@@ -384,8 +385,10 @@ async function logInResponder(
     WHERE LCASE(username) = LCASE(${username})
   `;
   promises.userQuery = dbQuery(userQuery);
+  promises.rustAPI = getRustAPI();
   const {
     userQuery: [userResult],
+    rustAPI,
   } = await promiseAll(promises);
 
   if (userResult.length === 0) {
@@ -403,6 +406,18 @@ async function logInResponder(
   }
 
   const id = userRow.id.toString();
+
+  if (identityKeys && signedIdentityKeysBlob) {
+    handleAsyncPromise(
+      rustAPI.loginUserPake(
+        id,
+        identityKeys.primaryIdentityPublicKeys.ed25519,
+        request.password,
+        signedIdentityKeysBlob,
+      ),
+    );
+  }
+
   return await processSuccessfulLogin({
     viewer,
     input,
