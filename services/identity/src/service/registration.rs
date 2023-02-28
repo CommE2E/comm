@@ -4,6 +4,7 @@ pub struct RegistrationState {
   username: String,
   signing_public_key: String,
   pub pake_state: Option<ServerRegistration<Cipher>>,
+  session_initialization_info: HashMap<String, String>,
 }
 
 pub async fn handle_registration_request(
@@ -51,6 +52,10 @@ pub async fn handle_registration_request(
         signing_public_key: pake_registration_request_and_user_id
           .signing_public_key,
         pake_state: Some(response_and_state.pake_state),
+        session_initialization_info: pake_registration_request_and_user_id
+          .session_initialization_info
+          .ok_or_else(|| Status::invalid_argument("Invalid message"))?
+          .info,
       })
     }
     None | Some(_) => Err(Status::aborted("failure")),
@@ -79,6 +84,7 @@ pub async fn handle_registration_upload_and_credential_request(
         Some(pake_state),
         &registration_state.username,
         &registration_state.signing_public_key,
+        &registration_state.session_initialization_info,
       )
       .await
       {
@@ -130,6 +136,7 @@ pub async fn handle_credential_finalization(
         &pake_credential_finalization,
         &mut OsRng,
         PakeWorkflow::Registration,
+        &registration_state.session_initialization_info,
       )
       .await
       .map(|pake_login_response| RegistrationResponse {

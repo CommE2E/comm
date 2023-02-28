@@ -386,6 +386,12 @@ async fn wallet_login_helper(
       Some(wallet_login_request.signing_public_key.clone()),
       None,
       None,
+      Some(
+        &wallet_login_request
+          .session_initialization_info
+          .ok_or_else(|| Status::invalid_argument("Invalid message"))?
+          .info,
+      ),
     )
     .await
     .map_err(handle_db_error)?;
@@ -461,6 +467,7 @@ async fn pake_login_finish(
   pake_credential_finalization: &[u8],
   rng: &mut (impl Rng + CryptoRng),
   pake_workflow: PakeWorkflow,
+  session_initialization_info: &HashMap<String, String>,
 ) -> Result<PakeLoginResponseStruct, Status> {
   if user_id.is_empty() || signing_public_key.is_empty() {
     error!(
@@ -491,6 +498,7 @@ async fn pake_login_finish(
         Some(signing_public_key.to_string()),
         None,
         None,
+        Some(session_initialization_info),
       )
       .await
       .map_err(handle_db_error)?;
@@ -545,6 +553,7 @@ async fn pake_registration_finish(
   server_registration: Option<ServerRegistration<Cipher>>,
   username: &str,
   signing_public_key: &str,
+  session_initialization_info: &HashMap<String, String>,
 ) -> Result<(), Status> {
   if user_id.is_empty() {
     error!("Incomplete data: user ID not provided");
@@ -574,6 +583,7 @@ async fn pake_registration_finish(
       server_registration_finish_result,
       username.to_string(),
       signing_public_key.to_string(),
+      session_initialization_info,
     )
     .await
   {

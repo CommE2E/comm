@@ -3,6 +3,7 @@ pub struct LoginState {
   user_id: String,
   signing_public_key: String,
   pake_state: ServerLogin<Cipher>,
+  session_initialization_info: HashMap<String, String>,
 }
 pub async fn handle_login_request(
   message: Option<Result<LoginRequest, Status>>,
@@ -50,6 +51,10 @@ pub async fn handle_login_request(
         signing_public_key: pake_credential_request_and_user_id
           .signing_public_key,
         pake_state: response_and_state.pake_state,
+        session_initialization_info: pake_credential_request_and_user_id
+          .session_initialization_info
+          .ok_or_else(|| Status::invalid_argument("Invalid message"))?
+          .info,
       }))
     }
     Some(_) | None => Err(Status::aborted("failure")),
@@ -77,6 +82,7 @@ pub async fn handle_credential_finalization(
         &pake_credential_finalization,
         &mut OsRng,
         PakeWorkflow::Login,
+        &login_state.session_initialization_info,
       )
       .await
       .map(|pake_login_response| LoginResponse {
