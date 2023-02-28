@@ -1,33 +1,4 @@
-use crate::identity::identity_service_client::IdentityServiceClient;
-use crate::identity::{
-  pake_login_response::Data::AccessToken,
-  pake_login_response::Data::PakeCredentialResponse,
-  registration_request::Data::PakeCredentialFinalization as RegistrationPakeCredentialFinalization,
-  registration_request::Data::PakeRegistrationRequestAndUserId,
-  registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
-  registration_response::Data::PakeLoginResponse as RegistrationPakeLoginResponse,
-  registration_response::Data::PakeRegistrationResponse,
-  PakeLoginResponse as PakeLoginResponseStruct,
-  PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
-  PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
-  RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
-  SessionInitializationInfo,
-};
-use crate::{AUTH_TOKEN, IDENTITY_SERVICE_SOCKET_ADDR};
-use comm_opaque::Cipher;
-use napi::bindgen_prelude::*;
-use opaque_ke::{
-  ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
-  ClientLoginStartResult, ClientRegistration,
-  ClientRegistrationFinishParameters, CredentialFinalization,
-  CredentialResponse, RegistrationResponse, RegistrationUpload,
-};
-use rand::{rngs::OsRng, CryptoRng, Rng};
-use std::collections::HashMap;
-use tokio::sync::mpsc;
-use tokio_stream::wrappers::ReceiverStream;
-use tonic::{metadata::MetadataValue, transport::Channel, Request};
-use tracing::{error, instrument};
+use super::*;
 
 #[napi]
 #[instrument(skip_all)]
@@ -41,7 +12,12 @@ pub async fn register_user(
   let channel = Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
     .connect()
     .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?;
+    .map_err(|_| {
+      Error::new(
+        Status::GenericFailure,
+        "Unable to connect to identity service".to_string(),
+      )
+    })?;
   let token: MetadataValue<_> = AUTH_TOKEN
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
@@ -113,88 +89,6 @@ pub async fn register_user(
     .await
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
   handle_registration_token_response(message)
-}
-
-fn handle_unexpected_response<T: std::fmt::Debug>(message: Option<T>) -> Error {
-  error!("Received an unexpected message: {:?}", message);
-  Error::from_status(Status::GenericFailure)
-}
-
-async fn send_to_mpsc<T>(tx: mpsc::Sender<T>, request: T) -> Result<()> {
-  if let Err(e) = tx.send(request).await {
-    error!("Response was dropped: {}", e);
-    return Err(Error::from_status(Status::GenericFailure));
-  }
-  Ok(())
-}
-
-fn pake_login_start(
-  rng: &mut (impl Rng + CryptoRng),
-  password: &str,
-) -> Result<ClientLoginStartResult<Cipher>> {
-  ClientLogin::<Cipher>::start(
-    rng,
-    password.as_bytes(),
-    ClientLoginStartParameters::default(),
-  )
-  .map_err(|e| {
-    error!("Failed to start PAKE login: {}", e);
-    Error::from_status(Status::GenericFailure)
-  })
-}
-
-fn pake_login_finish(
-  credential_response_bytes: &[u8],
-  client_login: ClientLogin<Cipher>,
-) -> Result<CredentialFinalization<Cipher>> {
-  client_login
-    .finish(
-      CredentialResponse::deserialize(credential_response_bytes).map_err(
-        |e| {
-          error!("Could not deserialize credential response bytes: {}", e);
-          Error::from_status(Status::GenericFailure)
-        },
-      )?,
-      ClientLoginFinishParameters::default(),
-    )
-    .map_err(|e| {
-      error!("Failed to finish PAKE login: {}", e);
-      Error::from_status(Status::GenericFailure)
-    })
-    .map(|res| res.message)
-}
-
-fn pake_registration_start(
-  rng: &mut (impl Rng + CryptoRng),
-  user_id: String,
-  signing_public_key: String,
-  password: &str,
-  username: String,
-  session_initialization_info: SessionInitializationInfo,
-) -> Result<(RegistrationRequest, ClientRegistration<Cipher>)> {
-  let client_registration_start_result =
-    ClientRegistration::<Cipher>::start(rng, password.as_bytes()).map_err(
-      |e| {
-        error!("Failed to start PAKE registration: {}", e);
-        Error::from_status(Status::GenericFailure)
-      },
-    )?;
-  let pake_registration_request =
-    client_registration_start_result.message.serialize();
-  Ok((
-    RegistrationRequest {
-      data: Some(PakeRegistrationRequestAndUserId(
-        PakeRegistrationRequestAndUserIdStruct {
-          user_id,
-          pake_registration_request,
-          username,
-          signing_public_key,
-          session_initialization_info: Some(session_initialization_info),
-        },
-      )),
-    },
-    client_registration_start_result.state,
-  ))
 }
 
 async fn handle_registration_response(
@@ -282,6 +176,39 @@ fn handle_registration_token_response(
   } else {
     Err(handle_unexpected_response(message))
   }
+}
+
+fn pake_registration_start(
+  rng: &mut (impl Rng + CryptoRng),
+  user_id: String,
+  signing_public_key: String,
+  password: &str,
+  username: String,
+  session_initialization_info: SessionInitializationInfo,
+) -> Result<(RegistrationRequest, ClientRegistration<Cipher>)> {
+  let client_registration_start_result =
+    ClientRegistration::<Cipher>::start(rng, password.as_bytes()).map_err(
+      |e| {
+        error!("Failed to start PAKE registration: {}", e);
+        Error::from_status(Status::GenericFailure)
+      },
+    )?;
+  let pake_registration_request =
+    client_registration_start_result.message.serialize();
+  Ok((
+    RegistrationRequest {
+      data: Some(PakeRegistrationRequestAndUserId(
+        PakeRegistrationRequestAndUserIdStruct {
+          user_id,
+          pake_registration_request,
+          username,
+          signing_public_key,
+          session_initialization_info: Some(session_initialization_info),
+        },
+      )),
+    },
+    client_registration_start_result.state,
+  ))
 }
 
 fn pake_registration_finish(

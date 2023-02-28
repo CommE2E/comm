@@ -15,7 +15,7 @@ use tunnelbroker_client as tunnelbroker;
 lazy_static! {
   static ref TUNNELBROKER_SERVICE_ADDR: String =
     var("COMM_TUNNELBROKER_SERVICE_ADDR")
-      .unwrap_or("https://[::1]:50051".to_string());
+      .unwrap_or_else(|_| "https://[::1]:50051".to_string());
 }
 
 #[napi]
@@ -86,7 +86,10 @@ impl TunnelbrokerClient {
         blob_hashes: vec![],
       }];
 
-    if let Err(_) = tunnelbroker::publish_messages(&self.tx, messages).await {
+    if tunnelbroker::publish_messages(&self.tx, messages)
+      .await
+      .is_err()
+    {
       return Err(napi::Error::from_status(napi::Status::GenericFailure));
     }
     Ok(())
