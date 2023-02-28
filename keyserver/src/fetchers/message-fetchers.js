@@ -7,7 +7,7 @@ import {
   shimUnsupportedRawMessageInfos,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
-import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils.js';
+import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
   type RawMessageInfo,
@@ -66,8 +66,10 @@ async function fetchCollapsableNotifs(
   for (const userID in pushInfo) {
     usersToCollapseKeysToInfo[userID] = {};
     usersToCollapsableNotifInfo[userID] = [];
-    for (const rawMessageInfo of pushInfo[userID].messageInfos) {
-      const collapseKey = notifCollapseKeyForRawMessageInfo(rawMessageInfo);
+    for (let i = 0; i < pushInfo[userID].messageInfos.length; i++) {
+      const rawMessageInfo = pushInfo[userID].messageInfos[i];
+      const messageData = pushInfo[userID].messageDatas[i];
+      const collapseKey = getNotifCollapseKey(rawMessageInfo, messageData);
       if (!collapseKey) {
         const collapsableNotifInfo = {
           collapseKey,
