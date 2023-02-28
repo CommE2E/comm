@@ -55,6 +55,7 @@
     "is-svg": "^4.3.0",
     "isomorphic-fetch": "^3.0.0",
     "lib": "0.0.1",
+    "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "@matrix-org/olm": "3.2.4",
     "react": "18.1.0",
