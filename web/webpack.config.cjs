@@ -103,6 +103,7 @@ const baseWebWorkersConfig = {
   ],
   entry: {
     pushNotif: './push-notif/service-worker.js',
+    database: './database/worker/db-worker.js',
   },
   output: {
     filename: '[name].build.js',
