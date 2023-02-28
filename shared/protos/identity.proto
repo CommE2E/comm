@@ -37,6 +37,9 @@ message PakeRegistrationRequestAndUserID {
   // Message sent to initiate PAKE registration (step 1)
   bytes pakeRegistrationRequest = 3;
   string username = 4;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  SessionInitializationInfo sessionInitializationInfo = 5;
 }
 
 message PakeCredentialRequestAndUserID {
@@ -45,6 +48,9 @@ message PakeCredentialRequestAndUserID {
   string signingPublicKey = 2;
   // Message sent to initiate PAKE login (step 1)
   bytes pakeCredentialRequest = 3;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  SessionInitializationInfo sessionInitializationInfo = 4;
 }
 
 message PakeLoginRequest {
@@ -79,6 +85,9 @@ message WalletLoginRequest {
   string signingPublicKey = 2;
   string siweMessage = 3;
   bytes siweSignature = 4;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  SessionInitializationInfo sessionInitializationInfo = 5;
 }
 
 message WalletLoginResponse {

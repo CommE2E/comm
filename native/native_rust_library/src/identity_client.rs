@@ -171,6 +171,8 @@ pub async fn login_user_pake(
               error!("Could not serialize credential request: {}", e);
               Status::failed_precondition("PAKE failure")
             })?,
+          // Todo: provide actual session initialization info
+          session_initialization_info: None,
         },
       )),
     })),
@@ -225,6 +227,8 @@ pub async fn login_user_wallet(
       signing_public_key,
       siwe_message,
       siwe_signature,
+      // Todo: provide actual session initialization info
+      session_initialization_info: None,
     })),
   };
   if let Err(e) = tx.send(login_request).await {
@@ -261,6 +265,8 @@ fn pake_registration_start(
           signing_public_key,
           pake_registration_request,
           username,
+          // Todo: provide actual session initialization info
+          session_initialization_info: None,
         },
       )),
     },
