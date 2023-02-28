@@ -8,6 +8,7 @@ import url from 'url';
 
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
@@ -649,6 +650,7 @@ type UserCookieCreationParams = {
   platformDetails: PlatformDetails,
   deviceToken?: ?string,
   socialProof?: ?SIWESocialProof,
+  signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
 };
 
 // The result of this function should never be passed directly to the Viewer
@@ -662,7 +664,8 @@ async function createNewUserCookie(
   userID: string,
   params: UserCookieCreationParams,
 ): Promise<UserViewerData> {
-  const { platformDetails, deviceToken, socialProof } = params;
+  const { platformDetails, deviceToken, socialProof, signedIdentityKeysBlob } =
+    params;
   const { platform, ...versions } = platformDetails || defaultPlatformDetails;
   const versionsString =
     Object.keys(versions).length > 0 ? JSON.stringify(versions) : null;
@@ -685,10 +688,11 @@ async function createNewUserCookie(
     deviceToken,
     versionsString,
     JSON.stringify(socialProof),
+    signedIdentityKeysBlob ? JSON.stringify(signedIdentityKeysBlob) : null,
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      device_token, versions, social_proof)
+      device_token, versions, social_proof, signed_identity_keys)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
