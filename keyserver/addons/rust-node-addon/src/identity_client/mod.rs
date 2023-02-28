@@ -1,4 +1,5 @@
 pub mod delete_user;
+pub mod login_user;
 pub mod register_user;
 pub mod identity {
   tonic::include_proto!("identity");
@@ -7,6 +8,10 @@ pub mod identity {
 use comm_opaque::Cipher;
 use identity::identity_service_client::IdentityServiceClient;
 use identity::{
+  login_request::Data::PakeLoginRequest,
+  login_response::Data::PakeLoginResponse as LoginPakeLoginResponse,
+  pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
+  pake_login_request::Data::PakeCredentialRequestAndUserId,
   pake_login_response::Data::AccessToken,
   pake_login_response::Data::PakeCredentialResponse,
   registration_request::Data::PakeCredentialFinalization as RegistrationPakeCredentialFinalization,
@@ -14,6 +19,9 @@ use identity::{
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as RegistrationPakeLoginResponse,
   registration_response::Data::PakeRegistrationResponse, DeleteUserRequest,
+  LoginRequest, LoginResponse,
+  PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
+  PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct,
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
