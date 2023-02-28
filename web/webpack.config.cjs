@@ -88,6 +88,7 @@ const baseNodeServerRenderingConfig = {
 const baseWebWorkersConfig = {
   entry: {
     pushNotif: './push-notif/service-worker.js',
+    webDatabase: './database/worker/web-db-worker.js',
   },
   output: {
     filename: '[name].build.js',

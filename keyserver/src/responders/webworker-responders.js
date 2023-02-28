@@ -13,6 +13,8 @@ function webWorkerResponder(req: $Request, res: $Response): void {
       ...headers,
       'Service-Worker-Allowed': '/',
     };
+  } else if (req.params.worker === 'webDatabase') {
+    workerPath = 'webDatabase.build.js';
   }
 
   if (!workerPath) {
