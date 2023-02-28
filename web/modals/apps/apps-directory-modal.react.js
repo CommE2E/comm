@@ -3,8 +3,11 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
-import AppListing from './app-listing.react.js';
-import css from './apps.css';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+
+import AppListing from '../apps/app-listing.react.js';
+import css from '../apps/apps.css';
+import Modal from '../modal.react.js';
 
 const APP_DIRECTORY_DATA = [
   {
@@ -25,7 +28,9 @@ const APP_DIRECTORY_DATA = [
   },
 ];
 
-function AppsDirectory(): React.Node {
+function AppsModal(): React.Node {
+  const { popModal } = useModalContext();
+
   const enabledApps = useSelector(state => state.enabledApps);
 
   const appData = React.useMemo(
@@ -46,11 +51,12 @@ function AppsDirectory(): React.Node {
   );
 
   return (
-    <div className={css.appsDirectoryContainer}>
-      <h4 className={css.appsHeader}>Choose Apps</h4>
-      <div className={css.appsDirectoryList}>{appItems}</div>
-    </div>
+    <Modal name="Choose apps" onClose={popModal} size="large">
+      <div className={css.appsDirectoryContainer}>
+        <div className={css.appsDirectoryList}>{appItems}</div>
+      </div>
+    </Modal>
   );
 }
 
-export default AppsDirectory;
+export default AppsModal;
