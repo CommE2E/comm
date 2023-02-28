@@ -78,6 +78,7 @@
     "reselect": "^4.0.0",
     "simple-markdown": "^0.7.2",
     "siwe": "^1.1.6",
+    "sql.js": "^1.8.0",
     "tinycolor2": "^1.4.1",
     "uuid": "^3.3.3",
     "visibilityjs": "^2.0.2",
