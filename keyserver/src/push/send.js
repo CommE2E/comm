@@ -25,14 +25,15 @@ import {
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import {
   type RawMessageInfo,
-  type MessageInfo,
   type MessageData,
   messageTypes,
 } from 'lib/types/message-types.js';
-import type { WebNotification } from 'lib/types/notif-types.js';
-import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  WebNotification,
+  ResolvedNotifTexts,
+} from 'lib/types/notif-types.js';
+import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
-import type { UserInfo } from 'lib/types/user-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import { getAPNsNotificationTopic } from './providers.js';
@@ -158,6 +159,14 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const badgeOnly = !displayBanner && !userWasMentioned;
 
+      const notifTargetUserInfo = { id: userID, username };
+      const notifTexts = await notifTextsForMessageInfo(
+        allMessageInfos,
+        threadInfo,
+        notifTargetUserInfo,
+        getENSNames,
+      );
+
       const dbID = dbIDs.shift();
       invariant(dbID, 'should have sufficient DB IDs');
       const byPlatform = getDevicesByPlatform(pushInfo[userID].devices);
@@ -183,17 +192,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           );
           const deliveryPromise = (async () => {
             const notification = await prepareAPNsNotification({
-              allMessageInfos,
+              notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
-              threadInfo,
+              threadID: threadInfo.id,
               collapseKey: notifInfo.collapseKey,
               badgeOnly,
               unreadCount: unreadCounts[userID],
               platformDetails,
-              notifTargetUserInfo: {
-                id: userID,
-                username,
-              },
             });
             return await sendAPNsNotification(
               'ios',
@@ -219,17 +224,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           );
           const deliveryPromise = (async () => {
             const notification = await prepareAndroidNotification({
-              allMessageInfos,
+              notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
-              threadInfo,
+              threadID: threadInfo.id,
               collapseKey: notifInfo.collapseKey,
               badgeOnly,
               unreadCount: unreadCounts[userID],
               platformDetails,
-              notifTargetUserInfo: {
-                id: userID,
-                username,
-              },
               dbID,
             });
             return await sendAndroidNotification(
@@ -249,13 +250,9 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         for (const [codeVersion, deviceTokens] of webVersionsToTokens) {
           const deliveryPromise = (async () => {
             const notification = await prepareWebNotification({
-              allMessageInfos,
-              threadInfo,
+              notifTexts,
+              threadID: threadInfo.id,
               unreadCount: unreadCounts[userID],
-              notifTargetUserInfo: {
-                id: userID,
-                username,
-              },
             });
             return await sendWebNotification(notification, [...deviceTokens], {
               ...notificationInfo,
@@ -275,17 +272,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           );
           const deliveryPromise = (async () => {
             const notification = await prepareAPNsNotification({
-              allMessageInfos,
+              notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
-              threadInfo,
+              threadID: threadInfo.id,
               collapseKey: notifInfo.collapseKey,
               badgeOnly,
               unreadCount: unreadCounts[userID],
               platformDetails,
-              notifTargetUserInfo: {
-                id: userID,
-                username,
-              },
             });
             return await sendAPNsNotification(
               'macos',
@@ -586,39 +579,32 @@ function getDevicesByPlatform(
 }
 
 type APNsNotifInputData = {
-  +allMessageInfos: MessageInfo[],
+  +notifTexts: ResolvedNotifTexts,
   +newRawMessageInfos: RawMessageInfo[],
-  +threadInfo: ThreadInfo,
+  +threadID: string,
   +collapseKey: ?string,
   +badgeOnly: boolean,
   +unreadCount: number,
   +platformDetails: PlatformDetails,
-  +notifTargetUserInfo: UserInfo,
 };
 async function prepareAPNsNotification(
   inputData: APNsNotifInputData,
 ): Promise<apn.Notification> {
   const {
-    allMessageInfos,
+    notifTexts,
     newRawMessageInfos,
-    threadInfo,
+    threadID,
     collapseKey,
     badgeOnly,
     unreadCount,
     platformDetails,
-    notifTargetUserInfo,
   } = inputData;
 
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
   notification.topic = getAPNsNotificationTopic(platformDetails);
-  const { merged, ...rest } = await notifTextsForMessageInfo(
-    allMessageInfos,
-    threadInfo,
-    notifTargetUserInfo,
-    getENSNames,
-  );
 
+  const { merged, ...rest } = notifTexts;
   // We don't include alert's body on macos because we
   // handle displaying the notification ourselves and
   // we don't want macOS to display it automatically.
@@ -632,11 +618,11 @@ async function prepareAPNsNotification(
   };
 
   notification.badge = unreadCount;
-  notification.threadId = threadInfo.id;
+  notification.threadId = threadID;
   notification.id = uniqueID;
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
-  notification.payload.threadID = threadInfo.id;
+  notification.payload.threadID = threadID;
   if (platformDetails.codeVersion && platformDetails.codeVersion > 1000) {
     notification.mutableContent = true;
   }
@@ -675,29 +661,23 @@ async function prepareAndroidNotification(
   inputData: AndroidNotifInputData,
 ): Promise<Object> {
   const {
-    allMessageInfos,
+    notifTexts,
     newRawMessageInfos,
-    threadInfo,
+    threadID,
     collapseKey,
     badgeOnly,
     unreadCount,
     platformDetails: { codeVersion },
-    notifTargetUserInfo,
     dbID,
   } = inputData;
 
   const notifID = collapseKey ? collapseKey : dbID;
-  const { merged, ...rest } = await notifTextsForMessageInfo(
-    allMessageInfos,
-    threadInfo,
-    notifTargetUserInfo,
-    getENSNames,
-  );
+  const { merged, ...rest } = notifTexts;
   const notification = {
     data: {
       badge: unreadCount.toString(),
       ...rest,
-      threadID: threadInfo.id,
+      threadID,
     },
   };
 
@@ -740,28 +720,21 @@ async function prepareAndroidNotification(
 }
 
 type WebNotifInputData = {
-  +allMessageInfos: MessageInfo[],
-  +threadInfo: ThreadInfo,
+  +notifTexts: ResolvedNotifTexts,
+  +threadID: string,
   +unreadCount: number,
-  +notifTargetUserInfo: UserInfo,
 };
 async function prepareWebNotification(
   inputData: WebNotifInputData,
 ): Promise<WebNotification> {
-  const { allMessageInfos, threadInfo, unreadCount, notifTargetUserInfo } =
-    inputData;
+  const { notifTexts, threadID, unreadCount } = inputData;
   const id = uuidv4();
-  const { merged, ...rest } = await notifTextsForMessageInfo(
-    allMessageInfos,
-    threadInfo,
-    notifTargetUserInfo,
-    getENSNames,
-  );
+  const { merged, ...rest } = notifTexts;
   const notification = {
     ...rest,
     unreadCount,
     id,
-    threadID: threadInfo.id,
+    threadID,
   };
   return notification;
 }
