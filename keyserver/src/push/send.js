@@ -163,6 +163,9 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         notifTargetUserInfo,
         getENSNames,
       );
+      if (!notifTexts) {
+        continue;
+      }
 
       const dbID = dbIDs.shift();
       invariant(dbID, 'should have sufficient DB IDs');
