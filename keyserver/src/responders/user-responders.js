@@ -484,10 +484,9 @@ async function siweAuthResponder(
 
   // 5. Verify `signedIdentityKeysBlob.payload` with included `signature`
   //    if `signedIdentityKeysBlob` was included in the `SIWEAuthRequest`.
+  let identityKeys: ?IdentityKeysBlob;
   if (signedIdentityKeysBlob) {
-    const identityKeys: IdentityKeysBlob = JSON.parse(
-      signedIdentityKeysBlob.payload,
-    );
+    identityKeys = JSON.parse(signedIdentityKeysBlob.payload);
     const olmUtil: OLMUtility = getOLMUtility();
     try {
       olmUtil.ed25519_verify(
@@ -500,14 +499,23 @@ async function siweAuthResponder(
     }
   }
 
-  // 6. Construct `SIWESocialProof` object with the stringified
+  // 6. Ensure that `primaryIdentityPublicKeys.ed25519` matches SIWE
+  //    statement `primaryIdentityPublicKey` if `identityKeys` exists.
+  if (
+    identityKeys &&
+    identityKeys.primaryIdentityPublicKeys.ed25519 !== primaryIdentityPublicKey
+  ) {
+    throw new ServerError('primary_public_key_mismatch');
+  }
+
+  // 7. Construct `SIWESocialProof` object with the stringified
   //    SIWEMessage and the corresponding signature.
   const socialProof: SIWESocialProof = {
     siweMessage: siweMessage.toMessage(),
     siweMessageSignature: signature,
   };
 
-  // 7. Create account with call to `processSIWEAccountCreation(...)`
+  // 8. Create account with call to `processSIWEAccountCreation(...)`
   //    if address does not correspond to an existing user.
   let userID = await fetchUserIDForEthereumAddress(siweMessage.address);
   if (!userID) {
@@ -524,7 +532,7 @@ async function siweAuthResponder(
     );
   }
 
-  // 8. Complete login with call to `processSuccessfulLogin(...)`.
+  // 9. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin({
     viewer,
     input,
