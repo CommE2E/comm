@@ -102,6 +102,7 @@ impl DatabaseClient {
     signing_public_key: Option<String>,
     registration: Option<ServerRegistration<Cipher>>,
     username: Option<String>,
+    session_initialization_info: Option<&HashMap<String, String>>,
   ) -> Result<UpdateItemOutput, Error> {
     let mut update_expression_parts = Vec::new();
     let mut expression_attribute_names = HashMap::new();
@@ -129,8 +130,15 @@ impl DatabaseClient {
         format!("#{}", USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME),
         public_key,
       );
+      let device_info = match session_initialization_info {
+        Some(info) => info
+          .iter()
+          .map(|(k, v)| (k.to_string(), AttributeValue::S(v.to_string())))
+          .collect(),
+        None => HashMap::new(),
+      };
       expression_attribute_values
-        .insert(":k".to_string(), AttributeValue::M(HashMap::new()));
+        .insert(":k".to_string(), AttributeValue::M(device_info));
     };
 
     self
@@ -164,7 +172,14 @@ impl DatabaseClient {
     registration: ServerRegistration<Cipher>,
     username: String,
     signing_public_key: String,
+    session_initialization_info: &HashMap<String, String>,
   ) -> Result<PutItemOutput, Error> {
+    let device_info: HashMap<String, AttributeValue> =
+      session_initialization_info
+        .iter()
+        .map(|(k, v)| (k.to_string(), AttributeValue::S(v.to_string())))
+        .collect();
+
     let item = HashMap::from([
       (
         USERS_TABLE_PARTITION_KEY.to_string(),
@@ -182,7 +197,7 @@ impl DatabaseClient {
         USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
         AttributeValue::M(HashMap::from([(
           signing_public_key,
-          AttributeValue::M(HashMap::new()),
+          AttributeValue::M(device_info),
         )])),
       ),
     ]);
