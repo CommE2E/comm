@@ -11,6 +11,7 @@ use crate::identity::{
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
   RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
+  SessionInitializationInfo,
 };
 use crate::{AUTH_TOKEN, IDENTITY_SERVICE_SOCKET_ADDR};
 use comm_opaque::Cipher;
@@ -22,6 +23,7 @@ use opaque_ke::{
   CredentialResponse, RegistrationResponse, RegistrationUpload,
 };
 use rand::{rngs::OsRng, CryptoRng, Rng};
+use std::collections::HashMap;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{metadata::MetadataValue, transport::Channel, Request};
@@ -34,6 +36,7 @@ pub async fn register_user(
   signing_public_key: String,
   username: String,
   password: String,
+  session_initialization_info: HashMap<String, String>,
 ) -> Result<String> {
   let channel = Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
     .connect()
@@ -70,6 +73,9 @@ pub async fn register_user(
     signing_public_key,
     &password,
     username,
+    SessionInitializationInfo {
+      info: session_initialization_info,
+    },
   )?;
   send_to_mpsc(tx.clone(), registration_request).await?;
 
@@ -164,6 +170,7 @@ fn pake_registration_start(
   signing_public_key: String,
   password: &str,
   username: String,
+  session_initialization_info: SessionInitializationInfo,
 ) -> Result<(RegistrationRequest, ClientRegistration<Cipher>)> {
   let client_registration_start_result =
     ClientRegistration::<Cipher>::start(rng, password.as_bytes()).map_err(
@@ -182,6 +189,7 @@ fn pake_registration_start(
           pake_registration_request,
           username,
           signing_public_key,
+          session_initialization_info: Some(session_initialization_info),
         },
       )),
     },
