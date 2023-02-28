@@ -1,12 +1,32 @@
 .container {
   border-bottom: 1px solid var(--border);
   height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .navigationPanelContainer {
   flex-direction: row;
   display: flex;
   height: 60px;
+}
+
+.plusButton {
+  margin: 12px;
+  display: flex;
+  cursor: pointer;
+  color: var(--topbar-button-fg);
+  align-items: center;
+  justify-content: center;
+  background-color: var(--topbar-button-bg);
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+}
+
+.plusButton:hover {
+  background-color: var(--topbar-button-bg-hover);
 }
 
 .navigationPanelTab {
@@ -61,4 +81,10 @@ span.chatBadge {
   border-radius: 13px;
   font-size: 8px;
   line-height: 1.25;
+}
+
+.tabs {
+  display: flex;
+  overflow: auto;
+  max-width: calc(100% - 56px);
 }
