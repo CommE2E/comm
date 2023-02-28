@@ -428,8 +428,13 @@ async function siweAuthResponder(
 ): Promise<LogInResponse> {
   await validateInput(viewer, siweAuthRequestInputValidator, input);
   const request: SIWEAuthRequest = input;
-  const { message, signature, deviceTokenUpdateRequest, platformDetails } =
-    request;
+  const {
+    message,
+    signature,
+    deviceTokenUpdateRequest,
+    platformDetails,
+    signedIdentityKeysBlob,
+  } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
   // 1. Ensure that `message` is a well formed Comm SIWE Auth message.
@@ -466,24 +471,43 @@ async function siweAuthResponder(
     }
   }
 
-  // 4. Pull `primaryIdentityPublicKey` out from SIWEMessage `statement`
-  //    if it was included. We expect it to be included for native clients,
-  //    and we expect it to be EXCLUDED for web clients.
+  // 4. Pull `primaryIdentityPublicKey` out from SIWEMessage `statement`.
+  //    We expect it to be included for BOTH native and web clients.
   const { statement } = siweMessage;
-  // eslint-disable-next-line no-unused-vars
   const primaryIdentityPublicKey =
     statement && isValidSIWEStatementWithPublicKey(statement)
       ? getPublicKeyFromSIWEStatement(statement)
       : null;
+  if (!primaryIdentityPublicKey) {
+    throw new ServerError('invalid_siwe_statement_public_key');
+  }
 
-  // 5. Construct `SIWESocialProof` object with the stringified
+  // 5. Verify `signedIdentityKeysBlob.payload` with included `signature`
+  //    if `signedIdentityKeysBlob` was included in the `SIWEAuthRequest`.
+  if (signedIdentityKeysBlob) {
+    const identityKeys: IdentityKeysBlob = JSON.parse(
+      signedIdentityKeysBlob.payload,
+    );
+    const olmUtil: OLMUtility = getOLMUtility();
+    try {
+      olmUtil.ed25519_verify(
+        identityKeys.primaryIdentityPublicKeys.ed25519,
+        signedIdentityKeysBlob.payload,
+        signedIdentityKeysBlob.signature,
+      );
+    } catch (e) {
+      throw new ServerError('invalid_signature');
+    }
+  }
+
+  // 6. Construct `SIWESocialProof` object with the stringified
   //    SIWEMessage and the corresponding signature.
   const socialProof: SIWESocialProof = {
     siweMessage: siweMessage.toMessage(),
     siweMessageSignature: signature,
   };
 
-  // 6. Create account with call to `processSIWEAccountCreation(...)`
+  // 7. Create account with call to `processSIWEAccountCreation(...)`
   //    if address does not correspond to an existing user.
   let userID = await fetchUserIDForEthereumAddress(siweMessage.address);
   if (!userID) {
@@ -500,13 +524,14 @@ async function siweAuthResponder(
     );
   }
 
-  // 7. Complete login with call to `processSuccessfulLogin(...)`.
+  // 8. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin({
     viewer,
     input,
     userID,
     calendarQuery,
     socialProof,
+    signedIdentityKeysBlob,
   });
 }
 
