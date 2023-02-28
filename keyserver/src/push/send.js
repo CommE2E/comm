@@ -26,6 +26,7 @@ import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import {
   type RawMessageInfo,
   type MessageInfo,
+  type MessageData,
   messageTypes,
 } from 'lib/types/message-types.js';
 import type { WebNotification } from 'lib/types/notif-types.js';
@@ -62,7 +63,9 @@ type Device = {
 };
 type PushUserInfo = {
   +devices: Device[],
+  // messageInfos and messageDatas have the same key
   +messageInfos: RawMessageInfo[],
+  +messageDatas: MessageData[],
 };
 type Delivery = PushDelivery | { collapsedInto: string };
 type NotificationRow = {

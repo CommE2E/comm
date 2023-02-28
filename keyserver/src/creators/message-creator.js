@@ -456,21 +456,28 @@ async function postMessageSend(
                   fetchMessageInfoByID(viewer, messageID),
               },
             );
-            return doesGenerateNotif === pushType ? messageInfo : undefined;
+            return doesGenerateNotif === pushType
+              ? { messageInfo, messageData }
+              : undefined;
           }),
         );
       }
 
-      const notifMessageInfos = await Promise.all(promises);
-      const filteredNotifMessageInfos = notifMessageInfos.filter(Boolean);
+      const messagesToNotify = await Promise.all(promises);
+      const filteredMessagesToNotify = messagesToNotify.filter(Boolean);
 
-      if (filteredNotifMessageInfos.length === 0) {
+      if (filteredMessagesToNotify.length === 0) {
         return undefined;
       }
 
       return {
         devices: userDevices,
-        messageInfos: filteredNotifMessageInfos,
+        messageInfos: filteredMessagesToNotify.map(
+          ({ messageInfo }) => messageInfo,
+        ),
+        messageDatas: filteredMessagesToNotify.map(
+          ({ messageData }) => messageData,
+        ),
       };
     };
 
