@@ -24,6 +24,9 @@ int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
   self.contentHandler = contentHandler;
   self.bestAttemptContent = [request.content mutableCopy];
 
+  [self persistMessagePayload:self.bestAttemptContent.userInfo];
+  // Message payload persistence is a higher priority task, so it has
+  // to happen prior to potential notification center clearing.
   if ([self isRescind:self.bestAttemptContent.userInfo]) {
     [self removeNotificationWithIdentifier:self.bestAttemptContent
                                                .userInfo[@"notificationId"]];
@@ -31,12 +34,6 @@ int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
     return;
   }
 
-  NSString *message = self.bestAttemptContent.userInfo[@"messageInfos"];
-  if (message) {
-    TemporaryMessageStorage *temporaryStorage =
-        [[TemporaryMessageStorage alloc] init];
-    [temporaryStorage writeMessage:message];
-  }
   // TODO modify self.bestAttemptContent here
 
   self.contentHandler(self.bestAttemptContent);
@@ -83,6 +80,39 @@ int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
       }];
 
   dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+}
+
+- (void)persistMessagePayload:(NSDictionary *)payload {
+  if (payload[@"messageInfos"]) {
+    TemporaryMessageStorage *temporaryStorage =
+        [[TemporaryMessageStorage alloc] init];
+    [temporaryStorage writeMessage:payload[@"messageInfos"]];
+    return;
+  }
+
+  if (![self isRescind:payload]) {
+    return;
+  }
+
+  NSError *jsonError = nil;
+  NSData *binarySerializedRescindPayload =
+      [NSJSONSerialization dataWithJSONObject:payload
+                                      options:0
+                                        error:&jsonError];
+  if (jsonError) {
+    comm::Logger::log(
+        "NSE: Failed to serialize rescind payload. Details: " +
+        std::string([jsonError.localizedDescription UTF8String]));
+    return;
+  }
+
+  NSString *serializedRescindPayload =
+      [[NSString alloc] initWithData:binarySerializedRescindPayload
+                            encoding:NSUTF8StringEncoding];
+
+  TemporaryMessageStorage *temporaryRescindsStorage =
+      [[TemporaryMessageStorage alloc] initForRescinds];
+  [temporaryRescindsStorage writeMessage:serializedRescindPayload];
 }
 
 - (BOOL)isRescind:(NSDictionary *)payload {
