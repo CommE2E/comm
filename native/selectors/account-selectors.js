@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import type { LogInExtraInfo } from 'lib/types/account-types.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -24,12 +25,15 @@ const nativeLogInExtraInfoSelector: (
   ) => {
     const loginExtraFuncWithIdentityKey = async () => {
       await commCoreModule.initializeCryptoAccount();
-      const {
-        primaryIdentityPublicKeys: { ed25519 },
-      } = await commCoreModule.getUserPublicKey();
+      const { blobPayload, signature } =
+        await commCoreModule.getUserPublicKey();
+      const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+        payload: blobPayload,
+        signature,
+      };
       return {
         ...logInExtraInfoFunc(calendarActive),
-        primaryIdentityPublicKey: ed25519,
+        signedIdentityKeysBlob,
       };
     };
     return loginExtraFuncWithIdentityKey;
