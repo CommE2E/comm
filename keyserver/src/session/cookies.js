@@ -647,10 +647,10 @@ async function createNewAnonymousCookie(
 }
 
 type UserCookieCreationParams = {
-  platformDetails: PlatformDetails,
-  deviceToken?: ?string,
-  socialProof?: ?SIWESocialProof,
-  signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
+  +platformDetails: PlatformDetails,
+  +deviceToken?: ?string,
+  +socialProof?: ?SIWESocialProof,
+  +signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
 };
 
 // The result of this function should never be passed directly to the Viewer

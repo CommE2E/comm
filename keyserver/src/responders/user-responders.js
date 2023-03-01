@@ -217,6 +217,23 @@ async function accountCreationResponder(
 ): Promise<RegisterResponse> {
   const request: RegisterRequest = input;
   await validateInput(viewer, registerRequestInputValidator, request);
+  const { signedIdentityKeysBlob } = request;
+  if (signedIdentityKeysBlob) {
+    const identityKeys: IdentityKeysBlob = JSON.parse(
+      signedIdentityKeysBlob.payload,
+    );
+
+    const olmUtil: OLMUtility = getOLMUtility();
+    try {
+      olmUtil.ed25519_verify(
+        identityKeys.primaryIdentityPublicKeys.ed25519,
+        signedIdentityKeysBlob.payload,
+        signedIdentityKeysBlob.signature,
+      );
+    } catch (e) {
+      throw new ServerError('invalid_signature');
+    }
+  }
   return await createAccount(viewer, request);
 }
 
