@@ -632,7 +632,7 @@ async function prepareAPNsNotification(
   // users until it is thoroughly tested among staff members.
   if (
     platformDetails.codeVersion &&
-    platformDetails.codeVersion > 1000 &&
+    platformDetails.codeVersion > 198 &&
     platformDetails.codeVersion % 2 === 0
   ) {
     notification.mutableContent = true;
