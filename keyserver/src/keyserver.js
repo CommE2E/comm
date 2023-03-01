@@ -25,6 +25,7 @@ import {
 } from './responders/version-responders.js';
 import { websiteResponder } from './responders/website-responders.js';
 import { onConnection } from './socket/socket.js';
+import { tunnelbrokerPublisher } from './socket/tunnelbroker.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
@@ -170,6 +171,7 @@ import {
       }
     })();
 
+    tunnelbrokerPublisher.connect();
     server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
   }
 })();
