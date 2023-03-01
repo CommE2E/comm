@@ -3,6 +3,9 @@
 #import "TemporaryMessageStorage.h"
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
+// The context for this constant can be found here:
+// https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
+int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
 
 @interface NotificationService ()
 
@@ -22,6 +25,8 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
   self.bestAttemptContent = [request.content mutableCopy];
 
   if ([self isRescind:self.bestAttemptContent.userInfo]) {
+    [self removeNotificationWithIdentifier:self.bestAttemptContent
+                                               .userInfo[@"notificationId"]];
     self.contentHandler([[UNNotificationContent alloc] init]);
     return;
   }
@@ -50,6 +55,34 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
     self.contentHandler([[UNNotificationContent alloc] init]);
   }
   self.contentHandler(self.bestAttemptContent);
+}
+
+- (void)removeNotificationWithIdentifier:(NSString *)identifier {
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+  void (^postRemovalCallback)() = ^() {
+    dispatch_time_t timeToPostSemaphore =
+        dispatch_time(DISPATCH_TIME_NOW, notificationRemovalDelay);
+    dispatch_after(timeToPostSemaphore, dispatch_get_main_queue(), ^{
+      dispatch_semaphore_signal(semaphore);
+    });
+  };
+
+  [UNUserNotificationCenter.currentNotificationCenter
+      getDeliveredNotificationsWithCompletionHandler:^(
+          NSArray<UNNotification *> *_Nonnull notifications) {
+        for (UNNotification *notif in notifications) {
+          if ([identifier isEqual:notif.request.content.userInfo[@"id"]]) {
+            [UNUserNotificationCenter.currentNotificationCenter
+                removeDeliveredNotificationsWithIdentifiers:@[
+                  notif.request.identifier
+                ]];
+          }
+          postRemovalCallback();
+        }
+      }];
+
+  dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 }
 
 - (BOOL)isRescind:(NSDictionary *)payload {
