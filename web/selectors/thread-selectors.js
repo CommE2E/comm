@@ -108,9 +108,22 @@ function useOnClickNewThread(): (event: SyntheticEvent<HTMLElement>) => void {
   );
 }
 
+function useDrawerSelectedThreadID(): ?string {
+  const activeChatThreadID = useSelector(
+    state => state.navInfo.activeChatThreadID,
+  );
+  const pickedCommunityID = useSelector(
+    state => state.calendarPickedCommunityID,
+  );
+  const inCalendar = useSelector(state => state.navInfo.tab === 'calendar');
+
+  return inCalendar ? pickedCommunityID : activeChatThreadID;
+}
+
 export {
   useOnClickThread,
   useThreadIsActive,
   useOnClickPendingSidebar,
   useOnClickNewThread,
+  useDrawerSelectedThreadID,
 };
