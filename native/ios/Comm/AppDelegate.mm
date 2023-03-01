@@ -56,6 +56,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const setUnreadStatusKey = @"setUnreadStatus";
+NSString *const threadIDKey = @"threadID";
 
 @interface AppDelegate () <
     RCTCxxBridgeDelegate,
@@ -316,6 +317,37 @@ using Runtime = facebook::jsi::Runtime;
     std::string messageInfos = std::string([message UTF8String]);
     comm::GlobalDBSingleton::instance.scheduleOrRun([messageInfos]() mutable {
       comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
+    });
+  }
+
+  TemporaryMessageStorage *temporaryRescindsStorage =
+      [[TemporaryMessageStorage alloc] initForRescinds];
+  NSArray<NSString *> *rescindMessages =
+      [temporaryRescindsStorage readAndClearMessages];
+  for (NSString *rescindMessage in rescindMessages) {
+    NSData *binaryRescindMessage =
+        [rescindMessage dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSError *jsonError = nil;
+    NSDictionary *rescindPayload =
+        [NSJSONSerialization JSONObjectWithData:binaryRescindMessage
+                                        options:0
+                                          error:&jsonError];
+    if (jsonError) {
+      comm::Logger::log(
+          "Failed to deserialize persisted rescind payload. Details: " +
+          std::string([jsonError.localizedDescription UTF8String]));
+      continue;
+    }
+
+    if (!(rescindPayload[setUnreadStatusKey] && rescindPayload[threadIDKey])) {
+      continue;
+    }
+
+    std::string threadID =
+        std::string([rescindPayload[threadIDKey] UTF8String]);
+    comm::GlobalDBSingleton::instance.scheduleOrRun([threadID]() mutable {
+      comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
     });
   }
 }
