@@ -161,13 +161,23 @@ function prepareIOSNotification(
   codeVersion: ?number,
 ): apn.Notification {
   const notification = new apn.Notification();
-  notification.contentAvailable = true;
   notification.topic = getAPNsNotificationTopic({
     platform: 'ios',
     codeVersion: codeVersion ?? undefined,
   });
-  notification.priority = 5;
-  notification.pushType = 'background';
+
+  // It was agreed to temporarily make even releases staff-only. This way
+  // we will be able to prevent shipping NSE functionality to public iOS
+  // users until it is thoroughly tested among staff members.
+  if (codeVersion && codeVersion > 1000 && codeVersion % 2 === 0) {
+    notification.mutableContent = true;
+    notification.pushType = 'alert';
+    notification.badge = unreadCount;
+  } else {
+    notification.priority = 5;
+    notification.contentAvailable = true;
+    notification.pushType = 'background';
+  }
   notification.payload =
     codeVersion && codeVersion > 135
       ? {
