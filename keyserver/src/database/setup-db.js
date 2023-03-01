@@ -92,6 +92,12 @@ async function createTables() {
         target_message bigint(20) DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+      CREATE TABLE pinned_messages (
+        messageID bigint(20) NOT NULL,
+        thread bigint(20) NOT NULL,
+        pin_time bigint(20) NOT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
       CREATE TABLE notifications (
         id bigint(20) NOT NULL,
         user bigint(20) NOT NULL,
@@ -363,6 +369,10 @@ async function createTables() {
         
       ALTER TABLE siwe_nonces
         ADD PRIMARY KEY (nonce);
+      
+      ALTER TABLE pinned_messages
+        ADD PRIMARY KEY (messageID),
+        ADD INDEX thread (thread);
     `,
     { multipleStatements: true },
   );
