@@ -16,6 +16,7 @@ import type {
   RegisterResponse,
   RegisterRequest,
 } from 'lib/types/account-types.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   PlatformDetails,
   DeviceTokenUpdateRequest,
@@ -116,6 +117,7 @@ async function createAccount(
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
+      signedIdentityKeysBlob: request.signedIdentityKeysBlob,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
@@ -206,6 +208,7 @@ export type ProcessSIWEAccountCreationRequest = {
   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
   +platformDetails: PlatformDetails,
   +socialProof: SIWESocialProof,
+  +signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
 };
 // Note: `processSIWEAccountCreation(...)` assumes that the validity of
 //       `ProcessSIWEAccountCreationRequest` was checked at call site.
@@ -213,7 +216,7 @@ async function processSIWEAccountCreation(
   viewer: Viewer,
   request: ProcessSIWEAccountCreationRequest,
 ): Promise<string> {
-  const { calendarQuery } = request;
+  const { calendarQuery, signedIdentityKeysBlob } = request;
   await verifyCalendarQueryThreadIDs(calendarQuery);
 
   const time = Date.now();
@@ -231,6 +234,7 @@ async function processSIWEAccountCreation(
       platformDetails: request.platformDetails,
       deviceToken,
       socialProof: request.socialProof,
+      signedIdentityKeysBlob,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
