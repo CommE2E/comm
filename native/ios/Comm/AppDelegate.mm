@@ -54,7 +54,6 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 #import <UserNotifications/UserNotifications.h>
 
-NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const setUnreadStatusKey = @"setUnreadStatus";
 
 @interface AppDelegate () <
@@ -172,41 +171,9 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
     didReceiveRemoteNotification:(NSDictionary *)notification
           fetchCompletionHandler:
               (void (^)(UIBackgroundFetchResult))completionHandler {
-  BOOL handled = NO;
-  if (notification[@"aps"][@"content-available"] &&
-      notification[backgroundNotificationTypeKey]) {
-    handled = [self handleBackgroundNotification:notification
-                          fetchCompletionHandler:completionHandler];
-  }
-
-  if (handled) {
-    return;
-  }
 
   [CommIOSNotifications didReceiveRemoteNotification:notification
                               fetchCompletionHandler:completionHandler];
-}
-
-- (BOOL)handleBackgroundNotification:(NSDictionary *)notification
-              fetchCompletionHandler:
-                  (void (^)(UIBackgroundFetchResult))completionHandler {
-  if ([notification[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"]) {
-    if (notification[setUnreadStatusKey] && notification[@"threadID"]) {
-      std::string threadID =
-          std::string([notification[@"threadID"] UTF8String]);
-      // this callback may be called from inactive state so we need
-      // to initialize the database
-      [self attemptDatabaseInitialization];
-      comm::GlobalDBSingleton::instance.scheduleOrRun([threadID]() mutable {
-        comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
-      });
-    }
-    [CommIOSNotifications
-        clearNotificationFromNotificationsCenter:notification[@"notificationId"]
-                               completionHandler:completionHandler];
-    return YES;
-  }
-  return NO;
 }
 
 - (UIInterfaceOrientationMask)application:(UIApplication *)application
