@@ -634,7 +634,11 @@ async function prepareAPNsNotification(
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadInfo.id;
-  if (platformDetails.codeVersion && platformDetails.codeVersion > 1000) {
+  if (
+    platformDetails.codeVersion &&
+    platformDetails.codeVersion > 1000 &&
+    platformDetails.codeVersion % 2 === 0
+  ) {
     notification.mutableContent = true;
   }
   if (collapseKey) {
