@@ -13,11 +13,19 @@
 @implementation TemporaryMessageStorage
 
 - (instancetype)init {
-  self = [self initAtDirectory:@"TemporaryMessageStorage"];
+  self = [self _initAtDirectory:@"TemporaryMessageStorage"
+                 withFilePrefix:@"msg"];
   return self;
 }
 
-- (instancetype)initAtDirectory:(NSString *)directoryName {
+- (instancetype)initForRescinds {
+  self = [self _initAtDirectory:@"TemporaryMessageStorageRescinds"
+                 withFilePrefix:@"rsc"];
+  return self;
+}
+
+- (instancetype)_initAtDirectory:(NSString *)directoryName
+                  withFilePrefix:(NSString *)filePrefix {
   self = [super init];
   if (!self) {
     return self;
@@ -43,6 +51,7 @@
   }
   _directoryURL = directoryURL;
   _directoryPath = directoryPath;
+  _filePrefix = filePrefix;
   return self;
 }
 
@@ -161,7 +170,8 @@
 
 - (NSString *)_createNewStorage {
   int64_t timestamp = (int64_t)[NSDate date].timeIntervalSince1970;
-  NSString *newStorageName = [NSString stringWithFormat:@"msg_%lld", timestamp];
+  NSString *newStorageName =
+      [NSString stringWithFormat:@"%@_%lld", self.filePrefix, timestamp];
   NSString *newStoragePath =
       [self.directoryURL URLByAppendingPathComponent:newStorageName].path;
   const char *newStoragePathCstr =
