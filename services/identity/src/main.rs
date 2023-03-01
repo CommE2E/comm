@@ -10,6 +10,7 @@ mod database;
 mod interceptor;
 mod keygen;
 mod nonce;
+mod pake_grpc;
 mod service;
 mod token;
 
