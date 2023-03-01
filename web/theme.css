@@ -207,6 +207,8 @@
   --filters-button-bg: var(--shades-black-100);
   --filters-button-border: var(--shades-black-80);
   --filters-button-hover-bg: var(--shades-black-90);
+  --filter-panel-fg: var(--shades-black-60);
+  --filter-panel-bg: #0d0d0d;
   --topbar-button-bg-hover: var(--shades-black-80);
   --topbar-button-fg: var(--shades-white-60);
 }
