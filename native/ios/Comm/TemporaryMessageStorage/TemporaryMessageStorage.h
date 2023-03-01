@@ -5,8 +5,9 @@
 @interface TemporaryMessageStorage : NSObject
 @property(readonly) NSURL *directoryURL;
 @property(readonly) NSString *directoryPath;
+@property(readonly) NSString *filePrefix;
 
-- (instancetype)initAtDirectory:(NSString *)directoryName;
+- (instancetype)initForRescinds;
 - (void)writeMessage:(NSString *)message;
 - (NSArray<NSString *> *)readAndClearMessages;
 @end
