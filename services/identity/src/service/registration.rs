@@ -36,8 +36,7 @@ pub async fn handle_registration_request(
         Err(e) => return Err(handle_db_error(e)),
         _ => {}
       };
-      let response_and_state = pake_registration_start(
-        &mut OsRng,
+      let response_and_state = server_register_response(
         &pake_registration_request_and_user_id.pake_registration_request,
       )
       .await?;
@@ -76,7 +75,7 @@ pub async fn handle_registration_upload_and_credential_request(
         client.clone(),
         &pake_registration_upload_and_credential_request
           .pake_registration_upload,
-        Some(pake_state),
+        pake_state,
         &registration_state.username,
         &registration_state.signing_public_key,
       )
