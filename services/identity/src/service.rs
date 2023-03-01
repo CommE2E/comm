@@ -4,12 +4,7 @@ use chrono::Utc;
 use comm_opaque::Cipher;
 use constant_time_eq::constant_time_eq;
 use futures_core::Stream;
-use opaque_ke::{
-  CredentialFinalization, CredentialRequest,
-  RegistrationRequest as PakeRegistrationRequest, ServerLogin,
-  ServerLoginStartParameters,
-};
-use opaque_ke::{RegistrationUpload, ServerRegistration};
+use opaque_ke::{ServerLogin, ServerRegistration};
 use rand::rngs::OsRng;
 use rand::{CryptoRng, Rng};
 use siwe::Message;
@@ -20,10 +15,10 @@ use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tonic::{Request, Response, Status};
 use tracing::{error, info, instrument};
 
-use crate::config::CONFIG;
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 use crate::database::{DatabaseClient, Error as DBError};
 use crate::nonce::generate_nonce_data;
+use crate::pake_grpc;
 use crate::token::{AccessTokenData, AuthType};
 
 pub use proto::identity_service_server::IdentityServiceServer;
@@ -436,37 +431,21 @@ async fn pake_login_start(
       }
       Err(e) => return Err(handle_db_error(e)),
     };
-  let credential_request =
-    CredentialRequest::deserialize(pake_credential_request).map_err(|e| {
-      error!("Failed to deserialize credential request: {}", e);
-      Status::invalid_argument("invalid message")
-    })?;
-  match ServerLogin::start(
-    &mut OsRng,
+  let server_login_start_result = pake_grpc::server_login_start(
     server_registration,
-    CONFIG.server_keypair.private(),
-    credential_request,
-    ServerLoginStartParameters::default(),
-  ) {
-    Ok(server_login_start_result) => Ok(LoginResponseAndPakeState {
-      response: PakeLoginResponseStruct {
-        data: Some(PakeCredentialResponse(
-          server_login_start_result.message.serialize().map_err(|e| {
-            error!("Failed to serialize PAKE message: {}", e);
-            Status::failed_precondition("internal error")
-          })?,
-        )),
-      },
-      pake_state: server_login_start_result.state,
-    }),
-    Err(e) => {
-      error!(
-        "Encountered a PAKE protocol error when starting login: {}",
-        e
-      );
-      Err(Status::aborted("server error"))
-    }
-  }
+    pake_credential_request,
+  )?;
+  let credential_response =
+    server_login_start_result.message.serialize().map_err(|e| {
+      error!("Failed to serialize PAKE message: {}", e);
+      Status::failed_precondition("internal error")
+    })?;
+  Ok(LoginResponseAndPakeState {
+    response: PakeLoginResponseStruct {
+      data: Some(PakeCredentialResponse(credential_response)),
+    },
+    pake_state: server_login_start_result.state,
+  })
 }
 
 async fn pake_login_finish(
@@ -474,7 +453,7 @@ async fn pake_login_finish(
   signing_public_key: &str,
   client: &DatabaseClient,
   server_login: ServerLogin<Cipher>,
-  pake_credential_finalization: &[u8],
+  pake_credential_finalization: &Vec<u8>,
   rng: &mut (impl Rng + CryptoRng),
   pake_workflow: PakeWorkflow,
   session_initialization_info: &HashMap<String, String>,
@@ -486,21 +465,8 @@ async fn pake_login_finish(
     );
     return Err(Status::aborted("user not found"));
   }
-  server_login
-    .finish(
-      CredentialFinalization::deserialize(pake_credential_finalization)
-        .map_err(|e| {
-          error!("Failed to deserialize credential finalization bytes: {}", e);
-          Status::aborted("login failed")
-        })?,
-    )
-    .map_err(|e| {
-      error!(
-        "Encountered a PAKE protocol error when finishing login: {}",
-        e
-      );
-      Status::aborted("server error")
-    })?;
+
+  pake_grpc::server_login_finish(server_login, pake_credential_finalization)?;
   if matches!(pake_workflow, PakeWorkflow::Login) {
     client
       .update_users_table(
@@ -527,40 +493,26 @@ async fn pake_login_finish(
   })
 }
 
-async fn pake_registration_start(
-  rng: &mut (impl Rng + CryptoRng),
-  registration_request_bytes: &[u8],
+async fn server_register_response(
+  registration_request_bytes: &Vec<u8>,
 ) -> Result<RegistrationResponseAndPakeState, Status> {
-  match ServerRegistration::<Cipher>::start(
-    rng,
-    PakeRegistrationRequest::deserialize(registration_request_bytes).unwrap(),
-    CONFIG.server_keypair.public(),
-  ) {
-    Ok(server_registration_start_result) => {
-      Ok(RegistrationResponseAndPakeState {
-        response: RegistrationResponse {
-          data: Some(PakeRegistrationResponse(
-            server_registration_start_result.message.serialize(),
-          )),
-        },
-        pake_state: server_registration_start_result.state,
-      })
-    }
-    Err(e) => {
-      error!(
-        "Encountered a PAKE protocol error when starting registration: {}",
-        e
-      );
-      Err(Status::aborted("server error"))
-    }
-  }
+  let server_registration_start_result =
+    pake_grpc::server_registration_start(registration_request_bytes)?;
+  Ok(RegistrationResponseAndPakeState {
+    response: RegistrationResponse {
+      data: Some(PakeRegistrationResponse(
+        server_registration_start_result.message.serialize(),
+      )),
+    },
+    pake_state: server_registration_start_result.state,
+  })
 }
 
 async fn pake_registration_finish(
   user_id: &str,
   client: &DatabaseClient,
-  registration_upload_bytes: &[u8],
-  server_registration: Option<ServerRegistration<Cipher>>,
+  registration_upload_bytes: &Vec<u8>,
+  server_registration: ServerRegistration<Cipher>,
   username: &str,
   signing_public_key: &str,
   session_initialization_info: &HashMap<String, String>,
@@ -569,23 +521,11 @@ async fn pake_registration_finish(
     error!("Incomplete data: user ID not provided");
     return Err(Status::aborted("user not found"));
   }
-  let server_registration_finish_result = server_registration
-    .ok_or_else(|| Status::aborted("registration failed"))?
-    .finish(
-      RegistrationUpload::deserialize(registration_upload_bytes).map_err(
-        |e| {
-          error!("Failed to deserialize registration upload bytes: {}", e);
-          Status::aborted("registration failed")
-        },
-      )?,
-    )
-    .map_err(|e| {
-      error!(
-        "Encountered a PAKE protocol error when finishing registration: {}",
-        e
-      );
-      Status::aborted("server error")
-    })?;
+  let server_registration_finish_result =
+    pake_grpc::server_registration_finish(
+      server_registration,
+      registration_upload_bytes,
+    )?;
 
   match client
     .add_user_to_users_table(
