@@ -109,7 +109,6 @@ function TraditionalLoginForm(): React.Node {
           username,
           password,
           logInActionSource: logInActionSources.logInFromWebForm,
-          primaryIdentityPublicKey: primaryIdentityPublicKeys.ed25519,
           signedIdentityKeysBlob,
         });
         modalContext.popModal();

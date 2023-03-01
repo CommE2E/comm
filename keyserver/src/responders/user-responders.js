@@ -193,6 +193,11 @@ const deviceTokenUpdateRequestInputValidator = tShape({
   deviceToken: t.String,
 });
 
+const signedIdentityKeysBlobValidator = tShape({
+  payload: t.String,
+  signature: t.String,
+});
+
 const registerRequestInputValidator = tShape({
   username: t.String,
   email: t.maybe(tEmail),
@@ -203,6 +208,7 @@ const registerRequestInputValidator = tShape({
   // We include `primaryIdentityPublicKey` to avoid breaking
   // old clients, but we no longer do anything with it.
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
+  signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
 });
 
 async function accountCreationResponder(
@@ -316,11 +322,6 @@ async function processSuccessfulLogin(
   }
   return response;
 }
-
-const signedIdentityKeysBlobValidator = tShape({
-  payload: t.String,
-  signature: t.String,
-});
 
 const logInRequestInputValidator = tShape({
   username: t.maybe(t.String),
