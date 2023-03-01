@@ -1,4 +1,5 @@
 #import "NotificationService.h"
+#import "Logger.h"
 #import "TemporaryMessageStorage.h"
 
 @interface NotificationService ()
@@ -17,6 +18,12 @@
                            contentHandler {
   self.contentHandler = contentHandler;
   self.bestAttemptContent = [request.content mutableCopy];
+
+  if ([self isRescind:self.bestAttemptContent.userInfo]) {
+    self.contentHandler([[UNNotificationContent alloc] init]);
+    return;
+  }
+
   NSString *message = self.bestAttemptContent.userInfo[@"messageInfos"];
   if (message) {
     TemporaryMessageStorage *temporaryStorage =
@@ -32,7 +39,20 @@
   // Called just before the extension will be terminated by the system.
   // Use this as an opportunity to deliver your "best attempt" at modified
   // content, otherwise the original push payload will be used.
+  if ([self isRescind:self.bestAttemptContent.userInfo]) {
+    // If we get to this place it means we were unable to
+    // remove relevant notification from notification center in
+    // in time given to NSE to process notification.
+    // It is an extremely unlikely to happen.
+    comm::Logger::log("NSE: Exceeded time limit to rescind a notification.");
+    self.contentHandler([[UNNotificationContent alloc] init]);
+  }
   self.contentHandler(self.bestAttemptContent);
+}
+
+- (BOOL)isRescind:(NSDictionary *)payload {
+  return payload[@"backgroundNotifType"] &&
+      [payload[@"backgroundNotifType"] isEqualToString:@"CLEAR"];
 }
 
 @end
