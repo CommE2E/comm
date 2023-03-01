@@ -1,19 +1,23 @@
-a.filtersButton {
-  font-weight: 600;
-  float: left;
-  color: white;
-  background-color: rgba(68, 68, 85, 0.67);
-  padding: 8px 18px;
-  border-radius: 18px;
-  margin: 0 15px 5px 15px;
-  font-size: 16px;
+.filtersButton {
+  color: var(--fg);
+  background-color: var(--filters-button-bg);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0px 9px 24px;
   cursor: pointer;
-  text-transform: uppercase;
   position: absolute;
+  border: 1px solid var(--filters-button-border);
+  border-radius: 4px;
 }
-a.filtersButton > svg {
-  padding-right: 5px;
+
+.filtersButton:hover {
+  background-color: var(--filters-button-hover-bg);
 }
+
 div.content {
   height: 100%;
   position: relative;
