@@ -318,6 +318,37 @@ using Runtime = facebook::jsi::Runtime;
       comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
     });
   }
+
+  TemporaryMessageStorage *temporaryRescindsStorage =
+      [[TemporaryMessageStorage alloc] initForRescinds];
+  NSArray<NSString *> *rescindMessages =
+      [temporaryRescindsStorage readAndClearMessages];
+  for (NSString *rescindMessage in rescindMessages) {
+    NSData *binaryRescindMessage =
+        [rescindMessage dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSError *jsonError = nil;
+    NSDictionary *rescindPayload =
+        [NSJSONSerialization JSONObjectWithData:binaryRescindMessage
+                                        options:0
+                                          error:&jsonError];
+    if (jsonError) {
+      comm::Logger::log(
+          "Failed to deserialize persisted rescind payload. Details: " +
+          std::string([jsonError.localizedDescription UTF8String]));
+      continue;
+    }
+
+    if (!(rescindPayload[setUnreadStatusKey] && rescindPayload[@"threadID"])) {
+      continue;
+    }
+
+    std::string threadID =
+        std::string([rescindPayload[@"threadID"] UTF8String]);
+    comm::GlobalDBSingleton::instance.scheduleOrRun([threadID]() mutable {
+      comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+    });
+  }
 }
 
 // Copied from
