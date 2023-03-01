@@ -166,7 +166,7 @@ function prepareIOSNotification(
     codeVersion: codeVersion ?? undefined,
   });
 
-  if (codeVersion && codeVersion > 1000 && codeVersion % 2 === 0) {
+  if (codeVersion && codeVersion % 2 === 0) {
     notification.mutableContent = true;
     notification.pushType = 'alert';
     notification.body = 'PLACEHOLDER';
