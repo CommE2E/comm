@@ -203,4 +203,7 @@
   --drawer-open-community-bg: #191919;
   --active-drawer-item-bg: rgba(0, 0, 0, 0.5);
   --community-drawer-lines: rgba(255, 255, 255, 0.08);
+  --topbar-button-bg: var(--shades-black-90);
+  --topbar-button-bg-hover: var(--shades-black-80);
+  --topbar-button-fg: var(--shades-white-60);
 }
