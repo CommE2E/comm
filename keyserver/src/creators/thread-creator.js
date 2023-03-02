@@ -192,7 +192,11 @@ async function createThread(
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
-  if (sourceMessage && sourceMessage.type === messageTypes.REACTION) {
+  if (
+    sourceMessage &&
+    (sourceMessage.type === messageTypes.REACTION ||
+      sourceMessage.type === messageTypes.EDIT_MESSAGE)
+  ) {
     throw new ServerError('invalid_parameters');
   }
 
