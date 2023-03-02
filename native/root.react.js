@@ -22,6 +22,7 @@ import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
 import ChatContextProvider from './chat/chat-context-provider.react.js';
+import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
 import { SQLiteDataHandler } from './data/sqlite-data-handler.js';
@@ -245,35 +246,37 @@ function Root() {
   return (
     <GestureHandlerRootView style={styles.app}>
       <StaffContextProvider>
-        <NavContext.Provider value={navContext}>
-          <RootContext.Provider value={rootContext}>
-            <InputStateContainer>
-              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                <ActionSheetProvider>
-                  <ENSCacheProvider provider={provider}>
-                    <MarkdownContextProvider>
-                      <ChatContextProvider>
-                        <SQLiteDataHandler />
-                        <ConnectedStatusBar />
-                        <ReduxPersistGate persistor={getPersistor()}>
-                          {gated}
-                        </ReduxPersistGate>
-                        <PersistedStateGate>
-                          <Socket
-                            detectUnsupervisedBackgroundRef={
-                              detectUnsupervisedBackgroundRef
-                            }
-                          />
-                        </PersistedStateGate>
-                        {navigation}
-                      </ChatContextProvider>
-                    </MarkdownContextProvider>
-                  </ENSCacheProvider>
-                </ActionSheetProvider>
-              </SafeAreaProvider>
-            </InputStateContainer>
-          </RootContext.Provider>
-        </NavContext.Provider>
+        <FeatureFlagsProvider>
+          <NavContext.Provider value={navContext}>
+            <RootContext.Provider value={rootContext}>
+              <InputStateContainer>
+                <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                  <ActionSheetProvider>
+                    <ENSCacheProvider provider={provider}>
+                      <MarkdownContextProvider>
+                        <ChatContextProvider>
+                          <SQLiteDataHandler />
+                          <ConnectedStatusBar />
+                          <ReduxPersistGate persistor={getPersistor()}>
+                            {gated}
+                          </ReduxPersistGate>
+                          <PersistedStateGate>
+                            <Socket
+                              detectUnsupervisedBackgroundRef={
+                                detectUnsupervisedBackgroundRef
+                              }
+                            />
+                          </PersistedStateGate>
+                          {navigation}
+                        </ChatContextProvider>
+                      </MarkdownContextProvider>
+                    </ENSCacheProvider>
+                  </ActionSheetProvider>
+                </SafeAreaProvider>
+              </InputStateContainer>
+            </RootContext.Provider>
+          </NavContext.Provider>
+        </FeatureFlagsProvider>
       </StaffContextProvider>
     </GestureHandlerRootView>
   );
