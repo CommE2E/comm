@@ -8,8 +8,10 @@ on:
 jobs:
   windows-build:
     uses: ./.github/workflows/windows_ci.yml
+    secrets: inherit
   macos-build:
     uses: ./.github/workflows/macos_ci.yml
+    secrets: inherit
   release:
     name: Release
     runs-on: ubuntu-latest
