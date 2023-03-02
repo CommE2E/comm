@@ -4,6 +4,7 @@ pub mod register_user;
 pub mod identity {
   tonic::include_proto!("identity");
 }
+pub mod update_user;
 
 use comm_opaque::Cipher;
 use identity::identity_service_client::IdentityServiceClient;
