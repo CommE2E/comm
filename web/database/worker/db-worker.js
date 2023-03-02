@@ -2,7 +2,13 @@
 
 import localforage from 'localforage';
 
-import { type SharedWorkerMessageEvent } from '../../types/worker-types.js';
+import {
+  type SharedWorkerMessageEvent,
+  type WorkerRequestMessage,
+  type WorkerResponseMessage,
+  workerRequestMessageTypes,
+  workerResponseMessageTypes,
+} from '../../types/worker-types.js';
 
 const localforageConfig: PartialConfig = {
   driver: localforage.INDEXEDDB,
@@ -13,6 +19,19 @@ const localforageConfig: PartialConfig = {
 };
 localforage.config(localforageConfig);
 
+function processAppRequest(
+  message: WorkerRequestMessage,
+): ?WorkerResponseMessage {
+  if (message.type === workerRequestMessageTypes.PING) {
+    return {
+      type: workerResponseMessageTypes.PONG,
+      text: 'PONG',
+    };
+  }
+
+  throw new Error('Request type not supported');
+}
+
 function connectHandler(event: SharedWorkerMessageEvent) {
   if (!event.ports.length) {
     return;
@@ -21,9 +40,16 @@ function connectHandler(event: SharedWorkerMessageEvent) {
   console.log('Web database worker alive!');
 
   port.onmessage = async function (messageEvent: MessageEvent) {
-    console.log('message from main thread: ', messageEvent.data);
+    const message: WorkerRequestMessage = (messageEvent.data: any);
 
-    port.postMessage({ message: 'response from worker' });
+    try {
+      const result = processAppRequest(message);
+      port.postMessage(result);
+    } catch (e) {
+      port.postMessage({
+        error: e,
+      });
+    }
   };
 }
 
