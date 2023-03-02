@@ -8,6 +8,7 @@
 #include "MessageSpecs/CreateThreadMessageSpec.h"
 #include "MessageSpecs/DeleteEntryMessageSpec.h"
 #include "MessageSpecs/EditEntryMessageSpec.h"
+#include "MessageSpecs/EditMessageSpec.h"
 #include "MessageSpecs/MessageSpec.h"
 #include "MessageSpecs/MultimediaMessageSpec.h"
 #include "MessageSpecs/ReactionMessageSpec.h"
@@ -42,6 +43,7 @@ enum class MessageType {
   SIDEBAR_SOURCE,
   CREATE_SIDEBAR,
   REACTION,
+  EDIT_MESSAGE,
 };
 
 const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
@@ -91,6 +93,8 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
       message_specs_initializer.insert(
           {MessageType::SIDEBAR_SOURCE,
            std::make_unique<SidebarSourceMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::EDIT_MESSAGE, std::make_unique<EditMessageSpec>()});
       return message_specs_initializer;
     }();
 
