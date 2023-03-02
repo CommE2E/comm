@@ -3,6 +3,7 @@
 import fs from 'fs';
 
 import { policyTypes } from 'lib/facts/policies.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
@@ -201,6 +202,39 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
         `,
         { multipleStatements: true },
       );
+    },
+  ],
+  [
+    18,
+    async () => {
+      const managePinsExtractString = `$.${threadPermissions.MANAGE_PINS}.value`;
+      const descendantManagePinsExtractString = `$.descendant_${threadPermissions.MANAGE_PINS}.value`;
+      await dbQuery(
+        SQL`
+          CREATE TABLE IF NOT EXISTS pinned_messages (
+            messageID bigint(20) NOT NULL,
+            thread bigint(20) NOT NULL,
+            pin_time bigint(20) NOT NULL
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+          ALTER TABLE pinned_messages
+            ADD INDEX IF NOT EXISTS thread (thread);
+
+          UPDATE roles
+          SET permissions = JSON_SET(
+            permissions, ${managePinsExtractString}, TRUE
+          )
+          WHERE name = "Admins";
+        
+          UPDATE roles
+          SET permissions = JSON_SET(
+            permissions, ${descendantManagePinsExtractString}, TRUE
+          )
+          WHERE name = "Admins";
+        `,
+        { multipleStatements: true },
+      );
+      await updateRolesAndPermissionsForAllThreads();
     },
   ],
 ]);
