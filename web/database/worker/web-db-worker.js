@@ -8,6 +8,7 @@ import {
   type WorkerResponseMessage,
   workerRequestMessageTypes,
   workerResponseMessageTypes,
+  type WorkerRequestProxyMessage,
 } from '../../types/worker-types.js';
 
 const localforageConfig: PartialConfig = {
@@ -37,13 +38,24 @@ function connectHandler(event: SharedWorkerMessageEvent) {
   console.log('Web database worker alive!');
 
   port.onmessage = async function (messageEvent: MessageEvent) {
-    const message: WorkerRequestMessage = (messageEvent.data: any);
+    const data: WorkerRequestProxyMessage = (messageEvent.data: any);
+    const { id, message } = data;
+
+    if (!id) {
+      port.postMessage({
+        error: new Error('Request without identifier'),
+      });
+    }
 
     try {
       const result = processAppRequest(message);
-      port.postMessage(result);
+      port.postMessage({
+        id,
+        message: result,
+      });
     } catch (e) {
       port.postMessage({
+        id,
         error: e,
       });
     }
