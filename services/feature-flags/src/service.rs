@@ -1,10 +1,9 @@
 use crate::config::CONFIG;
 use crate::constants::{PLATFORM_ANDROID, PLATFORM_IOS};
 use crate::database::{DatabaseClient, FeatureConfig, Platform};
-use actix_web::http::header::ContentType;
 use actix_web::{web, App, HttpResponse, HttpServer};
 use comm_services_lib::database::Error;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 pub struct FeatureFlagsService {
@@ -49,10 +48,10 @@ impl FeatureFlagsService {
     .await
     {
       Ok(features) => {
-        let response_body = features.into_iter().collect::<Vec<_>>().join(",");
-        HttpResponse::Ok()
-          .content_type(ContentType::plaintext())
-          .body(response_body)
+        let response_body = FeaturesResponse {
+          enabled_features: features,
+        };
+        HttpResponse::Ok().json(response_body)
       }
       _ => HttpResponse::InternalServerError().finish(),
     }
@@ -101,6 +100,11 @@ impl FeatureFlagsService {
         }
       })
   }
+}
+
+#[derive(Serialize)]
+struct FeaturesResponse {
+  enabled_features: HashSet<String>,
 }
 
 #[derive(Deserialize, Debug)]
