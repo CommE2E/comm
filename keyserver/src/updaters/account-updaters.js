@@ -1,5 +1,6 @@
 // @flow
 
+import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import type {
@@ -47,7 +48,16 @@ async function accountUpdater(
   const saveQuery = SQL`
     UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
   `;
-  await dbQuery(saveQuery);
+  const rustApi = await getRustAPI();
+  const dbPromise = dbQuery(saveQuery);
+  const updateIdentityUserPromise = rustApi.updateUser(
+    viewer.userID,
+    'placeholder-device-id',
+    'placeholder-name',
+    newPassword,
+    'placeholder-public-key',
+  );
+  Promise.all[(dbPromise, updateIdentityUserPromise)];
 
   const updateDatas = [
     {
