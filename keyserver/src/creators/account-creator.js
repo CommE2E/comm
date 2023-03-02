@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import ashoat from 'lib/facts/ashoat.js';
@@ -16,7 +17,10 @@ import type {
   RegisterResponse,
   RegisterRequest,
 } from 'lib/types/account-types.js';
-import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
+import type {
+  SignedIdentityKeysBlob,
+  IdentityKeysBlob,
+} from 'lib/types/crypto-types.js';
 import type {
   PlatformDetails,
   DeviceTokenUpdateRequest,
@@ -45,6 +49,7 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers.js';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
 import { createNewUserCookie, setNewSession } from '../session/cookies.js';
 import { createScriptViewer } from '../session/scripts.js';
 import type { Viewer } from '../session/viewer.js';
@@ -81,7 +86,7 @@ async function createAccount(
     WHERE LCASE(username) = LCASE(${request.username})
   `;
   const promises = [dbQuery(usernameQuery)];
-  const { calendarQuery } = request;
+  const { calendarQuery, signedIdentityKeysBlob } = request;
   if (calendarQuery) {
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
@@ -117,7 +122,7 @@ async function createAccount(
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
-      signedIdentityKeysBlob: request.signedIdentityKeysBlob,
+      signedIdentityKeysBlob: signedIdentityKeysBlob,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
@@ -178,18 +183,35 @@ async function createAccount(
     text: message,
   }));
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
-  const [messageInfos, threadsResult, userInfos, currentUserInfo] =
+  const [messageInfos, threadsResult, userInfos, currentUserInfo, rustAPI] =
     await Promise.all([
       createMessages(viewer, messageDatas),
       fetchThreadInfos(viewer),
       fetchKnownUserInfos(viewer),
       fetchLoggedInUserInfo(viewer),
+      getRustAPI(),
     ]);
   const rawMessageInfos = [
     ...ashoatThreadResult.newMessageInfos,
     ...privateThreadResult.newMessageInfos,
     ...messageInfos,
   ];
+
+  if (signedIdentityKeysBlob) {
+    const identityKeys: IdentityKeysBlob = JSON.parse(
+      signedIdentityKeysBlob.payload,
+    );
+
+    handleAsyncPromise(
+      rustAPI.registerUser(
+        id,
+        identityKeys.primaryIdentityPublicKeys.ed25519,
+        request.username,
+        request.password,
+        signedIdentityKeysBlob,
+      ),
+    );
+  }
 
   return {
     id,
