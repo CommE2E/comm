@@ -452,7 +452,7 @@ function useMessageReactAction(
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
 
-  const { setRenderEmojiKeyboard } = useTooltipContext();
+  const { setShouldRenderEmojiKeyboard } = useTooltipContext();
 
   const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
     threadInfo,
@@ -467,10 +467,10 @@ function useMessageReactAction(
     const buttonContent = <CommIcon icon="emote-smile-filled" size={18} />;
 
     const onClickReact = () => {
-      if (!setRenderEmojiKeyboard) {
+      if (!setShouldRenderEmojiKeyboard) {
         return;
       }
-      setRenderEmojiKeyboard(true);
+      setShouldRenderEmojiKeyboard(true);
     };
 
     return {
@@ -478,7 +478,7 @@ function useMessageReactAction(
       onClick: onClickReact,
       label: 'React',
     };
-  }, [canCreateReactionFromMessage, setRenderEmojiKeyboard]);
+  }, [canCreateReactionFromMessage, setShouldRenderEmojiKeyboard]);
 }
 
 function useMessageTooltipActions(
@@ -548,13 +548,12 @@ function createTooltip(params: CreateTooltipParams) {
     tooltipSize,
   });
 
-  const { alignment } = tooltipPositionStyle;
-
   const tooltip = (
     <MessageTooltip
       actions={tooltipActions}
       messageTimestamp={messageTimestamp}
-      alignment={alignment}
+      tooltipPositionStyle={tooltipPositionStyle}
+      tooltipSize={tooltipSize}
       item={item}
       threadInfo={threadInfo}
     />
