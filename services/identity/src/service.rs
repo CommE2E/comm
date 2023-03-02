@@ -56,6 +56,7 @@ mod proto {
 
 mod login;
 mod registration;
+mod update;
 
 #[derive(Debug)]
 enum PakeWorkflow {
@@ -294,7 +295,21 @@ impl IdentityService for MyIdentityService {
     &self,
     request: Request<tonic::Streaming<UpdateUserRequest>>,
   ) -> Result<Response<Self::UpdateUserStream>, Status> {
-    unimplemented!();
+    let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
+    let db_client = self.client.clone();
+
+    tokio::spawn(async move {
+      update::handle_server_update_user_messages(
+        request.into_inner(),
+        db_client,
+        tx,
+      )
+      .await;
+    });
+
+    let out_stream = ReceiverStream::new(rx);
+
+    Ok(Response::new(Box::pin(out_stream) as Self::UpdateUserStream))
   }
 
   type UpdateUserStream = Pin<
