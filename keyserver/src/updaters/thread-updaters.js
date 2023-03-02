@@ -23,6 +23,7 @@ import {
   type UpdateThreadRequest,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
+  type ToggleMessagePinRequest,
   threadPermissions,
   threadTypes,
 } from 'lib/types/thread-types.js';
@@ -841,6 +842,40 @@ async function updateThreadMembers(viewer: Viewer) {
   await createUpdates(updateDatas);
 }
 
+async function toggleMessagePinForThread(
+  viewer: Viewer,
+  request: ToggleMessagePinRequest,
+): Promise<void> {
+  const { messageID, threadID, isPinned } = request;
+
+  const hasPermission = await checkThreadPermission(
+    viewer,
+    threadID,
+    threadPermissions.MANAGE_PINS,
+  );
+
+  // Verify that the viewer has the proper credentials to manage pins
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  // Toggle the pin status: if the message is pinned, unpin it, and vice versa
+  let togglePinQuery;
+  if (isPinned) {
+    togglePinQuery = SQL`
+      DELETE FROM pinned_messages 
+      WHERE messageID = ${messageID} AND thread = ${threadID}
+    `;
+  } else {
+    togglePinQuery = SQL`
+      INSERT INTO pinned_messages (messageID, thread, pin_time) 
+      VALUES (${messageID}, ${threadID}, ${Date.now()})
+    `;
+  }
+
+  await dbQuery(togglePinQuery);
+}
+
 export {
   updateRole,
   removeMembers,
@@ -848,4 +883,5 @@ export {
   updateThread,
   joinThread,
   updateThreadMembers,
+  toggleMessagePinForThread,
 };
