@@ -59,7 +59,7 @@ pub async fn handle_registration_request(
 pub async fn handle_registration_upload_and_credential_request(
   message: Option<Result<RegistrationRequest, Status>>,
   tx: mpsc::Sender<Result<RegistrationResponse, Status>>,
-  client: DatabaseClient,
+  client: &DatabaseClient,
   registration_state: &RegistrationState,
   pake_state: ServerRegistration<Cipher>,
 ) -> Result<ServerLogin<Cipher>, Status> {
@@ -72,7 +72,7 @@ pub async fn handle_registration_upload_and_credential_request(
     })) => {
       let response_and_state = match pake_registration_finish(
         &registration_state.user_id,
-        client.clone(),
+        client,
         &pake_registration_upload_and_credential_request
           .pake_registration_upload,
         pake_state,
@@ -112,7 +112,7 @@ pub async fn handle_registration_upload_and_credential_request(
 pub async fn handle_credential_finalization(
   message: Option<Result<RegistrationRequest, Status>>,
   tx: mpsc::Sender<Result<RegistrationResponse, Status>>,
-  client: DatabaseClient,
+  client: &DatabaseClient,
   registration_state: &RegistrationState,
   server_login: ServerLogin<Cipher>,
 ) -> Result<(), Status> {

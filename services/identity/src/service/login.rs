@@ -7,7 +7,7 @@ pub struct LoginState {
 pub async fn handle_login_request(
   message: Option<Result<LoginRequest, Status>>,
   tx: mpsc::Sender<Result<LoginResponse, Status>>,
-  client: DatabaseClient,
+  client: &DatabaseClient,
 ) -> Result<Option<LoginState>, Status> {
   match message {
     Some(Ok(LoginRequest {
@@ -72,7 +72,7 @@ pub async fn handle_credential_finalization(
       let login_finish_result = pake_login_finish(
         &login_state.user_id,
         &login_state.signing_public_key,
-        client,
+        &client,
         login_state.pake_state,
         &pake_credential_finalization,
         &mut OsRng,
