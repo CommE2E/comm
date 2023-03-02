@@ -109,6 +109,13 @@ const baseWebWorkersConfig = {
     filename: '[name].build.js',
     path: path.join(__dirname, 'dist', 'webworkers'),
   },
+  resolve: {
+    fallback: {
+      crypto: false,
+      fs: false,
+      path: false,
+    },
+  },
 };
 
 module.exports = function (env) {
