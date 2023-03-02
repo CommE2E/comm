@@ -43,6 +43,7 @@ import {
   threadCreationResponder,
   threadFetchMediaResponder,
   threadJoinResponder,
+  toggleMessagePinResponder,
 } from './responders/thread-responders.js';
 import {
   userSubscriptionUpdateResponder,
@@ -185,6 +186,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   set_thread_unread_status: {
     responder: threadSetUnreadStatusResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  toggle_message_pin: {
+    responder: toggleMessagePinResponder,
     requiredPolicies: baseLegalPolicies,
   },
   update_account: {
