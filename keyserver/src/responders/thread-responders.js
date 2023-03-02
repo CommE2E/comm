@@ -17,6 +17,7 @@ import {
   type ThreadJoinResult,
   type ThreadFetchMediaResult,
   type ThreadFetchMediaRequest,
+  type ToggleMessagePinRequest,
   threadTypes,
 } from 'lib/types/thread-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
@@ -42,6 +43,7 @@ import {
   leaveThread,
   updateThread,
   joinThread,
+  toggleMessagePinForThread,
 } from '../updaters/thread-updaters.js';
 import { validateInput } from '../utils/validation-utils.js';
 
@@ -195,6 +197,19 @@ async function threadFetchMediaResponder(
   return await fetchMediaForThread(viewer, request);
 }
 
+const toggleMessagePinRequestInputValidator = tShape({
+  messageID: t.String,
+  action: t.enums.of(['pin', 'unpin']),
+});
+async function toggleMessagePinResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: ToggleMessagePinRequest = input;
+  await validateInput(viewer, toggleMessagePinRequestInputValidator, request);
+  await toggleMessagePinForThread(viewer, request);
+}
+
 export {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -205,4 +220,5 @@ export {
   threadJoinResponder,
   threadFetchMediaResponder,
   newThreadRequestInputValidator,
+  toggleMessagePinResponder,
 };
