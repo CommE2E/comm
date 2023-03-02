@@ -103,7 +103,7 @@ impl IdentityService for MyIdentityService {
       registration::handle_registration_upload_and_credential_request(
         second_message,
         tx.clone(),
-        self.client.clone(),
+        &self.client,
         &registration_state,
         pake_state,
       )
@@ -112,7 +112,7 @@ impl IdentityService for MyIdentityService {
     registration::handle_credential_finalization(
       third_message,
       tx,
-      self.client.clone(),
+      &self.client,
       &registration_state,
       server_login,
     )
@@ -136,12 +136,9 @@ impl IdentityService for MyIdentityService {
     let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
 
     let first_message = in_stream.next().await;
-    let login_state = login::handle_login_request(
-      first_message,
-      tx.clone(),
-      self.client.clone(),
-    )
-    .await?;
+    let login_state =
+      login::handle_login_request(first_message, tx.clone(), &self.client)
+        .await?;
 
     // login_state will be None if user is logging in with a wallet
     if let Some(state) = login_state {
@@ -280,7 +277,7 @@ impl IdentityService for MyIdentityService {
 }
 
 async fn put_token_helper(
-  client: DatabaseClient,
+  client: &DatabaseClient,
   auth_type: AuthType,
   user_id: &str,
   signing_public_key: &str,
@@ -352,7 +349,7 @@ fn parse_and_verify_siwe_message(
 }
 
 async fn wallet_login_helper(
-  client: DatabaseClient,
+  client: &DatabaseClient,
   wallet_login_request: WalletLoginRequestStruct,
   rng: &mut (impl Rng + CryptoRng),
 ) -> Result<LoginResponse, Status> {
@@ -386,7 +383,7 @@ async fn wallet_login_helper(
 }
 
 async fn pake_login_start(
-  client: DatabaseClient,
+  client: &DatabaseClient,
   user_id: &str,
   pake_credential_request: &[u8],
 ) -> Result<LoginResponseAndPakeState, Status> {
@@ -422,7 +419,7 @@ async fn pake_login_start(
 async fn pake_login_finish(
   user_id: &str,
   signing_public_key: &str,
-  client: DatabaseClient,
+  client: &DatabaseClient,
   server_login: ServerLogin<Cipher>,
   pake_credential_finalization: &Vec<u8>,
   rng: &mut (impl Rng + CryptoRng),
@@ -479,7 +476,7 @@ async fn server_register_response(
 
 async fn pake_registration_finish(
   user_id: &str,
-  client: DatabaseClient,
+  client: &DatabaseClient,
   registration_upload_bytes: &Vec<u8>,
   server_registration: ServerRegistration<Cipher>,
   username: &str,
