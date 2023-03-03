@@ -1148,6 +1148,7 @@ dependencies = [
  "curve25519-dalek",
  "derive_more",
  "futures-core",
+ "hex",
  "once_cell",
  "opaque-ke",
  "prost",
