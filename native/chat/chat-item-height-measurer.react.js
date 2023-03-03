@@ -99,6 +99,7 @@ function ChatItemHeightMeasurer(props: Props) {
           threadCreatedFromMessage: item.threadCreatedFromMessage,
           pendingUploads,
           reactions: item.reactions,
+          hasBeenEdited: item.hasBeenEdited,
           ...sizes,
         };
       }
@@ -124,6 +125,7 @@ function ChatItemHeightMeasurer(props: Props) {
           threadCreatedFromMessage: item.threadCreatedFromMessage,
           contentHeight: height,
           reactions: item.reactions,
+          hasBeenEdited: item.hasBeenEdited,
         };
       }
       invariant(
@@ -148,6 +150,7 @@ function ChatItemHeightMeasurer(props: Props) {
         robotext: item.robotext,
         contentHeight: height,
         reactions: item.reactions,
+        hasBeenEdited: item.hasBeenEdited,
       };
     },
     [composedMessageMaxWidth, inputStatePendingUploads, threadInfo],
