@@ -9,7 +9,7 @@ pub struct RegistrationState {
 
 pub async fn handle_registration_request(
   message: Option<Result<RegistrationRequest, Status>>,
-  client: DatabaseClient,
+  client: &DatabaseClient,
   tx: mpsc::Sender<Result<RegistrationResponse, Status>>,
 ) -> Result<RegistrationState, Status> {
   match message {
