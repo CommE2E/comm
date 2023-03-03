@@ -204,7 +204,7 @@ pub async fn login_user_wallet(
   user_id: String,
   signing_public_key: String,
   siwe_message: String,
-  siwe_signature: Vec<u8>,
+  siwe_signature: String,
 ) -> Result<String, Status> {
   // Create a LoginRequest channel and use ReceiverStream to turn the
   // MPSC receiver into a Stream for outbound messages

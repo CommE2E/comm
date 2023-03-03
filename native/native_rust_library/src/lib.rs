@@ -82,7 +82,7 @@ mod ffi {
       user_id: String,
       signing_public_key: String,
       siwe_message: String,
-      siwe_signature: Vec<u8>,
+      siwe_signature: String,
     ) -> Result<String>;
 
     // Tunnelbroker Service Client
@@ -171,7 +171,7 @@ fn identity_login_user_wallet_blocking(
   user_id: String,
   signing_public_key: String,
   siwe_message: String,
-  siwe_signature: Vec<u8>,
+  siwe_signature: String,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::login_user_wallet(
     client,

@@ -335,7 +335,7 @@ fn parse_and_verify_siwe_message(
   user_id: &str,
   signing_public_key: &str,
   siwe_message: &str,
-  siwe_signature: Vec<u8>,
+  siwe_signature: &str,
 ) -> Result<(), Status> {
   if user_id.is_empty() || signing_public_key.is_empty() {
     error!(
@@ -352,7 +352,7 @@ fn parse_and_verify_siwe_message(
     }
   };
   match siwe_message.verify(
-    match siwe_signature.try_into() {
+    match siwe_signature.as_bytes().try_into() {
       Ok(s) => s,
       Err(e) => {
         error!("Conversion to SIWE signature failed: {:?}", e);
@@ -383,7 +383,7 @@ async fn wallet_login_helper(
     &wallet_login_request.user_id,
     &wallet_login_request.signing_public_key,
     &wallet_login_request.siwe_message,
-    wallet_login_request.siwe_signature,
+    &wallet_login_request.siwe_signature,
   )?;
   client
     .update_users_table(
