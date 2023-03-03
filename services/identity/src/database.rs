@@ -122,14 +122,6 @@ impl DatabaseClient {
         .insert(":u".to_string(), AttributeValue::S(username));
     };
     if let Some(public_key) = signing_public_key {
-      update_expression_parts.push(format!(
-        "{}.#{} = :k",
-        USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
-      ));
-      expression_attribute_names.insert(
-        format!("#{}", USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME),
-        public_key,
-      );
       let device_info = match session_initialization_info {
         Some(info) => info
           .iter()
@@ -137,8 +129,30 @@ impl DatabaseClient {
           .collect(),
         None => HashMap::new(),
       };
-      expression_attribute_values
-        .insert(":k".to_string(), AttributeValue::M(device_info));
+
+      // How we construct the update expression will depend on whether the user
+      // already exists or not
+      if let GetItemOutput { item: Some(_), .. } =
+        self.get_item_from_users_table(&user_id).await?
+      {
+        update_expression_parts.push(format!(
+          "{}.#{} = :k",
+          USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
+        ));
+        expression_attribute_names.insert(
+          format!("#{}", USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME),
+          public_key,
+        );
+        expression_attribute_values
+          .insert(":k".to_string(), AttributeValue::M(device_info));
+      } else {
+        update_expression_parts
+          .push(format!("{} = :k", USERS_TABLE_DEVICES_ATTRIBUTE));
+        let mut devices = HashMap::new();
+        devices.insert(public_key, AttributeValue::M(device_info));
+        expression_attribute_values
+          .insert(":k".to_string(), AttributeValue::M(devices));
+      };
     };
 
     self
