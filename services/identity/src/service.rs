@@ -351,8 +351,15 @@ fn parse_and_verify_siwe_message(
       return Err(Status::invalid_argument("invalid message"));
     }
   };
+
+  let decoded_signature = hex::decode(siwe_signature.trim_start_matches("0x"))
+    .map_err(|e| {
+      error!("Failed to decode SIWE signature: {}", e);
+      Status::invalid_argument("invalid signature")
+    })?;
+
   match siwe_message.verify(
-    match siwe_signature.as_bytes().try_into() {
+    match decoded_signature.try_into() {
       Ok(s) => s,
       Err(e) => {
         error!("Conversion to SIWE signature failed: {:?}", e);

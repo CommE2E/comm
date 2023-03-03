@@ -26,6 +26,7 @@ constant_time_eq = "0.2.2"
 siwe = "0.3"
 comm-opaque = { path = "../../shared/comm-opaque" }
 once_cell = "1.17"
+hex = "0.4"
 
 [build-dependencies]
 tonic-build = "0.8"
