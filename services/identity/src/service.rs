@@ -87,41 +87,46 @@ impl IdentityService for MyIdentityService {
   ) -> Result<Response<Self::RegisterUserStream>, Status> {
     let mut in_stream = request.into_inner();
     let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
-    let first_message = in_stream.next().await;
-    let mut registration_state = registration::handle_registration_request(
-      first_message,
-      self.client.clone(),
-      tx.clone(),
-    )
-    .await?;
-    // ServerRegistration in opaque-ke v1.2 doesn't implement Clone, so we
-    // have to take the value out of registration_state, replacing it with None
-    let pake_state =
-      if let Some(pake_state) = registration_state.pake_state.take() {
-        pake_state
-      } else {
-        error!("registration_state is missing opaque-ke ServerRegistration");
-        return Err(Status::failed_precondition("internal error"));
-      };
-    let second_message = in_stream.next().await;
-    let server_login =
-      registration::handle_registration_upload_and_credential_request(
-        second_message,
+    let client = self.client.clone();
+
+    tokio::spawn(async move {
+      let first_message = in_stream.next().await;
+      let mut registration_state = registration::handle_registration_request(
+        first_message,
+        &client,
         tx.clone(),
-        &self.client,
-        &registration_state,
-        pake_state,
       )
       .await?;
-    let third_message = in_stream.next().await;
-    registration::handle_credential_finalization(
-      third_message,
-      tx,
-      &self.client,
-      &registration_state,
-      server_login,
-    )
-    .await?;
+      // ServerRegistration in opaque-ke v1.2 doesn't implement Clone, so we
+      // have to take the value out of registration_state, replacing it with None
+      let pake_state =
+        if let Some(pake_state) = registration_state.pake_state.take() {
+          pake_state
+        } else {
+          error!("registration_state is missing opaque-ke ServerRegistration");
+          return Err(Status::failed_precondition("internal error"));
+        };
+      let second_message = in_stream.next().await;
+      let server_login =
+        registration::handle_registration_upload_and_credential_request(
+          second_message,
+          tx.clone(),
+          &client,
+          &registration_state,
+          pake_state,
+        )
+        .await?;
+      let third_message = in_stream.next().await;
+      registration::handle_credential_finalization(
+        third_message,
+        tx,
+        &client,
+        &registration_state,
+        server_login,
+      )
+      .await?;
+      Ok(())
+    });
 
     let out_stream = ReceiverStream::new(rx);
     Ok(Response::new(
@@ -139,23 +144,26 @@ impl IdentityService for MyIdentityService {
   ) -> Result<Response<Self::LoginUserStream>, Status> {
     let mut in_stream = request.into_inner();
     let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
+    let client = self.client.clone();
 
-    let first_message = in_stream.next().await;
-    let login_state =
-      login::handle_login_request(first_message, tx.clone(), &self.client)
+    tokio::spawn(async move {
+      let first_message = in_stream.next().await;
+      let login_state =
+        login::handle_login_request(first_message, tx.clone(), &client).await?;
+
+      // login_state will be None if user is logging in with a wallet
+      if let Some(state) = login_state {
+        let second_message = in_stream.next().await;
+        login::handle_credential_finalization(
+          second_message,
+          tx,
+          &client,
+          state,
+        )
         .await?;
-
-    // login_state will be None if user is logging in with a wallet
-    if let Some(state) = login_state {
-      let second_message = in_stream.next().await;
-      login::handle_credential_finalization(
-        second_message,
-        tx,
-        self.client.clone(),
-        state,
-      )
-      .await?;
-    }
+      }
+      Ok::<(), Status>(())
+    });
 
     let out_stream = ReceiverStream::new(rx);
     Ok(Response::new(Box::pin(out_stream) as Self::LoginUserStream))
@@ -520,7 +528,12 @@ async fn pake_registration_start(
 ) -> Result<RegistrationResponseAndPakeState, Status> {
   match ServerRegistration::<Cipher>::start(
     rng,
-    PakeRegistrationRequest::deserialize(registration_request_bytes).unwrap(),
+    PakeRegistrationRequest::deserialize(registration_request_bytes).map_err(
+      |e| {
+        error!("Failed to deserialize registration request bytes: {}", e);
+        Status::aborted("registration failed")
+      },
+    )?,
     CONFIG.server_keypair.public(),
   ) {
     Ok(server_registration_start_result) => {
