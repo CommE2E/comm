@@ -40,6 +40,10 @@ import type {
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
+import {
+  identityKeysBlobValidator,
+  signedIdentityKeysBlobValidator,
+} from 'lib/utils/crypto-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
@@ -193,11 +197,6 @@ const deviceTokenUpdateRequestInputValidator = tShape({
   deviceToken: t.String,
 });
 
-const signedIdentityKeysBlobValidator = tShape({
-  payload: t.String,
-  signature: t.String,
-});
-
 const registerRequestInputValidator = tShape({
   username: t.String,
   email: t.maybe(tEmail),
@@ -222,6 +221,9 @@ async function accountCreationResponder(
     const identityKeys: IdentityKeysBlob = JSON.parse(
       signedIdentityKeysBlob.payload,
     );
+    if (!identityKeysBlobValidator.is(identityKeys)) {
+      throw new ServerError('invalid_identity_keys_blob');
+    }
 
     const olmUtil: OLMUtility = getOLMUtility();
     try {
@@ -367,6 +369,9 @@ async function logInResponder(
     const identityKeys: IdentityKeysBlob = JSON.parse(
       signedIdentityKeysBlob.payload,
     );
+    if (!identityKeysBlobValidator.is(identityKeys)) {
+      throw new ServerError('invalid_identity_keys_blob');
+    }
 
     const olmUtil: OLMUtility = getOLMUtility();
     try {
@@ -505,6 +510,10 @@ async function siweAuthResponder(
   let identityKeys: ?IdentityKeysBlob;
   if (signedIdentityKeysBlob) {
     identityKeys = JSON.parse(signedIdentityKeysBlob.payload);
+    if (!identityKeysBlobValidator.is(identityKeys)) {
+      throw new ServerError('invalid_identity_keys_blob');
+    }
+
     const olmUtil: OLMUtility = getOLMUtility();
     try {
       olmUtil.ed25519_verify(
