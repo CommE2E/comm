@@ -49,7 +49,6 @@ async function deleteAccount(
 
   const deletedUserID = viewer.userID;
   await rescindPushNotifs(SQL`n.user = ${deletedUserID}`, SQL`NULL`);
-  const rustAPIPromise = getRustAPI();
   const knownUserInfos = await fetchKnownUserInfos(viewer);
   const usersToUpdate = values(knownUserInfos).filter(
     userID => userID !== deletedUserID,
@@ -97,9 +96,13 @@ async function deleteAccount(
       deviceToken: viewer.deviceToken,
     });
   }
-  promises.rustAPI = rustAPIPromise;
-  const { anonymousViewerData, rustAPI } = await promiseAll(promises);
-  handleAsyncPromise(rustAPI.deleteUser(deletedUserID));
+  const { anonymousViewerData } = await promiseAll(promises);
+  handleAsyncPromise(
+    (async () => {
+      const rustAPI = await getRustAPI();
+      await rustAPI.deleteUser(deletedUserID);
+    })(),
+  );
   if (anonymousViewerData) {
     viewer.setNewCookie(anonymousViewerData);
   }
