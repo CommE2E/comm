@@ -84,7 +84,7 @@ message WalletLoginRequest {
   // ed25519 key for the given user's device
   string signingPublicKey = 2;
   string siweMessage = 3;
-  bytes siweSignature = 4;
+  string siweSignature = 4;
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
   SessionInitializationInfo sessionInitializationInfo = 5;
