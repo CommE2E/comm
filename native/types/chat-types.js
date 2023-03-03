@@ -38,6 +38,7 @@ export type ChatTextMessageInfoItemWithHeight = {
   +contentHeight: number,
   +threadCreatedFromMessage: ?ThreadInfo,
   +reactions: ReactionInfo,
+  +hasBeenEdited: ?boolean,
 };
 
 export type MultimediaContentSizes = {
@@ -58,6 +59,7 @@ export type ChatMultimediaMessageInfoItem = {
   +threadCreatedFromMessage: ?ThreadInfo,
   +pendingUploads: ?MessagePendingUploads,
   +reactions: ReactionInfo,
+  +hasBeenEdited: ?boolean,
 };
 
 export type ChatMessageInfoItemWithHeight =
