@@ -565,7 +565,26 @@ async function siweAuthResponder(
     );
   }
 
-  // 9. Complete login with call to `processSuccessfulLogin(...)`.
+  // 9. Try to double-write SIWE account info to the Identity service
+  const userIDCopy = userID;
+  if (identityKeys && signedIdentityKeysBlob) {
+    const identityKeysCopy = identityKeys;
+    handleAsyncPromise(
+      (async () => {
+        const rustAPI = await getRustAPI();
+        rustAPI.loginUserWallet(
+          userIDCopy,
+          identityKeysCopy.primaryIdentityPublicKeys.ed25519,
+          siweMessage.toMessage(),
+          signature,
+          signedIdentityKeysBlob,
+          JSON.stringify(socialProof),
+        );
+      })(),
+    );
+  }
+
+  // 10. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin({
     viewer,
     input,
