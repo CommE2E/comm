@@ -405,10 +405,8 @@ async function logInResponder(
     WHERE LCASE(username) = LCASE(${username})
   `;
   promises.userQuery = dbQuery(userQuery);
-  promises.rustAPI = getRustAPI();
   const {
     userQuery: [userResult],
-    rustAPI,
   } = await promiseAll(promises);
 
   if (userResult.length === 0) {
@@ -428,13 +426,17 @@ async function logInResponder(
   const id = userRow.id.toString();
 
   if (identityKeys && signedIdentityKeysBlob) {
+    const constIdentityKeys = identityKeys;
     handleAsyncPromise(
-      rustAPI.loginUserPake(
-        id,
-        identityKeys.primaryIdentityPublicKeys.ed25519,
-        request.password,
-        signedIdentityKeysBlob,
-      ),
+      (async () => {
+        const rustAPI = await getRustAPI();
+        await rustAPI.loginUserPake(
+          id,
+          constIdentityKeys.primaryIdentityPublicKeys.ed25519,
+          request.password,
+          signedIdentityKeysBlob,
+        );
+      })(),
     );
   }
 
@@ -578,7 +580,7 @@ async function siweAuthResponder(
     handleAsyncPromise(
       (async () => {
         const rustAPI = await getRustAPI();
-        rustAPI.loginUserWallet(
+        await rustAPI.loginUserWallet(
           userIDCopy,
           identityKeysCopy.primaryIdentityPublicKeys.ed25519,
           siweMessage.toMessage(),

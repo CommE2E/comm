@@ -118,13 +118,12 @@ async function createAccount(
     VALUES ${[newUserRow]}
   `;
 
-  const [userViewerData, rustAPI] = await Promise.all([
+  const [userViewerData] = await Promise.all([
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
       signedIdentityKeysBlob,
     }),
-    getRustAPI(),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
   ]);
@@ -203,13 +202,16 @@ async function createAccount(
     );
 
     handleAsyncPromise(
-      rustAPI.registerUser(
-        id,
-        identityKeys.primaryIdentityPublicKeys.ed25519,
-        request.username,
-        request.password,
-        signedIdentityKeysBlob,
-      ),
+      (async () => {
+        const rustAPI = await getRustAPI();
+        await rustAPI.registerUser(
+          id,
+          identityKeys.primaryIdentityPublicKeys.ed25519,
+          request.username,
+          request.password,
+          signedIdentityKeysBlob,
+        );
+      })(),
     );
   }
 
