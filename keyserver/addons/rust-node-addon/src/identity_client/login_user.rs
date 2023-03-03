@@ -2,21 +2,72 @@ use super::*;
 
 #[napi]
 #[instrument(skip_all)]
+async fn login_user_wallet(
+  user_id: String,
+  signing_public_key: String,
+  siwe_message: String,
+  siwe_signature: String,
+  mut session_initialization_info: HashMap<String, String>,
+  social_proof: String,
+) -> Result<String> {
+  let channel = get_identity_service_channel().await?;
+  let token: MetadataValue<_> = AUTH_TOKEN
+    .parse()
+    .map_err(|_| Error::from_status(Status::GenericFailure))?;
+  let mut identity_client =
+    IdentityServiceClient::with_interceptor(channel, |mut req: Request<()>| {
+      req.metadata_mut().insert("authorization", token.clone());
+      Ok(req)
+    });
+
+  // Create a LoginRequest channel and use ReceiverStream to turn the
+  // MPSC receiver into a Stream for outbound messages
+  let (tx, rx) = mpsc::channel(1);
+  let stream = ReceiverStream::new(rx);
+  let request = Request::new(stream);
+
+  let mut response_stream = identity_client
+    .login_user(request)
+    .await
+    .map_err(|_| Error::from_status(Status::GenericFailure))?
+    .into_inner();
+
+  // Start wallet login on client and send initial login request to Identity
+  // service
+  session_initialization_info.insert("socialProof".to_string(), social_proof);
+  let login_request = LoginRequest {
+    data: Some(WalletLoginRequest(WalletLoginRequestStruct {
+      user_id,
+      signing_public_key,
+      siwe_message,
+      siwe_signature,
+      session_initialization_info: Some(SessionInitializationInfo {
+        info: session_initialization_info,
+      }),
+    })),
+  };
+  if let Err(e) = tx.send(login_request).await {
+    error!("Response was dropped: {}", e);
+    return Err(Error::from_status(Status::GenericFailure));
+  }
+
+  // Return access token
+  let message = response_stream.message().await.map_err(|e| {
+    error!("Received an error from inbound message stream: {}", e);
+    Error::from_status(Status::GenericFailure)
+  })?;
+  get_wallet_access_token(message)
+}
+
+#[napi]
+#[instrument(skip_all)]
 async fn login_user_pake(
   user_id: String,
   signing_public_key: String,
   password: String,
   session_initialization_info: HashMap<String, String>,
 ) -> Result<String> {
-  let channel = Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
-    .connect()
-    .await
-    .map_err(|_| {
-      Error::new(
-        Status::GenericFailure,
-        "Unable to connect to identity service".to_string(),
-      )
-    })?;
+  let channel = get_identity_service_channel().await?;
   let token: MetadataValue<_> = AUTH_TOKEN
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
@@ -128,6 +179,19 @@ fn handle_login_token_response(
       Some(LoginPakeLoginResponse(PakeLoginResponseStruct {
         data: Some(AccessToken(access_token)),
       })),
+  }) = message
+  {
+    Ok(access_token)
+  } else {
+    Err(handle_unexpected_response(message))
+  }
+}
+
+fn get_wallet_access_token(
+  message: Option<LoginResponse>,
+) -> Result<String, Status> {
+  if let Some(LoginResponse {
+    data: Some(WalletLoginResponse(WalletLoginResponseStruct { access_token })),
   }) = message
   {
     Ok(access_token)

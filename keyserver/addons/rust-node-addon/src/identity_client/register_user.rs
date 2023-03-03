@@ -9,15 +9,7 @@ pub async fn register_user(
   password: String,
   session_initialization_info: HashMap<String, String>,
 ) -> Result<String> {
-  let channel = Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
-    .connect()
-    .await
-    .map_err(|_| {
-      Error::new(
-        Status::GenericFailure,
-        "Unable to connect to identity service".to_string(),
-      )
-    })?;
+  let channel = get_identity_service_channel().await?;
   let token: MetadataValue<_> = AUTH_TOKEN
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;

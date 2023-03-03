@@ -9,7 +9,9 @@ use comm_opaque::Cipher;
 use identity::identity_service_client::IdentityServiceClient;
 use identity::{
   login_request::Data::PakeLoginRequest,
+  login_request::Data::WalletLoginRequest,
   login_response::Data::PakeLoginResponse as LoginPakeLoginResponse,
+  login_response::Data::WalletLoginResponse,
   pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
   pake_login_request::Data::PakeCredentialRequestAndUserId,
   pake_login_response::Data::AccessToken,
@@ -26,7 +28,8 @@ use identity::{
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
   RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
-  SessionInitializationInfo,
+  SessionInitializationInfo, WalletLoginRequest as WalletLoginRequestStruct,
+  WalletLoginResponse as WalletLoginResponseStruct,
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
@@ -99,4 +102,16 @@ fn pake_login_finish(
       Error::from_status(Status::GenericFailure)
     })
     .map(|res| res.message)
+}
+
+async fn get_identity_service_channel() -> Result<Channel> {
+  Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
+    .connect()
+    .await
+    .map_err(|_| {
+      Error::new(
+        Status::GenericFailure,
+        "Unable to connect to identity service".to_string(),
+      )
+    })
 }
