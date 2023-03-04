@@ -11,7 +11,8 @@ async fn login_user_wallet(
   social_proof: String,
 ) -> Result<String> {
   let channel = get_identity_service_channel().await?;
-  let token: MetadataValue<_> = AUTH_TOKEN
+  let token: MetadataValue<_> = IDENTITY_SERVICE_CONFIG
+    .identity_auth_token
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
   let mut identity_client =
@@ -68,7 +69,8 @@ async fn login_user_pake(
   session_initialization_info: HashMap<String, String>,
 ) -> Result<String> {
   let channel = get_identity_service_channel().await?;
-  let token: MetadataValue<_> = AUTH_TOKEN
+  let token: MetadataValue<_> = IDENTITY_SERVICE_CONFIG
+    .identity_auth_token
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
   let mut identity_client =
