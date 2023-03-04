@@ -5,7 +5,6 @@ use crate::identity_client::identity::{
   update_user_request, update_user_response, UpdateUserRequest,
   UpdateUserResponse,
 };
-use crate::identity_client::{AUTH_TOKEN, IDENTITY_SERVICE_SOCKET_ADDR};
 use comm_opaque::Cipher;
 use napi::bindgen_prelude::*;
 use opaque_ke::{
@@ -18,17 +17,17 @@ use rand::{rngs::OsRng, CryptoRng, Rng};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic;
-use tonic::{metadata::MetadataValue, transport::Channel};
+use tonic::metadata::MetadataValue;
 use tracing::{error, instrument};
+
+use super::{get_identity_service_channel, IDENTITY_SERVICE_CONFIG};
 
 #[napi]
 #[instrument(skip_all)]
 pub async fn update_user(user_id: String, password: String) -> Result<String> {
-  let channel = Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
-    .connect()
-    .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?;
-  let token: MetadataValue<_> = AUTH_TOKEN
+  let channel = get_identity_service_channel().await?;
+  let token: MetadataValue<_> = IDENTITY_SERVICE_CONFIG
+    .identity_auth_token
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
   let mut identity_client = IdentityServiceClient::with_interceptor(

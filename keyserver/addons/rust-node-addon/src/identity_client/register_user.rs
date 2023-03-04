@@ -10,7 +10,8 @@ pub async fn register_user(
   session_initialization_info: HashMap<String, String>,
 ) -> Result<String> {
   let channel = get_identity_service_channel().await?;
-  let token: MetadataValue<_> = AUTH_TOKEN
+  let token: MetadataValue<_> = IDENTITY_SERVICE_CONFIG
+    .identity_auth_token
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
   let mut identity_client =
