@@ -41,6 +41,7 @@ use opaque_ke::{
   CredentialResponse, RegistrationResponse, RegistrationUpload,
 };
 use rand::{rngs::OsRng, CryptoRng, Rng};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env::var;
 use tokio::sync::mpsc;
@@ -49,11 +50,30 @@ use tonic::{metadata::MetadataValue, transport::Channel, Request};
 use tracing::{error, instrument};
 
 lazy_static! {
-  pub static ref IDENTITY_SERVICE_SOCKET_ADDR: String =
-    var("COMM_IDENTITY_SERVICE_SOCKET_ADDR")
-      .unwrap_or_else(|_| "https://[::1]:50051".to_string());
-  pub static ref AUTH_TOKEN: String = var("COMM_IDENTITY_SERVICE_AUTH_TOKEN")
-    .unwrap_or_else(|_| "test".to_string());
+  static ref IDENTITY_SERVICE_CONFIG: IdentityServiceConfig = {
+    let config_json_string =
+      var("COMM_JSONCONFIG_secrets_identity_service_config");
+    match config_json_string {
+      Ok(json) => serde_json::from_str(&json).unwrap(),
+      Err(_) => IdentityServiceConfig::default(),
+    }
+  };
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct IdentityServiceConfig {
+  identity_socket_addr: String,
+  identity_auth_token: String,
+}
+
+impl Default for IdentityServiceConfig {
+  fn default() -> Self {
+    Self {
+      identity_socket_addr: "https://[::1]:50051".to_string(),
+      identity_auth_token: "test".to_string(),
+    }
+  }
 }
 
 fn handle_unexpected_response<T: std::fmt::Debug>(message: Option<T>) -> Error {
@@ -106,7 +126,7 @@ fn pake_login_finish(
 }
 
 async fn get_identity_service_channel() -> Result<Channel> {
-  Channel::from_static(&IDENTITY_SERVICE_SOCKET_ADDR)
+  Channel::from_static(&IDENTITY_SERVICE_CONFIG.identity_socket_addr)
     .connect()
     .await
     .map_err(|_| {
