@@ -571,7 +571,7 @@ async function siweAuthResponder(
     );
   }
 
-  // 9. Try to double-write SIWE account info to the Identity service
+  // 9. Try to double-write SIWE account info to the Identity service.
   const userIDCopy = userID;
   if (identityKeys && signedIdentityKeysBlob) {
     const identityKeysCopy = identityKeys;
