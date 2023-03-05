@@ -7,6 +7,7 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors.js';
 import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
   ClientClientResponse,
@@ -61,6 +62,7 @@ const nativeGetClientResponsesSelector: (
       getClientResponsesFunc: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+        getSignedIdentityKeysBlob: ?() => SignedIdentityKeysBlob,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
       ) => $ReadOnlyArray<ClientClientResponse>,
       calendarActive: boolean,
@@ -69,6 +71,7 @@ const nativeGetClientResponsesSelector: (
       getClientResponsesFunc(
         calendarActive,
         oneTimeKeyGenerator,
+        null,
         serverRequests,
       ),
 );
