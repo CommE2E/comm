@@ -31,6 +31,7 @@ import {
   type ServerCheckStateServerRequest,
 } from 'lib/types/request-types.js';
 import { sessionCheckFrequency } from 'lib/types/session-types.js';
+import { signedIdentityKeysBlobValidator } from 'lib/utils/crypto-utils.js';
 import { hash } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import {
@@ -119,6 +120,13 @@ const clientResponseInputValidator: TUnion<TInterface> = t.union([
       x => x === serverRequestTypes.MORE_ONE_TIME_KEYS,
     ),
     keys: t.list(t.String),
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB',
+      x => x === serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB,
+    ),
+    signedIdentityKeysBlob: signedIdentityKeysBlobValidator,
   }),
 ]);
 
