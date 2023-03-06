@@ -1,0 +1,27 @@
+div.topBarContainer {
+  display: flex;
+  background-color: var(--bg);
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  color: var(--thread-top-bar-color);
+  border-bottom: 1px solid var(--border);
+}
+
+div.topBarThreadInfo {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+}
+
+div.threadColorSquare {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+p.threadTitle {
+  font-size: var(--m-font-16);
+  font-weight: var(--bold);
+}
