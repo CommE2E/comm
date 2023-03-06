@@ -44,7 +44,7 @@ function filterThreadIDsBelongingToCommunity(
 const filterThreadIDsBelongingToCommunitySelector: (
   state: AppState,
 ) => ?$ReadOnlySet<string> = createSelector(
-  (state: AppState) => state.calendarPickedCommunityID,
+  (state: AppState) => state.pickedCommunityIDs.calendar,
   threadInfoSelector,
   (
     calendarPickedCommunityID: ?string,
@@ -60,9 +60,9 @@ const filterThreadIDsBelongingToCommunitySelector: (
   },
 );
 
-function useCommunityIsPicked(communityID: string): boolean {
+function useCommunityIsPickedCalendar(communityID: string): boolean {
   const calendarPickedCommunityID = useSelector(
-    state => state.calendarPickedCommunityID,
+    state => state.pickedCommunityIDs.calendar,
   );
   return communityID === calendarPickedCommunityID;
 }
@@ -72,5 +72,5 @@ export {
   useFilterThreadSearchIndex,
   filterThreadIDsBelongingToCommunitySelector,
   filterThreadIDsBelongingToCommunity,
-  useCommunityIsPicked,
+  useCommunityIsPickedCalendar,
 };

@@ -60,6 +60,11 @@ import { type NavInfo } from '../types/nav-types.js';
 
 export type WindowDimensions = { width: number, height: number };
 
+export type PickedCommunities = {
+  chat: ?string,
+  calendar: ?string,
+};
+
 export type AppState = {
   navInfo: NavInfo,
   deviceID: ?string,
@@ -73,7 +78,7 @@ export type AppState = {
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  calendarPickedCommunityID: ?string,
+  pickedCommunityIDs: PickedCommunities,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
@@ -153,14 +158,20 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
           threadIDs,
         },
       ],
-      calendarPickedCommunityID: action.payload,
+      pickedCommunityIDs: {
+        ...state.pickedCommunityIDs,
+        calendar: action.payload,
+      },
     };
   } else if (action.type === clearCalendarCommunityFilter) {
     const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
     return {
       ...state,
       calendarFilters: nonThreadFilters,
-      calendarPickedCommunityID: null,
+      pickedCommunityIDs: {
+        ...state.pickedCommunityIDs,
+        calendar: null,
+      },
     };
   } else if (action.type === setNewSessionActionType) {
     if (
