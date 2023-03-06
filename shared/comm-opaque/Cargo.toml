@@ -11,3 +11,8 @@ opaque-ke = "1.2"
 digest = "0.9"
 curve25519-dalek = "3.2"
 sha2 = "0.9"
+rand = "0.8"
+once_cell = "1.17"
+tonic = { version = "0.8", default-features = false }
+instrument = "0.2"
+log = "0.4"
