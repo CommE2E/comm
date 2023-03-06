@@ -1,0 +1,14 @@
+[package]
+name = "comm-opaque"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+argon2 = "0.4"
+log = "0.4"
+opaque-ke = { version = "2.0", features = [ "argon2" ] }
+rand = "0.8"
+tonic = { version = "0.8", default-features = false }

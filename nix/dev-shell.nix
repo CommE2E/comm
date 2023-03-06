@@ -40,6 +40,7 @@
 , sqlite
 , terraform
 , rustfmt
+, wasm-pack
 , yarn
 }:
 
@@ -62,6 +63,7 @@ mkShell {
     yarn
     python3
     redis
+    wasm-pack
 
     # native dependencies
     # C/CXX toolchains are already brought in with mkShell
