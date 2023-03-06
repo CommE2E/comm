@@ -1,0 +1,18 @@
+[package]
+name = "comm-opaque"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+argon2 = "0.4"
+curve25519-dalek = "3.2"
+digest = "0.9"
+instrument = "0.2"
+log = "0.4"
+once_cell = "1.17"
+opaque-ke = { version = "2.0", features = [ "argon2" ] }
+rand = "0.8"
+sha2 = "0.9"
+tonic = { version = "0.8", default-features = false }
