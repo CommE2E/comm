@@ -13,6 +13,10 @@
 #include <folly/json.h>
 #include <future>
 
+#ifdef __ANDROID__
+#include <fbjni/fbjni.h>
+#endif
+
 namespace comm {
 
 using namespace facebook::react;
@@ -800,8 +804,15 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
               });
             }
             try {
-              NotificationsCryptoModule::initializeNotificationsCryptoAccount(
-                  "Comm");
+              auto task = []() {
+                NotificationsCryptoModule::initializeNotificationsCryptoAccount(
+                    "Comm");
+              };
+#ifdef __ANDROID__
+              facebook::jni::ThreadScope::WithClassLoader(std::move(task));
+#else
+            task();
+#endif
             } catch (const std::exception &e) {
               error = e.what();
             }
@@ -833,8 +844,15 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
           }
           try {
             if (!error.size()) {
-              notificationsKeysResult =
-                  NotificationsCryptoModule::getNotificationsIdentityKeys();
+              auto task = [&notificationsKeysResult]() {
+                notificationsKeysResult =
+                    NotificationsCryptoModule::getNotificationsIdentityKeys();
+              };
+#ifdef __ANDROID__
+              facebook::jni::ThreadScope::WithClassLoader(std::move(task));
+#else
+            task();
+#endif
             }
           } catch (const std::exception &e) {
             error = e.what();
