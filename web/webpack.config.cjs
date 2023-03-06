@@ -86,6 +86,16 @@ const baseNodeServerRenderingConfig = {
 };
 
 const baseWebWorkersConfig = {
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'node_modules/sql.js/dist/sql-wasm.wasm',
+          to: path.join(__dirname, 'dist'),
+        },
+      ],
+    }),
+  ],
   entry: {
     pushNotif: './push-notif/service-worker.js',
   },
