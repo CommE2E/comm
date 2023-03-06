@@ -11,6 +11,7 @@ import css from './community-picker.css';
 import {
   clearCalendarCommunityFilter,
   updateNavInfoActionType,
+  clearChatCommunityFilter,
 } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -40,6 +41,9 @@ function CommunityPicker(): React.Node {
         dispatch({
           type: updateNavInfoActionType,
           payload: { tab: 'chat' },
+        });
+        dispatch({
+          type: clearChatCommunityFilter,
         });
       }
     },
