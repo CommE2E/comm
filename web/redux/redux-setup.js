@@ -43,6 +43,8 @@ import {
   updateWindowDimensionsActionType,
   updateCalendarCommunityFilter,
   clearCalendarCommunityFilter,
+  updateChatCommunityFilter,
+  clearChatCommunityFilter,
 } from './action-types.js';
 import {
   reduceCryptoStore,
@@ -124,6 +126,14 @@ export type Action =
   | {
       +type: 'CLEAR_CALENDAR_COMMUNITY_FILTER',
       +payload: void,
+    }
+  | {
+      +type: 'UPDATE_CHAT_COMMUNITY_FILTER',
+      +payload: string,
+    }
+  | {
+      +type: 'CLEAR_CHAT_COMMUNITY_FILTER',
+      +payload: void,
     };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
@@ -171,6 +181,22 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       pickedCommunityIDs: {
         ...state.pickedCommunityIDs,
         calendar: null,
+      },
+    };
+  } else if (action.type === updateChatCommunityFilter) {
+    return {
+      ...state,
+      pickedCommunityIDs: {
+        ...state.pickedCommunityIDs,
+        chat: action.payload,
+      },
+    };
+  } else if (action.type === clearChatCommunityFilter) {
+    return {
+      ...state,
+      pickedCommunityIDs: {
+        ...state.pickedCommunityIDs,
+        chat: null,
       },
     };
   } else if (action.type === setNewSessionActionType) {
