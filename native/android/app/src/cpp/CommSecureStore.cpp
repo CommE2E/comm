@@ -35,7 +35,10 @@ void CommSecureStore::set(const std::string key, const std::string value)
 }
 
 folly::Optional<std::string> CommSecureStore::get(const std::string key) const {
-  return CommSecureStoreJavaClass::get(key);
+  folly::Optional<std::string> value;
+  NativeAndroidAccessProvider::runTask(
+      [=, &value]() { value = CommSecureStoreJavaClass::get(key); });
+  return value;
 }
 
 } // namespace comm
