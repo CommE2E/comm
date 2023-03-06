@@ -840,27 +840,48 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
             error = e.what();
           }
 
-          folly::dynamic parsedPrimary = folly::parseJson(primaryKeysResult);
-          auto primaryCurve25519Cpp{parsedPrimary["curve25519"].asString()};
-          auto primaryEd25519Cpp{parsedPrimary["ed25519"].asString()};
+          std::string notificationsCurve25519Cpp, notificationsEd25519Cpp,
+              blobPayloadCpp, signatureCpp, primaryCurve25519Cpp,
+              primaryEd25519Cpp;
 
-          folly::dynamic parsedNotifications =
-              folly::parseJson(notificationsKeysResult);
-          auto notificationsCurve25519Cpp{
-              parsedNotifications["curve25519"].asString()};
-          auto notificationsEd25519Cpp{
-              parsedNotifications["ed25519"].asString()};
+          if (!error.size()) {
+            folly::dynamic parsedPrimary;
+            try {
+              parsedPrimary = folly::parseJson(primaryKeysResult);
+            } catch (const folly::json::parse_error &e) {
+              error =
+                  "parsing identity keys failed with: " + std::string(e.what());
+            }
+            if (!error.size()) {
+              primaryCurve25519Cpp = parsedPrimary["curve25519"].asString();
+              primaryEd25519Cpp = parsedPrimary["ed25519"].asString();
 
-          folly::dynamic blobPayloadJSON = folly::dynamic::object(
-              "primaryIdentityPublicKeys",
-              folly::dynamic::object("ed25519", primaryEd25519Cpp)(
-                  "curve25519", primaryCurve25519Cpp))(
-              "notificationIdentityPublicKeys",
-              folly::dynamic::object("ed25519", notificationsEd25519Cpp)(
-                  "curve25519", notificationsCurve25519Cpp));
+              folly::dynamic parsedNotifications;
+              try {
+                parsedNotifications = folly::parseJson(notificationsKeysResult);
+              } catch (const folly::json::parse_error &e) {
+                error = "parsing notifications keys failed with: " +
+                    std::string(e.what());
+              }
+              if (!error.size()) {
+                notificationsCurve25519Cpp =
+                    parsedNotifications["curve25519"].asString();
+                notificationsEd25519Cpp =
+                    parsedNotifications["ed25519"].asString();
 
-          auto blobPayloadCpp = folly::toJson(blobPayloadJSON);
-          auto signatureCpp = this->cryptoModule->signMessage(blobPayloadCpp);
+                folly::dynamic blobPayloadJSON = folly::dynamic::object(
+                    "primaryIdentityPublicKeys",
+                    folly::dynamic::object("ed25519", primaryEd25519Cpp)(
+                        "curve25519", primaryCurve25519Cpp))(
+                    "notificationIdentityPublicKeys",
+                    folly::dynamic::object("ed25519", notificationsEd25519Cpp)(
+                        "curve25519", notificationsCurve25519Cpp));
+
+                blobPayloadCpp = folly::toJson(blobPayloadJSON);
+                signatureCpp = this->cryptoModule->signMessage(blobPayloadCpp);
+              }
+            }
+          }
 
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
