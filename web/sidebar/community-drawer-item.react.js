@@ -8,8 +8,10 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import type { HandlerProps } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer-item.css';
-import { ExpandButton } from './expand-buttons.react.js';
-import SubchannelsButton from './subchannels-button.react.js';
+import {
+  getChildren,
+  getExpandButton,
+} from './community-drawer-utils.react.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
@@ -19,9 +21,6 @@ export type DrawerItemProps = {
   +expandable?: boolean,
   +handler: React.ComponentType<HandlerProps>,
 };
-
-const indentation = 14;
-const subchannelsButtonIndentation = 24;
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const {
@@ -33,71 +32,50 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     handler: Handler,
   } = props;
 
-  const children = React.useMemo(() => {
-    if (!expanded) {
-      return null;
-    }
-    if (hasSubchannelsButton) {
-      const buttonPaddingLeft = paddingLeft + subchannelsButtonIndentation;
-      return (
-        <div
-          className={css.subchannelsButton}
-          style={{ paddingLeft: buttonPaddingLeft }}
-        >
-          <SubchannelsButton threadInfo={threadInfo} />
-        </div>
-      );
-    }
-    if (!itemChildren) {
-      return null;
-    }
-    return itemChildren.map(item => (
-      <MemoizedCommunityDrawerItemChat
-        itemData={item}
-        key={item.threadInfo.id}
-        paddingLeft={paddingLeft + indentation}
-        expandable={expandable}
-        handler={Handler}
-      />
-    ));
-  }, [
-    expanded,
-    hasSubchannelsButton,
-    itemChildren,
-    paddingLeft,
-    threadInfo,
-    expandable,
-    Handler,
-  ]);
+  const children = React.useMemo(
+    () =>
+      getChildren(
+        expanded,
+        hasSubchannelsButton,
+        itemChildren,
+        paddingLeft,
+        threadInfo,
+        expandable,
+        Handler,
+      ),
+    [
+      expanded,
+      hasSubchannelsButton,
+      itemChildren,
+      paddingLeft,
+      threadInfo,
+      expandable,
+      Handler,
+    ],
+  );
 
   const onExpandToggled = React.useCallback(
     () => (toggleExpanded ? toggleExpanded(threadInfo.id) : null),
     [toggleExpanded, threadInfo.id],
   );
 
-  const itemExpandButton = React.useMemo(() => {
-    if (!expandable) {
-      return null;
-    }
-    if (itemChildren?.length === 0 && !hasSubchannelsButton) {
-      return (
-        <div className={css.buttonContainer}>
-          <ExpandButton disabled={true} />
-        </div>
-      );
-    }
-    return (
-      <div className={css.buttonContainer}>
-        <ExpandButton onClick={onExpandToggled} expanded={expanded} />
-      </div>
-    );
-  }, [
-    expandable,
-    itemChildren?.length,
-    hasSubchannelsButton,
-    onExpandToggled,
-    expanded,
-  ]);
+  const itemExpandButton = React.useMemo(
+    () =>
+      getExpandButton(
+        expandable,
+        itemChildren?.length,
+        hasSubchannelsButton,
+        onExpandToggled,
+        expanded,
+      ),
+    [
+      expandable,
+      itemChildren?.length,
+      hasSubchannelsButton,
+      onExpandToggled,
+      expanded,
+    ],
+  );
 
   const [handler, setHandler] = React.useState({
     // eslint-disable-next-line no-unused-vars
@@ -161,4 +139,4 @@ const MemoizedCommunityDrawerItemChat: React.ComponentType<CommunityDrawerItemCh
 const MemoizedCommunityDrawerItem: React.ComponentType<DrawerItemProps> =
   React.memo(CommunityDrawerItem);
 
-export default MemoizedCommunityDrawerItem;
+export default MemoizedCommunityDrawerItemChat;
