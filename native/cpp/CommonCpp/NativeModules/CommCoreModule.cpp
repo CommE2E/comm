@@ -1,6 +1,7 @@
 #include "CommCoreModule.h"
 #include "../CryptoTools/DeviceID.h"
 #include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
+#include "../Tools/CommSecureStore.h"
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
@@ -9,6 +10,7 @@
 #include "ThreadStoreOperations.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
+#include <folly/Optional.h>
 #include <folly/dynamic.h>
 #include <folly/json.h>
 #include <future>
@@ -820,24 +822,17 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
 }
 
 jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
+  CommSecureStore secureStore{};
+  folly::Optional<std::string> picklingKey = secureStore.get(
+      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::string primaryKeysResult;
-          std::string notificationsKeysResult;
-          if (this->cryptoModule == nullptr) {
-            error = "user has not been initialized";
-          } else {
-            primaryKeysResult = this->cryptoModule->getIdentityKeys();
-          }
-          try {
-            if (!error.size()) {
-              notificationsKeysResult =
-                  NotificationsCryptoModule::getNotificationsIdentityKeys();
-            }
-          } catch (const std::exception &e) {
-            error = e.what();
+          if (!picklingKey.hasValue()) {
+            error =
+                "Attempt to retrieve notifications crypto account before it "
+                "was correctly initialized.";
           }
 
           std::string notificationsCurve25519Cpp, notificationsEd25519Cpp,
@@ -845,40 +840,64 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
               primaryEd25519Cpp;
 
           if (!error.size()) {
-            folly::dynamic parsedPrimary;
-            try {
-              parsedPrimary = folly::parseJson(primaryKeysResult);
-            } catch (const folly::json::parse_error &e) {
-              error =
-                  "parsing identity keys failed with: " + std::string(e.what());
-            }
-            if (!error.size()) {
-              primaryCurve25519Cpp = parsedPrimary["curve25519"].asString();
-              primaryEd25519Cpp = parsedPrimary["ed25519"].asString();
+            std::string primaryKeysResult;
+            std::string notificationsKeysResult;
 
-              folly::dynamic parsedNotifications;
+            if (this->cryptoModule == nullptr) {
+              error = "user has not been initialized";
+            } else {
+              primaryKeysResult = this->cryptoModule->getIdentityKeys();
+            }
+            try {
+              std::string unwrappedPicklingKey = picklingKey.value();
+              if (!error.size()) {
+                notificationsKeysResult =
+                    NotificationsCryptoModule::getNotificationsIdentityKeys(
+                        unwrappedPicklingKey);
+              }
+            } catch (const std::exception &e) {
+              error = e.what();
+            }
+
+            if (!error.size()) {
+              folly::dynamic parsedPrimary;
               try {
-                parsedNotifications = folly::parseJson(notificationsKeysResult);
+                parsedPrimary = folly::parseJson(primaryKeysResult);
               } catch (const folly::json::parse_error &e) {
-                error = "parsing notifications keys failed with: " +
+                error = "parsing identity keys failed with: " +
                     std::string(e.what());
               }
               if (!error.size()) {
-                notificationsCurve25519Cpp =
-                    parsedNotifications["curve25519"].asString();
-                notificationsEd25519Cpp =
-                    parsedNotifications["ed25519"].asString();
+                primaryCurve25519Cpp = parsedPrimary["curve25519"].asString();
+                primaryEd25519Cpp = parsedPrimary["ed25519"].asString();
 
-                folly::dynamic blobPayloadJSON = folly::dynamic::object(
-                    "primaryIdentityPublicKeys",
-                    folly::dynamic::object("ed25519", primaryEd25519Cpp)(
-                        "curve25519", primaryCurve25519Cpp))(
-                    "notificationIdentityPublicKeys",
-                    folly::dynamic::object("ed25519", notificationsEd25519Cpp)(
-                        "curve25519", notificationsCurve25519Cpp));
+                folly::dynamic parsedNotifications;
+                try {
+                  parsedNotifications =
+                      folly::parseJson(notificationsKeysResult);
+                } catch (const folly::json::parse_error &e) {
+                  error = "parsing notifications keys failed with: " +
+                      std::string(e.what());
+                }
+                if (!error.size()) {
+                  notificationsCurve25519Cpp =
+                      parsedNotifications["curve25519"].asString();
+                  notificationsEd25519Cpp =
+                      parsedNotifications["ed25519"].asString();
 
-                blobPayloadCpp = folly::toJson(blobPayloadJSON);
-                signatureCpp = this->cryptoModule->signMessage(blobPayloadCpp);
+                  folly::dynamic blobPayloadJSON = folly::dynamic::object(
+                      "primaryIdentityPublicKeys",
+                      folly::dynamic::object("ed25519", primaryEd25519Cpp)(
+                          "curve25519", primaryCurve25519Cpp))(
+                      "notificationIdentityPublicKeys",
+                      folly::dynamic::object(
+                          "ed25519", notificationsEd25519Cpp)(
+                          "curve25519", notificationsCurve25519Cpp));
+
+                  blobPayloadCpp = folly::toJson(blobPayloadJSON);
+                  signatureCpp =
+                      this->cryptoModule->signMessage(blobPayloadCpp);
+                }
               }
             }
           }

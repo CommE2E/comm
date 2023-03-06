@@ -6,7 +6,6 @@
 
 namespace comm {
 class NotificationsCryptoModule {
-  const static std::string secureStoreNotificationsAccountDataKey;
   const static std::string notificationsCryptoAccountID;
 
   static void serializeAndFlushCryptoModule(
@@ -19,9 +18,12 @@ class NotificationsCryptoModule {
       const std::string &picklingKey);
 
 public:
+  const static std::string secureStoreNotificationsAccountDataKey;
+
   static void
   initializeNotificationsCryptoAccount(const std::string &callingProcessName);
   static void clearSensitiveData();
-  static std::string getNotificationsIdentityKeys();
+  static std::string
+  getNotificationsIdentityKeys(const std::string &picklingKey);
 };
 } // namespace comm
