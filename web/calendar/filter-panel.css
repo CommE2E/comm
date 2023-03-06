@@ -6,6 +6,8 @@ div.container {
   background-attachment: fixed;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid var(--border);
+  background-color: var(--filter-panel-bg);
 }
 div.filters {
   color: #dddddd;
@@ -96,30 +98,42 @@ div.optionDetails {
 }
 div.searchContainer {
   padding: 8px 10px;
-  background-color: rgba(0, 0, 0, 0.89);
+  flex-direction: row;
+  display: flex;
+}
+.collapseButton {
+  color: var(--filter-panel-fg);
+  margin-left: 12px;
+  margin-right: 6px;
+  align-self: center;
+  display: flex;
+}
+.collapseButton:hover {
+  color: var(--fg);
 }
 div.search {
   display: flex;
-  border-radius: 5px;
-  padding: 5px;
-  background-color: rgba(255, 255, 255, 0.27);
+  border-radius: 8px;
+  padding: 10px;
+  background-color: var(--text-input-bg);
   align-items: center;
+  flex-grow: 1;
+  height: 20px;
 }
 svg.searchVector {
-  fill: white;
-  height: 22px;
-  width: 22px;
-  padding: 0 3px;
+  fill: var(--filter-panel-fg);
+  height: 20px;
+  width: 20px;
 }
 div.search > input {
   color: white;
   padding: 0;
   border: none;
   background-color: transparent;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: var(--normal);
+  font-size: var(--s-font-14);
   flex-grow: 1;
-  margin-left: 3px;
+  margin-left: 8px;
 }
 div.search > input:focus {
   outline: none;
