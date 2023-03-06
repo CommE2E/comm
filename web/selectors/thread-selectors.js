@@ -108,9 +108,14 @@ function useOnClickNewThread(): (event: SyntheticEvent<HTMLElement>) => void {
   );
 }
 
+function usePickedCommunityChat(): ?string {
+  return useSelector(state => state.pickedCommunityIDs.chat);
+}
+
 export {
   useOnClickThread,
   useThreadIsActive,
   useOnClickPendingSidebar,
   useOnClickNewThread,
+  usePickedCommunityChat,
 };
