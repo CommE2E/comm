@@ -5,6 +5,7 @@
 #include "../../Tools/PlatformSpecificTools.h"
 
 #include <fcntl.h>
+#include <folly/Optional.h>
 #include <folly/String.h>
 #include <folly/dynamic.h>
 #include <folly/json.h>
@@ -155,21 +156,12 @@ void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
       callingProcessName);
 }
 
-std::string NotificationsCryptoModule::getNotificationsIdentityKeys() {
-  CommSecureStore secureStore{};
-  folly::Optional<std::string> picklingKey = secureStore.get(
-      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
-  if (!picklingKey.hasValue()) {
-    throw std::runtime_error(
-        "Attempt to retrieve notifications crypto account before it was "
-        "correctly initialized.");
-  }
-
+std::string NotificationsCryptoModule::getNotificationsIdentityKeys(
+    const std::string &picklingKey) {
   const std::string path =
       PlatformSpecificTools::getNotificationsCryptoAccountPath();
   crypto::CryptoModule cryptoModule =
-      NotificationsCryptoModule::deserializeCryptoModule(
-          path, picklingKey.value());
+      NotificationsCryptoModule::deserializeCryptoModule(path, picklingKey);
   return cryptoModule.getIdentityKeys();
 }
 
