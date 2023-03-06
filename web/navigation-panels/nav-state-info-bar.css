@@ -3,9 +3,9 @@ div.topBarContainer {
   background-color: var(--bg);
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 0 16px;
   color: var(--thread-top-bar-color);
-  border-bottom: 1px solid var(--border);
+  height: 56px;
 }
 
 div.topBarThreadInfo {
@@ -24,4 +24,16 @@ div.threadColorSquare {
 p.threadTitle {
   font-size: var(--m-font-16);
   font-weight: var(--bold);
+}
+
+div.hide {
+  height: 0px;
+  opacity: 0;
+  transition: height 200ms ease-in-out, opacity 200ms ease-in-out;
+}
+
+div.show {
+  height: 56px;
+  opacity: 1;
+  transition: height 200ms ease-in-out, opacity 200ms ease-in-out;
 }
