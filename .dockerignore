@@ -19,6 +19,7 @@ native
 !native/ios/pod-patch
 !native/cpp/CommonCpp/grpc
 !native/expo-modules/android-lifecycle/package.json
+!native/expo-modules/aes-crypto/package.json
 
 web/node_modules
 web/dist
