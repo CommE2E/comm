@@ -3,6 +3,7 @@
 // The types of messages sent from app to worker
 export const workerRequestMessageTypes = Object.freeze({
   PING: 0,
+  INIT: 1,
 });
 
 export type PingWorkerRequestMessage = {
@@ -10,7 +11,15 @@ export type PingWorkerRequestMessage = {
   +text: string,
 };
 
-export type WorkerRequestMessage = PingWorkerRequestMessage;
+export type InitWorkerRequestMessage = {
+  +type: 1,
+  +sqljsFilePath: string,
+  +sqljsFilename: ?string,
+};
+
+export type WorkerRequestMessage =
+  | PingWorkerRequestMessage
+  | InitWorkerRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
