@@ -2,12 +2,11 @@
 
 import invariant from 'invariant';
 
+import type { Crypto } from '../database/utils/crypto-types.js';
+
 let canvas;
 
-declare var crypto: {
-  getRandomValues<NumArray: $TypedArray>(typedArray: NumArray): NumArray,
-  ...
-};
+declare var crypto: Crypto;
 
 function calculateMaxTextWidth(
   texts: $ReadOnlyArray<string>,
