@@ -1,29 +1,40 @@
 // @flow
+import { getRustAPI } from 'rust-node-addon';
 
 import { deleteCookies } from '../deleters/cookie-deleters.js';
 import { fetchNativeCookieIDsForUserIDs } from '../fetchers/cookie-fetchers.js';
 import { fetchAllUserIDs } from '../fetchers/user-fetchers.js';
 
 async function compareMySQLUsersToIdentityService(): Promise<void> {
-  // eslint-disable-next-line no-unused-vars
-  const allUserIDs = await fetchAllUserIDs();
-  // next we need to query identity service for two things:
-  // 1. users in identity that aren't here
-  // 2. users here that aren't in identity
-  const userMissingFromKeyserver = [];
-  const userMissingFromIdentity = [];
-  if (userMissingFromKeyserver.length > 0) {
+  const [allUserIDs, rustAPI] = await Promise.all([
+    fetchAllUserIDs(),
+    getRustAPI(),
+  ]);
+  const userComparisonResult = await rustAPI.compareUsers(allUserIDs);
+  const { usersMissingFromKeyserver, usersMissingFromIdentity } =
+    userComparisonResult;
+
+  if (usersMissingFromKeyserver.length > 0) {
     console.warn(
       "found users in identity service that aren't in MySQL! " +
-        JSON.stringify(userMissingFromKeyserver),
+        JSON.stringify(usersMissingFromKeyserver),
     );
   }
-  if (userMissingFromIdentity.length === 0) {
+  if (usersMissingFromIdentity.length === 0) {
     return;
   }
   const cookieIDs = await fetchNativeCookieIDsForUserIDs(
-    userMissingFromIdentity,
+    usersMissingFromIdentity,
   );
+  if (cookieIDs.length === 0) {
+    return;
+  }
+
+  // By deleting a cookie associated with a user's device, we trigger an
+  // auto-log-in from that device, which lets us access the user's password. We
+  // need the password in order to double-write user data to the identity
+  // service. We only delete cookies associated with native devices because we
+  // don't cache passwords on other platforms.
   await deleteCookies(cookieIDs);
 }
 
