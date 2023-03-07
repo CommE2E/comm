@@ -4,6 +4,7 @@ import cluster from 'cluster';
 import schedule from 'node-schedule';
 
 import { backupDB } from './backups.js';
+import { compareMySQLUsersToIdentityService } from './compare-users.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
@@ -85,6 +86,20 @@ if (cluster.isMaster) {
       } catch (e) {
         console.warn(
           'encountered error while trying to create daily updates thread',
+          e,
+        );
+      }
+    },
+  );
+  schedule.scheduleJob(
+    '0 5 * * *', // every day at 5:00 AM GMT
+    async () => {
+      try {
+        await compareMySQLUsersToIdentityService();
+      } catch (e) {
+        console.warn(
+          'encountered error while trying to compare users table with ' +
+            'identity service',
           e,
         );
       }

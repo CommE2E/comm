@@ -32,10 +32,15 @@ async function deleteCookie(cookieID: string): Promise<void> {
   await deleteCookiesByConditions([condition]);
 }
 
+async function deleteCookies(cookieIDs: $ReadOnlyArray<string>): Promise<void> {
+  const condition = SQL`c.id IN (${cookieIDs})`;
+  await deleteCookiesByConditions([condition]);
+}
+
 async function deleteExpiredCookies(): Promise<void> {
   const earliestInvalidLastUpdate = Date.now() - cookieLifetime;
   const condition = SQL`c.last_used <= ${earliestInvalidLastUpdate}`;
   await deleteCookiesByConditions([condition]);
 }
 
-export { deleteCookie, deleteExpiredCookies };
+export { deleteCookie, deleteCookies, deleteExpiredCookies };
