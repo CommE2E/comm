@@ -4,6 +4,7 @@
 export const workerRequestMessageTypes = Object.freeze({
   PING: 0,
   INIT: 1,
+  GENERATE_DATABASE_ENCRYPTION_KEY: 2,
 });
 
 export type PingWorkerRequestMessage = {
@@ -17,9 +18,14 @@ export type InitWorkerRequestMessage = {
   +sqljsFilename: ?string,
 };
 
+export type GenerateDatabaseEncryptionKeyRequestMessage = {
+  +type: 2,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
-  | InitWorkerRequestMessage;
+  | InitWorkerRequestMessage
+  | GenerateDatabaseEncryptionKeyRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
