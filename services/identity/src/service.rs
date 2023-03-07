@@ -600,3 +600,18 @@ struct LoginResponseAndPakeState {
   response: PakeLoginResponseStruct,
   pake_state: ServerLogin<Cipher>,
 }
+
+async fn send_to_client<T>(
+  tx: &tokio::sync::mpsc::Sender<Result<T, Status>>,
+  response: Result<T, Status>,
+) -> Result<(), Status> {
+  let transport_result = match response {
+    Ok(message) => tx.send(Ok(message)).await,
+    Err(status) => {
+      error!("{}", status.message());
+      tx.send(Err(status)).await
+    }
+  };
+
+  transport_result.map_err(|_| Status::internal("disconnection"))
+}

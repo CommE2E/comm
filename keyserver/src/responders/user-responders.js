@@ -430,12 +430,24 @@ async function logInResponder(
     handleAsyncPromise(
       (async () => {
         const rustAPI = await getRustAPI();
-        await rustAPI.loginUserPake(
-          id,
-          constIdentityKeys.primaryIdentityPublicKeys.ed25519,
-          request.password,
-          signedIdentityKeysBlob,
-        );
+        try {
+          await rustAPI.loginUserPake(
+            id,
+            constIdentityKeys.primaryIdentityPublicKeys.ed25519,
+            request.password,
+            signedIdentityKeysBlob,
+          );
+        } catch (e) {
+          if (e.code === 'InvalidArg' && e.message === 'user not found') {
+            await rustAPI.registerUser(
+              id,
+              constIdentityKeys.primaryIdentityPublicKeys.ed25519,
+              username,
+              request.password,
+              signedIdentityKeysBlob,
+            );
+          }
+        }
       })(),
     );
   }

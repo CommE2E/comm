@@ -32,12 +32,19 @@ pub async fn handle_login_request(
             )),
         })),
     })) => {
-      let response_and_state = pake_login_start(
+      let response_and_state = match pake_login_start(
         client,
         &pake_credential_request_and_user_id.user_id,
         &pake_credential_request_and_user_id.pake_credential_request,
       )
-      .await?;
+      .await
+      {
+        Ok(r) => r,
+        Err(e) => {
+          send_to_client(&tx, Err(e.clone())).await?;
+          return Err(e);
+        }
+      };
       let login_response = LoginResponse {
         data: Some(PakeLoginResponse(response_and_state.response)),
       };
