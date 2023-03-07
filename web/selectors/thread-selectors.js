@@ -3,18 +3,24 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { createPendingSidebar } from 'lib/shared/thread-utils.js';
+import {
+  createPendingSidebar,
+  threadInHomeChatList,
+} from 'lib/shared/thread-utils.js';
 import type {
   ComposableMessageInfo,
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo, RawThreadInfo } from 'lib/types/thread-types.js';
+import { values } from 'lib/utils/objects.js';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
+import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function useOnClickThread(
@@ -112,10 +118,27 @@ function usePickedCommunityChat(): ?string {
   return useSelector(state => state.pickedCommunityIDs.chat);
 }
 
+const unreadCountInSelectedCommunity: (state: AppState) => number =
+  createSelector(
+    (state: AppState) => state.threadStore.threadInfos,
+    (state: AppState) => state.pickedCommunityIDs.chat,
+    (
+      threadInfos: { +[id: string]: RawThreadInfo },
+      communityID: ?string,
+    ): number =>
+      values(threadInfos).filter(
+        threadInfo =>
+          threadInHomeChatList(threadInfo) &&
+          threadInfo.currentUser.unread &&
+          (!communityID || communityID === threadInfo.community),
+      ).length,
+  );
+
 export {
   useOnClickThread,
   useThreadIsActive,
   useOnClickPendingSidebar,
   useOnClickNewThread,
   usePickedCommunityChat,
+  unreadCountInSelectedCommunity,
 };
