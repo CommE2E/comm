@@ -46,7 +46,7 @@ use std::collections::HashMap;
 use std::env::var;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::{metadata::MetadataValue, transport::Channel, Request};
+use tonic::{metadata::MetadataValue, transport::Channel, Code, Request};
 use tracing::{error, instrument};
 
 lazy_static! {

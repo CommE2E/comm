@@ -124,7 +124,12 @@ async fn login_user_pake(
   // Finish PAKE login; send final login request to Identity service
   let message = response.message().await.map_err(|e| {
     error!("Received an error from inbound message stream: {}", e);
-    Error::from_status(Status::GenericFailure)
+    match e.code() {
+      Code::NotFound => {
+        Error::new(Status::InvalidArg, "user not found".to_string())
+      }
+      _ => Error::new(Status::GenericFailure, e.to_string()),
+    }
   })?;
   handle_login_credential_response(
     message,

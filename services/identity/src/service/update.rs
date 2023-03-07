@@ -18,24 +18,9 @@ use crate::token::AuthType;
 use crate::{database::DatabaseClient, pake_grpc};
 
 use super::{
-  handle_db_error, pake_login_start, put_token_helper, Status,
+  handle_db_error, pake_login_start, put_token_helper, send_to_client, Status,
   UpdateUserRequest, UpdateUserResponse,
 };
-
-async fn send_to_client(
-  tx: &tokio::sync::mpsc::Sender<Result<UpdateUserResponse, Status>>,
-  response: Result<UpdateUserResponse, Status>,
-) -> Result<(), Status> {
-  let transport_result = match response {
-    Ok(message) => tx.send(Ok(message)).await,
-    Err(status) => {
-      error!("{}", status.message());
-      tx.send(Err(status)).await
-    }
-  };
-
-  transport_result.map_err(|_| Status::internal("disconnection"))
-}
 
 pub(crate) async fn handle_server_update_user_messages(
   in_stream: Streaming<UpdateUserRequest>,
