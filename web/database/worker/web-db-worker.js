@@ -13,7 +13,8 @@ import {
   workerResponseMessageTypes,
   type WorkerRequestProxyMessage,
 } from '../../types/worker-types.js';
-import { SQLITE_CONTENT } from '../utils/constants.js';
+import { SQLITE_CONTENT, SQLITE_ENCRYPTION_KEY } from '../utils/constants.js';
+import { generateCryptoKey } from '../utils/worker-crypto-utils.js';
 
 const localforageConfig: PartialConfig = {
   driver: localforage.INDEXEDDB,
@@ -58,6 +59,10 @@ async function processAppRequest(
     };
   } else if (message.type === workerRequestMessageTypes.INIT) {
     await initDatabase();
+    return;
+  } else if (message.type === workerRequestMessageTypes.GENERATE_CRYPTO_KEY) {
+    const cryptoKey = await generateCryptoKey();
+    await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
     return;
   }
 

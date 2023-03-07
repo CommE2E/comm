@@ -4,6 +4,7 @@
 export const workerRequestMessageTypes = Object.freeze({
   PING: 0,
   INIT: 1,
+  GENERATE_CRYPTO_KEY: 2,
 });
 
 export type PingWorkerRequestMessage = {
@@ -15,9 +16,14 @@ export type InitWorkerRequestMessage = {
   +type: 1,
 };
 
+export type GenerateCryptoKeyRequestMessage = {
+  +type: 2,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
-  | InitWorkerRequestMessage;
+  | InitWorkerRequestMessage
+  | GenerateCryptoKeyRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
