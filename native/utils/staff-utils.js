@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { isStaff } from 'lib/shared/user-utils.js';
 
-const isStaffRelease = true;
+const isStaffRelease = false;
 
 function useIsCurrentUserStaff(): boolean {
   const isCurrentUserStaff = useSelector(
