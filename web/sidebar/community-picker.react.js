@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
 import CommunityDrawer from './community-drawer.react.js';
 import css from './community-picker.css';
@@ -66,6 +67,12 @@ function CommunityPicker(): React.Node {
     [css.sideLineActive]: isSettingsOpen,
   });
 
+  const boundUnreadCount = useSelector(unreadCount);
+  let chatBadge = null;
+  if (boundUnreadCount > 0 && !isCalendarOpen) {
+    chatBadge = <span className={css.chatBadge}>{boundUnreadCount}</span>;
+  }
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -73,6 +80,8 @@ function CommunityPicker(): React.Node {
           <div className={sideLineInbox} />
           <SWMansionIcon icon="inbox" size={24} />
           <div className={css.buttonTitle}> {inboxButtonTitle} </div>
+          <div className={css.spacer} />
+          {chatBadge}
         </a>
       </div>
       <div className={css.drawerWrapper}>
