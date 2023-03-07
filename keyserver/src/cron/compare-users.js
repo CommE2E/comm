@@ -2,7 +2,7 @@
 import { getRustAPI } from 'rust-node-addon';
 
 import { deleteCookies } from '../deleters/cookie-deleters.js';
-import { fetchNativeCookieIDsForUserIDs } from '../fetchers/cookie-fetchers.js';
+import { fetchCookieIDsToInvalidateToPopulateIdentityService } from '../fetchers/cookie-fetchers.js';
 import { fetchAllUserIDs } from '../fetchers/user-fetchers.js';
 
 async function compareMySQLUsersToIdentityService(): Promise<void> {
@@ -23,7 +23,7 @@ async function compareMySQLUsersToIdentityService(): Promise<void> {
   if (usersMissingFromIdentity.length === 0) {
     return;
   }
-  const cookieIDs = await fetchNativeCookieIDsForUserIDs(
+  const cookieIDs = await fetchCookieIDsToInvalidateToPopulateIdentityService(
     usersMissingFromIdentity,
   );
   if (cookieIDs.length === 0) {
