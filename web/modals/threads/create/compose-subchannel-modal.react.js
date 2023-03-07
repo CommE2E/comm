@@ -49,10 +49,8 @@ function ComposeSubchannelHeader(props: HeaderProps): React.Node {
   const { parentThreadName } = props;
   return (
     <div className={css.modalHeader}>
-      <div>
-        {'within '}
-        <div className={css.modalHeaderParentName}>{parentThreadName}</div>
-      </div>
+      <div>{'within '}</div>
+      <div className={css.modalHeaderParentName}>{parentThreadName}</div>
     </div>
   );
 }
@@ -254,8 +252,8 @@ function ComposeSubchannelModal(props: Props): React.Node {
 
   return (
     <Modal name={modalName} onClose={onClose} size="fit-content">
-      <ComposeSubchannelHeader parentThreadName={parentThreadName} />
       <div className={css.container}>
+        <ComposeSubchannelHeader parentThreadName={parentThreadName} />
         <div className={css.stepItem}>
           <Stepper.Container
             className={css.stepContainer}

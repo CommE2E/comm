@@ -7,11 +7,14 @@ div.modalHeader {
   align-items: center;
   justify-content: center;
   margin-top: 30px;
+  column-gap: 10px;
 }
 
 div.modalHeaderParentName {
   color: var(--compose-subchannel-mark-color);
-  display: inline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 div.container {
