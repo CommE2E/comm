@@ -72,3 +72,18 @@
   padding-left: 12px;
   color: var(--fg);
 }
+
+span.chatBadge {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--fg);
+  background: var(--unread-bg);
+  border-radius: 13px;
+  font-size: 8px;
+  line-height: 1.25;
+  margin-right: 4px;
+}
