@@ -1,17 +1,14 @@
 // @flow
 
-import { useSelector } from 'react-redux';
-
 import { isStaff } from 'lib/shared/user-utils.js';
+
+import { useSelector } from '../redux/redux-utils.js';
 
 const isStaffRelease = false;
 
 function useIsCurrentUserStaff(): boolean {
-  const isCurrentUserStaff = useSelector(
-    state =>
-      state.currentUserInfo &&
-      state.currentUserInfo.id &&
-      isStaff(state.currentUserInfo.id),
+  const isCurrentUserStaff = useSelector(state =>
+    state.currentUserInfo?.id ? isStaff(state.currentUserInfo.id) : false,
   );
   return isCurrentUserStaff;
 }
