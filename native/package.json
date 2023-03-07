@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@commapp/android-lifecycle": "0.0.1",
+    "@commapp/aes-crypto": "0.0.1",
     "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
     "@ethersproject/shims": "^5.7.0",
     "@expo/react-native-action-sheet": "^3.14.0",

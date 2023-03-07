@@ -10,6 +10,7 @@
     "desktop",
     "keyserver/addons/rust-node-addon",
     "native/expo-modules/android-lifecycle",
+    "native/expo-modules/aes-crypto",
     "services/electron-update-server"
   ],
   "scripts": {
