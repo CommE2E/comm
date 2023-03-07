@@ -1,3 +1,4 @@
+pub mod compare_users;
 pub mod delete_user;
 pub mod login_user;
 pub mod register_user;
@@ -21,8 +22,8 @@ use identity::{
   registration_request::Data::PakeRegistrationRequestAndUserId,
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as RegistrationPakeLoginResponse,
-  registration_response::Data::PakeRegistrationResponse, DeleteUserRequest,
-  LoginRequest, LoginResponse,
+  registration_response::Data::PakeRegistrationResponse, CompareUsersRequest,
+  DeleteUserRequest, LoginRequest, LoginResponse,
   PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
   PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct,
