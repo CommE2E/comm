@@ -10,10 +10,7 @@ import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import { TooltipInlineEngagement } from './inline-engagement.react.js';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
 import { MessageHeader } from './message-header.react.js';
-import {
-  useSendReaction,
-  useReactionSelectionPopoverPosition,
-} from './reaction-message-utils.js';
+import { useSendReaction } from './reaction-message-utils.js';
 import ReactionSelectionPopover from './reaction-selection-popover.react.js';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react.js';
 import { useAnimatedMessageTooltipButton } from './utils.js';
@@ -45,7 +42,7 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     setSidebarInputBarHeight(height);
   }, []);
 
-  const { item, verticalBounds, initialCoordinates, margin } = route.params;
+  const { item, verticalBounds, initialCoordinates } = route.params;
 
   const { style: messageContainerStyle } = useAnimatedMessageTooltipButton({
     sourceMessage: item,
@@ -117,12 +114,6 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     reactions,
   );
 
-  const reactionSelectionPopoverPosition = useReactionSelectionPopoverPosition({
-    initialCoordinates,
-    verticalBounds,
-    margin,
-  });
-
   const [emojiPickerOpen, setEmojiPickerOpen] = React.useState<boolean>(false);
   const openEmojiPicker = React.useCallback(() => {
     setEmojiPickerOpen(true);
@@ -138,9 +129,6 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
         navigation={navigation}
         route={route}
         openEmojiPicker={openEmojiPicker}
-        reactionSelectionPopoverContainerStyle={
-          reactionSelectionPopoverPosition
-        }
         sendReaction={sendReaction}
       />
     );
@@ -149,7 +137,6 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     route,
     openEmojiPicker,
     canCreateReactionFromMessage,
-    reactionSelectionPopoverPosition,
     sendReaction,
   ]);
 
