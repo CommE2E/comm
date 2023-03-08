@@ -15,7 +15,11 @@ let
       echo "View Redis Logs: tail -f $REDIS_CACHE_DIR/logs" >&2
       echo "Kill Redis server: pkill redis" >&2
 
-      # 'exec' allows for us to replace bash process with MariaDB
+      # Explicitly close fd3 to prevent `direnv` from hanging
+      # (https://linear.app/comm/issue/ENG-3254/remove-wait-logic-in-nix-develop)
+      exec 3>&-
+
+      # 'exec' allows for us to replace bash process with Redis
       exec ${redis}/bin/redis-server \
         &> "$REDIS_CACHE_DIR"/logs
     '';
