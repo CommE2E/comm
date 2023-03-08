@@ -3,12 +3,12 @@ pub mod delete_user;
 pub mod login_user;
 pub mod register_user;
 pub mod identity {
-  tonic::include_proto!("identity");
+  tonic::include_proto!("identity.keyserver");
 }
 pub mod update_user;
 
 use comm_opaque::Cipher;
-use identity::identity_service_client::IdentityServiceClient;
+use identity::identity_keyserver_service_client::IdentityKeyserverServiceClient;
 use identity::{
   login_request::Data::PakeLoginRequest,
   login_request::Data::WalletLoginRequest,

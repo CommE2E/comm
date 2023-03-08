@@ -1,5 +1,4 @@
 use crate::identity_client::identity as proto;
-use crate::identity_client::identity::identity_service_client::IdentityServiceClient;
 use crate::identity_client::identity::pake_login_response::Data::AccessToken;
 use crate::identity_client::identity::{
   update_user_request, update_user_response, UpdateUserRequest,
@@ -13,6 +12,7 @@ use opaque_ke::{
   ClientRegistrationFinishParameters, CredentialFinalization,
   CredentialResponse, RegistrationUpload,
 };
+use proto::identity_keyserver_service_client::IdentityKeyserverServiceClient;
 use rand::{rngs::OsRng, CryptoRng, Rng};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
@@ -30,7 +30,7 @@ pub async fn update_user(user_id: String, password: String) -> Result<String> {
     .identity_auth_token
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
-  let mut identity_client = IdentityServiceClient::with_interceptor(
+  let mut identity_client = IdentityKeyserverServiceClient::with_interceptor(
     channel,
     |mut req: tonic::Request<()>| {
       req.metadata_mut().insert("authorization", token.clone());
