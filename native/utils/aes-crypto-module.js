@@ -34,7 +34,6 @@ export function encrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
 }
 
 export function decrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
-  invariant(AESCryptoModule.decrypt, 'AESCrypto.decrypt is not implemented');
   invariant(data.length >= IV_LENGTH + TAG_LENGTH, 'Invalid data length');
   const plaintextBuffer = new Uint8Array(data.length - IV_LENGTH - TAG_LENGTH);
   AESCryptoModule.decrypt(key, data, plaintextBuffer);

@@ -8,6 +8,7 @@ import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 private const val ALGORITHM_AES = "AES"
@@ -24,6 +25,7 @@ class AESCryptoModule : Module() {
 
     Function("generateKey", this@AESCryptoModule::generateKey)
     Function("encrypt", this@AESCryptoModule::encrypt)
+    Function("decrypt", this@AESCryptoModule::decrypt)
   }
 
   // region Function implementations
@@ -75,6 +77,33 @@ class AESCryptoModule : Module() {
     destination.write(ciphertextWithTag, IV_LENGTH, ciphertextWithTag.size)
   }
 
+  /**
+   * Decrypts given [sealedData] using provided key and stores decrypted
+   * plaintext in the [destination] array.
+   *
+   * @param rawKey AES-256 key bytes. Must be of length [KEY_SIZE]
+   * @param sealedData Typed array consisting of 12-byte IV, followed by
+   * actual ciphertext content and ending with 16-byte GCM tag.
+   * @param destination should be of ciphertext content length
+   */
+  private fun decrypt(
+    rawKey: Uint8Array,
+    sealedData: Uint8Array,
+    destination: Uint8Array
+  ) {
+    if (destination.byteLength
+      != sealedData.byteLength - IV_LENGTH - TAG_LENGTH) {
+      throw InvalidDataLengthException()
+    }
+    val key = rawKey.toAESSecretKey()
+    val input = sealedData.toDirectBuffer()
+    val iv = ByteArray(IV_LENGTH).also(input::get)
+    val ciphertextWithTagBytes = ByteArray(input.remaining()).also(input::get)
+    val plaintext = decryptAES(ciphertextWithTagBytes, key, iv)
+
+    destination.write(plaintext, position = 0, size = plaintext.size)
+  }
+
   // endregion
 }
 
@@ -97,6 +126,22 @@ private fun encryptAES(
   val iv = cipher.iv.copyOf()
   val ciphertextWithTag = cipher.doFinal(plaintext)
   return Pair(iv, ciphertextWithTag)
+}
+
+/**
+ * Does the reverse of the [encryptAES] function.
+ * Decrypts the [ciphertext] with given [key] and [iv]
+ */
+private fun decryptAES(
+  ciphertextWithTag: ByteArray,
+  key: SecretKey,
+  iv: ByteArray
+): ByteArray {
+  val spec = GCMParameterSpec(TAG_LENGTH * 8, iv)
+  val cipher = Cipher.getInstance(CIPHER_TRANSFORMATION_NAME).apply {
+    init(Cipher.DECRYPT_MODE, key, spec)
+  }
+  return cipher.doFinal(ciphertextWithTag)
 }
 
 // endregion
