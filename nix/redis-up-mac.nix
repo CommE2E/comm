@@ -19,6 +19,10 @@ let
       # (https://linear.app/comm/issue/ENG-3254/remove-wait-logic-in-nix-develop)
       exec 3>&-
 
+      # We want to launch from `$REDIS_CACHE_DIR` so `dump.rdp` will
+      # be persisted there instead of in the root of the repo.
+      cd "$REDIS_CACHE_DIR"
+
       # 'exec' allows for us to replace bash process with Redis
       exec ${redis}/bin/redis-server \
         &> "$REDIS_CACHE_DIR"/logs
