@@ -1,15 +1,19 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { useReactionSelectionPopoverPosition } from './reaction-message-utils.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import type { TooltipModalParamList } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
+import { AnimatedView } from '../types/styles.js';
 
 type Props<RouteName: $Keys<TooltipModalParamList>> = {
   +navigation: AppNavigationProp<RouteName>,
@@ -17,6 +21,10 @@ type Props<RouteName: $Keys<TooltipModalParamList>> = {
   +openEmojiPicker: () => mixed,
   +sendReaction: (reaction: string) => mixed,
 };
+
+/* eslint-disable import/no-named-as-default-member */
+const { Extrapolate, interpolateNode } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   props: Props<RouteName>,
@@ -31,11 +39,46 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
       margin,
     });
 
+  const overlayContext = React.useContext(OverlayContext);
+  invariant(
+    overlayContext,
+    'ReactionSelectionPopover should have OverlayContext',
+  );
+  const { position } = overlayContext;
+
+  const animationStyle = React.useMemo(
+    () => ({
+      opacity: interpolateNode(position, {
+        inputRange: [0, 0.1],
+        outputRange: [0, 1],
+        extrapolate: Extrapolate.CLAMP,
+      }),
+      transform: [
+        {
+          scale: interpolateNode(position, {
+            inputRange: [0.2, 0.8],
+            outputRange: [0, 1],
+            extrapolate: Extrapolate.CLAMP,
+          }),
+        },
+      ],
+    }),
+    [position],
+  );
+
   const styles = useStyles(unboundStyles);
 
   const containerStyle = React.useMemo(
-    () => [styles.reactionSelectionPopoverContainer, popoverContainerStyle],
-    [popoverContainerStyle, styles.reactionSelectionPopoverContainer],
+    () => ({
+      ...styles.reactionSelectionPopoverContainer,
+      ...popoverContainerStyle,
+      ...animationStyle,
+    }),
+    [
+      popoverContainerStyle,
+      styles.reactionSelectionPopoverContainer,
+      animationStyle,
+    ],
   );
 
   const tooltipRouteKey = route.key;
@@ -74,14 +117,14 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   ]);
 
   return (
-    <View style={containerStyle}>
+    <AnimatedView style={containerStyle}>
       {defaultEmojis}
       <TouchableOpacity onPress={onPressEmojiKeyboardButton}>
         <View style={styles.emojiKeyboardButtonContainer}>
           <SWMansionIcon name="plus" style={styles.icon} size={18} />
         </View>
       </TouchableOpacity>
-    </View>
+    </AnimatedView>
   );
 }
 

@@ -22,7 +22,6 @@ import type {
   LayoutCoordinates,
   VerticalBounds,
 } from '../types/layout-types.js';
-import type { ViewStyle } from '../types/styles.js';
 
 function useSendReaction(
   messageID: ?string,
@@ -120,7 +119,14 @@ type ReactionSelectionPopoverPositionArgs = {
 };
 
 type ReactionSelectionPopoverPosition = {
-  +containerStyle: ViewStyle,
+  +containerStyle: {
+    +position: 'absolute',
+    +left?: number,
+    +right?: number,
+    +bottom?: number,
+    +top?: number,
+    ...
+  },
   +popoverLocation: 'above' | 'below',
 };
 function useReactionSelectionPopoverPosition({
