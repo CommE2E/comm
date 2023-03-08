@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import _find from 'lodash/fp/find.js';
 import * as React from 'react';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import { View, TouchableWithoutFeedback, Alert } from 'react-native';
 import { createSelector } from 'reselect';
 
 import {
@@ -267,6 +267,7 @@ class MessageList extends React.PureComponent<Props, State> {
       ) {
         return;
       }
+      Alert.alert('verticalBounds', JSON.stringify({ height, y: pageY }));
       this.setState({ messageListVerticalBounds: { height, y: pageY } });
     });
   };

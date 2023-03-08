@@ -10,7 +10,7 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import {
   TooltipContextProvider,
@@ -101,6 +101,7 @@ function createTooltip<
     tooltipHorizontalOffset: Value = new Value(0);
     tooltipHorizontal: Node;
     tooltipScale: Node;
+    fixedTooltipVertical: Node;
 
     constructor(props: TooltipProps<BaseTooltipPropsType>) {
       super(props);
@@ -132,8 +133,10 @@ function createTooltip<
         extrapolate: Extrapolate.CLAMP,
       });
 
+      const invertedPosition = add(1, multiply(-1, position));
+
       this.tooltipHorizontal = multiply(
-        add(1, multiply(-1, position)),
+        invertedPosition,
         this.tooltipHorizontalOffset,
       );
 
@@ -142,6 +145,11 @@ function createTooltip<
         outputRange: [0, 0, 1, 1],
         extrapolate: Extrapolate.CLAMP,
       });
+
+      this.fixedTooltipVertical = multiply(
+        invertedPosition,
+        props.dimensions.height,
+      );
     }
 
     componentDidMount() {
@@ -261,6 +269,7 @@ function createTooltip<
           verticalBounds.y -
           inputBarHeight +
           padding;
+        style.transform = [{ translateY: this.fixedTooltipVertical }];
       } else if (tooltipLocation === 'above') {
         style.bottom =
           dimensions.height - Math.max(y, verticalBounds.y) + margin;
@@ -357,10 +366,6 @@ function createTooltip<
 
       const itemsStyles = [styles.items, styles.itemsFixed];
 
-      const animationDelay = Platform.OS === 'ios' ? 200 : 500;
-      const enterAnimation = SlideInDown.delay(animationDelay);
-      const exitAnimation = SlideOutDown;
-
       let tooltip = null;
 
       if (this.tooltipLocation !== 'fixed') {
@@ -379,11 +384,7 @@ function createTooltip<
         !this.props.route.params.hideTooltip
       ) {
         tooltip = (
-          <AnimatedView
-            style={this.tooltipContainerStyle}
-            entering={enterAnimation}
-            exiting={exitAnimation}
-          >
+          <AnimatedView style={this.tooltipContainerStyle}>
             <View style={itemsStyles}>{items}</View>
           </AnimatedView>
         );
