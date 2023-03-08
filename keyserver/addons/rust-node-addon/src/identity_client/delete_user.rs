@@ -8,11 +8,13 @@ pub async fn delete_user(user_id: String) -> Result<()> {
     .identity_auth_token
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
-  let mut identity_client =
-    IdentityServiceClient::with_interceptor(channel, |mut req: Request<()>| {
+  let mut identity_client = IdentityKeyserverServiceClient::with_interceptor(
+    channel,
+    |mut req: Request<()>| {
       req.metadata_mut().insert("authorization", token.clone());
       Ok(req)
-    });
+    },
+  );
 
   let request = Request::new(DeleteUserRequest {
     user_id: user_id.clone(),
