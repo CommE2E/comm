@@ -11,6 +11,7 @@ public class AESCryptoModule: Module {
 
     Function("generateKey", generateKey)
     Function("encrypt", encrypt)
+    Function("decrypt", decrypt)
   }
 }
 
@@ -49,6 +50,20 @@ private func encrypt(rawKey: Uint8Array,
     throw EncryptionFailedException("Encrypted data has unexpected length")
   }
   sealedData.copyBytes(to: destination.rawBufferPtr())
+}
+
+private func decrypt(rawKey: Uint8Array,
+                     sealedData: Uint8Array,
+                     destination: Uint8Array) throws {
+  guard destination.byteLength == sealedData.byteLength - IV_LENGTH - TAG_LENGTH
+  else {
+    throw InvalidDataLengthException()
+  }
+  
+  let key = SymmetricKey(data: rawKey.data())
+  let sealedBox = try AES.GCM.SealedBox(combined: sealedData.data())
+  let plaintext = try AES.GCM.open(sealedBox, using: key)
+  plaintext.copyBytes(to: destination.rawBufferPtr())
 }
 
 // MARK: - Utilities
