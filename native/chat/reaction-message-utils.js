@@ -119,18 +119,22 @@ type ReactionSelectionPopoverPositionArgs = {
   +margin: ?number,
 };
 
+type ReactionSelectionPopoverPosition = {
+  +containerStyle: ViewStyle,
+  +popoverLocation: 'above' | 'below',
+};
 function useReactionSelectionPopoverPosition({
   initialCoordinates,
   verticalBounds,
   margin,
-}: ReactionSelectionPopoverPositionArgs): ViewStyle {
+}: ReactionSelectionPopoverPositionArgs): ReactionSelectionPopoverPosition {
   const reactionSelectionPopoverHeight = 56;
 
   const calculatedMargin = margin ?? 16;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
-  const reactionSelectionPopoverLocation: 'above' | 'below' = (() => {
+  const popoverLocation: 'above' | 'below' = (() => {
     const { y, height } = initialCoordinates;
     const contentTop = y;
     const contentBottom = y + height;
@@ -149,7 +153,7 @@ function useReactionSelectionPopoverPosition({
     return 'below';
   })();
 
-  return React.useMemo(() => {
+  const containerStyle = React.useMemo(() => {
     const { x, width, height } = initialCoordinates;
 
     const style = {};
@@ -164,19 +168,21 @@ function useReactionSelectionPopoverPosition({
       style.right = 0;
     }
 
-    if (reactionSelectionPopoverLocation === 'above') {
+    if (popoverLocation === 'above') {
       style.bottom = height + calculatedMargin / 2;
     } else {
       style.top = height + calculatedMargin / 2;
     }
 
     return style;
-  }, [
-    calculatedMargin,
-    initialCoordinates,
-    reactionSelectionPopoverLocation,
-    windowWidth,
-  ]);
+  }, [calculatedMargin, initialCoordinates, popoverLocation, windowWidth]);
+  return React.useMemo(
+    () => ({
+      popoverLocation,
+      containerStyle,
+    }),
+    [popoverLocation, containerStyle],
+  );
 }
 
 export { useSendReaction, useReactionSelectionPopoverPosition };

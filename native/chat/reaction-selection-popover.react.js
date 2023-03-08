@@ -24,7 +24,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   const { navigation, route, openEmojiPicker, sendReaction } = props;
 
   const { verticalBounds, initialCoordinates, margin } = route.params;
-  const reactionSelectionPopoverContainerStyle =
+  const { containerStyle: popoverContainerStyle } =
     useReactionSelectionPopoverPosition({
       initialCoordinates,
       verticalBounds,
@@ -34,14 +34,8 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   const styles = useStyles(unboundStyles);
 
   const containerStyle = React.useMemo(
-    () => [
-      styles.reactionSelectionPopoverContainer,
-      reactionSelectionPopoverContainerStyle,
-    ],
-    [
-      reactionSelectionPopoverContainerStyle,
-      styles.reactionSelectionPopoverContainer,
-    ],
+    () => [styles.reactionSelectionPopoverContainer, popoverContainerStyle],
+    [popoverContainerStyle, styles.reactionSelectionPopoverContainer],
   );
 
   const tooltipRouteKey = route.key;
