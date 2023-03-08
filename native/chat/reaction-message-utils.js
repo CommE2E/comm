@@ -145,7 +145,8 @@ function useReactionSelectionPopoverPosition({
     const boundsTop = verticalBounds.y;
     const boundsBottom = verticalBounds.y + verticalBounds.height;
 
-    const fullHeight = reactionSelectionPopoverHeight + calculatedMargin;
+    const fullHeight =
+      reactionSelectionPopoverDimensions.height + calculatedMargin;
 
     if (
       contentBottom + fullHeight > boundsBottom &&
@@ -193,11 +194,14 @@ function getCalculatedMargin(margin: ?number): number {
   return margin ?? 16;
 }
 
-const reactionSelectionPopoverHeight = 56;
+const reactionSelectionPopoverDimensions = {
+  height: 56,
+  width: 316,
+};
 
 export {
   useSendReaction,
   useReactionSelectionPopoverPosition,
   getCalculatedMargin,
-  reactionSelectionPopoverHeight,
+  reactionSelectionPopoverDimensions,
 };
