@@ -3,32 +3,33 @@
 import * as React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 
+import { useReactionSelectionPopoverPosition } from './reaction-message-utils.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import type { TooltipModalParamList } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
-import type { ViewStyle } from '../types/styles.js';
 
 type Props<RouteName: $Keys<TooltipModalParamList>> = {
   +navigation: AppNavigationProp<RouteName>,
   +route: TooltipRoute<RouteName>,
   +openEmojiPicker: () => mixed,
-  +reactionSelectionPopoverContainerStyle: ViewStyle,
   +sendReaction: (reaction: string) => mixed,
 };
 
 function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   props: Props<RouteName>,
 ): React.Node {
-  const {
-    navigation,
-    route,
-    openEmojiPicker,
-    reactionSelectionPopoverContainerStyle,
-    sendReaction,
-  } = props;
+  const { navigation, route, openEmojiPicker, sendReaction } = props;
+
+  const { verticalBounds, initialCoordinates, margin } = route.params;
+  const reactionSelectionPopoverContainerStyle =
+    useReactionSelectionPopoverPosition({
+      initialCoordinates,
+      verticalBounds,
+      margin,
+    });
 
   const styles = useStyles(unboundStyles);
 
