@@ -134,9 +134,7 @@ function useReactionSelectionPopoverPosition({
   verticalBounds,
   margin,
 }: ReactionSelectionPopoverPositionArgs): ReactionSelectionPopoverPosition {
-  const reactionSelectionPopoverHeight = 56;
-
-  const calculatedMargin = margin ?? 16;
+  const calculatedMargin = getCalculatedMargin(margin);
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -191,4 +189,15 @@ function useReactionSelectionPopoverPosition({
   );
 }
 
-export { useSendReaction, useReactionSelectionPopoverPosition };
+function getCalculatedMargin(margin: ?number): number {
+  return margin ?? 16;
+}
+
+const reactionSelectionPopoverHeight = 56;
+
+export {
+  useSendReaction,
+  useReactionSelectionPopoverPosition,
+  getCalculatedMargin,
+  reactionSelectionPopoverHeight,
+};
