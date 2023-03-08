@@ -230,8 +230,8 @@ function createTooltip<
 
       const style = {};
       style.position = 'absolute';
-      (style.alignItems = 'center'),
-        (style.opacity = this.tooltipContainerOpacity);
+      style.alignItems = 'center';
+      style.opacity = this.tooltipContainerOpacity;
 
       if (tooltipLocation !== 'fixed') {
         style.transform = [{ translateX: this.tooltipHorizontal }];
