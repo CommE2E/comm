@@ -28,7 +28,6 @@ export function generateKey(): Uint8Array {
 }
 
 export function encrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
-  invariant(AESCryptoModule.encrypt, 'AESCrypto.encrypt is not implemented');
   const sealedDataBuffer = new Uint8Array(data.length + IV_LENGTH + TAG_LENGTH);
   AESCryptoModule.encrypt(key, data, sealedDataBuffer);
   return sealedDataBuffer;
