@@ -16,6 +16,7 @@ let
       echo "Kill Redis server: pkill redis" >&2
 
       # 'exec' allows for us to replace bash process with MariaDB
+      exec 3>&-
       exec ${redis}/bin/redis-server \
         &> "$REDIS_CACHE_DIR"/logs
     '';

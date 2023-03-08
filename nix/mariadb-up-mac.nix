@@ -17,6 +17,7 @@ let
       echo "View MariaDB logs: tail -f $MARIADB_DIR/logs" >&2
       echo "Kill MariaDB server: pkill mariadbd" >&2
 
+      exec 3>&-
       exec "${mariadb}/bin/mariadbd" \
         --socket "$MARIADB_DIR"/mysql.sock \
         --datadir "$MARIADB_DIR" \
