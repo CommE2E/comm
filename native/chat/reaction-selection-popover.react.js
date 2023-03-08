@@ -5,7 +5,11 @@ import * as React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { useReactionSelectionPopoverPosition } from './reaction-message-utils.js';
+import {
+  useReactionSelectionPopoverPosition,
+  getCalculatedMargin,
+  reactionSelectionPopoverHeight,
+} from './reaction-message-utils.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -32,7 +36,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   const { navigation, route, openEmojiPicker, sendReaction } = props;
 
   const { verticalBounds, initialCoordinates, margin } = route.params;
-  const { containerStyle: popoverContainerStyle } =
+  const { containerStyle: popoverContainerStyle, popoverLocation } =
     useReactionSelectionPopoverPosition({
       initialCoordinates,
       verticalBounds,
@@ -46,25 +50,48 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   );
   const { position } = overlayContext;
 
-  const animationStyle = React.useMemo(
-    () => ({
-      opacity: interpolateNode(position, {
-        inputRange: [0, 0.1],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      }),
-      transform: [
-        {
-          scale: interpolateNode(position, {
-            inputRange: [0.2, 0.8],
-            outputRange: [0, 1],
-            extrapolate: Extrapolate.CLAMP,
-          }),
-        },
-      ],
-    }),
-    [position],
-  );
+  const calculatedMargin = getCalculatedMargin(margin);
+  const animationStyle = React.useMemo(() => {
+    const style = {};
+    style.opacity = interpolateNode(position, {
+      inputRange: [0, 0.1],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
+    });
+    style.transform = [
+      {
+        scale: interpolateNode(position, {
+          inputRange: [0.2, 0.8],
+          outputRange: [0, 1],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      },
+    ];
+    if (popoverLocation === 'above') {
+      style.transform.push({
+        translateY: interpolateNode(position, {
+          inputRange: [0, 1],
+          outputRange: [
+            calculatedMargin + reactionSelectionPopoverHeight / 2,
+            0,
+          ],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      });
+    } else {
+      style.transform.push({
+        translateY: interpolateNode(position, {
+          inputRange: [0, 1],
+          outputRange: [
+            -calculatedMargin - reactionSelectionPopoverHeight / 2,
+            0,
+          ],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      });
+    }
+    return style;
+  }, [position, calculatedMargin, popoverLocation]);
 
   const styles = useStyles(unboundStyles);
 
