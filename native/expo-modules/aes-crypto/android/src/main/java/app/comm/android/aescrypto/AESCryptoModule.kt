@@ -5,10 +5,16 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.typedarray.Uint8Array
 import java.security.SecureRandom
+import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.SecretKeySpec
 
 private const val ALGORITHM_AES = "AES"
+private const val CIPHER_TRANSFORMATION_NAME = "AES/GCM/NoPadding"
 private const val KEY_SIZE = 32 // bytes
+private const val IV_LENGTH = 12 // bytes - unique Initialization Vector (nonce)
+private const val TAG_LENGTH = 16 // bytes - GCM auth tag
 
 class AESCryptoModule : Module() {
   private val secureRandom by lazy { SecureRandom() }
@@ -17,6 +23,7 @@ class AESCryptoModule : Module() {
     Name("AESCrypto")
 
     Function("generateKey", this@AESCryptoModule::generateKey)
+    Function("encrypt", this@AESCryptoModule::encrypt)
   }
 
   // region Function implementations
@@ -38,12 +45,85 @@ class AESCryptoModule : Module() {
     destination.write(keyBytes, position = 0, size = keyBytes.size)
   }
 
+  /**
+   * Encrypts given [plaintext] with provided key and saves encrypted results
+   * (sealed data) into [destination]. After the encryption, the destination
+   * array will contain the following, concatenated in order:
+   * - IV
+   * - Ciphertext with GCM tag
+   *
+   * @param rawKey AES-256 key bytes. Must be of length [KEY_SIZE]
+   * @param plaintext
+   * @param destination must be of length: [plaintext]+[IV_LENGTH]+[TAG_LENGTH]
+   */
+  private fun encrypt(
+    rawKey: Uint8Array,
+    plaintext: Uint8Array,
+    destination: Uint8Array
+  ) {
+    if (destination.length != plaintext.length + IV_LENGTH + TAG_LENGTH) {
+      throw InvalidDataLengthException()
+    }
+
+    val key = rawKey.toAESSecretKey()
+    val plaintextBuffer = plaintext.toDirectBuffer()
+    val plaintextBytes = ByteArray(plaintext.byteLength)
+      .also(plaintextBuffer::get)
+    val (iv, ciphertextWithTag) = encryptAES(plaintextBytes, key)
+
+    destination.write(iv, position = 0, size = IV_LENGTH)
+    destination.write(ciphertextWithTag, IV_LENGTH, ciphertextWithTag.size)
+  }
+
   // endregion
 }
+
+// region RN-agnostic implementations
+
+/**
+ * Encrypts given [plaintext] with given [key] using AES-256 GCM algorithm
+ *
+ * @return A pair of:
+ * - IV (initialization vector) - 12 bytes long
+ * - [ByteArray] containing ciphertext with 16-byte GCM auth tag appended
+ */
+private fun encryptAES(
+  plaintext: ByteArray,
+  key: SecretKey
+): Pair<ByteArray, ByteArray> {
+  val cipher = Cipher.getInstance(CIPHER_TRANSFORMATION_NAME).apply {
+    init(Cipher.ENCRYPT_MODE, key)
+  }
+  val iv = cipher.iv.copyOf()
+  val ciphertextWithTag = cipher.doFinal(plaintext)
+  return Pair(iv, ciphertextWithTag)
+}
+
+// endregion
+
+// region Utility extension functions
+
+fun ByteArray.toSecretKey(algorithm: String = ALGORITHM_AES) =
+  SecretKeySpec(this, 0, this.size, algorithm)
+
+fun Uint8Array.toAESSecretKey(): SecretKey {
+  if (this.byteLength != KEY_SIZE) {
+    throw InvalidKeyLengthException()
+  }
+
+  return ByteArray(KEY_SIZE)
+    .also { bytes -> this.read(bytes, 0, KEY_SIZE) }
+    .toSecretKey()
+}
+
+// endregion
 
 // region Exception definitions
 
 private class InvalidKeyLengthException :
   CodedException("The AES key has invalid length")
+
+private class InvalidDataLengthException :
+  CodedException("Source or destination array has invalid length")
 
 // endregion
