@@ -10,6 +10,7 @@ public class AESCryptoModule: Module {
 
     Function("generateKey", generateKey)
     Function("encrypt", encrypt)
+    Function("decrypt", decrypt)
   }
 }
 
@@ -46,6 +47,31 @@ private func encrypt(rawKey: Uint8Array,
     throw EncryptionFailedException("Incorrect AES configuration")
   }
   ciphertext.copyBytes(to: destination.rawBufferPtr())
+}
+
+private func decrypt(rawKey: Uint8Array,
+                     ciphertext: Uint8Array,
+                     destination: Uint8Array) throws {
+  guard ciphertext.byteLength > IV_LENGTH + TAG_LENGTH,
+        destination.byteLength >= ciphertext.byteLength - IV_LENGTH - TAG_LENGTH
+  else {
+    throw InvalidDataLengthException()
+  }
+  
+  let key = SymmetricKey(data: rawKey.data())
+  let ciphertextData = ciphertext.data()
+  
+  let iv = ciphertextData.prefix(IV_LENGTH)
+  let tag = ciphertextData.suffix(TAG_LENGTH)
+  let ciphertextContent = ciphertextData
+    .dropFirst(IV_LENGTH)
+    .dropLast(TAG_LENGTH)
+  
+  let sealedBox = try AES.GCM.SealedBox(nonce: AES.GCM.Nonce(data: iv),
+                                        ciphertext: ciphertextContent,
+                                        tag: tag)
+  let decryptedData = try AES.GCM.open(sealedBox, using: key)
+  decryptedData.copyBytes(to: destination.rawBufferPtr())
 }
 
 // MARK: - Utilities
