@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package identity.client;
+
+// RPCs betwen a client (iOS, Android, or web) to identity service
+service IdentityClientService {
+  // Called by user to register with the Identity Service (PAKE only)
+  rpc RegisterUser(stream RegistrationRequest) returns (stream
+    RegistrationResponse) {}
+  rpc UpdateUser(stream UpdateUserRequest) returns
+    (stream UpdateUserResponse) {}
+  // Called by user to register device and get an access token
+  rpc LoginPasswordUser(OpaqueLoginRequest) returns (OpaqueLoginResponse) {}
+  rpc LoginWalletUser(WalletLoginRequest) returns (WalletLoginResponse) {}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+
+  // Called by users and keyservers to get userID corresponding to a wallet
+  // address or username
+  rpc GetUserID(GetUserIDRequest) returns (GetUserIDResponse) {}
+  // Called by clients to get a nonce for a Sign-In with Ethereum message
+  rpc GenerateNonce(GenerateNonceRequest) returns (GenerateNonceResponse) {}
+  // Called by clients to get session initialization info needed to open a new
+  // channel of communication with a given user
+  rpc GetSessionInitializationInfo(GetSessionInitializationInfoRequest) returns
+    (GetSessionInitializationInfoResponse) {}
+}
+
+// Helper types
+
+// Request for registering a new user
+message ClientRegistrationRequest {
+  // ed25519 key for the given user's device
+  string signingPublicKey = 1;
+  // Message sent to initiate PAKE registration (step 1)
+  bytes opaqueRegistrationRequest = 2;
+  string username = 3;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  SessionInitializationInfo sessionInitializationInfo = 4;
+}
+
+message SessionInitializationInfo {
+  string payload = 1;
+  string payloadSignature = 2; // payload signed with the signing ed25519 key
+  optional string socialProof = 3; // signed message used for SIWE (optional)
+}
+
+// RegisterUser
+
+// Messages sent from a client to Identity Service
+message RegistrationRequest {
+  oneof data {
+    // First message in PAKE registration + user information
+    ClientRegistrationRequest registrationRequest = 1;
+    // Final message in PAKE registration
+    bytes opaqueCredentialFinalization = 2;
+  }
+}
+
+// Messages sent from Identity Service to client
+message RegistrationResponse {
+  oneof data {
+    // sent to the user upon reception of the PAKE registration attempt
+    // (step 2)
+    bytes registrationResponse = 1;
+    // After successful unpacking of user credentials, return token
+    string accessToken = 2;
+  }
+}
+
+// UpdateUser
+
+// Do a user registration, but overwrite the existing credentials
+message UpdateUserRequest {
+  oneof data {
+    ClientRegistrationRequest registrationRequest = 1;
+    bytes clientRegistrationFinalization = 2;
+  }
+}
+
+message UpdateUserResponse {
+  oneof data {
+    bytes opaqueRegistrationResponse = 1;
+    // After successful unpacking of user credentials, return token
+    string accessToken = 2;
+  }
+}
+
+// LoginUser
+
+message OpaqueLoginRequest {
+  string userID = 1;
+  // ed25519 key for the given user's device
+  string signingPublicKey = 2;
+  // Message sent to initiate PAKE login (step 1)
+  bytes opaqueLoginRequest = 3;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  SessionInitializationInfo sessionInitializationInfo = 4;
+}
+
+message OpaqueLoginResponse {
+  // Answer sent to the user upon reception of the PAKE login attempt,
+  // containing a sealed envelope with the user's private key (step 2)
+  bytes opaqueCredentialResponse = 1;
+  string accessToken = 2;
+}
+
+message WalletLoginRequest {
+  string userID = 1;
+  // ed25519 key for the given user's device
+  string signingPublicKey = 2;
+  string siweMessage = 3;
+  string siweSignature = 4;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  SessionInitializationInfo sessionInitializationInfo = 5;
+}
+
+message WalletLoginResponse {
+  string accessToken = 1;
+}
+
+// DeleteUser
+
+message DeleteUserRequest {
+  string userID = 1;
+}
+
+// Need to respond with a message to show success, an
+// empty reponse should work just fine
+message DeleteUserResponse {}
+
+// GetUserID
+
+message GetUserIDRequest {
+  enum AuthType {
+    PASSWORD = 0;
+    WALLET = 1;
+  }
+  AuthType authType = 1;
+  string userInfo = 2;
+}
+
+message GetUserIDResponse {
+  string userID = 1;
+}
+
+// GenerateNonce
+
+message GenerateNonceRequest {
+}
+
+message GenerateNonceResponse{
+  string nonce = 1;
+}
+
+// GetSessionInitializationInfo
+
+message GetSessionInitializationInfoRequest {
+  string userID = 1;
+}
+
+message GetSessionInitializationInfoResponse {
+  // Map is keyed on devices' public ed25519 key used for signing
+  map<string, SessionInitializationInfo> devices = 1;
+}
