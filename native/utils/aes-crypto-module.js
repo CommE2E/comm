@@ -14,6 +14,11 @@ const AESCryptoModule: {
     data: Uint8Array,
     destination: Uint8Array,
   ) => void,
+  +decrypt: (
+    key: Uint8Array,
+    data: Uint8Array,
+    destination: Uint8Array,
+  ) => void,
 } = requireNativeModule('AESCrypto');
 
 export function generateKey(): Uint8Array {
@@ -27,4 +32,12 @@ export function encrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
   const sealedDataBuffer = new Uint8Array(data.length + IV_LENGTH + TAG_LENGTH);
   AESCryptoModule.encrypt(key, data, sealedDataBuffer);
   return sealedDataBuffer;
+}
+
+export function decrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
+  invariant(AESCryptoModule.decrypt, 'AESCrypto.decrypt is not implemented');
+  invariant(data.length >= IV_LENGTH + TAG_LENGTH, 'Invalid data length');
+  const plaintextBuffer = new Uint8Array(data.length - IV_LENGTH - TAG_LENGTH);
+  AESCryptoModule.decrypt(key, data, plaintextBuffer);
+  return plaintextBuffer;
 }
