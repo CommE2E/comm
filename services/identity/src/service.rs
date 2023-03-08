@@ -21,10 +21,10 @@ use crate::nonce::generate_nonce_data;
 use crate::pake_grpc;
 use crate::token::{AccessTokenData, AuthType};
 
-pub use proto::identity_service_server::IdentityServiceServer;
+pub use proto::identity_keyserver_service_server::IdentityKeyserverServiceServer;
 use proto::{
   get_user_id_request::AuthType as ProtoAuthType,
-  identity_service_server::IdentityService,
+  identity_keyserver_service_server::IdentityKeyserverService,
   login_request::Data::PakeLoginRequest,
   login_request::Data::WalletLoginRequest,
   login_response::Data::PakeLoginResponse,
@@ -51,7 +51,7 @@ use proto::{
 };
 
 mod proto {
-  tonic::include_proto!("identity");
+  tonic::include_proto!("identity.keyserver");
 }
 
 mod login;
@@ -70,7 +70,7 @@ pub struct MyIdentityService {
 }
 
 #[tonic::async_trait]
-impl IdentityService for MyIdentityService {
+impl IdentityKeyserverService for MyIdentityService {
   type RegisterUserStream = Pin<
     Box<
       dyn Stream<Item = Result<RegistrationResponse, Status>> + Send + 'static,

@@ -14,11 +14,13 @@ pub async fn register_user(
     .identity_auth_token
     .parse()
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
-  let mut identity_client =
-    IdentityServiceClient::with_interceptor(channel, |mut req: Request<()>| {
+  let mut identity_client = IdentityKeyserverServiceClient::with_interceptor(
+    channel,
+    |mut req: Request<()>| {
       req.metadata_mut().insert("authorization", token.clone());
       Ok(req)
-    });
+    },
+  );
 
   // Create a RegistrationRequest channel and use ReceiverStream to turn the
   // MPSC receiver into a Stream for outbound messages

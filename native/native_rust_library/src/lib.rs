@@ -8,14 +8,14 @@ use tunnelbroker::tunnelbroker_service_client::TunnelbrokerServiceClient;
 mod crypto_tools;
 mod identity_client;
 mod identity {
-  tonic::include_proto!("identity");
+  tonic::include_proto!("identity.keyserver");
 }
 mod tunnelbroker {
   tonic::include_proto!("tunnelbroker");
 }
 
 use crypto_tools::generate_device_id;
-use identity::identity_service_client::IdentityServiceClient;
+use identity::identity_keyserver_service_client::IdentityKeyserverServiceClient;
 
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
@@ -98,13 +98,13 @@ mod ffi {
 
 #[derive(Debug)]
 pub struct IdentityClient {
-  identity_client: IdentityServiceClient<Channel>,
+  identity_client: IdentityKeyserverServiceClient<Channel>,
 }
 
 fn initialize_identity_client(addr: String) -> Box<IdentityClient> {
   Box::new(IdentityClient {
     identity_client: RUNTIME
-      .block_on(IdentityServiceClient::connect(addr))
+      .block_on(IdentityKeyserverServiceClient::connect(addr))
       .unwrap(),
   })
 }
