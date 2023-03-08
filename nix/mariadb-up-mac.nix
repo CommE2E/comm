@@ -12,11 +12,15 @@ let
     name = "mariadb-init";
     text = ''
       MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
-      # 'exec' allows for us to replace bash process with MariaDB
 
       echo "View MariaDB logs: tail -f $MARIADB_DIR/logs" >&2
       echo "Kill MariaDB server: pkill mariadbd" >&2
 
+      # Explicitly close fd3 to prevent `direnv` from hanging
+      # (https://linear.app/comm/issue/ENG-3254/remove-wait-logic-in-nix-develop)
+      exec 3>&-
+
+      # 'exec' allows for us to replace bash process with MariaDB
       exec "${mariadb}/bin/mariadbd" \
         --socket "$MARIADB_DIR"/mysql.sock \
         --datadir "$MARIADB_DIR" \
