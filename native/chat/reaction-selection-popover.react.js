@@ -8,12 +8,13 @@ import Animated from 'react-native-reanimated';
 import {
   useReactionSelectionPopoverPosition,
   getCalculatedMargin,
-  reactionSelectionPopoverHeight,
+  reactionSelectionPopoverDimensions,
 } from './reaction-message-utils.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import type { TooltipModalParamList } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
@@ -27,7 +28,7 @@ type Props<RouteName: $Keys<TooltipModalParamList>> = {
 };
 
 /* eslint-disable import/no-named-as-default-member */
-const { Extrapolate, interpolateNode } = Animated;
+const { Extrapolate, interpolateNode, add, multiply } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
@@ -50,6 +51,24 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   );
   const { position } = overlayContext;
 
+  const dimensions = useSelector(state => state.dimensions);
+
+  const popoverHorizontalOffset = React.useMemo(() => {
+    const { x, width } = initialCoordinates;
+
+    const extraLeftSpace = x;
+    const extraRightSpace = dimensions.width - width - x;
+
+    const popoverWidth = reactionSelectionPopoverDimensions.width;
+    if (extraLeftSpace < extraRightSpace) {
+      const minWidth = width + 2 * extraLeftSpace;
+      return (minWidth - popoverWidth) / 2;
+    } else {
+      const minWidth = width + 2 * extraRightSpace;
+      return (popoverWidth - minWidth) / 2;
+    }
+  }, [initialCoordinates, dimensions]);
+
   const calculatedMargin = getCalculatedMargin(margin);
   const animationStyle = React.useMemo(() => {
     const style = {};
@@ -66,13 +85,19 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
           extrapolate: Extrapolate.CLAMP,
         }),
       },
+      {
+        translateX: multiply(
+          add(1, multiply(-1, position)),
+          popoverHorizontalOffset,
+        ),
+      },
     ];
     if (popoverLocation === 'above') {
       style.transform.push({
         translateY: interpolateNode(position, {
           inputRange: [0, 1],
           outputRange: [
-            calculatedMargin + reactionSelectionPopoverHeight / 2,
+            calculatedMargin + reactionSelectionPopoverDimensions.height / 2,
             0,
           ],
           extrapolate: Extrapolate.CLAMP,
@@ -83,7 +108,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
         translateY: interpolateNode(position, {
           inputRange: [0, 1],
           outputRange: [
-            -calculatedMargin - reactionSelectionPopoverHeight / 2,
+            -calculatedMargin - reactionSelectionPopoverDimensions.height / 2,
             0,
           ],
           extrapolate: Extrapolate.CLAMP,
@@ -91,7 +116,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
       });
     }
     return style;
-  }, [position, calculatedMargin, popoverLocation]);
+  }, [position, calculatedMargin, popoverLocation, popoverHorizontalOffset]);
 
   const styles = useStyles(unboundStyles);
 
