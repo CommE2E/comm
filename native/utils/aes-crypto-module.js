@@ -1,7 +1,6 @@
 // @flow
 
 import { requireNativeModule } from 'expo-modules-core';
-import invariant from 'invariant';
 
 const KEY_SIZE = 32;
 const IV_LENGTH = 12;
@@ -34,7 +33,6 @@ export function encrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
 }
 
 export function decrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
-  invariant(AESCryptoModule.decrypt, 'AESCrypto.decrypt is not implemented');
   const plaintext = new Uint8Array(data.length - IV_LENGTH - TAG_LENGTH);
   AESCryptoModule.decrypt(key, data, plaintext);
   return plaintext;
