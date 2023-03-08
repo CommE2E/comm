@@ -1,0 +1,227 @@
+syntax = "proto3";
+
+package identity.client;
+
+// RPCs from a client (iOS, Android, or web) to identity service
+service IdentityClientService {
+
+  // Account actions
+
+  // Called by user to register with the Identity Service (PAKE only)
+  // Due to limitations of grpc-web, the Opaque challenge+response
+  // needs to be split up over two unary requests
+  // Start/Finish is used here to align with opaque protocol
+  rpc RegisterPasswordUserStart(RegistrationStartRequest) returns (
+    RegistrationStartResponse) {}
+  rpc RegisterPasswordUserFinish(RegistrationFinishRequest) returns (
+    RegistrationFinishResponse) {}
+  // Called by user to update password and receive new access token
+  rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
+    (UpdateUserPasswordStartResponse) {}
+  rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest) returns
+    (UpdateUserPasswordFinishResponse) {}
+  // Called by user to register device and get an access token
+  rpc LoginPasswordUserStart(stream OpaqueLoginStartRequest) returns
+    (stream OpaqueLoginStartResponse) {}
+  rpc LoginPasswordUserFinish(stream OpaqueLoginFinishRequest) returns
+    (stream OpaqueLoginFinishResponse) {}
+  rpc LoginWalletUser(WalletLoginRequest) returns (WalletLoginResponse) {}
+  // Called by a user to delete their own account
+  rpc DeleteUser(DeleteUserRequest) returns (Empty) {}
+
+  // Sign-In with Ethereum actions
+
+  // Called by clients to get a nonce for a Sign-In with Ethereum message
+  rpc GenerateNonce(Empty) returns (GenerateNonceResponse) {}
+}
+
+// Helper types
+
+message Empty {}
+
+// Key information needed for starting a X3DH session
+message IdentityKeyInfo {
+  // JSON payload containing Olm Identity keys
+  // Sessions for users will contain both IdentityKeys and NotifKeys
+  // For keyservers, this will only contain IdentityKeys
+  string payload = 1;
+  // Payload signed with the signing ed25519 key
+  string payloadSignature = 2;
+  // Signed message used for SIWE (optional)
+  // This correlates a given wallet with the identity of a device
+  optional string socialProof = 3;
+}
+
+// Ephemeral information provided to create initial message
+// Prekeys are generally rotated periodically
+// One-time Prekeys are "consumed" after first use
+message PreKeyResponse {
+  // Rotating preKey, validated to be associatd with IdentityKeys
+  // through signature
+  string preKey = 4;
+  string preKeySignature = 5;
+  // One time key, removed from available list of one time keys after requested
+  // Client is also intended to remove OPKs after initial message
+  optional string onetimePrekey = 6;
+}
+
+// Information needed when establishing communication to someone else's device
+message RemoteDeviceInfo {
+  IdentityKeyInfo identityInfo = 1;
+  PreKeyResponse identityPrekeys = 2;
+  PreKeyResponse notifPrekeys = 3;
+}
+
+// Information needed when establishing communication to a keyserver
+message KeyserverSessionInfo {
+  IdentityKeyInfo identityInfo = 1;
+  PreKeyResponse identityPrekeys = 2;
+}
+
+// RegisterUser
+
+// Ephemeral information provided so others can create initial message
+// to this device
+//
+// Prekeys are generally rotated periodically
+// One-time Prekeys are "consumed" after first use, so many need to
+// be provide to avoid exhausting them.
+message PreKeyRegistrationUpload {
+  // Rotating preKey, validated to be associatd with IdentityKeys
+  // through signature
+  string preKey = 1;
+  string preKeySignature = 2;
+  // One time keys
+  // Removed from available list after requested by another client
+  repeated string onetimePrekeys = 3;
+}
+
+// Bundle of information needed for creating an initial message using X3DH
+message DeviceKeyUpload {
+  IdentityKeyInfo deviceKeyInfo = 1;
+  PreKeyRegistrationUpload identityUpload = 2;
+  PreKeyRegistrationUpload notifUpload = 3;
+}
+
+// Request for registering a new user
+message RegistrationStartRequest {
+  // ed25519 key for the given user's device
+  string deviceEd25519PublicKey = 1;
+  // Message sent to initiate PAKE registration (step 1)
+  bytes opaqueRegistrationRequest = 2;
+  string username = 3;
+  // Information needed to open a new channel to current user's device
+  DeviceKeyUpload deviceKeyUpload = 4;
+}
+
+// Messages sent from a client to Identity Service
+message RegistrationFinishRequest {
+  // Identifier to correlate RegisterStart session
+  string sessionID = 1;
+  // Final message in PAKE registration
+  bytes opaqueRegistrationUpload = 2;
+}
+
+// Messages sent from Identity Service to client
+message RegistrationStartResponse {
+  // Identifier used to correlate start request with finish request
+  string sessionID = 1;
+  // sent to the user upon reception of the PAKE registration attempt
+  // (step 2)
+  bytes opaqueRegistrationResponse = 2;
+}
+
+message RegistrationFinishResponse {
+  // After successful unpacking of user credentials, return token
+  string accessToken = 2;
+}
+
+// UpdateUserPassword
+
+// Request for updating a user, similar to registration but need a
+// access token to validate user before updating password
+message UpdateUserPasswordStartRequest {
+  // Message sent to initiate PAKE registration (step 1)
+  bytes opaqueRegistrationRequest = 1;
+  // Used to validate user, before attempting to update password
+  string accessToken = 3;
+}
+
+// Do a user registration, but overwrite the existing credentials
+// after validation of user
+message UpdateUserPasswordFinishRequest {
+  // Identifier used to correlate start and finish request
+  string sessionID = 1;
+  // Opaque client registration upload (step 3)
+  bytes opaqueRegistrationUpload = 2;
+}
+
+message UpdateUserPasswordStartResponse {
+  // Identifier used to correlate start request with finish request
+  string sessionID = 1;
+  bytes opaqueRegistrationResponse = 2;
+}
+
+message UpdateUserPasswordFinishResponse {
+  // After validating client reponse, mint a new token
+  string accessToken = 2;
+}
+
+// LoginUser
+
+message OpaqueLoginStartRequest {
+  string username = 1;
+  // ed25519 key for the given user's device
+  string signingPublicKey = 2;
+  // Message sent to initiate PAKE login (step 1)
+  bytes opaqueLoginRequest = 3;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  DeviceKeyUpload deviceKeyUpload = 4;
+}
+
+message OpaqueLoginFinishRequest {
+  // Identifier used to correlate start request with finish request
+  string sessionID = 1;
+  // Message containing client's reponse to server challenge.
+  // Used to verify that client holds password secret (Step 3)
+  bytes opaqueLoginUpload = 2;
+}
+
+message OpaqueLoginStartResponse {
+  // Identifier used to correlate start request with finish request
+  string sessionID = 1;
+  // Opaque challenge sent from server to client attempting to login (Step 2)
+  bytes opaqueServerResponse = 2;
+}
+
+message OpaqueLoginFinishResponse {
+  // Mint and return a new key upon successful login
+  string accessToken = 2;
+}
+
+message WalletLoginRequest {
+  // ed25519 key for the given user's device
+  string signingPublicKey = 1;
+  string siweMessage = 2;
+  string siweSignature = 3;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  DeviceKeyUpload deviceKeyUpload = 4;
+}
+
+message WalletLoginResponse {
+  string accessToken = 1;
+}
+
+// DeleteUser
+
+message DeleteUserRequest {
+  string accessToken = 1;
+}
+
+// GenerateNonce
+
+message GenerateNonceResponse{
+  string nonce = 1;
+}
