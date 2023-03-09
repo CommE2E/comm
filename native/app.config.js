@@ -15,7 +15,21 @@ function getDevHostname() {
   if (COMM_NAT_DEV_HOSTNAME) {
     return COMM_NAT_DEV_HOSTNAME;
   }
-  return ip.v4.sync();
+  const autodetectedHostname = ip.v4.sync();
+
+  // we only want to show this warning once, but this expo config file is
+  // evaluated multiple times, so we use a flag to make sure it's only shown
+  // once
+  if (!autodetectedHostname && !process.env._HOSTNAME_WARNING_SHOWN) {
+    console.warn(
+      'Failed to autodetect `natDevHostname`. Please provide it manually ' +
+        'by setting the `COMM_NAT_DEV_HOSTNAME` environment variable: ' +
+        '`COMM_NAT_DEV_HOSTNAME=${hostname} yarn dev`',
+    );
+    process.env._HOSTNAME_WARNING_SHOWN = true;
+  }
+
+  return autodetectedHostname;
 }
 
 export default {
