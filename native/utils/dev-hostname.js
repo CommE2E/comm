@@ -13,35 +13,19 @@ function readHostnameFromExpoConfig(): ?string {
   return detectedHostname;
 }
 
-function readHostnameFromNetworkJson(): string {
-  try {
-    // this is your machine's hostname in the local network
-    // usually it looks like this: 192.168.1.x
-    // to find it you may want to use `ifconfig | grep '192.168'`
-    // command in the terminal
-    // example of native/facts/network.json:
-    // { "natDevHostname": "192.168.1.x" }
-    // $FlowExpectedError: It's a conditional require so the file may not exist
-    const hostname: string = require('../facts/network.json').natDevHostname;
-    warnNatDevHostnameUndefined = false;
-    return hostname;
-  } catch (e) {
-    return defaultNatDevHostname;
-  }
-}
-
-const natDevHostname: string =
-  readHostnameFromExpoConfig() ?? readHostnameFromNetworkJson();
-
 function checkForMissingNatDevHostname() {
   if (!warnNatDevHostnameUndefined) {
     return;
   }
   console.warn(
-    'Failed to autodetect natDevHostname. ' +
-      'Please specify it manually in native/facts/network.json',
+    'Failed to read `natDevHostname` from Expo config. ' +
+      'Please provide it manually by setting the `COMM_NAT_DEV_HOSTNAME` ' +
+      'environment variable: `COMM_NAT_DEV_HOSTNAME=${hostname} yarn dev`',
   );
   warnNatDevHostnameUndefined = false;
 }
+
+const natDevHostname: string =
+  readHostnameFromExpoConfig() || defaultNatDevHostname;
 
 export { natDevHostname, checkForMissingNatDevHostname };
