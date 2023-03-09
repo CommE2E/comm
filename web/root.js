@@ -41,7 +41,12 @@ const migrations = {
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['enabledApps', 'deviceID', 'draftStore'],
+  whitelist: [
+    'enabledApps',
+    'deviceID',
+    'draftStore',
+    'notifPermissionAlertInfo',
+  ],
   migrate: (createMigrate(migrations, { debug: isDev }): any),
   version: 1,
 };
