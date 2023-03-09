@@ -1,5 +1,5 @@
 diff --git a/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js b/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
-index 9ab8961..ab012c0 100644
+index 9ab8961..27b9cc2 100644
 --- a/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
 +++ b/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
 @@ -45,12 +45,17 @@ class DevServerManagerActions {
@@ -21,10 +21,10 @@ index 9ab8961..ab012c0 100644
                  // TODO: if development build, change this message!
                  Log.log((0, _commandsTable).printItem("Scan the QR code above with Expo Go (Android) or the Camera app (iOS)"));
 diff --git a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js b/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
-index 0a601bd..2c0a210 100644
+index 0a601bd..c4dbd20 100644
 --- a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
 +++ b/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
-@@ -255,6 +255,23 @@ class BundlerDevServer {
+@@ -255,6 +255,16 @@ class BundlerDevServer {
              return `${location.protocol}://localhost:${location.port}`;
          }
          var _url;
@@ -36,14 +36,7 @@ index 0a601bd..2c0a210 100644
 +              return `${location.protocol}://${ip}:${location.port}`;
 +            }
 +          } catch(e) {}
-+          // fall back to facts/network.json
-+          try {
-+            const { natDevHostname } = require('../../../../../../../native/facts/network.json');
-+            if (natDevHostname != null) {
-+              return `${location.protocol}://${natDevHostname}:${location.port}`;
-+            }            
-+          } catch(e) {}
-+          // if everithing else fails, fall back to localhost
++          // if the above fails, fall back to localhost
 +        }
          return (_url = location.url) != null ? _url : null;
      }
