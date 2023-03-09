@@ -36,16 +36,16 @@ const webGetClientResponsesSelector: (
   state: AppState,
 ) => (
   serverRequests: $ReadOnlyArray<ClientServerRequest>,
-) => $ReadOnlyArray<ClientClientResponse> = createSelector(
+) => Promise<$ReadOnlyArray<ClientClientResponse>> = createSelector(
   getClientResponsesSelector,
   (state: AppState) => state.navInfo.tab === 'calendar',
   (
       getClientResponsesFunc: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-        getSignedIdentityKeysBlob: ?() => SignedIdentityKeysBlob,
+        getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
-      ) => $ReadOnlyArray<ClientClientResponse>,
+      ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
       calendarActive: boolean,
     ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
