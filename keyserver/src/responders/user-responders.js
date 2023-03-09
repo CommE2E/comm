@@ -1,5 +1,6 @@
 // @flow
 
+import type { Utility as OlmUtility } from '@matrix-org/olm';
 import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
 import { ErrorTypes, SiweMessage } from 'siwe';
@@ -102,8 +103,7 @@ import {
 } from '../updaters/account-updaters.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { getOLMUtility } from '../utils/olm-utils.js';
-import type { OLMUtility } from '../utils/olm-utils.js';
+import { getOlmUtility } from '../utils/olm-utils.js';
 import { validateInput } from '../utils/validation-utils.js';
 
 const subscriptionUpdateRequestInputValidator = tShape({
@@ -227,7 +227,7 @@ async function accountCreationResponder(
       throw new ServerError('invalid_identity_keys_blob');
     }
 
-    const olmUtil: OLMUtility = getOLMUtility();
+    const olmUtil: OlmUtility = getOlmUtility();
     try {
       olmUtil.ed25519_verify(
         identityKeys.primaryIdentityPublicKeys.ed25519,
@@ -371,7 +371,7 @@ async function logInResponder(
   if (signedIdentityKeysBlob) {
     identityKeys = JSON.parse(signedIdentityKeysBlob.payload);
 
-    const olmUtil: OLMUtility = getOLMUtility();
+    const olmUtil: OlmUtility = getOlmUtility();
     try {
       olmUtil.ed25519_verify(
         identityKeys.primaryIdentityPublicKeys.ed25519,
@@ -540,7 +540,7 @@ async function siweAuthResponder(
       throw new ServerError('invalid_identity_keys_blob');
     }
 
-    const olmUtil: OLMUtility = getOLMUtility();
+    const olmUtil: OlmUtility = getOlmUtility();
     try {
       olmUtil.ed25519_verify(
         identityKeys.primaryIdentityPublicKeys.ed25519,
