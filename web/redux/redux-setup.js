@@ -35,6 +35,7 @@ import type { ConnectionInfo } from 'lib/types/socket-types.js';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
+import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 
 import {
   updateWindowActiveActionType,
@@ -79,6 +80,7 @@ export type AppState = {
   cookie?: void,
   deviceToken: ?string,
   baseHref: string,
+  notifPermissionAlertInfo: NotifPermissionAlertInfo,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
   lifecycleState: LifecycleState,
