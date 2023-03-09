@@ -15,10 +15,10 @@ import type { ReportStore } from 'lib/types/report-types.js';
 import type { ConnectionInfo } from 'lib/types/socket-types.js';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
+import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 
 import type { DimensionsInfo } from './dimensions-updater.react.js';
 import type { NavInfo } from '../navigation/default-state.js';
-import type { NotifPermissionAlertInfo } from '../push/alerts.js';
 import type { DeviceCameraInfo } from '../types/camera.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
 import type { GlobalThemeInfo } from '../types/themes.js';

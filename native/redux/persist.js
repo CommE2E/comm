@@ -28,12 +28,12 @@ import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
+import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
-import { defaultNotifPermissionAlertInfo } from '../push/alerts.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultGlobalThemeInfo } from '../types/themes.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
