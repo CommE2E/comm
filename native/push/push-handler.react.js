@@ -29,6 +29,7 @@ import {
 import {
   type NotifPermissionAlertInfo,
   recordNotifPermissionAlertActionType,
+  shouldSkipPushPermissionAlert,
 } from 'lib/utils/push-alerts.js';
 
 import {
@@ -71,8 +72,6 @@ LogBox.ignoreLogs([
   // react-native-in-app-message
   'ForceTouchGestureHandler is not available',
 ]);
-
-const msInDay = 24 * 60 * 60 * 1000;
 
 type BaseProps = {
   +navigation: RootNavigationProp<'App'>,
@@ -390,14 +389,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   showNotifAlertOnAndroid() {
     const alertInfo = this.props.notifPermissionAlertInfo;
-    if (
-      (alertInfo.totalAlerts > 3 &&
-        alertInfo.lastAlertTime > Date.now() - msInDay) ||
-      (alertInfo.totalAlerts > 6 &&
-        alertInfo.lastAlertTime > Date.now() - msInDay * 3) ||
-      (alertInfo.totalAlerts > 9 &&
-        alertInfo.lastAlertTime > Date.now() - msInDay * 7)
-    ) {
+    if (shouldSkipPushPermissionAlert(alertInfo)) {
       return;
     }
     this.props.dispatch({

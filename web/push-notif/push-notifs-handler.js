@@ -13,6 +13,10 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
+import {
+  shouldSkipPushPermissionAlert,
+  recordNotifPermissionAlertActionType,
+} from 'lib/utils/push-alerts.js';
 
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
@@ -83,6 +87,10 @@ function PushNotificationsHandler(): React.Node {
   useCreateDesktopPushSubscription();
   const createPushSubscription = useCreatePushSubscription();
 
+  const notifPermissionAlertInfo = useSelector(
+    state => state.notifPermissionAlertInfo,
+  );
+
   const modalContext = useModalContext();
   const loggedIn = useSelector(isLoggedIn);
 
@@ -99,9 +107,17 @@ function PushNotificationsHandler(): React.Node {
       if (Notification.permission === 'granted') {
         // Make sure the subscription is current if we have the permissions
         await createPushSubscription();
-      } else if (Notification.permission === 'default' && loggedIn) {
+      } else if (
+        Notification.permission === 'default' &&
+        loggedIn &&
+        !shouldSkipPushPermissionAlert(notifPermissionAlertInfo)
+      ) {
         // Ask existing users that are already logged in for permission
         modalContext.pushModal(<PushNotifModal />);
+        dispatch({
+          type: recordNotifPermissionAlertActionType,
+          payload: { time: Date.now() },
+        });
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,12 +133,26 @@ function PushNotificationsHandler(): React.Node {
     if (!prevLoggedIn.current && loggedIn) {
       if (Notification.permission === 'granted') {
         createPushSubscription();
-      } else if (Notification.permission === 'default') {
+      } else if (
+        Notification.permission === 'default' &&
+        !shouldSkipPushPermissionAlert(notifPermissionAlertInfo)
+      ) {
         modalContext.pushModal(<PushNotifModal />);
+        dispatch({
+          type: recordNotifPermissionAlertActionType,
+          payload: { time: Date.now() },
+        });
       }
     }
     prevLoggedIn.current = loggedIn;
-  }, [createPushSubscription, loggedIn, modalContext, prevLoggedIn]);
+  }, [
+    createPushSubscription,
+    dispatch,
+    loggedIn,
+    modalContext,
+    notifPermissionAlertInfo,
+    prevLoggedIn,
+  ]);
 
   // Redirect to thread on notification click
   React.useEffect(() => {
