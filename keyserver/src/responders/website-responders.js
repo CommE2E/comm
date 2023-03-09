@@ -29,6 +29,7 @@ import { threadPermissions, threadTypes } from 'lib/types/thread-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
+import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import getTitle from 'web/title/getTitle.js';
 import { navInfoFromURL } from 'web/url-utils.js';
 
@@ -390,6 +391,7 @@ async function websiteResponder(
     urlPrefix: '',
     windowDimensions: { width: 0, height: 0 },
     baseHref,
+    notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
     connection: {
       ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
       actualizedCalendarQuery: calendarQuery,

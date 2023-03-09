@@ -13,8 +13,6 @@ import type { ConnectivityInfo } from '../types/connectivity.js';
 import type { GlobalThemeInfo } from '../types/themes.js';
 
 export const resetUserStateActionType = 'RESET_USER_STATE';
-export const recordNotifPermissionAlertActionType =
-  'RECORD_NOTIF_PERMISSION_ALERT';
 export const updateDimensionsActiveType = 'UPDATE_DIMENSIONS';
 export const updateConnectivityActiveType = 'UPDATE_CONNECTIVITY';
 export const updateThemeInfoActionType = 'UPDATE_THEME_INFO';
@@ -38,10 +36,6 @@ export type Action =
   | {
       +type: 'SET_CUSTOM_SERVER',
       +payload: string,
-    }
-  | {
-      +type: 'RECORD_NOTIF_PERMISSION_ALERT',
-      +payload: { +time: number },
     }
   | { +type: 'RESET_USER_STATE' }
   | {
