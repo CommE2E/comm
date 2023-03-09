@@ -87,7 +87,7 @@
   },
   "jest": {
     "roots": [
-      "<rootDir>/utils"
+      "<rootDir>"
     ],
     "transform": {
       "\\.js$": "babel-jest"
