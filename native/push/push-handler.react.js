@@ -26,8 +26,11 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import {
+  type NotifPermissionAlertInfo,
+  recordNotifPermissionAlertActionType,
+} from 'lib/utils/push-alerts.js';
 
-import { type NotifPermissionAlertInfo } from './alerts.js';
 import {
   androidNotificationChannelID,
   handleAndroidMessage,
@@ -59,7 +62,6 @@ import { replaceWithThreadActionType } from '../navigation/action-types.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
-import { recordNotifPermissionAlertActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { RootContext, type RootContextType } from '../root-context.js';
 import type { EventSubscription } from '../types/react-native.js';

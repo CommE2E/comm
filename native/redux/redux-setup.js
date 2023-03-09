@@ -30,11 +30,11 @@ import type { ThreadStoreOperation } from 'lib/types/thread-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils.js';
+import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
 import {
   resetUserStateActionType,
-  recordNotifPermissionAlertActionType,
   updateDimensionsActiveType,
   updateConnectivityActiveType,
   updateThemeInfoActionType,
@@ -54,7 +54,6 @@ import { commCoreModule } from '../native-modules.js';
 import { defaultNavInfo } from '../navigation/default-state.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
-import { defaultNotifPermissionAlertInfo } from '../push/alerts.js';
 import reactotron from '../reactotron.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultConnectivityInfo } from '../types/connectivity.js';
@@ -220,14 +219,6 @@ function reducer(state: AppState = defaultState, action: Action) {
     return {
       ...state,
       customServer: action.payload,
-    };
-  } else if (action.type === recordNotifPermissionAlertActionType) {
-    return {
-      ...state,
-      notifPermissionAlertInfo: {
-        totalAlerts: state.notifPermissionAlertInfo.totalAlerts + 1,
-        lastAlertTime: action.payload.time,
-      },
     };
   } else if (action.type === resetUserStateActionType) {
     const cookie =
