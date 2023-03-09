@@ -18,6 +18,7 @@ use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
 use keygen::generate_and_persist_keypair;
 use service::{IdentityKeyserverServiceServer, MyIdentityService};
+use tracing::info;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -58,6 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let server = MyIdentityService::new(database_client);
       let svc =
         IdentityKeyserverServiceServer::with_interceptor(server, check_auth);
+      info!("Listening to gRPC traffic on {}", addr);
       Server::builder().add_service(svc).serve(addr).await?;
     }
     Commands::PopulateDB => unimplemented!(),
