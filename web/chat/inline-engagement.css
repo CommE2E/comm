@@ -17,7 +17,7 @@ div.rightContainer {
   justify-content: flex-end;
   position: relative;
   top: -10px;
-  right: 31px;
+  right: 30px;
   margin-left: 31px;
 }
 
@@ -61,4 +61,29 @@ div.unread {
 
 svg.inlineEngagementIcon {
   color: #666666;
+}
+
+div.messageLabel {
+  display: flex;
+  flex-shrink: 0;
+}
+
+div.messageLabel > span {
+  font-size: 12px;
+  padding: 0 3px;
+  color: var(--message-label-color);
+}
+
+div.messageLabelLeft {
+  margin-left: 8px;
+  margin-right: 4px;
+}
+
+div.messageLabelRight {
+  margin-right: 12px;
+  margin-left: 4px;
+}
+
+div.onlyMessageLabel {
+  margin-top: 8px;
 }
