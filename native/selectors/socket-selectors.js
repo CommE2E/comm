@@ -55,16 +55,16 @@ const nativeGetClientResponsesSelector: (
   input: NavPlusRedux,
 ) => (
   serverRequests: $ReadOnlyArray<ClientServerRequest>,
-) => $ReadOnlyArray<ClientClientResponse> = createSelector(
+) => Promise<$ReadOnlyArray<ClientClientResponse>> = createSelector(
   (input: NavPlusRedux) => getClientResponsesSelector(input.redux),
   (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
   (
       getClientResponsesFunc: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-        getSignedIdentityKeysBlob: ?() => SignedIdentityKeysBlob,
+        getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
-      ) => $ReadOnlyArray<ClientClientResponse>,
+      ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
       calendarActive: boolean,
     ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
