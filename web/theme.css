@@ -206,4 +206,5 @@
   --topbar-button-bg: var(--shades-black-90);
   --topbar-button-bg-hover: var(--shades-black-80);
   --topbar-button-fg: var(--shades-white-60);
+  --message-label-color: var(--shades-white-60);
 }
