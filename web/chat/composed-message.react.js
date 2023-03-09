@@ -66,6 +66,7 @@ class ComposedMessage extends React.PureComponent<Props> {
   render(): React.Node {
     assertComposableMessageType(this.props.item.messageInfo.type);
     const { borderRadius, item, threadInfo } = this.props;
+    const { hasBeenEdited } = item;
     const { id, creator } = item.messageInfo;
     const threadColor = threadInfo.color;
 
@@ -123,15 +124,18 @@ class ComposedMessage extends React.PureComponent<Props> {
     let inlineEngagement = null;
     if (
       (this.props.containsInlineEngagement && item.threadCreatedFromMessage) ||
-      Object.keys(item.reactions).length > 0
+      Object.keys(item.reactions).length > 0 ||
+      hasBeenEdited
     ) {
       const positioning = isViewer ? 'right' : 'left';
+      const label = hasBeenEdited ? 'Edited' : null;
       inlineEngagement = (
         <div className={css.sidebarMarginBottom}>
           <InlineEngagement
             threadInfo={item.threadCreatedFromMessage}
             reactions={item.reactions}
             positioning={positioning}
+            label={label}
           />
         </div>
       );
