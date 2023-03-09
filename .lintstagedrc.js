@@ -27,6 +27,9 @@ module.exports = {
   '{web,lib}/**/*.js': function webFlow(files) {
     return 'yarn workspace web flow --quiet';
   },
+  'web/**/*.js': function webTest(files) {
+    return 'yarn workspace web test';
+  },
   '{native,lib}/**/*.js': function nativeFlow(files) {
     return 'yarn workspace native flow --quiet';
   },

@@ -62,3 +62,7 @@ jobs:
       - name: '[keyserver] test'
         working-directory: ./keyserver
         run: yarn test
+
+      - name: '[web] test'
+        working-directory: ./web
+        run: yarn test
