@@ -64,7 +64,7 @@ services:
       context: ../
     image: commapp/identity-server:0.1
     ports:
-      - '${COMM_SERVICES_PORT_IDENTITY}:50051'
+      - '${COMM_SERVICES_PORT_IDENTITY}:50054'
   feature-flags-server:
     depends_on:
       - localstack
