@@ -71,7 +71,7 @@ struct IdentityServiceConfig {
 impl Default for IdentityServiceConfig {
   fn default() -> Self {
     Self {
-      identity_socket_addr: "https://[::1]:50051".to_string(),
+      identity_socket_addr: "https://[::1]:50054".to_string(),
       identity_auth_token: "test".to_string(),
     }
   }
