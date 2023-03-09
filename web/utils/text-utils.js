@@ -4,11 +4,6 @@ import invariant from 'invariant';
 
 let canvas;
 
-declare var crypto: {
-  getRandomValues<NumArray: $TypedArray>(typedArray: NumArray): NumArray,
-  ...
-};
-
 function calculateMaxTextWidth(
   texts: $ReadOnlyArray<string>,
   font: string,
