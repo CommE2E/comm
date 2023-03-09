@@ -1,0 +1,451 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { crypto: webcrypto } = require('crypto');
+const { parseArgs } = require('node:util');
+
+function printHelp(exit = false) {
+  const programName = process.argv[1].substring(process.argv[1].lastIndexOf('/') + 1);
+  console.log(`
+Comm AES tool.
+Usage: ${programName} [ACTION] [ARGS] [OPTIONS]
+
+Available actions:
+  - keygen         \t - generates AES-256 key in HEX representation
+  - pad [FILE]     \t - pads the file to the multiple of 10KB
+  - unpad [FILE]   \t - unpads a file padded by the "pad" option
+  - encrypt [FILE] \t - encrypts given file using AES-GCM algorithm
+  - decrypt [FILE] \t - decrypts given file using AES-GCM algorithm
+
+The [FILE] arg can be omitted if input is piped from stdin.
+
+Common flags (for all actions except 'keygen'):
+  -o --output     \t - output file name. This is ignored when the '-p' flag is set.
+                  \t   > This is required if [FILE] is omitted and '-p' flag is not set.
+  -p --print      \t - prints output to stdout instead of saving to file. 
+
+Flags for 'encrypt'/'decrypt' actions:
+  -k --key        \t - [REQUIRED] AES-256 key provided in HEX format
+                  \t   Alternatively, an 'AES_KEY' environment variable can be set
+
+Examples:
+- generates AES encryption key and copies it to Mac clipboard
+      ${programName} keygen | pbcopy
+
+- pads the input.txt and saves it as input.padded.txt (default output)
+      ${programName} pad input.txt
+
+- pads given stdin and passes output to stdout (e.g. a hex viewer)
+      echo "Hello World!" | ${programName} pad -p | xxd | less
+
+- unpads the input.padded.txt and saves it as output.txt
+      ${programName} unpad input.padded.txt -o output.txt
+
+- encrypts img.png with given key and saves it as img.encrypted.png
+      ${programName} encrypt img.png --key "$MY_SECRET_KEY"
+
+- pads, then encrypts data and saved it to sealed.dat
+      ${programName} pad img.png -p | ${programName} encrypt -k "$KEY" -p > sealed.dat
+
+- decrypts, then unpads sealed file
+      ${programName} decrypt sealed.dat -k "$KEY" -p | ${programName} unpad -o decrypted.png
+
+- all operations combined - should echo the input
+      export AES_KEY=$(${programName} keygen)
+      echo "Hello World" | ${programName} pad -p | ${programName} encrypt -p | ${programName} decrypt -p | ${programName} unpad -p
+
+`);
+  if (exit) process.exit(0);
+}
+
+if (process.argv.length <= 2 || process.argv.some(it => ['-h', '--help'].includes(it.trim().toLowerCase()))) {
+  printHelp(true);
+}
+
+const { values: flags, positionals: [command, ...args] } = parseArgs({
+  allowPositionals: true,
+  options: {
+    'print': {
+      type: 'boolean',
+      short: 'p'
+    },
+    'output': {
+      type: 'string',
+      short: 'o'
+    },
+    'key': {
+      type: 'string',
+      short: 'k'
+    }
+  }
+});
+
+if (!command) {
+  console.error('Must specify a command!');
+  printHelp(false);
+  process.exit(1);
+}
+
+const printOutBuf = flags['print'] == true;
+if (printOutBuf) {
+  console.debug = () => { };
+}
+
+async function main() {
+  if (command === 'keygen') {
+    const key = await generateKey();
+    console.log(toHex(key));
+    process.exit(0)
+  }
+
+  let inputData;
+  let outFilename = undefined;
+  const outputOverride = flags['output'];
+
+  if (outputOverride) {
+    outFilename = path.resolve(flags['output'].trim());
+  }
+
+  const isPiped = await isPipedStdinAsync();
+  if (isPiped) {
+    if (!printOutBuf && !outFilename) {
+      console.error('Must specify output filename when input is piped and --print is not set');
+      process.exit(1);
+    }
+    inputData = await readStdinAsync();
+  } else {
+    const [fileArg] = args;
+    if (!fileArg) {
+      console.error('Must file path if input is not piped!');
+      printHelp();
+      process.exit(1);
+    }
+    const inFilename = path.resolve(fileArg);
+    inputData = fs.readFileSync(inFilename);
+
+    if (!outFilename) outFilename = inFilename;
+  }
+
+  const keyArg = flags['key'] || process.env.AES_KEY || args[1] || null;
+
+  switch (command) {
+    case 'pad': {
+      console.debug('Performing padding operation\nInput file length:', inputData.length);
+      const padded = pad(inputData);
+
+      if (printOutBuf) {
+        process.stdout.write(padded);
+      } else {
+        console.log('Done! Output file size (bytes):', padded.length);
+        if (!outputOverride) {
+          outFilename = removeSuffixIfExists(outFilename, '.unpadded');
+          outFilename = addSuffix(outFilename, 'padded');
+        }
+        fs.writeFileSync(outFilename, padded);
+        console.log('Output saved as:', outFilename);
+      }
+      break;
+    }
+    case 'unpad': {
+      console.debug('Performing unpadding operation\nInput file length:', inputData.length);
+      const unpadded = unpad(inputData);
+
+      if (printOutBuf) {
+        process.stdout.write(unpadded);
+      } else {
+        console.log('Done! Output file size (bytes):', unpadded.length);
+        if (!outputOverride) {
+          outFilename = removeSuffixIfExists(outFilename, '.padded');
+          outFilename = addSuffix(outFilename, 'unpadded');
+        }
+        fs.writeFileSync(outFilename, unpadded);
+        console.log('Output saved as:', outFilename);
+      }
+      break;
+    }
+    case 'encrypt': {
+      if (!keyArg) {
+        console.error('Must specify encryption key');
+        printHelp();
+        process.exit(1);
+      }
+
+      const key = toByteArray(keyArg.trim().toLowerCase())
+      console.debug('Performing AES-GCM encryption');
+      const encrypted = await encrypt(key, inputData);
+
+      if (printOutBuf) {
+        process.stdout.write(encrypted);
+      } else {
+        if (!outputOverride) {
+          outFilename = removeSuffixIfExists(outFilename, '.decrypted');
+          outFilename = addSuffix(outFilename, 'encrypted');
+        }
+        fs.writeFileSync(outFilename, encrypted);
+        console.log('Done! Encrypted file saved as:', outFilename);
+      }
+      break;
+    }
+    case 'decrypt': {
+      if (!keyArg) {
+        console.error('Must specify encryption key');
+        printHelp();
+        process.exit(1);
+      }
+      const key = toByteArray(keyArg.trim().toLowerCase())
+      console.debug('Performing AES-GCM decryption');
+      const decrypted = await decrypt(key, inputData);
+
+      if (printOutBuf) {
+        process.stdout.write(decrypted);
+      } else {
+        if (!outputOverride) {
+          outFilename = removeSuffixIfExists(outFilename, '.encrypted');
+          outFilename = addSuffix(outFilename, 'decrypted');
+        }
+        fs.writeFileSync(outFilename, decrypted);
+        console.log('Done! Decrypted file saved as:', outFilename);
+      }
+      break;
+    }
+    default: {
+      console.error('Unknown option:', process.argv[2]);
+      printHelp();
+      process.exit(1);
+    }
+  }
+}
+
+const PKCS7_10KB = {
+  blockSizeBytes: 250,
+  superblockSizeBlocks: 40,
+};
+
+function pad(
+  data,
+  { blockSizeBytes, superblockSizeBlocks } = PKCS7_10KB,
+) {
+  const pkcs7Padded = pkcs7pad(data, blockSizeBytes);
+  return superblockPad(pkcs7Padded, blockSizeBytes, superblockSizeBlocks);
+}
+function unpad(
+  data,
+  { blockSizeBytes } = PKCS7_10KB,
+) {
+  const blockUnpadded = superblockUnpad(data, blockSizeBytes);
+  return pkcs7unpad(blockUnpadded);
+}
+
+function superblockPad(
+  data,
+  blockSizeBytes,
+  superblockSize,
+) {
+  invariant(
+    data.length % blockSizeBytes === 0,
+    'data length must be a multiple of block size',
+  );
+  invariant(superblockSize > 0, 'superblock size must be positive');
+  invariant(superblockSize <= 255, 'superblock size must be less than 256');
+  invariant(blockSizeBytes > 0, 'block size must be positive');
+  invariant(blockSizeBytes <= 255, 'block size must be less than 256');
+
+  const numBlocks = data.length / blockSizeBytes;
+  const paddingBlocks = superblockSize - (numBlocks % superblockSize);
+  const paddingValue = paddingBlocks;
+
+  const blocksNeeded = Math.ceil(numBlocks / superblockSize) * superblockSize;
+  console.debug('Input blocks num:', numBlocks);
+  console.debug('Total blocks needed:', blocksNeeded);
+  console.debug('Padding blocks inserted:', paddingBlocks);
+
+  const outputBuffer = new Uint8Array(
+    data.length + paddingBlocks * blockSizeBytes,
+  );
+  outputBuffer.set(data);
+  outputBuffer.fill(paddingValue, data.length);
+  return outputBuffer;
+}
+
+function superblockUnpad(data, blockSizeBytes) {
+  invariant(blockSizeBytes > 0, 'block size must be positive');
+  invariant(blockSizeBytes <= 255, 'block size must be less than 256');
+  invariant(
+    data.length % blockSizeBytes === 0,
+    'data length must be a multiple of block size',
+  );
+
+  const numBlocks = data.length / blockSizeBytes;
+  const paddingBlocks = data[data.length - 1];
+  invariant(paddingBlocks > 0 && paddingBlocks < numBlocks, 'invalid padding');
+
+  const unpaddedBlocks = numBlocks - paddingBlocks;
+  const unpaddedLengthBytes = unpaddedBlocks * blockSizeBytes;
+  invariant(
+    data.subarray(unpaddedLengthBytes).every(x => x === paddingBlocks),
+    'invalid padding',
+  );
+
+  console.debug('Input num of blocks:', numBlocks);
+  console.debug('Padding blocks to remove:', paddingBlocks);
+  console.debug('Blocks remaining after padding:', unpaddedBlocks);
+  console.debug('Output length:', unpaddedLengthBytes);
+  const unpaddedData = data.subarray(0, unpaddedLengthBytes);
+  return unpaddedData;
+}
+
+function pkcs7pad(data, blockSizeBytes) {
+  const padding = blockSizeBytes - (data.length % blockSizeBytes);
+  const padded = new Uint8Array(data.length + padding);
+  padded.set(data);
+  padded.fill(padding, data.length);
+  return padded;
+}
+
+function pkcs7unpad(data) {
+  const padding = data[data.length - 1];
+  invariant(padding > 0, 'padding must be positive');
+  invariant(data.length >= padding, 'data length must be at least padding');
+  invariant(
+    data.subarray(data.length - padding).every(x => x === padding),
+    'invalid padding',
+  );
+
+  const unpadded = data.subarray(0, data.length - padding);
+  return unpadded;
+}
+
+const KEY_SIZE = 32; // bytes
+const IV_LENGTH = 12; // bytes
+const TAG_LENGTH = 16; // bytes
+
+async function generateKey() {
+  const algorithm = { name: 'AES-GCM', length: 256 };
+  const key = await crypto.subtle.generateKey(algorithm, true, [
+    'encrypt',
+    'decrypt',
+  ]);
+  const keyData = await crypto.subtle.exportKey('raw', key);
+  return new Uint8Array(keyData);
+}
+
+async function encrypt(
+  keyBytes,
+  plaintext,
+) {
+  if (keyBytes.length !== KEY_SIZE) {
+    throw new Error('Invalid AES key size');
+  }
+
+  // we're creating the buffer now so we can avoid reallocating it later
+  const outputBuffer = new ArrayBuffer(
+    plaintext.length + IV_LENGTH + TAG_LENGTH,
+  );
+  const ivBytes = new Uint8Array(outputBuffer, 0, IV_LENGTH);
+  const iv = crypto.getRandomValues(ivBytes);
+
+  const algorithm = { name: 'AES-GCM', iv: iv, tagLength: TAG_LENGTH * 8 };
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, [
+    'encrypt',
+  ]);
+  const ciphertext = await crypto.subtle.encrypt(algorithm, key, plaintext);
+
+  const result = new Uint8Array(outputBuffer);
+  result.set(new Uint8Array(ciphertext), iv.length);
+  return result;
+}
+
+async function decrypt(
+  keyBytes,
+  ciphertextData,
+) {
+  if (keyBytes.length !== KEY_SIZE) {
+    throw new Error('Invalid AES key size');
+  }
+  if (ciphertextData.length < IV_LENGTH + TAG_LENGTH) {
+    throw new Error('Invalid ciphertext');
+  }
+
+  const iv = ciphertextData.subarray(0, IV_LENGTH);
+  const ciphertextContent = ciphertextData.subarray(IV_LENGTH);
+
+  const algorithm = { name: 'AES-GCM', iv, tagLength: TAG_LENGTH * 8 };
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, [
+    'decrypt',
+  ]);
+
+  const plaintextBuffer = await crypto.subtle.decrypt(
+    algorithm,
+    key,
+    ciphertextContent,
+  );
+  return new Uint8Array(plaintextBuffer);
+}
+
+function invariant(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+function splitAt(str, pos) {
+  return [str.substring(0, pos), str.substring(pos)];
+}
+
+function addSuffix(filePath, suffix) {
+  if (filePath.includes(suffix)) return filePath;
+  const extensionIdx = filePath.lastIndexOf('.');
+  if (extensionIdx < 0) {
+    return `${filePath}.${suffix}`;
+  }
+  const [basename, extension] = splitAt(filePath, extensionIdx);
+  return `${basename}.${suffix}${extension}`;
+}
+
+function removeSuffixIfExists(filePath, suffix) {
+  const suffixIdx = filePath.lastIndexOf(suffix);
+
+  if (suffixIdx < 0) return filePath;
+  return filePath.replace(suffix, '');
+}
+
+function toHex(array) {
+  return Array.from(array)
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function toByteArray(hexStr) {
+  return new Uint8Array(hexStr.match(/[\da-f]{2}/gi).map(function(h) {
+    return parseInt(h, 16)
+  }));
+}
+
+async function isPipedStdinAsync() {
+  return new Promise((resolve, reject) => {
+    fs.fstat(0, function(err, stats) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(stats.isFIFO())
+      }
+    });
+  });
+}
+
+async function readStdinAsync() {
+  return new Promise((resolve, reject) => {
+    let buf = [];
+    process.stdin.on('data', data => { buf.push(data); });
+    process.stdin.on('end', () => { resolve(Buffer.concat(buf)); });
+    process.stdin.on('error', err => { reject(err) });
+  });
+}
+
+(async () => {
+  try {
+    await main();
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
+})();
