@@ -18,9 +18,10 @@ type Props = {
   +threadInfo: ?ThreadInfo,
   +reactions?: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
+  +label?: ?string,
 };
 function InlineEngagement(props: Props): React.Node {
-  const { threadInfo, reactions, positioning } = props;
+  const { threadInfo, reactions, positioning, label } = props;
   const { pushModal, popModal } = useModalContext();
   const repliesText = useInlineEngagementText(threadInfo);
 
@@ -87,12 +88,43 @@ function InlineEngagement(props: Props): React.Node {
     );
   }, [reactions, onClickReactions, reactionsContainerClasses]);
 
-  return (
-    <div className={containerClasses}>
-      {sidebarItem}
-      {reactionsList}
-    </div>
-  );
+  const isLeft = positioning === 'left';
+  const labelClasses = classNames({
+    [css.messageLabel]: true,
+    [css.messageLabelLeft]: isLeft,
+    [css.messageLabelRight]: !isLeft,
+    [css.onlyMessageLabel]: !sidebarItem && !reactionsList,
+  });
+  const messageLabel = React.useMemo(() => {
+    if (!label) {
+      return null;
+    }
+    return (
+      <div className={labelClasses}>
+        <span>{label}</span>
+      </div>
+    );
+  }, [label, labelClasses]);
+
+  let body;
+  if (isLeft) {
+    body = (
+      <>
+        {messageLabel}
+        {sidebarItem}
+        {reactionsList}
+      </>
+    );
+  } else {
+    body = (
+      <>
+        {sidebarItem}
+        {reactionsList}
+        {messageLabel}
+      </>
+    );
+  }
+  return <div className={containerClasses}>{body}</div>;
 }
 
 export default InlineEngagement;
