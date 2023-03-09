@@ -33,7 +33,7 @@ pub const NONCE_TABLE_CREATED_ATTRIBUTE: &str = "created";
 // Tokio
 
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
-pub const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50051";
+pub const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50054";
 
 // Token
 
