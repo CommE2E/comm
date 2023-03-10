@@ -193,8 +193,8 @@ class RelationshipListItem extends React.PureComponent<Props> {
   }
 
   onSelect = () => {
-    const { id, username } = this.props.userInfo;
-    this.props.onSelect({ id, username });
+    const { id, username, avatar } = this.props.userInfo;
+    this.props.onSelect({ id, username, avatar });
   };
 
   visibleEntryIDs() {

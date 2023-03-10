@@ -8,7 +8,7 @@ import { dbQuery, SQL } from '../database/database.js';
 async function searchForUsers(
   query: UserSearchRequest,
 ): Promise<GlobalAccountUserInfo[]> {
-  const sqlQuery = SQL`SELECT id, username FROM users `;
+  const sqlQuery = SQL`SELECT id, username, avatar FROM users `;
   const prefix = query.prefix;
   if (prefix) {
     sqlQuery.append(SQL`WHERE LOWER(username) LIKE LOWER(${prefix + '%'}) `);
@@ -22,6 +22,7 @@ async function searchForUsers(
     userInfos.push({
       id: row.id.toString(),
       username: row.username,
+      avatar: row.avatar,
     });
   }
   return userInfos;

@@ -571,8 +571,8 @@ async function checkState(
       for (const userID in fetchedUserInfos) {
         const userInfo = fetchedUserInfos[userID];
         if (userInfo && userInfo.username) {
-          const { id, username } = userInfo;
-          userInfos.push({ id, username });
+          const { id, username, avatar } = userInfo;
+          userInfos.push({ id, username, avatar });
         }
       }
     }
