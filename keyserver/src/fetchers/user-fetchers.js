@@ -200,7 +200,7 @@ async function fetchLoggedInUserInfo(
   viewer: Viewer,
 ): Promise<OldLoggedInUserInfo | LoggedInUserInfo> {
   const userQuery = SQL`
-    SELECT id, username
+    SELECT id, username, avatar
     FROM users
     WHERE id = ${viewer.userID}
   `;
@@ -228,7 +228,7 @@ async function fetchLoggedInUserInfo(
   }
 
   const id = userRow.id.toString();
-  const { username } = userRow;
+  const { username, avatar } = userRow;
 
   if (stillExpectsEmailFields) {
     return {
@@ -241,16 +241,25 @@ async function fetchLoggedInUserInfo(
 
   const featureGateSettings = !hasMinCodeVersion(viewer.platformDetails, 1000);
 
+  const currentUserInfo = {};
+  currentUserInfo.id = id;
+  currentUserInfo.username = username;
+
+  if (avatar) {
+    currentUserInfo.avatar = avatar;
+  }
+
   if (featureGateSettings) {
-    return { id, username };
+    return { ...currentUserInfo };
   }
 
   const settings = settingsResult.reduce((prev, curr) => {
     prev[curr.name] = curr.data;
     return prev;
   }, {});
+  currentUserInfo.settings = settings;
 
-  return { id, username, settings };
+  return { ...currentUserInfo };
 }
 
 async function fetchAllUserIDs(): Promise<string[]> {
