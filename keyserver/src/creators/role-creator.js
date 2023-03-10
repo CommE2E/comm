@@ -95,6 +95,7 @@ function getRolePermissionBlobsForCommunity(
   const openTopLevelDescendantJoinThread =
     OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
   const openChildJoinThread = OPEN_CHILD + threadPermissions.JOIN_THREAD;
+  const openChildAddMembers = OPEN_CHILD + threadPermissions.ADD_MEMBERS;
 
   const genesisMemberPermissions = {
     [threadPermissions.KNOW_OF]: true,
@@ -107,7 +108,9 @@ function getRolePermissionBlobsForCommunity(
     ...genesisMemberPermissions,
     [threadPermissions.LEAVE_THREAD]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
+    [threadPermissions.ADD_MEMBERS]: true,
     [openChildJoinThread]: true,
+    [openChildAddMembers]: true,
   };
 
   let memberPermissions;
