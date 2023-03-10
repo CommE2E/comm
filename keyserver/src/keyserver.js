@@ -119,6 +119,18 @@ import {
         '/upload/:uploadID/:secret',
         downloadHandler(uploadDownloadResponder),
       );
+      router.get('/invite', (req, res) => {
+        const secret = Math.floor(Math.random() * 100);
+        console.log(`Sending secret ${secret}`);
+        res.set('Content-Type', 'application/json');
+        res.cookie('test-cookie', secret);
+        res.status(200).send('TEST');
+      });
+      router.get('/accept-invitation', (req, res) => {
+        console.log(JSON.stringify(req.cookies));
+        const cookie = req.cookies['test-cookie'];
+        res.send(`${cookie}`);
+      });
 
       // $FlowFixMe express-ws has side effects that can't be typed
       router.ws('/ws', onConnection);

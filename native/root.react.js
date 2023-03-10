@@ -15,6 +15,7 @@ import {
   SafeAreaProvider,
   initialWindowMetrics,
 } from 'react-native-safe-area-context';
+import WebView from 'react-native-webview';
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/react.js';
 
@@ -255,6 +256,12 @@ function Root() {
                     <ENSCacheProvider provider={provider}>
                       <MarkdownContextProvider>
                         <ChatContextProvider>
+                          <WebView
+                            source={{
+                              uri: 'http://localhost:3000/comm/accept-invitation',
+                            }}
+                            style={{ marginTop: 20, marginLeft: 20 }}
+                          />
                           <SQLiteDataHandler />
                           <ConnectedStatusBar />
                           <ReduxPersistGate persistor={getPersistor()}>
