@@ -1,6 +1,9 @@
 steps:
   - label: ':macos: macOS Build'
     command:
+      - 'pod repo update && yarn workspace native clean-ios'
+      - 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
+      - 'source /Users/comm/.cargo/env'
       - 'yarn ci-cleaninstall'
       - 'cd desktop && yarn make-dev --arch universal'
     agents:
