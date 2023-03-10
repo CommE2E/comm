@@ -184,6 +184,7 @@ declare module 'electron' {
   }
 
   declare type AutoUpdaterEvents = {
+    'error': Error => void,
     'checking-for-update': () => void,
     'update-available': () => void,
     'update-not-available': () => void,
