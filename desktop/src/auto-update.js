@@ -24,5 +24,10 @@ export function initAutoUpdate(): void {
     scheduleCheckForUpdates();
   });
 
+  autoUpdater.on('error', error => {
+    console.error(error);
+    scheduleCheckForUpdates();
+  });
+
   ipcMain.on('update-to-new-version', () => autoUpdater.quitAndInstall());
 }
