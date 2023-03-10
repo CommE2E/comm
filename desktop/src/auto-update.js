@@ -11,8 +11,14 @@ export function initAutoUpdate(): void {
 
   // Check for new updates every 10 minutes
   const updateIntervalMs = 10 * 60_000;
+  let currentTimeout = null;
   const scheduleCheckForUpdates = () => {
-    setTimeout(() => autoUpdater.checkForUpdates(), updateIntervalMs);
+    if (!currentTimeout) {
+      currentTimeout = setTimeout(() => {
+        currentTimeout = null;
+        autoUpdater.checkForUpdates();
+      }, updateIntervalMs);
+    }
   };
 
   scheduleCheckForUpdates();
@@ -21,6 +27,11 @@ export function initAutoUpdate(): void {
 
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
     autoUpdater.setFeedURL({ url: getUpdateUrl(releaseName) });
+    scheduleCheckForUpdates();
+  });
+
+  autoUpdater.on('error', error => {
+    console.error(error);
     scheduleCheckForUpdates();
   });
 
