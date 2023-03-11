@@ -1,5 +1,6 @@
 // @flow
 
+import olm from '@matrix-org/olm';
 import { createSelector } from 'reselect';
 
 import {
@@ -7,7 +8,11 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors.js';
 import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
-import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
+import type {
+  OLMIdentityKeys,
+  PickledOLMAccount,
+  SignedIdentityKeysBlob,
+} from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
   ClientClientResponse,
@@ -32,12 +37,48 @@ const sessionIdentificationSelector: (
   (sessionID: ?string): SessionIdentification => ({ sessionID }),
 );
 
+const getSignedIdentityKeysBlobSelector: (
+  state: AppState,
+) => ?() => Promise<SignedIdentityKeysBlob> = createSelector(
+  (state: AppState) => state.cryptoStore.primaryAccount,
+  (state: AppState) => state.cryptoStore.primaryIdentityKeys,
+  (state: AppState) => state.cryptoStore.notificationIdentityKeys,
+  (
+    primaryAccount: ?PickledOLMAccount,
+    primaryIdentityKeys: ?OLMIdentityKeys,
+    notificationIdentityKeys: ?OLMIdentityKeys,
+  ) => {
+    if (!primaryAccount || !primaryIdentityKeys || !notificationIdentityKeys) {
+      return null;
+    }
+
+    const primaryOLMAccount = new olm.Account();
+    primaryOLMAccount.unpickle(
+      primaryAccount.picklingKey,
+      primaryAccount.pickledAccount,
+    );
+
+    const payloadToBeSigned = JSON.stringify({
+      primaryIdentityKeys,
+      notificationIdentityKeys,
+    });
+
+    const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+      payload: payloadToBeSigned,
+      signature: primaryOLMAccount.sign(payloadToBeSigned),
+    };
+
+    return async () => signedIdentityKeysBlob;
+  },
+);
+
 const webGetClientResponsesSelector: (
   state: AppState,
 ) => (
   serverRequests: $ReadOnlyArray<ClientServerRequest>,
 ) => Promise<$ReadOnlyArray<ClientClientResponse>> = createSelector(
   getClientResponsesSelector,
+  getSignedIdentityKeysBlobSelector,
   (state: AppState) => state.navInfo.tab === 'calendar',
   (
       getClientResponsesFunc: (
@@ -46,10 +87,16 @@ const webGetClientResponsesSelector: (
         getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
       ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
+      getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
       calendarActive: boolean,
     ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
-      getClientResponsesFunc(calendarActive, null, null, serverRequests),
+      getClientResponsesFunc(
+        calendarActive,
+        null,
+        getSignedIdentityKeysBlob,
+        serverRequests,
+      ),
 );
 
 const webSessionStateFuncSelector: (state: AppState) => () => SessionState =
