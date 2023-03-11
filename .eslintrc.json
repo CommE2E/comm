@@ -19,9 +19,9 @@
     // - It doesn't handle comments (leaves them as-is)
     // - It makes all import statements take one line (reformats them)
     // We want ESLint to warn us in the first case, but not in the second case
-    // since Prettier forces us in the second case. By setting code to 420, we
+    // since Prettier forces us in the second case. By setting code to 5000, we
     // make sure ESLint defers to Prettier for import statements.
-    "max-len": ["error", { "code": 420, "comments": 80, "ignoreUrls": true }],
+    "max-len": ["error", { "code": 5000, "comments": 80, "ignoreUrls": true }],
     "flowtype/require-valid-file-annotation": ["error", "always"],
     "flowtype/require-exact-type": ["error", "never"],
     "curly": "error",
