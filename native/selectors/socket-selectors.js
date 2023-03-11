@@ -18,6 +18,7 @@ import type {
 } from 'lib/types/session-types.js';
 import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
+import { commCoreModule } from '../native-modules.js';
 import { calendarActiveSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
@@ -51,6 +52,16 @@ function oneTimeKeyGenerator(inc: number): string {
   return str;
 }
 
+async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
+  await commCoreModule.initializeCryptoAccount();
+  const { blobPayload, signature } = await commCoreModule.getUserPublicKey();
+  const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+    payload: blobPayload,
+    signature,
+  };
+  return signedIdentityKeysBlob;
+}
+
 const nativeGetClientResponsesSelector: (
   input: NavPlusRedux,
 ) => (
@@ -71,7 +82,7 @@ const nativeGetClientResponsesSelector: (
       getClientResponsesFunc(
         calendarActive,
         oneTimeKeyGenerator,
-        null,
+        getSignedIdentityKeysBlob,
         serverRequests,
       ),
 );
