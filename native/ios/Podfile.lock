@@ -137,11 +137,11 @@ PODS:
     - lottie-ios (~> 3.4.0)
     - React-Core
   - mobile-ffmpeg-min (4.3.1.LTS)
-  - OLMKit (3.2.4):
-    - OLMKit/olmc (= 3.2.4)
-    - OLMKit/olmcpp (= 3.2.4)
-  - OLMKit/olmc (3.2.4)
-  - OLMKit/olmcpp (3.2.4)
+  - OLMKit (3.2.14):
+    - OLMKit/olmc (= 3.2.14)
+    - OLMKit/olmcpp (= 3.2.14)
+  - OLMKit/olmc (3.2.14)
+  - OLMKit/olmcpp (3.2.14)
   - OpenSSL-Universal (1.1.1900)
   - RCT-Folly (2021.07.22.00):
     - boost
@@ -845,7 +845,7 @@ SPEC CHECKSUMS:
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
   lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
   mobile-ffmpeg-min: d5d22dcef5c8ec56f771258f1f5be245d914f193
-  OLMKit: a15f216aa14ba199b4fd827b3d7ef04629b56636
+  OLMKit: a13e1a20579e88d03971c5821360be24949a1a09
   OpenSSL-Universal: 84efb8a29841f2764ac5403e0c4119a28b713346
   RCT-Folly: 0080d0a6ebf2577475bda044aa59e2ca1f909cda
   RCTRequired: e1866f61af7049eb3d8e08e8b133abd38bc1ca7a
