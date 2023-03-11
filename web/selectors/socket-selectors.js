@@ -37,9 +37,9 @@ const sessionIdentificationSelector: (
   (sessionID: ?string): SessionIdentification => ({ sessionID }),
 );
 
-const getSignedIdentityKeysBlobSelector: (
+const signedIdentityKeysBlobSelector: (
   state: AppState,
-) => ?() => Promise<SignedIdentityKeysBlob> = createSelector(
+) => ?SignedIdentityKeysBlob = createSelector(
   (state: AppState) => state.cryptoStore.primaryAccount,
   (state: AppState) => state.cryptoStore.primaryIdentityKeys,
   (state: AppState) => state.cryptoStore.notificationIdentityKeys,
@@ -68,6 +68,18 @@ const getSignedIdentityKeysBlobSelector: (
       signature: primaryOLMAccount.sign(payloadToBeSigned),
     };
 
+    return signedIdentityKeysBlob;
+  },
+);
+
+const getSignedIdentityKeysBlobSelector: (
+  state: AppState,
+) => ?() => Promise<SignedIdentityKeysBlob> = createSelector(
+  signedIdentityKeysBlobSelector,
+  (signedIdentityKeysBlob: ?SignedIdentityKeysBlob) => {
+    if (!signedIdentityKeysBlob) {
+      return null;
+    }
     return async () => signedIdentityKeysBlob;
   },
 );
