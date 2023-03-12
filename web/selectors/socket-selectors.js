@@ -12,6 +12,7 @@ import type {
   OLMIdentityKeys,
   PickledOLMAccount,
   SignedIdentityKeysBlob,
+  IdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
@@ -58,11 +59,12 @@ const signedIdentityKeysBlobSelector: (
       primaryAccount.pickledAccount,
     );
 
-    const payloadToBeSigned = JSON.stringify({
-      primaryIdentityKeys,
-      notificationIdentityKeys,
-    });
+    const identityKeysBlob: IdentityKeysBlob = {
+      primaryIdentityPublicKeys: primaryIdentityKeys,
+      notificationIdentityPublicKeys: notificationIdentityKeys,
+    };
 
+    const payloadToBeSigned: string = JSON.stringify(identityKeysBlob);
     const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
       payload: payloadToBeSigned,
       signature: primaryOLMAccount.sign(payloadToBeSigned),
@@ -126,6 +128,7 @@ const webSessionStateFuncSelector: (state: AppState) => () => SessionState =
 export {
   openSocketSelector,
   sessionIdentificationSelector,
+  signedIdentityKeysBlobSelector,
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
 };
