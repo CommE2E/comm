@@ -806,6 +806,26 @@ async function setCookieSignedIdentityKeysBlob(
   await dbQuery(query);
 }
 
+// Returns `true` if row with `id = cookieID` exists AND
+// `signed_identity_keys` is `NULL`. Otherwise, returns `false`.
+async function isCookieMissingSignedIdentityKeysBlob(
+  cookieID: string,
+): Promise<boolean> {
+  const query = SQL`
+    SELECT signed_identity_keys
+    FROM cookies 
+    WHERE id = ${cookieID}
+  `;
+  const [queryResult] = await dbQuery(query);
+  if (
+    queryResult.length === 1 &&
+    queryResult[0].signedIdentityKeysBlob === null
+  ) {
+    return true;
+  }
+  return false;
+}
+
 async function setCookiePlatform(
   viewer: Viewer,
   platform: Platform,
@@ -854,6 +874,7 @@ export {
   addCookieToJSONResponse,
   addCookieToHomeResponse,
   setCookieSignedIdentityKeysBlob,
+  isCookieMissingSignedIdentityKeysBlob,
   setCookiePlatform,
   setCookiePlatformDetails,
 };
