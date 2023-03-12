@@ -794,6 +794,18 @@ function addActualHTTPCookie(
   }
 }
 
+async function setCookieSignedIdentityKeysBlob(
+  cookieID: string,
+  signedIdentityKeysBlob: SignedIdentityKeysBlob,
+) {
+  const query = SQL`
+    UPDATE cookies SET signed_identity_keys = ${JSON.stringify(
+      signedIdentityKeysBlob,
+    )} WHERE id = ${cookieID}
+  `;
+  await dbQuery(query);
+}
+
 async function setCookiePlatform(
   viewer: Viewer,
   platform: Platform,
@@ -841,6 +853,7 @@ export {
   extendCookieLifespan,
   addCookieToJSONResponse,
   addCookieToHomeResponse,
+  setCookieSignedIdentityKeysBlob,
   setCookiePlatform,
   setCookiePlatformDetails,
 };
