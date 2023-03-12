@@ -126,6 +126,7 @@ const webSessionStateFuncSelector: (state: AppState) => () => SessionState =
 export {
   openSocketSelector,
   sessionIdentificationSelector,
+  signedIdentityKeysBlobSelector,
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
 };
