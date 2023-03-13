@@ -77,6 +77,7 @@ import {
   fetchViewerForSocket,
   extendCookieLifespan,
   createNewAnonymousCookie,
+  isCookieMissingSignedIdentityKeysBlob,
 } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
@@ -540,6 +541,17 @@ class Socket {
           userInfos: values(userInfos),
         },
       });
+    }
+
+    if (viewer.cookieID) {
+      const signedIdentityKeysBlobMissing =
+        await isCookieMissingSignedIdentityKeysBlob(viewer.cookieID);
+
+      if (signedIdentityKeysBlobMissing) {
+        serverRequests.push({
+          type: serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB,
+        });
+      }
     }
 
     if (serverRequests.length > 0 || clientResponses.length > 0) {
