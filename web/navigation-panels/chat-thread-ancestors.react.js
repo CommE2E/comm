@@ -1,126 +1,71 @@
 // @flow
 
-import classNames from 'classnames';
+import classnames from 'classnames';
 import * as React from 'react';
+import { ChevronRight } from 'react-feather';
 
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
-import { colorIsDark } from 'lib/shared/thread-utils.js';
-import { useKeyserverAdmin } from 'lib/shared/user-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './chat-thread-ancestors.css';
-import CommIcon from '../CommIcon.react.js';
-
-const SHOW_SEE_FULL_STRUCTURE = false;
 
 type ThreadAncestorsProps = {
   +threadInfo: ThreadInfo,
 };
 function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
   const { threadInfo } = props;
-  const { color: threadColor } = threadInfo;
-  const darkColor = colorIsDark(threadColor);
-  const threadColorStyle = React.useMemo(
-    () => ({
-      backgroundColor: `#${threadColor}`,
-      color: darkColor
-        ? 'var(--thread-ancestor-color-light)'
-        : 'var(--thread-ancestor-color-dark)',
-    }),
-    [darkColor, threadColor],
-  );
-  const fullStructureButtonColorStyle = React.useMemo(
-    () => ({ color: `#${threadColor}` }),
-    [threadColor],
-  );
 
-  const ancestorThreads = useAncestorThreads(threadInfo);
+  const ancestorThreadsWithCommunity = useAncestorThreads(threadInfo);
 
-  const community = ancestorThreads[0] ?? threadInfo;
-  const keyserverAdmin = useKeyserverAdmin(community);
-  const keyserverOwnerUsername = keyserverAdmin?.username;
-
+  const community = ancestorThreadsWithCommunity[0] ?? threadInfo;
   const resolvedCommunity = useResolvedThreadInfo(community);
-
-  const keyserverInfo = React.useMemo(
-    () => (
-      <div className={css.ancestorKeyserver}>
-        <div className={css.ancestorKeyserverOperator}>
-          <CommIcon icon="cloud-filled" size={12} />
-          <span>{keyserverOwnerUsername}</span>
-        </div>
-        <div
-          style={threadColorStyle}
-          className={classNames(css.ancestorName, css.ancestorKeyserverName)}
-        >
-          {resolvedCommunity.uiName}
-        </div>
-      </div>
-    ),
-    [resolvedCommunity.uiName, keyserverOwnerUsername, threadColorStyle],
-  );
-
-  const middlePath = React.useMemo(() => {
-    if (ancestorThreads.length < 2) {
-      return null;
-    }
-    return (
-      <>
-        <SWMansionIcon
-          className={css.ancestorSeparator}
-          icon="chevron-right"
-          size={12}
-        />
-        <div style={threadColorStyle} className={css.ancestorName}>
-          &hellip;
-        </div>
-      </>
-    );
-  }, [ancestorThreads.length, threadColorStyle]);
 
   const threadHasNoAncestors = community === threadInfo;
 
-  const { uiName } = useResolvedThreadInfo(threadInfo);
-  const currentThread = React.useMemo(() => {
+  const ancestorThreads = ancestorThreadsWithCommunity.slice(1);
+
+  const chevronRight = React.useMemo(() => {
     if (threadHasNoAncestors) {
       return null;
     }
-    return (
-      <>
-        <SWMansionIcon
-          className={css.ancestorSeparator}
-          icon="chevron-right"
-          size={12}
-        />
-        <div style={threadColorStyle} className={css.ancestorName}>
-          {uiName}
-        </div>
-      </>
-    );
-  }, [threadHasNoAncestors, threadColorStyle, uiName]);
+    return <ChevronRight size={20} className={css.chevronRight} />;
+  }, [threadHasNoAncestors]);
 
-  let seeFullStructure = null;
-  if (SHOW_SEE_FULL_STRUCTURE) {
-    seeFullStructure = (
-      <button
-        style={fullStructureButtonColorStyle}
-        className={css.seeFullStructure}
-      >
-        See full structure
-      </button>
+  const { uiName } = useResolvedThreadInfo(threadInfo);
+
+  const path = React.useMemo(() => {
+    if (threadHasNoAncestors) {
+      return null;
+    }
+    const ancestors = ancestorThreads.map(ancestor => (
+      <ThreadAncestor threadInfo={ancestor} key={ancestor.id} />
+    ));
+    const chatNameClasses = classnames(css.ancestorName, css.chatName);
+    return (
+      <div className={css.ancestorThreadsContainer}>
+        {ancestors}
+        <div className={chatNameClasses}>{uiName}</div>
+      </div>
     );
-  }
+  }, [ancestorThreads, threadHasNoAncestors, uiName]);
 
   return (
+    <div className={css.container}>
+      <div className={css.communityName}>{resolvedCommunity.uiName}</div>
+      {chevronRight}
+      {path}
+    </div>
+  );
+}
+
+function ThreadAncestor(props: ThreadAncestorsProps): React.Node {
+  const { uiName } = useResolvedThreadInfo(props.threadInfo);
+  const chevronClasses = classnames(css.ancestorSeparator, css.chevronRight);
+  return (
     <>
-      <div className={css.ancestorThreadsContainer}>
-        {keyserverInfo}
-        {middlePath}
-        {currentThread}
-      </div>
-      {seeFullStructure}
+      <div className={css.ancestorName}>{uiName}</div>
+      <ChevronRight size={12} className={chevronClasses} />
     </>
   );
 }
