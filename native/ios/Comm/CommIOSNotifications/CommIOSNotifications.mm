@@ -368,8 +368,8 @@ RCT_EXPORT_METHOD(consumeBackgroundQueue) {
       }];
 
   // Push opened remote notifications
-  NSDictionary *openedRemoteNotification = [_bridge.launchOptions
-      objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+  NSDictionary *openedRemoteNotification =
+      CommIOSNotificationsBridgeQueue.sharedInstance.openedRemoteNotification;
   if (openedRemoteNotification) {
     CommIOSNotificationsBridgeQueue.sharedInstance.openedRemoteNotification =
         nil;
