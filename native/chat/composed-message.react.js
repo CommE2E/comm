@@ -12,9 +12,6 @@ import { assertComposableMessageType } from 'lib/types/message-types.js';
 
 import {
   clusterEndHeight,
-  inlineEngagementStyle,
-  inlineEngagementLeftStyle,
-  inlineEngagementRightStyle,
   composedMessageStyle,
   avatarOffset,
 } from './chat-constants.js';
@@ -172,24 +169,13 @@ class ComposedMessage extends React.PureComponent<Props> {
       Object.keys(item.reactions).length > 0
     ) {
       const positioning = isViewer ? 'right' : 'left';
-
-      const inlineEngagementPositionStyle = [];
-      if (positioning === 'left') {
-        inlineEngagementPositionStyle.push(styles.leftInlineEngagement);
-      } else {
-        inlineEngagementPositionStyle.push(styles.rightInlineEngagement);
-      }
-      if (this.props.shouldRenderAvatars) {
-        inlineEngagementPositionStyle.push({ marginLeft: avatarOffset });
-      }
-
       inlineEngagement = (
-        <View style={[styles.inlineEngagement, inlineEngagementPositionStyle]}>
-          <InlineEngagement
-            threadInfo={item.threadCreatedFromMessage}
-            reactions={item.reactions}
-          />
-        </View>
+        <InlineEngagement
+          threadInfo={item.threadCreatedFromMessage}
+          reactions={item.reactions}
+          positioning={positioning}
+          shouldRenderAvatars={shouldRenderAvatars}
+        />
       );
     }
 
@@ -241,17 +227,8 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     width: 16,
   },
-  inlineEngagement: {
-    marginBottom: inlineEngagementStyle.marginBottom,
-    marginTop: inlineEngagementStyle.marginTop,
-  },
   leftChatBubble: {
     justifyContent: 'flex-end',
-  },
-  leftInlineEngagement: {
-    justifyContent: 'flex-start',
-    position: 'relative',
-    top: inlineEngagementLeftStyle.topOffset,
   },
   messageBoxContainer: {
     flex: 1,
@@ -259,12 +236,6 @@ const styles = StyleSheet.create({
   },
   rightChatBubble: {
     justifyContent: 'flex-start',
-  },
-  rightInlineEngagement: {
-    alignSelf: 'flex-end',
-    position: 'relative',
-    right: inlineEngagementRightStyle.marginRight,
-    top: inlineEngagementRightStyle.topOffset,
   },
   swipeableContainer: {
     alignItems: 'flex-end',
