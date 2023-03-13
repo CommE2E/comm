@@ -9,13 +9,7 @@ import Animated from 'react-native-reanimated';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
-import {
-  clusterEndHeight,
-  inlineEngagementStyle,
-  inlineEngagementLeftStyle,
-  inlineEngagementRightStyle,
-  composedMessageStyle,
-} from './chat-constants.js';
+import { clusterEndHeight, composedMessageStyle } from './chat-constants.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { FailedSend } from './failed-send.react.js';
 import { InlineEngagement } from './inline-engagement.react.js';
@@ -143,17 +137,12 @@ class ComposedMessage extends React.PureComponent<Props> {
       Object.keys(item.reactions).length > 0
     ) {
       const positioning = isViewer ? 'right' : 'left';
-      const inlineEngagementPositionStyle =
-        positioning === 'left'
-          ? styles.leftInlineEngagement
-          : styles.rightInlineEngagement;
       inlineEngagement = (
-        <View style={[styles.inlineEngagement, inlineEngagementPositionStyle]}>
-          <InlineEngagement
-            threadInfo={item.threadCreatedFromMessage}
-            reactions={item.reactions}
-          />
-        </View>
+        <InlineEngagement
+          threadInfo={item.threadCreatedFromMessage}
+          reactions={item.reactions}
+          positioning={positioning}
+        />
       );
     }
 
@@ -199,29 +188,14 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     width: 16,
   },
-  inlineEngagement: {
-    marginBottom: inlineEngagementStyle.marginBottom,
-    marginTop: inlineEngagementStyle.marginTop,
-  },
   leftChatBubble: {
     justifyContent: 'flex-end',
-  },
-  leftInlineEngagement: {
-    justifyContent: 'flex-start',
-    position: 'relative',
-    top: inlineEngagementLeftStyle.topOffset,
   },
   messageBox: {
     marginRight: 5,
   },
   rightChatBubble: {
     justifyContent: 'flex-start',
-  },
-  rightInlineEngagement: {
-    alignSelf: 'flex-end',
-    position: 'relative',
-    right: inlineEngagementRightStyle.marginRight,
-    top: inlineEngagementRightStyle.topOffset,
   },
 });
 
