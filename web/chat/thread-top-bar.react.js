@@ -34,7 +34,7 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
           className={css.threadColorSquare}
           style={threadBackgroundColorStyle}
         />
-        <p className={css.threadTitle}>{uiName}</p>
+        <div className={css.threadTitle}>{uiName}</div>
       </div>
       {threadMenu}
     </div>
