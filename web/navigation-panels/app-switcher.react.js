@@ -61,7 +61,7 @@ function AppSwitcher(): React.Node {
       <NavigationPanel.Item tab="chat">
         <a className={css.navigationPanelTab} onClick={onClickChat}>
           <span className={css.chatIconWrapper}>
-            <SWMansionIcon icon="message-square" size={24} />
+            <SWMansionIcon icon="message-square" size={20} />
             {chatBadge}
           </span>
           <p>Chat</p>
@@ -90,7 +90,7 @@ function AppSwitcher(): React.Node {
     return (
       <NavigationPanel.Item tab="calendar">
         <a className={css.navigationPanelTab} onClick={onClickCalendar}>
-          <SWMansionIcon icon="calendar" size={24} />
+          <SWMansionIcon icon="calendar" size={20} />
           <p>Calendar</p>
         </a>
       </NavigationPanel.Item>
