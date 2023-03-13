@@ -91,6 +91,7 @@ const light = Object.freeze({
   subthreadsModalClose: '#808080',
   subthreadsModalBackground: '#EBEBEB',
   subthreadsModalSearch: '#00000008',
+  messageLabel: '#0A0A0A',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -178,6 +179,7 @@ const dark: Colors = Object.freeze({
   typeaheadTooltipBackground: '#1F1F1f',
   typeaheadTooltipBorder: '#404040',
   typeaheadTooltipText: 'white',
+  messageLabel: '#CCCCCC',
 });
 const colors = { light, dark };
 

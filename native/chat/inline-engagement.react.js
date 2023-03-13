@@ -33,6 +33,7 @@ type Props = {
   +reactions?: ReactionInfo,
   +disabled?: boolean,
   +positioning?: 'left' | 'right',
+  +label?: ?string,
   +shouldRenderAvatars?: boolean,
 };
 function InlineEngagement(props: Props): React.Node {
@@ -42,6 +43,7 @@ function InlineEngagement(props: Props): React.Node {
     threadInfo,
     positioning,
     shouldRenderAvatars,
+    label,
   } = props;
   const repliesText = useInlineEngagementText(threadInfo);
 
@@ -122,7 +124,24 @@ function InlineEngagement(props: Props): React.Node {
     styles.reactionsContainer,
   ]);
 
+  const isLeft = positioning === 'left';
+
+  const editedLabel = React.useMemo(() => {
+    if (!label) {
+      return null;
+    }
+
+    const labelLeftRight = isLeft
+      ? styles.messageLabelLeft
+      : styles.messageLabelRight;
+
+    return <Text style={[styles.messageLabel, labelLeftRight]}>{label}</Text>;
+  }, [isLeft, label, styles]);
+
   const container = React.useMemo(() => {
+    if (!sidebarItem && !reactionList) {
+      return null;
+    }
     return (
       <View style={styles.container}>
         {sidebarItem}
@@ -131,8 +150,8 @@ function InlineEngagement(props: Props): React.Node {
     );
   }, [reactionList, sidebarItem, styles.container]);
 
-  const inlineEngagementPositionStyle = [];
-  if (positioning === 'left') {
+  const inlineEngagementPositionStyle = [styles.inlineEngagement];
+  if (isLeft) {
     inlineEngagementPositionStyle.push(styles.leftInlineEngagement);
   } else {
     inlineEngagementPositionStyle.push(styles.rightInlineEngagement);
@@ -141,11 +160,24 @@ function InlineEngagement(props: Props): React.Node {
     inlineEngagementPositionStyle.push({ marginLeft: avatarOffset });
   }
 
-  return (
-    <View style={[styles.inlineEngagement, inlineEngagementPositionStyle]}>
-      {container}
-    </View>
-  );
+  let body;
+  if (isLeft) {
+    body = (
+      <>
+        {editedLabel}
+        {container}
+      </>
+    );
+  } else {
+    body = (
+      <>
+        {container}
+        {editedLabel}
+      </>
+    );
+  }
+
+  return <View style={inlineEngagementPositionStyle}>{body}</View>;
 }
 
 const unboundStyles = {
@@ -204,6 +236,20 @@ const unboundStyles = {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  messageLabel: {
+    color: 'messageLabel',
+    paddingHorizontal: 3,
+    fontSize: 13,
+    top: 10,
+  },
+  messageLabelLeft: {
+    marginLeft: 9,
+    marginRight: 4,
+  },
+  messageLabelRight: {
+    marginRight: 10,
+    marginLeft: 4,
   },
   avatarOffset: {
     width: avatarOffset,
