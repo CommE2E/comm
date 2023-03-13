@@ -32,9 +32,10 @@ type Props = {
   +reactions?: ReactionInfo,
   +disabled?: boolean,
   +positioning?: 'left' | 'right',
+  +label?: ?string,
 };
 function InlineEngagement(props: Props): React.Node {
-  const { disabled = false, reactions, threadInfo, positioning } = props;
+  const { disabled = false, reactions, threadInfo, positioning, label } = props;
   const repliesText = useInlineEngagementText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
@@ -114,7 +115,24 @@ function InlineEngagement(props: Props): React.Node {
     styles.reactionsContainer,
   ]);
 
+  const isLeft = positioning === 'left';
+
+  const editedLabel = React.useMemo(() => {
+    const labelLeftRight = isLeft
+      ? styles.messageLabelLeft
+      : styles.messageLabelRight;
+
+    if (!label) {
+      return null;
+    }
+
+    return <Text style={[styles.messageLabel, labelLeftRight]}>{label}</Text>;
+  }, [isLeft, label, styles]);
+
   const container = React.useMemo(() => {
+    if (!(sidebarItem || reactionList)) {
+      return null;
+    }
     return (
       <View style={styles.container}>
         {sidebarItem}
@@ -128,9 +146,18 @@ function InlineEngagement(props: Props): React.Node {
       ? styles.leftInlineEngagement
       : styles.rightInlineEngagement;
 
+  const components = [container];
+  if (isLeft) {
+    components.unshift(editedLabel);
+  } else {
+    components.push(editedLabel);
+  }
+
   return (
     <View style={[styles.inlineEngagement, inlineEngagementPositionStyle]}>
-      {container}
+      {components.map((component, index) => (
+        <React.Fragment key={index}>{component}</React.Fragment>
+      ))}
     </View>
   );
 }
@@ -191,6 +218,19 @@ const unboundStyles = {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  messageLabel: {
+    color: 'listBackgroundLabel',
+    paddingHorizontal: 3,
+    top: 10,
+  },
+  messageLabelLeft: {
+    marginLeft: 9,
+    marginRight: 4,
+  },
+  messageLabelRight: {
+    marginRight: 10,
+    marginLeft: 4,
   },
 };
 
