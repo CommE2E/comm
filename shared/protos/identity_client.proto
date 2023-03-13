@@ -24,6 +24,22 @@ service IdentityClientService {
 
   // Called by clients to get a nonce for a Sign-In with Ethereum message
   rpc GenerateNonce(Empty) returns (GenerateNonceResponse) {}
+
+  // X3DH actions
+
+  // Called by clients to get all device keys associated with a user in order
+  // to open a new channel of communication on any of their devices
+  rpc GetDeviceKeysForUser(DeviceKeysForUserRequest) returns
+    (DeviceKeysForUserResponse) {}
+  // Called by clients to get required keys for opening a connection
+  // to a keyserver
+  rpc GetKeyserverKeys(KeyserverKeysRequest) returns
+    (KeyserverKeysResponse) {}
+  // Replenish one-time preKeys
+  rpc UploadOneTimeKeys(UploadOneTimeKeysRequest) returns (Empty) {}
+  // Rotate a devices preKey and preKey signature
+  // Rotated for deniability of older messages
+  rpc RefreshUserPreKeys(RefreshUserPreKeysRequest) returns (Empty) {}
 }
 
 // Helper types
@@ -209,4 +225,44 @@ message DeleteUserRequest {
 
 message GenerateNonceResponse{
   string nonce = 1;
+}
+
+// GetDeviceKeysForUser
+
+message DeviceKeysForUserRequest {
+  oneof identifier {
+    string username = 1;
+    string walletAddress = 2;
+  }
+}
+
+message DeviceKeysForUserResponse {
+  // Map is keyed on devices' public ed25519 key used for signing
+  map<string, RemoteDeviceInfo> devices = 1;
+}
+
+// GetKeyserverKeys
+
+message KeyserverKeysRequest {
+  string keyserverID = 1;
+}
+
+message KeyserverKeysResponse {
+  KeyserverSessionInfo keyserverInfo = 1;
+}
+
+// UploadOneTimeKeys
+
+// As OPKs get exhausted, they need to be refreshed
+message UploadOneTimeKeysRequest {
+  // Use device associated with token to insert OPKs
+  string accessToken = 1;
+  repeated string oneTimePreKeys = 2;
+}
+
+// RefreshUserPreKeys
+
+message RefreshUserPreKeysRequest {
+  string accessToken = 1;
+  PreKeyResponse newPreKeys = 2;
 }
