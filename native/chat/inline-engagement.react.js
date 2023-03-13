@@ -17,6 +17,7 @@ import {
   inlineEngagementStyle,
   inlineEngagementCenterStyle,
   inlineEngagementRightStyle,
+  inlineEngagementLeftStyle,
   composedMessageStyle,
 } from './chat-constants.js';
 import { useNavigateToThread } from './message-list-types.js';
@@ -30,9 +31,10 @@ type Props = {
   +threadInfo: ?ThreadInfo,
   +reactions?: ReactionInfo,
   +disabled?: boolean,
+  +positioning?: 'left' | 'right',
 };
 function InlineEngagement(props: Props): React.Node {
-  const { disabled = false, reactions, threadInfo } = props;
+  const { disabled = false, reactions, threadInfo, positioning } = props;
   const repliesText = useInlineEngagementText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
@@ -112,10 +114,23 @@ function InlineEngagement(props: Props): React.Node {
     styles.reactionsContainer,
   ]);
 
+  const container = React.useMemo(() => {
+    return (
+      <View style={styles.container}>
+        {sidebarItem}
+        {reactionList}
+      </View>
+    );
+  }, [reactionList, sidebarItem, styles.container]);
+
+  const inlineEngagementPositionStyle =
+    positioning === 'left'
+      ? styles.leftInlineEngagement
+      : styles.rightInlineEngagement;
+
   return (
-    <View style={styles.container}>
-      {sidebarItem}
-      {reactionList}
+    <View style={[styles.inlineEngagement, inlineEngagementPositionStyle]}>
+      {container}
     </View>
   );
 }
@@ -134,8 +149,25 @@ const unboundStyles = {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
   },
+  rightInlineEngagement: {
+    alignSelf: 'flex-end',
+    position: 'relative',
+    right: inlineEngagementRightStyle.marginRight,
+    top: inlineEngagementRightStyle.topOffset,
+  },
+  leftInlineEngagement: {
+    justifyContent: 'flex-start',
+    position: 'relative',
+    top: inlineEngagementLeftStyle.topOffset,
+  },
   sidebar: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inlineEngagement: {
+    flexDirection: 'row',
+    marginBottom: inlineEngagementStyle.marginBottom,
+    marginTop: inlineEngagementStyle.marginTop,
     alignItems: 'center',
   },
   icon: {
@@ -192,8 +224,7 @@ function TooltipInlineEngagement(
       return {
         position: 'absolute',
         top:
-          inlineEngagementStyle.marginTop +
-          inlineEngagementRightStyle.topOffset,
+          inlineEngagementStyle.marginTop + inlineEngagementLeftStyle.topOffset,
         left: composedMessageStyle.marginLeft,
       };
     } else if (positioning === 'right') {
