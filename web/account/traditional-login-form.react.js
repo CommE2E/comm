@@ -1,6 +1,5 @@
 // @flow
 
-import olm from '@matrix-org/olm';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -16,11 +15,7 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
-import type {
-  OLMIdentityKeys,
-  PickledOLMAccount,
-  SignedIdentityKeysBlob,
-} from 'lib/types/crypto-types.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -34,6 +29,7 @@ import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { signedIdentityKeysBlobSelector } from '../selectors/socket-selectors.js';
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function TraditionalLoginForm(): React.Node {
@@ -43,14 +39,8 @@ function TraditionalLoginForm(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
-  const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
-    state => state.cryptoStore.primaryIdentityKeys,
-  );
-  const notificationIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
-    state => state.cryptoStore.notificationIdentityKeys,
-  );
-  const primaryAccount: ?PickledOLMAccount = useSelector(
-    state => state.cryptoStore.primaryAccount,
+  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob = useSelector(
+    signedIdentityKeysBlobSelector,
   );
 
   const usernameInputRef = React.useRef();
@@ -80,29 +70,9 @@ function TraditionalLoginForm(): React.Node {
     async (extraInfo: LogInExtraInfo) => {
       try {
         invariant(
-          primaryIdentityPublicKeys,
-          'primaryIdentityPublicKeys must be set in logInAction',
+          signedIdentityKeysBlob,
+          'signedIdentityKeysBlob must be set in logInAction',
         );
-        invariant(
-          notificationIdentityPublicKeys,
-          'notificationIdentityPublicKeys must be set in logInAction',
-        );
-        invariant(primaryAccount, 'primaryAccount must be set in logInAction');
-
-        const primaryOLMAccount = new olm.Account();
-        primaryOLMAccount.unpickle(
-          primaryAccount.picklingKey,
-          primaryAccount.pickledAccount,
-        );
-
-        const payloadToBeSigned = JSON.stringify({
-          primaryIdentityPublicKeys,
-          notificationIdentityPublicKeys,
-        });
-        const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
-          payload: payloadToBeSigned,
-          signature: primaryOLMAccount.sign(payloadToBeSigned),
-        };
 
         const result = await callLogIn({
           ...extraInfo,
@@ -125,15 +95,7 @@ function TraditionalLoginForm(): React.Node {
         throw e;
       }
     },
-    [
-      callLogIn,
-      modalContext,
-      notificationIdentityPublicKeys,
-      password,
-      primaryAccount,
-      primaryIdentityPublicKeys,
-      username,
-    ],
+    [callLogIn, modalContext, password, signedIdentityKeysBlob, username],
   );
 
   const onSubmit = React.useCallback(
@@ -214,12 +176,8 @@ function TraditionalLoginForm(): React.Node {
           variant="filled"
           type="submit"
           disabled={
-            primaryIdentityPublicKeys === null ||
-            primaryIdentityPublicKeys === undefined ||
-            notificationIdentityPublicKeys === null ||
-            notificationIdentityPublicKeys === undefined ||
-            primaryAccount === null ||
-            primaryAccount === undefined ||
+            signedIdentityKeysBlob === null ||
+            signedIdentityKeysBlob === undefined ||
             inputDisabled
           }
           onClick={onSubmit}
