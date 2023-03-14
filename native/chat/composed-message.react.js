@@ -6,6 +6,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
@@ -15,6 +16,7 @@ import {
   inlineEngagementLeftStyle,
   inlineEngagementRightStyle,
   composedMessageStyle,
+  avatarOffset,
 } from './chat-constants.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { FailedSend } from './failed-send.react.js';
@@ -23,6 +25,7 @@ import { MessageHeader } from './message-header.react.js';
 import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
 import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
+import Avatar from '../components/avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
@@ -121,6 +124,19 @@ class ComposedMessage extends React.PureComponent<Props> {
       swipeOptions === 'sidebar' || swipeOptions === 'both'
         ? navigateToSidebar
         : undefined;
+
+    let avatar;
+    if (!isViewer && item.endsCluster) {
+      const avatarInfo = getAvatarForUser(item.messageInfo.creator);
+      avatar = (
+        <View style={styles.avatarContainer}>
+          <Avatar size="small" avatarInfo={avatarInfo} />
+        </View>
+      );
+    } else if (!isViewer) {
+      avatar = <View style={styles.avatarOffset} />;
+    }
+
     const messageBox = (
       <View style={styles.messageBox}>
         <SwipeableMessage
@@ -130,9 +146,12 @@ class ComposedMessage extends React.PureComponent<Props> {
           messageBoxStyle={messageBoxStyle}
           threadColor={item.threadInfo.color}
         >
-          <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
-            {children}
-          </AnimatedView>
+          <View style={styles.swipeableContainer}>
+            {avatar}
+            <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
+              {children}
+            </AnimatedView>
+          </View>
         </SwipeableMessage>
       </View>
     );
@@ -187,6 +206,12 @@ const styles = StyleSheet.create({
     marginLeft: composedMessageStyle.marginLeft,
     marginRight: composedMessageStyle.marginRight,
   },
+  avatarContainer: {
+    marginRight: 8,
+  },
+  avatarOffset: {
+    width: avatarOffset,
+  },
   content: {
     alignItems: 'center',
     flexDirection: 'row-reverse',
@@ -208,6 +233,7 @@ const styles = StyleSheet.create({
   },
   leftInlineEngagement: {
     justifyContent: 'flex-start',
+    marginLeft: 32,
     position: 'relative',
     top: inlineEngagementLeftStyle.topOffset,
   },
@@ -222,6 +248,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     right: inlineEngagementRightStyle.marginRight,
     top: inlineEngagementRightStyle.topOffset,
+  },
+  swipeableContainer: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
   },
 });
 
