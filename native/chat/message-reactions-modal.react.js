@@ -7,8 +7,10 @@ import { View, Text, FlatList, TouchableHighlight } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
+import Avatar from '../components/avatar.react.js';
 import Modal from '../components/modal.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -38,9 +40,16 @@ function MessageReactionsModal(props: Props): React.Node {
 
   const renderItem = React.useCallback(
     ({ item }) => {
+      const avatarInfo = getAvatarForUser(item);
+
       return (
         <View key={item.id} style={styles.reactionsListRowContainer}>
-          <Text style={styles.reactionsListUsernameText}>{item.username}</Text>
+          <View style={styles.reactionsListUserInfoContainer}>
+            <Avatar size="small" avatarInfo={avatarInfo} />
+            <Text style={styles.reactionsListUsernameText}>
+              {item.username}
+            </Text>
+          </View>
           <Text style={styles.reactionsListReactionText}>{item.reaction}</Text>
         </View>
       );
@@ -48,6 +57,7 @@ function MessageReactionsModal(props: Props): React.Node {
     [
       styles.reactionsListReactionText,
       styles.reactionsListRowContainer,
+      styles.reactionsListUserInfoContainer,
       styles.reactionsListUsernameText,
     ],
   );
@@ -118,9 +128,15 @@ const unboundStyles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  reactionsListUserInfoContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   reactionsListUsernameText: {
     color: 'modalForegroundLabel',
     fontSize: 18,
+    marginLeft: 8,
   },
   reactionsListReactionText: {
     fontSize: 18,

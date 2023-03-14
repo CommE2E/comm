@@ -16,6 +16,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import {
   memberIsAdmin,
   memberHasAdminPowers,
@@ -29,6 +30,7 @@ import {
 } from 'lib/types/thread-types.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
+import Avatar from '../../components/avatar.react.js';
 import PencilIcon from '../../components/pencil-icon.react.js';
 import { SingleLine } from '../../components/single-line.react.js';
 import {
@@ -71,13 +73,14 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 
   render() {
     const userText = stringForUser(this.props.memberInfo);
-    let userInfo = null;
+    const avatarInfo = getAvatarForUser(this.props.memberInfo);
+    let usernameInfo = null;
     if (this.props.memberInfo.username) {
-      userInfo = (
+      usernameInfo = (
         <SingleLine style={this.props.styles.username}>{userText}</SingleLine>
       );
     } else {
-      userInfo = (
+      usernameInfo = (
         <SingleLine
           style={[this.props.styles.username, this.props.styles.anonymous]}
         >
@@ -145,7 +148,10 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       <View style={this.props.styles.container}>
         <View style={[this.props.styles.innerContainer, firstItem, lastItem]}>
           <View style={this.props.styles.row}>
-            {userInfo}
+            <View style={this.props.styles.userInfoContainer}>
+              <Avatar size="small" avatarInfo={avatarInfo} />
+              {usernameInfo}
+            </View>
             {editButton}
           </View>
           {roleInfo}
@@ -241,11 +247,17 @@ const unboundStyles = {
     flex: 1,
     flexDirection: 'row',
   },
+  userInfoContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   username: {
     color: 'panelForegroundSecondaryLabel',
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
+    marginLeft: 8,
   },
 };
 
