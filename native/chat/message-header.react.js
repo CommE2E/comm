@@ -69,7 +69,7 @@ const unboundStyles = {
     color: 'listBackgroundSecondaryLabel',
     fontSize: 14,
     height: authorNameHeight,
-    marginLeft: 12,
+    marginLeft: 44,
     marginRight: 7,
     paddingHorizontal: 12,
     paddingVertical: 4,
