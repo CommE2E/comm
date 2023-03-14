@@ -9,6 +9,7 @@ services:
         - HOST_GID=${HOST_GID}
         - COMM_ALCHEMY_KEY=${COMM_ALCHEMY_KEY}
         - COMM_WALLETCONNECT_KEY=${COMM_WALLETCONNECT_KEY}
+        - COMM_JSONCONFIG_secrets_geoip_license=${COMM_JSONCONFIG_secrets_geoip_license}
     image: commapp/node-keyserver:1.0
     restart: always
     ports:
