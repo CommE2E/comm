@@ -57,7 +57,7 @@
     "lib": "0.0.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
-    "@matrix-org/olm": "3.2.4",
+    "@matrix-org/olm": "3.2.14",
     "react": "18.1.0",
     "react-circular-progressbar": "^2.0.2",
     "react-color": "^2.13.0",
