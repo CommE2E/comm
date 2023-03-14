@@ -15,6 +15,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';
 import { ChatContext, useHeightMeasurer } from './chat-context.js';
 import { failedSendHeight } from './failed-send.react.js';
+import { editedLabelHeight } from './inline-engagement.react.js';
 import { authorNameHeight } from './message-header.react.js';
 import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
 import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
@@ -73,6 +74,8 @@ function textMessageItemHeight(
       inlineEngagementStyle.height +
       inlineEngagementStyle.marginTop +
       inlineEngagementStyle.marginBottom;
+  } else if (item.hasBeenEdited) {
+    height += editedLabelHeight;
   }
   return height;
 }
