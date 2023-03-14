@@ -77,6 +77,7 @@ import {
   fetchViewerForSocket,
   extendCookieLifespan,
   createNewAnonymousCookie,
+  isCookieMissingSignedIdentityKeysBlob,
 } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
@@ -466,6 +467,9 @@ class Socket {
       serverRequests.push({ type: serverRequestTypes.PLATFORM_DETAILS });
     }
 
+    const isCookieMissingSignedIdentityKeysBlobPromise =
+      isCookieMissingSignedIdentityKeysBlob(viewer.cookieID);
+
     if (!sessionInitializationResult.sessionContinued) {
       const [threadsResult, entriesResult, currentUserInfo, knownUserInfos] =
         await Promise.all([
@@ -539,6 +543,15 @@ class Socket {
           deletedEntryIDs: deltaEntryInfoResult.deletedEntryIDs,
           userInfos: values(userInfos),
         },
+      });
+    }
+
+    const signedIdentityKeysBlobMissing =
+      await isCookieMissingSignedIdentityKeysBlobPromise;
+
+    if (signedIdentityKeysBlobMissing) {
+      serverRequests.push({
+        type: serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB,
       });
     }
 
