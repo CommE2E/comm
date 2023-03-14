@@ -143,6 +143,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
               placeholder="Search"
               value={this.state.query}
               onChange={this.onChangeQuery}
+              size="10"
             />
             {clearQueryButton}
           </div>

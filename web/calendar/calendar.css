@@ -1,6 +1,7 @@
 .container {
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
 }
 
 .filtersButton {
@@ -26,6 +27,8 @@
 div.content {
   height: 100%;
   overflow: auto;
+  width: min-content;
+  flex-grow: 1;
 }
 
 nav.nav {
