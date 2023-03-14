@@ -1,5 +1,5 @@
-const AssetsPlugin = require('assets-webpack-plugin');
 const path = require('path');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 const {
   createProdBrowserConfig,
@@ -46,10 +46,8 @@ const baseDevBrowserConfig = {
 const baseProdBrowserConfig = {
   ...baseBrowserConfig,
   plugins: [
-    new AssetsPlugin({
-      filename: 'assets.json',
-      path: path.join(__dirname, 'dist'),
-      removeFullPathAutoPrefix: true,
+    new WebpackManifestPlugin({
+      publicPath: '',
     }),
   ],
 };
