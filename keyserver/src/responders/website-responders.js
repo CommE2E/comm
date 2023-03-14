@@ -85,24 +85,24 @@ async function getAssetInfo() {
     return assetInfo;
   }
   try {
-    const assetsString = await readFile('../web/dist/assets.json', 'utf8');
-    const assets = JSON.parse(assetsString);
+    const manifestString = await readFile('../web/dist/manifest.json', 'utf8');
+    const manifest = JSON.parse(manifestString);
     assetInfo = {
-      jsURL: `compiled/${assets.browser.js}`,
+      jsURL: `compiled/${manifest['browser.js']}`,
       fontsURL: googleFontsURL,
       cssInclude: html`
         <link
           rel="stylesheet"
           type="text/css"
-          href="compiled/${assets.browser.css}"
+          href="compiled/${manifest['browser.css']}"
         />
       `,
-      olmFilename: assets[''].wasm,
+      olmFilename: manifest['olm.wasm'],
     };
     return assetInfo;
   } catch {
     throw new Error(
-      'Could not load assets.json for web build. ' +
+      'Could not load manifest.json for web build. ' +
         'Did you forget to run `yarn dev` in the web folder?',
     );
   }

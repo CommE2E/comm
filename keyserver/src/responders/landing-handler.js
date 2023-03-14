@@ -65,23 +65,26 @@ async function getAssetInfo() {
     return assetInfo;
   }
   try {
-    const assetsString = await readFile('../landing/dist/assets.json', 'utf8');
-    const assets = JSON.parse(assetsString);
+    const manifestString = await readFile(
+      '../landing/dist/manifest.json',
+      'utf8',
+    );
+    const manifest = JSON.parse(manifestString);
     assetInfo = {
-      jsURL: `compiled/${assets.browser.js}`,
+      jsURL: `compiled/${manifest['browser.js']}`,
       fontURLs: [googleFontsURL, iaDuoFontsURL],
       cssInclude: html`
         <link
           rel="stylesheet"
           type="text/css"
-          href="compiled/${assets.browser.css}"
+          href="compiled/${manifest['browser.css']}"
         />
       `,
     };
     return assetInfo;
   } catch {
     throw new Error(
-      'Could not load assets.json for landing build. ' +
+      'Could not load manifest.json for landing build. ' +
         'Did you forget to run `yarn dev` in the landing folder?',
     );
   }
