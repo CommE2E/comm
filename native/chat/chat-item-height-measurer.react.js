@@ -8,6 +8,7 @@ import { messageID } from 'lib/shared/message-utils.js';
 import { messageTypes, type MessageType } from 'lib/types/message-types.js';
 import { entityTextToRawString } from 'lib/utils/entity-text.js';
 
+import { avatarOffset } from './chat-constants.js';
 import type { MeasurementTask } from './chat-context-provider.react.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react.js';
@@ -43,7 +44,10 @@ const heightMeasurerDummy = (item: ChatMessageItem) => {
   );
   const { messageInfo } = item;
   if (messageInfo.type === messageTypes.TEXT) {
-    return dummyNodeForTextMessageHeightMeasurement(messageInfo.text);
+    return dummyNodeForTextMessageHeightMeasurement(
+      messageInfo.text,
+      messageInfo.creator.isViewer,
+    );
   } else if (item.robotext) {
     return dummyNodeForRobotextMessageHeightMeasurement(
       item.robotext,
@@ -85,7 +89,7 @@ function ChatItemHeightMeasurer(props: Props) {
         const pendingUploads = inputStatePendingUploads?.[id];
         const sizes = multimediaMessageContentSizes(
           messageInfo,
-          composedMessageMaxWidth,
+          composedMessageMaxWidth - avatarOffset,
         );
         return {
           itemType: 'message',
