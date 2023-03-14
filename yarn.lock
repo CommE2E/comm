@@ -3728,10 +3728,10 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
-"@matrix-org/olm@3.2.14":
-  version "3.2.14"
-  resolved "https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.14.tgz#acd96c00a881d0f462e1f97a56c73742c8dbc984"
-  integrity sha1-rNlsAKiB0PRi4fl6Vsc3QsjbyYQ=
+"@matrix-org/olm@3.2.4":
+  version "3.2.4"
+  resolved "https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.4.tgz#edc0156a17eb1087df44f6e0b153ef0c9d454495"
+  integrity sha1-7cAVahfrEIffRPbgsVPvDJ1FRJU=
 
 "@metamask/safe-event-emitter@2.0.0", "@metamask/safe-event-emitter@^2.0.0":
   version "2.0.0"
@@ -17857,9 +17857,9 @@ octokit-pagination-methods@^1.1.0:
   resolved "https://registry.yarnpkg.com/octokit-pagination-methods/-/octokit-pagination-methods-1.1.0.tgz#cf472edc9d551055f9ef73f6e42b4dbb4c80bea4"
   integrity sha512-fZ4qZdQ2nxJvtcasX7Ghl+WlWS/d9IgnBIwFZXVNNZUmzpno91SX5bc5vuxiuKoCtK78XxGGNuSCrDC7xYB3OQ==
 
-"olm@git+https://gitlab.matrix.org/matrix-org/olm.git#v3.2.14":
+"olm@git+https://gitlab.matrix.org/matrix-org/olm.git#v3.2.4":
   version "0.0.0"
-  resolved "git+https://gitlab.matrix.org/matrix-org/olm.git#5efd38c990b1238236f4e573fba8835dc400982a"
+  resolved "git+https://gitlab.matrix.org/matrix-org/olm.git#64afab93645957846d936a19b8501dbd3f2cc4a1"
 
 on-finished@2.4.1:
   version "2.4.1"

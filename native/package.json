@@ -84,7 +84,7 @@
     "lodash": "^4.17.21",
     "lottie-react-native": "^5.1.4",
     "md5": "^2.2.1",
-    "olm": "git+https://gitlab.matrix.org/matrix-org/olm.git#v3.2.14",
+    "olm": "git+https://gitlab.matrix.org/matrix-org/olm.git#v3.2.4",
     "react": "18.1.0",
     "react-native": "^0.70.6",
     "react-native-background-upload": "^6.6.0",
