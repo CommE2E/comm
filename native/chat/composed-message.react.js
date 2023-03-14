@@ -6,6 +6,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
@@ -15,6 +16,7 @@ import {
   inlineEngagementLeftStyle,
   inlineEngagementRightStyle,
   composedMessageStyle,
+  avatarOffset,
 } from './chat-constants.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { FailedSend } from './failed-send.react.js';
@@ -23,10 +25,12 @@ import { MessageHeader } from './message-header.react.js';
 import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
 import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
+import Avatar from '../components/avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles.js';
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
@@ -51,6 +55,7 @@ type Props = {
   // withInputState
   +inputState: ?InputState,
   +navigateToSidebar: () => mixed,
+  +shouldRenderAvatars: boolean,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   render() {
@@ -67,6 +72,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       navigateToSidebar,
       contentAndHeaderOpacity,
       deliveryIconOpacity,
+      shouldRenderAvatars,
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
@@ -85,7 +91,16 @@ class ComposedMessage extends React.PureComponent<Props> {
       styles.alignment,
       { marginBottom: containerMarginBottom },
     ];
-    const messageBoxStyle = { maxWidth: composedMessageMaxWidth };
+    const swipeableMessageBoxStyle = [
+      styles.swipeableContainer,
+      { maxWidth: composedMessageMaxWidth },
+    ];
+
+    const messageBoxStyleContainerStyle = [styles.messageBoxContainer];
+    const positioningStyle = isViewer
+      ? { alignItems: 'flex-end' }
+      : { alignItems: 'flex-start' };
+    messageBoxStyleContainerStyle.push(positioningStyle);
 
     let deliveryIcon = null;
     let failedSendInfo = null;
@@ -121,15 +136,29 @@ class ComposedMessage extends React.PureComponent<Props> {
       swipeOptions === 'sidebar' || swipeOptions === 'both'
         ? navigateToSidebar
         : undefined;
+
+    let avatar;
+    if (!isViewer && item.endsCluster && shouldRenderAvatars) {
+      const avatarInfo = getAvatarForUser(item.messageInfo.creator);
+      avatar = (
+        <View style={styles.avatarContainer}>
+          <Avatar size="small" avatarInfo={avatarInfo} />
+        </View>
+      );
+    } else if (!isViewer && shouldRenderAvatars) {
+      avatar = <View style={styles.avatarOffset} />;
+    }
+
     const messageBox = (
-      <View style={styles.messageBox}>
+      <View style={messageBoxStyleContainerStyle}>
         <SwipeableMessage
           triggerReply={triggerReply}
           triggerSidebar={triggerSidebar}
           isViewer={isViewer}
-          messageBoxStyle={messageBoxStyle}
+          messageBoxStyle={swipeableMessageBoxStyle}
           threadColor={item.threadInfo.color}
         >
+          {avatar}
           <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
             {children}
           </AnimatedView>
@@ -143,10 +172,17 @@ class ComposedMessage extends React.PureComponent<Props> {
       Object.keys(item.reactions).length > 0
     ) {
       const positioning = isViewer ? 'right' : 'left';
-      const inlineEngagementPositionStyle =
-        positioning === 'left'
-          ? styles.leftInlineEngagement
-          : styles.rightInlineEngagement;
+
+      const inlineEngagementPositionStyle = [];
+      if (positioning === 'left') {
+        inlineEngagementPositionStyle.push(styles.leftInlineEngagement);
+      } else {
+        inlineEngagementPositionStyle.push(styles.rightInlineEngagement);
+      }
+      if (this.props.shouldRenderAvatars) {
+        inlineEngagementPositionStyle.push({ marginLeft: avatarOffset });
+      }
+
       inlineEngagement = (
         <View style={[styles.inlineEngagement, inlineEngagementPositionStyle]}>
           <InlineEngagement
@@ -187,6 +223,12 @@ const styles = StyleSheet.create({
     marginLeft: composedMessageStyle.marginLeft,
     marginRight: composedMessageStyle.marginRight,
   },
+  avatarContainer: {
+    marginRight: 8,
+  },
+  avatarOffset: {
+    width: avatarOffset,
+  },
   content: {
     alignItems: 'center',
     flexDirection: 'row-reverse',
@@ -211,7 +253,8 @@ const styles = StyleSheet.create({
     position: 'relative',
     top: inlineEngagementLeftStyle.topOffset,
   },
-  messageBox: {
+  messageBoxContainer: {
+    flex: 1,
     marginRight: 5,
   },
   rightChatBubble: {
@@ -223,6 +266,10 @@ const styles = StyleSheet.create({
     right: inlineEngagementRightStyle.marginRight,
     top: inlineEngagementRightStyle.topOffset,
   },
+  swipeableContainer: {
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+  },
 });
 
 const ConnectedComposedMessage: React.ComponentType<BaseProps> =
@@ -233,6 +280,8 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
     const navigateToSidebar = useNavigateToSidebar(props.item);
     const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
     const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
+    const shouldRenderAvatars = useShouldRenderAvatars();
+
     return (
       <ComposedMessage
         {...props}
@@ -242,6 +291,7 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
         navigateToSidebar={navigateToSidebar}
         contentAndHeaderOpacity={contentAndHeaderOpacity}
         deliveryIconOpacity={deliveryIconOpacity}
+        shouldRenderAvatars={shouldRenderAvatars}
       />
     );
   });
