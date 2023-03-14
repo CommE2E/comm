@@ -15,6 +15,7 @@ import {
   updateRelationships,
 } from 'lib/actions/relationship-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type RelationshipRequest,
@@ -34,6 +35,7 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import type { RelationshipListNavigate } from './relationship-list.react.js';
+import Avatar from '../components/avatar.react.js';
 import PencilIcon from '../components/pencil-icon.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import {
@@ -169,9 +171,12 @@ class RelationshipListItem extends React.PureComponent<Props> {
       );
     }
 
+    const avatarInfo = getAvatarForUser(this.props.userInfo);
+
     return (
       <View style={this.props.styles.container}>
         <View style={[this.props.styles.innerContainer, borderBottom]}>
+          <Avatar size="small" avatarInfo={avatarInfo} />
           <SingleLine style={this.props.styles.username}>
             {this.props.userInfo.username}
           </SingleLine>
@@ -299,6 +304,7 @@ const unboundStyles = {
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
+    marginLeft: 8,
   },
   blueAction: {
     color: 'link',
