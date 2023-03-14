@@ -12,6 +12,7 @@ import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import OrBreak from '../components/or-break.react.js';
+import { initOlm } from '../olm/olm-utils.js';
 import {
   setPrimaryIdentityKeys,
   setNotificationIdentityKeys,
@@ -42,7 +43,7 @@ function LoginForm(): React.Node {
       ) {
         return;
       }
-      await olm.init();
+      await initOlm();
 
       const identityAccount = new olm.Account();
       identityAccount.create();

@@ -12,16 +12,6 @@ const {
 const babelConfig = require('./babel.config.cjs');
 
 const baseBrowserConfig = {
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        {
-          from: 'node_modules/@matrix-org/olm/olm.wasm',
-          to: path.join(__dirname, 'dist'),
-        },
-      ],
-    }),
-  ],
   entry: {
     browser: ['./script.js'],
   },
@@ -58,12 +48,30 @@ const baseDevBrowserConfig = {
       directory: path.join(__dirname, 'dist'),
     },
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'node_modules/@matrix-org/olm/olm.wasm',
+          to: path.join(__dirname, 'dist'),
+        },
+      ],
+    }),
+  ],
 };
 
 const baseProdBrowserConfig = {
   ...baseBrowserConfig,
   plugins: [
-    ...baseBrowserConfig.plugins,
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'node_modules/@matrix-org/olm/olm.wasm',
+          to: path.join(__dirname, 'dist', 'olm.[contenthash:12].wasm'),
+          info: { chunk: 'test' },
+        },
+      ],
+    }),
     new AssetsPlugin({
       filename: 'assets.json',
       path: path.join(__dirname, 'dist'),
