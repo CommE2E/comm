@@ -1,12 +1,15 @@
 // @flow
 
 import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import EmojiPicker from 'rn-emoji-keyboard';
 
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 
+import { avatarOffset } from './chat-constants.js';
 import { TooltipInlineEngagement } from './inline-engagement.react.js';
 import { InnerTextMessage } from './inner-text-message.react.js';
 import { MessageHeader } from './message-header.react.js';
@@ -16,10 +19,12 @@ import { useSendReaction } from './reaction-message-utils.js';
 import ReactionSelectionPopover from './reaction-selection-popover.react.js';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react.js';
 import { useAnimatedMessageTooltipButton } from './utils.js';
+import Avatar from '../components/avatar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node, interpolateNode, Extrapolate } = Animated;
@@ -148,6 +153,23 @@ function TextMessageTooltipButton(props: Props): React.Node {
     [sendReaction, dismissTooltip],
   );
 
+  const avatarInfo = React.useMemo(
+    () => getAvatarForUser(item.messageInfo.creator),
+    [item.messageInfo.creator],
+  );
+  const shouldRenderAvatars = useShouldRenderAvatars();
+
+  const avatar = React.useMemo(() => {
+    if (item.messageInfo.creator.isViewer || !shouldRenderAvatars) {
+      return null;
+    }
+    return (
+      <View style={styles.avatarContainer}>
+        <Avatar size="small" avatarInfo={avatarInfo} />
+      </View>
+    );
+  }, [avatarInfo, item.messageInfo.creator.isViewer, shouldRenderAvatars]);
+
   return (
     <MessageListContextProvider threadInfo={threadInfo}>
       <SidebarInputBarHeightMeasurer
@@ -158,6 +180,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
         <Animated.View style={headerStyle}>
           <MessageHeader item={item} focused={true} display="modal" />
         </Animated.View>
+        {avatar}
         {reactionSelectionPopover}
         <MessagePressResponderContext.Provider
           value={messagePressResponderContext}
@@ -179,5 +202,13 @@ function TextMessageTooltipButton(props: Props): React.Node {
     </MessageListContextProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  avatarContainer: {
+    bottom: 0,
+    left: -avatarOffset,
+    position: 'absolute',
+  },
+});
 
 export default TextMessageTooltipButton;
