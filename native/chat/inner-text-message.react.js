@@ -6,6 +6,7 @@ import Animated from 'react-native-reanimated';
 
 import { colorIsDark } from 'lib/shared/thread-utils.js';
 
+import { avatarOffset } from './chat-constants.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { useTextMessageMarkdownRules } from './message-list-types.js';
 import {
@@ -39,7 +40,7 @@ type DummyTextNodeProps = {
 };
 function DummyTextNode(props: DummyTextNodeProps): React.Node {
   const { children, style, ...rest } = props;
-  const maxWidth = useComposedMessageMaxWidth();
+  const maxWidth = useComposedMessageMaxWidth() - avatarOffset;
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
   const rules = useTextMessageMarkdownRules(false);
   return (
@@ -99,6 +100,9 @@ function InnerTextMessage(props: Props): React.Node {
     return [styles.text, textStyle];
   }, [darkColor]);
 
+  const maxWidth = useComposedMessageMaxWidth() - avatarOffset;
+  const maxWidthStyle = React.useMemo(() => ({ maxWidth }), [maxWidth]);
+
   // If we need to render a Text with an onPress prop inside, we're going to
   // have an issue: the GestureTouchableOpacity below will trigger too when the
   // the onPress is pressed. We have to use a GestureTouchableOpacity in order
@@ -131,7 +135,7 @@ function InnerTextMessage(props: Props): React.Node {
             onPress={props.onPress}
             onLongPress={props.onPress}
             activeOpacity={0.6}
-            style={[styles.message, cornerStyle]}
+            style={[styles.message, cornerStyle, maxWidthStyle]}
             animatedStyle={messageStyle}
           >
             <Markdown style={markdownStyles} rules={rules}>

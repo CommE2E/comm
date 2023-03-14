@@ -24,3 +24,5 @@ export const inlineEngagementRightStyle = {
 };
 
 export const clusterEndHeight = 7;
+
+export const avatarOffset = 32;
