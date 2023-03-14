@@ -63,7 +63,12 @@ async function getFontsURL() {
   }
 }
 
-type AssetInfo = { jsURL: string, fontsURL: string, cssInclude: string };
+type AssetInfo = {
+  +jsURL: string,
+  +fontsURL: string,
+  +cssInclude: string,
+  +olmFilename: string,
+};
 let assetInfo: ?AssetInfo = null;
 async function getAssetInfo() {
   if (assetInfo) {
@@ -75,6 +80,7 @@ async function getAssetInfo() {
       jsURL: 'http://localhost:8080/dev.build.js',
       fontsURL,
       cssInclude: '',
+      olmFilename: '',
     };
     return assetInfo;
   }
@@ -91,6 +97,7 @@ async function getAssetInfo() {
           href="compiled/${assets.browser.css}"
         />
       `,
+      olmFilename: assets[''].wasm,
     };
     return assetInfo;
   } catch {
@@ -316,7 +323,7 @@ async function websiteResponder(
     return pushConfig.publicKey;
   })();
 
-  const { jsURL, fontsURL, cssInclude } = await assetInfoPromise;
+  const { jsURL, fontsURL, cssInclude, olmFilename } = await assetInfoPromise;
 
   // prettier-ignore
   res.write(html`
@@ -413,6 +420,7 @@ async function websiteResponder(
   res.end(html`
     ;
           var baseURL = "${baseURL}";
+          var olmFilename = "${olmFilename}";
         </script>
         <script src="${jsURL}"></script>
       </body>
