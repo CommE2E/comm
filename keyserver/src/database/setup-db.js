@@ -247,6 +247,13 @@ async function createTables() {
         creation_time bigint(20) NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+      CREATE TABLE search (
+        original_message_id bigint(20) NOT NULL,
+        message_id bigint(20) NOT NULL,
+        processed_content mediumtext COLLATE utf8mb4_bin,
+        FULLTEXT(processed_content)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY device_token (device_token(512)),
@@ -363,6 +370,9 @@ async function createTables() {
         
       ALTER TABLE siwe_nonces
         ADD PRIMARY KEY (nonce);
+
+      ALTER TABLE search
+        ADD PRIMARY KEY (original_message_id);
     `,
     { multipleStatements: true },
   );
