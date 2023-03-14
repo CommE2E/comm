@@ -10,6 +10,7 @@ import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import { TooltipInlineEngagement } from './inline-engagement.react.js';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
 import { MessageHeader } from './message-header.react.js';
+import MessageTooltipButtonAvatar from './message-tooltip-button-avatar.react.js';
 import { useSendReaction } from './reaction-message-utils.js';
 import ReactionSelectionPopover from './reaction-selection-popover.react.js';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react.js';
@@ -161,6 +162,7 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
         <Animated.View style={headerStyle}>
           <MessageHeader item={item} focused={true} display="modal" />
         </Animated.View>
+        <MessageTooltipButtonAvatar item={item} />
         {reactionSelectionPopover}
         {innerMultimediaMessage}
         {inlineEngagement}
