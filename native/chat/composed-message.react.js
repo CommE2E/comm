@@ -64,6 +64,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
+    const { hasBeenEdited } = item;
 
     const { isViewer } = creator;
     const alignStyle = isViewer
@@ -134,14 +135,17 @@ class ComposedMessage extends React.PureComponent<Props> {
     let inlineEngagement = null;
     if (
       item.threadCreatedFromMessage ||
-      Object.keys(item.reactions).length > 0
+      Object.keys(item.reactions).length > 0 ||
+      hasBeenEdited
     ) {
       const positioning = isViewer ? 'right' : 'left';
+      const label = hasBeenEdited ? 'Edited' : null;
       inlineEngagement = (
         <InlineEngagement
           threadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
           positioning={positioning}
+          label={label}
         />
       );
     }
