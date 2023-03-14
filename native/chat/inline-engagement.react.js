@@ -28,6 +28,8 @@ import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
+const editedLabelHeight = 25;
+
 type Props = {
   +threadInfo: ?ThreadInfo,
   +reactions?: ReactionInfo,
@@ -336,4 +338,4 @@ function TooltipInlineEngagement(
   );
 }
 
-export { InlineEngagement, TooltipInlineEngagement };
+export { InlineEngagement, TooltipInlineEngagement, editedLabelHeight };
