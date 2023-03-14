@@ -1,7 +1,6 @@
 // @flow
 
 import '@rainbow-me/rainbowkit/styles.css';
-import olm from '@matrix-org/olm';
 import invariant from 'invariant';
 import * as React from 'react';
 import { useAccount, useSigner } from 'wagmi';
@@ -18,7 +17,6 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import type {
   OLMIdentityKeys,
-  PickledOLMAccount,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
 import {
@@ -38,6 +36,7 @@ import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { signedIdentityKeysBlobSelector } from '../selectors/socket-selectors.js';
 
 type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,
@@ -78,76 +77,38 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
     state => state.cryptoStore.primaryIdentityKeys,
   );
-  const notificationIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
-    state => state.cryptoStore.notificationIdentityKeys,
-  );
-  const primaryAccount: ?PickledOLMAccount = useSelector(
-    state => state.cryptoStore.primaryAccount,
+
+  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob = useSelector(
+    signedIdentityKeysBlobSelector,
   );
 
   const callSIWEAuthEndpoint = React.useCallback(
-    (
-      message: string,
-      signature: string,
-      extraInfo,
-      signedIdentityKeysBlob: SignedIdentityKeysBlob,
-    ) =>
-      siweAuthCall({
+    (message: string, signature: string, extraInfo) => {
+      invariant(
+        signedIdentityKeysBlob,
+        'signedIdentityKeysBlob must be set in attemptSIWEAuth',
+      );
+      return siweAuthCall({
         message,
         signature,
         signedIdentityKeysBlob,
         ...extraInfo,
-      }),
-    [siweAuthCall],
+      });
+    },
+    [signedIdentityKeysBlob, siweAuthCall],
   );
 
   const attemptSIWEAuth = React.useCallback(
     (message: string, signature: string) => {
-      invariant(
-        primaryIdentityPublicKeys,
-        'primaryIdentityPublicKeys must be set in attemptSIWEAuth',
-      );
-      invariant(
-        notificationIdentityPublicKeys,
-        'notificationIdentityPublicKeys must be set in attemptSIWEAuth',
-      );
-      invariant(primaryAccount, 'primaryAccount must be set in logInAction');
-
-      const primaryOLMAccount = new olm.Account();
-      primaryOLMAccount.unpickle(
-        primaryAccount.picklingKey,
-        primaryAccount.pickledAccount,
-      );
-      const payloadToBeSigned = JSON.stringify({
-        primaryIdentityPublicKeys,
-        notificationIdentityPublicKeys,
-      });
-      const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
-        payload: payloadToBeSigned,
-        signature: primaryOLMAccount.sign(payloadToBeSigned),
-      };
-
       const extraInfo = logInExtraInfo();
       dispatchActionPromise(
         siweAuthActionTypes,
-        callSIWEAuthEndpoint(
-          message,
-          signature,
-          extraInfo,
-          signedIdentityKeysBlob,
-        ),
+        callSIWEAuthEndpoint(message, signature, extraInfo),
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
-    [
-      callSIWEAuthEndpoint,
-      dispatchActionPromise,
-      logInExtraInfo,
-      notificationIdentityPublicKeys,
-      primaryAccount,
-      primaryIdentityPublicKeys,
-    ],
+    [callSIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
   );
 
   const onSignInButtonClick = React.useCallback(async () => {
@@ -177,7 +138,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [],
   );
 
-  if (!siweNonce || !primaryIdentityPublicKeys) {
+  if (!siweNonce || !primaryIdentityPublicKeys || !signedIdentityKeysBlob) {
     return (
       <div className={css.loadingIndicator}>
         <LoadingIndicator status="loading" size="large" />
