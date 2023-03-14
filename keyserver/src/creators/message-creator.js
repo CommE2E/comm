@@ -32,6 +32,7 @@ import {
   appendSQLArray,
   mergeOrConditions,
 } from '../database/database.js';
+import { processMessagesForSearch } from '../database/search_utils.js';
 import {
   fetchMessageInfoForLocalID,
   fetchMessageInfoByID,
@@ -182,6 +183,8 @@ async function createMessages(
   `;
   const messageInsertPromise = dbQuery(messageInsertQuery);
 
+  const processMessages = processMessagesForSearch(returnMessageInfos);
+
   const postMessageSendPromise = postMessageSend(
     viewer,
     threadsToMessageIndices,
@@ -201,6 +204,7 @@ async function createMessages(
   await Promise.all([
     messageInsertPromise,
     updateRepliesCount(threadsToMessageIndices, newMessageDatas),
+    processMessages,
     viewer.isScriptViewer ? postMessageSendPromise : undefined,
   ]);
 
