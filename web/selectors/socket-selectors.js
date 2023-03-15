@@ -24,6 +24,7 @@ import type {
 } from 'lib/types/session-types.js';
 import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
+import { initOlm } from '../olm/olm-utils.js';
 import type { AppState } from '../redux/redux-setup.js';
 
 const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
@@ -38,9 +39,9 @@ const sessionIdentificationSelector: (
   (sessionID: ?string): SessionIdentification => ({ sessionID }),
 );
 
-const signedIdentityKeysBlobSelector: (
+const getSignedIdentityKeysBlobSelector: (
   state: AppState,
-) => ?SignedIdentityKeysBlob = createSelector(
+) => ?() => Promise<SignedIdentityKeysBlob> = createSelector(
   (state: AppState) => state.cryptoStore.primaryAccount,
   (state: AppState) => state.cryptoStore.primaryIdentityKeys,
   (state: AppState) => state.cryptoStore.notificationIdentityKeys,
@@ -53,36 +54,27 @@ const signedIdentityKeysBlobSelector: (
       return null;
     }
 
-    const primaryOLMAccount = new olm.Account();
-    primaryOLMAccount.unpickle(
-      primaryAccount.picklingKey,
-      primaryAccount.pickledAccount,
-    );
+    return async () => {
+      await initOlm();
+      const primaryOLMAccount = new olm.Account();
+      primaryOLMAccount.unpickle(
+        primaryAccount.picklingKey,
+        primaryAccount.pickledAccount,
+      );
 
-    const identityKeysBlob: IdentityKeysBlob = {
-      primaryIdentityPublicKeys: primaryIdentityKeys,
-      notificationIdentityPublicKeys: notificationIdentityKeys,
+      const identityKeysBlob: IdentityKeysBlob = {
+        primaryIdentityPublicKeys: primaryIdentityKeys,
+        notificationIdentityPublicKeys: notificationIdentityKeys,
+      };
+
+      const payloadToBeSigned: string = JSON.stringify(identityKeysBlob);
+      const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+        payload: payloadToBeSigned,
+        signature: primaryOLMAccount.sign(payloadToBeSigned),
+      };
+
+      return signedIdentityKeysBlob;
     };
-
-    const payloadToBeSigned: string = JSON.stringify(identityKeysBlob);
-    const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
-      payload: payloadToBeSigned,
-      signature: primaryOLMAccount.sign(payloadToBeSigned),
-    };
-
-    return signedIdentityKeysBlob;
-  },
-);
-
-const getSignedIdentityKeysBlobSelector: (
-  state: AppState,
-) => ?() => Promise<SignedIdentityKeysBlob> = createSelector(
-  signedIdentityKeysBlobSelector,
-  (signedIdentityKeysBlob: ?SignedIdentityKeysBlob) => {
-    if (!signedIdentityKeysBlob) {
-      return null;
-    }
-    return async () => signedIdentityKeysBlob;
   },
 );
 
@@ -128,7 +120,7 @@ const webSessionStateFuncSelector: (state: AppState) => () => SessionState =
 export {
   openSocketSelector,
   sessionIdentificationSelector,
-  signedIdentityKeysBlobSelector,
+  getSignedIdentityKeysBlobSelector,
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
 };

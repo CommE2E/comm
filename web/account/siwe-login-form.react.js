@@ -29,6 +29,7 @@ import {
   siweMessageSigningExplanationStatements,
 } from 'lib/utils/siwe-utils.js';
 
+import { useSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './siwe.css';
 import Button from '../components/button.react.js';
@@ -36,7 +37,6 @@ import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import { signedIdentityKeysBlobSelector } from '../selectors/socket-selectors.js';
 
 type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,
@@ -78,9 +78,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     state => state.cryptoStore.primaryIdentityKeys,
   );
 
-  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob = useSelector(
-    signedIdentityKeysBlobSelector,
-  );
+  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob =
+    useSignedIdentityKeysBlob();
 
   const callSIWEAuthEndpoint = React.useCallback(
     (message: string, signature: string, extraInfo) => {
