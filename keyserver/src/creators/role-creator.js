@@ -14,8 +14,8 @@ import createIDs from './id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 
 type InitialRoles = {
-  default: RoleInfo,
-  creator: RoleInfo,
+  +default: RoleInfo,
+  +creator: RoleInfo,
 };
 async function createInitialRolesForNewThread(
   threadID: string,
@@ -106,6 +106,7 @@ function getRolePermissionBlobsForCommunity(
   };
   const baseMemberPermissions = {
     ...genesisMemberPermissions,
+    [threadPermissions.REACT_TO_MESSAGE]: true,
     [threadPermissions.LEAVE_THREAD]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
@@ -153,6 +154,7 @@ function getRolePermissionBlobsForCommunity(
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
     [threadPermissions.VOICED]: true,
+    [threadPermissions.REACT_TO_MESSAGE]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
     [threadPermissions.EDIT_THREAD_NAME]: true,
     [threadPermissions.EDIT_THREAD_COLOR]: true,
@@ -201,6 +203,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
   if (threadType === threadTypes.SIDEBAR) {
     const memberPermissions = {
       [threadPermissions.VOICED]: true,
+      [threadPermissions.REACT_TO_MESSAGE]: true,
       [threadPermissions.EDIT_THREAD_NAME]: true,
       [threadPermissions.EDIT_THREAD_COLOR]: true,
       [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
@@ -223,6 +226,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
       [threadPermissions.KNOW_OF]: true,
       [threadPermissions.VISIBLE]: true,
       [threadPermissions.VOICED]: true,
+      [threadPermissions.REACT_TO_MESSAGE]: true,
       [threadPermissions.EDIT_THREAD_COLOR]: true,
       [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
       [threadPermissions.CREATE_SIDEBARS]: true,
@@ -242,6 +246,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
         [threadPermissions.KNOW_OF]: true,
         [threadPermissions.VISIBLE]: true,
         [threadPermissions.VOICED]: true,
+        [threadPermissions.REACT_TO_MESSAGE]: true,
         [threadPermissions.EDIT_ENTRIES]: true,
         [threadPermissions.EDIT_THREAD_NAME]: true,
         [threadPermissions.EDIT_THREAD_COLOR]: true,
@@ -260,6 +265,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
   const subthreadBasePermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
+    [threadPermissions.REACT_TO_MESSAGE]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.LEAVE_THREAD]: true,
     [openDescendantKnowOf]: true,
