@@ -26,6 +26,7 @@
 div.content {
   height: 100%;
   overflow: auto;
+  flex: 1;
 }
 
 nav.nav {
