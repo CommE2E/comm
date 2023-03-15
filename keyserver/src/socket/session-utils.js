@@ -12,6 +12,7 @@ import {
 import { usersInThreadInfo } from 'lib/shared/thread-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { UpdateActivityResult } from 'lib/types/activity-types.js';
+import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isDeviceType } from 'lib/types/device-types.js';
 import type {
   CalendarQuery,
@@ -65,11 +66,13 @@ import {
   setNewSession,
   setCookiePlatform,
   setCookiePlatformDetails,
+  setCookieSignedIdentityKeysBlob,
 } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
 import { activityUpdater } from '../updaters/activity-updaters.js';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters.js';
 import type { SessionUpdate } from '../updaters/session-updaters.js';
+import { getOlmUtility } from '../utils/olm-utils.js';
 
 const clientResponseInputValidator: TUnion<TInterface> = t.union([
   tShape({
@@ -200,6 +203,33 @@ async function processClientResponses(
     } else if (clientResponse.type === serverRequestTypes.MORE_ONE_TIME_KEYS) {
       invariant(clientResponse.keys, 'keys expected in client response');
       handleAsyncPromise(saveOneTimeKeys(viewer, clientResponse.keys));
+    } else if (
+      clientResponse.type === serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB
+    ) {
+      invariant(
+        clientResponse.signedIdentityKeysBlob,
+        'signedIdentityKeysBlob expected in client response',
+      );
+      const { signedIdentityKeysBlob } = clientResponse;
+      const identityKeys: IdentityKeysBlob = JSON.parse(
+        signedIdentityKeysBlob.payload,
+      );
+      const olmUtil = getOlmUtility();
+      try {
+        olmUtil.ed25519_verify(
+          identityKeys.primaryIdentityPublicKeys.ed25519,
+          signedIdentityKeysBlob.payload,
+          signedIdentityKeysBlob.signature,
+        );
+        handleAsyncPromise(
+          setCookieSignedIdentityKeysBlob(
+            viewer.cookieID,
+            signedIdentityKeysBlob,
+          ),
+        );
+      } catch (e) {
+        continue;
+      }
     }
   }
 
