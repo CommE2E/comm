@@ -241,7 +241,11 @@ async function reactionMessageCreationResponder(
   const [serverThreadInfos, hasPermission, targetMessageUserInfos] =
     await Promise.all([
       fetchServerThreadInfos(SQL`t.id = ${threadID}`),
-      checkThreadPermission(viewer, threadID, threadPermissions.VOICED),
+      checkThreadPermission(
+        viewer,
+        threadID,
+        threadPermissions.REACT_TO_MESSAGE,
+      ),
       fetchKnownUserInfos(viewer, [targetMessageInfo.creatorID]),
     ]);
 
