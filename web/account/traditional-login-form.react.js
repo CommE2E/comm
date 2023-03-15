@@ -29,7 +29,7 @@ import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import { signedIdentityKeysBlobSelector } from '../selectors/socket-selectors.js';
+import { getSignedIdentityKeysBlobSelector } from '../selectors/socket-selectors.js';
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function TraditionalLoginForm(): React.Node {
@@ -39,9 +39,26 @@ function TraditionalLoginForm(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
-  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob = useSelector(
-    signedIdentityKeysBlobSelector,
-  );
+  const getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob> =
+    useSelector(getSignedIdentityKeysBlobSelector);
+
+  const [signedIdentityKeysBlob, setSignedIdentityKeysBlob] =
+    React.useState<?SignedIdentityKeysBlob>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      if (
+        getSignedIdentityKeysBlob === null ||
+        getSignedIdentityKeysBlob === undefined
+      ) {
+        setSignedIdentityKeysBlob(null);
+        return;
+      }
+      const resolvedSignedIdentityKeysBlob: SignedIdentityKeysBlob =
+        await getSignedIdentityKeysBlob();
+      setSignedIdentityKeysBlob(resolvedSignedIdentityKeysBlob);
+    })();
+  }, [getSignedIdentityKeysBlob]);
 
   const usernameInputRef = React.useRef();
   React.useEffect(() => {

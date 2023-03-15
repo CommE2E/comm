@@ -36,7 +36,7 @@ import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import { signedIdentityKeysBlobSelector } from '../selectors/socket-selectors.js';
+import { getSignedIdentityKeysBlobSelector } from '../selectors/socket-selectors.js';
 
 type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,
@@ -78,9 +78,26 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     state => state.cryptoStore.primaryIdentityKeys,
   );
 
-  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob = useSelector(
-    signedIdentityKeysBlobSelector,
-  );
+  const getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob> =
+    useSelector(getSignedIdentityKeysBlobSelector);
+
+  const [signedIdentityKeysBlob, setSignedIdentityKeysBlob] =
+    React.useState<?SignedIdentityKeysBlob>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      if (
+        getSignedIdentityKeysBlob === null ||
+        getSignedIdentityKeysBlob === undefined
+      ) {
+        setSignedIdentityKeysBlob(null);
+        return;
+      }
+      const resolvedSignedIdentityKeysBlob: SignedIdentityKeysBlob =
+        await getSignedIdentityKeysBlob();
+      setSignedIdentityKeysBlob(resolvedSignedIdentityKeysBlob);
+    })();
+  }, [getSignedIdentityKeysBlob]);
 
   const callSIWEAuthEndpoint = React.useCallback(
     (message: string, signature: string, extraInfo) => {
