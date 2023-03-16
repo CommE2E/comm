@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod client;
+mod error;
 mod grpc;
 mod opaque;
 mod server;
@@ -49,6 +50,8 @@ pub fn test_register_and_login() {
 
   server_login.finish(&client_upload).unwrap();
 
-  assert_eq!(login_client.session_key.is_some(), true);
-  assert_eq!(login_client.session_key, server_login.session_key);
+  assert_eq!(
+    login_client.session_key().unwrap(),
+    server_login.session_key.unwrap()
+  );
 }
