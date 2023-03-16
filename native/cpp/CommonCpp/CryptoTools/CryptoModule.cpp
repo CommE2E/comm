@@ -225,10 +225,6 @@ void CryptoModule::restoreFromB64(
           persist.account.size())) {
     throw std::runtime_error{"error restoreFromB64 => ::olm_unpickle_account"};
   }
-  if (persist.account.size() != ::olm_pickle_account_length(this->account)) {
-    throw std::runtime_error{
-        "error restoreFromB64 => ::olm_pickle_account_length"};
-  }
 
   std::unordered_map<std::string, OlmBuffer>::iterator it;
   for (it = persist.sessions.begin(); it != persist.sessions.end(); ++it) {
