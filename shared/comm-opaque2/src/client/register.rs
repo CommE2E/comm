@@ -3,16 +3,21 @@ use opaque_ke::{
   ClientRegistrationFinishParameters, RegistrationResponse,
 };
 use rand::rngs::OsRng;
+use wasm_bindgen::prelude::*;
 
+use crate::error::OpaqueError;
 use crate::Cipher;
 
+#[wasm_bindgen]
 pub struct Registration {
   state: Option<ClientRegistration<Cipher>>,
   rng: OsRng,
   export_key: Option<Vec<u8>>,
 }
 
+#[wasm_bindgen]
 impl Registration {
+  #[wasm_bindgen(constructor)]
   pub fn new() -> Registration {
     Registration {
       state: None,
@@ -21,7 +26,7 @@ impl Registration {
     }
   }
 
-  pub fn start(&mut self, password: &str) -> Result<Vec<u8>, ProtocolError> {
+  pub fn start(&mut self, password: &str) -> Result<Vec<u8>, OpaqueError> {
     let result =
       ClientRegistration::<Cipher>::start(&mut self.rng, password.as_bytes())?;
     self.state = Some(result.state);
@@ -32,7 +37,7 @@ impl Registration {
     &mut self,
     password: &str,
     response_payload: &[u8],
-  ) -> Result<Vec<u8>, ProtocolError> {
+  ) -> Result<Vec<u8>, OpaqueError> {
     let response = RegistrationResponse::deserialize(response_payload)?;
     let state = self
       .state
