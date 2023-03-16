@@ -15,6 +15,7 @@ import Modal from '../components/modal.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 export type MessageReactionsModalParams = {
   +reactions: ReactionInfo,
@@ -38,6 +39,14 @@ function MessageReactionsModal(props: Props): React.Node {
 
   const reactionsListData = useMessageReactionsList(reactions);
 
+  const shouldRenderAvatars = useShouldRenderAvatars();
+  const marginLeftStyle = React.useMemo(
+    () => ({
+      marginLeft: shouldRenderAvatars ? 8 : 0,
+    }),
+    [shouldRenderAvatars],
+  );
+
   const renderItem = React.useCallback(
     ({ item }) => {
       const avatarInfo = getAvatarForUser(item);
@@ -46,7 +55,7 @@ function MessageReactionsModal(props: Props): React.Node {
         <View key={item.id} style={styles.reactionsListRowContainer}>
           <View style={styles.reactionsListUserInfoContainer}>
             <Avatar size="small" avatarInfo={avatarInfo} />
-            <Text style={styles.reactionsListUsernameText}>
+            <Text style={[styles.reactionsListUsernameText, marginLeftStyle]}>
               {item.username}
             </Text>
           </View>
@@ -55,6 +64,7 @@ function MessageReactionsModal(props: Props): React.Node {
       );
     },
     [
+      marginLeftStyle,
       styles.reactionsListReactionText,
       styles.reactionsListRowContainer,
       styles.reactionsListUserInfoContainer,
@@ -136,7 +146,6 @@ const unboundStyles = {
   reactionsListUsernameText: {
     color: 'modalForegroundLabel',
     fontSize: 18,
-    marginLeft: 8,
   },
   reactionsListReactionText: {
     fontSize: 18,
