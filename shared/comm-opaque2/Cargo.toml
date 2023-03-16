@@ -8,7 +8,17 @@ crate-type = ["cdylib", "lib"]
 
 [dependencies]
 argon2 = "0.4"
+getrandom = { version = "0.2", features = [ "js", "wasm-bindgen" ] }
 log = "0.4"
 opaque-ke = { version = "2.0", features = [ "argon2" ] }
 rand = "0.8"
 tonic = { version = "0.8", default-features = false }
+wasm-bindgen = "0.2"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+# Optimize for small code size
+opt-level = "s"
+strip = "debuginfo"

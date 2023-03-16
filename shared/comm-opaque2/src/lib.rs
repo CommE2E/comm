@@ -1,4 +1,5 @@
 pub mod client;
+pub mod error;
 pub mod grpc;
 pub mod opaque;
 pub mod server;
@@ -30,8 +31,8 @@ pub fn test_register_and_login() {
   let password_file_bytes = server_register.finish(&client_upload).unwrap();
 
   // Login user
-  let mut login_client = client::Login::new();
-  let client_request = login_client.start(pass).unwrap();
+  let mut client_login = client::Login::new();
+  let client_request = client_login.start(pass).unwrap();
 
   let mut server_login = server::Login::new();
   let server_response = server_login
@@ -43,10 +44,12 @@ pub fn test_register_and_login() {
     )
     .unwrap();
 
-  let client_upload = login_client.finish(&server_response).unwrap();
+  let client_upload = client_login.finish(&server_response).unwrap();
 
   server_login.finish(&client_upload).unwrap();
 
-  assert_eq!(login_client.session_key.is_some(), true);
-  assert_eq!(login_client.session_key, server_login.session_key);
+  assert_eq!(
+    client_login.session_key().unwrap(),
+    server_login.session_key.unwrap()
+  );
 }
