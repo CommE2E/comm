@@ -94,10 +94,6 @@ std::unique_ptr<Session> Session::restoreFromB64(
           b64.size())) {
     throw std::runtime_error("error pickleSession => ::olm_unpickle_session");
   }
-  if (b64.size() != ::olm_pickle_session_length(session->olmSession)) {
-    throw std::runtime_error(
-        "error pickleSession => ::olm_pickle_session_length");
-  }
   return session;
 }
 
