@@ -5,6 +5,8 @@ import { View, Text, StyleSheet } from 'react-native';
 
 import type { EmojiAvatarDBContent } from 'lib/types/avatar-types.js';
 
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
+
 type Props = {
   +avatarInfo: EmojiAvatarDBContent,
   +size?: 'large' | 'small' | 'profile' | 'micro',
@@ -12,6 +14,8 @@ type Props = {
 
 function Avatar(props: Props): React.Node {
   const { avatarInfo, size } = props;
+
+  const shouldRenderAvatars = useShouldRenderAvatars();
 
   const containerSizeStyle = React.useMemo(() => {
     if (size === 'profile') {
@@ -40,6 +44,10 @@ function Avatar(props: Props): React.Node {
     }
     return styles.emojiLarge;
   }, [size]);
+
+  if (!shouldRenderAvatars) {
+    return null;
+  }
 
   return (
     <View style={emojiContainerStyle}>

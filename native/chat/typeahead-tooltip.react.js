@@ -15,6 +15,7 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 export type TypeaheadTooltipProps = {
   +text: string,
@@ -31,9 +32,18 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     focusAndUpdateTextAndSelection,
   } = props;
 
+  const shouldRenderAvatars = useShouldRenderAvatars();
+
   const { textBeforeAtSymbol, usernamePrefix } = matchedStrings;
 
   const styles = useStyles(unboundStyles);
+
+  const marginLeftStyle = React.useMemo(
+    () => ({
+      marginLeft: shouldRenderAvatars ? 8 : 0,
+    }),
+    [shouldRenderAvatars],
+  );
 
   const renderTypeaheadButton = React.useCallback(
     ({ item }: { item: RelativeMemberInfo, ... }) => {
@@ -56,19 +66,20 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
       return (
         <Button onPress={onPress} style={styles.button} iosActiveOpacity={0.85}>
           <Avatar size="small" avatarInfo={avatarInfo} />
-          <Text style={styles.buttonLabel} numberOfLines={1}>
+          <Text style={[styles.buttonLabel, marginLeftStyle]} numberOfLines={1}>
             @{item.username}
           </Text>
         </Button>
       );
     },
     [
-      focusAndUpdateTextAndSelection,
       styles.button,
       styles.buttonLabel,
-      text,
+      marginLeftStyle,
       textBeforeAtSymbol,
+      text,
       usernamePrefix,
+      focusAndUpdateTextAndSelection,
     ],
   );
 
@@ -148,7 +159,6 @@ const unboundStyles = {
     color: 'white',
     fontSize: 16,
     fontWeight: '400',
-    marginLeft: 8,
   },
 };
 

@@ -55,6 +55,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type BaseProps = {
   +userInfo: AccountUserInfo,
@@ -80,6 +81,7 @@ type Props = {
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
+  +shouldRenderAvatars: boolean,
 };
 class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<React.ElementRef<typeof View>>();
@@ -171,13 +173,17 @@ class RelationshipListItem extends React.PureComponent<Props> {
       );
     }
 
+    const marginLeftStyle = {
+      marginLeft: this.props.shouldRenderAvatars ? 8 : 0,
+    };
+
     const avatarInfo = getAvatarForUser(this.props.userInfo);
 
     return (
       <View style={this.props.styles.container}>
         <View style={[this.props.styles.innerContainer, borderBottom]}>
           <Avatar size="small" avatarInfo={avatarInfo} />
-          <SingleLine style={this.props.styles.username}>
+          <SingleLine style={[this.props.styles.username, marginLeftStyle]}>
             {this.props.userInfo.username}
           </SingleLine>
           {editButton}
@@ -334,6 +340,8 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
     const boundUpdateRelationships = useServerCall(updateRelationships);
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
+    const shouldRenderAvatars = useShouldRenderAvatars();
+
     return (
       <RelationshipListItem
         {...props}
@@ -344,6 +352,7 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
         updateRelationships={boundUpdateRelationships}
         overlayContext={overlayContext}
         keyboardState={keyboardState}
+        shouldRenderAvatars={shouldRenderAvatars}
       />
     );
   });
