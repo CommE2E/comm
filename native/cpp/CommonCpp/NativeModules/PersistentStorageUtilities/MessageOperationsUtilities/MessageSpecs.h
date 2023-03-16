@@ -12,6 +12,7 @@
 #include "MessageSpecs/MultimediaMessageSpec.h"
 #include "MessageSpecs/ReactionMessageSpec.h"
 #include "MessageSpecs/RestoreEntryMessageSpec.h"
+#include "MessageSpecs/SidebarSourceMessageSpec.h"
 #include "MessageSpecs/TextMessageSpec.h"
 #include "MessageSpecs/UnsupportedMessageSpec.h"
 #include "MessageSpecs/UpdateRelationshipMessageSpec.h"
@@ -87,6 +88,9 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
            std::make_unique<CreateSidebarMessageSpec>()});
       message_specs_initializer.insert(
           {MessageType::REACTION, std::make_unique<ReactionMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::SIDEBAR_SOURCE,
+           std::make_unique<SidebarSourceMessageSpec>()});
       return message_specs_initializer;
     }();
 

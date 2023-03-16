@@ -150,6 +150,8 @@
 		75291F0328F9A0AE00F4C80E /* DeviceID.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DeviceID.cpp; sourceTree = "<group>"; };
 		769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-NotificationService/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
+		7F446E2229C3AF3800670288 /* ReactionMessageSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ReactionMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/ReactionMessageSpec.h; sourceTree = "<group>"; };
+		7F446E2329C3B2BE00670288 /* SidebarSourceMessageSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SidebarSourceMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/SidebarSourceMessageSpec.h; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = Comm/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		7F788C2B248AA2130098F071 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SplashScreen.storyboard; sourceTree = "<group>"; };
@@ -561,6 +563,7 @@
 		CB38F2AD286C6C4B0010535C /* MessageSpecs */ = {
 			isa = PBXGroup;
 			children = (
+				7F446E2329C3B2BE00670288 /* SidebarSourceMessageSpec.h */,
 				CB38F2B5286C6C970010535C /* ChangeRoleMessageSpec.h */,
 				CB38F2B8286C6C970010535C /* ChangeSettingsMessageSpec.h */,
 				CB38F2BA286C6C970010535C /* CreateEntryMessageSpec.h */,
@@ -571,6 +574,7 @@
 				CB38F2BB286C6C970010535C /* EditEntryMessageSpec.h */,
 				CB38F2B7286C6C970010535C /* MessageSpec.h */,
 				CB38F2BD286C6C970010535C /* MultimediaMessageSpec.h */,
+				7F446E2229C3AF3800670288 /* ReactionMessageSpec.h */,
 				CB38F2B6286C6C970010535C /* RestoreEntryMessageSpec.h */,
 				CB38F2B3286C6C970010535C /* TextMessageSpec.h */,
 				CB38F2B9286C6C970010535C /* UnsupportedMessageSpec.h */,
