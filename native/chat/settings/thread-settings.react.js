@@ -43,6 +43,7 @@ import {
   useResolvedOptionalThreadInfos,
 } from 'lib/utils/entity-helpers.js';
 
+import ThreadSettingsAvatar from './thread-settings-avatar.react.js';
 import type { CategoryType } from './thread-settings-category.react.js';
 import {
   ThreadSettingsCategoryHeader,
@@ -94,6 +95,7 @@ import {
 } from '../../themes/colors.js';
 import type { VerticalBounds } from '../../types/layout-types.js';
 import type { ViewStyle } from '../../types/styles.js';
+import { useShouldRenderAvatars } from '../../utils/avatar-utils.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 const itemPageLength = 5;
@@ -125,6 +127,11 @@ type ChatSettingsItem =
       +itemType: 'footer',
       +key: string,
       +categoryType: CategoryType,
+    }
+  | {
+      +itemType: 'avatar',
+      +key: string,
+      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'name',
@@ -246,6 +253,7 @@ type Props = {
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   +canPromoteSidebar: boolean,
+  +shouldRenderAvatars: boolean,
 };
 type State = {
   +numMembersShowing: number,
@@ -341,6 +349,25 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       const canChangeColor = canEditThreadColor && canStartEditing;
 
       const listData: ChatSettingsItem[] = [];
+      if (this.props.shouldRenderAvatars) {
+        listData.push({
+          itemType: 'header',
+          key: 'avatarHeader',
+          title: 'Channel Avatar',
+          categoryType: 'unpadded',
+        });
+        listData.push({
+          itemType: 'avatar',
+          key: 'avatar',
+          threadInfo,
+        });
+        listData.push({
+          itemType: 'footer',
+          key: 'avatarFooter',
+          categoryType: 'outline',
+        });
+      }
+
       listData.push({
         itemType: 'header',
         key: 'basicsHeader',
@@ -878,6 +905,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       );
     } else if (item.itemType === 'footer') {
       return <ThreadSettingsCategoryFooter type={item.categoryType} />;
+    } else if (item.itemType === 'avatar') {
+      return <ThreadSettingsAvatar threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'name') {
       return (
         <ThreadSettingsName
@@ -1189,6 +1218,8 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
     const { canPromoteSidebar } = usePromoteSidebar(threadInfo);
+    const shouldRenderAvatars = useShouldRenderAvatars();
+
     return (
       <ThreadSettings
         {...props}
@@ -1203,6 +1234,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         overlayContext={overlayContext}
         keyboardState={keyboardState}
         canPromoteSidebar={canPromoteSidebar}
+        shouldRenderAvatars={shouldRenderAvatars}
       />
     );
   });
