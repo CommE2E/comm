@@ -223,18 +223,19 @@ const messageListOptions = ({ navigation, route }) => {
         {...props}
       />
     ),
-    headerRight:
-      Platform.OS === 'android' && areSettingsEnabled
-        ? // This is a render prop, not a component
-          // eslint-disable-next-line react/display-name
-          () => (
-            <ThreadSettingsButton
-              threadInfo={route.params.threadInfo}
-              navigate={navigation.navigate}
-            />
-          )
-        : undefined,
+    headerRight: areSettingsEnabled
+      ? // This is a render prop, not a component
+        // eslint-disable-next-line react/display-name
+        () => (
+          <ThreadSettingsButton
+            threadInfo={route.params.threadInfo}
+            navigate={navigation.navigate}
+          />
+        )
+      : undefined,
     headerBackTitleVisible: false,
+    headerTitleAlign: areSettingsEnabled ? 'left' : 'center',
+    headerLeftContainerStyle: { width: Platform.OS === 'ios' ? 32 : 40 },
   };
 };
 const composeThreadOptions = {
