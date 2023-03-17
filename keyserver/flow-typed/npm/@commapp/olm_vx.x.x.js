@@ -1,7 +1,7 @@
 // flow-typed signature: 085f002da86534cfd8cee47ffa99dd67
-// flow-typed version: <<STUB>>/@matrix-org/olm_v3.2.4/flow_v0.182.0
+// flow-typed version: <<STUB>>/@commapp/olm_v3.2.4/flow_v0.182.0
 
-declare module '@matrix-org/olm' {
+declare module '@commapp/olm' {
 
 /*
 Copyright 2020 The Matrix.org Foundation C.I.C.

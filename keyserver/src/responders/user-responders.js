@@ -1,6 +1,6 @@
 // @flow
 
-import type { Utility as OlmUtility } from '@matrix-org/olm';
+import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
 import { ErrorTypes, SiweMessage } from 'siwe';
