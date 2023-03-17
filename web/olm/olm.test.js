@@ -1,6 +1,6 @@
 // @flow
 
-import olm from '@matrix-org/olm';
+import olm from '@commapp/olm';
 
 describe('olm.Account', () => {
   it('should construct an empty olm.Account', async () => {
