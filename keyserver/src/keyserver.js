@@ -1,6 +1,6 @@
 // @flow
 
-import olm from '@matrix-org/olm';
+import olm from '@commapp/olm';
 import cluster from 'cluster';
 import cookieParser from 'cookie-parser';
 import { detect as detectBrowser } from 'detect-browser';

@@ -1,7 +1,7 @@
 // @flow
 
-import olm from '@matrix-org/olm';
-import type { Utility as OlmUtility } from '@matrix-org/olm';
+import olm from '@commapp/olm';
+import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
