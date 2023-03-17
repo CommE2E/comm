@@ -28,9 +28,6 @@ function listenForNotifications(handleClick: (threadID: string) => void) {
       typeof userInfo.body !== 'string' ||
       typeof userInfo.threadID !== 'string'
     ) {
-      console.error(
-        'Notification must contain a string title, body and threadID',
-      );
       return;
     }
     const { title, body, threadID } = userInfo;
