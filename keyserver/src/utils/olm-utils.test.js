@@ -8,6 +8,13 @@ describe('olm.Account', () => {
   it('should get Olm Utility', async () => {
     await olm.init();
     const utility = getOlmUtility();
-    expect(utility).not.toBe(undefined);
+    expect(utility).toBeDefined();
+  });
+  it('should be able to generate and return prekey', async () => {
+    await olm.init();
+    const account = new olm.Account();
+    account.create();
+    account.generate_prekey();
+    expect(account.prekey()).toBeDefined();
   });
 });
