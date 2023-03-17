@@ -15,11 +15,14 @@ import {
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
   type SendReactionMessageRequest,
+  type SendEditMessageRequest,
   type FetchMessageInfosResponse,
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
   type SendMessageResponse,
+  type SendEditMessageResponse,
 } from 'lib/types/message-types.js';
+import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
 import type { TextMessageData } from 'lib/types/messages/text.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
@@ -286,9 +289,73 @@ async function reactionMessageCreationResponder(
   return { newMessageInfo: rawMessageInfos[0] };
 }
 
+const editMessageRequestInputValidator = tShape({
+  targetMessageID: t.String,
+  text: t.String,
+});
+async function editMessageCreationResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<SendEditMessageResponse> {
+  const request: SendEditMessageRequest = input;
+  await validateInput(viewer, editMessageRequestInputValidator, input);
+
+  const { targetMessageID, text: rawText } = request;
+  const text = trimMessage(rawText);
+  if (!targetMessageID || !text) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const targetMessageInfo = await fetchMessageInfoByID(viewer, targetMessageID);
+  if (!targetMessageInfo || !targetMessageInfo.id) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  if (targetMessageInfo.type !== messageTypes.TEXT) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const { threadID } = targetMessageInfo;
+  const [serverThreadInfos, hasPermission] = await Promise.all([
+    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+    checkThreadPermission(viewer, threadID, threadPermissions.EDIT_MESSAGE),
+  ]);
+
+  const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];
+  if (targetMessageThreadInfo.sourceMessageID === targetMessageID) {
+    // We are editing first message of the sidebar
+    // If client wants to do that it sends id of the sourceMessage instead
+    throw new ServerError('invalid_parameters');
+  }
+
+  if (!hasPermission) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  if (targetMessageInfo.creatorID !== viewer.id) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const messagesData = [];
+  const messageData: EditMessageData = {
+    type: messageTypes.EDIT_MESSAGE,
+    threadID,
+    creatorID: viewer.id,
+    time: Date.now(),
+    targetMessageID,
+    text: text,
+  };
+  messagesData.push(messageData);
+
+  const newMessageInfos = await createMessages(viewer, messagesData);
+
+  return { newMessageInfos };
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
   multimediaMessageCreationResponder,
   reactionMessageCreationResponder,
+  editMessageCreationResponder,
 };
