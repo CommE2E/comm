@@ -1039,6 +1039,27 @@ async function updateBadgeCount(
     }
   }
 
+  const macosVersionsToTokens = byPlatform.get('macos');
+  if (macosVersionsToTokens) {
+    for (const [codeVersion, deviceTokens] of macosVersionsToTokens) {
+      const notification = new apn.Notification();
+      notification.topic = getAPNsNotificationTopic({
+        platform: 'macos',
+        codeVersion,
+      });
+      notification.badge = unreadCount;
+      notification.pushType = 'alert';
+      deliveryPromises.push(
+        sendAPNsNotification('macos', notification, [...deviceTokens], {
+          source,
+          dbID,
+          userID,
+          codeVersion,
+        }),
+      );
+    }
+  }
+
   const deliveryResults = await Promise.all(deliveryPromises);
   await saveNotifResults(deliveryResults, new Map(), false);
 }
