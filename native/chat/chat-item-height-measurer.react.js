@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ChatMessageItem } from 'lib/selectors/chat-selectors.js';
 import { messageID } from 'lib/shared/message-utils.js';
 import { messageTypes, type MessageType } from 'lib/types/message-types.js';
 import { entityTextToRawString } from 'lib/utils/entity-text.js';
@@ -12,6 +11,7 @@ import type { MeasurementTask } from './chat-context-provider.react.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react.js';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react.js';
+import type { NativeChatMessageItem } from './message-data.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
 import { multimediaMessageContentSizes } from './multimedia-message-utils.js';
 import { chatMessageItemKey } from './utils.js';
@@ -22,7 +22,7 @@ type Props = {
   +measurement: MeasurementTask,
 };
 
-const heightMeasurerKey = (item: ChatMessageItem) => {
+const heightMeasurerKey = (item: NativeChatMessageItem) => {
   if (item.itemType !== 'message') {
     return null;
   }
@@ -38,7 +38,7 @@ const heightMeasurerKey = (item: ChatMessageItem) => {
   return null;
 };
 
-const heightMeasurerDummy = (item: ChatMessageItem) => {
+const heightMeasurerDummy = (item: NativeChatMessageItem) => {
   invariant(
     item.itemType === 'message',
     'NodeHeightMeasurer asked for dummy for non-message item',
@@ -63,7 +63,7 @@ function ChatItemHeightMeasurer(props: Props) {
   const { measurement } = props;
   const { threadInfo } = measurement;
   const heightMeasurerMergeItem = React.useCallback(
-    (item: ChatMessageItem, height: ?number) => {
+    (item: NativeChatMessageItem, height: ?number) => {
       if (item.itemType !== 'message') {
         return item;
       }
