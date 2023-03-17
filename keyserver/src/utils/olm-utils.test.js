@@ -1,6 +1,6 @@
 // @flow
 
-import olm from '@matrix-org/olm';
+import olm from '@commapp/olm';
 
 import { getOlmUtility } from '../utils/olm-utils.js';
 
