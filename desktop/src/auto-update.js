@@ -25,11 +25,6 @@ export function initAutoUpdate(): void {
 
   autoUpdater.on('update-not-available', scheduleCheckForUpdates);
 
-  autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-    autoUpdater.setFeedURL({ url: getUpdateUrl(releaseName) });
-    scheduleCheckForUpdates();
-  });
-
   autoUpdater.on('error', error => {
     console.error(error);
     scheduleCheckForUpdates();
