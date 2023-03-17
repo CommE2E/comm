@@ -91,16 +91,6 @@ const baseNodeServerRenderingConfig = {
 };
 
 const baseWebWorkersConfig = {
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        {
-          from: 'node_modules/sql.js/dist/sql-wasm.wasm',
-          to: path.join(__dirname, 'dist'),
-        },
-      ],
-    }),
-  ],
   entry: {
     pushNotif: './push-notif/service-worker.js',
     database: './database/worker/db-worker.js',
@@ -118,6 +108,36 @@ const baseWebWorkersConfig = {
   },
 };
 
+const devWebWorkersPlugins = [
+  new CopyPlugin({
+    patterns: [
+      {
+        from: 'node_modules/sql.js/dist/sql-wasm.wasm',
+        to: path.join(__dirname, 'dist', 'webworkers'),
+      },
+    ],
+  }),
+];
+
+const prodWebWorkersPlugins = [
+  new CopyPlugin({
+    patterns: [
+      {
+        from: 'node_modules/sql.js/dist/sql-wasm.wasm',
+        to: path.join(
+          __dirname,
+          'dist',
+          'webworkers',
+          'sql-wasm.[contenthash:12].wasm',
+        ),
+      },
+    ],
+  }),
+  new WebpackManifestPlugin({
+    publicPath: '',
+  }),
+];
+
 module.exports = function (env) {
   const browserConfig = env.prod
     ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
@@ -130,9 +150,14 @@ module.exports = function (env) {
     ...nodeConfig,
     mode: env.prod ? 'production' : 'development',
   };
+
+  const workersConfig = {
+    ...baseWebWorkersConfig,
+    plugins: env.prod ? prodWebWorkersPlugins : devWebWorkersPlugins,
+  };
   const webWorkersConfig = createWebWorkersConfig(
     env,
-    baseWebWorkersConfig,
+    workersConfig,
     babelConfig,
   );
   return [browserConfig, nodeServerRenderingConfig, webWorkersConfig];

@@ -69,6 +69,7 @@ type AssetInfo = {
   +fontsURL: string,
   +cssInclude: string,
   +olmFilename: string,
+  +sqljsFilename: string,
 };
 let assetInfo: ?AssetInfo = null;
 async function getAssetInfo() {
@@ -82,12 +83,18 @@ async function getAssetInfo() {
       fontsURL,
       cssInclude: '',
       olmFilename: '',
+      sqljsFilename: '',
     };
     return assetInfo;
   }
   try {
     const manifestString = await readFile('../web/dist/manifest.json', 'utf8');
     const manifest = JSON.parse(manifestString);
+    const webworkersManifestString = await readFile(
+      '../web/dist/webworkers/manifest.json',
+      'utf8',
+    );
+    const webworkersManifest = JSON.parse(webworkersManifestString);
     assetInfo = {
       jsURL: `compiled/${manifest['browser.js']}`,
       fontsURL: googleFontsURL,
@@ -99,6 +106,7 @@ async function getAssetInfo() {
         />
       `,
       olmFilename: manifest['olm.wasm'],
+      sqljsFilename: webworkersManifest['sql-wasm.wasm'],
     };
     return assetInfo;
   } catch {
@@ -324,7 +332,8 @@ async function websiteResponder(
     return pushConfig.publicKey;
   })();
 
-  const { jsURL, fontsURL, cssInclude, olmFilename } = await assetInfoPromise;
+  const { jsURL, fontsURL, cssInclude, olmFilename, sqljsFilename } =
+    await assetInfoPromise;
 
   // prettier-ignore
   res.write(html`
@@ -423,6 +432,7 @@ async function websiteResponder(
     ;
           var baseURL = "${baseURL}";
           var olmFilename = "${olmFilename}";
+          var sqljsFilename = "${sqljsFilename}";
         </script>
         <script src="${jsURL}"></script>
       </body>
