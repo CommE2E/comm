@@ -999,8 +999,7 @@ async function updateBadgeCount(
 
   const iosVersionsToTokens = byPlatform.get('ios');
   if (iosVersionsToTokens) {
-    for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
-      const codeVersion = parseInt(codeVer, 10); // only for Flow
+    for (const [codeVersion, deviceTokens] of iosVersionsToTokens) {
       const notification = new apn.Notification();
       notification.topic = getAPNsNotificationTopic({
         platform: 'ios',
@@ -1021,8 +1020,7 @@ async function updateBadgeCount(
 
   const androidVersionsToTokens = byPlatform.get('android');
   if (androidVersionsToTokens) {
-    for (const [codeVer, deviceTokens] of androidVersionsToTokens) {
-      const codeVersion = parseInt(codeVer, 10); // only for Flow
+    for (const [codeVersion, deviceTokens] of androidVersionsToTokens) {
       const notificationData =
         codeVersion < 69
           ? { badge: unreadCount.toString() }
@@ -1030,6 +1028,27 @@ async function updateBadgeCount(
       const notification = { data: notificationData };
       deliveryPromises.push(
         sendAndroidNotification(notification, [...deviceTokens], {
+          source,
+          dbID,
+          userID,
+          codeVersion,
+        }),
+      );
+    }
+  }
+
+  const macosVersionsToTokens = byPlatform.get('macos');
+  if (macosVersionsToTokens) {
+    for (const [codeVersion, deviceTokens] of macosVersionsToTokens) {
+      const notification = new apn.Notification();
+      notification.topic = getAPNsNotificationTopic({
+        platform: 'macos',
+        codeVersion,
+      });
+      notification.badge = unreadCount;
+      notification.pushType = 'alert';
+      deliveryPromises.push(
+        sendAPNsNotification('macos', notification, [...deviceTokens], {
           source,
           dbID,
           userID,
