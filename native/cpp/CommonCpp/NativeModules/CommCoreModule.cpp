@@ -1175,9 +1175,8 @@ jsi::Value CommCoreModule::get42(jsi::Runtime &rt) {
         RustNetworkingSingleton::instance.scheduleOrRun([this, promise]() {
           std::string error;
           try {
-            uint32_t currentID = RustNetworkingSingleton::instance.getNextID();
-            RustNetworkingSingleton::instance.promises.insert(
-                {currentID, promise});
+            auto currentID = RustNetworkingSingleton::instance.addPromise(
+                promise, this->jsInvoker_);
             get_42(currentID);
           } catch (const std::exception &e) {
             error = e.what();

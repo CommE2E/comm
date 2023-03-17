@@ -12,7 +12,6 @@ using namespace facebook::react;
 class RustNetworkingSingleton {
   std::atomic<bool> multithreadingEnabled;
   std::unique_ptr<WorkerThread> rustNetworkingThread;
-  std::atomic<bool> tasksCancelled;
   std::atomic<uint32_t> id{0};
 
   RustNetworkingSingleton();
@@ -32,12 +31,23 @@ class RustNetworkingSingleton {
       this->multithreadingEnabled.store(true);
     }
   }
+  uint32_t getNextID();
 
 public:
   static RustNetworkingSingleton instance;
   void scheduleOrRun(const taskType task);
   void enableMultithreading();
-  std::unordered_map<uint32_t, std::shared_ptr<Promise>> promises;
-  uint32_t getNextID();
+  uint32_t addPromise(
+      std::shared_ptr<Promise> promise,
+      std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
+  void removePromise(uint32_t id);
+  void resolvePromise(uint32_t id, facebook::jsi::Value value);
+  void rejectPromise(uint32_t id, const std::string &error);
+
+  struct PromiseInfo {
+    std::shared_ptr<Promise> promise;
+    std::shared_ptr<facebook::react::CallInvoker> jsInvoker;
+  };
+  std::unordered_map<uint32_t, std::shared_ptr<PromiseInfo>> promises;
 };
 } // namespace comm

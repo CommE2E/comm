@@ -10,21 +10,21 @@
 namespace comm {
 
 void get42Callback(rust::String error, uint32_t counter, double ret) {
-  std::unordered_map<uint32_t, std::shared_ptr<Promise>>::const_iterator got =
+  auto it =
       RustNetworkingSingleton::instance.promises.find(counter);
-  if (got == RustNetworkingSingleton::instance.promises.end()) {
+  if (it == RustNetworkingSingleton::instance.promises.end()) {
     Logger::log("VARUN got not found");
     return;
   } else {
     Logger::log("VARUN got found");
-    std::cout << got->first << " is " << got->second;
+    std::cout << it->first << " is " << it->second->promise;
   }
 
   if (error.size()) {
     std::cout << error;
-    got->second->reject(std::string(error));
+    RustNetworkingSingleton::instance.rejectPromise(counter, std::string(error));
   } else {
-    got->second->resolve(jsi::Value(ret));
+    RustNetworkingSingleton::instance.resolvePromise(counter, jsi::Value(ret));
   }
 }
 
