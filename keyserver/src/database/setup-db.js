@@ -154,7 +154,8 @@ async function createTables() {
         creation_time bigint(20) NOT NULL,
         color char(6) COLLATE utf8mb4_bin NOT NULL,
         source_message bigint(20) DEFAULT NULL UNIQUE,
-        replies_count int UNSIGNED NOT NULL DEFAULT 0
+        replies_count int UNSIGNED NOT NULL DEFAULT 0,
+        avatar varchar(191) COLLATE utf8mb4_bin DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
       CREATE TABLE updates (
