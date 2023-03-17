@@ -137,6 +137,7 @@ void CryptoModule::initializeInboundForReceivingSession(
 void CryptoModule::initializeOutboundForSendingSession(
     const std::string &targetUserId,
     const OlmBuffer &idKeys,
+    const OlmBuffer &preKeys,
     const OlmBuffer &oneTimeKeys,
     size_t keyIndex) {
   if (this->hasSessionFor(targetUserId)) {
@@ -148,6 +149,7 @@ void CryptoModule::initializeOutboundForSendingSession(
       this->account,
       this->keys.identityKeys.data(),
       idKeys,
+      preKeys,
       oneTimeKeys,
       keyIndex);
   this->sessions.insert(make_pair(targetUserId, std::move(newSession)));
