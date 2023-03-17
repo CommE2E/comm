@@ -205,6 +205,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   ],
   [18, updateRolesAndPermissionsForAllThreads],
   [19, updateRolesAndPermissionsForAllThreads],
+  [
+    20,
+    async () => {
+      await dbQuery(SQL`
+        ALTER TABLE threads
+          ADD COLUMN IF NOT EXISTS avatar varchar(191)
+            COLLATE utf8mb4_bin
+            DEFAULT NULL;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
