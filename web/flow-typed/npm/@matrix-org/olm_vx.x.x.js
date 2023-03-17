@@ -30,6 +30,9 @@ limitations under the License.
     max_number_of_one_time_keys(): number;
     generate_one_time_keys(number_of_keys: number): void;
     remove_one_time_keys(session: Session): void;
+    generate_prekey(): void;
+    prekey(): string;
+    forget_old_prekey(): void;
     generate_fallback_key(): void;
     fallback_key(): string;
     unpublished_fallback_key(): string;
@@ -50,6 +53,7 @@ limitations under the License.
     create_outbound(
       account: Account,
       their_identity_key: string,
+      their_pre_key: string,
       their_one_time_key: string,
     ): void;
     create_inbound(account: Account, one_time_key_message: string): void;
