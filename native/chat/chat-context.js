@@ -3,14 +3,14 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ChatMessageItem } from 'lib/selectors/chat-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import type { NativeChatMessageItem } from './message-data.react.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 
 export type MessagesMeasurer = (
-  ?$ReadOnlyArray<ChatMessageItem>,
+  ?$ReadOnlyArray<NativeChatMessageItem>,
   ?ThreadInfo,
   ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
 ) => void;

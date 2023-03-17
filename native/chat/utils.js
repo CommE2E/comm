@@ -5,8 +5,6 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useMessageListData } from 'lib/selectors/chat-selectors.js';
-import type { ChatMessageItem } from 'lib/selectors/chat-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
@@ -15,6 +13,10 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';
 import { ChatContext, useHeightMeasurer } from './chat-context.js';
 import { failedSendHeight } from './failed-send.react.js';
+import {
+  useNativeMessageListData,
+  type NativeChatMessageItem,
+} from './message-data.react.js';
 import { authorNameHeight } from './message-header.react.js';
 import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
 import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
@@ -119,7 +121,7 @@ function useMessageTargetParameters(
   +position: number,
   +color: string,
 } {
-  const messageListData = useMessageListData({
+  const messageListData = useNativeMessageListData({
     searching: false,
     userInfoInputArray: [],
     threadInfo: sidebarThreadInfo,
@@ -390,7 +392,7 @@ function useDeliveryIconOpacity(
 }
 
 function chatMessageItemKey(
-  item: ChatMessageItemWithHeight | ChatMessageItem,
+  item: ChatMessageItemWithHeight | NativeChatMessageItem,
 ): string {
   if (item.itemType === 'loader') {
     return 'loader';

@@ -6,10 +6,6 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
-import {
-  type ChatMessageItem,
-  useMessageListData,
-} from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   userInfoSelectorForPotentialMembers,
@@ -26,6 +22,10 @@ import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
 import { ChatInputBar } from './chat-input-bar.react.js';
 import type { ChatNavigationProp } from './chat.react.js';
+import {
+  type NativeChatMessageItem,
+  useNativeMessageListData,
+} from './message-data.react.js';
 import MessageListThreadSearch from './message-list-thread-search.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
 import MessageList from './message-list.react.js';
@@ -58,7 +58,7 @@ type Props = {
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
   +genesisThreadInfo: ?ThreadInfo,
-  +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
+  +messageListData: ?$ReadOnlyArray<NativeChatMessageItem>,
   +colors: Colors,
   +styles: typeof unboundStyles,
   // withOverlayContext
@@ -335,7 +335,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       [setParams, existingThreadInfoFinder, addReply],
     );
 
-    const messageListData = useMessageListData({
+    const messageListData = useNativeMessageListData({
       searching: isSearching,
       userInfoInputArray,
       threadInfo,
