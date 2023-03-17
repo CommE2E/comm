@@ -52,7 +52,7 @@ const baseDevBrowserConfig = {
     new CopyPlugin({
       patterns: [
         {
-          from: 'node_modules/@matrix-org/olm/olm.wasm',
+          from: 'node_modules/@commapp/olm/olm.wasm',
           to: path.join(__dirname, 'dist'),
         },
       ],
@@ -66,7 +66,7 @@ const baseProdBrowserConfig = {
     new CopyPlugin({
       patterns: [
         {
-          from: 'node_modules/@matrix-org/olm/olm.wasm',
+          from: 'node_modules/@commapp/olm/olm.wasm',
           to: path.join(__dirname, 'dist', 'olm.[contenthash:12].wasm'),
         },
       ],

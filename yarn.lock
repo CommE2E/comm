@@ -1719,6 +1719,11 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
+"@commapp/olm@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.0.2.tgz#b3c52e758a00df54256816485ee4749c07bfd26d"
+  integrity sha512-ffDFr8pRbvycIcY2q21oKFQnss3K4XX2g2KCvEIiBDbnQU8eVPrXtljKN5SXmfBwd0XziJmGB6eCCBGFWX+xDA==
+
 "@commapp/sqlcipher-amalgamation@^4.4.3-a":
   version "4.4.3-a"
   resolved "https://registry.yarnpkg.com/@commapp/sqlcipher-amalgamation/-/sqlcipher-amalgamation-4.4.3-a.tgz#39c297132b9ad02358bf022a164bfc03292ecce1"
@@ -3727,11 +3732,6 @@
     rimraf "^3.0.2"
     semver "^7.3.5"
     tar "^6.1.11"
-
-"@matrix-org/olm@3.2.14":
-  version "3.2.14"
-  resolved "https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.14.tgz#acd96c00a881d0f462e1f97a56c73742c8dbc984"
-  integrity sha1-rNlsAKiB0PRi4fl6Vsc3QsjbyYQ=
 
 "@metamask/safe-event-emitter@2.0.0", "@metamask/safe-event-emitter@^2.0.0":
   version "2.0.0"
@@ -19408,7 +19408,6 @@ react-native-figma-squircle@^0.1.2:
 
 react-native-flipper@^0.164.0, "react-native-flipper@https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz":
   version "1.1.1"
-  uid f8cae15d883ffc0abc663b5eaaa711fcc64bb5c2
   resolved "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz#f8cae15d883ffc0abc663b5eaaa711fcc64bb5c2"
 
 react-native-floating-action@^1.22.0:
