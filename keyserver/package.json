@@ -97,6 +97,9 @@
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!@babel/runtime)"
+    ],
+    "setupFiles": [
+      "<rootDir>/jest-setup.js"
     ]
   }
 }
