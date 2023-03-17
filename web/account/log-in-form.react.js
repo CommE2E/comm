@@ -1,6 +1,6 @@
 // @flow
 
-import olm from '@matrix-org/olm';
+import olm from '@commapp/olm';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';

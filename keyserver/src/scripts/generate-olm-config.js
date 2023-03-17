@@ -1,6 +1,6 @@
 // @flow
 
-import olm from '@matrix-org/olm';
+import olm from '@commapp/olm';
 import fs from 'fs';
 import path from 'path';
 import uuid from 'uuid';

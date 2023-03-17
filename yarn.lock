@@ -1719,6 +1719,11 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
+"@commapp/olm@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.0.3.tgz#ab494b872fc32941cdcff9e2e7d02d993d90b49b"
+  integrity sha512-SD+N9XkGyGSB1PTyYvRLS7E8uJBa1AxHO13YfyH2MAZRAacbk3jdICcFdRwbJu0QH02BhnyVp+/d426AIpya5w==
+
 "@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.3":
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@commapp/opaque-ke-wasm/-/opaque-ke-wasm-0.0.3.tgz#789b7351e593932461858658c61da5c2de51dc03"
