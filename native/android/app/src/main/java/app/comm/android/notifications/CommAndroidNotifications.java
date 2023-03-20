@@ -1,10 +1,13 @@
 package app.comm.android.notifications;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.Promise;
@@ -17,10 +20,16 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class CommAndroidNotifications extends ReactContextBaseJavaModule {
+  private static AtomicReference<Promise>
+      notificationsPermissionRequestPromise = new AtomicReference(null);
+
   private NotificationManager notificationManager;
+
+  public static final int COMM_ANDROID_NOTIFICATIONS_REQUEST_CODE = 11111;
 
   CommAndroidNotifications(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -105,10 +114,7 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void hasPermission(Promise promise) {
-    boolean enabled =
-        NotificationManagerCompat.from(getReactApplicationContext())
-            .areNotificationsEnabled();
-    promise.resolve(enabled);
+    promise.resolve(hasPermission());
   }
 
   @ReactMethod
@@ -122,11 +128,77 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
     });
   }
 
+  @ReactMethod
+  public void canRequestNotificationsPermissionFromUser(Promise promise) {
+    promise.resolve(canRequestNotificationsPermissionFromUser());
+  }
+
+  @ReactMethod
+  public void requestNotificationsPermission(Promise promise) {
+    if (!canRequestNotificationsPermissionFromUser()) {
+      // If this method is erroneously called on older Android we should
+      // resolve to the value from notifications settings.
+      promise.resolve(hasPermission());
+      return;
+    }
+
+    if (ActivityCompat.shouldShowRequestPermissionRationale(
+            getCurrentActivity(), Manifest.permission.POST_NOTIFICATIONS)) {
+      // Since Android 13 user has to deny notifications permission
+      // twice to remove possibility to show the prompt again. Details:
+      // https://developer.android.com/training/permissions/requesting#handle-denial
+      // On iOS user has to deny notifications permission once to disable the
+      // prompt. We use the method above to mimic iOS behavior on Android.
+      // Details:
+      // https://developer.android.com/topic/performance/vitals/permissions#explain
+      promise.resolve(hasPermission());
+      return;
+    }
+
+    if (!notificationsPermissionRequestPromise.compareAndSet(null, promise)) {
+      promise.reject(
+          "Programmer error: permission request already in progress.");
+      return;
+    }
+
+    ActivityCompat.requestPermissions(
+        getCurrentActivity(),
+        new String[] {Manifest.permission.POST_NOTIFICATIONS},
+        CommAndroidNotifications.COMM_ANDROID_NOTIFICATIONS_REQUEST_CODE);
+  }
+
   @Override
   public Map<String, Object> getConstants() {
     final Map<String, Object> constants = new HashMap<>();
     constants.put(
         "NOTIFICATIONS_IMPORTANCE_HIGH", NotificationManager.IMPORTANCE_HIGH);
     return constants;
+  }
+
+  public static void resolveNotificationsPermissionRequestPromise(
+      Activity mainActivity,
+      boolean isPermissionGranted) {
+    if (notificationsPermissionRequestPromise.get() == null) {
+      return;
+    }
+
+    notificationsPermissionRequestPromise.getAndSet(null).resolve(
+        isPermissionGranted);
+  }
+
+  private boolean hasPermission() {
+    return NotificationManagerCompat.from(getReactApplicationContext())
+        .areNotificationsEnabled();
+  }
+
+  private boolean canRequestNotificationsPermissionFromUser() {
+    if (android.os.Build.VERSION.SDK_INT >=
+        android.os.Build.VERSION_CODES.TIRAMISU) {
+      // Application has to explicitly request notifications permission from
+      // user since Android 13. Older versions grant them by default. Details:
+      // https://developer.android.com/develop/ui/views/notifications/notification-permission
+      return true;
+    }
+    return false;
   }
 }
