@@ -26,6 +26,7 @@ import {
   notificationTypeValues,
   logInActionSources,
 } from 'lib/types/account-types.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import type {
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
@@ -42,6 +43,7 @@ import type {
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
+import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import {
   identityKeysBlobValidator,
   signedIdentityKeysBlobValidator,
@@ -670,6 +672,14 @@ async function policyAcknowledgmentResponder(
   await viewerAcknowledgmentUpdater(viewer, request.policy);
 }
 
+async function updateUserAvatarResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: UpdateUserAvatarRequest = input;
+  await validateInput(viewer, updateUserAvatarRequestValidator, request);
+}
+
 export {
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
@@ -683,4 +693,5 @@ export {
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
+  updateUserAvatarResponder,
 };
