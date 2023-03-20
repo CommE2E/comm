@@ -1,10 +1,13 @@
 package app.comm.android.notifications;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.Promise;
@@ -17,10 +20,16 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class CommAndroidNotifications extends ReactContextBaseJavaModule {
+  private static AtomicReference<Promise>
+      notificationsPermissionRequestResultPromise = new AtomicReference(null);
+
   private NotificationManager notificationManager;
+
+  public static final int COMM_ANDROID_NOTIFICATIONS_REQUEST_CODE = 11111;
 
   CommAndroidNotifications(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -120,6 +129,37 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
         promise.reject(task.getException());
       }
     });
+  }
+
+  @ReactMethod
+  public void requestNotificationsPermission(Promise promise) {
+    if (android.os.Build.VERSION.SDK_INT <
+        android.os.Build.VERSION_CODES.TIRAMISU) {
+      // Application has to explicitly request notifications permission from
+      // user since Android 13. Older versions grant them by default. Details:
+      // https://developer.android.com/develop/ui/views/notifications/notification-permission
+      promise.resolve(null);
+      return;
+    }
+
+    if (!notificationsPermissionRequestResultPromise.compareAndSet(
+            null, promise)) {
+      promise.resolve(null);
+      return;
+    }
+
+    ActivityCompat.requestPermissions(
+        getCurrentActivity(),
+        new String[] {Manifest.permission.POST_NOTIFICATIONS},
+        CommAndroidNotifications.COMM_ANDROID_NOTIFICATIONS_REQUEST_CODE);
+  }
+
+  public static void resolveNotificationsPermissionRequestPromise(
+      Activity mainActivity,
+      boolean isPermissionGranted) {
+    notificationsPermissionRequestResultPromise.get().resolve(
+        isPermissionGranted);
+    notificationsPermissionRequestResultPromise.set(null);
   }
 
   @Override
