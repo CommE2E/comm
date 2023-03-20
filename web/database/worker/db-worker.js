@@ -11,6 +11,7 @@ import {
   workerResponseMessageTypes,
   type WorkerRequestProxyMessage,
 } from '../../types/worker-types.js';
+import { getSQLiteDBVersion } from '../queries/db-queries.js';
 import { SQLITE_CONTENT, SQLITE_ENCRYPTION_KEY } from '../utils/constants.js';
 import { generateDatabaseCryptoKey } from '../utils/worker-crypto-utils.js';
 
@@ -44,16 +45,8 @@ async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
     sqliteDb = new SQL.Database();
   }
 
-  const versionData = sqliteDb.exec('PRAGMA user_version;');
-  if (!versionData.length || !versionData[0].values.length) {
-    throw new Error('Error while retrieving database version');
-  }
-  const [dbVersion] = versionData[0].values[0];
-  if (typeof dbVersion === 'number') {
-    console.info(`Db version: ${dbVersion}`);
-  } else {
-    throw new Error('Error while retrieving database version');
-  }
+  const dbVersion = getSQLiteDBVersion(sqliteDb);
+  console.info(`Db version: ${dbVersion}`);
 }
 
 async function processAppRequest(
