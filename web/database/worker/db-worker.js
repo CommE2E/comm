@@ -1,7 +1,7 @@
 // @flow
 
 import localforage from 'localforage';
-import initSqlJs from 'sql.js';
+import initSqlJs, { type SqliteDatabase } from 'sql.js';
 
 import {
   type SharedWorkerMessageEvent,
@@ -23,7 +23,7 @@ const localforageConfig: PartialConfig = {
 };
 localforage.config(localforageConfig);
 
-let sqliteDb = null;
+let sqliteDb: ?SqliteDatabase = null;
 
 async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
   const content = await localforage.getItem(SQLITE_CONTENT);
@@ -45,8 +45,12 @@ async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
   }
 
   const versionData = sqliteDb.exec('PRAGMA user_version;');
-  if (versionData.length && versionData[0].values.length) {
-    console.info(`Db version: ${versionData[0].values[0]}`);
+  if (!versionData.length || !versionData[0].values.length) {
+    throw new Error('Error while retrieving database version');
+  }
+  const [dbVersion] = versionData[0].values[0];
+  if (typeof dbVersion === 'number') {
+    console.info(`Db version: ${dbVersion}`);
   } else {
     throw new Error('Error while retrieving database version');
   }
