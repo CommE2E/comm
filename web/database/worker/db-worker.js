@@ -23,7 +23,7 @@ const localforageConfig: PartialConfig = {
 };
 localforage.config(localforageConfig);
 
-let sqliteDb = null;
+let sqliteDb: ?SqliteDatabase = null;
 
 async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
   const content = await localforage.getItem(SQLITE_CONTENT);
