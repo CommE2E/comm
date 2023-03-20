@@ -57,6 +57,7 @@ import {
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
+  updateUserAvatarResponder,
 } from './responders/user-responders.js';
 import { codeVerificationResponder } from './responders/verification-responders.js';
 import { uploadDeletionResponder } from './uploads/uploads.js';
@@ -241,6 +242,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   siwe_auth: {
     responder: siweAuthResponder,
     requiredPolicies: [],
+  },
+  update_user_avatar: {
+    responder: updateUserAvatarResponder,
+    requiredPolicies: baseLegalPolicies,
   },
 };
 
