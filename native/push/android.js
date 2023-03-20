@@ -18,6 +18,8 @@ type CommAndroidNotificationsModuleType = {
   +removeAllDeliveredNotifications: () => void,
   +hasPermission: () => Promise<boolean>,
   +getToken: () => Promise<string>,
+  +requestNotificationsPermission: () => Promise<boolean>,
+  +canRequestNotificationsPermissionFromUser: () => Promise<boolean>,
   +NOTIFICATIONS_IMPORTANCE_HIGH: string,
 };
 export type AndroidForegroundMessage = {
