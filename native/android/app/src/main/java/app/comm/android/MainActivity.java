@@ -1,13 +1,18 @@
 package app.comm.android;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import androidx.core.app.ActivityCompat;
+import app.comm.android.notifications.CommAndroidNotifications;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import expo.modules.ReactActivityDelegateWrapper;
 
-public class MainActivity extends ReactActivity {
+public class MainActivity extends ReactActivity
+    implements ActivityCompat.OnRequestPermissionsResultCallback {
 
   /**
    * Returns the name of the main component registered from JavaScript.
@@ -65,5 +70,25 @@ public class MainActivity extends ReactActivity {
   @Override
   public void invokeDefaultOnBackPressed() {
     moveTaskToBack(true);
+  }
+
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode,
+      String[] permissions,
+      int[] grantResults) {
+
+    for (int permissionIndex = 0; permissionIndex < grantResults.length;
+         permissionIndex++) {
+      String permissionName = permissions[permissionIndex];
+      if (requestCode ==
+              CommAndroidNotifications
+                  .COMM_ANDROID_NOTIFICATIONS_REQUEST_CODE &&
+          permissionName.equals(Manifest.permission.POST_NOTIFICATIONS)) {
+        CommAndroidNotifications.resolveNotificationsPermissionRequestPromise(
+            this,
+            grantResults[permissionIndex] == PackageManager.PERMISSION_GRANTED);
+      }
+    }
   }
 }
