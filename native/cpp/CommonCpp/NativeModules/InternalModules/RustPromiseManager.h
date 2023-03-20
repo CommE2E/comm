@@ -2,6 +2,8 @@
 
 #include "../../Tools/WorkerThread.h"
 #include <ReactCommon/TurboModuleUtils.h>
+#include <folly/dynamic.h>
+#include <jsi/JSIDynamic.h>
 
 #include <atomic>
 
@@ -9,36 +11,21 @@ namespace comm {
 
 using namespace facebook::react;
 
-class RustNetworkingSingleton {
-  std::atomic<bool> multithreadingEnabled;
-  std::unique_ptr<WorkerThread> rustNetworkingThread;
+class RustPromiseManager {
   std::atomic<uint32_t> id{0};
 
-  RustNetworkingSingleton();
+  RustPromiseManager();
 
-  void scheduleCommonImpl(const taskType task) {
-    if (this->rustNetworkingThread == nullptr) {
-      return;
-    }
-    this->rustNetworkingThread->scheduleTask(task);
-  }
-
-  void enableMultithreadingCommonImpl() {
-    if (this->rustNetworkingThread == nullptr) {
-      this->rustNetworkingThread =
-          std::make_unique<WorkerThread>("rust-networking");
-      this->multithreadingEnabled.store(true);
-    }
-  }
   uint32_t getNextID() {
     return this->id++;
   };
 
   uint32_t addPromiseCommonImpl(
       std::shared_ptr<Promise> promise,
-      std::shared_ptr<facebook::react::CallInvoker> jsInvoker) {
+      std::shared_ptr<facebook::react::CallInvoker> jsInvoker,
+      facebook::jsi::Runtime &rt) {
     uint32_t id = getNextID();
-    PromiseInfo info = {promise, jsInvoker};
+    PromiseInfo info = {promise, jsInvoker, rt};
     promises.insert({id, info});
     return id;
   };
@@ -47,16 +34,16 @@ class RustNetworkingSingleton {
     promises.erase(id);
   };
 
-  void resolvePromiseCommonImpl(uint32_t id, double ret) {
+  void resolvePromiseCommonImpl(uint32_t id, folly::dynamic ret) {
     auto it = promises.find(id);
     if (it != promises.end()) {
-      if (it->second.jsInvoker) {
-        auto promiseInfo = it->second;
-        it->second.jsInvoker->invokeAsync([promiseInfo2 = promiseInfo, ret]() {
-          promiseInfo2.promise->resolve(facebook::jsi::Value(ret));
+      auto promiseInfo = it->second;
+      if (promiseInfo.jsInvoker) {
+        promiseInfo.jsInvoker->invokeAsync([promiseInfo, ret]() {
+          promiseInfo.promise->resolve(valueFromDynamic(promiseInfo.rt, ret));
         });
       } else {
-        it->second.promise->resolve(facebook::jsi::Value(ret));
+        promiseInfo.promise->resolve(valueFromDynamic(promiseInfo.rt, ret));
       }
       removePromise(id);
     }
@@ -78,19 +65,19 @@ class RustNetworkingSingleton {
   };
 
 public:
-  static RustNetworkingSingleton instance;
-  void schedule(const taskType task);
-  void enableMultithreading();
+  static RustPromiseManager instance;
   uint32_t addPromise(
       std::shared_ptr<Promise> promise,
-      std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
+      std::shared_ptr<facebook::react::CallInvoker> jsInvoker,
+      facebook::jsi::Runtime &rt);
   void removePromise(uint32_t id);
-  void resolvePromise(uint32_t id, double ret);
+  void resolvePromise(uint32_t id, folly::dynamic ret);
   void rejectPromise(uint32_t id, const std::string &error);
 
   struct PromiseInfo {
     std::shared_ptr<Promise> promise;
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker;
+    facebook::jsi::Runtime &rt;
   };
   std::unordered_map<uint32_t, PromiseInfo> promises;
 };
