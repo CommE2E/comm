@@ -135,7 +135,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         ),
         commIOSNotificationsEventEmitter.addListener(
           'remoteNotificationsRegistrationFailed',
-          this.failedToRegisterPushPermissions,
+          this.failedToRegisterPushPermissionsIOS,
         ),
         commIOSNotificationsEventEmitter.addListener(
           'notificationReceivedForeground',
@@ -323,9 +323,18 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   async ensureAndroidPushNotifsEnabled() {
-    const hasPermission = await CommAndroidNotifications.hasPermission();
+    let hasPermission = await CommAndroidNotifications.hasPermission();
+    const canRequestPermission =
+      await CommAndroidNotifications.canRequestNotificationsPermissionFromUser();
+
+    if (canRequestPermission) {
+      const permissionResponse =
+        await CommAndroidNotifications.requestNotificationsPermission();
+      hasPermission = hasPermission || permissionResponse;
+    }
+
     if (!hasPermission) {
-      this.failedToRegisterPushPermissions();
+      this.failedToRegisterPushPermissionsAndroid(!canRequestPermission);
       return;
     }
 
@@ -333,7 +342,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       const fcmToken = await CommAndroidNotifications.getToken();
       await this.handleAndroidDeviceToken(fcmToken);
     } catch (e) {
-      this.failedToRegisterPushPermissions();
+      this.failedToRegisterPushPermissionsAndroid(!canRequestPermission);
     }
   }
 
@@ -374,15 +383,22 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  failedToRegisterPushPermissions = () => {
+  failedToRegisterPushPermissionsIOS = () => {
     this.setDeviceToken(null);
     if (!this.props.loggedIn) {
       return;
     }
-    const deviceType = Platform.OS;
-    if (deviceType === 'ios') {
-      iosPushPermissionResponseReceived();
-    } else {
+    iosPushPermissionResponseReceived();
+  };
+
+  failedToRegisterPushPermissionsAndroid = (
+    shouldShowAlertOnAndroid: boolean,
+  ) => {
+    this.setDeviceToken(null);
+    if (!this.props.loggedIn) {
+      return;
+    }
+    if (shouldShowAlertOnAndroid) {
       this.showNotifAlertOnAndroid();
     }
   };
