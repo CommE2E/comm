@@ -33,7 +33,10 @@ import {
 } from './role-creator.js';
 import type { UpdatesForCurrentSession } from './update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
+import {
+  fetchLatestEditMessageContentByID,
+  fetchMessageInfoByID,
+} from '../fetchers/message-fetchers.js';
 import {
   determineThreadAncestry,
   personalThreadQuery,
@@ -421,13 +424,26 @@ async function createThread(
       throw new ServerError('invalid_parameters');
     }
 
+    let editedSourceMessage = sourceMessage;
+    if (sourceMessageID && sourceMessage.type === messageTypes.TEXT) {
+      const editMessageContent = await fetchLatestEditMessageContentByID(
+        sourceMessageID,
+      );
+      if (editMessageContent) {
+        editedSourceMessage = {
+          ...sourceMessage,
+          text: editMessageContent.text,
+        };
+      }
+    }
+
     messageDatas.push(
       {
         type: messageTypes.SIDEBAR_SOURCE,
         threadID: id,
         creatorID: viewer.userID,
         time,
-        sourceMessage,
+        sourceMessage: editedSourceMessage,
       },
       {
         type: messageTypes.CREATE_SIDEBAR,
