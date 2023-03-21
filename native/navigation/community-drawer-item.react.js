@@ -3,15 +3,18 @@
 import * as React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 
+import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
+import Avatar from '../components/avatar.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<TextStyle>,
@@ -78,6 +81,22 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   }, [navigateToThread, threadInfo]);
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+
+  const avatarInfo = useGetAvatarForThread(threadInfo);
+  const shouldRenderAvatars = useShouldRenderAvatars();
+
+  const avatar = React.useMemo(() => {
+    if (!shouldRenderAvatars) {
+      return null;
+    }
+
+    return (
+      <View style={styles.avatarContainer}>
+        <Avatar size="micro" avatarInfo={avatarInfo} />
+      </View>
+    );
+  }, [avatarInfo, shouldRenderAvatars, styles.avatarContainer]);
+
   return (
     <View>
       <View style={styles.threadEntry}>
@@ -87,6 +106,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           style={styles.textTouchableWrapper}
           onLongPress={onExpandToggled}
         >
+          {avatar}
           <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>
       </View>
@@ -96,6 +116,9 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
 }
 
 const unboundStyles = {
+  avatarContainer: {
+    marginRight: 8,
+  },
   chatView: {
     marginLeft: 16,
   },
@@ -105,6 +128,8 @@ const unboundStyles = {
   },
   textTouchableWrapper: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   subchannelsButton: {
     marginLeft: 24,
