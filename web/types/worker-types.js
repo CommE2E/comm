@@ -1,10 +1,13 @@
 // @flow
 
+import type { ClientDBStoreOperations } from 'lib/types/store-ops-types.js';
+
 // The types of messages sent from app to worker
 export const workerRequestMessageTypes = Object.freeze({
   PING: 0,
   INIT: 1,
   GENERATE_DATABASE_ENCRYPTION_KEY: 2,
+  PROCESS_STORE_OPERATIONS: 3,
 });
 
 export type PingWorkerRequestMessage = {
@@ -22,10 +25,16 @@ export type GenerateDatabaseEncryptionKeyRequestMessage = {
   +type: 2,
 };
 
+export type ProcessStoreOperationsRequestMessage = {
+  +type: 3,
+  +storeOperations: ClientDBStoreOperations,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
-  | GenerateDatabaseEncryptionKeyRequestMessage;
+  | GenerateDatabaseEncryptionKeyRequestMessage
+  | ProcessStoreOperationsRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
