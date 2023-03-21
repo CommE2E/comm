@@ -116,6 +116,7 @@ list(APPEND ANDROID_NATIVE_CODE
   "./src/cpp/TerminateApp.cpp"
   "./src/cpp/ThreadOperationsJNIHelper.cpp"
   "./src/cpp/jsiInstaller.cpp"
+  "./src/cpp/RustPromiseManager.cpp"
 )
 
 set(GENERATED_NATIVE_CODE "../../cpp/CommonCpp/_generated/commJSI-generated.cpp")
@@ -135,6 +136,7 @@ add_library(
 
   # React dependencies
   ${_react_native_dir}/ReactCommon/jsi/jsi/jsi.cpp
+  ${_react_native_dir}/ReactCommon/jsi/jsi/JSIDynamic.cpp
   ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
   ${_react_native_dir}/ReactCommon/react/bridging/LongLivedObject.cpp
