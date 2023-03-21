@@ -33,7 +33,10 @@ import {
 } from './role-creator.js';
 import type { UpdatesForCurrentSession } from './update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
+import {
+  fetchLatestEditMessageContentByID,
+  fetchMessageInfoByID,
+} from '../fetchers/message-fetchers.js';
 import {
   determineThreadAncestry,
   personalThreadQuery,
@@ -443,6 +446,24 @@ async function createThread(
         },
       },
     );
+    // Add latest edit message of sourceMessage to the sidebar
+    if (sourceMessageID) {
+      const editMessageContent = await fetchLatestEditMessageContentByID(
+        sourceMessageID,
+      );
+      if (editMessageContent) {
+        const editedText = editMessageContent.text;
+        const messageData = {
+          type: messageTypes.EDIT_MESSAGE,
+          threadID: id,
+          creatorID: sourceMessage.creatorID,
+          time: time,
+          targetMessageID: sourceMessageID,
+          text: editedText,
+        };
+        messageDatas.push(messageData);
+      }
+    }
   }
 
   if (
