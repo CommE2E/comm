@@ -721,6 +721,23 @@ async function fetchThreadMessagesCount(threadID: string): Promise<number> {
   return result[0].count;
 }
 
+async function fetchLatestEditMessageContentByID(
+  messageID: string,
+): Promise<?any> {
+  const latestEditedMessageQuery = SQL`
+    SELECT m.content FROM messages m
+    WHERE (m.target_message = ${messageID}) 
+      AND (type = ${messageTypes.EDIT_MESSAGE}) 
+    ORDER BY id DESC LIMIT 1;
+  `;
+  const [editedContent] = await dbQuery(latestEditedMessageQuery);
+  if (editedContent.length === 0) {
+    return null;
+  }
+  const jsonContent = JSON.parse(editedContent[0].content);
+  return jsonContent;
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -730,4 +747,5 @@ export {
   fetchMessageInfoForEntryAction,
   fetchMessageInfoByID,
   fetchThreadMessagesCount,
+  fetchLatestEditMessageContentByID,
 };
