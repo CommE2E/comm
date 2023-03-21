@@ -379,10 +379,30 @@ task updateRustToolchain(type: Exec) {
         "x86_64-linux-android"
 }
 
+def rustManifestPath = "../../native_rust_library/Cargo.toml"
+def cargoProjectDirectory = "../../native_rust_library"
+def cargoLibDirectory = '../../native_rust_library/target/cxxbridge/native_rust_library/src'
+def cargoCXXDirectory = '../../native_rust_library/target/cxxbridge/rust'
+
+task buildNativeRustLibrary(type: Exec) {
+  commandLine "cargo", "build", "--manifest-path", rustManifestPath
+}
+
+task rustDeploy(dependsOn: buildNativeRustLibrary, type: Copy) {
+  from(cargoLibDirectory) {
+    include 'lib.rs.h'
+    include 'lib.rs.cc'
+  }
+  from(cargoCXXDirectory) {
+    include 'cxx.h'
+  }
+  into cargoProjectDirectory
+}
+
 // Bind preBuild dependencies only if not 'clean' running
 if (!isCleanRunning()) {
     afterEvaluate {
-        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain)
+        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain, rustDeploy)
     }
 }
 
