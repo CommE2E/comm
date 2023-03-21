@@ -22,6 +22,7 @@ import {
 
 import { SingleLine } from '../../components/single-line.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
+import { CommAndroidNotifications } from '../../push/android.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 
@@ -95,22 +96,31 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
     );
   };
 
-  onNotificationsSettingsLinkingIconPress = () => {
-    const alertTitle =
+  onNotificationsSettingsLinkingIconPress = async () => {
+    const platformRequestsPermission =
+      Platform.OS === 'ios' ||
+      (await CommAndroidNotifications.canRequestNotificationsPermissionFromUser());
+    const alertTitle = platformRequestsPermission
+      ? 'Need notif permissions'
+      : 'Unable to initialize notifs';
+    const notificationsSettingsPath =
       Platform.OS === 'ios'
-        ? 'Need notif permissions'
-        : 'Unable to initialize notifs';
+        ? 'Settings App → Notifications → Comm'
+        : 'Settings → Apps → Comm → Notifications';
+
     let alertMessage;
-    if (Platform.OS === 'ios' && this.state.currentValue) {
+    if (platformRequestsPermission && this.state.currentValue) {
       alertMessage =
         'Notifs for this chat are enabled, but cannot be delivered ' +
         'to this device because you haven’t granted notif permissions to Comm. ' +
-        'Please enable them in Settings App → Notifications → Comm';
-    } else if (Platform.OS === 'ios') {
+        'Please enable them in ' +
+        notificationsSettingsPath;
+    } else if (platformRequestsPermission) {
       alertMessage =
         'In order to enable push notifs for this chat, ' +
         'you need to first grant notif permissions to Comm. ' +
-        'Please enable them in Settings App → Notifications → Comm';
+        'Please enable them in ' +
+        notificationsSettingsPath;
     } else {
       alertMessage =
         'Please check your network connection, make sure Google Play ' +
