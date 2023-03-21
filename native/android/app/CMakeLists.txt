@@ -135,6 +135,7 @@ add_library(
 
   # React dependencies
   ${_react_native_dir}/ReactCommon/jsi/jsi/jsi.cpp
+  ${_react_native_dir}/ReactCommon/jsi/jsi/JSIDynamic.cpp
   ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
   ${_react_native_dir}/ReactCommon/react/bridging/LongLivedObject.cpp
