@@ -5,24 +5,16 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
-import type {
-  ClientDBDraftInfo,
-  ClientDBDraftStoreOperation,
-} from 'lib/types/draft-types.js';
+import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type {
   ClientDBMessageInfo,
   ClientDBMessageStoreOperation,
 } from 'lib/types/message-types.js';
+import type { ClientDBStore } from 'lib/types/store-ops-types';
 import type {
   ClientDBThreadInfo,
   ClientDBThreadStoreOperation,
 } from 'lib/types/thread-types.js';
-
-type ClientDBStore = {
-  +messages: $ReadOnlyArray<ClientDBMessageInfo>,
-  +drafts: $ReadOnlyArray<ClientDBDraftInfo>,
-  +threads: $ReadOnlyArray<ClientDBThreadInfo>,
-};
 
 type ClientPublicKeys = {
   +primaryIdentityPublicKeys: {
