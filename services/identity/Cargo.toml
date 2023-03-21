@@ -25,6 +25,7 @@ bytes = "1.1"
 constant_time_eq = "0.2.2"
 siwe = "0.3"
 comm-opaque = { path = "../../shared/comm-opaque" }
+comm-opaque2 = { path = "../../shared/comm-opaque2" }
 once_cell = "1.17"
 hex = "0.4"
 
