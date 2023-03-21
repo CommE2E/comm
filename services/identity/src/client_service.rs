@@ -3,15 +3,17 @@ pub mod client_proto {
 }
 
 use crate::client_service::client_proto::{
-  DeleteUserRequest, DeviceKeysForUserRequest, DeviceKeysForUserResponse,
-  Empty, GenerateNonceResponse, KeyserverKeysRequest, KeyserverKeysResponse,
-  OpaqueLoginFinishRequest, OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
-  OpaqueLoginStartResponse, RefreshUserPreKeysRequest,
-  RegistrationFinishRequest, RegistrationFinishResponse,
-  RegistrationStartRequest, RegistrationStartResponse,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordFinishResponse,
-  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest, WalletLoginRequest, WalletLoginResponse,
+  DeleteUserRequest, Empty, GenerateNonceResponse, KeyserverKeysRequest,
+  KeyserverKeysResponse, OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
+  OpaqueLoginStartRequest, OpaqueLoginStartResponse,
+  ReceiverKeysForUserRequest, ReceiverKeysForUserResponse,
+  RefreshUserPreKeysRequest, RegistrationFinishRequest,
+  RegistrationFinishResponse, RegistrationStartRequest,
+  RegistrationStartResponse, SenderKeysForUserRequest,
+  SenderKeysForUserResponse, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordFinishResponse, UpdateUserPasswordStartRequest,
+  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  WalletLoginRequest, WalletLoginResponse,
 };
 pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
@@ -87,10 +89,17 @@ impl IdentityClientService for ClientService {
     unimplemented!();
   }
 
-  async fn get_device_keys_for_user(
+  async fn get_receiver_keys_for_user(
     &self,
-    _request: tonic::Request<DeviceKeysForUserRequest>,
-  ) -> Result<tonic::Response<DeviceKeysForUserResponse>, tonic::Status> {
+    _request: tonic::Request<ReceiverKeysForUserRequest>,
+  ) -> Result<tonic::Response<ReceiverKeysForUserResponse>, tonic::Status> {
+    unimplemented!();
+  }
+
+  async fn get_sender_keys_for_user(
+    &self,
+    _request: tonic::Request<SenderKeysForUserRequest>,
+  ) -> Result<tonic::Response<SenderKeysForUserResponse>, tonic::Status> {
     unimplemented!();
   }
 
