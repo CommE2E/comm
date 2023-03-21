@@ -3,12 +3,14 @@
 import * as React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 
+import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
+import Avatar from '../components/avatar.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
@@ -77,7 +79,13 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     navigateToThread({ threadInfo });
   }, [navigateToThread, threadInfo]);
 
-  const { uiName } = useResolvedThreadInfo(threadInfo);
+  const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
+  const avatarInfo = useGetAvatarForThread(resolvedThreadInfo);
+
+  const avatar = React.useMemo(() => {
+    return <Avatar size="micro" avatarInfo={avatarInfo} />;
+  }, [avatarInfo]);
+
   return (
     <View>
       <View style={styles.threadEntry}>
@@ -87,7 +95,10 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           style={styles.textTouchableWrapper}
           onLongPress={onExpandToggled}
         >
-          <SingleLine style={labelStyle}>{uiName}</SingleLine>
+          {avatar}
+          <SingleLine style={labelStyle}>
+            {resolvedThreadInfo.uiName}
+          </SingleLine>
         </TouchableOpacity>
       </View>
       {children}
@@ -105,6 +116,8 @@ const unboundStyles = {
   },
   textTouchableWrapper: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   subchannelsButton: {
     marginLeft: 24,
