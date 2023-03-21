@@ -16,4 +16,13 @@ function getSQLiteDBVersion(db: SqliteDatabase): number {
   return dbVersion;
 }
 
-export { getSQLiteDBVersion };
+function setupSQLiteDB(db: SqliteDatabase) {
+  db.exec(`
+     CREATE TABLE IF NOT EXISTS drafts (
+       key TEXT UNIQUE PRIMARY KEY NOT NULL,
+       text TEXT NOT NULL
+     )
+  `);
+}
+
+export { getSQLiteDBVersion, setupSQLiteDB };
