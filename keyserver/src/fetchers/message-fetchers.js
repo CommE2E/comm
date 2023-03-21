@@ -15,6 +15,7 @@ import {
   type RawRobotextMessageInfo,
   messageTypes,
   type MessageType,
+  type EditMessageContent,
   assertMessageType,
   type MessageSelectionCriteria,
   type MessageTruncationStatus,
@@ -645,7 +646,7 @@ async function fetchMessageInfoForEntryAction(
 
 async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
   const query = SQL`
-    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation, 
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
       m.user AS creatorID, m.target_message as targetMessageID,
       stm.permissions AS subthread_permissions, up.id AS uploadID,
       up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
@@ -721,6 +722,23 @@ async function fetchThreadMessagesCount(threadID: string): Promise<number> {
   return result[0].count;
 }
 
+async function fetchLatestEditMessageContentByID(
+  messageID: string,
+): Promise<?EditMessageContent> {
+  const latestEditedMessageQuery = SQL`
+    SELECT content
+    FROM messages
+    WHERE target_message = ${messageID}
+      AND type = ${messageTypes.EDIT_MESSAGE}
+    ORDER BY id DESC LIMIT 1`;
+  const [editedContent] = await dbQuery(latestEditedMessageQuery);
+  if (editedContent.length === 0) {
+    return null;
+  }
+  const jsonContent = JSON.parse(editedContent[0].content);
+  return jsonContent;
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -730,4 +748,5 @@ export {
   fetchMessageInfoForEntryAction,
   fetchMessageInfoByID,
   fetchThreadMessagesCount,
+  fetchLatestEditMessageContentByID,
 };
