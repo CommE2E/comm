@@ -1,6 +1,10 @@
 // @flow
 
-import type { SqliteDatabase } from 'sql.js';
+import { SqliteDatabase } from 'sql.js';
+
+import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
+
+import { parseMultiStatementSQLiteResult } from '../utils/db-utils.js';
 
 function removeAllDrafts(db: SqliteDatabase) {
   db.exec(`DELETE FROM drafts`);
@@ -33,4 +37,15 @@ function moveDraft(db: SqliteDatabase, oldKey: string, newKey: string) {
   db.exec(query, params);
 }
 
-export { removeAllDrafts, updateDraft, moveDraft };
+function getAllDrafts(db: SqliteDatabase): ClientDBDraftInfo[] {
+  const rawDBResult = db.exec(`SELECT * FROM drafts`);
+  const dbResult =
+    parseMultiStatementSQLiteResult<ClientDBDraftInfo>(rawDBResult);
+  if (dbResult.length === 0) {
+    return [];
+  }
+
+  return dbResult[0];
+}
+
+export { removeAllDrafts, updateDraft, moveDraft, getAllDrafts };
