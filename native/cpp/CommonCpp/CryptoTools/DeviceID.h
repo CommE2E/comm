@@ -1,3 +1,5 @@
+#pragma once
+
 #include "lib.rs.h"
 #include <string>
 #include <unordered_map>
