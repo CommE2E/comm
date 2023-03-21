@@ -7,6 +7,7 @@ import type {
   ClientDBDraftStoreOperation,
   DraftStoreOperation,
 } from 'lib/types/draft-types.js';
+import type { ClientDBStore } from 'lib/types/store-ops-types.js';
 
 import {
   type SharedWorkerMessageEvent,
@@ -18,6 +19,7 @@ import {
 } from '../../types/worker-types.js';
 import { getSQLiteDBVersion, setupSQLiteDB } from '../queries/db-queries.js';
 import {
+  getAllDrafts,
   moveDraft,
   removeAllDrafts,
   updateDraft,
@@ -81,6 +83,17 @@ function processDraftStoreOperations(
   }
 }
 
+function getClientStore(): ClientDBStore {
+  if (!sqliteDb) {
+    throw new Error('Database not initialized');
+  }
+  return {
+    drafts: getAllDrafts(sqliteDb),
+    messages: [],
+    threads: [],
+  };
+}
+
 async function processAppRequest(
   message: WorkerRequestMessage,
 ): Promise<?WorkerResponseMessage> {
@@ -106,6 +119,11 @@ async function processAppRequest(
       processDraftStoreOperations(draftStoreOperations);
     }
     return;
+  } else if (message.type === workerRequestMessageTypes.GET_CLIENT_STORE) {
+    return {
+      type: workerResponseMessageTypes.CLIENT_STORE,
+      store: getClientStore(),
+    };
   }
 
   throw new Error('Request type not supported');
