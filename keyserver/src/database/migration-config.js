@@ -5,6 +5,7 @@ import fs from 'fs';
 import { policyTypes } from 'lib/facts/policies.js';
 
 import { dbQuery, SQL } from '../database/database.js';
+import { processMessagesInDBForSearch } from '../database/search_utils.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
 
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
@@ -232,6 +233,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       );
     },
   ],
+  [22, processMessagesInDBForSearch],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
