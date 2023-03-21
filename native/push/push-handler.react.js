@@ -113,6 +113,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   currentState: ?string = getCurrentLifecycleState();
   appStarted = 0;
   androidNotificationsEventSubscriptions: Array<EventSubscription> = [];
+  androidNotificationsPermissionPromise: ?Promise<boolean> = undefined;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
   lifecycleSubscription: ?EventSubscription;
@@ -135,7 +136,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         ),
         commIOSNotificationsEventEmitter.addListener(
           'remoteNotificationsRegistrationFailed',
-          this.failedToRegisterPushPermissions,
+          this.failedToRegisterPushPermissionsIOS,
         ),
         commIOSNotificationsEventEmitter.addListener(
           'notificationReceivedForeground',
@@ -323,9 +324,22 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   async ensureAndroidPushNotifsEnabled() {
-    const hasPermission = await CommAndroidNotifications.hasPermission();
+    const permissionPromisesResult = await Promise.all([
+      CommAndroidNotifications.hasPermission(),
+      CommAndroidNotifications.canRequestNotificationsPermissionFromUser(),
+    ]);
+
+    let [hasPermission] = permissionPromisesResult;
+    const [, canRequestPermission] = permissionPromisesResult;
+
+    if (!hasPermission && canRequestPermission) {
+      const permissionResponse =
+        await this.requestAndroidNotificationsPermission();
+      hasPermission = permissionResponse;
+    }
+
     if (!hasPermission) {
-      this.failedToRegisterPushPermissions();
+      this.failedToRegisterPushPermissionsAndroid(!canRequestPermission);
       return;
     }
 
@@ -333,9 +347,21 @@ class PushHandler extends React.PureComponent<Props, State> {
       const fcmToken = await CommAndroidNotifications.getToken();
       await this.handleAndroidDeviceToken(fcmToken);
     } catch (e) {
-      this.failedToRegisterPushPermissions();
+      this.failedToRegisterPushPermissionsAndroid(!canRequestPermission);
     }
   }
+
+  requestAndroidNotificationsPermission = () => {
+    if (!this.androidNotificationsPermissionPromise) {
+      this.androidNotificationsPermissionPromise = (async () => {
+        const notifPermission =
+          await CommAndroidNotifications.requestNotificationsPermission();
+        this.androidNotificationsPermissionPromise = undefined;
+        return notifPermission;
+      })();
+    }
+    return this.androidNotificationsPermissionPromise;
+  };
 
   handleAndroidDeviceToken = async (deviceToken: string) => {
     this.registerPushPermissions(deviceToken);
@@ -374,15 +400,22 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  failedToRegisterPushPermissions = () => {
+  failedToRegisterPushPermissionsIOS = () => {
     this.setDeviceToken(null);
     if (!this.props.loggedIn) {
       return;
     }
-    const deviceType = Platform.OS;
-    if (deviceType === 'ios') {
-      iosPushPermissionResponseReceived();
-    } else {
+    iosPushPermissionResponseReceived();
+  };
+
+  failedToRegisterPushPermissionsAndroid = (
+    shouldShowAlertOnAndroid: boolean,
+  ) => {
+    this.setDeviceToken(null);
+    if (!this.props.loggedIn) {
+      return;
+    }
+    if (shouldShowAlertOnAndroid) {
       this.showNotifAlertOnAndroid();
     }
   };
