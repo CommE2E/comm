@@ -216,6 +216,25 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    21,
+    async () => {
+      await dbQuery(
+        SQL`
+        CREATE TABLE IF NOT EXISTS message_search (
+          original_message_id bigint(20) NOT NULL,
+          message_id bigint(20) NOT NULL,
+          processed_content mediumtext COLLATE utf8mb4_bin,
+          PRIMARY KEY (original_message_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+        ALTER TABLE message_search
+          ADD FULLTEXT INDEX processed_content (processed_content);
+      `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
