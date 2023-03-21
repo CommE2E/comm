@@ -126,6 +126,7 @@ file(GLOB DB_ENTITIES_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/entities
 file(GLOB_RECURSE MODULE_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/**/*.cpp")
 file(GLOB MODULE_ROOT_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/*.cpp")
 file(GLOB NOTIFICATIONS_NATIVE_CODE "../../cpp/CommonCpp/Notifications/**/*.cpp")
+file(GLOB RUST_NATIVE_CODE "../../native_rust_library/*.cpp")
 
 add_library(
   # Sets the name of the library
@@ -155,6 +156,7 @@ add_library(
   ${MODULE_ROOT_NATIVE_CODE}
   ${TOOLS_NATIVE_CODE}
   ${NOTIFICATIONS_NATIVE_CODE}
+  ${RUST_NATIVE_CODE}
 )
 
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
