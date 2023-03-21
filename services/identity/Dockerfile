@@ -24,6 +24,7 @@ RUN rm src/*.rs
 
 COPY services/identity .
 COPY shared/protos/identity.proto ../../shared/protos/
+COPY shared/protos/identity_client.proto ../../shared/protos/
 
 # Remove the previously-built binary so that only the application itself is
 # rebuilt
