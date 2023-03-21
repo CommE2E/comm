@@ -37,7 +37,12 @@ service IdentityClientService {
   // X3DH actions
 
   // Called by clients to get all device keys associated with a user in order
-  // to open a new channel of communication on any of their devices
+  // to open a new channel of communication on any of their devices.
+  // Specially, this will return Identity keys, prekeys, and a one-time key
+  rpc GetInitializationKeysForUser(InitializationKeysForUserRequest) returns
+    (InitializationKeysForUserResponse) {}
+  // Called by receivers of a communication request. The reponse will only
+  // return identity and prekeys, but no one-time keys.
   rpc GetDeviceKeysForUser(DeviceKeysForUserRequest) returns
     (DeviceKeysForUserResponse) {}
   // Called by clients to get required keys for opening a connection
@@ -55,6 +60,11 @@ service IdentityClientService {
 
 message Empty {}
 
+message PreKey {
+  string preKey = 1;
+  string preKeySignature = 2;
+}
+
 // Key information needed for starting a X3DH session
 message IdentityKeyInfo {
   // JSON payload containing Olm Identity keys
@@ -71,27 +81,24 @@ message IdentityKeyInfo {
 // Ephemeral information provided to create initial message
 // Prekeys are generally rotated periodically
 // One-time Prekeys are "consumed" after first use
-message PreKeyResponse {
-  // Rotating preKey, validated to be associatd with IdentityKeys
-  // through signature
-  string preKey = 4;
-  string preKeySignature = 5;
+message InitialPreKeyResponse {
+  PreKey preKey = 1;
   // One time key, removed from available list of one time keys after requested
   // Client is also intended to remove OPKs after initial message
-  optional string onetimePrekey = 6;
+  optional string onetimePrekey = 2;
 }
 
 // Information needed when establishing communication to someone else's device
 message RemoteDeviceInfo {
   IdentityKeyInfo identityInfo = 1;
-  PreKeyResponse identityPrekeys = 2;
-  PreKeyResponse notifPrekeys = 3;
+  InitialPreKeyResponse identityPrekeys = 2;
+  InitialPreKeyResponse notifPrekeys = 3;
 }
 
 // Information needed when establishing communication to a keyserver
 message KeyserverSessionInfo {
   IdentityKeyInfo identityInfo = 1;
-  PreKeyResponse identityPrekeys = 2;
+  InitialPreKeyResponse identityPrekeys = 2;
 }
 
 // RegisterUser
@@ -237,6 +244,29 @@ message GenerateNonceResponse{
   string nonce = 1;
 }
 
+// GetInitilizationKeysForUser
+
+// Information needed by a device to establish communcation when responding
+// to a request.
+// The device receiving a request only needs the identity and prekeys.
+message RequestingDeviceInfo {
+  IdentityKeyInfo identityInfo = 1;
+  PreKey identityPrekey = 2;
+  PreKey notifPrekey = 3;
+}
+
+message InitializationKeysForUserRequest {
+  oneof identifier {
+    string username = 1;
+    string walletAddress = 2;
+  }
+}
+
+message InitializationKeysForUserResponse {
+  // Map is keyed on devices' public ed25519 key used for signing
+  map<string, RequestingDeviceInfo> devices = 1;
+}
+
 // GetDeviceKeysForUser
 
 message DeviceKeysForUserRequest {
@@ -277,14 +307,7 @@ message UploadOneTimeKeysRequest {
 
 // RefreshUserPreKeys
 
-message PreKeyUpload {
-  // Rotating preKey, validated to be associatd with IdentityKeys
-  // through signature
-  string preKey = 1;
-  string preKeySignature = 2;
-}
-
 message RefreshUserPreKeysRequest {
   string accessToken = 1;
-  PreKeyUpload newPreKeys = 2;
+  PreKey newPreKeys = 2;
 }
