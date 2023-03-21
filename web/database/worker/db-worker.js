@@ -11,7 +11,7 @@ import {
   workerResponseMessageTypes,
   type WorkerRequestProxyMessage,
 } from '../../types/worker-types.js';
-import { getSQLiteDBVersion } from '../queries/db-queries.js';
+import { getSQLiteDBVersion, setupSQLiteDB } from '../queries/db-queries.js';
 import { SQLITE_CONTENT, SQLITE_ENCRYPTION_KEY } from '../utils/constants.js';
 import { generateDatabaseCryptoKey } from '../utils/worker-crypto-utils.js';
 
@@ -43,6 +43,7 @@ async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
     sqliteDb = new SQL.Database(new Uint8Array(content));
   } else {
     sqliteDb = new SQL.Database();
+    setupSQLiteDB(sqliteDb);
   }
 
   const dbVersion = getSQLiteDBVersion(sqliteDb);
