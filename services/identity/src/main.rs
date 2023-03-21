@@ -4,6 +4,7 @@ use interceptor::check_auth;
 use tonic::transport::Server;
 use tracing_subscriber::FmtSubscriber;
 
+mod client_service;
 mod config;
 mod constants;
 mod database;
@@ -19,6 +20,8 @@ use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
 use keygen::generate_and_persist_keypair;
 use service::{IdentityKeyserverServiceServer, MyIdentityService};
 use tracing::info;
+
+use client_service::{ClientService, IdentityClientServiceServer};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -57,10 +60,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let aws_config = aws_config::from_env().region("us-east-2").load().await;
       let database_client = DatabaseClient::new(&aws_config);
       let server = MyIdentityService::new(database_client);
-      let svc =
+      let keyserver_service =
         IdentityKeyserverServiceServer::with_interceptor(server, check_auth);
+      let client_server =
+        IdentityClientServiceServer::new(ClientService::new());
       info!("Listening to gRPC traffic on {}", addr);
-      Server::builder().add_service(svc).serve(addr).await?;
+      Server::builder()
+        .add_service(keyserver_service)
+        .add_service(client_server)
+        .serve(addr)
+        .await?;
     }
     Commands::PopulateDB => unimplemented!(),
   }
