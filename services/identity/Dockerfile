@@ -1,7 +1,12 @@
 FROM rust:1.67
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  protobuf-compiler && rm -rf /var/lib/apt/lists/*
+  build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install more recent version of protobuf, must be ran as root
+COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
+RUN ../../scripts/install_protobuf.sh
 
 # Create a new user comm and use it to run subsequent commands
 RUN useradd -m comm
@@ -24,6 +29,7 @@ RUN rm src/*.rs
 
 COPY services/identity .
 COPY shared/protos/identity.proto ../../shared/protos/
+COPY shared/protos/identity_client.proto ../../shared/protos/
 
 # Remove the previously-built binary so that only the application itself is
 # rebuilt
