@@ -27,6 +27,7 @@ import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
 import type { TextMessageData } from 'lib/types/messages/text.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
 import {
   tRegex,
   tShape,
@@ -316,10 +317,15 @@ async function editMessageCreationResponder(
   }
 
   const { threadID } = targetMessageInfo;
-  const [serverThreadInfos, hasPermission] = await Promise.all([
-    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
-    checkThreadPermission(viewer, threadID, threadPermissions.EDIT_MESSAGE),
-  ]);
+
+  const [serverThreadInfos, hasPermission, rawSidebarThreadInfos] =
+    await Promise.all([
+      fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+      checkThreadPermission(viewer, threadID, threadPermissions.EDIT_MESSAGE),
+      fetchServerThreadInfos(
+        SQL`t.parent_thread_id = ${threadID} AND t.source_message = ${targetMessageID}`,
+      ),
+    ]);
 
   const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];
   if (targetMessageThreadInfo.sourceMessageID === targetMessageID) {
@@ -335,17 +341,34 @@ async function editMessageCreationResponder(
   if (targetMessageInfo.creatorID !== viewer.id) {
     throw new ServerError('invalid_parameters');
   }
+  const time = Date.now();
 
   const messagesData = [];
-  const messageData: EditMessageData = {
+  let messageData: EditMessageData = {
     type: messageTypes.EDIT_MESSAGE,
     threadID,
     creatorID: viewer.id,
-    time: Date.now(),
+    time,
     targetMessageID,
     text,
   };
   messagesData.push(messageData);
+
+  // If this message has sidebar we need to update it as well
+  const sidebarThreadValues = values(rawSidebarThreadInfos.threadInfos);
+  for (const sidebarThreadValue of sidebarThreadValues) {
+    if (sidebarThreadValue && sidebarThreadValue.id) {
+      messageData = {
+        type: messageTypes.EDIT_MESSAGE,
+        threadID: sidebarThreadValue.id,
+        creatorID: viewer.id,
+        time,
+        targetMessageID,
+        text: text,
+      };
+      messagesData.push(messageData);
+    }
+  }
 
   const newMessageInfos = await createMessages(viewer, messagesData);
 
