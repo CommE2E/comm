@@ -1,6 +1,6 @@
 [package]
-name = "comm-opaque"
-version = "0.1.0"
+name = "comm-opaque2"
+version = "0.2.0"
 edition = "2021"
 
 [lib]
