@@ -3,6 +3,11 @@
 import localforage from 'localforage';
 import initSqlJs, { type SqliteDatabase } from 'sql.js';
 
+import type {
+  ClientDBDraftStoreOperation,
+  DraftStoreOperation,
+} from 'lib/types/draft-types.js';
+
 import {
   type SharedWorkerMessageEvent,
   type WorkerRequestMessage,
@@ -12,6 +17,11 @@ import {
   type WorkerRequestProxyMessage,
 } from '../../types/worker-types.js';
 import { getSQLiteDBVersion, setupSQLiteDB } from '../queries/db-queries.js';
+import {
+  moveDraft,
+  removeAllDrafts,
+  updateDraft,
+} from '../queries/draft-queries.js';
 import { SQLITE_CONTENT, SQLITE_ENCRYPTION_KEY } from '../utils/constants.js';
 import { generateDatabaseCryptoKey } from '../utils/worker-crypto-utils.js';
 
@@ -50,6 +60,27 @@ async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
   console.info(`Db version: ${dbVersion}`);
 }
 
+function processDraftStoreOperations(
+  operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
+) {
+  if (!sqliteDb) {
+    throw new Error('Database not initialized');
+  }
+  for (const operation: DraftStoreOperation of operations) {
+    if (operation.type === 'remove_all') {
+      removeAllDrafts(sqliteDb);
+    } else if (operation.type === 'update') {
+      const { key, text } = operation.payload;
+      updateDraft(sqliteDb, key, text);
+    } else if (operation.type === 'move') {
+      const { oldKey, newKey } = operation.payload;
+      moveDraft(sqliteDb, oldKey, newKey);
+    } else {
+      throw new Error('Unsupported draft operation');
+    }
+  }
+}
+
 async function processAppRequest(
   message: WorkerRequestMessage,
 ): Promise<?WorkerResponseMessage> {
@@ -66,6 +97,14 @@ async function processAppRequest(
   ) {
     const cryptoKey = await generateDatabaseCryptoKey();
     await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
+    return;
+  } else if (
+    message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS
+  ) {
+    const { draftStoreOperations } = message.storeOperations;
+    if (draftStoreOperations) {
+      processDraftStoreOperations(draftStoreOperations);
+    }
     return;
   }
 
