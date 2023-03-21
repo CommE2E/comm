@@ -18,6 +18,7 @@ import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import { useStyles } from '../themes/colors.js';
+import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 const maxDepth = 2;
 const safeAreaEdges = Platform.select({
@@ -58,15 +59,24 @@ function CommunityDrawerContent(): React.Node {
     [navigateToThread, openCommunity, setOpenCommunityOrClose],
   );
 
+  const shouldRenderAvatars = useShouldRenderAvatars();
+
   const labelStylesObj = useStyles(labelUnboundStyles);
-  const labelStyles = React.useMemo(
-    () => [
+  const labelStyles = React.useMemo(() => {
+    let result = [
       labelStylesObj.level0Label,
       labelStylesObj.level1Label,
       labelStylesObj.level2Label,
-    ],
-    [labelStylesObj],
-  );
+    ];
+
+    result = result.map(style => {
+      if (shouldRenderAvatars) {
+        return { ...style, marginLeft: 8 };
+      }
+      return style;
+    });
+    return result;
+  }, [labelStylesObj, shouldRenderAvatars]);
 
   const drawerItemsData = React.useMemo(
     () =>
