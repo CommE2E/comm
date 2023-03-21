@@ -15,6 +15,7 @@ import {
   type RawRobotextMessageInfo,
   messageTypes,
   type MessageType,
+  type EditMessageContent,
   assertMessageType,
   type MessageSelectionCriteria,
   type MessageTruncationStatus,
@@ -645,7 +646,7 @@ async function fetchMessageInfoForEntryAction(
 
 async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
   const query = SQL`
-    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation, 
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
       m.user AS creatorID, m.target_message as targetMessageID,
       stm.permissions AS subthread_permissions, up.id AS uploadID,
       up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
@@ -681,11 +682,14 @@ async function fetchDerivedMessages(
     return messagesByID;
   }
 
-  const result = await fetchMessageRowsByIDs([...requiredIDs]);
+  const [result, edits] = await Promise.all([
+    fetchMessageRowsByIDs([...requiredIDs]),
+    fetchLatestEditMessageContentByIDs([...requiredIDs]),
+  ]);
   const messages = await parseMessageSQLResult(result, new Map(), viewer);
 
   for (const message of messages) {
-    const { rawMessageInfo } = message;
+    let { rawMessageInfo } = message;
     if (rawMessageInfo.id) {
       invariant(
         rawMessageInfo.type !== messageTypes.SIDEBAR_SOURCE &&
@@ -693,6 +697,14 @@ async function fetchDerivedMessages(
           rawMessageInfo.type !== messageTypes.EDIT_MESSAGE,
         'SIDEBAR_SOURCE should not point to a SIDEBAR_SOURCE, REACTION or EDIT_MESSAGE',
       );
+      const editedContent = edits.get(rawMessageInfo.id);
+      if (editedContent && rawMessageInfo.type === messageTypes.TEXT) {
+        rawMessageInfo = {
+          ...rawMessageInfo,
+          text: editedContent.text,
+        };
+      }
+      invariant(rawMessageInfo.id, 'rawMessageInfo.id should not be null');
       messagesByID.set(rawMessageInfo.id, rawMessageInfo);
     }
   }
@@ -721,6 +733,44 @@ async function fetchThreadMessagesCount(threadID: string): Promise<number> {
   return result[0].count;
 }
 
+async function fetchLatestEditMessageContentByIDs(
+  messageIDs: $ReadOnlyArray<string>,
+): Promise<$ReadOnlyMap<string, EditMessageContent>> {
+  const latestEditedMessageQuery = SQL`
+    SELECT m.id, (
+      SELECT m2.content
+      FROM messages m2
+      WHERE m.id = m2.target_message
+        AND m.thread = m2.thread
+        AND m2.type = ${messageTypes.EDIT_MESSAGE}
+      ORDER BY time DESC, id DESC
+      LIMIT 1
+    ) content
+    FROM messages m
+    WHERE m.id IN(${messageIDs})
+  `;
+
+  const [result] = await dbQuery(latestEditedMessageQuery);
+  const latestContentByID = new Map();
+  for (const row of result) {
+    if (!row.content) {
+      continue;
+    }
+    const content = JSON.parse(row.content);
+    latestContentByID.set(row.id.toString(), content);
+  }
+
+  return latestContentByID;
+}
+
+async function fetchLatestEditMessageContentByID(
+  messageID: string,
+): Promise<?EditMessageContent> {
+  const result = await fetchLatestEditMessageContentByIDs([messageID]);
+  const content = result.get(messageID);
+  return content;
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -730,4 +780,5 @@ export {
   fetchMessageInfoForEntryAction,
   fetchMessageInfoByID,
   fetchThreadMessagesCount,
+  fetchLatestEditMessageContentByID,
 };
