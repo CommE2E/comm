@@ -1,6 +1,7 @@
 // @flow
 
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
+import { getPinnedContentFromMessage } from 'lib/shared/message-utils.js';
 import {
   threadHasAdminRole,
   roleIsAdminRole,
@@ -43,7 +44,10 @@ import { getRolePermissionBlobs } from '../creators/role-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
-import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
+import {
+  fetchMessageInfos,
+  fetchMessageInfoByID,
+} from '../fetchers/message-fetchers.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
@@ -852,14 +856,15 @@ async function toggleMessagePinForThread(
   const [threadResult] = await dbQuery(threadQuery);
   const threadID = threadResult[0].thread.toString();
 
-  const hasPermission = await checkThreadPermission(
-    viewer,
-    threadID,
-    threadPermissions.MANAGE_PINS,
-  );
+  const [hasPermission, targetMessage] = await Promise.all([
+    checkThreadPermission(viewer, threadID, threadPermissions.MANAGE_PINS),
+    fetchMessageInfoByID(viewer, messageID),
+  ]);
 
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
+  } else if (!targetMessage) {
+    throw new ServerError('invalid_parameters');
   }
 
   const pinnedValue = action === 'pin' ? 1 : 0;
@@ -872,6 +877,18 @@ async function toggleMessagePinForThread(
   `;
 
   await dbQuery(togglePinQuery);
+
+  const messageData = {
+    type: messageTypes.TOGGLE_PIN,
+    threadID,
+    targetMessageID: messageID,
+    action,
+    pinnedContent: getPinnedContentFromMessage(targetMessage),
+    creatorID: viewer.userID,
+    time: Date.now(),
+  };
+
+  await createMessages(viewer, [messageData]);
 }
 
 export {
