@@ -714,6 +714,9 @@ async function fetchDerivedMessages(
     if (row.type === messageTypes.SIDEBAR_SOURCE) {
       const content = JSON.parse(row.content);
       requiredIDs.add(content.sourceMessageID);
+    } else if (row.type === messageTypes.TOGGLE_PIN) {
+      const content = JSON.parse(row.content);
+      requiredIDs.add(content.targetMessageID);
     }
   }
 

@@ -1,6 +1,7 @@
 // @flow
 
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
+import { getPinnedContentFromMessage } from 'lib/shared/message-utils.js';
 import {
   threadHasAdminRole,
   roleIsAdminRole,
@@ -43,7 +44,10 @@ import { getRolePermissionBlobs } from '../creators/role-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
-import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
+import {
+  fetchMessageInfos,
+  fetchMessageInfoByID,
+} from '../fetchers/message-fetchers.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
@@ -875,6 +879,23 @@ async function toggleMessagePinForThread(
   }
 
   await dbQuery(togglePinQuery);
+
+  const targetMessage = await fetchMessageInfoByID(viewer, messageID);
+  if (!targetMessage) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const messageData = {
+    type: messageTypes.TOGGLE_PIN,
+    threadID,
+    targetMessageID: messageID,
+    action,
+    pinnedContent: getPinnedContentFromMessage(targetMessage),
+    creatorID: viewer.userID,
+    time: Date.now(),
+  };
+
+  await createMessages(viewer, [messageData]);
 }
 
 export {
