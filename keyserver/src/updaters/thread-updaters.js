@@ -43,7 +43,10 @@ import { getRolePermissionBlobs } from '../creators/role-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
-import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
+import {
+  fetchMessageInfos,
+  fetchMessageInfoByID,
+} from '../fetchers/message-fetchers.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
@@ -875,6 +878,33 @@ async function toggleMessagePinForThread(
   }
 
   await dbQuery(togglePinQuery);
+
+  const targetMessage = await fetchMessageInfoByID(viewer, messageID);
+  if (!targetMessage) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  let pinnedContent;
+  if (targetMessage.type === messageTypes.IMAGES) {
+    pinnedContent =
+      targetMessage.media.length === 1 ? 'an image' : 'some images';
+  } else if (targetMessage.type === messageTypes.MULTIMEDIA) {
+    pinnedContent = targetMessage.media.length === 1 ? 'a video' : 'some media';
+  } else {
+    pinnedContent = 'a message';
+  }
+
+  const messageData = {
+    type: messageTypes.TOGGLE_PIN,
+    threadID,
+    targetMessageID: messageID,
+    action,
+    pinnedContent,
+    creatorID: viewer.userID,
+    time: Date.now(),
+  };
+
+  await createMessages(viewer, [messageData]);
 }
 
 export {
