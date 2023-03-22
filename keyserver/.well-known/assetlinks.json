@@ -3,10 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "org.squadcal",
+      "package_name": "app.comm.android",
       "sha256_cert_fingerprints": [
-        "72:30:5F:18:19:A7:3A:93:97:9B:76:14:4C:88:8D:38:A2:5D:77:F1:7D:B5:C8:0A:B6:4C:F7:7E:68:DC:C3:6E",
-        "78:8A:30:DF:7E:1F:AB:0E:F6:2B:69:8B:98:21:00:FE:97:E7:EB:34:AD:21:45:50:7D:A1:EE:CF:74:C8:FD:0D"
+        "00:1B:6F:E7:DE:6A:E8:FC:FF:B9:23:3C:87:76:38:B4:47:EF:AA:AE:51:93:14:3A:61:72:BF:45:C3:02:9A:10"
       ]
     }
   },
