@@ -11,7 +11,8 @@
     "keyserver/addons/rust-node-addon",
     "native/expo-modules/android-lifecycle",
     "native/expo-modules/aes-crypto",
-    "services/electron-update-server"
+    "services/electron-update-server",
+    "web/opaque-ke-wasm"
   ],
   "scripts": {
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace keyserver clean && yarn workspace landing clean && yarn workspace desktop clean && yarn workspace rust-node-addon clean && yarn workspace electron-update-server clean && rm -rf node_modules/",

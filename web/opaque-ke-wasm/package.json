@@ -1,0 +1,15 @@
+{
+  "name": "@commapp/opaque-ke-wasm",
+  "description": "WASM bindings for use of opaque-ke inside web browser",
+  "version": "0.0.1",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "engines": {
+    "node": ">= 16"
+  },
+  "scripts": {}
+}
