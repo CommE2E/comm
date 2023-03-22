@@ -1,14 +1,22 @@
 {
   "webcredentials": {
-    "apps": [ "6BF4H9TU5U.org.squadcal.app" ],
+    "apps": [ "H98Y8MH53M.app.comm" ]
   },
   "applinks": {
     "apps": [],
     "details": [
       {
-        "appID": "6BF4H9TU5U.org.squadcal.app",
-        "paths": [ "*" ],
+        "appIDs": [ "H98Y8MH53M.app.comm" ],
+        "components": [
+          {
+            "/": "*"
+          }
+        ]
       },
-    ],
-  },
+      {
+        "appID": "H98Y8MH53M.app.comm",
+        "paths": [ "*" ]
+      }
+    ]
+  }
 }
