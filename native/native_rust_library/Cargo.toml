@@ -17,7 +17,7 @@ rand = "0.8"
 opaque-ke = "1.2"
 tracing = "0.1"
 regex = "1.6"
-comm-opaque = {path = "../../shared/comm-opaque"}
+comm-opaque2 = {path = "../../shared/comm-opaque2"}
 
 [build-dependencies]
 cxx-build = "1.0"

@@ -591,7 +591,6 @@ name = "comm-opaque2"
 version = "0.2.0"
 dependencies = [
  "argon2",
- "getrandom 0.2.8",
  "log",
  "opaque-ke 2.0.0",
  "rand",
