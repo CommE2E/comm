@@ -43,15 +43,15 @@ elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL armeabi-v7a)
   set(Rust_CARGO_TARGET armv7-linux-androideabi)
 endif()
 
-string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} CMAKE_HOST_SYSTEM_NAME_LOWER)
-set(_toolchain_path
-  "$ENV{ANDROID_HOME}/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/${CMAKE_HOST_SYSTEM_NAME_LOWER}-x86_64/bin"
-)
-if(EXISTS "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
-  set(AR "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
-else()
-  set(AR "${_toolchain_path}/llvm-ar")
-endif()
+#string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} CMAKE_HOST_SYSTEM_NAME_LOWER)
+#set(_toolchain_path
+#  "$ENV{ANDROID_HOME}/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/${CMAKE_HOST_SYSTEM_NAME_LOWER}-x86_64/bin"
+#)
+#if(EXISTS "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
+#  set(AR "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
+#else()
+#  set(AR "${_toolchain_path}/llvm-ar")
+#endif()
 
 FetchContent_Declare(
   Corrosion
