@@ -8,14 +8,14 @@ use tunnelbroker::tunnelbroker_service_client::TunnelbrokerServiceClient;
 mod crypto_tools;
 mod identity_client;
 mod identity {
-  tonic::include_proto!("identity.keyserver");
+  tonic::include_proto!("identity.client");
 }
 mod tunnelbroker {
   tonic::include_proto!("tunnelbroker");
 }
 
 use crypto_tools::generate_device_id;
-use identity::identity_keyserver_service_client::IdentityKeyserverServiceClient;
+use identity::identity_client_service_client::IdentityClientServiceClient;
 
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
@@ -43,21 +43,6 @@ mod ffi {
 
     #[cxx_name = "identityInitializeClient"]
     fn initialize_identity_client(addr: String) -> Box<IdentityClient>;
-
-    #[cxx_name = "identityGetUserIdBlocking"]
-    fn identity_get_user_id_blocking(
-      client: Box<IdentityClient>,
-      auth_type: i32,
-      user_info: String,
-    ) -> Result<String>;
-
-    #[cxx_name = "identityVerifyUserTokenBlocking"]
-    fn identity_verify_user_token_blocking(
-      client: Box<IdentityClient>,
-      user_id: String,
-      signing_public_key: String,
-      access_token: String,
-    ) -> Result<bool>;
 
     #[cxx_name = "identityRegisterUserBlocking"]
     fn identity_register_user_blocking(
@@ -98,39 +83,15 @@ mod ffi {
 
 #[derive(Debug)]
 pub struct IdentityClient {
-  identity_client: IdentityKeyserverServiceClient<Channel>,
+  identity_client: IdentityClientServiceClient<Channel>,
 }
 
 fn initialize_identity_client(addr: String) -> Box<IdentityClient> {
   Box::new(IdentityClient {
     identity_client: RUNTIME
-      .block_on(IdentityKeyserverServiceClient::connect(addr))
+      .block_on(IdentityClientServiceClient::connect(addr))
       .unwrap(),
   })
-}
-
-#[instrument]
-fn identity_get_user_id_blocking(
-  client: Box<IdentityClient>,
-  auth_type: i32,
-  user_info: String,
-) -> Result<String, Status> {
-  RUNTIME.block_on(identity_client::get_user_id(client, auth_type, user_info))
-}
-
-#[instrument]
-fn identity_verify_user_token_blocking(
-  client: Box<IdentityClient>,
-  user_id: String,
-  signing_public_key: String,
-  access_token: String,
-) -> Result<bool, Status> {
-  RUNTIME.block_on(identity_client::verify_user_token(
-    client,
-    user_id,
-    signing_public_key,
-    access_token,
-  ))
 }
 
 #[instrument]
