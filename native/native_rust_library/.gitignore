@@ -2,3 +2,4 @@ target
 cxx.h
 lib.rs.cc
 lib.rs.h
+build/
