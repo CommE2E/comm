@@ -9,6 +9,10 @@ import type {
   UpdateUserSettingsRequest,
   LogInResponse,
 } from 'lib/types/account-types.js';
+import type {
+  ClientAvatar,
+  UpdateUserAvatarRequest,
+} from 'lib/types/avatar-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -110,10 +114,36 @@ async function updateUserSettings(
   await dbQuery(createOrUpdateSettingsQuery);
 }
 
+async function updateUserAvatar(
+  viewer: Viewer,
+  request: UpdateUserAvatarRequest,
+): Promise<?ClientAvatar> {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
+  const newAvatarValue =
+    request.type === 'remove' ? null : JSON.stringify(request);
+
+  const query = SQL`
+    UPDATE users
+    SET avatar = ${newAvatarValue}
+    WHERE id = ${viewer.userID}
+  `;
+  await dbQuery(query);
+
+  if (request.type === 'remove' || request.type === 'image') {
+    // TODO: Handle construction of `ClientImageAvatar` when `type === 'image'`
+    return null;
+  }
+  return request;
+}
+
 export {
   accountUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
   updateUserSettings,
   updatePassword,
+  updateUserAvatar,
 };
