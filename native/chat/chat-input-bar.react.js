@@ -30,6 +30,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 import {
   getTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
@@ -45,7 +46,6 @@ import {
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
-  colorIsDark,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';

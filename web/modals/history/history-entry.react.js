@@ -11,7 +11,7 @@ import {
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { colorIsDark } from 'lib/shared/thread-utils.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 import {
   type EntryInfo,
   type RestoreEntryInfo,
