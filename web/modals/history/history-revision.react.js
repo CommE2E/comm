@@ -7,7 +7,7 @@ import TimeAgo from 'react-timeago';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { colorIsDark } from 'lib/shared/thread-utils.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 import type { HistoryRevisionInfo } from 'lib/types/history-types.js';
 
 import css from './history.css';

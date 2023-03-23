@@ -7,8 +7,9 @@ import Animated from 'react-native-reanimated';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useMessageListData } from 'lib/selectors/chat-selectors.js';
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import { colorIsDark, viewerIsMember } from 'lib/shared/thread-utils.js';
+import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';

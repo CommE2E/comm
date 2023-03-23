@@ -29,8 +29,9 @@ import {
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
-import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import type {
   CreateEntryInfo,

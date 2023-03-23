@@ -4,7 +4,7 @@ import * as React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { colorIsDark } from 'lib/shared/thread-utils.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { useTextMessageMarkdownRules } from './message-list-types.js';
