@@ -1,6 +1,7 @@
 // @flow
 
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import {
   undirectedStatus,
   directedStatus,
@@ -31,23 +32,36 @@ async function fetchUserInfos(
   }
 
   const query = SQL`
-    SELECT id, username FROM users WHERE id IN (${userIDs})
+    SELECT id, username, avatar
+    FROM users
+    WHERE id IN (${userIDs})
   `;
   const [result] = await dbQuery(query);
 
   const userInfos = {};
   for (const row of result) {
     const id = row.id.toString();
+    const avatar: ?AvatarDBContent = row.avatar
+      ? JSON.stringify(row.avatar)
+      : null;
+
+    // TODO: Handle construction of `ClientImageAvatar` when `type === 'image'`
+    const clientAvatar: ?ClientAvatar =
+      avatar && avatar.type !== 'image' ? avatar : null;
+
     userInfos[id] = {
       id,
       username: row.username,
+      avatar: clientAvatar,
     };
   }
+
   for (const userID of userIDs) {
     if (!userInfos[userID]) {
       userInfos[userID] = {
         id: userID,
         username: null,
+        avatar: null,
       };
     }
   }
