@@ -90,9 +90,9 @@ function AddUsersList(props: Props): React.Node {
       ? userStoreSearchResults
       : Object.keys(userInfos);
     for (const id of userStoreUserIDs) {
-      const { username, avatar, relationshipStatus } = userInfos[id];
+      const { username, relationshipStatus } = userInfos[id];
       if (username) {
-        mergedInfos[id] = { id, username, avatar, relationshipStatus };
+        mergedInfos[id] = { id, username, relationshipStatus };
       }
     }
 
@@ -124,7 +124,6 @@ function AddUsersList(props: Props): React.Node {
     (userID: string) => {
       setPendingUsersToAdd(pendingUsers => {
         const username = mergedUserInfos[userID]?.username;
-        const avatar = mergedUserInfos[userID]?.avatar;
         if (!username || pendingUsers.some(user => user.id === userID)) {
           return pendingUsers;
         }
@@ -132,7 +131,6 @@ function AddUsersList(props: Props): React.Node {
         const newPendingUser = {
           id: userID,
           username,
-          avatar,
         };
         let targetIndex = 0;
         while (

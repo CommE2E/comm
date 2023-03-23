@@ -49,11 +49,7 @@ function SubchannelMembersList(props: Props): React.Node {
             user.id !== currentUserId &&
             (searchResult.has(user.id) || searchText.length === 0),
         )
-        .map(user => ({
-          id: user.id,
-          username: stringForUser(user),
-          avatar: user.avatar,
-        })),
+        .map(user => ({ id: user.id, username: stringForUser(user) })),
 
     [parentMembers, currentUserId, searchResult, searchText],
   );
@@ -70,11 +66,7 @@ function SubchannelMembersList(props: Props): React.Node {
             user.id !== currentUserId &&
             (searchResult.has(user.id) || searchText.length === 0),
         )
-        .map(user => ({
-          id: user.id,
-          username: stringForUser(user),
-          avatar: user.avatar,
-        })),
+        .map(user => ({ id: user.id, username: stringForUser(user) })),
     [
       communityMembers,
       parentMembersSet,

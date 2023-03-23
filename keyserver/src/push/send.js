@@ -140,7 +140,6 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const updateBadge = threadInfo.currentUser.subscription.home;
       const displayBanner = threadInfo.currentUser.subscription.pushNotifs;
       const username = userInfos[userID] && userInfos[userID].username;
-      const avatar = userInfos[userID] && userInfos[userID].avatar;
       const userWasMentioned =
         username &&
         threadInfo.currentUser.role &&
@@ -160,7 +159,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const badgeOnly = !displayBanner && !userWasMentioned;
 
-      const notifTargetUserInfo = { id: userID, username, avatar };
+      const notifTargetUserInfo = { id: userID, username };
       const notifTexts = await notifTextsForMessageInfo(
         allMessageInfos,
         threadInfo,

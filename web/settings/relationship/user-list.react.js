@@ -42,14 +42,13 @@ export function UserList(props: UserListProps): React.Node {
     const userIDs = searchText ? searchResult : Object.keys(userInfos);
     const unfilteredUserInfos = [];
     for (const id of userIDs) {
-      const { username, avatar, relationshipStatus } = userInfos[id];
+      const { username, relationshipStatus } = userInfos[id];
       if (!username) {
         continue;
       }
       unfilteredUserInfos.push({
         id,
         username,
-        avatar,
         relationshipStatus,
       });
     }

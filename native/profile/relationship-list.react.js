@@ -336,9 +336,9 @@ function RelationshipList(props: Props): React.Node {
       mergedUserInfos[userInfo.id] = userInfo;
     }
     for (const id of userStoreSearchResults) {
-      const { username, avatar, relationshipStatus } = userInfos[id];
+      const { username, relationshipStatus } = userInfos[id];
       if (username) {
-        mergedUserInfos[id] = { id, username, avatar, relationshipStatus };
+        mergedUserInfos[id] = { id, username, relationshipStatus };
       }
     }
 

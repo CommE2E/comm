@@ -31,7 +31,7 @@ async function fetchUserInfos(
   }
 
   const query = SQL`
-    SELECT id, username, avatar, FROM users WHERE id IN (${userIDs})
+    SELECT id, username FROM users WHERE id IN (${userIDs})
   `;
   const [result] = await dbQuery(query);
 
@@ -41,7 +41,6 @@ async function fetchUserInfos(
     userInfos[id] = {
       id,
       username: row.username,
-      avatar: row.avatar,
     };
   }
   for (const userID of userIDs) {
@@ -49,7 +48,6 @@ async function fetchUserInfos(
       userInfos[userID] = {
         id: userID,
         username: null,
-        avatar: null,
       };
     }
   }
@@ -69,9 +67,8 @@ async function fetchKnownUserInfos(
   }
 
   const query = SQL`
-    SELECT ru.user1, ru.user2, u.username, u.avatar,
-      ru.status AS undirected_status, rd1.status AS user1_directed_status,
-      rd2.status AS user2_directed_status
+    SELECT ru.user1, ru.user2, u.username, ru.status AS undirected_status,
+      rd1.status AS user1_directed_status, rd2.status AS user2_directed_status
     FROM relationships_undirected ru
     LEFT JOIN relationships_directed rd1
       ON rd1.user1 = ru.user1 AND rd1.user2 = ru.user2
@@ -91,7 +88,7 @@ async function fetchKnownUserInfos(
     `);
   }
   query.append(SQL`
-    UNION SELECT id AS user1, NULL AS user2, username, avatar,
+    UNION SELECT id AS user1, NULL AS user2, username,
       CAST(NULL AS UNSIGNED) AS undirected_status,
       CAST(NULL AS UNSIGNED) AS user1_directed_status,
       CAST(NULL AS UNSIGNED) AS user2_directed_status
@@ -108,7 +105,6 @@ async function fetchKnownUserInfos(
     const userInfo = {
       id,
       username: row.username,
-      avatar: row.avatar,
     };
 
     if (!user2) {
