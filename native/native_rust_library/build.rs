@@ -3,7 +3,7 @@ fn main() {
     .build_server(false)
     .compile(
       &[
-        "../../shared/protos/identity.proto",
+        "../../shared/protos/identity_client.proto",
         "../../shared/protos/tunnelbroker.proto",
       ],
       &["../../shared/protos"],
@@ -13,6 +13,4 @@ fn main() {
     cxx_build::bridge("src/lib.rs").flag_if_supported("-std=c++17");
 
   println!("cargo:rerun-if-changed=src/lib.rs");
-  println!("cargo:rerun-if-changed=../../shared/protos/identity.proto");
-  println!("cargo:rerun-if-changed=../../shared/protos/tunnelbroker.proto");
 }
