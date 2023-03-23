@@ -1,8 +1,8 @@
 // @flow
 
+import { Image } from 'expo-image';
 import * as React from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import FastImage from 'react-native-fast-image';
 
 import { type ConnectionStatus } from 'lib/types/socket-types.js';
 
@@ -49,7 +49,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
     const source = { uri: this.props.uri };
     if (this.state.loaded) {
       return (
-        <FastImage
+        <Image
           source={source}
           onLoad={this.onLoad}
           style={this.props.style}
@@ -60,7 +60,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
 
     if (this.props.invisibleLoad) {
       return (
-        <FastImage
+        <Image
           source={source}
           onLoad={this.onLoad}
           style={[this.props.style, styles.invisible]}
@@ -74,7 +74,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
         <View style={styles.spinnerContainer}>
           <ActivityIndicator color={this.props.spinnerColor} size="large" />
         </View>
-        <FastImage
+        <Image
           source={source}
           onLoad={this.onLoad}
           style={this.props.style}

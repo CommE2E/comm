@@ -1,5 +1,4 @@
 [ignore]
-.*/node_modules/react-native-fast-image/src/index.js.flow
 .*/node_modules/react-native-fs/FS.common.js
 .*/node_modules/react-native-gesture-handler/Swipeable.js
 .*/fbjs/lib/keyMirrorRecursive.js.flow
