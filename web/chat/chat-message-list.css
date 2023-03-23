@@ -100,7 +100,6 @@ div.content {
   margin-bottom: 5px;
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid blue;
 }
 div.nonViewerContent {
   align-self: flex-start;
@@ -123,8 +122,7 @@ div.messageBoxContainer {
   position: relative;
   display: flex;
   max-width: calc(min(68%, 1000px));
-  margin: 0 4px 0 8px;
-  border: 1px solid green;
+  margin: 0 4px 0 12px;
 }
 div.fixedWidthMessageBoxContainer {
   width: 68%;
@@ -137,7 +135,6 @@ div.messageBox {
   justify-content: space-between;
   flex-shrink: 0;
   max-width: 100%;
-  border: 1px solid red;
 }
 div.fixedWidthMessageBox {
   width: 100%;
