@@ -75,6 +75,8 @@ async function multimediaUploadResponder(
         overrideFilename ? overrideFilename : originalname,
         inputDimensions,
         inputLoop,
+        inputEncryptionKey,
+        inputMimeType,
         size,
       ),
     ),
