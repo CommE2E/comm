@@ -625,14 +625,7 @@ async function prepareAPNsNotification(
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadID;
 
-  // It was agreed to temporarily make even releases staff-only. This way
-  // we will be able to prevent shipping NSE functionality to public iOS
-  // users until it is thoroughly tested among staff members.
-  if (
-    platformDetails.codeVersion &&
-    platformDetails.codeVersion > 198 &&
-    platformDetails.codeVersion % 2 === 0
-  ) {
+  if (platformDetails.codeVersion && platformDetails.codeVersion > 198) {
     notification.mutableContent = true;
   }
   if (collapseKey) {
