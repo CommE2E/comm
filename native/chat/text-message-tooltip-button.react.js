@@ -12,6 +12,7 @@ import { InnerTextMessage } from './inner-text-message.react.js';
 import { MessageHeader } from './message-header.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
 import { MessagePressResponderContext } from './message-press-responder-context.js';
+import MessageTooltipButtonAvatar from './message-tooltip-button-avatar.react.js';
 import { useSendReaction } from './reaction-message-utils.js';
 import ReactionSelectionPopover from './reaction-selection-popover.react.js';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react.js';
@@ -158,6 +159,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
         <Animated.View style={headerStyle}>
           <MessageHeader item={item} focused={true} display="modal" />
         </Animated.View>
+        <MessageTooltipButtonAvatar item={item} />
         {reactionSelectionPopover}
         <MessagePressResponderContext.Provider
           value={messagePressResponderContext}
