@@ -8,6 +8,7 @@ import {
   serverTranscodableTypes,
   serverCanHandleTypes,
   readableFilename,
+  mediaConfig,
 } from 'lib/media/file-utils.js';
 import { getImageProcessingPlan } from 'lib/media/image-utils.js';
 import type { Dimensions } from 'lib/types/media-types.js';
@@ -29,13 +30,59 @@ function initializeSharp(buffer: Buffer, mime: string) {
   });
 }
 
+type ValidateAndConvertInput = {
+  +initialBuffer: Buffer,
+  +initialName: string,
+  +inputDimensions: ?Dimensions,
+  +inputLoop: boolean,
+  +inputEncryptionKey: ?string,
+  +inputMimeType: ?string,
+  +size: number, // in bytes
+};
 async function validateAndConvert(
-  initialBuffer: Buffer,
-  initialName: string,
-  inputDimensions: ?Dimensions,
-  inputLoop: boolean,
-  size: number, // in bytes
+  input: ValidateAndConvertInput,
 ): Promise<?UploadInput> {
+  const {
+    initialBuffer,
+    initialName,
+    inputDimensions,
+    inputLoop,
+    inputEncryptionKey,
+    inputMimeType,
+    size, // in bytes
+  } = input;
+
+  // we don't want to transcode encrypted files
+  if (inputEncryptionKey) {
+    invariant(
+      inputMimeType,
+      'inputMimeType should be set in validateAndConvert for encrypted files',
+    );
+    invariant(
+      inputDimensions,
+      'inputDimensions should be set in validateAndConvert for encrypted files',
+    );
+
+    if (!serverCanHandleTypes.has(inputMimeType)) {
+      return null;
+    }
+    const mediaType = mediaConfig[inputMimeType]?.mediaType;
+    invariant(
+      mediaType === 'photo' || mediaType === 'video',
+      `mediaType for ${inputMimeType} should be photo or video`,
+    );
+
+    return {
+      name: initialName,
+      mime: inputMimeType,
+      mediaType,
+      buffer: initialBuffer,
+      dimensions: inputDimensions,
+      loop: inputLoop,
+      encryptionKey: inputEncryptionKey,
+    };
+  }
+
   const { mime, mediaType } = deepFileInfoFromData(initialBuffer);
   if (!mime || !mediaType) {
     return null;
