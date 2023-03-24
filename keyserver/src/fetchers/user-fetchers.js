@@ -247,7 +247,7 @@ async function fetchLoggedInUserInfo(
   const shouldIncludeAvatar = hasMinCodeVersion(viewer.platformDetails, 1000);
 
   if (shouldIncludeAvatar && avatar) {
-    loggedInUserInfo = { ...loggedInUserInfo, avatar };
+    loggedInUserInfo = { ...loggedInUserInfo, avatar: JSON.parse(avatar) };
   }
 
   const featureGateSettings = !hasMinCodeVersion(viewer.platformDetails, 1000);
