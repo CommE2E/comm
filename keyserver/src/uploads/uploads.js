@@ -57,6 +57,17 @@ async function multimediaUploadResponder(
 
   const inputLoop = !!(files.length === 1 && body.loop);
 
+  const inputEncryptionKey =
+    files.length === 1 && body.encryptionKey ? body.encryptionKey : null;
+  if (inputEncryptionKey && typeof inputEncryptionKey !== 'string') {
+    throw new ServerError('invalid_parameters');
+  }
+  const inputMimeType =
+    files.length === 1 && body.mimeType ? body.mimeType : null;
+  if (inputMimeType && typeof inputMimeType !== 'string') {
+    throw new ServerError('invalid_parameters');
+  }
+
   const validationResults = await Promise.all(
     files.map(({ buffer, size, originalname }) =>
       validateAndConvert(
