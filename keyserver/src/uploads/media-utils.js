@@ -8,6 +8,7 @@ import {
   serverTranscodableTypes,
   serverCanHandleTypes,
   readableFilename,
+  mediaConfig,
 } from 'lib/media/file-utils.js';
 import { getImageProcessingPlan } from 'lib/media/image-utils.js';
 import type { Dimensions } from 'lib/types/media-types.js';
@@ -34,8 +35,39 @@ async function validateAndConvert(
   initialName: string,
   inputDimensions: ?Dimensions,
   inputLoop: boolean,
+  inputEncryptionKey: ?string,
+  inputMimeType: ?string,
   size: number, // in bytes
 ): Promise<?UploadInput> {
+  // we don't want to transcode encrypted files
+  if (inputEncryptionKey) {
+    invariant(
+      inputMimeType,
+      'inputMimeType should be set in validateAndConvert for encrypted files',
+    );
+    invariant(
+      inputDimensions,
+      'inputDimensions should be set in validateAndConvert for encrypted files',
+    );
+
+    if (!mediaConfig[inputMimeType]) {
+      return null;
+    }
+    const rawMediaType = mediaConfig[inputMimeType].mediaType;
+    const mediaType =
+      rawMediaType === 'photo_or_video' ? 'photo' : rawMediaType;
+
+    return {
+      name: initialName,
+      mime: inputMimeType,
+      mediaType,
+      buffer: initialBuffer,
+      dimensions: inputDimensions,
+      loop: inputLoop,
+      encryptionKey: inputEncryptionKey,
+    };
+  }
+
   const { mime, mediaType } = deepFileInfoFromData(initialBuffer);
   if (!mime || !mediaType) {
     return null;
