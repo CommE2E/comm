@@ -25,7 +25,7 @@ env PATH="${build_path}" "$PRJ_ROOT/scripts/ensure_rustup_setup.sh"
 
 # Set C++ standard and build cxx bridge
 export CXXFLAGS="-std=c++14"
-env PATH="${build_path}" cargo build
+env PATH="${build_path}" cargo build --release
 # Build universal static library (works on simulator and iOS)
 env PATH="${build_path}" cargo lipo --release
 # Unset the flag specifying C++ standard

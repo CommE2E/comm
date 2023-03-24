@@ -37,7 +37,7 @@ RUN cmake -B build . && make -C build -j$(nproc)
 
 # Build Rust by Cargo
 WORKDIR /transferred/services/tunnelbroker
-RUN cargo build
+RUN cargo build --release
 
 CMD if [ "$COMM_TEST_SERVICES" -eq 1 ];\
   then\
