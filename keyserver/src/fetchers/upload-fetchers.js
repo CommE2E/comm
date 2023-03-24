@@ -141,7 +141,8 @@ async function fetchMediaForThread(
       u.type AS uploadType, u.extra AS uploadExtra,
       u.container, u.creation_time,
       NULL AS thumbnailID,
-      NULL AS thumbnailUploadSecret
+      NULL AS thumbnailUploadSecret,
+      NULL AS thumbnailUploadExtra
     FROM messages m
     LEFT JOIN JSON_TABLE(
       m.content,
@@ -157,7 +158,8 @@ async function fetchMediaForThread(
       uv.type AS uploadType, uv.extra AS uploadExtra,
       uv.container, uv.creation_time,
       content.thumbnail AS thumbnailID,
-      ut.secret AS thumbnailUploadSecret
+      ut.secret AS thumbnailUploadSecret,
+      ut.extra AS thumbnailUploadExtra
     FROM messages m
     LEFT JOIN JSON_TABLE(
       m.content,
@@ -181,10 +183,19 @@ async function fetchMediaForThread(
 
   const media = uploads.map(upload => {
     const { uploadID, uploadType, uploadSecret, uploadExtra } = upload;
-    const { width, height } = JSON.parse(uploadExtra);
+    const { width, height, encryptionKey } = JSON.parse(uploadExtra);
     const dimensions = { width, height };
 
     if (uploadType === 'photo') {
+      if (encryptionKey) {
+        return {
+          type: 'encrypted_photo',
+          id: uploadID,
+          holder: getUploadURL(uploadID, uploadSecret),
+          encryptionKey,
+          dimensions,
+        };
+      }
       return {
         type: 'photo',
         id: uploadID,
@@ -193,7 +204,21 @@ async function fetchMediaForThread(
       };
     }
 
-    const { thumbnailID, thumbnailUploadSecret } = upload;
+    const { thumbnailID, thumbnailUploadSecret, thumbnailUploadExtra } = upload;
+
+    if (encryptionKey) {
+      const thumbnailEncryptionKey = JSON.parse(thumbnailUploadExtra);
+      return {
+        type: 'encrypted_video',
+        id: uploadID,
+        holder: getUploadURL(uploadID, uploadSecret),
+        encryptionKey,
+        dimensions,
+        thumbnailID,
+        thumbnailHolder: getUploadURL(thumbnailID, thumbnailUploadSecret),
+        thumbnailEncryptionKey,
+      };
+    }
 
     return {
       type: 'video',
@@ -252,16 +277,26 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
     const primaryUploadURI = getUploadURL(primaryUploadID, primaryUploadSecret);
 
     const uploadExtra = JSON.parse(primaryUpload.uploadExtra);
-    const { width, height, loop } = uploadExtra;
+    const { width, height, loop, encryptionKey } = uploadExtra;
     const dimensions = { width, height };
 
     if (mediaMessageContent.type === 'photo') {
-      media.push({
-        type: 'photo',
-        id: primaryUploadID,
-        uri: primaryUploadURI,
-        dimensions,
-      });
+      if (encryptionKey) {
+        media.push({
+          type: 'encrypted_photo',
+          id: primaryUploadID,
+          holder: primaryUploadURI,
+          encryptionKey,
+          dimensions,
+        });
+      } else {
+        media.push({
+          type: 'photo',
+          id: primaryUploadID,
+          uri: primaryUploadURI,
+          dimensions,
+        });
+      }
       continue;
     }
 
@@ -273,16 +308,31 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
       thumbnailUploadID,
       thumbnailUploadSecret,
     );
+    const thumbnailUploadExtra = JSON.parse(thumbnailUpload.uploadExtra);
 
-    const video = {
-      type: 'video',
-      id: primaryUploadID,
-      uri: primaryUploadURI,
-      dimensions,
-      thumbnailID: thumbnailUploadID,
-      thumbnailURI: thumbnailUploadURI,
-    };
-    media.push(loop ? { ...video, loop } : video);
+    if (encryptionKey) {
+      const video = {
+        type: 'encrypted_video',
+        id: primaryUploadID,
+        holder: primaryUploadURI,
+        encryptionKey,
+        dimensions,
+        thumbnailID: thumbnailUploadID,
+        thumbnailHolder: thumbnailUploadURI,
+        thumbnailEncryptionKey: thumbnailUploadExtra.encryptionKey,
+      };
+      media.push(loop ? { ...video, loop } : video);
+    } else {
+      const video = {
+        type: 'video',
+        id: primaryUploadID,
+        uri: primaryUploadURI,
+        dimensions,
+        thumbnailID: thumbnailUploadID,
+        thumbnailURI: thumbnailUploadURI,
+      };
+      media.push(loop ? { ...video, loop } : video);
+    }
   }
 
   return media;
