@@ -20,7 +20,7 @@ function useShouldRenderAvatars(): boolean {
   const { configuration: featureFlagConfig } =
     React.useContext(FeatureFlagsContext);
 
-  return !!featureFlagConfig['AVATARS_DISPLAY'];
+  return !featureFlagConfig['AVATARS_DISPLAY'];
 }
 
 function useSaveUserAvatar(): (
