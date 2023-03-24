@@ -24,11 +24,6 @@ string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} CMAKE_HOST_SYSTEM_NAME_LOWER)
 set(_toolchain_path
   "$ENV{ANDROID_HOME}/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/${CMAKE_HOST_SYSTEM_NAME_LOWER}-x86_64/bin"
 )
-if(EXISTS "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
-  set(AR "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
-else()
-  set(AR "${_toolchain_path}/llvm-ar")
-endif()
 
 FetchContent_Declare(
   Corrosion
@@ -39,3 +34,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Corrosion)
 
 corrosion_import_crate(MANIFEST_PATH ${CMAKE_CURRENT_LIST_DIR}/Cargo.toml)
+
+target_include_directories(native_rust_library
+  INTERFACE
+  ${CMAKE_CURRENT_LIST_DIR}/target/cxxbridge/native_rust_library/src
+)

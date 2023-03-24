@@ -31,39 +31,10 @@ set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
 set(_third_party_dir ${CMAKE_CURRENT_SOURCE_DIR}/build/third-party-ndk)
 set(_android_build_dir build/${CMAKE_ANDROID_ARCH_ABI})
 
-include(FetchContent)
-
-if(CMAKE_ANDROID_ARCH_ABI STREQUAL arm64-v8a)
-  set(Rust_CARGO_TARGET aarch64-linux-android)
-elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86)
-  set(Rust_CARGO_TARGET i686-linux-android)
-elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86_64)
-  set(Rust_CARGO_TARGET x86_64-linux-android)
-elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL armeabi-v7a)
-  set(Rust_CARGO_TARGET armv7-linux-androideabi)
-endif()
-
-string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} CMAKE_HOST_SYSTEM_NAME_LOWER)
-set(_toolchain_path
-  "$ENV{ANDROID_HOME}/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/${CMAKE_HOST_SYSTEM_NAME_LOWER}-x86_64/bin"
+add_subdirectory(../../native_rust_library
+  ${CMAKE_CURRENT_BINARY_DIR}/build/${CMAKE_ANDROID_ARCH_ABI}/native_rust_library
+  EXCLUDE_FROM_ALL
 )
-if(EXISTS "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
-  set(AR "${_toolchain_path}/${Rust_CARGO_TARGET}-ar")
-else()
-  set(AR "${_toolchain_path}/llvm-ar")
-endif()
-
-FetchContent_Declare(
-  Corrosion
-  GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-  GIT_TAG v0.2.1
-)
-
-FetchContent_MakeAvailable(Corrosion)
-
-include(../../../shared/cmake/corrosion-cxx.cmake)
-
-add_library_rust(PATH ../../native_rust_library NAMESPACE comm)
 
 # We're updating parameters below for Cmake's find_OpenSSL() function
 set(OPENSSL_ROOT_DIR
@@ -192,9 +163,6 @@ target_include_directories(
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Notifications
   ../../cpp/CommonCpp/Notifications/BackgroundDataStorage
-
-  # native rust library
-  ${native_rust_library_include_dir}
 )
 
 add_definitions(
@@ -215,7 +183,7 @@ target_link_libraries(
   olm
   openssl-crypto
   openssl-ssl
-  comm::native_rust_library
+  native_rust_library
   comm-tools
 )
 
