@@ -192,7 +192,7 @@ function rawThreadInfosFromServerThreadInfos(
 
   // TODO (atul): Replace with `hasMinCodeVersion` check once we have a
   //              native release with thread avatar editing enabled.
-  const filterThreadEditAvatarPermission = true;
+  const filterThreadEditAvatarPermission = false;
 
   const hasCodeVersionBelow209 = !hasMinCodeVersion(
     viewer.platformDetails,
