@@ -70,13 +70,15 @@ async function multimediaUploadResponder(
 
   const validationResults = await Promise.all(
     files.map(({ buffer, size, originalname }) =>
-      validateAndConvert(
-        buffer,
-        overrideFilename ? overrideFilename : originalname,
+      validateAndConvert({
+        initialBuffer: buffer,
+        initialName: overrideFilename ? overrideFilename : originalname,
         inputDimensions,
         inputLoop,
+        inputEncryptionKey,
+        inputMimeType,
         size,
-      ),
+      }),
     ),
   );
   const uploadInfos = validationResults.filter(Boolean);

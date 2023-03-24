@@ -21,6 +21,7 @@ export type UploadInput = {
   buffer: Buffer,
   dimensions: Dimensions,
   loop: boolean,
+  encryptionKey?: string,
 };
 async function createUploads(
   viewer: Viewer,
@@ -34,7 +35,7 @@ async function createUploads(
   const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
     const secret = crypto.randomBytes(8).toString('hex');
-    const { dimensions, mediaType, loop } = uploadInfo;
+    const { dimensions, mediaType, loop, encryptionKey } = uploadInfo;
     return {
       uploadResult: {
         id,
@@ -52,7 +53,7 @@ async function createUploads(
         uploadInfo.buffer,
         secret,
         Date.now(),
-        JSON.stringify({ ...dimensions, loop }),
+        JSON.stringify({ ...dimensions, loop, encryptionKey }),
       ],
     };
   });
