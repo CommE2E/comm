@@ -292,7 +292,9 @@ async function createTables() {
       ALTER TABLE notifications ADD INDEX user (user);
 
       ALTER TABLE reports
-        ADD PRIMARY KEY (id);
+        ADD PRIMARY KEY (id),
+        ADD INDEX user_type_platform_creation_time
+          (user, type, platform, creation_time);
 
       ALTER TABLE revisions
         ADD PRIMARY KEY (id),
