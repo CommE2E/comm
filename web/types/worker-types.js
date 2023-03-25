@@ -14,6 +14,9 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_CLIENT_STORE: 4,
   SET_CURRENT_USER_ID: 5,
   GET_CURRENT_USER_ID: 6,
+  GET_PERSIST_STORAGE_ITEM: 7,
+  SET_PERSIST_STORAGE_ITEM: 8,
+  REMOVE_PERSIST_STORAGE_ITEM: 9,
 });
 
 export type PingWorkerRequestMessage = {
@@ -49,6 +52,22 @@ export type GetCurrentUserIDRequestMessage = {
   +type: 6,
 };
 
+export type GetPersistStorageItemRequestMessage = {
+  +type: 7,
+  +key: string,
+};
+
+export type SetPersistStorageItemRequestMessage = {
+  +type: 8,
+  +key: string,
+  +item: string,
+};
+
+export type RemovePersistStorageItemRequestMessage = {
+  +type: 9,
+  +key: string,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -56,7 +75,10 @@ export type WorkerRequestMessage =
   | ProcessStoreOperationsRequestMessage
   | GetClientStoreRequestMessage
   | SetCurrentUserIDRequestMessage
-  | GetCurrentUserIDRequestMessage;
+  | GetCurrentUserIDRequestMessage
+  | GetPersistStorageItemRequestMessage
+  | SetPersistStorageItemRequestMessage
+  | RemovePersistStorageItemRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -68,6 +90,7 @@ export const workerResponseMessageTypes = Object.freeze({
   PONG: 0,
   CLIENT_STORE: 1,
   GET_CURRENT_USER_ID: 2,
+  GET_PERSIST_STORAGE_ITEM: 3,
 });
 
 export type PongWorkerResponseMessage = {
@@ -85,10 +108,16 @@ export type GetCurrentUserIDResponseMessage = {
   +userID: ?string,
 };
 
+export type GetPersistStorageItemResponseMessage = {
+  +type: 3,
+  +item: string,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
-  | GetCurrentUserIDResponseMessage;
+  | GetCurrentUserIDResponseMessage
+  | GetPersistStorageItemResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
