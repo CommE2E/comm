@@ -27,7 +27,7 @@ import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
-    '30 3 * * *', // every day at 3:30 AM Pacific Time
+    '30 3 * * *', // every day at 3:30 AM in the keyserver's timezone
     async () => {
       try {
         // Do everything one at a time to reduce load since we're in no hurry,
@@ -63,7 +63,7 @@ if (cluster.isMaster) {
     },
   );
   schedule.scheduleJob(
-    '0 3 ? * 0', // every Sunday at 3:00 AM GMT
+    '0 3 ? * 0', // every Sunday at 3:00 AM in the keyserver's timezone
     async () => {
       try {
         await updateAndReloadGeoipDB();
@@ -76,7 +76,7 @@ if (cluster.isMaster) {
     },
   );
   schedule.scheduleJob(
-    '0 0 * * *', // every day at midnight GMT
+    '0 0 * * *', // every day at midnight in the keyserver's timezone
     async () => {
       try {
         if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
@@ -92,7 +92,7 @@ if (cluster.isMaster) {
     },
   );
   schedule.scheduleJob(
-    '0 5 * * *', // every day at 5:00 AM GMT
+    '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
     async () => {
       try {
         await compareMySQLUsersToIdentityService();
