@@ -27,6 +27,11 @@ function setupSQLiteDB(db: SqliteDatabase) {
        name TEXT UNIQUE PRIMARY KEY NOT NULL,
        data TEXT NOT NULL
      );
+     
+     CREATE TABLE IF NOT EXISTS persist_storage (
+       key TEXT UNIQUE PRIMARY KEY NOT NULL,
+       item TEXT NOT NULL
+     );
   `);
 }
 
