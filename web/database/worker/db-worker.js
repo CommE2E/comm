@@ -26,6 +26,11 @@ import {
 } from '../queries/draft-queries.js';
 import { getMetadata, setMetadata } from '../queries/metadata-queries.js';
 import {
+  getPersistStorageItem,
+  removePersistStorageItem,
+  setPersistStorageItem,
+} from '../queries/storage-engine-queries.js';
+import {
   CURRENT_USER_ID_KEY,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
@@ -102,48 +107,70 @@ function getClientStore(): ClientDBStore {
 async function processAppRequest(
   message: WorkerRequestMessage,
 ): Promise<?WorkerResponseMessage> {
+  // non-database operations
   if (message.type === workerRequestMessageTypes.PING) {
     return {
       type: workerResponseMessageTypes.PONG,
       text: 'PONG',
     };
-  } else if (message.type === workerRequestMessageTypes.INIT) {
-    await initDatabase(message.sqljsFilePath, message.sqljsFilename);
-    return;
   } else if (
     message.type === workerRequestMessageTypes.GENERATE_DATABASE_ENCRYPTION_KEY
   ) {
     const cryptoKey = await generateDatabaseCryptoKey();
     await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
     return;
+  }
+
+  // database operations
+  if (message.type === workerRequestMessageTypes.INIT) {
+    await initDatabase(message.sqljsFilePath, message.sqljsFilename);
+    return;
+  }
+
+  if (!sqliteDb) {
+    throw new Error('Database not initialized');
+  }
+
+  // read-only operations
+  if (message.type === workerRequestMessageTypes.GET_CLIENT_STORE) {
+    return {
+      type: workerResponseMessageTypes.CLIENT_STORE,
+      store: getClientStore(),
+    };
+  } else if (message.type === workerRequestMessageTypes.GET_CURRENT_USER_ID) {
+    return {
+      type: workerResponseMessageTypes.GET_CURRENT_USER_ID,
+      userID: getMetadata(sqliteDb, CURRENT_USER_ID_KEY),
+    };
   } else if (
-    message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS
+    message.type === workerRequestMessageTypes.GET_PERSIST_STORAGE_ITEM
   ) {
+    return {
+      type: workerResponseMessageTypes.GET_PERSIST_STORAGE_ITEM,
+      item: getPersistStorageItem(sqliteDb, message.key),
+    };
+  }
+
+  // write operations
+  if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
     const { draftStoreOperations } = message.storeOperations;
     if (draftStoreOperations) {
       processDraftStoreOperations(draftStoreOperations);
     }
     return;
-  } else if (message.type === workerRequestMessageTypes.GET_CLIENT_STORE) {
-    return {
-      type: workerResponseMessageTypes.CLIENT_STORE,
-      store: getClientStore(),
-    };
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
-    if (!sqliteDb) {
-      throw new Error('Database not initialized');
-    }
     setMetadata(sqliteDb, CURRENT_USER_ID_KEY, message.userID);
     return;
-  } else if (message.type === workerRequestMessageTypes.GET_CURRENT_USER_ID) {
-    if (!sqliteDb) {
-      throw new Error('Database not initialized');
-    }
-    const userID = getMetadata(sqliteDb, CURRENT_USER_ID_KEY);
-    return {
-      type: workerResponseMessageTypes.GET_CURRENT_USER_ID,
-      userID,
-    };
+  } else if (
+    message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
+  ) {
+    setPersistStorageItem(sqliteDb, message.key, message.item);
+    return;
+  } else if (
+    message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
+  ) {
+    removePersistStorageItem(sqliteDb, message.key);
+    return;
   }
 
   throw new Error('Request type not supported');
