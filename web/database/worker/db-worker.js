@@ -24,7 +24,12 @@ import {
   removeAllDrafts,
   updateDraft,
 } from '../queries/draft-queries.js';
-import { SQLITE_CONTENT, SQLITE_ENCRYPTION_KEY } from '../utils/constants.js';
+import { getMetadata, setMetadata } from '../queries/metadata-queries.js';
+import {
+  CURRENT_USER_ID_KEY,
+  SQLITE_CONTENT,
+  SQLITE_ENCRYPTION_KEY,
+} from '../utils/constants.js';
 import { generateDatabaseCryptoKey } from '../utils/worker-crypto-utils.js';
 
 const localforageConfig: PartialConfig = {
@@ -123,6 +128,21 @@ async function processAppRequest(
     return {
       type: workerResponseMessageTypes.CLIENT_STORE,
       store: getClientStore(),
+    };
+  } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
+    if (!sqliteDb) {
+      throw new Error('Database not initialized');
+    }
+    setMetadata(sqliteDb, CURRENT_USER_ID_KEY, message.userID);
+    return;
+  } else if (message.type === workerRequestMessageTypes.GET_CURRENT_USER_ID) {
+    if (!sqliteDb) {
+      throw new Error('Database not initialized');
+    }
+    const userID = getMetadata(sqliteDb, CURRENT_USER_ID_KEY);
+    return {
+      type: workerResponseMessageTypes.GET_CURRENT_USER_ID,
+      userID,
     };
   }
 

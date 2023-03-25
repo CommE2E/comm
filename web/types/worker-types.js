@@ -12,6 +12,8 @@ export const workerRequestMessageTypes = Object.freeze({
   GENERATE_DATABASE_ENCRYPTION_KEY: 2,
   PROCESS_STORE_OPERATIONS: 3,
   GET_CLIENT_STORE: 4,
+  SET_CURRENT_USER_ID: 5,
+  GET_CURRENT_USER_ID: 6,
 });
 
 export type PingWorkerRequestMessage = {
@@ -38,12 +40,23 @@ export type GetClientStoreRequestMessage = {
   +type: 4,
 };
 
+export type SetCurrentUserIDRequestMessage = {
+  +type: 5,
+  +userID: string,
+};
+
+export type GetCurrentUserIDRequestMessage = {
+  +type: 6,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
   | GenerateDatabaseEncryptionKeyRequestMessage
   | ProcessStoreOperationsRequestMessage
-  | GetClientStoreRequestMessage;
+  | GetClientStoreRequestMessage
+  | SetCurrentUserIDRequestMessage
+  | GetCurrentUserIDRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -54,6 +67,7 @@ export type WorkerRequestProxyMessage = {
 export const workerResponseMessageTypes = Object.freeze({
   PONG: 0,
   CLIENT_STORE: 1,
+  GET_CURRENT_USER_ID: 2,
 });
 
 export type PongWorkerResponseMessage = {
@@ -66,9 +80,15 @@ export type ClientStoreResponseMessage = {
   +store: ClientDBStore,
 };
 
+export type GetCurrentUserIDResponseMessage = {
+  +type: 2,
+  +userID: ?string,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
-  | ClientStoreResponseMessage;
+  | ClientStoreResponseMessage
+  | GetCurrentUserIDResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
