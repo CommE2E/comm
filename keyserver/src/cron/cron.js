@@ -27,7 +27,7 @@ import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
-    '30 3 * * *', // every day at 3:30 AM Pacific Time
+    '30 3 * * *', // every day at 3:30 AM GMT
     async () => {
       try {
         // Do everything one at a time to reduce load since we're in no hurry,
