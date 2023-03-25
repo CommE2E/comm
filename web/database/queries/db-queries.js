@@ -21,7 +21,12 @@ function setupSQLiteDB(db: SqliteDatabase) {
      CREATE TABLE IF NOT EXISTS drafts (
        key TEXT UNIQUE PRIMARY KEY NOT NULL,
        text TEXT NOT NULL
-     )
+     );
+     
+     CREATE TABLE IF NOT EXISTS metadata (
+       name TEXT UNIQUE PRIMARY KEY NOT NULL,
+       data TEXT
+     );
   `);
 }
 
