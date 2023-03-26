@@ -5,6 +5,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 import type { ClientAvatar } from 'lib/types/avatar-types.js';
 
+import RemoteImage from '../media/remote-image.react.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
@@ -49,15 +50,54 @@ function Avatar(props: Props): React.Node {
     return styles.emojiLarge;
   }, [size]);
 
+  const onRemoteImageLoad = React.useCallback(() => {
+    // TODO:
+    // Either make onLoad prop optional for RemoteImage or figure out
+    // what we need to consider when an image is loaded.
+    //
+    // From what I understand about the RemoteImage component, the Avatar
+    // component shouldn't need a departingURI state (from the Mutlimedia
+    // component) or similar logic since there is no transition between
+    // multiple avatars. When the avatar image changes, the component will
+    // just rerender with a loading state while the image uploads, and then
+    // then the Avatar component will rerender again with the new uploaded
+    // image.
+  }, []);
+
+  const avatar = React.useMemo(() => {
+    if (avatarInfo.type === 'image') {
+      return (
+        <RemoteImage
+          uri={avatarInfo.uri}
+          onLoad={onRemoteImageLoad}
+          spinnerColor="black"
+          style={containerSizeStyle}
+          invisibleLoad={true}
+          key={avatarInfo.uri}
+        />
+      );
+    }
+
+    return (
+      <View style={emojiContainerStyle}>
+        <Text style={emojiSizeStyle}>{avatarInfo.emoji}</Text>
+      </View>
+    );
+  }, [
+    avatarInfo.emoji,
+    avatarInfo.type,
+    avatarInfo.uri,
+    containerSizeStyle,
+    emojiContainerStyle,
+    emojiSizeStyle,
+    onRemoteImageLoad,
+  ]);
+
   if (!shouldRenderAvatars) {
     return null;
   }
 
-  return (
-    <View style={emojiContainerStyle}>
-      <Text style={emojiSizeStyle}>{avatarInfo.emoji}</Text>
-    </View>
-  );
+  return <React.Fragment>{avatar}</React.Fragment>;
 }
 
 const styles = StyleSheet.create({
