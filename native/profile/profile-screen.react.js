@@ -1,7 +1,14 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, Alert, Platform, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  Alert,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+} from 'react-native';
 
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
@@ -23,6 +30,7 @@ import Action from '../components/action-row.react.js';
 import Button from '../components/button.react.js';
 import EditSettingButton from '../components/edit-setting-button.react.js';
 import { SingleLine } from '../components/single-line.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import UserAvatar from '../components/user-avatar.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
@@ -121,18 +129,31 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
-    const avatar = (
-      <View style={this.props.styles.avatarSection}>
-        <UserAvatar size="profile" userID={this.props.currentUserInfo?.id} />
-      </View>
-    );
-
     let avatarSection;
     if (this.props.shouldRenderAvatars) {
       avatarSection = (
         <>
           <Text style={this.props.styles.header}>USER AVATAR</Text>
-          <View style={this.props.styles.section}>{avatar}</View>
+          <View
+            style={[this.props.styles.section, this.props.styles.avatarSection]}
+          >
+            <TouchableWithoutFeedback onPress={this.onPressEditAvatar}>
+              <View>
+                <UserAvatar
+                  size="profile"
+                  userID={this.props.currentUserInfo?.id}
+                />
+                <View style={this.props.styles.editAvatarIconContainer}>
+                  <SWMansionIcon
+                    name="edit-2"
+                    size={16}
+                    style={this.props.styles.editAvatarIcon}
+                    color={this.props.colors.floatingButtonLabel}
+                  />
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
         </>
       );
     }
@@ -190,6 +211,11 @@ class ProfileScreen extends React.PureComponent<Props> {
       </View>
     );
   }
+
+  onPressEditAvatar = () => {
+    // TODO:
+    // Display action sheet with all the different avatar creation options
+  };
 
   onPressLogOut = () => {
     if (this.loggedOutOrLoggingOut) {
@@ -306,6 +332,21 @@ const unboundStyles = {
   avatarSection: {
     alignItems: 'center',
     paddingVertical: 16,
+  },
+  editAvatarIconContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    borderWidth: 2,
+    borderColor: 'panelForeground',
+    borderRadius: 18,
+    width: 36,
+    height: 36,
+    backgroundColor: '#6D49AB',
+    justifyContent: 'center',
+  },
+  editAvatarIcon: {
+    textAlign: 'center',
   },
   container: {
     flex: 1,
