@@ -304,6 +304,48 @@ bool add_not_null_constraint_to_metadata(sqlite3 *db) {
   return false;
 }
 
+bool add_pinned_count_column_to_threads(sqlite3 *db) {
+  char *error;
+  bool columnAlreadyExists = false;
+
+  sqlite3_stmt *threads_table_stmt = nullptr;
+  sqlite3_prepare_v2(
+      db, "PRAGMA table_info(threads)", -1, &threads_table_stmt, nullptr);
+
+  while (sqlite3_step(threads_table_stmt) == SQLITE_ROW) {
+    std::string columnName = (char *)sqlite3_column_text(threads_table_stmt, 1);
+    if (columnName == "pinned_count") {
+      columnAlreadyExists = true;
+      break;
+    }
+  }
+
+  sqlite3_finalize(threads_table_stmt);
+
+  if (columnAlreadyExists) {
+    return true;
+  }
+
+  sqlite3_exec(
+      db,
+      "ALTER TABLE threads ADD COLUMN pinned_count INTEGER NOT NULL DEFAULT 0;",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error adding pinned_count column to threads table: "
+               << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -357,7 +399,8 @@ bool create_schema(sqlite3 *db) {
       "	 roles TEXT NOT NULL,"
       "	 current_user TEXT NOT NULL,"
       "	 source_message_id TEXT,"
-      "	 replies_count INTEGER NOT NULL"
+      "	 replies_count INTEGER NOT NULL,"
+      "	 pinned_count INTEGER NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS metadata ("
@@ -599,7 +642,8 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {22, {enable_write_ahead_logging_mode, false}},
      {23, {create_metadata_table, true}},
      {24, {add_not_null_constraint_to_drafts, true}},
-     {25, {add_not_null_constraint_to_metadata, true}}}};
+     {25, {add_not_null_constraint_to_metadata, true}},
+     {26, {add_pinned_count_column_to_threads, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -800,7 +844,8 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("roles", &Thread::roles),
           make_column("current_user", &Thread::current_user),
           make_column("source_message_id", &Thread::source_message_id),
-          make_column("replies_count", &Thread::replies_count)),
+          make_column("replies_count", &Thread::replies_count),
+          make_column("pinned_count", &Thread::pinned_count)),
       make_table(
           "metadata",
           make_column("name", &Metadata::name, unique(), primary_key()),
