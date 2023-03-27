@@ -70,6 +70,7 @@ type AssetInfo = {
   +cssInclude: string,
   +olmFilename: string,
   +sqljsFilename: string,
+  +opaqueFilename: string,
 };
 let assetInfo: ?AssetInfo = null;
 async function getAssetInfo() {
@@ -84,6 +85,7 @@ async function getAssetInfo() {
       cssInclude: '',
       olmFilename: '',
       sqljsFilename: '',
+      opaqueFilename: '',
     };
     return assetInfo;
   }
@@ -107,6 +109,7 @@ async function getAssetInfo() {
       `,
       olmFilename: manifest['olm.wasm'],
       sqljsFilename: webworkersManifest['sql-wasm.wasm'],
+      opaqueFilename: manifest['comm_opaque2_wasm_bg.wasm'],
     };
     return assetInfo;
   } catch {
@@ -332,8 +335,14 @@ async function websiteResponder(
     return pushConfig.publicKey;
   })();
 
-  const { jsURL, fontsURL, cssInclude, olmFilename, sqljsFilename } =
-    await assetInfoPromise;
+  const {
+    jsURL,
+    fontsURL,
+    cssInclude,
+    olmFilename,
+    sqljsFilename,
+    opaqueFilename,
+  } = await assetInfoPromise;
 
   // prettier-ignore
   res.write(html`
@@ -433,6 +442,7 @@ async function websiteResponder(
           var baseURL = "${baseURL}";
           var olmFilename = "${olmFilename}";
           var sqljsFilename = "${sqljsFilename}";
+          var opaqueFilename  = "${opaqueFilename}";
         </script>
         <script src="${jsURL}"></script>
       </body>
