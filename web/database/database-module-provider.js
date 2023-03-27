@@ -68,13 +68,31 @@ class DatabaseModule {
     })();
   }
 
-  userLoggedIn(currentLoggedInUserID: ?string) {
+  initDBForLoggedInUser(currentLoggedInUserID: ?string) {
+    if (this.status === databaseStatuses.initSuccess) {
+      return;
+    }
+
     if (
       this.status === databaseStatuses.notSupported &&
       isSQLiteSupported(currentLoggedInUserID)
     ) {
       this.init();
     }
+  }
+
+  async clearSensitiveData(): Promise<void> {
+    this.status = databaseStatuses.notSupported;
+    await this.workerProxy.scheduleOnWorker({
+      type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
+    });
+  }
+
+  async isDatabaseSupported(): Promise<boolean> {
+    if (this.status === databaseStatuses.initInProgress) {
+      await this.initPromise;
+    }
+    return this.status === databaseStatuses.initSuccess;
   }
 
   async schedule(
