@@ -1,6 +1,7 @@
 // @flow
 
 import localforage from 'localforage';
+import _debounce from 'lodash/debounce.js';
 import initSqlJs, { type SqliteDatabase } from 'sql.js';
 
 import type {
@@ -32,10 +33,15 @@ import {
 } from '../queries/storage-engine-queries.js';
 import {
   CURRENT_USER_ID_KEY,
+  DB_PERSIST_DURATION_MS,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
 } from '../utils/constants.js';
-import { generateDatabaseCryptoKey } from '../utils/worker-crypto-utils.js';
+import {
+  decryptDatabaseFile,
+  encryptDatabaseFile,
+  generateDatabaseCryptoKey,
+} from '../utils/worker-crypto-utils.js';
 
 const localforageConfig: PartialConfig = {
   driver: localforage.INDEXEDDB,
@@ -47,9 +53,26 @@ const localforageConfig: PartialConfig = {
 localforage.config(localforageConfig);
 
 let sqliteDb: ?SqliteDatabase = null;
+let encryptionKey: ?CryptoKey = null;
 
 async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
-  const content = await localforage.getItem(SQLITE_CONTENT);
+  encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
+  if (!encryptionKey) {
+    const cryptoKey = await generateDatabaseCryptoKey();
+    await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
+  }
+
+  const encryptedContent = await localforage.getItem(SQLITE_CONTENT);
+
+  let dbContent = null;
+  try {
+    if (encryptionKey && encryptedContent) {
+      dbContent = await decryptDatabaseFile(encryptedContent, encryptionKey);
+    }
+  } catch (e) {
+    console.error('Error while decrypting content, clearing database content');
+    await localforage.removeItem(SQLITE_CONTENT);
+  }
 
   const locateFile = defaultFilename => {
     if (sqljsFilename) {
@@ -61,11 +84,15 @@ async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
     locateFile,
   });
 
-  if (content) {
-    sqliteDb = new SQL.Database(new Uint8Array(content));
+  if (dbContent) {
+    sqliteDb = new SQL.Database(dbContent);
+    console.info(
+      'Database exists and is properly encrypted, using persisted data',
+    );
   } else {
     sqliteDb = new SQL.Database();
     setupSQLiteDB(sqliteDb);
+    console.info('Creating fresh database');
   }
 
   const dbVersion = getSQLiteDBVersion(sqliteDb);
@@ -103,6 +130,25 @@ function getClientStore(): ClientDBStore {
     threads: [],
   };
 }
+
+async function persist() {
+  if (!sqliteDb) {
+    throw new Error('Database not initialized');
+  }
+
+  if (!encryptionKey) {
+    encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
+  }
+
+  const dbData = sqliteDb.export();
+  if (!encryptionKey) {
+    throw new Error('Encryption key is missing');
+  }
+  const encryptedData = await encryptDatabaseFile(dbData, encryptionKey);
+  await localforage.setItem(SQLITE_CONTENT, encryptedData);
+}
+
+const debouncePersist = _debounce(persist, DB_PERSIST_DURATION_MS);
 
 async function processAppRequest(
   message: WorkerRequestMessage,
@@ -157,19 +203,23 @@ async function processAppRequest(
     if (draftStoreOperations) {
       processDraftStoreOperations(draftStoreOperations);
     }
+    debouncePersist();
     return;
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
     setMetadata(sqliteDb, CURRENT_USER_ID_KEY, message.userID);
+    debouncePersist();
     return;
   } else if (
     message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
   ) {
     setPersistStorageItem(sqliteDb, message.key, message.item);
+    debouncePersist();
     return;
   } else if (
     message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
   ) {
     removePersistStorageItem(sqliteDb, message.key);
+    debouncePersist();
     return;
   }
 
