@@ -179,9 +179,15 @@ async function policiesValidator(
   }
 }
 
+const mobileRegex = /\b(android|ip[aho]ne|ipad|mobile)\b/i;
+function isMobileBrowser(userAgent: string) {
+  return mobileRegex.test(userAgent);
+}
+
 export {
   validateInput,
   checkInputValidator,
   checkClientSupported,
   policiesValidator,
+  isMobileBrowser,
 };
