@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import tinycolor from 'tinycolor2';
 
-import { selectedThreadColors } from 'lib/shared/thread-utils.js';
+import { selectedThreadColors } from 'lib/shared/color-utils.js';
 
 import ColorSelectorButton from './color-selector-button.react.js';
 import { useStyles } from '../themes/colors.js';

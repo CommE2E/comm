@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { selectedThreadColors } from 'lib/shared/thread-utils.js';
+import { selectedThreadColors } from 'lib/shared/color-utils.js';
 
 import ColorSelectorButton from './color-selector-button.react.js';
 import css from './color-selector.css';

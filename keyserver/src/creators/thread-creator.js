@@ -7,8 +7,8 @@ import genesis from 'lib/facts/genesis.js';
 import {
   generatePendingThreadColor,
   generateRandomColor,
-  getThreadTypeParentRequirement,
-} from 'lib/shared/thread-utils.js';
+} from 'lib/shared/color-utils.js';
+import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types.js';

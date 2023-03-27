@@ -5,8 +5,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 import { onlyEmojiRegex } from 'lib/shared/emojis.js';
-import { colorIsDark } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 

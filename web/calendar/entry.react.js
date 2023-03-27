@@ -19,8 +19,9 @@ import {
   type PushModal,
 } from 'lib/components/modal-provider.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
-import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import {
   type EntryInfo,
