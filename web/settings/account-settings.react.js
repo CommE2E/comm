@@ -8,6 +8,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -17,6 +18,7 @@ import css from './account-settings.css';
 import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
+import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -55,6 +57,12 @@ function AccountSettings(): React.Node {
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const stringForUser = useStringForUser(currentUserInfo);
+
+  const avatarInfo = React.useMemo(
+    () => getAvatarForUser(currentUserInfo),
+    [currentUserInfo],
+  );
+
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
@@ -77,6 +85,7 @@ function AccountSettings(): React.Node {
   return (
     <div className={css.container}>
       <h4 className={css.header}>My Account</h4>
+      <Avatar avatarInfo={avatarInfo} size="profile" />
       <div className={css.content}>
         <ul>
           <li>
