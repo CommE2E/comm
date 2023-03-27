@@ -227,6 +227,54 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    22,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE cookies
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE entries
+            MODIFY creator varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE focused
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE memberships
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE messages
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE notifications
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE reports
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE revisions
+            MODIFY author varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE sessions
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE threads
+            MODIFY creator varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE updates
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE uploads
+            MODIFY uploader varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE users
+            MODIFY id varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE relationships_undirected
+            MODIFY user1 varchar(255) CHARSET latin1 COLLATE latin1_bin,
+            MODIFY user2 varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE relationships_directed
+            MODIFY user1 varchar(255) CHARSET latin1 COLLATE latin1_bin,
+            MODIFY user2 varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE user_messages
+            MODIFY recipient varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE settings
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+          ALTER TABLE policy_acknowledgments
+            MODIFY user varchar(255) CHARSET latin1 COLLATE latin1_bin;
+        `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
