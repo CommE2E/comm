@@ -8,6 +8,7 @@ import {
   changeThreadMemberRoles,
 } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import {
   memberIsAdmin,
   memberHasAdminPowers,
@@ -27,6 +28,7 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import css from './members-modal.css';
+import Avatar from '../../../components/avatar.react.js';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
@@ -141,6 +143,11 @@ function ThreadMember(props: Props): React.Node {
     return null;
   }, [memberInfo, threadInfo]);
 
+  const avatarInfo = React.useMemo(
+    () => getAvatarForUser(memberInfo),
+    [memberInfo],
+  );
+
   const memberContainerClasses = classNames(css.memberContainer, {
     [css.memberContainerWithMenuOpen]: isMenuOpen,
   });
@@ -148,7 +155,9 @@ function ThreadMember(props: Props): React.Node {
   return (
     <div className={memberContainerClasses}>
       <div className={css.memberInfo}>
-        {userName} {label}
+        <Avatar size="small" avatarInfo={avatarInfo} />
+        {userName}
+        {label}
       </div>
       <div className={css.memberAction}>
         <Menu
