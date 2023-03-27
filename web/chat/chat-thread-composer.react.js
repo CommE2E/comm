@@ -14,6 +14,7 @@ import css from './chat-thread-composer.css';
 import Button from '../components/button.react.js';
 import Label from '../components/label.react.js';
 import Search from '../components/search.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 import type { InputState } from '../input/input-state.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -92,22 +93,25 @@ function ChatThreadComposer(props: Props): React.Node {
       return null;
     }
 
-    return (
-      <ul className={css.searchResultsContainer}>
-        {userListItemsWithENSNames.map((userSearchResult: UserListItem) => (
-          <li key={userSearchResult.id} className={css.searchResultsItem}>
-            <Button
-              variant="text"
-              onClick={() => onSelectUserFromSearch(userSearchResult.id)}
-              className={css.searchResultsButton}
-            >
+    const userItems = userListItemsWithENSNames.map(
+      (userSearchResult: UserListItem) => (
+        <li key={userSearchResult.id} className={css.searchResultsItem}>
+          <Button
+            variant="text"
+            onClick={() => onSelectUserFromSearch(userSearchResult.id)}
+            className={css.searchResultsButton}
+          >
+            <div className={css.userContainer}>
+              <UserAvatar size="small" userID={userSearchResult.id} />
               <div className={css.userName}>{userSearchResult.username}</div>
-              <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
-            </Button>
-          </li>
-        ))}
-      </ul>
+            </div>
+            <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
+          </Button>
+        </li>
+      ),
     );
+
+    return <ul className={css.searchResultsContainer}>{userItems}</ul>;
   }, [
     onSelectUserFromSearch,
     userInfoInputArray.length,
