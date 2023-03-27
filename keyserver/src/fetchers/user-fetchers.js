@@ -47,7 +47,7 @@ async function fetchUserInfos(
     const clientAvatar: ?ClientAvatar =
       avatar && avatar.type !== 'image' ? avatar : null;
 
-    userInfos[id] = avatar
+    userInfos[id] = clientAvatar
       ? {
           id,
           username: row.username,
@@ -83,7 +83,7 @@ async function fetchKnownUserInfos(
   }
 
   const query = SQL`
-    SELECT ru.user1, ru.user2, u.username, ru.status AS undirected_status,
+    SELECT ru.user1, ru.user2, u.username, u.avatar, ru.status AS undirected_status,
       rd1.status AS user1_directed_status, rd2.status AS user2_directed_status
     FROM relationships_undirected ru
     LEFT JOIN relationships_directed rd1
@@ -104,7 +104,7 @@ async function fetchKnownUserInfos(
     `);
   }
   query.append(SQL`
-    UNION SELECT id AS user1, NULL AS user2, username,
+    UNION SELECT id AS user1, NULL AS user2, username, avatar,
       CAST(NULL AS UNSIGNED) AS undirected_status,
       CAST(NULL AS UNSIGNED) AS user1_directed_status,
       CAST(NULL AS UNSIGNED) AS user2_directed_status
@@ -118,10 +118,23 @@ async function fetchKnownUserInfos(
     const user1 = row.user1.toString();
     const user2 = row.user2 ? row.user2.toString() : null;
     const id = user1 === viewer.userID && user2 ? user2 : user1;
-    const userInfo = {
-      id,
-      username: row.username,
-    };
+
+    const avatar: ?AvatarDBContent = row.avatar ? JSON.parse(row.avatar) : null;
+
+    // TODO: Handle construction of `ClientImageAvatar` when `type === 'image'`
+    const clientAvatar: ?ClientAvatar =
+      avatar && avatar.type !== 'image' ? avatar : null;
+
+    const userInfo = clientAvatar
+      ? {
+          id,
+          username: row.username,
+          avatar: clientAvatar,
+        }
+      : {
+          id,
+          username: row.username,
+        };
 
     if (!user2) {
       userInfos[id] = userInfo;
