@@ -10,6 +10,10 @@
   padding-bottom: 55px;
 }
 
+.content {
+  margin-top: 32px;
+}
+
 .content ul {
   list-style-type: none;
 }
