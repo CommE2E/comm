@@ -10,6 +10,7 @@ import type { HandlerProps } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer-item.css';
 import { ExpandButton } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
+import ThreadAvatar from '../components/thread-avatar.react.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
@@ -105,6 +106,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   });
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+
   const titleLabel = classnames({
     [css[labelStyle]]: true,
     [css.activeTitle]: handler.isActive,
@@ -122,6 +124,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
       <div className={threadEntry} style={style}>
         {itemExpandButton}
         <a onClick={handler.onClick} className={css.titleWrapper}>
+          <ThreadAvatar size="micro" threadInfo={threadInfo} />
           <div className={titleLabel}>{uiName}</div>
         </a>
       </div>
