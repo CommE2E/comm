@@ -7,6 +7,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAncestors from './chat-thread-ancestors.react.js';
 import css from './nav-state-info-bar.css';
+import ThreadAvatar from '../components/thread-avatar.react.js';
 
 type NavStateInfoBarProps = {
   +threadInfo: ThreadInfo,
@@ -14,19 +15,11 @@ type NavStateInfoBarProps = {
 function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
   const { threadInfo } = props;
 
-  const threadBackgroundColorStyle = React.useMemo(
-    () => ({
-      background: `#${threadInfo.color}`,
-    }),
-    [threadInfo.color],
-  );
-
   return (
     <>
-      <div
-        className={css.threadColorSquare}
-        style={threadBackgroundColorStyle}
-      />
+      <div className={css.avatarContainer}>
+        <ThreadAvatar size="small" threadInfo={threadInfo} />
+      </div>
       <ThreadAncestors threadInfo={threadInfo} />
     </>
   );

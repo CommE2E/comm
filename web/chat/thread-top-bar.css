@@ -16,13 +16,6 @@ div.topBarThreadInfo {
   overflow: hidden;
 }
 
-div.threadColorSquare {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  flex: 0 0 auto;
-}
-
 .threadTitle {
   font-size: var(--m-font-16);
   font-weight: var(--bold);

@@ -17,6 +17,7 @@ import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
 import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react.js';
+import ThreadAvatar from '../components/thread-avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
   useOnClickThread,
@@ -82,12 +83,6 @@ function ChatThreadListItem(props: Props): React.Node {
     unreadDot = <div className={css.unreadDot} />;
   }
 
-  const { color } = item.threadInfo;
-  const colorSplotchStyle = React.useMemo(
-    () => ({ backgroundColor: `#${color}` }),
-    [color],
-  );
-
   const sidebars = item.sidebars.map((sidebarItem, index) => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
@@ -128,13 +123,14 @@ function ChatThreadListItem(props: Props): React.Node {
   });
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+
   return (
     <>
       <a className={containerClassName} onClick={selectItemIfNotActiveCreation}>
         <div className={css.colorContainer}>
           <div className={css.colorSplotchContainer}>
             <div className={css.dotContainer}>{unreadDot}</div>
-            <div className={css.colorSplotch} style={colorSplotchStyle} />
+            <ThreadAvatar size="large" threadInfo={threadInfo} />
           </div>
         </div>
         <div className={css.threadButton}>
