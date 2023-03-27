@@ -9,6 +9,8 @@ import { faBook, faHome, faBriefcase } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
+import stores from 'lib/facts/stores.js';
+
 import css from './qr.css';
 
 function QR(): React.Node {
@@ -32,7 +34,7 @@ function QR(): React.Node {
         </div>
       </a>
 
-      <a href="https://apps.apple.com/us/app/comm-messenger/id1574433435">
+      <a href={stores.appStoreUrl}>
         <div className={`${css.qr_link} ${css.qr_link_appstore}`}>
           <FontAwesomeIcon icon={faAppStoreIos} size="lg" style={iconStyle} />
           <h3>App Store (pre-alpha)</h3>
