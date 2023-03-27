@@ -81,6 +81,20 @@ class DatabaseModule {
     }
   }
 
+  async clearSensitiveData(): Promise<void> {
+    this.status = databaseStatuses.notSupported;
+    await this.workerProxy.scheduleOnWorker({
+      type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
+    });
+  }
+
+  async isDatabaseWorkable(): Promise<boolean> {
+    if (this.status === databaseStatuses.initInProgress) {
+      await this.initPromise;
+    }
+    return this.status === databaseStatuses.initSuccess;
+  }
+
   async schedule(
     payload: WorkerRequestMessage,
   ): Promise<?WorkerResponseMessage> {

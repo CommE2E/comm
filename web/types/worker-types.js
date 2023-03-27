@@ -17,6 +17,7 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_PERSIST_STORAGE_ITEM: 7,
   SET_PERSIST_STORAGE_ITEM: 8,
   REMOVE_PERSIST_STORAGE_ITEM: 9,
+  CLEAR_SENSITIVE_DATA: 10,
 });
 
 export type PingWorkerRequestMessage = {
@@ -68,6 +69,10 @@ export type RemovePersistStorageItemRequestMessage = {
   +key: string,
 };
 
+export type ClearSensitiveDataRequestMessage = {
+  +type: 10,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -78,7 +83,8 @@ export type WorkerRequestMessage =
   | GetCurrentUserIDRequestMessage
   | GetPersistStorageItemRequestMessage
   | SetPersistStorageItemRequestMessage
-  | RemovePersistStorageItemRequestMessage;
+  | RemovePersistStorageItemRequestMessage
+  | ClearSensitiveDataRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
