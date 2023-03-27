@@ -27,6 +27,7 @@ pub mod opaque2 {
   // {
   //     deviceType: String, # client or keyserver
   //     keyPayload: String,
+  //     keyPayloadSignature: String,
   //     identityPreKey: String,
   //     identityPreKeySignature: String,
   //     identityOneTimeKeys: Vec<String>,
@@ -46,8 +47,12 @@ pub mod opaque2 {
   pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "opaqueRegistrationData";
   pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
   pub const USERS_TABLE_DEVICES_ATTRIBUTE: &str = "devices";
+  pub const USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME: &str =
+    "deviceType";
   pub const USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME: &str =
     "keyPayload";
+  pub const USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME: &str =
+    "keyPayloadSignature";
   pub const USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME: &str =
     "identityPreKey";
   pub const USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME:

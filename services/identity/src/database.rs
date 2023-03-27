@@ -14,10 +14,11 @@ use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
+use uuid::Uuid;
 
 use crate::config::CONFIG;
 use crate::constants::{
-  ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
+  opaque2, ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
@@ -34,15 +35,15 @@ use comm_opaque::Cipher;
 
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
-  curve25519: String,
-  ed25519: String,
+  pub curve25519: String,
+  pub ed25519: String,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct KeyPayload {
-  notification_identity_public_keys: OlmKeys,
-  primary_identity_public_keys: OlmKeys,
+  pub notification_identity_public_keys: OlmKeys,
+  pub primary_identity_public_keys: OlmKeys,
 }
 
 impl FromStr for KeyPayload {
@@ -53,10 +54,20 @@ impl FromStr for KeyPayload {
   fn from_str(payload: &str) -> Result<KeyPayload, Self::Err> {
     serde_json::from_str(&payload.replace(r#"\""#, r#"""#))
   }
+}
 
-  // fn to_payload(&self) -> Result<String, Self::Err> {
-  //   Ok(serde_json::to_string(self)?.replace(r#"""#, r#"\""#))
-  // }
+pub enum Device {
+  Client,
+  Keyserver,
+}
+
+impl Display for Device {
+  fn fmt(&self, f: &mut Formatter) -> FmtResult {
+    match self {
+      Device::Client => write!(f, "client"),
+      Device::Keyserver => write!(f, "keyserver"),
+    }
+  }
 }
 
 #[derive(Clone)]
@@ -270,6 +281,152 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
+  // This is called during the first call of a user register, the registration data
+  // will be empty, but later replaced with the opaque registration password
+  // file after opaque protocol finishes
+  pub async fn add_user_to_opaque2_users_table(
+    &self,
+    username: String,
+    device_id_key: String,
+    key_payload: String,
+    key_payload_signature: String,
+    identity_prekey: String,
+    identity_prekey_signature: String,
+    identity_onetime_keys: Vec<String>,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+    notif_onetime_keys: Vec<String>,
+  ) -> Result<String, Error> {
+    use opaque2::*;
+
+    let user_id = generate_uuid();
+    let device_info = HashMap::from([
+      (
+        USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(Device::Client.to_string()),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(key_payload),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(key_payload_signature),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(identity_prekey),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(identity_prekey_signature),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::L(
+          identity_onetime_keys
+            .into_iter()
+            .map(|s| AttributeValue::S(s))
+            .collect(),
+        ),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(notif_prekey),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(notif_prekey_signature),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::L(
+          notif_onetime_keys
+            .into_iter()
+            .map(|s| AttributeValue::S(s))
+            .collect(),
+        ),
+      ),
+    ]);
+    let devices =
+      HashMap::from([(device_id_key, AttributeValue::M(device_info))]);
+
+    let user = HashMap::from([
+      (
+        USERS_TABLE_PARTITION_KEY.to_string(),
+        AttributeValue::S(user_id.clone()),
+      ),
+      (
+        USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
+        AttributeValue::S(username),
+      ),
+      (
+        USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
+        AttributeValue::M(devices),
+      ),
+    ]);
+
+    self
+      .client
+      .put_item()
+      .table_name(opaque2::USERS_TABLE)
+      .set_item(Some(user))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(user_id)
+  }
+
+  pub async fn set_password_file_for_user(
+    &self,
+    user_id: &str,
+    password_file: Vec<u8>,
+  ) -> Result<UpdateItemOutput, Error> {
+    let update_expression =
+      format!("SET {} = :reg", opaque2::USERS_TABLE_REGISTRATION_ATTRIBUTE);
+    let update_values = HashMap::from([(
+      ":reg".to_string(),
+      AttributeValue::B(Blob::new(password_file)),
+    )]);
+
+    self
+      .client
+      .update_item()
+      .table_name(opaque2::USERS_TABLE)
+      .key(
+        USERS_TABLE_PARTITION_KEY,
+        AttributeValue::S(user_id.to_string()),
+      )
+      .update_expression(update_expression)
+      .set_expression_attribute_values(Some(update_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  pub async fn get_user_devices(
+    &self,
+    user_id: &str,
+  ) -> Result<GetItemOutput, Error> {
+    self
+      .client
+      .get_item()
+      .table_name(opaque2::USERS_TABLE)
+      .key(
+        opaque2::USERS_TABLE_PARTITION_KEY,
+        AttributeValue::S(user_id.to_string()),
+      )
+      .projection_expression(opaque2::USERS_TABLE_DEVICES_ATTRIBUTE)
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
   pub async fn delete_user(
     &self,
     user_id: String,
@@ -405,6 +562,22 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  pub async fn username_available(
+    &self,
+    username: String,
+  ) -> Result<bool, Error> {
+    let result = self
+      .client
+      .get_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_USERNAME_ATTRIBUTE, AttributeValue::S(username))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(result.item.is_none())
   }
 
   pub async fn get_user_id_from_user_info(
@@ -778,6 +951,14 @@ fn parse_string_attribute(
   }
 }
 
+fn generate_uuid() -> String {
+  let mut buf = [b'\0'; 36];
+  Uuid::new_v4().hyphenated().encode_upper(&mut buf);
+  std::str::from_utf8(&buf)
+    .expect("Unable to create UUID")
+    .to_string()
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -829,5 +1010,10 @@ mod tests {
         .curve25519,
       "DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo"
     );
+  }
+
+  #[test]
+  fn test_uuid() {
+    generate_uuid();
   }
 }

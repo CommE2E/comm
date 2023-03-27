@@ -48,7 +48,6 @@ mod ffi {
 
     #[cxx_name = "identityRegisterUserBlocking"]
     fn identity_register_user_blocking(
-      client: Box<IdentityClient>,
       username: String,
       password: String,
       key_payload: String,
@@ -157,7 +156,6 @@ fn initialize_identity_client(addr: String) -> Box<IdentityClient> {
 
 #[instrument]
 fn identity_register_user_blocking(
-  client: Box<IdentityClient>,
   username: String,
   password: String,
   key_payload: String,
@@ -170,7 +168,6 @@ fn identity_register_user_blocking(
   notif_onetime_keys: Vec<String>,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::register_user(
-    client,
     username,
     password,
     key_payload,
