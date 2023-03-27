@@ -2,24 +2,20 @@
 
 import * as React from 'react';
 
+import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
+import Avatar from '../components/avatar.react.js';
 
 type ThreadTopBarProps = {
   +threadInfo: ThreadInfo,
 };
 function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const { threadInfo } = props;
-  const threadBackgroundColorStyle = React.useMemo(
-    () => ({
-      background: `#${threadInfo.color}`,
-    }),
-    [threadInfo.color],
-  );
 
   let threadMenu = null;
   if (!threadIsPending(threadInfo.id)) {
@@ -27,13 +23,12 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   }
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+  const avatarInfo = useGetAvatarForThread(threadInfo);
+
   return (
     <div className={css.topBarContainer}>
       <div className={css.topBarThreadInfo}>
-        <div
-          className={css.threadColorSquare}
-          style={threadBackgroundColorStyle}
-        />
+        <Avatar size="small" avatarInfo={avatarInfo} />
         <div className={css.threadTitle}>{uiName}</div>
       </div>
       {threadMenu}

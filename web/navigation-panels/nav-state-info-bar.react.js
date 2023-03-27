@@ -3,10 +3,12 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
+import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAncestors from './chat-thread-ancestors.react.js';
 import css from './nav-state-info-bar.css';
+import Avatar from '../components/avatar.react.js';
 
 type NavStateInfoBarProps = {
   +threadInfo: ThreadInfo,
@@ -14,19 +16,13 @@ type NavStateInfoBarProps = {
 function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
   const { threadInfo } = props;
 
-  const threadBackgroundColorStyle = React.useMemo(
-    () => ({
-      background: `#${threadInfo.color}`,
-    }),
-    [threadInfo.color],
-  );
+  const avatarInfo = useGetAvatarForThread(threadInfo);
 
   return (
     <>
-      <div
-        className={css.threadColorSquare}
-        style={threadBackgroundColorStyle}
-      />
+      <div className={css.avatarContainer}>
+        <Avatar size="small" avatarInfo={avatarInfo} />
+      </div>
       <ThreadAncestors threadInfo={threadInfo} />
     </>
   );
