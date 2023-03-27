@@ -34,3 +34,14 @@ button.addMemberItem .danger {
 button.addMemberItem:hover .danger {
   color: var(--add-members-remove-pending-color-hover);
 }
+
+div.userInfoContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 16px;
+}
+
+div.username {
+  margin-left: 8px;
+}
