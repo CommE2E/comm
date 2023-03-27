@@ -14,6 +14,7 @@ import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 
 import App from './app.react.js';
+import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import ErrorBoundary from './error-boundary.react.js';
 import Loading from './loading.react.js';
 import { reducer } from './redux/redux-setup.js';
@@ -70,6 +71,7 @@ const RootProvider = (): React.Node => (
           <Route path="*" component={App} />
         </Router>
         <Socket />
+        <SQLiteDataHandler />
       </ErrorBoundary>
     </PersistGate>
   </Provider>
