@@ -8,18 +8,13 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
+import ThreadAvatar from '../components/thread-avatar.react.js';
 
 type ThreadTopBarProps = {
   +threadInfo: ThreadInfo,
 };
 function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const { threadInfo } = props;
-  const threadBackgroundColorStyle = React.useMemo(
-    () => ({
-      background: `#${threadInfo.color}`,
-    }),
-    [threadInfo.color],
-  );
 
   let threadMenu = null;
   if (!threadIsPending(threadInfo.id)) {
@@ -27,13 +22,11 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   }
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+
   return (
     <div className={css.topBarContainer}>
       <div className={css.topBarThreadInfo}>
-        <div
-          className={css.threadColorSquare}
-          style={threadBackgroundColorStyle}
-        />
+        <ThreadAvatar size="small" threadInfo={threadInfo} />
         <div className={css.threadTitle}>{uiName}</div>
       </div>
       {threadMenu}
