@@ -14,3 +14,13 @@ div.userRowContainer {
   flex-direction: row;
   justify-content: space-between;
 }
+
+div.userInfoContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+div.username {
+  margin-left: 8px;
+}

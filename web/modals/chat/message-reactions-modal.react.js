@@ -6,6 +6,7 @@ import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
 import css from './message-reactions-modal.css';
+import UserAvatar from '../../components/user-avatar.react.js';
 import Modal from '../modal.react.js';
 
 type Props = {
@@ -22,7 +23,10 @@ function MessageReactionsModal(props: Props): React.Node {
     () =>
       messageReactionsList.map(messageReactionUser => (
         <div key={messageReactionUser.id} className={css.userRowContainer}>
-          <div>{messageReactionUser.username}</div>
+          <div className={css.userInfoContainer}>
+            <UserAvatar size="small" userID={messageReactionUser.id} />
+            <div className={css.username}>{messageReactionUser.username}</div>
+          </div>
           <div>{messageReactionUser.reaction}</div>
         </div>
       )),
