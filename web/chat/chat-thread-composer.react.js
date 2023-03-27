@@ -6,11 +6,13 @@ import { useDispatch } from 'react-redux';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
 import css from './chat-thread-composer.css';
+import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import Label from '../components/label.react.js';
 import Search from '../components/search.react.js';
@@ -94,18 +96,29 @@ function ChatThreadComposer(props: Props): React.Node {
 
     return (
       <ul className={css.searchResultsContainer}>
-        {userListItemsWithENSNames.map((userSearchResult: UserListItem) => (
-          <li key={userSearchResult.id} className={css.searchResultsItem}>
-            <Button
-              variant="text"
-              onClick={() => onSelectUserFromSearch(userSearchResult.id)}
-              className={css.searchResultsButton}
-            >
-              <div className={css.userName}>{userSearchResult.username}</div>
-              <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
-            </Button>
-          </li>
-        ))}
+        {userListItemsWithENSNames.map((userSearchResult: UserListItem) => {
+          const avatarInfo = getAvatarForUser(userSearchResult);
+
+          return (
+            <li key={userSearchResult.id} className={css.searchResultsItem}>
+              <Button
+                variant="text"
+                onClick={() => onSelectUserFromSearch(userSearchResult.id)}
+                className={css.searchResultsButton}
+              >
+                <div className={css.userContainer}>
+                  <Avatar size="small" avatarInfo={avatarInfo} />
+                  <div className={css.userName}>
+                    {userSearchResult.username}
+                  </div>
+                </div>
+                <div className={css.userInfo}>
+                  {userSearchResult.alertTitle}
+                </div>
+              </Button>
+            </li>
+          );
+        })}
       </ul>
     );
   }, [

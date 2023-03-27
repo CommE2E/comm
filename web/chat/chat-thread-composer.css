@@ -63,9 +63,16 @@ ul.searchResultsContainer {
 
 div.userName {
   color: var(--fg);
+  margin-left: 8px;
 }
 
 div.userInfo {
   font-style: italic;
   color: var(--thread-creation-search-item-info-color);
+}
+
+div.userContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
