@@ -6,7 +6,7 @@ import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 
 type CommAndroidNotificationsModuleType = {
   +removeAllActiveNotificationsForThread: (threadID: string) => void,
-  +getInitialNotification: () => Promise<?AndroidForegroundMessage>,
+  +getInitialNotification: () => Promise<?AndroidMessage>,
   +createChannel: (
     channelID: string,
     name: string,
@@ -22,7 +22,7 @@ type CommAndroidNotificationsModuleType = {
   +canRequestNotificationsPermissionFromUser: () => Promise<boolean>,
   +NOTIFICATIONS_IMPORTANCE_HIGH: string,
 };
-export type AndroidForegroundMessage = {
+export type AndroidMessage = {
   +body: string,
   +title: string,
   +threadID: string,
@@ -36,7 +36,7 @@ const CommAndroidNotifications: CommAndroidNotificationsModuleType =
 const androidNotificationChannelID = 'default';
 
 function handleAndroidMessage(
-  message: AndroidForegroundMessage,
+  message: AndroidMessage,
   updatesCurrentAsOf: number,
   handleIfActive?: (
     threadID: string,
@@ -58,8 +58,8 @@ function handleAndroidMessage(
 
 function getCommAndroidNotificationsEventEmitter(): NativeEventEmitter<{
   commAndroidNotificationsToken: [string],
-  commAndroidNotificationsForegroundMessage: [AndroidForegroundMessage],
-  commAndroidNotificationsNotificationOpened: [AndroidForegroundMessage],
+  commAndroidNotificationsMessage: [AndroidMessage],
+  commAndroidNotificationsNotificationOpened: [AndroidMessage],
 }> {
   return new NativeEventEmitter(CommAndroidNotificationsEventEmitter);
 }

@@ -37,7 +37,7 @@ import {
   androidNotificationChannelID,
   handleAndroidMessage,
   getCommAndroidNotificationsEventEmitter,
-  type AndroidForegroundMessage,
+  type AndroidMessage,
   CommAndroidNotifications,
 } from './android.js';
 import {
@@ -163,7 +163,7 @@ class PushHandler extends React.PureComponent<Props, State> {
           this.handleAndroidDeviceToken,
         ),
         commAndroidNotificationsEventEmitter.addListener(
-          'commAndroidNotificationsForegroundMessage',
+          'commAndroidNotificationsMessage',
           this.androidMessageReceived,
         ),
         commAndroidNotificationsEventEmitter.addListener(
@@ -561,15 +561,13 @@ class PushHandler extends React.PureComponent<Props, State> {
     });
   }
 
-  androidNotificationOpened = async (
-    notificationOpen: AndroidForegroundMessage,
-  ) => {
+  androidNotificationOpened = async (notificationOpen: AndroidMessage) => {
     this.onPushNotifBootsApp();
     const { threadID } = notificationOpen;
     this.onPressNotificationForThread(threadID, true);
   };
 
-  androidMessageReceived = async (message: AndroidForegroundMessage) => {
+  androidMessageReceived = async (message: AndroidMessage) => {
     this.onPushNotifBootsApp();
 
     const { messageInfos } = message;

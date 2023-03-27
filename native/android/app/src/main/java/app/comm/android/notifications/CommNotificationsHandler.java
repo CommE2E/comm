@@ -49,8 +49,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   public static final String THREAD_ID_KEY = "threadID";
 
   public static final String TOKEN_EVENT = "TOKEN_EVENT";
-  public static final String FOREGROUND_MESSAGE_EVENT =
-      "FOREGROUND_MESSAGE_EVENT";
+  public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
 
   @Override
   public void onCreate() {
@@ -113,10 +112,11 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       Log.w("COMM", "Database not existing yet. Skipping notification");
     }
 
+    Intent intent = new Intent(MESSAGE_EVENT);
+    intent.putExtra("message", message);
+    localBroadcastManager.sendBroadcast(intent);
+
     if (this.isAppInForeground()) {
-      Intent intent = new Intent(FOREGROUND_MESSAGE_EVENT);
-      intent.putExtra("message", message);
-      localBroadcastManager.sendBroadcast(intent);
       return;
     }
     this.displayNotification(message);
