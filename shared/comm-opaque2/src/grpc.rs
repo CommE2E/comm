@@ -1,6 +1,11 @@
+use crate::error::OpaqueError;
 use log::info;
 use opaque_ke::errors::ProtocolError;
 use tonic::Status;
+
+pub fn opaque_error_to_grpc_status(error: OpaqueError) -> tonic::Status {
+  protocol_error_to_grpc_status(error.into())
+}
 
 pub fn protocol_error_to_grpc_status(error: ProtocolError) -> tonic::Status {
   match error {

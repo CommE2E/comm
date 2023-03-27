@@ -14,6 +14,12 @@ impl Into<JsValue> for OpaqueError {
   }
 }
 
+impl Into<ProtocolError> for OpaqueError {
+  fn into(self) -> ProtocolError {
+    self.0
+  }
+}
+
 impl From<ProtocolError> for OpaqueError {
   fn from(error: ProtocolError) -> OpaqueError {
     OpaqueError(error)
