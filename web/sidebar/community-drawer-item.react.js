@@ -3,6 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
+import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -10,6 +11,7 @@ import type { HandlerProps } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer-item.css';
 import { ExpandButton } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
+import Avatar from '../components/avatar.react.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
@@ -105,6 +107,9 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   });
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+
+  const avatarInfo = useGetAvatarForThread(threadInfo);
+
   const titleLabel = classnames({
     [css[labelStyle]]: true,
     [css.activeTitle]: handler.isActive,
@@ -122,6 +127,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
       <div className={threadEntry} style={style}>
         {itemExpandButton}
         <a onClick={handler.onClick} className={css.titleWrapper}>
+          <Avatar size="micro" avatarInfo={avatarInfo} />
           <div className={titleLabel}>{uiName}</div>
         </a>
       </div>
