@@ -171,6 +171,13 @@ async function processAppRequest(
   if (message.type === workerRequestMessageTypes.INIT) {
     await initDatabase(message.sqljsFilePath, message.sqljsFilename);
     return;
+  } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
+    encryptionKey = null;
+    if (sqliteDb) {
+      sqliteDb.close();
+    }
+    await localforage.clear();
+    return;
   }
 
   if (!sqliteDb) {
