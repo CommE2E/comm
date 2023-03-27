@@ -18,6 +18,7 @@ import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
 import Button from '../components/button.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function AccountSettings(): React.Node {
@@ -55,6 +56,7 @@ function AccountSettings(): React.Node {
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const stringForUser = useStringForUser(currentUserInfo);
+
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
@@ -77,6 +79,7 @@ function AccountSettings(): React.Node {
   return (
     <div className={css.container}>
       <h4 className={css.header}>My Account</h4>
+      <UserAvatar size="profile" userID={currentUserInfo.id} />
       <div className={css.content}>
         <ul>
           <li>
