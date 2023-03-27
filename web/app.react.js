@@ -34,6 +34,7 @@ import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { TooltipProvider } from './chat/tooltip-provider.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
+import { initOpaque } from './crypto/opaque-utils.js';
 import electron from './electron.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import LoadingIndicator from './loading-indicator.react.js';
@@ -60,6 +61,8 @@ import css from './style.css';
 import getTitle from './title/getTitle.js';
 import { type NavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
+
+initOpaque();
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every

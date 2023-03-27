@@ -1719,6 +1719,11 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
+"@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@commapp/opaque-ke-wasm/-/opaque-ke-wasm-0.0.3.tgz#789b7351e593932461858658c61da5c2de51dc03"
+  integrity sha512-K88XPRnwKmpRCQqU26R7w1Syflp9IB1Ets1UPXTB3roumLweiHG8Y7UA+LrlpzCYd+8d8Tukp7i+/h4OFfovUw==
+
 "@commapp/sqlcipher-amalgamation@^4.4.3-a":
   version "4.4.3-a"
   resolved "https://registry.yarnpkg.com/@commapp/sqlcipher-amalgamation/-/sqlcipher-amalgamation-4.4.3-a.tgz#39c297132b9ad02358bf022a164bfc03292ecce1"
