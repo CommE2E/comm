@@ -11,6 +11,7 @@ import type { UserRowProps } from './user-list.react.js';
 import Button from '../../components/button.react.js';
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
+import UserAvatar from '../../components/user-avatar.react.js';
 
 const dangerButtonColor = {
   color: 'var(--btn-bg-danger)',
@@ -80,7 +81,10 @@ function FriendListRow(props: UserRowProps): React.Node {
 
   return (
     <div className={css.container}>
-      <div className={css.usernameContainer}>{userInfo.username}</div>
+      <div className={css.userInfoContainer}>
+        <UserAvatar size="small" userID={userInfo.id} />
+        <div className={css.usernameContainer}>{userInfo.username}</div>
+      </div>
       <div className={css.buttons}>{buttons}</div>
     </div>
   );

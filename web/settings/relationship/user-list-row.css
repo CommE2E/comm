@@ -11,6 +11,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  margin-left: 8px;
 }
 
 .buttons {
@@ -28,4 +29,10 @@
 
 .edit_menu {
   position: relative;
+}
+
+div.userInfoContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
