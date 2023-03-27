@@ -4,10 +4,12 @@ import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 
 import css from './user-list-row.css';
 import type { UserRowProps } from './user-list.react.js';
+import Avatar from '../../components/avatar.react.js';
 import Button from '../../components/button.react.js';
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
@@ -78,9 +80,17 @@ function FriendListRow(props: UserRowProps): React.Node {
     onMenuVisibilityChange,
   ]);
 
+  const avatarInfo = React.useMemo(
+    () => getAvatarForUser(userInfo),
+    [userInfo],
+  );
+
   return (
     <div className={css.container}>
-      <div className={css.usernameContainer}>{userInfo.username}</div>
+      <div className={css.userInfoContainer}>
+        <Avatar size="small" avatarInfo={avatarInfo} />
+        <div className={css.usernameContainer}>{userInfo.username}</div>
+      </div>
       <div className={css.buttons}>{buttons}</div>
     </div>
   );
