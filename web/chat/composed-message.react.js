@@ -10,12 +10,14 @@ import {
 
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
+import Avatar from '../components/avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
 
@@ -137,10 +139,23 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
+    let avatar;
+    if (!isViewer && item.endsCluster) {
+      const avatarInfo = getAvatarForUser(creator);
+      avatar = (
+        <div className={css.avatarContainer}>
+          <Avatar avatarInfo={avatarInfo} size="small" />
+        </div>
+      );
+    } else if (!isViewer) {
+      avatar = <div className={css.avatarOffset} />;
+    }
+
     return (
       <React.Fragment>
         {authorName}
         <div className={contentClassName}>
+          {avatar}
           <div
             className={messageBoxContainerClassName}
             onMouseEnter={this.props.onMouseEnter}
