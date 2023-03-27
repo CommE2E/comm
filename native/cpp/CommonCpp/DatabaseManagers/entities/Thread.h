@@ -20,6 +20,7 @@ struct Thread {
   std::string current_user;
   std::unique_ptr<std::string> source_message_id;
   int replies_count;
+  int pinned_count;
 };
 
 } // namespace comm
