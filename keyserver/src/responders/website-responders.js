@@ -20,6 +20,7 @@ import {
   parsePendingThreadID,
   createPendingThread,
 } from 'lib/shared/thread-utils.js';
+import { isStaff } from 'lib/shared/user-utils.js';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
@@ -27,6 +28,7 @@ import { defaultEnabledReports } from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { threadPermissions, threadTypes } from 'lib/types/thread-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
@@ -46,6 +48,7 @@ import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
 import { streamJSON, waitForStream } from '../utils/json-stream.js';
 import { getAppURLFactsFromRequestURL } from '../utils/urls.js';
+import { isMobileBrowser } from '../utils/validation-utils.js';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -427,12 +430,18 @@ async function websiteResponder(
   });
   const jsonStream = streamJSON(res, initialReduxState);
 
+  const userAgent = req.header('user-agent');
+  const isMobileClient = userAgent && isMobileBrowser(userAgent);
+  const canUseSqlite = isDev || isStaff(initialReduxState.currentUserInfo.id);
+  const supportSqlite = canUseSqlite && !isMobileClient;
+
   await waitForStream(jsonStream);
   res.end(html`
     ;
           var baseURL = "${baseURL}";
           var olmFilename = "${olmFilename}";
           var sqljsFilename = "${sqljsFilename}";
+          var supportSqlite = "${supportSqlite.toString()}";
         </script>
         <script src="${jsURL}"></script>
       </body>
