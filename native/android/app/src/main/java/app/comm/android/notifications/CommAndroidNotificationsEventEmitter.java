@@ -32,8 +32,8 @@ public class CommAndroidNotificationsEventEmitter
         new CommAndroidNotificationsTokenReceiver(),
         new IntentFilter(CommNotificationsHandler.TOKEN_EVENT));
     localBroadcastManager.registerReceiver(
-        new CommAndroidNotificationsForegroundMessageReceiver(),
-        new IntentFilter(CommNotificationsHandler.FOREGROUND_MESSAGE_EVENT));
+        new CommAndroidNotificationsMessageReceiver(),
+        new IntentFilter(CommNotificationsHandler.MESSAGE_EVENT));
   }
 
   @Override
@@ -72,7 +72,7 @@ public class CommAndroidNotificationsEventEmitter
       return;
     }
     WritableMap jsReadableNotification =
-        CommAndroidNotificationParser.parseRemoteMessageToJSForegroundMessage(
+        CommAndroidNotificationParser.parseRemoteMessageToJSMessage(
             initialNotification);
     if (jsReadableNotification != null) {
       sendEventToJS(
@@ -89,17 +89,15 @@ public class CommAndroidNotificationsEventEmitter
     }
   }
 
-  private class CommAndroidNotificationsForegroundMessageReceiver
+  private class CommAndroidNotificationsMessageReceiver
       extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
       RemoteMessage message = intent.getParcelableExtra("message");
-      WritableMap jsForegroundMessage =
-          CommAndroidNotificationParser.parseRemoteMessageToJSForegroundMessage(
-              message);
-      if (jsForegroundMessage != null) {
-        sendEventToJS(
-            "commAndroidNotificationsForegroundMessage", jsForegroundMessage);
+      WritableMap jsMessage =
+          CommAndroidNotificationParser.parseRemoteMessageToJSMessage(message);
+      if (jsMessage != null) {
+        sendEventToJS("commAndroidNotificationsMessage", jsMessage);
       }
     }
   }

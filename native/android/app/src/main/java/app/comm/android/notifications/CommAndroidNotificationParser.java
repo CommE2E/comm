@@ -17,18 +17,18 @@ public class CommAndroidNotificationParser {
       CommNotificationsHandler.PREFIX_KEY);
 
   public static WritableMap
-  parseRemoteMessageToJSForegroundMessage(RemoteMessage message) {
+  parseRemoteMessageToJSMessage(RemoteMessage message) {
     if (message.getData() == null) {
       return null;
     }
-    WritableMap jsForegroundMessage = Arguments.createMap();
+    WritableMap jsMessage = Arguments.createMap();
 
     for (String key : OBLIGATORY_KEYS) {
       String value = message.getData().get(key);
       if (value == null) {
         return null;
       }
-      jsForegroundMessage.putString(key, value);
+      jsMessage.putString(key, value);
     }
 
     for (String key : OPTIONAL_KEYS) {
@@ -36,9 +36,9 @@ public class CommAndroidNotificationParser {
       if (value == null) {
         continue;
       }
-      jsForegroundMessage.putString(key, value);
+      jsMessage.putString(key, value);
     }
 
-    return jsForegroundMessage;
+    return jsMessage;
   }
 }
