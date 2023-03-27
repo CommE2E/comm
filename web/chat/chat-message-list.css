@@ -84,7 +84,7 @@ div.emojiOnlyTextMessage {
 span.authorName {
   color: #777777;
   font-size: 14px;
-  padding: 4px 24px;
+  padding: 4px 56px;
 }
 div.darkTextMessage {
   color: white;
@@ -122,7 +122,7 @@ div.messageBoxContainer {
   position: relative;
   display: flex;
   max-width: calc(min(68%, 1000px));
-  margin: 0 4px 0 12px;
+  margin: 0 4px;
 }
 div.fixedWidthMessageBoxContainer {
   width: 68%;
@@ -212,4 +212,15 @@ div.sidebarMarginBottom {
 }
 svg.inlineEngagementIcon {
   color: #666666;
+}
+
+div.avatarContainer {
+  display: flex;
+  height: 100%;
+  align-items: flex-end;
+  margin: 0 4px 0 12px;
+}
+
+div.avatarOffset {
+  width: 40px;
 }

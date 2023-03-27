@@ -16,6 +16,7 @@ import { type ThreadInfo } from 'lib/types/thread-types.js';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
 
@@ -141,10 +142,22 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
+    let avatar;
+    if (!isViewer && item.endsCluster) {
+      avatar = (
+        <div className={css.avatarContainer}>
+          <UserAvatar size="small" userID={creator.id} />
+        </div>
+      );
+    } else if (!isViewer) {
+      avatar = <div className={css.avatarOffset} />;
+    }
+
     return (
       <React.Fragment>
         {authorName}
         <div className={contentClassName}>
+          {avatar}
           <div
             className={messageBoxContainerClassName}
             onMouseEnter={this.props.onMouseEnter}
