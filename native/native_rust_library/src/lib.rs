@@ -47,27 +47,46 @@ mod ffi {
     #[cxx_name = "identityRegisterUserBlocking"]
     fn identity_register_user_blocking(
       client: Box<IdentityClient>,
-      user_id: String,
-      signing_public_key: String,
       username: String,
       password: String,
+      key_payload: String,
+      key_payload_signature: String,
+      identity_prekey: String,
+      identity_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      identity_onetime_keys: Vec<String>,
+      notif_onetime_keys: Vec<String>,
     ) -> Result<String>;
 
     #[cxx_name = "identityLoginUserPakeBlocking"]
     fn identity_login_user_pake_blocking(
       client: Box<IdentityClient>,
-      user_id: String,
-      signing_public_key: String,
+      username: String,
       password: String,
+      key_payload: String,
+      key_payload_signature: String,
+      identity_prekey: String,
+      identity_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      identity_onetime_keys: Vec<String>,
+      notif_onetime_keys: Vec<String>,
     ) -> Result<String>;
 
     #[cxx_name = "identityLoginUserWalletBlocking"]
     fn identity_login_user_wallet_blocking(
       client: Box<IdentityClient>,
-      user_id: String,
-      signing_public_key: String,
       siwe_message: String,
       siwe_signature: String,
+      key_payload: String,
+      key_payload_signature: String,
+      identity_prekey: String,
+      identity_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      identity_onetime_keys: Vec<String>,
+      notif_onetime_keys: Vec<String>,
     ) -> Result<String>;
 
     // Tunnelbroker Service Client
@@ -97,49 +116,87 @@ fn initialize_identity_client(addr: String) -> Box<IdentityClient> {
 #[instrument]
 fn identity_register_user_blocking(
   client: Box<IdentityClient>,
-  user_id: String,
-  signing_public_key: String,
   username: String,
   password: String,
+  key_payload: String,
+  key_payload_signature: String,
+  identity_prekey: String,
+  identity_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  identity_onetime_keys: Vec<String>,
+  notif_onetime_keys: Vec<String>,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::register_user(
     client,
-    user_id,
-    signing_public_key,
     username,
     password,
+    key_payload,
+    key_payload_signature,
+    identity_prekey,
+    identity_prekey_signature,
+    notif_prekey,
+    notif_prekey_signature,
+    identity_onetime_keys,
+    notif_onetime_keys,
   ))
 }
 
 #[instrument]
 fn identity_login_user_pake_blocking(
   client: Box<IdentityClient>,
-  user_id: String,
-  signing_public_key: String,
+  username: String,
   password: String,
+  key_payload: String,
+  key_payload_signature: String,
+  identity_prekey: String,
+  identity_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  identity_onetime_keys: Vec<String>,
+  notif_onetime_keys: Vec<String>,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::login_user_pake(
     client,
-    user_id,
-    signing_public_key,
+    username,
     password,
+    key_payload,
+    key_payload_signature,
+    identity_prekey,
+    identity_prekey_signature,
+    notif_prekey,
+    notif_prekey_signature,
+    identity_onetime_keys,
+    notif_onetime_keys,
   ))
 }
 
 #[instrument]
 fn identity_login_user_wallet_blocking(
   client: Box<IdentityClient>,
-  user_id: String,
-  signing_public_key: String,
   siwe_message: String,
   siwe_signature: String,
+  key_payload: String,
+  key_payload_signature: String,
+  identity_prekey: String,
+  identity_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  identity_onetime_keys: Vec<String>,
+  notif_onetime_keys: Vec<String>,
 ) -> Result<String, Status> {
   RUNTIME.block_on(identity_client::login_user_wallet(
     client,
-    user_id,
-    signing_public_key,
     siwe_message,
     siwe_signature,
+    key_payload,
+    key_payload_signature,
+    identity_prekey,
+    identity_prekey_signature,
+    notif_prekey,
+    notif_prekey_signature,
+    identity_onetime_keys,
+    notif_onetime_keys,
   ))
 }
 
