@@ -27,7 +27,7 @@ async function createTables() {
       CREATE TABLE cookies (
         id bigint(20) NOT NULL,
         hash char(60) NOT NULL,
-        user bigint(20) DEFAULT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin DEFAULT NULL,
         platform varchar(255) DEFAULT NULL,
         creation_time bigint(20) NOT NULL,
         last_used bigint(20) NOT NULL,
@@ -49,7 +49,7 @@ async function createTables() {
         id bigint(20) NOT NULL,
         day bigint(20) NOT NULL,
         text mediumtext COLLATE utf8mb4_bin NOT NULL,
-        creator bigint(20) NOT NULL,
+        creator varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         creation_time bigint(20) NOT NULL,
         last_update bigint(20) NOT NULL,
         deleted tinyint(1) UNSIGNED NOT NULL,
@@ -57,7 +57,7 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
       CREATE TABLE focused (
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         session bigint(20) NOT NULL,
         thread bigint(20) NOT NULL,
         time bigint(20) NOT NULL
@@ -70,7 +70,7 @@ async function createTables() {
 
       CREATE TABLE memberships (
         thread bigint(20) NOT NULL,
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         role bigint(20) NOT NULL,
         permissions json DEFAULT NULL,
         permissions_for_children json DEFAULT NULL,
@@ -84,7 +84,7 @@ async function createTables() {
       CREATE TABLE messages (
         id bigint(20) NOT NULL,
         thread bigint(20) NOT NULL,
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         type tinyint(3) UNSIGNED NOT NULL,
         content mediumtext COLLATE utf8mb4_bin,
         time bigint(20) NOT NULL,
@@ -94,7 +94,7 @@ async function createTables() {
 
       CREATE TABLE notifications (
         id bigint(20) NOT NULL,
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         thread bigint(20) DEFAULT NULL,
         message bigint(20) DEFAULT NULL,
         collapse_key varchar(255) DEFAULT NULL,
@@ -104,7 +104,7 @@ async function createTables() {
 
       CREATE TABLE reports (
         id bigint(20) NOT NULL,
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         type tinyint(3) UNSIGNED NOT NULL,
         platform varchar(255) NOT NULL,
         report json NOT NULL,
@@ -114,7 +114,7 @@ async function createTables() {
       CREATE TABLE revisions (
         id bigint(20) NOT NULL,
         entry bigint(20) NOT NULL,
-        author bigint(20) NOT NULL,
+        author varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         text mediumtext COLLATE utf8mb4_bin NOT NULL,
         creation_time bigint(20) NOT NULL,
         session bigint(20) NOT NULL,
@@ -132,7 +132,7 @@ async function createTables() {
 
       CREATE TABLE sessions (
         id bigint(20) NOT NULL,
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         cookie bigint(20) NOT NULL,
         query json NOT NULL,
         creation_time bigint(20) NOT NULL,
@@ -150,7 +150,7 @@ async function createTables() {
         community bigint(20) DEFAULT NULL,
         depth int UNSIGNED NOT NULL DEFAULT 0,
         default_role bigint(20) NOT NULL,
-        creator bigint(20) NOT NULL,
+        creator varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         creation_time bigint(20) NOT NULL,
         color char(6) COLLATE utf8mb4_bin NOT NULL,
         source_message bigint(20) DEFAULT NULL UNIQUE,
@@ -160,7 +160,7 @@ async function createTables() {
 
       CREATE TABLE updates (
         id bigint(20) NOT NULL,
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         type tinyint(3) UNSIGNED NOT NULL,
         \`key\` bigint(20) DEFAULT NULL,
         updater bigint(20) DEFAULT NULL,
@@ -172,7 +172,7 @@ async function createTables() {
       CREATE TABLE uploads (
         id bigint(20) NOT NULL,
         thread bigint(20) DEFAULT NULL,
-        uploader bigint(20) NOT NULL,
+        uploader varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         container bigint(20) DEFAULT NULL,
         type varchar(255) NOT NULL,
         filename varchar(255) NOT NULL,
@@ -184,7 +184,7 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
       CREATE TABLE users (
-        id bigint(20) NOT NULL,
+        id varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         username varchar(${usernameMaxLength}) COLLATE utf8mb4_bin NOT NULL,
         hash char(60) COLLATE utf8mb4_bin DEFAULT NULL,
         avatar varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,
@@ -193,14 +193,14 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
       CREATE TABLE relationships_undirected (
-        user1 bigint(20) NOT NULL,
-        user2 bigint(20) NOT NULL,
+        user1 varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
+        user2 varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         status tinyint(1) UNSIGNED NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
       CREATE TABLE relationships_directed (
-        user1 bigint(20) NOT NULL,
-        user2 bigint(20) NOT NULL,
+        user1 varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
+        user2 varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         status tinyint(1) UNSIGNED NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -218,7 +218,7 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
       CREATE TABLE user_messages (
-        recipient bigint(20) NOT NULL,
+        recipient varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         thread bigint(20) NOT NULL,
         message bigint(20) NOT NULL,
         time bigint(20) NOT NULL,
@@ -226,7 +226,7 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
       CREATE TABLE settings (
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         name varchar(255) NOT NULL,
         data mediumtext COLLATE utf8mb4_bin DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
@@ -237,7 +237,7 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       
       CREATE TABLE policy_acknowledgments (
-        user bigint(20) NOT NULL,
+        user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         policy varchar(255) NOT NULL,
         date bigint(20) NOT NULL,
         confirmed tinyint(1) UNSIGNED NOT NULL DEFAULT 0
