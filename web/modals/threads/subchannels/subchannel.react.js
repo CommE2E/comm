@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { type ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
@@ -12,6 +11,7 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './subchannels-modal.css';
 import Button from '../../../components/button.react.js';
+import ThreadAvatar from '../../../components/thread-avatar.react.js';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react.js';
 import { useOnClickThread } from '../../../selectors/thread-selectors.js';
 
@@ -74,9 +74,10 @@ function Subchannel(props: Props): React.Node {
   }, [lastActivity, messagePreviewResult]);
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+
   return (
     <Button className={css.subchannelContainer} onClick={onClickThread}>
-      <SWMansionIcon icon="message-square" size={22} />
+      <ThreadAvatar size="small" threadInfo={threadInfo} />
       <div className={subchannelTitleClassName}>
         <div className={css.longTextEllipsis}>{uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>

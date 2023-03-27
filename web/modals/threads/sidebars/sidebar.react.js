@@ -11,6 +11,7 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './sidebars-modal.css';
 import Button from '../../../components/button.react.js';
+import ThreadAvatar from '../../../components/thread-avatar.react.js';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react.js';
 import { useOnClickThread } from '../../../selectors/thread-selectors.js';
 
@@ -41,6 +42,11 @@ function Sidebar(props: Props): React.Node {
     [css.unread]: unread,
   });
 
+  const previewTextClassName = classNames({
+    [css.longTextEllipsis]: true,
+    [css.avatarOffset]: true,
+  });
+
   const lastActivity = React.useMemo(
     () => shortAbsoluteDate(lastUpdatedTime),
     [lastUpdatedTime],
@@ -62,13 +68,14 @@ function Sidebar(props: Props): React.Node {
       : message.text;
     return (
       <>
-        <div className={css.longTextEllipsis}>{previewText}</div>
+        <div className={previewTextClassName}>{previewText}</div>
         <div className={css.lastActivity}>{lastActivity}</div>
       </>
     );
-  }, [lastActivity, messagePreviewResult]);
+  }, [lastActivity, messagePreviewResult, previewTextClassName]);
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
+
   return (
     <Button className={css.sidebarContainer} onClick={onClickThread}>
       <img
@@ -81,7 +88,10 @@ function Sidebar(props: Props): React.Node {
         alt="sidebar arrow"
       />
       <div className={sidebarInfoClassName}>
-        <div className={css.longTextEllipsis}>{uiName}</div>
+        <div className={css.avatarContainer}>
+          <ThreadAvatar size="micro" threadInfo={threadInfo} />
+          <div className={css.longTextEllipsis}>{uiName}</div>
+        </div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>
     </Button>
