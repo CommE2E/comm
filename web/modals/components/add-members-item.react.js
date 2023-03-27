@@ -6,6 +6,7 @@ import type { UserListItem } from 'lib/types/user-types.js';
 
 import css from './add-members.css';
 import Button from '../../components/button.react.js';
+import UserAvatar from '../../components/user-avatar.react.js';
 
 type AddMembersItemProps = {
   +userInfo: UserListItem,
@@ -42,7 +43,10 @@ function AddMemberItem(props: AddMembersItemProps): React.Node {
       onClick={onClickCallback}
       disabled={!canBeAdded}
     >
-      <div className={css.label}>{userInfo.username}</div>
+      <div className={css.userInfoContainer}>
+        <UserAvatar size="small" userID={userInfo.id} />
+        <div className={css.username}>{userInfo.username}</div>
+      </div>
       <div className={css.label}>{action}</div>
     </Button>
   );
