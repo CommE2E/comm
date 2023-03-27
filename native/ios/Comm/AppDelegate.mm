@@ -33,6 +33,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #import <React/RCTBridge+Private.h>
 #import <React/RCTCxxBridgeDelegate.h>
 #import <React/RCTJSIExecutorRuntimeInstaller.h>
+#import <React/RCTLinkingManager.h>
 #import <cxxreact/JSExecutor.h>
 #import <jsireact/JSIExecutor.h>
 #import <reacthermes/HermesExecutorFactory.h>
@@ -127,6 +128,25 @@ NSString *const threadIDKey = @"threadID";
   ((RCTRootView *)rootView).loadingViewFadeDuration = 0.001;
 
   return YES;
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:
+                (NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
+  return [RCTLinkingManager application:application
+                                openURL:url
+                                options:options];
+}
+
+- (BOOL)application:(UIApplication *)application
+    continueUserActivity:(nonnull NSUserActivity *)userActivity
+      restorationHandler:
+          (nonnull void (^)(NSArray<id<UIUserActivityRestoring>> *_Nullable))
+              restorationHandler {
+  return [RCTLinkingManager application:application
+                   continueUserActivity:userActivity
+                     restorationHandler:restorationHandler];
 }
 
 - (NSArray<id<RCTBridgeModule>> *)extraModulesForBridge:(RCTBridge *)bridge {
