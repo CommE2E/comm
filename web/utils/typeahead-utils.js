@@ -12,6 +12,7 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
 import Button from '../components/button.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 
 const webTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
@@ -20,7 +21,7 @@ const webTypeaheadRegex: RegExp = new RegExp(
 export type TypeaheadTooltipAction = {
   +key: string,
   +execute: () => mixed,
-  +actionButtonContent: React.Node,
+  +actionButtonContent: { +userID: string, +username: string },
 };
 
 export type TooltipPosition = {
@@ -112,7 +113,10 @@ function getTypeaheadTooltipActions(
         inputStateSetDraft(newText);
         inputStateSetTextCursorPosition(newSelectionStart);
       },
-      actionButtonContent: stringForUserExplicit(suggestedUser),
+      actionButtonContent: {
+        userID: suggestedUser.id,
+        username: stringForUserExplicit(suggestedUser),
+      },
     }));
 }
 
@@ -140,7 +144,8 @@ function getTypeaheadTooltipButtons(
         onMouseMove={onMouseMove}
         className={buttonClasses}
       >
-        <span>@{actionButtonContent}</span>
+        <UserAvatar size="small" userID={actionButtonContent.userID} />
+        <span className={css.username}>@{actionButtonContent.username}</span>
       </Button>
     );
   });
