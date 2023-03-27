@@ -197,7 +197,8 @@ bool create_threads_table(sqlite3 *db) {
       "roles TEXT NOT NULL, "
       "current_user TEXT NOT NULL, "
       "source_message_id TEXT, "
-      "replies_count INTEGER NOT NULL);";
+      "replies_count INTEGER NOT NULL, "
+      "pinned_count INTEGER NOT NULL);";
   return create_table(db, query, "threads");
 }
 
@@ -357,7 +358,8 @@ bool create_schema(sqlite3 *db) {
       "	 roles TEXT NOT NULL,"
       "	 current_user TEXT NOT NULL,"
       "	 source_message_id TEXT,"
-      "	 replies_count INTEGER NOT NULL"
+      "	 replies_count INTEGER NOT NULL,"
+      "	 pinned_count INTEGER NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS metadata ("
@@ -800,7 +802,8 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("roles", &Thread::roles),
           make_column("current_user", &Thread::current_user),
           make_column("source_message_id", &Thread::source_message_id),
-          make_column("replies_count", &Thread::replies_count)),
+          make_column("replies_count", &Thread::replies_count),
+          make_column("pinned_count", &Thread::pinned_count)),
       make_table(
           "metadata",
           make_column("name", &Metadata::name, unique(), primary_key()),
