@@ -65,3 +65,7 @@
   opacity: 1;
   transition: opacity 100ms ease-in;
 }
+
+span.username {
+  margin-left: 8px;
+}

@@ -4,13 +4,16 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
+import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { getNewTextAndSelection } from 'lib/shared/mention-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
+import type { ClientAvatar } from 'lib/types/avatar-types.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
 import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
+import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 
 const webTypeaheadRegex: RegExp = new RegExp(
@@ -20,7 +23,7 @@ const webTypeaheadRegex: RegExp = new RegExp(
 export type TypeaheadTooltipAction = {
   +key: string,
   +execute: () => mixed,
-  +actionButtonContent: React.Node,
+  +actionButtonContent: { +avatarInfo: ClientAvatar, +username: string },
 };
 
 export type TooltipPosition = {
@@ -112,7 +115,10 @@ function getTypeaheadTooltipActions(
         inputStateSetDraft(newText);
         inputStateSetTextCursorPosition(newSelectionStart);
       },
-      actionButtonContent: stringForUserExplicit(suggestedUser),
+      actionButtonContent: {
+        username: stringForUserExplicit(suggestedUser),
+        avatarInfo: getAvatarForUser(suggestedUser),
+      },
     }));
 }
 
@@ -140,7 +146,8 @@ function getTypeaheadTooltipButtons(
         onMouseMove={onMouseMove}
         className={buttonClasses}
       >
-        <span>@{actionButtonContent}</span>
+        <Avatar size="small" avatarInfo={actionButtonContent.avatarInfo} />
+        <span className={css.username}>@{actionButtonContent.username}</span>
       </Button>
     );
   });
