@@ -78,7 +78,7 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
       return;
     }
     WritableMap jsReadableNotification =
-        CommAndroidNotificationParser.parseRemoteMessageToJSForegroundMessage(
+        CommAndroidNotificationParser.parseRemoteMessageToJSMessage(
             initialNotification);
     promise.resolve(jsReadableNotification);
   }
