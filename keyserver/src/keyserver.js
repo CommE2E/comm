@@ -7,6 +7,8 @@ import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
 
+import stores from 'lib/facts/stores.js';
+
 import './cron/cron.js';
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
@@ -119,6 +121,17 @@ import {
         '/upload/:uploadID/:secret',
         downloadHandler(uploadDownloadResponder),
       );
+
+      // This endpoint should be handled by the mobile app. If the server
+      // receives this request, it means that the app is not installed and we
+      // should redirect the user to a place from which the app can be
+      // downloaded.
+      router.get('/invite/:secret', (req, res) => {
+        res.writeHead(301, {
+          Location: stores.appStoreUrl,
+        });
+        res.end();
+      });
 
       // $FlowFixMe express-ws has side effects that can't be typed
       router.ws('/ws', onConnection);
