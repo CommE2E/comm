@@ -16,6 +16,7 @@ const databaseStatuses = Object.freeze({
   initSuccess: 'INIT_SUCCESS',
   initInProgress: 'INIT_IN_PROGRESS',
   initError: 'INIT_ERROR',
+  deleting: 'DELETING',
 });
 
 type DatabaseStatus = $Values<typeof databaseStatuses>;
@@ -61,11 +62,34 @@ class DatabaseModule {
     console.error(error);
   };
 
+  async clearSensitiveData(): Promise<void> {
+    this.status = databaseStatuses.deleting;
+    await this.workerProxy.scheduleOnWorker({
+      type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
+    });
+    const origin = window.location.origin;
+    try {
+      await this.workerProxy.scheduleOnWorker({
+        type: workerRequestMessageTypes.INIT,
+        sqljsFilePath: `${origin}${SQLJS_FILE_PATH}`,
+        sqljsFilename,
+      });
+
+      this.status = databaseStatuses.initSuccess;
+    } catch (error) {
+      this.status = databaseStatuses.initError;
+      console.error(`Database initialization failure`, error);
+    }
+  }
+
   async schedule(
     payload: WorkerRequestMessage,
   ): Promise<?WorkerResponseMessage> {
     if (this.status === databaseStatuses.notSupported) {
       throw new Error('Database not supported');
+    }
+    if (this.status === databaseStatuses.deleting) {
+      throw new Error('Database being deleted');
     }
 
     if (this.status === databaseStatuses.initInProgress) {
