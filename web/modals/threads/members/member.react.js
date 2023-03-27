@@ -30,6 +30,7 @@ import css from './members-modal.css';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
+import UserAvatar from '../../../components/user-avatar.react.js';
 
 type Props = {
   +memberInfo: RelativeMemberInfo,
@@ -148,7 +149,9 @@ function ThreadMember(props: Props): React.Node {
   return (
     <div className={memberContainerClasses}>
       <div className={css.memberInfo}>
-        {userName} {label}
+        <UserAvatar size="small" userID={memberInfo.id} />
+        {userName}
+        {label}
       </div>
       <div className={css.memberAction}>
         <Menu
