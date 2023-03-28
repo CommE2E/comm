@@ -201,6 +201,7 @@ async function createMessages(
   await Promise.all([
     messageInsertPromise,
     updateRepliesCount(threadsToMessageIndices, newMessageDatas),
+    updatePinnedCount(newMessageDatas),
     viewer.isScriptViewer ? postMessageSendPromise : undefined,
   ]);
 
@@ -282,6 +283,49 @@ async function updateRepliesCount(
     }
     await createUpdates(updates);
   }
+}
+
+async function updatePinnedCount(newMessageDatas: MessageData[]) {
+  const pinnedMessageDatas = newMessageDatas.filter(
+    messageData => messageData.type === messageTypes.TOGGLE_PIN,
+  );
+
+  if (pinnedMessageDatas.length === 0) {
+    return;
+  }
+
+  const pinnedMessageData = pinnedMessageDatas[0];
+  const { threadID } = pinnedMessageData;
+
+  let updateThreads;
+  if (pinnedMessageData.action === 'pin') {
+    updateThreads = SQL`
+      UPDATE threads
+      SET pinned_count = pinned_count + 1
+      WHERE id = ${threadID}`;
+  } else {
+    updateThreads = SQL`
+      UPDATE threads
+      SET pinned_count = pinned_count - 1
+      WHERE id = ${threadID}`;
+  }
+
+  const [{ threadInfos: serverThreadInfos }] = await Promise.all([
+    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+    dbQuery(updateThreads),
+  ]);
+
+  const time = Date.now();
+  const updates = [];
+  for (const member of serverThreadInfos[threadID].members) {
+    updates.push({
+      userID: member.id,
+      time,
+      threadID,
+      type: updateTypes.UPDATE_THREAD,
+    });
+  }
+  await createUpdates(updates);
 }
 
 // Handles:
