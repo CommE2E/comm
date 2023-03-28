@@ -4,9 +4,11 @@
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
+#include "InternalModules/RustPromiseManager.h"
 #include "MessageStoreOperations.h"
 #include "TerminateApp.h"
 #include "ThreadStoreOperations.h"
+#include "lib.rs.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <folly/dynamic.h>

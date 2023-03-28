@@ -1,3 +1,5 @@
+use crate::ffi::string_callback;
+use crate::identity::Empty;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
@@ -97,6 +99,13 @@ mod ffi {
 
     // Crypto Tools
     fn generate_device_id(device_type: DeviceType) -> Result<String>;
+  }
+
+  unsafe extern "C++" {
+    include!("RustCallback.h");
+    #[namespace = "comm"]
+    #[cxx_name = "stringCallback"]
+    fn string_callback(error: String, counter: u32, ret: String);
   }
 }
 
