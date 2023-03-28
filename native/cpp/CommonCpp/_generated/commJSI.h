@@ -46,6 +46,7 @@ public:
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) = 0;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) = 0;
+  virtual jsi::Value generateNonce(jsi::Runtime &rt) = 0;
 
 };
 
@@ -274,6 +275,14 @@ private:
 
       return bridging::callFromJs<void>(
           rt, &T::reportDBOperationsFailure, jsInvoker_, instance_);
+    }
+    jsi::Value generateNonce(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::generateNonce) == 1,
+          "Expected generateNonce(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::generateNonce, jsInvoker_, instance_);
     }
 
   private:
