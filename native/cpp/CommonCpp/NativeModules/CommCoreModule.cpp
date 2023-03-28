@@ -1168,4 +1168,18 @@ void CommCoreModule::reportDBOperationsFailure(jsi::Runtime &rt) {
   DatabaseManager::reportDBOperationsFailure();
 }
 
+jsi::Value CommCoreModule::generateNonce(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityGenerateNonce(currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
+}
+
 } // namespace comm
