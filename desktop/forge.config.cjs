@@ -1,6 +1,7 @@
 const babel = require('@babel/core');
 const { PluginBase } = require('@electron-forge/plugin-base');
 const fs = require('fs-extra');
+const { request } = require('gaxios');
 const klaw = require('klaw');
 const path = require('path');
 
@@ -124,6 +125,7 @@ module.exports = {
       '\\.eslintrc\\.json',
       '\\.flowconfig',
       'flow-typed',
+      'microsoft\\.windows\\.pushnotifications',
     ],
     appBundleId: 'app.comm.macos',
     ...signingOptions.packagerMacos,
@@ -178,9 +180,21 @@ module.exports = {
       ) {
         throw new Error(
           'Due to a bug in @electron/universal, please first run ' +
-            '`yarn clean-build` or remove previous builds artifacts: ' +
-            '"out/Comm-darwin-x64" and/or "out/Comm-darwin-arm64"\n',
+          '`yarn clean-build` or remove previous builds artifacts: ' +
+          '"out/Comm-darwin-x64" and/or "out/Comm-darwin-arm64"\n',
         );
+      }
+
+      if (platform === 'win32') {
+        const file = fs.createWriteStream(
+          './assets/windows-runtime-installer.exe',
+        );
+        const response = await request({
+          url: 'https://aka.ms/windowsappsdk/1.2/1.2.230313.1/windowsappruntimeinstall-x64.exe',
+          responseType: 'stream',
+        });
+        response.data.pipe(file);
+        await new Promise(resolve => file.on('finish', resolve));
       }
     },
   },

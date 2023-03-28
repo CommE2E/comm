@@ -36,7 +36,6 @@
     "build": "napi build --platform napi --release",
     "build:debug": "yarn install-ci-deps && napi build --platform napi",
     "version": "napi version",
-    "postinstall": "bash ./postinstall.sh",
     "clean": "rm -rf target/ && rm -rf napi/ && rm -rf node_modules/",
     "install-ci-deps": "bash ./install_ci_deps.sh"
   }

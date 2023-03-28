@@ -5,7 +5,7 @@
     ]
   },
   "name": "desktop",
-  "version": "2.0.0",
+  "version": "5.0.0",
   "type": "module",
   "main": "./dist/main.js",
   "private": true,
@@ -22,6 +22,9 @@
   "dependencies": {
     "@babel/runtime": "^7.20.1"
   },
+  "optionalDependencies": {
+    "windows-pushnotifications": "file:addons/windows-pushnotifications"
+  },
   "devDependencies": {
     "@babel/core": "^7.13.14",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
@@ -33,14 +36,15 @@
     "@babel/preset-env": "^7.13.12",
     "@electron-forge/cli": "^6.0.4",
     "@electron-forge/maker-dmg": "^6.0.4",
-    "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/plugin-base": "^6.0.4",
     "electron": "^22.0.0",
     "flow-bin": "^0.182.0",
     "flow-typed": "^3.2.1",
-    "lib": "0.0.1",
     "fs-extra": "^10.1.0",
-    "klaw": "^4.0.1"
+    "gaxios": "^4.3.2",
+    "klaw": "^4.0.1",
+    "lib": "0.0.1"
   }
 }

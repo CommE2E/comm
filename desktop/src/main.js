@@ -8,13 +8,17 @@ import {
   ipcMain,
   systemPreferences,
   autoUpdater,
+  Notification,
   // eslint-disable-next-line import/extensions
 } from 'electron/main';
 import fs from 'fs';
 import path from 'path';
 
 import { initAutoUpdate } from './auto-update.js';
-import { handleSquirrelEvent } from './handle-squirrel-event.js';
+import {
+  handleSquirrelEvent,
+  isNormalStartup,
+} from './handle-squirrel-event.js';
 import {
   listenForNotifications,
   registerForNotifications,
@@ -23,6 +27,55 @@ import {
 const isDev = process.env.ENV === 'dev';
 const url = isDev ? 'http://localhost:3000/comm/' : 'https://web.comm.app';
 const isMac = process.platform === 'darwin';
+
+if (!isMac && app.isPackaged && isNormalStartup()) {
+  (async () => {
+    try {
+      const { PushNotificationManager } = await import(
+        'windows-pushnotifications'
+      );
+      if (PushNotificationManager.isSupported()) {
+        const n = PushNotificationManager.default;
+        const handleEvent = (manager, event) => {
+          let payload = '';
+          for (let i = 0; i < event.payload.length; i++) {
+            payload += String.fromCharCode(event.payload[i]);
+          }
+          new Notification({
+            title: 'title',
+            body: payload,
+          }).show();
+        };
+        n.addListener('PushReceived', handleEvent);
+
+        n.register();
+
+        n.createChannelAsync(
+          '6e999983-96f4-4c0a-802f-bb7d18460107',
+          (error, result) => {
+            if (error) {
+              console.error(error);
+            }
+            setTimeout(() => {
+              console.log(result.channel.uri);
+            }, 500);
+          },
+        );
+
+        app.on('quit', () => {
+          n.removeListener('PushReceived', handleEvent);
+          n.unregisterAll();
+        });
+      } else {
+        console.log('Not supported!');
+      }
+    } catch (err) {
+      console.error(
+        `Error while loading windows push notifications ${err.message}`,
+      );
+    }
+  })();
+}
 
 const scrollbarCSS = fs.promises.readFile(
   path.resolve(__dirname, '../scrollbar.css'),

@@ -1,6 +1,6 @@
 // @flow
 
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import { app } from 'electron';
 import path from 'path';
 
@@ -24,6 +24,9 @@ export function handleSquirrelEvent(): boolean {
   switch (squirrelEvent) {
     case '--squirrel-install':
     case '--squirrel-updated':
+      execSync(
+        path.resolve(__dirname, '../assets/windows-runtime-installer.exe'),
+      );
       spawnUpdate(['--createShortcut', commExeName]);
       return true;
 
@@ -40,4 +43,9 @@ export function handleSquirrelEvent(): boolean {
   }
 
   return false;
+}
+
+export function isNormalStartup(): boolean {
+  const squirrelEvent = process.argv[1];
+  return !squirrelEvent || squirrelEvent === '--squirrel-firstrun';
 }
