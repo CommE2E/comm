@@ -119,6 +119,7 @@ list(APPEND ANDROID_NATIVE_CODE
 )
 
 set(GENERATED_NATIVE_CODE "../../cpp/CommonCpp/_generated/commJSI-generated.cpp")
+set(RUST_NATIVE_CODE "../../native_rust_library/RustCallback.cpp")
 file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
 file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
 file(GLOB DB_ENTITIES_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/entities/*.cpp")
@@ -154,6 +155,7 @@ add_library(
   ${MODULE_ROOT_NATIVE_CODE}
   ${TOOLS_NATIVE_CODE}
   ${NOTIFICATIONS_NATIVE_CODE}
+  ${RUST_NATIVE_CODE}
 )
 
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
