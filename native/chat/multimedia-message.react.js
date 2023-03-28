@@ -70,7 +70,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     const { navigation, item, route, verticalBounds } = this.props;
     navigation.navigate<'VideoPlaybackModal' | 'ImageModal'>({
       name:
-        mediaInfo.type === 'video'
+        mediaInfo.type === 'video' || mediaInfo.type === 'encrypted_video'
           ? VideoPlaybackModalRouteName
           : ImageModalRouteName,
       key: getMediaKey(item, mediaInfo),
