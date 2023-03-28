@@ -47,6 +47,7 @@ const persistConfig = {
     'draftStore',
     'cryptoStore',
     'notifPermissionAlertInfo',
+    'commServicesAccessToken',
   ],
   migrate: (createMigrate(migrations, { debug: isDev }): any),
   version: 1,
