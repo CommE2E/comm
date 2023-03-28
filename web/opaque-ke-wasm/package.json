@@ -1,15 +1,19 @@
 {
   "name": "@commapp/opaque-ke-wasm",
   "description": "WASM bindings for use of opaque-ke inside web browser",
-  "version": "0.0.1",
-  "main": "index.js",
+  "version": "0.0.3",
+  "main": "pkg/comm_opaque2_wasm.js",
   "files": [
-    "index.js"
+    "pkg/comm_opaque2_wasm.js",
+    "pkg/comm_opaque2_wasm_bg.js",
+    "pkg/comm_opaque2_wasm_bg.wasm"
   ],
   "type": "module",
   "license": "BSD-3-Clause",
   "engines": {
     "node": ">= 16"
   },
-  "scripts": {}
+  "scripts": {
+    "build": "wasm-pack build --no-typescript --target web"
+  }
 }
