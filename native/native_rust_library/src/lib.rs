@@ -1,3 +1,5 @@
+use crate::ffi::string_callback;
+use crate::identity::Empty;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
@@ -89,6 +91,9 @@ mod ffi {
       notif_onetime_keys: Vec<String>,
     ) -> Result<String>;
 
+    #[cxx_name = "identityGenerateNonce"]
+    fn generate_nonce(counter: u32);
+
     // Tunnelbroker Service Client
     type TunnelbrokerClient;
 
@@ -98,6 +103,34 @@ mod ffi {
     // Crypto Tools
     fn generate_device_id(device_type: DeviceType) -> Result<String>;
   }
+
+  unsafe extern "C++" {
+    include!("RustCallback.h");
+    #[namespace = "comm"]
+    #[cxx_name = "stringCallback"]
+    fn string_callback(error: String, counter: u32, ret: String);
+  }
+}
+
+fn generate_nonce(counter: u32) {
+  RUNTIME.spawn(async move {
+    let mut identity_client = match IdentityClientServiceClient::connect(
+      "http://127.0.0.1:50054",
+    )
+    .await
+    {
+      Ok(r) => r,
+      Err(e) => {
+        string_callback(e.to_string(), counter, "".to_string());
+        return;
+      }
+    };
+    let request = Empty {};
+    match identity_client.generate_nonce(request).await {
+      Err(e) => string_callback(e.to_string(), counter, "".to_string()),
+      Ok(r) => string_callback("".to_string(), counter, r.into_inner().nonce),
+    };
+  });
 }
 
 #[derive(Debug)]

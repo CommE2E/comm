@@ -4,9 +4,11 @@
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
+#include "InternalModules/RustPromiseManager.h"
 #include "MessageStoreOperations.h"
 #include "TerminateApp.h"
 #include "ThreadStoreOperations.h"
+#include "lib.rs.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <folly/dynamic.h>
@@ -1164,6 +1166,20 @@ bool CommCoreModule::checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) {
 
 void CommCoreModule::reportDBOperationsFailure(jsi::Runtime &rt) {
   DatabaseManager::reportDBOperationsFailure();
+}
+
+jsi::Value CommCoreModule::generateNonce(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityGenerateNonce(currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
 }
 
 } // namespace comm
