@@ -255,6 +255,7 @@ jsi::Array parseDBThreads(
             ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
             : jsi::Value::null());
     jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
+    jsiThread.setProperty(rt, "pinnedCount", thread.pinned_count);
 
     jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
   }
@@ -632,6 +633,8 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
       int repliesCount =
           std::lround(threadObj.getProperty(rt, "repliesCount").asNumber());
+      int pinnedCount =
+          std::lround(threadObj.getProperty(rt, "pinnedCount").asNumber());
       Thread thread{
           threadID,
           type,
@@ -646,7 +649,8 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
           roles,
           currentUser,
           std::move(sourceMessageID),
-          repliesCount};
+          repliesCount,
+          pinnedCount};
 
       threadStoreOps.push_back(
           std::make_unique<ReplaceThreadOperation>(std::move(thread)));
