@@ -2,17 +2,138 @@
 
 import filesystem from 'react-native-fs';
 
-import { base64FromIntArray, hexToUintArray } from 'lib/media/data-utils.js';
-import { fileInfoFromData, readableFilename } from 'lib/media/file-utils.js';
-import type { MediaMissionFailure } from 'lib/types/media-types.js';
+import {
+  base64FromIntArray,
+  uintArrayToHexString,
+  hexToUintArray,
+} from 'lib/media/data-utils.js';
+import {
+  replaceExtension,
+  fileInfoFromData,
+  readableFilename,
+} from 'lib/media/file-utils.js';
+import type {
+  MediaMissionFailure,
+  EncryptFileMediaMissionStep,
+} from 'lib/types/media-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { unpad } from 'lib/utils/pkcs7-padding.js';
+import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
 
 import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
 import * as AES from '../utils/aes-crypto-module.js';
 
 const PADDING_THRESHOLD = 5_000_000; // we don't pad files larger than this
+
+type EncryptedFileResult = {
+  +success: true,
+  +uri: string,
+  +encryptionKey: string,
+};
+
+/**
+ * Encrypts a single file and returns the encrypted file URI
+ * and the encryption key. The encryption key is returned as a hex string.
+ * The encrypted file is written to the same directory as the original file,
+ * with the same name, but with the extension ".dat".
+ *
+ * @param uri uri to the file to encrypt
+ * @returns encryption result along with mission steps
+ */
+async function encryptFile(uri: string): Promise<{
+  steps: $ReadOnlyArray<EncryptFileMediaMissionStep>,
+  result: MediaMissionFailure | EncryptedFileResult,
+}> {
+  let success = true,
+    exceptionMessage;
+  const steps: EncryptFileMediaMissionStep[] = [];
+  const destination = replaceExtension(uri, 'dat');
+
+  // Step 1. Read the file
+  const startOpenFile = Date.now();
+  let data;
+  try {
+    const response = await fetch(getFetchableURI(uri));
+    const buffer = await response.arrayBuffer();
+    data = new Uint8Array(buffer);
+  } catch (e) {
+    success = false;
+    exceptionMessage = getMessageForException(e);
+  }
+  steps.push({
+    step: 'read_plaintext_file',
+    file: uri,
+    time: Date.now() - startOpenFile,
+    success,
+    exceptionMessage,
+  });
+  if (!success || !data) {
+    return {
+      steps,
+      result: { success: false, reason: 'fetch_failed' },
+    };
+  }
+
+  // Step 2. Encrypt the file
+  const startEncrypt = Date.now();
+  const paddedLength = calculatePaddedLength(data.byteLength);
+  const shouldPad = paddedLength <= 5_000_000;
+  let key, encryptedData;
+  try {
+    const plaintextData = shouldPad ? pad(data) : data;
+    key = await AES.generateKey();
+    encryptedData = await AES.encrypt(key, plaintextData);
+  } catch (e) {
+    success = false;
+    exceptionMessage = getMessageForException(e);
+  }
+  steps.push({
+    step: 'encrypt_data',
+    dataSize: encryptedData?.byteLength ?? -1,
+    isPadded: shouldPad,
+    time: Date.now() - startEncrypt,
+    success,
+    exceptionMessage,
+  });
+  if (!success || !encryptedData || !key) {
+    return {
+      steps,
+      result: { success: false, reason: 'encryption_failed' },
+    };
+  }
+
+  // Step 3. Write the encrypted file
+  const startWriteFile = Date.now();
+  try {
+    const targetBase64 = base64FromIntArray(encryptedData);
+    await filesystem.writeFile(destination, targetBase64, 'base64');
+  } catch (e) {
+    success = false;
+    exceptionMessage = getMessageForException(e);
+  }
+  steps.push({
+    step: 'write_encrypted_file',
+    file: destination,
+    time: Date.now() - startWriteFile,
+    success,
+    exceptionMessage,
+  });
+  if (!success) {
+    return {
+      steps,
+      result: { success: false, reason: 'write_file_failed' },
+    };
+  }
+
+  return {
+    steps,
+    result: {
+      success: true,
+      uri: destination,
+      encryptionKey: uintArrayToHexString(key),
+    },
+  };
+}
 
 type DecryptFileStep =
   | {
@@ -191,4 +312,4 @@ async function decryptMedia(
   };
 }
 
-export { decryptMedia };
+export { encryptFile, decryptMedia };
