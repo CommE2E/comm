@@ -2,25 +2,34 @@ pub mod client_proto {
   tonic::include_proto!("identity.client");
 }
 
-use crate::client_service::client_proto::{
-  DeleteUserRequest, Empty, GenerateNonceResponse, KeyserverKeysRequest,
-  KeyserverKeysResponse, OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
-  OpaqueLoginStartRequest, OpaqueLoginStartResponse,
-  ReceiverKeysForUserRequest, ReceiverKeysForUserResponse,
-  RefreshUserPreKeysRequest, RegistrationFinishRequest,
-  RegistrationFinishResponse, RegistrationStartRequest,
-  RegistrationStartResponse, SenderKeysForUserRequest,
-  SenderKeysForUserResponse, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordFinishResponse, UpdateUserPasswordStartRequest,
-  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
-  WalletLoginRequest, WalletLoginResponse,
+use crate::{
+  client_service::client_proto::{
+    DeleteUserRequest, Empty, GenerateNonceResponse, KeyserverKeysRequest,
+    KeyserverKeysResponse, OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
+    OpaqueLoginStartRequest, OpaqueLoginStartResponse,
+    ReceiverKeysForUserRequest, ReceiverKeysForUserResponse,
+    RefreshUserPreKeysRequest, RegistrationFinishRequest,
+    RegistrationFinishResponse, RegistrationStartRequest,
+    RegistrationStartResponse, SenderKeysForUserRequest,
+    SenderKeysForUserResponse, UpdateUserPasswordFinishRequest,
+    UpdateUserPasswordFinishResponse, UpdateUserPasswordStartRequest,
+    UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+    WalletLoginRequest, WalletLoginResponse,
+  },
+  database::DatabaseClient,
+  nonce::generate_nonce_data,
+  service::handle_db_error,
 };
 pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
 };
+use rand::rngs::OsRng;
+use tonic::Response;
 
 #[derive(derive_more::Constructor)]
-pub struct ClientService {}
+pub struct ClientService {
+  client: DatabaseClient,
+}
 
 #[tonic::async_trait]
 impl IdentityClientService for ClientService {
@@ -86,7 +95,17 @@ impl IdentityClientService for ClientService {
     &self,
     _request: tonic::Request<Empty>,
   ) -> Result<tonic::Response<GenerateNonceResponse>, tonic::Status> {
-    unimplemented!();
+    let nonce_data = generate_nonce_data(&mut OsRng);
+    match self
+      .client
+      .add_nonce_to_nonces_table(nonce_data.clone())
+      .await
+    {
+      Ok(_) => Ok(Response::new(GenerateNonceResponse {
+        nonce: nonce_data.nonce,
+      })),
+      Err(e) => Err(handle_db_error(e)),
+    }
   }
 
   async fn get_receiver_keys_for_user(

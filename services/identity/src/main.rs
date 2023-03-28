@@ -59,11 +59,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
       let aws_config = aws_config::from_env().region("us-east-2").load().await;
       let database_client = DatabaseClient::new(&aws_config);
-      let server = MyIdentityService::new(database_client);
+      let server = MyIdentityService::new(database_client.clone());
       let keyserver_service =
         IdentityKeyserverServiceServer::with_interceptor(server, check_auth);
       let client_server =
-        IdentityClientServiceServer::new(ClientService::new());
+        IdentityClientServiceServer::new(ClientService::new(database_client));
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
         .add_service(keyserver_service)
