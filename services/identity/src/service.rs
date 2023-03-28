@@ -575,7 +575,7 @@ async fn pake_registration_finish(
   }
 }
 
-fn handle_db_error(db_error: DBError) -> Status {
+pub fn handle_db_error(db_error: DBError) -> Status {
   match db_error {
     DBError::AwsSdk(DynamoDBError::InternalServerError(_))
     | DBError::AwsSdk(DynamoDBError::ProvisionedThroughputExceededException(
