@@ -49,6 +49,16 @@
         <action android:name="app.comm.android.START_MAIN_ACTIVITY" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data
+          android:scheme="https"
+          android:host="web.comm.app" />
+      </intent-filter>
     </activity>
     <activity
       android:name=".SplashActivity"
