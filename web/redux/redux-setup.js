@@ -93,6 +93,7 @@ export type AppState = {
   cryptoStore: CryptoStore,
   pushApiPublicKey: ?string,
   _persist: ?PersistState,
+  +commServicesAccessToken: ?string,
 };
 
 export type Action =
