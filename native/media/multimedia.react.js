@@ -2,14 +2,26 @@
 
 import { Image } from 'expo-image';
 import invariant from 'invariant';
+import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import type { MediaInfo, AvatarMediaInfo } from 'lib/types/media-types.js';
 
+import EncryptedImage from './encrypted-image.react.js';
 import RemoteImage from './remote-image.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 
+type Source =
+  | {
+      +kind: 'uri',
+      +uri: string,
+    }
+  | {
+      +kind: 'encrypted',
+      +holder: string,
+      +encryptionKey: string,
+    };
 type BaseProps = {
   +mediaInfo: MediaInfo | AvatarMediaInfo,
   +spinnerColor: string,
@@ -20,8 +32,8 @@ type Props = {
   +inputState: ?InputState,
 };
 type State = {
-  +currentURI: string,
-  +departingURI: ?string,
+  +currentSource: Source,
+  +departingSource: ?Source,
 };
 class Multimedia extends React.PureComponent<Props, State> {
   static defaultProps = {
@@ -31,17 +43,9 @@ class Multimedia extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    invariant(
-      props.mediaInfo.type === 'photo' || props.mediaInfo.type === 'video',
-      '<Multimedia> supports only unencrypted images and videos',
-    );
-
     this.state = {
-      currentURI:
-        props.mediaInfo.type === 'video'
-          ? props.mediaInfo.thumbnailURI
-          : props.mediaInfo.uri,
-      departingURI: null,
+      currentSource: Multimedia.sourceFromMediaInfo(props.mediaInfo),
+      departingSource: null,
     };
   }
 
@@ -52,66 +56,72 @@ class Multimedia extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    this.inputState.reportURIDisplayed(this.state.currentURI, true);
+    this.reportSourceDisplayed(this.state.currentSource, true);
   }
 
   componentWillUnmount() {
-    const { inputState } = this;
-    const { currentURI, departingURI } = this.state;
-    inputState.reportURIDisplayed(currentURI, false);
-    if (departingURI) {
-      inputState.reportURIDisplayed(departingURI, false);
+    const { currentSource, departingSource } = this.state;
+    this.reportSourceDisplayed(currentSource, false);
+    if (departingSource) {
+      this.reportSourceDisplayed(departingSource, false);
     }
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    const { inputState } = this;
-    invariant(
-      this.props.mediaInfo.type === 'photo' ||
-        this.props.mediaInfo.type === 'video',
-      '<Multimedia> supports only unencrypted photos and videos',
-    );
+    const newSource = Multimedia.sourceFromMediaInfo(this.props.mediaInfo);
+    const oldSource = this.state.currentSource;
+    if (!_isEqual(newSource)(oldSource)) {
+      this.reportSourceDisplayed(newSource, true);
 
-    const newURI =
-      this.props.mediaInfo.type === 'video'
-        ? this.props.mediaInfo.thumbnailURI
-        : this.props.mediaInfo.uri;
-    const oldURI = this.state.currentURI;
-    if (newURI !== oldURI) {
-      inputState.reportURIDisplayed(newURI, true);
-
-      const { departingURI } = this.state;
-      if (departingURI && oldURI !== departingURI) {
-        // If there's currently an existing departingURI, that means that oldURI
-        // hasn't loaded yet. Since it's being replaced anyways we don't need to
-        // display it anymore, so we can unlink it now
-        inputState.reportURIDisplayed(oldURI, false);
-        this.setState({ currentURI: newURI });
+      const { departingSource } = this.state;
+      if (departingSource && !_isEqual(oldSource)(departingSource)) {
+        // If there's currently an existing departingSource, that means that
+        // oldSource hasn't loaded yet. Since it's being replaced anyways
+        // we don't need to display it anymore, so we can unlink it now
+        this.reportSourceDisplayed(oldSource, false);
+        this.setState({ currentSource: newSource });
       } else {
-        this.setState({ currentURI: newURI, departingURI: oldURI });
+        this.setState({ currentSource: newSource, departingSource: oldSource });
       }
     }
 
-    const newDepartingURI = this.state.departingURI;
-    const oldDepartingURI = prevState.departingURI;
-    if (oldDepartingURI && oldDepartingURI !== newDepartingURI) {
-      inputState.reportURIDisplayed(oldDepartingURI, false);
+    const newDepartingSource = this.state.departingSource;
+    const oldDepartingSource = prevState.departingSource;
+    if (
+      oldDepartingSource &&
+      !_isEqual(oldDepartingSource)(newDepartingSource)
+    ) {
+      this.reportSourceDisplayed(oldDepartingSource, false);
     }
   }
 
   render() {
     const images = [];
-    const { currentURI, departingURI } = this.state;
-    if (departingURI) {
-      images.push(this.renderURI(currentURI, true));
-      images.push(this.renderURI(departingURI, true));
+    const { currentSource, departingSource } = this.state;
+    if (departingSource) {
+      images.push(this.renderSource(currentSource, true));
+      images.push(this.renderSource(departingSource, true));
     } else {
-      images.push(this.renderURI(currentURI));
+      images.push(this.renderSource(currentSource));
     }
     return <View style={styles.container}>{images}</View>;
   }
 
-  renderURI(uri: string, invisibleLoad?: boolean = false) {
+  renderSource(source: Source, invisibleLoad?: boolean = false) {
+    if (source.kind === 'encrypted') {
+      return (
+        <EncryptedImage
+          holder={source.holder}
+          encryptionKey={source.encryptionKey}
+          onLoad={this.onLoad}
+          spinnerColor={this.props.spinnerColor}
+          style={styles.image}
+          invisibleLoad={invisibleLoad}
+          key={source.holder}
+        />
+      );
+    }
+    const { uri } = source;
     if (uri.startsWith('http')) {
       return (
         <RemoteImage
@@ -124,10 +134,9 @@ class Multimedia extends React.PureComponent<Props, State> {
         />
       );
     } else {
-      const source = { uri };
       return (
         <Image
-          source={source}
+          source={{ uri }}
           onLoad={this.onLoad}
           style={styles.image}
           key={uri}
@@ -137,8 +146,36 @@ class Multimedia extends React.PureComponent<Props, State> {
   }
 
   onLoad = () => {
-    this.setState({ departingURI: null });
+    this.setState({ departingSource: null });
   };
+
+  reportSourceDisplayed = (source: Source, isLoaded: boolean) => {
+    if (source.kind === 'uri') {
+      this.inputState.reportURIDisplayed(source.uri, isLoaded);
+    }
+  };
+
+  static sourceFromMediaInfo(mediaInfo: MediaInfo | AvatarMediaInfo): Source {
+    if (mediaInfo.type === 'photo') {
+      return { kind: 'uri', uri: mediaInfo.uri };
+    } else if (mediaInfo.type === 'video') {
+      return { kind: 'uri', uri: mediaInfo.thumbnailURI };
+    } else if (mediaInfo.type === 'encrypted_photo') {
+      return {
+        kind: 'encrypted',
+        holder: mediaInfo.holder,
+        encryptionKey: mediaInfo.encryptionKey,
+      };
+    } else if (mediaInfo.type === 'encrypted_video') {
+      return {
+        kind: 'encrypted',
+        holder: mediaInfo.thumbnailHolder,
+        encryptionKey: mediaInfo.thumbnailEncryptionKey,
+      };
+    } else {
+      invariant(false, 'Invalid mediaInfo type');
+    }
+  }
 }
 
 const styles = StyleSheet.create({
