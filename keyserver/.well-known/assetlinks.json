@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "app.comm.android",
       "sha256_cert_fingerprints": [
-        "00:1B:6F:E7:DE:6A:E8:FC:FF:B9:23:3C:87:76:38:B4:47:EF:AA:AE:51:93:14:3A:61:72:BF:45:C3:02:9A:10"
+        "00:1B:6F:E7:DE:6A:E8:FC:FF:B9:23:3C:87:76:38:B4:47:EF:AA:AE:51:93:14:3A:61:72:BF:45:C3:02:9A:10",
+        "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
       ]
     }
   },
