@@ -88,9 +88,15 @@ function ThreadSettingsMediaGallery(
     if (activeTab === 'ALL') {
       return mediaInfos;
     } else if (activeTab === 'IMAGES') {
-      return mediaInfos.filter(mediaInfo => mediaInfo.type === 'photo');
+      return mediaInfos.filter(
+        mediaInfo =>
+          mediaInfo.type === 'photo' || mediaInfo.type === 'encrypted_photo',
+      );
     } else if (activeTab === 'VIDEOS') {
-      return mediaInfos.filter(mediaInfo => mediaInfo.type === 'video');
+      return mediaInfos.filter(
+        mediaInfo =>
+          mediaInfo.type === 'video' || mediaInfo.type === 'encrypted_video',
+      );
     }
     return mediaInfos;
   }, [activeTab, mediaInfos]);
@@ -171,7 +177,7 @@ function MediaGalleryItem(props: MediaGalleryItemProps): React.Node {
 
       navigation.navigate<'VideoPlaybackModal' | 'ImageModal'>({
         name:
-          mediaInfo.type === 'video'
+          mediaInfo.type === 'video' || mediaInfo.type === 'encrypted_video'
             ? VideoPlaybackModalRouteName
             : ImageModalRouteName,
         key: `multimedia|${threadID}|${mediaInfo.id}`,
