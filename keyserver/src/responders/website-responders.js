@@ -427,6 +427,7 @@ async function websiteResponder(
     },
     pushApiPublicKey: pushApiPublicKeyPromise,
     _persist: null,
+    commServicesAccessToken: null,
   });
   const jsonStream = streamJSON(res, initialReduxState);
 

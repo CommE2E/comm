@@ -56,4 +56,5 @@ export type AppState = {
   deviceOrientation: Orientations,
   frozen: boolean,
   userPolicies: UserPolicies,
+  +commServicesAccessToken: ?string,
 };

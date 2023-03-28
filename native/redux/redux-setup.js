@@ -120,6 +120,7 @@ const defaultState = ({
   deviceOrientation: Orientation.getInitialOrientation(),
   frozen: false,
   userPolicies: {},
+  commServicesAccessToken: null,
 }: AppState);
 
 function reducer(state: AppState = defaultState, action: Action) {
