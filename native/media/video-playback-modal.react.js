@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import filesystem from 'react-native-fs';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import Animated from 'react-native-reanimated';
@@ -14,6 +15,7 @@ import Video from 'react-native-video';
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
+import { decryptMedia } from './encryption-utils.js';
 import { formatDuration } from './video-utils.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -75,6 +77,41 @@ type Props = {
 };
 function VideoPlaybackModal(props: Props): React.Node {
   const { mediaInfo } = props.route.params;
+
+  const { uri, holder, encryptionKey } = mediaInfo;
+  const [videoSource, setVideoSource] = React.useState(
+    uri ? { uri } : undefined,
+  );
+
+  React.useEffect(() => {
+    // skip for unencrypted videos
+    if (!holder || !encryptionKey) {
+      return;
+    }
+
+    let isMounted = true;
+    let uriToDispose;
+    setVideoSource(undefined);
+
+    const loadDecrypted = async () => {
+      const { result } = await decryptMedia(holder, encryptionKey, {
+        destination: 'file',
+      });
+      if (result.success && isMounted) {
+        uriToDispose = result.uri;
+        setVideoSource({ uri: result.uri });
+      }
+    };
+    loadDecrypted();
+
+    return () => {
+      isMounted = false;
+      if (uriToDispose) {
+        // remove the temporary file created by decryptMedia
+        filesystem.unlink(uriToDispose);
+      }
+    };
+  }, [holder, encryptionKey]);
 
   const closeButtonX = useValue(-1);
   const closeButtonY = useValue(-1);
@@ -517,14 +554,7 @@ function VideoPlaybackModal(props: Props): React.Node {
     }
   }, [backgroundedOrInactive, controlsShowing]);
 
-  const {
-    navigation,
-    route: {
-      params: {
-        mediaInfo: { uri: videoUri },
-      },
-    },
-  } = props;
+  const { navigation } = props;
 
   const togglePlayback = React.useCallback(() => {
     setPaused(!paused);
@@ -640,18 +670,20 @@ function VideoPlaybackModal(props: Props): React.Node {
         <View style={contentContainerStyle}>
           {spinner}
           <Animated.View style={videoContainerStyle}>
-            <Video
-              source={{ uri: videoUri }}
-              ref={videoRef}
-              style={styles.backgroundVideo}
-              paused={paused}
-              onProgress={progressCallback}
-              onEnd={resetVideo}
-              onReadyForDisplay={readyForDisplayCallback}
-            />
+            {videoSource && (
+              <Video
+                source={videoSource}
+                ref={videoRef}
+                style={styles.backgroundVideo}
+                paused={paused}
+                onProgress={progressCallback}
+                onEnd={resetVideo}
+                onReadyForDisplay={readyForDisplayCallback}
+              />
+            )}
           </Animated.View>
         </View>
-        {controls}
+        {videoSource && controls}
       </Animated.View>
     </TapGestureHandler>
   );
