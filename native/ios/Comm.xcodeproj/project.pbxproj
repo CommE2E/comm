@@ -39,6 +39,8 @@
 		7FA2DCDE293E62F500991BA4 /* CommIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDC293E62F500991BA4 /* CommIcons.ttf */; };
 		7FA2DCDF293E62F500991BA4 /* SWMansionIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */; };
 		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
+		8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
+		8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B652FA5295EAA5B009F8163 /* RustCallback.cpp */; };
 		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
 		8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
@@ -167,6 +169,10 @@
 		7FE4D9F3291DFE9300667BF6 /* commJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commJSI.h; sourceTree = "<group>"; };
 		7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "commJSI-generated.cpp"; sourceTree = "<group>"; };
 		891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
+		8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RustPromiseManager.cpp; sourceTree = "<group>"; };
+		8B652FA1295EA6B8009F8163 /* RustPromiseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RustPromiseManager.h; sourceTree = "<group>"; };
+		8B652FA4295EA9F1009F8163 /* RustCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RustCallback.h; sourceTree = "<group>"; };
+		8B652FA5295EAA5B009F8163 /* RustCallback.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RustCallback.cpp; sourceTree = "<group>"; };
 		8B99AF6D28D50D4800EB5ADB /* lib.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lib.rs.h; sourceTree = "<group>"; };
 		8B99B59928D50D4900EB5ADB /* cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cxx.h; sourceTree = "<group>"; };
 		8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnative_rust_library.a; path = ../native_rust_library/target/universal/release/libnative_rust_library.a; sourceTree = "<group>"; };
@@ -452,6 +458,8 @@
 		726E5D722731A4240032361D /* InternalModules */ = {
 			isa = PBXGroup;
 			children = (
+				8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */,
+				8B652FA1295EA6B8009F8163 /* RustPromiseManager.h */,
 				CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */,
 			);
 			path = InternalModules;
@@ -502,9 +510,11 @@
 		8B99AF6B28D50D4800EB5ADB /* native_rust_library */ = {
 			isa = PBXGroup;
 			children = (
+				8B652FA4295EA9F1009F8163 /* RustCallback.h */,
 				8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */,
 				8B99AF6D28D50D4800EB5ADB /* lib.rs.h */,
 				8B99B59928D50D4900EB5ADB /* cxx.h */,
+				8B652FA5295EAA5B009F8163 /* RustCallback.cpp */,
 			);
 			name = native_rust_library;
 			path = ../native_rust_library;
@@ -969,6 +979,7 @@
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */,
+				8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
@@ -976,6 +987,7 @@
 				CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */,
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
 				71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */,
+				8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */,
 				CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */,

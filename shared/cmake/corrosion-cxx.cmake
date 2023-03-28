@@ -99,6 +99,8 @@ function(add_library_rust)
   )
   target_include_directories(${_LIB_PATH_STEM}_cxxbridge
     PUBLIC ${cxx_binding_include_dir}
+    # Try to pick up any other headers exposed by target
+    ${CMAKE_CURRENT_LIST_DIR}/${rust_lib_PATH}
   )
 
   # Create total target with alias with given namespace
