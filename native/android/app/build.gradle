@@ -379,10 +379,30 @@ task updateRustToolchain(type: Exec) {
         "x86_64-linux-android"
 }
 
+def nativeRustLibraryDir = "../../native_rust_library"
+def nativeRustLibraryManifestPath = "${nativeRustLibraryDir}/Cargo.toml"
+def cxxBridgeBindingDir = "${nativeRustLibraryDir}/target/cxxbridge/native_rust_library/src"
+def cxxBridgeCommonDir = "${nativeRustLibraryDir}/target/cxxbridge/rust"
+
+task buildNativeRustLibrary(type: Exec) {
+  commandLine "cargo", "build", "--manifest-path", nativeRustLibraryManifestPath
+}
+
+task copyNativeRustLibraryFiles(dependsOn: buildNativeRustLibrary, type: Copy) {
+  from(cxxBridgeBindingDir) {
+    include 'lib.rs.h'
+    include 'lib.rs.cc'
+  }
+  from(cxxBridgeCommonDir) {
+    include 'cxx.h'
+  }
+  into nativeRustLibraryDir
+}
+
 // Bind preBuild dependencies only if not 'clean' running
 if (!isCleanRunning()) {
     afterEvaluate {
-        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain)
+        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain, copyNativeRustLibraryFiles)
     }
 }
 
