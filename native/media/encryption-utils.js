@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import filesystem from 'react-native-fs';
 
 import {
@@ -11,9 +12,11 @@ import {
   replaceExtension,
   fileInfoFromData,
   readableFilename,
+  pathFromURI,
 } from 'lib/media/file-utils.js';
 import type {
   MediaMissionFailure,
+  MediaMissionStep,
   EncryptFileMediaMissionStep,
 } from 'lib/types/media-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -21,6 +24,7 @@ import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
 
 import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
+import type { MediaResult } from './media-utils.js';
 import * as AES from '../utils/aes-crypto-module.js';
 
 const PADDING_THRESHOLD = 5000000; // we don't pad files larger than this
@@ -131,6 +135,72 @@ async function encryptFile(uri: string): Promise<{
       success: true,
       uri: destination,
       encryptionKey: uintArrayToHexString(key),
+    },
+  };
+}
+
+/**
+ * Encrypts a single photo or video. Replaces the uploadURI with the encrypted
+ * file URI. Attaches `encryptionKey` to the result. Changes the mediaType to
+ * `encrypted_photo` or `encrypted_video`.
+ *
+ * @param preprocessedMedia - Result of `processMedia()` call
+ * @returns a `preprocessedMedia` param, but with encryption applied
+ */
+async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
+  result: MediaResult | MediaMissionFailure,
+  steps: $ReadOnlyArray<MediaMissionStep>,
+}> {
+  invariant(preprocessedMedia.success, 'encryptMedia called on failure result');
+  invariant(
+    preprocessedMedia.mediaType === 'photo' ||
+      preprocessedMedia.mediaType === 'video',
+    'encryptMedia should only be called on unencrypted photos and videos',
+  );
+  const { uploadURI } = preprocessedMedia;
+  const steps = [];
+
+  // Encrypt the media file
+  const { steps: encryptionSteps, result: encryptionResult } =
+    await encryptFile(uploadURI);
+  steps.push(...encryptionSteps);
+
+  if (!encryptionResult.success) {
+    return { steps, result: encryptionResult };
+  }
+
+  if (preprocessedMedia.mediaType === 'photo') {
+    return {
+      steps,
+      result: {
+        ...preprocessedMedia,
+        mediaType: 'encrypted_photo',
+        uploadURI: encryptionResult.uri,
+        encryptionKey: encryptionResult.encryptionKey,
+        shouldDisposePath: pathFromURI(encryptionResult.uri),
+      },
+    };
+  }
+
+  // For videos, we also need to encrypt the thumbnail
+  const { steps: thumbnailEncryptionSteps, result: thumbnailEncryptionResult } =
+    await encryptFile(preprocessedMedia.uploadThumbnailURI);
+  steps.push(...thumbnailEncryptionSteps);
+
+  if (!thumbnailEncryptionResult.success) {
+    return { steps, result: thumbnailEncryptionResult };
+  }
+
+  return {
+    steps,
+    result: {
+      ...preprocessedMedia,
+      mediaType: 'encrypted_video',
+      uploadURI: encryptionResult.uri,
+      encryptionKey: encryptionResult.encryptionKey,
+      uploadThumbnailURI: thumbnailEncryptionResult.uri,
+      thumbnailEncryptionKey: thumbnailEncryptionResult.encryptionKey,
+      shouldDisposePath: pathFromURI(encryptionResult.uri),
     },
   };
 }
@@ -309,4 +379,4 @@ async function decryptMedia(
   };
 }
 
-export { encryptFile, decryptMedia };
+export { encryptMedia, decryptMedia };
