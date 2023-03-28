@@ -91,6 +91,9 @@ mod ffi {
       notif_onetime_keys: Vec<String>,
     ) -> Result<String>;
 
+    #[cxx_name = "identityGenerateNonce"]
+    fn generate_nonce(promise_id: u32);
+
     // Tunnelbroker Service Client
     type TunnelbrokerClient;
 
@@ -105,8 +108,31 @@ mod ffi {
     include!("RustCallback.h");
     #[namespace = "comm"]
     #[cxx_name = "stringCallback"]
-    fn string_callback(error: String, counter: u32, ret: String);
+    fn string_callback(error: String, promise_id: u32, ret: String);
   }
+}
+
+fn generate_nonce(promise_id: u32) {
+  RUNTIME.spawn(async move {
+    let mut identity_client = match IdentityClientServiceClient::connect(
+      "http://127.0.0.1:50054",
+    )
+    .await
+    {
+      Ok(r) => r,
+      Err(e) => {
+        string_callback(e.to_string(), promise_id, "".to_string());
+        return;
+      }
+    };
+    let request = Empty {};
+    match identity_client.generate_nonce(request).await {
+      Err(e) => string_callback(e.to_string(), promise_id, "".to_string()),
+      Ok(r) => {
+        string_callback("".to_string(), promise_id, r.into_inner().nonce)
+      }
+    };
+  });
 }
 
 #[derive(Debug)]
