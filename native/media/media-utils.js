@@ -30,11 +30,24 @@ type SharedMediaResult = {
   +mime: string,
   +dimensions: Dimensions,
 };
-type MediaResult =
+export type MediaResult =
   | { +mediaType: 'photo', ...SharedMediaResult }
   | {
       +mediaType: 'video',
       ...SharedMediaResult,
+      +uploadThumbnailURI: string,
+      +loop: boolean,
+    }
+  | {
+      +mediaType: 'encrypted_photo',
+      ...SharedMediaResult,
+      +encryptionKey: string,
+    }
+  | {
+      +mediaType: 'encrypted_video',
+      ...SharedMediaResult,
+      +encryptionKey: string,
+      +thumbnailEncryptionKey: string,
       +uploadThumbnailURI: string,
       +loop: boolean,
     };
