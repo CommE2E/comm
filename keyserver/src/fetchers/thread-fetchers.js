@@ -32,9 +32,9 @@ async function fetchServerThreadInfos(
   const query = SQL`
     SELECT t.id, t.name, t.parent_thread_id, t.containing_thread_id,
       t.community, t.depth, t.color, t.description, t.type, t.creation_time,
-      t.default_role, t.source_message, t.replies_count, r.id AS role,
-      r.name AS role_name, r.permissions AS role_permissions, m.user,
-      m.permissions, m.subscription,
+      t.default_role, t.source_message, t.replies_count, t.pinned_count, 
+      r.id AS role, r.name AS role_name, r.permissions AS role_permissions, 
+      m.user, m.permissions, m.subscription,
       m.last_read_message < m.last_message AS unread, m.sender
     FROM threads t
     LEFT JOIN (
@@ -72,6 +72,7 @@ async function fetchServerThreadInfos(
         members: [],
         roles: {},
         repliesCount: row.replies_count,
+        pinnedCount: row.pinned_count,
       };
     }
     const sourceMessageID = row.source_message?.toString();
@@ -144,6 +145,11 @@ function rawThreadInfosFromServerThreadInfos(
     viewer.platformDetails,
     104,
   );
+  // TODO - CHANGE BEFORE LANDING
+  const hasCodeVersionBelow202 = !hasMinCodeVersion(
+    viewer.platformDetails,
+    202,
+  );
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
@@ -156,6 +162,7 @@ function rawThreadInfosFromServerThreadInfos(
         shimThreadTypes: hasCodeVersionBelow87 ? shimCommunityRoot : null,
         hideThreadStructure: hasCodeVersionBelow102,
         filterDetailedThreadEditPermissions: hasCodeVersionBelow104,
+        excludePinnedCount: hasCodeVersionBelow202,
       },
     );
     if (threadInfo) {
