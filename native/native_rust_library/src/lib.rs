@@ -105,7 +105,19 @@ mod ffi {
     include!("RustCallback.h");
     #[namespace = "comm"]
     #[cxx_name = "stringCallback"]
-    fn string_callback(error: String, counter: u32, ret: String);
+    fn string_callback(error: String, promise_id: u32, ret: String);
+  }
+}
+
+fn handle_string_result_as_callback<E>(
+  result: Result<String, E>,
+  promise_id: u32,
+) where
+  E: std::fmt::Display,
+{
+  match result {
+    Err(e) => string_callback(e.to_string(), promise_id, "".to_string()),
+    Ok(r) => string_callback("".to_string(), promise_id, r),
   }
 }
 
@@ -220,4 +232,14 @@ fn initialize_tunnelbroker_client(addr: String) -> Box<TunnelbrokerClient> {
       .block_on(TunnelbrokerServiceClient::connect(addr))
       .expect("Failed to create Tokio runtime for the Tunnelbroker client"),
   })
+}
+
+#[derive(
+  Debug, derive_more::Display, derive_more::From, derive_more::Error,
+)]
+pub enum Error {
+  #[display(...)]
+  TonicGRPC(Status),
+  #[display(...)]
+  TonicTransport(tonic::transport::Error),
 }
