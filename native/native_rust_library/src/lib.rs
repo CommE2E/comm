@@ -91,6 +91,9 @@ mod ffi {
       notif_onetime_keys: Vec<String>,
     ) -> Result<String>;
 
+    #[cxx_name = "identityGenerateNonce"]
+    fn generate_nonce(promise_id: u32);
+
     // Tunnelbroker Service Client
     type TunnelbrokerClient;
 
@@ -119,6 +122,24 @@ fn handle_string_result_as_callback<E>(
     Err(e) => string_callback(e.to_string(), promise_id, "".to_string()),
     Ok(r) => string_callback("".to_string(), promise_id, r),
   }
+}
+
+fn generate_nonce(promise_id: u32) {
+  RUNTIME.spawn(async move {
+    let result = fetch_nonce().await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn fetch_nonce() -> Result<String, Error> {
+  let mut identity_client =
+    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let nonce = identity_client
+    .generate_nonce(Empty {})
+    .await?
+    .into_inner()
+    .nonce;
+  Ok(nonce)
 }
 
 #[derive(Debug)]
