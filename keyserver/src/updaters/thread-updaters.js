@@ -876,8 +876,6 @@ async function toggleMessagePinForThread(
     WHERE id = ${messageID} AND thread = ${threadID}
   `;
 
-  await dbQuery(togglePinQuery);
-
   const messageData = {
     type: messageTypes.TOGGLE_PIN,
     threadID,
@@ -888,7 +886,39 @@ async function toggleMessagePinForThread(
     time: Date.now(),
   };
 
-  await createMessages(viewer, [messageData]);
+  let updateThreadQuery;
+  if (action === 'pin') {
+    updateThreadQuery = SQL`
+      UPDATE threads
+      SET pinned_count = pinned_count + 1
+      WHERE id = ${threadID}
+    `;
+  } else {
+    updateThreadQuery = SQL`
+      UPDATE threads
+      SET pinned_count = pinned_count - 1
+      WHERE id = ${threadID}
+    `;
+  }
+
+  const [{ threadInfos: serverThreadInfos }] = await Promise.all([
+    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+    dbQuery(togglePinQuery),
+    dbQuery(updateThreadQuery),
+    createMessages(viewer, [messageData]),
+  ]);
+
+  const time = Date.now();
+  const updates = [];
+  for (const member of serverThreadInfos[threadID].members) {
+    updates.push({
+      userID: member.id,
+      time,
+      threadID,
+      type: updateTypes.UPDATE_THREAD,
+    });
+  }
+  await createUpdates(updates);
 }
 
 export {
