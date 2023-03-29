@@ -13,12 +13,14 @@ mod keygen;
 mod nonce;
 mod pake_grpc;
 mod service;
+mod service_wrapper;
 mod token;
 
 use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
 use keygen::generate_and_persist_keypair;
 use service::{IdentityKeyserverServiceServer, MyIdentityService};
+use service_wrapper::NamedClientServiceWrapper;
 use tracing::info;
 
 use client_service::{ClientService, IdentityClientServiceServer};
@@ -62,12 +64,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let server = MyIdentityService::new(database_client.clone());
       let keyserver_service =
         IdentityKeyserverServiceServer::with_interceptor(server, check_auth);
-      let client_server =
+      let client_service =
         IdentityClientServiceServer::new(ClientService::new(database_client));
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
+        .accept_http1(true)
         .add_service(keyserver_service)
-        .add_service(client_server)
+        .add_service(NamedClientServiceWrapper::new(tonic_web::enable(
+          client_service,
+        )))
         .serve(addr)
         .await?;
     }
