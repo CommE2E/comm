@@ -79,6 +79,12 @@ function Team(): React.Node {
             twitterHandle="ginsueddy"
             imageURL={`${assetsCacheURLPrefix}/ginsu.jpg`}
           />
+          <TeamProfile
+            name="Ted Chang"
+            role="Product Designer"
+            twitterHandle="ted__chang"
+            imageURL={`${assetsCacheURLPrefix}/ted.jpg`}
+          />
         </div>
       </section>
 
