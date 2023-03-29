@@ -11,6 +11,7 @@
 .*/comm/web/.*
 .*/comm/keyserver/.*
 .*/comm/desktop/.*
+.*/comm/landing/.*
 
 .*/android/app/build/.*
 
