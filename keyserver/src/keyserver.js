@@ -3,6 +3,7 @@
 import olm from '@matrix-org/olm';
 import cluster from 'cluster';
 import cookieParser from 'cookie-parser';
+import { detect as detectBrowser } from 'detect-browser';
 import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
@@ -127,8 +128,14 @@ import {
       // should redirect the user to a place from which the app can be
       // downloaded.
       router.get('/invite/:secret', (req, res) => {
+        const userAgent = req.get('User-Agent');
+        const detectionResult = detectBrowser(userAgent);
+        const redirectUrl =
+          detectionResult.os === 'Android OS'
+            ? stores.googlePlayUrl
+            : stores.appStoreUrl;
         res.writeHead(301, {
-          Location: stores.appStoreUrl,
+          Location: redirectUrl,
         });
         res.end();
       });
