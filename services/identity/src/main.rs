@@ -6,7 +6,7 @@ use tracing_subscriber::FmtSubscriber;
 
 mod client_service;
 mod config;
-mod constants;
+pub mod constants;
 mod database;
 mod interceptor;
 mod keygen;
