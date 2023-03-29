@@ -1,11 +1,10 @@
 // @flow
 
-import { Image } from 'expo-image';
 import * as React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
 
 import { type ConnectionStatus } from 'lib/types/socket-types.js';
 
+import LoadableImage from './loadable-image.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ImageStyle } from '../types/styles.js';
 
@@ -46,41 +45,18 @@ class RemoteImage extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const source = { uri: this.props.uri };
-    if (this.state.loaded) {
-      return (
-        <Image
-          source={source}
-          onLoad={this.onLoad}
-          style={this.props.style}
-          key={this.state.attempt}
-        />
-      );
-    }
-
-    if (this.props.invisibleLoad) {
-      return (
-        <Image
-          source={source}
-          onLoad={this.onLoad}
-          style={[this.props.style, styles.invisible]}
-          key={this.state.attempt}
-        />
-      );
-    }
+    const { style, spinnerColor, invisibleLoad, uri } = this.props;
+    const source = { uri };
 
     return (
-      <View style={styles.container}>
-        <View style={styles.spinnerContainer}>
-          <ActivityIndicator color={this.props.spinnerColor} size="large" />
-        </View>
-        <Image
-          source={source}
-          onLoad={this.onLoad}
-          style={this.props.style}
-          key={this.state.attempt}
-        />
-      </View>
+      <LoadableImage
+        source={source}
+        onLoad={this.onLoad}
+        spinnerColor={spinnerColor}
+        style={style}
+        invisibleLoad={invisibleLoad}
+        key={this.state.attempt}
+      />
     );
   }
 
@@ -88,24 +64,6 @@ class RemoteImage extends React.PureComponent<Props, State> {
     this.setState({ loaded: true });
   };
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  invisible: {
-    opacity: 0,
-  },
-  spinnerContainer: {
-    alignItems: 'center',
-    bottom: 0,
-    justifyContent: 'center',
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
-});
 
 const ConnectedRemoteImage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedRemoteImage(props: BaseProps) {
