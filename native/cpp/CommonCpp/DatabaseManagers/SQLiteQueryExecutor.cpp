@@ -739,8 +739,14 @@ void SQLiteQueryExecutor::migrate() {
 
 void SQLiteQueryExecutor::assign_encryption_key() {
   CommSecureStore commSecureStore{};
+
+#if DEBUG
+  std::string encryptionKey{"DEBUG"};
+#else
   std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
       SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+#endif
+
   commSecureStore.set(
       SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
