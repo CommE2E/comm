@@ -96,6 +96,7 @@ import {
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
 } from './input-state.js';
+import { encryptMedia } from '../media/encryption-utils.js';
 import { disposeTempFile } from '../media/file-utils.js';
 import { processMedia } from '../media/media-utils.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
@@ -159,6 +160,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
   pendingThreadUpdateHandlers = new Map<string, (ThreadInfo) => mixed>();
+  // TODO: we want to send encrypted media if thread is in the Comm community
+  sendEncryptedMedia: boolean = false;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -634,12 +637,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       () => {
         const creatorID = this.props.viewerID;
         invariant(creatorID, 'need viewer ID in order to send a message');
-        const messageInfo = createMediaMessageInfo({
-          localID: localMessageID,
-          threadID: threadInfo.id,
-          creatorID,
-          media,
-        });
+        const messageInfo = createMediaMessageInfo(
+          {
+            localID: localMessageID,
+            threadID: threadInfo.id,
+            creatorID,
+            media,
+          },
+          { forceMultimediaMessageType: this.sendEncryptedMedia },
+        );
         this.props.dispatch({
           type: createLocalMessageActionType,
           payload: messageInfo,
@@ -677,6 +683,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let userTime;
     let errorMessage;
     let reportPromise;
+    const filesToDispose = [];
 
     const onUploadFinished = async (result: MediaMissionResult) => {
       if (!this.props.mediaReportsEnabled) {
@@ -717,6 +724,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         onUploadFailed(localMediaID, message);
         return await onUploadFinished(processResult);
       }
+      if (processResult.shouldDisposePath) {
+        filesToDispose.push(processResult.shouldDisposePath);
+      }
       processedMedia = processResult;
     } catch (e) {
       onUploadFailed(localMediaID, 'processing failed');
@@ -728,7 +738,33 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
 
-    const { uploadURI, shouldDisposePath, filename, mime } = processedMedia;
+    let encryptionSteps = [];
+    if (this.sendEncryptedMedia) {
+      const encryptionStart = Date.now();
+      try {
+        const { result: encryptionResult, ...encryptionReturn } =
+          await encryptMedia(processedMedia);
+        encryptionSteps = encryptionReturn.steps;
+        if (!encryptionResult.success) {
+          onUploadFailed(localMediaID, encryptionResult.reason);
+          return await onUploadFinished(encryptionResult);
+        }
+        if (encryptionResult.shouldDisposePath) {
+          filesToDispose.push(encryptionResult.shouldDisposePath);
+        }
+        processedMedia = encryptionResult;
+      } catch (e) {
+        onUploadFailed(localMediaID, 'encryption failed');
+        return await onUploadFinished({
+          success: false,
+          reason: 'encryption_exception',
+          time: Date.now() - encryptionStart,
+          exceptionMessage: getMessageForException(e),
+        });
+      }
+    }
+
+    const { uploadURI, filename, mime } = processedMedia;
 
     const { hasWiFi } = this.props;
 
@@ -745,9 +781,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           {
             ...processedMedia.dimensions,
             loop:
-              processedMedia.mediaType === 'video'
+              processedMedia.mediaType === 'video' ||
+              processedMedia.mediaType === 'encrypted_video'
                 ? processedMedia.loop
                 : undefined,
+            encryptionKey: processedMedia.encryptionKey,
           },
           {
             onProgress: (percent: number) =>
@@ -762,7 +800,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         ),
       );
 
-      if (processedMedia.mediaType === 'video') {
+      if (
+        processedMedia.mediaType === 'video' ||
+        processedMedia.mediaType === 'encrypted_video'
+      ) {
         uploadPromises.push(
           this.props.uploadMultimedia(
             {
@@ -773,6 +814,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             {
               ...processedMedia.dimensions,
               loop: false,
+              encryptionKey: processedMedia.thumbnailEncryptionKey,
             },
             {
               uploadBlob: this.uploadBlob,
@@ -793,38 +835,70 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (
-      (processedMedia.mediaType === 'photo' && uploadResult) ||
-      (processedMedia.mediaType === 'video' &&
+      ((processedMedia.mediaType === 'photo' ||
+        processedMedia.mediaType === 'encrypted_photo') &&
+        uploadResult) ||
+      ((processedMedia.mediaType === 'video' ||
+        processedMedia.mediaType === 'encrypted_video') &&
         uploadResult &&
         uploadThumbnailResult)
     ) {
+      const { encryptionKey } = processedMedia;
       const { id, uri, dimensions, loop } = uploadResult;
       serverID = id;
 
+      const mediaSourcePayload =
+        processedMedia.mediaType === 'encrypted_photo' ||
+        processedMedia.mediaType === 'encrypted_video'
+          ? {
+              type: processedMedia.mediaType,
+              holder: uri,
+              encryptionKey,
+            }
+          : {
+              type: uploadResult.mediaType,
+              uri,
+            };
       let updateMediaPayload = {
         messageID: localMessageID,
         currentMediaID: localMediaID,
         mediaUpdate: {
           id,
-          type: uploadResult.mediaType,
-          uri,
+          ...mediaSourcePayload,
           dimensions,
           localMediaSelection: undefined,
           loop: uploadResult.mediaType === 'video' ? loop : undefined,
         },
       };
 
-      if (processedMedia.mediaType === 'video') {
+      if (
+        processedMedia.mediaType === 'video' ||
+        processedMedia.mediaType === 'encrypted_video'
+      ) {
         invariant(uploadThumbnailResult, 'uploadThumbnailResult exists');
         const { uri: thumbnailURI, id: thumbnailID } = uploadThumbnailResult;
-        updateMediaPayload = {
-          ...updateMediaPayload,
-          mediaUpdate: {
-            ...updateMediaPayload.mediaUpdate,
-            thumbnailURI,
-            thumbnailID,
-          },
-        };
+        const { thumbnailEncryptionKey } = processedMedia;
+
+        if (processedMedia.mediaType === 'encrypted_video') {
+          updateMediaPayload = {
+            ...updateMediaPayload,
+            mediaUpdate: {
+              ...updateMediaPayload.mediaUpdate,
+              thumbnailID,
+              thumbnailHolder: thumbnailURI,
+              thumbnailEncryptionKey,
+            },
+          };
+        } else {
+          updateMediaPayload = {
+            ...updateMediaPayload,
+            mediaUpdate: {
+              ...updateMediaPayload.mediaUpdate,
+              thumbnailID,
+              thumbnailURI,
+            },
+          };
+        }
       }
 
       // When we dispatch this action, it updates Redux and triggers the
@@ -841,6 +915,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const processSteps = await reportPromise;
     reportPromise = null;
     steps.push(...processSteps);
+    steps.push(...encryptionSteps);
     steps.push({
       step: 'upload',
       success: !!uploadResult,
@@ -856,17 +931,19 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const cleanupPromises = [];
 
-    if (shouldDisposePath) {
+    if (filesToDispose.length > 0) {
       // If processMedia needed to do any transcoding before upload, we dispose
       // of the resultant temporary file here. Since the transcoded temporary
       // file is only used for upload, we can dispose of it after processMedia
       // (reportPromise) and the upload are complete
-      cleanupPromises.push(
-        (async () => {
-          const disposeStep = await disposeTempFile(shouldDisposePath);
-          steps.push(disposeStep);
-        })(),
-      );
+      filesToDispose.forEach(shouldDisposePath => {
+        cleanupPromises.push(
+          (async () => {
+            const disposeStep = await disposeTempFile(shouldDisposePath);
+            steps.push(disposeStep);
+          })(),
+        );
+      });
     }
 
     // if there's a thumbnail we'll temporarily unlink it here
