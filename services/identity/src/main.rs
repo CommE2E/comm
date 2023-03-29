@@ -2,6 +2,7 @@ use clap::{Parser, Subcommand};
 use database::DatabaseClient;
 use interceptor::check_auth;
 use tonic::transport::Server;
+use tonic_web::GrpcWebLayer;
 use tracing_subscriber::FmtSubscriber;
 
 mod client_service;
@@ -62,12 +63,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let server = MyIdentityService::new(database_client.clone());
       let keyserver_service =
         IdentityKeyserverServiceServer::with_interceptor(server, check_auth);
-      let client_server =
+      let client_service =
         IdentityClientServiceServer::new(ClientService::new(database_client));
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
+        .accept_http1(true)
+        .layer(GrpcWebLayer::new())
         .add_service(keyserver_service)
-        .add_service(client_server)
+        .add_service(client_service)
         .serve(addr)
         .await?;
     }
