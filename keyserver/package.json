@@ -48,6 +48,7 @@
     "common-tags": "^1.7.2",
     "cookie-parser": "^1.4.3",
     "dateformat": "^3.0.3",
+    "detect-browser": "^4.0.4",
     "ethers": "^5.7.2",
     "express": "^4.17.3",
     "express-ws": "^4.0.0",
