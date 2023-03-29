@@ -6,6 +6,58 @@ pub const SECRETS_FILE_EXTENSION: &str = "txt";
 
 // DynamoDB
 
+// User table information, supporting opaque_ke 2.0 and X3DH information
+mod opaque2 {
+  // Users can sign in either through username+password or Eth wallet.
+  //
+  // Structure for a user should be:
+  // {
+  // . userID: String,
+  //   opaqueRegistrationData: Option<String>,
+  // . username: Option<String>,
+  // . walletAddress: Option<String>,
+  // . device: String,
+  // . devices: HashMap<String, Devices>, {
+  //      keyPayload: String,
+  //      identityPreKey: String,
+  //      identityPreKeySignature: String,
+  //      identityOneTimeKeys: Vec<String>,
+  //      notifPreKey: String,
+  //      notifPreKeySignature: String,
+  //      notifOneTimeKeys: Vec<String>,
+  //   }
+  // }
+  //
+  // Additional context:
+  // "device" is the signing public identity key of primary device
+  // "devices" uses the signing public identity key of the device as a key for the devices map
+  // "keyPayload" is a JSON encoded string containing identity and notif keys (both signature and verification)
+
+  pub const USERS_TABLE: &str = "identity-users-opaque2";
+  pub const USERS_TABLE_PARTITION_KEY: &str = "userID";
+  pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "opaqueRegistrationData";
+  pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
+  pub const USERS_TABLE_DEVICE_ATTRIBUTE_NAME: &str = "device";
+  pub const USERS_TABLE_DEVICES_ATTRIBUTE: &str = "devices";
+  pub const USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME: &str =
+    "keyPayload";
+  pub const USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME: &str =
+    "identityPreKey";
+  pub const USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME:
+    &str = "identityPreKeySignature";
+  pub const USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME: &str =
+    "identityOneTimeKeys";
+  pub const USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME: &str =
+    "preKey";
+  pub const USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME:
+    &str = "preKeySignature";
+  pub const USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME: &str =
+    "notifOneTimeKeys";
+  pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
+  pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
+  pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
+}
+
 pub const USERS_TABLE: &str = "identity-users";
 pub const USERS_TABLE_PARTITION_KEY: &str = "userID";
 pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "pakeRegistrationData";
