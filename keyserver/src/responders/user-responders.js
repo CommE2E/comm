@@ -452,6 +452,8 @@ async function logInResponder(
               request.password,
               signedIdentityKeysBlob,
             );
+          } else {
+            throw e;
           }
         }
       })(),
