@@ -1,8 +1,9 @@
 // @flow
 
+import { Image } from 'expo-image';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import { type MediaInfo } from 'lib/types/media-types.js';
 
