@@ -3,11 +3,10 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Avatar from '../../components/avatar.react.js';
 import Button from '../../components/button.react.js';
+import ThreadAvatar from '../../components/thread-avatar.react.js';
 import ThreadPill from '../../components/thread-pill.react.js';
 import { useStyles } from '../../themes/colors.js';
 import { useShouldRenderAvatars } from '../../utils/avatar-utils.js';
@@ -25,7 +24,6 @@ function ParentButton(props: ParentButtonProps): React.Node {
     navigateToThread({ threadInfo: props.parentThreadInfo });
   }, [props.parentThreadInfo, navigateToThread]);
 
-  const avatarInfo = useGetAvatarForThread(props.parentThreadInfo);
   const shouldRenderAvatars = useShouldRenderAvatars();
 
   const avatar = React.useMemo(() => {
@@ -35,10 +33,10 @@ function ParentButton(props: ParentButtonProps): React.Node {
 
     return (
       <View style={styles.avatarContainer}>
-        <Avatar size="small" avatarInfo={avatarInfo} />
+        <ThreadAvatar size="small" threadInfo={props.parentThreadInfo} />
       </View>
     );
-  }, [avatarInfo, shouldRenderAvatars, styles.avatarContainer]);
+  }, [props.parentThreadInfo, shouldRenderAvatars, styles.avatarContainer]);
 
   return (
     <Button onPress={onPressParentThread} style={styles.parentContainer}>
