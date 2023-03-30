@@ -30,12 +30,6 @@ class Multimedia extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-
-    invariant(
-      props.mediaInfo.type === 'image' || props.mediaInfo.type === 'video',
-      '<Multimedia> supports only unencrypted images and videos',
-    );
-
     this.state = {
       currentURI:
         props.mediaInfo.type === 'video'
@@ -66,11 +60,6 @@ class Multimedia extends React.PureComponent<Props, State> {
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     const { inputState } = this;
-    invariant(
-      this.props.mediaInfo.type === 'image' ||
-        this.props.mediaInfo.type === 'video',
-      '<Multimedia> supports only unencrypted images and videos',
-    );
 
     const newURI =
       this.props.mediaInfo.type === 'video'

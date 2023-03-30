@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
@@ -49,10 +48,6 @@ function ThreadSettingsMediaGalleryModal(
 
   const onClick = React.useCallback(
     (media: Media) => {
-      invariant(
-        media.type === 'photo' || media.type === 'video',
-        '<MultimediaModal> supports only unencrypted images and videos',
-      );
       pushModal(<MultimediaModal type={media.type} uri={media.uri} />);
     },
     [pushModal],
