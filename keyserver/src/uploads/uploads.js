@@ -90,6 +90,12 @@ async function uploadDownloadResponder(
     const { content, mime } = await fetchUpload(viewer, uploadID, secret);
     res.type(mime);
     res.set('Cache-Control', 'public, max-age=31557600, immutable');
+    if (process.env.NODE_ENV === 'development') {
+      // Add a CORS header to allow local development using localhost
+      const port = process.env.PORT || '3000';
+      res.set('Access-Control-Allow-Origin', `http://localhost:${port}`);
+      res.set('Access-Control-Allow-Methods', 'GET');
+    }
     res.send(content);
   } else {
     const totalUploadSize = await getUploadSize(uploadID, secret);
@@ -113,12 +119,18 @@ async function uploadDownloadResponder(
       respWidth,
     );
     const respRange = `${start}-${end}/${totalUploadSize}`;
-    const respHeaders = {
+    const respHeaders: { [key: string]: string } = {
       'Accept-Ranges': 'bytes',
       'Content-Range': `bytes ${respRange}`,
       'Content-Type': mime,
       'Content-Length': respWidth.toString(),
     };
+    if (process.env.NODE_ENV === 'development') {
+      // Add a CORS header to allow local development using localhost
+      const port = process.env.PORT || '3000';
+      respHeaders['Access-Control-Allow-Origin'] = `http://localhost:${port}`;
+      respHeaders['Access-Control-Allow-Methods'] = 'GET';
+    }
 
     // HTTP 206 Partial Content
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/206
