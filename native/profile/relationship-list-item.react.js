@@ -15,7 +15,6 @@ import {
   updateRelationships,
 } from 'lib/actions/relationship-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type RelationshipRequest,
@@ -35,9 +34,9 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import type { RelationshipListNavigate } from './relationship-list.react.js';
-import Avatar from '../components/avatar.react.js';
 import PencilIcon from '../components/pencil-icon.react.js';
 import { SingleLine } from '../components/single-line.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -177,12 +176,10 @@ class RelationshipListItem extends React.PureComponent<Props> {
       marginLeft: this.props.shouldRenderAvatars ? 8 : 0,
     };
 
-    const avatarInfo = getAvatarForUser(this.props.userInfo);
-
     return (
       <View style={this.props.styles.container}>
         <View style={[this.props.styles.innerContainer, borderBottom]}>
-          <Avatar size="small" avatarInfo={avatarInfo} />
+          <UserAvatar size="small" userID={this.props.userInfo.id} />
           <SingleLine style={[this.props.styles.username, marginLeftStyle]}>
             {this.props.userInfo.username}
           </SingleLine>

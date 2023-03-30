@@ -3,12 +3,11 @@
 import * as React from 'react';
 import { Text, Platform, Alert } from 'react-native';
 
-import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import type { UserListItem } from 'lib/types/user-types.js';
 
-import Avatar from './avatar.react.js';
 import Button from './button.react.js';
 import { SingleLine } from './single-line.react.js';
+import UserAvatar from './user-avatar.react.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
 
@@ -38,8 +37,6 @@ class UserListUser extends React.PureComponent<Props> {
     }
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
 
-    const avatarInfo = getAvatarForUser(this.props.userInfo);
-
     return (
       <Button
         onPress={this.onSelect}
@@ -49,7 +46,7 @@ class UserListUser extends React.PureComponent<Props> {
         iosActiveOpacity={0.85}
         style={this.props.styles.button}
       >
-        <Avatar size="small" avatarInfo={avatarInfo} />
+        <UserAvatar size="small" userID={this.props.userInfo.id} />
         <SingleLine style={[this.props.styles.text, this.props.textStyle]}>
           {this.props.userInfo.username}
         </SingleLine>

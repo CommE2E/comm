@@ -16,7 +16,6 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import {
   memberIsAdmin,
   memberHasAdminPowers,
@@ -30,9 +29,9 @@ import {
 } from 'lib/types/thread-types.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
-import Avatar from '../../components/avatar.react.js';
 import PencilIcon from '../../components/pencil-icon.react.js';
 import { SingleLine } from '../../components/single-line.react.js';
+import UserAvatar from '../../components/user-avatar.react.js';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -75,7 +74,6 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 
   render() {
     const userText = stringForUser(this.props.memberInfo);
-    const avatarInfo = getAvatarForUser(this.props.memberInfo);
 
     const marginLeftStyle = {
       marginLeft: this.props.shouldRenderAvatars ? 8 : 0,
@@ -162,7 +160,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
         <View style={[this.props.styles.innerContainer, firstItem, lastItem]}>
           <View style={this.props.styles.row}>
             <View style={this.props.styles.userInfoContainer}>
-              <Avatar size="small" avatarInfo={avatarInfo} />
+              <UserAvatar size="small" userID={this.props.memberInfo.id} />
               {usernameInfo}
             </View>
             {editButton}
