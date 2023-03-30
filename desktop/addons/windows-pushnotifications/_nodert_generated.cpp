@@ -27,6 +27,9 @@
 #include "OpaqueWrapper.h"
 #include "WrapperBase.h"
 
+#include "Microsoft.WindowsAppSDK.1.2.221109.1\include\WindowsAppSDK-VersionInfo.h"
+#include "Microsoft.WindowsAppSDK.1.2.221109.1\include\MddBootstrap.h"
+
 #using < Microsoft.Windows.PushNotifications.WinMD>
 
 // this undefs fixes the issues of compiling Windows.Data.Json, Windows.Storag.FileProperties, and Windows.Stroage.Search
@@ -419,7 +422,7 @@ namespace NodeRT
             try
             {
               ::Windows::Foundation::Uri ^ result = wrapper->_instance->Uri;
-              info.GetReturnValue().Set(NodeRT::Utils::CreateExternalWinRTObject("Windows.Foundation", "Uri", result));
+              info.GetReturnValue().Set(NodeRT::Utils::NewString(result->ToString()->Data()));
               return;
             }
             catch (Platform::Exception ^ exception)
@@ -1649,6 +1652,14 @@ NAN_MODULE_INIT(init)
     return;
   }
   */
+
+  // Bootstrap runtime initialization
+  PACKAGE_VERSION version;
+  version.Version = Microsoft::WindowsAppSDK::Runtime::Version::UInt64;
+  if (FAILED(MddBootstrapInitialize(Microsoft::WindowsAppSDK::Release::MajorMinor, Microsoft::WindowsAppSDK::Release::VersionTag, version)))
+  {
+    throw std::exception("Error in Bootstrap initialization");
+  }
 
   NodeRT::Microsoft::Windows::PushNotifications::InitPushNotificationChannelStatusEnum(target);
   NodeRT::Microsoft::Windows::PushNotifications::InitPushNotificationChannel(target);
