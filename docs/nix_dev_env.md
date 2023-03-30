@@ -72,7 +72,7 @@ yarn cleaninstall
 
 ## Workflow specific prerequisites
 
-On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for all workflows.
+On macOS, [installing Xcode](#xcode) is a prerequisite for all workflows.
 
 - [Web prerequisites](./nix_web_setup.md#nix-web-requisities)
   - [React Dev Tools Chrome extension](./nix_web_setup.md#react-dev-tools-chrome-extension)
@@ -87,6 +87,10 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
     - [Android emulator](./nix_mobile_setup.md#android-emulator)
   - [Debugging tools](./nix_mobile_setup.md#debugging-tools)
     - [Reactotron](./nix_mobile_setup.md#reactotron)
+- [Services prerequisites](./nix_services_setup.md#nix-services-prerequisites)
+  - [Docker](./nix_services_setup.md#docker)
+  - [LocalStack](./nix_services_setup.md#localstack)
+  - [Configuring the AWS CLI](./nix_services_setup.md#configuring-the-aws-cli)
 
 # Development environment
 
@@ -107,6 +111,10 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
   - [Running mobile app on iOS Simulator](./nix_mobile_workflows.md#running-mobile-app-on-ios-simulator)
   - [Running mobile app on Android Emulator](./nix_mobile_workflows.md#running-mobile-app-on-android-emulator)
   - [Running mobile app on physical iOS devices](./nix_mobile_workflows.md#running-mobile-app-on-physical-ios-devices)
+- [Services workflows](./nix_services_workflows.md#services-workflows)
+  - [Running the Identity service](./nix_services_workflows.md#running-the-identity-service)
+  - [Debugging](./nix_services_workflows.md#debugging)
+    - [AWS CLI](./nix_services_workflows.md#aws-cli)
 - [Shared workflows](./nix_shared_workflows.md#shared-workflows)
   - [Inspect database with TablePlus](./nix_shared_workflows.md#inspect-database-with-tableplus)
   - [Codegen](./nix_shared_workflows.md#codegen)
