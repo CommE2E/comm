@@ -5,6 +5,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 import type { ClientAvatar } from 'lib/types/avatar-types.js';
 
+import Multimedia from '../media/multimedia.react.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
@@ -49,15 +50,35 @@ function Avatar(props: Props): React.Node {
     return styles.emojiLarge;
   }, [size]);
 
-  if (!shouldRenderAvatars) {
-    return null;
-  }
+  const avatar = React.useMemo(() => {
+    if (avatarInfo.type === 'image') {
+      const avatarMediaInfo = {
+        type: 'photo',
+        uri: avatarInfo.uri,
+      };
 
-  return (
-    <View style={emojiContainerStyle}>
-      <Text style={emojiSizeStyle}>{avatarInfo.emoji}</Text>
-    </View>
-  );
+      return (
+        <View style={[containerSizeStyle, styles.imageContainer]}>
+          <Multimedia mediaInfo={avatarMediaInfo} spinnerColor="white" />
+        </View>
+      );
+    }
+
+    return (
+      <View style={emojiContainerStyle}>
+        <Text style={emojiSizeStyle}>{avatarInfo.emoji}</Text>
+      </View>
+    );
+  }, [
+    avatarInfo.emoji,
+    avatarInfo.type,
+    avatarInfo.uri,
+    containerSizeStyle,
+    emojiContainerStyle,
+    emojiSizeStyle,
+  ]);
+
+  return shouldRenderAvatars ? avatar : null;
 }
 
 const styles = StyleSheet.create({
@@ -80,6 +101,9 @@ const styles = StyleSheet.create({
   emojiSmall: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  imageContainer: {
+    overflow: 'hidden',
   },
   large: {
     borderRadius: 20,

@@ -5,13 +5,13 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { type MediaInfo } from 'lib/types/media-types.js';
+import type { MediaInfo, AvatarMediaInfo } from 'lib/types/media-types.js';
 
 import RemoteImage from './remote-image.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 
 type BaseProps = {
-  +mediaInfo: MediaInfo,
+  +mediaInfo: MediaInfo | AvatarMediaInfo,
   +spinnerColor: string,
 };
 type Props = {
