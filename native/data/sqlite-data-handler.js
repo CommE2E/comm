@@ -5,6 +5,7 @@ import { Alert } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   logInActionSources,
@@ -14,6 +15,7 @@ import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils.js';
 
+import { filesystemMediaCache } from '../media/media-cache.js';
 import { commCoreModule } from '../native-modules.js';
 import { setStoreLoadedActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -36,6 +38,7 @@ function SQLiteDataHandler(): React.Node {
   const currentLoggedInUserID = useSelector(state =>
     state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
   );
+  const mediaCacheContext = React.useContext(MediaCacheContext);
 
   const callFetchNewCookieFromNativeCredentials = React.useCallback(
     async (source: LogInActionSource) => {
@@ -69,6 +72,7 @@ function SQLiteDataHandler(): React.Node {
         Alert.alert('Starting SQLite database deletion process');
       }
       await commCoreModule.clearSensitiveData();
+      await filesystemMediaCache.clearCache();
       if (staffCanSee || staffUserHasBeenLoggedIn) {
         Alert.alert(
           'SQLite database successfully deleted',
@@ -143,6 +147,7 @@ function SQLiteDataHandler(): React.Node {
     }
     (async () => {
       await sensitiveDataHandled;
+      await mediaCacheContext?.evictCache();
       try {
         const { threads, messages, drafts } =
           await commCoreModule.getClientDBStore();
@@ -188,6 +193,7 @@ function SQLiteDataHandler(): React.Node {
     staffUserHasBeenLoggedIn,
     callFetchNewCookieFromNativeCredentials,
     callClearSensitiveData,
+    mediaCacheContext,
   ]);
 
   return null;
