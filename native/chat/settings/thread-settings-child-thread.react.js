@@ -3,11 +3,10 @@
 import * as React from 'react';
 import { View, Platform } from 'react-native';
 
-import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Avatar from '../../components/avatar.react.js';
 import Button from '../../components/button.react.js';
+import ThreadAvatar from '../../components/thread-avatar.react.js';
 import ThreadIcon from '../../components/thread-icon.react.js';
 import ThreadPill from '../../components/thread-pill.react.js';
 import { useColors, useStyles } from '../../themes/colors.js';
@@ -30,7 +29,6 @@ function ThreadSettingsChildThread(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const avatarInfo = useGetAvatarForThread(threadInfo);
   const shouldRenderAvatars = useShouldRenderAvatars();
 
   const avatar = React.useMemo(() => {
@@ -39,10 +37,10 @@ function ThreadSettingsChildThread(props: Props): React.Node {
     }
     return (
       <View style={styles.avatarContainer}>
-        <Avatar size="small" avatarInfo={avatarInfo} />
+        <ThreadAvatar size="small" threadInfo={threadInfo} />
       </View>
     );
-  }, [avatarInfo, shouldRenderAvatars, styles.avatarContainer]);
+  }, [shouldRenderAvatars, styles.avatarContainer, threadInfo]);
 
   const firstItem = props.firstListItem ? null : styles.topBorder;
   const lastItem = props.lastListItem ? styles.lastButton : null;
