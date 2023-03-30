@@ -52,4 +52,4 @@ if [[ ! "$PATH" =~ \.cargo/bin ]]; then
 fi
 
 # For development and local testing, point to localstack
-export AWS_ENDPOINT=http://localhost:4566
+export LOCALSTACK_ENDPOINT=http://localhost:4566

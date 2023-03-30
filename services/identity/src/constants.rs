@@ -104,3 +104,7 @@ pub const AUTH_TOKEN: &str = "COMM_IDENTITY_SERVICE_AUTH_TOKEN";
 // Nonce
 
 pub const NONCE_LENGTH: usize = 17;
+
+// LocalStack
+
+pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
