@@ -12,6 +12,7 @@ import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 
+import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
@@ -78,10 +79,12 @@ type Props = {
 function VideoPlaybackModal(props: Props): React.Node {
   const { mediaInfo } = props.route.params;
 
-  const { uri, holder, encryptionKey } = mediaInfo;
+  const { uri: videoUri, holder, encryptionKey } = mediaInfo;
   const [videoSource, setVideoSource] = React.useState(
-    uri ? { uri } : undefined,
+    videoUri ? { uri: videoUri } : undefined,
   );
+
+  const mediaCache = React.useContext(MediaCacheContext);
 
   React.useEffect(() => {
     // skip for unencrypted videos
@@ -94,12 +97,20 @@ function VideoPlaybackModal(props: Props): React.Node {
     setVideoSource(undefined);
 
     const loadDecrypted = async () => {
+      const cached = await mediaCache?.get(holder);
+      if (cached && isMounted) {
+        setVideoSource({ uri: cached });
+        return;
+      }
+
       const { result } = await decryptMedia(holder, encryptionKey, {
         destination: 'file',
       });
       if (result.success && isMounted) {
-        uriToDispose = result.uri;
-        setVideoSource({ uri: result.uri });
+        const { uri } = result;
+        mediaCache?.set(holder, uri);
+        uriToDispose = uri;
+        setVideoSource({ uri: uri });
       }
     };
     loadDecrypted();
@@ -111,7 +122,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         filesystem.unlink(uriToDispose);
       }
     };
-  }, [holder, encryptionKey]);
+  }, [holder, encryptionKey, mediaCache]);
 
   const closeButtonX = useValue(-1);
   const closeButtonY = useValue(-1);

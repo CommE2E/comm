@@ -19,6 +19,7 @@ import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/react.js';
 
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
+import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
 import ChatContextProvider from './chat/chat-context-provider.react.js';
@@ -30,6 +31,7 @@ import ErrorBoundary from './error-boundary.react.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react.js';
 import MarkdownContextProvider from './markdown/markdown-context-provider.react.js';
+import { filesystemMediaCache } from './media/media-cache.js';
 import { defaultNavigationState } from './navigation/default-state.js';
 import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react.js';
 import { setGlobalNavContext } from './navigation/icky-global.js';
@@ -253,23 +255,25 @@ function Root() {
                 <SafeAreaProvider initialMetrics={initialWindowMetrics}>
                   <ActionSheetProvider>
                     <ENSCacheProvider provider={provider}>
-                      <MarkdownContextProvider>
-                        <ChatContextProvider>
-                          <SQLiteDataHandler />
-                          <ConnectedStatusBar />
-                          <ReduxPersistGate persistor={getPersistor()}>
-                            {gated}
-                          </ReduxPersistGate>
-                          <PersistedStateGate>
-                            <Socket
-                              detectUnsupervisedBackgroundRef={
-                                detectUnsupervisedBackgroundRef
-                              }
-                            />
-                          </PersistedStateGate>
-                          {navigation}
-                        </ChatContextProvider>
-                      </MarkdownContextProvider>
+                      <MediaCacheProvider persistence={filesystemMediaCache}>
+                        <MarkdownContextProvider>
+                          <ChatContextProvider>
+                            <SQLiteDataHandler />
+                            <ConnectedStatusBar />
+                            <ReduxPersistGate persistor={getPersistor()}>
+                              {gated}
+                            </ReduxPersistGate>
+                            <PersistedStateGate>
+                              <Socket
+                                detectUnsupervisedBackgroundRef={
+                                  detectUnsupervisedBackgroundRef
+                                }
+                              />
+                            </PersistedStateGate>
+                            {navigation}
+                          </ChatContextProvider>
+                        </MarkdownContextProvider>
+                      </MediaCacheProvider>
                     </ENSCacheProvider>
                   </ActionSheetProvider>
                 </SafeAreaProvider>
