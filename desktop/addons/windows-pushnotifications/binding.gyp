@@ -1,43 +1,36 @@
 {
-    "variables": {
-        "USE_ADDITIONAL_WINMD": "true"
-    },
     "includes": ["common.gypi"],
     "targets": [{
         "target_name": "binding",
-        "sources": [],
         "include_dirs": [
             "<!(node -e \"require('nan')\")"
         ],
-        "libraries": [],
-        "conditions": [
-            ["OS=='win'", {
-                "libraries": ["-lruntimeobject.lib"],
-                "sources": [
-                    "_nodert_generated.cpp",
-                    "NodeRtUtils.cpp",
-                    "OpaqueWrapper.cpp",
-                    "CollectionsConverterUtils.cpp"
-                ]
-            }],
-            ["USE_ADDITIONAL_WINMD==\"true\"", {
-                "msvs_settings": {
-                    "VCCLCompilerTool": {
-                        "AdditionalUsingDirectories": [
-                            "%ProgramFiles%/Windows Kits/10/UnionMetadata/windows-pushnotifications",
-                            "%ProgramFiles%/Windows Kits/10/Include/windows-pushnotifications/um",
-                            "%ProgramFiles(x86)%/Windows Kits/10/UnionMetadata/windows-pushnotifications",
-                            "%ProgramFiles(x86)%/Windows Kits/10/Include/windows-pushnotifications/um"
-                        ]
-                    }
-                }
-            }]
+        "copies": [
+            {
+                "destination": "./build/Release",
+                "files": ["Microsoft.WindowsAppSDK.1.2.221109.1/runtimes/win10-x64/native/Microsoft.WindowsAppRuntime.Bootstrap.dll"],
+            }
+        ],
+        "libraries": [
+            "-lruntimeobject.lib",
+            "../Microsoft.WindowsAppSDK.1.2.221109.1/lib/win10-x64/Microsoft.WindowsAppRuntime.Bootstrap.lib"
+        ],
+        "sources": [
+            "_nodert_generated.cpp",
+            "NodeRtUtils.cpp",
+            "OpaqueWrapper.cpp",
+            "CollectionsConverterUtils.cpp"
         ],
         "msvs_settings": {
             "VCCLCompilerTool": {
                 "AdditionalOptions": ["/ZW"],
-                "DisableSpecificWarnings": [4609]
-            }
+                "DisableSpecificWarnings": [4609],
+                "AdditionalUsingDirectories": [
+                    "$(VC_ReferencesPath_VC_x86)/store/references",
+                    "$(ProgramFiles)/Windows Kits/10/UnionMetadata/10.0.22000.0",
+                    "<(module_root_dir)/Microsoft.WindowsAppSDK.1.2.221109.1/lib/uap10.0/"
+                ],
+            },
         }
     }]
 }

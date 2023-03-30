@@ -1,5 +1,5 @@
 {
-  "name": "microsoft.windows.pushnotifications",
+  "name": "windows-pushnotifications",
   "version": "0.0.1",
   "description": "Use the Microsoft.Windows.PushNotifications UWP API directly from Node.js",
   "main": "lib/main.js",
@@ -19,6 +19,9 @@
     "WinRT",
     "Microsoft"
   ],
+  "scripts": {
+    "preinstall": "bash ./preinstall.sh"
+  },
   "dependencies": {
     "nan": "2.17.0"
   },
