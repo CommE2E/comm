@@ -9,6 +9,7 @@
 , boost
 , bundler
 , c-ares_cmake-config
+, cargo-udeps
 , cmake
 , cmake-format
 , cocoapods
@@ -70,6 +71,7 @@ mkShell {
     # Identity Service
     rustfmt
     rustup
+    cargo-udeps
 
     # Tunnelbroker + CMake
     amqp-cpp
