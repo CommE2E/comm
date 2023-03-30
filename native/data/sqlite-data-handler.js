@@ -14,6 +14,7 @@ import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils.js';
 
+import { filesystemMediaCache } from '../media/media-cache.js';
 import { commCoreModule } from '../native-modules.js';
 import { setStoreLoadedActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -69,6 +70,7 @@ function SQLiteDataHandler(): React.Node {
         Alert.alert('Starting SQLite database deletion process');
       }
       await commCoreModule.clearSensitiveData();
+      await filesystemMediaCache.clearCache();
       if (staffCanSee || staffUserHasBeenLoggedIn) {
         Alert.alert(
           'SQLite database successfully deleted',
