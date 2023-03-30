@@ -304,6 +304,27 @@ bool add_not_null_constraint_to_metadata(sqlite3 *db) {
   return false;
 }
 
+bool add_avatar_column_to_threads_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE threads ADD COLUMN avatar TEXT;",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error adding avatar column to threads table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -357,7 +378,8 @@ bool create_schema(sqlite3 *db) {
       "	 roles TEXT NOT NULL,"
       "	 current_user TEXT NOT NULL,"
       "	 source_message_id TEXT,"
-      "	 replies_count INTEGER NOT NULL"
+      "	 replies_count INTEGER NOT NULL,"
+      "	 avatar TEXT"
       ");"
 
       "CREATE TABLE IF NOT EXISTS metadata ("
@@ -599,7 +621,8 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {22, {enable_write_ahead_logging_mode, false}},
      {23, {create_metadata_table, true}},
      {24, {add_not_null_constraint_to_drafts, true}},
-     {25, {add_not_null_constraint_to_metadata, true}}}};
+     {25, {add_not_null_constraint_to_metadata, true}},
+     {26, {add_avatar_column_to_threads_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -800,7 +823,8 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("roles", &Thread::roles),
           make_column("current_user", &Thread::current_user),
           make_column("source_message_id", &Thread::source_message_id),
-          make_column("replies_count", &Thread::replies_count)),
+          make_column("replies_count", &Thread::replies_count),
+          make_column("avatar", &Thread::avatar)),
       make_table(
           "metadata",
           make_column("name", &Metadata::name, unique(), primary_key()),
