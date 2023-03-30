@@ -2,13 +2,13 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::sync::Arc;
 
+use aws_config::SdkConfig;
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::output::{
   DeleteItemOutput, GetItemOutput, PutItemOutput, QueryOutput, UpdateItemOutput,
 };
 use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
-use aws_types::sdk_config::SdkConfig;
 use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
 use tracing::{debug, error, info, warn};
