@@ -6,7 +6,6 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
@@ -22,7 +21,7 @@ import { MessageHeader } from './message-header.react.js';
 import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
 import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
-import Avatar from '../components/avatar.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
@@ -137,10 +136,9 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     let avatar;
     if (!isViewer && item.endsCluster && shouldRenderAvatars) {
-      const avatarInfo = getAvatarForUser(item.messageInfo.creator);
       avatar = (
         <View style={styles.avatarContainer}>
-          <Avatar size="small" avatarInfo={avatarInfo} />
+          <UserAvatar size="small" userID={item.messageInfo.creator.id} />
         </View>
       );
     } else if (!isViewer && shouldRenderAvatars) {
