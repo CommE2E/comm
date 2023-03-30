@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
-import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
@@ -14,11 +13,11 @@ import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
 import MessagePreview from './message-preview.react.js';
 import SwipeableThread from './swipeable-thread.react.js';
-import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorSplotch from '../components/color-splotch.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
+import ThreadAvatar from '../components/thread-avatar.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
@@ -119,7 +118,6 @@ function ChatThreadListItem({
   ]);
 
   const resolvedThreadInfo = useResolvedThreadInfo(data.threadInfo);
-  const avatarInfo = useGetAvatarForThread(data.threadInfo);
   const shouldRenderAvatars = useShouldRenderAvatars();
 
   const avatar = React.useMemo(() => {
@@ -127,8 +125,8 @@ function ChatThreadListItem({
       return <ColorSplotch color={data.threadInfo.color} size="profile" />;
     }
 
-    return <Avatar size="large" avatarInfo={avatarInfo} />;
-  }, [avatarInfo, data.threadInfo.color, shouldRenderAvatars]);
+    return <ThreadAvatar size="large" threadID={data.threadInfo.id} />;
+  }, [data.threadInfo.color, data.threadInfo.id, shouldRenderAvatars]);
 
   return (
     <>

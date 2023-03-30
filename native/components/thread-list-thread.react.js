@@ -2,15 +2,13 @@
 
 import * as React from 'react';
 
-import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
-import type { ClientAvatar } from 'lib/types/avatar-types.js';
 import type { ThreadInfo, ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Avatar from './avatar.react.js';
 import Button from './button.react.js';
 import ColorSplotch from './color-splotch.react.js';
 import { SingleLine } from './single-line.react.js';
+import ThreadAvatar from './thread-avatar.react.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
@@ -27,7 +25,6 @@ type BaseProps = {
 type Props = {
   ...SharedProps,
   +threadInfo: ResolvedThreadInfo,
-  +avatarInfo: ClientAvatar,
   +shouldRenderAvatars: boolean,
   +colors: Colors,
   +styles: typeof unboundStyles,
@@ -38,7 +35,9 @@ class ThreadListThread extends React.PureComponent<Props> {
 
     let avatar;
     if (this.props.shouldRenderAvatars) {
-      avatar = <Avatar size="small" avatarInfo={this.props.avatarInfo} />;
+      avatar = (
+        <ThreadAvatar size="small" threadID={this.props.threadInfo.id} />
+      );
     } else {
       avatar = <ColorSplotch color={this.props.threadInfo.color} />;
     }
@@ -85,14 +84,12 @@ const ConnectedThreadListThread: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
     const colors = useColors();
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
-    const avatarInfo = useGetAvatarForThread(threadInfo);
     const shouldRenderAvatars = useShouldRenderAvatars();
 
     return (
       <ThreadListThread
         {...rest}
         threadInfo={resolvedThreadInfo}
-        avatarInfo={avatarInfo}
         shouldRenderAvatars={shouldRenderAvatars}
         styles={styles}
         colors={colors}

@@ -7,15 +7,13 @@ import {
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
-import type { ClientAvatar } from 'lib/types/avatar-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
-import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
+import ThreadAvatar from '../components/thread-avatar.react.js';
 import { ThreadSettingsRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
@@ -31,7 +29,6 @@ type Props = {
   ...BaseProps,
   +styles: typeof unboundStyles,
   +title: string,
-  +avatarInfo: ClientAvatar,
   +shouldRenderAvatars: boolean,
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {
@@ -43,7 +40,6 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       areSettingsEnabled,
       styles,
       title,
-      avatarInfo,
       shouldRenderAvatars,
       ...rest
     } = this.props;
@@ -52,7 +48,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
     if (!isSearchEmpty && shouldRenderAvatars) {
       avatar = (
         <View style={styles.avatarContainer}>
-          <Avatar avatarInfo={avatarInfo} size="small" />
+          <ThreadAvatar size="small" threadID={threadInfo.id} />
         </View>
       );
     }
@@ -105,7 +101,6 @@ const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> =
     const shouldRenderAvatars = useShouldRenderAvatars();
 
     const { uiName } = useResolvedThreadInfo(props.threadInfo);
-    const avatarInfo = useGetAvatarForThread(props.threadInfo);
 
     const { isSearchEmpty } = props;
 
@@ -116,7 +111,6 @@ const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> =
         {...props}
         styles={styles}
         title={title}
-        avatarInfo={avatarInfo}
         shouldRenderAvatars={shouldRenderAvatars}
       />
     );
