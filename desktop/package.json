@@ -22,6 +22,9 @@
   "dependencies": {
     "@babel/runtime": "^7.20.1"
   },
+  "optionalDependencies": {
+    "@commapp/windowspush": "file:addons/windows-pushnotifications"
+  },
   "devDependencies": {
     "@babel/core": "^7.13.14",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
