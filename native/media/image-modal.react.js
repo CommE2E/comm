@@ -1142,6 +1142,11 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   save = () => {
     const { mediaInfo, item } = this.props.route.params;
+    invariant(
+      mediaInfo.type === 'photo' || mediaInfo.type === 'video',
+      'saving media of type ' + mediaInfo.type + ' is not supported',
+    );
+
     const { id: uploadID, uri } = mediaInfo;
     const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
     const ids = { uploadID, messageServerID, messageLocalID };

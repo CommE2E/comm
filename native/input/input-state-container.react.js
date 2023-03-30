@@ -1156,6 +1156,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const updateMedia = <T: Media>(media: $ReadOnlyArray<T>): T[] =>
       media.map(singleMedia => {
+        invariant(
+          singleMedia.type === 'photo' || singleMedia.type === 'video',
+          'Retry selection must be unencrypted',
+        );
+
         let updatedMedia = singleMedia;
 
         const oldMediaID = updatedMedia.id;
