@@ -13,6 +13,7 @@ use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
 use tracing::{debug, error, info, warn};
 
+use crate::config::CONFIG;
 use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
@@ -36,8 +37,22 @@ pub struct DatabaseClient {
 
 impl DatabaseClient {
   pub fn new(aws_config: &SdkConfig) -> Self {
+    let client = match &CONFIG.localstack_endpoint {
+      Some(endpoint) => {
+        info!(
+          "Configuring DynamoDB client to use LocalStack endpoint: {}",
+          endpoint
+        );
+        let ddb_config_builder =
+          aws_sdk_dynamodb::config::Builder::from(aws_config)
+            .endpoint_url(endpoint);
+        Client::from_conf(ddb_config_builder.build())
+      }
+      None => Client::new(aws_config),
+    };
+
     DatabaseClient {
-      client: Arc::new(Client::new(aws_config)),
+      client: Arc::new(client),
     }
   }
 
