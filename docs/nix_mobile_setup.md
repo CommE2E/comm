@@ -2,6 +2,12 @@
 
 ## iOS development
 
+### Installing Xcode
+
+Go to the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835) to install Xcode, or if you already have it, to update it to the latest version.
+
+Once Xcode is installed, open it up. If you are prompted, follow the instructions to install any “Additional Required Components”.
+
 ### Xcode settings
 
 First, in Xcode, open the Comm workspace `native/ios/Comm.xcworkspace`. Make sure that you’re signed into Xcode with an Apple Developer account (either the Comm developer team’s or your own). You can see any accounts currently associated with Xcode by navigating to Xcode → Preferences → Accounts.
