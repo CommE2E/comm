@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+
 import { decryptMedia } from './encryption-utils.js';
 import LoadableImage from './loadable-image.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -22,6 +24,7 @@ type Props = {
 function EncryptedImage(props: Props): React.Node {
   const { holder, encryptionKey, onLoad: onLoadProp } = props;
 
+  const mediaCache = React.useContext(MediaCacheContext);
   const [source, setSource] = React.useState(null);
 
   const connectionStatus = useSelector(state => state.connection.status);
@@ -40,11 +43,18 @@ function EncryptedImage(props: Props): React.Node {
     setSource(null);
 
     const loadDecrypted = async () => {
+      const cached = await mediaCache?.get(holder);
+      if (cached && isMounted) {
+        setSource({ uri: cached });
+        return;
+      }
+
       const { result } = await decryptMedia(holder, encryptionKey, {
         destination: 'data_uri',
       });
       // TODO: decide what to do if decryption fails
       if (result.success && isMounted) {
+        mediaCache?.set(holder, result.uri);
         setSource({ uri: result.uri });
       }
     };
@@ -54,7 +64,7 @@ function EncryptedImage(props: Props): React.Node {
     return () => {
       isMounted = false;
     };
-  }, [attempt, holder, encryptionKey]);
+  }, [attempt, holder, encryptionKey, mediaCache]);
 
   const onLoad = React.useCallback(() => {
     onLoadProp && onLoadProp(holder);
