@@ -26,6 +26,11 @@ import {
 } from '../queries/draft-queries.js';
 import { getMetadata, setMetadata } from '../queries/metadata-queries.js';
 import {
+  getPersistStorageItem,
+  removePersistStorageItem,
+  setPersistStorageItem,
+} from '../queries/storage-engine-queries.js';
+import {
   CURRENT_USER_ID_KEY,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
@@ -144,6 +149,32 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_CURRENT_USER_ID,
       userID,
     };
+  } else if (
+    message.type === workerRequestMessageTypes.GET_PERSIST_STORAGE_ITEM
+  ) {
+    if (!sqliteDb) {
+      throw new Error('Database not initialized');
+    }
+    return {
+      type: workerResponseMessageTypes.GET_PERSIST_STORAGE_ITEM,
+      item: getPersistStorageItem(sqliteDb, message.key),
+    };
+  } else if (
+    message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
+  ) {
+    if (!sqliteDb) {
+      throw new Error('Database not initialized');
+    }
+    setPersistStorageItem(sqliteDb, message.key, message.item);
+    return;
+  } else if (
+    message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
+  ) {
+    if (!sqliteDb) {
+      throw new Error('Database not initialized');
+    }
+    removePersistStorageItem(sqliteDb, message.key);
+    return;
   }
 
   throw new Error('Request type not supported');
