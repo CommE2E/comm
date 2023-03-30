@@ -124,6 +124,7 @@ module.exports = {
       '\\.eslintrc\\.json',
       '\\.flowconfig',
       'flow-typed',
+      'addons',
     ],
     appBundleId: 'app.comm.macos',
     ...signingOptions.packagerMacos,
