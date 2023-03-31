@@ -43,6 +43,7 @@
 , rustfmt
 , wasm-pack
 , yarn
+, protoc-gen-grpc-web
 }:
 
 mkShell {
@@ -65,6 +66,7 @@ mkShell {
     python3
     redis
     wasm-pack
+    protoc-gen-grpc-web
 
     # native dependencies
     # C/CXX toolchains are already brought in with mkShell
