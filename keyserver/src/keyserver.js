@@ -42,6 +42,8 @@ import {
   getCommAppURLFacts,
 } from './utils/urls.js';
 
+const inviteSecretRegex = /^[a-z0-9]+$/i;
+
 (async () => {
   await olm.init();
   await prefetchAllURLFacts();
@@ -128,12 +130,17 @@ import {
       // should redirect the user to a place from which the app can be
       // downloaded.
       router.get('/invite/:secret', (req, res) => {
+        const { secret } = req.params;
         const userAgent = req.get('User-Agent');
         const detectionResult = detectBrowser(userAgent);
-        const redirectUrl =
-          detectionResult.os === 'Android OS'
-            ? stores.googlePlayUrl
-            : stores.appStoreUrl;
+        let redirectUrl = stores.appStoreUrl;
+        if (detectionResult.os === 'Android OS') {
+          const isSecretValid = inviteSecretRegex.test(secret);
+          const referrer = isSecretValid
+            ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
+            : '';
+          redirectUrl = `${stores.googlePlayUrl}${referrer}`;
+        }
         res.writeHead(301, {
           Location: redirectUrl,
         });
