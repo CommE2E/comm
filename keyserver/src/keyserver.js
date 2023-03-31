@@ -128,11 +128,12 @@ import {
       // should redirect the user to a place from which the app can be
       // downloaded.
       router.get('/invite/:secret', (req, res) => {
+        const { secret } = req.params;
         const userAgent = req.get('User-Agent');
         const detectionResult = detectBrowser(userAgent);
         const redirectUrl =
           detectionResult.os === 'Android OS'
-            ? stores.googlePlayUrl
+            ? `${stores.googlePlayUrl}&referrer=utm_source%3Dinvite%2F${secret}`
             : stores.appStoreUrl;
         res.writeHead(301, {
           Location: redirectUrl,
