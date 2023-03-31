@@ -21,6 +21,8 @@ import {
   defaultNumberPerThread,
   type SendMessageResponse,
   type SendEditMessageResponse,
+  type FetchPinnedMessagesRequest,
+  type FetchPinnedMessagesResult,
 } from 'lib/types/message-types.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
@@ -41,6 +43,7 @@ import {
   fetchMessageInfoForLocalID,
   fetchMessageInfoByID,
   fetchThreadMessagesCount,
+  fetchPinnedMessageInfos,
 } from '../fetchers/message-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
@@ -374,10 +377,27 @@ async function editMessageCreationResponder(
   return { newMessageInfos };
 }
 
+const fetchPinnedMessagesResponderInputValidator = tShape({
+  threadID: t.String,
+});
+async function fetchPinnedMessagesResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<FetchPinnedMessagesResult> {
+  const request: FetchPinnedMessagesRequest = input;
+  await validateInput(
+    viewer,
+    fetchPinnedMessagesResponderInputValidator,
+    input,
+  );
+  return await fetchPinnedMessageInfos(viewer, request);
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
   multimediaMessageCreationResponder,
   reactionMessageCreationResponder,
   editMessageCreationResponder,
+  fetchPinnedMessagesResponder,
 };
