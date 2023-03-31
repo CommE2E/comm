@@ -8,7 +8,6 @@ import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
-import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
 import { type PreRequestUserState } from 'lib/types/session-types.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
@@ -21,10 +20,10 @@ import {
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Action from '../components/action-row.react.js';
-import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import EditSettingButton from '../components/edit-setting-button.react.js';
 import { SingleLine } from '../components/single-line.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   EditPasswordRouteName,
@@ -122,11 +121,9 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
-    const avatarInfo = getAvatarForUser(this.props.currentUserInfo);
-
     const avatar = (
       <View style={this.props.styles.avatarSection}>
-        <Avatar size="profile" avatarInfo={avatarInfo} />
+        <UserAvatar size="profile" userID={this.props.currentUserInfo?.id} />
       </View>
     );
 

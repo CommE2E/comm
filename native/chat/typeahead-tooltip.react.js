@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Platform, Text } from 'react-native';
 import { PanGestureHandler, FlatList } from 'react-native-gesture-handler';
 
-import { getAvatarForUser } from 'lib/shared/avatar-utils.js';
 import {
   type TypeaheadMatchedStrings,
   type Selection,
@@ -12,8 +11,8 @@ import {
 } from 'lib/shared/mention-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
+import UserAvatar from '../components/user-avatar.react.js';
 import { useStyles } from '../themes/colors.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
@@ -61,11 +60,9 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
         });
       };
 
-      const avatarInfo = getAvatarForUser(item);
-
       return (
         <Button onPress={onPress} style={styles.button} iosActiveOpacity={0.85}>
-          <Avatar size="small" avatarInfo={avatarInfo} />
+          <UserAvatar size="small" userID={item.id} />
           <Text style={[styles.buttonLabel, marginLeftStyle]} numberOfLines={1}>
             @{item.username}
           </Text>
