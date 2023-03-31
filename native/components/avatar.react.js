@@ -3,14 +3,14 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import type { ClientAvatar } from 'lib/types/avatar-types.js';
+import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
 
 import Multimedia from '../media/multimedia.react.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
-  +avatarInfo: ClientAvatar,
-  +size?: 'large' | 'small' | 'profile' | 'micro',
+  +avatarInfo: ResolvedClientAvatar,
+  +size: 'micro' | 'small' | 'large' | 'profile',
 };
 
 function Avatar(props: Props): React.Node {
@@ -19,14 +19,14 @@ function Avatar(props: Props): React.Node {
   const shouldRenderAvatars = useShouldRenderAvatars();
 
   const containerSizeStyle = React.useMemo(() => {
-    if (size === 'profile') {
-      return styles.profile;
+    if (size === 'micro') {
+      return styles.micro;
     } else if (size === 'small') {
       return styles.small;
-    } else if (size === 'micro') {
-      return styles.micro;
+    } else if (size === 'large') {
+      return styles.large;
     }
-    return styles.large;
+    return styles.profile;
   }, [size]);
 
   const emojiContainerStyle = React.useMemo(() => {
@@ -40,14 +40,14 @@ function Avatar(props: Props): React.Node {
   }, [avatarInfo, containerSizeStyle]);
 
   const emojiSizeStyle = React.useMemo(() => {
-    if (size === 'profile') {
-      return styles.emojiProfile;
+    if (size === 'micro') {
+      return styles.emojiMicro;
     } else if (size === 'small') {
       return styles.emojiSmall;
-    } else if (size === 'micro') {
-      return styles.emojiMicro;
+    } else if (size === 'large') {
+      return styles.emojiLarge;
     }
-    return styles.emojiLarge;
+    return styles.emojiProfile;
   }, [size]);
 
   const avatar = React.useMemo(() => {
