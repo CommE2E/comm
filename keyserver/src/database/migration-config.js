@@ -276,6 +276,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     },
   ],
   [23, updateRolesAndPermissionsForAllThreads],
+  [
+    24,
+    async () => {
+      await dbQuery(SQL`
+        ALTER TABLE messages
+          ADD COLUMN IF NOT EXISTS pinned tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+          ADD COLUMN IF NOT EXISTS pin_time bigint(20) DEFAULT NULL,
+          ADD INDEX IF NOT EXISTS thread_pinned (thread, pinned);
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
