@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import {
-  useGetAvatarForThread,
+  useAvatarForThread,
   useENSResolvedAvatar,
 } from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
@@ -24,7 +24,7 @@ type Props = {
 function ThreadAvatar(props: Props): React.Node {
   const { threadInfo, size } = props;
 
-  const avatarInfo = useGetAvatarForThread(threadInfo);
+  const avatarInfo = useAvatarForThread(threadInfo);
 
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
