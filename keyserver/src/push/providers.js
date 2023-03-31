@@ -4,7 +4,9 @@ import apn from '@parse/node-apn';
 import type { Provider as APNProvider } from '@parse/node-apn';
 import fcmAdmin from 'firebase-admin';
 import type { FirebaseApp } from 'firebase-admin';
+import { request } from 'gaxios';
 import invariant from 'invariant';
+import url from 'url';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types';
@@ -122,6 +124,61 @@ async function ensureWebPushInitialized() {
   await getWebPushConfig();
 }
 
+type WNSConfig = { +tenantID: string, +appID: string, +secret: string };
+type WNSAccessToken = { +token: string, +expires: number };
+let wnsAccessToken: ?WNSAccessToken = null;
+async function getWNSToken(): Promise<?string> {
+  const expiryWindowInMs = 30_000;
+  if (
+    wnsAccessToken &&
+    wnsAccessToken.expires >= Date.now() - expiryWindowInMs
+  ) {
+    return wnsAccessToken.token;
+  }
+
+  const config = await importJSON<WNSConfig>({
+    folder: 'secrets',
+    name: 'wns_config',
+  });
+
+  if (!config) {
+    return null;
+  }
+
+  const data = url
+    .format({
+      query: {
+        grant_type: 'client_credentials',
+        client_id: config.appID,
+        client_secret: config.secret,
+        scope: 'https://wns.windows.com/.default',
+      },
+    })
+    .substring(1); // strip leading ?
+
+  try {
+    const response = await request({
+      url: `https://login.microsoftonline.com/${config.tenantID}/oauth2/v2.0/token`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': data.length,
+      },
+      data,
+    });
+
+    wnsAccessToken = {
+      token: response.data['access_token'],
+      expires: Date.now() + response.data['expires_in'] * 1000,
+    };
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+
+  return wnsAccessToken?.token;
+}
+
 export {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
@@ -132,4 +189,5 @@ export {
   getAPNsNotificationTopic,
   getWebPushConfig,
   ensureWebPushInitialized,
+  getWNSToken,
 };
