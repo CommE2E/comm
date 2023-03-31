@@ -44,3 +44,8 @@ export function handleSquirrelEvent(): boolean {
 
   return false;
 }
+
+export function isNormalStartup(): boolean {
+  const squirrelEvent = process.argv[1];
+  return !squirrelEvent || squirrelEvent === '--squirrel-firstrun';
+}
