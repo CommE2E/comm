@@ -18,6 +18,7 @@ import {
   type ThreadFetchMediaResult,
   type ThreadFetchMediaRequest,
   type ToggleMessagePinRequest,
+  type ToggleMessagePinResult,
   threadTypes,
 } from 'lib/types/thread-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
@@ -204,10 +205,10 @@ const toggleMessagePinRequestInputValidator = tShape({
 async function toggleMessagePinResponder(
   viewer: Viewer,
   input: any,
-): Promise<void> {
+): Promise<ToggleMessagePinResult> {
   const request: ToggleMessagePinRequest = input;
   await validateInput(viewer, toggleMessagePinRequestInputValidator, request);
-  await toggleMessagePinForThread(viewer, request);
+  return await toggleMessagePinForThread(viewer, request);
 }
 
 export {
