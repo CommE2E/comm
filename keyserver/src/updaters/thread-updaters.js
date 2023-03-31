@@ -25,6 +25,7 @@ import {
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
   type ToggleMessagePinRequest,
+  type ToggleMessagePinResult,
   threadPermissions,
   threadTypes,
 } from 'lib/types/thread-types.js';
@@ -862,7 +863,7 @@ async function updateThreadMembers(viewer: Viewer) {
 async function toggleMessagePinForThread(
   viewer: Viewer,
   request: ToggleMessagePinRequest,
-): Promise<void> {
+): Promise<ToggleMessagePinResult> {
   const { messageID, action } = request;
 
   const targetMessage = await fetchMessageInfoByID(viewer, messageID);
@@ -918,8 +919,9 @@ async function toggleMessagePinForThread(
     fetchServerThreadInfos(SQL`t.id = ${threadID}`),
     dbQuery(togglePinQuery),
     dbQuery(updateThreadQuery),
-    createMessages(viewer, [messageData]),
   ]);
+
+  const newMessageInfos = await createMessages(viewer, [messageData]);
 
   const time = Date.now();
   const updates = [];
@@ -932,6 +934,11 @@ async function toggleMessagePinForThread(
     });
   }
   await createUpdates(updates);
+
+  return {
+    newMessageInfos,
+    threadID,
+  };
 }
 
 export {
