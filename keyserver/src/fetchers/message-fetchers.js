@@ -22,6 +22,8 @@ import {
   messageTruncationStatus,
   type FetchMessageInfosResult,
   defaultMaxMessageAge,
+  type FetchPinnedMessagesRequest,
+  type FetchPinnedMessagesResult,
 } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -660,6 +662,53 @@ async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
   return result;
 }
 
+async function fetchPinnedMessageInfos(
+  viewer: Viewer,
+  request: FetchPinnedMessagesRequest,
+): Promise<FetchPinnedMessagesResult> {
+  // The only message types that can be pinned are 0, 14, and 15
+  // (text, images, and multimedia), so we don't need to worry about
+  // an admin pinning a message about creating a secret subchannel. This is
+  // why we don't check subthread permissions (as opposed to other queries).
+  const messageRowsQuery = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
+      m.user AS creatorID, m.target_message as targetMessageID,
+      NULL AS subthread_permissions, u.id AS uploadID,
+      u.type AS uploadType, u.secret AS uploadSecret, u.extra AS uploadExtra
+    FROM messages m
+    LEFT JOIN uploads u ON u.container = m.id
+    LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewer.id}
+    WHERE m.thread = ${request.threadID} 
+      AND m.pinned = 1
+      AND JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
+    ORDER BY m.pin_time DESC
+  `;
+  const [messageRows] = await dbQuery(messageRowsQuery);
+  if (messageRows.length === 0) {
+    return { pinnedMessages: [] };
+  }
+  const derivedMessages = await fetchDerivedMessages(messageRows, viewer);
+
+  const parsedPinnedMessages = await parseMessageSQLResult(
+    messageRows,
+    derivedMessages,
+    viewer,
+  );
+
+  const pinnedRawMessageInfos = parsedPinnedMessages.map(
+    message => message.rawMessageInfo,
+  );
+
+  const shimmedPinnedRawMessageInfos = shimUnsupportedRawMessageInfos(
+    pinnedRawMessageInfos,
+    viewer.platformDetails,
+  );
+
+  return {
+    pinnedMessages: shimmedPinnedRawMessageInfos,
+  };
+}
+
 async function fetchDerivedMessages(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
@@ -781,4 +830,5 @@ export {
   fetchMessageInfoByID,
   fetchThreadMessagesCount,
   fetchLatestEditMessageContentByID,
+  fetchPinnedMessageInfos,
 };
