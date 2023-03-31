@@ -3,10 +3,9 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { useGetAvatarForThread } from 'lib/shared/avatar-utils.js';
 import { type ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
-import Avatar from '../../components/avatar.react.js';
+import ThreadAvatar from '../../components/thread-avatar.react.js';
 import { useStyles } from '../../themes/colors.js';
 
 type Props = {
@@ -14,11 +13,10 @@ type Props = {
 };
 function ThreadSettingsAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const avatarInfo = useGetAvatarForThread(props.threadInfo);
 
   return (
     <View style={styles.container}>
-      <Avatar size="profile" avatarInfo={avatarInfo} />
+      <ThreadAvatar size="profile" threadInfo={props.threadInfo} />
     </View>
   );
 }
