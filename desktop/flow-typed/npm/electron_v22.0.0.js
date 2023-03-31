@@ -10,6 +10,7 @@ declare module 'electron' {
     hide(): void,
     show(): void,
     setName: (name: string) => void,
+    setAppUserModelId: (id: string) => void,
     getVersion: () => string,
     dock: Dock,
     isPackaged: boolean,
@@ -26,6 +27,7 @@ declare module 'electron' {
   declare type AppEvents = {
     'window-all-closed': () => void,
     'activate': (event: Event, hasVisibleWindows: boolean) => void,
+    'quit': (event: Event, exitCode: number) => void,
   };
 
   declare export class BrowserWindow {
@@ -333,6 +335,7 @@ declare module 'electron' {
       +actions?: NotificationAction[],
       +closeButtonText?: string,
       +toastXml?: string,
+      +icon?: string,
     }): void;
     static isSupported(): boolean;
     show(): void;
