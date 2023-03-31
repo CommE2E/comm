@@ -255,6 +255,9 @@ const show = (urlPath?: string) => {
 
 const run = () => {
   app.setName('Comm');
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('Comm');
+  }
   setApplicationMenu();
 
   (async () => {
