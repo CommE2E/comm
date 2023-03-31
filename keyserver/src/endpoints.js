@@ -26,6 +26,7 @@ import {
   multimediaMessageCreationResponder,
   reactionMessageCreationResponder,
   editMessageCreationResponder,
+  fetchPinnedMessagesResponder,
 } from './responders/message-responders.js';
 import { updateRelationshipsResponder } from './responders/relationship-responders.js';
 import {
@@ -139,6 +140,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   fetch_messages: {
     responder: messageFetchResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  fetch_pinned_messages: {
+    responder: fetchPinnedMessagesResponder,
     requiredPolicies: baseLegalPolicies,
   },
   fetch_thread_media: {
