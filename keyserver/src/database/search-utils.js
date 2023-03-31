@@ -36,7 +36,7 @@ function segmentAndStem(message: string): string {
 }
 
 async function processMessagesForSearch(
-  messages: $ReadOnlyArray<RawMessageInfo>,
+  messages: $ReadOnlyArray<RawMessageInfo | ProcessedForSearchRow>,
 ): Promise<void> {
   const processedMessages = [];
 
@@ -70,4 +70,73 @@ async function processMessagesForSearch(
   `);
 }
 
-export { processMessagesForSearch, segmentAndStem, stopwords };
+type ProcessedForSearchRowText = {
+  +type: 0,
+  +id: string,
+  +text: string,
+};
+type ProcessedForSearchRowEdit = {
+  +type: 20,
+  +id: string,
+  +targetMessageID: string,
+  +text: string,
+};
+type ProcessedForSearchRow =
+  | ProcessedForSearchRowText
+  | ProcessedForSearchRowEdit;
+
+function processRowsForSearch(
+  rows: $ReadOnlyArray<any>,
+): $ReadOnlyArray<ProcessedForSearchRow> {
+  const results = [];
+  for (const row of rows) {
+    if (row.type === messageTypes.TEXT) {
+      results.push({ type: row.type, id: row.id, text: row.content });
+    } else if (row.type === messageTypes.EDIT_MESSAGE) {
+      results.push({
+        type: row.type,
+        id: row.id,
+        targetMessageID: row.target_message,
+        text: row.content,
+      });
+    }
+  }
+  return results;
+}
+
+const pageSize = 1000;
+
+async function processMessagesInDBForSearch(): Promise<void> {
+  let lastID = 0;
+
+  while (true) {
+    const [messages] = await dbQuery(SQL`
+      SELECT id, type, content, target_message
+      FROM messages
+      WHERE (type = ${messageTypes.TEXT} OR type = ${messageTypes.EDIT_MESSAGE})
+        AND id > ${lastID}
+      ORDER BY id
+      LIMIT ${pageSize}
+    `);
+
+    if (messages.length === 0) {
+      break;
+    }
+
+    const processedRows = processRowsForSearch(messages);
+
+    await processMessagesForSearch(processedRows);
+
+    if (messages.length < pageSize) {
+      break;
+    }
+    lastID = messages[messages.length - 1].id;
+  }
+}
+
+export {
+  processMessagesForSearch,
+  processMessagesInDBForSearch,
+  segmentAndStem,
+  stopwords,
+};
