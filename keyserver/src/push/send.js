@@ -30,6 +30,7 @@ import {
 } from 'lib/types/message-types.js';
 import type {
   WebNotification,
+  WNSNotification,
   ResolvedNotifTexts,
 } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
@@ -44,8 +45,11 @@ import {
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
   fcmMaxNotificationPayloadByteSize,
+  wnsMaxNotificationPayloadByteSize,
   webPush,
+  wnsPush,
   type WebPushError,
+  type WNSPushError,
 } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
@@ -290,6 +294,23 @@ async function sendPushNotifs(pushInfo: PushInfo) {
                 codeVersion,
               },
             );
+          })();
+          deliveryPromises.push(deliveryPromise);
+        }
+      }
+      const windowsVersionsToTokens = byPlatform.get('windows');
+      if (windowsVersionsToTokens) {
+        for (const [codeVersion, deviceTokens] of windowsVersionsToTokens) {
+          const deliveryPromise = (async () => {
+            const notification = await prepareWNSNotification({
+              notifTexts,
+              threadID: threadInfo.id,
+              unreadCount: unreadCounts[userID],
+            });
+            return await sendWNSNotification(notification, [...deviceTokens], {
+              ...notificationInfo,
+              codeVersion,
+            });
           })();
           deliveryPromises.push(deliveryPromise);
         }
@@ -741,6 +762,31 @@ async function prepareWebNotification(
   return notification;
 }
 
+type WNSNotifInputData = {
+  +notifTexts: ResolvedNotifTexts,
+  +threadID: string,
+  +unreadCount: number,
+};
+async function prepareWNSNotification(
+  inputData: WNSNotifInputData,
+): Promise<WNSNotification> {
+  const { notifTexts, threadID, unreadCount } = inputData;
+  const { merged, ...rest } = notifTexts;
+  const notification = {
+    ...rest,
+    unreadCount,
+    threadID,
+  };
+
+  if (
+    Buffer.byteLength(JSON.stringify(notification)) >
+    wnsMaxNotificationPayloadByteSize
+  ) {
+    console.warn('WNS notification exceeds size limit');
+  }
+  return notification;
+}
+
 type NotificationInfo =
   | {
       +source: 'new_message',
@@ -803,8 +849,8 @@ async function sendAPNsNotification(
   return result;
 }
 
-type PushResult = AndroidResult | APNsResult | WebResult;
-type PushDelivery = AndroidDelivery | APNsDelivery | WebDelivery;
+type PushResult = AndroidResult | APNsResult | WebResult | WNSResult;
+type PushDelivery = AndroidDelivery | APNsDelivery | WebDelivery | WNSDelivery;
 type AndroidDelivery = {
   source: $PropertyType<NotificationInfo, 'source'>,
   deviceType: 'android',
@@ -886,6 +932,48 @@ async function sendWebNotification(
     errors: response.errors,
   };
   const result: WebResult = {
+    info: notificationInfo,
+    delivery,
+    invalidTokens: response.invalidTokens,
+  };
+  return result;
+}
+
+type WNSDelivery = {
+  +source: $PropertyType<NotificationInfo, 'source'>,
+  +deviceType: 'windows',
+  +wnsIDs: $ReadOnlyArray<string>,
+  +deviceTokens: $ReadOnlyArray<string>,
+  +codeVersion?: number,
+  +errors?: $ReadOnlyArray<WNSPushError>,
+};
+type WNSResult = {
+  +info: NotificationInfo,
+  +delivery: WNSDelivery,
+  +invalidTokens?: $ReadOnlyArray<string>,
+};
+async function sendWNSNotification(
+  notification: WNSNotification,
+  deviceTokens: $ReadOnlyArray<string>,
+  notificationInfo: NotificationInfo,
+): Promise<WNSResult> {
+  const { source, codeVersion } = notificationInfo;
+
+  const response = await wnsPush({
+    notification,
+    deviceTokens,
+  });
+
+  const wnsIDs = response.wnsIDs ?? [];
+  const delivery: WNSDelivery = {
+    source,
+    deviceType: 'windows',
+    wnsIDs,
+    deviceTokens,
+    codeVersion,
+    errors: response.errors,
+  };
+  const result: WNSResult = {
     info: notificationInfo,
     delivery,
     invalidTokens: response.invalidTokens,
