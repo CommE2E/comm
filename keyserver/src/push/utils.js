@@ -4,10 +4,14 @@ import apn from '@parse/node-apn';
 import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
+import fetch from 'node-fetch';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types.js';
-import type { WebNotification } from 'lib/types/notif-types.js';
+import type {
+  WebNotification,
+  WNSNotification,
+} from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 
@@ -17,6 +21,7 @@ import {
   getAPNProvider,
   getFCMProvider,
   ensureWebPushInitialized,
+  getWNSToken,
 } from './providers.js';
 import { dbQuery, SQL } from '../database/database.js';
 
@@ -30,6 +35,7 @@ const apnBadRequestErrorCode = 400;
 const apnBadTokenErrorString = 'BadDeviceToken';
 const apnMaxNotificationPayloadByteSize = 4096;
 const webInvalidTokenErrorCodes = [404, 410];
+const wnsInvalidTokenErrorCodes = [404, 410];
 
 type APNPushResult =
   | { +success: true }
@@ -259,10 +265,101 @@ async function webPush({
   return { ...result };
 }
 
+export type WNSPushError = {
+  +statusCode: number,
+  +headers: { +[string]: string },
+  +body: string,
+};
+type WNSPushResult = {
+  +success?: true,
+  +wnsIDs?: $ReadOnlyArray<string>,
+  +errors?: $ReadOnlyArray<WNSPushError>,
+  +invalidTokens?: $ReadOnlyArray<string>,
+};
+async function wnsPush({
+  notification,
+  deviceTokens,
+}: {
+  +notification: WNSNotification,
+  +deviceTokens: $ReadOnlyArray<string>,
+}): Promise<WNSPushResult> {
+  const token = await getWNSToken();
+  if (!token && process.env.NODE_ENV === 'development') {
+    console.log(`no keyserver/secrets/wns_config.json so ignoring notifs`);
+    return { success: true };
+  }
+  invariant(token, `keyserver/secrets/wns_config.json should exist`);
+
+  const notificationString = JSON.stringify(notification);
+
+  const pushResults = await Promise.all(
+    deviceTokens.map(async deviceTokenString => {
+      try {
+        return {
+          wnsID: await wnsSinglePush(
+            token,
+            notificationString,
+            deviceTokenString,
+          ),
+        };
+      } catch (error) {
+        return { error };
+      }
+    }),
+  );
+
+  const errors = [];
+  const ids = [];
+  const invalidTokens = [];
+  for (let i = 0; i < pushResults.length; i++) {
+    const pushResult = pushResults[i];
+    if (pushResult.error) {
+      errors.push(pushResult.error);
+      if (wnsInvalidTokenErrorCodes.includes(Number(pushResult.error.code))) {
+        invalidTokens.push(deviceTokens[i]);
+      }
+    } else {
+      ids.push(pushResult.wnsID);
+    }
+  }
+
+  const result = {};
+  if (ids.length > 0) {
+    result.wnsIDs = ids;
+  }
+  if (errors.length > 0) {
+    result.errors = errors;
+  } else {
+    result.success = true;
+  }
+  if (invalidTokens.length > 0) {
+    result.invalidTokens = invalidTokens;
+  }
+  return { ...result };
+}
+
+async function wnsSinglePush(
+  token: string,
+  notification: string,
+  deviceToken: string,
+): Promise<string> {
+  const result = await fetch(deviceToken, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      'X-WNS-Type': 'wns/raw',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: notification,
+  });
+  return result.headers.get('X-WNS-MSG-ID');
+}
+
 export {
   apnPush,
   fcmPush,
   webPush,
+  wnsPush,
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
   fcmMaxNotificationPayloadByteSize,
