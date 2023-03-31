@@ -12,7 +12,7 @@ import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
 import * as AES from '../utils/aes-crypto-module.js';
 
-const PADDING_THRESHOLD = 5_000_000; // we don't pad files larger than this
+const PADDING_THRESHOLD = 5000000; // we don't pad files larger than this
 
 type DecryptFileStep =
   | {
