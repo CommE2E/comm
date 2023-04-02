@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
@@ -30,6 +31,7 @@ import type { PositionInfo } from '../chat/position-types.js';
 import { useTooltipContext } from '../chat/tooltip-provider.js';
 import CommIcon from '../CommIcon.react.js';
 import { InputStateContext } from '../input/input-state.js';
+import TogglePinModal from '../modals/chat/toggle-pin-modal.react.js';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
@@ -481,6 +483,38 @@ function useMessageReactAction(
   }, [canCreateReactionFromMessage, setShouldRenderEmojiKeyboard]);
 }
 
+function useMessageTogglePinAction(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): ?MessageTooltipAction {
+  const { pushModal } = useModalContext();
+  const { messageInfo, isPinned } = item;
+
+  const canTogglePin =
+    isComposableMessageType(messageInfo.type) &&
+    threadHasPermission(threadInfo, threadPermissions.MANAGE_PINS);
+
+  return React.useMemo(() => {
+    if (!canTogglePin) {
+      return null;
+    }
+
+    const iconName = isPinned ? 'unpin' : 'pin';
+
+    const buttonContent = <CommIcon icon={iconName} size={18} />;
+
+    const onClickTogglePin = () => {
+      pushModal(<TogglePinModal item={item} threadInfo={threadInfo} />);
+    };
+
+    return {
+      actionButtonContent: buttonContent,
+      onClick: onClickTogglePin,
+      label: isPinned ? 'Unpin' : 'Pin',
+    };
+  }, [canTogglePin, isPinned, pushModal, item, threadInfo]);
+}
+
 function useMessageTooltipActions(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
@@ -489,9 +523,17 @@ function useMessageTooltipActions(
   const replyAction = useMessageTooltipReplyAction(item, threadInfo);
   const copyAction = useMessageCopyAction(item);
   const reactAction = useMessageReactAction(item, threadInfo);
+  const togglePinAction = useMessageTogglePinAction(item, threadInfo);
   return React.useMemo(
-    () => [replyAction, sidebarAction, copyAction, reactAction].filter(Boolean),
-    [replyAction, sidebarAction, copyAction, reactAction],
+    () =>
+      [
+        replyAction,
+        sidebarAction,
+        copyAction,
+        reactAction,
+        togglePinAction,
+      ].filter(Boolean),
+    [replyAction, sidebarAction, copyAction, reactAction, togglePinAction],
   );
 }
 
