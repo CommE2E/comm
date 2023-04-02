@@ -20,7 +20,8 @@ import InlineEngagement from './inline-engagement.react.js';
 import UserAvatar from '../components/user-avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { shouldRenderAvatars } from '../utils/avatar-utils.js';
-import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
+import { useMessageTooltip } from '../utils/tooltip-action-utils.js';
+import { tooltipPositions } from '../utils/tooltip-utils.js';
 
 const availableTooltipPositionsForViewerMessage = [
   tooltipPositions.LEFT,
