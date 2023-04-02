@@ -19,7 +19,8 @@ import Markdown from '../markdown/markdown.react.js';
 import { linkRules } from '../markdown/rules.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
+import { useMessageTooltip } from '../utils/tooltip-action-utils.js';
+import { tooltipPositions } from '../utils/tooltip-utils.js';
 
 const availableTooltipPositionsForRobotext = [
   tooltipPositions.LEFT,
