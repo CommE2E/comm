@@ -141,7 +141,8 @@ class Multimedia extends React.PureComponent<Props> {
 
   onClick: () => void = () => {
     const { pushModal, type, uri } = this.props;
-    pushModal(<MultimediaModal type={type} uri={uri} />);
+    const mediaInfo = { type, uri };
+    pushModal(<MultimediaModal media={mediaInfo} />);
   };
 }
 
