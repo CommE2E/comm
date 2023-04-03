@@ -1,0 +1,54 @@
+.confirmationText {
+    color: var(--pin-message-information-text-color);
+    padding: 16px 32px 0 32px;
+    font-size: small;
+}
+
+.messageContainer {
+    overflow-y: scroll;
+    border: 1px solid var(--pin-message-modal-border-color);
+    border-radius: 7px;
+    max-height: 400px;
+    margin: 16px 32px 16px 32px;
+}
+
+.messageDate {
+    color: var(--chat-timestamp-color);
+    font-size: var(--xs-font-12);
+    padding: 6px 0;
+    line-height: var(--line-height-text);
+    text-align: center;
+}
+
+.creator {
+    font-size: small;
+    color: #777777;
+    font-size: 14px;
+    padding: 4px 24px;
+    text-align: left;
+}
+
+.messageContent {
+    padding: 0 0 6px 0;
+}
+
+.buttonContainer {
+    width: 87%;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    align-items: stretch;
+    margin-bottom: 16px;
+}
+
+.cancelButton {
+    color: white;
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.cancelButton:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
