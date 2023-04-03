@@ -1,7 +1,6 @@
 // @flow
 
 import localforage from 'localforage';
-import _throttle from 'lodash/throttle.js';
 import initSqlJs, { type SqliteDatabase } from 'sql.js';
 
 import type {
@@ -34,7 +33,6 @@ import {
 } from '../queries/storage-engine-queries.js';
 import {
   CURRENT_USER_ID_KEY,
-  DB_PERSIST_THROTTLE_WAIT_MS,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
 } from '../utils/constants.js';
@@ -55,6 +53,9 @@ localforage.config(localforageConfig);
 
 let sqliteDb: ?SqliteDatabase = null;
 let encryptionKey: ?CryptoKey = null;
+
+let persistNeeded: boolean = false;
+let persistInProgress: boolean = false;
 
 async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
   encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
@@ -134,6 +135,7 @@ function getClientStore(): ClientDBStore {
 }
 
 async function persist() {
+  persistInProgress = true;
   if (!sqliteDb) {
     throw new Error('Database not initialized');
   }
@@ -142,15 +144,22 @@ async function persist() {
     encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
   }
 
-  const dbData = sqliteDb.export();
-  if (!encryptionKey) {
-    throw new Error('Encryption key is missing');
-  }
-  const encryptedData = await encryptDatabaseFile(dbData, encryptionKey);
-  await localforage.setItem(SQLITE_CONTENT, encryptedData);
-}
+  while (true) {
+    const dbData = sqliteDb.export();
+    if (!encryptionKey) {
+      throw new Error('Encryption key is missing');
+    }
+    const encryptedData = await encryptDatabaseFile(dbData, encryptionKey);
+    await localforage.setItem(SQLITE_CONTENT, encryptedData);
 
-const throttledPersist = _throttle(persist, DB_PERSIST_THROTTLE_WAIT_MS);
+    if (persistNeeded) {
+      persistNeeded = false;
+    } else {
+      persistInProgress = false;
+      break;
+    }
+  }
+}
 
 async function processAppRequest(
   message: WorkerRequestMessage,
@@ -228,7 +237,14 @@ async function processAppRequest(
     removePersistStorageItem(sqliteDb, message.key);
   }
 
-  throttledPersist();
+  if (persistInProgress) {
+    // persist process is running, it will need to be scheduled again
+    persistNeeded = true;
+  } else {
+    // persist process is not running, scheduling for the first time
+    persist();
+  }
+
   return undefined;
 }
 
