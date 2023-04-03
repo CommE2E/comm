@@ -17,6 +17,7 @@ import {
   workerRequestMessageTypes,
   workerResponseMessageTypes,
   type WorkerRequestProxyMessage,
+  workerWriteRequests,
 } from '../../types/worker-types.js';
 import { getSQLiteDBVersion, setupSQLiteDB } from '../queries/db-queries.js';
 import {
@@ -198,32 +199,28 @@ async function processAppRequest(
   }
 
   // write operations
+  if (!workerWriteRequests.includes(message.type)) {
+    throw new Error('Request type not supported');
+  }
+
   if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
     const { draftStoreOperations } = message.storeOperations;
     if (draftStoreOperations) {
       processDraftStoreOperations(draftStoreOperations);
     }
-    throttledPersist();
-    return;
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
     setMetadata(sqliteDb, CURRENT_USER_ID_KEY, message.userID);
-    throttledPersist();
-    return;
   } else if (
     message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
   ) {
     setPersistStorageItem(sqliteDb, message.key, message.item);
-    throttledPersist();
-    return;
   } else if (
     message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
   ) {
     removePersistStorageItem(sqliteDb, message.key);
-    throttledPersist();
-    return;
   }
 
-  throw new Error('Request type not supported');
+  throttledPersist();
 }
 
 function connectHandler(event: SharedWorkerMessageEvent) {
