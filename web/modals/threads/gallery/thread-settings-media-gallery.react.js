@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
@@ -49,11 +48,21 @@ function ThreadSettingsMediaGalleryModal(
 
   const onClick = React.useCallback(
     (media: Media) => {
-      invariant(
-        media.type === 'photo' || media.type === 'video',
-        '<MultimediaModal> supports only unencrypted images and videos',
-      );
-      pushModal(<MultimediaModal type={media.type} uri={media.uri} />);
+      // this branching is needed for Flow
+      let mediaInfo;
+      if (media.type === 'photo' || media.type === 'video') {
+        mediaInfo = {
+          type: media.type,
+          uri: media.uri,
+        };
+      } else {
+        mediaInfo = {
+          type: media.type,
+          holder: media.holder,
+          encryptionKey: media.encryptionKey,
+        };
+      }
+      pushModal(<MultimediaModal media={mediaInfo} />);
     },
     [pushModal],
   );
