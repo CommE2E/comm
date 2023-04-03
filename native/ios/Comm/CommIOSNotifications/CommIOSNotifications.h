@@ -15,6 +15,7 @@ typedef void (^RCTRemoteNotificationCallback)(UIBackgroundFetchResult result);
 + (void)didReceiveRemoteNotification:(NSDictionary *)notification
               fetchCompletionHandler:
                   (void (^)(UIBackgroundFetchResult))completionHandler;
++ (void)didReceiveBackgroundMessageInfos:(NSDictionary *)notification;
 + (void)clearNotificationFromNotificationsCenter:(NSString *)notificationId
                                completionHandler:
                                    (void (^)(UIBackgroundFetchResult))
