@@ -5,12 +5,24 @@ import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { EncryptedMediaType, MediaType } from 'lib/types/media-types.js';
 
+import EncryptedMultimedia from './encrypted-multimedia.react.js';
 import css from './media.css';
 
+type MediaInfo =
+  | {
+      +type: MediaType,
+      +uri: string,
+    }
+  | {
+      +type: EncryptedMediaType,
+      +holder: string,
+      +encryptionKey: string,
+    };
+
 type BaseProps = {
-  +type: string,
-  +uri: string,
+  +media: MediaInfo,
 };
 
 type Props = {
@@ -28,13 +40,27 @@ class MultimediaModal extends React.PureComponent<Props> {
 
   render(): React.Node {
     let mediaModalItem;
-    if (this.props.type === 'photo') {
-      mediaModalItem = <img src={this.props.uri} />;
-    } else {
+    const { media } = this.props;
+    if (media.type === 'photo') {
+      mediaModalItem = <img src={media.uri} />;
+    } else if (media.type === 'video') {
       mediaModalItem = (
         <video controls>
-          <source src={this.props.uri} />
+          <source src={media.uri} />
         </video>
+      );
+    } else {
+      invariant(
+        media.type === 'encrypted_photo' || media.type === 'encrypted_video',
+        'invalid media type',
+      );
+      const { type, holder, encryptionKey } = media;
+      mediaModalItem = (
+        <EncryptedMultimedia
+          type={type}
+          holder={holder}
+          encryptionKey={encryptionKey}
+        />
       );
     }
 
