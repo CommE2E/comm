@@ -18,6 +18,8 @@ NSString *const CommIOSNotificationsRegistrationFailed =
 NSString *const CommIOSNotificationsReceivedForeground =
     @"CommIOSNotificationsReceivedForeground";
 NSString *const CommIOSNotificationsOpened = @"CommIOSNotificationsOpened";
+NSString *const CommIOSNotificationsReceivedBackground =
+    @"CommIOSNotificationsReceivedBackground";
 
 /*
  UIBackgroundFetchResult enum converter to pass fetch result value
@@ -88,6 +90,11 @@ RCT_EXPORT_MODULE()
          selector:@selector(handleNotificationOpened:)
              name:CommIOSNotificationsOpened
            object:nil];
+  [NSNotificationCenter.defaultCenter
+      addObserver:self
+         selector:@selector(handleNotificationReceivedBackground:)
+             name:CommIOSNotificationsReceivedBackground
+           object:nil];
   return self;
 }
 
@@ -100,7 +107,8 @@ RCT_EXPORT_MODULE()
     @"remoteNotificationsRegistered",
     @"remoteNotificationsRegistrationFailed",
     @"notificationReceivedForeground",
-    @"notificationOpened"
+    @"notificationOpened",
+    @"notificationReceivedBackground",
   ];
 }
 
@@ -169,6 +177,13 @@ RCT_EXPORT_MODULE()
                       object:self
                     userInfo:notifInfo];
   }
+}
+
++ (void)didReceiveBackgroundMessageInfos:(NSDictionary *)notification {
+  [NSNotificationCenter.defaultCenter
+      postNotificationName:CommIOSNotificationsReceivedBackground
+                    object:self
+                  userInfo:notification];
 }
 
 + (void)clearNotificationFromNotificationsCenter:(NSString *)notificationId
@@ -247,6 +262,14 @@ RCT_EXPORT_MODULE()
     return;
   }
   [self handleNotifInfo:sysNotif.userInfo withName:@"notificationOpened"];
+}
+
+- (void)handleNotificationReceivedBackground:(NSNotification *)sysNotif {
+  if (!_hasListeners) {
+    return;
+  }
+  [self sendEventWithName:@"notificationReceivedBackground"
+                     body:sysNotif.userInfo];
 }
 
 /*
