@@ -7,6 +7,14 @@ div.topBarContainer {
   overflow: hidden;
 }
 
+div.threadColorSquare {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  flex: 0 0 auto;
+  margin: 0 12px 0 16px;
+}
+
 div.avatarContainer {
   margin: 0 12px 0 16px;
 }

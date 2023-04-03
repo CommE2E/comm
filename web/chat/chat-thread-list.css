@@ -89,7 +89,8 @@ div.colorContainer {
   padding-top: 8px;
 }
 
-div.spacer {
+div.spacer,
+div.colorSplotch {
   width: 42px;
   border-radius: 1.68px;
 }

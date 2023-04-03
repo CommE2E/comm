@@ -13,6 +13,7 @@ import css from './inline-engagement.css';
 import CommIcon from '../CommIcon.react.js';
 import MessageReactionsModal from '../modals/chat/message-reactions-modal.react.js';
 import { useOnClickThread } from '../selectors/thread-selectors.js';
+import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
   +threadInfo: ?ThreadInfo,
@@ -31,6 +32,8 @@ function InlineEngagement(props: Props): React.Node {
       [css.leftContainer]: positioning === 'left',
       [css.centerContainer]: positioning === 'center',
       [css.rightContainer]: positioning === 'right',
+      [css.leftContainerNoAvatar]:
+        positioning === 'left' && !shouldRenderAvatars,
     },
   ]);
 
