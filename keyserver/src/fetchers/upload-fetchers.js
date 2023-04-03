@@ -105,15 +105,39 @@ function mediaFromRow(row: Object): Media {
   const id = row.uploadID.toString();
   const dimensions = { width, height };
   const uri = getUploadURL(id, secret);
+  const isEncrypted = !!uploadExtra.encryptionKey;
   if (type === 'photo') {
+    if (isEncrypted) {
+      return {
+        id,
+        type: 'encrypted_photo',
+        holder: uri,
+        dimensions,
+        encryptionKey: uploadExtra.encryptionKey,
+      };
+    }
     return { id, type: 'photo', uri, dimensions };
-  } else if (loop) {
-    // $FlowFixMe add thumbnailID, thumbnailURI once they're in DB
-    return { id, type: 'video', uri, dimensions, loop };
-  } else {
-    // $FlowFixMe add thumbnailID, thumbnailURI once they're in DB
-    return { id, type: 'video', uri, dimensions };
   }
+
+  let video;
+  if (isEncrypted) {
+    video = {
+      id,
+      type: 'encrypted_video',
+      holder: uri,
+      dimensions,
+      encryptionKey: uploadExtra.encryptionKey,
+    };
+  } else {
+    video = { id, type: 'video', uri, dimensions };
+  }
+
+  if (loop) {
+    // $FlowFixMe add thumbnailID, thumbnailURI once they're in DB
+    return { ...video, loop };
+  }
+  // $FlowFixMe add thumbnailID, thumbnailURI once they're in DB
+  return video;
 }
 
 async function fetchMedia(
