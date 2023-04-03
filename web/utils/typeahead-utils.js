@@ -9,6 +9,7 @@ import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
+import { shouldRenderAvatars } from './avatar-utils.js';
 import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
 import Button from '../components/button.react.js';
@@ -137,6 +138,11 @@ function getTypeaheadTooltipButtons(
       setChosenPositionInOverlay(idx);
     };
 
+    const usernameClassName = classNames({
+      [css.username]: shouldRenderAvatars,
+      [css.usernameNoAvatar]: !shouldRenderAvatars,
+    });
+
     return (
       <Button
         key={key}
@@ -145,7 +151,9 @@ function getTypeaheadTooltipButtons(
         className={buttonClasses}
       >
         <UserAvatar size="small" userID={actionButtonContent.userID} />
-        <span className={css.username}>@{actionButtonContent.username}</span>
+        <span className={usernameClassName}>
+          @{actionButtonContent.username}
+        </span>
       </Button>
     );
   });

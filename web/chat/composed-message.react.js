@@ -18,6 +18,7 @@ import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
 import UserAvatar from '../components/user-avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
+import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils.js';
 
 const availableTooltipPositionsForViewerMessage = [
@@ -80,6 +81,8 @@ class ComposedMessage extends React.PureComponent<Props> {
     const messageBoxContainerClassName = classNames({
       [css.messageBoxContainer]: true,
       [css.fixedWidthMessageBoxContainer]: this.props.fixedWidth,
+      [css.messageBoxContainerPositionAvatar]: shouldRenderAvatars,
+      [css.messageBoxContainerPositionNoAvatar]: !shouldRenderAvatars,
     });
     const messageBoxClassName = classNames({
       [css.messageBox]: true,
@@ -94,8 +97,13 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     let authorName = null;
     const { stringForUser } = this.props;
+    const authorNameClassName = classNames({
+      [css.authorName]: true,
+      [css.authorNamePositionAvatar]: shouldRenderAvatars,
+      [css.authorNamePositionNoAvatar]: !shouldRenderAvatars,
+    });
     if (stringForUser) {
-      authorName = <span className={css.authorName}>{stringForUser}</span>;
+      authorName = <span className={authorNameClassName}>{stringForUser}</span>;
     }
 
     let deliveryIcon = null;
@@ -143,13 +151,13 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     let avatar;
-    if (!isViewer && item.endsCluster) {
+    if (!isViewer && item.endsCluster && shouldRenderAvatars) {
       avatar = (
         <div className={css.avatarContainer}>
           <UserAvatar size="small" userID={creator.id} />
         </div>
       );
-    } else if (!isViewer) {
+    } else if (!isViewer && shouldRenderAvatars) {
       avatar = <div className={css.avatarOffset} />;
     }
 

@@ -11,6 +11,7 @@ import css from './community-drawer-item.css';
 import { ExpandButton } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
 import ThreadAvatar from '../components/thread-avatar.react.js';
+import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
@@ -118,6 +119,13 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     [css.active]: handler.isActive,
   });
 
+  const titleStyle = React.useMemo(
+    () => ({
+      marginLeft: shouldRenderAvatars ? 8 : 0,
+    }),
+    [],
+  );
+
   return (
     <>
       <Handler setHandler={setHandler} threadInfo={threadInfo} />
@@ -125,7 +133,9 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         {itemExpandButton}
         <a onClick={handler.onClick} className={css.titleWrapper}>
           <ThreadAvatar size="micro" threadInfo={threadInfo} />
-          <div className={titleLabel}>{uiName}</div>
+          <div className={titleLabel} style={titleStyle}>
+            {uiName}
+          </div>
         </a>
       </div>
       <div className={css.threadListContainer}>{children}</div>
