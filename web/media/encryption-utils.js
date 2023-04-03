@@ -2,15 +2,90 @@
 
 import invariant from 'invariant';
 
-import { hexToUintArray } from 'lib/media/data-utils.js';
+import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { fileInfoFromData } from 'lib/media/file-utils.js';
-import type { MediaMissionFailure } from 'lib/types/media-types.js';
+import type {
+  MediaMissionFailure,
+  MediaMissionStep,
+} from 'lib/types/media-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { unpad } from 'lib/utils/pkcs7-padding.js';
+import { calculatePaddedLength, pad, unpad } from 'lib/utils/pkcs7-padding.js';
 
 import * as AES from './aes-crypto-utils.js';
 
 const PADDING_THRESHOLD = 5000000; // 5MB
+
+type EncryptFileResult = {
+  +success: true,
+  +file: File,
+  +uri: string,
+  +encryptionKey: string,
+};
+
+async function encryptFile(input: File): Promise<{
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: EncryptFileResult | MediaMissionFailure,
+}> {
+  const steps = [];
+  let success = true,
+    exceptionMessage;
+
+  // Step 1: Read the file into an ArrayBuffer
+  let data;
+  const arrayBufferStart = Date.now();
+  try {
+    const inputBuffer = await input.arrayBuffer();
+    data = new Uint8Array(inputBuffer);
+  } catch (e) {
+    success = false;
+    exceptionMessage = getMessageForException(e);
+  }
+  steps.push({
+    step: 'array_buffer_from_blob',
+    success,
+    exceptionMessage,
+    time: Date.now() - arrayBufferStart,
+  });
+  if (!success || !data) {
+    return { steps, result: { success: false, reason: 'array_buffer_failed' } };
+  }
+
+  // Step 2: Encrypt the data
+  const startEncrypt = Date.now();
+  const paddedLength = calculatePaddedLength(data.length);
+  const shouldPad = paddedLength <= PADDING_THRESHOLD;
+  let key, encryptedData;
+  try {
+    const plaintextData = shouldPad ? pad(data) : data;
+    key = await AES.generateKey();
+    encryptedData = await AES.encrypt(key, plaintextData);
+  } catch (e) {
+    success = false;
+    exceptionMessage = getMessageForException(e);
+  }
+  steps.push({
+    step: 'encrypt_data',
+    dataSize: encryptedData?.byteLength ?? -1,
+    isPadded: shouldPad,
+    time: Date.now() - startEncrypt,
+    success,
+    exceptionMessage,
+  });
+  if (!success || !encryptedData || !key) {
+    return { steps, result: { success: false, reason: 'encryption_failed' } };
+  }
+
+  const output = new File([encryptedData], input.name, { type: input.type });
+  return {
+    steps,
+    result: {
+      success: true,
+      file: output,
+      uri: URL.createObjectURL(output),
+      encryptionKey: uintArrayToHexString(key),
+    },
+  };
+}
 
 type DecryptFileStep =
   | {
@@ -146,4 +221,4 @@ async function decryptMedia(
   return { steps, result: { success: true, uri: objectURL } };
 }
 
-export { decryptMedia };
+export { encryptFile, decryptMedia };
