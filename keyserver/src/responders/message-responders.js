@@ -188,13 +188,20 @@ async function multimediaMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const messageData = createMediaMessageData({
-    localID,
-    threadID,
-    creatorID: viewer.id,
-    media,
-    sidebarCreation,
-  });
+  // We use the MULTIMEDIA type for encrypted photos
+  const containsEncryptedMedia = media.some(
+    m => m.type === 'encrypted_photo' || m.type === 'encrypted_video',
+  );
+  const messageData = createMediaMessageData(
+    {
+      localID,
+      threadID,
+      creatorID: viewer.id,
+      media,
+      sidebarCreation,
+    },
+    { forceMultimediaMessageType: containsEncryptedMedia },
+  );
   const [newMessageInfo] = await createMessages(viewer, [messageData]);
   const { id } = newMessageInfo;
   invariant(
