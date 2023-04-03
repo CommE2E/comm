@@ -20,6 +20,13 @@ export const workerRequestMessageTypes = Object.freeze({
   CLEAR_SENSITIVE_DATA: 10,
 });
 
+export const workerWriteRequests = [
+  workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+  workerRequestMessageTypes.SET_CURRENT_USER_ID,
+  workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM,
+  workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
+];
+
 export type PingWorkerRequestMessage = {
   +type: 0,
   +text: string,
