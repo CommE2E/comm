@@ -693,6 +693,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           uri,
           loop: false,
           uriIsReal: false,
+          encryptionKey: null,
           progressPercent: 0,
           abort: null,
           steps,
