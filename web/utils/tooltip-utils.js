@@ -495,6 +495,8 @@ function useMessageTogglePinAction(
     isComposableMessageType(messageInfo.type) &&
     threadHasPermission(threadInfo, threadPermissions.MANAGE_PINS);
 
+  const inputState = React.useContext(InputStateContext);
+
   return React.useMemo(() => {
     if (!canTogglePin) {
       return null;
@@ -505,7 +507,11 @@ function useMessageTogglePinAction(
     const buttonContent = <SWMansionIcon icon={iconName} size={18} />;
 
     const onClickTogglePin = () => {
-      pushModal(<TogglePinModal item={item} threadInfo={threadInfo} />);
+      pushModal(
+        <InputStateContext.Provider value={inputState}>
+          <TogglePinModal item={item} threadInfo={threadInfo} />
+        </InputStateContext.Provider>,
+      );
     };
 
     return {
@@ -513,7 +519,7 @@ function useMessageTogglePinAction(
       onClick: onClickTogglePin,
       label: isPinned ? 'Unpin' : 'Pin',
     };
-  }, [canTogglePin, isPinned, pushModal, item, threadInfo]);
+  }, [canTogglePin, inputState, isPinned, pushModal, item, threadInfo]);
 }
 
 function useMessageTooltipActions(
