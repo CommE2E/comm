@@ -255,6 +255,11 @@ jsi::Array parseDBThreads(
             ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
             : jsi::Value::null());
     jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
+    jsiThread.setProperty(
+        rt,
+        "avatar",
+        thread.avatar ? jsi::String::createFromUtf8(rt, *thread.avatar)
+                      : jsi::Value::null());
 
     jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
   }
