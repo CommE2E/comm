@@ -87,6 +87,7 @@ import {
   type TypeaheadState,
   InputStateContext,
 } from './input-state.js';
+import { encryptFile } from '../media/encryption-utils.js';
 import { validateFile, preloadImage } from '../media/media-utils.js';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -163,6 +164,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
+  // TODO: we want to send encrypted media if thread is in the Comm community
+  sendEncryptedMedia: boolean = false;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -284,7 +287,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const creatorID = this.props.viewerID;
       invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
-        ({ localID, serverID, uri, mediaType, dimensions }) => {
+        ({ localID, serverID, uri, mediaType, dimensions, encryptionKey }) => {
           // We can get into this state where dimensions are null if the user is
           // uploading a file type that the browser can't render. In that case
           // we fake the dimensions here while we wait for the server to tell us
@@ -294,9 +297,24 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           // native), 0,0 is probably a good default.
           const shimmedDimensions = dimensions ?? { height: 0, width: 0 };
           invariant(
-            mediaType === 'photo',
+            mediaType === 'photo' || mediaType === 'encrypted_photo',
             "web InputStateContainer can't handle video",
           );
+          const isEncrypted =
+            mediaType === 'encrypted_photo' || mediaType === 'encrypted_video';
+          if (isEncrypted) {
+            invariant(
+              encryptionKey,
+              'encrypted media must have an encryption key',
+            );
+            return {
+              id: serverID ? serverID : localID,
+              holder: uri,
+              type: 'encrypted_photo',
+              encryptionKey,
+              dimensions: shimmedDimensions,
+            };
+          }
           return {
             id: serverID ? serverID : localID,
             uri,
@@ -305,12 +323,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           };
         },
       );
-      const messageInfo = createMediaMessageInfo({
-        localID: messageID,
-        threadID,
-        creatorID,
-        media,
-      });
+      const messageInfo = createMediaMessageInfo(
+        {
+          localID: messageID,
+          threadID,
+          creatorID,
+          media,
+        },
+        { forceMultimediaMessageType: this.sendEncryptedMedia },
+      );
       newMessageInfos.set(messageID, messageInfo);
     }
 
@@ -676,8 +697,32 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!result.success) {
       return { steps, result };
     }
-
     const { uri, file: fixedFile, mediaType, dimensions } = result;
+
+    let encryptionResult;
+    if (this.sendEncryptedMedia) {
+      let encryptionResponse;
+      const encryptionStart = Date.now();
+      try {
+        encryptionResponse = await encryptFile(fixedFile);
+      } catch (e) {
+        return {
+          steps,
+          result: {
+            success: false,
+            reason: 'encryption_exception',
+            time: Date.now() - encryptionStart,
+            exceptionMessage: getMessageForException(e),
+          },
+        };
+      }
+      steps.push(...encryptionResponse.steps);
+      encryptionResult = encryptionResponse.result;
+    }
+    if (encryptionResult && !encryptionResult.success) {
+      return { steps, result: encryptionResult };
+    }
+
     return {
       steps,
       result: {
@@ -687,13 +732,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           serverID: null,
           messageID: null,
           failed: false,
-          file: fixedFile,
-          mediaType,
+          file: encryptionResult ? encryptionResult.file : fixedFile,
+          mediaType: encryptionResult ? 'encrypted_photo' : mediaType,
           dimensions,
-          uri,
+          uri: encryptionResult ? encryptionResult.uri : uri,
           loop: false,
           uriIsReal: false,
-          encryptionKey: null,
+          encryptionKey: encryptionResult
+            ? encryptionResult.encryptionKey
+            : null,
           progressPercent: 0,
           abort: null,
           steps,
@@ -713,7 +760,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async uploadFile(threadID: string, upload: PendingMultimediaUpload) {
-    const { selectTime, localID } = upload;
+    const { selectTime, localID, encryptionKey } = upload;
+    const isEncrypted =
+      !!encryptionKey &&
+      (upload.mediaType === 'encrypted_photo' ||
+        upload.mediaType === 'encrypted_video');
+
     const steps = [...upload.steps];
     let userTime;
 
@@ -741,9 +793,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let uploadResult, uploadExceptionMessage;
     const uploadStart = Date.now();
     try {
+      let uploadExtras = { ...upload.dimensions, loop: false };
+      if (encryptionKey) {
+        uploadExtras = { ...uploadExtras, encryptionKey };
+      }
       uploadResult = await this.props.uploadMultimedia(
         upload.file,
-        { ...upload.dimensions, loop: false },
+        uploadExtras,
         {
           onProgress: (percent: number) =>
             this.setProgress(threadID, localID, percent),
@@ -776,6 +832,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return;
     }
     const result = uploadResult;
+    const outputMediaType = isEncrypted ? 'encrypted_photo' : result.mediaType;
 
     const successThreadID = this.getRealizedOrPendingThreadID(threadID);
     const uploadAfterSuccess =
@@ -822,8 +879,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    const { steps: preloadSteps } = await preloadImage(result.uri);
-    steps.push(...preloadSteps);
+    // we cannot preload encrypted media this way, we don't have cache
+    if (!encryptionKey) {
+      const { steps: preloadSteps } = await preloadImage(result.uri);
+      steps.push(...preloadSteps);
+    }
     sendReport({ success: true });
 
     const preloadThreadID = this.getRealizedOrPendingThreadID(threadID);
@@ -836,6 +896,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
     if (uploadAfterPreload.messageID) {
       const { mediaType, uri, dimensions, loop } = result;
+      let mediaUpdate;
+      if (isEncrypted) {
+        mediaUpdate = {
+          type: outputMediaType,
+          holder: uri,
+          encryptionKey,
+          dimensions,
+          loop,
+        };
+      } else {
+        mediaUpdate = { type: mediaType, uri, dimensions, loop };
+      }
       this.props.dispatch({
         type: updateMultimediaMessageMediaActionType,
         payload: {
@@ -843,7 +915,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           currentMediaID: uploadAfterPreload.serverID
             ? uploadAfterPreload.serverID
             : uploadAfterPreload.localID,
-          mediaUpdate: { type: mediaType, uri, dimensions, loop },
+          mediaUpdate,
         },
       });
     }
@@ -875,7 +947,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             [localID]: {
               ...currentUpload,
               uri: result.uri,
-              mediaType: result.mediaType,
+              mediaType: outputMediaType,
               dimensions: result.dimensions,
               uriIsReal: true,
               loop: result.loop,
