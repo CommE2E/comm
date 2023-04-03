@@ -231,19 +231,38 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
 
     const { pendingUploads, cancelPendingUpload } = this.props.inputState;
-    const multimediaPreviews = pendingUploads.map(pendingUpload => (
-      <Multimedia
-        mediaSource={{
+    const multimediaPreviews = pendingUploads.map(pendingUpload => {
+      let mediaSource;
+      if (
+        pendingUpload.mediaType !== 'encrypted_photo' &&
+        pendingUpload.mediaType !== 'encrypted_video'
+      ) {
+        mediaSource = {
           type: pendingUpload.mediaType,
           uri: pendingUpload.uri,
-        }}
-        pendingUpload={pendingUpload}
-        remove={cancelPendingUpload}
-        multimediaCSSClass={css.multimedia}
-        multimediaImageCSSClass={css.multimediaImage}
-        key={pendingUpload.localID}
-      />
-    ));
+        };
+      } else {
+        invariant(
+          pendingUpload.encryptionKey,
+          'encryptionKey should be set for encrypted media',
+        );
+        mediaSource = {
+          type: pendingUpload.mediaType,
+          holder: pendingUpload.uri,
+          encryptionKey: pendingUpload.encryptionKey,
+        };
+      }
+      return (
+        <Multimedia
+          mediaSource={mediaSource}
+          pendingUpload={pendingUpload}
+          remove={cancelPendingUpload}
+          multimediaCSSClass={css.multimedia}
+          multimediaImageCSSClass={css.multimediaImage}
+          key={pendingUpload.localID}
+        />
+      );
+    });
     const previews =
       multimediaPreviews.length > 0 ? (
         <div className={css.previews}>{multimediaPreviews}</div>
