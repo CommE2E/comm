@@ -18,28 +18,29 @@ async function registerForNotifications(): Promise<?string> {
   return null;
 }
 
+function showNewNotification(payload, handleClick) {
+  if (
+    typeof payload.title !== 'string' ||
+    typeof payload.body !== 'string' ||
+    typeof payload.threadID !== 'string'
+  ) {
+    return;
+  }
+  const { title, body, threadID } = payload;
+  const notif = new Notification({
+    title,
+    body,
+  });
+  notif.on('click', () => handleClick(threadID));
+  notif.show();
+}
+
 function listenForNotifications(handleClick: (threadID: string) => void) {
   if (process.platform !== 'darwin') {
     return;
   }
   pushNotifications.on('received-apns-notification', (event, userInfo) => {
-    if (
-      typeof userInfo.title !== 'string' ||
-      typeof userInfo.body !== 'string' ||
-      typeof userInfo.threadID !== 'string'
-    ) {
-      return;
-    }
-    const { title, body, threadID } = userInfo;
-
-    const notif = new Notification({
-      title,
-      body,
-    });
-    notif.on('click', () => {
-      handleClick(threadID);
-    });
-    notif.show();
+    showNewNotification(userInfo, handleClick);
   });
 }
 
