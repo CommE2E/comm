@@ -57,6 +57,21 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 NSString *const setUnreadStatusKey = @"setUnreadStatus";
 NSString *const threadIDKey = @"threadID";
+NSString *const newMessageInfosNSNotification =
+    @"app.comm.ns_new_message_infos";
+CFStringRef newMessageInfosDarwinNotification =
+    CFSTR("app.comm.darwin_new_message_infos");
+
+void didReceiveNewMessageInfosDarwinNotification(
+    CFNotificationCenterRef center,
+    void *observer,
+    CFStringRef name,
+    const void *object,
+    CFDictionaryRef userInfo) {
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:newMessageInfosNSNotification
+                    object:nil];
+}
 
 @interface AppDelegate () <
     RCTCxxBridgeDelegate,
@@ -69,6 +84,7 @@ NSString *const threadIDKey = @"threadID";
 - (BOOL)application:(UIApplication *)application
     willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [self attemptDatabaseInitialization];
+  [self registerForNewMessageInfosNotifications];
   return YES;
 }
 
@@ -76,7 +92,7 @@ NSString *const threadIDKey = @"threadID";
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   RCTAppSetupPrepareApp(application);
 
-  [self moveMessagesToDatabase];
+  [self moveMessagesToDatabase:NO];
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient
                                          error:nil];
 
@@ -296,11 +312,15 @@ using Runtime = facebook::jsi::Runtime;
   });
 }
 
-- (void)moveMessagesToDatabase {
+- (void)moveMessagesToDatabase:(BOOL)sendBackgroundMessagesInfosToJS {
   TemporaryMessageStorage *temporaryStorage =
       [[TemporaryMessageStorage alloc] init];
   NSArray<NSString *> *messages = [temporaryStorage readAndClearMessages];
   for (NSString *message in messages) {
+    if (sendBackgroundMessagesInfosToJS) {
+      [CommIOSNotifications
+          didReceiveBackgroundMessageInfos:@{@"messageInfos" : message}];
+    }
     std::string messageInfos = std::string([message UTF8String]);
     comm::GlobalDBSingleton::instance.scheduleOrRun([messageInfos]() mutable {
       comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
@@ -337,6 +357,26 @@ using Runtime = facebook::jsi::Runtime;
       comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
     });
   }
+}
+
+- (void)didReceiveNewMessageInfosNSNotification:(NSNotification *)notification {
+  [self moveMessagesToDatabase:YES];
+}
+
+- (void)registerForNewMessageInfosNotifications {
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(didReceiveNewMessageInfosNSNotification:)
+             name:newMessageInfosNSNotification
+           object:nil];
+
+  CFNotificationCenterAddObserver(
+      CFNotificationCenterGetDarwinNotifyCenter(),
+      (__bridge const void *)(self),
+      didReceiveNewMessageInfosDarwinNotification,
+      newMessageInfosDarwinNotification,
+      NULL,
+      CFNotificationSuspensionBehaviorDeliverImmediately);
 }
 
 // Copied from

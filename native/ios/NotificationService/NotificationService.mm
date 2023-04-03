@@ -6,6 +6,8 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
 int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
+CFStringRef newMessageInfosDarwinNotification =
+    CFSTR("app.comm.darwin_new_message_infos");
 
 @interface NotificationService ()
 
@@ -33,7 +35,7 @@ int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
     self.contentHandler([[UNNotificationContent alloc] init]);
     return;
   }
-
+  [self sendNewMessageInfosNotification];
   // TODO modify self.bestAttemptContent here
 
   self.contentHandler(self.bestAttemptContent);
@@ -118,6 +120,15 @@ int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
 - (BOOL)isRescind:(NSDictionary *)payload {
   return payload[backgroundNotificationTypeKey] &&
       [payload[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"];
+}
+
+- (void)sendNewMessageInfosNotification {
+  CFNotificationCenterPostNotification(
+      CFNotificationCenterGetDarwinNotifyCenter(),
+      newMessageInfosDarwinNotification,
+      (__bridge const void *)(self),
+      nil,
+      TRUE);
 }
 
 @end
