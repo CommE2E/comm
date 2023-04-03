@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import {
   type MediaType,
+  type EncryptedMediaType,
   type Dimensions,
   type MediaMissionStep,
 } from 'lib/types/media-types.js';
@@ -19,9 +20,10 @@ export type PendingMultimediaUpload = {
   // This is set to true if the upload fails for whatever reason
   failed: boolean,
   file: File,
-  mediaType: MediaType,
+  mediaType: MediaType | EncryptedMediaType,
   dimensions: ?Dimensions,
   uri: string,
+  encryptionKey: ?string,
   loop: boolean,
   // URLs created with createObjectURL aren't considered "real". The distinction
   // is required because those "fake" URLs must be disposed properly
