@@ -5,6 +5,7 @@ import type { Provider as APNProvider } from '@parse/node-apn';
 import fcmAdmin from 'firebase-admin';
 import type { FirebaseApp } from 'firebase-admin';
 import invariant from 'invariant';
+import fetch from 'node-fetch';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types';
@@ -122,6 +123,57 @@ async function ensureWebPushInitialized() {
   await getWebPushConfig();
 }
 
+type WNSConfig = { +tenantID: string, +appID: string, +secret: string };
+type WNSAccessToken = { +token: string, +expires: number };
+let wnsAccessToken: ?WNSAccessToken = null;
+async function getWNSToken(): Promise<?string> {
+  const expiryWindowInMs = 300;
+  if (
+    wnsAccessToken &&
+    wnsAccessToken.expires >= Date.now() - expiryWindowInMs
+  ) {
+    return wnsAccessToken.token;
+  }
+
+  const config = await importJSON<WNSConfig>({
+    folder: 'secrets',
+    name: 'wns_config',
+  });
+
+  if (!config) {
+    return null;
+  }
+
+  const params = new URLSearchParams();
+  params.append('grant_type', 'client_credentials');
+  params.append('client_id', config.appID);
+  params.append('client_secret', config.secret);
+  params.append('scope', 'https://wns.windows.com/.default');
+
+  try {
+    const response = await fetch(
+      `https://login.microsoftonline.com/${config.tenantID}/oauth2/v2.0/token`,
+      { method: 'POST', body: params },
+    );
+
+    if (!response.ok) {
+      console.error(response);
+      return null;
+    }
+
+    const responseJson = await response.json();
+    wnsAccessToken = {
+      token: responseJson['access_token'],
+      expires: Date.now() + responseJson['expires_in'] * 1000,
+    };
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+
+  return wnsAccessToken?.token;
+}
+
 export {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
@@ -132,4 +184,5 @@ export {
   getAPNsNotificationTopic,
   getWebPushConfig,
   ensureWebPushInitialized,
+  getWNSToken,
 };
