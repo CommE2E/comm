@@ -1,6 +1,12 @@
 // @flow
 
+import { detect as detectBrowser } from 'detect-browser';
 import type { QueryExecResult } from 'sql.js';
+
+import { isStaff } from 'lib/shared/user-utils.js';
+import { isDev } from 'lib/utils/dev-utils.js';
+
+import { DB_SUPPORTED_BROWSERS, DB_SUPPORTED_OS } from './constants.js';
 
 function parseSQLiteQueryResult<T>(result: QueryExecResult): T[] {
   const { columns, values } = result;
@@ -24,4 +30,19 @@ function parseMultiStatementSQLiteResult<T: Object>(
   );
 }
 
-export { parseMultiStatementSQLiteResult };
+function isSQLiteSupported(currentLoggedInUserID: ?string): boolean {
+  if (!currentLoggedInUserID) {
+    return false;
+  }
+  const canUseSqlite =
+    isDev || (currentLoggedInUserID && isStaff(currentLoggedInUserID));
+
+  const browser = detectBrowser();
+  const isSupportedBrowser =
+    DB_SUPPORTED_OS.includes(browser.os) &&
+    DB_SUPPORTED_BROWSERS.includes(browser.name);
+
+  return canUseSqlite && isSupportedBrowser;
+}
+
+export { parseMultiStatementSQLiteResult, isSQLiteSupported };
