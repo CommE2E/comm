@@ -19,6 +19,13 @@ export const workerRequestMessageTypes = Object.freeze({
   REMOVE_PERSIST_STORAGE_ITEM: 9,
 });
 
+export const workerWriteRequests: $ReadOnlyArray<number> = [
+  workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+  workerRequestMessageTypes.SET_CURRENT_USER_ID,
+  workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM,
+  workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
+];
+
 export type PingWorkerRequestMessage = {
   +type: 0,
   +text: string,
