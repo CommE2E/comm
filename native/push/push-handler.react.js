@@ -147,6 +147,10 @@ class PushHandler extends React.PureComponent<Props, State> {
           'notificationOpened',
           this.iosNotificationOpened,
         ),
+        commIOSNotificationsEventEmitter.addListener(
+          'notificationReceivedBackground',
+          backgroundData => this.saveMessageInfos(backgroundData?.messageInfos),
+        ),
       );
     } else if (Platform.OS === 'android') {
       CommAndroidNotifications.createChannel(
