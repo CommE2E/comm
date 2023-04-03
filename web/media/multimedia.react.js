@@ -14,16 +14,27 @@ import {
   useModalContext,
   type PushModal,
 } from 'lib/components/modal-provider.react.js';
-import type { MediaType } from 'lib/types/media-types.js';
+import type { MediaType, EncryptedMediaType } from 'lib/types/media-types.js';
 
+import EncryptedMultimedia from './encrypted-multimedia.react.js';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react.js';
 import Button from '../components/button.react.js';
 import { type PendingMultimediaUpload } from '../input/input-state.js';
 
+type MediaSource =
+  | {
+      +type: MediaType,
+      +uri: string,
+    }
+  | {
+      +type: EncryptedMediaType,
+      +holder: string,
+      +encryptionKey: string,
+    };
+
 type BaseProps = {
-  +uri: string,
-  +type: MediaType,
+  +mediaSource: MediaSource,
   +pendingUpload?: ?PendingMultimediaUpload,
   +remove?: (uploadID: string) => void,
   +multimediaCSSClass: string,
@@ -36,15 +47,23 @@ type Props = {
 
 class Multimedia extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
-    const { uri, pendingUpload } = this.props;
-    if (uri === prevProps.uri) {
+    const { mediaSource, pendingUpload } = this.props;
+    if (
+      prevProps.mediaSource.type === 'encrypted_photo' &&
+      prevProps.mediaSource.type === 'encrypted_video'
+    ) {
+      return;
+    }
+
+    const prevUri = prevProps.mediaSource?.uri;
+    if (!prevUri || mediaSource.uri === prevUri) {
       return;
     }
     if (
       (!pendingUpload || pendingUpload.uriIsReal) &&
       (!prevProps.pendingUpload || !prevProps.pendingUpload.uriIsReal)
     ) {
-      URL.revokeObjectURL(prevProps.uri);
+      URL.revokeObjectURL(prevUri);
     }
   }
 
@@ -54,8 +73,7 @@ class Multimedia extends React.PureComponent<Props> {
     const {
       pendingUpload,
       remove,
-      type,
-      uri,
+      mediaSource,
       multimediaImageCSSClass,
       multimediaCSSClass,
     } = this.props;
@@ -97,24 +115,42 @@ class Multimedia extends React.PureComponent<Props> {
     ];
     imageContainerClasses.push(css.clickable);
 
+    // Media element is the actual image or video element (or encrypted version)
+    let mediaElement;
+    if (mediaSource.type === 'photo') {
+      mediaElement = <img src={mediaSource.uri} />;
+    } else if (mediaSource.type === 'video') {
+      mediaElement = (
+        <video controls>
+          <source src={mediaSource.uri} />
+        </video>
+      );
+    } else if (
+      mediaSource.type === 'encrypted_photo' ||
+      mediaSource.type === 'encrypted_video'
+    ) {
+      const { ...encryptedMediaProps } = mediaSource;
+      mediaElement = <EncryptedMultimedia {...encryptedMediaProps} />;
+    }
+
+    // Media node is the container for the media element (button if photo)
     let mediaNode;
-    if (type === 'photo') {
+    if (
+      mediaSource.type === 'photo' ||
+      mediaSource.type === 'encrypted_photo'
+    ) {
       mediaNode = (
         <Button
           className={classNames(imageContainerClasses)}
           onClick={this.onClick}
         >
-          <img src={uri} />
+          {mediaElement}
           {removeButton}
         </Button>
       );
     } else {
       mediaNode = (
-        <div className={classNames(imageContainerClasses)}>
-          <video controls>
-            <source src={uri} />
-          </video>
-        </div>
+        <div className={classNames(imageContainerClasses)}>{mediaElement}</div>
       );
     }
 
@@ -140,9 +176,8 @@ class Multimedia extends React.PureComponent<Props> {
   };
 
   onClick: () => void = () => {
-    const { pushModal, type, uri } = this.props;
-    const mediaInfo = { type, uri };
-    pushModal(<MultimediaModal media={mediaInfo} />);
+    const { pushModal, mediaSource } = this.props;
+    pushModal(<MultimediaModal media={mediaSource} />);
   };
 }
 
