@@ -35,18 +35,26 @@ class MultimediaMessage extends React.PureComponent<Props> {
     const pendingUploads = localID ? inputState.assignedUploads[localID] : null;
     const multimedia = [];
     for (const singleMedia of media) {
-      invariant(
-        singleMedia.type === 'photo' || singleMedia.type === 'video',
-        '<Multimedia> supports only unencrypted images and videos',
-      );
-
       const pendingUpload = pendingUploads
         ? pendingUploads.find(upload => upload.localID === singleMedia.id)
         : null;
+      let mediaSource;
+      if (singleMedia.type === 'photo' || singleMedia.type === 'video') {
+        mediaSource = {
+          type: singleMedia.type,
+          uri: singleMedia.uri,
+        };
+      } else {
+        mediaSource = {
+          type: singleMedia.type,
+          holder: singleMedia.holder,
+          encryptionKey: singleMedia.encryptionKey,
+        };
+      }
+
       multimedia.push(
         <Multimedia
-          uri={singleMedia.uri}
-          type={singleMedia.type}
+          mediaSource={mediaSource}
           pendingUpload={pendingUpload}
           multimediaCSSClass={css.multimedia}
           multimediaImageCSSClass={css.multimediaImage}
