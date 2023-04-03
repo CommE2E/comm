@@ -7,6 +7,7 @@ import type { UserListItem } from 'lib/types/user-types.js';
 import css from './add-members.css';
 import Button from '../../components/button.react.js';
 import UserAvatar from '../../components/user-avatar.react.js';
+import { shouldRenderAvatars } from '../../utils/avatar-utils.js';
 
 type AddMembersItemProps = {
   +userInfo: UserListItem,
@@ -37,6 +38,13 @@ function AddMemberItem(props: AddMembersItemProps): React.Node {
     }
   }, [canBeAdded, userAdded, userInfo.alertTitle]);
 
+  const usernameStyle = React.useMemo(
+    () => ({
+      marginLeft: shouldRenderAvatars ? 8 : 0,
+    }),
+    [],
+  );
+
   return (
     <Button
       className={css.addMemberItem}
@@ -45,7 +53,9 @@ function AddMemberItem(props: AddMembersItemProps): React.Node {
     >
       <div className={css.userInfoContainer}>
         <UserAvatar size="small" userID={userInfo.id} />
-        <div className={css.username}>{userInfo.username}</div>
+        <div className={css.username} style={usernameStyle}>
+          {userInfo.username}
+        </div>
       </div>
       <div className={css.label}>{action}</div>
     </Button>

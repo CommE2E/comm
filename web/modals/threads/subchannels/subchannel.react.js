@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { type ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
@@ -14,6 +15,7 @@ import Button from '../../../components/button.react.js';
 import ThreadAvatar from '../../../components/thread-avatar.react.js';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react.js';
 import { useOnClickThread } from '../../../selectors/thread-selectors.js';
+import { shouldRenderAvatars } from '../../../utils/avatar-utils.js';
 
 type Props = {
   +chatThreadItem: ChatThreadItem,
@@ -75,9 +77,16 @@ function Subchannel(props: Props): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
+  const avatar = React.useMemo(() => {
+    if (!shouldRenderAvatars) {
+      return <SWMansionIcon icon="message-square" size={22} />;
+    }
+    return <ThreadAvatar size="small" threadInfo={threadInfo} />;
+  }, [threadInfo]);
+
   return (
     <Button className={css.subchannelContainer} onClick={onClickThread}>
-      <ThreadAvatar size="small" threadInfo={threadInfo} />
+      {avatar}
       <div className={subchannelTitleClassName}>
         <div className={css.longTextEllipsis}>{uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>

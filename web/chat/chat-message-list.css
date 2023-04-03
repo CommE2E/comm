@@ -84,8 +84,14 @@ div.emojiOnlyTextMessage {
 span.authorName {
   color: #777777;
   font-size: 14px;
+}
+span.authorNamePositionAvatar {
   padding: 4px 56px;
 }
+span.authorNamePositionNoAvatar {
+  padding: 4px 24px;
+}
+
 div.darkTextMessage {
   color: white;
 }
@@ -122,8 +128,14 @@ div.messageBoxContainer {
   position: relative;
   display: flex;
   max-width: calc(min(68%, 1000px));
+}
+div.messageBoxContainerPositionAvatar {
   margin: 0 4px;
 }
+div.messageBoxContainerPositionNoAvatar {
+  margin: 0 4px 0 12px;
+}
+
 div.fixedWidthMessageBoxContainer {
   width: 68%;
 }

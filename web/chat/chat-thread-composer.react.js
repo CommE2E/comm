@@ -18,6 +18,7 @@ import UserAvatar from '../components/user-avatar.react.js';
 import type { InputState } from '../input/input-state.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
@@ -85,6 +86,13 @@ function ChatThreadComposer(props: Props): React.Node {
     [dispatch, userInfoInputArray],
   );
 
+  const usernameStyle = React.useMemo(
+    () => ({
+      marginLeft: shouldRenderAvatars ? 8 : 0,
+    }),
+    [],
+  );
+
   const userSearchResultList = React.useMemo(() => {
     if (
       !userListItemsWithENSNames.length ||
@@ -103,7 +111,9 @@ function ChatThreadComposer(props: Props): React.Node {
           >
             <div className={css.userContainer}>
               <UserAvatar size="small" userID={userSearchResult.id} />
-              <div className={css.userName}>{userSearchResult.username}</div>
+              <div className={css.userName} style={usernameStyle}>
+                {userSearchResult.username}
+              </div>
             </div>
             <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
           </Button>
@@ -117,6 +127,7 @@ function ChatThreadComposer(props: Props): React.Node {
     userInfoInputArray.length,
     userListItemsWithENSNames,
     usernameInputText,
+    usernameStyle,
   ]);
 
   const hideSearch = React.useCallback(
