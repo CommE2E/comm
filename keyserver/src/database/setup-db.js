@@ -249,6 +249,17 @@ async function createTables() {
         processed_content mediumtext COLLATE utf8mb4_bin
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+      CREATE TABLE invite_links (
+        id bigint(20) NOT NULL,
+        name varchar(255) CHARSET latin1 NOT NULL,
+        \`primary\` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+        role bigint(20) NOT NULL,
+        community bigint(20) NOT NULL,
+        expiration_time bigint(20),
+        limit_of_uses int UNSIGNED,
+        number_of_uses int UNSIGNED NOT NULL DEFAULT 0
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY device_token (device_token(512)),
@@ -368,6 +379,11 @@ async function createTables() {
       ALTER TABLE message_search
         ADD PRIMARY KEY (original_message_id),
         ADD FULLTEXT INDEX processed_content (processed_content);
+
+      ALTER TABLE invite_links
+        ADD PRIMARY KEY (id),
+        ADD UNIQUE KEY (name),
+        ADD INDEX community_primary (community, \`primary\`);
     `,
     { multipleStatements: true },
   );
