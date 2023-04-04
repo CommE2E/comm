@@ -24,6 +24,8 @@ let
       exec "${mariadb}/bin/mariadbd" \
         --socket "$MARIADB_DIR"/mysql.sock \
         --datadir "$MARIADB_DIR" \
+        --innodb-ft-min-token-size=1 \
+        --innodb-ft-enable-stopword=0 \
         &> "$MARIADB_DIR"/logs
     '';
   };

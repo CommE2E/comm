@@ -16,6 +16,7 @@ usage() {
   echo ""
   echo "Commands:"
   echo "  services - start or stop development services"
+  echo "  db - restart MariaDB server"
   echo ""
 
   exit 1
@@ -56,6 +57,30 @@ services_command() {
   esac
 }
 
+db_usage() {
+  echo "Comm MariaDB Server"
+  echo ""
+  echo "Commands:"
+  echo "  restart - restart MariaDB server"
+  echo ""
+
+  exit 1
+}
+
+db_command() {
+  case "$1" in
+    restart)
+      pkill mariadbd
+      nix run .#mariadb-up
+      ;;
+    *)
+      log "$(basename "$0"): unknown db option '$1'"
+      db_usage
+      exit 1
+    ;;
+  esac
+}
+
 case "$1" in
   -h|--help)
     usage
@@ -63,6 +88,10 @@ case "$1" in
   services)
     shift
     services_command "$@"
+    ;;
+  db)
+    shift
+    db_command "$@"
     ;;
   *)
     log "$(basename "$0"): unknown option '$1'"
