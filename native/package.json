@@ -88,7 +88,7 @@
     "md5": "^2.2.1",
     "olm": "git+https://gitlab.matrix.org/matrix-org/olm.git#v3.2.14",
     "react": "18.1.0",
-    "react-native": "^0.70.6",
+    "react-native": "^0.70.8",
     "react-native-background-upload": "^6.6.0",
     "react-native-camera": "^3.31.0",
     "react-native-device-info": "^10.3.0",
