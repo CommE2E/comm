@@ -69,3 +69,7 @@
 span.username {
   margin-left: 8px;
 }
+
+span.usernameNoAvatar {
+  margin-left: 0;
+}

@@ -21,6 +21,11 @@ div.rightContainer {
   margin-left: 31px;
 }
 
+div.leftContainerNoAvatar {
+  left: 12px;
+  margin-right: 12px;
+}
+
 a.threadsContainer,
 a.threadsSplitContainer,
 a.reactionsContainer,
