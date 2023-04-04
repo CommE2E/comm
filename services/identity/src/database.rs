@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::str::FromStr;
 use std::sync::Arc;
 
 use aws_config::SdkConfig;
@@ -11,6 +12,7 @@ use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
+use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
 use crate::config::CONFIG;
@@ -29,6 +31,33 @@ use crate::constants::{
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
 use comm_opaque::Cipher;
+
+#[derive(Serialize, Deserialize)]
+pub struct OlmKeys {
+  curve25519: String,
+  ed25519: String,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct KeyPayload {
+  notification_identity_public_keys: OlmKeys,
+  primary_identity_public_keys: OlmKeys,
+}
+
+impl FromStr for KeyPayload {
+  type Err = serde_json::Error;
+
+  // The payload is held in the database as an escaped JSON payload.
+  // Escaped double quotes need to trimmed before attempting to serialize
+  fn from_str(payload: &str) -> Result<KeyPayload, Self::Err> {
+    serde_json::from_str(&payload.replace(r#"\""#, r#"""#))
+  }
+
+  // fn to_payload(&self) -> Result<String, Self::Err> {
+  //   Ok(serde_json::to_string(self)?.replace(r#"""#, r#"\""#))
+  // }
+}
 
 #[derive(Clone)]
 pub struct DatabaseClient {
@@ -786,5 +815,19 @@ mod tests {
     let sort_key_attribute = primary_key.remove(&sort_key_name);
     assert!(sort_key_attribute.is_some());
     assert_eq!(sort_key_attribute, Some(AttributeValue::S(sort_key_value)))
+  }
+
+  #[test]
+  fn validate_keys() {
+    // Taken from test user
+    let example_payload = r#"{\"notificationIdentityPublicKeys\":{\"curve25519\":\"DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo\",\"ed25519\":\"D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk\"},\"primaryIdentityPublicKeys\":{\"curve25519\":\"Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk\",\"ed25519\":\"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg\"}}"#;
+    let serialized_payload = KeyPayload::from_str(&example_payload).unwrap();
+
+    assert_eq!(
+      serialized_payload
+        .notification_identity_public_keys
+        .curve25519,
+      "DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo"
+    );
   }
 }
