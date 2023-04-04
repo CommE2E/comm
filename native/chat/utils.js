@@ -7,7 +7,7 @@ import Animated from 'react-native-reanimated';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import { viewerIsMember } from 'lib/shared/thread-utils.js';
+import { viewerIsMember, threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';
@@ -59,7 +59,8 @@ const {
 function textMessageItemHeight(
   item: ChatTextMessageInfoItemWithHeight,
 ): number {
-  const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
+  const { messageInfo, contentHeight, startsCluster, endsCluster, threadInfo } =
+    item;
   const { isViewer } = messageInfo.creator;
   let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
   if (!isViewer && startsCluster) {
@@ -71,12 +72,13 @@ function textMessageItemHeight(
   if (textMessageSendFailed(item)) {
     height += failedSendHeight;
   }
+  const isPending = threadIsPending(threadInfo.id);
   if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
     height +=
       inlineEngagementStyle.height +
       inlineEngagementStyle.marginTop +
       inlineEngagementStyle.marginBottom;
-  } else if (item.hasBeenEdited) {
+  } else if (item.hasBeenEdited && !isPending) {
     height += editedLabelHeight;
   }
   return height;
