@@ -6,6 +6,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
@@ -163,13 +164,13 @@ class ComposedMessage extends React.PureComponent<Props> {
     );
 
     let inlineEngagement = null;
+    const label = getMessageLabel(hasBeenEdited, item.threadInfo);
     if (
       item.threadCreatedFromMessage ||
       Object.keys(item.reactions).length > 0 ||
-      hasBeenEdited
+      label
     ) {
       const positioning = isViewer ? 'right' : 'left';
-      const label = hasBeenEdited ? 'Edited' : null;
       inlineEngagement = (
         <InlineEngagement
           threadInfo={item.threadCreatedFromMessage}
