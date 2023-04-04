@@ -1,0 +1,245 @@
+// @flow
+
+import type {
+  Empty,
+  RegistrationStartRequest,
+  RegistrationFinishRequest,
+  RegistrationStartResponse,
+  RegistrationFinishResponse,
+  UpdateUserPasswordStartRequest,
+  UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartResponse,
+  UpdateUserPasswordFinishResponse,
+  OpaqueLoginStartRequest,
+  OpaqueLoginFinishRequest,
+  OpaqueLoginStartResponse,
+  OpaqueLoginFinishResponse,
+  WalletLoginRequest,
+  WalletLoginResponse,
+  DeleteUserRequest,
+  GenerateNonceResponse,
+  ReceiverKeysForUserRequest,
+  ReceiverKeysForUserResponse,
+  SenderKeysForUserRequest,
+  SenderKeysForUserResponse,
+  KeyserverKeysRequest,
+  KeyserverKeysResponse,
+  UploadOneTimeKeysRequest,
+  RefreshUserPreKeysRequest,
+} from './identity-structs.cjs';
+
+import { type Metadata, type RpcError, ClientReadableStream } from 'grpc-web';
+
+declare export class IdentityClientServiceClient {
+  constructor(
+    hostname: string,
+    credentials?: null | { +[index: string]: string },
+    options?: null | { +[index: string]: any },
+  ): void;
+
+  registerPasswordUserStart(
+    request: RegistrationStartRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: RegistrationStartResponse,
+    ) => void,
+  ): ClientReadableStream<RegistrationStartResponse>;
+
+  registerPasswordUserFinish(
+    request: RegistrationFinishRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: RegistrationFinishResponse,
+    ) => void,
+  ): ClientReadableStream<RegistrationFinishResponse>;
+
+  updateUserPasswordStart(
+    request: UpdateUserPasswordStartRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: UpdateUserPasswordStartResponse,
+    ) => void,
+  ): ClientReadableStream<UpdateUserPasswordStartResponse>;
+
+  updateUserPasswordFinish(
+    request: UpdateUserPasswordFinishRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: UpdateUserPasswordFinishResponse,
+    ) => void,
+  ): ClientReadableStream<UpdateUserPasswordFinishResponse>;
+
+  loginPasswordUserStart(
+    request: OpaqueLoginStartRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: OpaqueLoginStartResponse,
+    ) => void,
+  ): ClientReadableStream<OpaqueLoginStartResponse>;
+
+  loginPasswordUserFinish(
+    request: OpaqueLoginFinishRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: OpaqueLoginFinishResponse,
+    ) => void,
+  ): ClientReadableStream<OpaqueLoginFinishResponse>;
+
+  loginWalletUser(
+    request: WalletLoginRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: WalletLoginResponse,
+    ) => void,
+  ): ClientReadableStream<WalletLoginResponse>;
+
+  deleteUser(
+    request: DeleteUserRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: Empty,
+    ) => void,
+  ): ClientReadableStream<Empty>;
+
+  generateNonce(
+    request: Empty,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: GenerateNonceResponse,
+    ) => void,
+  ): ClientReadableStream<GenerateNonceResponse>;
+
+  getReceiverKeysForUser(
+    request: ReceiverKeysForUserRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: ReceiverKeysForUserResponse,
+    ) => void,
+  ): ClientReadableStream<ReceiverKeysForUserResponse>;
+
+  getSenderKeysForUser(
+    request: SenderKeysForUserRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: SenderKeysForUserResponse,
+    ) => void,
+  ): ClientReadableStream<SenderKeysForUserResponse>;
+
+  getKeyserverKeys(
+    request: KeyserverKeysRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: KeyserverKeysResponse,
+    ) => void,
+  ): ClientReadableStream<KeyserverKeysResponse>;
+
+  uploadOneTimeKeys(
+    request: UploadOneTimeKeysRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: Empty,
+    ) => void,
+  ): ClientReadableStream<Empty>;
+
+  refreshUserPreKeys(
+    request: RefreshUserPreKeysRequest,
+    metadata: Metadata | void,
+    callback: (
+      err: RpcError,
+      response: Empty,
+    ) => void,
+  ): ClientReadableStream<Empty>;
+
+}
+
+declare export class IdentityClientServicePromiseClient {
+  constructor(
+    hostname: string,
+    credentials?: null | { +[index: string]: string },
+    options?: null | { +[index: string]: any },
+  ): void;
+
+  registerPasswordUserStart(
+    request: RegistrationStartRequest,
+    metadata?: Metadata,
+  ): Promise<RegistrationStartResponse>;
+
+  registerPasswordUserFinish(
+    request: RegistrationFinishRequest,
+    metadata?: Metadata,
+  ): Promise<RegistrationFinishResponse>;
+
+  updateUserPasswordStart(
+    request: UpdateUserPasswordStartRequest,
+    metadata?: Metadata,
+  ): Promise<UpdateUserPasswordStartResponse>;
+
+  updateUserPasswordFinish(
+    request: UpdateUserPasswordFinishRequest,
+    metadata?: Metadata,
+  ): Promise<UpdateUserPasswordFinishResponse>;
+
+  loginPasswordUserStart(
+    request: OpaqueLoginStartRequest,
+    metadata?: Metadata,
+  ): Promise<OpaqueLoginStartResponse>;
+
+  loginPasswordUserFinish(
+    request: OpaqueLoginFinishRequest,
+    metadata?: Metadata,
+  ): Promise<OpaqueLoginFinishResponse>;
+
+  loginWalletUser(
+    request: WalletLoginRequest,
+    metadata?: Metadata,
+  ): Promise<WalletLoginResponse>;
+
+  deleteUser(
+    request: DeleteUserRequest,
+    metadata?: Metadata,
+  ): Promise<Empty>;
+
+  generateNonce(
+    request: Empty,
+    metadata?: Metadata,
+  ): Promise<GenerateNonceResponse>;
+
+  getReceiverKeysForUser(
+    request: ReceiverKeysForUserRequest,
+    metadata?: Metadata,
+  ): Promise<ReceiverKeysForUserResponse>;
+
+  getSenderKeysForUser(
+    request: SenderKeysForUserRequest,
+    metadata?: Metadata,
+  ): Promise<SenderKeysForUserResponse>;
+
+  getKeyserverKeys(
+    request: KeyserverKeysRequest,
+    metadata?: Metadata,
+  ): Promise<KeyserverKeysResponse>;
+
+  uploadOneTimeKeys(
+    request: UploadOneTimeKeysRequest,
+    metadata?: Metadata,
+  ): Promise<Empty>;
+
+  refreshUserPreKeys(
+    request: RefreshUserPreKeysRequest,
+    metadata?: Metadata,
+  ): Promise<Empty>;
+
+}
