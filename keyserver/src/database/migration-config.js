@@ -325,6 +325,31 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       await dbQuery(SQL`DROP TABLE versions;`);
     },
   ],
+  [
+    31,
+    async () => {
+      await dbQuery(
+        SQL`
+          CREATE TABLE IF NOT EXISTS invite_links (
+            id bigint(20) NOT NULL,
+            name varchar(255) CHARSET latin1 NOT NULL,
+            \`primary\` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+            role bigint(20) NOT NULL,
+            community bigint(20) NOT NULL,
+            expiration_time bigint(20),
+            limit_of_uses int UNSIGNED,
+            number_of_uses int UNSIGNED NOT NULL DEFAULT 0,
+            expiration_status varchar(255) DEFAULT NULL
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+          ALTER TABLE invite_links
+            ADD PRIMARY KEY (id),
+            ADD UNIQUE KEY (name),
+            ADD UNIQUE KEY (community);
+        `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
