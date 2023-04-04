@@ -2,7 +2,6 @@ use clap::{Parser, Subcommand};
 use database::DatabaseClient;
 use interceptor::check_auth;
 use tonic::transport::Server;
-use tonic_web::GrpcWebLayer;
 use tracing_subscriber::FmtSubscriber;
 
 mod client_service;
@@ -68,9 +67,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
         .accept_http1(true)
-        .layer(GrpcWebLayer::new())
         .add_service(keyserver_service)
-        .add_service(client_service)
+        .add_service(tonic_web::enable(client_service))
         .serve(addr)
         .await?;
     }
