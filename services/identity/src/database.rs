@@ -11,6 +11,7 @@ use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
+use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
 use crate::config::CONFIG;
@@ -29,6 +30,32 @@ use crate::constants::{
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
 use comm_opaque::Cipher;
+
+#[derive(Serialize, Deserialize)]
+pub struct OlmKeys {
+  curve25519: String,
+  ed25519: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct KeyPayload {
+  #[serde(rename = "notificationIdentityPublicKeys")]
+  notification_identity_public_keys: OlmKeys,
+  #[serde(rename = "primaryIdentityPublicKeys")]
+  primary_identity_public_keys: OlmKeys,
+}
+
+impl KeyPayload {
+  // The payload is held in the database as an escaped JSON payload.
+  // Escaped double quotes need to trimmed before attempting to serialize
+  fn from_payload(payload: &str) -> Result<KeyPayload, serde_json::Error> {
+    serde_json::from_str(&payload.replace(r#"\""#, r#"""#))
+  }
+
+  fn to_payload(&self) -> Result<String, serde_json::Error> {
+    Ok(serde_json::to_string(self)?.replace(r#"""#, r#"\""#))
+  }
+}
 
 #[derive(Clone)]
 pub struct DatabaseClient {
@@ -786,5 +813,32 @@ mod tests {
     let sort_key_attribute = primary_key.remove(&sort_key_name);
     assert!(sort_key_attribute.is_some());
     assert_eq!(sort_key_attribute, Some(AttributeValue::S(sort_key_value)))
+  }
+
+  #[test]
+  fn validate_keys() {
+    // Taken from test user
+    let example_payload = r#"{\"notificationIdentityPublicKeys\":{\"curve25519\":\"DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo\",\"ed25519\":\"D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk\"},\"primaryIdentityPublicKeys\":{\"curve25519\":\"Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk\",\"ed25519\":\"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg\"}}"#;
+    let serialized_payload =
+      KeyPayload::from_payload(&example_payload).unwrap();
+  }
+
+  #[test]
+  fn format_keys() {
+    let expected_payload = r#"{\"notificationIdentityPublicKeys\":{\"curve25519\":\"DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo\",\"ed25519\":\"D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk\"},\"primaryIdentityPublicKeys\":{\"curve25519\":\"Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk\",\"ed25519\":\"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg\"}}"#;
+    let notif_keys = OlmKeys {
+      curve25519: "DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo".to_string(),
+      ed25519: "D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk".to_string(),
+    };
+    let identity_keys = OlmKeys {
+      curve25519: "Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk".to_string(),
+      ed25519: "cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg".to_string(),
+    };
+    let payload = KeyPayload {
+      notification_identity_public_keys: notif_keys,
+      primary_identity_public_keys: identity_keys,
+    };
+
+    assert_eq!(payload.to_payload().unwrap(), expected_payload);
   }
 }
