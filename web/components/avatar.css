@@ -1,0 +1,57 @@
+.emojiContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emojiMicro {
+  font-size: 9px;
+  height: 16px;
+  line-height: 16px;
+}
+
+.emojiSmall {
+  font-size: 14px;
+  height: 24px;
+  line-height: 24px;
+}
+
+.emojiLarge {
+  font-size: 28px;
+  height: 42px;
+  line-height: 42px;
+}
+
+.emojiProfile {
+  font-size: 80px;
+  height: 112px;
+  line-height: 112px;
+}
+
+.micro {
+  border-radius: 8px;
+  height: 16px;
+  width: 16px;
+  min-width: 16px;
+}
+
+.small {
+  border-radius: 12px;
+  height: 24px;
+  width: 24px;
+  min-width: 24px;
+}
+
+.large {
+  border-radius: 21px;
+  height: 42px;
+  width: 42px;
+  min-width: 42px;
+}
+
+.profile {
+  border-radius: 56px;
+  height: 112px;
+  width: 112px;
+  min-width: 112px;
+}
