@@ -10,6 +10,7 @@ import {
 
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -130,14 +131,19 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
+    const isPending = threadIsPending(threadInfo.id);
+    let label;
+    if (hasBeenEdited && !isPending) {
+      label = 'Edited';
+    }
+
     let inlineEngagement = null;
     if (
       (this.props.containsInlineEngagement && item.threadCreatedFromMessage) ||
       Object.keys(item.reactions).length > 0 ||
-      hasBeenEdited
+      label
     ) {
       const positioning = isViewer ? 'right' : 'left';
-      const label = hasBeenEdited ? 'Edited' : null;
       inlineEngagement = (
         <div className={css.sidebarMarginBottom}>
           <InlineEngagement

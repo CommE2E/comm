@@ -7,6 +7,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { createMessageReply } from 'lib/shared/message-utils.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
 import {
@@ -162,14 +163,19 @@ class ComposedMessage extends React.PureComponent<Props> {
       </View>
     );
 
+    const isPending = threadIsPending(item.threadInfo.id);
+    let label;
+    if (hasBeenEdited && !isPending) {
+      label = 'Edited';
+    }
+
     let inlineEngagement = null;
     if (
       item.threadCreatedFromMessage ||
       Object.keys(item.reactions).length > 0 ||
-      hasBeenEdited
+      label
     ) {
       const positioning = isViewer ? 'right' : 'left';
-      const label = hasBeenEdited ? 'Edited' : null;
       inlineEngagement = (
         <InlineEngagement
           threadInfo={item.threadCreatedFromMessage}
