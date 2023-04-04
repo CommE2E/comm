@@ -5,6 +5,9 @@ pub mod opaque;
 pub mod server;
 
 pub use crate::opaque::Cipher;
+pub use opaque_ke;
+pub use opaque_ke::errors::ProtocolError;
+pub use opaque_ke::ServerSetup;
 
 #[test]
 pub fn test_register_and_login() {
