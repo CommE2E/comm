@@ -4,9 +4,7 @@ import * as React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import tinycolor from 'tinycolor2';
 
-import { selectedThreadColors } from 'lib/shared/color-utils.js';
-
-import ColorSelectorButton from './color-selector-button.react.js';
+import ColorRows from './color-rows.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type ColorSelectorProps = {
@@ -18,29 +16,6 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
   const { currentColor, onColorSelected } = props;
   const [pendingColor, setPendingColor] = React.useState(currentColor);
   const styles = useStyles(unboundStyles);
-
-  const colorSelectorButtons = React.useMemo(
-    () =>
-      selectedThreadColors.map(color => (
-        <ColorSelectorButton
-          key={color}
-          color={color}
-          pendingColor={pendingColor}
-          setPendingColor={setPendingColor}
-        />
-      )),
-    [pendingColor],
-  );
-
-  const firstRow = React.useMemo(
-    () => colorSelectorButtons.slice(0, colorSelectorButtons.length / 2),
-    [colorSelectorButtons],
-  );
-
-  const secondRow = React.useMemo(
-    () => colorSelectorButtons.slice(colorSelectorButtons.length / 2),
-    [colorSelectorButtons],
-  );
 
   const saveButtonDisabled = tinycolor.equals(currentColor, pendingColor);
   const saveButtonStyle = React.useMemo(
@@ -61,8 +36,10 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Select chat color</Text>
-      <View style={styles.colorButtons}>{firstRow}</View>
-      <View style={styles.colorButtons}>{secondRow}</View>
+      <ColorRows
+        pendingColor={pendingColor}
+        setPendingColor={setPendingColor}
+      />
       <TouchableOpacity
         style={saveButtonStyle}
         onPress={onColorSplotchSaved}
@@ -75,10 +52,6 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
 }
 
 const unboundStyles = {
-  colorButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
   container: {
     alignItems: 'center',
     flex: 1,
