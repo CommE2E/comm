@@ -11,11 +11,12 @@ use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
+use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
 use crate::config::CONFIG;
 use crate::constants::{
-  ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
+  opaque2, ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
@@ -29,6 +30,32 @@ use crate::constants::{
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
 use comm_opaque::Cipher;
+
+#[derive(Serialize, Deserialize)]
+pub struct OlmKeys {
+  curve25519: String,
+  ed25519: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct KeyPayload {
+  #[serde(rename = "notificationIdentityPublicKeys")]
+  notification_identity_public_keys: OlmKeys,
+  #[serde(rename = "primaryIdentityPublicKeys")]
+  primary_identity_public_keys: OlmKeys,
+}
+
+impl KeyPayload {
+  // The payload is held in the database as an escaped JSON payload.
+  // Escaped double quotes need to trimmed before attempting to serialize
+  fn from_payload(payload: &str) -> Result<KeyPayload, serde_json::Error> {
+    serde_json::from_str(&payload.replace(r#"\""#, r#"""#))
+  }
+
+  fn to_payload(&self) -> Result<String, serde_json::Error> {
+    Ok(serde_json::to_string(self)?.replace(r#"""#, r#"\""#))
+  }
+}
 
 #[derive(Clone)]
 pub struct DatabaseClient {
@@ -239,6 +266,58 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  // This is called during the first call of a user register, the registration data
+  // will be filled with the server registration challenge data, and later replaced
+  // with the opaque registration password file after opaque protocol finishes
+  pub async fn add_user_to_opaque2_users_table(
+    &self,
+    registration_bytes: Vec<u8>,
+    username: String,
+    signing_public_key: String,
+    session_initialization_info: &HashMap<String, String>,
+  ) -> Result<String, Error> {
+    let device_info: HashMap<String, AttributeValue> =
+      session_initialization_info
+        .iter()
+        .map(|(k, v)| (k.to_string(), AttributeValue::S(v.to_string())))
+        .collect();
+
+    // TODO, create UUID
+    let user_id = "abcd".to_string();
+    let item = HashMap::from([
+      (
+        USERS_TABLE_PARTITION_KEY.to_string(),
+        AttributeValue::S(user_id.clone()),
+      ),
+      (
+        USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
+        AttributeValue::S(username),
+      ),
+      (
+        USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
+        AttributeValue::B(Blob::new(registration_bytes)),
+      ),
+      (
+        USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
+        AttributeValue::M(HashMap::from([(
+          signing_public_key,
+          AttributeValue::M(device_info),
+        )])),
+      ),
+    ]);
+
+    self
+      .client
+      .put_item()
+      .table_name(opaque2::USERS_TABLE)
+      .set_item(Some(item))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()));
+
+    Ok(user_id)
   }
 
   pub async fn delete_user(
@@ -786,5 +865,32 @@ mod tests {
     let sort_key_attribute = primary_key.remove(&sort_key_name);
     assert!(sort_key_attribute.is_some());
     assert_eq!(sort_key_attribute, Some(AttributeValue::S(sort_key_value)))
+  }
+
+  #[test]
+  fn validate_keys() {
+    // Taken from test user
+    let example_payload = r#"{\"notificationIdentityPublicKeys\":{\"curve25519\":\"DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo\",\"ed25519\":\"D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk\"},\"primaryIdentityPublicKeys\":{\"curve25519\":\"Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk\",\"ed25519\":\"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg\"}}"#;
+    let serialized_payload =
+      KeyPayload::from_payload(&example_payload).unwrap();
+  }
+
+  #[test]
+  fn format_keys() {
+    let expected_payload = r#"{\"notificationIdentityPublicKeys\":{\"curve25519\":\"DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo\",\"ed25519\":\"D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk\"},\"primaryIdentityPublicKeys\":{\"curve25519\":\"Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk\",\"ed25519\":\"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg\"}}"#;
+    let notif_keys = OlmKeys {
+      curve25519: "DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo".to_string(),
+      ed25519: "D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk".to_string(),
+    };
+    let identity_keys = OlmKeys {
+      curve25519: "Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk".to_string(),
+      ed25519: "cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg".to_string(),
+    };
+    let payload = KeyPayload {
+      notification_identity_public_keys: notif_keys,
+      primary_identity_public_keys: identity_keys,
+    };
+
+    assert_eq!(payload.to_payload().unwrap(), expected_payload);
   }
 }
