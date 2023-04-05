@@ -19,6 +19,7 @@ import {
   type ThreadFetchMediaRequest,
   threadTypes,
 } from 'lib/types/thread-types.js';
+import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import { values } from 'lib/utils/objects.js';
 import {
   tShape,
@@ -112,6 +113,7 @@ const updateThreadRequestInputValidator = tShape({
     color: t.maybe(tColor),
     parentThreadID: t.maybe(t.String),
     newMemberIDs: t.maybe(t.list(t.String)),
+    avatar: t.maybe(updateUserAvatarRequestValidator),
   }),
   accountPassword: t.maybe(tPassword),
 });
