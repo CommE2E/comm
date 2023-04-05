@@ -449,11 +449,11 @@ async function websiteResponder(
 
 const inviteSecretRegex = /^[a-z0-9]+$/i;
 
-function inviteResponder(req: $Request, res: $Response) {
+function inviteResponder(req: $Request, res: $Response): Promise<void> {
   const { secret } = req.params;
   const userAgent = req.get('User-Agent');
   const detectionResult = detectBrowser(userAgent);
-  if (detectionResult.os === 'Android OS') {
+  if (detectionResult.os === 'Android OSX') {
     const isSecretValid = inviteSecretRegex.test(secret);
     const referrer = isSecretValid
       ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
@@ -479,6 +479,9 @@ function inviteResponder(req: $Request, res: $Response) {
             }
 
             body {
+              font-family: 'Inter', -apple-system, 'Segoe UI', 'Roboto',
+                'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+                'Helvetica Neue', ui-sans-serif;
               background-color: #0a0a0a;
               color: #ffffff;
               display: flex;
