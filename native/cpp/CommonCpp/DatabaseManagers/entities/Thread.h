@@ -21,6 +21,7 @@ struct Thread {
   std::unique_ptr<std::string> source_message_id;
   int replies_count;
   std::unique_ptr<std::string> avatar;
+  int pinned_count;
 };
 
 } // namespace comm
