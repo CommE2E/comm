@@ -29,80 +29,90 @@ async function fetchServerThreadInfos(
 ): Promise<FetchServerThreadInfosResult> {
   const whereClause = condition ? SQL`WHERE `.append(condition) : '';
 
-  const query = SQL`
+  const rolesQuery = SQL`
+    SELECT t.id, t.default_role, r.id AS role, r.name, r.permissions
+    FROM threads t
+    LEFT JOIN roles r ON r.thread = t.id
+  `.append(whereClause);
+
+  const threadsQuery = SQL`
     SELECT t.id, t.name, t.parent_thread_id, t.containing_thread_id,
       t.community, t.depth, t.color, t.description, t.type, t.creation_time,
-      t.default_role, t.source_message, t.replies_count, r.id AS role,
-      r.name AS role_name, r.permissions AS role_permissions, m.user,
-      m.permissions, m.subscription,
-      m.last_read_message < m.last_message AS unread, m.sender
+      t.source_message, t.replies_count, m.user, m.role, m.permissions,
+      m.subscription, m.last_read_message < m.last_message AS unread, m.sender
     FROM threads t
-    LEFT JOIN (
-        SELECT thread, id, name, permissions
-          FROM roles
-        UNION SELECT id AS thread, 0 AS id, NULL AS name, NULL AS permissions
-          FROM threads
-      ) r ON r.thread = t.id
-    LEFT JOIN memberships m ON m.role = r.id AND m.thread = t.id AND
-      m.role >= 0
+    LEFT JOIN memberships m ON m.thread = t.id AND m.role >= 0
   `
     .append(whereClause)
     .append(SQL` ORDER BY m.user ASC`);
-  const [result] = await dbQuery(query);
+  const [[threadsResult], [rolesResult]] = await Promise.all([
+    dbQuery(threadsQuery),
+    dbQuery(rolesQuery),
+  ]);
 
   const threadInfos = {};
-  for (const row of result) {
-    const threadID = row.id.toString();
+  for (const threadsRow of threadsResult) {
+    const threadID = threadsRow.id.toString();
     if (!threadInfos[threadID]) {
       threadInfos[threadID] = {
         id: threadID,
-        type: row.type,
-        name: row.name ? row.name : '',
-        description: row.description ? row.description : '',
-        color: row.color,
-        creationTime: row.creation_time,
-        parentThreadID: row.parent_thread_id
-          ? row.parent_thread_id.toString()
+        type: threadsRow.type,
+        name: threadsRow.name ? threadsRow.name : '',
+        description: threadsRow.description ? threadsRow.description : '',
+        color: threadsRow.color,
+        creationTime: threadsRow.creation_time,
+        parentThreadID: threadsRow.parent_thread_id
+          ? threadsRow.parent_thread_id.toString()
           : null,
-        containingThreadID: row.containing_thread_id
-          ? row.containing_thread_id.toString()
+        containingThreadID: threadsRow.containing_thread_id
+          ? threadsRow.containing_thread_id.toString()
           : null,
-        depth: row.depth,
-        community: row.community ? row.community.toString() : null,
+        depth: threadsRow.depth,
+        community: threadsRow.community
+          ? threadsRow.community.toString()
+          : null,
         members: [],
         roles: {},
-        repliesCount: row.replies_count,
+        repliesCount: threadsRow.replies_count,
       };
     }
-    const sourceMessageID = row.source_message?.toString();
+    const sourceMessageID = threadsRow.source_message?.toString();
     if (sourceMessageID) {
       threadInfos[threadID].sourceMessageID = sourceMessageID;
     }
-    const role = row.role.toString();
-    if (row.role && !threadInfos[threadID].roles[role]) {
-      threadInfos[threadID].roles[role] = {
-        id: role,
-        name: row.role_name,
-        permissions: JSON.parse(row.role_permissions),
-        isDefault: role === row.default_role.toString(),
-      };
-    }
-    if (row.user) {
-      const userID = row.user.toString();
+    if (threadsRow.user) {
+      const userID = threadsRow.user.toString();
       const allPermissions = getAllThreadPermissions(
-        JSON.parse(row.permissions),
+        JSON.parse(threadsRow.permissions),
         threadID,
       );
       threadInfos[threadID].members.push({
         id: userID,
         permissions: allPermissions,
-        role: row.role ? role : null,
-        subscription: JSON.parse(row.subscription),
-        unread: row.role ? !!row.unread : null,
-        isSender: !!row.sender,
+        role: threadsRow.role ? threadsRow.role.toString() : null,
+        subscription: JSON.parse(threadsRow.subscription),
+        unread: threadsRow.role ? !!threadsRow.unread : null,
+        isSender: !!threadsRow.sender,
       });
     }
   }
+
+  for (const rolesRow of rolesResult) {
+    const threadID = rolesRow.id.toString();
+    if (!rolesRow.role) {
+      continue;
+    }
+    const role = rolesRow.role.toString();
+    if (!threadInfos[threadID].roles[role]) {
+      threadInfos[threadID].roles[role] = {
+        id: role,
+        name: rolesRow.name,
+        permissions: JSON.parse(rolesRow.permissions),
+        isDefault: role === rolesRow.default_role.toString(),
+      };
+    }
+  }
+
   return { threadInfos };
 }
 
