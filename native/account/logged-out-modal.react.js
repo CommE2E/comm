@@ -653,7 +653,7 @@ const unboundStyles = {
     backgroundColor: 'purpleButton',
   },
   classicAuthButtonText: {
-    color: 'logInText',
+    color: 'whiteText',
   },
   container: {
     backgroundColor: 'transparent',
@@ -707,7 +707,7 @@ const unboundStyles = {
     marginTop: 10,
   },
   siweOrText: {
-    color: 'logInText',
+    color: 'whiteText',
     fontSize: 17,
     textAlign: 'center',
   },
