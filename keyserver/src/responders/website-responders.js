@@ -453,18 +453,137 @@ function inviteResponder(req: $Request, res: $Response) {
   const { secret } = req.params;
   const userAgent = req.get('User-Agent');
   const detectionResult = detectBrowser(userAgent);
-  let redirectUrl = stores.appStoreUrl;
   if (detectionResult.os === 'Android OS') {
     const isSecretValid = inviteSecretRegex.test(secret);
     const referrer = isSecretValid
       ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
       : '';
-    redirectUrl = `${stores.googlePlayUrl}${referrer}`;
+    const redirectUrl = `${stores.googlePlayUrl}${referrer}`;
+    res.writeHead(301, {
+      Location: redirectUrl,
+    });
+    res.end();
+  } else {
+    res.end(html`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="utf-8" />
+          <title>Comm</title>
+          <style>
+            * {
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              box-sizing: border-box;
+              padding: 0;
+              margin: 0;
+            }
+
+            html {
+              height: 100%;
+            }
+
+            body {
+              font-family: 'Inter', -apple-system, 'Segoe UI', 'Roboto',
+                'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+                'Helvetica Neue', ui-sans-serif;
+              background-color: #0a0a0a;
+              color: #ffffff;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-around;
+              align-items: center;
+              height: 100%;
+              padding: 1.6rem;
+              font-size: 1.8rem;
+              line-height: 2.4rem;
+              font-weight: 400;
+            }
+
+            section {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: space-between;
+              width: 100%;
+            }
+
+            .card {
+              width: 100%;
+              padding: 3.2rem 1.2rem;
+              gap: 4rem;
+              background-color: #1f1f1f;
+              border-radius: 1.6rem;
+            }
+
+            .buttons {
+              gap: 1.2rem;
+            }
+
+            h1 {
+              font-size: 3.6rem;
+              line-height: 1.5;
+              font-weight: 500;
+            }
+
+            p {
+              text-align: center;
+            }
+
+            .separator {
+              border: 1px solid #404040;
+              width: 100%;
+            }
+
+            .button {
+              all: unset;
+              box-sizing: border-box;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 100%;
+              padding: 1.7rem;
+              border-radius: 0.4rem;
+              border: 1px solid transparent;
+              background-color: #6d49ab;
+            }
+
+            .button.secondary {
+              background-color: #1f1f1f;
+              border-color: #ffffff;
+            }
+
+            .link {
+              all: unset;
+              box-sizing: border-box;
+              text-decoration-line: underline;
+            }
+          </style>
+        </head>
+        <body>
+          <div></div>
+          <section class="card">
+            <section>
+              Icon
+              <h1>Comm</h1>
+            </section>
+            <p>
+              To join this community, download the Comm app and reopen this
+              invite link
+            </p>
+            <div class="separator"></div>
+            <section class="buttons">
+              <a class="button" href="${stores.appStoreUrl}">Download Comm</a>
+              <a class="button secondary" href="/invite/${secret}">
+                Invite Link
+              </a>
+            </section>
+          </section>
+          <a class="link" href="https://comm.app/">Visit Comm’s website</a>
+        </body>
+      </html>
+    `);
   }
-  res.writeHead(301, {
-    Location: redirectUrl,
-  });
-  res.end();
 }
 
 export { websiteResponder, inviteResponder };
