@@ -37,3 +37,28 @@ button.topBarMenu {
   cursor: pointer;
   color: var(--thread-top-bar-menu-color);
 }
+
+.pinnedCountBanner {
+  background-color: var(--pinned-count-banner-color);
+  height: 40px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+a.pinnedCountText {
+  color: var(--pinned-count-text-color);
+  font-size: var(--xs-font-12);
+  display: inline-flex;
+  align-items: center;
+}
+
+a.pinnedCountText:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.chevronRight {
+  vertical-align: middle;
+}

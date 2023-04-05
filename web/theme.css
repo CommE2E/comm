@@ -214,4 +214,6 @@
   --topbar-lines: rgba(255, 255, 255, 0.08);
   --pin-message-information-text-color: var(--shades-white-60);
   --pin-message-modal-border-color: var(--shades-black-80);
+  --pinned-count-banner-color: var(--shades-black-90);
+  --pinned-count-text-color: var(--shades-white-90);
 }

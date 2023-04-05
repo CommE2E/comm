@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import { ChevronRight } from 'react-feather';
 
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
@@ -28,6 +29,34 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
     threadMenu = <ThreadMenu threadInfo={threadInfo} />;
   }
 
+  // To allow the pinned messages modal to be re-used by the message search
+  // modal, it will be useful to make the modal accept a prop that defines it's
+  // name, instead of setting it directly in the modal.
+  const bannerText = React.useMemo(() => {
+    if (!threadInfo.pinnedCount || threadInfo.pinnedCount === 0) {
+      return '';
+    }
+
+    const messageNoun = threadInfo.pinnedCount === 1 ? 'message' : 'messages';
+
+    return `${threadInfo.pinnedCount} pinned ${messageNoun}`;
+  }, [threadInfo.pinnedCount]);
+
+  const pinnedCountBanner = React.useMemo(() => {
+    if (!bannerText) {
+      return null;
+    }
+
+    return (
+      <div className={css.pinnedCountBanner}>
+        <a className={css.pinnedCountText}>
+          {bannerText}
+          <ChevronRight size={14} className={css.chevronRight} />
+        </a>
+      </div>
+    );
+  }, [bannerText]);
+
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
   const avatar = React.useMemo(() => {
@@ -43,13 +72,16 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   }, [threadBackgroundColorStyle, threadInfo]);
 
   return (
-    <div className={css.topBarContainer}>
-      <div className={css.topBarThreadInfo}>
-        {avatar}
-        <div className={css.threadTitle}>{uiName}</div>
+    <>
+      <div className={css.topBarContainer}>
+        <div className={css.topBarThreadInfo}>
+          {avatar}
+          <div className={css.threadTitle}>{uiName}</div>
+        </div>
+        {threadMenu}
       </div>
-      {threadMenu}
-    </div>
+      {pinnedCountBanner}
+    </>
   );
 }
 
