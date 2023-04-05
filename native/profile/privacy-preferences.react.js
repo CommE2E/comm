@@ -5,6 +5,10 @@ import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
+  changeThreadSettings,
+  changeThreadSettingsActionTypes,
+} from 'lib/actions/thread-actions.js';
+import {
   updateUserAvatar,
   updateUserAvatarActionTypes,
 } from 'lib/actions/user-actions.js';
@@ -12,6 +16,7 @@ import type {
   ClientAvatar,
   UpdateUserAvatarRemoveRequest,
 } from 'lib/types/avatar-types.js';
+import type { UpdateThreadRequest } from 'lib/types/thread-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -27,11 +32,13 @@ function PrivacyPreferences(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
+  const changeThreadSettingsCall = useServerCall(changeThreadSettings);
 
   const userAvatar: ?ClientAvatar = useSelector(
     state => state.currentUserInfo?.avatar,
   );
 
+  // eslint-disable-next-line no-unused-vars
   const updateUserAvatarCallback = React.useCallback(() => {
     const emojiUpdateRequest = {
       type: 'emoji',
@@ -44,6 +51,26 @@ function PrivacyPreferences(props: { ... }): React.Node {
       updateUserAvatarCall(emojiUpdateRequest),
     );
   }, [dispatchActionPromise, updateUserAvatarCall]);
+
+  const updateThreadAvatarCallback = React.useCallback(() => {
+    const emojiUpdateRequest = {
+      type: 'emoji',
+      emoji: '🍔',
+      color: '4b87aa',
+    };
+
+    const updateThreadRequest: UpdateThreadRequest = {
+      threadID: '83814',
+      changes: {
+        avatar: emojiUpdateRequest,
+      },
+    };
+
+    dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      changeThreadSettingsCall(updateThreadRequest),
+    );
+  }, [changeThreadSettingsCall, dispatchActionPromise]);
 
   const clearUserAvatarCallback = React.useCallback(() => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
@@ -96,7 +123,7 @@ function PrivacyPreferences(props: { ... }): React.Node {
           <ToggleReport reportType="inconsistencyReports" />
         </View>
       </View>
-      <Button onPress={updateUserAvatarCallback}>
+      <Button onPress={updateThreadAvatarCallback}>
         <View>
           <Text style={styles.submenuText}>Set the user avatar</Text>
         </View>
