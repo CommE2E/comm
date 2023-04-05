@@ -19,6 +19,7 @@ import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
 import RelationshipList from './relationship-list.react.js';
+import EmojiAvatarCreation from '../components/emoji-avatar-creation.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
@@ -27,6 +28,7 @@ import {
   ProfileScreenRouteName,
   EditPasswordRouteName,
   DeleteAccountRouteName,
+  EmojiAvatarCreationRouteName,
   BuildInfoRouteName,
   DevToolsRouteName,
   AppearancePreferencesRouteName,
@@ -41,6 +43,10 @@ import { useStyles, useColors } from '../themes/colors.js';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
 const profileScreenOptions = { headerTitle: 'Profile' };
+const emojiAvatarCreationOptions = {
+  headerTitle: 'Emoji avatar selection',
+  headerBackTitleVisible: false,
+};
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
 const buildInfoOptions = { headerTitle: 'Build info' };
@@ -107,6 +113,11 @@ function ProfileComponent(props: Props): React.Node {
             name={ProfileScreenRouteName}
             component={ProfileScreen}
             options={profileScreenOptions}
+          />
+          <Profile.Screen
+            name={EmojiAvatarCreationRouteName}
+            component={EmojiAvatarCreation}
+            options={emojiAvatarCreationOptions}
           />
           <Profile.Screen
             name={EditPasswordRouteName}
