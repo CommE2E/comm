@@ -25,7 +25,6 @@ import type { CameraModalParams } from '../media/camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
-import type { EmojiAvatarCreationParams } from '../profile/emoji-avatar-creation.react.js';
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
@@ -50,7 +49,6 @@ export const DeleteAccountRouteName = 'DeleteAccount';
 export const DeleteThreadRouteName = 'DeleteThread';
 export const DevToolsRouteName = 'DevTools';
 export const EditPasswordRouteName = 'EditPassword';
-export const EmojiAvatarCreationRouteName = 'EmojiAvatarCreation';
 export const FriendListRouteName = 'FriendList';
 export const FullScreenThreadMediaGalleryRouteName =
   'FullScreenThreadMediaGallery';
@@ -140,7 +138,6 @@ export type ChatTopTabsParamList = {
 
 export type ProfileParamList = {
   +ProfileScreen: void,
-  +EmojiAvatarCreation: EmojiAvatarCreationParams,
   +EditPassword: void,
   +DeleteAccount: void,
   +BuildInfo: void,
