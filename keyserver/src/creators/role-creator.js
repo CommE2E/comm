@@ -83,6 +83,7 @@ const voicedPermissions = {
   [threadPermissions.EDIT_THREAD_NAME]: true,
   [threadPermissions.EDIT_THREAD_COLOR]: true,
   [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
+  [threadPermissions.EDIT_THREAD_AVATAR]: true,
   [threadPermissions.CREATE_SUBCHANNELS]: true,
   [threadPermissions.ADD_MEMBERS]: true,
 };
@@ -140,6 +141,8 @@ function getRolePermissionBlobsForCommunity(
     DESCENDANT + threadPermissions.EDIT_THREAD_COLOR;
   const descendantEditThreadDescription =
     DESCENDANT + threadPermissions.EDIT_THREAD_DESCRIPTION;
+  const descendantEditThreadAvatar =
+    DESCENDANT + threadPermissions.EDIT_THREAD_AVATAR;
   const topLevelDescendantCreateSubchannels =
     TOP_LEVEL_DESCENDANT + threadPermissions.CREATE_SUBCHANNELS;
   const topLevelDescendantCreateSidebars =
@@ -161,6 +164,7 @@ function getRolePermissionBlobsForCommunity(
     [threadPermissions.EDIT_THREAD_NAME]: true,
     [threadPermissions.EDIT_THREAD_COLOR]: true,
     [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
+    [threadPermissions.EDIT_THREAD_AVATAR]: true,
     [threadPermissions.CREATE_SUBCHANNELS]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
@@ -176,6 +180,7 @@ function getRolePermissionBlobsForCommunity(
     [descendantEditThreadName]: true,
     [descendantEditThreadColor]: true,
     [descendantEditThreadDescription]: true,
+    [descendantEditThreadAvatar]: true,
     [topLevelDescendantCreateSubchannels]: true,
     [topLevelDescendantCreateSidebars]: true,
     [descendantAddMembers]: true,
@@ -210,6 +215,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
       [threadPermissions.EDIT_THREAD_NAME]: true,
       [threadPermissions.EDIT_THREAD_COLOR]: true,
       [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
+      [threadPermissions.EDIT_THREAD_AVATAR]: true,
       [threadPermissions.ADD_MEMBERS]: true,
       [threadPermissions.EDIT_PERMISSIONS]: true,
       [threadPermissions.REMOVE_MEMBERS]: true,
@@ -256,6 +262,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
         [threadPermissions.EDIT_THREAD_NAME]: true,
         [threadPermissions.EDIT_THREAD_COLOR]: true,
         [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
+        [threadPermissions.EDIT_THREAD_AVATAR]: true,
         [threadPermissions.CREATE_SIDEBARS]: true,
         [openDescendantKnowOf]: true,
         [openDescendantVisible]: true,
