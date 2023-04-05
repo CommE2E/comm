@@ -12,14 +12,25 @@ type ColorSelectorButtonProps = {
   +color: string,
   +pendingColor: string,
   +setPendingColor: SetState<string>,
+  +outerRingSelectedColor?: string,
 };
 function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
-  const { color, pendingColor, setPendingColor } = props;
+  const { color, pendingColor, setPendingColor, outerRingSelectedColor } =
+    props;
   const styles = useStyles(unboundStyles);
 
   const colorSplotchStyle = React.useMemo(() => {
     return [styles.button, { backgroundColor: `#${color}` }];
   }, [color, styles.button]);
+
+  const outerRingSelectedStyle = React.useMemo(() => {
+    const result = [styles.outerRingSelected];
+    if (outerRingSelectedColor) {
+      result.push({ backgroundColor: `#${outerRingSelectedColor}` });
+    }
+
+    return result;
+  }, [outerRingSelectedColor, styles.outerRingSelected]);
 
   const onPendingColorSelected = React.useCallback(() => {
     setPendingColor(color);
@@ -27,7 +38,7 @@ function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
 
   const isSelected = tinycolor.equals(pendingColor, color);
   return (
-    <View style={isSelected ? styles.outerRingSelected : styles.outerRing}>
+    <View style={isSelected ? outerRingSelectedStyle : styles.outerRing}>
       <TouchableOpacity
         style={colorSplotchStyle}
         onPress={onPendingColorSelected}
