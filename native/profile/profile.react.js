@@ -15,7 +15,6 @@ import DefaultNotificationsPreferences from './default-notifications-preferences
 import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
 import EditPassword from './edit-password.react.js';
-import EmojiAvatarCreation from './emoji-avatar-creation.react.js';
 import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
@@ -27,7 +26,6 @@ import HeaderBackButton from '../navigation/header-back-button.react.js';
 import {
   ProfileScreenRouteName,
   EditPasswordRouteName,
-  EmojiAvatarCreationRouteName,
   DeleteAccountRouteName,
   BuildInfoRouteName,
   DevToolsRouteName,
@@ -43,10 +41,6 @@ import { useStyles, useColors } from '../themes/colors.js';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
 const profileScreenOptions = { headerTitle: 'Profile' };
-const emojiAvatarCreationOptions = {
-  headerTitle: 'Emoji Avatar Selection',
-  headerBackTitleVisible: false,
-};
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
 const buildInfoOptions = { headerTitle: 'Build info' };
@@ -113,11 +107,6 @@ function ProfileComponent(props: Props): React.Node {
             name={ProfileScreenRouteName}
             component={ProfileScreen}
             options={profileScreenOptions}
-          />
-          <Profile.Screen
-            name={EmojiAvatarCreationRouteName}
-            component={EmojiAvatarCreation}
-            options={emojiAvatarCreationOptions}
           />
           <Profile.Screen
             name={EditPasswordRouteName}
