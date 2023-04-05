@@ -479,6 +479,9 @@ function inviteResponder(req: $Request, res: $Response) {
             }
 
             body {
+              font-family: 'Inter', -apple-system, 'Segoe UI', 'Roboto',
+                'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+                'Helvetica Neue', ui-sans-serif;
               background-color: #0a0a0a;
               color: #ffffff;
               display: flex;
