@@ -325,6 +325,45 @@ bool add_avatar_column_to_threads_table(sqlite3 *db) {
   return false;
 }
 
+bool add_pinned_count_column_to_threads(sqlite3 *db) {
+  sqlite3_stmt *pinned_column_stmt;
+  sqlite3_prepare_v2(
+      db,
+      "SELECT name AS col_name FROM pragma_table_xinfo ('threads') WHERE "
+      "col_name='pinned_count';",
+      -1,
+      &pinned_column_stmt,
+      nullptr);
+  sqlite3_step(pinned_column_stmt);
+
+  auto num_bytes = sqlite3_column_bytes(pinned_column_stmt, 0);
+  sqlite3_finalize(pinned_column_stmt);
+
+  if (num_bytes) {
+    return true;
+  }
+
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE threads ADD COLUMN pinned_count INTEGER NOT NULL DEFAULT 0;",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error adding pinned_count column to threads table: "
+               << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -379,7 +418,8 @@ bool create_schema(sqlite3 *db) {
       "	 current_user TEXT NOT NULL,"
       "	 source_message_id TEXT,"
       "	 replies_count INTEGER NOT NULL,"
-      "	 avatar TEXT"
+      "	 avatar TEXT,"
+      "	 pinned_count INTEGER NOT NULL DEFAULT 0"
       ");"
 
       "CREATE TABLE IF NOT EXISTS metadata ("
@@ -622,7 +662,8 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {23, {create_metadata_table, true}},
      {24, {add_not_null_constraint_to_drafts, true}},
      {25, {add_not_null_constraint_to_metadata, true}},
-     {26, {add_avatar_column_to_threads_table, true}}}};
+     {26, {add_avatar_column_to_threads_table, true}},
+     {27, {add_pinned_count_column_to_threads, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -824,7 +865,8 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("current_user", &Thread::current_user),
           make_column("source_message_id", &Thread::source_message_id),
           make_column("replies_count", &Thread::replies_count),
-          make_column("avatar", &Thread::avatar)),
+          make_column("avatar", &Thread::avatar),
+          make_column("pinned_count", &Thread::pinned_count, default_value(0))),
       make_table(
           "metadata",
           make_column("name", &Metadata::name, unique(), primary_key()),
