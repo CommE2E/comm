@@ -3,17 +3,15 @@
 import olm from '@matrix-org/olm';
 import cluster from 'cluster';
 import cookieParser from 'cookie-parser';
-import { detect as detectBrowser } from 'detect-browser';
 import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
-
-import stores from 'lib/facts/stores.js';
 
 import './cron/cron.js';
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
+import { deepLinkResponder } from './responders/deep-link-responder.js';
 import {
   jsonHandler,
   httpGetHandler,
@@ -41,8 +39,6 @@ import {
   getLandingURLFacts,
   getCommAppURLFacts,
 } from './utils/urls.js';
-
-const inviteSecretRegex = /^[a-z0-9]+$/i;
 
 (async () => {
   await olm.init();
@@ -129,23 +125,7 @@ const inviteSecretRegex = /^[a-z0-9]+$/i;
       // receives this request, it means that the app is not installed and we
       // should redirect the user to a place from which the app can be
       // downloaded.
-      router.get('/invite/:secret', (req, res) => {
-        const { secret } = req.params;
-        const userAgent = req.get('User-Agent');
-        const detectionResult = detectBrowser(userAgent);
-        let redirectUrl = stores.appStoreUrl;
-        if (detectionResult.os === 'Android OS') {
-          const isSecretValid = inviteSecretRegex.test(secret);
-          const referrer = isSecretValid
-            ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
-            : '';
-          redirectUrl = `${stores.googlePlayUrl}${referrer}`;
-        }
-        res.writeHead(301, {
-          Location: redirectUrl,
-        });
-        res.end();
-      });
+      router.get('/invite/:secret', deepLinkResponder);
 
       // $FlowFixMe express-ws has side effects that can't be typed
       router.ws('/ws', onConnection);
