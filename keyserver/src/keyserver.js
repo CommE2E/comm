@@ -3,12 +3,9 @@
 import olm from '@commapp/olm';
 import cluster from 'cluster';
 import cookieParser from 'cookie-parser';
-import { detect as detectBrowser } from 'detect-browser';
 import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
-
-import stores from 'lib/facts/stores.js';
 
 import './cron/cron.js';
 import { migrate } from './database/migrations.js';
@@ -27,7 +24,10 @@ import {
   createNewVersionResponder,
   markVersionDeployedResponder,
 } from './responders/version-responders.js';
-import { websiteResponder } from './responders/website-responders.js';
+import {
+  inviteResponder,
+  websiteResponder,
+} from './responders/website-responders.js';
 import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
 import {
@@ -42,8 +42,6 @@ import {
   getLandingURLFacts,
   getCommAppURLFacts,
 } from './utils/urls.js';
-
-const inviteSecretRegex = /^[a-z0-9]+$/i;
 
 (async () => {
   await Promise.all([olm.init(), prefetchAllURLFacts(), initENSCache()]);
@@ -129,23 +127,7 @@ const inviteSecretRegex = /^[a-z0-9]+$/i;
       // receives this request, it means that the app is not installed and we
       // should redirect the user to a place from which the app can be
       // downloaded.
-      router.get('/invite/:secret', (req, res) => {
-        const { secret } = req.params;
-        const userAgent = req.get('User-Agent');
-        const detectionResult = detectBrowser(userAgent);
-        let redirectUrl = stores.appStoreUrl;
-        if (detectionResult.os === 'Android OS') {
-          const isSecretValid = inviteSecretRegex.test(secret);
-          const referrer = isSecretValid
-            ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
-            : '';
-          redirectUrl = `${stores.googlePlayUrl}${referrer}`;
-        }
-        res.writeHead(301, {
-          Location: redirectUrl,
-        });
-        res.end();
-      });
+      router.get('/invite/:secret', inviteResponder);
 
       // $FlowFixMe express-ws has side effects that can't be typed
       router.ws('/ws', onConnection);
