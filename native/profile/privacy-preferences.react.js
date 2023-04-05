@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+// import { changeThreadSettings } from 'lib/actions/thread-actions.js';
 import {
   updateUserAvatar,
   updateUserAvatarActionTypes,
@@ -27,11 +28,13 @@ function PrivacyPreferences(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
+  // const changeThreadSettingsCall = useServerCall(changeThreadSettings);
 
   const userAvatar: ?ClientAvatar = useSelector(
     state => state.currentUserInfo?.avatar,
   );
 
+  // eslint-disable-next-line no-unused-vars
   const updateUserAvatarCallback = React.useCallback(() => {
     const emojiUpdateRequest = {
       type: 'emoji',
@@ -45,6 +48,27 @@ function PrivacyPreferences(props: { ... }): React.Node {
     );
   }, [dispatchActionPromise, updateUserAvatarCall]);
 
+  // const updateThreadAvatarCallback = React.useCallback(() => {
+  //   const emojiUpdateRequest = {
+  //     type: 'emoji',
+  //     emoji: '🍔',
+  //     color: '4b87aa',
+  //   };
+
+  //   const updateThreadRequest: UpdateThreadRequest = {
+  //     threadID: '84656',
+  //     changes: {
+  //       avatar: emojiUpdateRequest,
+  //     },
+  //   };
+
+  //   dispatchActionPromise(
+  //     changeThreadSettingsActionTypes,
+  //     changeThreadSettingsCall(updateThreadRequest),
+  //   );
+  // }, [changeThreadSettingsCall, dispatchActionPromise]);
+
+  // eslint-disable-next-line no-unused-vars
   const clearUserAvatarCallback = React.useCallback(() => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
       type: 'remove',
@@ -54,6 +78,24 @@ function PrivacyPreferences(props: { ... }): React.Node {
       updateUserAvatarCall(removeAvatarRequest),
     );
   }, [dispatchActionPromise, updateUserAvatarCall]);
+
+  // const clearThreadAvatarCallback = React.useCallback(() => {
+  //   const removeUpdateRequest: UpdateUserAvatarRemoveRequest = {
+  //     type: 'remove',
+  //   };
+
+  //   const updateThreadRequest: UpdateThreadRequest = {
+  //     threadID: '84656',
+  //     changes: {
+  //       avatar: removeUpdateRequest,
+  //     },
+  //   };
+
+  //   dispatchActionPromise(
+  //     changeThreadSettingsActionTypes,
+  //     changeThreadSettingsCall(updateThreadRequest),
+  //   );
+  // }, [changeThreadSettingsCall, dispatchActionPromise]);
 
   const possiblyEmojiAvatar = React.useMemo(() => {
     if (!userAvatar || userAvatar.type !== 'emoji') {
