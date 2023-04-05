@@ -1,6 +1,7 @@
 // @flow
 
 import html from 'common-tags/lib/html/index.js';
+import { detect as detectBrowser } from 'detect-browser';
 import type { $Response, $Request } from 'express';
 import fs from 'fs';
 import _keyBy from 'lodash/fp/keyBy.js';
@@ -10,6 +11,7 @@ import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
+import stores from 'lib/facts/stores.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
 import { freshMessageStore } from 'lib/reducers/message-reducer.js';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
@@ -445,4 +447,24 @@ async function websiteResponder(
   `);
 }
 
-export { websiteResponder };
+const inviteSecretRegex = /^[a-z0-9]+$/i;
+
+function inviteResponder(req: $Request, res: $Response) {
+  const { secret } = req.params;
+  const userAgent = req.get('User-Agent');
+  const detectionResult = detectBrowser(userAgent);
+  let redirectUrl = stores.appStoreUrl;
+  if (detectionResult.os === 'Android OS') {
+    const isSecretValid = inviteSecretRegex.test(secret);
+    const referrer = isSecretValid
+      ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
+      : '';
+    redirectUrl = `${stores.googlePlayUrl}${referrer}`;
+  }
+  res.writeHead(301, {
+    Location: redirectUrl,
+  });
+  res.end();
+}
+
+export { websiteResponder, inviteResponder };
