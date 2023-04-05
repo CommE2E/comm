@@ -11,11 +11,10 @@ import ColorSelectorButton from './color-selector-button.react.js';
 type Props = {
   +pendingColor: string,
   +setPendingColor: SetState<string>,
-  +outerRingSelectedColor?: string,
 };
 
 function ColorRows(props: Props): React.Node {
-  const { pendingColor, setPendingColor, outerRingSelectedColor } = props;
+  const { pendingColor, setPendingColor } = props;
 
   const colorSelectorButtons = React.useMemo(
     () =>
@@ -25,10 +24,9 @@ function ColorRows(props: Props): React.Node {
           color={color}
           pendingColor={pendingColor}
           setPendingColor={setPendingColor}
-          outerRingSelectedColor={outerRingSelectedColor}
         />
       )),
-    [outerRingSelectedColor, pendingColor, setPendingColor],
+    [pendingColor, setPendingColor],
   );
 
   const firstRow = React.useMemo(
