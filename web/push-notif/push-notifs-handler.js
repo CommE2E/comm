@@ -96,9 +96,11 @@ function PushNotificationsHandler(): React.Node {
 
   const dispatch = useDispatch();
 
+  const supported = 'Notification' in window && !electron;
+
   React.useEffect(() => {
     (async () => {
-      if (!navigator.serviceWorker || electron) {
+      if (!navigator.serviceWorker || !supported) {
         return;
       }
 
@@ -126,7 +128,7 @@ function PushNotificationsHandler(): React.Node {
   // Ask for permission on login
   const prevLoggedIn = React.useRef(loggedIn);
   React.useEffect(() => {
-    if (!navigator.serviceWorker || electron) {
+    if (!navigator.serviceWorker || !supported) {
       return;
     }
 
@@ -152,11 +154,12 @@ function PushNotificationsHandler(): React.Node {
     modalContext,
     notifPermissionAlertInfo,
     prevLoggedIn,
+    supported,
   ]);
 
   // Redirect to thread on notification click
   React.useEffect(() => {
-    if (!navigator.serviceWorker || electron) {
+    if (!navigator.serviceWorker || supported) {
       return;
     }
 
@@ -179,7 +182,7 @@ function PushNotificationsHandler(): React.Node {
     navigator.serviceWorker.addEventListener('message', callback);
     return () =>
       navigator.serviceWorker?.removeEventListener('message', callback);
-  }, [dispatch]);
+  }, [dispatch, supported]);
 
   return null;
 }
