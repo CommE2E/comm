@@ -26,7 +26,7 @@ impl Registration {
   }
 
   pub fn finish(
-    &mut self,
+    &self,
     response_payload: &[u8],
   ) -> Result<Vec<u8>, ProtocolError> {
     let upload_payload =
