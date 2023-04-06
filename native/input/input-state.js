@@ -22,6 +22,10 @@ export type PendingMultimediaUploads = {
   [localMessageID: string]: MessagePendingUploads,
 };
 
+export type EditState = {
+  +editedMessageID: ?string,
+};
+
 export type InputState = {
   +pendingUploads: PendingMultimediaUploads,
   +sendTextMessage: (
@@ -50,6 +54,8 @@ export type InputState = {
     threadID: string,
     pendingThreadUpdateHandler: ?(ThreadInfo) => mixed,
   ) => void,
+  +editState: EditState,
+  +setEditedMessageID: (editedMessageID: ?string) => void,
 };
 
 const InputStateContext: React.Context<?InputState> =

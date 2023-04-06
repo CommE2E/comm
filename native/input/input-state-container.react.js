@@ -94,6 +94,7 @@ import { values } from 'lib/utils/objects.js';
 import { useIsReportEnabled } from 'lib/utils/report-utils.js';
 
 import {
+  type EditState,
   InputStateContext,
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
@@ -152,10 +153,14 @@ type Props = {
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
+  +editState: EditState,
 };
 class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
+    editState: {
+      editedMessageID: null,
+    },
   };
   sendCallbacks: Array<() => void> = [];
   activeURIs = new Map();
@@ -380,7 +385,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   inputStateSelector = createSelector(
     (state: State) => state.pendingUploads,
-    (pendingUploads: PendingMultimediaUploads) => ({
+    (state: State) => state.editState,
+    (pendingUploads: PendingMultimediaUploads, editState: EditState) => ({
       pendingUploads,
       sendTextMessage: this.sendTextMessage,
       sendMultimediaMessage: this.sendMultimediaMessage,
@@ -394,6 +400,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadInProgress: this.uploadInProgress,
       reportURIDisplayed: this.reportURIDisplayed,
       setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
+      editState,
+      setEditedMessageID: this.setEditedMessageID,
     }),
   );
 
@@ -1199,6 +1207,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   addReplyListener = (callbackReply: (message: string) => void) => {
     this.replyCallbacks.push(callbackReply);
+  };
+
+  setEditedMessageID = (messageID: ?string) => {
+    this.setState({
+      editState: { editedMessageID: messageID },
+    });
   };
 
   removeReplyListener = (callbackReply: (message: string) => void) => {
