@@ -31,13 +31,19 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
+import { useGetEditedMessage } from 'lib/shared/edit-messages-utils.js';
 import {
   getTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
   type Selection,
   getMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
-import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
+import {
+  localIDPrefix,
+  trimMessage,
+  useMessagePreview,
+} from 'lib/shared/message-utils.js';
+import type { MessagePreviewResult } from 'lib/shared/message-utils.js';
 import SearchIndex from 'lib/shared/search-index.js';
 import {
   threadHasPermission,
@@ -75,6 +81,7 @@ import ClearableTextInput from '../components/clearable-text-input.react';
 import type { SyncedSelectionData } from '../components/selectable-text-input.js';
 // eslint-disable-next-line import/extensions
 import SelectableTextInput from '../components/selectable-text-input.react';
+import { SingleLine } from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react.js';
@@ -83,6 +90,7 @@ import {
   KeyboardContext,
 } from '../keyboard/keyboard-state.js';
 import { getKeyboardHeight } from '../keyboard/keyboard.js';
+import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import {
   nonThreadCalendarQuery,
   activeThreadSelector,
@@ -139,6 +147,7 @@ type Props = {
   +userSearchIndex: SearchIndex,
   +mentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +parentThreadInfo: ?ThreadInfo,
+  +messagePreviewResult: ?MessagePreviewResult,
 };
 type State = {
   +text: string,
@@ -422,6 +431,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       threadPermissions.JOIN_THREAD,
     );
     let joinButton = null;
+    const threadColor = `#${this.props.threadInfo.color}`;
     if (!isMember && canJoin && !this.props.threadCreationInProgress) {
       let buttonContent;
       if (this.props.joinThreadLoadingStatus === 'loading') {
@@ -450,7 +460,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             iosActiveOpacity={0.85}
             style={[
               this.props.styles.joinButton,
-              { backgroundColor: `#${this.props.threadInfo.color}` },
+              { backgroundColor: threadColor },
             ]}
           >
             {buttonContent}
@@ -532,6 +542,33 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         <KeyboardInputHost textInputRef={this.textInput} />
       );
 
+    let editMode;
+    const isEditMode = this.isEditMode();
+    if (isEditMode && this.props.messagePreviewResult) {
+      const { message } = this.props.messagePreviewResult;
+      editMode = (
+        <AnimatedView style={this.props.styles.editView}>
+          <View style={this.props.styles.editViewContent}>
+            <Text
+              style={[{ color: threadColor }, this.props.styles.editingLabel]}
+            >
+              Editing message
+            </Text>
+            <SingleLine style={this.props.styles.editingMessagePreview}>
+              {message.text}
+            </SingleLine>
+          </View>
+          <SWMansionIcon
+            style={this.props.styles.exitEditButton}
+            name="cross"
+            size={22}
+            color={threadColor}
+            onPress={this.onPressExitEditMode}
+          />
+        </AnimatedView>
+      );
+    }
+
     return (
       <View
         style={this.props.styles.container}
@@ -539,6 +576,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       >
         {typeaheadTooltip}
         {joinButton}
+        {editMode}
         {content}
         {keyboardInputHost}
       </View>
@@ -736,6 +774,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
   };
 
+  isEditMode = () => {
+    const editState = this.props.inputState?.editState;
+    return editState && editState.editedMessageID !== null;
+  };
+
+  onPressExitEditMode = () => {
+    this.props.inputState?.setEditedMessageID(null);
+  };
+
   onPressJoin = () => {
     this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
   };
@@ -844,6 +891,26 @@ const unboundStyles = {
     height: 48,
     marginBottom: 8,
   },
+  editView: {
+    marginLeft: 20,
+    marginRight: 20,
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  editViewContent: {
+    flex: 1,
+    paddingRight: 6,
+  },
+  exitEditButton: {
+    marginTop: 6,
+  },
+  editingLabel: {
+    paddingBottom: 4,
+  },
+  editingMessagePreview: {
+    color: 'listForegroundLabel',
+  },
   joinButtonContent: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -948,6 +1015,15 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     parentThreadInfo,
   );
 
+  const editedMessageID = inputState?.editState.editedMessageID;
+  const editedMessageInfo = useSelector(useGetEditedMessage(editedMessageID));
+
+  const messagePreviewResult = useMessagePreview(
+    editedMessageInfo,
+    props.threadInfo,
+    getDefaultTextMessageRules().simpleMarkdownRules,
+  );
+
   return (
     <ChatInputBar
       {...props}
@@ -969,6 +1045,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       userSearchIndex={userSearchIndex}
       mentionsCandidates={mentionsCandidates}
       parentThreadInfo={parentThreadInfo}
+      messagePreviewResult={messagePreviewResult}
     />
   );
 }
