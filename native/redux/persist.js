@@ -13,10 +13,7 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import {
-  DEPRECATED_unshimMessageStore,
-  unshimFunc,
-} from 'lib/shared/unshim-utils.js';
+import { DEPRECATED_unshimMessageStore } from 'lib/shared/unshim-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import {
@@ -24,18 +21,15 @@ import {
   type MessageStore,
   messageTypes,
   type ClientDBMessageStoreOperation,
-  type ClientDBMessageInfo,
 } from 'lib/types/message-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
-import {
-  translateClientDBMessageInfoToRawMessageInfo,
-  translateRawMessageInfoToClientDBMessageInfo,
-} from 'lib/utils/message-ops-utils.js';
+import { translateRawMessageInfoToClientDBMessageInfo } from 'lib/utils/message-ops-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import type { AppState } from './state-types.js';
+import { unshimClientDB } from './unshim-utils.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultGlobalThemeInfo } from '../types/themes.js';
@@ -390,90 +384,8 @@ const migrations = {
     }
     return state;
   },
-  [32]: (state: AppState) => {
-    // 1. Get messages from SQLite `messages` table.
-    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
-
-    // 2. Translate `ClientDBMessageInfo`s to `RawMessageInfo`s.
-    const rawMessageInfos = clientDBMessageInfos.map(
-      translateClientDBMessageInfoToRawMessageInfo,
-    );
-
-    // 3. "Unshim" translated `RawMessageInfo`s.
-    const unshimmedRawMessageInfos = rawMessageInfos.map(messageInfo =>
-      unshimFunc(messageInfo, new Set([messageTypes.MULTIMEDIA])),
-    );
-
-    // 4. Translate unshimmed `RawMessageInfo`s back to `ClientDBMessageInfo`s.
-    const unshimmedClientDBMessageInfos = unshimmedRawMessageInfos.map(
-      translateRawMessageInfoToClientDBMessageInfo,
-    );
-
-    // 5. Construct `ClientDBMessageStoreOperation`s to clear SQLite `messages`
-    //    table and repopulate with unshimmed `ClientDBMessageInfo`s.
-    const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
-      {
-        type: 'remove_all',
-      },
-      ...unshimmedClientDBMessageInfos.map((message: ClientDBMessageInfo) => ({
-        type: 'replace',
-        payload: message,
-      })),
-    ];
-
-    // 6. Try processing `ClientDBMessageStoreOperation`s and log out if
-    //    `processMessageStoreOperationsSync(...)` throws an exception.
-    try {
-      commCoreModule.processMessageStoreOperationsSync(operations);
-    } catch (exception) {
-      console.log(exception);
-      return { ...state, cookie: null };
-    }
-
-    return state;
-  },
-  [33]: (state: AppState) => {
-    // 1. Get messages from SQLite `messages` table.
-    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
-
-    // 2. Translate `ClientDBMessageInfo`s to `RawMessageInfo`s.
-    const rawMessageInfos = clientDBMessageInfos.map(
-      translateClientDBMessageInfoToRawMessageInfo,
-    );
-
-    // 3. "Unshim" translated `RawMessageInfo`s.
-    const unshimmedRawMessageInfos = rawMessageInfos.map(messageInfo =>
-      unshimFunc(messageInfo, new Set([messageTypes.REACTION])),
-    );
-
-    // 4. Translate unshimmed `RawMessageInfo`s back to `ClientDBMessageInfo`s.
-    const unshimmedClientDBMessageInfos = unshimmedRawMessageInfos.map(
-      translateRawMessageInfoToClientDBMessageInfo,
-    );
-
-    // 5. Construct `ClientDBMessageStoreOperation`s to clear SQLite `messages`
-    //    table and repopulate with unshimmed `ClientDBMessageInfo`s.
-    const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
-      {
-        type: 'remove_all',
-      },
-      ...unshimmedClientDBMessageInfos.map((message: ClientDBMessageInfo) => ({
-        type: 'replace',
-        payload: message,
-      })),
-    ];
-
-    // 6. Try processing `ClientDBMessageStoreOperation`s and log out if
-    //    `processMessageStoreOperationsSync(...)` throws an exception.
-    try {
-      commCoreModule.processMessageStoreOperationsSync(operations);
-    } catch (exception) {
-      console.log(exception);
-      return { ...state, cookie: null };
-    }
-
-    return state;
-  },
+  [32]: (state: AppState) => unshimClientDB(state, [messageTypes.MULTIMEDIA]),
+  [33]: (state: AppState) => unshimClientDB(state, [messageTypes.REACTION]),
   [34]: state => {
     const { threadIDsToNotifIDs, ...stateSansThreadIDsToNotifIDs } = state;
     return stateSansThreadIDsToNotifIDs;
