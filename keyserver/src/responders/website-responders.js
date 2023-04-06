@@ -449,7 +449,7 @@ async function websiteResponder(
 
 const inviteSecretRegex = /^[a-z0-9]+$/i;
 
-function inviteResponder(req: $Request, res: $Response) {
+async function inviteResponder(req: $Request, res: $Response): Promise<void> {
   const { secret } = req.params;
   const userAgent = req.get('User-Agent');
   const detectionResult = detectBrowser(userAgent);
@@ -464,12 +464,14 @@ function inviteResponder(req: $Request, res: $Response) {
     });
     res.end();
   } else {
+    const fontsURL = await getFontsURL();
     res.end(html`
       <!DOCTYPE html>
       <html lang="en">
         <head>
           <meta charset="utf-8" />
           <title>Comm</title>
+          <link rel="stylesheet" type="text/css" href="/${fontsURL}" />
           <style>
             * {
               -webkit-font-smoothing: antialiased;
@@ -524,6 +526,7 @@ function inviteResponder(req: $Request, res: $Response) {
               font-size: 3.6rem;
               line-height: 1.5;
               font-weight: 500;
+              font-family: 'IBM Plex Sans', sans-serif;
             }
 
             p {
