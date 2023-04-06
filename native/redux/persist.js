@@ -13,7 +13,10 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import { unshimMessageStore, unshimFunc } from 'lib/shared/unshim-utils.js';
+import {
+  DEPRECATED_unshimMessageStore,
+  unshimFunc,
+} from 'lib/shared/unshim-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import {
@@ -123,7 +126,9 @@ const migrations = {
   }),
   [11]: (state: AppState) => ({
     ...state,
-    messageStore: unshimMessageStore(state.messageStore, [messageTypes.IMAGES]),
+    messageStore: DEPRECATED_unshimMessageStore(state.messageStore, [
+      messageTypes.IMAGES,
+    ]),
   }),
   [12]: (state: AppState) => ({
     ...state,
@@ -199,13 +204,13 @@ const migrations = {
   },
   [20]: (state: AppState) => ({
     ...state,
-    messageStore: unshimMessageStore(state.messageStore, [
+    messageStore: DEPRECATED_unshimMessageStore(state.messageStore, [
       messageTypes.UPDATE_RELATIONSHIP,
     ]),
   }),
   [21]: (state: AppState) => ({
     ...state,
-    messageStore: unshimMessageStore(state.messageStore, [
+    messageStore: DEPRECATED_unshimMessageStore(state.messageStore, [
       messageTypes.CREATE_SIDEBAR,
       messageTypes.SIDEBAR_SOURCE,
     ]),
