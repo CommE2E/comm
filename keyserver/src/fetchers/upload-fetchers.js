@@ -3,7 +3,7 @@
 import ip from 'internal-ip';
 import _keyBy from 'lodash/fp/keyBy.js';
 
-import type { Media } from 'lib/types/media-types.js';
+import type { Media, Image, EncryptedImage } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types.js';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
@@ -97,45 +97,31 @@ function getUploadURL(id: string, secret: string): string {
   return `${baseDomain}${uploadPath}`;
 }
 
-function mediaFromRow(row: Object): Media {
+function imagesFromRow(row: Object): Image | EncryptedImage {
   const uploadExtra = JSON.parse(row.uploadExtra);
-  const { width, height, loop } = uploadExtra;
+  const { width, height } = uploadExtra;
 
   const { uploadType: type, uploadSecret: secret } = row;
   const id = row.uploadID.toString();
   const dimensions = { width, height };
   const uri = getUploadURL(id, secret);
   const isEncrypted = !!uploadExtra.encryptionKey;
-  if (type === 'photo') {
-    if (!isEncrypted) {
-      return { id, type: 'photo', uri, dimensions };
-    }
-    return {
-      id,
-      type: 'encrypted_photo',
-      holder: uri,
-      dimensions,
-      encryptionKey: uploadExtra.encryptionKey,
-    };
+  if (type !== 'photo') {
+    throw new ServerError('invalid_parameters');
   }
-
-  let video;
   if (!isEncrypted) {
-    video = { id, type: 'video', uri, dimensions };
-  } else {
-    video = {
-      id,
-      type: 'encrypted_video',
-      holder: uri,
-      dimensions,
-      encryptionKey: uploadExtra.encryptionKey,
-    };
+    return { id, type: 'photo', uri, dimensions };
   }
-  // $FlowFixMe add thumbnailID, thumbnailURI once they're in DB
-  return loop ? { ...video, loop } : video;
+  return {
+    id,
+    type: 'encrypted_photo',
+    holder: uri,
+    dimensions,
+    encryptionKey: uploadExtra.encryptionKey,
+  };
 }
 
-async function fetchMedia(
+async function fetchImages(
   viewer: Viewer,
   mediaIDs: $ReadOnlyArray<string>,
 ): Promise<$ReadOnlyArray<Media>> {
@@ -146,7 +132,7 @@ async function fetchMedia(
     WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
   `;
   const [result] = await dbQuery(query);
-  return result.map(mediaFromRow);
+  return result.map(imagesFromRow);
 }
 
 async function fetchMediaForThread(
@@ -363,8 +349,8 @@ export {
   fetchUploadChunk,
   getUploadSize,
   getUploadURL,
-  mediaFromRow,
-  fetchMedia,
+  imagesFromRow,
+  fetchImages,
   fetchMediaForThread,
   fetchMediaFromMediaMessageContent,
   constructMediaFromMediaMessageContentsAndUploadRows,
