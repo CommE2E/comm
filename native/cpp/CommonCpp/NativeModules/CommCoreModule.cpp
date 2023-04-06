@@ -651,7 +651,8 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
           roles,
           currentUser,
           std::move(sourceMessageID),
-          repliesCount};
+          repliesCount,
+          NULL};
 
       threadStoreOps.push_back(
           std::make_unique<ReplaceThreadOperation>(std::move(thread)));
