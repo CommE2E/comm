@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
+import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
@@ -31,6 +32,7 @@ import { TextMessageTooltipModalRouteName } from '../navigation/route-names.js';
 import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import { useShouldRenderEditButton } from '../utils/edit-messages-utils.js';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,
@@ -51,6 +53,8 @@ type Props = {
   +chatContext: ?ChatContextType,
   // MarkdownContext
   +isLinkModalActive: boolean,
+  +canEditMessage: boolean,
+  +shouldRenderEditButton: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -75,6 +79,8 @@ class TextMessage extends React.PureComponent<Props> {
       chatContext,
       isLinkModalActive,
       canCreateSidebarFromMessage,
+      canEditMessage,
+      shouldRenderEditButton,
       ...viewProps
     } = this.props;
 
@@ -135,6 +141,10 @@ class TextMessage extends React.PureComponent<Props> {
 
     if (this.canReply()) {
       result.push('reply');
+    }
+
+    if (this.props.canEditMessage && this.props.shouldRenderEditButton) {
+      result.push('edit');
     }
 
     if (
@@ -239,6 +249,13 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       props.item.messageInfo,
     );
 
+    const shouldRenderEditButton = useShouldRenderEditButton();
+
+    const canEditMessage = useCanEditMessage(
+      props.item.threadInfo,
+      props.item.messageInfo,
+    );
+
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
     return (
@@ -248,6 +265,8 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         overlayContext={overlayContext}
         chatContext={chatContext}
         isLinkModalActive={isLinkModalActive}
+        canEditMessage={canEditMessage}
+        shouldRenderEditButton={shouldRenderEditButton}
       />
     );
   });

@@ -54,6 +54,19 @@ function TooltipMenu(
     [],
   );
 
+  const { messageInfo } = route.params.item;
+  const onPressEdit = React.useCallback(() => {
+    invariant(
+      inputState,
+      'inputState should be set in TextMessageTooltipModal.onPressEdit',
+    );
+    inputState.setEditedMessageID(messageInfo.id);
+  }, [inputState, messageInfo.id]);
+  const renderEditIcon = React.useCallback(
+    style => <SWMansionIcon name="edit-1" style={style} size={16} />,
+    [],
+  );
+
   const onPressCopy = React.useCallback(() => {
     Clipboard.setString(text);
     setTimeout(confirmCopy);
@@ -84,6 +97,13 @@ function TooltipMenu(
         onPress={onPressSidebar}
         renderIcon={renderSidebarIcon}
         key="sidebar"
+      />
+      <TooltipItem
+        id="edit"
+        text="Edit"
+        onPress={onPressEdit}
+        renderIcon={renderEditIcon}
+        key="edit"
       />
       <TooltipItem
         id="copy"
