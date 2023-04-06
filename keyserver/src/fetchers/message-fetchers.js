@@ -28,7 +28,7 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import {
   constructMediaFromMediaMessageContentsAndUploadRows,
-  mediaFromRow,
+  imagesFromRow,
 } from './upload-fetchers.js';
 import {
   dbQuery,
@@ -246,7 +246,7 @@ function rawMessageInfoFromRows(
         rows,
       );
     } else {
-      media = rows.filter(row => row.uploadID).map(mediaFromRow);
+      media = rows.filter(row => row.uploadID).map(imagesFromRow);
     }
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
