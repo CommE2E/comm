@@ -356,6 +356,13 @@ async function updateThread(
     sqlUpdate.parent_thread_id = parentThreadID;
   }
 
+  const { avatar } = request.changes;
+  if (avatar !== undefined && avatar !== null) {
+    changedFields.avatar =
+      avatar.type !== 'remove' ? JSON.stringify(avatar) : '';
+    sqlUpdate.avatar = avatar.type !== 'remove' ? JSON.stringify(avatar) : null;
+  }
+
   const threadType = request.changes.type;
   if (threadType !== null && threadType !== undefined) {
     changedFields.type = threadType;
@@ -410,6 +417,12 @@ async function updateThread(
       checks.push({
         check: 'permission',
         permission: threadPermissions.EDIT_THREAD_COLOR,
+      });
+    }
+    if (sqlUpdate.avatar !== undefined) {
+      checks.push({
+        check: 'permission',
+        permission: threadPermissions.EDIT_THREAD_AVATAR,
       });
     }
     if (parentThreadID !== undefined || sqlUpdate.type !== undefined) {
