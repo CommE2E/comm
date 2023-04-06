@@ -23,7 +23,6 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors.js';
-import { unreadCount } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -42,6 +41,7 @@ import { MenuProvider } from './menu-provider.react.js';
 import UpdateModalHandler from './modals/update-modal.react.js';
 import SettingsSwitcher from './navigation-panels/settings-switcher.react.js';
 import Topbar from './navigation-panels/topbar.react.js';
+import useBadgeHandler from './push-notif/badge-handler.react.js';
 import { PushNotificationsHandler } from './push-notif/push-notifs-handler.js';
 import { updateNavInfoActionType } from './redux/action-types.js';
 import DeviceIDUpdater from './redux/device-id-updater.js';
@@ -58,7 +58,6 @@ import CommunityPicker from './sidebar/community-picker.react.js';
 import Splash from './splash/splash.react.js';
 import './typography.css';
 import css from './style.css';
-import getTitle from './title/getTitle.js';
 import { type NavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 
@@ -309,11 +308,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
     );
 
-    const boundUnreadCount = useSelector(unreadCount);
-    React.useEffect(() => {
-      document.title = getTitle(boundUnreadCount);
-      electron?.setBadge(boundUnreadCount === 0 ? null : boundUnreadCount);
-    }, [boundUnreadCount]);
+    useBadgeHandler();
 
     const dispatch = useDispatch();
     const modalContext = useModalContext();
