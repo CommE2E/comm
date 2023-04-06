@@ -22,6 +22,7 @@ import {
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions.js';
+import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { pathFromURI, replaceExtension } from 'lib/media/file-utils.js';
 import {
   isLocalUploadID,
@@ -43,6 +44,7 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
   patchThreadInfoToIncludeMentionedMembersOfParent,
+  threadInfoInsideCommunity,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
@@ -160,8 +162,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
   pendingThreadUpdateHandlers = new Map<string, (ThreadInfo) => mixed>();
-  // TODO: we want to send encrypted media if thread is in the Comm community
-  sendEncryptedMedia: boolean = false;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -558,6 +558,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
+  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
+    return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
+  }
+
   sendMultimediaMessage = async (
     selections: $ReadOnlyArray<NativeMediaSelection>,
     threadInfo: ThreadInfo,
@@ -644,7 +648,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             creatorID,
             media,
           },
-          { forceMultimediaMessageType: this.sendEncryptedMedia },
+          { forceMultimediaMessageType: this.shouldEncryptMedia(threadInfo) },
         );
         this.props.dispatch({
           type: createLocalMessageActionType,
@@ -653,16 +657,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       },
     );
 
-    await this.uploadFiles(localMessageID, uploadFileInputs);
+    await this.uploadFiles(localMessageID, uploadFileInputs, threadInfo);
   };
 
   async uploadFiles(
     localMessageID: string,
     uploadFileInputs: $ReadOnlyArray<UploadFileInput>,
+    threadInfo: ThreadInfo,
   ) {
     const results = await Promise.all(
       uploadFileInputs.map(uploadFileInput =>
-        this.uploadFile(localMessageID, uploadFileInput),
+        this.uploadFile(localMessageID, uploadFileInput, threadInfo),
       ),
     );
     const errors = [...new Set(results.filter(Boolean))];
@@ -674,6 +679,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   async uploadFile(
     localMessageID: string,
     uploadFileInput: UploadFileInput,
+    threadInfo: ThreadInfo,
   ): Promise<?string> {
     const { ids, selection } = uploadFileInput;
     const { localMediaID } = ids;
@@ -739,7 +745,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     let encryptionSteps = [];
-    if (this.sendEncryptedMedia) {
+    if (this.shouldEncryptMedia(threadInfo)) {
       const encryptionStart = Date.now();
       try {
         const { result: encryptionResult, ...encryptionReturn } =
@@ -1428,7 +1434,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    await this.uploadFiles(localMessageID, uploadFileInputs);
+    await this.uploadFiles(localMessageID, uploadFileInputs, threadInfo);
   };
 
   retryMessage = async (
