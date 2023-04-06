@@ -390,6 +390,7 @@ const migrations = {
     const { threadIDsToNotifIDs, ...stateSansThreadIDsToNotifIDs } = state;
     return stateSansThreadIDsToNotifIDs;
   },
+  [35]: (state: AppState) => unshimClientDB(state, [messageTypes.MULTIMEDIA]),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -470,7 +471,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 34,
+  version: 35,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
