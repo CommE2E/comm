@@ -45,13 +45,13 @@ import {
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
-  fetchMedia,
+  fetchImages,
   fetchMediaFromMediaMessageContent,
 } from '../fetchers/upload-fetchers.js';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import {
-  assignMedia,
+  assignImages,
   assignMessageContainerToMedia,
 } from '../updaters/upload-updaters.js';
 import { validateInput } from '../utils/validation-utils.js';
@@ -130,6 +130,7 @@ async function messageFetchResponder(
 }
 
 const sendMultimediaMessageRequestInputValidator = t.union([
+  // This option is only used for messageTypes.IMAGES
   tShape({
     threadID: t.String,
     localID: t.String,
@@ -176,7 +177,7 @@ async function multimediaMessageCreationResponder(
     localID,
   );
   const mediaPromise: Promise<$ReadOnlyArray<Media>> = request.mediaIDs
-    ? fetchMedia(viewer, request.mediaIDs)
+    ? fetchImages(viewer, request.mediaIDs)
     : fetchMediaFromMediaMessageContent(viewer, request.mediaMessageContents);
 
   const [existingMessageInfo, media] = await Promise.all([
@@ -210,7 +211,7 @@ async function multimediaMessageCreationResponder(
   );
 
   if (request.mediaIDs) {
-    await assignMedia(viewer, request.mediaIDs, id, threadID);
+    await assignImages(viewer, request.mediaIDs, id, threadID);
   } else {
     await assignMessageContainerToMedia(
       viewer,

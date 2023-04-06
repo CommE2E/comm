@@ -6,7 +6,7 @@ import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages
 import { dbQuery, SQL } from '../database/database.js';
 import type { Viewer } from '../session/viewer.js';
 
-async function assignMedia(
+async function assignImages(
   viewer: Viewer,
   mediaIDs: $ReadOnlyArray<string>,
   containerID: string,
@@ -38,4 +38,4 @@ async function assignMessageContainerToMedia(
   await dbQuery(query);
 }
 
-export { assignMedia, assignMessageContainerToMedia };
+export { assignImages, assignMessageContainerToMedia };
