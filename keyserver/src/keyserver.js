@@ -35,6 +35,7 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads.js';
+import { initENSCache } from './utils/ens-cache.js';
 import {
   prefetchAllURLFacts,
   getSquadCalURLFacts,
@@ -45,8 +46,7 @@ import {
 const inviteSecretRegex = /^[a-z0-9]+$/i;
 
 (async () => {
-  await olm.init();
-  await prefetchAllURLFacts();
+  await Promise.all([olm.init(), prefetchAllURLFacts(), initENSCache()]);
 
   const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
   const landingBaseRoutePath = getLandingURLFacts()?.baseRoutePath;
