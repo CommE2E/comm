@@ -17,16 +17,14 @@ import type {
   RegisterResponse,
   RegisterRequest,
 } from 'lib/types/account-types.js';
-import type {
-  SignedIdentityKeysBlob,
-  IdentityKeysBlob,
-} from 'lib/types/crypto-types.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   PlatformDetails,
   DeviceTokenUpdateRequest,
 } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types.js';
+import type { DeviceKeys } from 'lib/types/rust-binding-types.js';
 import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import { threadTypes } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -197,19 +195,24 @@ async function createAccount(
   ];
 
   if (signedIdentityKeysBlob) {
-    const identityKeys: IdentityKeysBlob = JSON.parse(
-      signedIdentityKeysBlob.payload,
-    );
+    const deviceKeys: DeviceKeys = {
+      keyPayload: signedIdentityKeysBlob.payload,
+      keyPayloadSignature: signedIdentityKeysBlob.signature,
+      identityPrekey: '',
+      identityPrekeySignature: '',
+      notifPrekey: '',
+      notifPrekeySignature: '',
+      identityOnetimeKeys: [],
+      notifOnetimeKeys: [],
+    };
 
     handleAsyncPromise(
       (async () => {
         const rustAPI = await getRustAPI();
         await rustAPI.registerUser(
-          id,
-          identityKeys.primaryIdentityPublicKeys.ed25519,
           request.username,
           request.password,
-          signedIdentityKeysBlob,
+          deviceKeys,
         );
       })(),
     );
