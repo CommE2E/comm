@@ -10,8 +10,8 @@ public class AESCryptoModule: Module {
     Name("AESCrypto")
 
     Function("generateKey", generateKey)
-    Function("encrypt", encrypt)
-    Function("decrypt", decrypt)
+    AsyncFunction("encrypt", encrypt)
+    AsyncFunction("decrypt", decrypt)
   }
 }
 

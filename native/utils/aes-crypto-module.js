@@ -13,12 +13,12 @@ const AESCryptoModule: {
     key: Uint8Array,
     data: Uint8Array,
     destination: Uint8Array,
-  ) => void,
+  ) => Promise<void>,
   +decrypt: (
     key: Uint8Array,
     data: Uint8Array,
     destination: Uint8Array,
-  ) => void,
+  ) => Promise<void>,
 } = requireNativeModule('AESCrypto');
 
 export function generateKey(): Uint8Array {
@@ -27,15 +27,21 @@ export function generateKey(): Uint8Array {
   return keyBuffer;
 }
 
-export function encrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
+export async function encrypt(
+  key: Uint8Array,
+  data: Uint8Array,
+): Promise<Uint8Array> {
   const sealedDataBuffer = new Uint8Array(data.length + IV_LENGTH + TAG_LENGTH);
-  AESCryptoModule.encrypt(key, data, sealedDataBuffer);
+  await AESCryptoModule.encrypt(key, data, sealedDataBuffer);
   return sealedDataBuffer;
 }
 
-export function decrypt(key: Uint8Array, data: Uint8Array): Uint8Array {
+export async function decrypt(
+  key: Uint8Array,
+  data: Uint8Array,
+): Promise<Uint8Array> {
   invariant(data.length >= IV_LENGTH + TAG_LENGTH, 'Invalid data length');
   const plaintextBuffer = new Uint8Array(data.length - IV_LENGTH - TAG_LENGTH);
-  AESCryptoModule.decrypt(key, data, plaintextBuffer);
+  await AESCryptoModule.decrypt(key, data, plaintextBuffer);
   return plaintextBuffer;
 }
