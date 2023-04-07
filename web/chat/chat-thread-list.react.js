@@ -12,7 +12,10 @@ import BackgroundIllustration from '../assets/background-illustration.react.js';
 import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useOnClickNewThread } from '../selectors/thread-selectors.js';
+import {
+  useOnClickNewThread,
+  usePickedCommunityChat,
+} from '../selectors/thread-selectors.js';
 
 function ChatThreadList(): React.Node {
   const threadListContext = React.useContext(ThreadListContext);
@@ -31,15 +34,22 @@ function ChatThreadList(): React.Node {
 
   const isBackground = activeTab === 'Background';
 
+  const communityID = usePickedCommunityChat();
+
   const threadComponents: React.Node[] = React.useMemo(() => {
-    const threads = threadList.map(item => (
-      <ChatThreadListItem item={item} key={item.threadInfo.id} />
-    ));
+    const threads = threadList
+      .filter(
+        item =>
+          !communityID ||
+          item.threadInfo.community === communityID ||
+          item.threadInfo.id === communityID,
+      )
+      .map(item => <ChatThreadListItem item={item} key={item.threadInfo.id} />);
     if (threads.length === 0 && isBackground) {
       threads.push(<EmptyItem key="emptyItem" />);
     }
     return threads;
-  }, [threadList, isBackground]);
+  }, [threadList, isBackground, communityID]);
 
   return (
     <>
