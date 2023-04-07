@@ -95,6 +95,7 @@ import { values } from 'lib/utils/objects.js';
 import { useIsReportEnabled } from 'lib/utils/report-utils.js';
 
 import {
+  type EditInputBarMessageParameters,
   type EditState,
   InputStateContext,
   type PendingMultimediaUploads,
@@ -165,7 +166,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
   sendCallbacks: Array<() => void> = [];
   activeURIs = new Map();
-  replyCallbacks: Array<(message: string) => void> = [];
+  editInputBarCallbacks: Array<
+    (params: EditInputBarMessageParameters) => void,
+  > = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
   pendingThreadUpdateHandlers = new Map<string, (ThreadInfo) => mixed>();
 
@@ -391,9 +394,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       pendingUploads,
       sendTextMessage: this.sendTextMessage,
       sendMultimediaMessage: this.sendMultimediaMessage,
-      addReply: this.addReply,
-      addReplyListener: this.addReplyListener,
-      removeReplyListener: this.removeReplyListener,
+      editInputMessage: this.editInputMessage,
+      addEditInputMessageListener: this.addEditInputMessageListener,
+      removeEditInputMessageListener: this.removeEditInputMessageListener,
       messageHasUploadFailure: this.messageHasUploadFailure,
       retryMessage: this.retryMessage,
       registerSendCallback: this.registerSendCallback,
@@ -1202,12 +1205,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return values(pendingUploads).some(upload => upload.failed);
   };
 
-  addReply = (message: string) => {
-    this.replyCallbacks.forEach(addReplyCallback => addReplyCallback(message));
+  editInputMessage = (params: EditInputBarMessageParameters) => {
+    this.editInputBarCallbacks.forEach(addEditInputBarCallback =>
+      addEditInputBarCallback(params),
+    );
   };
 
-  addReplyListener = (callbackReply: (message: string) => void) => {
-    this.replyCallbacks.push(callbackReply);
+  addEditInputMessageListener = (
+    callbackEditInputBar: (params: EditInputBarMessageParameters) => void,
+  ) => {
+    this.editInputBarCallbacks.push(callbackEditInputBar);
   };
 
   setEditedMessage = (editedMessage: ?MessageInfo) => {
@@ -1216,9 +1223,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   };
 
-  removeReplyListener = (callbackReply: (message: string) => void) => {
-    this.replyCallbacks = this.replyCallbacks.filter(
-      candidate => candidate !== callbackReply,
+  removeEditInputMessageListener = (
+    callbackEditInputBar: (params: EditInputBarMessageParameters) => void,
+  ) => {
+    this.editInputBarCallbacks = this.editInputBarCallbacks.filter(
+      candidate => candidate !== callbackEditInputBar,
     );
   };
 

@@ -317,7 +317,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       (text: string) => setUsernameInputText(text),
       [],
     );
-    const { addReply } = inputState;
+    const { editInputMessage } = inputState;
     const resolveToUser = React.useCallback(
       (user: AccountUserInfo) => {
         const resolvedThreadInfo = existingThreadInfoFinder({
@@ -328,11 +328,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
           resolvedThreadInfo,
           'resolvedThreadInfo must be specified in messageListContainer',
         );
-        addReply('');
+        editInputMessage({ message: '', mode: 'prepend' });
         setBaseThreadInfo(resolvedThreadInfo);
         setParams({ searching: false, threadInfo: resolvedThreadInfo });
       },
-      [setParams, existingThreadInfoFinder, addReply],
+      [existingThreadInfoFinder, editInputMessage, setParams],
     );
 
     const messageListData = useNativeMessageListData({
