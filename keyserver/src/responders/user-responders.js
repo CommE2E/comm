@@ -36,6 +36,7 @@ import type {
 } from 'lib/types/crypto-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
+import type { DeviceKeys } from 'lib/types/rust-binding-types';
 import type {
   SIWEAuthRequest,
   SIWEMessage,
@@ -445,13 +446,17 @@ async function logInResponder(
           );
         } catch (e) {
           if (e.code === 'InvalidArg' && e.message === 'user not found') {
-            await rustAPI.registerUser(
-              id,
-              constIdentityKeys.primaryIdentityPublicKeys.ed25519,
-              username,
-              request.password,
-              signedIdentityKeysBlob,
-            );
+            const deviceKeys: DeviceKeys = {
+              keyPayload: signedIdentityKeysBlob.payload,
+              keyPayloadSignature: signedIdentityKeysBlob.signature,
+              identityPrekey: '',
+              identityPrekeySignature: '',
+              notifPrekey: '',
+              notifPrekeySignature: '',
+              identityOnetimeKeys: [],
+              notifOnetimeKeys: [],
+            };
+            await rustAPI.registerUser(username, request.password, deviceKeys);
           } else {
             throw e;
           }
