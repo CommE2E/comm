@@ -13,7 +13,10 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import { DEPRECATED_unshimMessageStore } from 'lib/shared/unshim-utils.js';
+import {
+  DEPRECATED_unshimMessageStore,
+  unshimFunc,
+} from 'lib/shared/unshim-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import {
@@ -23,9 +26,20 @@ import {
   type ClientDBMessageStoreOperation,
 } from 'lib/types/message-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
-import { translateRawMessageInfoToClientDBMessageInfo } from 'lib/utils/message-ops-utils.js';
+import type {
+  ClientDBThreadStoreOperation,
+  ClientDBThreadInfo,
+} from 'lib/types/thread-types.js';
+import {
+  translateClientDBMessageInfoToRawMessageInfo,
+  translateRawMessageInfoToClientDBMessageInfo,
+} from 'lib/utils/message-ops-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
+import {
+  convertClientDBThreadInfoToRawThreadInfo,
+  convertRawThreadInfoToClientDBThreadInfo,
+  convertThreadStoreOperationsToClientDBOperations,
+} from 'lib/utils/thread-ops-utils.js';
 
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import type { AppState } from './state-types.js';
@@ -391,6 +405,85 @@ const migrations = {
     return stateSansThreadIDsToNotifIDs;
   },
   [35]: (state: AppState) => unshimClientDB(state, [messageTypes.MULTIMEDIA]),
+  [36]: (state: AppState) => {
+    // 1. Get threads and messages from SQLite `threads` and `messages` tables.
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+
+    // 2. Translate `ClientDBThreadInfo`s to `RawThreadInfo`s and
+    //    `ClientDBMessageInfo`s to `RawMessageInfo`s.
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+    const rawMessageInfos = clientDBMessageInfos.map(
+      translateClientDBMessageInfoToRawMessageInfo,
+    );
+
+    // 3. Unshim translated `RawMessageInfos` to get the TOGGLE_PIN messages
+    const unshimmedRawMessageInfos = rawMessageInfos.map(messageInfo =>
+      unshimFunc(messageInfo, new Set([messageTypes.TOGGLE_PIN])),
+    );
+
+    // 4. Filter out non-TOGGLE_PIN messages
+    const filteredRawMessageInfos = unshimmedRawMessageInfos.filter(
+      messageInfo => messageInfo.type === messageTypes.TOGGLE_PIN,
+    );
+
+    // 5. We want only the last TOGGLE_PIN message for each message ID,
+    // so 'pin', 'unpin', 'pin' don't count as 3 pins, but only 1.
+    const lastMessageIDToRawMessageInfoMap = new Map();
+    for (const messageInfo of filteredRawMessageInfos) {
+      const { targetMessageID } = messageInfo;
+      lastMessageIDToRawMessageInfoMap.set(targetMessageID, messageInfo);
+    }
+    const lastMessageIDToRawMessageInfos = Array.from(
+      lastMessageIDToRawMessageInfoMap.values(),
+    );
+
+    // 6. Create a Map of threadIDs to pinnedCount
+    const threadIDsToPinnedCount = new Map();
+    for (const messageInfo of lastMessageIDToRawMessageInfos) {
+      const { threadID, type } = messageInfo;
+      if (type === messageTypes.TOGGLE_PIN) {
+        const pinnedCount = threadIDsToPinnedCount.get(threadID) || 0;
+        threadIDsToPinnedCount.set(threadID, pinnedCount + 1);
+      }
+    }
+
+    // 7. Include a pinnedCount for each rawThreadInfo
+    const rawThreadInfosWithPinnedCount = rawThreadInfos.map(threadInfo => ({
+      ...threadInfo,
+      pinnedCount: threadIDsToPinnedCount.get(threadInfo.id) || 0,
+    }));
+
+    // 8. Translate `RawThreadInfo`s to `ClientDBThreadInfo`s.
+    const convertedClientDBThreadInfos = rawThreadInfosWithPinnedCount.map(
+      convertRawThreadInfoToClientDBThreadInfo,
+    );
+
+    // 9. Construct `ClientDBThreadStoreOperation`s to clear SQLite `threads`
+    //    table and repopulate with `ClientDBThreadInfo`s.
+    const operations: $ReadOnlyArray<ClientDBThreadStoreOperation> = [
+      {
+        type: 'remove_all',
+      },
+      ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
+        type: 'replace',
+        payload: thread,
+      })),
+    ];
+
+    // 10. Try processing `ClientDBThreadStoreOperation`s and log out if
+    //    `processThreadStoreOperationsSync(...)` throws an exception.
+    try {
+      commCoreModule.processThreadStoreOperationsSync(operations);
+    } catch (exception) {
+      console.log(exception);
+      return { ...state, cookie: null };
+    }
+
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -471,7 +564,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 35,
+  version: 36,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
