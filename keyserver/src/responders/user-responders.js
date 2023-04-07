@@ -446,8 +446,6 @@ async function logInResponder(
         } catch (e) {
           if (e.code === 'InvalidArg' && e.message === 'user not found') {
             await rustAPI.registerUser(
-              id,
-              constIdentityKeys.primaryIdentityPublicKeys.ed25519,
               username,
               request.password,
               signedIdentityKeysBlob,

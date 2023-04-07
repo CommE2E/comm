@@ -17,10 +17,7 @@ import type {
   RegisterResponse,
   RegisterRequest,
 } from 'lib/types/account-types.js';
-import type {
-  SignedIdentityKeysBlob,
-  IdentityKeysBlob,
-} from 'lib/types/crypto-types.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   PlatformDetails,
   DeviceTokenUpdateRequest,
@@ -197,16 +194,10 @@ async function createAccount(
   ];
 
   if (signedIdentityKeysBlob) {
-    const identityKeys: IdentityKeysBlob = JSON.parse(
-      signedIdentityKeysBlob.payload,
-    );
-
     handleAsyncPromise(
       (async () => {
         const rustAPI = await getRustAPI();
         await rustAPI.registerUser(
-          id,
-          identityKeys.primaryIdentityPublicKeys.ed25519,
           request.username,
           request.password,
           signedIdentityKeysBlob,
