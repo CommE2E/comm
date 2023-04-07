@@ -86,7 +86,7 @@ async function encryptFile(uri: string): Promise<{
   try {
     const plaintextData = shouldPad ? pad(data) : data;
     key = AES.generateKey();
-    encryptedData = AES.encrypt(key, plaintextData);
+    encryptedData = await AES.encrypt(key, plaintextData);
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
@@ -289,7 +289,7 @@ async function decryptMedia(
   let plaintextData, decryptedData, isPadded;
   try {
     const key = hexToUintArray(encryptionKey);
-    plaintextData = AES.decrypt(key, data);
+    plaintextData = await AES.decrypt(key, data);
     isPadded = plaintextData.byteLength <= PADDING_THRESHOLD;
     decryptedData = isPadded ? unpad(plaintextData) : plaintextData;
   } catch (e) {

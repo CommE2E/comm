@@ -24,8 +24,8 @@ class AESCryptoModule : Module() {
     Name("AESCrypto")
 
     Function("generateKey", this@AESCryptoModule::generateKey)
-    Function("encrypt", this@AESCryptoModule::encrypt)
-    Function("decrypt", this@AESCryptoModule::decrypt)
+    AsyncFunction("encrypt", this@AESCryptoModule::encrypt)
+    AsyncFunction("decrypt", this@AESCryptoModule::decrypt)
   }
 
   // region Function implementations
