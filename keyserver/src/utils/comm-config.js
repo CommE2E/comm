@@ -19,7 +19,11 @@ function getPathForConfigName(configName: ConfigName): string {
 }
 
 const cachedJSON = new Map();
-async function importJSON<T>(configName: ConfigName): Promise<?T> {
+
+// This function checks for an env var named COMM_JSONCONFIG_{folder}_{name}
+// If it doesn't find one, it then looks for keyserver/{folder}/{name}.json
+// In both cases, it expects to find a JSON blob
+async function getCommConfig<T>(configName: ConfigName): Promise<?T> {
   const key = getKeyForConfigName(configName);
   const cached = cachedJSON.get(key);
   if (cached !== undefined) {
@@ -57,4 +61,4 @@ async function getJSON<T>(configName: ConfigName): Promise<?T> {
   }
 }
 
-export { importJSON };
+export { getCommConfig };

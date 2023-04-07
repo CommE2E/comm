@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 
 import { isDev } from 'lib/utils/dev-utils.js';
 
-import { importJSON } from '../utils/import-json.js';
+import { getCommConfig } from '../utils/comm-config.js';
 
 type MailInfo = {
   +from: string,
@@ -28,7 +28,7 @@ async function getSendmail(): Promise<Transport> {
   if (cachedTransport) {
     return cachedTransport;
   }
-  const postmark: ?PostmarkConfig = await importJSON({
+  const postmark: ?PostmarkConfig = await getCommConfig({
     folder: 'secrets',
     name: 'postmark',
   });

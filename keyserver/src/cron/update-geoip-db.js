@@ -5,10 +5,10 @@ import cluster from 'cluster';
 import geoip from 'geoip-lite';
 
 import { handleAsyncPromise } from '../responders/handlers.js';
-import { importJSON } from '../utils/import-json.js';
+import { getCommConfig } from '../utils/comm-config.js';
 
 async function updateGeoipDB(): Promise<void> {
-  const geoipLicense = await importJSON({
+  const geoipLicense = await getCommConfig({
     folder: 'secrets',
     name: 'geoip_license',
   });

@@ -4,7 +4,7 @@ import olm from '@matrix-org/olm';
 import type { Utility as OlmUtility } from '@matrix-org/olm';
 import invariant from 'invariant';
 
-import { importJSON } from './import-json.js';
+import { getCommConfig } from './comm-config.js';
 
 type OlmConfig = {
   +picklingKey: string,
@@ -12,7 +12,10 @@ type OlmConfig = {
 };
 
 async function getOlmConfig(): Promise<OlmConfig> {
-  const olmConfig = await importJSON({ folder: 'secrets', name: 'olm_config' });
+  const olmConfig = await getCommConfig({
+    folder: 'secrets',
+    name: 'olm_config',
+  });
   invariant(olmConfig, 'OLM config missing');
   return olmConfig;
 }

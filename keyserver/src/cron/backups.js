@@ -10,7 +10,7 @@ import { promisify } from 'util';
 import zlib from 'zlib';
 
 import { getDBConfig, type DBConfig } from '../database/db-config.js';
-import { importJSON } from '../utils/import-json.js';
+import { getCommConfig } from '../utils/comm-config.js';
 
 const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
@@ -23,7 +23,7 @@ type BackupConfig = {
 };
 
 function getBackupConfig(): Promise<?BackupConfig> {
-  return importJSON({ folder: 'facts', name: 'backups' });
+  return getCommConfig({ folder: 'facts', name: 'backups' });
 }
 
 async function backupDB() {

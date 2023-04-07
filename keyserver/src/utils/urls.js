@@ -4,7 +4,7 @@ import invariant from 'invariant';
 
 import { values } from 'lib/utils/objects.js';
 
-import { importJSON } from './import-json.js';
+import { getCommConfig } from './comm-config.js';
 
 export type AppURLFacts = {
   +baseDomain: string,
@@ -28,7 +28,7 @@ async function fetchURLFacts(site: Site): Promise<?AppURLFacts> {
   if (existing !== undefined) {
     return existing;
   }
-  let urlFacts: ?AppURLFacts = await importJSON({
+  let urlFacts: ?AppURLFacts = await getCommConfig({
     folder: 'facts',
     name: `${site}_url`,
   });
