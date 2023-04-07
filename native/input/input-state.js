@@ -64,7 +64,10 @@ export type InputState = {
     pendingThreadUpdateHandler: ?(ThreadInfo) => mixed,
   ) => void,
   +editState: EditState,
-  +setEditedMessageID: (editedMessageID: ?string) => void,
+  +setEditedMessageID: (
+    editedMessageID: ?string,
+    callback?: () => void,
+  ) => void,
 };
 
 const InputStateContext: React.Context<?InputState> =
