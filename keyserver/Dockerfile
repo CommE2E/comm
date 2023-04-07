@@ -150,7 +150,13 @@ RUN yarn cleaninstall
 # We do this first so Docker doesn't rebuild when only keyserver files change
 #-------------------------------------------------------------------------------
 
+# These are needed for babel-build-comm-config
+COPY --chown=comm keyserver/src keyserver/src
+COPY --chown=comm keyserver/bash/source-nvm.sh keyserver/bash/source-nvm.sh
+COPY --chown=comm keyserver/babel.config.cjs keyserver/babel.config.cjs
+
 COPY --chown=comm lib lib/
+
 COPY --chown=comm landing landing/
 RUN yarn workspace landing prod
 
