@@ -203,7 +203,10 @@ class ComposedMessage extends React.PureComponent<Props> {
     const { inputState, item } = this.props;
     invariant(inputState, 'inputState should be set in reply');
     invariant(item.messageInfo.text, 'text should be set in reply');
-    inputState.addReply(createMessageReply(item.messageInfo.text));
+    inputState.editInputMessage({
+      message: createMessageReply(item.messageInfo.text),
+      mode: 'prepend',
+    });
   };
 }
 
