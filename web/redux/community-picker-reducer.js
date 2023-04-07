@@ -8,6 +8,8 @@ import type { ThreadStore } from 'lib/types/thread-types.js';
 import {
   updateCalendarCommunityFilter,
   clearCalendarCommunityFilter,
+  updateChatCommunityFilter,
+  clearChatCommunityFilter,
 } from './action-types.js';
 import type { Action, CommunityPickerStore } from './redux-setup';
 import { filterThreadIDsBelongingToCommunity } from '../selectors/calendar-selectors.js';
@@ -52,6 +54,22 @@ export function reduceCommunityPickerStore(
       communityPickerStore: {
         ...communityPickerStore,
         calendar: null,
+      },
+    };
+  } else if (action.type === updateChatCommunityFilter) {
+    return {
+      calendarFilters,
+      communityPickerStore: {
+        ...communityPickerStore,
+        chat: action.payload,
+      },
+    };
+  } else if (action.type === clearChatCommunityFilter) {
+    return {
+      calendarFilters,
+      communityPickerStore: {
+        ...communityPickerStore,
+        chat: null,
       },
     };
   }
