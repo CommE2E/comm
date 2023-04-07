@@ -63,8 +63,14 @@ function TooltipMenu(
       inputState,
       'inputState should be set in TextMessageTooltipModal.onPressEdit',
     );
-    inputState.setEditedMessage(messageInfo);
-  }, [inputState, messageInfo]);
+    const updateInputBar = () => {
+      inputState.editInputMessage({
+        message: text,
+        mode: 'replace',
+      });
+    };
+    inputState.setEditedMessage(messageInfo, updateInputBar);
+  }, [inputState, messageInfo, text]);
   const renderEditIcon = React.useCallback(
     style => <SWMansionIcon name="edit-1" style={style} size={16} />,
     [],
