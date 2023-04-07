@@ -153,6 +153,7 @@ function getRolePermissionBlobsForCommunity(
     DESCENDANT + threadPermissions.EDIT_PERMISSIONS;
   const descendantRemoveMembers = DESCENDANT + threadPermissions.REMOVE_MEMBERS;
   const descendantChangeRole = DESCENDANT + threadPermissions.CHANGE_ROLE;
+  const descendantManagePins = DESCENDANT + threadPermissions.MANAGE_PINS;
 
   const baseAdminPermissions = {
     [threadPermissions.KNOW_OF]: true,
@@ -171,6 +172,7 @@ function getRolePermissionBlobsForCommunity(
     [threadPermissions.DELETE_THREAD]: true,
     [threadPermissions.REMOVE_MEMBERS]: true,
     [threadPermissions.CHANGE_ROLE]: true,
+    [threadPermissions.MANAGE_PINS]: true,
     [descendantKnowOf]: true,
     [descendantVisible]: true,
     [topLevelDescendantJoinThread]: true,
@@ -188,6 +190,7 @@ function getRolePermissionBlobsForCommunity(
     [descendantEditPermissions]: true,
     [descendantRemoveMembers]: true,
     [descendantChangeRole]: true,
+    [descendantManagePins]: true,
   };
 
   let adminPermissions;
