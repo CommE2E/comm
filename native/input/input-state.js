@@ -26,6 +26,11 @@ export type EditState = {
   +editedMessageID: ?string,
 };
 
+export type EditInputBarMessageParameters = {
+  +message: string,
+  +mode: 'prepend' | 'replace',
+};
+
 export type InputState = {
   +pendingUploads: PendingMultimediaUploads,
   +sendTextMessage: (
@@ -37,9 +42,13 @@ export type InputState = {
     selections: $ReadOnlyArray<NativeMediaSelection>,
     threadInfo: ThreadInfo,
   ) => Promise<void>,
-  +addReply: (text: string) => void,
-  +addReplyListener: ((message: string) => void) => void,
-  +removeReplyListener: ((message: string) => void) => void,
+  +editInputMessage: (params: EditInputBarMessageParameters) => void,
+  +addEditInputMessageListener: (
+    (params: EditInputBarMessageParameters) => void,
+  ) => void,
+  +removeEditInputMessageListener: (
+    (params: EditInputBarMessageParameters) => void,
+  ) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMessage: (
     localMessageID: string,

@@ -39,7 +39,10 @@ function TooltipMenu(
       inputState,
       'inputState should be set in TextMessageTooltipModal.onPressReply',
     );
-    inputState.addReply(createMessageReply(text));
+    inputState.editInputMessage({
+      message: createMessageReply(text),
+      mode: 'prepend',
+    });
   }, [inputState, text]);
   const renderReplyIcon = React.useCallback(
     style => <CommIcon name="reply" style={style} size={12} />,
