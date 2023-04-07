@@ -22,12 +22,10 @@ type UserComparisonResult = {
 
 type RustNativeBindingAPI = {
   +registerUser: (
-    userId: string,
-    signingPublicKey: string,
     username: string,
     password: string,
-    sessionInitializationInfo: SignedIdentityKeysBlob,
-  ) => Promise<string>,
+    signedIdentityKeysBlob: SignedIdentityKeysBlob,
+  ) => Promise<boolean>,
   +loginUserPake: (
     userId: string,
     signingPublicKey: string,

@@ -5,6 +5,9 @@ pub mod register_user;
 pub mod identity {
   tonic::include_proto!("identity.keyserver");
 }
+pub mod identity_client {
+  tonic::include_proto!("identity.client");
+}
 pub mod update_user;
 
 use comm_opaque::Cipher;
@@ -17,29 +20,24 @@ use identity::{
   pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
   pake_login_request::Data::PakeCredentialRequestAndUserId,
   pake_login_response::Data::AccessToken,
-  pake_login_response::Data::PakeCredentialResponse,
-  registration_request::Data::PakeCredentialFinalization as RegistrationPakeCredentialFinalization,
-  registration_request::Data::PakeRegistrationRequestAndUserId,
-  registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
-  registration_response::Data::PakeLoginResponse as RegistrationPakeLoginResponse,
-  registration_response::Data::PakeRegistrationResponse, CompareUsersRequest,
+  pake_login_response::Data::PakeCredentialResponse, CompareUsersRequest,
   DeleteUserRequest, LoginRequest, LoginResponse,
   PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
   PakeLoginRequest as PakeLoginRequestStruct,
-  PakeLoginResponse as PakeLoginResponseStruct,
-  PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
-  PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
-  RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
-  SessionInitializationInfo, WalletLoginRequest as WalletLoginRequestStruct,
+  PakeLoginResponse as PakeLoginResponseStruct, SessionInitializationInfo,
+  WalletLoginRequest as WalletLoginRequestStruct,
   WalletLoginResponse as WalletLoginResponseStruct,
+};
+use identity_client::identity_client_service_client::IdentityClientServiceClient;
+use identity_client::{
+  DeviceKeyUpload, IdentityKeyInfo, RegistrationFinishRequest,
+  RegistrationStartRequest,
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use opaque_ke::{
   ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
-  ClientLoginStartResult, ClientRegistration,
-  ClientRegistrationFinishParameters, CredentialFinalization,
-  CredentialResponse, RegistrationResponse, RegistrationUpload,
+  ClientLoginStartResult, CredentialFinalization, CredentialResponse,
 };
 use rand::{rngs::OsRng, CryptoRng, Rng};
 use serde::{Deserialize, Serialize};
@@ -136,4 +134,10 @@ async fn get_identity_service_channel() -> Result<Channel> {
         "Unable to connect to identity service".to_string(),
       )
     })
+}
+
+#[napi(object)]
+pub struct SignedIdentityKeysBlob {
+  pub payload: String,
+  pub signature: String,
 }
