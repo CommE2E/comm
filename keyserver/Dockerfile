@@ -20,8 +20,8 @@ FROM node:16.18.0-bullseye
 
 ARG HOST_UID
 ARG HOST_GID
-ARG COMM_ALCHEMY_KEY
-ARG COMM_WALLETCONNECT_KEY
+ARG COMM_JSONCONFIG_secrets_alchemy
+ARG COMM_JSONCONFIG_secrets_walletconnect
 ARG COMM_JSONCONFIG_secrets_geoip_license
 
 USER root
