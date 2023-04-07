@@ -1,17 +1,37 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 
+import {
+  updateUserAvatar,
+  updateUserAvatarActionTypes,
+} from 'lib/actions/user-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 import type { ClientEmojiAvatar } from 'lib/types/avatar-types.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
 import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorRows from '../components/color-rows.react.js';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+
+const loadingStatusSelector = createLoadingStatusSelector(
+  updateUserAvatarActionTypes,
+);
 
 function EmojiAvatarCreation(): React.Node {
   const savedEmojiAvatarFunc = useSelector(
@@ -29,13 +49,45 @@ function EmojiAvatarCreation(): React.Node {
 
   const styles = useStyles(unboundStyles);
 
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callUpdateUserAvatar = useServerCall(updateUserAvatar);
+
+  const saveAvatarCallLoading = useSelector(
+    state => loadingStatusSelector(state) === 'loading',
+  );
+
   const onPressEditEmoji = React.useCallback(() => {
     setEmojiKeyboardOpen(true);
   }, []);
 
   const onPressSetAvatar = React.useCallback(() => {
-    // TODO: handle saving avatar
-  }, []);
+    const newEmojiAvatarRequest = {
+      type: 'emoji',
+      emoji: pendingEmoji,
+      color: pendingColor,
+    };
+
+    const saveAvatarPromise = (async () => {
+      try {
+        const response = await callUpdateUserAvatar(newEmojiAvatarRequest);
+        displayActionResultModal('Avatar updated!');
+
+        return response;
+      } catch (e) {
+        Alert.alert(
+          'Couldn’t save avatar',
+          'Please try again later',
+          [{ text: 'OK' }],
+          {
+            cancelable: true,
+          },
+        );
+        throw e;
+      }
+    })();
+
+    dispatchActionPromise(updateUserAvatarActionTypes, saveAvatarPromise);
+  }, [callUpdateUserAvatar, dispatchActionPromise, pendingColor, pendingEmoji]);
 
   const onPressReset = React.useCallback(() => {
     const resetEmojiAvatar = savedEmojiAvatarFunc();
@@ -62,13 +114,28 @@ function EmojiAvatarCreation(): React.Node {
     [pendingColor, pendingEmoji],
   );
 
+  const loadingContainer = React.useMemo(() => {
+    if (!saveAvatarCallLoading) {
+      return null;
+    }
+
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
+  }, [saveAvatarCallLoading, styles.loadingContainer]);
+
   return (
     <View style={styles.container}>
       <View style={styles.emojiAvatarCreationContainer}>
         <View style={styles.stagedAvatarSection}>
           <TouchableWithoutFeedback onPress={onPressEditEmoji}>
             <View>
-              <Avatar size="profile" avatarInfo={stagedAvatarInfo} />
+              <View>
+                <Avatar size="profile" avatarInfo={stagedAvatarInfo} />
+                {loadingContainer}
+              </View>
               <Text style={styles.editEmojiText}>Edit Emoji</Text>
             </View>
           </TouchableWithoutFeedback>
@@ -82,10 +149,18 @@ function EmojiAvatarCreation(): React.Node {
         </View>
       </View>
       <View style={styles.buttonsContainer}>
-        <Button onPress={onPressSetAvatar} style={styles.saveButton}>
+        <Button
+          onPress={onPressSetAvatar}
+          style={styles.saveButton}
+          disabled={saveAvatarCallLoading}
+        >
           <Text style={styles.saveButtonText}>Save Avatar</Text>
         </Button>
-        <Button onPress={onPressReset} style={styles.resetButton}>
+        <Button
+          onPress={onPressReset}
+          style={styles.resetButton}
+          disabled={saveAvatarCallLoading}
+        >
           <Text style={styles.resetButtonText}>Reset</Text>
         </Button>
       </View>
