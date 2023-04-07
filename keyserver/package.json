@@ -7,6 +7,7 @@
   "main": "dist/keyserver",
   "scripts": {
     "clean": "rm -rf dist/ && rm -rf node_modules/ && mkdir dist",
+    "babel-build-comm-config": ". bash/source-nvm.sh && yarn --silent babel src/lib/utils/comm-config.js --out-dir dist/lib/utils/ --config-file ./babel.config.cjs",
     "babel-build": ". bash/source-nvm.sh && yarn --silent babel src/ --out-dir dist/ --config-file ./babel.config.cjs --verbose --ignore 'src/landing/flow-typed','src/landing/node_modules','src/landing/package.json','src/lib/flow-typed','src/lib/node_modules','src/lib/package.json','src/web/flow-typed','src/web/node_modules','src/web/package.json','src/web/dist','src/web/webpack.config.js','src/web/account-bar.react.js','src/web/app.react.js','src/web/calendar','src/web/chat','src/web/flow','src/web/loading-indicator.react.js','src/web/modals','src/web/root.js','src/web/router-history.js','src/web/script.js','src/web/selectors/chat-selectors.js','src/web/selectors/entry-selectors.js','src/web/splash','src/web/vector-utils.js','src/web/vectors.react.js'",
     "rsync": "rsync -rLpmuv --exclude '*/package.json' --exclude '*/node_modules/*' --include '*.json' --include '*.cjs' --include '*.node' --exclude '*.*' src/ dist/",
     "prod-build": "yarn babel-build && yarn rsync && yarn update-geoip",
