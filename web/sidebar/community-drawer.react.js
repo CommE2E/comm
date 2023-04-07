@@ -13,16 +13,12 @@ import {
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
-import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer.css';
 import { ThreadListProvider } from '../chat/thread-list-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const maxDepth = 2;
 const labelStyles = ['title'];
-
-const HandlerChat = getCommunityDrawerItemHandler('chat');
-const HandlerCal = getCommunityDrawerItemHandler('calendar');
 
 function CommunityDrawer(): React.Node {
   const tab = useSelector(state => state.navInfo.tab);
@@ -41,28 +37,18 @@ function CommunityDrawer(): React.Node {
     maxDepth,
   );
 
-  const [openCommunity, setOpenCommunity] = React.useState(
-    communitiesSuffixed.length === 1 ? communitiesSuffixed[0].id : null,
-  );
-
-  const setOpenCommunityOrClose = React.useCallback((index: string) => {
-    setOpenCommunity(open => (open === index ? null : index));
-  }, []);
-
   const communitiesComponentsDefault = React.useMemo(
     () =>
       drawerItemsData.map(item => (
         <CommunityDrawerItemCommunity
           itemData={item}
           key={`${item.threadInfo.id}_chat`}
-          toggleExpanded={setOpenCommunityOrClose}
-          expanded={item.threadInfo.id === openCommunity}
           paddingLeft={10}
           expandable={true}
-          handler={HandlerChat}
+          handlerType="chat"
         />
       )),
-    [drawerItemsData, openCommunity, setOpenCommunityOrClose],
+    [drawerItemsData],
   );
 
   const communitiesComponentsCal = React.useMemo(
@@ -71,10 +57,9 @@ function CommunityDrawer(): React.Node {
         <CommunityDrawerItemCommunity
           itemData={item}
           key={`${item.threadInfo.id}_cal`}
-          expanded={false}
           paddingLeft={10}
           expandable={false}
-          handler={HandlerCal}
+          handlerType="calendar"
         />
       )),
     [drawerItemsData],
