@@ -637,6 +637,12 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
       int repliesCount =
           std::lround(threadObj.getProperty(rt, "repliesCount").asNumber());
+
+      jsi::Value maybeAvatar = threadObj.getProperty(rt, "avatar");
+      std::unique_ptr<std::string> avatar = maybeAvatar.isString()
+          ? std::make_unique<std::string>(maybeAvatar.asString(rt).utf8(rt))
+          : nullptr;
+
       Thread thread{
           threadID,
           type,
@@ -651,7 +657,8 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
           roles,
           currentUser,
           std::move(sourceMessageID),
-          repliesCount};
+          repliesCount,
+          std::move(avatar)};
 
       threadStoreOps.push_back(
           std::make_unique<ReplaceThreadOperation>(std::move(thread)));
