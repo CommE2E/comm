@@ -1,12 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
-import { updateCalendarCommunityFilter } from '../redux/action-types.js';
 import { useCommunityIsPickedCalendar } from '../selectors/calendar-selectors.js';
 import {
   useOnClickThread,
@@ -24,9 +22,14 @@ function ChatDrawerItemHandler(props: HandlerProps): React.Node {
   const onClick = useOnClickThread(threadInfo);
   const isActive = useThreadIsActive(threadInfo.id);
 
+  const [expanded, setExpanded] = React.useState(false);
+  const toggleExpanded = React.useCallback(() => {
+    setExpanded(isExpanded => !isExpanded);
+  }, []);
+
   const handler = React.useMemo(
-    () => ({ onClick, isActive }),
-    [isActive, onClick],
+    () => ({ onClick, isActive, expanded, toggleExpanded }),
+    [expanded, isActive, onClick, toggleExpanded],
   );
   React.useEffect(() => {
     setHandler(handler);
@@ -35,21 +38,18 @@ function ChatDrawerItemHandler(props: HandlerProps): React.Node {
   return null;
 }
 
+const onClick = () => {};
+const expanded = false;
+const toggleExpanded = () => {};
+
 function CalendarDrawerItemHandler(props: HandlerProps): React.Node {
   const { setHandler, threadInfo } = props;
-  const dispatch = useDispatch();
 
-  const onClick = React.useCallback(() => {
-    dispatch({
-      type: updateCalendarCommunityFilter,
-      payload: threadInfo.id,
-    });
-  }, [dispatch, threadInfo.id]);
   const isActive = useCommunityIsPickedCalendar(threadInfo.id);
 
   const handler = React.useMemo(
-    () => ({ onClick, isActive }),
-    [onClick, isActive],
+    () => ({ onClick, isActive, expanded, toggleExpanded }),
+    [isActive],
   );
   React.useEffect(() => {
     setHandler(handler);
