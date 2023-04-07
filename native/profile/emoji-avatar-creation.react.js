@@ -1,15 +1,35 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 
-import type { ClientEmojiAvatar } from 'lib/types/avatar-types.js';
+import {
+  updateUserAvatar,
+  updateUserAvatarActionTypes,
+} from 'lib/actions/user-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type {
+  ClientEmojiAvatar,
+  ClientAvatar,
+} from 'lib/types/avatar-types.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorRows from '../components/color-rows.react.js';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
@@ -27,6 +47,9 @@ function EmojiAvatarCreation(props: Props): React.Node {
   const { emoji: initalEmoji, color: initialColor } =
     props.route.params.emojiAvatarInfo;
 
+  const [disableButton, setDisableButton] = React.useState<boolean>(false);
+  const [lastSavedAvater, setLastSavedAvatar] =
+    React.useState<?ClientAvatar>(null);
   const [pendingEmoji, setPendingEmoji] = React.useState<string>(initalEmoji);
   const [pendingColor, setPendingColor] = React.useState<string>(initialColor);
   const [emojiKeyboardOpen, setEmojiKeyboardOpen] =
@@ -40,18 +63,65 @@ function EmojiAvatarCreation(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
 
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callUpdateUserAvatar = useServerCall(updateUserAvatar);
+  const loadingStatusSelector = createLoadingStatusSelector(
+    updateUserAvatarActionTypes,
+  );
+  const loadingStatus = useSelector(loadingStatusSelector);
+
   const onPressEditEmoji = React.useCallback(() => {
     setEmojiKeyboardOpen(true);
   }, []);
 
   const onPressSetAvatar = React.useCallback(() => {
-    // TODO: handle saving avatar
-  }, []);
+    setDisableButton(true);
+    const newEmojiAvatarRequest = {
+      type: 'emoji',
+      emoji: pendingEmoji,
+      color: pendingColor,
+    };
+
+    const saveAvatarPromise = (async () => {
+      try {
+        const response = await callUpdateUserAvatar(newEmojiAvatarRequest);
+
+        displayActionResultModal('Avatar updated');
+        setLastSavedAvatar(response);
+        setDisableButton(false);
+
+        return response;
+      } catch (e) {
+        Alert.alert(
+          'Couldn’t save avatar',
+          'Please try again later',
+          [{ text: 'OK' }],
+          {
+            cancelable: true,
+          },
+        );
+        setDisableButton(false);
+        throw e;
+      }
+    })();
+
+    dispatchActionPromise(updateUserAvatarActionTypes, saveAvatarPromise);
+  }, [callUpdateUserAvatar, dispatchActionPromise, pendingColor, pendingEmoji]);
 
   const onPressReset = React.useCallback(() => {
-    setPendingEmoji(initalEmoji);
-    setPendingColor(initialColor);
-  }, [initalEmoji, initialColor]);
+    if (lastSavedAvater) {
+      invariant(
+        lastSavedAvater.type === 'emoji',
+        'lastSavedAvatr type should be an emoji avatar',
+      );
+
+      setPendingEmoji(lastSavedAvater.emoji);
+      setPendingColor(lastSavedAvater.color);
+    } else {
+      setPendingEmoji(initalEmoji);
+      setPendingColor(initialColor);
+    }
+  }, [initalEmoji, initialColor, lastSavedAvater]);
 
   const onEmojiSelected = React.useCallback(emoji => {
     setPendingEmoji(emoji.emoji);
@@ -71,13 +141,28 @@ function EmojiAvatarCreation(props: Props): React.Node {
     [pendingColor, pendingEmoji],
   );
 
+  const loadingContainer = React.useMemo(() => {
+    if (loadingStatus !== 'loading') {
+      return null;
+    }
+
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
+  }, [loadingStatus, styles.loadingContainer]);
+
   return (
     <View style={styles.container}>
       <View style={styles.emojiAvatarCreationContainer}>
         <View style={styles.stagedAvatarSection}>
           <TouchableWithoutFeedback onPress={onPressEditEmoji}>
             <View>
-              <Avatar size="profile" avatarInfo={stagedAvatarInfo} />
+              <View>
+                <Avatar size="profile" avatarInfo={stagedAvatarInfo} />
+                {loadingContainer}
+              </View>
               <Text style={styles.editEmojiText}>Edit Emoji</Text>
             </View>
           </TouchableWithoutFeedback>
@@ -91,10 +176,18 @@ function EmojiAvatarCreation(props: Props): React.Node {
         </View>
       </View>
       <View style={styles.buttonsContainer}>
-        <Button onPress={onPressSetAvatar} style={styles.saveButton}>
+        <Button
+          onPress={onPressSetAvatar}
+          style={styles.saveButton}
+          disabled={disableButton}
+        >
           <Text style={styles.saveButtonText}>Save Avatar</Text>
         </Button>
-        <Button onPress={onPressReset} style={styles.resetButton}>
+        <Button
+          onPress={onPressReset}
+          style={styles.resetButton}
+          disabled={disableButton}
+        >
           <Text style={styles.resetButtonText}>Reset</Text>
         </Button>
       </View>
