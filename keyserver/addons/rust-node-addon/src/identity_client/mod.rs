@@ -14,9 +14,7 @@ use comm_opaque::Cipher;
 use identity::identity_keyserver_service_client::IdentityKeyserverServiceClient;
 use identity::{
   login_request::Data::PakeLoginRequest,
-  login_request::Data::WalletLoginRequest,
   login_response::Data::PakeLoginResponse as LoginPakeLoginResponse,
-  login_response::Data::WalletLoginResponse,
   pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
   pake_login_request::Data::PakeCredentialRequestAndUserId,
   pake_login_response::Data::AccessToken,
@@ -25,13 +23,11 @@ use identity::{
   PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
   PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, SessionInitializationInfo,
-  WalletLoginRequest as WalletLoginRequestStruct,
-  WalletLoginResponse as WalletLoginResponseStruct,
 };
 use identity_client::identity_client_service_client::IdentityClientServiceClient;
 use identity_client::{
   DeviceKeyUpload, IdentityKeyInfo, RegistrationFinishRequest,
-  RegistrationStartRequest,
+  RegistrationStartRequest, WalletLoginRequest,
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;

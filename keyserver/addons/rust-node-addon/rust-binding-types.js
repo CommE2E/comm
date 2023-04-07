@@ -33,13 +33,11 @@ type RustNativeBindingAPI = {
     sessionInitializationInfo: SignedIdentityKeysBlob,
   ) => Promise<string>,
   +loginUserWallet: (
-    userId: string,
-    signingPublicKey: string,
     siweMessage: string,
     siweSignature: string,
-    sessionInitializationInfo: SignedIdentityKeysBlob,
-    socialProof: string,
-  ) => Promise<string>,
+    signedIdentityKeysBlob: SignedIdentityKeysBlob,
+    socialProof: ?string,
+  ) => Promise<boolean>,
   +deleteUser: (userId: string) => Promise<boolean>,
   +updateUser: (userId: string, password: string) => Promise<string>,
   +compareUsers: (
