@@ -32,6 +32,7 @@ import {
   appendSQLArray,
   mergeOrConditions,
 } from '../database/database.js';
+import { processMessagesForSearch } from '../database/search-utils.js';
 import {
   fetchMessageInfoForLocalID,
   fetchMessageInfoByID,
@@ -288,6 +289,7 @@ async function updateRepliesCount(
 // (1) Sending push notifs
 // (2) Setting threads to unread and generating corresponding UpdateInfos
 // (3) Publishing to Redis so that active sockets pass on new messages
+// (4) Processing messages for search
 async function postMessageSend(
   viewer: Viewer,
   threadsToMessageIndices: Map<string, number[]>,
@@ -296,6 +298,8 @@ async function postMessageSend(
   messageDatas: MessageData[],
   updatesForCurrentSession: UpdatesForCurrentSession,
 ) {
+  const processForSearch = processMessagesForSearch(messageInfos);
+
   let joinIndex = 0;
   let subthreadSelects = '';
   const subthreadJoins = [];
@@ -498,6 +502,7 @@ async function postMessageSend(
     createReadStatusUpdates(latestMessages),
     redisPublish(viewer, messageInfosPerUser, updatesForCurrentSession),
     updateLatestMessages(latestMessages),
+    processForSearch,
   ]);
 
   await Promise.all([
