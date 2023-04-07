@@ -193,7 +193,6 @@ message OpaqueLoginFinishResponse {
 }
 
 message WalletLoginRequest {
-  // ed25519 key for the given user's device
   string siweMessage = 1;
   string siweSignature = 2;
   // Information specific to a user's device needed to open a new channel of
