@@ -1,6 +1,6 @@
 // @flow
 
-import type { SignedIdentityKeysBlob } from './crypto-types.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 
 type tunnelbrokerOnReceiveCallback = (
   err: Error | null,

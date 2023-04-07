@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import { createRequire } from 'module';
 
-import type { RustNativeBindingAPI } from 'lib/types/rust-binding-types.js';
+import type { RustNativeBindingAPI } from './rust-binding-types.js';
 
 const { platform, arch } = process;
 
