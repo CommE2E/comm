@@ -7,58 +7,60 @@ import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import type { HandlerProps } from './community-drawer-item-handlers.react.js';
+import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer-item.css';
 import {
   getChildren,
   getExpandButton,
 } from './community-drawer-utils.react.js';
 import ThreadAvatar from '../components/thread-avatar.react.js';
+import type { NavigationTab } from '../types/nav-types.js';
 import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
-  +toggleExpanded?: (threadID: string) => void,
-  +expanded: boolean,
   +paddingLeft: number,
   +expandable?: boolean,
-  +handler: React.ComponentType<HandlerProps>,
+  +handlerType: NavigationTab,
 };
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const {
     itemData: { threadInfo, itemChildren, hasSubchannelsButton, labelStyle },
-    expanded,
-    toggleExpanded,
     paddingLeft,
     expandable = true,
-    handler: Handler,
+    handlerType,
   } = props;
+
+  const [handler, setHandler] = React.useState({
+    // eslint-disable-next-line no-unused-vars
+    onClick: event => {},
+    expanded: false,
+    toggleExpanded: () => {},
+  });
+
+  const Handler = getCommunityDrawerItemHandler(handlerType);
 
   const children = React.useMemo(
     () =>
       getChildren({
-        expanded,
+        expanded: handler.expanded,
         hasSubchannelsButton,
         itemChildren,
         paddingLeft,
         threadInfo,
         expandable,
-        handler: Handler,
+        handlerType,
       }),
     [
-      expanded,
+      handler.expanded,
       hasSubchannelsButton,
       itemChildren,
       paddingLeft,
       threadInfo,
       expandable,
-      Handler,
+      handlerType,
     ],
-  );
-
-  const onExpandToggled = React.useCallback(
-    () => (toggleExpanded ? toggleExpanded(threadInfo.id) : null),
-    [toggleExpanded, threadInfo.id],
   );
 
   const itemExpandButton = React.useMemo(
@@ -67,22 +69,17 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         expandable,
         childrenLength: itemChildren.length,
         hasSubchannelsButton,
-        onExpandToggled,
-        expanded,
+        onExpandToggled: handler.toggleExpanded,
+        expanded: handler.expanded,
       }),
     [
       expandable,
       itemChildren.length,
       hasSubchannelsButton,
-      onExpandToggled,
-      expanded,
+      handler.toggleExpanded,
+      handler.expanded,
     ],
   );
-
-  const [handler, setHandler] = React.useState({
-    // eslint-disable-next-line no-unused-vars
-    onClick: event => {},
-  });
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
@@ -128,28 +125,7 @@ export type CommunityDrawerItemChatProps = {
   +handler: React.ComponentType<HandlerProps>,
 };
 
-function CommunityDrawerItemChat(
-  props: CommunityDrawerItemChatProps,
-): React.Node {
-  const [expanded, setExpanded] = React.useState(false);
-
-  const toggleExpanded = React.useCallback(() => {
-    setExpanded(isExpanded => !isExpanded);
-  }, []);
-
-  return (
-    <MemoizedCommunityDrawerItem
-      {...props}
-      expanded={expanded}
-      toggleExpanded={toggleExpanded}
-    />
-  );
-}
-
-const MemoizedCommunityDrawerItemChat: React.ComponentType<CommunityDrawerItemChatProps> =
-  React.memo(CommunityDrawerItemChat);
-
 const MemoizedCommunityDrawerItem: React.ComponentType<DrawerItemProps> =
   React.memo(CommunityDrawerItem);
 
-export default MemoizedCommunityDrawerItemChat;
+export default MemoizedCommunityDrawerItem;

@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import { getCommunityDrawerItemCommunityHandler } from './community-drawer-item-community-handlers.react.js';
 import css from './community-drawer-item.css';
 import type { DrawerItemProps } from './community-drawer-item.react.js';
 import {
@@ -15,32 +16,40 @@ import {
 function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
   const {
     itemData: { threadInfo, itemChildren, hasSubchannelsButton, labelStyle },
-    expanded,
-    toggleExpanded,
     paddingLeft,
     expandable = true,
-    handler: Handler,
+    handlerType,
   } = props;
+
+  const Handler = getCommunityDrawerItemCommunityHandler(handlerType);
+
+  const [handler, setHandler] = React.useState({
+    // eslint-disable-next-line no-unused-vars
+    onClick: event => {},
+    isActive: false,
+    expanded: false,
+    toggleExpanded: () => {},
+  });
 
   const children = React.useMemo(
     () =>
       getChildren({
-        expanded,
+        expanded: handler.expanded,
         hasSubchannelsButton,
         itemChildren,
         paddingLeft,
         threadInfo,
         expandable,
-        handler: Handler,
+        handlerType,
       }),
     [
-      expanded,
+      handler.expanded,
       hasSubchannelsButton,
       itemChildren,
       paddingLeft,
       threadInfo,
       expandable,
-      Handler,
+      handlerType,
     ],
   );
 
@@ -50,28 +59,15 @@ function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
         expandable,
         childrenLength: itemChildren?.length,
         hasSubchannelsButton,
-        expanded,
+        onExpandToggled: null,
+        expanded: handler.expanded,
       }),
-    [expandable, itemChildren?.length, hasSubchannelsButton, expanded],
-  );
-
-  const [handler, setHandler] = React.useState({
-    // eslint-disable-next-line no-unused-vars
-    onClick: event => {},
-    isActive: false,
-  });
-
-  const onClick = React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      toggleExpanded?.(threadInfo.id);
-      handler.onClick(event);
-    },
-    [threadInfo.id, toggleExpanded, handler],
+    [expandable, itemChildren?.length, hasSubchannelsButton, handler.expanded],
   );
 
   const classes = classnames({
     [css.communityBase]: true,
-    [css.communityExpanded]: props.expanded,
+    [css.communityExpanded]: handler.expanded,
   });
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
@@ -85,7 +81,7 @@ function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
   return (
     <div className={classes}>
       <Handler setHandler={setHandler} threadInfo={threadInfo} />
-      <a onClick={onClick} className={css.threadEntry} style={style}>
+      <a onClick={handler.onClick} className={css.threadEntry} style={style}>
         {itemExpandButton}
         <div className={css.titleWrapper}>
           <div className={titleLabel}>{uiName}</div>
