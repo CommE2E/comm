@@ -158,14 +158,19 @@ const prodWebWorkersPlugins = [
   }),
 ];
 
-module.exports = function (env) {
-  const browserConfig = env.prod
+module.exports = async function (env) {
+  const browserConfigPromise = env.prod
     ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
     : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
-  const nodeConfig = createNodeServerRenderingConfig(
+  const nodeConfigPromise = createNodeServerRenderingConfig(
     baseNodeServerRenderingConfig,
     babelConfig,
   );
+  const [browserConfig, nodeConfig] = await Promise.all([
+    browserConfigPromise,
+    nodeConfigPromise,
+  ]);
+
   const nodeServerRenderingConfig = {
     ...nodeConfig,
     mode: env.prod ? 'production' : 'development',
