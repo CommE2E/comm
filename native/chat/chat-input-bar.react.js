@@ -82,7 +82,11 @@ import type { SyncedSelectionData } from '../components/selectable-text-input.js
 import SelectableTextInput from '../components/selectable-text-input.react';
 import { SingleLine } from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { type InputState, InputStateContext } from '../input/input-state.js';
+import {
+  type InputState,
+  InputStateContext,
+  type EditInputBarMessageParameters,
+} from '../input/input-state.js';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react.js';
 import {
   type KeyboardState,
@@ -312,13 +316,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     if (this.props.isActive) {
-      this.addReplyListener();
+      this.addEditInputMessageListener();
     }
   }
 
   componentWillUnmount() {
     if (this.props.isActive) {
-      this.removeReplyListener();
+      this.removeEditInputMessageListener();
     }
   }
 
@@ -339,9 +343,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.setState({ text: this.props.draft });
     }
     if (this.props.isActive && !prevProps.isActive) {
-      this.addReplyListener();
+      this.addEditInputMessageListener();
     } else if (!this.props.isActive && prevProps.isActive) {
-      this.removeReplyListener();
+      this.removeEditInputMessageListener();
     }
 
     const currentText = trimMessage(this.state.text);
@@ -375,20 +379,22 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
   }
 
-  addReplyListener() {
+  addEditInputMessageListener() {
     invariant(
       this.props.inputState,
-      'inputState should be set in addReplyListener',
+      'inputState should be set in addEditInputMessageListener',
     );
-    this.props.inputState.addReplyListener(this.focusAndUpdateText);
+    this.props.inputState.addEditInputMessageListener(this.focusAndUpdateText);
   }
 
-  removeReplyListener() {
+  removeEditInputMessageListener() {
     invariant(
       this.props.inputState,
-      'inputState should be set in removeReplyListener',
+      'inputState should be set in removeEditInputMessageListener',
     );
-    this.props.inputState.removeReplyListener(this.focusAndUpdateText);
+    this.props.inputState.removeEditInputMessageListener(
+      this.focusAndUpdateText,
+    );
   }
 
   setIOSKeyboardHeight() {
@@ -713,9 +719,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.focusAndUpdateButtonsVisibility();
   };
 
-  focusAndUpdateText = (text: string) => {
+  focusAndUpdateText = (params: EditInputBarMessageParameters) => {
+    const { message: text, mode } = params;
     const currentText = this.state.text;
-    if (!currentText.startsWith(text)) {
+    if (mode === 'replace') {
+      this.updateText(text);
+    } else if (!currentText.startsWith(text)) {
       const prependedText = text.concat(currentText);
       this.updateText(prependedText);
     }
