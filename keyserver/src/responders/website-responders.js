@@ -565,6 +565,11 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
           .link {
             all: unset;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+          }
+
+          .link-text {
             text-decoration-line: underline;
           }
 
@@ -580,6 +585,11 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
 
           .logo {
             height: 2.6rem;
+          }
+
+          .arrow {
+            width: 1.8rem;
+            height: 1.8rem;
           }
         </style>
       </head>
@@ -608,7 +618,14 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
             </a>
           </section>
         </section>
-        <a class="link" href="https://comm.app/">Visit Comm’s website</a>
+        <a class="link" href="https://comm.app/">
+          <span class="link-text">Visit Comm’s website</span>
+          <img
+            src="/images/arrow_up_right.svg"
+            alt="arrow up right"
+            class="arrow"
+          />
+        </a>
       </body>
     </html>
   `);
