@@ -120,10 +120,15 @@ function useDrawerSelectedThreadID(): ?string {
   return inCalendar ? pickedCommunityID : activeChatThreadID;
 }
 
+function usePickedCommunityChat(): ?string {
+  return useSelector(state => state.communityPickerStore.chat);
+}
+
 export {
   useOnClickThread,
   useThreadIsActive,
   useOnClickPendingSidebar,
   useOnClickNewThread,
   useDrawerSelectedThreadID,
+  usePickedCommunityChat,
 };
