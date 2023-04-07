@@ -160,6 +160,11 @@ function rawThreadInfosFromServerThreadInfos(
     viewer.platformDetails,
     104,
   );
+
+  // TODO (atul): Replace with `hasMinCodeVersion` check once we have a
+  //              native release with thread avatar editing enabled.
+  const filterThreadEditAvatarPermission = true;
+
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
@@ -172,6 +177,7 @@ function rawThreadInfosFromServerThreadInfos(
         shimThreadTypes: hasCodeVersionBelow87 ? shimCommunityRoot : null,
         hideThreadStructure: hasCodeVersionBelow102,
         filterDetailedThreadEditPermissions: hasCodeVersionBelow104,
+        filterThreadEditAvatarPermission,
       },
     );
     if (threadInfo) {
