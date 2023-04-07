@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { importJSON } from '../utils/import-json.js';
+import { getCommConfig } from 'lib/utils/comm-config.js';
 
 type DBType = 'mariadb10.8';
 export type DBConfig = {
@@ -49,7 +49,7 @@ async function getDBConfig(): Promise<DBConfig> {
       dbType: assertValidDBType(process.env.COMM_DATABASE_TYPE),
     };
   } else {
-    const importedDBConfig = await importJSON({
+    const importedDBConfig = await getCommConfig({
       folder: 'secrets',
       name: 'db_config',
     });

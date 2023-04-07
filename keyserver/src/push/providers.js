@@ -8,8 +8,7 @@ import invariant from 'invariant';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types';
-
-import { importJSON } from '../utils/import-json.js';
+import { getCommConfig } from 'lib/utils/comm-config.js';
 
 type APNPushProfile = 'apn_config' | 'comm_apn_config';
 function getAPNPushProfileForCodeVersion(
@@ -35,7 +34,7 @@ async function getAPNProvider(profile: APNPushProfile): Promise<?APNProvider> {
     return provider;
   }
   try {
-    const apnConfig = await importJSON({ folder: 'secrets', name: profile });
+    const apnConfig = await getCommConfig({ folder: 'secrets', name: profile });
     invariant(apnConfig, `APN config missing for ${profile}`);
     if (!cachedAPNProviders.has(profile)) {
       cachedAPNProviders.set(profile, new apn.Provider(apnConfig));
@@ -55,7 +54,7 @@ async function getFCMProvider(profile: FCMPushProfile): Promise<?FirebaseApp> {
     return provider;
   }
   try {
-    const fcmConfig = await importJSON({ folder: 'secrets', name: profile });
+    const fcmConfig = await getCommConfig({ folder: 'secrets', name: profile });
     invariant(fcmConfig, `FCM config missed for ${profile}`);
     if (!cachedFCMProviders.has(profile)) {
       cachedFCMProviders.set(
@@ -101,7 +100,7 @@ async function getWebPushConfig(): Promise<?WebPushConfig> {
   if (cachedWebPushConfig) {
     return cachedWebPushConfig;
   }
-  cachedWebPushConfig = await importJSON<WebPushConfig>({
+  cachedWebPushConfig = await getCommConfig<WebPushConfig>({
     folder: 'secrets',
     name: 'web_push_config',
   });
