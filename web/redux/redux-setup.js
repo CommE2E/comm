@@ -40,6 +40,8 @@ import {
   updateWindowDimensionsActionType,
   updateCalendarCommunityFilter,
   clearCalendarCommunityFilter,
+  updateChatCommunityFilter,
+  clearChatCommunityFilter,
 } from './action-types.js';
 import { reduceCommunityPickerStore } from './community-picker-reducer.js';
 import {
@@ -123,6 +125,14 @@ export type Action =
   | {
       +type: 'CLEAR_CALENDAR_COMMUNITY_FILTER',
       +payload: void,
+    }
+  | {
+      +type: 'UPDATE_CHAT_COMMUNITY_FILTER',
+      +payload: string,
+    }
+  | {
+      +type: 'CLEAR_CHAT_COMMUNITY_FILTER',
+      +payload: void,
     };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
@@ -178,7 +188,9 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     action.type !== setPickledPrimaryAccount &&
     action.type !== setPickledNotificationAccount &&
     action.type !== updateCalendarCommunityFilter &&
-    action.type !== clearCalendarCommunityFilter
+    action.type !== clearCalendarCommunityFilter &&
+    action.type !== updateChatCommunityFilter &&
+    action.type !== clearChatCommunityFilter
   ) {
     state = baseReducer(state, action).state;
   }
