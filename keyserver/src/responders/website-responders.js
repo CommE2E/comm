@@ -399,6 +399,7 @@ async function websiteResponder(
     updatesCurrentAsOf: currentAsOfPromise,
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
+    communityPickerStore: { chat: null, calendar: null },
     // We can use paths local to the <base href> on web
     urlPrefix: '',
     windowDimensions: { width: 0, height: 0 },
