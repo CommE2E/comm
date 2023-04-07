@@ -487,24 +487,24 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
             font-size: 112.5%;
           }
 
-            body {
-              font-family: 'Inter', -apple-system, 'Segoe UI', 'Roboto',
-                'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-                'Helvetica Neue', ui-sans-serif;
-              background: #0a0a0a url('/images/invite_link_background.png')
-                no-repeat;
-              background-size: cover;
-              color: #ffffff;
-              display: flex;
-              flex-direction: column;
-              justify-content: space-around;
-              align-items: center;
-              height: 100%;
-              padding: 1.6rem;
-              font-size: 1.8rem;
-              line-height: 2.4rem;
-              font-weight: 500;
-            }
+          body {
+            font-family: 'Inter', -apple-system, 'Segoe UI', 'Roboto', 'Oxygen',
+              'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+              ui-sans-serif;
+            background: #0a0a0a url('/images/invite_link_background.png')
+              no-repeat;
+            background-size: cover;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            height: 100%;
+            padding: 1.6rem;
+            font-size: 1.8rem;
+            line-height: 2.4rem;
+            font-weight: 500;
+          }
 
           section {
             display: flex;
@@ -562,57 +562,78 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
             border-color: #ffffff;
           }
 
-            .link {
-              all: unset;
-              box-sizing: border-box;
-              text-decoration-line: underline;
-            }
+          .link {
+            all: unset;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+          }
 
-            .logo-container {
-              background-color: #0a0a0a;
-              width: 4.2rem;
-              height: 4.2rem;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              border-radius: 50%;
-            }
+          .link-text {
+            text-decoration-line: underline;
+          }
 
-            .logo {
-              height: 2.6rem;
-            }
-          </style>
-        </head>
-        <body>
-          <div></div>
-          <section class="card">
-            <section>
-              <div class="logo-container">
-                <img
-                  src="/images/loading_logo.svg"
-                  alt="Comm logo"
-                  class="logo"
-                />
-              </div>
-              <h1>Comm</h1>
-            </section>
-            <p>
-              To join this community, download the Comm app and reopen this
-              invite link
-            </p>
-            <div class="separator"></div>
-            <section class="buttons">
-              <a class="button" href="${stores.appStoreUrl}">Download Comm</a>
-              <a class="button secondary" href="/invite/${secret}">
-                Invite Link
-              </a>
-            </section>
+          .logo-container {
+            background-color: #0a0a0a;
+            width: 4.2rem;
+            height: 4.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+          }
+
+          .logo {
+            height: 2.6rem;
+          }
+        </style>
+      </head>
+      <body>
+        <div></div>
+        <section class="card">
+          <section>
+            <div class="logo-container">
+              <img
+                src="/images/loading_logo.svg"
+                alt="Comm logo"
+                class="logo"
+              />
+            </div>
+            <h1>Comm</h1>
           </section>
-          <a class="link" href="https://comm.app/">Visit Comm’s website</a>
-        </body>
-      </html>
-    `);
-  }
+          <p>
+            To join this community, download the Comm app and reopen this invite
+            link
+          </p>
+          <div class="separator"></div>
+          <section class="buttons">
+            <a class="button" href="${stores.appStoreUrl}">Download Comm</a>
+            <a class="button secondary" href="/invite/${secret}">
+              Invite Link
+            </a>
+          </section>
+        </section>
+        <a class="link" href="https://comm.app/">
+          <span class="link-text">Visit Comm’s website</span>
+          <svg
+            width="1.8rem"
+            height="1.8rem"
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M5.25 12.75L12.75 5.25M12.75 5.25H5.25M12.75 5.25V12.75"
+              stroke="#EBEBEB"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </a>
+      </body>
+    </html>
+  `);
 }
 
 export { websiteResponder, inviteResponder };
