@@ -20,14 +20,23 @@ type UserComparisonResult = {
   +usersMissingFromIdentity: $ReadOnlyArray<string>,
 };
 
+type DeviceKeys = {
+  +keyPayload: string,
+  +keyPayloadSignature: string,
+  +identityPrekey: string,
+  +identityPrekeySignature: string,
+  +notifPrekey: string,
+  +notifPrekeySignature: string,
+  +identityOnetimeKeys: $ReadOnlyArray<string>,
+  +notifOnetimeKeys: $ReadOnlyArray<string>,
+};
+
 type RustNativeBindingAPI = {
   +registerUser: (
-    userId: string,
-    signingPublicKey: string,
     username: string,
     password: string,
-    sessionInitializationInfo: SignedIdentityKeysBlob,
-  ) => Promise<string>,
+    deviceKeys: DeviceKeys,
+  ) => Promise<boolean>,
   +loginUserPake: (
     userId: string,
     signingPublicKey: string,
@@ -50,4 +59,4 @@ type RustNativeBindingAPI = {
   +TunnelbrokerClient: Class<TunnelbrokerClientClass>,
 };
 
-export type { RustNativeBindingAPI };
+export type { RustNativeBindingAPI, DeviceKeys };

@@ -3,6 +3,7 @@
 import type { Utility as OlmUtility } from '@matrix-org/olm';
 import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
+import type { DeviceKeys } from 'rust-node-addon/rust-binding-types';
 import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
@@ -445,13 +446,17 @@ async function logInResponder(
           );
         } catch (e) {
           if (e.code === 'InvalidArg' && e.message === 'user not found') {
-            await rustAPI.registerUser(
-              id,
-              constIdentityKeys.primaryIdentityPublicKeys.ed25519,
-              username,
-              request.password,
-              signedIdentityKeysBlob,
-            );
+            const deviceKeys: DeviceKeys = {
+              keyPayload: signedIdentityKeysBlob.payload,
+              keyPayloadSignature: signedIdentityKeysBlob.signature,
+              identityPrekey: '',
+              identityPrekeySignature: '',
+              notifPrekey: '',
+              notifPrekeySignature: '',
+              identityOnetimeKeys: [],
+              notifOnetimeKeys: [],
+            };
+            await rustAPI.registerUser(username, request.password, deviceKeys);
           } else {
             throw e;
           }
