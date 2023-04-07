@@ -14,6 +14,7 @@ import {
   TouchableWithoutFeedback,
   NativeAppEventEmitter,
 } from 'react-native';
+import Alert from 'react-native/Libraries/Alert/Alert.js';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
@@ -57,6 +58,7 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PhotoPaste } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import {
   type ThreadInfo,
@@ -152,6 +154,7 @@ type Props = {
   +mentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +parentThreadInfo: ?ThreadInfo,
   +messagePreviewResult: ?MessagePreviewResult,
+  +editedMessageInfo: ?MessageInfo,
 };
 type State = {
   +text: string,
@@ -791,8 +794,31 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return editState && editState.editedMessageID !== null;
   };
 
+  isMessageEdited = () => {
+    let text = this.state.text;
+    text = trimMessage(text);
+    const originalText = this.props.editedMessageInfo?.text;
+    return text !== originalText;
+  };
+
   onPressExitEditMode = () => {
-    this.exitEditMode();
+    if (!this.isMessageEdited()) {
+      this.exitEditMode();
+      return;
+    }
+    Alert.alert('Are you sure?', 'Your edits will be discarded.', [
+      {
+        text: 'Continue editing',
+        style: 'cancel',
+      },
+      {
+        text: 'Discard edit',
+        style: 'destructive',
+        onPress: () => {
+          this.exitEditMode();
+        },
+      },
+    ]);
   };
 
   exitEditMode = () => {
@@ -1065,6 +1091,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       mentionsCandidates={mentionsCandidates}
       parentThreadInfo={parentThreadInfo}
       messagePreviewResult={messagePreviewResult}
+      editedMessageInfo={editedMessageInfo}
     />
   );
 }
