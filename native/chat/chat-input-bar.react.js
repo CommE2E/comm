@@ -690,6 +690,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   updateText = (text: string) => {
     this.setState({ text, textEdited: true });
+    if (this.isEditMode()) {
+      return;
+    }
     this.saveDraft(text);
   };
 
@@ -788,7 +791,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   onPressExitEditMode = () => {
+    this.exitEditMode();
+  };
+
+  exitEditMode = () => {
     this.props.inputState?.setEditedMessage(null);
+    this.updateText(this.props.draft);
+    this.focusAndUpdateButtonsVisibility();
+    this.updateSendButton(this.props.draft);
   };
 
   onPressJoin = () => {
