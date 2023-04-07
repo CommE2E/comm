@@ -491,7 +491,9 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
             font-family: 'Inter', -apple-system, 'Segoe UI', 'Roboto', 'Oxygen',
               'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
               ui-sans-serif;
-            background-color: #0a0a0a;
+            background: #0a0a0a url('/images/invite_link_background.png')
+              no-repeat;
+            background-size: cover;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -565,13 +567,33 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
             box-sizing: border-box;
             text-decoration-line: underline;
           }
+
+          .logo-container {
+            background-color: #0a0a0a;
+            width: 4.2rem;
+            height: 4.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+          }
+
+          .logo {
+            height: 2.6rem;
+          }
         </style>
       </head>
       <body>
         <div></div>
         <section class="card">
           <section>
-            Icon
+            <div class="logo-container">
+              <img
+                src="/images/loading_logo.svg"
+                alt="Comm logo"
+                class="logo"
+              />
+            </div>
             <h1>Comm</h1>
           </section>
           <p>
