@@ -9,7 +9,7 @@ import css from './expand-buttons.css';
 import Button from '../components/button.react.js';
 
 type Props = {
-  +onClick?: () => mixed,
+  +onClick?: ?() => mixed,
   +expanded?: boolean,
   +disabled?: boolean,
 };
