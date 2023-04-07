@@ -1210,10 +1210,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.editInputBarCallbacks.push(callbackEditInputBar);
   };
 
-  setEditedMessageID = (messageID: ?string) => {
-    this.setState({
-      editState: { editedMessageID: messageID },
-    });
+  setEditedMessageID = (messageID: ?string, callback?: () => void) => {
+    this.setState(
+      {
+        editState: { editedMessageID: messageID },
+      },
+      callback,
+    );
   };
 
   removeEditInputMessageListener = (
