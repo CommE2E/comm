@@ -89,10 +89,6 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   });
 
   const style = React.useMemo(() => ({ paddingLeft }), [paddingLeft]);
-  const threadEntry = classnames({
-    [css.threadEntry]: true,
-    [css.active]: handler.isActive,
-  });
 
   const titleStyle = React.useMemo(
     () => ({
@@ -104,7 +100,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   return (
     <>
       <Handler setHandler={setHandler} threadInfo={threadInfo} />
-      <div className={threadEntry} style={style}>
+      <div className={css.threadEntry} style={style}>
         {itemExpandButton}
         <a onClick={handler.onClick} className={css.titleWrapper}>
           <ThreadAvatar size="micro" threadInfo={threadInfo} />
