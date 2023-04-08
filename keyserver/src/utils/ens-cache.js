@@ -2,27 +2,26 @@
 
 import { ethers } from 'ethers';
 
-import { ENSCache, type EthersProvider } from 'lib/utils/ens-cache.js';
+import { getCommConfig } from 'lib/utils/comm-config.js';
+import { ENSCache } from 'lib/utils/ens-cache.js';
 import {
   getENSNames as baseGetENSNames,
   type GetENSNames,
 } from 'lib/utils/ens-helpers.js';
 
-const alchemyKey = process.env.COMM_ALCHEMY_KEY;
-
-let provider: ?EthersProvider;
-if (alchemyKey) {
-  provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
-}
-
-let ensCache: ?ENSCache;
-if (provider) {
-  ensCache = new ENSCache(provider);
-}
-
 let getENSNames: ?GetENSNames;
-if (ensCache) {
+async function initENSCache() {
+  const alchemySecret = await getCommConfig({
+    folder: 'secrets',
+    name: 'alchemy',
+  });
+  const alchemyKey = alchemySecret?.key;
+  if (!alchemyKey) {
+    return;
+  }
+  const provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
+  const ensCache = new ENSCache(provider);
   getENSNames = baseGetENSNames.bind(null, ensCache);
 }
 
-export { provider, ensCache, getENSNames };
+export { initENSCache, getENSNames };
