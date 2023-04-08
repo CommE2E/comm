@@ -36,12 +36,13 @@ async function fetchServerThreadInfos(
   `.append(whereClause);
 
   const threadsQuery = SQL`
-    SELECT t.id, t.name, t.parent_thread_id, t.containing_thread_id,
-      t.community, t.depth, t.color, t.description, t.type, t.creation_time,
-      t.source_message, t.replies_count, t.avatar, m.user, m.role, m.permissions,
-      m.subscription, m.last_read_message < m.last_message AS unread, m.sender
-    FROM threads t
-    LEFT JOIN memberships m ON m.thread = t.id AND m.role >= 0
+  SELECT t.id, t.name, t.parent_thread_id, t.containing_thread_id,
+    t.community, t.depth, t.color, t.description, t.type, t.creation_time,
+    t.source_message, t.replies_count, t.avatar, t.pinned_count, m.user, 
+    m.role, m.permissions, m.subscription, 
+    m.last_read_message < m.last_message AS unread, m.sender
+  FROM threads t
+  LEFT JOIN memberships m ON m.thread = t.id AND m.role >= 0
   `
     .append(whereClause)
     .append(SQL` ORDER BY m.user ASC`);
@@ -74,6 +75,7 @@ async function fetchServerThreadInfos(
         members: [],
         roles: {},
         repliesCount: threadsRow.replies_count,
+        pinnedCount: threadsRow.pinned_count,
       };
       if (threadsRow.avatar) {
         threadInfos[threadID] = {
@@ -160,6 +162,10 @@ function rawThreadInfosFromServerThreadInfos(
     viewer.platformDetails,
     104,
   );
+  const hasCodeVersionBelow209 = !hasMinCodeVersion(
+    viewer.platformDetails,
+    209,
+  );
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
@@ -172,6 +178,7 @@ function rawThreadInfosFromServerThreadInfos(
         shimThreadTypes: hasCodeVersionBelow87 ? shimCommunityRoot : null,
         hideThreadStructure: hasCodeVersionBelow102,
         filterDetailedThreadEditPermissions: hasCodeVersionBelow104,
+        excludePinInfo: hasCodeVersionBelow209,
       },
     );
     if (threadInfo) {
