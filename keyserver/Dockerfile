@@ -146,7 +146,14 @@ COPY --chown=comm patches patches/
 RUN yarn cleaninstall
 
 #-------------------------------------------------------------------------------
-# STEP 7: WEBPACK BUILD
+# STEP 7: GEOIP UPDATE
+# We update the GeoIP database for mapping from IP address to timezone
+#-------------------------------------------------------------------------------
+
+RUN yarn workspace keyserver docker-update-geoip
+
+#-------------------------------------------------------------------------------
+# STEP 8: WEBPACK BUILD
 # We do this first so Docker doesn't rebuild when only keyserver files change
 #-------------------------------------------------------------------------------
 
@@ -164,21 +171,21 @@ COPY --chown=comm web web/
 RUN yarn workspace web prod
 
 #-------------------------------------------------------------------------------
-# STEP 8: COPY IN SOURCE FILES
+# STEP 9: COPY IN SOURCE FILES
 # We run this later so the above layers are cached if only source files change
 #-------------------------------------------------------------------------------
 
 COPY --chown=comm . .
 
 #-------------------------------------------------------------------------------
-# STEP 9: BUILD NODE ADDON
+# STEP 10: BUILD NODE ADDON
 # Now that source files have been copied in, build rust-node-addon
 #-------------------------------------------------------------------------------
 
 RUN yarn workspace rust-node-addon build
 
 #-------------------------------------------------------------------------------
-# STEP 10: RUN BUILD SCRIPTS
+# STEP 11: RUN BUILD SCRIPTS
 # We need to populate keyserver/dist, among other things
 #-------------------------------------------------------------------------------
 
@@ -186,7 +193,7 @@ RUN yarn workspace rust-node-addon build
 RUN yarn workspace keyserver prod-build
 
 #-------------------------------------------------------------------------------
-# STEP 11: RUN THE SERVER
+# STEP 12: RUN THE SERVER
 # Actually run the Node.js keyserver using nvm
 #-------------------------------------------------------------------------------
 
