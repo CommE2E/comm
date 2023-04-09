@@ -60,4 +60,4 @@ if (!cluster.isMaster) {
   });
 }
 
-export { updateGeoipDB, updateAndReloadGeoipDB };
+export { updateAndReloadGeoipDB };
