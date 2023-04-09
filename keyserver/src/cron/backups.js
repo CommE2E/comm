@@ -99,6 +99,7 @@ function mysqldump(
       '--no-tablespaces',
       '--default-character-set=utf8mb4',
       '--net-buffer-length=523264',
+      '--max-allowed-packet=256M',
       ...extraParams,
       dbConfig.database,
     ],
