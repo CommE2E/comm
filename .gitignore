@@ -14,6 +14,7 @@ keyserver/dist
 keyserver/node_modules
 keyserver/addons/rust-node-addon/target
 keyserver/addons/rust-node-addon/napi
+keyserver/certs
 keyserver/secrets
 keyserver/facts
 keyserver/*.env
