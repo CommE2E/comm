@@ -53,8 +53,12 @@ pub struct S3Client {
 
 impl S3Client {
   pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
+    let s3_config = aws_sdk_s3::config::Builder::from(aws_config)
+      // localstack doesn't support virtual addressing
+      .force_path_style(crate::config::CONFIG.is_sandbox)
+      .build();
     S3Client {
-      client: Arc::new(aws_sdk_s3::Client::new(aws_config)),
+      client: Arc::new(aws_sdk_s3::Client::from_conf(s3_config)),
     }
   }
 
@@ -115,7 +119,7 @@ impl S3Client {
 
     let response = request.send().await?;
     let data = response.body.collect().await?;
-    Ok(data.into_bytes().to_vec())
+    Ok(data.to_vec())
   }
 
   /// Deletes object at provided path

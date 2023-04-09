@@ -8,10 +8,10 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0"
-aws-config = "0.51.0"
-aws-sdk-dynamodb = "0.21.0"
-aws-sdk-s3 = "0.21.0"
-aws-types = "0.51.0"
+aws-config = "0.54.0"
+aws-sdk-dynamodb = "0.24.0"
+aws-sdk-s3 = "0.24.0"
+aws-types = "0.54.0"
 chrono = "0.4"
 clap = { version = "4.0", features = ["derive", "env"] }
 comm-services-lib = { path = "../comm-services-lib" }

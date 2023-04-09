@@ -1,6 +1,5 @@
-use aws_sdk_dynamodb::{Endpoint, Region};
+use aws_sdk_dynamodb::Region;
 use clap::{builder::FalseyValueParser, Parser};
-use http::Uri;
 use once_cell::sync::Lazy;
 use tracing::info;
 
@@ -38,9 +37,7 @@ pub async fn load_aws_config() -> aws_types::SdkConfig {
       "Running in sandbox environment. Localstack URL: {}",
       &CONFIG.localstack_url
     );
-    config_builder = config_builder.endpoint_resolver(Endpoint::immutable(
-      Uri::from_static(&CONFIG.localstack_url),
-    ));
+    config_builder = config_builder.endpoint_url(&CONFIG.localstack_url);
   }
 
   config_builder.load().await
