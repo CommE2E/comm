@@ -28,10 +28,10 @@ pub async fn run_grpc_server(
   db_client: DatabaseClient,
   s3_client: S3Client,
 ) -> Result<()> {
-  let addr: SocketAddr = format!("[::]:{}", CONFIG.grpc_port).parse()?;
+  let addr: SocketAddr = format!("[::]:{}", CONFIG.listen_port).parse()?;
   let blob_service = MyBlobService::new(db_client, s3_client);
 
-  info!("Starting gRPC server listening at {}", CONFIG.grpc_port);
+  info!("Starting gRPC server listening at {}", CONFIG.listen_port);
   Server::builder()
     .add_service(BlobServiceServer::new(blob_service))
     .serve(addr)
