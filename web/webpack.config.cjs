@@ -11,6 +11,14 @@ const {
 
 const babelConfig = require('./babel.config.cjs');
 
+async function getConfig(configName) {
+  const { getCommConfig } = await import(
+    // eslint-disable-next-line monorepo/no-relative-import
+    '../keyserver/dist/lib/utils/comm-config.js'
+  );
+  return await getCommConfig(configName);
+}
+
 const baseBrowserConfig = {
   entry: {
     browser: ['./script.js'],
@@ -159,9 +167,16 @@ const prodWebWorkersPlugins = [
 ];
 
 module.exports = async function (env) {
+  const identityServiceConfig = await getConfig({
+    folder: 'secrets',
+    name: 'identity_service_config',
+  });
+  const envVars = {
+    IDENTITY_SERVICE_CONFIG: JSON.stringify(identityServiceConfig),
+  };
   const browserConfigPromise = env.prod
-    ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
-    : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
+    ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig, envVars)
+    : createDevBrowserConfig(baseDevBrowserConfig, babelConfig, envVars);
   const nodeConfigPromise = createNodeServerRenderingConfig(
     baseNodeServerRenderingConfig,
     babelConfig,
