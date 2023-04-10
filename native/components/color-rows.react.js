@@ -7,15 +7,16 @@ import { selectedThreadColors } from 'lib/shared/color-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 
 import ColorSelectorButton from './color-selector-button.react.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type Props = {
   +pendingColor: string,
   +setPendingColor: SetState<string>,
-  +outerRingSelectedColor?: string,
+  +outerRingSelectedColorStyle?: ViewStyle,
 };
 
 function ColorRows(props: Props): React.Node {
-  const { pendingColor, setPendingColor, outerRingSelectedColor } = props;
+  const { pendingColor, setPendingColor, outerRingSelectedColorStyle } = props;
 
   const colorSelectorButtons = React.useMemo(
     () =>
@@ -25,10 +26,10 @@ function ColorRows(props: Props): React.Node {
           color={color}
           pendingColor={pendingColor}
           setPendingColor={setPendingColor}
-          outerRingSelectedColor={outerRingSelectedColor}
+          outerRingSelectedColorStyle={outerRingSelectedColorStyle}
         />
       )),
-    [outerRingSelectedColor, pendingColor, setPendingColor],
+    [outerRingSelectedColorStyle, pendingColor, setPendingColor],
   );
 
   const firstRow = React.useMemo(
