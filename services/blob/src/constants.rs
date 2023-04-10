@@ -1,6 +1,6 @@
 // Assorted constants
 
-pub const GRPC_SERVER_DEFAULT_PORT: u64 = 50051;
+pub const DEFAULT_LISTEN_PORT: u16 = 50051;
 pub const AWS_REGION: &str = "us-east-2";
 pub const LOCALSTACK_URL: &str = "http://localstack:4566";
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
