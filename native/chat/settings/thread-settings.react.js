@@ -132,6 +132,7 @@ type ChatSettingsItem =
       +itemType: 'avatar',
       +key: string,
       +threadInfo: ResolvedThreadInfo,
+      +canChangeSettings: boolean,
     }
   | {
       +itemType: 'name',
@@ -332,6 +333,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       navigate: ThreadSettingsNavigate,
       routeKey: string,
     ) => {
+      const canEditThreadAvatar = threadHasPermission(
+        threadInfo,
+        threadPermissions.EDIT_THREAD_AVATAR,
+      );
       const canEditThreadName = threadHasPermission(
         threadInfo,
         threadPermissions.EDIT_THREAD_NAME,
@@ -344,6 +349,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         threadInfo,
         threadPermissions.EDIT_THREAD_COLOR,
       );
+
+      const canChangeAvatar = canEditThreadAvatar && canStartEditing;
       const canChangeName = canEditThreadName && canStartEditing;
       const canChangeDescription = canEditThreadDescription && canStartEditing;
       const canChangeColor = canEditThreadColor && canStartEditing;
@@ -360,6 +367,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           itemType: 'avatar',
           key: 'avatar',
           threadInfo,
+          canChangeSettings: canChangeAvatar,
         });
         listData.push({
           itemType: 'footer',
@@ -906,7 +914,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     } else if (item.itemType === 'footer') {
       return <ThreadSettingsCategoryFooter type={item.categoryType} />;
     } else if (item.itemType === 'avatar') {
-      return <ThreadSettingsAvatar threadInfo={item.threadInfo} />;
+      return (
+        <ThreadSettingsAvatar
+          threadInfo={item.threadInfo}
+          canChangeSettings={item.canChangeSettings}
+        />
+      );
     } else if (item.itemType === 'name') {
       return (
         <ThreadSettingsName
