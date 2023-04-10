@@ -38,4 +38,22 @@ async function assignMessageContainerToMedia(
   await dbQuery(query);
 }
 
-export { assignImages, assignMessageContainerToMedia };
+async function assignUserContainerToMedia(
+  viewer: Viewer,
+  mediaID: string,
+): Promise<void> {
+  const query = SQL`
+    UPDATE uploads
+    SET container = ${viewer.id}
+    WHERE id = ${mediaID}
+      AND uploader = ${viewer.id} 
+      AND container IS NULL
+  `;
+  await dbQuery(query);
+}
+
+export {
+  assignImages,
+  assignMessageContainerToMedia,
+  assignUserContainerToMedia,
+};
