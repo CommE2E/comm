@@ -52,8 +52,27 @@ async function assignUserContainerToMedia(
   await dbQuery(query);
 }
 
+// NOTE: We AREN'T setting the `thread` column for this `uploads` entry
+//       because we don't want this upload to be included in the
+//       result set of `fetchMediaForThread`.
+async function assignThreadContainerToMedia(
+  viewer: Viewer,
+  mediaID: string,
+  threadID: string,
+): Promise<void> {
+  const query = SQL`
+    UPDATE uploads
+    SET container = ${threadID}
+    WHERE id = ${mediaID}
+      AND uploader = ${viewer.id} 
+      AND container IS NULL
+  `;
+  await dbQuery(query);
+}
+
 export {
   assignImages,
   assignMessageContainerToMedia,
   assignUserContainerToMedia,
+  assignThreadContainerToMedia,
 };
