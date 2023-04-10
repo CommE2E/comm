@@ -22,7 +22,7 @@ fn configure_logging() -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
   configure_logging()?;
-  config::parse_cmdline_args();
+  config::parse_cmdline_args()?;
 
   let aws_config = config::load_aws_config().await;
   let db = database::DatabaseClient::new(&aws_config);
