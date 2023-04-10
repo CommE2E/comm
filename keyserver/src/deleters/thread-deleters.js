@@ -83,7 +83,7 @@ async function deleteThread(
     LEFT JOIN ids ir ON ir.id = r.id
     LEFT JOIN messages ms ON ms.thread = t.id
     LEFT JOIN ids im ON im.id = ms.id
-    LEFT JOIN uploads up ON up.container = ms.id
+    LEFT JOIN uploads up ON (up.container = ms.id OR up.container = t.id)
     LEFT JOIN ids iu ON iu.id = up.id
     LEFT JOIN focused f ON f.thread = t.id
     LEFT JOIN notifications n ON n.thread = t.id
@@ -144,7 +144,7 @@ async function deleteInaccessibleThreads(): Promise<void> {
     LEFT JOIN ids ir ON ir.id = r.id
     LEFT JOIN messages ms ON ms.thread = t.id
     LEFT JOIN ids im ON im.id = ms.id
-    LEFT JOIN uploads up ON up.container = ms.id
+    LEFT JOIN uploads up ON (up.container = ms.id OR up.container = t.id)
     LEFT JOIN ids iu ON iu.id = up.id
     LEFT JOIN focused f ON f.thread = t.id
     LEFT JOIN notifications n ON n.thread = t.id
