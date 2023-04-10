@@ -7,15 +7,16 @@ import tinycolor from 'tinycolor2';
 import type { SetState } from 'lib/types/hook-types.js';
 
 import { useStyles } from '../themes/colors.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type ColorSelectorButtonProps = {
   +color: string,
   +pendingColor: string,
   +setPendingColor: SetState<string>,
-  +outerRingSelectedColor?: string,
+  +outerRingSelectedColorStyle?: ViewStyle,
 };
 function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
-  const { color, pendingColor, setPendingColor, outerRingSelectedColor } =
+  const { color, pendingColor, setPendingColor, outerRingSelectedColorStyle } =
     props;
   const styles = useStyles(unboundStyles);
 
@@ -25,12 +26,12 @@ function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
 
   const outerRingSelectedStyle = React.useMemo(() => {
     const result = [styles.outerRingSelected];
-    if (outerRingSelectedColor) {
-      result.push({ backgroundColor: `#${outerRingSelectedColor}` });
+    if (outerRingSelectedColorStyle) {
+      result.push(outerRingSelectedColorStyle);
     }
 
     return result;
-  }, [outerRingSelectedColor, styles.outerRingSelected]);
+  }, [outerRingSelectedColorStyle, styles.outerRingSelected]);
 
   const onPendingColorSelected = React.useCallback(() => {
     setPendingColor(color);
