@@ -255,6 +255,7 @@ jsi::Array parseDBThreads(
             ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
             : jsi::Value::null());
     jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
+    jsiThread.setProperty(rt, "pinnedCount", thread.pinned_count);
 
     if (thread.avatar) {
       auto avatar = jsi::String::createFromUtf8(rt, *thread.avatar);
@@ -643,6 +644,10 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
           ? std::make_unique<std::string>(maybeAvatar.asString(rt).utf8(rt))
           : nullptr;
 
+      jsi::Value maybePinnedCount = threadObj.getProperty(rt, "pinnedCount");
+      int pinnedCount = maybePinnedCount.isNumber()
+          ? std::lround(maybePinnedCount.asNumber())
+          : 0;
       Thread thread{
           threadID,
           type,
@@ -658,7 +663,8 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
           currentUser,
           std::move(sourceMessageID),
           repliesCount,
-          std::move(avatar)};
+          std::move(avatar),
+          pinnedCount};
 
       threadStoreOps.push_back(
           std::make_unique<ReplaceThreadOperation>(std::move(thread)));
