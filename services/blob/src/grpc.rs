@@ -2,13 +2,14 @@ use anyhow::Result;
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use blob::blob_service_server::BlobService;
 use chrono::Utc;
-use std::pin::Pin;
+use std::{net::SocketAddr, pin::Pin};
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
-use tonic::{Request, Response, Status};
+use tonic::{transport::Server, Request, Response, Status};
 use tracing::{debug, error, info, instrument, trace, warn, Instrument};
 
 use crate::{
+  config::CONFIG,
   constants::{
     BLOB_S3_BUCKET_NAME, GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
     MPSC_CHANNEL_BUFFER_CAPACITY, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
@@ -18,11 +19,28 @@ use crate::{
   tools::MemOps,
 };
 
-pub mod blob {
+mod blob {
   tonic::include_proto!("blob");
 }
+use blob::blob_service_server::BlobServiceServer;
 
-pub struct MyBlobService {
+pub async fn run_grpc_server(
+  db_client: DatabaseClient,
+  s3_client: S3Client,
+) -> Result<()> {
+  let addr: SocketAddr = format!("[::]:{}", CONFIG.grpc_port).parse()?;
+  let blob_service = MyBlobService::new(db_client, s3_client);
+
+  info!("Starting gRPC server listening at {}", CONFIG.grpc_port);
+  Server::builder()
+    .add_service(BlobServiceServer::new(blob_service))
+    .serve(addr)
+    .await?;
+
+  Ok(())
+}
+
+struct MyBlobService {
   db: DatabaseClient,
   s3: S3Client,
 }
