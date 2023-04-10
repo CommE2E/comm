@@ -56,41 +56,23 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
     if !tunnelbroker::new_session_request::DeviceTypes::is_valid(
       inner_request.device_type,
     ) {
-      return Err(tools::create_tonic_status(
-        GRPCStatusCodes::InvalidArgument,
-        "Unsupported device type",
-      ));
+      return Err(Status::InvalidArgument("Unsupported device type"));
     };
 
-    let nonce_to_be_signed = match getSavedNonceToSign(&inner_request.device_id)
-    {
-      Ok(saved_nonce) => saved_nonce,
-      Err(err) => {
-        return Err(tools::create_tonic_status(
-          GRPCStatusCodes::Internal,
-          &err.what(),
-        ))
-      }
-    };
-    match tools::verify_signed_string(
+    let nonce_to_be_signed = getSavedNonceToSign(&inner_request.device_id)
+      .map_err(|e| Status::internal(&e.what()))?;
+
+    let verifying_result = tools::verify_signed_string(
       &inner_request.public_key,
       &nonce_to_be_signed,
       &inner_request.signature,
-    ) {
-      Ok(verifying_result) => {
-        if !verifying_result {
-          return Err(tools::create_tonic_status(
-            GRPCStatusCodes::PermissionDenied,
-            "Signature for the verification message is not valid",
-          ));
-        }
-      }
-      Err(_) => {
-        return Err(tools::create_tonic_status(
-          GRPCStatusCodes::Internal,
-          "Error while verifying the signature",
-        ))
-      }
+    )
+    .map_err(|_| Status::internal("Error while verifying the signature"))?;
+
+    if !verifying_result {
+      return Err(Status::permission_denied(
+        "Signature for the verification message is not valid",
+      ));
     }
 
     let result = newSessionHandler(
@@ -101,6 +83,7 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
       &inner_request.device_os,
       &notify_token,
     );
+
     if result.grpcStatus.statusCode != GRPCStatusCodes::Ok {
       return Err(tools::create_tonic_status(
         result.grpcStatus.statusCode,
@@ -156,10 +139,8 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
           ));
         }
       };
-      session_item = match getSessionItem(&session_id) {
-        Ok(database_item) => database_item,
-        Err(err) => return Err(Status::unauthenticated(err.what())),
-      };
+      session_item = getSessionItem(&session_id)
+        .map_err(|e| Status::unauthenticated(err.what()))?;
     }
     let (tx, rx) = mpsc::channel(constants::GRPC_TX_QUEUE_SIZE);
 
@@ -170,21 +151,14 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
       channel: &tokio::sync::mpsc::Sender<T>,
       payload: T,
     ) -> Result<(), String> {
-      let result = channel.send(payload).await;
-      match result {
-        Ok(result) => Ok(result),
-        Err(err) => {
-          if let Err(err) = updateSessionItemIsOnline(&session_id, false) {
-            return Err(err.what().to_string());
-          }
-          return Err(err.to_string());
-        }
-      }
+      channel.send(payload).await.or_else(|e| {
+        updateSessionItemIsOnline(&session_id, false)?;
+        e.to_string()
+      });
     }
 
-    if let Err(err) = updateSessionItemIsOnline(&session_id, true) {
-      return Err(Status::internal(err.what()));
-    }
+    updateSessionItemIsOnline(&session_id, true)
+      .map_err(|err| Status::internal(err.what()))?;
 
     // Checking for an empty notif token and requesting the new one from the client
     if !isConfigParameterSet("notifications.disable").expect(
@@ -201,13 +175,14 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
             tunnelbroker::message_to_client::Data::NewNotifyTokenRequired(()),
           ),
         }),
-      );
-      if let Err(err) = result.await {
+      )
+      .await
+      .map_err(|err| {
         debug!(
           "Error while sending notification token request to the client: {}",
           err
         );
-      };
+      });
     }
 
     // When a client connects to the bidirectional messages stream, first we check
@@ -215,15 +190,12 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
     if !isConfigParameterSet("messages.skip_persistence").expect(
       "Error while checking the `messages.skip_persistence` config file parameter",
     ) {
-      let messages_from_database =
-        match getMessagesFromDatabase(&session_item.deviceID) {
-          Ok(messages) => messages,
-          Err(err) => return Err(Status::internal(err.what())),
-        };
+      let messages_from_database = getMessagesFromDatabase(&session_item.deviceID) {
+          map_err(|err| Status::internal(err.what()))?;
       if messages_from_database.len() > 0 {
-        if let Err(err) = eraseMessagesFromAMQP(&session_item.deviceID) {
-          return Err(Status::internal(err.what()));
-        };
+        eraseMessagesFromAMQP(&session_item.deviceID)
+          .map_err(|err| Status::internal(err.what()))?;
+
         let mut messages_to_response = vec![];
         for message in &messages_from_database {
           messages_to_response.push(tunnelbroker::MessageToClientStruct {
@@ -233,7 +205,8 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
             blob_hashes: vec![message.blobHashes.clone()],
           });
         }
-        let result_from_writer = tx_writer(
+
+        tx_writer(
           &session_id,
           &tx,
           Ok(tunnelbroker::MessageToClient {
@@ -245,14 +218,11 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
               ),
             ),
           }),
-        );
-        if let Err(err) = result_from_writer.await {
-          debug!(
-          "Error while sending undelivered messages from database to the client: {}",
-          err
-        );
-          return Err(Status::aborted(err));
-        };
+        ).await
+        .map_err(|err|{
+          debug!("Error while sending undelivered messages from database to the client: {}", err);
+          Status::aborted(err)
+        })?;
       }
     }
 
