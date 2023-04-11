@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "folly/Optional.h"
 #include "olm/olm.h"
 
 #include "Persist.h"
@@ -39,6 +40,14 @@ public:
 
   std::string getIdentityKeys();
   std::string getOneTimeKeys(size_t oneTimeKeysAmount = 50);
+
+  // Prekey rotation methods for X3DH
+  std::uint8_t getNumPrekeys();
+  folly::Optional<std::string> getPrekey();
+  folly::Optional<std::string> getUnpublishedPrekey();
+  std::string generateAndGetPrekey();
+  void markPrekeyAsPublished();
+  void forgetOldPrekey();
 
   void initializeInboundForReceivingSession(
       const std::string &targetUserId,
