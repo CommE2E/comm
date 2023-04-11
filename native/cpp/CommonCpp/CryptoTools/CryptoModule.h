@@ -60,7 +60,8 @@ public:
       const OlmBuffer &preKeys,
       const OlmBuffer &preKeySignature,
       const OlmBuffer &oneTimeKeys,
-      size_t keyIndex = 0);
+      size_t keyIndex = 0,
+      const bool overwrite = true);
   bool hasSessionFor(const std::string &targetUserId);
   std::shared_ptr<Session> getSessionByUserId(const std::string &userId);
   bool matchesInboundSession(
