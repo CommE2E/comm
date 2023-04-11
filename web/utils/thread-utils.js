@@ -74,13 +74,13 @@ function useThreadInfoForPossiblyPendingThread(
   );
 
   const baseThreadInfo = useSelector(state => {
-    if (!activeChatThreadID) {
-      return null;
+    if (activeChatThreadID) {
+      const activeThreadInfo = threadInfoSelector(state)[activeChatThreadID];
+      if (activeThreadInfo) {
+        return activeThreadInfo;
+      }
     }
-    return (
-      threadInfoSelector(state)[activeChatThreadID] ??
-      state.navInfo.pendingThread
-    );
+    return state.navInfo.pendingThread;
   });
   const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
   const threadInfo = React.useMemo(() => {

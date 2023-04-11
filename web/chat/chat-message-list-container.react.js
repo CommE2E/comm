@@ -23,7 +23,7 @@ import {
 } from '../utils/thread-utils.js';
 
 type Props = {
-  +activeChatThreadID: string,
+  +activeChatThreadID: ?string,
 };
 
 function ChatMessageListContainer(props: Props): React.Node {

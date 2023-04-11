@@ -83,7 +83,6 @@ import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 
 import {
   type PendingMultimediaUpload,
-  type InputState,
   type TypeaheadState,
   InputStateContext,
 } from './input-state.js';
@@ -515,13 +514,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return threadCreationPromise;
   }
 
-  inputBaseStateSelector = _memoize((threadID: string) =>
+  inputBaseStateSelector = _memoize((threadID: ?string) =>
     createSelector(
-      (propsAndState: PropsAndState) => propsAndState.pendingUploads[threadID],
       (propsAndState: PropsAndState) =>
-        propsAndState.drafts[draftKeyFromThreadID(threadID)],
+        threadID ? propsAndState.pendingUploads[threadID] : null,
       (propsAndState: PropsAndState) =>
-        propsAndState.textCursorPositions[threadID],
+        threadID ? propsAndState.drafts[draftKeyFromThreadID(threadID)] : null,
+      (propsAndState: PropsAndState) =>
+        threadID ? propsAndState.textCursorPositions[threadID] : null,
       (
         pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
         draft: ?string,
@@ -603,9 +603,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async appendFiles(
-    threadID: string,
+    threadID: ?string,
     files: $ReadOnlyArray<File>,
   ): Promise<boolean> {
+    invariant(threadID, 'threadID should be set in appendFiles');
+
     const selectionTime = Date.now();
     const { pushModal } = this.props;
 
@@ -1036,7 +1038,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.props.dispatch({ type: queueReportsActionType, payload: { reports } });
   }
 
-  cancelPendingUpload(threadID: string, localUploadID: string) {
+  cancelPendingUpload(threadID: ?string, localUploadID: string) {
+    invariant(threadID, 'threadID should be set in cancelPendingUpload');
+
     let revokeURL, abortRequest;
     this.setState(
       prevState => {
@@ -1251,7 +1255,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
-  setDraft(threadID: string, draft: string) {
+  setDraft(threadID: ?string, draft: string) {
+    invariant(threadID, 'threadID should be set in setDraft');
+
     const newThreadID = this.getRealizedOrPendingThreadID(threadID);
     this.props.dispatch({
       type: 'UPDATE_DRAFT',
@@ -1262,7 +1268,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
-  setTextCursorPosition(threadID: string, newPosition: number) {
+  setTextCursorPosition(threadID: ?string, newPosition: number) {
+    invariant(threadID, 'threadID should be set in setTextCursorPosition');
+
     this.setState(prevState => {
       const newThreadID = this.getRealizedOrPendingThreadID(threadID);
       return {
@@ -1435,23 +1443,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     // we're going with two selectors as we want to avoid
     // recreation of chat state setter functions on typeahead state updates
-    let inputState: ?InputState = null;
-    if (activeChatThreadID) {
-      const inputBaseState = this.inputBaseStateSelector(activeChatThreadID)({
-        ...this.state,
-        ...this.props,
-      });
+    const inputBaseState = this.inputBaseStateSelector(activeChatThreadID)({
+      ...this.state,
+      ...this.props,
+    });
 
-      const typeaheadState = this.typeaheadStateSelector({
-        ...this.state,
-        ...this.props,
-      });
+    const typeaheadState = this.typeaheadStateSelector({
+      ...this.state,
+      ...this.props,
+    });
 
-      inputState = this.inputStateSelector({
-        inputBaseState,
-        typeaheadState,
-      });
-    }
+    const inputState = this.inputStateSelector({
+      inputBaseState,
+      typeaheadState,
+    });
 
     return (
       <InputStateContext.Provider value={inputState}>
