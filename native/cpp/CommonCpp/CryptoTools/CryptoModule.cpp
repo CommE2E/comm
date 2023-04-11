@@ -1,4 +1,5 @@
 #include "CryptoModule.h"
+#include "Logger.h"
 #include "PlatformSpecificTools.h"
 #include "olm/account.hh"
 #include "olm/session.hh"
@@ -215,9 +216,9 @@ void CryptoModule::initializeOutboundForSendingSession(
     const OlmBuffer &oneTimeKeys,
     size_t keyIndex) {
   if (this->hasSessionFor(targetUserId)) {
-    throw std::runtime_error{
-        "error initializeOutboundForSendingSession => session already "
-        "initialized"};
+    Logger::log(
+        "olm session overwritten for the user with id: " + targetUserId);
+    this->sessions.erase(this->sessions.find(targetUserId));
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsInitializer(
       this->account,
