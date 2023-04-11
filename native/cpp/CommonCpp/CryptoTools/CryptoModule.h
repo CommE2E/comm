@@ -40,6 +40,14 @@ public:
   std::string getIdentityKeys();
   std::string getOneTimeKeys(size_t oneTimeKeysAmount = 50);
 
+  // Prekey rotation methods for X3DH
+  std::uint8_t getNumPrekeys();
+  std::string getPrekey();
+  std::string getUnpublishedPrekey();
+  std::string generateAndGetPrekey();
+  void markPrekeyAsPublished();
+  void forgetOldPrekey();
+
   void initializeInboundForReceivingSession(
       const std::string &targetUserId,
       const OlmBuffer &encryptedMessage,
