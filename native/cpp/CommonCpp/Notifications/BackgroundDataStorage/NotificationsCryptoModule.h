@@ -17,11 +17,20 @@ class NotificationsCryptoModule {
   static crypto::CryptoModule deserializeCryptoModule(
       const std::string &path,
       const std::string &picklingKey);
+  static void callCryptoModule(
+      std::function<void(crypto::CryptoModule cryptoModule)> caller,
+      const std::string &callingProcessName);
 
 public:
   static void
   initializeNotificationsCryptoAccount(const std::string &callingProcessName);
   static void clearSensitiveData();
-  static std::string getNotificationsIdentityKeys();
+  static std::string
+  getNotificationsIdentityKeys(const std::string &callingProcessName);
+  static std::string getNotificationsOneTimeKeys(
+      size_t oneTimeKeysAmount,
+      const std::string &callingProcessName);
+  static std::string
+  generateAndPublishNotificationsPrekey(const std::string &callingProcessName);
 };
 } // namespace comm
