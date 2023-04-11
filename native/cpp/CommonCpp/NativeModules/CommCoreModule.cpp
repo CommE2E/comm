@@ -1005,7 +1005,8 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
           try {
             if (!error.size()) {
               notificationsKeysResult =
-                  NotificationsCryptoModule::getNotificationsIdentityKeys();
+                  NotificationsCryptoModule::getNotificationsIdentityKeys(
+                      "Comm");
             }
           } catch (const std::exception &e) {
             error = e.what();
