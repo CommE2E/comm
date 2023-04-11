@@ -221,11 +221,16 @@ void CryptoModule::initializeOutboundForSendingSession(
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
     const OlmBuffer &oneTimeKeys,
-    size_t keyIndex) {
+    size_t keyIndex,
+    const bool overwrite) {
   if (this->hasSessionFor(targetUserId)) {
-    throw std::runtime_error{
-        "error initializeOutboundForSendingSession => session already "
-        "initialized"};
+    if (overwrite) {
+      this->sessions.erase(this->sessions.find(targetUserId));
+    } else {
+      throw std::runtime_error{
+          "error initializeOutboundForSendingSession => session already "
+          "initialized"};
+    }
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsInitializer(
       this->account,

@@ -19,6 +19,10 @@ const std::string
         "notificationsCryptoAccountDataKey";
 const std::string NotificationsCryptoModule::notificationsCryptoAccountID =
     "notificationsCryptoAccountDataID";
+const std::string NotificationsCryptoModule::keyserverHostedNotificationsID =
+    "keyserverHostedNotificationsID";
+const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
+    "initialMessage";
 
 crypto::CryptoModule NotificationsCryptoModule::deserializeCryptoModule(
     const std::string &path,
@@ -126,6 +130,28 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
   }
 }
 
+void NotificationsCryptoModule::callCryptoModule(
+    std::function<void(crypto::CryptoModule &cryptoModule)> caller,
+    const std::string &callingProcessName) {
+  CommSecureStore secureStore{};
+  folly::Optional<std::string> picklingKey = secureStore.get(
+      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
+  if (!picklingKey.hasValue()) {
+    throw std::runtime_error(
+        "Attempt to retrieve notifications crypto account before it was "
+        "correctly initialized.");
+  }
+
+  const std::string path =
+      PlatformSpecificTools::getNotificationsCryptoAccountPath();
+  crypto::CryptoModule cryptoModule =
+      NotificationsCryptoModule::deserializeCryptoModule(
+          path, picklingKey.value());
+  caller(cryptoModule);
+  NotificationsCryptoModule::serializeAndFlushCryptoModule(
+      cryptoModule, path, picklingKey.value(), callingProcessName);
+}
+
 void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
     const std::string &callingProcessName) {
   const std::string notificationsCryptoAccountPath =
@@ -155,22 +181,53 @@ void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
       callingProcessName);
 }
 
-std::string NotificationsCryptoModule::getNotificationsIdentityKeys() {
-  CommSecureStore secureStore{};
-  folly::Optional<std::string> picklingKey = secureStore.get(
-      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
-  if (!picklingKey.hasValue()) {
-    throw std::runtime_error(
-        "Attempt to retrieve notifications crypto account before it was "
-        "correctly initialized.");
-  }
+std::string NotificationsCryptoModule::getNotificationsIdentityKeys(
+    const std::string &callingProcessName) {
+  std::string identityKeys;
+  auto caller = [&identityKeys](crypto::CryptoModule cryptoModule) {
+    identityKeys = cryptoModule.getIdentityKeys();
+  };
+  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+  return identityKeys;
+}
 
-  const std::string path =
-      PlatformSpecificTools::getNotificationsCryptoAccountPath();
-  crypto::CryptoModule cryptoModule =
-      NotificationsCryptoModule::deserializeCryptoModule(
-          path, picklingKey.value());
-  return cryptoModule.getIdentityKeys();
+void NotificationsCryptoModule::initializeNotificationsSession(
+    const std::string &identityKeys,
+    const std::string &prekey,
+    const std::string &oneTimeKeys,
+    const std::string &callingProcessName) {
+  auto caller = [&](crypto::CryptoModule &cryptoModule) {
+    cryptoModule.initializeOutboundForSendingSession(
+        NotificationsCryptoModule::keyserverHostedNotificationsID,
+        std::vector<uint8_t>(identityKeys.begin(), identityKeys.end()),
+        std::vector<uint8_t>(prekey.begin(), prekey.end()),
+        std::vector<uint8_t>(oneTimeKeys.begin(), oneTimeKeys.end()));
+  };
+  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+}
+
+bool NotificationsCryptoModule::isNotificationsSessionInitialized(
+    const std::string &callingProcessName) {
+  bool sessionInitialized;
+  auto caller = [&sessionInitialized](crypto::CryptoModule &cryptoModule) {
+    sessionInitialized = cryptoModule.hasSessionFor(
+        NotificationsCryptoModule::keyserverHostedNotificationsID);
+  };
+  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+  return sessionInitialized;
+}
+
+crypto::EncryptedData
+NotificationsCryptoModule::generateInitialEncryptedMessage(
+    const std::string &callingProcessName) {
+  crypto::EncryptedData initialEncryptedMessage;
+  auto caller = [&initialEncryptedMessage](crypto::CryptoModule &cryptoModule) {
+    initialEncryptedMessage = cryptoModule.encrypt(
+        NotificationsCryptoModule::keyserverHostedNotificationsID,
+        NotificationsCryptoModule::initialEncryptedMessageContent);
+  };
+  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+  return initialEncryptedMessage;
 }
 
 void NotificationsCryptoModule::clearSensitiveData() {
