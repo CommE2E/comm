@@ -115,6 +115,35 @@ std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
       this->keys.oneTimeKeys.begin(), this->keys.oneTimeKeys.end()};
 }
 
+std::string CryptoModule::generatePreKey() {
+  size_t preKeySize =
+      ::olm_account_generate_prekey_random_length(this->account);
+
+  OlmBuffer random;
+  PlatformSpecificTools::generateSecureRandomBytes(random, preKeySize);
+
+  if (-1 ==
+      ::olm_account_generate_prekey(
+          this->account, random.data(), random.size())) {
+    throw std::runtime_error{
+        "error generatePreKey => " +
+        std::string{::olm_account_last_error(this->account)}};
+  }
+
+  ::olm_account_mark_prekey_as_published(this->account);
+
+  OlmBuffer preKey;
+  preKey.resize(::olm_account_prekey_length(this->account));
+
+  if (-1 == ::olm_account_prekey(this->account, preKey.data(), preKey.size())) {
+    throw std::runtime_error{
+        "error generatePreKey => " +
+        std::string{::olm_account_last_error(this->account)}};
+  }
+
+  return std::string{preKey.begin(), preKey.end()};
+}
+
 void CryptoModule::initializeInboundForReceivingSession(
     const std::string &targetUserId,
     const OlmBuffer &encryptedMessage,
