@@ -51,18 +51,26 @@ function InlineEngagement(props: Props): React.Node {
 
   const onClickThread = useOnClickThread(threadInfo);
 
+  const onClickReplies = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      popModal();
+      onClickThread(event);
+    },
+    [popModal, onClickThread],
+  );
+
   const sidebarItem = React.useMemo(() => {
     if (!threadInfo || !repliesText) {
       return null;
     }
 
     return (
-      <a onClick={onClickThread} className={threadsContainerClasses}>
+      <a onClick={onClickReplies} className={threadsContainerClasses}>
         <CommIcon size={14} icon="sidebar-filled" />
         {repliesText}
       </a>
     );
-  }, [threadInfo, repliesText, onClickThread, threadsContainerClasses]);
+  }, [threadInfo, repliesText, onClickReplies, threadsContainerClasses]);
 
   const onClickReactions = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
