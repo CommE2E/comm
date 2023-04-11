@@ -8,13 +8,14 @@ import ClearSearchButton from './clear-search-button.react.js';
 import css from './search.css';
 
 type Props = {
+  ...React.ElementConfig<'input'>,
   +searchText: string,
   +onChangeText: (searchText: string) => mixed,
   +placeholder?: string,
 };
 
 function Search(props: Props, ref): React.Node {
-  const { searchText, onChangeText, placeholder } = props;
+  const { searchText, onChangeText, placeholder, ...rest } = props;
 
   const showClearButton = !!searchText;
 
@@ -35,6 +36,7 @@ function Search(props: Props, ref): React.Node {
         <SWMansionIcon size={24} icon="search" />
       </div>
       <input
+        {...rest}
         id={css.searchInputID}
         className={css.searchInput}
         onChange={onChange}

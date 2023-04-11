@@ -186,6 +186,7 @@ function ChatThreadComposer(props: Props): React.Node {
             onChangeText={setUsernameInputText}
             searchText={usernameInputText}
             placeholder="Select users for chat"
+            autoFocus={true}
           />
         </div>
         <Button className={css.closeSearch} onClick={onCloseSearch}>
