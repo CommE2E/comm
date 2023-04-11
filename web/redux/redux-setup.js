@@ -61,6 +61,11 @@ import { type NavInfo } from '../types/nav-types.js';
 
 export type WindowDimensions = { width: number, height: number };
 
+export type CommunityPickerStore = {
+  +chat: ?string,
+  +calendar: ?string,
+};
+
 export type AppState = {
   navInfo: NavInfo,
   deviceID: ?string,
@@ -74,7 +79,7 @@ export type AppState = {
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  calendarPickedCommunityID: ?string,
+  communityPickerStore: CommunityPickerStore,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
@@ -156,14 +161,20 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
           threadIDs,
         },
       ],
-      calendarPickedCommunityID: action.payload,
+      communityPickerStore: {
+        ...state.communityPickerStore,
+        calendar: action.payload,
+      },
     };
   } else if (action.type === clearCalendarCommunityFilter) {
     const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
     return {
       ...state,
       calendarFilters: nonThreadFilters,
-      calendarPickedCommunityID: null,
+      communityPickerStore: {
+        ...state.communityPickerStore,
+        calendar: null,
+      },
     };
   } else if (action.type === setNewSessionActionType) {
     if (
