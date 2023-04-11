@@ -18,6 +18,12 @@ if ! command -v localstack > /dev/null; then
   exit 1
 fi
 
+if [[ $(docker info 2>/dev/null) =~ "Cannot connect to the Docker" ]]; then
+  echo "Localstack requires Docker to be running" >&2
+  echo "Please start Docker and try again" >&2
+  exit 1
+fi
+
 # The 'localstack status' command will poll forever if you have a newer
 # docker cli, so instead use docker ps + grep to determine running container
 if ! docker ps | grep localstack &> /dev/null; then
