@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
 use database::DatabaseClient;
-use interceptor::check_auth;
 use tonic::transport::Server;
 use tracing_subscriber::FmtSubscriber;
 
@@ -11,14 +10,11 @@ mod database;
 mod interceptor;
 mod keygen;
 mod nonce;
-mod pake_grpc;
-mod service;
 mod token;
 
 use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
 use keygen::generate_and_persist_keypair;
-use service::{IdentityKeyserverServiceServer, MyIdentityService};
 use tracing::info;
 
 use client_service::{ClientService, IdentityClientServiceServer};
@@ -59,15 +55,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
       let aws_config = aws_config::from_env().region("us-east-2").load().await;
       let database_client = DatabaseClient::new(&aws_config);
-      let server = MyIdentityService::new(database_client.clone());
-      let keyserver_service =
-        IdentityKeyserverServiceServer::with_interceptor(server, check_auth);
       let client_service =
         IdentityClientServiceServer::new(ClientService::new(database_client));
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
         .accept_http1(true)
-        .add_service(keyserver_service)
         .add_service(tonic_web::enable(client_service))
         .serve(addr)
         .await?;

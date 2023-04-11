@@ -1,48 +1,19 @@
-pub mod compare_users;
-pub mod delete_user;
-pub mod login_user;
 pub mod register_user;
-pub mod identity {
-  tonic::include_proto!("identity.keyserver");
-}
 pub mod identity_client {
   tonic::include_proto!("identity.client");
 }
-pub mod update_user;
 
-use comm_opaque::Cipher;
-use identity::identity_keyserver_service_client::IdentityKeyserverServiceClient;
-use identity::{
-  login_request::Data::PakeLoginRequest,
-  login_response::Data::PakeLoginResponse as LoginPakeLoginResponse,
-  pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
-  pake_login_request::Data::PakeCredentialRequestAndUserId,
-  pake_login_response::Data::AccessToken,
-  pake_login_response::Data::PakeCredentialResponse, CompareUsersRequest,
-  DeleteUserRequest, LoginRequest, LoginResponse,
-  PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
-  PakeLoginRequest as PakeLoginRequestStruct,
-  PakeLoginResponse as PakeLoginResponseStruct, SessionInitializationInfo,
-};
 use identity_client::identity_client_service_client::IdentityClientServiceClient;
 use identity_client::{
   DeviceKeyUpload, IdentityKeyInfo, RegistrationFinishRequest,
-  RegistrationStartRequest, WalletLoginRequest,
+  RegistrationStartRequest,
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
-use opaque_ke::{
-  ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
-  ClientLoginStartResult, CredentialFinalization, CredentialResponse,
-};
-use rand::{rngs::OsRng, CryptoRng, Rng};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::env::var;
-use tokio::sync::mpsc;
-use tokio_stream::wrappers::ReceiverStream;
-use tonic::{metadata::MetadataValue, transport::Channel, Code, Request};
-use tracing::{error, instrument};
+use tonic::{metadata::MetadataValue, transport::Channel, Request};
+use tracing::instrument;
 
 lazy_static! {
   static ref IDENTITY_SERVICE_CONFIG: IdentityServiceConfig = {
@@ -69,55 +40,6 @@ impl Default for IdentityServiceConfig {
       identity_auth_token: "test".to_string(),
     }
   }
-}
-
-fn handle_unexpected_response<T: std::fmt::Debug>(message: Option<T>) -> Error {
-  error!("Received an unexpected message: {:?}", message);
-  Error::from_status(Status::GenericFailure)
-}
-
-async fn send_to_mpsc<T>(tx: mpsc::Sender<T>, request: T) -> Result<()> {
-  if let Err(e) = tx.send(request).await {
-    error!("Response was dropped: {}", e);
-    return Err(Error::from_status(Status::GenericFailure));
-  }
-  Ok(())
-}
-
-fn pake_login_start(
-  rng: &mut (impl Rng + CryptoRng),
-  password: &str,
-) -> Result<ClientLoginStartResult<Cipher>> {
-  ClientLogin::<Cipher>::start(
-    rng,
-    password.as_bytes(),
-    ClientLoginStartParameters::default(),
-  )
-  .map_err(|e| {
-    error!("Failed to start PAKE login: {}", e);
-    Error::from_status(Status::GenericFailure)
-  })
-}
-
-fn pake_login_finish(
-  credential_response_bytes: &[u8],
-  client_login: ClientLogin<Cipher>,
-) -> Result<CredentialFinalization<Cipher>> {
-  client_login
-    .finish(
-      CredentialResponse::deserialize(credential_response_bytes).map_err(
-        |e| {
-          error!("Could not deserialize credential response bytes: {}", e);
-          Error::from_status(Status::GenericFailure)
-        },
-      )?,
-      ClientLoginFinishParameters::default(),
-    )
-    .map_err(|e| {
-      error!("Failed to finish PAKE login: {}", e);
-      Error::from_status(Status::GenericFailure)
-    })
-    .map(|res| res.message)
 }
 
 async fn get_identity_service_channel() -> Result<Channel> {

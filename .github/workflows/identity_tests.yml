@@ -5,7 +5,7 @@ on:
     branches: [master]
     paths:
       - 'services/identity/**'
-      - 'shared/protos/identity.proto'
+      - 'shared/protos/identity*.proto'
       - 'flake.*'
       - 'nix/**'
 

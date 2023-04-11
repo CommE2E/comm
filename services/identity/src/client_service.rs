@@ -17,15 +17,16 @@ use crate::{
     VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
     WalletLoginRequest, WalletLoginResponse,
   },
-  database::DatabaseClient,
+  database::{DatabaseClient, Error as DBError},
   nonce::generate_nonce_data,
-  service::handle_db_error,
 };
+use aws_sdk_dynamodb::Error as DynamoDBError;
 pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
 };
 use rand::rngs::OsRng;
 use tonic::Response;
+use tracing::error;
 
 #[derive(derive_more::Constructor)]
 pub struct ClientService {
@@ -149,5 +150,21 @@ impl IdentityClientService for ClientService {
     _request: tonic::Request<VerifyUserAccessTokenRequest>,
   ) -> Result<tonic::Response<VerifyUserAccessTokenResponse>, tonic::Status> {
     unimplemented!();
+  }
+}
+
+pub fn handle_db_error(db_error: DBError) -> tonic::Status {
+  match db_error {
+    DBError::AwsSdk(DynamoDBError::InternalServerError(_))
+    | DBError::AwsSdk(DynamoDBError::ProvisionedThroughputExceededException(
+      _,
+    ))
+    | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
+      tonic::Status::unavailable("please retry")
+    }
+    e => {
+      error!("Encountered an unexpected error: {}", e);
+      tonic::Status::failed_precondition("unexpected error")
+    }
   }
 }
