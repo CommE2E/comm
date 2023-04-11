@@ -63,6 +63,11 @@ service IdentityClientService {
   // Called by other services to verify a user's access token
   rpc VerifyUserAccessToken(VerifyUserAccessTokenRequest) returns
     (VerifyUserAccessTokenResponse) {}
+
+  // Called by Ashoat's keyserver with a list of usernames in MySQL and returns:
+  // 1. a list of usernames that are in DynamoDB but not in the supplied list
+  // 2. a list of usernames that are in the supplied list but not in DynamoDB
+  rpc CompareUsers(CompareUsersRequest) returns (CompareUsersResponse) {}
 }
 
 // Helper types
@@ -317,4 +322,15 @@ message VerifyUserAccessTokenRequest {
 
 message VerifyUserAccessTokenResponse {
   bool tokenValid = 1;
+}
+
+// CompareUsers
+
+message CompareUsersRequest {
+  repeated string users = 1;
+}
+
+message CompareUsersResponse {
+  repeated string usersMissingFromKeyserver = 1;
+  repeated string usersMissingFromIdentity = 2;
 }

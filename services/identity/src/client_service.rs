@@ -4,8 +4,9 @@ pub mod client_proto {
 
 use crate::{
   client_service::client_proto::{
-    DeleteUserRequest, Empty, GenerateNonceResponse, KeyserverKeysRequest,
-    KeyserverKeysResponse, OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
+    CompareUsersRequest, CompareUsersResponse, DeleteUserRequest, Empty,
+    GenerateNonceResponse, KeyserverKeysRequest, KeyserverKeysResponse,
+    OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
     OpaqueLoginStartRequest, OpaqueLoginStartResponse,
     ReceiverKeysForUserRequest, ReceiverKeysForUserResponse,
     RefreshUserPreKeysRequest, RegistrationFinishRequest,
@@ -148,6 +149,13 @@ impl IdentityClientService for ClientService {
     &self,
     _request: tonic::Request<VerifyUserAccessTokenRequest>,
   ) -> Result<tonic::Response<VerifyUserAccessTokenResponse>, tonic::Status> {
+    unimplemented!();
+  }
+
+  async fn compare_users(
+    &self,
+    _request: tonic::Request<CompareUsersRequest>,
+  ) -> Result<tonic::Response<CompareUsersResponse>, tonic::Status> {
     unimplemented!();
   }
 }
