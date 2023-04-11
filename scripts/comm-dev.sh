@@ -41,8 +41,8 @@ services_command() {
       "$0" services start
       ;;
     start)
-      nix run "$COMM_ROOT"#rabbitmq-up
       nix run "$COMM_ROOT"#localstack-up
+      nix run "$COMM_ROOT"#rabbitmq-up
       ;;
     stop)
       log "Stopping services"
