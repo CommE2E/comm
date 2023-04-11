@@ -49,7 +49,15 @@ function InlineEngagement(props: Props): React.Node {
     [css.reactionsSplitContainer]: reactionsExist && threadInfo,
   });
 
-  const onClickThread = useOnClickThread(threadInfo);
+  const onClickThreadInner = useOnClickThread(threadInfo);
+
+  const onClickThread = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      popModal();
+      onClickThreadInner(event);
+    },
+    [popModal, onClickThreadInner],
+  );
 
   const sidebarItem = React.useMemo(() => {
     if (!threadInfo || !repliesText) {
