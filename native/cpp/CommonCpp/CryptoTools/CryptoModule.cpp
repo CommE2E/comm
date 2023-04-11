@@ -1,5 +1,6 @@
 #include "CryptoModule.h"
 #include "PlatformSpecificTools.h"
+#include "olm/account.hh"
 #include "olm/session.hh"
 
 #include <stdexcept>
@@ -113,6 +114,87 @@ std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
 
   return std::string{
       this->keys.oneTimeKeys.begin(), this->keys.oneTimeKeys.end()};
+}
+
+std::uint8_t CryptoModule::getNumPrekeys() {
+  return reinterpret_cast<olm::Account *>(this->account)->num_prekeys;
+}
+
+folly::Optional<std::string> CryptoModule::getPrekey() {
+  if (this->getNumPrekeys() == 0) {
+    return folly::none;
+  }
+
+  OlmBuffer prekey;
+  prekey.resize(::olm_account_prekey_length(this->account));
+
+  if (-1 == ::olm_account_prekey(this->account, prekey.data(), prekey.size())) {
+    throw std::runtime_error{
+        "error getPrekey => " +
+        std::string{::olm_account_last_error(this->account)}};
+  }
+
+  return folly::Optional<std::string>{
+      std::string{prekey.begin(), prekey.end()}};
+}
+
+folly::Optional<std::string> CryptoModule::getUnpublishedPrekey() {
+  if (this->getNumPrekeys() == 0) {
+    return folly::none;
+  }
+
+  OlmBuffer prekey;
+  prekey.resize(::olm_account_prekey_length(this->account));
+
+  std::size_t retval = ::olm_account_unpublished_prekey(
+      this->account, prekey.data(), prekey.size());
+
+  if (-1 == retval &&
+      ::olm_account_last_error_code(this->account) !=
+          OlmErrorCode::OLM_SUCCESS) {
+    throw std::runtime_error{
+        "error getUnpublishedPrekey => " +
+        std::string{::olm_account_last_error(this->account)}};
+  } else if (-1 == retval) {
+    return folly::none;
+  }
+
+  return std::string{prekey.begin(), prekey.end()};
+}
+
+std::string CryptoModule::generateAndGetPrekey() {
+  size_t prekeySize =
+      ::olm_account_generate_prekey_random_length(this->account);
+
+  OlmBuffer random;
+  PlatformSpecificTools::generateSecureRandomBytes(random, prekeySize);
+
+  if (-1 ==
+      ::olm_account_generate_prekey(
+          this->account, random.data(), random.size())) {
+    throw std::runtime_error{
+        "error generateAndGetPrekey => " +
+        std::string{::olm_account_last_error(this->account)}};
+  }
+
+  OlmBuffer prekey;
+  prekey.resize(::olm_account_prekey_length(this->account));
+
+  if (-1 == ::olm_account_prekey(this->account, prekey.data(), prekey.size())) {
+    throw std::runtime_error{
+        "error generateAndGetPrekey => " +
+        std::string{::olm_account_last_error(this->account)}};
+  }
+
+  return std::string{prekey.begin(), prekey.end()};
+}
+
+void CryptoModule::markPrekeyAsPublished() {
+  ::olm_account_mark_prekey_as_published(this->account);
+}
+
+void CryptoModule::forgetOldPrekey() {
+  ::olm_account_forget_old_prekey(this->account);
 }
 
 void CryptoModule::initializeInboundForReceivingSession(
