@@ -24,6 +24,8 @@ tonic = "0.8"
 prost = "0.11"
 prost-types = "0.11"
 futures = "0.3"
+tokio-tungstenite = { version = "0.18.0", features = [ ] }
+tracing-subscriber = "0.3.16"
 
 [build-dependencies]
 cxx-build = "1.0"
