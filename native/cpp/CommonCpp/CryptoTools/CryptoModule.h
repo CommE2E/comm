@@ -39,6 +39,7 @@ public:
 
   std::string getIdentityKeys();
   std::string getOneTimeKeys(size_t oneTimeKeysAmount = 50);
+  std::string generatePrekey();
 
   void initializeInboundForReceivingSession(
       const std::string &targetUserId,
