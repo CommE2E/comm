@@ -14,6 +14,7 @@ use crate::{
     SenderKeysForUserResponse, UpdateUserPasswordFinishRequest,
     UpdateUserPasswordFinishResponse, UpdateUserPasswordStartRequest,
     UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+    VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
     WalletLoginRequest, WalletLoginResponse,
   },
   database::DatabaseClient,
@@ -140,6 +141,13 @@ impl IdentityClientService for ClientService {
     &self,
     _request: tonic::Request<RefreshUserPreKeysRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    unimplemented!();
+  }
+
+  async fn verify_user_access_token(
+    &self,
+    _request: tonic::Request<VerifyUserAccessTokenRequest>,
+  ) -> Result<tonic::Response<VerifyUserAccessTokenResponse>, tonic::Status> {
     unimplemented!();
   }
 }

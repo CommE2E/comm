@@ -57,6 +57,12 @@ service IdentityClientService {
   // Rotate a devices preKey and preKey signature
   // Rotated for deniability of older messages
   rpc RefreshUserPreKeys(RefreshUserPreKeysRequest) returns (Empty) {}
+
+  // Service actions
+
+  // Called by other services to verify a user's access token
+  rpc VerifyUserAccessToken(VerifyUserAccessTokenRequest) returns
+    (VerifyUserAccessTokenResponse) {}
 }
 
 // Helper types
@@ -298,4 +304,17 @@ message UploadOneTimeKeysRequest {
 message RefreshUserPreKeysRequest {
   string accessToken = 1;
   PreKey newPreKeys = 2;
+}
+
+// VerifyUserAccessToken
+
+message VerifyUserAccessTokenRequest {
+  string userID = 1;
+  // signing ed25519 key for the given user's device
+  string signingPublicKey = 2;
+  string accessToken = 3;
+}
+
+message VerifyUserAccessTokenResponse {
+  bool tokenValid = 1;
 }
