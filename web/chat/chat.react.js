@@ -15,6 +15,9 @@ function Chat(): React.Node {
   const activeChatThreadID = useSelector(
     state => state.navInfo.activeChatThreadID,
   );
+  const chatModeIsCreate = useSelector(
+    state => state.navInfo.chatMode === 'create',
+  );
   const chatList = React.useMemo(
     () => (
       <ThreadListProvider>
@@ -24,11 +27,11 @@ function Chat(): React.Node {
     [],
   );
   const messageList = React.useMemo(() => {
-    if (!activeChatThreadID) {
+    if (!activeChatThreadID && !chatModeIsCreate) {
       return null;
     }
     return <ChatMessageListContainer activeChatThreadID={activeChatThreadID} />;
-  }, [activeChatThreadID]);
+  }, [activeChatThreadID, chatModeIsCreate]);
 
   let threadDraftUpdater = null;
   if (loggedIn) {
