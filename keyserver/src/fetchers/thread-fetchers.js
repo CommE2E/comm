@@ -1,5 +1,7 @@
 // @flow
 
+import invariant from 'invariant';
+
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions.js';
 import {
   rawThreadInfoFromServerThreadInfo,
@@ -7,6 +9,7 @@ import {
   getCommunity,
 } from 'lib/shared/thread-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import {
   threadTypes,
@@ -16,6 +19,7 @@ import {
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import { getUploadURL } from './upload-fetchers.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
 import type { Viewer } from '../session/viewer.js';
@@ -40,9 +44,11 @@ async function fetchServerThreadInfos(
     t.community, t.depth, t.color, t.description, t.type, t.creation_time,
     t.source_message, t.replies_count, t.avatar, t.pinned_count, m.user, 
     m.role, m.permissions, m.subscription, 
-    m.last_read_message < m.last_message AS unread, m.sender
+    m.last_read_message < m.last_message AS unread, m.sender,
+    up.id AS upload_id, up.secret AS upload_secret
   FROM threads t
   LEFT JOIN memberships m ON m.thread = t.id AND m.role >= 0
+  LEFT JOIN uploads up ON up.container = t.id
   `
     .append(whereClause)
     .append(SQL` ORDER BY m.user ASC`);
@@ -78,9 +84,30 @@ async function fetchServerThreadInfos(
         pinnedCount: threadsRow.pinned_count,
       };
       if (threadsRow.avatar) {
+        const avatar: AvatarDBContent = JSON.parse(threadsRow.avatar);
+        let clientAvatar: ?ClientAvatar;
+        if (avatar && avatar.type !== 'image') {
+          clientAvatar = avatar;
+        } else if (
+          avatar &&
+          avatar.type === 'image' &&
+          threadsRow.upload_id &&
+          threadsRow.upload_secret
+        ) {
+          const uploadID = threadsRow.upload_id.toString();
+          invariant(
+            uploadID === avatar.uploadID,
+            `uploadID of upload should match uploadID of image avatar`,
+          );
+          clientAvatar = {
+            type: 'image',
+            uri: getUploadURL(uploadID, threadsRow.upload_secret),
+          };
+        }
+
         threadInfos[threadID] = {
           ...threadInfos[threadID],
-          avatar: JSON.parse(threadsRow.avatar),
+          avatar: clientAvatar,
         };
       }
     }
