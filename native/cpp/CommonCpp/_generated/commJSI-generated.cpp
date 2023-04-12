@@ -56,8 +56,14 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCrypto
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserPublicKey(rt);
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserOneTimeKeys(rt);
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getPrimaryOneTimeKeys(rt, args[0].asNumber());
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getNotificationsOneTimeKeys(rt, args[0].asNumber());
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndPublishNotificationsPrekey(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->generateAndPublishNotificationsPrekey(rt);
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getCodeVersion(rt);
@@ -114,7 +120,9 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["processThreadStoreOperationsSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperationsSync};
   methodMap_["initializeCryptoAccount"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
-  methodMap_["getUserOneTimeKeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
+  methodMap_["getPrimaryOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTimeKeys};
+  methodMap_["getNotificationsOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys};
+  methodMap_["generateAndPublishNotificationsPrekey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndPublishNotificationsPrekey};
   methodMap_["getCodeVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion};
   methodMap_["terminate"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_terminate};
   methodMap_["setNotifyToken"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setNotifyToken};
