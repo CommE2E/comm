@@ -1002,7 +1002,27 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
+jsi::Object parseOLMOneTimeKeys(jsi::Runtime &rt, std::string oneTimeKeysBlob) {
+  folly::dynamic parsedOneTimeKeys = folly::parseJson(oneTimeKeysBlob);
+
+  auto jsiOneTimeKeys = jsi::Object(rt);
+  auto jsiOneTimeKeysInner = jsi::Object(rt);
+
+  for (auto &kvPair : parsedOneTimeKeys["curve25519"].items()) {
+    jsiOneTimeKeysInner.setProperty(
+        rt,
+        kvPair.first.asString().c_str(),
+        jsi::String::createFromUtf8(rt, kvPair.second.asString()));
+  }
+
+  jsiOneTimeKeys.setProperty(rt, "curve25519", jsiOneTimeKeysInner);
+
+  return jsiOneTimeKeys;
+}
+
+jsi::Value CommCoreModule::getPrimaryOneTimeKeys(
+    jsi::Runtime &rt,
+    double oneTimeKeysAmount) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -1011,14 +1031,96 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
           if (this->cryptoModule == nullptr) {
             error = "user has not been initialized";
           } else {
-            result = this->cryptoModule->getOneTimeKeys();
+            result = this->cryptoModule->getOneTimeKeys(oneTimeKeysAmount);
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+            promise->resolve(parseOLMOneTimeKeys(innerRt, result));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Value CommCoreModule::initializeNotificationsSession(
+    jsi::Runtime &rt,
+    jsi::String identityKeys,
+    jsi::String prekey,
+    jsi::String oneTimeKeys) {
+  auto identityKeysCpp{identityKeys.utf8(rt)};
+  auto prekeyCpp{prekey.utf8(rt)};
+  auto oneTimeKeysCpp{oneTimeKeys.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          try {
+            NotificationsCryptoModule::initializeNotificationsSession(
+                identityKeysCpp, prekeyCpp, oneTimeKeysCpp, "Comm");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::Value::undefined());
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          bool result;
+          try {
+            result =
+                NotificationsCryptoModule::isNotificationsSessionInitialized(
+                    "Comm");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(result);
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Value
+CommCoreModule::generateInitialNotificationsEncryptedMessage(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          crypto::EncryptedData result;
+          try {
+            result = NotificationsCryptoModule::generateInitialEncryptedMessage(
+                "Comm");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::String::createFromUtf8(
+                innerRt,
+                std::string{result.message.begin(), result.message.end()}));
           });
         };
         this->cryptoThread->scheduleTask(job);
