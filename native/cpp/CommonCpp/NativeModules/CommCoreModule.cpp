@@ -953,7 +953,27 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
+jsi::Object parseOLMOneTimeKeys(jsi::Runtime &rt, std::string oneTimeKeysBlob) {
+  folly::dynamic parsedOneTimeKeys = folly::parseJson(oneTimeKeysBlob);
+
+  auto jsiOneTimeKeys = jsi::Object(rt);
+  auto jsiOneTimeKeysInner = jsi::Object(rt);
+
+  for (auto &kvPair : parsedOneTimeKeys["curve25519"].items()) {
+    jsiOneTimeKeysInner.setProperty(
+        rt,
+        kvPair.first.asString().c_str(),
+        jsi::String::createFromUtf8(rt, kvPair.second.asString()));
+  }
+
+  jsiOneTimeKeys.setProperty(rt, "curve25519", jsiOneTimeKeysInner);
+
+  return jsiOneTimeKeys;
+}
+
+jsi::Value CommCoreModule::getPrimaryOneTimeKeys(
+    jsi::Runtime &rt,
+    double oneTimeKeysAmount) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -962,14 +982,89 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
           if (this->cryptoModule == nullptr) {
             error = "user has not been initialized";
           } else {
-            result = this->cryptoModule->getOneTimeKeys();
+            result = this->cryptoModule->getOneTimeKeys(oneTimeKeysAmount);
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+            promise->resolve(parseOLMOneTimeKeys(innerRt, result));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Value CommCoreModule::getNotificationsOneTimeKeys(
+    jsi::Runtime &rt,
+    double oneTimeKeysAmount) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string result;
+          std::string error;
+
+          try {
+            result = NotificationsCryptoModule::getNotificationsOneTimeKeys(
+                oneTimeKeysAmount, "Comm");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(parseOLMOneTimeKeys(innerRt, result));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Object parseOLMPrekey(jsi::Runtime &rt, std::string prekeyBlob) {
+  folly::dynamic parsedPrekey = folly::parseJson(prekeyBlob);
+
+  std::string prekeyId =
+      parsedPrekey["curve25519"].items().begin()->first.asString();
+  std::string prekeyValue =
+      parsedPrekey["curve25519"].items().begin()->second.asString();
+
+  auto jsiPrekey = jsi::Object(rt);
+  auto jsiPrekeyInner = jsi::Object(rt);
+
+  jsiPrekeyInner.setProperty(
+      rt, "id", jsi::String::createFromUtf8(rt, prekeyId));
+  jsiPrekeyInner.setProperty(
+      rt, "key", jsi::String::createFromUtf8(rt, prekeyValue));
+  jsiPrekey.setProperty(rt, "curve25519", jsiPrekeyInner);
+
+  return jsiPrekey;
+}
+
+jsi::Value
+CommCoreModule::generateAndPublishNotificationsPrekey(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string result;
+          std::string error;
+
+          try {
+            result = NotificationsCryptoModule::
+                generateAndPublishNotificationsPrekey("Comm");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(parseOLMPrekey(innerRt, result));
           });
         };
         this->cryptoThread->scheduleTask(job);
