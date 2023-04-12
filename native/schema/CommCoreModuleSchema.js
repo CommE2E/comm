@@ -5,6 +5,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
+import type { OLMOneTimeKeys, OLMPrekey } from 'lib/types/crypto-types';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type {
   ClientDBMessageInfo,
@@ -54,7 +55,13 @@ export interface Spec extends TurboModule {
   ) => void;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
-  +getUserOneTimeKeys: () => Promise<string>;
+  +getPrimaryOneTimeKeys: (
+    oneTimeKeysAmount: number,
+  ) => Promise<OLMOneTimeKeys>;
+  +getNotificationsOneTimeKeys: (
+    oneTimeKeysAmount: number,
+  ) => Promise<OLMOneTimeKeys>;
+  +generateNotificationsPrekey: () => Promise<OLMPrekey>;
   +getCodeVersion: () => number;
   +terminate: () => void;
   +setNotifyToken: (token: string) => Promise<void>;
