@@ -1,7 +1,6 @@
 // @flow
 
 import invariant from 'invariant';
-import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import ashoat from 'lib/facts/ashoat.js';
@@ -46,7 +45,6 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers.js';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import { createNewUserCookie, setNewSession } from '../session/cookies.js';
 import { createScriptViewer } from '../session/scripts.js';
 import type { Viewer } from '../session/viewer.js';
@@ -192,19 +190,6 @@ async function createAccount(
     ...privateThreadResult.newMessageInfos,
     ...messageInfos,
   ];
-
-  if (signedIdentityKeysBlob) {
-    handleAsyncPromise(
-      (async () => {
-        const rustAPI = await getRustAPI();
-        await rustAPI.registerUser(
-          request.username,
-          request.password,
-          signedIdentityKeysBlob,
-        );
-      })(),
-    );
-  }
 
   return {
     id,
