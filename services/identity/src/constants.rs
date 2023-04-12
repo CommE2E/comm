@@ -109,3 +109,7 @@ pub const NONCE_LENGTH: usize = 17;
 // LocalStack
 
 pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
+
+// Reserved usernames list
+
+pub const RESERVED_USERNAMES_JSON: &str = "reserved_usernames.json";
