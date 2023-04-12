@@ -50,7 +50,18 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Array operations) override;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
-  virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override;
+  virtual jsi::Value initializeNotificationsSession(
+      jsi::Runtime &rt,
+      jsi::String identityKeys,
+      jsi::String prekey,
+      jsi::String prekeySignature,
+      jsi::String oneTimeKeys) override;
+  virtual jsi::Value
+  isNotificationsSessionInitialized(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  generateInitialNotificationsEncryptedMessage(jsi::Runtime &rt) override;
   virtual void terminate(jsi::Runtime &rt) override;
   virtual double getCodeVersion(jsi::Runtime &rt) override;
   virtual jsi::Value
