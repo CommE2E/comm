@@ -21,6 +21,7 @@ import type { ThreadSettingsParams } from '../chat/settings/thread-settings.reac
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js';
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
+import type { EmojiAvatarCreationParams } from '../components/emoji-avatar-creation.react.js';
 import type { CameraModalParams } from '../media/camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
@@ -128,6 +129,7 @@ export type ChatParamList = {
   +MessageList: MessageListParams,
   +ComposeSubchannel: ComposeSubchannelParams,
   +ThreadSettings: ThreadSettingsParams,
+  +EmojiAvatarCreation: EmojiAvatarCreationParams,
   +DeleteThread: DeleteThreadParams,
   +FullScreenThreadMediaGallery: FullScreenThreadMediaGalleryParams,
 };
@@ -139,7 +141,7 @@ export type ChatTopTabsParamList = {
 
 export type ProfileParamList = {
   +ProfileScreen: void,
-  +EmojiAvatarCreation: void,
+  +EmojiAvatarCreation: EmojiAvatarCreationParams,
   +EditPassword: void,
   +DeleteAccount: void,
   +BuildInfo: void,
