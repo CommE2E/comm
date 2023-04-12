@@ -2,7 +2,7 @@ pub mod constants;
 pub mod cxx_bridge;
 pub mod notifications;
 pub mod server;
-mod websockets;
+pub mod websockets;
 use std::io;
 use tracing;
 
