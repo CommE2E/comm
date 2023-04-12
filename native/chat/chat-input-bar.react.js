@@ -162,12 +162,14 @@ type Props = {
     messageID: string,
     text: string,
   ) => Promise<SendEditMessageResponse>,
+  +navigation: ?ChatNavigationProp<'MessageList'>,
 };
 type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
   +selectionState: SyncedSelectionData,
+  +isExitingEditMode: boolean,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
@@ -185,6 +187,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   targetSendButtonContainerOpen: Value;
   sendButtonContainerStyle: AnimatedViewStyle;
 
+  currentBeforeRemoveListener: () => void;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -192,6 +196,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       textEdited: false,
       buttonsExpanded: true,
       selectionState: { text: props.draft, selection: { start: 0, end: 0 } },
+      isExitingEditMode: false,
     };
 
     this.setUpActionIconAnimations();
@@ -329,11 +334,20 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.props.isActive) {
       this.addEditInputMessageListener();
     }
+    if (this.props.navigation) {
+      this.currentBeforeRemoveListener = this.props.navigation.addListener(
+        'beforeRemove',
+        this.onNavigationBeforeRemove,
+      );
+    }
   }
 
   componentWillUnmount() {
     if (this.props.isActive) {
       this.removeEditInputMessageListener();
+    }
+    if (this.currentBeforeRemoveListener) {
+      this.currentBeforeRemoveListener();
     }
   }
 
@@ -701,7 +715,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   updateText = (text: string) => {
     this.setState({ text, textEdited: true });
-    if (this.isEditMode()) {
+    if (this.isEditMode() || this.state.isExitingEditMode) {
       return;
     }
     this.saveDraft(text);
@@ -867,6 +881,43 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.focusAndUpdateButtonsVisibility();
       this.updateSendButton(this.props.draft);
     });
+  };
+
+  onNavigationBeforeRemove = e => {
+    if (!this.isEditMode()) {
+      return;
+    }
+    const { action } = e.data;
+    e.preventDefault();
+    const saveExit = () => {
+      this.props.inputState?.setEditedMessage(null, () => {
+        this.setState({ isExitingEditMode: true }, () => {
+          if (!this.props.navigation) {
+            return;
+          }
+          this.props.navigation.dispatch(action);
+        });
+      });
+    };
+    if (!this.isMessageEdited()) {
+      saveExit();
+      return;
+    }
+    Alert.alert(
+      'Discard changes?',
+      'You have unsaved changes. Are you sure to discard them and leave the ' +
+        'screen?',
+      [
+        { text: "Don't leave", style: 'cancel' },
+        {
+          text: 'Discard edit',
+          style: 'destructive',
+          onPress: () => {
+            saveExit();
+          },
+        },
+      ],
+    );
   };
 
   onPressJoin = () => {
@@ -1050,6 +1101,7 @@ type ConnectedChatInputBarBaseProps = {
   ...BaseProps,
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
   +openCamera: () => mixed,
+  +navigation?: ChatNavigationProp<'MessageList'>,
 };
 function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const navContext = React.useContext(NavContext);
@@ -1133,6 +1185,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
       editMessage={editMessage}
+      navigation={props.navigation}
     />
   );
 }
@@ -1244,6 +1297,7 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
         {...restProps}
         onInputBarLayout={onInputBarLayout}
         openCamera={openCamera}
+        navigation={navigation}
       />
     );
   });
