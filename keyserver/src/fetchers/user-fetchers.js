@@ -1,5 +1,7 @@
 // @flow
 
+import invariant from 'invariant';
+
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import {
@@ -21,6 +23,7 @@ import type {
 } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import { getUploadURL } from './upload-fetchers.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { Viewer } from '../session/viewer.js';
 
@@ -32,9 +35,12 @@ async function fetchUserInfos(
   }
 
   const query = SQL`
-    SELECT id, username, avatar
-    FROM users
-    WHERE id IN (${userIDs})
+    SELECT u.id, u.username, u.avatar,
+      up.id AS upload_id, up.secret AS upload_secret
+    FROM users u
+    LEFT JOIN uploads up
+      ON up.container = u.id
+    WHERE u.id IN (${userIDs})
   `;
   const [result] = await dbQuery(query);
 
@@ -43,9 +49,25 @@ async function fetchUserInfos(
     const id = row.id.toString();
     const avatar: ?AvatarDBContent = row.avatar ? JSON.parse(row.avatar) : null;
 
-    // TODO: Handle construction of `ClientImageAvatar` when `type === 'image'`
-    const clientAvatar: ?ClientAvatar =
-      avatar && avatar.type !== 'image' ? avatar : null;
+    let clientAvatar: ?ClientAvatar;
+    if (avatar && avatar.type !== 'image') {
+      clientAvatar = avatar;
+    } else if (
+      avatar &&
+      avatar.type === 'image' &&
+      row.upload_id &&
+      row.upload_secret
+    ) {
+      const uploadID = row.upload_id.toString();
+      invariant(
+        uploadID === avatar.uploadID,
+        'uploadID of upload should match uploadID of image avatar',
+      );
+      clientAvatar = {
+        type: 'image',
+        uri: getUploadURL(uploadID, row.upload_secret),
+      };
+    }
 
     userInfos[id] = clientAvatar
       ? {
@@ -84,7 +106,8 @@ async function fetchKnownUserInfos(
 
   const query = SQL`
     SELECT ru.user1, ru.user2, u.username, u.avatar, ru.status AS undirected_status,
-      rd1.status AS user1_directed_status, rd2.status AS user2_directed_status
+      rd1.status AS user1_directed_status, rd2.status AS user2_directed_status,
+      up.id AS upload_id, up.secret AS upload_secret
     FROM relationships_undirected ru
     LEFT JOIN relationships_directed rd1
       ON rd1.user1 = ru.user1 AND rd1.user2 = ru.user2
@@ -92,6 +115,9 @@ async function fetchKnownUserInfos(
       ON rd2.user1 = ru.user2 AND rd2.user2 = ru.user1
     LEFT JOIN users u
       ON u.id != ${viewer.userID} AND (u.id = ru.user1 OR u.id = ru.user2)
+    LEFT JOIN uploads up
+      ON up.container != ${viewer.userID}
+        AND (up.container = ru.user1 OR up.container = ru.user2)
   `;
   if (userIDs) {
     query.append(SQL`
@@ -104,12 +130,15 @@ async function fetchKnownUserInfos(
     `);
   }
   query.append(SQL`
-    UNION SELECT id AS user1, NULL AS user2, username, avatar,
+    UNION SELECT u.id AS user1, NULL AS user2, u.username, u.avatar,
       CAST(NULL AS UNSIGNED) AS undirected_status,
       CAST(NULL AS UNSIGNED) AS user1_directed_status,
-      CAST(NULL AS UNSIGNED) AS user2_directed_status
-    FROM users
-    WHERE id = ${viewer.userID}
+      CAST(NULL AS UNSIGNED) AS user2_directed_status,
+      up.id AS upload_id, up.secret AS upload_secret
+    FROM users u
+    LEFT JOIN uploads up
+      ON up.container = u.id
+    WHERE u.id = ${viewer.userID}
   `);
   const [result] = await dbQuery(query);
 
@@ -121,9 +150,25 @@ async function fetchKnownUserInfos(
 
     const avatar: ?AvatarDBContent = row.avatar ? JSON.parse(row.avatar) : null;
 
-    // TODO: Handle construction of `ClientImageAvatar` when `type === 'image'`
-    const clientAvatar: ?ClientAvatar =
-      avatar && avatar.type !== 'image' ? avatar : null;
+    let clientAvatar: ?ClientAvatar;
+    if (avatar && avatar.type !== 'image') {
+      clientAvatar = avatar;
+    } else if (
+      avatar &&
+      avatar.type === 'image' &&
+      row.upload_id &&
+      row.upload_secret
+    ) {
+      const uploadID = row.upload_id.toString();
+      invariant(
+        uploadID === avatar.uploadID,
+        'uploadID of upload should match uploadID of image avatar',
+      );
+      clientAvatar = {
+        type: 'image',
+        uri: getUploadURL(uploadID, row.upload_secret),
+      };
+    }
 
     const userInfo = clientAvatar
       ? {
@@ -229,9 +274,12 @@ async function fetchLoggedInUserInfo(
   viewer: Viewer,
 ): Promise<OldLoggedInUserInfo | LoggedInUserInfo> {
   const userQuery = SQL`
-    SELECT id, username, avatar
-    FROM users
-    WHERE id = ${viewer.userID}
+    SELECT u.id, u.username, u.avatar,
+      up.id AS upload_id, up.secret AS upload_secret
+    FROM users u
+    LEFT JOIN uploads up
+      ON up.container = u.id
+    WHERE u.id = ${viewer.userID}
   `;
 
   const settingsQuery = SQL`
@@ -257,7 +305,7 @@ async function fetchLoggedInUserInfo(
   }
 
   const id = userRow.id.toString();
-  const { username, avatar } = userRow;
+  const { username, upload_id, upload_secret } = userRow;
 
   if (stillExpectsEmailFields) {
     return {
@@ -273,8 +321,27 @@ async function fetchLoggedInUserInfo(
     username,
   };
 
+  const avatar: ?AvatarDBContent = userRow.avatar
+    ? JSON.parse(userRow.avatar)
+    : null;
+
+  let clientAvatar: ?ClientAvatar;
+  if (avatar && avatar.type !== 'image') {
+    clientAvatar = avatar;
+  } else if (avatar && avatar.type === 'image' && upload_id && upload_secret) {
+    const uploadID = upload_id.toString();
+    invariant(
+      uploadID === avatar.uploadID,
+      'uploadID of upload should match uploadID of image avatar',
+    );
+    clientAvatar = {
+      type: 'image',
+      uri: getUploadURL(uploadID, upload_secret),
+    };
+  }
+
   if (avatar) {
-    loggedInUserInfo = { ...loggedInUserInfo, avatar: JSON.parse(avatar) };
+    loggedInUserInfo = { ...loggedInUserInfo, avatar: clientAvatar };
   }
 
   const featureGateSettings = !hasMinCodeVersion(viewer.platformDetails, 1000);
