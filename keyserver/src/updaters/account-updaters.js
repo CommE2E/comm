@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 
 import type {
@@ -18,6 +19,7 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
+import { getUploadURL } from '../fetchers/upload-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 
 async function accountUpdater(
@@ -148,15 +150,35 @@ async function updateUserAvatar(
       );
 
     COMMIT;
+
+    SELECT id AS upload_id, secret AS upload_secret
+    FROM uploads
+      WHERE id = ${mediaID}
+        AND uploader = ${viewer.userID}
+        AND container = ${viewer.userID};
   `;
 
-  await dbQuery(query, { multipleStatements: true });
+  const [resultSet] = await dbQuery(query, { multipleStatements: true });
+  const selectResult = resultSet.pop();
 
-  if (request.type === 'remove' || request.type === 'image') {
-    // TODO: Handle construction of `ClientImageAvatar` when `type === 'image'`
+  if (request.type === 'remove') {
     return null;
+  } else if (request.type !== 'image') {
+    return request;
+  } else {
+    const [{ upload_id, upload_secret }] = selectResult;
+
+    const uploadID = upload_id.toString();
+    invariant(
+      uploadID === request.uploadID,
+      'uploadID of upload should match uploadID of UpdateUserAvatarRequest',
+    );
+
+    return {
+      type: 'image',
+      uri: getUploadURL(uploadID, upload_secret),
+    };
   }
-  return request;
 }
 
 export {
