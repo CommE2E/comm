@@ -4,30 +4,26 @@ import * as React from 'react';
 import { View, Text, TouchableWithoutFeedback } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 
+import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 import type { ClientEmojiAvatar } from 'lib/types/avatar-types.js';
 
-import type { ProfileNavigationProp } from './profile.react.js';
 import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorRows from '../components/color-rows.react.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
-export type EmojiAvatarCreationParams = {
-  +emojiAvatarInfo: ClientEmojiAvatar,
-};
+function EmojiAvatarCreation(): React.Node {
+  const savedEmojiAvatarFunc = useSelector(
+    savedEmojiAvatarSelectorForCurrentUser,
+  );
 
-type Props = {
-  +navigation: ProfileNavigationProp<'EmojiAvatarCreation'>,
-  +route: NavigationRoute<'EmojiAvatarCreation'>,
-};
-
-function EmojiAvatarCreation(props: Props): React.Node {
-  const { emoji: initalEmoji, color: initialColor } =
-    props.route.params.emojiAvatarInfo;
-
-  const [pendingEmoji, setPendingEmoji] = React.useState<string>(initalEmoji);
-  const [pendingColor, setPendingColor] = React.useState<string>(initialColor);
+  const [pendingEmoji, setPendingEmoji] = React.useState<string>(
+    () => savedEmojiAvatarFunc().emoji,
+  );
+  const [pendingColor, setPendingColor] = React.useState<string>(
+    () => savedEmojiAvatarFunc().color,
+  );
   const [emojiKeyboardOpen, setEmojiKeyboardOpen] =
     React.useState<boolean>(false);
 
@@ -42,9 +38,11 @@ function EmojiAvatarCreation(props: Props): React.Node {
   }, []);
 
   const onPressReset = React.useCallback(() => {
-    setPendingEmoji(initalEmoji);
-    setPendingColor(initialColor);
-  }, [initalEmoji, initialColor]);
+    const resetEmojiAvatar = savedEmojiAvatarFunc();
+
+    setPendingEmoji(resetEmojiAvatar.emoji);
+    setPendingColor(resetEmojiAvatar.color);
+  }, [savedEmojiAvatarFunc]);
 
   const onEmojiSelected = React.useCallback(emoji => {
     setPendingEmoji(emoji.emoji);
