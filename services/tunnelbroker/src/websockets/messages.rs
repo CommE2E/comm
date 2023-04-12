@@ -10,6 +10,7 @@
 //   rpc MessagesStream(stream MessageToTunnelbroker) returns (stream MessageToClient) {}
 // }
 
+use serde::{Deserialize, Serialize};
 // Session
 pub struct SessionSignatureRequest {
   pub device_id: String,
@@ -18,12 +19,16 @@ pub struct SessionSignatureResponse {
   pub to_sign: String,
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum DeviceTypes {
   Mobile,
   Web,
   Keyserver,
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SessionRequest {
   pub device_id: String,
   pub public_key: String,
