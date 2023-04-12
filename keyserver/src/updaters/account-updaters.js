@@ -1,6 +1,5 @@
 // @flow
 
-import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import type {
@@ -19,7 +18,6 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 
 async function accountUpdater(
@@ -54,12 +52,6 @@ async function accountUpdater(
     UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
   `;
   await dbQuery(saveQuery);
-  handleAsyncPromise(
-    (async () => {
-      const rustApi = await getRustAPI();
-      await rustApi.updateUser(viewer.userID, newPassword);
-    })(),
-  );
 
   const updateDatas = [
     {

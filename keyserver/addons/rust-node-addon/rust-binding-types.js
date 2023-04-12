@@ -15,34 +15,12 @@ declare class TunnelbrokerClientClass {
   publish(toDeviceId: string, payload: string): Promise<void>;
 }
 
-type UserComparisonResult = {
-  +usersMissingFromKeyserver: $ReadOnlyArray<string>,
-  +usersMissingFromIdentity: $ReadOnlyArray<string>,
-};
-
 type RustNativeBindingAPI = {
   +registerUser: (
     username: string,
     password: string,
     signedIdentityKeysBlob: SignedIdentityKeysBlob,
   ) => Promise<boolean>,
-  +loginUserPake: (
-    userId: string,
-    signingPublicKey: string,
-    password: string,
-    sessionInitializationInfo: SignedIdentityKeysBlob,
-  ) => Promise<string>,
-  +loginUserWallet: (
-    siweMessage: string,
-    siweSignature: string,
-    signedIdentityKeysBlob: SignedIdentityKeysBlob,
-    socialProof: ?string,
-  ) => Promise<boolean>,
-  +deleteUser: (userId: string) => Promise<boolean>,
-  +updateUser: (userId: string, password: string) => Promise<string>,
-  +compareUsers: (
-    userIds: $ReadOnlyArray<string>,
-  ) => Promise<UserComparisonResult>,
   +TunnelbrokerClient: Class<TunnelbrokerClientClass>,
 };
 

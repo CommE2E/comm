@@ -1,6 +1,5 @@
 // @flow
 
-import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import type {
@@ -101,12 +100,6 @@ async function deleteAccount(
     });
   }
   const { anonymousViewerData } = await promiseAll(promises);
-  handleAsyncPromise(
-    (async () => {
-      const rustAPI = await getRustAPI();
-      await rustAPI.deleteUser(deletedUserID);
-    })(),
-  );
   if (anonymousViewerData) {
     viewer.setNewCookie(anonymousViewerData);
   }

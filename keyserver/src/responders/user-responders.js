@@ -2,7 +2,6 @@
 
 import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
-import { getRustAPI } from 'rust-node-addon';
 import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
@@ -75,7 +74,6 @@ import {
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
-import { handleAsyncPromise } from './handlers.js';
 import {
   createAccount,
   processSIWEAccountCreation,
@@ -431,33 +429,6 @@ async function logInResponder(
 
   const id = userRow.id.toString();
 
-  if (identityKeys && signedIdentityKeysBlob) {
-    const constIdentityKeys = identityKeys;
-    handleAsyncPromise(
-      (async () => {
-        const rustAPI = await getRustAPI();
-        try {
-          await rustAPI.loginUserPake(
-            id,
-            constIdentityKeys.primaryIdentityPublicKeys.ed25519,
-            request.password,
-            signedIdentityKeysBlob,
-          );
-        } catch (e) {
-          if (e.code === 'InvalidArg' && e.message === 'user not found') {
-            await rustAPI.registerUser(
-              username,
-              request.password,
-              signedIdentityKeysBlob,
-            );
-          } else {
-            throw e;
-          }
-        }
-      })(),
-    );
-  }
-
   return await processSuccessfulLogin({
     viewer,
     input,
@@ -591,22 +562,7 @@ async function siweAuthResponder(
     );
   }
 
-  // 9. Try to double-write SIWE account info to the Identity service.
-  if (identityKeys && signedIdentityKeysBlob) {
-    handleAsyncPromise(
-      (async () => {
-        const rustAPI = await getRustAPI();
-        await rustAPI.loginUserWallet(
-          siweMessage.toMessage(),
-          signature,
-          signedIdentityKeysBlob,
-          JSON.stringify(socialProof),
-        );
-      })(),
-    );
-  }
-
-  // 10. Complete login with call to `processSuccessfulLogin(...)`.
+  // 9. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin({
     viewer,
     input,
