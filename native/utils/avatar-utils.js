@@ -4,6 +4,10 @@ import * as React from 'react';
 import { Alert } from 'react-native';
 
 import {
+  changeThreadSettings,
+  changeThreadSettingsActionTypes,
+} from 'lib/actions/thread-actions.js';
+import {
   updateUserAvatar,
   updateUserAvatarActionTypes,
 } from 'lib/actions/user-actions.js';
@@ -56,4 +60,45 @@ function useSaveUserAvatar(): (
   );
 }
 
-export { useShouldRenderAvatars, useSaveUserAvatar };
+function useSaveThreadAvatar(): (
+  newEmojiAvatarRequest: ClientEmojiAvatar,
+  threadID: string,
+) => mixed {
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return React.useCallback(
+    (newEmojiAvatarRequest, threadID) => {
+      const saveAvatarPromise = (async () => {
+        try {
+          const response = await callChangeThreadSettings({
+            threadID,
+            changes: { avatar: newEmojiAvatarRequest },
+          });
+          displayActionResultModal('Avatar updated!');
+
+          return response;
+        } catch (e) {
+          Alert.alert(
+            'Couldn’t save avatar',
+            'Please try again later',
+            [{ text: 'OK' }],
+            {
+              cancelable: true,
+            },
+          );
+          throw e;
+        }
+      })();
+
+      dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        saveAvatarPromise,
+        { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
+      );
+    },
+    [callChangeThreadSettings, dispatchActionPromise],
+  );
+}
+
+export { useShouldRenderAvatars, useSaveUserAvatar, useSaveThreadAvatar };
