@@ -1172,6 +1172,7 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
   ) {
     const { navigation, route, ...restProps } = props;
     const keyboardState = React.useContext(KeyboardContext);
+    const inputState = React.useContext(InputStateContext);
 
     const { threadInfo } = props;
     const imagePastedCallback = React.useCallback(
@@ -1209,6 +1210,34 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
       );
       return () => imagePasteListener.remove();
     }, [imagePastedCallback]);
+
+    const idEditState = inputState?.editState.editedMessageID;
+    React.useEffect(
+      () =>
+        navigation.addListener('beforeRemove', e => {
+          const action = e.data.action;
+          if (!idEditState) {
+            return;
+          }
+          e.preventDefault();
+          Alert.alert(
+            'Discard changes?',
+            'You have unsaved changes. Are you sure to discard them and leave the screen?',
+            [
+              { text: "Don't leave", style: 'cancel' },
+              {
+                text: 'Discard edit',
+                style: 'destructive',
+                onPress: () => {
+                  inputState?.setEditedMessageID(null);
+                  navigation.dispatch(action);
+                },
+              },
+            ],
+          );
+        }),
+      [idEditState, inputState, navigation],
+    );
 
     const chatContext = React.useContext(ChatContext);
     invariant(chatContext, 'should be set');
