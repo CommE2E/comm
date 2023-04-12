@@ -403,6 +403,17 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
+  pub async fn username_available(
+    &self,
+    username: String,
+  ) -> Result<bool, Error> {
+    let result = self
+      .get_user_id_from_user_info(username, AuthType::Password)
+      .await?;
+
+    Ok(result.is_none())
+  }
+
   pub async fn get_user_id_from_user_info(
     &self,
     user_info: String,
