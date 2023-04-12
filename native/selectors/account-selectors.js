@@ -31,9 +31,20 @@ const nativeLogInExtraInfoSelector: (
         payload: blobPayload,
         signature,
       };
+      const [notificationsPrekey, notificationsOneTimeKeys] = await Promise.all(
+        [
+          commCoreModule.generateNotificationsPrekey(),
+          commCoreModule.getNotificationsOneTimeKeys(1),
+        ],
+      );
+      const notificationsSessionInitializationKeys = {
+        prekey: notificationsPrekey,
+        oneTimeKeysBatch: notificationsOneTimeKeys,
+      };
       return {
         ...logInExtraInfoFunc(calendarActive),
         signedIdentityKeysBlob,
+        notificationsSessionInitializationKeys,
       };
     };
     return loginExtraFuncWithIdentityKey;
