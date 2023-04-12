@@ -34,7 +34,10 @@ public:
   virtual void processThreadStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
-  virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
+  virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String oneTimeKeys) = 0;
+  virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
+  virtual jsi::Value generateInitialNotificationsEncryptedMessage(jsi::Runtime &rt) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
   virtual jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) = 0;
@@ -180,13 +183,37 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getUserPublicKey, jsInvoker_, instance_);
     }
-    jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override {
+    jsi::Value getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override {
       static_assert(
-          bridging::getParameterCount(&T::getUserOneTimeKeys) == 1,
-          "Expected getUserOneTimeKeys(...) to have 1 parameters");
+          bridging::getParameterCount(&T::getPrimaryOneTimeKeys) == 2,
+          "Expected getPrimaryOneTimeKeys(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getUserOneTimeKeys, jsInvoker_, instance_);
+          rt, &T::getPrimaryOneTimeKeys, jsInvoker_, instance_, std::move(oneTimeKeysAmount));
+    }
+    jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String oneTimeKeys) override {
+      static_assert(
+          bridging::getParameterCount(&T::initializeNotificationsSession) == 4,
+          "Expected initializeNotificationsSession(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::initializeNotificationsSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(oneTimeKeys));
+    }
+    jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::isNotificationsSessionInitialized) == 1,
+          "Expected isNotificationsSessionInitialized(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::isNotificationsSessionInitialized, jsInvoker_, instance_);
+    }
+    jsi::Value generateInitialNotificationsEncryptedMessage(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::generateInitialNotificationsEncryptedMessage) == 1,
+          "Expected generateInitialNotificationsEncryptedMessage(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::generateInitialNotificationsEncryptedMessage, jsInvoker_, instance_);
     }
     double getCodeVersion(jsi::Runtime &rt) override {
       static_assert(
