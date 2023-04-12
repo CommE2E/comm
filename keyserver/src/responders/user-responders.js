@@ -49,6 +49,7 @@ import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import {
   identityKeysBlobValidator,
   signedIdentityKeysBlobValidator,
+  olmSessionInitializationKeysValidator,
 } from 'lib/utils/crypto-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -214,6 +215,9 @@ const registerRequestInputValidator = tShape({
   // old clients, but we no longer do anything with it.
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+  notificationsSessionInitializationKeys: t.maybe(
+    olmSessionInitializationKeysValidator,
+  ),
 });
 
 async function accountCreationResponder(
@@ -361,6 +365,9 @@ const logInRequestInputValidator = tShape({
   // old clients, but we no longer do anything with it.
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+  notificationsSessionInitializationKeys: t.maybe(
+    olmSessionInitializationKeysValidator,
+  ),
 });
 
 async function logInResponder(
@@ -446,6 +453,9 @@ const siweAuthRequestInputValidator = tShape({
   platformDetails: tPlatformDetails,
   watchedIDs: t.list(t.String),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+  notificationsSessionInitializationKeys: t.maybe(
+    olmSessionInitializationKeysValidator,
+  ),
 });
 
 async function siweAuthResponder(
