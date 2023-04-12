@@ -1,7 +1,6 @@
 use anyhow::Result;
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use blob::blob_service_server::BlobService;
-use chrono::Utc;
 use std::{net::SocketAddr, pin::Pin};
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
@@ -11,7 +10,7 @@ use tracing::{debug, error, info, instrument, trace, warn, Instrument};
 use crate::{
   config::CONFIG,
   constants::{
-    BLOB_S3_BUCKET_NAME, GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
+    GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
     MPSC_CHANNEL_BUFFER_CAPACITY, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
   },
   database::{BlobItem, DatabaseClient, Error as DBError, ReverseIndexItem},
@@ -347,14 +346,7 @@ impl PutHandler {
       // Hash doesn't exist, so we're starting a new upload session
       Ok(None) => {
         debug!("Blob not found, starting upload action");
-        self.action = Some(PutAction::UploadNewBlob(BlobItem {
-          blob_hash: blob_hash.to_string(),
-          s3_path: S3Path {
-            bucket_name: BLOB_S3_BUCKET_NAME.to_string(),
-            object_name: blob_hash.to_string(),
-          },
-          created: Utc::now(),
-        }));
+        self.action = Some(PutAction::UploadNewBlob(BlobItem::new(blob_hash)));
         Ok(blob::PutResponse { data_exists: false })
       }
       Err(db_err) => {
