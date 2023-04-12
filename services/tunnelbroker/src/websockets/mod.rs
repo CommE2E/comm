@@ -1,3 +1,5 @@
+pub mod messages;
+
 use std::{env, io::Error};
 
 use tokio::net::{TcpListener, TcpStream};
