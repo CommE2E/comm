@@ -11,6 +11,7 @@ mod interceptor;
 mod keygen;
 mod nonce;
 mod token;
+mod utils;
 
 use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
