@@ -32,6 +32,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
+import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import {
   getTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
@@ -57,7 +58,10 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PhotoPaste } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types.js';
-import type { MessageInfo } from 'lib/types/message-types.js';
+import type {
+  SendEditMessageResponse,
+  MessageInfo,
+} from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import {
   type ThreadInfo,
@@ -154,6 +158,10 @@ type Props = {
   +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
+  +editMessage: (
+    messageID: string,
+    text: string,
+  ) => Promise<SendEditMessageResponse>,
 };
 type State = {
   +text: string,
@@ -753,6 +761,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (!trimMessage(this.state.text)) {
       return;
     }
+
+    const editedMessage = this.getEditedMessage();
+    if (editedMessage && editedMessage.id) {
+      this.editMessage(editedMessage.id, this.state.text);
+      return;
+    }
+
     this.updateSendButton('');
 
     const { clearableTextInput } = this;
@@ -798,6 +813,32 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     text = trimMessage(text);
     const originalText = this.props.editedMessageInfo?.text;
     return text !== originalText;
+  };
+
+  editMessage = async (messageID: string, text: string) => {
+    if (!this.isMessageEdited()) {
+      this.exitEditMode();
+      return;
+    }
+    text = trimMessage(text);
+    try {
+      await this.props.editMessage(messageID, text);
+      this.exitEditMode();
+    } catch (error) {
+      Alert.alert(
+        'Couldn’t edit the message',
+        'Please try again later',
+        [{ text: 'OK' }],
+        {
+          cancelable: true,
+        },
+      );
+    }
+  };
+
+  getEditedMessage = () => {
+    const editState = this.props.inputState?.editState;
+    return editState?.editedMessage;
   };
 
   onPressExitEditMode = () => {
@@ -1066,6 +1107,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     props.threadInfo,
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
+  const editMessage = useEditMessage();
 
   return (
     <ChatInputBar
@@ -1090,6 +1132,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       parentThreadInfo={parentThreadInfo}
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
+      editMessage={editMessage}
     />
   );
 }
