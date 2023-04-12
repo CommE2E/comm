@@ -125,12 +125,40 @@ async function updateUserAvatar(
   const newAvatarValue =
     request.type === 'remove' ? null : JSON.stringify(request);
 
+  const mediaID = request.type === 'image' ? request.uploadID : null;
+
   const query = SQL`
+    START TRANSACTION;
+
+    UPDATE uploads
+    SET container = NULL
+    WHERE uploader = ${viewer.userID}
+      AND container = ${viewer.userID};
+
+    UPDATE uploads
+    SET container = ${viewer.userID}
+    WHERE id = ${mediaID}
+      AND uploader = ${viewer.userID}
+      AND container IS NULL;
+      
     UPDATE users
     SET avatar = ${newAvatarValue}
-    WHERE id = ${viewer.userID}
+    WHERE id = ${viewer.userID} 
+      AND (
+        ${mediaID} IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM uploads
+          WHERE id = ${mediaID}
+            AND uploader = ${viewer.userID}
+            AND container = ${viewer.userID}
+        )
+      );
+
+    COMMIT;
   `;
-  await dbQuery(query);
+
+  await dbQuery(query, { multipleStatements: true });
 
   if (request.type === 'remove' || request.type === 'image') {
     // TODO: Handle construction of `ClientImageAvatar` when `type === 'image'`
