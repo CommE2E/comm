@@ -1,7 +1,7 @@
 use curve25519_dalek::ristretto::RistrettoPoint;
 use once_cell::sync::Lazy;
 use opaque_ke::{errors::PakeError, keypair::KeyPair};
-use std::{env, fmt, fs, io, path};
+use std::{collections::HashSet, env, fmt, fs, io, path};
 
 use crate::constants::{
   AUTH_TOKEN, LOCALSTACK_ENDPOINT, SECRETS_DIRECTORY, SECRETS_FILE_EXTENSION,
@@ -24,6 +24,8 @@ pub struct Config {
   pub localstack_endpoint: Option<String>,
   // Opaque 2.0 server secrets
   pub server_setup: comm_opaque2::ServerSetup<comm_opaque2::Cipher>,
+  // Reserved usernames
+  pub reserved_usernames: HashSet<String>,
 }
 
 impl Config {
@@ -42,11 +44,14 @@ impl Config {
     path.push(SECRETS_SETUP_FILE);
     let server_setup = get_server_setup_from_file(&path)?;
 
+    let reserved_usernames = get_reserved_usernames_set()?;
+
     Ok(Self {
       server_keypair,
       keyserver_auth_token,
       localstack_endpoint,
       server_setup,
+      reserved_usernames,
     })
   }
 }
@@ -71,6 +76,8 @@ pub enum Error {
   IO(io::Error),
   #[display(...)]
   Env(env::VarError),
+  #[display(...)]
+  JSON(serde_json::Error),
 }
 
 fn get_keypair_from_file<P: AsRef<path::Path>>(
@@ -86,4 +93,11 @@ fn get_server_setup_from_file<P: AsRef<path::Path>>(
 ) -> Result<comm_opaque2::ServerSetup<comm_opaque2::Cipher>, Error> {
   let bytes = fs::read(path)?;
   comm_opaque2::ServerSetup::deserialize(&bytes).map_err(Error::Opaque)
+}
+
+fn get_reserved_usernames_set() -> Result<HashSet<String>, Error> {
+  let contents = include_str!("../reserved_usernames.json");
+  let reserved_usernames: Vec<String> = serde_json::from_str(&contents)?;
+
+  Ok(reserved_usernames.into_iter().collect())
 }
