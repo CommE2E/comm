@@ -25,7 +25,6 @@ import type { CameraModalParams } from '../media/camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
-import type { EmojiAvatarCreationParams } from '../profile/emoji-avatar-creation.react.js';
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
@@ -140,7 +139,7 @@ export type ChatTopTabsParamList = {
 
 export type ProfileParamList = {
   +ProfileScreen: void,
-  +EmojiAvatarCreation: EmojiAvatarCreationParams,
+  +EmojiAvatarCreation: void,
   +EditPassword: void,
   +DeleteAccount: void,
   +BuildInfo: void,
