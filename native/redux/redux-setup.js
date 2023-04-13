@@ -269,19 +269,36 @@ function reducer(state: AppState = defaultState, action: Action) {
   } else if (action.type === updateThreadLastNavigatedActionType) {
     const { threadID, time } = action.payload;
     if (state.messageStore.threads[threadID]) {
+      const updatedThreads = {
+        [threadID]: {
+          ...state.messageStore.threads[threadID],
+          lastNavigatedTo: time,
+        },
+      };
+
       state = {
         ...state,
         messageStore: {
           ...state.messageStore,
           threads: {
             ...state.messageStore.threads,
-            [threadID]: {
-              ...state.messageStore.threads[threadID],
-              lastNavigatedTo: time,
-            },
+            ...updatedThreads,
           },
         },
       };
+
+      processDBStoreOperations({
+        draftStoreOperations: [],
+        messageStoreOperations: [
+          {
+            type: 'replace_threads',
+            payload: {
+              threads: updatedThreads,
+            },
+          },
+        ],
+        threadStoreOperations: [],
+      });
     }
     return state;
   }
