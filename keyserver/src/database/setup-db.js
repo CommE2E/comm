@@ -249,6 +249,11 @@ async function createTables() {
         processed_content mediumtext COLLATE utf8mb4_bin
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+      CREATE TABLE olm_notifications_sessions (
+        cookie_id bigint(20) NOT NULL,
+        pickled_olm_session text CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_bin;
+
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY device_token (device_token(512)),
@@ -368,6 +373,9 @@ async function createTables() {
       ALTER TABLE message_search
         ADD PRIMARY KEY (original_message_id),
         ADD FULLTEXT INDEX processed_content (processed_content);
+
+      ALTER TABLE olm_notifications_sessions
+        ADD PRIMARY KEY (cookie_id);
     `,
     { multipleStatements: true },
   );
