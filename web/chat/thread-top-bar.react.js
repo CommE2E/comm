@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { ChevronRight } from 'react-feather';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -10,6 +11,8 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
 import ThreadAvatar from '../components/thread-avatar.react.js';
+import { InputStateContext } from '../input/input-state.js';
+import ThreadPinnedMessagesModal from '../modals/chat/thread-pinned-messages-modal.react.js';
 import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type ThreadTopBarProps = {
@@ -17,6 +20,7 @@ type ThreadTopBarProps = {
 };
 function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const { threadInfo } = props;
+  const { pushModal } = useModalContext();
   const threadBackgroundColorStyle = React.useMemo(
     () => ({
       background: `#${threadInfo.color}`,
@@ -42,6 +46,18 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
     return `${threadInfo.pinnedCount} pinned ${messageNoun}`;
   }, [threadInfo.pinnedCount]);
 
+  const inputState = React.useContext(InputStateContext);
+  const pushThreadPinsModal = React.useCallback(() => {
+    pushModal(
+      <InputStateContext.Provider value={inputState}>
+        <ThreadPinnedMessagesModal
+          threadInfo={threadInfo}
+          modalName={bannerText}
+        />
+      </InputStateContext.Provider>,
+    );
+  }, [pushModal, inputState, threadInfo, bannerText]);
+
   const pinnedCountBanner = React.useMemo(() => {
     if (!bannerText) {
       return null;
@@ -49,13 +65,13 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
 
     return (
       <div className={css.pinnedCountBanner}>
-        <a className={css.pinnedCountText}>
+        <a className={css.pinnedCountText} onClick={pushThreadPinsModal}>
           {bannerText}
           <ChevronRight size={14} className={css.chevronRight} />
         </a>
       </div>
     );
-  }, [bannerText]);
+  }, [bannerText, pushThreadPinsModal]);
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
