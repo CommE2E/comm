@@ -6,10 +6,6 @@ steps:
       - 'cd services/tunnelbroker'
       - 'rm -rf target'
       - 'nix develop --accept-flake-config -c bash -c "cargo build && cargo test"'
-      - 'cd src/libcpp/test'
-      - 'rm -rf build'
-      - 'nix develop --accept-flake-config -c bash -c "cmake -B build . && make -C build -j"'
-      - 'build/runTests --gtest_filter="-AmqpManager*:DatabaseManager*"'
     retry:
       automatic: true
     agents:
