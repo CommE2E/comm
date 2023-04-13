@@ -2,10 +2,12 @@ pub mod config;
 pub mod constants;
 pub mod database;
 pub mod grpc;
+pub mod http;
 pub mod s3;
 pub mod tools;
 
 use anyhow::Result;
+use config::Protocol;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
 fn configure_logging() -> Result<()> {
@@ -28,5 +30,8 @@ async fn main() -> Result<()> {
   let db = database::DatabaseClient::new(&aws_config);
   let s3 = s3::S3Client::new(&aws_config);
 
-  crate::grpc::run_grpc_server(db, s3).await
+  match &config::CONFIG.protocol {
+    Protocol::Http => crate::http::run_http_server(db, s3).await,
+    Protocol::Grpc => crate::grpc::run_grpc_server(db, s3).await,
+  }
 }
