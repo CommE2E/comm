@@ -1,5 +1,5 @@
 use aws_sdk_dynamodb::Region;
-use clap::{builder::FalseyValueParser, Parser};
+use clap::{builder::FalseyValueParser, Parser, ValueEnum};
 use once_cell::sync::Lazy;
 use tracing::info;
 
@@ -7,9 +7,18 @@ use crate::constants::{
   AWS_REGION, DEFAULT_LISTEN_PORT, LOCALSTACK_URL, SANDBOX_ENV_VAR,
 };
 
+#[derive(ValueEnum, Clone, Debug)]
+pub enum Protocol {
+  Grpc,
+  Http,
+}
+
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct AppConfig {
+  /// Protocol to use for the service server
+  #[arg(long, value_enum, default_value_t = Protocol::Grpc)]
+  pub protocol: Protocol,
   /// HTTP/gRPC server listening port
   #[arg(long = "port", default_value_t = DEFAULT_LISTEN_PORT)]
   pub listen_port: u16,
