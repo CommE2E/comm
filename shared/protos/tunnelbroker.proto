@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package tunnelbroker;
+
+// gRPC service for Comm services (client) to issue requests to
+// tunnelbroker (server).
+//
+// Authentication between services are expected to be validated outside of the
+// RPC protocol.
+service TunnelbrokerService {
+  // Sends a stringified JSON payload to device
+  //
+  // Tunnelbroker will enqueue the message, and send it next time the device
+  // connects to tunnelbroker and flushes the queue.
+  rpc SendMessageToDevice(MessageToDevice) returns (Empty) {}
+}
+
+message Empty {}
+
+message MessageToDevice {
+  // The primary identity key of a device
+  string deviceID = 1;
+  // JSON encoded message. See shared/tunnelbroker_messages for valid payloads
+  string payload = 2;
+}
