@@ -127,13 +127,25 @@ async function updateUserAvatar(
     UPDATE uploads
     SET container = NULL
     WHERE uploader = ${viewer.userID}
-      AND container = ${viewer.userID};
+      AND container = ${viewer.userID}
+      AND (
+        ${mediaID} IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM uploads
+          WHERE id = ${mediaID}
+            AND uploader = ${viewer.userID}
+            AND container IS NULL
+            AND thread IS NULL
+        )
+      );
 
     UPDATE uploads
     SET container = ${viewer.userID}
     WHERE id = ${mediaID}
       AND uploader = ${viewer.userID}
-      AND container IS NULL;
+      AND container IS NULL
+      AND thread IS NULL;
       
     UPDATE users
     SET avatar = ${newAvatarValue}
@@ -146,6 +158,7 @@ async function updateUserAvatar(
           WHERE id = ${mediaID}
             AND uploader = ${viewer.userID}
             AND container = ${viewer.userID}
+            AND thread IS NULL
         )
       );
 
