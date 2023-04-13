@@ -284,15 +284,15 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     async () => {
       await dbQuery(
         SQL`
-        CREATE TABLE IF NOT EXISTS message_search (
-          original_message_id bigint(20) NOT NULL,
-          message_id bigint(20) NOT NULL,
-          processed_content mediumtext COLLATE utf8mb4_bin
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+          CREATE TABLE IF NOT EXISTS message_search (
+            original_message_id bigint(20) NOT NULL,
+            message_id bigint(20) NOT NULL,
+            processed_content mediumtext COLLATE utf8mb4_bin
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-        ALTER TABLE message_search
-          ADD PRIMARY KEY (original_message_id),
-          ADD FULLTEXT INDEX processed_content (processed_content);
+          ALTER TABLE message_search
+            ADD PRIMARY KEY (original_message_id),
+            ADD FULLTEXT INDEX processed_content (processed_content);
       `,
         { multipleStatements: true },
       );
@@ -358,6 +358,27 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
         SET target_message = JSON_VALUE(content, "$.sourceMessageID")
         WHERE type = ${messageTypes.SIDEBAR_SOURCE};
       `);
+    },
+  ],
+  [
+    33,
+    async () => {
+      await dbQuery(
+        SQL`
+          CREATE TABLE IF NOT EXISTS olm_sessions (
+            cookie_id bigint(20) NOT NULL,
+            is_content tinyint(1) NOT NULL,
+            version bigint(20) NOT NULL,
+            pickled_olm_session text 
+              CHARACTER SET latin1 
+              COLLATE latin1_bin NOT NULL
+          ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+          ALTER TABLE olm_sessions
+            ADD PRIMARY KEY (cookie_id, is_content);
+        `,
+        { multipleStatements: true },
+      );
     },
   ],
 ]);
