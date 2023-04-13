@@ -32,6 +32,7 @@ import {
   useModalContext,
   type PushModal,
 } from 'lib/components/modal-provider.react.js';
+import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import {
@@ -46,6 +47,7 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
   patchThreadInfoToIncludeMentionedMembersOfParent,
+  threadInfoInsideCommunity,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
@@ -71,6 +73,7 @@ import {
   type ClientNewThreadRequest,
   type NewThreadResult,
   type ThreadInfo,
+  type RawThreadInfo,
   threadTypes,
 } from 'lib/types/thread-types.js';
 import {
@@ -106,6 +109,7 @@ type Props = {
   +drafts: { +[key: string]: string },
   +viewerID: ?string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
+  +threadStoreThreadInfos: { +[id: string]: RawThreadInfo },
   +pendingRealizedThreadIDs: $ReadOnlyMap<string, string>,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -163,8 +167,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
-  // TODO: we want to send encrypted media if thread is in the Comm community
-  sendEncryptedMedia: boolean = false;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -330,7 +332,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           creatorID,
           media,
         },
-        { forceMultimediaMessageType: this.sendEncryptedMedia },
+        { forceMultimediaMessageType: this.shouldEncryptMedia(threadID) },
       );
       newMessageInfos.set(messageID, messageInfo);
     }
@@ -372,6 +374,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       `rawMessageInfo ${localMessageID} should be multimedia`,
     );
     return rawMessageInfo;
+  }
+
+  shouldEncryptMedia(threadID: ?string): boolean {
+    if (!threadID) {
+      return false;
+    }
+    const threadInfo = this.props.threadStoreThreadInfos[threadID];
+    return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
   }
 
   async sendMultimediaMessage(messageInfo: RawMultimediaMessageInfo) {
@@ -632,7 +642,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { pushModal } = this.props;
 
     const appendResults = await Promise.all(
-      files.map(file => this.appendFile(file, selectionTime)),
+      files.map(file => this.appendFile(threadID, file, selectionTime)),
     );
 
     if (appendResults.some(({ result }) => !result.success)) {
@@ -682,6 +692,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async appendFile(
+    threadID: ?string,
     file: File,
     selectTime: number,
   ): Promise<{
@@ -723,7 +734,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { uri, file: fixedFile, mediaType, dimensions } = result;
 
     let encryptionResult;
-    if (this.sendEncryptedMedia) {
+    if (this.shouldEncryptMedia(threadID)) {
       let encryptionResponse;
       const encryptionStart = Date.now();
       try {
@@ -1502,6 +1513,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const messageStoreMessages = useSelector(
       state => state.messageStore.messages,
     );
+    const threadStoreThreadInfos = useSelector(
+      state => state.threadStore.threadInfos,
+    );
     const pendingToRealizedThreadIDs = useSelector(state =>
       pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
     );
@@ -1541,6 +1555,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         drafts={drafts}
         viewerID={viewerID}
         messageStoreMessages={messageStoreMessages}
+        threadStoreThreadInfos={threadStoreThreadInfos}
         pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
         calendarQuery={calendarQuery}
         uploadMultimedia={callUploadMultimedia}
