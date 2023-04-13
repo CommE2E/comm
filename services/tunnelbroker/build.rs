@@ -51,7 +51,15 @@ fn main() {
   println!("cargo:rerun-if-changed=src/libcpp/Tunnelbroker.h");
   println!("cargo:rerun-if-changed=src/libcpp/Tunnelbroker.cpp");
 
-  println!("cargo:rerun-if-changed=../../shared/protos/tunnelbroker.proto");
-  tonic_build::compile_protos("../../shared/protos/tunnelbroker.proto")
+  println!(
+    "cargo:rerun-if-changed=../../shared/protos/identity_tunnelbroker.proto"
+  );
+  tonic_build::configure()
+    .build_server(true)
+    .build_client(false)
+    .compile(
+      &["../../shared/protos/identity_tunnelbroker.proto"],
+      &["../../shared/protos/"],
+    )
     .expect("Failed to compile protobuf file");
 }
