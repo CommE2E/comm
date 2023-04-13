@@ -1338,6 +1338,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadInfo: ThreadInfo,
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
   ) {
+    this.props.sendCallbacks.forEach(callback => callback());
+
     const rawMessageInfo = this.getRawMultimediaMessageInfo(localMessageID);
     let newRawMessageInfo;
     // This conditional is for Flow

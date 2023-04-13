@@ -1456,6 +1456,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
   ) => {
+    this.sendCallbacks.forEach(callback => callback());
+
     const rawMessageInfo = this.props.messageStoreMessages[localMessageID];
     invariant(rawMessageInfo, `rawMessageInfo ${localMessageID} should exist`);
 
