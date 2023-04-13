@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package identity.tunnelbroker;
+
+// gRPC service for identity (client) to issue requests to tunnelbroker (server)
+//
+// Authentication between services are expected to be validated outside of the
+// rpc call.
+service IdentityTunnelbrokerService {
+  rpc RefreshDeviceKeys(RefreshDeviceKeysRequest) returns (Empty) {}
+}
+
+message Empty {}
+
+message RefreshDeviceKeysRequest {
+  string deviceID = 1;
+  int32 numberOfKeys = 2;
+}
