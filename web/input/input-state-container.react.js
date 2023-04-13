@@ -1215,6 +1215,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
   createMultimediaMessage(localID: number, threadInfo: ThreadInfo) {
+    this.props.sendCallbacks.forEach(callback => callback());
+
     const localMessageID = `${localIDPrefix}${localID}`;
     this.startThreadCreation(threadInfo);
 
