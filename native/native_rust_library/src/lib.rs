@@ -5,15 +5,11 @@ use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::{transport::Channel, Status};
 use tracing::instrument;
-use tunnelbroker::tunnelbroker_service_client::TunnelbrokerServiceClient;
 
 mod crypto_tools;
 mod identity_client;
 mod identity {
   tonic::include_proto!("identity.client");
-}
-mod tunnelbroker {
-  tonic::include_proto!("tunnelbroker");
 }
 
 use crypto_tools::generate_device_id;
@@ -93,12 +89,6 @@ mod ffi {
 
     #[cxx_name = "identityGenerateNonce"]
     fn generate_nonce(promise_id: u32);
-
-    // Tunnelbroker Service Client
-    type TunnelbrokerClient;
-
-    #[cxx_name = "TunnelbrokerInitializeClient"]
-    fn initialize_tunnelbroker_client(addr: String) -> Box<TunnelbrokerClient>;
 
     // Crypto Tools
     fn generate_device_id(device_type: DeviceType) -> Result<String>;
@@ -240,19 +230,6 @@ fn identity_login_user_wallet_blocking(
     identity_onetime_keys,
     notif_onetime_keys,
   ))
-}
-
-#[derive(Debug)]
-pub struct TunnelbrokerClient {
-  tunnelbroker_client: TunnelbrokerServiceClient<Channel>,
-}
-
-fn initialize_tunnelbroker_client(addr: String) -> Box<TunnelbrokerClient> {
-  Box::new(TunnelbrokerClient {
-    tunnelbroker_client: RUNTIME
-      .block_on(TunnelbrokerServiceClient::connect(addr))
-      .expect("Failed to create Tokio runtime for the Tunnelbroker client"),
-  })
 }
 
 #[derive(

@@ -2,10 +2,7 @@ fn main() {
   tonic_build::configure()
     .build_server(false)
     .compile(
-      &[
-        "../../shared/protos/identity_client.proto",
-        "../../shared/protos/tunnelbroker.proto",
-      ],
+      &["../../shared/protos/identity_client.proto"],
       &["../../shared/protos"],
     )
     .unwrap_or_else(|e| panic!("Failed to compile protos {:?}", e));
