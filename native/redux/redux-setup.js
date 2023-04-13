@@ -29,9 +29,7 @@ import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import type { ThreadStoreOperation } from 'lib/types/thread-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
-import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
 import {
   resetUserStateActionType,
@@ -49,8 +47,8 @@ import {
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { defaultDimensionsInfo } from './dimensions-updater.react.js';
 import { persistConfig, setPersistor } from './persist.js';
+import { processDBStoreOperations } from './redux-utils.js';
 import type { AppState } from './state-types.js';
-import { commCoreModule } from '../native-modules.js';
 import { defaultNavInfo } from '../navigation/default-state.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
@@ -58,7 +56,6 @@ import reactotron from '../reactotron.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultConnectivityInfo } from '../types/connectivity.js';
 import { defaultGlobalThemeInfo } from '../types/themes.js';
-import { isTaskCancelledError } from '../utils/error-handling.js';
 import { isStaffRelease } from '../utils/staff-utils.js';
 import {
   defaultURLPrefix,
@@ -341,45 +338,11 @@ function reducer(state: AppState = defaultState, action: Action) {
     ...fixUnreadActiveThreadResult.threadStoreOperations,
   ];
 
-  const convertedThreadStoreOperations =
-    convertThreadStoreOperationsToClientDBOperations(
-      threadStoreOperationsWithUnreadFix,
-    );
-  const convertedMessageStoreOperations =
-    convertMessageStoreOperationsToClientDBOperations(messageStoreOperations);
-  (async () => {
-    try {
-      const promises = [];
-      if (convertedThreadStoreOperations.length > 0) {
-        promises.push(
-          commCoreModule.processThreadStoreOperations(
-            convertedThreadStoreOperations,
-          ),
-        );
-      }
-      if (convertedMessageStoreOperations.length > 0) {
-        promises.push(
-          commCoreModule.processMessageStoreOperations(
-            convertedMessageStoreOperations,
-          ),
-        );
-      }
-      if (draftStoreOperations.length > 0) {
-        promises.push(
-          commCoreModule.processDraftStoreOperations(draftStoreOperations),
-        );
-      }
-      await Promise.all(promises);
-    } catch (e) {
-      if (isTaskCancelledError(e)) {
-        return;
-      }
-      // this code will make an entry in SecureStore and cause re-creating
-      // database when user will open app again
-      commCoreModule.reportDBOperationsFailure();
-      commCoreModule.terminate();
-    }
-  })();
+  processDBStoreOperations({
+    draftStoreOperations,
+    messageStoreOperations,
+    threadStoreOperations: threadStoreOperationsWithUnreadFix,
+  });
 
   return state;
 }
