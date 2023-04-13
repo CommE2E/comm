@@ -325,6 +325,24 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       await dbQuery(SQL`DROP TABLE versions;`);
     },
   ],
+  [
+    31,
+    async () => {
+      await dbQuery(
+        SQL`
+          CREATE TABLE IF NOT EXISTS keyserver_hosted_olm_sessions (
+            cookie_id bigint(20) NOT NULL,
+            is_primary tinyint(1) NOT NULL,
+            pickled_olm_session text CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL
+          ) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_bin;
+
+          ALTER TABLE keyserver_hosted_olm_sessions
+            ADD PRIMARY KEY (cookie_id, is_primary);
+        `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
