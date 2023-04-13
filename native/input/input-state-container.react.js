@@ -60,6 +60,7 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
+  type MessageInfo,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type {
@@ -159,7 +160,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
     editState: {
-      editedMessageID: null,
+      editedMessage: null,
     },
   };
   sendCallbacks: Array<() => void> = [];
@@ -401,7 +402,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       reportURIDisplayed: this.reportURIDisplayed,
       setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
       editState,
-      setEditedMessageID: this.setEditedMessageID,
+      setEditedMessage: this.setEditedMessage,
     }),
   );
 
@@ -1209,9 +1210,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.replyCallbacks.push(callbackReply);
   };
 
-  setEditedMessageID = (messageID: ?string) => {
+  setEditedMessage = (editedMessage: ?MessageInfo) => {
     this.setState({
-      editState: { editedMessageID: messageID },
+      editState: { editedMessage },
     });
   };
 
