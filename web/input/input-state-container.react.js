@@ -422,11 +422,31 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.pendingThreadCreations.delete(messageInfo.threadID);
     }
 
-    const newMessageInfo = {
-      ...messageInfo,
-      threadID: newThreadID,
-      time: Date.now(),
-    };
+    // While the thread was being created, the image preload may have completed,
+    // and we might have a finalized URI now. So we fetch from Redux again
+    const { localID } = messageInfo;
+    invariant(
+      localID !== null && localID !== undefined,
+      'localID should exist for locally-created RawMessageInfo',
+    );
+    const latestMessageInfo = this.getRawMultimediaMessageInfo(localID);
+
+    // Conditional is necessary for Flow
+    let newMessageInfo;
+    if (latestMessageInfo.type === messageTypes.MULTIMEDIA) {
+      newMessageInfo = {
+        ...latestMessageInfo,
+        threadID: newThreadID,
+        time: Date.now(),
+      };
+    } else {
+      newMessageInfo = {
+        ...latestMessageInfo,
+        threadID: newThreadID,
+        time: Date.now(),
+      };
+    }
+
     this.props.dispatchActionPromise(
       sendMultimediaMessageActionTypes,
       this.sendMultimediaMessageAction(newMessageInfo),
