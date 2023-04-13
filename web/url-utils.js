@@ -112,7 +112,10 @@ function navInfoFromURL(
     tab = 'settings';
   }
 
-  const chatMode = urlInfo.threadCreation ? 'create' : 'view';
+  const chatMode =
+    urlInfo.threadCreation || navInfo?.chatMode === 'create'
+      ? 'create'
+      : 'view';
 
   const newNavInfo: NavInfo = {
     tab,
