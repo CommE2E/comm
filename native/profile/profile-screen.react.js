@@ -1,14 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import {
-  View,
-  Text,
-  Alert,
-  Platform,
-  ScrollView,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import { View, Text, Alert, Platform, ScrollView } from 'react-native';
 
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
@@ -28,13 +21,14 @@ import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Action from '../components/action-row.react.js';
 import Button from '../components/button.react.js';
+import EditAvatar from '../components/edit-avatar.react.js';
 import EditSettingButton from '../components/edit-setting-button.react.js';
 import { SingleLine } from '../components/single-line.react.js';
-import SWMansionIcon from '../components/swmansion-icon.react.js';
 import UserAvatar from '../components/user-avatar.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   EditPasswordRouteName,
+  EmojiAvatarCreationRouteName,
   DeleteAccountRouteName,
   BuildInfoRouteName,
   DevToolsRouteName,
@@ -137,22 +131,12 @@ class ProfileScreen extends React.PureComponent<Props> {
           <View
             style={[this.props.styles.section, this.props.styles.avatarSection]}
           >
-            <TouchableWithoutFeedback onPress={this.onPressEditAvatar}>
-              <View>
-                <UserAvatar
-                  size="profile"
-                  userID={this.props.currentUserInfo?.id}
-                />
-                <View style={this.props.styles.editAvatarIconContainer}>
-                  <SWMansionIcon
-                    name="edit-2"
-                    size={16}
-                    style={this.props.styles.editAvatarIcon}
-                    color={this.props.colors.floatingButtonLabel}
-                  />
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
+            <EditAvatar onPressEmojiAvatarFlow={this.onPressEmojiAvatarFlow}>
+              <UserAvatar
+                size="profile"
+                userID={this.props.currentUserInfo?.id}
+              />
+            </EditAvatar>
           </View>
         </>
       );
@@ -212,9 +196,11 @@ class ProfileScreen extends React.PureComponent<Props> {
     );
   }
 
-  onPressEditAvatar = () => {
-    // TODO:
-    // Display action sheet with all the different avatar creation options
+  onPressEmojiAvatarFlow = () => {
+    this.props.navigation.navigate<'EmojiAvatarCreation'>({
+      name: EmojiAvatarCreationRouteName,
+      params: {},
+    });
   };
 
   onPressLogOut = () => {
@@ -332,21 +318,6 @@ const unboundStyles = {
   avatarSection: {
     alignItems: 'center',
     paddingVertical: 16,
-  },
-  editAvatarIconContainer: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderWidth: 2,
-    borderColor: 'panelForeground',
-    borderRadius: 18,
-    width: 36,
-    height: 36,
-    backgroundColor: '#6D49AB',
-    justifyContent: 'center',
-  },
-  editAvatarIcon: {
-    textAlign: 'center',
   },
   container: {
     flex: 1,
