@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import type { NativeMediaSelection } from 'lib/types/media-types.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -23,7 +24,7 @@ export type PendingMultimediaUploads = {
 };
 
 export type EditState = {
-  +editedMessageID: ?string,
+  +editedMessage: ?MessageInfo,
 };
 
 export type InputState = {
@@ -55,7 +56,10 @@ export type InputState = {
     pendingThreadUpdateHandler: ?(ThreadInfo) => mixed,
   ) => void,
   +editState: EditState,
-  +setEditedMessageID: (editedMessageID: ?string) => void,
+  +setEditedMessage: (
+    editedMessage: ?MessageInfo,
+    callback?: () => void,
+  ) => void,
 };
 
 const InputStateContext: React.Context<?InputState> =
