@@ -614,10 +614,73 @@ async function updateThread(
     if (Object.keys(sqlUpdate).length === 0) {
       return;
     }
-    const updateQuery = SQL`
-      UPDATE threads SET ${sqlUpdate} WHERE id = ${request.threadID}
-    `;
-    await dbQuery(updateQuery);
+
+    const { avatar: avatarUpdate, ...nonAvatarUpdates } = sqlUpdate;
+    const updatePromises = [];
+
+    if (Object.keys(nonAvatarUpdates).length > 0) {
+      const nonAvatarUpdateQuery = SQL`
+        UPDATE threads
+        SET ${nonAvatarUpdates}
+        WHERE id = ${request.threadID}
+      `;
+      updatePromises.push(dbQuery(nonAvatarUpdateQuery));
+    }
+
+    if (avatarUpdate !== undefined) {
+      const avatarUploadID =
+        avatar && avatar.type === 'image' ? avatar.uploadID : null;
+
+      const avatarUpdateQuery = SQL`
+        START TRANSACTION;
+
+        UPDATE uploads
+        SET container = NULL
+        WHERE container = ${request.threadID}
+          AND ${avatarUploadID} IS NOT NULL
+          AND EXISTS (
+            SELECT 1
+            FROM uploads
+            WHERE id = ${avatarUploadID}
+              AND ${avatarUploadID} IS NOT NULL
+              AND uploader = ${viewer.userID}
+              AND container IS NULL
+              AND thread IS NULL
+          );
+
+        UPDATE uploads
+        SET container = ${request.threadID}
+        WHERE id = ${avatarUploadID}
+          AND ${avatarUploadID} IS NOT NULL
+          AND uploader = ${viewer.userID}
+          AND container IS NULL
+          AND thread IS NULL;
+
+        UPDATE threads
+        SET avatar = ${avatarUpdate}
+        WHERE id = ${request.threadID}
+          AND (
+            ${avatarUploadID} IS NULL
+            OR EXISTS (
+              SELECT 1
+              FROM uploads
+              WHERE id = ${avatarUploadID}
+                AND ${avatarUploadID} IS NOT NULL
+                AND uploader = ${viewer.userID}
+                AND container = ${request.threadID}
+                AND thread IS NULL
+            )
+          );
+
+        COMMIT;
+      `;
+
+      updatePromises.push(
+        dbQuery(avatarUpdateQuery, { multipleStatements: true }),
+      );
+    }
+
+    await Promise.all(updatePromises);
   })();
 
   const updateRolesPromise = (async () => {
