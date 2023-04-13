@@ -637,15 +637,17 @@ async function updateThread(
         UPDATE uploads
         SET container = NULL
         WHERE container = ${request.threadID}
-          AND ${avatarUploadID} IS NOT NULL
-          AND EXISTS (
-            SELECT 1
-            FROM uploads
-            WHERE id = ${avatarUploadID}
-              AND ${avatarUploadID} IS NOT NULL
-              AND uploader = ${viewer.userID}
-              AND container IS NULL
-              AND thread IS NULL
+          AND (
+            ${avatarUploadID} IS NULL
+            OR EXISTS (
+              SELECT 1
+              FROM uploads
+              WHERE id = ${avatarUploadID}
+                AND ${avatarUploadID} IS NOT NULL
+                AND uploader = ${viewer.userID}
+                AND container IS NULL
+                AND thread IS NULL
+             )
           );
 
         UPDATE uploads
