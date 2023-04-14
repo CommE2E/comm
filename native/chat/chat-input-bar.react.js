@@ -462,6 +462,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
     let joinButton = null;
     const threadColor = `#${this.props.threadInfo.color}`;
+    const isEditMode = this.isEditMode();
     if (!isMember && canJoin && !this.props.threadCreationInProgress) {
       let buttonContent;
       if (this.props.joinThreadLoadingStatus === 'loading') {
@@ -507,7 +508,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     let typeaheadTooltip = null;
 
-    if (typeaheadRegexMatches) {
+    if (typeaheadRegexMatches && !isEditMode) {
       const typeaheadMatchedStrings = {
         textBeforeAtSymbol: typeaheadRegexMatches[1] ?? '',
         usernamePrefix: typeaheadRegexMatches[4] ?? '',
@@ -573,7 +574,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
 
     let editedMessage;
-    const isEditMode = this.isEditMode();
     if (isEditMode && this.props.editedMessagePreview) {
       const { message } = this.props.editedMessagePreview;
       editedMessage = (
@@ -630,11 +630,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       </TouchableOpacity>
     );
     const threadColor = `#${this.props.threadInfo.color}`;
+    const expandoButtonsViewStyle = [this.props.styles.innerExpandoButtons];
+    if (this.isEditMode()) {
+      expandoButtonsViewStyle.push({ display: 'none' });
+    }
     return (
       <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
         <View style={this.props.styles.inputContainer}>
           <AnimatedView style={this.expandoButtonsStyle}>
-            <View style={this.props.styles.innerExpandoButtons}>
+            <View style={expandoButtonsViewStyle}>
               {this.state.buttonsExpanded ? expandoButton : null}
               <TouchableOpacity
                 onPress={this.showMediaGallery}
@@ -940,7 +944,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   expandButtons = () => {
-    if (this.state.buttonsExpanded) {
+    if (this.state.buttonsExpanded || this.isEditMode()) {
       return;
     }
     this.targetExpandoButtonsOpen.setValue(1);
