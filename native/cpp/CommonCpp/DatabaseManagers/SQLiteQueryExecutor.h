@@ -41,6 +41,11 @@ public:
       const std::vector<std::string> &threadIDs) const override;
   void replaceMessage(const Message &message) const override;
   void rekeyMessage(std::string from, std::string to) const override;
+  void replaceMessageStoreThreads(
+      const std::vector<MessageStoreThread> &threads) const override;
+  void
+  removeMessageStoreThreads(const std::vector<std::string> &ids) const override;
+  void removeAllMessageStoreThreads() const override;
   void removeAllMedia() const override;
   void removeMediaForMessages(
       const std::vector<std::string> &msg_ids) const override;

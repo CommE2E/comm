@@ -4,6 +4,7 @@
 #include "entities/Draft.h"
 #include "entities/Media.h"
 #include "entities/Message.h"
+#include "entities/MessageStoreThread.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
 #include "entities/Thread.h"
@@ -43,6 +44,11 @@ public:
   virtual void replaceMessage(const Message &message) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
   virtual void removeAllMedia() const = 0;
+  virtual void replaceMessageStoreThreads(
+      const std::vector<MessageStoreThread> &threads) const = 0;
+  virtual void
+  removeMessageStoreThreads(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllMessageStoreThreads() const = 0;
   virtual void
   removeMediaForMessages(const std::vector<std::string> &msg_ids) const = 0;
   virtual void removeMediaForMessage(std::string msg_id) const = 0;
