@@ -85,9 +85,14 @@ class ComposedMessage extends React.PureComponent<Props> {
       containerMarginBottom += clusterEndHeight;
     }
 
+    const highlightStyle =
+      this.props.inputState?.editState.editedMessage?.id === id
+        ? { backgroundColor: `#${item.threadInfo.color}40` }
+        : null;
+
     const containerStyle = [
-      styles.alignment,
       { marginBottom: containerMarginBottom },
+      highlightStyle,
     ];
     const swipeableMessageBoxStyle = [
       styles.swipeableContainer,
@@ -188,12 +193,14 @@ class ComposedMessage extends React.PureComponent<Props> {
           <MessageHeader item={item} focused={focused} display="lowContrast" />
         </AnimatedView>
         <View style={containerStyle}>
-          <View style={[styles.content, alignStyle]}>
-            {deliveryIcon}
-            {messageBox}
+          <View style={styles.alignment}>
+            <View style={[styles.content, alignStyle]}>
+              {deliveryIcon}
+              {messageBox}
+            </View>
+            {failedSendInfo}
+            {inlineEngagement}
           </View>
-          {failedSendInfo}
-          {inlineEngagement}
         </View>
       </View>
     );
