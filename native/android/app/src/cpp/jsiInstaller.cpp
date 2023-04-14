@@ -7,6 +7,7 @@
 #include <InternalModules/DatabaseInitializerJNIHelper.h>
 #include <InternalModules/GlobalDBSingletonJNIHelper.h>
 #include <NativeModules/CommCoreModule.h>
+#include <NativeModules/CommUtilsModule.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
 #include <PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperationsJNIHelper.h>
 
@@ -25,14 +26,20 @@ public:
       comm::HashMap additionalParameters) {
     jsi::Runtime *rt = (jsi::Runtime *)jsContext;
     auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
-    std::shared_ptr<comm::CommCoreModule> nativeModule =
+    std::shared_ptr<comm::CommCoreModule> coreNativeModule =
         std::make_shared<comm::CommCoreModule>(jsCallInvoker);
+    std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
+        std::make_shared<comm::CommUtilsModule>(jsCallInvoker);
 
     if (rt != nullptr) {
       rt->global().setProperty(
           *rt,
           jsi::PropNameID::forAscii(*rt, "CommCoreModule"),
-          jsi::Object::createFromHostObject(*rt, nativeModule));
+          jsi::Object::createFromHostObject(*rt, coreNativeModule));
+      rt->global().setProperty(
+          *rt,
+          jsi::PropNameID::forAscii(*rt, "CommUtilsModule"),
+          jsi::Object::createFromHostObject(*rt, utilsNativeModule));
     }
 
     jni::local_ref<jni::JObject> sqliteFilePathObj =
