@@ -20,6 +20,7 @@ import {
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { exitEditAlert } from '../utils/edit-messages-utils.js';
 
 export type TextMessageTooltipModalParams = TooltipParams<{
   +item: ChatTextMessageInfoItemWithHeight,
@@ -69,7 +70,14 @@ function TooltipMenu(
         mode: 'replace',
       });
     };
-    inputState.setEditedMessage(messageInfo, updateInputBar);
+    const enterEditMode = () => {
+      inputState.setEditedMessage(messageInfo, updateInputBar);
+    };
+    if (inputState.editState.editedMessage) {
+      exitEditAlert(enterEditMode);
+    } else {
+      enterEditMode();
+    }
   }, [inputState, messageInfo, text]);
   const renderEditIcon = React.useCallback(
     style => <SWMansionIcon name="edit-1" style={style} size={16} />,

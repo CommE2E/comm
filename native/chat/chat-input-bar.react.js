@@ -115,6 +115,7 @@ import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { LayoutEvent } from '../types/react-native.js';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
 import { runTiming } from '../utils/animation-utils.js';
+import { exitEditAlert } from '../utils/edit-messages-utils.js';
 import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -864,19 +865,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.exitEditMode();
       return;
     }
-    Alert.alert('Are you sure?', 'Your edits will be discarded.', [
-      {
-        text: 'Continue editing',
-        style: 'cancel',
-      },
-      {
-        text: 'Discard edit',
-        style: 'destructive',
-        onPress: () => {
-          this.exitEditMode();
-        },
-      },
-    ]);
+    exitEditAlert(this.exitEditMode);
   };
 
   exitEditMode = () => {
