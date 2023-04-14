@@ -9,26 +9,52 @@ import {
 } from 'react-native';
 import EmojiPicker from 'rn-emoji-keyboard';
 
+import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
 import { updateUserAvatarActionTypes } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selectors.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 import type { ClientEmojiAvatar } from 'lib/types/avatar-types.js';
 
 import Avatar from '../components/avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorRows from '../components/color-rows.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import type { ProfileNavigationProp } from '../profile/profile.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import { useSaveUserAvatar } from '../utils/avatar-utils.js';
+import {
+  useSaveUserAvatar,
+  useSaveThreadAvatar,
+} from '../utils/avatar-utils.js';
 
-const loadingStatusSelector = createLoadingStatusSelector(
+const userAvatarLoadingStatusSelector = createLoadingStatusSelector(
   updateUserAvatarActionTypes,
 );
 
-function EmojiAvatarCreation(): React.Node {
-  const savedEmojiAvatarFunc = useSelector(
-    savedEmojiAvatarSelectorForCurrentUser,
-  );
+const threadAvatarLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+  `${changeThreadSettingsActionTypes.started}:avatar`,
+);
+
+export type EmojiAvatarCreationParams = {
+  +threadID?: string,
+  +containingThreadID?: ?string,
+};
+
+type Props = {
+  +navigation: ProfileNavigationProp<'EmojiAvatarCreation'>,
+  +route: NavigationRoute<'EmojiAvatarCreation'>,
+};
+
+function EmojiAvatarCreation(props: Props): React.Node {
+  const { threadID, containingThreadID } = props.route.params;
+
+  const selector = threadID
+    ? savedEmojiAvatarSelectorForThread(threadID, containingThreadID)
+    : savedEmojiAvatarSelectorForCurrentUser;
+
+  const savedEmojiAvatarFunc = useSelector(selector);
 
   const [pendingEmoji, setPendingEmoji] = React.useState<string>(
     () => savedEmojiAvatarFunc().emoji,
@@ -42,9 +68,13 @@ function EmojiAvatarCreation(): React.Node {
   const styles = useStyles(unboundStyles);
 
   const saveUserAvatar = useSaveUserAvatar();
+  const saveThreadAvatar = useSaveThreadAvatar();
 
-  const saveAvatarCallLoading = useSelector(
-    state => loadingStatusSelector(state) === 'loading',
+  const saveUserAvatarCallLoading = useSelector(
+    state => userAvatarLoadingStatusSelector(state) === 'loading',
+  );
+  const saveThreadAvatarCallLoading = useSelector(
+    state => threadAvatarLoadingStatusSelector(state) === 'loading',
   );
 
   const onPressEditEmoji = React.useCallback(() => {
@@ -58,8 +88,12 @@ function EmojiAvatarCreation(): React.Node {
       color: pendingColor,
     };
 
-    saveUserAvatar(newEmojiAvatarRequest);
-  }, [pendingColor, pendingEmoji, saveUserAvatar]);
+    if (!threadID) {
+      saveUserAvatar(newEmojiAvatarRequest);
+    } else {
+      saveThreadAvatar(newEmojiAvatarRequest, threadID);
+    }
+  }, [pendingColor, pendingEmoji, saveThreadAvatar, saveUserAvatar, threadID]);
 
   const onPressReset = React.useCallback(() => {
     const resetEmojiAvatar = savedEmojiAvatarFunc();
@@ -87,7 +121,7 @@ function EmojiAvatarCreation(): React.Node {
   );
 
   const loadingContainer = React.useMemo(() => {
-    if (!saveAvatarCallLoading) {
+    if (!saveUserAvatarCallLoading && !saveThreadAvatarCallLoading) {
       return null;
     }
 
@@ -96,7 +130,11 @@ function EmojiAvatarCreation(): React.Node {
         <ActivityIndicator size="large" color="white" />
       </View>
     );
-  }, [saveAvatarCallLoading, styles.loadingContainer]);
+  }, [
+    saveThreadAvatarCallLoading,
+    saveUserAvatarCallLoading,
+    styles.loadingContainer,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -124,14 +162,14 @@ function EmojiAvatarCreation(): React.Node {
         <Button
           onPress={onPressSetAvatar}
           style={styles.saveButton}
-          disabled={saveAvatarCallLoading}
+          disabled={saveUserAvatarCallLoading || saveThreadAvatarCallLoading}
         >
           <Text style={styles.saveButtonText}>Save Avatar</Text>
         </Button>
         <Button
           onPress={onPressReset}
           style={styles.resetButton}
-          disabled={saveAvatarCallLoading}
+          disabled={saveUserAvatarCallLoading || saveThreadAvatarCallLoading}
         >
           <Text style={styles.resetButtonText}>Reset</Text>
         </Button>
