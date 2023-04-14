@@ -364,6 +364,17 @@ bool add_pinned_count_column_to_threads(sqlite3 *db) {
   return false;
 }
 
+bool create_message_store_threads_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS message_store_threads ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 start_reached INTEGER NOT NULL,"
+      "	 last_navigated_to BIGINT NOT NULL,"
+      "	 last_pruned BIGINT NOT NULL"
+      ");";
+  return create_table(db, query, "message_store_threads");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -425,6 +436,13 @@ bool create_schema(sqlite3 *db) {
       "CREATE TABLE IF NOT EXISTS metadata ("
       "	 name TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "	 data TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS message_store_threads ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 start_reached INTEGER NOT NULL,"
+      "	 last_navigated_to BIGINT NOT NULL,"
+      "	 last_pruned BIGINT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -663,7 +681,8 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {24, {add_not_null_constraint_to_drafts, true}},
      {25, {add_not_null_constraint_to_metadata, true}},
      {26, {add_avatar_column_to_threads_table, true}},
-     {27, {add_pinned_count_column_to_threads, true}}}};
+     {27, {add_pinned_count_column_to_threads, true}},
+     {28, {create_message_store_threads_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -870,7 +889,14 @@ auto &SQLiteQueryExecutor::getStorage() {
       make_table(
           "metadata",
           make_column("name", &Metadata::name, unique(), primary_key()),
-          make_column("data", &Metadata::data)));
+          make_column("data", &Metadata::data)),
+      make_table(
+          "message_store_threads",
+          make_column("id", &MessageStoreThread::id, unique(), primary_key()),
+          make_column("start_reached", &MessageStoreThread::start_reached),
+          make_column(
+              "last_navigated_to", &MessageStoreThread::last_navigated_to),
+          make_column("last_pruned", &MessageStoreThread::last_pruned)));
   storage.on_open = on_database_open;
   return storage;
 }
@@ -1055,6 +1081,23 @@ void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
     const {
   SQLiteQueryExecutor::getStorage().update_all(
       set(c(&Media::container) = to), where(c(&Media::container) == from));
+}
+
+void SQLiteQueryExecutor::replaceMessageStoreThread(
+    const std::vector<MessageStoreThread> &threads) const {
+  for (auto &thread : threads) {
+    SQLiteQueryExecutor::getStorage().replace(thread);
+  }
+}
+
+void SQLiteQueryExecutor::removeAllMessageStoreThreads() const {
+  SQLiteQueryExecutor::getStorage().remove_all<MessageStoreThread>();
+}
+
+void SQLiteQueryExecutor::removeMessageStoreThreads(
+    const std::vector<std::string> &ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<MessageStoreThread>(
+      where(in(&MessageStoreThread::id, ids)));
 }
 
 std::vector<Thread> SQLiteQueryExecutor::getAllThreads() const {
