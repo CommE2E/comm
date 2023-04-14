@@ -22,6 +22,7 @@ import {
 import textMessageSendFailed from './text-message-send-failed.js';
 import { getMessageTooltipKey } from './utils.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
+import { InputStateContext, type InputState } from '../input/input-state.js';
 import { MarkdownContext } from '../markdown/markdown-context.js';
 import {
   OverlayContext,
@@ -55,6 +56,7 @@ type Props = {
   +isLinkModalActive: boolean,
   +canEditMessage: boolean,
   +shouldRenderEditButton: boolean,
+  +inputState: ?InputState,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -81,6 +83,7 @@ class TextMessage extends React.PureComponent<Props> {
       canCreateSidebarFromMessage,
       canEditMessage,
       shouldRenderEditButton,
+      inputState,
       ...viewProps
     } = this.props;
 
@@ -143,7 +146,11 @@ class TextMessage extends React.PureComponent<Props> {
       result.push('reply');
     }
 
-    if (this.props.canEditMessage && this.props.shouldRenderEditButton) {
+    if (
+      this.props.canEditMessage &&
+      this.props.shouldRenderEditButton &&
+      !this.props.inputState?.editState.editedMessage
+    ) {
       result.push('edit');
     }
 
@@ -233,6 +240,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
     const markdownContext = React.useContext(MarkdownContext);
+    const inputState = React.useContext(InputStateContext);
     invariant(markdownContext, 'markdownContext should be set');
 
     const { linkModalActive, clearMarkdownContextData } = markdownContext;
@@ -267,6 +275,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         isLinkModalActive={isLinkModalActive}
         canEditMessage={canEditMessage}
         shouldRenderEditButton={shouldRenderEditButton}
+        inputState={inputState}
       />
     );
   });
