@@ -13,17 +13,12 @@ import { jsonEndpoints } from './endpoints.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
 import {
   jsonHandler,
-  httpGetHandler,
   downloadHandler,
   htmlHandler,
   uploadHandler,
 } from './responders/handlers.js';
 import landingHandler from './responders/landing-handler.js';
 import { errorReportDownloadResponder } from './responders/report-responders.js';
-import {
-  createNewVersionResponder,
-  markVersionDeployedResponder,
-} from './responders/version-responders.js';
 import {
   inviteResponder,
   websiteResponder,
@@ -104,15 +99,6 @@ import {
           jsonHandler(responder, expectCookieInvalidation),
         );
       }
-
-      router.get(
-        '/create_version/:deviceType/:codeVersion',
-        httpGetHandler(createNewVersionResponder),
-      );
-      router.get(
-        '/mark_version_deployed/:deviceType/:codeVersion',
-        httpGetHandler(markVersionDeployedResponder),
-      );
 
       router.get(
         '/download_error_report/:reportID',
