@@ -39,6 +39,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #import <reacthermes/HermesExecutorFactory.h>
 
 #import "CommCoreModule.h"
+#import "CommUtilsModule.h"
 #import "GlobalDBSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
@@ -257,13 +258,19 @@ using Runtime = facebook::jsi::Runtime;
     }
     __typeof(self) strongSelf = weakSelf;
     if (strongSelf) {
-      std::shared_ptr<comm::CommCoreModule> nativeModule =
+      std::shared_ptr<comm::CommCoreModule> coreNativeModule =
           std::make_shared<comm::CommCoreModule>(bridge.jsCallInvoker);
+      std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
+          std::make_shared<comm::CommUtilsModule>(bridge.jsCallInvoker);
 
       rt.global().setProperty(
           rt,
           facebook::jsi::PropNameID::forAscii(rt, "CommCoreModule"),
-          facebook::jsi::Object::createFromHostObject(rt, nativeModule));
+          facebook::jsi::Object::createFromHostObject(rt, coreNativeModule));
+      rt.global().setProperty(
+          rt,
+          facebook::jsi::PropNameID::forAscii(rt, "CommUtilsModule"),
+          facebook::jsi::Object::createFromHostObject(rt, utilsNativeModule));
     }
   };
   const auto installer =
