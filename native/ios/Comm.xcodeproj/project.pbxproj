@@ -38,6 +38,7 @@
 		7FA2DCDE293E62F500991BA4 /* CommIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDC293E62F500991BA4 /* CommIcons.ttf */; };
 		7FA2DCDF293E62F500991BA4 /* SWMansionIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */; };
 		7FBB2A7629E94539002C6493 /* utilsJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */; };
+		7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7329E944FD002C6493 /* CommUtilsModule.cpp */; };
 		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
 		8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
 		8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B652FA5295EAA5B009F8163 /* RustCallback.cpp */; };
@@ -163,6 +164,8 @@
 		7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Bold.ttf"; path = "Resources/IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
 		7FA2DCDC293E62F500991BA4 /* CommIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = CommIcons.ttf; path = ../fonts/CommIcons.ttf; sourceTree = "<group>"; };
 		7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SWMansionIcons.ttf; path = ../fonts/SWMansionIcons.ttf; sourceTree = "<group>"; };
+		7FBB2A7329E944FD002C6493 /* CommUtilsModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommUtilsModule.cpp; sourceTree = "<group>"; };
+		7FBB2A7429E9450E002C6493 /* CommUtilsModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommUtilsModule.h; sourceTree = "<group>"; };
 		7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "utilsJSI-generated.cpp"; sourceTree = "<group>"; };
 		7FBB2A7729E94541002C6493 /* utilsJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utilsJSI.h; sourceTree = "<group>"; };
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -370,6 +373,8 @@
 				726E5D722731A4240032361D /* InternalModules */,
 				71BE843C2636A944002849D2 /* CommCoreModule.cpp */,
 				71BE843E2636A944002849D2 /* CommCoreModule.h */,
+				7FBB2A7329E944FD002C6493 /* CommUtilsModule.cpp */,
+				7FBB2A7429E9450E002C6493 /* CommUtilsModule.h */,
 				B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */,
 				B7906F692720905A009BBBF5 /* ThreadStoreOperations.h */,
 			);
@@ -972,6 +977,7 @@
 				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */,
 				CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */,
+				7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */,
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
