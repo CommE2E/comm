@@ -7,7 +7,12 @@ import path from 'path';
 import codeGen from './CodeGen.js';
 ('use strict');
 
-const schemaInPath = path.resolve('./schema/CommCoreModuleSchema.js');
 const outPath = path.resolve('./cpp/CommonCpp/_generated');
 
-codeGen('comm', schemaInPath, ['cpp', 'h'], outPath);
+// CommCoreModule
+const coreModuleSchemaPath = path.resolve('./schema/CommCoreModuleSchema.js');
+codeGen('comm', coreModuleSchemaPath, ['cpp', 'h'], outPath);
+
+// CommUtilsModule
+const utilsModuleSchemaPath = path.resolve('./schema/CommUtilsModuleSchema.js');
+codeGen('utils', utilsModuleSchemaPath, ['cpp', 'h'], outPath);
