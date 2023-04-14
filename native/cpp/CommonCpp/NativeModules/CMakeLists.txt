@@ -9,12 +9,14 @@ include(GNUInstallDirs)
 
 set(NATIVE_HDRS
   "CommCoreModule.h"
+  "CommUtilsModule.h"
   "MessageStoreOperations.h"
   "ThreadStoreOperations.h"
 )
 
 set(NATIVE_SRCS
   "CommCoreModule.cpp"
+  "CommUtilsModule.cpp"
 )
 
 add_library(comm-modules-native
