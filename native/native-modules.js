@@ -1,5 +1,7 @@
 // @flow
 
-import type { Spec } from './schema/CommCoreModuleSchema.js';
+import type { Spec as CoreModuleSpec } from './schema/CommCoreModuleSchema.js';
+import type { UtilsModuleSpec } from './schema/CommUtilsModuleSchema.js';
 
-export const commCoreModule: Spec = global.CommCoreModule;
+export const commCoreModule: CoreModuleSpec = global.CommCoreModule;
+export const commUtilsModule: UtilsModuleSpec = global.CommUtilsModule;
