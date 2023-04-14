@@ -37,6 +37,7 @@
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
 		7FA2DCDE293E62F500991BA4 /* CommIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDC293E62F500991BA4 /* CommIcons.ttf */; };
 		7FA2DCDF293E62F500991BA4 /* SWMansionIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */; };
+		7FBB2A7629E94539002C6493 /* utilsJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */; };
 		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
 		8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
 		8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B652FA5295EAA5B009F8163 /* RustCallback.cpp */; };
@@ -162,6 +163,8 @@
 		7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Bold.ttf"; path = "Resources/IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
 		7FA2DCDC293E62F500991BA4 /* CommIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = CommIcons.ttf; path = ../fonts/CommIcons.ttf; sourceTree = "<group>"; };
 		7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SWMansionIcons.ttf; path = ../fonts/SWMansionIcons.ttf; sourceTree = "<group>"; };
+		7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "utilsJSI-generated.cpp"; sourceTree = "<group>"; };
+		7FBB2A7729E94541002C6493 /* utilsJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utilsJSI.h; sourceTree = "<group>"; };
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		7FE4D9F3291DFE9300667BF6 /* commJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commJSI.h; sourceTree = "<group>"; };
@@ -437,6 +440,8 @@
 			children = (
 				7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */,
 				7FE4D9F3291DFE9300667BF6 /* commJSI.h */,
+				7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */,
+				7FBB2A7729E94541002C6493 /* utilsJSI.h */,
 			);
 			path = _generated;
 			sourceTree = "<group>";
@@ -985,6 +990,7 @@
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
 				71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */,
 				8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */,
+				7FBB2A7629E94539002C6493 /* utilsJSI-generated.cpp in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */,
 				CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */,

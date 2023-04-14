@@ -118,7 +118,7 @@ list(APPEND ANDROID_NATIVE_CODE
   "./src/cpp/jsiInstaller.cpp"
 )
 
-set(GENERATED_NATIVE_CODE "../../cpp/CommonCpp/_generated/commJSI-generated.cpp")
+file(GLOB GENERATED_NATIVE_CODE "../../cpp/CommonCpp/_generated/*JSI-generated.cpp")
 set(RUST_NATIVE_CODE "../../native_rust_library/RustCallback.cpp")
 file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
 file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
