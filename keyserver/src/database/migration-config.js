@@ -2,11 +2,17 @@
 
 import fs from 'fs';
 
+import bots from 'lib/facts/bots.js';
 import { policyTypes } from 'lib/facts/policies.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
+import { createScriptViewer } from '../session/scripts.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
+import { updateThread } from '../updaters/thread-updaters.js';
+
+const botViewer = createScriptViewer(bots.commbot.userID);
 
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [
@@ -323,6 +329,41 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     30,
     async () => {
       await dbQuery(SQL`DROP TABLE versions;`);
+    },
+  ],
+  [
+    31,
+    async () => {
+      const [result] = await dbQuery(SQL`
+        SELECT t.id
+        FROM threads t
+        INNER JOIN memberships m ON m.thread = t.id AND m.role > 0
+        INNER JOIN users u ON u.id = m.user
+        WHERE t.type = ${threadTypes.PRIVATE}
+          AND t.name = u.ethereum_address
+      `);
+      const threadIDs = result.map(({ id }) => id.toString());
+      while (threadIDs.length > 0) {
+        // Batch 10 updateThread calls at a time
+        const batch = threadIDs.splice(0, 10);
+        await Promise.all(
+          batch.map(threadID =>
+            updateThread(
+              botViewer,
+              {
+                threadID,
+                changes: {
+                  name: '',
+                },
+              },
+              {
+                silenceMessages: true,
+                ignorePermissions: true,
+              },
+            ),
+          ),
+        );
+      }
     },
   ],
 ]);
