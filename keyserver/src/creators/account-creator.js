@@ -141,7 +141,7 @@ async function createAccount(
   ]);
 
   const [privateThreadResult, ashoatThreadResult] = await Promise.all([
-    createPrivateThread(viewer, request.username),
+    createPrivateThread(viewer),
     createThread(
       viewer,
       {
@@ -256,7 +256,7 @@ async function processSIWEAccountCreation(
   ]);
 
   const [privateThreadResult, ashoatThreadResult] = await Promise.all([
-    createPrivateThread(viewer, request.address),
+    createPrivateThread(viewer),
     createThread(
       viewer,
       {
