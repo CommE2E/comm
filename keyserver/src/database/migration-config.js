@@ -3,6 +3,7 @@
 import fs from 'fs';
 
 import { policyTypes } from 'lib/facts/policies.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
@@ -319,6 +320,19 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     },
   ],
   [29, updateRolesAndPermissionsForAllThreads],
+  [
+    30,
+    async () => {
+      await dbQuery(SQL`
+        UPDATE threads t, memberships m, users u
+        SET t.name = ""
+        WHERE m.thread = t.id
+          AND u.id = m.user
+          AND t.type = ${threadTypes.PRIVATE}
+          AND t.name = u.username;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
