@@ -3,6 +3,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { TooltipItemBaseProps } from './tooltip-item.react.js';
 
@@ -74,6 +75,8 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
     optionsRef.current = optionsRef.current.filter(option => option.id !== id);
   }, []);
 
+  const insets = useSafeAreaInsets();
+
   const { cancel, hideTooltip } = props;
   const { showActionSheetWithOptions } = useActionSheet();
   const showActionSheet = React.useCallback(() => {
@@ -129,7 +132,7 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
     };
 
     const containerStyle = {
-      paddingBottom: 24,
+      paddingBottom: insets.bottom,
     };
     showActionSheetWithOptions(
       {
@@ -144,9 +147,10 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
   }, [
     hideTooltip,
     maxOptionsToDisplay,
+    insets.bottom,
+    showActionSheetWithOptions,
     visibleEntryIDsSet,
     cancel,
-    showActionSheetWithOptions,
   ]);
 
   const shouldShowMore = React.useCallback(() => {
