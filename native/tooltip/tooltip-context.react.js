@@ -117,8 +117,11 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
     );
 
     const onPressAction = (selectedIndex: ?number) => {
-      const index = selectedIndex ?? 0;
-      filteredOptions[index].onPress();
+      if (!selectedIndex || selectedIndex < 0) {
+        cancel();
+        return;
+      }
+      filteredOptions[selectedIndex].onPress();
     };
 
     const containerStyle = {
@@ -137,9 +140,9 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
   }, [
     hideTooltip,
     maxOptionsToDisplay,
+    showActionSheetWithOptions,
     visibleEntryIDsSet,
     cancel,
-    showActionSheetWithOptions,
   ]);
 
   const shouldShowMore = React.useCallback(() => {
