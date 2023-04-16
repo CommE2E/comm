@@ -1,6 +1,7 @@
 // @flow
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
@@ -74,6 +75,8 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
     optionsRef.current = optionsRef.current.filter(option => option.id !== id);
   }, []);
 
+  const navigation = useNavigation();
+
   const { cancel, hideTooltip } = props;
   const { showActionSheetWithOptions } = useActionSheet();
   const showActionSheet = React.useCallback(() => {
@@ -117,8 +120,11 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
     );
 
     const onPressAction = (selectedIndex: ?number) => {
-      const index = selectedIndex ?? 0;
-      filteredOptions[index].onPress();
+      if (!selectedIndex || selectedIndex < 0) {
+        navigation.goBack();
+        return;
+      }
+      filteredOptions[selectedIndex].onPress();
     };
 
     const containerStyle = {
@@ -137,9 +143,10 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
   }, [
     hideTooltip,
     maxOptionsToDisplay,
+    showActionSheetWithOptions,
     visibleEntryIDsSet,
     cancel,
-    showActionSheetWithOptions,
+    navigation,
   ]);
 
   const shouldShowMore = React.useCallback(() => {
