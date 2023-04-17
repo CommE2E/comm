@@ -3,6 +3,7 @@
 import type { RouteProp } from '@react-navigation/native';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
+import type { InviteLinkModalParams } from './invite-link-modal.react';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { EmojiAvatarCreationParams } from '../avatars/emoji-avatar-creation.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
@@ -57,6 +58,7 @@ export const FullScreenThreadMediaGalleryRouteName =
 export const HomeChatThreadListRouteName = 'HomeChatThreadList';
 export const ImageModalRouteName = 'ImageModal';
 export const ImagePasteModalRouteName = 'ImagePasteModal';
+export const InviteLinkModalRouteName = 'InviteLinkModal';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const MessageListRouteName = 'MessageList';
 export const MessageReactionsModalRouteName = 'MessageReactionsModal';
@@ -93,6 +95,7 @@ export type RootParamList = {
   +TermsAndPrivacyModal: TermsAndPrivacyModalParams,
   +SubchannelsListModal: SubchannelListModalParams,
   +MessageReactionsModal: MessageReactionsModalParams,
+  +InviteLinkModal: InviteLinkModalParams,
 };
 
 export type MessageTooltipRouteNames =
