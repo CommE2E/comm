@@ -11,7 +11,7 @@ import {
   updateUserAvatar,
   updateUserAvatarActionTypes,
 } from 'lib/actions/user-actions.js';
-import type { ClientEmojiAvatar } from 'lib/types/avatar-types.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -28,16 +28,16 @@ function useShouldRenderAvatars(): boolean {
 }
 
 function useSaveUserAvatar(): (
-  newEmojiAvatarRequest: ClientEmojiAvatar,
+  newAvatarRequest: UpdateUserAvatarRequest,
 ) => mixed {
   const callUpdateUserAvatar = useServerCall(updateUserAvatar);
   const dispatchActionPromise = useDispatchActionPromise();
 
   return React.useCallback(
-    newEmojiAvatarRequest => {
+    newAvatarRequest => {
       const saveAvatarPromise = (async () => {
         try {
-          const response = await callUpdateUserAvatar(newEmojiAvatarRequest);
+          const response = await callUpdateUserAvatar(newAvatarRequest);
           displayActionResultModal('Avatar updated!');
 
           return response;
@@ -61,19 +61,19 @@ function useSaveUserAvatar(): (
 }
 
 function useSaveThreadAvatar(): (
-  newEmojiAvatarRequest: ClientEmojiAvatar,
+  newAvatarRequest: UpdateUserAvatarRequest,
   threadID: string,
 ) => mixed {
   const callChangeThreadSettings = useServerCall(changeThreadSettings);
   const dispatchActionPromise = useDispatchActionPromise();
 
   return React.useCallback(
-    (newEmojiAvatarRequest, threadID) => {
+    (newAvatarRequest, threadID) => {
       const saveAvatarPromise = (async () => {
         try {
           const response = await callChangeThreadSettings({
             threadID,
-            changes: { avatar: newEmojiAvatarRequest },
+            changes: { avatar: newAvatarRequest },
           });
           displayActionResultModal('Avatar updated!');
 
