@@ -102,6 +102,7 @@ import {
 import { encryptMedia } from '../media/encryption-utils.js';
 import { disposeTempFile } from '../media/file-utils.js';
 import { processMedia } from '../media/media-utils.js';
+import { type MediaProcessConfig } from '../media/media-utils.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -724,9 +725,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let processedMedia;
     const processingStart = Date.now();
     try {
+      const onTranscodingProgress = (percent: number) => {
+        this.setProgress(localMessageID, localMediaID, 'transcoding', percent);
+      };
       const processMediaReturn = processMedia(
         selection,
-        this.mediaProcessConfig(localMessageID, localMediaID),
+        this.mediaProcessConfig(onTranscodingProgress),
       );
       reportPromise = processMediaReturn.reportPromise;
       const processResult = await processMediaReturn.resultPromise;
@@ -1006,11 +1010,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return await onUploadFinished(mediaMissionResult);
   }
 
-  mediaProcessConfig(localMessageID: string, localID: string) {
+  mediaProcessConfig(
+    onTranscodingProgress: (percent: number) => void,
+  ): MediaProcessConfig {
     const { hasWiFi, staffCanSee } = this.props;
-    const onTranscodingProgress = (percent: number) => {
-      this.setProgress(localMessageID, localID, 'transcoding', percent);
-    };
     if (staffCanSee) {
       return {
         hasWiFi,

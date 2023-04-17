@@ -16,7 +16,7 @@ import { processImage } from './image-utils.js';
 import { saveMedia } from './save-media.js';
 import { processVideo } from './video-utils.js';
 
-type MediaProcessConfig = {
+export type MediaProcessConfig = {
   +hasWiFi: boolean,
   // Blocks return until we can confirm result has the correct MIME
   +finalFileHeaderCheck?: boolean,
