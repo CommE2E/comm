@@ -1,5 +1,10 @@
 // @flow
 
+import _map from 'lodash/fp/map.js';
+import _mapKeys from 'lodash/fp/mapKeys.js';
+import _mapValues from 'lodash/fp/mapValues.js';
+import type { TType } from 'tcomb';
+
 import type { PolicyType } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -14,14 +19,18 @@ import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-
 import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 
-async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
+async function validateInput(
+  viewer: Viewer,
+  inputValidator: ?TType<mixed>,
+  input: mixed,
+) {
   if (!viewer.isSocket) {
     await checkClientSupported(viewer, inputValidator, input);
   }
   checkInputValidator(inputValidator, input);
 }
 
-function checkInputValidator(inputValidator: *, input: *) {
+function checkInputValidator(inputValidator: ?TType<mixed>, input: mixed) {
   if (!inputValidator || inputValidator.is(input)) {
     return;
   }
@@ -32,8 +41,8 @@ function checkInputValidator(inputValidator: *, input: *) {
 
 async function checkClientSupported(
   viewer: Viewer,
-  inputValidator: *,
-  input: *,
+  inputValidator: ?TType<mixed>,
+  input: mixed,
 ) {
   let platformDetails;
   if (inputValidator) {
@@ -61,34 +70,13 @@ async function checkClientSupported(
 
 const redactedString = '********';
 const redactedTypes = [tPassword, tCookie];
-function sanitizeInput(inputValidator: any, input: any): any {
-  if (!inputValidator) {
-    return input;
-  }
-  if (redactedTypes.includes(inputValidator) && typeof input === 'string') {
-    return redactedString;
-  }
-  if (
-    inputValidator.meta.kind === 'maybe' &&
-    redactedTypes.includes(inputValidator.meta.type) &&
-    typeof input === 'string'
-  ) {
-    return redactedString;
-  }
-  if (
-    inputValidator.meta.kind !== 'interface' ||
-    typeof input !== 'object' ||
-    !input
-  ) {
-    return input;
-  }
-  const result = {};
-  for (const key in input) {
-    const value = input[key];
-    const validator = inputValidator.meta.props[key];
-    result[key] = sanitizeInput(validator, value);
-  }
-  return result;
+function sanitizeInput<T>(inputValidator: TType<T>, input: T): T {
+  return convertObject(
+    inputValidator,
+    input,
+    redactedTypes,
+    () => redactedString,
+  );
 }
 
 function findFirstInputMatchingValidator(
@@ -156,6 +144,83 @@ function findFirstInputMatchingValidator(
   return null;
 }
 
+function convertObject<T, I: any>(
+  validator: TType<I>,
+  input: I,
+  typesToConvert: $ReadOnlyArray<TType<T>>,
+  conversionFunction: T => T,
+): I {
+  if (input === null || input === undefined) {
+    return input;
+  }
+
+  if (typesToConvert.includes(validator) && validator.is(input)) {
+    // At this point generics should be equal (T=I) so this is safe
+    // $FlowExpectedError[incompatible-return]
+    // $FlowExpectedError[incompatible-call]
+    return conversionFunction(input);
+  }
+  if (validator.meta.kind === 'maybe') {
+    return convertObject(
+      validator.meta.type,
+      input,
+      typesToConvert,
+      conversionFunction,
+    );
+  }
+  if (validator.meta.kind === 'interface' && typeof input === 'object') {
+    const result = {};
+    for (const key in input) {
+      const innerValidator = validator.meta.props[key];
+      result[key] = convertObject(
+        innerValidator,
+        input[key],
+        typesToConvert,
+        conversionFunction,
+      );
+    }
+    // convertObject doesn't change any inner types
+    // $FlowExpectedError[incompatible-return]
+    return result;
+  }
+  if (validator.meta.kind === 'union') {
+    for (const innerValidator of validator.meta.types) {
+      if (innerValidator.is(input)) {
+        return convertObject(
+          innerValidator,
+          input,
+          typesToConvert,
+          conversionFunction,
+        );
+      }
+    }
+    return input;
+  }
+  if (validator.meta.kind === 'list' && Array.isArray(input)) {
+    const innerValidator = validator.meta.type;
+    return _map(value =>
+      convertObject(innerValidator, value, typesToConvert, conversionFunction),
+    )(input);
+  }
+  if (validator.meta.kind === 'dict' && typeof input === 'object') {
+    const domainValidator = validator.meta.domain;
+    const codomainValidator = validator.meta.codomain;
+    if (typesToConvert.includes(domainValidator)) {
+      input = _mapKeys(key => conversionFunction(key))(input);
+    }
+    return _mapValues(value =>
+      convertObject(
+        codomainValidator,
+        value,
+        typesToConvert,
+        conversionFunction,
+      ),
+    )(input);
+  }
+
+  return input;
+}
+
 async function policiesValidator(
   viewer: Viewer,
   policies: $ReadOnlyArray<PolicyType>,
@@ -186,5 +251,6 @@ export {
   sanitizeInput,
   findFirstInputMatchingValidator,
   checkClientSupported,
+  convertObject,
   policiesValidator,
 };
