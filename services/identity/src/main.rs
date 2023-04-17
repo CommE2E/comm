@@ -1,5 +1,8 @@
+use std::time::Duration;
+
 use clap::{Parser, Subcommand};
 use database::DatabaseClient;
+use moka::future::Cache;
 use tonic::transport::Server;
 use tracing_subscriber::FmtSubscriber;
 
@@ -56,8 +59,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
       let aws_config = aws_config::from_env().region("us-east-2").load().await;
       let database_client = DatabaseClient::new(&aws_config);
-      let client_service =
-        IdentityClientServiceServer::new(ClientService::new(database_client));
+      let workflow_cache = Cache::builder()
+        .time_to_live(Duration::from_secs(10))
+        .build();
+      let client_service = IdentityClientServiceServer::new(
+        ClientService::new(database_client, workflow_cache),
+      );
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
         .accept_http1(true)
