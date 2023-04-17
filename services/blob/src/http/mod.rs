@@ -13,7 +13,6 @@ mod handlers {
   pub(super) mod blob;
 
   // convenience exports to be used in handlers
-  #[allow(unused)]
   use super::context::{handle_db_error, AppContext};
 }
 
@@ -36,7 +35,8 @@ pub async fn run_http_server(
       .app_data(web::Data::new(ctx))
       .service(
         web::resource("/blob/{holder}")
-          .route(web::get().to(handlers::blob::get_blob_handler)),
+          .route(web::get().to(handlers::blob::get_blob_handler))
+          .route(web::delete().to(handlers::blob::delete_blob_handler)),
       )
   })
   .bind(("0.0.0.0", CONFIG.listen_port))?
