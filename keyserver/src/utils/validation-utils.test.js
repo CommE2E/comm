@@ -2,9 +2,14 @@
 
 import t from 'tcomb';
 
-import { tPassword, tShape } from 'lib/utils/validation-utils.js';
+import { tPassword, tShape, tID } from 'lib/utils/validation-utils.js';
 
-import { sanitizeInput, redactedString } from './validation-utils.js';
+import {
+  convertServerIDsToClientIDs,
+  sanitizeInput,
+  redactedString,
+  convertClientIDsToServerIDs,
+} from './validation-utils.js';
 
 describe('sanitization', () => {
   it('should redact a string', () => {
@@ -70,5 +75,35 @@ describe('sanitization', () => {
     const object = { passwords: [{ password: 'password' }] };
     const redacted = { passwords: [{ password: redactedString }] };
     expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
+  });
+});
+
+describe('id conversion', () => {
+  it('should convert string id', () => {
+    const validator = tShape({ id: tID });
+    const serverData = { id: '1' };
+    const clientData = { id: '0|1' };
+
+    expect(
+      convertServerIDsToClientIDs('0', validator, serverData),
+    ).toStrictEqual(clientData);
+    expect(
+      convertClientIDsToServerIDs('0', validator, clientData),
+    ).toStrictEqual(serverData);
+  });
+
+  it('should convert a complex type', () => {
+    const validator = tShape({ ids: t.dict(tID, t.list(tID)) });
+    const serverData = { ids: { '1': ['11', '12'], '2': [], '3': ['13'] } };
+    const clientData = {
+      ids: { '0|1': ['0|11', '0|12'], '0|2': [], '0|3': ['0|13'] },
+    };
+
+    expect(
+      convertServerIDsToClientIDs('0', validator, serverData),
+    ).toStrictEqual(clientData);
+    expect(
+      convertClientIDsToServerIDs('0', validator, clientData),
+    ).toStrictEqual(serverData);
   });
 });

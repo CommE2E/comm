@@ -6,6 +6,7 @@ import type { TType, TInterface } from 'tcomb';
 
 import type { PolicyType } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import { isWebPlatform } from 'lib/types/device-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
   tCookie,
@@ -13,6 +14,7 @@ import {
   tPlatform,
   tPlatformDetails,
   assertWithValidator,
+  tID,
 } from 'lib/utils/validation-utils.js';
 
 import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
@@ -28,6 +30,70 @@ async function validateInput<T>(
     await checkClientSupported(viewer, inputValidator, input);
   }
   checkInputValidator(inputValidator, input);
+}
+
+const convertToNewIDSchema = false;
+const keyserverPrefixID = '256';
+
+function validateOutput<T>(
+  viewer: Viewer,
+  outputValidator: TType<T>,
+  data: T,
+): T {
+  if (!outputValidator.is(data)) {
+    console.trace(
+      'Output validation failed, validator is:',
+      outputValidator.displayName,
+    );
+    return data;
+  }
+
+  if (
+    hasMinCodeVersion(viewer.platformDetails, 1000) &&
+    !isWebPlatform(viewer.platformDetails?.platform) &&
+    convertToNewIDSchema
+  ) {
+    return convertServerIDsToClientIDs(
+      keyserverPrefixID,
+      outputValidator,
+      data,
+    );
+  }
+
+  return data;
+}
+
+function convertServerIDsToClientIDs<T>(
+  serverPrefixID: string,
+  outputValidator: TType<T>,
+  data: T,
+): T {
+  const conversionFunction = id => {
+    if (id.indexOf('|') !== -1) {
+      console.warn(`Server id '${id}' already has a prefix`);
+      return id;
+    }
+    return `${serverPrefixID}|${id}`;
+  };
+
+  return convertObject(outputValidator, data, [tID], conversionFunction);
+}
+
+function convertClientIDsToServerIDs<T>(
+  serverPrefixID: string,
+  outputValidator: TType<T>,
+  data: T,
+): T {
+  const prefix = serverPrefixID + '|';
+  const conversionFunction = id => {
+    if (id.startsWith(prefix)) {
+      return id.substr(prefix.length);
+    }
+
+    throw new ServerError('invalid_client_id_prefix');
+  };
+
+  return convertObject(outputValidator, data, [tID], conversionFunction);
 }
 
 function checkInputValidator<T>(inputValidator: ?TType<T>, input: T) {
@@ -250,11 +316,14 @@ async function policiesValidator(
 
 export {
   validateInput,
+  validateOutput,
   checkInputValidator,
   redactedString,
   sanitizeInput,
   findFirstInputMatchingValidator,
   checkClientSupported,
+  convertServerIDsToClientIDs,
+  convertClientIDsToServerIDs,
   convertObject,
   policiesValidator,
 };
