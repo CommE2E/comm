@@ -503,11 +503,15 @@ async function createThread(
   };
 }
 
-function createPrivateThread(viewer: Viewer): Promise<NewThreadResponse> {
+function createPrivateThread(
+  viewer: Viewer,
+  username: string,
+): Promise<NewThreadResponse> {
   return createThread(
     viewer,
     {
       type: threadTypes.PRIVATE,
+      name: username,
       description: privateThreadDescription,
       ghostMemberIDs: [commbot.userID],
     },
