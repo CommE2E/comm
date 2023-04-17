@@ -45,7 +45,7 @@ import ThreadSettings from './settings/thread-settings.react.js';
 import ThreadScreenPruner from './thread-screen-pruner.react.js';
 import ThreadSettingsButton from './thread-settings-button.react.js';
 import ThreadSettingsHeaderTitle from './thread-settings-header-title.react.js';
-import EmojiAvatarCreation from '../components/emoji-avatar-creation.react.js'; // TODO: move this to components
+import EmojiAvatarCreation from '../components/emoji-avatar-creation.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
@@ -236,7 +236,7 @@ const messageListOptions = ({ navigation, route }) => {
         )
       : undefined,
     headerBackTitleVisible: false,
-    headerTitleAlign: areSettingsEnabled ? 'left' : 'center',
+    headerTitleAlign: isSearchEmpty ? 'center' : 'left',
     headerLeftContainerStyle: { width: Platform.OS === 'ios' ? 32 : 40 },
   };
 };
