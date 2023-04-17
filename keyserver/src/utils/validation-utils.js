@@ -61,7 +61,7 @@ async function checkClientSupported(
 
 const redactedString = '********';
 const redactedTypes = [tPassword, tCookie];
-function sanitizeInput(inputValidator: *, input: *) {
+function sanitizeInput(inputValidator: any, input: any): any {
   if (!inputValidator) {
     return input;
   }
@@ -182,6 +182,9 @@ async function policiesValidator(
 export {
   validateInput,
   checkInputValidator,
+  redactedString,
+  sanitizeInput,
+  findFirstInputMatchingValidator,
   checkClientSupported,
   policiesValidator,
 };
