@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, ensure, Result};
 use aws_sdk_s3::{
   model::{CompletedMultipartUpload, CompletedPart},
   output::CreateMultipartUploadOutput,
@@ -197,6 +197,12 @@ impl MultiPartUploadSession {
 
   /// finishes the upload
   pub async fn finish_upload(&self) -> Result<()> {
+    // TODO: handle this as S3-specific error
+    ensure!(
+      !self.upload_parts.is_empty(),
+      "There are no parts to upload"
+    );
+
     let completed_multipart_upload = CompletedMultipartUpload::builder()
       .set_parts(Some(self.upload_parts.clone()))
       .build();
