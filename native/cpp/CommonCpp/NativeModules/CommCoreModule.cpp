@@ -436,6 +436,10 @@ const std::string REMOVE_MSGS_FOR_THREADS_OPERATION =
     "remove_messages_for_threads";
 const std::string REMOVE_ALL_OPERATION = "remove_all";
 
+const std::string REPLACE_MESSAGE_THREADS_OPERATION = "replace_threads";
+const std::string REMOVE_MESSAGE_THREADS_OPERATION = "remove_threads";
+const std::string REMOVE_ALL_MESSAGE_THREADS_OPERATION = "remove_all_threads";
+
 std::vector<std::unique_ptr<MessageStoreOperationBase>>
 createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
@@ -447,6 +451,11 @@ createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
     if (op_type == REMOVE_ALL_OPERATION) {
       messageStoreOps.push_back(std::make_unique<RemoveAllMessagesOperation>());
+      continue;
+    }
+    if (op_type == REMOVE_ALL_MESSAGE_THREADS_OPERATION) {
+      messageStoreOps.push_back(
+          std::make_unique<RemoveAllMessageStoreThreadsOperation>());
       continue;
     }
 
@@ -467,6 +476,13 @@ createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
       messageStoreOps.push_back(
           std::make_unique<RekeyMessageOperation>(rt, payload_obj));
 
+    } else if (op_type == REPLACE_MESSAGE_THREADS_OPERATION) {
+      messageStoreOps.push_back(
+          std::make_unique<ReplaceMessageThreadsOperation>(rt, payload_obj));
+    } else if (op_type == REMOVE_MESSAGE_THREADS_OPERATION) {
+      messageStoreOps.push_back(
+          std::make_unique<RemoveMessageStoreThreadsOperation>(
+              rt, payload_obj));
     } else {
       throw std::runtime_error("unsupported operation: " + op_type);
     }
