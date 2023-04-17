@@ -38,6 +38,10 @@ pub async fn run_http_server(
           .route(web::get().to(handlers::blob::get_blob_handler))
           .route(web::delete().to(handlers::blob::delete_blob_handler)),
       )
+      .service(
+        web::resource("/blob")
+          .route(web::post().to(handlers::blob::assign_holder_handler)),
+      )
   })
   .bind(("0.0.0.0", CONFIG.listen_port))?
   .run()
