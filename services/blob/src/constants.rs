@@ -24,6 +24,10 @@ pub const GRPC_CHUNK_SIZE_LIMIT: u64 = 4 * 1024 * 1024;
 /// See [`GRPC_CHUNK_SIZE_LIMIT`] description for details
 pub const GRPC_METADATA_SIZE_PER_MESSAGE: u64 = 5;
 
+// HTTP constants
+
+pub const BLOB_DOWNLOAD_CHUNK_SIZE: u64 = 5 * 1024 * 1024;
+
 // DynamoDB constants
 
 pub const BLOB_TABLE_NAME: &str = "blob-service-blob";

@@ -18,7 +18,6 @@ pub struct AppContext {
 }
 
 impl AppContext {
-  #[allow(dead_code)]
   pub async fn find_s3_path_by_reverse_index(
     &self,
     reverse_index_item: &ReverseIndexItem,
@@ -34,7 +33,6 @@ impl AppContext {
     }
   }
 
-  #[allow(dead_code)]
   pub async fn find_s3_path_by_holder(
     &self,
     holder: &str,
