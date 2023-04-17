@@ -1,13 +1,14 @@
 // @flow
 
 import t from 'tcomb';
-import type { TList, TInterface } from 'tcomb';
+import type { TList } from 'tcomb';
 
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
   SetThreadUnreadStatusRequest,
   SetThreadUnreadStatusResult,
+  ActivityUpdate,
 } from 'lib/types/activity-types.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
@@ -18,7 +19,7 @@ import {
 } from '../updaters/activity-updaters.js';
 import { validateInput } from '../utils/validation-utils.js';
 
-const activityUpdatesInputValidator: TList<TInterface> = t.list(
+const activityUpdatesInputValidator: TList<Array<ActivityUpdate>> = t.list(
   tShape({
     focus: t.Bool,
     threadID: t.String,
