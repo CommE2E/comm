@@ -16,7 +16,7 @@ napi = { version = "2.10.1", default-features = false, features = [
 napi-derive = { version = "2.9.1", default-features = false }
 opaque-ke = "1.2"
 rand = "0.8"
-tonic = "0.8"
+tonic = "0.9.1"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1"
 tracing = "0.1"
@@ -29,7 +29,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
 napi-build = "2.0.1"
-tonic-build = "0.8"
+tonic-build = "0.9.1"
 
 [profile.release]
 lto = true

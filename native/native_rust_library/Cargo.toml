@@ -10,7 +10,7 @@ license = "BSD-3-Clause"
 cxx = "1.0"
 tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1"
-tonic = "0.8"
+tonic = "0.9.1"
 prost = "0.11"
 lazy_static = "1.4"
 rand = "0.8"
@@ -22,7 +22,7 @@ derive_more = "0.99"
 
 [build-dependencies]
 cxx-build = "1.0"
-tonic-build = "0.8"
+tonic-build = "0.9.1"
 
 [lib]
 crate-type = ["staticlib"]
