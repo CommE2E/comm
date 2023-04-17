@@ -10,11 +10,12 @@ import type { Viewer } from '../session/viewer.js';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters.js';
 import { validateInput } from '../utils/validation-utils.js';
 
-const deviceTokenUpdateRequestInputValidator: TInterface = tShape({
-  deviceToken: t.maybe(t.String),
-  deviceType: t.maybe(t.enums.of(['ios', 'android'])),
-  platformDetails: t.maybe(tPlatformDetails),
-});
+const deviceTokenUpdateRequestInputValidator: TInterface<DeviceTokenUpdateRequest> =
+  tShape({
+    deviceToken: t.maybe(t.String),
+    deviceType: t.maybe(t.enums.of(['ios', 'android'])),
+    platformDetails: t.maybe(tPlatformDetails),
+  });
 
 async function deviceTokenUpdateResponder(
   viewer: Viewer,

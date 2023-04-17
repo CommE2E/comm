@@ -9,6 +9,8 @@ import {
   type ReportCreationRequest,
   type FetchErrorReportInfosResponse,
   type FetchErrorReportInfosRequest,
+  type ThreadInconsistencyReportShape,
+  type EntryInconsistencyReportShape,
   reportTypes,
 } from 'lib/types/report-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -32,27 +34,29 @@ const tActionSummary = tShape({
   time: t.Number,
   summary: t.String,
 });
-const threadInconsistencyReportValidatorShape: TStructProps = {
-  platformDetails: tPlatformDetails,
-  beforeAction: t.Object,
-  action: t.Object,
-  pollResult: t.maybe(t.Object),
-  pushResult: t.Object,
-  lastActionTypes: t.maybe(t.list(t.String)),
-  lastActions: t.maybe(t.list(tActionSummary)),
-  time: t.maybe(t.Number),
-};
-const entryInconsistencyReportValidatorShape: TStructProps = {
-  platformDetails: tPlatformDetails,
-  beforeAction: t.Object,
-  action: t.Object,
-  calendarQuery: newEntryQueryInputValidator,
-  pollResult: t.maybe(t.Object),
-  pushResult: t.Object,
-  lastActionTypes: t.maybe(t.list(t.String)),
-  lastActions: t.maybe(t.list(tActionSummary)),
-  time: t.Number,
-};
+const threadInconsistencyReportValidatorShape: TStructProps<ThreadInconsistencyReportShape> =
+  {
+    platformDetails: tPlatformDetails,
+    beforeAction: t.Object,
+    action: t.Object,
+    pollResult: t.maybe(t.Object),
+    pushResult: t.Object,
+    lastActionTypes: t.maybe(t.list(t.String)),
+    lastActions: t.maybe(t.list(tActionSummary)),
+    time: t.maybe(t.Number),
+  };
+const entryInconsistencyReportValidatorShape: TStructProps<EntryInconsistencyReportShape> =
+  {
+    platformDetails: tPlatformDetails,
+    beforeAction: t.Object,
+    action: t.Object,
+    calendarQuery: newEntryQueryInputValidator,
+    pollResult: t.maybe(t.Object),
+    pushResult: t.Object,
+    lastActionTypes: t.maybe(t.list(t.String)),
+    lastActions: t.maybe(t.list(tActionSummary)),
+    time: t.Number,
+  };
 const userInconsistencyReportValidatorShape = {
   platformDetails: tPlatformDetails,
   action: t.Object,
