@@ -34,8 +34,8 @@ use comm_opaque::Cipher;
 
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
-  curve25519: String,
-  ed25519: String,
+  pub curve25519: String,
+  pub ed25519: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -403,10 +403,7 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
-  pub async fn username_available(
-    &self,
-    username: String,
-  ) -> Result<bool, Error> {
+  pub async fn username_taken(&self, username: String) -> Result<bool, Error> {
     let result = self
       .client
       .get_item()
@@ -417,7 +414,7 @@ impl DatabaseClient {
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
 
-    Ok(result.item.is_none())
+    Ok(result.item.is_some())
   }
 
   pub async fn get_user_id_from_user_info(
