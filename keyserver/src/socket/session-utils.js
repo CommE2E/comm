@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import t from 'tcomb';
-import type { TUnion, TInterface } from 'tcomb';
+import type { TUnion } from 'tcomb';
 
 import {
   usersInRawEntryInfos,
@@ -74,7 +74,7 @@ import { compareNewCalendarQuery } from '../updaters/entry-updaters.js';
 import type { SessionUpdate } from '../updaters/session-updaters.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
 
-const clientResponseInputValidator: TUnion<TInterface> = t.union([
+const clientResponseInputValidator: TUnion<ClientResponse> = t.union([
   tShape({
     type: t.irreducible(
       'serverRequestTypes.PLATFORM',

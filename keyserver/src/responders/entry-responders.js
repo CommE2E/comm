@@ -40,7 +40,7 @@ import {
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
 import { validateInput } from '../utils/validation-utils.js';
 
-const entryQueryInputValidator: TInterface = tShape({
+const entryQueryInputValidator: TInterface<any> = tShape({
   navID: t.maybe(t.String),
   startDate: tDate,
   endDate: tDate,
@@ -59,7 +59,7 @@ const entryQueryInputValidator: TInterface = tShape({
     ),
   ),
 });
-const newEntryQueryInputValidator: TInterface = tShape({
+const newEntryQueryInputValidator: TInterface<any> = tShape({
   startDate: tDate,
   endDate: tDate,
   filters: t.list(
