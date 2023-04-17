@@ -18,6 +18,7 @@ import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 
 import AppNavigator from './app-navigator.react.js';
+import InviteLinkModal from './invite-link-modal.react.js';
 import { defaultStackScreenOptions } from './options.js';
 import { RootNavigatorContext } from './root-navigator-context.js';
 import RootRouter, {
@@ -39,6 +40,7 @@ import {
   type RootParamList,
   TermsAndPrivacyRouteName,
   RegistrationRouteName,
+  InviteLinkModalRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
@@ -202,6 +204,11 @@ function RootComponent(): React.Node {
         name={TermsAndPrivacyRouteName}
         component={TermsAndPrivacyModal}
         options={termsAndPrivacyModalScreenOptions}
+      />
+      <Root.Screen
+        name={InviteLinkModalRouteName}
+        component={InviteLinkModal}
+        options={modalOverlayScreenOptions}
       />
       <Root.Screen
         name={ThreadPickerModalRouteName}
