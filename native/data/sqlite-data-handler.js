@@ -151,7 +151,7 @@ function SQLiteDataHandler(): React.Node {
         mediaCacheContext?.evictCache(),
       ]);
       try {
-        const { threads, messages, drafts } =
+        const { threads, messages, drafts, messageStoreThreads } =
           await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           convertClientDBThreadInfosToRawThreadInfos(threads);
@@ -162,6 +162,7 @@ function SQLiteDataHandler(): React.Node {
             messages,
             threadStore: { threadInfos: threadInfosFromDB },
             currentUserID: currentLoggedInUserID,
+            messageStoreThreads,
           },
         });
       } catch (setStoreException) {
