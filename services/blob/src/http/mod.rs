@@ -40,6 +40,7 @@ pub async fn run_http_server(
       )
       .service(
         web::resource("/blob")
+          .route(web::put().to(handlers::blob::upload_blob_handler))
           .route(web::post().to(handlers::blob::assign_holder_handler)),
       )
   })
