@@ -129,6 +129,7 @@ function getClientStore(): ClientDBStore {
     drafts: getAllDrafts(sqliteDb),
     messages: [],
     threads: [],
+    messageStoreThreads: [],
   };
 }
 

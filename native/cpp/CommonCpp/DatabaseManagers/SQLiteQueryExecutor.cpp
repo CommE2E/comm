@@ -1100,6 +1100,11 @@ void SQLiteQueryExecutor::removeMessageStoreThreads(
       where(in(&MessageStoreThread::id, ids)));
 }
 
+std::vector<MessageStoreThread>
+SQLiteQueryExecutor::getAllMessageStoreThreads() const {
+  return SQLiteQueryExecutor::getStorage().get_all<MessageStoreThread>();
+}
+
 std::vector<Thread> SQLiteQueryExecutor::getAllThreads() const {
   return SQLiteQueryExecutor::getStorage().get_all<Thread>();
 };
