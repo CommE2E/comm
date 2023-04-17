@@ -31,6 +31,7 @@ import type {
   ClientDBThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
+  convertMessageStoreOperationsToClientDBOperations,
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
@@ -504,6 +505,29 @@ const migrations = {
 
     return state;
   },
+  [37]: state => {
+    const operations = convertMessageStoreOperationsToClientDBOperations([
+      {
+        type: 'remove_all_threads',
+      },
+      {
+        type: 'replace_threads',
+        payload: { threads: state.messageStore.threads },
+      },
+    ]);
+
+    try {
+      commCoreModule.processMessageStoreOperationsSync(operations);
+    } catch (exception) {
+      console.error(exception);
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return { ...state, cookie: null };
+    }
+
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -584,7 +608,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 36,
+  version: 37,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
