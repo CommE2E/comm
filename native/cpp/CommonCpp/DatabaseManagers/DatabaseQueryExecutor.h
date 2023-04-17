@@ -49,6 +49,7 @@ public:
   virtual void
   removeMessageStoreThreads(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllMessageStoreThreads() const = 0;
+  virtual std::vector<MessageStoreThread> getAllMessageStoreThreads() const = 0;
   virtual void
   removeMediaForMessages(const std::vector<std::string> &msg_ids) const = 0;
   virtual void removeMediaForMessage(std::string msg_id) const = 0;
