@@ -46,6 +46,7 @@ public:
   void
   removeMessageStoreThreads(const std::vector<std::string> &ids) const override;
   void removeAllMessageStoreThreads() const override;
+  std::vector<MessageStoreThread> getAllMessageStoreThreads() const override;
   void removeAllMedia() const override;
   void removeMediaForMessages(
       const std::vector<std::string> &msg_ids) const override;
