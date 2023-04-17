@@ -159,4 +159,64 @@ public:
   }
 };
 
+class ReplaceMessageThreadsOperation : public MessageStoreOperationBase {
+public:
+  ReplaceMessageThreadsOperation(jsi::Runtime &rt, const jsi::Object &payload)
+      : msg_threads{} {
+    auto threads = payload.getProperty(rt, "threads").asObject(rt).asArray(rt);
+    for (size_t idx = 0; idx < threads.size(rt); idx++) {
+      auto thread = threads.getValueAtIndex(rt, idx).asObject(rt);
+
+      auto thread_id = thread.getProperty(rt, "id").asString(rt).utf8(rt);
+      auto start_reached = std::stoi(
+          thread.getProperty(rt, "start_reached").asString(rt).utf8(rt));
+      auto last_navigated_to = std::stoll(
+          thread.getProperty(rt, "last_navigated_to").asString(rt).utf8(rt));
+      auto last_pruned = std::stoll(
+          thread.getProperty(rt, "last_pruned").asString(rt).utf8(rt));
+
+      MessageStoreThread msg_thread = MessageStoreThread{
+          thread_id, start_reached, last_navigated_to, last_pruned};
+      this->msg_threads.push_back(msg_thread);
+    }
+  }
+
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().replaceMessageStoreThread(
+        this->msg_threads);
+  }
+
+private:
+  std::vector<MessageStoreThread> msg_threads;
+};
+
+class RemoveAllMessageStoreThreadsOperation : public MessageStoreOperationBase {
+public:
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().removeAllMessageStoreThreads();
+  }
+};
+
+class RemoveMessageStoreThreadsOperation : public MessageStoreOperationBase {
+public:
+  RemoveMessageStoreThreadsOperation(
+      jsi::Runtime &rt,
+      const jsi::Object &payload)
+      : thread_ids{} {
+    auto payload_ids = payload.getProperty(rt, "ids").asObject(rt).asArray(rt);
+    for (size_t idx = 0; idx < payload_ids.size(rt); idx++) {
+      this->thread_ids.push_back(
+          payload_ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt));
+    }
+  }
+
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().removeMessageStoreThreads(
+        this->thread_ids);
+  }
+
+private:
+  std::vector<std::string> thread_ids;
+};
+
 } // namespace comm
