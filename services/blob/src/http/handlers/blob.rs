@@ -1,11 +1,15 @@
 use crate::constants::BLOB_DOWNLOAD_CHUNK_SIZE;
+use crate::database::ReverseIndexItem;
 
 use super::{handle_db_error, AppContext};
-use actix_web::error::{ErrorInternalServerError, ErrorNotFound};
+use actix_web::error::{
+  ErrorConflict, ErrorInternalServerError, ErrorNotFound,
+};
 use actix_web::{web, Error as HttpError, HttpResponse};
 use anyhow::Result;
 use async_stream::{try_stream, AsyncStream};
-use tracing::{debug, error, info, instrument, trace};
+use serde::{Deserialize, Serialize};
+use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_futures::Instrument;
 
 #[instrument(
@@ -60,6 +64,54 @@ pub async fn get_blob_handler(
       .content_type("application/octet-stream")
       .streaming(Box::pin(stream.in_current_span())),
   )
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AssignHolderPayload {
+  holder: String,
+  blob_hash: String,
+}
+
+#[derive(Serialize)]
+struct AssignHolderResponnse {
+  data_exists: bool,
+}
+
+#[instrument(name = "assign_holder", skip(ctx))]
+pub async fn assign_holder_handler(
+  ctx: web::Data<AppContext>,
+  payload: web::Json<AssignHolderPayload>,
+) -> actix_web::Result<HttpResponse> {
+  info!("Assign holder request");
+  let AssignHolderPayload { holder, blob_hash } = payload.into_inner();
+
+  if ctx
+    .db
+    .find_reverse_index_by_holder(&holder)
+    .await
+    .map_err(handle_db_error)?
+    .is_some()
+  {
+    warn!("holder already assigned");
+    return Err(ErrorConflict("holder already assigned"));
+  }
+
+  let data_exists = ctx
+    .db
+    .find_blob_item(&blob_hash)
+    .await
+    .map_err(handle_db_error)?
+    .is_some();
+  debug!(data_exists, "Checked blob item existence");
+
+  let reverse_index_item = ReverseIndexItem { holder, blob_hash };
+  ctx
+    .db
+    .put_reverse_index_item(reverse_index_item)
+    .await
+    .map_err(handle_db_error)?;
+
+  Ok(HttpResponse::Ok().json(web::Json(AssignHolderResponnse { data_exists })))
 }
 
 #[instrument(
