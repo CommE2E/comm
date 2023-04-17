@@ -267,6 +267,28 @@ jsi::Array parseDBThreads(
   return jsiThreads;
 }
 
+jsi::Array parseDBMessageStoreThreads(
+    jsi::Runtime &rt,
+    std::shared_ptr<std::vector<MessageStoreThread>> threadsVectorPtr) {
+  size_t numThreads = threadsVectorPtr->size();
+  jsi::Array jsiThreads = jsi::Array(rt, numThreads);
+  size_t writeIdx = 0;
+
+  for (const MessageStoreThread &thread : *threadsVectorPtr) {
+    jsi::Object jsiThread = jsi::Object(rt);
+    jsiThread.setProperty(rt, "id", thread.id);
+    jsiThread.setProperty(
+        rt, "start_reached", std::to_string(thread.start_reached));
+    jsiThread.setProperty(
+        rt, "last_navigated_to", std::to_string(thread.last_navigated_to));
+    jsiThread.setProperty(
+        rt, "last_pruned", std::to_string(thread.last_pruned));
+
+    jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
+  }
+  return jsiThreads;
+}
+
 jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -275,11 +297,14 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<Draft> draftsVector;
           std::vector<Thread> threadsVector;
           std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
+          std::vector<MessageStoreThread> messageStoreThreadsVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
                 DatabaseManager::getQueryExecutor().getAllMessages();
             threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
+            messageStoreThreadsVector =
+                DatabaseManager::getQueryExecutor().getAllMessageStoreThreads();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -290,10 +315,14 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
               std::move(messagesVector));
           auto threadsVectorPtr =
               std::make_shared<std::vector<Thread>>(std::move(threadsVector));
+          auto messageStoreThreadsVectorPtr =
+              std::make_shared<std::vector<MessageStoreThread>>(
+                  std::move(messageStoreThreadsVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
                                          threadsVectorPtr,
+                                         messageStoreThreadsVectorPtr,
                                          error,
                                          promise]() {
             if (error.size()) {
@@ -304,11 +333,15 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             jsi::Array jsiMessages =
                 parseDBMessages(innerRt, messagesVectorPtr);
             jsi::Array jsiThreads = parseDBThreads(innerRt, threadsVectorPtr);
+            jsi::Array jsiMessageStoreThreads = parseDBMessageStoreThreads(
+                innerRt, messageStoreThreadsVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
             jsiClientDBStore.setProperty(innerRt, "threads", jsiThreads);
             jsiClientDBStore.setProperty(innerRt, "drafts", jsiDrafts);
+            jsiClientDBStore.setProperty(
+                innerRt, "messageStoreThreads", jsiMessageStoreThreads);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
