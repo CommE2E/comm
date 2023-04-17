@@ -1,11 +1,11 @@
 use crate::constants::BLOB_DOWNLOAD_CHUNK_SIZE;
 
-use super::AppContext;
-use actix_web::error::ErrorInternalServerError;
+use super::{handle_db_error, AppContext};
+use actix_web::error::{ErrorInternalServerError, ErrorNotFound};
 use actix_web::{web, Error as HttpError, HttpResponse};
 use anyhow::Result;
 use async_stream::{try_stream, AsyncStream};
-use tracing::{error, info, instrument, trace};
+use tracing::{debug, error, info, instrument, trace};
 use tracing_futures::Instrument;
 
 #[instrument(
@@ -60,4 +60,62 @@ pub async fn get_blob_handler(
       .content_type("application/octet-stream")
       .streaming(Box::pin(stream.in_current_span())),
   )
+}
+
+#[instrument(
+  name = "delete_blob",
+  skip_all,
+  fields(holder = %params.as_ref().as_str()))
+]
+pub async fn delete_blob_handler(
+  ctx: web::Data<AppContext>,
+  params: web::Path<String>,
+) -> actix_web::Result<HttpResponse> {
+  info!("Delete blob request");
+  let holder = params.into_inner();
+  let reverse_index_item = ctx
+    .db
+    .find_reverse_index_by_holder(&holder)
+    .await
+    .map_err(handle_db_error)?
+    .ok_or_else(|| {
+      debug!("Blob not found");
+      ErrorNotFound("Blob not found")
+    })?;
+  let blob_hash = &reverse_index_item.blob_hash;
+
+  ctx
+    .db
+    .remove_reverse_index_item(&holder)
+    .await
+    .map_err(handle_db_error)?;
+
+  // TODO: handle cleanup here properly
+  // for now the object's being removed right away
+  // after the last holder was removed
+  if ctx
+    .db
+    .find_reverse_index_by_hash(blob_hash)
+    .await
+    .map_err(handle_db_error)?
+    .is_empty()
+  {
+    let s3_path = ctx
+      .find_s3_path_by_reverse_index(&reverse_index_item)
+      .await?;
+    debug!("Last holder removed. Deleting S3 object: {:?}", &s3_path);
+
+    ctx.s3.delete_object(&s3_path).await.map_err(|e| {
+      error!("Failed to delete S3 object: {:?}", e);
+      ErrorInternalServerError("server error")
+    })?;
+
+    ctx
+      .db
+      .remove_blob_item(blob_hash)
+      .await
+      .map_err(handle_db_error)?;
+  }
+
+  Ok(HttpResponse::NoContent().finish())
 }
