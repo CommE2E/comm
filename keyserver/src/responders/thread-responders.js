@@ -1,7 +1,7 @@
 // @flow
 
 import t from 'tcomb';
-import type { TUnion, TInterface } from 'tcomb';
+import type { TUnion } from 'tcomb';
 
 import {
   type ThreadDeletionRequest,
@@ -138,7 +138,7 @@ const threadRequestValidationShape = {
   initialMemberIDs: t.maybe(t.list(t.String)),
   calendarQuery: t.maybe(entryQueryInputValidator),
 };
-const newThreadRequestInputValidator: TUnion<TInterface> = t.union([
+const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
   tShape({
     type: tNumEnum([threadTypes.SIDEBAR]),
     sourceMessageID: t.String,
