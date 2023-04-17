@@ -1,12 +1,18 @@
 // @flow
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
-import { View, TouchableOpacity, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, TouchableWithoutFeedback } from 'react-native';
 
-import CommIcon from '../components/comm-icon.react.js';
+import {
+  extensionFromFilename,
+  filenameFromPathOrURI,
+} from 'lib/media/file-utils.js';
+import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { getCompatibleMediaURI } from '../media/identifier-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -22,71 +28,81 @@ function EditAvatar(props: Props): React.Node {
   const colors = useColors();
   const styles = useStyles(unboundStyles);
 
-  const editAvatarOptions = React.useMemo(() => {
-    const options = [
+  const onPressAvatarPhotoGalleryFlow = React.useCallback(async () => {
+    try {
+      const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        // maximum quality is 1 - it disables compression
+        quality: 1,
+      });
+
+      if (canceled || assets.length === 0) {
+        return;
+      }
+
+      const selections: $ReadOnlyArray<MediaLibrarySelection> = assets.map(
+        asset => {
+          const { width, height, fileName, assetId: mediaNativeID } = asset;
+          const filename = fileName || filenameFromPathOrURI(asset.uri) || '';
+          const uri = getCompatibleMediaURI(
+            asset.uri,
+            extensionFromFilename(filename),
+          );
+
+          return {
+            step: 'photo_library',
+            dimensions: { height, width },
+            uri,
+            filename,
+            mediaNativeID,
+            selectTime: 0,
+            sendTime: 0,
+            retries: 0,
+          };
+        },
+      );
+
+      console.log(selections);
+    } catch (e) {
+      if (__DEV__) {
+        console.warn(e);
+      }
+    }
+  }, []);
+
+  const onPressEditAvatar = React.useCallback(() => {
+    const actionSheetOptions = [
       {
         id: 'emoji',
         text: 'Use Emoji',
         onPress: onPressEmojiAvatarFlow,
-        icon: (
-          <CommIcon
-            name="emote-smile-filled"
-            size={18}
-            style={styles.bottomSheetIcon}
-          />
-        ),
+      },
+      {
+        id: 'gallery',
+        text: 'Photo Gallery',
+        onPress: onPressAvatarPhotoGalleryFlow,
       },
     ];
 
-    if (Platform.OS === 'ios') {
-      options.push({
-        id: 'cancel',
-        text: 'Cancel',
-        isCancel: true,
-      });
-    }
-    return options;
-  }, [onPressEmojiAvatarFlow, styles.bottomSheetIcon]);
-
-  const insets = useSafeAreaInsets();
-
-  const onPressEditAvatar = React.useCallback(() => {
-    const texts = editAvatarOptions.map(option => option.text);
-
-    const cancelButtonIndex = editAvatarOptions.findIndex(
-      option => option.isCancel,
-    );
-
-    const containerStyle = {
-      paddingBottom: insets.bottom,
-    };
-
-    const icons = editAvatarOptions.map(option => option.icon);
-
     const onPressAction = (selectedIndex: ?number) => {
-      if (
-        selectedIndex === null ||
-        selectedIndex === undefined ||
-        selectedIndex < 0
-      ) {
-        return;
-      }
-      const option = editAvatarOptions[selectedIndex];
-      if (option.onPress) {
-        option.onPress();
-      }
+      const index = selectedIndex ?? 0;
+      actionSheetOptions[index].onPress();
     };
+
+    const texts = actionSheetOptions.map(option => option.text);
 
     showActionSheetWithOptions(
       {
         options: texts,
-        cancelButtonIndex,
-        containerStyle,
-        icons,
       },
       onPressAction,
     );
-  }, [editAvatarOptions, insets.bottom, showActionSheetWithOptions]);
+  }, [
+    onPressAvatarPhotoGalleryFlow,
+    onPressEmojiAvatarFlow,
+    showActionSheetWithOptions,
+  ]);
 
   const editBadge = React.useMemo(() => {
     if (disabled) {
@@ -111,10 +127,12 @@ function EditAvatar(props: Props): React.Node {
   ]);
 
   return (
-    <TouchableOpacity onPress={onPressEditAvatar} disabled={disabled}>
-      {children}
-      {editBadge}
-    </TouchableOpacity>
+    <TouchableWithoutFeedback onPress={onPressEditAvatar} disabled={disabled}>
+      <View>
+        {children}
+        {editBadge}
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -133,9 +151,6 @@ const unboundStyles = {
   },
   editAvatarIcon: {
     textAlign: 'center',
-  },
-  bottomSheetIcon: {
-    color: '#000000',
   },
 };
 
