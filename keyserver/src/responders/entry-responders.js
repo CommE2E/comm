@@ -16,7 +16,10 @@ import type {
   DeltaEntryInfosResult,
   SaveEntryResponse,
 } from 'lib/types/entry-types.js';
-import { calendarThreadFilterTypes } from 'lib/types/filter-types.js';
+import {
+  type CalendarFilter,
+  calendarThreadFilterTypes,
+} from 'lib/types/filter-types.js';
 import type {
   FetchEntryRevisionInfosResult,
   FetchEntryRevisionInfosRequest,
@@ -40,7 +43,14 @@ import {
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
 import { validateInput } from '../utils/validation-utils.js';
 
-const entryQueryInputValidator: TInterface = tShape({
+type EntryQueryInput = {
+  navID: string,
+  startDate: string,
+  endDate: string,
+  includeDeleted: ?boolean,
+  filters: ?$ReadOnlyArray<CalendarFilter>,
+};
+const entryQueryInputValidator: TInterface<EntryQueryInput> = tShape({
   navID: t.maybe(t.String),
   startDate: tDate,
   endDate: tDate,
@@ -59,7 +69,8 @@ const entryQueryInputValidator: TInterface = tShape({
     ),
   ),
 });
-const newEntryQueryInputValidator: TInterface = tShape({
+
+const newEntryQueryInputValidator: TInterface<CalendarQuery> = tShape({
   startDate: tDate,
   endDate: tDate,
   filters: t.list(
