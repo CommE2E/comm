@@ -37,6 +37,7 @@ function ThreadSettingsAvatar(props: Props): React.Node {
       <EditAvatar
         onPressEmojiAvatarFlow={onPressEmojiAvatarFlow}
         disabled={!canChangeSettings}
+        childAvatarType="thread"
       >
         <ThreadAvatar size="profile" threadInfo={threadInfo} />
       </EditAvatar>

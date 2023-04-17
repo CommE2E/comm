@@ -131,7 +131,10 @@ class ProfileScreen extends React.PureComponent<Props> {
           <View
             style={[this.props.styles.section, this.props.styles.avatarSection]}
           >
-            <EditAvatar onPressEmojiAvatarFlow={this.onPressEmojiAvatarFlow}>
+            <EditAvatar
+              onPressEmojiAvatarFlow={this.onPressEmojiAvatarFlow}
+              childAvatarType="user"
+            >
               <UserAvatar
                 size="profile"
                 userID={this.props.currentUserInfo?.id}
