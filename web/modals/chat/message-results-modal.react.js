@@ -116,6 +116,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
             modifiedItem = {
               ...item,
               startsConversation: false,
+              isPinned: false,
               messageInfo: {
                 ...item.messageInfo,
                 creator: {

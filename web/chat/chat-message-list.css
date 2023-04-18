@@ -236,3 +236,16 @@ div.avatarContainer {
 div.avatarOffset {
   width: 40px;
 }
+
+.pinIconContainer {
+  position: absolute;
+  top: 1px;
+}
+
+.pinIconLeft {
+  left: -20px;
+}
+
+.pinIconRight {
+  right: -20px;
+}
