@@ -7,6 +7,7 @@ use rand::rngs::OsRng;
 
 use crate::Cipher;
 
+#[derive(Clone)]
 pub struct Login {
   state: Option<ServerLogin<Cipher>>,
   rng: OsRng,
