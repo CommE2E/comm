@@ -146,7 +146,7 @@ message UpdateUserPasswordStartRequest {
   // Message sent to initiate PAKE registration (step 1)
   bytes opaqueRegistrationRequest = 1;
   // Used to validate user, before attempting to update password
-  string accessToken = 3;
+  string accessToken = 2;
 }
 
 // Do a user registration, but overwrite the existing credentials
@@ -166,7 +166,7 @@ message UpdateUserPasswordStartResponse {
 
 message UpdateUserPasswordFinishResponse {
   // After validating client reponse, mint a new token
-  string accessToken = 2;
+  string accessToken = 1;
 }
 
 // LoginUser
@@ -197,7 +197,7 @@ message OpaqueLoginStartResponse {
 
 message OpaqueLoginFinishResponse {
   // Mint and return a new key upon successful login
-  string accessToken = 2;
+  string accessToken = 1;
 }
 
 message WalletLoginRequest {
@@ -276,7 +276,7 @@ message SenderKeysForUserResponse {
 message KeyserverSessionInfo {
   IdentityKeyInfo identityInfo = 1;
   PreKey identityPrekeys = 2;
-  optional string onetimeIdentityPrekey = 5;
+  optional string onetimeIdentityPrekey = 3;
 }
 
 // All keyserver must be registered with an existing user.
