@@ -20,7 +20,7 @@ type MediaProcessConfig = {
   +hasWiFi: boolean,
   // Blocks return until we can confirm result has the correct MIME
   +finalFileHeaderCheck?: boolean,
-  +onTranscodingProgress: (percent: number) => void,
+  +onTranscodingProgress?: (percent: number) => void,
 };
 type SharedMediaResult = {
   +success: true,

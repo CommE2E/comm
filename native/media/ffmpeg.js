@@ -81,19 +81,21 @@ class FFmpeg {
   transcodeVideo(
     ffmpegCommand: string,
     inputVideoDuration: number,
-    onTranscodingProgress: (percent: number) => void,
+    onTranscodingProgress?: (percent: number) => void,
   ): Promise<{ rc: number, lastStats: ?FFmpegStatistics }> {
     const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
     const wrappedCommand = async () => {
       RNFFmpegConfig.resetStatistics();
       let lastStats;
-      RNFFmpegConfig.enableStatisticsCallback(
-        (statisticsData: FFmpegStatistics) => {
-          lastStats = statisticsData;
-          const { time } = statisticsData;
-          onTranscodingProgress(time / 1000 / duration);
-        },
-      );
+      if (onTranscodingProgress) {
+        RNFFmpegConfig.enableStatisticsCallback(
+          (statisticsData: FFmpegStatistics) => {
+            lastStats = statisticsData;
+            const { time } = statisticsData;
+            onTranscodingProgress(time / 1000 / duration);
+          },
+        );
+      }
       const ffmpegResult = await RNFFmpeg.execute(ffmpegCommand);
       return { ...ffmpegResult, lastStats };
     };
