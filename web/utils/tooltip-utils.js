@@ -4,7 +4,9 @@ import invariant from 'invariant';
 import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import {
@@ -481,6 +483,33 @@ function useMessageReactAction(
   }, [canCreateReactionFromMessage, setShouldRenderEmojiKeyboard]);
 }
 
+function useMessageEditAction(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): ?MessageTooltipAction {
+  const { messageInfo } = item;
+
+  const inputState = React.useContext(InputStateContext);
+  const canEditMessage = useCanEditMessage(threadInfo, messageInfo);
+
+  return React.useMemo(() => {
+    if (!canEditMessage) {
+      return null;
+    }
+    const buttonContent = (
+      <SWMansionIcon icon="edit-1" size={18} disableFill={false} />
+    );
+    const onClickEdit = () => {
+      inputState?.setEditedMessage(messageInfo);
+    };
+    return {
+      actionButtonContent: buttonContent,
+      onClick: onClickEdit,
+      label: 'Edit',
+    };
+  }, [canEditMessage, inputState, messageInfo]);
+}
+
 function useMessageTooltipActions(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
@@ -489,9 +518,13 @@ function useMessageTooltipActions(
   const replyAction = useMessageTooltipReplyAction(item, threadInfo);
   const copyAction = useMessageCopyAction(item);
   const reactAction = useMessageReactAction(item, threadInfo);
+  const editAction = useMessageEditAction(item, threadInfo);
   return React.useMemo(
-    () => [replyAction, sidebarAction, copyAction, reactAction].filter(Boolean),
-    [replyAction, sidebarAction, copyAction, reactAction],
+    () =>
+      [replyAction, sidebarAction, copyAction, reactAction, editAction].filter(
+        Boolean,
+      ),
+    [replyAction, sidebarAction, copyAction, reactAction, editAction],
   );
 }
 
