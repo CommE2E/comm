@@ -29,7 +29,6 @@ import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
 import RegisterPanel from './register-panel.react.js';
 import type { RegisterState } from './register-panel.react.js';
 import SIWEPanel from './siwe-panel.react.js';
-import EthereumLogo from '../components/ethereum-logo.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import {
@@ -63,6 +62,7 @@ import {
   type StateChange,
   setStateForContainer,
 } from '../utils/state-container.js';
+import EthereumLogo from '../vectors/ethereum-logo.react.js';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];

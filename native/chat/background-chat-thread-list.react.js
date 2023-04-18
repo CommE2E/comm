@@ -11,10 +11,10 @@ import {
 
 import ChatThreadList from './chat-thread-list.react.js';
 import type { ChatTopTabsNavigationProp } from './chat.react.js';
-import BackgroundTabIllustration from '../components/background-tab-illustration.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import BackgroundTabIllustration from '../vectors/background-tab-illustration.react.js';
 
 type BackgroundChatThreadListProps = {
   navigation: ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,
