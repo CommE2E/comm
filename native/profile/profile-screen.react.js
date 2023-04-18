@@ -201,7 +201,6 @@ class ProfileScreen extends React.PureComponent<Props> {
   onPressEmojiAvatarFlow = () => {
     this.props.navigation.navigate<'EmojiUserAvatarCreation'>({
       name: EmojiUserAvatarCreationRouteName,
-      params: {},
     });
   };
 
