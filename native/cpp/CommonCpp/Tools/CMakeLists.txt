@@ -4,10 +4,12 @@ cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
 
 set(TOOLS_HDRS
+  "Base64.h"
   "WorkerThread.h"
 )
 
 set(TOOLS_SRCS
+  "Base64.cpp"
   "WorkerThread.cpp"
 )
 
