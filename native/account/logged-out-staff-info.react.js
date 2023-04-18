@@ -64,22 +64,20 @@ function LoggedOutStaffInfo(): React.Node {
   let loggedOutStaffInfo = null;
   if (staffCanSee || staffUserHasBeenLoggedIn) {
     loggedOutStaffInfo = (
-      <View>
-        <View style={styles.infoBadge}>
-          <View style={styles.cell}>
-            {__DEV__ ? checkIcon : crossIcon}
-            <Text style={isDevBuildStyle}>__DEV__</Text>
-          </View>
-          <View style={styles.cell}>
-            {isStaffRelease ? checkIcon : crossIcon}
-            <Text style={isStaffReleaseStyle}>isStaffRelease</Text>
-          </View>
-          <View style={styles.cell}>
-            {staffUserHasBeenLoggedIn ? checkIcon : crossIcon}
-            <Text style={hasStaffUserLoggedInStyle}>
-              staffUserHasBeenLoggedIn
-            </Text>
-          </View>
+      <View style={styles.infoBadge}>
+        <View style={styles.cell}>
+          {__DEV__ ? checkIcon : crossIcon}
+          <Text style={isDevBuildStyle}>__DEV__</Text>
+        </View>
+        <View style={styles.cell}>
+          {isStaffRelease ? checkIcon : crossIcon}
+          <Text style={isStaffReleaseStyle}>isStaffRelease</Text>
+        </View>
+        <View style={styles.cell}>
+          {staffUserHasBeenLoggedIn ? checkIcon : crossIcon}
+          <Text style={hasStaffUserLoggedInStyle}>
+            staffUserHasBeenLoggedIn
+          </Text>
         </View>
       </View>
     );
@@ -99,6 +97,8 @@ const unboundStyles = {
     justifyContent: 'flex-start',
     marginBottom: 10,
     marginTop: 10,
+    marginLeft: 4,
+    marginRight: 4,
     padding: 8,
   },
   infoText: {
