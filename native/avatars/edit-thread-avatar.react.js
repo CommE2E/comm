@@ -3,19 +3,22 @@
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
+import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+
 import {
   useSelectAndUploadFromGallery,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
+import ThreadAvatar from './thread-avatar.react.js';
 
 type Props = {
-  +children: React.Node,
+  +threadInfo: RawThreadInfo | ThreadInfo,
   +onPressEmojiAvatarFlow: () => mixed,
   +disabled?: boolean,
 };
 function EditThreadAvatar(props: Props): React.Node {
-  const { onPressEmojiAvatarFlow, children, disabled } = props;
+  const { threadInfo, onPressEmojiAvatarFlow, disabled } = props;
 
   const selectAndUploadFromGallery = useSelectAndUploadFromGallery();
 
@@ -31,7 +34,7 @@ function EditThreadAvatar(props: Props): React.Node {
 
   return (
     <TouchableOpacity onPress={showAvatarActionSheet} disabled={disabled}>
-      {children}
+      <ThreadAvatar threadInfo={threadInfo} size="profile" />
       {!disabled ? <EditAvatarBadge /> : null}
     </TouchableOpacity>
   );
