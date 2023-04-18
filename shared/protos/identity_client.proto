@@ -196,8 +196,10 @@ message OpaqueLoginStartResponse {
 }
 
 message OpaqueLoginFinishResponse {
-  // Mint and return a new key upon successful login
-  string accessToken = 1;
+  string userID = 1;
+  // Mint and return a new access token upon successful login
+  string accessToken = 2;
+
 }
 
 message WalletLoginRequest {
@@ -209,7 +211,8 @@ message WalletLoginRequest {
 }
 
 message WalletLoginResponse {
-  string accessToken = 1;
+  string userID = 1;
+  string accessToken = 2;
 }
 
 // DeleteUser
