@@ -26,6 +26,14 @@ const Registration = createStackNavigator<
   RegistrationParamList,
   StackNavigationHelpers<ScreenParamList>,
 >();
+
+const screenOptions = {
+  headerTransparent: true,
+  headerBackTitleVisible: false,
+  headerTitle: '',
+  headerTintColor: 'white',
+};
+
 type Props = {
   +navigation: RootNavigationProp<'Registration'>,
   ...
@@ -35,7 +43,7 @@ function RegistrationNavigator(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.view}>
-      <Registration.Navigator>
+      <Registration.Navigator screenOptions={screenOptions}>
         <Registration.Screen
           name={KeyserverSelectionRouteName}
           component={KeyserverSelection}
