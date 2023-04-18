@@ -3,6 +3,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
+import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
@@ -17,10 +18,12 @@ import type {
 } from 'lib/types/media-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { getCompatibleMediaURI } from '../media/identifier-utils.js';
 import type { MediaResult } from '../media/media-utils.js';
 import { processMedia } from '../media/media-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function useUploadProcessedMedia(): MediaResult => Promise<UploadMultimediaResult> {
@@ -117,30 +120,58 @@ function useSelectAndUploadFromGallery(): () => Promise<void> {
 }
 
 type ShowAvatarActionSheetOptions = {
-  +id: string,
-  +text: string,
+  +id: 'emoji' | 'image' | 'cancel',
   +onPress?: () => mixed,
-  +icon?: React.Node,
-  +isCancel?: boolean,
 };
 function useShowAvatarActionSheet(
   options: $ReadOnlyArray<ShowAvatarActionSheetOptions>,
 ): () => void {
+  options = Platform.OS === 'ios' ? [...options, { id: 'cancel' }] : options;
+
   const insets = useSafeAreaInsets();
   const { showActionSheetWithOptions } = useActionSheet();
+  const styles = useStyles(unboundStyles);
 
   const showAvatarActionSheet = React.useCallback(() => {
-    const texts = options.map(
-      (option: ShowAvatarActionSheetOptions) => option.text,
-    );
+    const texts = options.map((option: ShowAvatarActionSheetOptions) => {
+      if (option.id === 'emoji') {
+        return 'Use Emoji';
+      } else if (option.id === 'image') {
+        return 'Select image';
+      } else {
+        return 'Cancel';
+      }
+    });
 
-    const cancelButtonIndex = options.findIndex(option => option.isCancel);
+    const cancelButtonIndex = options.findIndex(
+      option => option.id === 'cancel',
+    );
 
     const containerStyle = {
       paddingBotton: insets.bottom,
     };
 
-    const icons = options.map(option => option.icon);
+    const icons = options.map(option => {
+      if (option.id === 'emoji') {
+        return (
+          <SWMansionIcon
+            name="emote-smile"
+            size={22}
+            style={styles.bottomSheetIcon}
+          />
+        );
+      } else if (option.id === 'image') {
+        return (
+          <SWMansionIcon
+            name="image-1"
+            size={22}
+            style={styles.bottomSheetIcon}
+          />
+        );
+      } else {
+        return undefined;
+      }
+    });
 
     const onPressAction = (selectedIndex: ?number) => {
       if (
@@ -165,10 +196,21 @@ function useShowAvatarActionSheet(
       },
       onPressAction,
     );
-  }, [insets.bottom, options, showActionSheetWithOptions]);
+  }, [
+    insets.bottom,
+    options,
+    showActionSheetWithOptions,
+    styles.bottomSheetIcon,
+  ]);
 
   return showAvatarActionSheet;
 }
+
+const unboundStyles = {
+  bottomSheetIcon: {
+    color: '#000000',
+  },
+};
 
 export {
   useUploadProcessedMedia,
