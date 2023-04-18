@@ -29,6 +29,7 @@ use aws_sdk_dynamodb::Error as DynamoDBError;
 pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
 };
+use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use rand::rngs::OsRng;
 use tonic::Response;
@@ -47,7 +48,10 @@ pub struct UserRegistrationInfo {
 }
 
 #[derive(Clone)]
-pub struct UserLoginInfo(FlattenedDeviceKeyUpload);
+pub struct UserLoginInfo {
+  pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
+  pub opaque_server_login: comm_opaque2::server::Login,
+}
 
 #[derive(Clone)]
 pub struct FlattenedDeviceKeyUpload {
@@ -118,7 +122,7 @@ impl IdentityClientService for ClientService {
       let server_registration = comm_opaque2::server::Registration::new();
       let server_message = server_registration
         .start(&CONFIG.server_setup, &register_message, username.as_bytes())
-        .map_err(comm_opaque2::grpc::protocol_error_to_grpc_status)?;
+        .map_err(protocol_error_to_grpc_status)?;
       let key_info = KeyPayload::from_str(&payload)
         .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
       let registration_state = UserRegistrationInfo {
@@ -168,7 +172,7 @@ impl IdentityClientService for ClientService {
       let server_registration = comm_opaque2::server::Registration::new();
       let password_file = server_registration
         .finish(&message.opaque_registration_upload)
-        .map_err(comm_opaque2::grpc::protocol_error_to_grpc_status)?;
+        .map_err(protocol_error_to_grpc_status)?;
 
       let device_id = state.flattened_device_key_upload.device_id_key.clone();
       let user_id = self
@@ -221,9 +225,83 @@ impl IdentityClientService for ClientService {
 
   async fn login_password_user_start(
     &self,
-    _request: tonic::Request<OpaqueLoginStartRequest>,
+    request: tonic::Request<OpaqueLoginStartRequest>,
   ) -> Result<tonic::Response<OpaqueLoginStartResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    let password_file_bytes = self
+      .client
+      .get_password_file_from_username(&message.username)
+      .await
+      .map_err(handle_db_error)?
+      .ok_or(tonic::Status::not_found("user not found"))?;
+
+    if let client_proto::OpaqueLoginStartRequest {
+      opaque_login_request: login_message,
+      username,
+      device_key_upload:
+        Some(client_proto::DeviceKeyUpload {
+          device_key_info:
+            Some(client_proto::IdentityKeyInfo {
+              payload,
+              payload_signature,
+              social_proof: _social_proof,
+            }),
+          identity_upload:
+            Some(client_proto::PreKey {
+              pre_key: identity_prekey,
+              pre_key_signature: identity_prekey_signature,
+            }),
+          notif_upload:
+            Some(client_proto::PreKey {
+              pre_key: notif_prekey,
+              pre_key_signature: notif_prekey_signature,
+            }),
+          onetime_identity_prekeys,
+          onetime_notif_prekeys,
+        }),
+    } = message
+    {
+      let mut server_login = comm_opaque2::server::Login::new();
+      let server_response = server_login
+        .start(
+          &CONFIG.server_setup,
+          &password_file_bytes,
+          &login_message,
+          username.as_bytes(),
+        )
+        .map_err(protocol_error_to_grpc_status)?;
+
+      let key_info = KeyPayload::from_str(&payload)
+        .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
+      let login_state = UserLoginInfo {
+        opaque_server_login: server_login,
+        flattened_device_key_upload: FlattenedDeviceKeyUpload {
+          device_id_key: key_info.primary_identity_public_keys.curve25519,
+          key_payload: payload,
+          key_payload_signature: payload_signature,
+          identity_prekey,
+          identity_prekey_signature,
+          identity_onetime_keys: onetime_identity_prekeys,
+          notif_prekey,
+          notif_prekey_signature,
+          notif_onetime_keys: onetime_notif_prekeys,
+        },
+      };
+      let session_id = generate_uuid();
+      self
+        .cache
+        .insert(session_id.clone(), WorkflowInProgress::Login(login_state))
+        .await;
+
+      let response = Response::new(OpaqueLoginStartResponse {
+        session_id,
+        opaque_login_response: server_response,
+      });
+      Ok(response)
+    } else {
+      Err(tonic::Status::invalid_argument("unexpected message data"))
+    }
   }
 
   async fn login_password_user_finish(
