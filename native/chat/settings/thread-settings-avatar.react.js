@@ -6,7 +6,7 @@ import { View } from 'react-native';
 
 import { type ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
-import EditAvatar from '../../avatars/edit-avatar.react.js';
+import EditThreadAvatar from '../../avatars/edit-thread-avatar.react.js';
 import ThreadAvatar from '../../avatars/thread-avatar.react.js';
 import { EmojiAvatarCreationRouteName } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
@@ -34,12 +34,12 @@ function ThreadSettingsAvatar(props: Props): React.Node {
 
   return (
     <View style={styles.container}>
-      <EditAvatar
+      <EditThreadAvatar
         onPressEmojiAvatarFlow={onPressEmojiAvatarFlow}
         disabled={!canChangeSettings}
       >
         <ThreadAvatar size="profile" threadInfo={threadInfo} />
-      </EditAvatar>
+      </EditThreadAvatar>
     </View>
   );
 }
