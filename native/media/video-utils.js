@@ -38,7 +38,7 @@ type ProcessVideoInfo = {
 };
 
 type VideoProcessConfig = {
-  +onTranscodingProgress: (percent: number) => void,
+  +onTranscodingProgress?: (percent: number) => void,
 };
 
 type ProcessVideoResponse = {
@@ -200,7 +200,7 @@ async function generateThumbnail(
 async function transcodeVideo(
   plan: ProcessPlan,
   duration: number,
-  onProgressCallback: number => void,
+  onProgressCallback?: number => void,
 ): Promise<TranscodeVideoMediaMissionStep> {
   const transcodeStart = Date.now();
   let returnCode,
