@@ -100,7 +100,7 @@ function EditAvatar(props: Props): React.Node {
         mediaNativeID,
         selectTime: currentTime,
         sendTime: currentTime,
-        retries: currentTime,
+        retries: 0,
       };
 
       const processedMedia = await processSelectedMedia(selection);
