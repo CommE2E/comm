@@ -19,12 +19,12 @@ import {
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
+import EditAvatar from '../avatars/edit-avatar.react.js';
+import UserAvatar from '../avatars/user-avatar.react.js';
 import Action from '../components/action-row.react.js';
 import Button from '../components/button.react.js';
-import EditAvatar from '../components/edit-avatar.react.js';
 import EditSettingButton from '../components/edit-setting-button.react.js';
 import { SingleLine } from '../components/single-line.react.js';
-import UserAvatar from '../components/user-avatar.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   EditPasswordRouteName,

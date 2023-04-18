@@ -8,9 +8,9 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
 import { SingleLine } from '../components/single-line.react.js';
-import ThreadAvatar from '../components/thread-avatar.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';

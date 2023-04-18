@@ -16,7 +16,7 @@ import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selector
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 import type { ClientEmojiAvatar } from 'lib/types/avatar-types.js';
 
-import Avatar from '../components/avatar.react.js';
+import Avatar from './avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorRows from '../components/color-rows.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';

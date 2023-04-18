@@ -4,6 +4,7 @@ import type { RouteProp } from '@react-navigation/native';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
+import type { EmojiAvatarCreationParams } from '../avatars/emoji-avatar-creation.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
 import type { FullScreenThreadMediaGalleryParams } from '../chat/fullscreen-thread-media-gallery.react.js';
@@ -21,7 +22,6 @@ import type { ThreadSettingsParams } from '../chat/settings/thread-settings.reac
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js';
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
-import type { EmojiAvatarCreationParams } from '../components/emoji-avatar-creation.react.js';
 import type { CameraModalParams } from '../media/camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
