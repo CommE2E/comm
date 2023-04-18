@@ -11,11 +11,11 @@ use aws_sdk_dynamodb::output::{
 use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use chrono::{DateTime, Utc};
-use opaque_ke::{errors::ProtocolError, ServerRegistration};
+use opaque_ke::errors::ProtocolError;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
-use crate::client_service::UserRegistrationInfo;
+use crate::client_service::{UserLoginInfo, UserRegistrationInfo};
 use crate::config::CONFIG;
 use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
@@ -40,7 +40,6 @@ use crate::constants::{
 use crate::id::generate_uuid;
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
-use comm_opaque::Cipher;
 
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
@@ -222,6 +221,109 @@ impl DatabaseClient {
 
     Ok(user_id)
   }
+
+  pub async fn add_device_to_users_table(
+    &self,
+    login_state: UserLoginInfo,
+  ) -> Result<(), Error> {
+    let device_info = HashMap::from([
+      (
+        USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(Device::Client.to_string()),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(login_state.flattened_device_key_upload.key_payload),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(
+          login_state
+            .flattened_device_key_upload
+            .key_payload_signature,
+        ),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(
+          login_state.flattened_device_key_upload.identity_prekey,
+        ),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(
+          login_state
+            .flattened_device_key_upload
+            .identity_prekey_signature,
+        ),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::L(
+          login_state
+            .flattened_device_key_upload
+            .identity_onetime_keys
+            .into_iter()
+            .map(AttributeValue::S)
+            .collect(),
+        ),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(login_state.flattened_device_key_upload.notif_prekey),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(
+          login_state
+            .flattened_device_key_upload
+            .notif_prekey_signature,
+        ),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::L(
+          login_state
+            .flattened_device_key_upload
+            .notif_onetime_keys
+            .into_iter()
+            .map(AttributeValue::S)
+            .collect(),
+        ),
+      ),
+    ]);
+
+    let update_expression =
+      format!("SET {}.#{} = :v", USERS_TABLE_DEVICES_ATTRIBUTE, "deviceID",);
+    let expression_attribute_names = HashMap::from([(
+      format!("#{}", "deviceID"),
+      login_state.flattened_device_key_upload.device_id_key,
+    )]);
+    let expression_attribute_values =
+      HashMap::from([(":v".to_string(), AttributeValue::M(device_info))]);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(
+        USERS_TABLE_PARTITION_KEY,
+        AttributeValue::S(login_state.user_id),
+      )
+      .update_expression(update_expression)
+      .set_expression_attribute_names(Some(expression_attribute_names))
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
+
   pub async fn delete_user(
     &self,
     user_id: String,
@@ -444,19 +546,25 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn get_password_file_from_username(
+  pub async fn get_user_id_and_password_file_from_username(
     &self,
     username: &str,
-  ) -> Result<Option<Vec<u8>>, Error> {
+  ) -> Result<Option<(String, Vec<u8>)>, Error> {
     match self
       .get_user_from_user_info(username.to_string(), AuthType::Password)
       .await
     {
-      Ok(Some(mut user)) => parse_registration_data_attribute(
-        user.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE),
-      )
-      .map(Some)
-      .map_err(Error::Attribute),
+      Ok(Some(mut user)) => {
+        let user_id = parse_string_attribute(
+          USERS_TABLE_PARTITION_KEY,
+          user.remove(USERS_TABLE_PARTITION_KEY),
+        )?;
+        let password_file = parse_registration_data_attribute(
+          user.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE),
+        )?;
+
+        Ok(Some((user_id, password_file)))
+      }
       Ok(_) => {
         info!(
           "No item found for user {} in PAKE registration table",
