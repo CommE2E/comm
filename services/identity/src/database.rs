@@ -391,16 +391,10 @@ impl DatabaseClient {
 
   pub async fn username_taken(&self, username: String) -> Result<bool, Error> {
     let result = self
-      .client
-      .get_item()
-      .table_name(USERS_TABLE)
-      .key(USERS_TABLE_USERNAME_ATTRIBUTE, AttributeValue::S(username))
-      .consistent_read(true)
-      .send()
-      .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .get_user_id_from_user_info(username, AuthType::Password)
+      .await?;
 
-    Ok(result.item.is_some())
+    Ok(result.is_some())
   }
 
   pub async fn get_user_id_from_user_info(
