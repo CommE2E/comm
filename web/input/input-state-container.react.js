@@ -63,6 +63,7 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
+  type MessageInfo,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
@@ -87,6 +88,7 @@ import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import {
   type PendingMultimediaUpload,
   type TypeaheadState,
+  type EditState,
   InputStateContext,
 } from './input-state.js';
 import { encryptFile } from '../media/encryption-utils.js';
@@ -145,6 +147,7 @@ type State = {
   },
   +textCursorPositions: { [threadID: string]: number },
   +typeaheadState: TypeaheadState,
+  +editState: EditState,
 };
 
 type PropsAndState = {
@@ -163,6 +166,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       moveChoiceDown: null,
       close: null,
       accept: null,
+    },
+    editState: {
+      editedMessage: null,
     },
   };
   replyCallbacks: Array<(message: string) => void> = [];
@@ -619,12 +625,22 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }),
   );
 
+  editStateSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.editState,
+    (editState: EditState) => ({
+      editState,
+      setEditedMessage: this.setEditedMessage,
+    }),
+  );
+
   inputStateSelector = createSelector(
     state => state.inputBaseState,
     state => state.typeaheadState,
-    (inputBaseState, typeaheadState) => ({
+    state => state.editState,
+    (inputBaseState, typeaheadState, editState) => ({
       ...inputBaseState,
       ...typeaheadState,
+      ...editState,
     }),
   );
 
@@ -1288,6 +1304,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
+  setEditedMessage = (editedMessage: ?MessageInfo) => {
+    this.setState({
+      editState: {
+        editedMessage,
+      },
+    });
+  };
+
   setDraft(threadID: ?string, draft: string) {
     invariant(threadID, 'threadID should be set in setDraft');
 
@@ -1488,9 +1512,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       ...this.props,
     });
 
+    const editState = this.editStateSelector({
+      ...this.state,
+      ...this.props,
+    });
+
     const inputState = this.inputStateSelector({
       inputBaseState,
       typeaheadState,
+      editState,
     });
 
     return (

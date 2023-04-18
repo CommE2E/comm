@@ -8,6 +8,7 @@ import {
   type Dimensions,
   type MediaMissionStep,
 } from 'lib/types/media-types.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
 
@@ -46,6 +47,10 @@ export type TypeaheadState = {
   +accept: ?() => void,
 };
 
+export type EditState = {
+  +editedMessage: ?MessageInfo,
+};
+
 // This type represents the input state for a particular thread
 export type InputState = {
   +pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
@@ -76,6 +81,8 @@ export type InputState = {
   +removeReplyListener: ((message: string) => void) => void,
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,
+  +editState: EditState,
+  +setEditedMessage: (message: ?MessageInfo) => void,
 };
 
 const InputStateContext: React.Context<?InputState> =
