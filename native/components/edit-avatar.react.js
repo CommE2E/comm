@@ -6,16 +6,22 @@ import * as React from 'react';
 import { View, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { uploadMultimedia } from 'lib/actions/upload-actions.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
 import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { getCompatibleMediaURI } from '../media/identifier-utils.js';
+import { processMedia } from '../media/media-utils.js';
+import type { MediaResult } from '../media/media-utils.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type Props = {
   +children: React.Node,
@@ -24,11 +30,43 @@ type Props = {
 };
 function EditAvatar(props: Props): React.Node {
   const { onPressEmojiAvatarFlow, children, disabled } = props;
-
   const { showActionSheetWithOptions } = useActionSheet();
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);
+
+  const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
+  const staffCanSee = useStaffCanSee();
+
+  const callUploadMultimedia = useServerCall(uploadMultimedia);
+
+  const uploadProcessedMedia = React.useCallback(
+    (processedMedia: MediaResult) => {
+      const { uploadURI, filename, mime, dimensions } = processedMedia;
+
+      return callUploadMultimedia(
+        {
+          uri: uploadURI,
+          name: filename,
+          type: mime,
+        },
+        dimensions,
+      );
+    },
+    [callUploadMultimedia],
+  );
+
+  const processSelectedMedia = React.useCallback(
+    async (selection: MediaLibrarySelection) => {
+      const { resultPromise } = processMedia(selection, {
+        hasWiFi,
+        finalFileHeaderCheck: staffCanSee,
+      });
+
+      return await resultPromise;
+    },
+    [hasWiFi, staffCanSee],
+  );
 
   // eslint-disable-next-line no-unused-vars
   const openPhotoGallery = React.useCallback(async () => {
@@ -46,10 +84,11 @@ function EditAvatar(props: Props): React.Node {
 
       const asset = assets.pop();
       const { width, height, assetId: mediaNativeID } = asset;
-      const filename = asset.fileName || filenameFromPathOrURI(asset.uri) || '';
+      const assetFilename =
+        asset.fileName || filenameFromPathOrURI(asset.uri) || '';
       const uri = getCompatibleMediaURI(
         asset.uri,
-        extensionFromFilename(filename),
+        extensionFromFilename(assetFilename),
       );
 
       const currentTime = Date.now();
@@ -57,19 +96,23 @@ function EditAvatar(props: Props): React.Node {
         step: 'photo_library',
         dimensions: { height, width },
         uri,
-        filename,
+        filename: assetFilename,
         mediaNativeID,
         selectTime: currentTime,
         sendTime: currentTime,
         retries: currentTime,
       };
 
-      return selection;
+      const processedMedia = await processSelectedMedia(selection);
+      if (!processedMedia.success) {
+        return;
+      }
+      await uploadProcessedMedia(processedMedia);
     } catch (e) {
       console.log(e);
       return;
     }
-  }, []);
+  }, [processSelectedMedia, uploadProcessedMedia]);
 
   const editAvatarOptions = React.useMemo(() => {
     const options = [
