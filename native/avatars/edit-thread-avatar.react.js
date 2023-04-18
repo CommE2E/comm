@@ -6,7 +6,6 @@ import { View, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSelectAndUploadFromGallery } from './avatar-hooks.js';
-import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
@@ -31,9 +30,9 @@ function EditThreadAvatar(props: Props): React.Node {
         text: 'Use Emoji',
         onPress: onPressEmojiAvatarFlow,
         icon: (
-          <CommIcon
-            name="emote-smile-filled"
-            size={18}
+          <SWMansionIcon
+            name="emote-smile"
+            size={22}
             style={styles.bottomSheetIcon}
           />
         ),
@@ -45,7 +44,7 @@ function EditThreadAvatar(props: Props): React.Node {
         icon: (
           <SWMansionIcon
             name="image-1"
-            size={18}
+            size={22}
             style={styles.bottomSheetIcon}
           />
         ),
