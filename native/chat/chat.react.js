@@ -41,11 +41,11 @@ import MessageListContainer from './message-list-container.react.js';
 import MessageListHeaderTitle from './message-list-header-title.react.js';
 import MessageStorePruner from './message-store-pruner.react.js';
 import DeleteThread from './settings/delete-thread.react.js';
+import EmojiThreadAvatarCreation from './settings/emoji-thread-avatar-creation.react.js';
 import ThreadSettings from './settings/thread-settings.react.js';
 import ThreadScreenPruner from './thread-screen-pruner.react.js';
 import ThreadSettingsButton from './thread-settings-button.react.js';
 import ThreadSettingsHeaderTitle from './thread-settings-header-title.react.js';
-import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
@@ -57,7 +57,7 @@ import {
   ComposeSubchannelRouteName,
   DeleteThreadRouteName,
   ThreadSettingsRouteName,
-  EmojiAvatarCreationRouteName,
+  EmojiThreadAvatarCreationRouteName,
   FullScreenThreadMediaGalleryRouteName,
   MessageListRouteName,
   ChatThreadListRouteName,
@@ -360,8 +360,8 @@ export default function ChatComponent(props: Props): React.Node {
             options={threadSettingsOptions}
           />
           <Chat.Screen
-            name={EmojiAvatarCreationRouteName}
-            component={EmojiAvatarCreation}
+            name={EmojiThreadAvatarCreationRouteName}
+            component={EmojiThreadAvatarCreation}
             options={emojiAvatarCreationOptions}
           />
           <Chat.Screen
