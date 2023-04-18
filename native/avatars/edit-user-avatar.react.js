@@ -2,12 +2,13 @@
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as React from 'react';
-import { View, TouchableOpacity, Platform } from 'react-native';
+import { TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSelectAndUploadFromGallery } from './avatar-hooks.js';
+import EditAvatarBadge from './edit-avatar-badge.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { useColors, useStyles } from '../themes/colors.js';
+import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +children: React.Node,
@@ -18,7 +19,6 @@ function EditUserAvatar(props: Props): React.Node {
   const { onPressEmojiAvatarFlow, children, disabled } = props;
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const colors = useColors();
   const styles = useStyles(unboundStyles);
 
   const selectAndUploadFromGallery = useSelectAndUploadFromGallery();
@@ -105,27 +105,10 @@ function EditUserAvatar(props: Props): React.Node {
     );
   }, [editAvatarOptions, insets.bottom, showActionSheetWithOptions]);
 
-  const editBadge = React.useMemo(() => {
-    if (disabled) {
-      return null;
-    }
-
-    return (
-      <View style={styles.editAvatarIconContainer}>
-        <SWMansionIcon
-          name="edit-2"
-          size={16}
-          style={styles.editAvatarIcon}
-          color={colors.floatingButtonLabel}
-        />
-      </View>
-    );
-  }, [
-    colors.floatingButtonLabel,
-    disabled,
-    styles.editAvatarIcon,
-    styles.editAvatarIconContainer,
-  ]);
+  let editBadge;
+  if (!disabled) {
+    editBadge = <EditAvatarBadge />;
+  }
 
   return (
     <TouchableOpacity onPress={onPressEditAvatar} disabled={disabled}>
@@ -136,21 +119,6 @@ function EditUserAvatar(props: Props): React.Node {
 }
 
 const unboundStyles = {
-  editAvatarIconContainer: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    borderWidth: 2,
-    borderColor: 'panelForeground',
-    borderRadius: 18,
-    width: 36,
-    height: 36,
-    backgroundColor: 'purpleButton',
-    justifyContent: 'center',
-  },
-  editAvatarIcon: {
-    textAlign: 'center',
-  },
   bottomSheetIcon: {
     color: '#000000',
   },
