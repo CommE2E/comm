@@ -1,7 +1,9 @@
 // @flow
 
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
 import {
@@ -114,8 +116,63 @@ function useSelectAndUploadFromGallery(): () => Promise<void> {
   return selectAndUploadFromGallery;
 }
 
+type ShowAvatarActionSheetOptions = {
+  +id: string,
+  +text: string,
+  +onPress?: () => mixed,
+  +icon?: React.Node,
+  +isCancel?: boolean,
+};
+function useShowAvatarActionSheet(
+  options: $ReadOnlyArray<ShowAvatarActionSheetOptions>,
+): () => void {
+  const insets = useSafeAreaInsets();
+  const { showActionSheetWithOptions } = useActionSheet();
+
+  const showAvatarActionSheet = React.useCallback(() => {
+    const texts = options.map(
+      (option: ShowAvatarActionSheetOptions) => option.text,
+    );
+
+    const cancelButtonIndex = options.findIndex(option => option.isCancel);
+
+    const containerStyle = {
+      paddingBotton: insets.bottom,
+    };
+
+    const icons = options.map(option => option.icon);
+
+    const onPressAction = (selectedIndex: ?number) => {
+      if (
+        selectedIndex === null ||
+        selectedIndex === undefined ||
+        selectedIndex < 0
+      ) {
+        return;
+      }
+      const option = options[selectedIndex];
+      if (option.onPress) {
+        option.onPress();
+      }
+    };
+
+    showActionSheetWithOptions(
+      {
+        options: texts,
+        cancelButtonIndex,
+        containerStyle,
+        icons,
+      },
+      onPressAction,
+    );
+  }, [insets.bottom, options, showActionSheetWithOptions]);
+
+  return showAvatarActionSheet;
+}
+
 export {
   useUploadProcessedMedia,
   useProcessSelectedMedia,
   useSelectAndUploadFromGallery,
+  useShowAvatarActionSheet,
 };
