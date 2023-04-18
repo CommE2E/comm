@@ -18,6 +18,8 @@ import { localIDPrefix } from 'lib/shared/message-utils.js';
 import type { ChatNavigationProp } from './chat.react.js';
 import NewMessagesPill from './new-messages-pill.react.js';
 import { chatMessageItemHeight, chatMessageItemKey } from './utils.js';
+import { InputStateContext } from '../input/input-state.js';
+import type { InputState } from '../input/input-state.js';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -48,6 +50,7 @@ type Props = {
   +viewerID: ?string,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
+  +inputState: ?InputState,
   ...
 };
 type State = {
@@ -81,6 +84,7 @@ class ChatList extends React.PureComponent<Props, State> {
       this.props.navigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
+    this.props.inputState?.addScrollToMessageListener(this.scrollToMessage);
   }
 
   componentWillUnmount() {
@@ -88,6 +92,7 @@ class ChatList extends React.PureComponent<Props, State> {
       this.props.navigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
+    this.props.inputState?.removeScrollToMessageListener(this.scrollToMessage);
   }
 
   onTabPress = () => {
@@ -272,6 +277,24 @@ class ChatList extends React.PureComponent<Props, State> {
     this.toggleNewMessagesPill(false);
   };
 
+  scrollToMessage = (key?: string) => {
+    const { flatList } = this;
+    const { data } = this.props;
+    if (!flatList || !key) {
+      return;
+    }
+    const index = data.findIndex(item => chatMessageItemKey(item) === key);
+    if (index < 0) {
+      console.warn("Couldn't find message to scroll to");
+      return;
+    }
+    flatList.scrollToIndex({
+      index,
+      animated: true,
+      viewPosition: 0.5,
+    });
+  };
+
   onPressBackground = () => {
     const { keyboardState } = this.props;
     keyboardState && keyboardState.dismissKeyboard();
@@ -292,11 +315,17 @@ const styles = StyleSheet.create({
 const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedChatList(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
+    const inputState = React.useContext(InputStateContext);
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
     return (
-      <ChatList {...props} keyboardState={keyboardState} viewerID={viewerID} />
+      <ChatList
+        {...props}
+        keyboardState={keyboardState}
+        viewerID={viewerID}
+        inputState={inputState}
+      />
     );
   },
 );
