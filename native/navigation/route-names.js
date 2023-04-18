@@ -80,6 +80,8 @@ export const ThreadSettingsMemberTooltipModalRouteName =
 export const ThreadSettingsRouteName = 'ThreadSettings';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
+export const RegistrationRouteName = 'Registration';
+export const KeyserverSelectionRouteName = 'KeyserverSelection';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -94,6 +96,7 @@ export type RootParamList = {
   +TermsAndPrivacyModal: TermsAndPrivacyModalParams,
   +SubchannelsListModal: SubchannelListModalParams,
   +MessageReactionsModal: MessageReactionsModalParams,
+  +Registration: void,
 };
 
 export type MessageTooltipRouteNames =
@@ -156,6 +159,8 @@ export type ProfileParamList = {
 
 export type CommunityDrawerParamList = { +TabNavigator: void };
 
+export type RegistrationParamList = { +KeyserverSelection: void };
+
 export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
@@ -164,12 +169,13 @@ export type ScreenParamList = {
   ...ChatTopTabsParamList,
   ...ProfileParamList,
   ...CommunityDrawerParamList,
+  ...RegistrationParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
   RouteProp<ScreenParamList, RouteName>;
 
-export const accountModals = [LoggedOutModalRouteName];
+export const accountModals = [LoggedOutModalRouteName, RegistrationRouteName];
 
 export const scrollBlockingModals = [
   ImageModalRouteName,
