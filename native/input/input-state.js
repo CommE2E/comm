@@ -69,6 +69,9 @@ export type InputState = {
     editedMessage: ?MessageInfo,
     callback?: () => void,
   ) => void,
+  +scrollToMessage: (messageKey: string) => void,
+  +addScrollToMessageListener: ((messageKey: string) => void) => void,
+  +removeScrollToMessageListener: ((messageKey: string) => void) => void,
 };
 
 const InputStateContext: React.Context<?InputState> =
