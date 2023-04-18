@@ -16,15 +16,17 @@ import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selector
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 import type { ClientEmojiAvatar } from 'lib/types/avatar-types.js';
 
-import Avatar from './avatar.react.js';
-import Button from '../components/button.react.js';
-import ColorRows from '../components/color-rows.react.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { useStyles } from '../themes/colors.js';
+import Avatar from '../../avatars/avatar.react.js';
+import Button from '../../components/button.react.js';
+import ColorRows from '../../components/color-rows.react.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
+import type { ProfileNavigationProp } from '../../profile/profile.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { useStyles } from '../../themes/colors.js';
 import {
   useSaveUserAvatar,
   useSaveThreadAvatar,
-} from '../utils/avatar-utils.js';
+} from '../../utils/avatar-utils.js';
 
 const userAvatarLoadingStatusSelector = createLoadingStatusSelector(
   updateUserAvatarActionTypes,
@@ -35,18 +37,18 @@ const threadAvatarLoadingStatusSelector = createLoadingStatusSelector(
   `${changeThreadSettingsActionTypes.started}:avatar`,
 );
 
-export type EmojiAvatarCreationParams = {
+export type EmojiThreadAvatarCreationParams = {
   +threadID?: string,
   +containingThreadID?: ?string,
 };
 
 type Props = {
-  +threadID?: string,
-  +containingThreadID?: ?string,
+  +navigation: ProfileNavigationProp<'EmojiThreadAvatarCreation'>,
+  +route: NavigationRoute<'EmojiThreadAvatarCreation'>,
 };
 
-function EmojiAvatarCreation(props: Props): React.Node {
-  const { threadID, containingThreadID } = props;
+function EmojiThreadAvatarCreation(props: Props): React.Node {
+  const { threadID, containingThreadID } = props.route.params;
 
   const selector = threadID
     ? savedEmojiAvatarSelectorForThread(threadID, containingThreadID)
@@ -251,4 +253,4 @@ const unboundStyles = {
   },
 };
 
-export default EmojiAvatarCreation;
+export default EmojiThreadAvatarCreation;

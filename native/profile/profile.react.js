@@ -15,11 +15,11 @@ import DefaultNotificationsPreferences from './default-notifications-preferences
 import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
 import EditPassword from './edit-password.react.js';
+import EmojiUserAvatarCreation from './emoji-user-avatar-creation.react.js';
 import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
 import RelationshipList from './relationship-list.react.js';
-import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
@@ -28,7 +28,7 @@ import {
   ProfileScreenRouteName,
   EditPasswordRouteName,
   DeleteAccountRouteName,
-  EmojiAvatarCreationRouteName,
+  EmojiUserAvatarCreationRouteName,
   BuildInfoRouteName,
   DevToolsRouteName,
   AppearancePreferencesRouteName,
@@ -115,8 +115,8 @@ function ProfileComponent(props: Props): React.Node {
             options={profileScreenOptions}
           />
           <Profile.Screen
-            name={EmojiAvatarCreationRouteName}
-            component={EmojiAvatarCreation}
+            name={EmojiUserAvatarCreationRouteName}
+            component={EmojiUserAvatarCreation}
             options={emojiAvatarCreationOptions}
           />
           <Profile.Screen

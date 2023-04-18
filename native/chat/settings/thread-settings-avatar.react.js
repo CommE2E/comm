@@ -8,7 +8,7 @@ import { type ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
 import EditThreadAvatar from '../../avatars/edit-thread-avatar.react.js';
 import ThreadAvatar from '../../avatars/thread-avatar.react.js';
-import { EmojiAvatarCreationRouteName } from '../../navigation/route-names.js';
+import { EmojiThreadAvatarCreationRouteName } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
 type Props = {
@@ -23,8 +23,8 @@ function ThreadSettingsAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const onPressEmojiAvatarFlow = React.useCallback(() => {
-    navigate<'EmojiAvatarCreation'>({
-      name: EmojiAvatarCreationRouteName,
+    navigate<'EmojiThreadAvatarCreation'>({
+      name: EmojiThreadAvatarCreationRouteName,
       params: {
         threadID: threadInfo.id,
         containingThreadID: threadInfo.containingThreadID,
