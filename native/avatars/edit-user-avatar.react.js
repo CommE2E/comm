@@ -8,14 +8,15 @@ import {
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
+import UserAvatar from './user-avatar.react.js';
 
 type Props = {
-  +children: React.Node,
+  +userID: ?string,
   +onPressEmojiAvatarFlow: () => mixed,
   +disabled?: boolean,
 };
 function EditUserAvatar(props: Props): React.Node {
-  const { onPressEmojiAvatarFlow, children, disabled } = props;
+  const { userID, onPressEmojiAvatarFlow, disabled } = props;
 
   const selectAndUploadFromGallery = useSelectAndUploadFromGallery();
 
@@ -31,7 +32,7 @@ function EditUserAvatar(props: Props): React.Node {
 
   return (
     <TouchableOpacity onPress={showAvatarActionSheet} disabled={disabled}>
-      {children}
+      <UserAvatar userID={userID} size="profile" />
       {!disabled ? <EditAvatarBadge /> : null}
     </TouchableOpacity>
   );
