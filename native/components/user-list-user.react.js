@@ -7,7 +7,7 @@ import type { UserListItem } from 'lib/types/user-types.js';
 
 import Button from './button.react.js';
 import { SingleLine } from './single-line.react.js';
-import UserAvatar from './user-avatar.react.js';
+import UserAvatar from '../avatars/user-avatar.react.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
 

@@ -45,7 +45,7 @@ import ThreadSettings from './settings/thread-settings.react.js';
 import ThreadScreenPruner from './thread-screen-pruner.react.js';
 import ThreadSettingsButton from './thread-settings-button.react.js';
 import ThreadSettingsHeaderTitle from './thread-settings-header-title.react.js';
-import EmojiAvatarCreation from '../components/emoji-avatar-creation.react.js';
+import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';

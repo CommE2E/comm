@@ -11,8 +11,8 @@ import {
 } from 'lib/shared/mention-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
+import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
-import UserAvatar from '../components/user-avatar.react.js';
 import { useStyles } from '../themes/colors.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 

@@ -9,8 +9,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
+import UserAvatar from '../avatars/user-avatar.react.js';
 import Modal from '../components/modal.react.js';
-import UserAvatar from '../components/user-avatar.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';

@@ -8,7 +8,7 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import Button from './button.react.js';
 import ColorSplotch from './color-splotch.react.js';
 import { SingleLine } from './single-line.react.js';
-import ThreadAvatar from './thread-avatar.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';

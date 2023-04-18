@@ -19,7 +19,7 @@ import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
 import RelationshipList from './relationship-list.react.js';
-import EmojiAvatarCreation from '../components/emoji-avatar-creation.react.js';
+import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
