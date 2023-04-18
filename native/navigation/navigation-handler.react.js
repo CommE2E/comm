@@ -5,6 +5,7 @@ import * as React from 'react';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
+import InviteLinkHandler from './invite-link-handler.react.js';
 import ModalPruner from './modal-pruner.react.js';
 import NavFromReduxHandler from './nav-from-redux-handler.react.js';
 import { useIsAppLoggedIn } from './nav-selectors.js';
@@ -43,6 +44,7 @@ const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
         <ThreadScreenTracker />
         <ModalPruner navContext={navContext} />
         <PolicyAcknowledgmentHandler />
+        <InviteLinkHandler />
         {devTools}
       </>
     );
