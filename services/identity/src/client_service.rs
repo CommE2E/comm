@@ -23,6 +23,7 @@ use crate::{
   database::{DatabaseClient, Error as DBError, KeyPayload},
   id::generate_uuid,
   nonce::generate_nonce_data,
+  token::AccessTokenData,
 };
 use aws_sdk_dynamodb::Error as DynamoDBError;
 pub use client_proto::identity_client_service_server::{
@@ -40,16 +41,16 @@ pub enum WorkflowInProgress {
 
 #[derive(Clone)]
 pub struct UserRegistrationInfo {
-  username: String,
-  device_id_key: String,
-  key_payload: String,
-  key_payload_signature: String,
-  identity_prekey: String,
-  identity_prekey_signature: String,
-  identity_onetime_keys: Vec<String>,
-  notif_prekey: String,
-  notif_prekey_signature: String,
-  notif_onetime_keys: Vec<String>,
+  pub username: String,
+  pub device_id_key: String,
+  pub key_payload: String,
+  pub key_payload_signature: String,
+  pub identity_prekey: String,
+  pub identity_prekey_signature: String,
+  pub identity_onetime_keys: Vec<String>,
+  pub notif_prekey: String,
+  pub notif_prekey_signature: String,
+  pub notif_onetime_keys: Vec<String>,
 }
 
 #[derive(derive_more::Constructor)]
@@ -144,9 +145,51 @@ impl IdentityClientService for ClientService {
 
   async fn register_password_user_finish(
     &self,
-    _request: tonic::Request<RegistrationFinishRequest>,
+    request: tonic::Request<RegistrationFinishRequest>,
   ) -> Result<tonic::Response<RegistrationFinishResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    if let Some(WorkflowInProgress::Registration(state)) =
+      self.cache.get(&message.session_id)
+    {
+      self.cache.invalidate(&message.session_id).await;
+
+      let server_registration = comm_opaque2::server::Registration::new();
+      let password_file = server_registration
+        .finish(&message.opaque_registration_upload)
+        .map_err(comm_opaque2::grpc::protocol_error_to_grpc_status)?;
+
+      let device_id = state.device_id_key.clone();
+      let user_id = self
+        .client
+        .add_user_to_users_table(state, password_file)
+        .await
+        .map_err(handle_db_error)?;
+
+      // Create access token
+      let token = AccessTokenData::new(
+        message.session_id,
+        device_id,
+        crate::token::AuthType::Password,
+        &mut OsRng,
+      );
+
+      let access_token = token.access_token.clone();
+
+      self
+        .client
+        .put_access_token_data(token)
+        .await
+        .map_err(handle_db_error)?;
+
+      let response = RegistrationFinishResponse {
+        user_id,
+        access_token,
+      };
+      Ok(Response::new(response))
+    } else {
+      Err(tonic::Status::not_found("session not found"))
+    }
   }
 
   async fn update_user_password_start(
