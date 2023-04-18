@@ -132,6 +132,8 @@ message RegistrationStartResponse {
 }
 
 message RegistrationFinishResponse {
+  // Unique identifier for newly registered user
+  string userID = 1;
   // After successful unpacking of user credentials, return token
   string accessToken = 2;
 }
