@@ -1,12 +1,20 @@
 // @flow
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
 import { View, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import {
+  extensionFromFilename,
+  filenameFromPathOrURI,
+} from 'lib/media/file-utils.js';
+import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { getCompatibleMediaURI } from '../media/identifier-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -21,6 +29,47 @@ function EditAvatar(props: Props): React.Node {
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);
+
+  // eslint-disable-next-line no-unused-vars
+  const openPhotoGallery = React.useCallback(async () => {
+    try {
+      const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        allowsMultipleSelection: false,
+        quality: 1,
+      });
+
+      if (canceled || assets.length === 0) {
+        return;
+      }
+
+      const asset = assets.pop();
+      const { width, height, assetId: mediaNativeID } = asset;
+      const filename = asset.fileName || filenameFromPathOrURI(asset.uri) || '';
+      const uri = getCompatibleMediaURI(
+        asset.uri,
+        extensionFromFilename(filename),
+      );
+
+      const currentTime = Date.now();
+      const selection: MediaLibrarySelection = {
+        step: 'photo_library',
+        dimensions: { height, width },
+        uri,
+        filename,
+        mediaNativeID,
+        selectTime: currentTime,
+        sendTime: currentTime,
+        retries: currentTime,
+      };
+
+      return selection;
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+  }, []);
 
   const editAvatarOptions = React.useMemo(() => {
     const options = [
