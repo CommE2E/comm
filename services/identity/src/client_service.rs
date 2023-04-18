@@ -37,11 +37,20 @@ use tracing::error;
 #[derive(Clone)]
 pub enum WorkflowInProgress {
   Registration(UserRegistrationInfo),
+  Login(UserLoginInfo),
 }
 
 #[derive(Clone)]
 pub struct UserRegistrationInfo {
   pub username: String,
+  pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
+}
+
+#[derive(Clone)]
+pub struct UserLoginInfo(FlattenedDeviceKeyUpload);
+
+#[derive(Clone)]
+pub struct FlattenedDeviceKeyUpload {
   pub device_id_key: String,
   pub key_payload: String,
   pub key_payload_signature: String,
@@ -114,15 +123,17 @@ impl IdentityClientService for ClientService {
         .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
       let registration_state = UserRegistrationInfo {
         username,
-        device_id_key: key_info.primary_identity_public_keys.curve25519,
-        key_payload: payload,
-        key_payload_signature: payload_signature,
-        identity_prekey,
-        identity_prekey_signature,
-        identity_onetime_keys: onetime_identity_prekeys,
-        notif_prekey,
-        notif_prekey_signature,
-        notif_onetime_keys: onetime_notif_prekeys,
+        flattened_device_key_upload: FlattenedDeviceKeyUpload {
+          device_id_key: key_info.primary_identity_public_keys.curve25519,
+          key_payload: payload,
+          key_payload_signature: payload_signature,
+          identity_prekey,
+          identity_prekey_signature,
+          identity_onetime_keys: onetime_identity_prekeys,
+          notif_prekey,
+          notif_prekey_signature,
+          notif_onetime_keys: onetime_notif_prekeys,
+        },
       };
       let session_id = generate_uuid();
       self
@@ -159,7 +170,7 @@ impl IdentityClientService for ClientService {
         .finish(&message.opaque_registration_upload)
         .map_err(comm_opaque2::grpc::protocol_error_to_grpc_status)?;
 
-      let device_id = state.device_id_key.clone();
+      let device_id = state.flattened_device_key_upload.device_id_key.clone();
       let user_id = self
         .client
         .add_user_to_users_table(state, password_file)
