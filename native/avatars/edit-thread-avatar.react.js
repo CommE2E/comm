@@ -12,14 +12,14 @@ import {
 } from 'lib/media/file-utils.js';
 import type { MediaLibrarySelection } from 'lib/types/media-types.js';
 
-import { useUploadProcessedMedia } from './avatar-hooks.js';
+import {
+  useProcessSelectedMedia,
+  useUploadProcessedMedia,
+} from './avatar-hooks.js';
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { getCompatibleMediaURI } from '../media/identifier-utils.js';
-import { processMedia } from '../media/media-utils.js';
-import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type Props = {
   +children: React.Node,
@@ -33,22 +33,9 @@ function EditThreadAvatar(props: Props): React.Node {
   const colors = useColors();
   const styles = useStyles(unboundStyles);
 
-  const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
-  const staffCanSee = useStaffCanSee();
-
   const uploadProcessedMedia = useUploadProcessedMedia();
 
-  const processSelectedMedia = React.useCallback(
-    async (selection: MediaLibrarySelection) => {
-      const { resultPromise } = processMedia(selection, {
-        hasWiFi,
-        finalFileHeaderCheck: staffCanSee,
-      });
-
-      return await resultPromise;
-    },
-    [hasWiFi, staffCanSee],
-  );
+  const processSelectedMedia = useProcessSelectedMedia();
 
   // eslint-disable-next-line no-unused-vars
   const openPhotoGallery = React.useCallback(async () => {
