@@ -20,7 +20,6 @@ import {
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
-import UserAvatar from '../avatars/user-avatar.react.js';
 import Action from '../components/action-row.react.js';
 import Button from '../components/button.react.js';
 import EditSettingButton from '../components/edit-setting-button.react.js';
@@ -133,12 +132,8 @@ class ProfileScreen extends React.PureComponent<Props> {
           >
             <EditUserAvatar
               onPressEmojiAvatarFlow={this.onPressEmojiAvatarFlow}
-            >
-              <UserAvatar
-                size="profile"
-                userID={this.props.currentUserInfo?.id}
-              />
-            </EditUserAvatar>
+              userID={this.props.currentUserInfo?.id}
+            />
           </View>
         </>
       );
