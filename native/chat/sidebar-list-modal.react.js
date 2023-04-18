@@ -8,12 +8,12 @@ import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
 import { SidebarItem } from './sidebar-item.react.js';
 import ThreadListModal from './thread-list-modal.react.js';
-import ExtendedArrow from '../components/arrow-extended.react.js';
-import Arrow from '../components/arrow.react.js';
 import Button from '../components/button.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import ExtendedArrow from '../vectors/arrow-extended.react.js';
+import Arrow from '../vectors/arrow.react.js';
 
 export type SidebarListModalParams = {
   +threadInfo: ThreadInfo,
