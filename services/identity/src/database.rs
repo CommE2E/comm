@@ -6,7 +6,7 @@ use std::sync::Arc;
 use aws_config::SdkConfig;
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::output::{
-  DeleteItemOutput, GetItemOutput, PutItemOutput, QueryOutput, UpdateItemOutput,
+  DeleteItemOutput, GetItemOutput, PutItemOutput, QueryOutput,
 };
 use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
@@ -15,6 +15,7 @@ use opaque_ke::{errors::ProtocolError, ServerRegistration};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
+use crate::client_service::RegistrationState;
 use crate::config::CONFIG;
 use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
@@ -22,14 +23,23 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
   NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY, USERS_TABLE,
-  USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICE_ATTRIBUTE_NAME, USERS_TABLE_INITIALIZATION_INFO,
+  USERS_TABLE_DEVICES_ATTRIBUTE,
+  USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
   USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
   USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
   USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
+use crate::utils::generate_uuid;
 use comm_opaque::Cipher;
 
 #[derive(Serialize, Deserialize)]
@@ -52,6 +62,20 @@ impl FromStr for KeyPayload {
   // Escaped double quotes need to be trimmed before attempting to serialize
   fn from_str(payload: &str) -> Result<KeyPayload, Self::Err> {
     serde_json::from_str(&payload.replace(r#"\""#, r#"""#))
+  }
+}
+
+pub enum Device {
+  Client,
+  Keyserver,
+}
+
+impl Display for Device {
+  fn fmt(&self, f: &mut Formatter) -> FmtResult {
+    match self {
+      Device::Client => write!(f, "client"),
+      Device::Keyserver => write!(f, "keyserver"),
+    }
   }
 }
 
@@ -111,148 +135,87 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn get_session_initialization_info(
-    &self,
-    user_id: &str,
-  ) -> Result<Option<HashMap<String, HashMap<String, String>>>, Error> {
-    match self.get_item_from_users_table(user_id).await {
-      Ok(GetItemOutput {
-        item: Some(mut item),
-        ..
-      }) => parse_devices_attribute(item.remove(USERS_TABLE_DEVICES_ATTRIBUTE))
-        .map(Some)
-        .map_err(Error::Attribute),
-      Ok(_) => {
-        info!("No item found for user {} in users table", user_id);
-        Ok(None)
-      }
-      Err(e) => {
-        error!(
-          "DynamoDB client failed to get session initialization info for user {}: {}",
-          user_id, e
-        );
-        Err(e)
-      }
-    }
-  }
-
-  pub async fn update_users_table(
-    &self,
-    user_id: String,
-    signing_public_key: Option<String>,
-    registration: Option<ServerRegistration<Cipher>>,
-    username: Option<String>,
-    session_initialization_info: Option<&HashMap<String, String>>,
-  ) -> Result<UpdateItemOutput, Error> {
-    let mut update_expression_parts = Vec::new();
-    let mut expression_attribute_names = HashMap::new();
-    let mut expression_attribute_values = HashMap::new();
-    if let Some(reg) = registration {
-      update_expression_parts
-        .push(format!("{} = :r", USERS_TABLE_REGISTRATION_ATTRIBUTE));
-      expression_attribute_values.insert(
-        ":r".to_string(),
-        AttributeValue::B(Blob::new(reg.serialize())),
-      );
-    };
-    if let Some(username) = username {
-      update_expression_parts
-        .push(format!("{} = :u", USERS_TABLE_USERNAME_ATTRIBUTE));
-      expression_attribute_values
-        .insert(":u".to_string(), AttributeValue::S(username));
-    };
-    if let Some(public_key) = signing_public_key {
-      let device_info = match session_initialization_info {
-        Some(info) => info
-          .iter()
-          .map(|(k, v)| (k.to_string(), AttributeValue::S(v.to_string())))
-          .collect(),
-        None => HashMap::new(),
-      };
-
-      // How we construct the update expression will depend on whether the user
-      // already exists or not
-      if let GetItemOutput { item: Some(_), .. } =
-        self.get_item_from_users_table(&user_id).await?
-      {
-        update_expression_parts.push(format!(
-          "{}.#{} = :k",
-          USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
-        ));
-        expression_attribute_names.insert(
-          format!("#{}", USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME),
-          public_key,
-        );
-        expression_attribute_values
-          .insert(":k".to_string(), AttributeValue::M(device_info));
-      } else {
-        update_expression_parts
-          .push(format!("{} = :k", USERS_TABLE_DEVICES_ATTRIBUTE));
-        let mut devices = HashMap::new();
-        devices.insert(public_key, AttributeValue::M(device_info));
-        expression_attribute_values
-          .insert(":k".to_string(), AttributeValue::M(devices));
-      };
-    };
-
-    self
-      .client
-      .update_item()
-      .table_name(USERS_TABLE)
-      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .update_expression(format!("SET {}", update_expression_parts.join(",")))
-      .set_expression_attribute_names(
-        if expression_attribute_names.is_empty() {
-          None
-        } else {
-          Some(expression_attribute_names)
-        },
-      )
-      .set_expression_attribute_values(
-        if expression_attribute_values.is_empty() {
-          None
-        } else {
-          Some(expression_attribute_values)
-        },
-      )
-      .send()
-      .await
-      .map_err(|e| Error::AwsSdk(e.into()))
-  }
-
   pub async fn add_user_to_users_table(
     &self,
-    user_id: String,
-    registration: ServerRegistration<Cipher>,
-    username: String,
-    signing_public_key: String,
-    session_initialization_info: &HashMap<String, String>,
-  ) -> Result<PutItemOutput, Error> {
-    let device_info: HashMap<String, AttributeValue> =
-      session_initialization_info
-        .iter()
-        .map(|(k, v)| (k.to_string(), AttributeValue::S(v.to_string())))
-        .collect();
+    registration_state: RegistrationState,
+    password_file: Vec<u8>,
+  ) -> Result<String, Error> {
+    let user_id = generate_uuid();
+    let device_info = HashMap::from([
+      (
+        USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(Device::Client.to_string()),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(registration_state.key_payload),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(registration_state.key_payload_signature),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(registration_state.identity_prekey),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(registration_state.identity_prekey_signature),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::L(
+          registration_state
+            .identity_onetime_keys
+            .into_iter()
+            .map(AttributeValue::S)
+            .collect(),
+        ),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(registration_state.notif_prekey),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+          .to_string(),
+        AttributeValue::S(registration_state.notif_prekey_signature),
+      ),
+      (
+        USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::L(
+          registration_state
+            .notif_onetime_keys
+            .into_iter()
+            .map(AttributeValue::S)
+            .collect(),
+        ),
+      ),
+    ]);
+    let devices = HashMap::from([(
+      registration_state.device_id_key,
+      AttributeValue::M(device_info),
+    )]);
 
-    let item = HashMap::from([
+    let user = HashMap::from([
       (
         USERS_TABLE_PARTITION_KEY.to_string(),
-        AttributeValue::S(user_id),
+        AttributeValue::S(user_id.clone()),
       ),
       (
         USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
-        AttributeValue::S(username),
-      ),
-      (
-        USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
-        AttributeValue::B(Blob::new(registration.serialize())),
+        AttributeValue::S(registration_state.username),
       ),
       (
         USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
-        AttributeValue::M(HashMap::from([(
-          signing_public_key,
-          AttributeValue::M(device_info),
-        )])),
+        AttributeValue::M(devices),
+      ),
+      (
+        USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
+        AttributeValue::B(Blob::new(password_file)),
       ),
     ]);
 
@@ -260,12 +223,13 @@ impl DatabaseClient {
       .client
       .put_item()
       .table_name(USERS_TABLE)
-      .set_item(Some(item))
+      .set_item(Some(user))
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))
-  }
+      .map_err(|e| Error::AwsSdk(e.into()))?;
 
+    Ok(user_id)
+  }
   pub async fn delete_user(
     &self,
     user_id: String,
@@ -712,36 +676,6 @@ fn parse_registration_data_attribute(
       DBItemAttributeError::Missing,
     )),
   }
-}
-
-fn parse_devices_attribute(
-  attribute: Option<AttributeValue>,
-) -> Result<HashMap<String, HashMap<String, String>>, DBItemError> {
-  let mut devices = HashMap::new();
-  let ddb_devices =
-    parse_map_attribute(USERS_TABLE_DEVICES_ATTRIBUTE, attribute)?;
-
-  for (signing_public_key, session_initialization_info) in ddb_devices {
-    let session_initialization_info_map = parse_map_attribute(
-      USERS_TABLE_DEVICE_ATTRIBUTE_NAME,
-      Some(session_initialization_info),
-    )?;
-    let mut inner_hash_map = HashMap::new();
-    for (initialization_component_name, initialization_component_value) in
-      session_initialization_info_map
-    {
-      let initialization_piece_value_string = parse_string_attribute(
-        USERS_TABLE_INITIALIZATION_INFO,
-        Some(initialization_component_value),
-      )?;
-      inner_hash_map.insert(
-        initialization_component_name,
-        initialization_piece_value_string,
-      );
-    }
-    devices.insert(signing_public_key, inner_hash_map);
-  }
-  Ok(devices)
 }
 
 fn parse_map_attribute(
