@@ -4,7 +4,6 @@ import type { RouteProp } from '@react-navigation/native';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
-import type { EmojiAvatarCreationParams } from '../avatars/emoji-avatar-creation.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
 import type { FullScreenThreadMediaGalleryParams } from '../chat/fullscreen-thread-media-gallery.react.js';
@@ -17,6 +16,7 @@ import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react
 import type { ColorSelectorModalParams } from '../chat/settings/color-selector-modal.react.js';
 import type { ComposeSubchannelModalParams } from '../chat/settings/compose-subchannel-modal.react.js';
 import type { DeleteThreadParams } from '../chat/settings/delete-thread.react.js';
+import type { EmojiThreadAvatarCreationParams } from '../chat/settings/emoji-thread-avatar-creation.react.js';
 import type { ThreadSettingsMemberTooltipModalParams } from '../chat/settings/thread-settings-member-tooltip-modal.react.js';
 import type { ThreadSettingsParams } from '../chat/settings/thread-settings.react.js';
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js';
@@ -26,6 +26,7 @@ import type { CameraModalParams } from '../media/camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
+import type { EmojiUserAvatarCreationParams } from '../profile/emoji-user-avatar-creation.react.js';
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
@@ -50,7 +51,8 @@ export const DeleteAccountRouteName = 'DeleteAccount';
 export const DeleteThreadRouteName = 'DeleteThread';
 export const DevToolsRouteName = 'DevTools';
 export const EditPasswordRouteName = 'EditPassword';
-export const EmojiAvatarCreationRouteName = 'EmojiAvatarCreation';
+export const EmojiThreadAvatarCreationRouteName = 'EmojiThreadAvatarCreation';
+export const EmojiUserAvatarCreationRouteName = 'EmojiUserAvatarCreation';
 export const FriendListRouteName = 'FriendList';
 export const FullScreenThreadMediaGalleryRouteName =
   'FullScreenThreadMediaGallery';
@@ -129,7 +131,7 @@ export type ChatParamList = {
   +MessageList: MessageListParams,
   +ComposeSubchannel: ComposeSubchannelParams,
   +ThreadSettings: ThreadSettingsParams,
-  +EmojiAvatarCreation: EmojiAvatarCreationParams,
+  +EmojiThreadAvatarCreation: EmojiThreadAvatarCreationParams,
   +DeleteThread: DeleteThreadParams,
   +FullScreenThreadMediaGallery: FullScreenThreadMediaGalleryParams,
 };
@@ -141,7 +143,7 @@ export type ChatTopTabsParamList = {
 
 export type ProfileParamList = {
   +ProfileScreen: void,
-  +EmojiAvatarCreation: EmojiAvatarCreationParams,
+  +EmojiUserAvatarCreation: EmojiUserAvatarCreationParams,
   +EditPassword: void,
   +DeleteAccount: void,
   +BuildInfo: void,
