@@ -1,4 +1,5 @@
 #include "CommUtilsModule.h"
+#include "../Tools/Base64.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <fstream>
@@ -99,7 +100,13 @@ CommUtilsModule::readBufferFromFile(jsi::Runtime &rt, jsi::String path) {
 
 jsi::String
 CommUtilsModule::base64EncodeBuffer(jsi::Runtime &rt, jsi::Object data) {
-  return jsi::String::createFromAscii(rt, "unimplemented");
+  auto arrayBuffer = data.getArrayBuffer(rt);
+  auto dataPtr = arrayBuffer.data(rt);
+  auto size = arrayBuffer.size(rt);
+
+  auto bytes = std::vector<uint8_t>(dataPtr, dataPtr + size);
+  auto base64 = base64_encode(bytes);
+  return jsi::String::createFromUtf8(rt, base64);
 }
 
 } // namespace comm

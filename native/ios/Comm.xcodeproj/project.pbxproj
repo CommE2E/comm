@@ -39,6 +39,7 @@
 		7FA2DCDF293E62F500991BA4 /* SWMansionIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */; };
 		7FBB2A7629E94539002C6493 /* utilsJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */; };
 		7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7329E944FD002C6493 /* CommUtilsModule.cpp */; };
+		7FBB2A7B29EEA2A4002C6493 /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */; };
 		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
 		8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
 		8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B652FA5295EAA5B009F8163 /* RustCallback.cpp */; };
@@ -168,6 +169,8 @@
 		7FBB2A7429E9450E002C6493 /* CommUtilsModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommUtilsModule.h; sourceTree = "<group>"; };
 		7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "utilsJSI-generated.cpp"; sourceTree = "<group>"; };
 		7FBB2A7729E94541002C6493 /* utilsJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utilsJSI.h; sourceTree = "<group>"; };
+		7FBB2A7929EA752D002C6493 /* Base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Base64.h; sourceTree = "<group>"; };
+		7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Base64.cpp; sourceTree = "<group>"; };
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		7FE4D9F3291DFE9300667BF6 /* commJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commJSI.h; sourceTree = "<group>"; };
@@ -357,6 +360,8 @@
 		71BE84382636A944002849D2 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */,
+				7FBB2A7929EA752D002C6493 /* Base64.h */,
 				71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */,
 				718DE99C2653D41C00365824 /* WorkerThread.cpp */,
 				718DE99D2653D41C00365824 /* WorkerThread.h */,
@@ -989,6 +994,7 @@
 				7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */,
 				8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
+				7FBB2A7B29EEA2A4002C6493 /* Base64.cpp in Sources */,
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				71BF5B7F26BBDD7400EDE27D /* CryptoModule.cpp in Sources */,
