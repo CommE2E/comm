@@ -5,7 +5,9 @@ import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import {
@@ -224,6 +226,32 @@ function useMessageTogglePinAction(
   }, [canTogglePin, inputState, isPinned, pushModal, item, threadInfo]);
 }
 
+function useMessageEditAction(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): ?MessageTooltipAction {
+  const { messageInfo } = item;
+
+  const canEditMessage = useCanEditMessage(threadInfo, messageInfo);
+
+  return React.useMemo(() => {
+    if (!canEditMessage) {
+      return null;
+    }
+    const buttonContent = (
+      <SWMansionIcon icon="edit-1" size={18} disableFill={false} />
+    );
+    const onClickEdit = () => {
+      // TODO: Enter edit mode
+    };
+    return {
+      actionButtonContent: buttonContent,
+      onClick: onClickEdit,
+      label: 'Edit',
+    };
+  }, [canEditMessage]);
+}
+
 function useMessageTooltipActions(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
@@ -233,6 +261,7 @@ function useMessageTooltipActions(
   const copyAction = useMessageCopyAction(item);
   const reactAction = useMessageReactAction(item, threadInfo);
   const togglePinAction = useMessageTogglePinAction(item, threadInfo);
+  const editAction = useMessageEditAction(item, threadInfo);
   return React.useMemo(
     () =>
       [
@@ -241,8 +270,16 @@ function useMessageTooltipActions(
         copyAction,
         reactAction,
         togglePinAction,
+        editAction,
       ].filter(Boolean),
-    [replyAction, sidebarAction, copyAction, reactAction, togglePinAction],
+    [
+      replyAction,
+      sidebarAction,
+      copyAction,
+      reactAction,
+      togglePinAction,
+      editAction,
+    ],
   );
 }
 
