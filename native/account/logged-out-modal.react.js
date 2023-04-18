@@ -39,7 +39,12 @@ import {
 } from '../keyboard/keyboard.js';
 import { createIsForegroundSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
-import { LoggedOutModalRouteName } from '../navigation/route-names.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import {
+  type NavigationRoute,
+  LoggedOutModalRouteName,
+  RegistrationModalRouteName,
+} from '../navigation/route-names.js';
 import { resetUserStateActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
@@ -111,7 +116,13 @@ function isPastPrompt(modeValue: Node) {
   );
 }
 
+type BaseProps = {
+  +navigation: RootNavigationProp<'LoggedOutModal'>,
+  +route: NavigationRoute<'LoggedOutModal'>,
+};
+
 type Props = {
+  ...BaseProps,
   // Navigation state
   +isForeground: boolean,
   // Redux state
@@ -125,7 +136,6 @@ type Props = {
   +styles: typeof unboundStyles,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  ...
 };
 type State = {
   +mode: LoggedOutMode,
@@ -525,13 +535,13 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       if (__DEV__) {
         registerButtons.push(
           <TouchableOpacity
-            onPress={this.onPressRegister}
+            onPress={this.onPressNewRegister}
             style={[styles.button, styles.classicAuthButton]}
             activeOpacity={0.6}
             key="new"
           >
             <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-              Register
+              Register (new)
             </Text>
           </TouchableOpacity>,
         );
@@ -636,6 +646,11 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   onPressRegister = () => {
     this.keyboardHeightValue.setValue(-1);
     this.setMode('register');
+  };
+
+  onPressNewRegister = () => {
+    console.log('test');
+    this.props.navigation.navigate(RegistrationModalRouteName);
   };
 }
 
@@ -747,39 +762,38 @@ const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
 );
 
-const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
-  ...
-}>(function ConnectedLoggedOutModal(props: { ... }) {
-  const navContext = React.useContext(NavContext);
-  const isForeground = isForegroundSelector(navContext);
+const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedLoggedOutModal(props: BaseProps) {
+    const navContext = React.useContext(NavContext);
+    const isForeground = isForegroundSelector(navContext);
 
-  const rehydrateConcluded = useSelector(
-    state => !!(state._persist && state._persist.rehydrated && navContext),
-  );
-  const persistedStateLoaded = usePersistedStateLoaded();
-  const cookie = useSelector(state => state.cookie);
-  const urlPrefix = useSelector(state => state.urlPrefix);
-  const loggedIn = useSelector(isLoggedIn);
-  const dimensions = useSelector(derivedDimensionsInfoSelector);
-  const splashStyle = useSelector(splashStyleSelector);
-  const styles = useStyles(unboundStyles);
+    const rehydrateConcluded = useSelector(
+      state => !!(state._persist && state._persist.rehydrated && navContext),
+    );
+    const persistedStateLoaded = usePersistedStateLoaded();
+    const cookie = useSelector(state => state.cookie);
+    const urlPrefix = useSelector(state => state.urlPrefix);
+    const loggedIn = useSelector(isLoggedIn);
+    const dimensions = useSelector(derivedDimensionsInfoSelector);
+    const splashStyle = useSelector(splashStyleSelector);
+    const styles = useStyles(unboundStyles);
 
-  const dispatch = useDispatch();
-  return (
-    <LoggedOutModal
-      {...props}
-      isForeground={isForeground}
-      persistedStateLoaded={persistedStateLoaded}
-      rehydrateConcluded={rehydrateConcluded}
-      cookie={cookie}
-      urlPrefix={urlPrefix}
-      loggedIn={loggedIn}
-      dimensions={dimensions}
-      splashStyle={splashStyle}
-      styles={styles}
-      dispatch={dispatch}
-    />
-  );
-});
+    const dispatch = useDispatch();
+    return (
+      <LoggedOutModal
+        {...props}
+        isForeground={isForeground}
+        persistedStateLoaded={persistedStateLoaded}
+        rehydrateConcluded={rehydrateConcluded}
+        cookie={cookie}
+        urlPrefix={urlPrefix}
+        loggedIn={loggedIn}
+        dimensions={dimensions}
+        splashStyle={splashStyle}
+        styles={styles}
+        dispatch={dispatch}
+      />
+    );
+  });
 
 export default ConnectedLoggedOutModal;

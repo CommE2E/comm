@@ -79,6 +79,7 @@ export const ThreadSettingsMemberTooltipModalRouteName =
 export const ThreadSettingsRouteName = 'ThreadSettings';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
+export const RegistrationModalRouteName = 'RegistrationModal';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -93,6 +94,7 @@ export type RootParamList = {
   +TermsAndPrivacyModal: TermsAndPrivacyModalParams,
   +SubchannelsListModal: SubchannelListModalParams,
   +MessageReactionsModal: MessageReactionsModalParams,
+  +RegistrationModal: void,
 };
 
 export type MessageTooltipRouteNames =
@@ -168,7 +170,10 @@ export type ScreenParamList = {
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
   RouteProp<ScreenParamList, RouteName>;
 
-export const accountModals = [LoggedOutModalRouteName];
+export const accountModals = [
+  LoggedOutModalRouteName,
+  RegistrationModalRouteName,
+];
 
 export const scrollBlockingModals = [
   ImageModalRouteName,
