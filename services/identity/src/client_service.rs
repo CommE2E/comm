@@ -49,6 +49,7 @@ pub struct UserRegistrationInfo {
 
 #[derive(Clone)]
 pub struct UserLoginInfo {
+  pub user_id: String,
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub opaque_server_login: comm_opaque2::server::Login,
 }
@@ -229,9 +230,9 @@ impl IdentityClientService for ClientService {
   ) -> Result<tonic::Response<OpaqueLoginStartResponse>, tonic::Status> {
     let message = request.into_inner();
 
-    let password_file_bytes = self
+    let (user_id, password_file_bytes) = self
       .client
-      .get_password_file_from_username(&message.username)
+      .get_user_id_and_password_file_from_username(&message.username)
       .await
       .map_err(handle_db_error)?
       .ok_or(tonic::Status::not_found("user not found"))?;
@@ -275,6 +276,7 @@ impl IdentityClientService for ClientService {
       let key_info = KeyPayload::from_str(&payload)
         .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
       let login_state = UserLoginInfo {
+        user_id,
         opaque_server_login: server_login,
         flattened_device_key_upload: FlattenedDeviceKeyUpload {
           device_id_key: key_info.primary_identity_public_keys.curve25519,
@@ -306,9 +308,50 @@ impl IdentityClientService for ClientService {
 
   async fn login_password_user_finish(
     &self,
-    _request: tonic::Request<OpaqueLoginFinishRequest>,
+    request: tonic::Request<OpaqueLoginFinishRequest>,
   ) -> Result<tonic::Response<OpaqueLoginFinishResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    if let Some(WorkflowInProgress::Login(state)) =
+      self.cache.get(&message.session_id)
+    {
+      self.cache.invalidate(&message.session_id).await;
+
+      let mut server_login = state.opaque_server_login.clone();
+      server_login
+        .finish(&message.opaque_login_upload)
+        .map_err(protocol_error_to_grpc_status)?;
+
+      self
+        .client
+        .add_device_to_users_table(state.clone())
+        .await
+        .map_err(handle_db_error)?;
+
+      // Create access token
+      let token = AccessTokenData::new(
+        message.session_id,
+        state.flattened_device_key_upload.device_id_key,
+        crate::token::AuthType::Password,
+        &mut OsRng,
+      );
+
+      let access_token = token.access_token.clone();
+
+      self
+        .client
+        .put_access_token_data(token)
+        .await
+        .map_err(handle_db_error)?;
+
+      let response = OpaqueLoginFinishResponse {
+        user_id: state.user_id,
+        access_token,
+      };
+      Ok(Response::new(response))
+    } else {
+      Err(tonic::Status::not_found("session not found"))
+    }
   }
 
   async fn login_wallet_user(
