@@ -43,6 +43,7 @@ import {
   localIDPrefix,
   trimMessage,
   useMessagePreview,
+  messageKey,
   type MessagePreviewResult,
 } from 'lib/shared/message-utils.js';
 import SearchIndex from 'lib/shared/search-index.js';
@@ -580,14 +581,19 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       editedMessage = (
         <AnimatedView style={this.props.styles.editView}>
           <View style={this.props.styles.editViewContent}>
-            <Text
-              style={[{ color: threadColor }, this.props.styles.editingLabel]}
+            <TouchableOpacity
+              onPress={this.scrollToEditedMessage}
+              activeOpacity={0.4}
             >
-              Editing message
-            </Text>
-            <SingleLine style={this.props.styles.editingMessagePreview}>
-              {message.text}
-            </SingleLine>
+              <Text
+                style={[{ color: threadColor }, this.props.styles.editingLabel]}
+              >
+                Editing message
+              </Text>
+              <SingleLine style={this.props.styles.editingMessagePreview}>
+                {message.text}
+              </SingleLine>
+            </TouchableOpacity>
           </View>
           <SWMansionIcon
             style={this.props.styles.exitEditButton}
@@ -866,6 +872,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     exitEditAlert(this.exitEditMode);
+  };
+
+  scrollToEditedMessage = () => {
+    const editedMessage = this.getEditedMessage();
+    if (!editedMessage) {
+      return;
+    }
+    const editedMessageKey = messageKey(editedMessage);
+    this.props.inputState?.scrollToMessage(editedMessageKey);
   };
 
   exitEditMode = () => {

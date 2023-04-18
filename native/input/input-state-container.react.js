@@ -169,6 +169,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   editInputBarCallbacks: Array<
     (params: EditInputBarMessageParameters) => void,
   > = [];
+  scrollToMessageCallbacks: Array<(messageID: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
   pendingThreadUpdateHandlers = new Map<string, (ThreadInfo) => mixed>();
 
@@ -406,8 +407,27 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
       editState,
       setEditedMessage: this.setEditedMessage,
+      scrollToMessage: this.scrollToMessage,
+      addScrollToMessageListener: this.addScrollToMessageListener,
+      removeScrollToMessageListener: this.removeScrollToMessageListener,
     }),
   );
+
+  scrollToMessage = (messageID: string) => {
+    this.scrollToMessageCallbacks.forEach(callback => callback(messageID));
+  };
+
+  addScrollToMessageListener = (callback: (messageID: string) => void) => {
+    this.scrollToMessageCallbacks.push(callback);
+  };
+
+  removeScrollToMessageListener = (
+    callbackScrollToMessage: (messageID: string) => void,
+  ) => {
+    this.scrollToMessageCallbacks = this.scrollToMessageCallbacks.filter(
+      candidate => candidate !== callbackScrollToMessage,
+    );
+  };
 
   uploadInProgress = () => {
     if (this.props.ongoingMessageCreation) {
