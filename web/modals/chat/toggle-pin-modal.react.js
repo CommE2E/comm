@@ -69,6 +69,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
       threadCreatedFromMessage: undefined,
       reactions: {},
       startsConversation: false,
+      isPinned: false,
       messageInfo: {
         ...item.messageInfo,
         creator: {
