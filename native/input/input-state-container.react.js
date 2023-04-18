@@ -721,13 +721,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       userTime = Date.now() - start;
     };
 
+    const onTranscodingProgress = (percent: number) => {
+      this.setProgress(localMessageID, localMediaID, 'transcoding', percent);
+    };
+
     let processedMedia;
     const processingStart = Date.now();
     try {
-      const processMediaReturn = processMedia(
-        selection,
-        this.mediaProcessConfig(localMessageID, localMediaID),
-      );
+      const processMediaReturn = processMedia(selection, {
+        hasWiFi: this.props.hasWiFi,
+        finalFileHeaderCheck: this.props.staffCanSee,
+        onTranscodingProgress,
+      });
       reportPromise = processMediaReturn.reportPromise;
       const processResult = await processMediaReturn.resultPromise;
       if (!processResult.success) {
@@ -1004,21 +1009,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     await Promise.all(cleanupPromises);
 
     return await onUploadFinished(mediaMissionResult);
-  }
-
-  mediaProcessConfig(localMessageID: string, localID: string) {
-    const { hasWiFi, staffCanSee } = this.props;
-    const onTranscodingProgress = (percent: number) => {
-      this.setProgress(localMessageID, localID, 'transcoding', percent);
-    };
-    if (staffCanSee) {
-      return {
-        hasWiFi,
-        finalFileHeaderCheck: true,
-        onTranscodingProgress,
-      };
-    }
-    return { hasWiFi, onTranscodingProgress };
   }
 
   setProgress(
