@@ -178,6 +178,7 @@ class ChatMessageList extends React.PureComponent<Props> {
       <Message
         item={item}
         threadInfo={threadInfo}
+        shouldDisplayPinIndicator={true}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
