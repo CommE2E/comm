@@ -1,24 +1,13 @@
 // @flow
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
 import { View, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  extensionFromFilename,
-  filenameFromPathOrURI,
-} from 'lib/media/file-utils.js';
-import type { MediaLibrarySelection } from 'lib/types/media-types.js';
-
-import {
-  useProcessSelectedMedia,
-  useUploadProcessedMedia,
-} from './avatar-hooks.js';
+import { useSelectAndUploadFromGallery } from './avatar-hooks.js';
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { getCompatibleMediaURI } from '../media/identifier-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -33,55 +22,7 @@ function EditThreadAvatar(props: Props): React.Node {
   const colors = useColors();
   const styles = useStyles(unboundStyles);
 
-  const uploadProcessedMedia = useUploadProcessedMedia();
-
-  const processSelectedMedia = useProcessSelectedMedia();
-
-  // eslint-disable-next-line no-unused-vars
-  const openPhotoGallery = React.useCallback(async () => {
-    try {
-      const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        allowsMultipleSelection: false,
-        quality: 1,
-      });
-
-      if (canceled || assets.length === 0) {
-        return;
-      }
-
-      const asset = assets.pop();
-      const { width, height, assetId: mediaNativeID } = asset;
-      const assetFilename =
-        asset.fileName || filenameFromPathOrURI(asset.uri) || '';
-      const uri = getCompatibleMediaURI(
-        asset.uri,
-        extensionFromFilename(assetFilename),
-      );
-
-      const currentTime = Date.now();
-      const selection: MediaLibrarySelection = {
-        step: 'photo_library',
-        dimensions: { height, width },
-        uri,
-        filename: assetFilename,
-        mediaNativeID,
-        selectTime: currentTime,
-        sendTime: currentTime,
-        retries: 0,
-      };
-
-      const processedMedia = await processSelectedMedia(selection);
-      if (!processedMedia.success) {
-        return;
-      }
-      await uploadProcessedMedia(processedMedia);
-    } catch (e) {
-      console.log(e);
-      return;
-    }
-  }, [processSelectedMedia, uploadProcessedMedia]);
+  const selectAndUploadFromGallery = useSelectAndUploadFromGallery();
 
   const editAvatarOptions = React.useMemo(() => {
     const options = [
@@ -97,6 +38,18 @@ function EditThreadAvatar(props: Props): React.Node {
           />
         ),
       },
+      {
+        id: 'image',
+        text: 'Select image',
+        onPress: selectAndUploadFromGallery,
+        icon: (
+          <SWMansionIcon
+            name="image-1"
+            size={18}
+            style={styles.bottomSheetIcon}
+          />
+        ),
+      },
     ];
 
     if (Platform.OS === 'ios') {
@@ -107,7 +60,11 @@ function EditThreadAvatar(props: Props): React.Node {
       });
     }
     return options;
-  }, [onPressEmojiAvatarFlow, styles.bottomSheetIcon]);
+  }, [
+    onPressEmojiAvatarFlow,
+    selectAndUploadFromGallery,
+    styles.bottomSheetIcon,
+  ]);
 
   const insets = useSafeAreaInsets();
 
