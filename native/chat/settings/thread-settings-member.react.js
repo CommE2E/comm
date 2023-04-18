@@ -29,9 +29,9 @@ import {
 } from 'lib/types/thread-types.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
+import UserAvatar from '../../avatars/user-avatar.react.js';
 import PencilIcon from '../../components/pencil-icon.react.js';
 import { SingleLine } from '../../components/single-line.react.js';
-import UserAvatar from '../../components/user-avatar.react.js';
 import {
   type KeyboardState,
   KeyboardContext,

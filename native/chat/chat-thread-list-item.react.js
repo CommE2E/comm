@@ -13,11 +13,11 @@ import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
 import MessagePreview from './message-preview.react.js';
 import SwipeableThread from './swipeable-thread.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorSplotch from '../components/color-splotch.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
-import ThreadAvatar from '../components/thread-avatar.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';

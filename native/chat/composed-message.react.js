@@ -22,7 +22,7 @@ import { MessageHeader } from './message-header.react.js';
 import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
 import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
-import UserAvatar from '../components/user-avatar.react.js';
+import UserAvatar from '../avatars/user-avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';

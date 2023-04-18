@@ -5,8 +5,8 @@ import { View, Platform } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import ThreadAvatar from '../../avatars/thread-avatar.react.js';
 import Button from '../../components/button.react.js';
-import ThreadAvatar from '../../components/thread-avatar.react.js';
 import ThreadIcon from '../../components/thread-icon.react.js';
 import ThreadPill from '../../components/thread-pill.react.js';
 import { useColors, useStyles } from '../../themes/colors.js';
