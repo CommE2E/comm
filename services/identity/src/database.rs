@@ -105,36 +105,6 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn get_pake_registration(
-    &self,
-    user_id: String,
-  ) -> Result<Option<ServerRegistration<Cipher>>, Error> {
-    match self.get_item_from_users_table(&user_id).await {
-      Ok(GetItemOutput {
-        item: Some(mut item),
-        ..
-      }) => parse_registration_data_attribute(
-        item.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE),
-      )
-      .map(Some)
-      .map_err(Error::Attribute),
-      Ok(_) => {
-        info!(
-          "No item found for user {} in PAKE registration table",
-          user_id
-        );
-        Ok(None)
-      }
-      Err(e) => {
-        error!(
-          "DynamoDB client failed to get registration data for user {}: {}",
-          user_id, e
-        );
-        Err(e)
-      }
-    }
-  }
-
   pub async fn add_user_to_users_table(
     &self,
     registration_state: UserRegistrationInfo,
@@ -397,11 +367,11 @@ impl DatabaseClient {
     Ok(result.is_some())
   }
 
-  pub async fn get_user_id_from_user_info(
+  async fn get_user_from_user_info(
     &self,
     user_info: String,
     auth_type: AuthType,
-  ) -> Result<Option<String>, Error> {
+  ) -> Result<Option<HashMap<String, AttributeValue>>, Error> {
     let (index, attribute_name) = match auth_type {
       AuthType::Password => {
         (USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USERNAME_ATTRIBUTE)
@@ -422,8 +392,7 @@ impl DatabaseClient {
       .await
     {
       Ok(QueryOutput {
-        items: Some(mut items),
-        ..
+        items: Some(items), ..
       }) => {
         let num_items = items.len();
         if num_items == 0 {
@@ -435,12 +404,8 @@ impl DatabaseClient {
             num_items, attribute_name, user_info, items
           );
         }
-        parse_string_attribute(
-          USERS_TABLE_PARTITION_KEY,
-          items[0].remove(USERS_TABLE_PARTITION_KEY),
-        )
-        .map(Some)
-        .map_err(Error::Attribute)
+        let first_item = items[0].clone();
+        Ok(Some(first_item))
       }
       Ok(_) => {
         info!(
@@ -451,10 +416,60 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
-          "DynamoDB client failed to get user ID from {} {}: {}",
+          "DynamoDB client failed to get user from {} {}: {}",
           attribute_name, user_info, e
         );
         Err(Error::AwsSdk(e.into()))
+      }
+    }
+  }
+
+  pub async fn get_user_id_from_user_info(
+    &self,
+    user_info: String,
+    auth_type: AuthType,
+  ) -> Result<Option<String>, Error> {
+    match self
+      .get_user_from_user_info(user_info.clone(), auth_type)
+      .await
+    {
+      Ok(Some(mut user)) => parse_string_attribute(
+        USERS_TABLE_PARTITION_KEY,
+        user.remove(USERS_TABLE_PARTITION_KEY),
+      )
+      .map(Some)
+      .map_err(Error::Attribute),
+      Ok(_) => Ok(None),
+      Err(e) => Err(e),
+    }
+  }
+
+  pub async fn get_password_file_from_username(
+    &self,
+    username: &str,
+  ) -> Result<Option<Vec<u8>>, Error> {
+    match self
+      .get_user_from_user_info(username.to_string(), AuthType::Password)
+      .await
+    {
+      Ok(Some(mut user)) => parse_registration_data_attribute(
+        user.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE),
+      )
+      .map(Some)
+      .map_err(Error::Attribute),
+      Ok(_) => {
+        info!(
+          "No item found for user {} in PAKE registration table",
+          username
+        );
+        Ok(None)
+      }
+      Err(e) => {
+        error!(
+          "DynamoDB client failed to get registration data for user {}: {}",
+          username, e
+        );
+        Err(e)
       }
     }
   }
@@ -673,19 +688,10 @@ fn parse_token_attribute(
 
 fn parse_registration_data_attribute(
   attribute: Option<AttributeValue>,
-) -> Result<ServerRegistration<Cipher>, DBItemError> {
-  match &attribute {
+) -> Result<Vec<u8>, DBItemError> {
+  match attribute {
     Some(AttributeValue::B(server_registration_bytes)) => {
-      match ServerRegistration::<Cipher>::deserialize(
-        server_registration_bytes.as_ref(),
-      ) {
-        Ok(server_registration) => Ok(server_registration),
-        Err(e) => Err(DBItemError::new(
-          USERS_TABLE_REGISTRATION_ATTRIBUTE,
-          attribute,
-          DBItemAttributeError::Pake(e),
-        )),
-      }
+      Ok(server_registration_bytes.into_inner())
     }
     Some(_) => Err(DBItemError::new(
       USERS_TABLE_REGISTRATION_ATTRIBUTE,
