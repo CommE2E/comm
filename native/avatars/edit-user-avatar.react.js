@@ -28,7 +28,7 @@ type Props = {
   +onPressEmojiAvatarFlow: () => mixed,
   +disabled?: boolean,
 };
-function EditAvatar(props: Props): React.Node {
+function EditUserAvatar(props: Props): React.Node {
   const { onPressEmojiAvatarFlow, children, disabled } = props;
   const { showActionSheetWithOptions } = useActionSheet();
 
@@ -231,4 +231,4 @@ const unboundStyles = {
   },
 };
 
-export default EditAvatar;
+export default EditUserAvatar;
