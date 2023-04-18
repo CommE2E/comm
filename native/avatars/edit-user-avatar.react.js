@@ -1,11 +1,12 @@
 // @flow
 
-import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as React from 'react';
 import { TouchableOpacity, Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useSelectAndUploadFromGallery } from './avatar-hooks.js';
+import {
+  useSelectAndUploadFromGallery,
+  useShowAvatarActionSheet,
+} from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -17,7 +18,6 @@ type Props = {
 };
 function EditUserAvatar(props: Props): React.Node {
   const { onPressEmojiAvatarFlow, children, disabled } = props;
-  const { showActionSheetWithOptions } = useActionSheet();
 
   const styles = useStyles(unboundStyles);
 
@@ -65,45 +65,7 @@ function EditUserAvatar(props: Props): React.Node {
     styles.bottomSheetIcon,
   ]);
 
-  const insets = useSafeAreaInsets();
-
-  const onPressEditAvatar = React.useCallback(() => {
-    const texts = editAvatarOptions.map(option => option.text);
-
-    const cancelButtonIndex = editAvatarOptions.findIndex(
-      option => option.isCancel,
-    );
-
-    const containerStyle = {
-      paddingBottom: insets.bottom,
-    };
-
-    const icons = editAvatarOptions.map(option => option.icon);
-
-    const onPressAction = (selectedIndex: ?number) => {
-      if (
-        selectedIndex === null ||
-        selectedIndex === undefined ||
-        selectedIndex < 0
-      ) {
-        return;
-      }
-      const option = editAvatarOptions[selectedIndex];
-      if (option.onPress) {
-        option.onPress();
-      }
-    };
-
-    showActionSheetWithOptions(
-      {
-        options: texts,
-        cancelButtonIndex,
-        containerStyle,
-        icons,
-      },
-      onPressAction,
-    );
-  }, [editAvatarOptions, insets.bottom, showActionSheetWithOptions]);
+  const showAvatarActionSheet = useShowAvatarActionSheet(editAvatarOptions);
 
   let editBadge;
   if (!disabled) {
@@ -111,7 +73,7 @@ function EditUserAvatar(props: Props): React.Node {
   }
 
   return (
-    <TouchableOpacity onPress={onPressEditAvatar} disabled={disabled}>
+    <TouchableOpacity onPress={showAvatarActionSheet} disabled={disabled}>
       {children}
       {editBadge}
     </TouchableOpacity>
