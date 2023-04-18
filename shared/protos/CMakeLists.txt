@@ -13,7 +13,7 @@ find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin
   HINTS "${_GRPC_CPP_PLUGIN_EXECUTABLE}")
 
 set(_proto_dir "${CMAKE_CURRENT_SOURCE_DIR}")
-set(_components backup blob tunnelbroker identity)
+set(_components backup blob identity)
 set(TARGETS)
 
 # Iterate through each protobuf file
