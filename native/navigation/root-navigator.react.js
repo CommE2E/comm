@@ -38,8 +38,10 @@ import {
   type ScreenParamList,
   type RootParamList,
   TermsAndPrivacyRouteName,
+  RegistrationRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
+import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
 import ImagePasteModal from '../chat/image-paste-modal.react.js';
@@ -188,6 +190,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={LoggedOutModalRouteName}
         component={LoggedOutModal}
+        options={disableGesturesScreenOptions}
+      />
+      <Root.Screen
+        name={RegistrationRouteName}
+        component={RegistrationNavigator}
         options={disableGesturesScreenOptions}
       />
       <Root.Screen name={AppRouteName} component={AppNavigator} />
