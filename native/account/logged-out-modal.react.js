@@ -508,6 +508,33 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       );
     } else if (this.state.mode === 'prompt') {
       const opacityStyle = { opacity: this.buttonOpacity };
+
+      const registerButtons = [];
+      registerButtons.push(
+        <TouchableOpacity
+          onPress={this.onPressRegister}
+          style={[styles.button, styles.classicAuthButton]}
+          activeOpacity={0.6}
+        >
+          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+            Register
+          </Text>
+        </TouchableOpacity>,
+      );
+      if (__DEV__) {
+        registerButtons.push(
+          <TouchableOpacity
+            onPress={this.onPressRegister}
+            style={[styles.button, styles.classicAuthButton]}
+            activeOpacity={0.6}
+          >
+            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+              Register
+            </Text>
+          </TouchableOpacity>,
+        );
+      }
+
       buttons = (
         <Animated.View style={[styles.buttonContainer, opacityStyle]}>
           <LoggedOutStaffInfo />
@@ -521,15 +548,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
               Sign in
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={this.onPressRegister}
-            style={[styles.button, styles.classicAuthButton]}
-            activeOpacity={0.6}
-          >
-            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-              Register
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.registerButtons}>{registerButtons}</View>
         </Animated.View>
       );
     } else if (this.state.mode === 'loading') {
@@ -636,6 +655,7 @@ const unboundStyles = {
     paddingLeft: 18,
     paddingRight: 18,
     paddingTop: 14,
+    flex: 1,
   },
   buttonContainer: {
     bottom: 0,
@@ -656,6 +676,9 @@ const unboundStyles = {
   },
   classicAuthButtonText: {
     color: 'whiteText',
+  },
+  registerButtons: {
+    flexDirection: 'row',
   },
   container: {
     backgroundColor: 'transparent',
