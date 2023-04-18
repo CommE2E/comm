@@ -42,6 +42,7 @@ function PinnedMessage(props: PinnedMessageProps): React.Node {
             <Message
               item={item}
               threadInfo={threadInfo}
+              isRenderedInModal={true}
               key={item.messageInfo.id}
             />
           </MessageListContext.Provider>

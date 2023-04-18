@@ -16,6 +16,7 @@ import TextMessage from './text-message.react.js';
 type Props = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
+  +isRenderedInModal: boolean,
 };
 function Message(props: Props): React.Node {
   const { item } = props;
@@ -30,12 +31,24 @@ function Message(props: Props): React.Node {
   }
   let message;
   if (item.messageInfo.type === messageTypes.TEXT) {
-    message = <TextMessage item={item} threadInfo={props.threadInfo} />;
+    message = (
+      <TextMessage
+        item={item}
+        threadInfo={props.threadInfo}
+        isRenderedInModal={props.isRenderedInModal}
+      />
+    );
   } else if (
     item.messageInfo.type === messageTypes.IMAGES ||
     item.messageInfo.type === messageTypes.MULTIMEDIA
   ) {
-    message = <MultimediaMessage item={item} threadInfo={props.threadInfo} />;
+    message = (
+      <MultimediaMessage
+        item={item}
+        threadInfo={props.threadInfo}
+        isRenderedInModal={props.isRenderedInModal}
+      />
+    );
   } else {
     invariant(item.robotext, "Flow can't handle our fancy types :(");
     message = <RobotextMessage item={item} threadInfo={props.threadInfo} />;
