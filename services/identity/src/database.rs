@@ -148,27 +148,42 @@ impl DatabaseClient {
       ),
       (
         USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(registration_state.key_payload),
+        AttributeValue::S(
+          registration_state.flattened_device_key_upload.key_payload,
+        ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
-        AttributeValue::S(registration_state.key_payload_signature),
+        AttributeValue::S(
+          registration_state
+            .flattened_device_key_upload
+            .key_payload_signature,
+        ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(registration_state.identity_prekey),
+        AttributeValue::S(
+          registration_state
+            .flattened_device_key_upload
+            .identity_prekey,
+        ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
-        AttributeValue::S(registration_state.identity_prekey_signature),
+        AttributeValue::S(
+          registration_state
+            .flattened_device_key_upload
+            .identity_prekey_signature,
+        ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
           .to_string(),
         AttributeValue::L(
           registration_state
+            .flattened_device_key_upload
             .identity_onetime_keys
             .into_iter()
             .map(AttributeValue::S)
@@ -177,17 +192,24 @@ impl DatabaseClient {
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(registration_state.notif_prekey),
+        AttributeValue::S(
+          registration_state.flattened_device_key_upload.notif_prekey,
+        ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
-        AttributeValue::S(registration_state.notif_prekey_signature),
+        AttributeValue::S(
+          registration_state
+            .flattened_device_key_upload
+            .notif_prekey_signature,
+        ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
         AttributeValue::L(
           registration_state
+            .flattened_device_key_upload
             .notif_onetime_keys
             .into_iter()
             .map(AttributeValue::S)
@@ -196,7 +218,7 @@ impl DatabaseClient {
       ),
     ]);
     let devices = HashMap::from([(
-      registration_state.device_id_key,
+      registration_state.flattened_device_key_upload.device_id_key,
       AttributeValue::M(device_info),
     )]);
 
