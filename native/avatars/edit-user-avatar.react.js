@@ -22,7 +22,7 @@ function EditUserAvatar(props: Props): React.Node {
   const [selectFromGalleryAndUpdateUserAvatar] =
     useSelectFromGalleryAndUpdateUserAvatar();
 
-  const removeUserAvatar = useRemoveUserAvatar();
+  const [removeUserAvatar] = useRemoveUserAvatar();
 
   const actionSheetConfig = React.useMemo(
     () => [
