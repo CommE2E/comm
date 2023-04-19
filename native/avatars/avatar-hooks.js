@@ -219,7 +219,13 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
 
     dispatchActionPromise(
       updateUserAvatarActionTypes,
-      updateUserAvatarCall(imageAvatarUpdateRequest),
+      (async () => {
+        try {
+          return await updateUserAvatarCall(imageAvatarUpdateRequest);
+        } catch {
+          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+        }
+      })(),
     );
     setProcessingOrUploadInProgress(false);
   }, [
@@ -318,7 +324,13 @@ function useRemoveUserAvatar(): [() => Promise<void>, boolean] {
 
     dispatchActionPromise(
       updateUserAvatarActionTypes,
-      updateUserAvatarCall(removeAvatarRequest),
+      (async () => {
+        try {
+          return await updateUserAvatarCall(removeAvatarRequest);
+        } catch {
+          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+        }
+      })(),
     );
   }, [dispatchActionPromise, updateUserAvatarCall]);
 
