@@ -22,7 +22,7 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
   }
 }
 
-pub async fn run_grpc_server() -> Result<(), tonic::transport::Error> {
+pub async fn run_server() -> Result<(), tonic::transport::Error> {
   let addr = format!("[::1]:{}", constants::GRPC_SERVER_PORT)
     .parse()
     .expect("Unable to parse gRPC address");

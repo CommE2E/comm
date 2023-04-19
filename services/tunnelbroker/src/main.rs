@@ -1,5 +1,5 @@
-pub mod comm_server;
 pub mod constants;
+pub mod grpc;
 pub mod websockets;
 use std::io::{self, Error, ErrorKind};
 use tracing;
@@ -10,11 +10,11 @@ async fn main() -> Result<(), io::Error> {
   tracing::subscriber::set_global_default(subscriber)
     .expect("Unable to configure tracing");
 
-  let comm_server = comm_server::run_grpc_server();
-  let websocket_server = websockets::create_server();
+  let grpc_server = grpc::run_server();
+  let websocket_server = websockets::run_server();
 
   tokio::select! {
-    Ok(_) = comm_server => { Ok(()) },
+    Ok(_) = grpc_server => { Ok(()) },
     Ok(_) = websocket_server => { Ok(()) },
     else => {
       tracing::error!("A grpc or websocket server crashed.");
