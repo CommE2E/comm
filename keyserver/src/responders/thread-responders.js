@@ -169,6 +169,7 @@ async function threadCreationResponder(
 const joinThreadRequestInputValidator = tShape({
   threadID: t.String,
   calendarQuery: t.maybe(entryQueryInputValidator),
+  inviteLinkSecret: t.maybe(t.String),
 });
 async function threadJoinResponder(
   viewer: Viewer,
