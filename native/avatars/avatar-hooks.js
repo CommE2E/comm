@@ -6,6 +6,10 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import {
+  changeThreadSettings,
+  changeThreadSettingsActionTypes,
+} from 'lib/actions/thread-actions.js';
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
 import {
   updateUserAvatar,
@@ -21,6 +25,7 @@ import type {
   MediaMissionFailure,
   UploadMultimediaResult,
 } from 'lib/types/media-types.js';
+import type { UpdateThreadRequest } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -178,6 +183,74 @@ function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
   return selectFromGalleryAndUpdateUserAvatar;
 }
 
+function useSelectFromGalleryAndUpdateThreadAvatar(
+  threadID: string,
+): () => Promise<void> {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const changeThreadSettingsCall = useServerCall(changeThreadSettings);
+
+  const selectFromGallery = useSelectFromGallery();
+  const processSelectedMedia = useProcessSelectedMedia();
+  const uploadProcessedMedia = useUploadProcessedMedia();
+
+  const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
+    const selection: ?MediaLibrarySelection = await selectFromGallery();
+    if (!selection) {
+      console.log('MEDIA_SELECTION_FAILED');
+      return;
+    }
+
+    const processedMedia = await processSelectedMedia(selection);
+    if (!processedMedia.success) {
+      console.log('MEDIA_PROCESSING_FAILED');
+      // TODO (atul): Clean up any temporary files.
+      return;
+    }
+
+    let uploadedMedia: ?UploadMultimediaResult;
+    try {
+      uploadedMedia = await uploadProcessedMedia(processedMedia);
+      // TODO (atul): Clean up any temporary files.
+    } catch {
+      console.log('MEDIA_UPLOAD_FAILED');
+      // TODO (atul): Clean up any temporary files.
+      return;
+    }
+
+    if (!uploadedMedia) {
+      console.log('MEDIA_UPLOAD_FAILED');
+      // TODO (atul): Clean up any temporary files.
+      return;
+    }
+
+    const imageAvatarUpdateRequest: ImageAvatarDBContent = {
+      type: 'image',
+      uploadID: uploadedMedia.id,
+    };
+
+    const updateThreadRequest: UpdateThreadRequest = {
+      threadID,
+      changes: {
+        avatar: imageAvatarUpdateRequest,
+      },
+    };
+
+    dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      changeThreadSettingsCall(updateThreadRequest),
+    );
+  }, [
+    changeThreadSettingsCall,
+    dispatchActionPromise,
+    processSelectedMedia,
+    selectFromGallery,
+    threadID,
+    uploadProcessedMedia,
+  ]);
+
+  return selectFromGalleryAndUpdateThreadAvatar;
+}
+
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'cancel',
   +onPress?: () => mixed,
@@ -275,4 +348,5 @@ export {
   useSelectFromGallery,
   useShowAvatarActionSheet,
   useSelectFromGalleryAndUpdateUserAvatar,
+  useSelectFromGalleryAndUpdateThreadAvatar,
 };
