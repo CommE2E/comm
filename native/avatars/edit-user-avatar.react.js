@@ -3,13 +3,18 @@
 import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
+import { useENSAvatar } from 'lib/hooks/ens-cache.js';
+import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
+
 import {
+  useENSUserAvatar,
   useRemoveUserAvatar,
   useSelectFromGalleryAndUpdateUserAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import UserAvatar from './user-avatar.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -21,26 +26,44 @@ function EditUserAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { userID, onPressEmojiAvatarFlow, disabled } = props;
 
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const ethAddress = React.useMemo(
+    () => getETHAddressForUserInfo(currentUserInfo),
+    [currentUserInfo],
+  );
+  const ensAvatarURI = useENSAvatar(ethAddress);
+
   const [selectFromGalleryAndUpdateUserAvatar, isGalleryAvatarUpdateLoading] =
     useSelectFromGalleryAndUpdateUserAvatar();
 
+  const [saveENSUserAvatar, isENSAvatarUpdateLoading] = useENSUserAvatar();
   const [removeUserAvatar, isRemoveAvatarUpdateLoading] = useRemoveUserAvatar();
 
   const isAvatarUpdateInProgress =
-    isGalleryAvatarUpdateLoading || isRemoveAvatarUpdateLoading;
+    isGalleryAvatarUpdateLoading ||
+    isRemoveAvatarUpdateLoading ||
+    isENSAvatarUpdateLoading;
 
-  const actionSheetConfig = React.useMemo(
-    () => [
+  const actionSheetConfig = React.useMemo(() => {
+    const configOptions = [
       { id: 'emoji', onPress: onPressEmojiAvatarFlow },
       { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
-      { id: 'remove', onPress: removeUserAvatar },
-    ],
-    [
-      onPressEmojiAvatarFlow,
-      removeUserAvatar,
-      selectFromGalleryAndUpdateUserAvatar,
-    ],
-  );
+    ];
+
+    if (ensAvatarURI) {
+      configOptions.push({ id: 'ens', onPress: saveENSUserAvatar });
+    }
+
+    configOptions.push({ id: 'remove', onPress: removeUserAvatar });
+
+    return configOptions;
+  }, [
+    ensAvatarURI,
+    onPressEmojiAvatarFlow,
+    removeUserAvatar,
+    saveENSUserAvatar,
+    selectFromGalleryAndUpdateUserAvatar,
+  ]);
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
 
