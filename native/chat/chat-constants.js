@@ -23,6 +23,11 @@ export const inlineEngagementRightStyle = {
   topOffset: -10,
 };
 
+export const inlineEngagementLabelStyle = {
+  height: 16,
+  topOffset: 8,
+};
+
 export const clusterEndHeight = 7;
 
 export const avatarOffset = 32;
