@@ -23,6 +23,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   ImageAvatarDBContent,
+  ENSAvatarDBContent,
   UpdateUserAvatarRemoveRequest,
 } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -37,6 +38,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { getCompatibleMediaURI } from '../media/identifier-utils.js';
 import type { MediaResult } from '../media/media-utils.js';
@@ -352,8 +354,33 @@ function useRemoveThreadAvatar(threadID: string): () => Promise<void> {
   return removeThreadAvatar;
 }
 
+function useENSUserAvatar(): [() => Promise<void>, boolean] {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const updateUserAvatarCall = useServerCall(updateUserAvatar);
+
+  const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
+    updateUserAvatarLoadingStatusSelector,
+  );
+
+  const saveENSUserAvatar = React.useCallback(async () => {
+    const ensAvatarRequest: ENSAvatarDBContent = {
+      type: 'ens',
+    };
+
+    dispatchActionPromise(
+      updateUserAvatarActionTypes,
+      updateUserAvatarCall(ensAvatarRequest),
+    );
+  }, [dispatchActionPromise, updateUserAvatarCall]);
+
+  return React.useMemo(
+    () => [saveENSUserAvatar, updateUserAvatarLoadingStatus === 'loading'],
+    [saveENSUserAvatar, updateUserAvatarLoadingStatus],
+  );
+}
+
 type ShowAvatarActionSheetOptions = {
-  +id: 'emoji' | 'image' | 'cancel' | 'remove',
+  +id: 'emoji' | 'image' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
 };
 function useShowAvatarActionSheet(
@@ -371,6 +398,8 @@ function useShowAvatarActionSheet(
         return 'Use Emoji';
       } else if (option.id === 'image') {
         return 'Select image';
+      } else if (option.id === 'ens') {
+        return 'Use ENS Avatar';
       } else if (option.id === 'remove') {
         return 'Remove avatar';
       } else {
@@ -400,6 +429,14 @@ function useShowAvatarActionSheet(
           <SWMansionIcon
             name="image-1"
             size={22}
+            style={styles.bottomSheetIcon}
+          />
+        );
+      } else if (option.id === 'ens') {
+        return (
+          <CommIcon
+            name="ethereum-outline"
+            size={18}
             style={styles.bottomSheetIcon}
           />
         );
@@ -463,4 +500,5 @@ export {
   useSelectFromGalleryAndUpdateThreadAvatar,
   useRemoveUserAvatar,
   useRemoveThreadAvatar,
+  useENSUserAvatar,
 };
