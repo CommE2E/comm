@@ -8,15 +8,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
 import {
+  updateUserAvatar,
+  updateUserAvatarActionTypes,
+} from 'lib/actions/user-actions.js';
+import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
+import type { ImageAvatarDBContent } from 'lib/types/avatar-types.js';
 import type {
   MediaLibrarySelection,
   MediaMissionFailure,
   UploadMultimediaResult,
 } from 'lib/types/media-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { getCompatibleMediaURI } from '../media/identifier-utils.js';
@@ -67,11 +75,8 @@ function useProcessSelectedMedia(): MediaLibrarySelection => Promise<
   return processSelectedMedia;
 }
 
-function useSelectAndUploadFromGallery(): () => Promise<void> {
-  const processSelectedMedia = useProcessSelectedMedia();
-  const uploadProcessedMedia = useUploadProcessedMedia();
-
-  const selectAndUploadFromGallery = React.useCallback(async () => {
+function useSelectFromGallery(): () => Promise<?MediaLibrarySelection> {
+  const selectFromGallery = React.useCallback(async () => {
     try {
       const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -105,18 +110,72 @@ function useSelectAndUploadFromGallery(): () => Promise<void> {
         retries: 0,
       };
 
-      const processedMedia = await processSelectedMedia(selection);
-      if (!processedMedia.success) {
-        return;
-      }
-      await uploadProcessedMedia(processedMedia);
+      return selection;
     } catch (e) {
       console.log(e);
+      return undefined;
+    }
+  }, []);
+
+  return selectFromGallery;
+}
+
+function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const updateUserAvatarCall = useServerCall(updateUserAvatar);
+
+  const selectFromGallery = useSelectFromGallery();
+  const processSelectedMedia = useProcessSelectedMedia();
+  const uploadProcessedMedia = useUploadProcessedMedia();
+
+  const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
+    const selection: ?MediaLibrarySelection = await selectFromGallery();
+    if (!selection) {
+      console.log('MEDIA_SELECTION_FAILED');
       return;
     }
-  }, [processSelectedMedia, uploadProcessedMedia]);
 
-  return selectAndUploadFromGallery;
+    const processedMedia = await processSelectedMedia(selection);
+    if (!processedMedia.success) {
+      console.log('MEDIA_PROCESSING_FAILED');
+      // TODO (atul): Clean up any temporary files.
+      return;
+    }
+
+    let uploadedMedia: ?UploadMultimediaResult;
+    try {
+      uploadedMedia = await uploadProcessedMedia(processedMedia);
+      // TODO (atul): Clean up any temporary files.
+    } catch {
+      console.log('MEDIA_UPLOAD_FAILED');
+      // TODO (atul): Clean up any temporary files.
+      return;
+    }
+
+    if (!uploadedMedia) {
+      console.log('MEDIA_UPLOAD_FAILED');
+      // TODO (atul): Clean up any temporary files.
+      return;
+    }
+
+    const imageAvatarUpdateRequest: ImageAvatarDBContent = {
+      type: 'image',
+      uploadID: uploadedMedia.id,
+    };
+
+    dispatchActionPromise(
+      updateUserAvatarActionTypes,
+      updateUserAvatarCall(imageAvatarUpdateRequest),
+    );
+  }, [
+    dispatchActionPromise,
+    processSelectedMedia,
+    selectFromGallery,
+    updateUserAvatarCall,
+    uploadProcessedMedia,
+  ]);
+
+  return selectFromGalleryAndUpdateUserAvatar;
 }
 
 type ShowAvatarActionSheetOptions = {
@@ -215,6 +274,6 @@ const unboundStyles = {
 export {
   useUploadProcessedMedia,
   useProcessSelectedMedia,
-  useSelectAndUploadFromGallery,
   useShowAvatarActionSheet,
+  useSelectFromGalleryAndUpdateUserAvatar,
 };
