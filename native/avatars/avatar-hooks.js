@@ -4,6 +4,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
 import { Platform } from 'react-native';
+import Alert from 'react-native/Libraries/Alert/Alert.js';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -161,7 +162,10 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
     if (!selection) {
-      console.log('MEDIA_SELECTION_FAILED');
+      Alert.alert(
+        'MEDIA_SELECTION_FAILED',
+        'Unable to select media from Media Library.',
+      );
       return;
     }
 
@@ -170,13 +174,19 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
     try {
       processedMedia = await processSelectedMedia(selection);
     } catch (e) {
-      console.log('MEDIA_PROCESSING_FAILED');
+      Alert.alert(
+        'MEDIA_PROCESSING_FAILED',
+        'Unable to process selected media.',
+      );
       setProcessingOrUploadInProgress(false);
       return;
     }
 
     if (!processedMedia || !processedMedia.success) {
-      console.log('MEDIA_PROCESSING_FAILED');
+      Alert.alert(
+        'MEDIA_PROCESSING_FAILED',
+        'Unable to process selected media.',
+      );
       setProcessingOrUploadInProgress(false);
       return;
     }
@@ -185,13 +195,19 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
     try {
       uploadedMedia = await uploadProcessedMedia(processedMedia);
     } catch {
-      console.log('MEDIA_UPLOAD_FAILED');
+      Alert.alert(
+        'MEDIA_UPLOAD_FAILED',
+        'Unable to upload selected media. Please try again.',
+      );
       setProcessingOrUploadInProgress(false);
       return;
     }
 
-    if (!uploadedMedia) {
-      console.log('MEDIA_UPLOAD_FAILED');
+    if (uploadedMedia) {
+      Alert.alert(
+        'MEDIA_UPLOAD_FAILED',
+        'Unable to upload selected media. Please try again.',
+      );
       setProcessingOrUploadInProgress(false);
       return;
     }
