@@ -14,6 +14,7 @@ import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
+  inlineEngagementLabelStyle,
   inlineEngagementStyle,
   inlineEngagementCenterStyle,
   inlineEngagementRightStyle,
@@ -27,8 +28,6 @@ import GestureTouchableOpacity from '../components/gesture-touchable-opacity.rea
 import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
-
-const editedLabelHeight = 24;
 
 type Props = {
   +threadInfo: ?ThreadInfo,
@@ -243,7 +242,8 @@ const unboundStyles = {
     color: 'messageLabel',
     paddingHorizontal: 3,
     fontSize: 13,
-    top: 10,
+    top: inlineEngagementLabelStyle.topOffset,
+    height: inlineEngagementLabelStyle.height,
   },
   messageLabelLeft: {
     marginLeft: 9,
@@ -339,4 +339,4 @@ function TooltipInlineEngagement(
   );
 }
 
-export { InlineEngagement, TooltipInlineEngagement, editedLabelHeight };
+export { InlineEngagement, TooltipInlineEngagement };

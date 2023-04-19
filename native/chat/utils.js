@@ -11,10 +11,13 @@ import { messageKey } from 'lib/shared/message-utils.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';
+import {
+  inlineEngagementLabelStyle,
+  clusterEndHeight,
+  inlineEngagementStyle,
+} from './chat-constants.js';
 import { ChatContext, useHeightMeasurer } from './chat-context.js';
 import { failedSendHeight } from './failed-send.react.js';
-import { editedLabelHeight } from './inline-engagement.react.js';
 import {
   useNativeMessageListData,
   type NativeChatMessageItem,
@@ -80,7 +83,10 @@ function textMessageItemHeight(
       inlineEngagementStyle.marginTop +
       inlineEngagementStyle.marginBottom;
   } else if (label) {
-    height += editedLabelHeight;
+    height +=
+      inlineEngagementLabelStyle.height +
+      inlineEngagementStyle.marginTop +
+      inlineEngagementStyle.marginBottom;
   }
   return height;
 }
