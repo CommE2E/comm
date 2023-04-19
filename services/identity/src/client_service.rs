@@ -474,9 +474,33 @@ impl IdentityClientService for ClientService {
 
   async fn delete_user(
     &self,
-    _request: tonic::Request<DeleteUserRequest>,
+    request: tonic::Request<DeleteUserRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    let access_token = self
+      .client
+      .get_access_token_data(message.user_id.clone(), message.device_id_key)
+      .await
+      .map_err(handle_db_error)?;
+
+    if let Some(token) = access_token {
+      if !token.is_valid() || token.access_token != message.access_token {
+        return Err(tonic::Status::permission_denied("bad token"));
+      }
+
+      self
+        .client
+        .delete_user(message.user_id)
+        .await
+        .map_err(handle_db_error)?;
+
+      let response = Empty {};
+
+      Ok(Response::new(response))
+    } else {
+      Err(tonic::Status::permission_denied("bad token"))
+    }
   }
 
   async fn generate_nonce(
