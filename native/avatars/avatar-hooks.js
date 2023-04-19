@@ -19,7 +19,10 @@ import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
-import type { ImageAvatarDBContent } from 'lib/types/avatar-types.js';
+import type {
+  ImageAvatarDBContent,
+  UpdateUserAvatarRemoveRequest,
+} from 'lib/types/avatar-types.js';
 import type {
   MediaLibrarySelection,
   MediaMissionFailure,
@@ -251,8 +254,26 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   return selectFromGalleryAndUpdateThreadAvatar;
 }
 
+function useRemoveUserAvatar(): () => Promise<void> {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const updateUserAvatarCall = useServerCall(updateUserAvatar);
+
+  const removeUserAvatar = React.useCallback(async () => {
+    const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
+      type: 'remove',
+    };
+
+    dispatchActionPromise(
+      updateUserAvatarActionTypes,
+      updateUserAvatarCall(removeAvatarRequest),
+    );
+  }, [dispatchActionPromise, updateUserAvatarCall]);
+
+  return removeUserAvatar;
+}
+
 type ShowAvatarActionSheetOptions = {
-  +id: 'emoji' | 'image' | 'cancel',
+  +id: 'emoji' | 'image' | 'cancel' | 'remove',
   +onPress?: () => mixed,
 };
 function useShowAvatarActionSheet(
@@ -270,6 +291,8 @@ function useShowAvatarActionSheet(
         return 'Use Emoji';
       } else if (option.id === 'image') {
         return 'Select image';
+      } else if (option.id === 'remove') {
+        return 'Remove avatar';
       } else {
         return 'Cancel';
       }
@@ -296,6 +319,14 @@ function useShowAvatarActionSheet(
         return (
           <SWMansionIcon
             name="image-1"
+            size={22}
+            style={styles.bottomSheetIcon}
+          />
+        );
+      } else if (option.id === 'remove') {
+        return (
+          <SWMansionIcon
+            name="trash-2"
             size={22}
             style={styles.bottomSheetIcon}
           />
@@ -350,4 +381,5 @@ export {
   useShowAvatarActionSheet,
   useSelectFromGalleryAndUpdateUserAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
+  useRemoveUserAvatar,
 };
