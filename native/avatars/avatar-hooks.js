@@ -288,9 +288,12 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   return selectFromGalleryAndUpdateThreadAvatar;
 }
 
-function useRemoveUserAvatar(): () => Promise<void> {
+function useRemoveUserAvatar(): [() => Promise<void>, boolean] {
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
+  const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
+    updateUserAvatarLoadingStatusSelector,
+  );
 
   const removeUserAvatar = React.useCallback(async () => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
@@ -303,7 +306,10 @@ function useRemoveUserAvatar(): () => Promise<void> {
     );
   }, [dispatchActionPromise, updateUserAvatarCall]);
 
-  return removeUserAvatar;
+  return React.useMemo(
+    () => [removeUserAvatar, updateUserAvatarLoadingStatus === 'loading'],
+    [removeUserAvatar, updateUserAvatarLoadingStatus],
+  );
 }
 
 function useRemoveThreadAvatar(threadID: string): () => Promise<void> {
