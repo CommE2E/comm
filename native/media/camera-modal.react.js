@@ -1,6 +1,11 @@
 // @flow
 
 import Icon from '@expo/vector-icons/Ionicons.js';
+import {
+  useNavigation,
+  type NavigationProp,
+  type ParamListBase,
+} from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
@@ -32,18 +37,14 @@ import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { PhotoCapture } from 'lib/types/media-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import SendMediaButton from './send-media-button.react.js';
 import ContentLoading from '../components/content-loading.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
-import { type InputState, InputStateContext } from '../input/input-state.js';
-import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types.js';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -221,19 +222,13 @@ function runIndicatorAnimation(
   ]);
 }
 
-export type CameraModalParams = {
-  +presentedFrom: string,
-  +thread: ThreadInfo,
-};
-
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
   NativeMethods,
 >;
 
 type BaseProps = {
-  +navigation: AppNavigationProp<'CameraModal'>,
-  +route: NavigationRoute<'CameraModal'>,
+  handlePhotoCapture: (capture: PhotoCapture) => void,
 };
 type Props = {
   ...BaseProps,
@@ -244,10 +239,9 @@ type Props = {
   +foreground: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  // withInputState
-  +inputState: ?InputState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  +navigation: NavigationProp<ParamListBase>,
 };
 type State = {
   +zoom: number,
@@ -857,7 +851,7 @@ class CameraModal extends React.PureComponent<Props, State> {
   };
 
   close = () => {
-    this.props.navigation.goBackOnce();
+    this.props.navigation.goBack();
   };
 
   takePhoto = async () => {
@@ -927,9 +921,7 @@ class CameraModal extends React.PureComponent<Props, State> {
 
     this.close();
 
-    const { inputState } = this.props;
-    invariant(inputState, 'inputState should be set');
-    inputState.sendMultimediaMessage([capture], this.props.route.params.thread);
+    this.props.handlePhotoCapture(capture);
   };
 
   clearPendingImage = () => {
@@ -1186,8 +1178,8 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
     const deviceOrientation = useSelector(state => state.deviceOrientation);
     const foreground = useIsAppForegrounded();
     const overlayContext = React.useContext(OverlayContext);
-    const inputState = React.useContext(InputStateContext);
     const dispatch = useDispatch();
+    const navigation = useNavigation();
 
     return (
       <CameraModal
@@ -1198,7 +1190,7 @@ const ConnectedCameraModal: React.ComponentType<BaseProps> =
         foreground={foreground}
         dispatch={dispatch}
         overlayContext={overlayContext}
-        inputState={inputState}
+        navigation={navigation}
       />
     );
   });
