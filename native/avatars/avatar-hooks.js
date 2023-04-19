@@ -19,10 +19,12 @@ import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   ImageAvatarDBContent,
   UpdateUserAvatarRemoveRequest,
 } from 'lib/types/avatar-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   MediaLibrarySelection,
   MediaMissionFailure,
@@ -128,13 +130,33 @@ function useSelectFromGallery(): () => Promise<?MediaLibrarySelection> {
   return selectFromGallery;
 }
 
-function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
+const updateUserAvatarLoadingStatusSelector = createLoadingStatusSelector(
+  updateUserAvatarActionTypes,
+);
+function useSelectFromGalleryAndUpdateUserAvatar(): [
+  () => Promise<void>,
+  boolean,
+] {
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
 
   const selectFromGallery = useSelectFromGallery();
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
+
+  const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
+    React.useState(false);
+
+  const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
+    updateUserAvatarLoadingStatusSelector,
+  );
+
+  const inProgress = React.useMemo(
+    () =>
+      processingOrUploadInProgress ||
+      updateUserAvatarLoadingStatus === 'loading',
+    [processingOrUploadInProgress, updateUserAvatarLoadingStatus],
+  );
 
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
@@ -143,26 +165,34 @@ function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
       return;
     }
 
-    const processedMedia = await processSelectedMedia(selection);
-    if (!processedMedia.success) {
+    setProcessingOrUploadInProgress(true);
+    let processedMedia;
+    try {
+      processedMedia = await processSelectedMedia(selection);
+    } catch (e) {
       console.log('MEDIA_PROCESSING_FAILED');
-      // TODO (atul): Clean up any temporary files.
+      setProcessingOrUploadInProgress(false);
+      return;
+    }
+
+    if (!processedMedia || !processedMedia.success) {
+      console.log('MEDIA_PROCESSING_FAILED');
+      setProcessingOrUploadInProgress(false);
       return;
     }
 
     let uploadedMedia: ?UploadMultimediaResult;
     try {
       uploadedMedia = await uploadProcessedMedia(processedMedia);
-      // TODO (atul): Clean up any temporary files.
     } catch {
       console.log('MEDIA_UPLOAD_FAILED');
-      // TODO (atul): Clean up any temporary files.
+      setProcessingOrUploadInProgress(false);
       return;
     }
 
     if (!uploadedMedia) {
       console.log('MEDIA_UPLOAD_FAILED');
-      // TODO (atul): Clean up any temporary files.
+      setProcessingOrUploadInProgress(false);
       return;
     }
 
@@ -175,6 +205,7 @@ function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
       updateUserAvatarActionTypes,
       updateUserAvatarCall(imageAvatarUpdateRequest),
     );
+    setProcessingOrUploadInProgress(false);
   }, [
     dispatchActionPromise,
     processSelectedMedia,
@@ -183,7 +214,10 @@ function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
     uploadProcessedMedia,
   ]);
 
-  return selectFromGalleryAndUpdateUserAvatar;
+  return React.useMemo(
+    () => [selectFromGalleryAndUpdateUserAvatar, inProgress],
+    [selectFromGalleryAndUpdateUserAvatar, inProgress],
+  );
 }
 
 function useSelectFromGalleryAndUpdateThreadAvatar(
