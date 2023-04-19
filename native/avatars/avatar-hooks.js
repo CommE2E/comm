@@ -272,6 +272,30 @@ function useRemoveUserAvatar(): () => Promise<void> {
   return removeUserAvatar;
 }
 
+function useRemoveThreadAvatar(threadID: string): () => Promise<void> {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const changeThreadSettingsCall = useServerCall(changeThreadSettings);
+
+  const removeThreadAvatar = React.useCallback(async () => {
+    const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
+      type: 'remove',
+    };
+
+    const updateThreadRequest: UpdateThreadRequest = {
+      threadID,
+      changes: {
+        avatar: removeAvatarRequest,
+      },
+    };
+    dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      changeThreadSettingsCall(updateThreadRequest),
+    );
+  }, [changeThreadSettingsCall, dispatchActionPromise, threadID]);
+
+  return removeThreadAvatar;
+}
+
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'cancel' | 'remove',
   +onPress?: () => mixed,
@@ -382,4 +406,5 @@ export {
   useSelectFromGalleryAndUpdateUserAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
   useRemoveUserAvatar,
+  useRemoveThreadAvatar,
 };
