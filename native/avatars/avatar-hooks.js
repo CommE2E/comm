@@ -297,6 +297,7 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
     dispatchActionPromise(
       changeThreadSettingsActionTypes,
       changeThreadSettingsCall(updateThreadRequest),
+      { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
     );
   }, [
     changeThreadSettingsCall,
