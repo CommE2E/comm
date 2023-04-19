@@ -244,6 +244,7 @@ const unboundStyles = {
     paddingHorizontal: 3,
     fontSize: 13,
     top: 10,
+    height: 16,
   },
   messageLabelLeft: {
     marginLeft: 9,
