@@ -4,6 +4,7 @@ import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
 import {
+  useRemoveUserAvatar,
   useSelectFromGalleryAndUpdateUserAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
@@ -21,12 +22,19 @@ function EditUserAvatar(props: Props): React.Node {
   const selectFromGalleryAndUpdateUserAvatar =
     useSelectFromGalleryAndUpdateUserAvatar();
 
+  const removeUserAvatar = useRemoveUserAvatar();
+
   const actionSheetConfig = React.useMemo(
     () => [
       { id: 'emoji', onPress: onPressEmojiAvatarFlow },
       { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
+      { id: 'remove', onPress: removeUserAvatar },
     ],
-    [onPressEmojiAvatarFlow, selectFromGalleryAndUpdateUserAvatar],
+    [
+      onPressEmojiAvatarFlow,
+      removeUserAvatar,
+      selectFromGalleryAndUpdateUserAvatar,
+    ],
   );
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
