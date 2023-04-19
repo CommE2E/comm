@@ -136,12 +136,12 @@ function TabNavigator(props: Props): React.Node {
       backBehavior="none"
       screenOptions={tabBarScreenOptions}
     >
-      {calendarTab}
       <Tab.Screen
         name={ChatRouteName}
         component={Chat}
         options={getChatTabOptions(chatBadge)}
       />
+      {calendarTab}
       <Tab.Screen
         name={ProfileRouteName}
         component={Profile}
