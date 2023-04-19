@@ -203,7 +203,7 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
       return;
     }
 
-    if (uploadedMedia) {
+    if (!uploadedMedia) {
       Alert.alert(
         'Media upload failed',
         'Unable to upload selected media. Please try again.',
