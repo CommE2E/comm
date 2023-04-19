@@ -80,7 +80,10 @@ function textMessageItemHeight(
       inlineEngagementStyle.marginTop +
       inlineEngagementStyle.marginBottom;
   } else if (label) {
-    height += editedLabelHeight;
+    height +=
+      editedLabelHeight +
+      inlineEngagementStyle.marginTop +
+      inlineEngagementStyle.marginBottom;
   }
   return height;
 }

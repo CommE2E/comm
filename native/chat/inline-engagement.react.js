@@ -28,7 +28,7 @@ import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
-const editedLabelHeight = 24;
+const editedLabelHeight = 16;
 
 type Props = {
   +threadInfo: ?ThreadInfo,
@@ -243,7 +243,8 @@ const unboundStyles = {
     color: 'messageLabel',
     paddingHorizontal: 3,
     fontSize: 13,
-    top: 10,
+    top: 8,
+    height: editedLabelHeight,
   },
   messageLabelLeft: {
     marginLeft: 9,
