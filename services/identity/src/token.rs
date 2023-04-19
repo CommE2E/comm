@@ -38,4 +38,8 @@ impl AccessTokenData {
       valid: true,
     }
   }
+
+  pub fn is_valid(&self) -> bool {
+    self.valid
+  }
 }
