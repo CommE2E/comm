@@ -39,4 +39,20 @@ async function verifyInviteLink(
   };
 }
 
-export { verifyInviteLink };
+async function checkIfInviteLinkIsValid(
+  secret: string,
+  communityID: string,
+): Promise<boolean> {
+  const query = SQL`
+    SELECT i.id 
+    FROM invite_links i
+    INNER JOIN threads c ON c.id = i.community
+    WHERE i.name = ${secret}
+      AND i.community = ${communityID}
+      AND c.community IS NULL
+  `;
+  const [result] = await dbQuery(query);
+  return result.length === 1;
+}
+
+export { verifyInviteLink, checkIfInviteLinkIsValid };
