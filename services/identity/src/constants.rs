@@ -34,6 +34,7 @@ pub const SECRETS_SETUP_FILE: &str = "server_setup.txt";
 //     notifPreKey: String,
 //     notifPreKeySignature: String,
 //     notifOneTimeKeys: Vec<String>,
+//     socialProof: Option<String>
 //   }
 // }
 //
@@ -65,6 +66,8 @@ pub const USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME: &str =
 pub const USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME: &str =
   "notifOneTimeKeys";
 pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
+pub const USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME: &str =
+  "socialProof";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
 
