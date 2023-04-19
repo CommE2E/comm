@@ -13,6 +13,7 @@ mod database;
 mod interceptor;
 mod keygen;
 mod nonce;
+mod siwe;
 mod token;
 mod utils;
 
