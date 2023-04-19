@@ -6,7 +6,7 @@ import { TouchableOpacity } from 'react-native';
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
-  useSelectFromGalleryAndUpdateUserAvatar,
+  useSelectFromGalleryAndUpdateThreadAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
@@ -20,15 +20,15 @@ type Props = {
 function EditThreadAvatar(props: Props): React.Node {
   const { threadInfo, onPressEmojiAvatarFlow, disabled } = props;
 
-  const selectFromGalleryAndUpdateUserAvatar =
-    useSelectFromGalleryAndUpdateUserAvatar();
+  const selectFromGalleryAndUpdateThreadAvatar =
+    useSelectFromGalleryAndUpdateThreadAvatar(threadInfo.id);
 
   const actionSheetConfig = React.useMemo(
     () => [
       { id: 'emoji', onPress: onPressEmojiAvatarFlow },
-      { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
+      { id: 'image', onPress: selectFromGalleryAndUpdateThreadAvatar },
     ],
-    [onPressEmojiAvatarFlow, selectFromGalleryAndUpdateUserAvatar],
+    [onPressEmojiAvatarFlow, selectFromGalleryAndUpdateThreadAvatar],
   );
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
