@@ -1,13 +1,8 @@
 // @flow
 
 import invariant from 'invariant';
-import filesystem from 'react-native-fs';
 
-import {
-  base64FromIntArray,
-  uintArrayToHexString,
-  hexToUintArray,
-} from 'lib/media/data-utils.js';
+import { uintArrayToHexString, hexToUintArray } from 'lib/media/data-utils.js';
 import {
   replaceExtension,
   fileInfoFromData,
@@ -25,6 +20,7 @@ import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
 import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
 import type { MediaResult } from './media-utils.js';
+import { commUtilsModule } from '../native-modules.js';
 import * as AES from '../utils/aes-crypto-module.js';
 
 const PADDING_THRESHOLD = 5000000; // we don't pad files larger than this
@@ -51,15 +47,24 @@ async function encryptFile(uri: string): Promise<{
   let success = true,
     exceptionMessage;
   const steps: EncryptFileMediaMissionStep[] = [];
-  const destination = replaceExtension(uri, 'dat');
+  const destinationURI = replaceExtension(uri, 'dat');
+  const destination = pathFromURI(destinationURI);
+  invariant(destination, `uri must be a local file:// path: ${destinationURI}`);
 
   // Step 1. Read the file
   const startOpenFile = Date.now();
   let data;
   try {
-    const response = await fetch(getFetchableURI(uri));
-    const buffer = await response.arrayBuffer();
-    data = new Uint8Array(buffer);
+    const path = pathFromURI(uri);
+    // for local paths (file:// URI) we can use native module which is faster
+    if (path) {
+      const buffer = await commUtilsModule.readBufferFromFile(path);
+      data = new Uint8Array(buffer);
+    } else {
+      const response = await fetch(getFetchableURI(uri));
+      const buffer = await response.arrayBuffer();
+      data = new Uint8Array(buffer);
+    }
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
@@ -109,8 +114,7 @@ async function encryptFile(uri: string): Promise<{
   // Step 3. Write the encrypted file
   const startWriteFile = Date.now();
   try {
-    const targetBase64 = base64FromIntArray(encryptedData);
-    await filesystem.writeFile(destination, targetBase64, 'base64');
+    await commUtilsModule.writeBufferToFile(destination, encryptedData.buffer);
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
@@ -133,7 +137,7 @@ async function encryptFile(uri: string): Promise<{
     steps,
     result: {
       success: true,
-      uri: destination,
+      uri: destinationURI,
       encryptionKey: uintArrayToHexString(key),
     },
   };
@@ -331,14 +335,13 @@ async function decryptMedia(
       },
     };
   }
-  const base64 = base64FromIntArray(decryptedData);
   if (options.destination === 'file') {
     // if holder is a URL, then we use the last part of the path as the filename
     const holderSuffix = holder.substring(holder.lastIndexOf('/') + 1);
     const filename = readableFilename(holderSuffix, mime) || holderSuffix;
     const targetPath = `${temporaryDirectoryPath}${Date.now()}-${filename}`;
     try {
-      await filesystem.writeFile(targetPath, base64, 'base64');
+      await commUtilsModule.writeBufferToFile(targetPath, decryptedData.buffer);
     } catch (e) {
       success = false;
       exceptionMessage = getMessageForException(e);
@@ -363,6 +366,7 @@ async function decryptMedia(
       };
     }
   } else {
+    const base64 = commUtilsModule.base64EncodeBuffer(decryptedData.buffer);
     uri = `data:${mime};base64,${base64}`;
     steps.push({
       step: 'create_data_uri',
