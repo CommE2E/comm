@@ -19,7 +19,7 @@ type Props = {
 function EditUserAvatar(props: Props): React.Node {
   const { userID, onPressEmojiAvatarFlow, disabled } = props;
 
-  const selectFromGalleryAndUpdateUserAvatar =
+  const [selectFromGalleryAndUpdateUserAvatar] =
     useSelectFromGalleryAndUpdateUserAvatar();
 
   const removeUserAvatar = useRemoveUserAvatar();
