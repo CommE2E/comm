@@ -3,7 +3,7 @@ use std::{env, io::Error};
 use tokio::net::{TcpListener, TcpStream};
 use tracing::info;
 
-pub async fn create_server() -> Result<(), Error> {
+pub async fn run_server() -> Result<(), Error> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
     .unwrap_or_else(|_| "127.0.0.1:51001".to_string());
 
