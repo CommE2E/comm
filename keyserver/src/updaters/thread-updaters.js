@@ -34,6 +34,7 @@ import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 
+import { reportLinkUsage } from './link-updaters.js';
 import { updateRoles } from './role-updaters.js';
 import {
   changeRole,
@@ -45,6 +46,7 @@ import { getRolePermissionBlobs } from '../creators/role-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
+import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
 import {
   fetchMessageInfos,
   fetchMessageInfoByID,
@@ -807,13 +809,16 @@ async function joinThread(
     throw new ServerError('not_logged_in');
   }
 
+  const permissionCheck = request.inviteLinkSecret
+    ? checkIfInviteLinkIsValid(request.inviteLinkSecret, request.threadID)
+    : checkThreadPermission(
+        viewer,
+        request.threadID,
+        threadPermissions.JOIN_THREAD,
+      );
   const [isMember, hasPermission] = await Promise.all([
     fetchViewerIsMember(viewer, request.threadID),
-    checkThreadPermission(
-      viewer,
-      request.threadID,
-      threadPermissions.JOIN_THREAD,
-    ),
+    permissionCheck,
   ]);
   if (!hasPermission) {
     throw new ServerError('invalid_parameters');
@@ -858,6 +863,10 @@ async function joinThread(
   const membershipResult = await commitMembershipChangeset(viewer, changeset, {
     calendarQuery,
   });
+
+  if (request.inviteLinkSecret) {
+    await reportLinkUsage(request.inviteLinkSecret);
+  }
 
   const messageData = {
     type: messageTypes.JOIN_THREAD,
