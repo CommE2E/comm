@@ -1,14 +1,26 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
+import {
+  joinThread,
+  joinThreadActionTypes,
+} from 'lib/actions/thread-actions.js';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
+import { nonThreadCalendarQuery } from './nav-selectors.js';
+import { NavContext } from './navigation-context.js';
 import type { RootNavigationProp } from './root-navigator.react.js';
 import type { NavigationRoute } from './route-names.js';
 import Button from '../components/button.react.js';
 import Modal from '../components/modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type InviteLinkModalParams = {
@@ -23,7 +35,7 @@ type Props = {
 
 function InviteLinkModal(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const { invitationDetails } = props.route.params;
+  const { invitationDetails, secret } = props.route.params;
 
   React.useEffect(() => {
     if (invitationDetails.status === 'already_joined') {
@@ -59,13 +71,48 @@ function InviteLinkModal(props: Props): React.Node {
     styles.invitation,
   ]);
 
+  const callJoinThread = useServerCall(joinThread);
+  const navContext = React.useContext(NavContext);
+  const calendarQuery = useSelector(state =>
+    nonThreadCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
+  const communityID = invitationDetails.community?.id;
+  const createJoinCommunityAction = React.useCallback(async () => {
+    invariant(
+      communityID,
+      'CommunityID should be present while calling this function',
+    );
+    const query = calendarQuery();
+    const result = await callJoinThread({
+      threadID: communityID,
+      calendarQuery: {
+        startDate: query.startDate,
+        endDate: query.endDate,
+        filters: [
+          ...query.filters,
+          { type: 'threads', threadIDs: [communityID] },
+        ],
+      },
+      inviteLinkSecret: secret,
+    });
+    props.navigation.goBack();
+    return result;
+  }, [calendarQuery, callJoinThread, communityID, props.navigation, secret]);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const joinCommunity = React.useCallback(() => {
+    dispatchActionPromise(joinThreadActionTypes, createJoinCommunityAction());
+  }, [createJoinCommunityAction, dispatchActionPromise]);
+
   const buttons = React.useMemo(() => {
     if (invitationDetails.status === 'valid') {
       return (
         <>
           <Button
             style={[styles.button, styles.buttonPrimary, styles.gap]}
-            onPress={() => {}}
+            onPress={joinCommunity}
           >
             <Text style={styles.buttonText}>Accept Invite</Text>
           </Button>
@@ -88,6 +135,7 @@ function InviteLinkModal(props: Props): React.Node {
     );
   }, [
     invitationDetails.status,
+    joinCommunity,
     props.navigation.goBack,
     styles.button,
     styles.buttonPrimary,
