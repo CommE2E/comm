@@ -444,6 +444,7 @@ async function createThread(
         creatorID: viewer.userID,
         time,
         sourceMessage: editedSourceMessage,
+        targetMessageID: editedSourceMessage.id,
       },
       {
         type: messageTypes.CREATE_SIDEBAR,
