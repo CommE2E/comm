@@ -22,7 +22,8 @@ use crate::{
   config::CONFIG,
   database::{DatabaseClient, Error as DBError, KeyPayload},
   nonce::generate_nonce_data,
-  token::AccessTokenData,
+  siwe::parse_and_verify_siwe_message,
+  token::{AccessTokenData, AuthType},
   utils::{generate_uuid, username_reserved},
 };
 use aws_sdk_dynamodb::Error as DynamoDBError;
@@ -184,13 +185,13 @@ impl IdentityClientService for ClientService {
       let device_id = state.flattened_device_key_upload.device_id_key.clone();
       let user_id = self
         .client
-        .add_user_to_users_table(state, password_file)
+        .add_password_user_to_users_table(state, password_file)
         .await
         .map_err(handle_db_error)?;
 
       // Create access token
       let token = AccessTokenData::new(
-        message.session_id,
+        user_id.clone(),
         device_id,
         crate::token::AuthType::Password,
         &mut OsRng,
@@ -334,13 +335,16 @@ impl IdentityClientService for ClientService {
 
       self
         .client
-        .add_device_to_users_table(state.clone())
+        .add_password_user_device_to_users_table(
+          state.user_id.clone(),
+          state.flattened_device_key_upload.clone(),
+        )
         .await
         .map_err(handle_db_error)?;
 
       // Create access token
       let token = AccessTokenData::new(
-        message.session_id,
+        state.user_id.clone(),
         state.flattened_device_key_upload.device_id_key,
         crate::token::AuthType::Password,
         &mut OsRng,
@@ -366,9 +370,116 @@ impl IdentityClientService for ClientService {
 
   async fn login_wallet_user(
     &self,
-    _request: tonic::Request<WalletLoginRequest>,
+    request: tonic::Request<WalletLoginRequest>,
   ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    let wallet_address = parse_and_verify_siwe_message(
+      &message.siwe_message,
+      &message.siwe_signature,
+    )?;
+
+    let (flattened_device_key_upload, social_proof) =
+      if let client_proto::WalletLoginRequest {
+        siwe_message: _,
+        siwe_signature: _,
+        device_key_upload:
+          Some(client_proto::DeviceKeyUpload {
+            device_key_info:
+              Some(client_proto::IdentityKeyInfo {
+                payload,
+                payload_signature,
+                social_proof: Some(social_proof),
+              }),
+            identity_upload:
+              Some(client_proto::PreKey {
+                pre_key: identity_prekey,
+                pre_key_signature: identity_prekey_signature,
+              }),
+            notif_upload:
+              Some(client_proto::PreKey {
+                pre_key: notif_prekey,
+                pre_key_signature: notif_prekey_signature,
+              }),
+            onetime_identity_prekeys,
+            onetime_notif_prekeys,
+          }),
+      } = message
+      {
+        let key_info = KeyPayload::from_str(&payload)
+          .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
+        (
+          FlattenedDeviceKeyUpload {
+            device_id_key: key_info.primary_identity_public_keys.curve25519,
+            key_payload: payload,
+            key_payload_signature: payload_signature,
+            identity_prekey,
+            identity_prekey_signature,
+            identity_onetime_keys: onetime_identity_prekeys,
+            notif_prekey,
+            notif_prekey_signature,
+            notif_onetime_keys: onetime_notif_prekeys,
+          },
+          social_proof,
+        )
+      } else {
+        return Err(tonic::Status::invalid_argument("unexpected message data"));
+      };
+
+    let user_id = match self
+      .client
+      .get_user_id_from_user_info(wallet_address.clone(), AuthType::Wallet)
+      .await
+      .map_err(handle_db_error)?
+    {
+      Some(id) => {
+        // User already exists, so we should update the DDB item
+        self
+          .client
+          .add_wallet_user_device_to_users_table(
+            id.clone(),
+            flattened_device_key_upload.clone(),
+            social_proof,
+          )
+          .await
+          .map_err(handle_db_error)?;
+        id
+      }
+      None => {
+        // User doesn't exist yet, so we should add a new user in DDB
+        self
+          .client
+          .add_wallet_user_to_users_table(
+            flattened_device_key_upload.clone(),
+            wallet_address,
+            social_proof,
+          )
+          .await
+          .map_err(handle_db_error)?
+      }
+    };
+
+    // Create access token
+    let token = AccessTokenData::new(
+      user_id.clone(),
+      flattened_device_key_upload.device_id_key,
+      crate::token::AuthType::Password,
+      &mut OsRng,
+    );
+
+    let access_token = token.access_token.clone();
+
+    self
+      .client
+      .put_access_token_data(token)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = WalletLoginResponse {
+      user_id: user_id,
+      access_token,
+    };
+    Ok(Response::new(response))
   }
 
   async fn delete_user(

@@ -82,7 +82,7 @@ message IdentityKeyInfo {
   string payload = 1;
   // Payload signed with the signing ed25519 key
   string payloadSignature = 2;
-  // Signed message used for SIWE (optional)
+  // Signed message used for SIWE
   // This correlates a given wallet with the identity of a device
   optional string socialProof = 3;
 }

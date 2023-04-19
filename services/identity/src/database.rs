@@ -15,7 +15,7 @@ use opaque_ke::errors::ProtocolError;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
-use crate::client_service::{LoginState, RegistrationState};
+use crate::client_service::{FlattenedDeviceKeyUpload, RegistrationState};
 use crate::config::CONFIG;
 use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
@@ -33,6 +33,7 @@ use crate::constants::{
   USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
   USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
   USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
   USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
@@ -104,55 +105,75 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn add_user_to_users_table(
+  pub async fn add_password_user_to_users_table(
     &self,
     registration_state: RegistrationState,
     password_file: Vec<u8>,
   ) -> Result<String, Error> {
+    self
+      .add_user_to_users_table(
+        registration_state.flattened_device_key_upload,
+        Some((registration_state.username, Blob::new(password_file))),
+        None,
+        None,
+      )
+      .await
+  }
+
+  pub async fn add_wallet_user_to_users_table(
+    &self,
+    flattened_device_key_upload: FlattenedDeviceKeyUpload,
+    wallet_address: String,
+    social_proof: String,
+  ) -> Result<String, Error> {
+    self
+      .add_user_to_users_table(
+        flattened_device_key_upload,
+        None,
+        Some(wallet_address),
+        Some(social_proof),
+      )
+      .await
+  }
+
+  async fn add_user_to_users_table(
+    &self,
+    flattened_device_key_upload: FlattenedDeviceKeyUpload,
+    username_and_password_file: Option<(String, Blob)>,
+    wallet_address: Option<String>,
+    social_proof: Option<String>,
+  ) -> Result<String, Error> {
     let user_id = generate_uuid();
-    let device_info = HashMap::from([
+    let mut device_info = HashMap::from([
       (
         USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
         AttributeValue::S(Device::Client.to_string()),
       ),
       (
         USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(
-          registration_state.flattened_device_key_upload.key_payload,
-        ),
+        AttributeValue::S(flattened_device_key_upload.key_payload),
       ),
       (
         USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
-        AttributeValue::S(
-          registration_state
-            .flattened_device_key_upload
-            .key_payload_signature,
-        ),
+        AttributeValue::S(flattened_device_key_upload.key_payload_signature),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(
-          registration_state
-            .flattened_device_key_upload
-            .identity_prekey,
-        ),
+        AttributeValue::S(flattened_device_key_upload.identity_prekey),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
         AttributeValue::S(
-          registration_state
-            .flattened_device_key_upload
-            .identity_prekey_signature,
+          flattened_device_key_upload.identity_prekey_signature,
         ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
           .to_string(),
         AttributeValue::L(
-          registration_state
-            .flattened_device_key_upload
+          flattened_device_key_upload
             .identity_onetime_keys
             .into_iter()
             .map(AttributeValue::S)
@@ -161,24 +182,17 @@ impl DatabaseClient {
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(
-          registration_state.flattened_device_key_upload.notif_prekey,
-        ),
+        AttributeValue::S(flattened_device_key_upload.notif_prekey),
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
-        AttributeValue::S(
-          registration_state
-            .flattened_device_key_upload
-            .notif_prekey_signature,
-        ),
+        AttributeValue::S(flattened_device_key_upload.notif_prekey_signature),
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
         AttributeValue::L(
-          registration_state
-            .flattened_device_key_upload
+          flattened_device_key_upload
             .notif_onetime_keys
             .into_iter()
             .map(AttributeValue::S)
@@ -186,29 +200,45 @@ impl DatabaseClient {
         ),
       ),
     ]);
+
+    if let Some(social_proof) = social_proof {
+      device_info.insert(
+        USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(social_proof),
+      );
+    }
     let devices = HashMap::from([(
-      registration_state.flattened_device_key_upload.device_id_key,
+      flattened_device_key_upload.device_id_key,
       AttributeValue::M(device_info),
     )]);
-
-    let user = HashMap::from([
+    let mut user = HashMap::from([
       (
         USERS_TABLE_PARTITION_KEY.to_string(),
         AttributeValue::S(user_id.clone()),
       ),
       (
-        USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
-        AttributeValue::S(registration_state.username),
-      ),
-      (
         USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
         AttributeValue::M(devices),
       ),
-      (
-        USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
-        AttributeValue::B(Blob::new(password_file)),
-      ),
     ]);
+
+    if let Some((username, password_file)) = username_and_password_file {
+      user.insert(
+        USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
+        AttributeValue::S(username),
+      );
+      user.insert(
+        USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
+        AttributeValue::B(password_file),
+      );
+    }
+
+    if let Some(address) = wallet_address {
+      user.insert(
+        USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE.to_string(),
+        AttributeValue::S(address),
+      );
+    }
 
     self
       .client
@@ -222,49 +252,67 @@ impl DatabaseClient {
     Ok(user_id)
   }
 
-  pub async fn add_device_to_users_table(
+  pub async fn add_password_user_device_to_users_table(
     &self,
-    login_state: LoginState,
+    user_id: String,
+    flattened_device_key_upload: FlattenedDeviceKeyUpload,
   ) -> Result<(), Error> {
-    let device_info = HashMap::from([
+    self
+      .add_device_to_users_table(user_id, flattened_device_key_upload, None)
+      .await
+  }
+
+  pub async fn add_wallet_user_device_to_users_table(
+    &self,
+    user_id: String,
+    flattened_device_key_upload: FlattenedDeviceKeyUpload,
+    social_proof: String,
+  ) -> Result<(), Error> {
+    self
+      .add_device_to_users_table(
+        user_id,
+        flattened_device_key_upload,
+        Some(social_proof),
+      )
+      .await
+  }
+
+  async fn add_device_to_users_table(
+    &self,
+    user_id: String,
+    flattened_device_key_upload: FlattenedDeviceKeyUpload,
+    social_proof: Option<String>,
+  ) -> Result<(), Error> {
+    let mut device_info = HashMap::from([
       (
         USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
         AttributeValue::S(Device::Client.to_string()),
       ),
       (
         USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(login_state.flattened_device_key_upload.key_payload),
+        AttributeValue::S(flattened_device_key_upload.key_payload),
       ),
       (
         USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
-        AttributeValue::S(
-          login_state
-            .flattened_device_key_upload
-            .key_payload_signature,
-        ),
+        AttributeValue::S(flattened_device_key_upload.key_payload_signature),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(
-          login_state.flattened_device_key_upload.identity_prekey,
-        ),
+        AttributeValue::S(flattened_device_key_upload.identity_prekey),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
         AttributeValue::S(
-          login_state
-            .flattened_device_key_upload
-            .identity_prekey_signature,
+          flattened_device_key_upload.identity_prekey_signature,
         ),
       ),
       (
         USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
           .to_string(),
         AttributeValue::L(
-          login_state
-            .flattened_device_key_upload
+          flattened_device_key_upload
             .identity_onetime_keys
             .into_iter()
             .map(AttributeValue::S)
@@ -273,22 +321,17 @@ impl DatabaseClient {
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(login_state.flattened_device_key_upload.notif_prekey),
+        AttributeValue::S(flattened_device_key_upload.notif_prekey),
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
           .to_string(),
-        AttributeValue::S(
-          login_state
-            .flattened_device_key_upload
-            .notif_prekey_signature,
-        ),
+        AttributeValue::S(flattened_device_key_upload.notif_prekey_signature),
       ),
       (
         USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
         AttributeValue::L(
-          login_state
-            .flattened_device_key_upload
+          flattened_device_key_upload
             .notif_onetime_keys
             .into_iter()
             .map(AttributeValue::S)
@@ -297,11 +340,17 @@ impl DatabaseClient {
       ),
     ]);
 
+    if let Some(social_proof) = social_proof {
+      device_info.insert(
+        USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(social_proof),
+      );
+    }
     let update_expression =
       format!("SET {}.#{} = :v", USERS_TABLE_DEVICES_ATTRIBUTE, "deviceID",);
     let expression_attribute_names = HashMap::from([(
       format!("#{}", "deviceID"),
-      login_state.flattened_device_key_upload.device_id_key,
+      flattened_device_key_upload.device_id_key,
     )]);
     let expression_attribute_values =
       HashMap::from([(":v".to_string(), AttributeValue::M(device_info))]);
@@ -310,10 +359,7 @@ impl DatabaseClient {
       .client
       .update_item()
       .table_name(USERS_TABLE)
-      .key(
-        USERS_TABLE_PARTITION_KEY,
-        AttributeValue::S(login_state.user_id),
-      )
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
       .update_expression(update_expression)
       .set_expression_attribute_names(Some(expression_attribute_names))
       .set_expression_attribute_values(Some(expression_attribute_values))
