@@ -14,6 +14,7 @@ mod id;
 mod interceptor;
 mod keygen;
 mod nonce;
+mod siwe;
 mod token;
 
 use config::load_config;
