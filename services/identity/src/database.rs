@@ -144,69 +144,8 @@ impl DatabaseClient {
     social_proof: Option<String>,
   ) -> Result<String, Error> {
     let user_id = generate_uuid();
-    let mut device_info = HashMap::from([
-      (
-        USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(Device::Client.to_string()),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(flattened_device_key_upload.key_payload),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::S(flattened_device_key_upload.key_payload_signature),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(flattened_device_key_upload.identity_prekey),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::S(
-          flattened_device_key_upload.identity_prekey_signature,
-        ),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::L(
-          flattened_device_key_upload
-            .identity_onetime_keys
-            .into_iter()
-            .map(AttributeValue::S)
-            .collect(),
-        ),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(flattened_device_key_upload.notif_prekey),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::S(flattened_device_key_upload.notif_prekey_signature),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::L(
-          flattened_device_key_upload
-            .notif_onetime_keys
-            .into_iter()
-            .map(AttributeValue::S)
-            .collect(),
-        ),
-      ),
-    ]);
-
-    if let Some(social_proof) = social_proof {
-      device_info.insert(
-        USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(social_proof),
-      );
-    }
+    let device_info =
+      create_device_info(flattened_device_key_upload.clone(), social_proof);
     let devices = HashMap::from([(
       flattened_device_key_upload.device_id_key,
       AttributeValue::M(device_info),
@@ -283,69 +222,8 @@ impl DatabaseClient {
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     social_proof: Option<String>,
   ) -> Result<(), Error> {
-    let mut device_info = HashMap::from([
-      (
-        USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(Device::Client.to_string()),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(flattened_device_key_upload.key_payload),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::S(flattened_device_key_upload.key_payload_signature),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(flattened_device_key_upload.identity_prekey),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::S(
-          flattened_device_key_upload.identity_prekey_signature,
-        ),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::L(
-          flattened_device_key_upload
-            .identity_onetime_keys
-            .into_iter()
-            .map(AttributeValue::S)
-            .collect(),
-        ),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(flattened_device_key_upload.notif_prekey),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
-          .to_string(),
-        AttributeValue::S(flattened_device_key_upload.notif_prekey_signature),
-      ),
-      (
-        USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::L(
-          flattened_device_key_upload
-            .notif_onetime_keys
-            .into_iter()
-            .map(AttributeValue::S)
-            .collect(),
-        ),
-      ),
-    ]);
-
-    if let Some(social_proof) = social_proof {
-      device_info.insert(
-        USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(social_proof),
-      );
-    }
+    let device_info =
+      create_device_info(flattened_device_key_upload.clone(), social_proof);
     let update_expression =
       format!("SET {}.#{} = :v", USERS_TABLE_DEVICES_ATTRIBUTE, "deviceID",);
     let expression_attribute_names = HashMap::from([(
@@ -896,6 +774,72 @@ fn parse_string_attribute(
       DBItemAttributeError::Missing,
     )),
   }
+}
+
+fn create_device_info(
+  flattened_device_key_upload: FlattenedDeviceKeyUpload,
+  social_proof: Option<String>,
+) -> HashMap<String, AttributeValue> {
+  let mut device_info = HashMap::from([
+    (
+      USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(Device::Client.to_string()),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(flattened_device_key_upload.key_payload),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(flattened_device_key_upload.key_payload_signature),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(flattened_device_key_upload.identity_prekey),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+        .to_string(),
+      AttributeValue::S(flattened_device_key_upload.identity_prekey_signature),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::L(
+        flattened_device_key_upload
+          .identity_onetime_keys
+          .into_iter()
+          .map(AttributeValue::S)
+          .collect(),
+      ),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(flattened_device_key_upload.notif_prekey),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(flattened_device_key_upload.notif_prekey_signature),
+    ),
+    (
+      USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::L(
+        flattened_device_key_upload
+          .notif_onetime_keys
+          .into_iter()
+          .map(AttributeValue::S)
+          .collect(),
+      ),
+    ),
+  ]);
+
+  if let Some(social_proof) = social_proof {
+    device_info.insert(
+      USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(social_proof),
+    );
+  }
+
+  device_info
 }
 
 #[cfg(test)]
