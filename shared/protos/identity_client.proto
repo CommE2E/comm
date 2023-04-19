@@ -219,6 +219,10 @@ message WalletLoginResponse {
 
 message DeleteUserRequest {
   string accessToken = 1;
+  string userID = 2;
+  // Public ed25519 key used for signing. We need this to look up a device's
+  // access token
+  string deviceIDKey = 3;
 }
 
 // GenerateNonce
