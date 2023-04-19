@@ -325,6 +325,16 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       await dbQuery(SQL`DROP TABLE versions;`);
     },
   ],
+  [
+    31,
+    async () => {
+      await dbQuery(SQL`
+        UPDATE messages 
+          SET target_message=JSON_VALUE(content, "$.sourceMessageID") 
+        WHERE type=17;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
