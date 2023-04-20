@@ -409,7 +409,7 @@ function useRemoveThreadAvatar(threadID: string): [() => void, boolean] {
   );
 }
 
-function useENSUserAvatar(): [() => Promise<void>, boolean] {
+function useENSUserAvatar(): [() => void, boolean] {
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
 
@@ -417,7 +417,7 @@ function useENSUserAvatar(): [() => Promise<void>, boolean] {
     updateUserAvatarLoadingStatusSelector,
   );
 
-  const saveENSUserAvatar = React.useCallback(async () => {
+  const saveENSUserAvatar = React.useCallback(() => {
     const ensAvatarRequest: ENSAvatarDBContent = {
       type: 'ens',
     };
