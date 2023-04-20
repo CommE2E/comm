@@ -28,6 +28,7 @@ import type {
 } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
+  NativeMediaSelection,
   MediaLibrarySelection,
   MediaMissionFailure,
   UploadMultimediaResult,
@@ -67,14 +68,14 @@ function useUploadProcessedMedia(): MediaResult => Promise<UploadMultimediaResul
   return uploadProcessedMultimedia;
 }
 
-function useProcessSelectedMedia(): MediaLibrarySelection => Promise<
+function useProcessSelectedMedia(): NativeMediaSelection => Promise<
   MediaMissionFailure | MediaResult,
 > {
   const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
   const staffCanSee = useStaffCanSee();
 
   const processSelectedMedia = React.useCallback(
-    async (selection: MediaLibrarySelection) => {
+    async (selection: NativeMediaSelection) => {
       const { resultPromise } = processMedia(selection, {
         hasWiFi,
         finalFileHeaderCheck: staffCanSee,
