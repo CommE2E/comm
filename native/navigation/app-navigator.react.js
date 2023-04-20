@@ -21,7 +21,7 @@ import {
   ThreadSettingsMemberTooltipModalRouteName,
   RelationshipListItemTooltipModalRouteName,
   RobotextMessageTooltipModalRouteName,
-  CameraModalRouteName,
+  ChatCameraModalRouteName,
   VideoPlaybackModalRouteName,
   CommunityDrawerNavigatorRouteName,
   type ScreenParamList,
@@ -32,7 +32,7 @@ import RobotextMessageTooltipModal from '../chat/robotext-message-tooltip-modal.
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react.js';
 import TextMessageTooltipModal from '../chat/text-message-tooltip-modal.react.js';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react.js';
-import CameraModal from '../media/camera-modal.react.js';
+import ChatCameraModal from '../media/chat-camera-modal.react.js';
 import ImageModal from '../media/image-modal.react.js';
 import VideoPlaybackModal from '../media/video-playback-modal.react.js';
 import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react.js';
@@ -131,7 +131,10 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
           name={RobotextMessageTooltipModalRouteName}
           component={RobotextMessageTooltipModal}
         />
-        <App.Screen name={CameraModalRouteName} component={CameraModal} />
+        <App.Screen
+          name={ChatCameraModalRouteName}
+          component={ChatCameraModal}
+        />
         <App.Screen
           name={VideoPlaybackModalRouteName}
           component={VideoPlaybackModal}
