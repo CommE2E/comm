@@ -107,6 +107,7 @@ function ChatItemHeightMeasurer(props: Props) {
           pendingUploads,
           reactions: item.reactions,
           hasBeenEdited: item.hasBeenEdited,
+          isPinned: item.isPinned,
           ...sizes,
         };
       }
@@ -133,6 +134,7 @@ function ChatItemHeightMeasurer(props: Props) {
           contentHeight: height,
           reactions: item.reactions,
           hasBeenEdited: item.hasBeenEdited,
+          isPinned: item.isPinned,
         };
       }
       invariant(
