@@ -4,7 +4,10 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { messageID } from 'lib/shared/message-utils.js';
-import { messageTypes, type MessageType } from 'lib/types/message-types.js';
+import {
+  messageTypes,
+  type MessageType,
+} from 'lib/types/message-types-enum.js';
 import { entityTextToRawString } from 'lib/utils/entity-text.js';
 
 import type { MeasurementTask } from './chat-context-provider.react.js';

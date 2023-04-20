@@ -1,8 +1,8 @@
 // @flow
 
 import { unshimFunc } from 'lib/shared/unshim-utils.js';
+import { type MessageType } from 'lib/types/message-types-enum.js';
 import type {
-  MessageType,
   ClientDBMessageStoreOperation,
   ClientDBMessageInfo,
 } from 'lib/types/message-types.js';

@@ -10,13 +10,15 @@ import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
+  messageTypes,
+  type MessageType,
+  assertMessageType,
+} from 'lib/types/message-types-enum.js';
+import {
   type RawMessageInfo,
   type RawComposableMessageInfo,
   type RawRobotextMessageInfo,
-  messageTypes,
-  type MessageType,
   type EditMessageContent,
-  assertMessageType,
   type MessageSelectionCriteria,
   type MessageTruncationStatus,
   messageTruncationStatus,

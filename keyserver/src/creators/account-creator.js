@@ -22,7 +22,7 @@ import type {
   DeviceTokenUpdateRequest,
 } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
-import { messageTypes } from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import { threadTypes } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
