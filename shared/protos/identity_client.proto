@@ -19,7 +19,7 @@ service IdentityClientService {
   rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
     (UpdateUserPasswordStartResponse) {}
   rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest) returns
-    (UpdateUserPasswordFinishResponse) {}
+    (Empty) {}
   // Called by user to register device and get an access token
   rpc LoginPasswordUserStart(OpaqueLoginStartRequest) returns
     (OpaqueLoginStartResponse) {}
@@ -147,6 +147,10 @@ message UpdateUserPasswordStartRequest {
   bytes opaqueRegistrationRequest = 1;
   // Used to validate user, before attempting to update password
   string accessToken = 2;
+  string userID = 3;
+  // Public ed25519 key used for signing. We need this to look up a device's
+  // access token
+  string deviceIDKey = 4;
 }
 
 // Do a user registration, but overwrite the existing credentials
@@ -162,11 +166,6 @@ message UpdateUserPasswordStartResponse {
   // Identifier used to correlate start request with finish request
   string sessionID = 1;
   bytes opaqueRegistrationResponse = 2;
-}
-
-message UpdateUserPasswordFinishResponse {
-  // After validating client reponse, mint a new token
-  string accessToken = 1;
 }
 
 // LoginUser
