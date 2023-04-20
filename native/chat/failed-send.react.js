@@ -6,10 +6,8 @@ import { Text, View } from 'react-native';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { messageID } from 'lib/shared/message-utils.js';
-import {
-  assertComposableRawMessage,
-  messageTypes,
-} from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
+import { assertComposableRawMessage } from 'lib/types/message-types.js';
 import type { RawComposableMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 

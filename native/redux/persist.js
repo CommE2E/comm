@@ -19,10 +19,10 @@ import {
 } from 'lib/shared/unshim-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type LocalMessageInfo,
   type MessageStore,
-  messageTypes,
   type ClientDBMessageStoreOperation,
 } from 'lib/types/message-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';

@@ -11,10 +11,8 @@ import {
   threadHasPermission,
   useSidebarExistsOrCanBeCreated,
 } from 'lib/shared/thread-utils.js';
-import {
-  isComposableMessageType,
-  messageTypes,
-} from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
+import { isComposableMessageType } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';

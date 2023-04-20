@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
-import { messageTypes } from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import type { InputState } from '../input/input-state.js';
 
