@@ -16,7 +16,6 @@ native
 !native/package.json
 !native/.flowconfig
 !native/ios/Podfile
-!native/ios/pod-patch
 !native/cpp/CommonCpp/grpc
 !native/expo-modules/android-lifecycle/package.json
 !native/expo-modules/aes-crypto/package.json
