@@ -90,7 +90,7 @@ import {
 import { NavContext } from '../navigation/navigation-context.js';
 import {
   type NavigationRoute,
-  CameraModalRouteName,
+  ChatCameraModalRouteName,
   ImagePasteModalRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -1066,8 +1066,8 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
 
     const openCamera = React.useCallback(() => {
       keyboardState?.dismissKeyboard();
-      navigation.navigate<'CameraModal'>({
-        name: CameraModalRouteName,
+      navigation.navigate<'ChatCameraModal'>({
+        name: ChatCameraModalRouteName,
         params: {
           presentedFrom: route.key,
           thread: threadInfo,
