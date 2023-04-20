@@ -41,6 +41,7 @@ import {
   convertThreadStoreOperationsToClientDBOperations,
 } from 'lib/utils/thread-ops-utils.js';
 
+import { persistMigrationForThreadAvatarPermission } from './edit-thread-avatar-permission-migration.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import type { AppState } from './state-types.js';
@@ -494,6 +495,58 @@ const migrations = {
     ];
 
     // 13. Try processing `ClientDBThreadStoreOperation`s and log out if
+    //    `processThreadStoreOperationsSync(...)` throws an exception.
+    try {
+      commCoreModule.processThreadStoreOperationsSync(operations);
+    } catch (exception) {
+      console.log(exception);
+      return { ...state, cookie: null };
+    }
+
+    return state;
+  },
+  [37]: (state: AppState) => {
+    // 1. Get threads from SQLite `threads` table.
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+
+    // 2. Translate `ClientDBThreadInfo`s to `RawThreadInfo`s.
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+
+    // 3. Convert `rawThreadInfos` to a map of `threadID` => `threadInfo`.
+    const threadIDToThreadInfo = rawThreadInfos.reduce((acc, threadInfo) => {
+      acc[threadInfo.id] = threadInfo;
+      return acc;
+    }, {});
+
+    // 4. Add `threadPermission` to each `threadInfo`.
+    const rawThreadInfosWithUpdatedPermissions =
+      persistMigrationForThreadAvatarPermission(threadIDToThreadInfo);
+
+    // 5. Convert the updated `threadInfos` back into an array.
+    const updatedRawThreadInfos = Object.keys(
+      rawThreadInfosWithUpdatedPermissions,
+    ).map(id => rawThreadInfosWithUpdatedPermissions[id]);
+
+    // 6. Translate `RawThreadInfo`s to `ClientDBThreadInfo`s.
+    const convertedClientDBThreadInfos = updatedRawThreadInfos.map(
+      convertRawThreadInfoToClientDBThreadInfo,
+    );
+
+    // 7. Construct `ClientDBThreadStoreOperation`s to clear SQLite `threads`
+    //    table and repopulate with `ClientDBThreadInfo`s.
+    const operations: $ReadOnlyArray<ClientDBThreadStoreOperation> = [
+      {
+        type: 'remove_all',
+      },
+      ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
+        type: 'replace',
+        payload: thread,
+      })),
+    ];
+
+    // 8. Try processing `ClientDBThreadStoreOperation`s and log out if
     //    `processThreadStoreOperationsSync(...)` throws an exception.
     try {
       commCoreModule.processThreadStoreOperationsSync(operations);
