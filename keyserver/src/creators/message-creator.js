@@ -12,8 +12,8 @@ import {
 import { pushTypes } from 'lib/shared/messages/message-spec.js';
 import type { PushType } from 'lib/shared/messages/message-spec.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  messageTypes,
   messageDataLocalID,
   type MessageData,
   type RawMessageInfo,

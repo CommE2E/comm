@@ -3,7 +3,7 @@
 import fs from 'fs';
 
 import { policyTypes } from 'lib/facts/policies.js';
-import { messageTypes } from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
