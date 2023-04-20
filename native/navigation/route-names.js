@@ -33,6 +33,7 @@ export const AddUsersModalRouteName = 'AddUsersModal';
 export const AppearancePreferencesRouteName = 'AppearancePreferences';
 export const AppRouteName = 'App';
 export const AppsRouteName = 'Apps';
+export const UserAvatarCameraModalRouteName = 'UserAvatarCameraModal';
 export const BackgroundChatThreadListRouteName = 'BackgroundChatThreadList';
 export const BlockListRouteName = 'BlockList';
 export const BuildInfoRouteName = 'BuildInfo';
@@ -114,6 +115,7 @@ export type OverlayParamList = {
   +ImageModal: ImageModalParams,
   +ActionResultModal: ActionResultModalParams,
   +ChatCameraModal: ChatCameraModalParams,
+  +UserAvatarCameraModal: void,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
 };

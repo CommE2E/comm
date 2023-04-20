@@ -1,5 +1,6 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
@@ -10,6 +11,7 @@ import {
   useENSUserAvatar,
   useRemoveUserAvatar,
   useSelectFromGalleryAndUpdateUserAvatar,
+  useSelectFromCameraAndUpdateUserAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
@@ -36,11 +38,19 @@ function EditUserAvatar(props: Props): React.Node {
   const [selectFromGalleryAndUpdateUserAvatar, isGalleryAvatarUpdateLoading] =
     useSelectFromGalleryAndUpdateUserAvatar();
 
+  const { isCameraAvatarUpdateLoading } =
+    useSelectFromCameraAndUpdateUserAvatar();
+  const navigation = useNavigation();
+  const navigateToCamera = React.useCallback(() => {
+    navigation.navigate('UserAvatarCameraModal');
+  }, [navigation]);
+
   const [saveENSUserAvatar, isENSAvatarUpdateLoading] = useENSUserAvatar();
   const [removeUserAvatar, isRemoveAvatarUpdateLoading] = useRemoveUserAvatar();
 
   const isAvatarUpdateInProgress =
     isGalleryAvatarUpdateLoading ||
+    isCameraAvatarUpdateLoading ||
     isRemoveAvatarUpdateLoading ||
     isENSAvatarUpdateLoading;
 
@@ -48,6 +58,7 @@ function EditUserAvatar(props: Props): React.Node {
     const configOptions = [
       { id: 'emoji', onPress: onPressEmojiAvatarFlow },
       { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
+      { id: 'camera', onPress: navigateToCamera },
     ];
 
     if (ensAvatarURI) {
@@ -59,6 +70,7 @@ function EditUserAvatar(props: Props): React.Node {
     return configOptions;
   }, [
     ensAvatarURI,
+    navigateToCamera,
     onPressEmojiAvatarFlow,
     removeUserAvatar,
     saveENSUserAvatar,
