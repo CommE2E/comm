@@ -136,7 +136,7 @@ impl IdentityClientService for ClientService {
       let registration_state = UserRegistrationInfo {
         username,
         flattened_device_key_upload: FlattenedDeviceKeyUpload {
-          device_id_key: key_info.primary_identity_public_keys.curve25519,
+          device_id_key: key_info.primary_identity_public_keys.ed25519,
           key_payload: payload,
           key_payload_signature: payload_signature,
           identity_prekey,
@@ -350,7 +350,7 @@ impl IdentityClientService for ClientService {
         user_id,
         opaque_server_login: server_login,
         flattened_device_key_upload: FlattenedDeviceKeyUpload {
-          device_id_key: key_info.primary_identity_public_keys.curve25519,
+          device_id_key: key_info.primary_identity_public_keys.ed25519,
           key_payload: payload,
           key_payload_signature: payload_signature,
           identity_prekey,
@@ -470,7 +470,7 @@ impl IdentityClientService for ClientService {
           .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
         (
           FlattenedDeviceKeyUpload {
-            device_id_key: key_info.primary_identity_public_keys.curve25519,
+            device_id_key: key_info.primary_identity_public_keys.ed25519,
             key_payload: payload,
             key_payload_signature: payload_signature,
             identity_prekey,
