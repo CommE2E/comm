@@ -67,6 +67,16 @@ function TooltipMenu(
     [],
   );
 
+  const onPressTogglePin = React.useCallback(() => {}, []);
+  const renderPinIcon = React.useCallback(
+    style => <CommIcon name="pin" style={style} size={16} />,
+    [],
+  );
+  const renderUnpinIcon = React.useCallback(
+    style => <CommIcon name="unpin" style={style} size={16} />,
+    [],
+  );
+
   const onPressCopy = React.useCallback(() => {
     Clipboard.setString(text);
     setTimeout(confirmCopy);
@@ -104,6 +114,20 @@ function TooltipMenu(
         onPress={onPressEdit}
         renderIcon={renderEditIcon}
         key="edit"
+      />
+      <TooltipItem
+        id="pin"
+        text="Pin"
+        onPress={onPressTogglePin}
+        renderIcon={renderPinIcon}
+        key="pin"
+      />
+      <TooltipItem
+        id="unpin"
+        text="Unpin"
+        onPress={onPressTogglePin}
+        renderIcon={renderUnpinIcon}
+        key="unpin"
       />
       <TooltipItem
         id="copy"

@@ -10,8 +10,12 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
-import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
+import {
+  threadHasPermission,
+  useCanCreateSidebarFromMessage,
+} from 'lib/shared/thread-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
 
 import ComposedMessage from './composed-message.react.js';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
@@ -49,6 +53,7 @@ type Props = {
   +overlayContext: ?OverlayContextType,
   +chatContext: ?ChatContextType,
   +canCreateSidebarFromMessage: boolean,
+  +canTogglePins: boolean,
 };
 type State = {
   +clickable: boolean,
@@ -86,6 +91,10 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
 
   visibleEntryIDs() {
     const result = [];
+
+    if (this.props.canTogglePins) {
+      this.props.item.isPinned ? result.push('unpin') : result.push('pin');
+    }
 
     if (
       this.props.item.threadCreatedFromMessage ||
@@ -194,6 +203,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       overlayContext,
       chatContext,
       canCreateSidebarFromMessage,
+      canTogglePins,
       ...viewProps
     } = this.props;
     return (
@@ -235,6 +245,10 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
       props.item.threadInfo,
       props.item.messageInfo,
     );
+    const canTogglePins = threadHasPermission(
+      props.item.threadInfo,
+      threadPermissions.MANAGE_PINS,
+    );
 
     return (
       <MultimediaMessage
@@ -244,6 +258,7 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
         overlayContext={overlayContext}
         chatContext={chatContext}
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
+        canTogglePins={canTogglePins}
       />
     );
   });

@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useOnPressReport } from './message-report-utils.js';
 import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react.js';
 import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
+import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   createTooltip,
@@ -25,6 +26,16 @@ function TooltipMenu(
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
 
+  const onPressTogglePin = React.useCallback(() => {}, []);
+  const renderPinIcon = React.useCallback(
+    style => <CommIcon name="pin" style={style} size={16} />,
+    [],
+  );
+  const renderUnpinIcon = React.useCallback(
+    style => <CommIcon name="pin" style={style} size={16} />,
+    [],
+  );
+
   const onPressSidebar = useAnimatedNavigateToSidebar(route.params.item);
   const renderSidebarIcon = React.useCallback(
     style => (
@@ -41,6 +52,20 @@ function TooltipMenu(
 
   return (
     <>
+      <TooltipItem
+        id="pin"
+        text="Pin"
+        onPress={onPressTogglePin}
+        renderIcon={renderPinIcon}
+        key="pin"
+      />
+      <TooltipItem
+        id="unpin"
+        text="Unpin"
+        onPress={onPressTogglePin}
+        renderIcon={renderUnpinIcon}
+        key="unpin"
+      />
       <TooltipItem
         id="sidebar"
         text="Thread"
