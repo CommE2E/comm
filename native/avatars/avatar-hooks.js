@@ -223,6 +223,7 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
     dispatchActionPromise(
       updateUserAvatarActionTypes,
       (async () => {
+        setProcessingOrUploadInProgress(false);
         try {
           return await updateUserAvatarCall(imageAvatarUpdateRequest);
         } catch {
@@ -230,7 +231,6 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
         }
       })(),
     );
-    setProcessingOrUploadInProgress(false);
   }, [
     dispatchActionPromise,
     processSelectedMedia,
@@ -245,9 +245,13 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
   );
 }
 
+const threadAvatarLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+  `${changeThreadSettingsActionTypes.started}:avatar`,
+);
 function useSelectFromGalleryAndUpdateThreadAvatar(
   threadID: string,
-): () => Promise<void> {
+): [() => Promise<void>, boolean] {
   const dispatchActionPromise = useDispatchActionPromise();
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
 
@@ -255,33 +259,70 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
 
+  const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
+    React.useState(false);
+
+  const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
+    threadAvatarLoadingStatusSelector,
+  );
+
+  const inProgress = React.useMemo(
+    () =>
+      processingOrUploadInProgress ||
+      updateThreadAvatarLoadingStatus === 'loading',
+    [processingOrUploadInProgress, updateThreadAvatarLoadingStatus],
+  );
+
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
     if (!selection) {
-      console.log('MEDIA_SELECTION_FAILED');
+      Alert.alert(
+        'Media selection failed',
+        'Unable to select media from Media Library.',
+      );
       return;
     }
 
-    const processedMedia = await processSelectedMedia(selection);
-    if (!processedMedia.success) {
-      console.log('MEDIA_PROCESSING_FAILED');
-      // TODO (atul): Clean up any temporary files.
+    setProcessingOrUploadInProgress(true);
+    let processedMedia;
+    try {
+      processedMedia = await processSelectedMedia(selection);
+    } catch (e) {
+      Alert.alert(
+        'Media processing failed',
+        'Unable to process selected media.',
+      );
+      setProcessingOrUploadInProgress(false);
+      return;
+    }
+
+    if (!processedMedia || !processedMedia.success) {
+      Alert.alert(
+        'Media processing failed',
+        'Unable to process selected media.',
+      );
+      setProcessingOrUploadInProgress(false);
       return;
     }
 
     let uploadedMedia: ?UploadMultimediaResult;
     try {
       uploadedMedia = await uploadProcessedMedia(processedMedia);
-      // TODO (atul): Clean up any temporary files.
     } catch {
-      console.log('MEDIA_UPLOAD_FAILED');
-      // TODO (atul): Clean up any temporary files.
+      Alert.alert(
+        'Media upload failed',
+        'Unable to upload selected media. Please try again.',
+      );
+      setProcessingOrUploadInProgress(false);
       return;
     }
 
     if (!uploadedMedia) {
-      console.log('MEDIA_UPLOAD_FAILED');
-      // TODO (atul): Clean up any temporary files.
+      Alert.alert(
+        'Media upload failed',
+        'Unable to upload selected media. Please try again.',
+      );
+      setProcessingOrUploadInProgress(false);
       return;
     }
 
@@ -299,7 +340,14 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
 
     dispatchActionPromise(
       changeThreadSettingsActionTypes,
-      changeThreadSettingsCall(updateThreadRequest),
+      (async () => {
+        setProcessingOrUploadInProgress(false);
+        try {
+          return await changeThreadSettingsCall(updateThreadRequest);
+        } catch {
+          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+        }
+      })(),
       { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
     );
   }, [
@@ -311,17 +359,20 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
     uploadProcessedMedia,
   ]);
 
-  return selectFromGalleryAndUpdateThreadAvatar;
+  return React.useMemo(
+    () => [selectFromGalleryAndUpdateThreadAvatar, inProgress],
+    [inProgress, selectFromGalleryAndUpdateThreadAvatar],
+  );
 }
 
-function useRemoveUserAvatar(): [() => Promise<void>, boolean] {
+function useRemoveUserAvatar(): [() => void, boolean] {
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
   const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
     updateUserAvatarLoadingStatusSelector,
   );
 
-  const removeUserAvatar = React.useCallback(async () => {
+  const removeUserAvatar = React.useCallback(() => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
       type: 'remove',
     };
@@ -344,11 +395,14 @@ function useRemoveUserAvatar(): [() => Promise<void>, boolean] {
   );
 }
 
-function useRemoveThreadAvatar(threadID: string): () => Promise<void> {
+function useRemoveThreadAvatar(threadID: string): [() => void, boolean] {
   const dispatchActionPromise = useDispatchActionPromise();
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
+  const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
+    threadAvatarLoadingStatusSelector,
+  );
 
-  const removeThreadAvatar = React.useCallback(async () => {
+  const removeThreadAvatar = React.useCallback(() => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
       type: 'remove',
     };
@@ -359,13 +413,24 @@ function useRemoveThreadAvatar(threadID: string): () => Promise<void> {
         avatar: removeAvatarRequest,
       },
     };
+
     dispatchActionPromise(
       changeThreadSettingsActionTypes,
-      changeThreadSettingsCall(updateThreadRequest),
+      (async () => {
+        try {
+          return await changeThreadSettingsCall(updateThreadRequest);
+        } catch {
+          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+        }
+      })(),
+      { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
     );
   }, [changeThreadSettingsCall, dispatchActionPromise, threadID]);
 
-  return removeThreadAvatar;
+  return React.useMemo(
+    () => [removeThreadAvatar, updateThreadAvatarLoadingStatus === 'loading'],
+    [removeThreadAvatar, updateThreadAvatarLoadingStatus],
+  );
 }
 
 function useENSUserAvatar(): [() => Promise<void>, boolean] {
