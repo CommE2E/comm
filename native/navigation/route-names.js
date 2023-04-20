@@ -22,7 +22,7 @@ import type { ThreadSettingsParams } from '../chat/settings/thread-settings.reac
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js';
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
-import type { CameraModalParams } from '../media/camera-modal.react.js';
+import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
@@ -37,7 +37,7 @@ export const BackgroundChatThreadListRouteName = 'BackgroundChatThreadList';
 export const BlockListRouteName = 'BlockList';
 export const BuildInfoRouteName = 'BuildInfo';
 export const CalendarRouteName = 'Calendar';
-export const CameraModalRouteName = 'CameraModal';
+export const ChatCameraModalRouteName = 'ChatCameraModal';
 export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
 export const ColorSelectorModalRouteName = 'ColorSelectorModal';
@@ -113,7 +113,7 @@ export type OverlayParamList = {
   +CommunityDrawerNavigator: void,
   +ImageModal: ImageModalParams,
   +ActionResultModal: ActionResultModalParams,
-  +CameraModal: CameraModalParams,
+  +ChatCameraModal: ChatCameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
 };
