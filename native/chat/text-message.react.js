@@ -55,6 +55,7 @@ type Props = {
   +isLinkModalActive: boolean,
   +canEditMessage: boolean,
   +shouldRenderEditButton: boolean,
+  +canTogglePins: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -81,6 +82,7 @@ class TextMessage extends React.PureComponent<Props> {
       canCreateSidebarFromMessage,
       canEditMessage,
       shouldRenderEditButton,
+      canTogglePins,
       ...viewProps
     } = this.props;
 
@@ -145,6 +147,10 @@ class TextMessage extends React.PureComponent<Props> {
 
     if (this.props.canEditMessage && this.props.shouldRenderEditButton) {
       result.push('edit');
+    }
+
+    if (this.props.canTogglePins) {
+      this.props.item.isPinned ? result.push('unpin') : result.push('pin');
     }
 
     if (
@@ -256,6 +262,11 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       props.item.messageInfo,
     );
 
+    const canTogglePins = threadHasPermission(
+      props.item.threadInfo,
+      threadPermissions.MANAGE_PINS,
+    );
+
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
     return (
@@ -267,6 +278,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         isLinkModalActive={isLinkModalActive}
         canEditMessage={canEditMessage}
         shouldRenderEditButton={shouldRenderEditButton}
+        canTogglePins={canTogglePins}
       />
     );
   });
