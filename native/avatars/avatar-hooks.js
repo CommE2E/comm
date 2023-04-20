@@ -29,6 +29,7 @@ import type {
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   NativeMediaSelection,
+  PhotoCapture,
   MediaLibrarySelection,
   MediaMissionFailure,
   UploadMultimediaResult,
@@ -464,8 +465,119 @@ function useENSUserAvatar(): [() => Promise<void>, boolean] {
   );
 }
 
+function useSelectFromCameraAndUpdateUserAvatar(): {
+  +updateUserAvatar: (selection: PhotoCapture) => Promise<void>,
+  +isCameraAvatarUpdateLoading: boolean,
+} {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const updateUserAvatarCall = useServerCall(updateUserAvatar);
+
+  const processSelectedMedia = useProcessSelectedMedia();
+  const uploadProcessedMedia = useUploadProcessedMedia();
+
+  const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
+    React.useState(false);
+
+  const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
+    updateUserAvatarLoadingStatusSelector,
+  );
+
+  const inProgress = React.useMemo(
+    () =>
+      processingOrUploadInProgress ||
+      updateUserAvatarLoadingStatus === 'loading',
+    [processingOrUploadInProgress, updateUserAvatarLoadingStatus],
+  );
+
+  const selectFromCameraAndUpdateUserAvatar = React.useCallback(
+    async (selection: PhotoCapture) => {
+      if (!selection) {
+        Alert.alert(
+          'Media selection failed',
+          'Unable to select media from Media Library.',
+        );
+        return;
+      }
+
+      setProcessingOrUploadInProgress(true);
+      let processedMedia;
+      try {
+        processedMedia = await processSelectedMedia(selection);
+      } catch (e) {
+        Alert.alert(
+          'Media processing failed',
+          'Unable to process selected media.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      if (!processedMedia || !processedMedia.success) {
+        Alert.alert(
+          'Media processing failed',
+          'Unable to process selected media.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      let uploadedMedia: ?UploadMultimediaResult;
+      try {
+        uploadedMedia = await uploadProcessedMedia(processedMedia);
+      } catch {
+        Alert.alert(
+          'Media upload failed',
+          'Unable to upload selected media. Please try again.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      if (!uploadedMedia) {
+        Alert.alert(
+          'Media upload failed',
+          'Unable to upload selected media. Please try again.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      const imageAvatarUpdateRequest: ImageAvatarDBContent = {
+        type: 'image',
+        uploadID: uploadedMedia.id,
+      };
+
+      dispatchActionPromise(
+        updateUserAvatarActionTypes,
+        (async () => {
+          try {
+            return await updateUserAvatarCall(imageAvatarUpdateRequest);
+          } catch {
+            Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          }
+        })(),
+      );
+      setProcessingOrUploadInProgress(false);
+    },
+    [
+      dispatchActionPromise,
+      processSelectedMedia,
+      updateUserAvatarCall,
+      uploadProcessedMedia,
+    ],
+  );
+
+  return React.useMemo(
+    () => ({
+      updateUserAvatar: selectFromCameraAndUpdateUserAvatar,
+      isCameraAvatarUpdateLoading: inProgress,
+    }),
+    [selectFromCameraAndUpdateUserAvatar, inProgress],
+  );
+}
+
 type ShowAvatarActionSheetOptions = {
-  +id: 'emoji' | 'image' | 'ens' | 'cancel' | 'remove',
+  +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
 };
 function useShowAvatarActionSheet(
@@ -483,6 +595,8 @@ function useShowAvatarActionSheet(
         return 'Use Emoji';
       } else if (option.id === 'image') {
         return 'Select image';
+      } else if (option.id === 'camera') {
+        return 'Camera';
       } else if (option.id === 'ens') {
         return 'Use ENS Avatar';
       } else if (option.id === 'remove') {
@@ -513,6 +627,14 @@ function useShowAvatarActionSheet(
         return (
           <SWMansionIcon
             name="image-1"
+            size={22}
+            style={styles.bottomSheetIcon}
+          />
+        );
+      } else if (option.id === 'camera') {
+        return (
+          <SWMansionIcon
+            name="camera"
             size={22}
             style={styles.bottomSheetIcon}
           />
@@ -586,4 +708,5 @@ export {
   useRemoveUserAvatar,
   useRemoveThreadAvatar,
   useENSUserAvatar,
+  useSelectFromCameraAndUpdateUserAvatar,
 };
