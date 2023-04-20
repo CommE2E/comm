@@ -6,8 +6,8 @@ import * as React from 'react';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { messageID } from 'lib/shared/message-utils.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  messageTypes,
   type RawComposableMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types.js';

@@ -23,10 +23,10 @@ import {
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type RawMessageInfo,
   type MessageData,
-  messageTypes,
 } from 'lib/types/message-types.js';
 import type {
   WebNotification,

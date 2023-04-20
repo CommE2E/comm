@@ -9,7 +9,7 @@ import {
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
-import { messageTypes } from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import {
   useDispatchActionPromise,
