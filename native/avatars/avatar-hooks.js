@@ -576,6 +576,126 @@ function useSelectFromCameraAndUpdateUserAvatar(): {
   );
 }
 
+function useSelectFromCameraAndUpdateThreadAvatar(threadID: string): {
+  +updateThreadAvatar: (selection: PhotoCapture) => Promise<void>,
+  +isCameraAvatarUpdateLoading: boolean,
+} {
+  const dispatchActionPromise = useDispatchActionPromise();
+  const changeThreadSettingsCall = useServerCall(changeThreadSettings);
+
+  const processSelectedMedia = useProcessSelectedMedia();
+  const uploadProcessedMedia = useUploadProcessedMedia();
+
+  const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
+    React.useState(false);
+
+  const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
+    threadAvatarLoadingStatusSelector,
+  );
+
+  const inProgress = React.useMemo(
+    () =>
+      processingOrUploadInProgress ||
+      updateThreadAvatarLoadingStatus === 'loading',
+    [processingOrUploadInProgress, updateThreadAvatarLoadingStatus],
+  );
+
+  const selectFromCameraAndUpdateThreadAvatar = React.useCallback(
+    async (selection: PhotoCapture) => {
+      if (!selection) {
+        Alert.alert(
+          'Media selection failed',
+          'Unable to select media from Media Library.',
+        );
+        return;
+      }
+
+      setProcessingOrUploadInProgress(true);
+      let processedMedia;
+      try {
+        processedMedia = await processSelectedMedia(selection);
+      } catch (e) {
+        Alert.alert(
+          'Media processing failed',
+          'Unable to process selected media.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      if (!processedMedia || !processedMedia.success) {
+        Alert.alert(
+          'Media processing failed',
+          'Unable to process selected media.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      let uploadedMedia: ?UploadMultimediaResult;
+      try {
+        uploadedMedia = await uploadProcessedMedia(processedMedia);
+      } catch {
+        Alert.alert(
+          'Media upload failed',
+          'Unable to upload selected media. Please try again.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      if (!uploadedMedia) {
+        Alert.alert(
+          'Media upload failed',
+          'Unable to upload selected media. Please try again.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      const imageAvatarUpdateRequest: ImageAvatarDBContent = {
+        type: 'image',
+        uploadID: uploadedMedia.id,
+      };
+
+      const updateThreadRequest: UpdateThreadRequest = {
+        threadID,
+        changes: {
+          avatar: imageAvatarUpdateRequest,
+        },
+      };
+
+      dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        (async () => {
+          setProcessingOrUploadInProgress(false);
+          try {
+            return await changeThreadSettingsCall(updateThreadRequest);
+          } catch {
+            Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          }
+        })(),
+        { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
+      );
+    },
+    [
+      changeThreadSettingsCall,
+      dispatchActionPromise,
+      processSelectedMedia,
+      threadID,
+      uploadProcessedMedia,
+    ],
+  );
+
+  return React.useMemo(
+    () => ({
+      updateThreadAvatar: selectFromCameraAndUpdateThreadAvatar,
+      isCameraAvatarUpdateLoading: inProgress,
+    }),
+    [selectFromCameraAndUpdateThreadAvatar, inProgress],
+  );
+}
+
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
@@ -709,4 +829,5 @@ export {
   useRemoveThreadAvatar,
   useENSUserAvatar,
   useSelectFromCameraAndUpdateUserAvatar,
+  useSelectFromCameraAndUpdateThreadAvatar,
 };

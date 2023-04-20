@@ -24,6 +24,7 @@ import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.r
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
 import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
+import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camera-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
@@ -74,6 +75,7 @@ export const SidebarListModalRouteName = 'SidebarListModal';
 export const SubchannelsListModalRouteName = 'SubchannelsListModal';
 export const TabNavigatorRouteName = 'TabNavigator';
 export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
+export const ThreadAvatarCameraModalRouteName = 'ThreadAvatarCameraModal';
 export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
@@ -119,6 +121,7 @@ export type OverlayParamList = {
   +ActionResultModal: ActionResultModalParams,
   +ChatCameraModal: ChatCameraModalParams,
   +UserAvatarCameraModal: void,
+  +ThreadAvatarCameraModal: ThreadAvatarCameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
 };
