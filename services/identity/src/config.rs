@@ -73,11 +73,11 @@ pub enum Error {
   #[display(...)]
   Opaque(comm_opaque2::ProtocolError),
   #[display(...)]
-  IO(io::Error),
+  Io(io::Error),
   #[display(...)]
   Env(env::VarError),
   #[display(...)]
-  JSON(serde_json::Error),
+  Json(serde_json::Error),
 }
 
 fn get_keypair_from_file<P: AsRef<path::Path>>(
@@ -97,7 +97,7 @@ fn get_server_setup_from_file<P: AsRef<path::Path>>(
 
 fn get_reserved_usernames_set() -> Result<HashSet<String>, Error> {
   let contents = include_str!("../reserved_usernames.json");
-  let reserved_usernames: Vec<String> = serde_json::from_str(&contents)?;
+  let reserved_usernames: Vec<String> = serde_json::from_str(contents)?;
 
   Ok(reserved_usernames.into_iter().collect())
 }
