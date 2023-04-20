@@ -248,6 +248,32 @@ impl DatabaseClient {
     Ok(())
   }
 
+  pub async fn update_user_password(
+    &self,
+    user_id: String,
+    password_file: Vec<u8>,
+  ) -> Result<(), Error> {
+    let update_expression =
+      format!("SET {} = :p", USERS_TABLE_REGISTRATION_ATTRIBUTE);
+    let expression_attribute_values = HashMap::from([(
+      ":p".to_string(),
+      AttributeValue::B(Blob::new(password_file)),
+    )]);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
+
   pub async fn delete_user(
     &self,
     user_id: String,
