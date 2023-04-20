@@ -30,6 +30,7 @@ pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
 };
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
+use constant_time_eq::constant_time_eq;
 use moka::future::Cache;
 use rand::rngs::OsRng;
 use tonic::Response;
@@ -228,7 +229,12 @@ impl IdentityClientService for ClientService {
       .map_err(handle_db_error)?;
 
     if let Some(token) = access_token {
-      if !token.is_valid() || token.access_token != message.access_token {
+      if !token.is_valid()
+        || !constant_time_eq(
+          token.access_token.as_bytes(),
+          message.access_token.as_bytes(),
+        )
+      {
         return Err(tonic::Status::permission_denied("bad token"));
       }
 
@@ -549,7 +555,12 @@ impl IdentityClientService for ClientService {
       .map_err(handle_db_error)?;
 
     if let Some(token) = access_token {
-      if !token.is_valid() || token.access_token != message.access_token {
+      if !token.is_valid()
+        || !constant_time_eq(
+          token.access_token.as_bytes(),
+          message.access_token.as_bytes(),
+        )
+      {
         return Err(tonic::Status::permission_denied("bad token"));
       }
 
@@ -621,9 +632,25 @@ impl IdentityClientService for ClientService {
 
   async fn verify_user_access_token(
     &self,
-    _request: tonic::Request<VerifyUserAccessTokenRequest>,
+    request: tonic::Request<VerifyUserAccessTokenRequest>,
   ) -> Result<tonic::Response<VerifyUserAccessTokenResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+    let token_valid = match self
+      .client
+      .get_access_token_data(message.user_id, message.signing_public_key)
+      .await
+    {
+      Ok(Some(access_token_data)) => {
+        constant_time_eq(
+          access_token_data.access_token.as_bytes(),
+          message.access_token.as_bytes(),
+        ) && access_token_data.is_valid()
+      }
+      Ok(None) => false,
+      Err(e) => return Err(handle_db_error(e)),
+    };
+    let response = Response::new(VerifyUserAccessTokenResponse { token_valid });
+    Ok(response)
   }
 }
 
