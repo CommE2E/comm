@@ -3,7 +3,7 @@
 import natural from 'natural';
 
 import type { RawMessageInfo } from 'lib/types/message-types';
-import { messageTypes } from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { getSegmenter } from '../utils/segmenter.js';

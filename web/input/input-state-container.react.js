@@ -57,8 +57,8 @@ import type {
   MediaMissionResult,
   MediaMission,
 } from 'lib/types/media-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  messageTypes,
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessageResult,

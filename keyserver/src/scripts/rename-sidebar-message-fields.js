@@ -1,6 +1,6 @@
 // @flow
 
-import { messageTypes } from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import { main } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';

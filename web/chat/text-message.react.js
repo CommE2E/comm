@@ -7,7 +7,7 @@ import * as React from 'react';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { onlyEmojiRegex } from 'lib/shared/emojis.js';
-import { messageTypes } from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';

@@ -11,10 +11,8 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
-import {
-  messageTypes,
-  defaultNumberPerThread,
-} from 'lib/types/message-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
+import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import {
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,
