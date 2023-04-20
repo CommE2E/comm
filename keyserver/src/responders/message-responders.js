@@ -10,8 +10,8 @@ import {
 } from 'lib/shared/message-utils.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import type { Media } from 'lib/types/media-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  messageTypes,
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
   type SendReactionMessageRequest,
