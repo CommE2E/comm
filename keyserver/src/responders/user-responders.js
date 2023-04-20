@@ -3,10 +3,14 @@
 import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { ErrorTypes, SiweMessage } from 'siwe';
-import t from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
-import { baseLegalPolicies, policies } from 'lib/facts/policies.js';
+import {
+  baseLegalPolicies,
+  policies,
+  policyTypeValidator,
+} from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   ResetPasswordRequest,
@@ -33,8 +37,15 @@ import type {
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
-import type { CalendarQuery } from 'lib/types/entry-types.js';
-import { defaultNumberPerThread } from 'lib/types/message-types.js';
+import {
+  type CalendarQuery,
+  rawEntryInfoValidator,
+} from 'lib/types/entry-types.js';
+import {
+  defaultNumberPerThread,
+  rawMessageInfoValidator,
+  messageTruncationStatusesValidator,
+} from 'lib/types/message-types.js';
 import type {
   SIWEAuthRequest,
   SIWEMessage,
@@ -44,7 +55,14 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types.js';
-import type { PasswordUpdate } from 'lib/types/user-types.js';
+import { rawThreadInfoValidator } from 'lib/types/thread-types.js';
+import {
+  type PasswordUpdate,
+  loggedOutUserInfoValidator,
+  loggedInUserInfoValidator,
+  oldLoggedInUserInfoValidator,
+  userInfoValidator,
+} from 'lib/types/user-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import {
   identityKeysBlobValidator,
@@ -66,6 +84,7 @@ import {
   tEmail,
   tOldValidUsername,
   tRegex,
+  tID,
 } from 'lib/utils/validation-utils.js';
 
 import {
@@ -187,6 +206,11 @@ const deleteAccountRequestInputValidator = tShape({
   password: t.maybe(tPassword),
 });
 
+export const logOutResponseValidator: TInterface<LogOutResponse> =
+  tShape<LogOutResponse>({
+    currentUserInfo: loggedOutUserInfoValidator,
+  });
+
 async function accountDeletionResponder(
   viewer: Viewer,
   input: any,
@@ -215,6 +239,20 @@ const registerRequestInputValidator = tShape({
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
 });
+
+export const registerResponseValidator: TInterface<RegisterResponse> =
+  tShape<RegisterResponse>({
+    id: t.String,
+    rawMessageInfos: t.list(rawMessageInfoValidator),
+    currentUserInfo: t.union([
+      oldLoggedInUserInfoValidator,
+      loggedInUserInfoValidator,
+    ]),
+    cookieChange: tShape({
+      threadInfos: t.dict(t.String, rawThreadInfoValidator),
+      userInfos: t.list(userInfoValidator),
+    }),
+  });
 
 async function accountCreationResponder(
   viewer: Viewer,
@@ -362,6 +400,24 @@ const logInRequestInputValidator = tShape({
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
 });
+
+export const logInResponseValidator: TInterface<LogInResponse> =
+  tShape<LogInResponse>({
+    currentUserInfo: t.union([
+      loggedInUserInfoValidator,
+      oldLoggedInUserInfoValidator,
+    ]),
+    rawMessageInfos: t.list(rawMessageInfoValidator),
+    truncationStatuses: messageTruncationStatusesValidator,
+    userInfos: t.list(userInfoValidator),
+    rawEntryInfos: t.maybe(t.list(rawEntryInfoValidator)),
+    serverTime: t.Number,
+    cookieChange: tShape({
+      threadInfos: t.dict(tID, rawThreadInfoValidator),
+      userInfos: t.list(userInfoValidator),
+    }),
+    notAcknowledgedPolicies: t.maybe(t.list(policyTypeValidator)),
+  });
 
 async function logInResponder(
   viewer: Viewer,
