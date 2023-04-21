@@ -72,7 +72,11 @@ function SQLiteDataHandler(): React.Node {
         Alert.alert('Starting SQLite database deletion process');
       }
       await commCoreModule.clearSensitiveData();
-      await filesystemMediaCache.clearCache();
+      try {
+        await filesystemMediaCache.clearCache();
+      } catch {
+        throw new Error('clear_media_cache_failed');
+      }
       if (staffCanSee || staffUserHasBeenLoggedIn) {
         Alert.alert(
           'SQLite database successfully deleted',
@@ -105,8 +109,9 @@ function SQLiteDataHandler(): React.Node {
       }
       if (__DEV__) {
         throw e;
-      } else {
-        console.log(e);
+      }
+      console.log(e);
+      if (e.message !== 'clear_media_cache_failed') {
         commCoreModule.terminate();
       }
     }
@@ -125,8 +130,9 @@ function SQLiteDataHandler(): React.Node {
         } catch (e) {
           if (__DEV__) {
             throw e;
-          } else {
-            console.log(e);
+          }
+          console.log(e);
+          if (e.message !== 'clear_media_cache_failed') {
             commCoreModule.terminate();
           }
         }
