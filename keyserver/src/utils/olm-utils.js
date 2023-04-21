@@ -48,4 +48,36 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
-export { createPickledOlmAccount, getOlmUtility, unpicklePickledOlmAccount };
+async function validateAccountPrekey(account: OlmAccount): Promise<void> {
+  const prekey = JSON.parse(account.prekey());
+
+  const hasPrekey = Object.keys(prekey.curve25519).length !== 0;
+  const prekeyPublished = account.last_prekey_publish_time() !== 0;
+
+  const currentDate = new Date();
+  const lastPrekeyPublishDate = new Date(account.last_prekey_publish_time());
+
+  if (
+    !hasPrekey ||
+    (prekeyPublished &&
+      currentDate.getMonth() - lastPrekeyPublishDate.getMonth() > 0)
+  ) {
+    // If there is no prekey or the current prekey is older than month
+    // we need to generate new one.
+    account.generate_prekey();
+  }
+
+  if (
+    prekeyPublished &&
+    (currentDate - lastPrekeyPublishDate) / 3600000 >= 24
+  ) {
+    account.forget_old_prekey();
+  }
+}
+
+export {
+  createPickledOlmAccount,
+  getOlmUtility,
+  unpicklePickledOlmAccount,
+  validateAccountPrekey,
+};
