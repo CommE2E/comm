@@ -1,23 +1,42 @@
 // @flow
 
 import olm from '@commapp/olm';
-import type { Utility as OlmUtility } from '@commapp/olm';
-import invariant from 'invariant';
+import type {
+  Account as OlmAccount,
+  Utility as OlmUtility,
+} from '@commapp/olm';
+import uuid from 'uuid';
 
-import { getCommConfig } from 'lib/utils/comm-config.js';
-
-type OlmConfig = {
+type PickledOlmAccount = {
   +picklingKey: string,
   +pickledAccount: string,
 };
 
-async function getOlmConfig(): Promise<OlmConfig> {
-  const olmConfig = await getCommConfig({
-    folder: 'secrets',
-    name: 'olm_config',
-  });
-  invariant(olmConfig, 'OLM config missing');
-  return olmConfig;
+async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
+  await olm.init();
+  const account = new olm.Account();
+  account.create();
+
+  const picklingKey = uuid.v4();
+  const pickledAccount = account.pickle(picklingKey);
+
+  return {
+    picklingKey: picklingKey,
+    pickledAccount: pickledAccount,
+  };
+}
+
+async function unpicklePickledOlmAccount(
+  pickledOlmAccount: PickledOlmAccount,
+): Promise<OlmAccount> {
+  await olm.init();
+  const account = new olm.Account();
+
+  account.unpickle(
+    pickledOlmAccount.picklingKey,
+    pickledOlmAccount.pickledAccount,
+  );
+  return account;
 }
 
 let cachedOLMUtility: OlmUtility;
@@ -29,4 +48,4 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
-export { getOlmConfig, getOlmUtility };
+export { createPickledOlmAccount, getOlmUtility, unpicklePickledOlmAccount };
