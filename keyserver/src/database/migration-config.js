@@ -8,6 +8,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
+import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [
@@ -401,6 +402,36 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
             ADD PRIMARY KEY (is_content);
         `,
         { multipleStatements: true },
+      );
+    },
+  ],
+  [
+    35,
+    async () => {
+      const [pickledContentAccount, pickledNotificationsAccount] =
+        await Promise.all([
+          createPickledOlmAccount(),
+          createPickledOlmAccount(),
+        ]);
+
+      await dbQuery(
+        SQL`
+          INSERT INTO olm_accounts (is_content, version, 
+            pickling_key, pickled_olm_account)
+          VALUES
+          (
+            TRUE, 
+            0, 
+            ${pickledContentAccount.picklingKey}, 
+            ${pickledContentAccount.pickledAccount}
+          ),
+          (
+            FALSE, 
+            0, 
+            ${pickledNotificationsAccount.picklingKey}, 
+            ${pickledNotificationsAccount.pickledAccount}
+          );
+        `,
       );
     },
   ],
