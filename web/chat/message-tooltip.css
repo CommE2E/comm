@@ -4,6 +4,7 @@ div.messageTooltipContainer {
   align-items: center;
   font-size: var(--s-font-14);
   padding: 8px 0;
+  z-index: 5;
 }
 
 div.messageActionContainer {
@@ -15,27 +16,32 @@ div.messageActionContainer {
   border-radius: 8px;
   width: fit-content;
   box-shadow: var(--message-action-tooltip-bg) 0 2px 8px;
+  z-index: 5;
 }
 
 div.messageActionButtons {
   display: flex;
   font-size: 16px;
+  z-index: 5;
 }
 div.messageActionButtons svg {
   padding: 10px 6px 6px;
   color: var(--color-disabled);
+  z-index: 5;
 }
 
 div.messageActionButtons svg:hover,
 div.messageActionButtons span:hover {
   cursor: pointer;
   color: var(--fg);
+  z-index: 5;
 }
 
 div.messageTooltipButton {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 5;
 }
 
 div.messageTooltipLabel {
@@ -65,4 +71,5 @@ div.rightTooltipAlign {
 
 div.emojiKeyboard {
   position: absolute;
+  z-index: 5;
 }
