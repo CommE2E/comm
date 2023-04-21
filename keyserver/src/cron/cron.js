@@ -1,5 +1,6 @@
 // @flow
 
+import type { Account as OlmAccount } from '@commapp/olm';
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
@@ -23,6 +24,8 @@ import { deleteStaleSIWENonceEntries } from '../deleters/siwe-nonce-deleters.js'
 import { deleteInaccessibleThreads } from '../deleters/thread-deleters.js';
 import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
+import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
+import { validateAccountPrekey } from '../utils/olm-utils.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
@@ -87,6 +90,21 @@ if (cluster.isMaster) {
           'encountered error while trying to create daily updates thread',
           e,
         );
+      }
+    },
+  );
+
+  schedule.scheduleJob(
+    '0 0 * * *', // every day at midnight in the keyserver's timezone
+    async () => {
+      try {
+        const callback = async (account: OlmAccount) => {
+          await validateAccountPrekey(account);
+        };
+        await fetchCallUpdateOlmAccount('primary', callback);
+        await fetchCallUpdateOlmAccount('notifications', callback);
+      } catch (e) {
+        console.warn('encountered error while trying to validate prekeys', e);
       }
     },
   );
