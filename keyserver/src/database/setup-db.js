@@ -266,6 +266,17 @@ async function createTables() {
         pickled_olm_session text CHARACTER SET ascii COLLATE latin1_bin NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
+      CREATE TABLE IF NOT EXISTS olm_accounts (
+        is_content tinyint(1) NOT NULL,
+        version bigint(20) NOT NULL,
+        pickling_key text 
+          CHARACTER SET latin1 
+          COLLATE latin1_bin NOT NULL,
+        pickled_olm_account text 
+          CHARACTER SET latin1 
+          COLLATE latin1_bin NOT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY device_token (device_token(512)),
@@ -393,6 +404,9 @@ async function createTables() {
 
       ALTER TABLE olm_sessions
         ADD PRIMARY KEY (cookie_id, is_content);
+       
+      ALTER TABLE olm_accounts
+        ADD PRIMARY KEY (is_content);
     `,
     { multipleStatements: true },
   );
