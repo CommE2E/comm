@@ -90,49 +90,45 @@ function useProcessSelectedMedia(): NativeMediaSelection => Promise<
   return processSelectedMedia;
 }
 
-function useSelectFromGallery(): () => Promise<?MediaLibrarySelection> {
-  const selectFromGallery = React.useCallback(async () => {
-    try {
-      const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        allowsMultipleSelection: false,
-        quality: 1,
-      });
+async function selectFromGallery(): Promise<?MediaLibrarySelection> {
+  try {
+    const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      allowsMultipleSelection: false,
+      quality: 1,
+    });
 
-      if (canceled || assets.length === 0) {
-        return;
-      }
-
-      const asset = assets.pop();
-      const { width, height, assetId: mediaNativeID } = asset;
-      const assetFilename =
-        asset.fileName || filenameFromPathOrURI(asset.uri) || '';
-      const uri = getCompatibleMediaURI(
-        asset.uri,
-        extensionFromFilename(assetFilename),
-      );
-
-      const currentTime = Date.now();
-      const selection: MediaLibrarySelection = {
-        step: 'photo_library',
-        dimensions: { height, width },
-        uri,
-        filename: assetFilename,
-        mediaNativeID,
-        selectTime: currentTime,
-        sendTime: currentTime,
-        retries: 0,
-      };
-
-      return selection;
-    } catch (e) {
-      console.log(e);
-      return undefined;
+    if (canceled || assets.length === 0) {
+      return;
     }
-  }, []);
 
-  return selectFromGallery;
+    const asset = assets.pop();
+    const { width, height, assetId: mediaNativeID } = asset;
+    const assetFilename =
+      asset.fileName || filenameFromPathOrURI(asset.uri) || '';
+    const uri = getCompatibleMediaURI(
+      asset.uri,
+      extensionFromFilename(assetFilename),
+    );
+
+    const currentTime = Date.now();
+    const selection: MediaLibrarySelection = {
+      step: 'photo_library',
+      dimensions: { height, width },
+      uri,
+      filename: assetFilename,
+      mediaNativeID,
+      selectTime: currentTime,
+      sendTime: currentTime,
+      retries: 0,
+    };
+
+    return selection;
+  } catch (e) {
+    console.log(e);
+    return undefined;
+  }
 }
 
 function useUploadSelectedMedia(
@@ -206,8 +202,6 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
 
-  const selectFromGallery = useSelectFromGallery();
-
   const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
     React.useState(false);
 
@@ -251,12 +245,7 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
         }
       })(),
     );
-  }, [
-    dispatchActionPromise,
-    selectFromGallery,
-    updateUserAvatarCall,
-    uploadSelectedMedia,
-  ]);
+  }, [dispatchActionPromise, updateUserAvatarCall, uploadSelectedMedia]);
 
   return React.useMemo(
     () => [selectFromGalleryAndUpdateUserAvatar, inProgress],
@@ -273,8 +262,6 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
 ): [() => Promise<void>, boolean] {
   const dispatchActionPromise = useDispatchActionPromise();
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
-
-  const selectFromGallery = useSelectFromGallery();
 
   const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
     React.useState(false);
@@ -330,7 +317,6 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   }, [
     changeThreadSettingsCall,
     dispatchActionPromise,
-    selectFromGallery,
     threadID,
     uploadSelectedMedia,
   ]);
@@ -562,4 +548,5 @@ export {
   useRemoveUserAvatar,
   useRemoveThreadAvatar,
   useENSUserAvatar,
+  useUploadSelectedMedia,
 };
