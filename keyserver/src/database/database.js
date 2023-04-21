@@ -8,7 +8,12 @@ import SQL from 'sql-template-strings';
 import { connectionLimit, queryWarnTime } from './consts.js';
 import { getDBConfig } from './db-config.js';
 import DatabaseMonitor from './monitor.js';
-import type { Pool, SQLOrString, SQLStatementType } from './types.js';
+import type {
+  Connection,
+  Pool,
+  SQLOrString,
+  SQLStatementType,
+} from './types.js';
 import { getScriptContext } from '../scripts/script-context.js';
 
 const SQLStatement: SQLStatementType = SQL.SQLStatement;
@@ -184,7 +189,7 @@ function rawSQL(statement: SQLStatementType): string {
   return mysql.format(statement.sql, statement.values);
 }
 
-async function getMultipleStatementsConnection() {
+async function getMultipleStatementsConnection(): Promise<Connection> {
   const { dbType, ...dbConfig } = await getDBConfig();
   const options: ConnectionOptions = {
     ...dbConfig,
@@ -203,4 +208,5 @@ export {
   setConnectionContext,
   dbQuery,
   rawSQL,
+  getMultipleStatementsConnection,
 };
