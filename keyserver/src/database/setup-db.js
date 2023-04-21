@@ -13,12 +13,14 @@ import { dbQuery, SQL } from '../database/database.js';
 import { updateDBVersion } from '../database/db-version.js';
 import { newDatabaseVersion } from '../database/migration-config.js';
 import { createScriptViewer } from '../session/scripts.js';
+import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
 async function setupDB() {
   await createTables();
   await createUsers();
   await createThreads();
   await setUpMetadataTable();
+  await createOlmAccounts();
 }
 
 async function createTables() {
@@ -464,6 +466,20 @@ async function createThreads() {
 
 async function setUpMetadataTable() {
   await updateDBVersion(newDatabaseVersion);
+}
+
+async function createOlmAccounts() {
+  const [pickledContentAccount, pickledNotificationsAccount] =
+    await Promise.all([createPickledOlmAccount(), createPickledOlmAccount()]);
+
+  await dbQuery(
+    SQL`
+      INSERT INTO olm_accounts (is_content, pickling_key, pickled_olm_account)
+      VALUES
+        (TRUE, ${pickledContentAccount.picklingKey}, ${pickledContentAccount.pickledAccount}),
+        (FALSE, ${pickledNotificationsAccount.picklingKey}, ${pickledNotificationsAccount.pickledAccount});
+    `,
+  );
 }
 
 export { setupDB };
