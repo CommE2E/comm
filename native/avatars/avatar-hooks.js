@@ -26,6 +26,7 @@ import type {
   ENSAvatarDBContent,
   UpdateUserAvatarRemoveRequest,
 } from 'lib/types/avatar-types.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   NativeMediaSelection,
@@ -134,6 +135,67 @@ function useSelectFromGallery(): () => Promise<?MediaLibrarySelection> {
   return selectFromGallery;
 }
 
+function useUploadSelectedMedia(
+  setProcessingOrUploadInProgress: SetState<boolean>,
+): (selection: ?NativeMediaSelection) => Promise<?string> {
+  const processSelectedMedia = useProcessSelectedMedia();
+  const uploadProcessedMedia = useUploadProcessedMedia();
+
+  return React.useCallback(
+    async (selection: ?NativeMediaSelection) => {
+      if (!selection) {
+        Alert.alert(
+          'Media selection failed',
+          'Unable to select media from Media Library.',
+        );
+        return;
+      }
+
+      setProcessingOrUploadInProgress(true);
+
+      let processedMedia;
+      try {
+        processedMedia = await processSelectedMedia(selection);
+      } catch (e) {
+        Alert.alert(
+          'Media processing failed',
+          'Unable to process selected media.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      if (!processedMedia.success) {
+        Alert.alert(
+          'Media processing failed',
+          'Unable to process selected media.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      let uploadedMedia: UploadMultimediaResult;
+      try {
+        uploadedMedia = await uploadProcessedMedia(processedMedia);
+      } catch {
+        Alert.alert(
+          'Media upload failed',
+          'Unable to upload selected media. Please try again.',
+        );
+        setProcessingOrUploadInProgress(false);
+        return;
+      }
+
+      return uploadedMedia.id;
+    },
+    [
+      processSelectedMedia,
+      setProcessingOrUploadInProgress,
+      uploadProcessedMedia,
+    ],
+  );
+}
+
 const updateUserAvatarLoadingStatusSelector = createLoadingStatusSelector(
   updateUserAvatarActionTypes,
 );
@@ -145,8 +207,6 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
 
   const selectFromGallery = useSelectFromGallery();
-  const processSelectedMedia = useProcessSelectedMedia();
-  const uploadProcessedMedia = useUploadProcessedMedia();
 
   const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
     React.useState(false);
@@ -162,62 +222,22 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
     [processingOrUploadInProgress, updateUserAvatarLoadingStatus],
   );
 
+  const uploadSelectedMedia = useUploadSelectedMedia(
+    setProcessingOrUploadInProgress,
+  );
+
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
-    if (!selection) {
-      Alert.alert(
-        'Media selection failed',
-        'Unable to select media from Media Library.',
-      );
-      return;
-    }
 
-    setProcessingOrUploadInProgress(true);
-    let processedMedia;
-    try {
-      processedMedia = await processSelectedMedia(selection);
-    } catch (e) {
-      Alert.alert(
-        'Media processing failed',
-        'Unable to process selected media.',
-      );
-      setProcessingOrUploadInProgress(false);
-      return;
-    }
+    const uploadedMediaID = await uploadSelectedMedia(selection);
 
-    if (!processedMedia || !processedMedia.success) {
-      Alert.alert(
-        'Media processing failed',
-        'Unable to process selected media.',
-      );
-      setProcessingOrUploadInProgress(false);
-      return;
-    }
-
-    let uploadedMedia: ?UploadMultimediaResult;
-    try {
-      uploadedMedia = await uploadProcessedMedia(processedMedia);
-    } catch {
-      Alert.alert(
-        'Media upload failed',
-        'Unable to upload selected media. Please try again.',
-      );
-      setProcessingOrUploadInProgress(false);
-      return;
-    }
-
-    if (!uploadedMedia) {
-      Alert.alert(
-        'Media upload failed',
-        'Unable to upload selected media. Please try again.',
-      );
-      setProcessingOrUploadInProgress(false);
+    if (!uploadedMediaID) {
       return;
     }
 
     const imageAvatarUpdateRequest: ImageAvatarDBContent = {
       type: 'image',
-      uploadID: uploadedMedia.id,
+      uploadID: uploadedMediaID,
     };
 
     dispatchActionPromise(
@@ -233,10 +253,9 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
     );
   }, [
     dispatchActionPromise,
-    processSelectedMedia,
     selectFromGallery,
     updateUserAvatarCall,
-    uploadProcessedMedia,
+    uploadSelectedMedia,
   ]);
 
   return React.useMemo(
@@ -256,8 +275,6 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
 
   const selectFromGallery = useSelectFromGallery();
-  const processSelectedMedia = useProcessSelectedMedia();
-  const uploadProcessedMedia = useUploadProcessedMedia();
 
   const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
     React.useState(false);
@@ -273,62 +290,22 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
     [processingOrUploadInProgress, updateThreadAvatarLoadingStatus],
   );
 
+  const uploadSelectedMedia = useUploadSelectedMedia(
+    setProcessingOrUploadInProgress,
+  );
+
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
-    if (!selection) {
-      Alert.alert(
-        'Media selection failed',
-        'Unable to select media from Media Library.',
-      );
-      return;
-    }
 
-    setProcessingOrUploadInProgress(true);
-    let processedMedia;
-    try {
-      processedMedia = await processSelectedMedia(selection);
-    } catch (e) {
-      Alert.alert(
-        'Media processing failed',
-        'Unable to process selected media.',
-      );
-      setProcessingOrUploadInProgress(false);
-      return;
-    }
+    const uploadedMediaID = await uploadSelectedMedia(selection);
 
-    if (!processedMedia || !processedMedia.success) {
-      Alert.alert(
-        'Media processing failed',
-        'Unable to process selected media.',
-      );
-      setProcessingOrUploadInProgress(false);
-      return;
-    }
-
-    let uploadedMedia: ?UploadMultimediaResult;
-    try {
-      uploadedMedia = await uploadProcessedMedia(processedMedia);
-    } catch {
-      Alert.alert(
-        'Media upload failed',
-        'Unable to upload selected media. Please try again.',
-      );
-      setProcessingOrUploadInProgress(false);
-      return;
-    }
-
-    if (!uploadedMedia) {
-      Alert.alert(
-        'Media upload failed',
-        'Unable to upload selected media. Please try again.',
-      );
-      setProcessingOrUploadInProgress(false);
+    if (!uploadedMediaID) {
       return;
     }
 
     const imageAvatarUpdateRequest: ImageAvatarDBContent = {
       type: 'image',
-      uploadID: uploadedMedia.id,
+      uploadID: uploadedMediaID,
     };
 
     const updateThreadRequest: UpdateThreadRequest = {
@@ -353,10 +330,9 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   }, [
     changeThreadSettingsCall,
     dispatchActionPromise,
-    processSelectedMedia,
     selectFromGallery,
     threadID,
-    uploadProcessedMedia,
+    uploadSelectedMedia,
   ]);
 
   return React.useMemo(
