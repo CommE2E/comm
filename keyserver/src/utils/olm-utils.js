@@ -12,6 +12,9 @@ type PickledOlmAccount = {
   +pickledAccount: string,
 };
 
+const maxPublishedPrekeyAge = 30 * 24 * 60 * 60 * 1000;
+const maxOldPrekeyAge = 24 * 60 * 60 * 1000;
+
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
   await olm.init();
   const account = new olm.Account();
@@ -48,4 +51,31 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
-export { createPickledOlmAccount, getOlmUtility, unpickleOlmAccount };
+async function validateAccountPrekey(account: OlmAccount): Promise<void> {
+  const currentDate = new Date();
+  const lastPrekeyPublishDate = new Date(account.last_prekey_publish_time());
+
+  const prekeyPublished = !account.unpublished_prekey();
+  if (
+    prekeyPublished &&
+    currentDate - lastPrekeyPublishDate > maxPublishedPrekeyAge
+  ) {
+    // If there is no prekey or the current prekey is older than month
+    // we need to generate new one.
+    account.generate_prekey();
+  }
+
+  if (
+    prekeyPublished &&
+    currentDate - lastPrekeyPublishDate >= maxOldPrekeyAge
+  ) {
+    account.forget_old_prekey();
+  }
+}
+
+export {
+  createPickledOlmAccount,
+  getOlmUtility,
+  unpickleOlmAccount,
+  validateAccountPrekey,
+};
