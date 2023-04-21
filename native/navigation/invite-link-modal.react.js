@@ -81,20 +81,30 @@ function InviteLinkModal(props: Props): React.Node {
       'CommunityID should be present while calling this function',
     );
     const query = calendarQuery();
-    const result = await callJoinThread({
-      threadID: communityID,
-      calendarQuery: {
-        startDate: query.startDate,
-        endDate: query.endDate,
-        filters: [
-          ...query.filters,
-          { type: 'threads', threadIDs: [communityID] },
-        ],
-      },
-      inviteLinkSecret: secret,
-    });
-    props.navigation.goBack();
-    return result;
+    try {
+      const result = await callJoinThread({
+        threadID: communityID,
+        calendarQuery: {
+          startDate: query.startDate,
+          endDate: query.endDate,
+          filters: [
+            ...query.filters,
+            { type: 'threads', threadIDs: [communityID] },
+          ],
+        },
+        inviteLinkSecret: secret,
+      });
+      props.navigation.goBack();
+      return result;
+    } catch (e) {
+      props.navigation.setParams({
+        invitationDetails: {
+          status: 'invalid',
+        },
+        secret,
+      });
+      throw e;
+    }
   }, [calendarQuery, callJoinThread, communityID, props.navigation, secret]);
   const dispatchActionPromise = useDispatchActionPromise();
   const joinCommunity = React.useCallback(() => {
