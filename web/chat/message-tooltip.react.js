@@ -123,6 +123,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   const messageTooltipTopLabelStyle = React.useMemo(
     () => ({
       height: `${tooltipLabelStyle.height + 2 * tooltipLabelStyle.padding}px`,
+      zIndex: 5,
     }),
     [],
   );
@@ -131,6 +132,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     if (!activeTooltipLabel) {
       return null;
     }
+
     return (
       <div className={css.messageTooltipLabel} style={messageTooltipLabelStyle}>
         {activeTooltipLabel}

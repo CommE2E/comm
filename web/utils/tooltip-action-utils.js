@@ -44,6 +44,7 @@ function useMessageTooltipSidebarAction(
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { threadCreatedFromMessage, messageInfo } = item;
+  const { popModal } = useModalContext();
   const sidebarExists = !!threadCreatedFromMessage;
   const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
     threadInfo,
@@ -57,6 +58,8 @@ function useMessageTooltipSidebarAction(
     }
     const buttonContent = <CommIcon icon="sidebar-filled" size={16} />;
     const onClick = (event: SyntheticEvent<HTMLElement>) => {
+      popModal();
+
       if (threadCreatedFromMessage) {
         openThread(event);
       } else {
@@ -69,6 +72,7 @@ function useMessageTooltipSidebarAction(
       label: sidebarExists ? 'Go to thread' : 'Create thread',
     };
   }, [
+    popModal,
     openPendingSidebar,
     openThread,
     sidebarExists,
@@ -82,6 +86,7 @@ function useMessageTooltipReplyAction(
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
+  const { popModal } = useModalContext();
   const inputState = React.useContext(InputStateContext);
   invariant(inputState, 'inputState is required');
   const { addReply } = inputState;
@@ -94,6 +99,8 @@ function useMessageTooltipReplyAction(
     }
     const buttonContent = <CommIcon icon="reply-filled" size={18} />;
     const onClick = () => {
+      popModal();
+
       if (!messageInfo.text) {
         return;
       }
@@ -104,7 +111,7 @@ function useMessageTooltipReplyAction(
       onClick,
       label: 'Reply',
     };
-  }, [addReply, item.messageInfo.type, messageInfo, threadInfo]);
+  }, [popModal, addReply, item.messageInfo.type, messageInfo, threadInfo]);
 }
 
 const copiedMessageDurationMs = 2000;
