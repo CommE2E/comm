@@ -4,6 +4,8 @@ div.messageTooltipContainer {
   align-items: center;
   font-size: var(--s-font-14);
   padding: 8px 0;
+  position: relative;
+  z-index: 5;
 }
 
 div.messageActionContainer {
@@ -65,4 +67,5 @@ div.rightTooltipAlign {
 
 div.emojiKeyboard {
   position: absolute;
+  z-index: 5;
 }
