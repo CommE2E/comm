@@ -2,12 +2,13 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 
 import {
   joinThread,
   joinThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
 import {
   useDispatchActionPromise,
@@ -105,16 +106,28 @@ function InviteLinkModal(props: Props): React.Node {
   const joinCommunity = React.useCallback(() => {
     dispatchActionPromise(joinThreadActionTypes, createJoinCommunityAction());
   }, [createJoinCommunityAction, dispatchActionPromise]);
+  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
 
   const buttons = React.useMemo(() => {
     if (invitationDetails.status === 'valid') {
+      const joinButtonContent =
+        joinThreadLoadingStatus === 'loading' ? (
+          <ActivityIndicator
+            size="small"
+            color="white"
+            style={styles.activityIndicatorStyle}
+          />
+        ) : (
+          <Text style={styles.buttonText}>Accept Invite</Text>
+        );
       return (
         <>
           <Button
             style={[styles.button, styles.buttonPrimary, styles.gap]}
             onPress={joinCommunity}
+            disabled={joinThreadLoadingStatus === 'loading'}
           >
-            <Text style={styles.buttonText}>Accept Invite</Text>
+            {joinButtonContent}
           </Button>
           <Button
             style={[styles.button, styles.buttonSecondary]}
@@ -136,7 +149,9 @@ function InviteLinkModal(props: Props): React.Node {
   }, [
     invitationDetails.status,
     joinCommunity,
+    joinThreadLoadingStatus,
     props.navigation.goBack,
+    styles.activityIndicatorStyle,
     styles.button,
     styles.buttonPrimary,
     styles.buttonSecondary,
@@ -152,6 +167,10 @@ function InviteLinkModal(props: Props): React.Node {
     </Modal>
   );
 }
+
+const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
+  joinThreadActionTypes,
+);
 
 const unboundStyles = {
   modal: {
@@ -216,6 +235,9 @@ const unboundStyles = {
     fontSize: 16,
     fontWeight: '500',
     lineHeight: 24,
+  },
+  activityIndicatorStyle: {
+    paddingVertical: 2,
   },
 };
 
