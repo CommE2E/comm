@@ -343,6 +343,24 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       );
     },
   ],
+  [
+    32,
+    async () => {
+      await dbQuery(
+        SQL`
+          CREATE TABLE keyserver_olm_accounts (
+            is_primary tinyint(1) NOT NULL,
+            pickling_key text CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL,
+            pickled_olm_account text CHARACTER SET ascii COLLATE ascii_bin DEFAULT NULL
+          ) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_bin;
+
+          ALTER TABLE keyserver_olm_accounts
+            ADD PRIMARY KEY (is_primary);
+        `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
