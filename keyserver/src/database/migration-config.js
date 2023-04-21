@@ -7,6 +7,7 @@ import { policyTypes } from 'lib/facts/policies.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
+import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [
@@ -358,6 +359,25 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
             ADD PRIMARY KEY (is_primary);
         `,
         { multipleStatements: true },
+      );
+    },
+  ],
+  [
+    33,
+    async () => {
+      const [pickledPrimaryAccount, pickledNotificationsAccount] =
+        await Promise.all([
+          createPickledOlmAccount(),
+          createPickledOlmAccount(),
+        ]);
+
+      await dbQuery(
+        SQL`
+          INSERT INTO keyserver_olm_accounts (is_primary, pickling_key, pickled_olm_account)
+            VALUES
+              (TRUE, ${pickledPrimaryAccount.picklingKey}, ${pickledPrimaryAccount.pickledAccount}),
+              (FALSE, ${pickledNotificationsAccount.picklingKey}, ${pickledNotificationsAccount.pickledAccount});
+        `,
       );
     },
   ],
