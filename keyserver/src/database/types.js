@@ -25,3 +25,8 @@ export type SQLStatementType = {
 };
 
 export type SQLOrString = SQLStatementType | string;
+
+export type Connection = {
+  +query: (input: SQLOrString) => Promise<QueryResults>,
+  +end: () => void,
+};
