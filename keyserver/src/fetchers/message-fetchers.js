@@ -823,6 +823,68 @@ async function fetchLatestEditMessageContentByID(
   return content;
 }
 
+async function fetchRelatedMessages(
+  viewer?: Viewer,
+  messages: $ReadOnlyMap<
+    string,
+    RawComposableMessageInfo | RawRobotextMessageInfo,
+  >,
+): Promise<$ReadOnlyArray<RawMessageInfo>> {
+  if (messages.size === 0) {
+    return [];
+  }
+  const originalMessageIDs = [...messages.keys()];
+
+  const sidebarSourceAndReactionsIDsQuery = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
+      m.user AS creatorID, m.target_message as targetMessageID,
+      stm.permissions AS subthread_permissions, up.id AS uploadID,
+      up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
+    FROM messages m
+    LEFT JOIN uploads up ON up.container = m.id
+    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+      AND stm.thread = m.content AND stm.user = m.user
+    WHERE m.target_message IN (${originalMessageIDs})
+      AND (
+        m.type = ${messageTypes.SIDEBAR_SOURCE}
+        OR m.type = ${messageTypes.REACTION}
+      )
+  `;
+
+  const editIDsQuery = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
+      m.user AS creatorID, m.target_message as targetMessageID,
+      stm.permissions AS subthread_permissions, up.id AS uploadID,
+      up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
+    FROM messages m2
+    JOIN messages m ON m.id = (
+      SELECT m3.id FROM messages m3
+      WHERE m3.target_message = m2.id
+        AND m3.thread = m2.thread
+        AND m3.type = ${messageTypes.EDIT_MESSAGE}
+      ORDER BY time DESC, id DESC
+      LIMIT 1
+    )
+    LEFT JOIN uploads up ON up.container = m2.id
+    LEFT JOIN memberships stm ON m2.type = ${messageTypes.CREATE_SUB_THREAD}
+      AND stm.thread = m2.content AND stm.user = m2.user
+    WHERE m2.id IN (${originalMessageIDs})
+  `;
+
+  const [sidebarSourceAndReactionsIDs, editIDs] = await Promise.all([
+    dbQuery(sidebarSourceAndReactionsIDsQuery),
+    dbQuery(editIDsQuery),
+  ]);
+
+  const resultRows = [...sidebarSourceAndReactionsIDs[0], ...editIDs[0]];
+
+  if (resultRows.length === 0) {
+    return [];
+  }
+  const SQLResult = await parseMessageSQLResult(resultRows, messages, viewer);
+  return SQLResult.map(item => item.rawMessageInfo);
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -834,4 +896,5 @@ export {
   fetchThreadMessagesCount,
   fetchLatestEditMessageContentByID,
   fetchPinnedMessageInfos,
+  fetchRelatedMessages,
 };
