@@ -1,15 +1,24 @@
 // @flow
 
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 import { useStyles } from '../../themes/colors.js';
 
+type RegistrationTileContextType = { +selected: boolean };
+const defaultRegistrationTileContext = { selected: false };
+const RegistrationTileContext =
+  React.createContext<RegistrationTileContextType>(
+    defaultRegistrationTileContext,
+  );
+
 type TileProps = {
   +children: React.Node,
+  +selected: boolean,
+  +onSelect: () => mixed,
 };
 function RegistrationTile(props: TileProps): React.Node {
-  const { children } = props;
+  const { children, selected, onSelect } = props;
 
   const [body, header] = React.useMemo(() => {
     let registrationBody = children;
@@ -27,12 +36,28 @@ function RegistrationTile(props: TileProps): React.Node {
     return [registrationBody, registrationHeader];
   }, [children]);
 
+  const registrationTileContext = React.useMemo(
+    () => ({ selected }),
+    [selected],
+  );
+
   const styles = useStyles(unboundStyles);
+  const tileStyle = React.useMemo(
+    () => (selected ? [styles.tile, styles.selectedTile] : styles.tile),
+    [styles, selected],
+  );
+
   return (
-    <View style={styles.tile}>
-      {header}
-      {body}
-    </View>
+    <RegistrationTileContext.Provider value={registrationTileContext}>
+      <TouchableOpacity
+        onPress={onSelect}
+        activeOpacity={0.6}
+        style={tileStyle}
+      >
+        {header}
+        {body}
+      </TouchableOpacity>
+    </RegistrationTileContext.Provider>
   );
 }
 
@@ -41,23 +66,42 @@ type HeaderProps = {
 };
 function RegistrationTileHeader(props: HeaderProps): React.Node {
   const { children } = props;
+  const { selected } = React.useContext(RegistrationTileContext);
 
   const styles = useStyles(unboundStyles);
+  const tileRadioStyle = React.useMemo(
+    () =>
+      selected
+        ? [styles.tileRadio, styles.selectedTileRadio]
+        : styles.tileRadio,
+    [styles, selected],
+  );
+  const tileRadioInnerStyle = React.useMemo(
+    () => (selected ? styles.tileRadioInner : undefined),
+    [styles, selected],
+  );
+
   return (
     <View style={styles.tileTitle}>
       {children}
-      <View style={styles.tileRadio} />
+      <View style={tileRadioStyle}>
+        <View style={tileRadioInnerStyle} />
+      </View>
     </View>
   );
 }
 
 const unboundStyles = {
   tile: {
-    backgroundColor: 'panelForeground',
     paddingHorizontal: 16,
     paddingVertical: 20,
     borderRadius: 8,
     marginTop: 24,
+    borderWidth: 1,
+    backgroundColor: 'panelForeground',
+  },
+  selectedTile: {
+    borderColor: 'panelForegroundLabel',
   },
   tileTitle: {
     paddingBottom: 16,
@@ -70,6 +114,17 @@ const unboundStyles = {
     height: 24,
     width: 24,
     borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tileRadioInner: {
+    backgroundColor: 'panelForegroundLabel',
+    height: 16,
+    width: 16,
+    borderRadius: 8,
+  },
+  selectedTileRadio: {
+    borderColor: 'panelForegroundLabel',
   },
 };
 

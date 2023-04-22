@@ -13,12 +13,22 @@ import CommIcon from '../../components/comm-icon.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 
+type Selection = 'ashoat' | 'custom';
+
 type Props = {
   +navigation: RegistrationNavigationProp<'KeyserverSelection'>,
   +route: NavigationRoute<'KeyserverSelection'>,
 };
 // eslint-disable-next-line no-unused-vars
 function KeyserverSelection(props: Props): React.Node {
+  const [currentSelection, setCurrentSelection] = React.useState<?Selection>();
+  const selectAshoat = React.useCallback(() => {
+    setCurrentSelection('ashoat');
+  }, []);
+  const selectCustom = React.useCallback(() => {
+    setCurrentSelection('custom');
+  }, []);
+
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   return (
@@ -32,7 +42,10 @@ function KeyserverSelection(props: Props): React.Node {
         Keyservers allow Comm to offer strong privacy guarantees without
         sacrificing functionality.
       </Text>
-      <RegistrationTile>
+      <RegistrationTile
+        selected={currentSelection === 'ashoat'}
+        onSelect={selectAshoat}
+      >
         <RegistrationTileHeader>
           <CommIcon
             name="cloud-filled"
@@ -47,7 +60,10 @@ function KeyserverSelection(props: Props): React.Node {
           the communities on Comm.
         </Text>
       </RegistrationTile>
-      <RegistrationTile>
+      <RegistrationTile
+        selected={currentSelection === 'custom'}
+        onSelect={selectCustom}
+      >
         <RegistrationTileHeader>
           <Text style={styles.tileTitleText}>Enter a keyserver</Text>
         </RegistrationTileHeader>
