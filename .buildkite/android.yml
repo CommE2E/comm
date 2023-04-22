@@ -8,7 +8,7 @@ steps:
       - 'scripts/install_protobuf.sh'
       - 'yarn ci-cleaninstall'
       - 'cd native/android'
-      - './gradlew clean && ./gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxPermSize=32g -XX:+HeapDumpOnOutOfMemoryError"'
+      - './gradlew clean && ./gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxMetaspaceSize=8g"'
     retry:
       automatic: true
     plugins:
