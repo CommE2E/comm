@@ -27,6 +27,7 @@ function RegistrationContainer(props: Props): React.Node {
 const unboundStyles = {
   background: {
     backgroundColor: 'panelBackground',
+    padding: 16,
   },
 };
 
