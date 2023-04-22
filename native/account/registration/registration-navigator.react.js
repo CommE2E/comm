@@ -32,6 +32,9 @@ const screenOptions = {
   headerBackTitleVisible: false,
   headerTitle: '',
   headerTintColor: 'white',
+  headerLeftContainerStyle: {
+    paddingLeft: 12,
+  },
 };
 
 type Props = {
