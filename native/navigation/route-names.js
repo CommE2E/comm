@@ -22,6 +22,7 @@ import type { ThreadSettingsParams } from '../chat/settings/thread-settings.reac
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js';
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
+import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
 import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
@@ -78,6 +79,7 @@ export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const ThreadSettingsRouteName = 'ThreadSettings';
+export const TogglePinModalRouteName = 'TogglePinModal';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
 export const RegistrationRouteName = 'Registration';
@@ -97,6 +99,7 @@ export type RootParamList = {
   +SubchannelsListModal: SubchannelListModalParams,
   +MessageReactionsModal: MessageReactionsModalParams,
   +Registration: void,
+  +TogglePinModal: TogglePinModalParams,
 };
 
 export type MessageTooltipRouteNames =
@@ -118,6 +121,7 @@ export type OverlayParamList = {
   +ActionResultModal: ActionResultModalParams,
   +ChatCameraModal: ChatCameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
+  +TogglePinModal: TogglePinModalParams,
   ...TooltipModalParamList,
 };
 
