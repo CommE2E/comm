@@ -6,14 +6,14 @@ use std::str::FromStr;
 
 use crate::{
   client_service::client_proto::{
-    DeleteUserRequest, Empty, GenerateNonceResponse, KeyserverKeysRequest,
-    KeyserverKeysResponse, OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
+    DeleteUserRequest, Empty, GenerateNonceResponse, InboundKeysForUserRequest,
+    InboundKeysForUserResponse, KeyserverKeysRequest, KeyserverKeysResponse,
+    OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
     OpaqueLoginStartRequest, OpaqueLoginStartResponse,
-    ReceiverKeysForUserRequest, ReceiverKeysForUserResponse,
+    OutboundKeysForUserRequest, OutboundKeysForUserResponse,
     RefreshUserPreKeysRequest, RegistrationFinishRequest,
     RegistrationFinishResponse, RegistrationStartRequest,
-    RegistrationStartResponse, SenderKeysForUserRequest,
-    SenderKeysForUserResponse, UpdateUserPasswordFinishRequest,
+    RegistrationStartResponse, UpdateUserPasswordFinishRequest,
     UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
     UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
     VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
@@ -595,17 +595,17 @@ impl IdentityClientService for ClientService {
     }
   }
 
-  async fn get_receiver_keys_for_user(
+  async fn get_outbound_keys_for_user(
     &self,
-    _request: tonic::Request<ReceiverKeysForUserRequest>,
-  ) -> Result<tonic::Response<ReceiverKeysForUserResponse>, tonic::Status> {
+    _request: tonic::Request<OutboundKeysForUserRequest>,
+  ) -> Result<tonic::Response<OutboundKeysForUserResponse>, tonic::Status> {
     unimplemented!();
   }
 
-  async fn get_sender_keys_for_user(
+  async fn get_inbound_keys_for_user(
     &self,
-    _request: tonic::Request<SenderKeysForUserRequest>,
-  ) -> Result<tonic::Response<SenderKeysForUserResponse>, tonic::Status> {
+    _request: tonic::Request<InboundKeysForUserRequest>,
+  ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
     unimplemented!();
   }
 
