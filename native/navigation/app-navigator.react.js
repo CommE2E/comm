@@ -26,11 +26,13 @@ import {
   CommunityDrawerNavigatorRouteName,
   type ScreenParamList,
   type OverlayParamList,
+  TogglePinModalRouteName,
 } from './route-names.js';
 import MultimediaMessageTooltipModal from '../chat/multimedia-message-tooltip-modal.react.js';
 import RobotextMessageTooltipModal from '../chat/robotext-message-tooltip-modal.react.js';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react.js';
 import TextMessageTooltipModal from '../chat/text-message-tooltip-modal.react.js';
+import TogglePinModal from '../chat/toggle-pin-modal.react.js';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react.js';
 import ChatCameraModal from '../media/chat-camera-modal.react.js';
 import ImageModal from '../media/image-modal.react.js';
@@ -139,6 +141,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
           name={VideoPlaybackModalRouteName}
           component={VideoPlaybackModal}
         />
+        <App.Screen name={TogglePinModalRouteName} component={TogglePinModal} />
       </App.Navigator>
       {pushHandler}
     </KeyboardStateContainer>
