@@ -42,12 +42,12 @@ service IdentityClientService {
   //   - Identity keys
   //   - PreKey (including preKey signature)
   //   - One-time PreKey
-  rpc GetReceiverKeysForUser(ReceiverKeysForUserRequest) returns
-    (ReceiverKeysForUserResponse) {}
+  rpc GetOutboundKeysForUser(OutboundKeysForUserRequest) returns
+    (OutboundKeysForUserResponse) {}
   // Called by receivers of a communication request. The reponse will only
   // return identity and prekeys per device, but will not contain one-time keys.
-  rpc GetSenderKeysForUser(SenderKeysForUserRequest) returns
-    (SenderKeysForUserResponse) {}
+  rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
+    (InboundKeysForUserResponse) {}
   // Called by clients to get required keys for opening a connection
   // to a keyserver
   rpc GetKeyserverKeys(KeyserverKeysRequest) returns
@@ -230,10 +230,10 @@ message GenerateNonceResponse{
   string nonce = 1;
 }
 
-// GetReceiverKeysForUser
+// GetOutboundKeysForUser
 
 // Information needed when establishing communication to someone else's device
-message ReceiverKeyInfo {
+message OutboundKeyInfo {
   IdentityKeyInfo identityInfo = 1;
   PreKey identityPrekey = 2;
   PreKey notifPrekey = 3;
@@ -244,36 +244,36 @@ message ReceiverKeyInfo {
 // Information needed by a device to establish communcation when responding
 // to a request.
 // The device receiving a request only needs the identity and prekeys.
-message ReceiverKeysForUserRequest {
+message OutboundKeysForUserRequest {
   oneof identifier {
     string username = 1;
     string walletAddress = 2;
   }
 }
 
-message ReceiverKeysForUserResponse {
+message OutboundKeysForUserResponse {
   // Map is keyed on devices' public ed25519 key used for signing
-  map<string, ReceiverKeyInfo> devices = 1;
+  map<string, OutboundKeyInfo> devices = 1;
 }
 
-// GetSenderKeysForUser
+// GetInboundKeysForUser
 
-message SenderKeyInfo {
+message InboundKeyInfo {
   IdentityKeyInfo identityInfo = 1;
   PreKey identityPrekey = 2;
   PreKey notifPrekey = 3;
 }
 
-message SenderKeysForUserRequest {
+message InboundKeysForUserRequest {
   oneof identifier {
     string username = 1;
     string walletAddress = 2;
   }
 }
 
-message SenderKeysForUserResponse {
+message InboundKeysForUserResponse {
   // Map is keyed on devices' public ed25519 key used for signing
-  map<string, SenderKeyInfo> devices = 1;
+  map<string, InboundKeyInfo> devices = 1;
 }
 
 // GetKeyserverKeys
