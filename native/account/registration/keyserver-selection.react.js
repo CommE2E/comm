@@ -21,11 +21,22 @@ type Props = {
 };
 // eslint-disable-next-line no-unused-vars
 function KeyserverSelection(props: Props): React.Node {
+  const [customKeyserver, setCustomKeyserver] = React.useState('');
+  const customKeyserverTextInputRef = React.useRef();
+
   const [currentSelection, setCurrentSelection] = React.useState<?Selection>();
   const selectAshoat = React.useCallback(() => {
     setCurrentSelection('ashoat');
+    customKeyserverTextInputRef.current?.blur();
   }, []);
   const selectCustom = React.useCallback(() => {
+    setCurrentSelection('custom');
+    console.log(customKeyserver);
+    if (!customKeyserver) {
+      customKeyserverTextInputRef.current?.focus();
+    }
+  }, [customKeyserver]);
+  const onCustomKeyserverFocus = React.useCallback(() => {
     setCurrentSelection('custom');
   }, []);
 
@@ -68,9 +79,13 @@ function KeyserverSelection(props: Props): React.Node {
           <Text style={styles.tileTitleText}>Enter a keyserver</Text>
         </RegistrationTileHeader>
         <TextInput
+          value={customKeyserver}
+          onChangeText={setCustomKeyserver}
           style={styles.keyserverInput}
           placeholderTextColor={colors.panelSecondaryForegroundBorder}
           placeholder="Keyserver"
+          onFocus={onCustomKeyserverFocus}
+          ref={customKeyserverTextInputRef}
         />
       </RegistrationTile>
     </RegistrationContainer>
