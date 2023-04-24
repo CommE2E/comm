@@ -4,3 +4,11 @@ pub mod session;
 
 pub use keys::*;
 pub use session::*;
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+pub enum Messages {
+  RefreshKeysRequest(RefreshKeyRequest),
+  SessionRequest(SessionRequest),
+}
