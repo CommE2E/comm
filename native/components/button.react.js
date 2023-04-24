@@ -22,7 +22,7 @@ type DefaultProps = {
 };
 type Props = {
   ...DefaultProps,
-  +onPress: () => *,
+  +onPress: () => mixed,
   +disabled?: boolean,
   +style?: ViewStyle,
   // style and topStyle just get merged in most cases. The separation only
