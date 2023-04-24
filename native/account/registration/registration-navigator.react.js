@@ -9,6 +9,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import KeyserverSelection from './keyserver-selection.react.js';
+import KeyboardAvoidingView from '../../components/keyboard-avoiding-view.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
   KeyserverSelectionRouteName,
@@ -46,12 +47,17 @@ function RegistrationNavigator(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.view}>
-      <Registration.Navigator screenOptions={screenOptions}>
-        <Registration.Screen
-          name={KeyserverSelectionRouteName}
-          component={KeyserverSelection}
-        />
-      </Registration.Navigator>
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={styles.keyboardAvoidingView}
+      >
+        <Registration.Navigator screenOptions={screenOptions}>
+          <Registration.Screen
+            name={KeyserverSelectionRouteName}
+            component={KeyserverSelection}
+          />
+        </Registration.Navigator>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -60,6 +66,9 @@ const unboundStyles = {
   view: {
     flex: 1,
     backgroundColor: 'panelBackground',
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
 };
 
