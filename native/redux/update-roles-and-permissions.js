@@ -1,6 +1,10 @@
 // @flow
 
-import type { ThreadStoreThreadInfos } from 'lib/types/thread-types.js';
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
+import type {
+  RawThreadInfo,
+  ThreadStoreThreadInfos,
+} from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
 type ThreadTraversalNode = {
@@ -10,7 +14,7 @@ type ThreadTraversalNode = {
 
 function constructThreadTraversalNodes(
   threadStoreInfos: ThreadStoreThreadInfos,
-): $ReadOnlyArray<ThreadTraversalNode> {
+): $ReadOnlyArray<$ReadOnly<ThreadTraversalNode>> {
   const parentThreadMap = {};
 
   for (const threadInfo of values(threadStoreInfos)) {
@@ -32,8 +36,27 @@ function constructThreadTraversalNodes(
 function updateRolesAndPermissions(
   threadStoreInfos: ThreadStoreThreadInfos,
 ): ThreadStoreThreadInfos {
-  constructThreadTraversalNodes(threadStoreInfos);
-  return threadStoreInfos;
+  const updatedThreadStoreInfos = { ...threadStoreInfos };
+  const rootNodes = constructThreadTraversalNodes(updatedThreadStoreInfos);
+
+  const recursivelyUpdateRoles = (node: $ReadOnly<ThreadTraversalNode>) => {
+    const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
+    const computedRolePermissionBlobs = getRolePermissionBlobs(threadInfo.type);
+
+    const { roles } = threadInfo;
+    for (const roleID of Object.keys(roles)) {
+      roles[roleID] = {
+        ...roles[roleID],
+        permissions: computedRolePermissionBlobs[roles[roleID].name],
+      };
+    }
+
+    return node.children?.map(recursivelyUpdateRoles);
+  };
+
+  rootNodes.map(recursivelyUpdateRoles);
+
+  return updatedThreadStoreInfos;
 }
 
 export { updateRolesAndPermissions };
