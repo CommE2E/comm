@@ -99,16 +99,16 @@ const unboundStyles = {
   },
 };
 
-const loadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:color`,
-);
-
 const ConnectedThreadSettingsColor: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsColor(
     props: BaseProps,
   ) {
-    const loadingStatus = useSelector(loadingStatusSelector);
+    const loadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:${props.threadInfo.id}:color`,
+      )(state),
+    );
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     return (

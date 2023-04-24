@@ -1108,34 +1108,10 @@ const unboundStyles = {
   },
 };
 
-const editNameLoadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:name`,
-);
-const editColorLoadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:color`,
-);
-const editDescriptionLoadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:description`,
-);
-const leaveThreadLoadingStatusSelector = createLoadingStatusSelector(
-  leaveThreadActionTypes,
-);
-
-const somethingIsSaving = (
+const threadMembersChangeIsSaving = (
   state: AppState,
   threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 ) => {
-  if (
-    editNameLoadingStatusSelector(state) === 'loading' ||
-    editColorLoadingStatusSelector(state) === 'loading' ||
-    editDescriptionLoadingStatusSelector(state) === 'loading' ||
-    leaveThreadLoadingStatusSelector(state) === 'loading'
-  ) {
-    return true;
-  }
   for (const threadMember of threadMembers) {
     const removeUserLoadingStatus = createLoadingStatusSelector(
       removeUsersFromThreadActionTypes,
@@ -1207,9 +1183,41 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     const resolvedChildThreadInfos = useResolvedOptionalThreadInfos(
       boundChildThreadInfos,
     );
-    const boundSomethingIsSaving = useSelector(state =>
-      somethingIsSaving(state, threadMembers),
+
+    const editNameLoadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:${threadID}:name`,
+      )(state),
     );
+    const editColorLoadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:${threadID}:color`,
+      )(state),
+    );
+    const editDescriptionLoadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:${threadID}:description`,
+      )(state),
+    );
+    const leaveThreadLoadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        leaveThreadActionTypes,
+        `${leaveThreadActionTypes.started}:${threadID}`,
+      )(state),
+    );
+
+    const boundThreadMembersChangeIsSaving = useSelector(state =>
+      threadMembersChangeIsSaving(state, threadMembers),
+    );
+    const somethingIsSaving =
+      boundThreadMembersChangeIsSaving ||
+      editNameLoadingStatus === 'loading' ||
+      editColorLoadingStatus === 'loading' ||
+      editDescriptionLoadingStatus === 'loading' ||
+      leaveThreadLoadingStatus === 'loading';
 
     const { navigation } = props;
     React.useEffect(() => {
@@ -1217,14 +1225,14 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
       invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
 
       const onTabPress = () => {
-        if (navigation.isFocused() && !boundSomethingIsSaving) {
+        if (navigation.isFocused() && !somethingIsSaving) {
           navigation.popToTop();
         }
       };
 
       tabNavigation.addListener('tabPress', onTabPress);
       return () => tabNavigation.removeListener('tabPress', onTabPress);
-    }, [navigation, boundSomethingIsSaving]);
+    }, [navigation, somethingIsSaving]);
 
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useIndicatorStyle();
@@ -1241,7 +1249,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         threadInfo={resolvedThreadInfo}
         parentThreadInfo={resolvedParentThreadInfo}
         childThreadInfos={resolvedChildThreadInfos}
-        somethingIsSaving={boundSomethingIsSaving}
+        somethingIsSaving={somethingIsSaving}
         styles={styles}
         indicatorStyle={indicatorStyle}
         overlayContext={overlayContext}

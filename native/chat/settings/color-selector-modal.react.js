@@ -94,10 +94,18 @@ function ColorSelectorModal(props: Props): React.Node {
       dispatchActionPromise(
         changeThreadSettingsActionTypes,
         editColor(colorEditValue),
-        { customKeyName: `${changeThreadSettingsActionTypes.started}:color` },
+        {
+          customKeyName: `${changeThreadSettingsActionTypes.started}:${props.route.params.threadInfo.id}:color`,
+        },
       );
     },
-    [setColor, close, dispatchActionPromise, editColor],
+    [
+      setColor,
+      close,
+      dispatchActionPromise,
+      editColor,
+      props.route.params.threadInfo.id,
+    ],
   );
 
   const { colorSelectorContainer, closeButton, closeButtonIcon } = props.styles;
