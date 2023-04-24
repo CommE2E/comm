@@ -74,17 +74,6 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       this.props.descriptionEditValue !== null &&
       this.props.descriptionEditValue !== undefined
     ) {
-      let button;
-      if (this.props.loadingStatus !== 'loading') {
-        button = <SaveSettingButton onPress={this.onSubmit} />;
-      } else {
-        button = (
-          <ActivityIndicator
-            size="small"
-            color={this.props.colors.panelForegroundSecondaryLabel}
-          />
-        );
-      }
       const textInputStyle = {};
       if (
         this.props.descriptionTextHeight !== undefined &&
@@ -109,7 +98,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
               ref={this.textInputRef}
               selectionColor={`#${this.props.threadInfo.color}`}
             />
-            {button}
+            {this.renderButton()}
           </View>
           <ThreadSettingsCategoryFooter type="full" />
         </View>
@@ -124,11 +113,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
             <Text style={this.props.styles.text} onLayout={this.onLayoutText}>
               {this.props.threadInfo.description}
             </Text>
-            <EditSettingButton
-              onPress={this.onPressEdit}
-              canChangeSettings={this.props.canChangeSettings}
-              key="editButton"
-            />
+            {this.renderButton()}
           </View>
           <ThreadSettingsCategoryFooter type="full" />
         </View>
@@ -168,6 +153,28 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     }
 
     return null;
+  }
+
+  renderButton() {
+    if (this.props.loadingStatus === 'loading') {
+      return (
+        <ActivityIndicator
+          size="small"
+          color={this.props.colors.panelForegroundSecondaryLabel}
+        />
+      );
+    } else if (
+      this.props.descriptionEditValue === null ||
+      this.props.descriptionEditValue === undefined
+    ) {
+      return (
+        <EditSettingButton
+          onPress={this.onPressEdit}
+          canChangeSettings={this.props.canChangeSettings}
+        />
+      );
+    }
+    return <SaveSettingButton onPress={this.onSubmit} />;
   }
 
   textInputRef = (textInput: ?React.ElementRef<typeof BaseTextInput>) => {
