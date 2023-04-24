@@ -55,9 +55,11 @@ import {
 import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import { getVisibility } from './visibility.js';
+import { databaseModule } from '../database/database-module-provider.js';
 import { filterThreadIDsBelongingToCommunity } from '../selectors/calendar-selectors.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
 import { type NavInfo } from '../types/nav-types.js';
+import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 export type WindowDimensions = { width: number, height: number };
 
@@ -204,7 +206,24 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     action.type !== setPickledPrimaryAccount &&
     action.type !== setPickledNotificationAccount
   ) {
-    state = baseReducer(state, action).state;
+    const baseReducerResult = baseReducer(state, action);
+    state = baseReducerResult.state;
+
+    const {
+      storeOperations: { draftStoreOperations },
+    } = baseReducerResult;
+    if (draftStoreOperations.length) {
+      (async () => {
+        const isSupported = await databaseModule.isDatabaseSupported();
+        if (!isSupported) {
+          return;
+        }
+        await databaseModule.schedule({
+          type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+          storeOperations: { draftStoreOperations },
+        });
+      })();
+    }
   }
 
   state = {
