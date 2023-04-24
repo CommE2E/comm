@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, TextInput } from 'react-native';
 
+import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
@@ -39,6 +40,8 @@ function KeyserverSelection(props: Props): React.Node {
   const onCustomKeyserverFocus = React.useCallback(() => {
     setCurrentSelection('custom');
   }, []);
+
+  const onSubmit = React.useCallback(() => {}, []);
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
@@ -88,6 +91,7 @@ function KeyserverSelection(props: Props): React.Node {
           ref={customKeyserverTextInputRef}
         />
       </RegistrationTile>
+      <RegistrationButton onPress={onSubmit} label="Next" />
     </RegistrationContainer>
   );
 }
