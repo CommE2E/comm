@@ -41,7 +41,11 @@ async function getCacheSize() {
 }
 
 async function hasURI(uri: string): Promise<boolean> {
-  return await fs.exists(pathFromURI(uri));
+  const path = pathFromURI(uri);
+  if (!path) {
+    return false;
+  }
+  return await fs.exists(path);
 }
 
 async function getCachedFile(holder: string) {
@@ -57,7 +61,12 @@ async function getCachedFile(holder: string) {
 }
 
 async function clearCache() {
-  await fs.unlink(cacheDirectory);
+  const cacheDirExists = await fs.exists(cacheDirectory);
+  if (cacheDirExists) {
+    await fs.unlink(cacheDirectory);
+  }
+  // recreate empty directory
+  await ensureCacheDirectory();
 }
 
 const dataURLRegex = /^data:([^;]+);base64,([a-zA-Z0-9+/]+={0,2})$/;
