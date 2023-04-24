@@ -2,31 +2,41 @@
 
 import { useHeaderHeight } from '@react-navigation/elements';
 import * as React from 'react';
-import { View } from 'react-native';
+import { ScrollView } from 'react-native';
 
+import KeyboardAvoidingView from '../../components/keyboard-avoiding-view.react.js';
 import { useStyles } from '../../themes/colors.js';
 
 type Props = {
   +children: React.Node,
 };
 function RegistrationContainer(props: Props): React.Node {
-  const styles = useStyles(unboundStyles);
-
   const headerHeight = useHeaderHeight();
   const backgroundStyle = React.useMemo(
     () => ({
-      ...styles.background,
       marginTop: headerHeight,
     }),
-    [headerHeight, styles.background],
+    [headerHeight],
   );
 
-  return <View style={backgroundStyle}>{props.children}</View>;
+  const styles = useStyles(unboundStyles);
+  return (
+    <KeyboardAvoidingView behavior="padding" style={styles.fill}>
+      <ScrollView
+        contentContainerStyle={styles.scrollViewContentContainer}
+        style={backgroundStyle}
+      >
+        {props.children}
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
 }
 
 const unboundStyles = {
-  background: {
-    backgroundColor: 'panelBackground',
+  fill: {
+    flex: 1,
+  },
+  scrollViewContentContainer: {
     padding: 16,
   },
 };
