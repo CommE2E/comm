@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
 import { createStore, applyMiddleware, type Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction.js';
-import { createMigrate, persistReducer, persistStore } from 'redux-persist';
+import { persistReducer, persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/es/integration/react.js';
 import storage from 'redux-persist/es/storage/index.js';
 import thunk from 'redux-thunk';
@@ -17,13 +17,14 @@ import App from './app.react.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import ErrorBoundary from './error-boundary.react.js';
 import Loading from './loading.react.js';
+import { createAsyncMigrate } from './redux/create-async-migrate.js';
 import { reducer } from './redux/redux-setup.js';
 import type { AppState, Action } from './redux/redux-setup.js';
 import history from './router-history.js';
 import Socket from './socket.react.js';
 
 const migrations = {
-  [1]: state => {
+  [1]: async state => {
     const {
       primaryIdentityPublicKey,
       ...stateWithoutPrimaryIdentityPublicKey
@@ -50,7 +51,7 @@ const persistConfig = {
     'notifPermissionAlertInfo',
     'commServicesAccessToken',
   ],
-  migrate: (createMigrate(migrations, { debug: isDev }): any),
+  migrate: (createAsyncMigrate(migrations, { debug: isDev }): any),
   version: 1,
 };
 
