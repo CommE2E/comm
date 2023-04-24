@@ -18,7 +18,10 @@ import {
   calendarQueryUpdateResponder,
 } from './responders/entry-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
-import { getSessionPublicKeysResponder } from './responders/keys-responders.js';
+import {
+  getSessionPublicKeysResponder,
+  getOlmSessionInitializationDataResponder,
+} from './responders/keys-responders.js';
 import { messageReportCreationResponder } from './responders/message-report-responder.js';
 import {
   textMessageCreationResponder,
@@ -261,6 +264,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   update_user_avatar: {
     responder: updateUserAvatarResponder,
     requiredPolicies: baseLegalPolicies,
+  },
+  get_olm_session_initialization_data: {
+    responder: getOlmSessionInitializationDataResponder,
+    requiredPolicies: [],
   },
 };
 
