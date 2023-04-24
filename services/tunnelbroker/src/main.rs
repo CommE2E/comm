@@ -1,8 +1,16 @@
 pub mod constants;
 pub mod grpc;
 pub mod websockets;
+use dashmap::DashMap;
+use once_cell::sync::Lazy;
 use std::io::{self, Error, ErrorKind};
+use tokio::sync::mpsc::UnboundedSender;
 use tracing;
+use tunnelbroker_messages::Messages;
+
+pub static ACTIVE_CONNECTIONS: Lazy<
+  DashMap<String, UnboundedSender<Messages>>,
+> = Lazy::new(DashMap::new);
 
 #[tokio::main]
 async fn main() -> Result<(), io::Error> {
