@@ -67,6 +67,28 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     );
   }
 
+  renderButton() {
+    if (this.props.loadingStatus === 'loading') {
+      return (
+        <ActivityIndicator
+          size="small"
+          color={this.props.colors.panelForegroundSecondaryLabel}
+        />
+      );
+    } else if (
+      this.props.nameEditValue === null ||
+      this.props.nameEditValue === undefined
+    ) {
+      return (
+        <EditSettingButton
+          onPress={this.onPressEdit}
+          canChangeSettings={this.props.canChangeSettings}
+        />
+      );
+    }
+    return <SaveSettingButton onPress={this.onSubmit} />;
+  }
+
   renderContent() {
     if (
       this.props.nameEditValue === null ||
@@ -77,23 +99,8 @@ class ThreadSettingsName extends React.PureComponent<Props> {
           <SingleLine style={this.props.styles.currentValue}>
             {this.props.threadInfo.uiName}
           </SingleLine>
-          <EditSettingButton
-            onPress={this.onPressEdit}
-            canChangeSettings={this.props.canChangeSettings}
-          />
+          {this.renderButton()}
         </React.Fragment>
-      );
-    }
-
-    let button;
-    if (this.props.loadingStatus !== 'loading') {
-      button = <SaveSettingButton onPress={this.onSubmit} />;
-    } else {
-      button = (
-        <ActivityIndicator
-          size="small"
-          color={this.props.colors.panelForegroundSecondaryLabel}
-        />
       );
     }
 
@@ -111,7 +118,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
           selectionColor={`#${this.props.threadInfo.color}`}
           maxLength={chatNameMaxLength}
         />
-        {button}
+        {this.renderButton()}
       </React.Fragment>
     );
   }
