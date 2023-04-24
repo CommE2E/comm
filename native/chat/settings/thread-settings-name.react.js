@@ -151,10 +151,15 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     }
 
     const editNamePromise = this.editName(name);
+    const action = changeThreadSettingsActionTypes.started;
+    const threadID = this.props.threadInfo.id;
+
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
       editNamePromise,
-      { customKeyName: `${changeThreadSettingsActionTypes.started}:name` },
+      {
+        customKeyName: `${action}:${threadID}:name`,
+      },
     );
     editNamePromise.then(() => {
       this.props.setNameEditValue(null);
@@ -211,16 +216,18 @@ const unboundStyles = {
   },
 };
 
-const loadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:name`,
-);
-
 const ConnectedThreadSettingsName: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsName(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const colors = useColors();
-    const loadingStatus = useSelector(loadingStatusSelector);
+
+    const threadID = props.threadInfo.id;
+    const loadingStatus = useSelector(
+      createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:${threadID}:name`,
+      ),
+    );
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callChangeThreadSettings = useServerCall(changeThreadSettings);

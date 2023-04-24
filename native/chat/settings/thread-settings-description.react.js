@@ -207,11 +207,14 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     }
 
     const editDescriptionPromise = this.editDescription(description);
+    const action = changeThreadSettingsActionTypes.started;
+    const threadID = this.props.threadInfo.id;
+
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
       editDescriptionPromise,
       {
-        customKeyName: `${changeThreadSettingsActionTypes.started}:description`,
+        customKeyName: `${action}:${threadID}:description`,
       },
     );
     editDescriptionPromise.then(() => {
@@ -289,16 +292,17 @@ const unboundStyles = {
   },
 };
 
-const loadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:description`,
-);
-
 const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsDescription(
     props: BaseProps,
   ) {
-    const loadingStatus = useSelector(loadingStatusSelector);
+    const threadID = props.threadInfo.id;
+    const loadingStatus = useSelector(
+      createLoadingStatusSelector(
+        changeThreadSettingsActionTypes,
+        `${changeThreadSettingsActionTypes.started}:${threadID}:description`,
+      ),
+    );
     const colors = useColors();
     const styles = useStyles(unboundStyles);
 

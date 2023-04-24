@@ -93,9 +93,13 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   };
 
   onConfirmLeaveThread = () => {
+    const threadID = this.props.threadInfo.id;
     this.props.dispatchActionPromise(
       leaveThreadActionTypes,
       this.leaveThread(),
+      {
+        customKeyName: `${leaveThreadActionTypes.started}:${threadID}`,
+      },
     );
   };
 
@@ -143,15 +147,17 @@ const unboundStyles = {
   },
 };
 
-const loadingStatusSelector = createLoadingStatusSelector(
-  leaveThreadActionTypes,
-);
-
 const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsLeaveThread(
     props: BaseProps,
   ) {
-    const loadingStatus = useSelector(loadingStatusSelector);
+    const threadID = props.threadInfo.id;
+    const loadingStatus = useSelector(
+      createLoadingStatusSelector(
+        leaveThreadActionTypes,
+        `${leaveThreadActionTypes.started}:${threadID}`,
+      ),
+    );
     const otherUsersButNoOtherAdminsValue = useSelector(
       otherUsersButNoOtherAdmins(props.threadInfo.id),
     );
