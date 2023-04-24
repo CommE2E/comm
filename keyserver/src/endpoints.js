@@ -18,7 +18,10 @@ import {
   calendarQueryUpdateResponder,
 } from './responders/entry-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
-import { getSessionPublicKeysResponder } from './responders/keys-responders.js';
+import {
+  getSessionPublicKeysResponder,
+  getOlmSessionInitializationDataResponder,
+} from './responders/keys-responders.js';
 import {
   fetchPrimaryInviteLinksResponder,
   inviteLinkVerificationResponder,
@@ -287,6 +290,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   upload_media_metadata: {
     responder: uploadMediaMetadataResponder,
     requiredPolicies: baseLegalPolicies,
+  },
+  get_olm_session_initialization_data: {
+    responder: getOlmSessionInitializationDataResponder,
+    requiredPolicies: [],
   },
 };
 
