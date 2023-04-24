@@ -3,10 +3,10 @@
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import type { ThreadType } from 'lib/types/thread-types.js';
 
 import createIDs from '../creators/id-creator.js';
-import { getRolePermissionBlobs } from '../creators/role-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchRoles } from '../fetchers/role-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
@@ -49,7 +49,9 @@ async function updateRoles(
     const setAdminQuery = SQL`
       UPDATE memberships
       SET role = ${id}
-      WHERE thread = ${threadID} AND user = ${viewer.userID} AND role > 0
+      WHERE thread = ${threadID}
+        AND user = ${viewer.userID}
+        AND role > 0
     `;
     promises.push(dbQuery(setAdminQuery));
   } else if (!rolePermissions.Admins && currentRolePermissions.Admins) {
@@ -59,13 +61,17 @@ async function updateRoles(
     );
     const id = currentRoleIDs.Admins;
     const deleteQuery = SQL`
-      DELETE r, i FROM roles r LEFT JOIN ids i ON i.id = r.id WHERE r.id = ${id}
+      DELETE r, i
+      FROM roles r
+      LEFT JOIN ids i ON i.id = r.id
+      WHERE r.id = ${id}
     `;
     promises.push(dbQuery(deleteQuery));
     const updateMembershipsQuery = SQL`
       UPDATE memberships
       SET role = ${currentRoleIDs.Members}
-      WHERE thread = ${threadID} AND role > 0
+      WHERE thread = ${threadID}
+        AND role > 0
     `;
     promises.push(dbQuery(updateMembershipsQuery));
   }

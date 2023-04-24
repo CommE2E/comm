@@ -4,6 +4,7 @@ import invariant from 'invariant';
 
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import {
   generatePendingThreadColor,
   generateRandomColor,
@@ -27,10 +28,7 @@ import { firstLine } from 'lib/utils/string-utils.js';
 
 import createIDs from './id-creator.js';
 import createMessages from './message-creator.js';
-import {
-  createInitialRolesForNewThread,
-  getRolePermissionBlobs,
-} from './role-creator.js';
+import { createInitialRolesForNewThread } from './role-creator.js';
 import type { UpdatesForCurrentSession } from './update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import {
