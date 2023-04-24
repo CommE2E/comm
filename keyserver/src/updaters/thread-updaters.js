@@ -1,5 +1,6 @@
 // @flow
 
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
 import { getPinnedContentFromMessage } from 'lib/shared/message-utils.js';
 import {
@@ -41,7 +42,6 @@ import {
   commitMembershipChangeset,
 } from './thread-permission-updaters.js';
 import createMessages from '../creators/message-creator.js';
-import { getRolePermissionBlobs } from '../creators/role-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
@@ -93,7 +93,8 @@ async function updateRole(
   const query = SQL`
     SELECT user, role
     FROM memberships
-    WHERE user IN (${memberIDs}) AND thread = ${request.threadID}
+    WHERE user IN (${memberIDs})
+      AND thread = ${request.threadID}
   `;
   const [result] = await dbQuery(query);
 
@@ -168,7 +169,8 @@ async function removeMembers(
     SELECT m.user, m.role, t.default_role
     FROM memberships m
     LEFT JOIN threads t ON t.id = m.thread
-    WHERE m.user IN (${memberIDs}) AND m.thread = ${request.threadID}
+    WHERE m.user IN (${memberIDs})
+      AND m.thread = ${request.threadID}
   `;
   const [result] = await dbQuery(query);
 
@@ -951,8 +953,10 @@ async function toggleMessagePinForThread(
 
   const togglePinQuery = SQL`
     UPDATE messages
-    SET pinned = ${pinnedValue}, pin_time = ${pinTimeValue}
-    WHERE id = ${messageID} AND thread = ${threadID}
+    SET pinned   = ${pinnedValue},
+        pin_time = ${pinTimeValue}
+    WHERE id = ${messageID}
+      AND thread = ${threadID}
   `;
 
   const messageData = {
