@@ -885,6 +885,37 @@ async function fetchRelatedMessages(
   return SQLResult.map(item => item.rawMessageInfo);
 }
 
+async function rawMessageInfoForRowsAndRelatedMessages(
+  rows: $ReadOnlyArray<Object>,
+  viewer?: Viewer,
+): Promise<$ReadOnlyArray<RawMessageInfo>> {
+  const parsedResults = await parseMessageSQLResult(rows, new Map(), viewer);
+  const rawMessageInfoMap = new Map<
+    string,
+    RawComposableMessageInfo | RawRobotextMessageInfo,
+  >();
+  for (const message of parsedResults) {
+    const { rawMessageInfo } = message;
+    if (
+      rawMessageInfo.type === messageTypes.SIDEBAR_SOURCE ||
+      rawMessageInfo.type === messageTypes.REACTION ||
+      rawMessageInfo.type === messageTypes.EDIT_MESSAGE
+    ) {
+      continue;
+    }
+    invariant(rawMessageInfo.id, 'rawMessageInfo.id should not be null');
+    rawMessageInfoMap.set(rawMessageInfo.id, rawMessageInfo);
+  }
+
+  const rawMessageInfos = parsedResults.map(item => item.rawMessageInfo);
+  const rawRelatedMessageInfos = await fetchRelatedMessages(
+    viewer,
+    rawMessageInfoMap,
+  );
+
+  return [...rawMessageInfos, ...rawRelatedMessageInfos];
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -897,4 +928,5 @@ export {
   fetchLatestEditMessageContentByID,
   fetchPinnedMessageInfos,
   fetchRelatedMessages,
+  rawMessageInfoForRowsAndRelatedMessages,
 };
