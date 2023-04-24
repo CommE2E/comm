@@ -134,9 +134,20 @@ async function processMessagesInDBForSearch(): Promise<void> {
   }
 }
 
+const whiteSpaceRegex = /[\s]+/g;
+
+function processQueryForSearch(query: string): string {
+  if (query === '') {
+    return '';
+  }
+  const stemmedQuery = segmentAndStem(query);
+  return '+' + stemmedQuery.replace(whiteSpaceRegex, ' +');
+}
+
 export {
   processMessagesForSearch,
   processMessagesInDBForSearch,
   segmentAndStem,
   stopwords,
+  processQueryForSearch,
 };
