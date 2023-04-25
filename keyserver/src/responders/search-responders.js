@@ -1,11 +1,12 @@
 // @flow
 
-import t from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 
 import type {
   UserSearchRequest,
   UserSearchResult,
 } from 'lib/types/search-types.js';
+import { globalAccountUserInfoValidator } from 'lib/types/user-types.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
 import { searchForUsers } from '../search/users.js';
@@ -15,6 +16,11 @@ import { validateInput } from '../utils/validation-utils.js';
 const userSearchRequestInputValidator = tShape({
   prefix: t.maybe(t.String),
 });
+
+export const userSearchResultValidator: TInterface<UserSearchResult> =
+  tShape<UserSearchResult>({
+    userInfos: t.list(globalAccountUserInfoValidator),
+  });
 
 async function userSearchResponder(
   viewer: Viewer,
