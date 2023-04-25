@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
@@ -8,11 +9,11 @@ import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
 import {
   useENSUserAvatar,
-  useRemoveUserAvatar,
   useSelectFromGalleryAndUpdateUserAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
+import { EditUserAvatarContext } from './edit-user-avatar-provider.react.js';
 import UserAvatar from './user-avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
@@ -26,6 +27,10 @@ function EditUserAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { userID, onPressEmojiAvatarFlow, disabled } = props;
 
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
+  const { userAvatarSaveInProgress, removeUserAvatar } = editUserAvatarContext;
+
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const ethAddress = React.useMemo(
     () => getETHAddressForUserInfo(currentUserInfo),
@@ -37,12 +42,11 @@ function EditUserAvatar(props: Props): React.Node {
     useSelectFromGalleryAndUpdateUserAvatar();
 
   const [saveENSUserAvatar, isENSAvatarUpdateLoading] = useENSUserAvatar();
-  const [removeUserAvatar, isRemoveAvatarUpdateLoading] = useRemoveUserAvatar();
 
   const isAvatarUpdateInProgress =
     isGalleryAvatarUpdateLoading ||
-    isRemoveAvatarUpdateLoading ||
-    isENSAvatarUpdateLoading;
+    isENSAvatarUpdateLoading ||
+    userAvatarSaveInProgress;
 
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
