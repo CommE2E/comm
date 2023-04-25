@@ -19,6 +19,7 @@ import Markdown from '../markdown/markdown.react.js';
 type Props = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
+  +shouldDisplayPinIndicator: boolean,
 };
 function TextMessage(props: Props): React.Node {
   invariant(
@@ -55,6 +56,7 @@ function TextMessage(props: Props): React.Node {
     <ComposedMessage
       item={props.item}
       threadInfo={props.threadInfo}
+      shouldDisplayPinIndicator={props.shouldDisplayPinIndicator}
       sendFailed={textMessageSendFailed(props.item)}
     >
       <div className={messageClassName} style={messageStyle}>

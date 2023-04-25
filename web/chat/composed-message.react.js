@@ -17,6 +17,7 @@ import { type ThreadInfo } from 'lib/types/thread-types.js';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
+import CommIcon from '../CommIcon.react.js';
 import UserAvatar from '../components/user-avatar.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { shouldRenderAvatars } from '../utils/avatar-utils.js';
@@ -47,6 +48,7 @@ const availableTooltipPositionsForNonViewerMessage = [
 type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
+  +shouldDisplayPinIndicator: boolean,
   +sendFailed: boolean,
   +children: React.Node,
   +fixedWidth?: boolean,
@@ -69,8 +71,9 @@ class ComposedMessage extends React.PureComponent<Props> {
 
   render(): React.Node {
     assertComposableMessageType(this.props.item.messageInfo.type);
-    const { borderRadius, item, threadInfo } = this.props;
-    const { hasBeenEdited } = item;
+    const { borderRadius, item, threadInfo, shouldDisplayPinIndicator } =
+      this.props;
+    const { hasBeenEdited, isPinned } = item;
     const { id, creator } = item.messageInfo;
     const threadColor = threadInfo.color;
 
@@ -163,6 +166,25 @@ class ComposedMessage extends React.PureComponent<Props> {
       avatar = <div className={css.avatarOffset} />;
     }
 
+    const pinIconPositioning = isViewer ? 'left' : 'right';
+    const pinIconName = pinIconPositioning === 'left' ? 'pin-mirror' : 'pin';
+    const pinIconContainerClassName = classNames({
+      [css.pinIconContainer]: true,
+      [css.pinIconLeft]: pinIconPositioning === 'left',
+      [css.pinIconRight]: pinIconPositioning === 'right',
+    });
+    let pinIcon;
+    if (isPinned && shouldDisplayPinIndicator) {
+      pinIcon = (
+        <div
+          className={pinIconContainerClassName}
+          style={{ color: `#${threadColor}` }}
+        >
+          <CommIcon icon={pinIconName} size={12} />
+        </div>
+      );
+    }
+
     return (
       <React.Fragment>
         {authorName}
@@ -173,6 +195,7 @@ class ComposedMessage extends React.PureComponent<Props> {
             onMouseEnter={this.props.onMouseEnter}
             onMouseLeave={this.props.onMouseLeave}
           >
+            {pinIcon}
             <div className={messageBoxClassName} style={messageBoxStyle}>
               {this.props.children}
             </div>
