@@ -134,9 +134,23 @@ async function processMessagesInDBForSearch(): Promise<void> {
   }
 }
 
+const spaceRegex = /[ ]/g;
+
+function processQueryForSearch(query: string): string {
+  if (query === '') {
+    return '';
+  }
+  const stemmedQuery = segmentAndStem(query);
+  return stemmedQuery
+    .split(spaceRegex)
+    .map(segment => `+${segment}`)
+    .join(' ');
+}
+
 export {
   processMessagesForSearch,
   processMessagesInDBForSearch,
   segmentAndStem,
   stopwords,
+  processQueryForSearch,
 };

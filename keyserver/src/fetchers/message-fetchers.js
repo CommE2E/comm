@@ -25,6 +25,7 @@ import {
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
 } from 'lib/types/message-types.js';
+import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -38,6 +39,7 @@ import {
   mergeOrConditions,
   mergeAndConditions,
 } from '../database/database.js';
+import { processQueryForSearch } from '../database/search-utils.js';
 import type { SQLStatementType } from '../database/types.js';
 import type { PushInfo } from '../push/send.js';
 import type { Viewer } from '../session/viewer.js';
@@ -916,6 +918,58 @@ async function rawMessageInfoForRowsAndRelatedMessages(
   return [...rawMessageInfos, ...rawRelatedMessageInfos];
 }
 
+async function searchMessagesInSingleChat(
+  inputQuery: string,
+  threadID: string,
+  viewer?: Viewer,
+  cursor?: string,
+): Promise<$ReadOnlyArray<RawMessageInfo>> {
+  if (inputQuery === '') {
+    console.warn('received empty search query');
+    return [];
+  }
+  const pattern = processQueryForSearch(inputQuery);
+
+  const query = SQL`
+    SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
+    m.user AS creatorID, m.target_message as targetMessageID,
+    stm.permissions AS subthread_permissions, up.id AS uploadID,
+    up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
+    FROM message_search s
+    LEFT JOIN messages m ON m.id = s.original_message_id
+    LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+      AND stm.thread = m.content AND stm.user = m.user
+    LEFT JOIN uploads up ON up.container = m.id
+    LEFT JOIN messages m2 ON m2.target_message = m.id 
+      AND m2.type = ${messageTypes.SIDEBAR_SOURCE} AND m2.thread = ${threadID}
+    WHERE MATCH(s.processed_content) AGAINST(${pattern} IN BOOLEAN MODE)
+      AND (m.thread = ${threadID} OR m2.id IS NOT NULL)
+  `;
+
+  if (cursor) {
+    query.append(SQL`AND m.id < ${cursor} `);
+  }
+  query.append(SQL`   
+    ORDER BY m.time DESC, m.id DESC
+    LIMIT ${defaultNumberPerThread}
+  `);
+
+  const [results] = await dbQuery(query);
+  if (results.length === 0) {
+    return [];
+  }
+
+  const rawMessageInfos = await rawMessageInfoForRowsAndRelatedMessages(
+    results,
+    viewer,
+  );
+
+  return shimUnsupportedRawMessageInfos(
+    rawMessageInfos,
+    viewer?.platformDetails,
+  );
+}
+
 export {
   fetchCollapsableNotifs,
   fetchMessageInfos,
@@ -929,4 +983,5 @@ export {
   fetchPinnedMessageInfos,
   fetchRelatedMessages,
   rawMessageInfoForRowsAndRelatedMessages,
+  searchMessagesInSingleChat,
 };
