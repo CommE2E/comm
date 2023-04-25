@@ -21,12 +21,16 @@ static jsi::Value __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_readBufferFromF
 static jsi::Value __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_base64EncodeBuffer(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommUtilsModuleSchemaCxxSpecJSI *>(&turboModule)->base64EncodeBuffer(rt, args[0].asObject(rt));
 }
+static jsi::Value __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_sha256(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommUtilsModuleSchemaCxxSpecJSI *>(&turboModule)->sha256(rt, args[0].asObject(rt));
+}
 
 CommUtilsModuleSchemaCxxSpecJSI::CommUtilsModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommUtilsTurboModule", jsInvoker) {
   methodMap_["writeBufferToFile"] = MethodMetadata {2, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_writeBufferToFile};
   methodMap_["readBufferFromFile"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_readBufferFromFile};
   methodMap_["base64EncodeBuffer"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_base64EncodeBuffer};
+  methodMap_["sha256"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_sha256};
 }
 
 
