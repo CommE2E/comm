@@ -8,6 +8,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { EncryptedMediaType, MediaType } from 'lib/types/media-types.js';
 
 import EncryptedMultimedia from './encrypted-multimedia.react.js';
+import { fetchableMediaURI } from './media-utils.js';
 import css from './media.css';
 
 type MediaInfo =
@@ -42,11 +43,13 @@ class MultimediaModal extends React.PureComponent<Props> {
     let mediaModalItem;
     const { media } = this.props;
     if (media.type === 'photo') {
-      mediaModalItem = <img src={media.uri} />;
+      const uri = fetchableMediaURI(media.uri);
+      mediaModalItem = <img src={uri} />;
     } else if (media.type === 'video') {
+      const uri = fetchableMediaURI(media.uri);
       mediaModalItem = (
         <video controls>
-          <source src={media.uri} />
+          <source src={uri} />
         </video>
       );
     } else {
