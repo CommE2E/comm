@@ -532,6 +532,7 @@ const migrations = {
   },
   [38]: state =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
+  [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -612,7 +613,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 38,
+  version: 39,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
