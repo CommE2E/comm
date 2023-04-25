@@ -1,9 +1,16 @@
 // @flow
 
-import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
+import {
+  getAllThreadPermissions,
+  getRolePermissionBlobs,
+  makePermissionsBlob,
+  makePermissionsForChildrenBlob,
+} from 'lib/permissions/thread-permissions.js';
 import type {
   RawThreadInfo,
+  ThreadPermissionsBlob,
   ThreadStoreThreadInfos,
+  MemberInfo,
 } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -33,6 +40,10 @@ function constructThreadTraversalNodes(
   return parentThreadMap['root'].map(constructNodes);
 }
 
+type MemberToThreadPermissionsFromParent = {
+  +[member: string]: ?ThreadPermissionsBlob,
+};
+
 function updateRolesAndPermissions(
   threadStoreInfos: ThreadStoreThreadInfos,
 ): ThreadStoreThreadInfos {
@@ -59,6 +70,51 @@ function updateRolesAndPermissions(
   };
 
   rootNodes.forEach(recursivelyUpdateRoles);
+
+  const recursivelyUpdatePermissions = (
+    node: $ReadOnly<ThreadTraversalNode>,
+    memberToThreadPermissionsFromParent: ?MemberToThreadPermissionsFromParent,
+  ) => {
+    const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
+
+    const updatedMembers = [];
+    const memberToThreadPermissionsForChildren = {};
+    for (const member: MemberInfo of threadInfo.members) {
+      const { id, role } = member;
+
+      const rolePermissions = role ? threadInfo.roles[role].permissions : null;
+      const permissionsFromParent = memberToThreadPermissionsFromParent?.[id];
+
+      const computedPermissions = makePermissionsBlob(
+        rolePermissions,
+        permissionsFromParent,
+        threadInfo.id,
+        threadInfo.type,
+      );
+
+      updatedMembers.push({
+        ...member,
+        permissions: getAllThreadPermissions(
+          computedPermissions,
+          threadInfo.id,
+        ),
+      });
+
+      memberToThreadPermissionsForChildren[member.id] =
+        makePermissionsForChildrenBlob(computedPermissions);
+    }
+
+    updatedThreadStoreInfos[node.threadID] = {
+      ...threadInfo,
+      members: updatedMembers,
+    };
+
+    return node.children?.map(child =>
+      recursivelyUpdatePermissions(child, memberToThreadPermissionsForChildren),
+    );
+  };
+
+  rootNodes.forEach(node => recursivelyUpdatePermissions(node, null));
 
   return updatedThreadStoreInfos;
 }
