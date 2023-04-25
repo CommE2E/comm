@@ -6,6 +6,7 @@ import type {
   RawThreadInfo,
   ThreadStoreThreadInfos,
 } from 'lib/types/thread-types.js';
+import { values } from 'lib/utils/objects.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -37,9 +38,9 @@ function updateClientDBThreadStoreThreadInfos(
     migrationFunc(threadIDToThreadInfo);
 
   // 5. Convert the updated `threadInfo`s back into an array.
-  const updatedRawThreadInfos: $ReadOnlyArray<RawThreadInfo> = Object.keys(
+  const updatedRawThreadInfos: $ReadOnlyArray<RawThreadInfo> = values(
     updatedThreadIDToThreadInfo,
-  ).map(id => updatedThreadIDToThreadInfo[id]);
+  );
 
   // 6. Translate `RawThreadInfo`s to `ClientDBThreadInfo`s.
   const convertedClientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo> =
