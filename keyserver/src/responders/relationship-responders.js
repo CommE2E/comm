@@ -1,6 +1,6 @@
 // @flow
 
-import t from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 
 import {
   type RelationshipRequest,
@@ -17,6 +17,13 @@ const updateRelationshipInputValidator = tShape({
   action: t.enums.of(relationshipActionsList, 'relationship action'),
   userIDs: t.list(t.String),
 });
+
+export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
+  tShape<RelationshipErrors>({
+    invalid_user: t.maybe(t.list(t.String)),
+    already_friends: t.maybe(t.list(t.String)),
+    user_blocked: t.maybe(t.list(t.String)),
+  });
 
 async function updateRelationshipsResponder(
   viewer: Viewer,
