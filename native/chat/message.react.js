@@ -20,6 +20,7 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { type VerticalBounds } from '../types/layout-types.js';
@@ -28,8 +29,10 @@ import type { LayoutEvent } from '../types/react-native.js';
 type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,
   +focused: boolean,
-  +navigation: ChatNavigationProp<'MessageList'>,
-  +route: NavigationRoute<'MessageList'>,
+  +navigation:
+    | ChatNavigationProp<'MessageList'>
+    | AppNavigationProp<'TogglePinModal'>,
+  +route: NavigationRoute<'MessageList'> | NavigationRoute<'TogglePinModal'>,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
 };
