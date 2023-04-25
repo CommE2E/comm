@@ -8,7 +8,10 @@ import {
   updateUserAvatarActionTypes,
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { UpdateUserAvatarRemoveRequest } from 'lib/types/avatar-types.js';
+import type {
+  ENSAvatarDBContent,
+  UpdateUserAvatarRemoveRequest,
+} from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   useDispatchActionPromise,
@@ -19,6 +22,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 export type EditUserAvatarContextType = {
   +userAvatarSaveInProgress: boolean,
+  +setENSUserAvatar: () => void,
   +removeUserAvatar: () => void,
 };
 
@@ -44,6 +48,24 @@ function EditUserAvatarProvider(props: Props): React.Node {
 
   const userAvatarSaveInProgress = updateUserAvatarLoadingStatus === 'loading';
 
+  const setENSUserAvatar = React.useCallback(() => {
+    const ensAvatarRequest: ENSAvatarDBContent = {
+      type: 'ens',
+    };
+
+    dispatchActionPromise(
+      updateUserAvatarActionTypes,
+      (async () => {
+        try {
+          return await updateUserAvatarCall(ensAvatarRequest);
+        } catch (e) {
+          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
+        }
+      })(),
+    );
+  }, [dispatchActionPromise, updateUserAvatarCall]);
+
   const removeUserAvatar = React.useCallback(() => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
       type: 'remove',
@@ -65,9 +87,10 @@ function EditUserAvatarProvider(props: Props): React.Node {
   const context = React.useMemo(
     () => ({
       userAvatarSaveInProgress,
+      setENSUserAvatar,
       removeUserAvatar,
     }),
-    [removeUserAvatar, userAvatarSaveInProgress],
+    [removeUserAvatar, setENSUserAvatar, userAvatarSaveInProgress],
   );
 
   return (

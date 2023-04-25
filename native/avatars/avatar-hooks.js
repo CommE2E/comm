@@ -23,7 +23,6 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   ImageAvatarDBContent,
-  ENSAvatarDBContent,
   UpdateUserAvatarRemoveRequest,
 } from 'lib/types/avatar-types.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -368,38 +367,6 @@ function useRemoveThreadAvatar(threadID: string): [() => void, boolean] {
   );
 }
 
-function useENSUserAvatar(): [() => void, boolean] {
-  const dispatchActionPromise = useDispatchActionPromise();
-  const updateUserAvatarCall = useServerCall(updateUserAvatar);
-
-  const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
-    updateUserAvatarLoadingStatusSelector,
-  );
-
-  const saveENSUserAvatar = React.useCallback(() => {
-    const ensAvatarRequest: ENSAvatarDBContent = {
-      type: 'ens',
-    };
-
-    dispatchActionPromise(
-      updateUserAvatarActionTypes,
-      (async () => {
-        try {
-          return await updateUserAvatarCall(ensAvatarRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
-    );
-  }, [dispatchActionPromise, updateUserAvatarCall]);
-
-  return React.useMemo(
-    () => [saveENSUserAvatar, updateUserAvatarLoadingStatus === 'loading'],
-    [saveENSUserAvatar, updateUserAvatarLoadingStatus],
-  );
-}
-
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
@@ -520,5 +487,4 @@ export {
   useSelectFromGalleryAndUpdateUserAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
   useRemoveThreadAvatar,
-  useENSUserAvatar,
 };
