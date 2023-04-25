@@ -11,17 +11,27 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import createIDs from './id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { getUploadURL } from '../fetchers/upload-fetchers.js';
+import { makeUploadURI } from '../fetchers/upload-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 
+type UploadContent =
+  | {
+      +storage: 'keyserver',
+      +buffer: Buffer,
+    }
+  | {
+      +storage: 'blob_service',
+      +blobHolder: string,
+    };
+
 export type UploadInput = {
-  name: string,
-  mime: string,
-  mediaType: MediaType,
-  buffer: Buffer,
-  dimensions: Dimensions,
-  loop: boolean,
-  encryptionKey?: string,
+  +name: string,
+  +mime: string,
+  +mediaType: MediaType,
+  +content: UploadContent,
+  +dimensions: Dimensions,
+  +loop: boolean,
+  +encryptionKey?: string,
 };
 async function createUploads(
   viewer: Viewer,
@@ -35,11 +45,17 @@ async function createUploads(
   const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
     const secret = crypto.randomBytes(8).toString('hex');
-    const { dimensions, mediaType, loop, encryptionKey } = uploadInfo;
+    const { content, dimensions, mediaType, loop, encryptionKey } = uploadInfo;
+    const buffer =
+      content.storage === 'keyserver' ? content.buffer : Buffer.alloc(0);
+    const blobHolder =
+      content.storage === 'blob_service' ? content.blobHolder : undefined;
+    const uri = makeUploadURI(blobHolder, id, secret);
+
     return {
       uploadResult: {
         id,
-        uri: getUploadURL(id, secret),
+        uri,
         dimensions,
         mediaType,
         loop,
@@ -50,10 +66,10 @@ async function createUploads(
         mediaType,
         uploadInfo.name,
         uploadInfo.mime,
-        uploadInfo.buffer,
+        buffer,
         secret,
         Date.now(),
-        JSON.stringify({ ...dimensions, loop, encryptionKey }),
+        JSON.stringify({ ...dimensions, loop, blobHolder, encryptionKey }),
       ],
     };
   });
