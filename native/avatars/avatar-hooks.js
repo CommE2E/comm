@@ -327,36 +327,6 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   );
 }
 
-function useRemoveUserAvatar(): [() => void, boolean] {
-  const dispatchActionPromise = useDispatchActionPromise();
-  const updateUserAvatarCall = useServerCall(updateUserAvatar);
-  const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
-    updateUserAvatarLoadingStatusSelector,
-  );
-
-  const removeUserAvatar = React.useCallback(() => {
-    const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
-      type: 'remove',
-    };
-
-    dispatchActionPromise(
-      updateUserAvatarActionTypes,
-      (async () => {
-        try {
-          return await updateUserAvatarCall(removeAvatarRequest);
-        } catch {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-        }
-      })(),
-    );
-  }, [dispatchActionPromise, updateUserAvatarCall]);
-
-  return React.useMemo(
-    () => [removeUserAvatar, updateUserAvatarLoadingStatus === 'loading'],
-    [removeUserAvatar, updateUserAvatarLoadingStatus],
-  );
-}
-
 function useRemoveThreadAvatar(threadID: string): [() => void, boolean] {
   const dispatchActionPromise = useDispatchActionPromise();
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
@@ -545,7 +515,6 @@ export {
   useShowAvatarActionSheet,
   useSelectFromGalleryAndUpdateUserAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
-  useRemoveUserAvatar,
   useRemoveThreadAvatar,
   useENSUserAvatar,
 };
