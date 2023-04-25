@@ -1,12 +1,16 @@
 // @flow
 
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
+
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 
 import { databaseModule } from './database-module-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 function SQLiteDataHandler(): React.Node {
+  const dispatch = useDispatch();
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated),
   );
@@ -44,6 +48,7 @@ function SQLiteDataHandler(): React.Node {
       if (currentLoggedInUserID) {
         await databaseModule.initDBForLoggedInUser(currentLoggedInUserID);
       }
+
       if (!rehydrateConcluded) {
         return;
       }
@@ -53,8 +58,29 @@ function SQLiteDataHandler(): React.Node {
         return;
       }
       await handleSensitiveData();
+      if (!currentLoggedInUserID) {
+        return;
+      }
+      const data = await databaseModule.schedule({
+        type: workerRequestMessageTypes.GET_CLIENT_STORE,
+      });
+
+      if (!data?.store?.drafts) {
+        return;
+      }
+      dispatch({
+        type: setClientDBStoreActionType,
+        payload: {
+          drafts: data.store.drafts,
+        },
+      });
     })();
-  }, [currentLoggedInUserID, handleSensitiveData, rehydrateConcluded]);
+  }, [
+    currentLoggedInUserID,
+    dispatch,
+    handleSensitiveData,
+    rehydrateConcluded,
+  ]);
 
   return null;
 }
