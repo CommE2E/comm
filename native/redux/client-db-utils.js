@@ -4,6 +4,7 @@ import type {
   ClientDBThreadInfo,
   ClientDBThreadStoreOperation,
   RawThreadInfo,
+  ThreadStoreThreadInfos,
 } from 'lib/types/thread-types.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
@@ -12,8 +13,6 @@ import {
 
 import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
-
-type ThreadStoreThreadInfos = { +[id: string]: RawThreadInfo };
 
 function updateClientDBThreadStoreThreadInfos(
   state: AppState,
