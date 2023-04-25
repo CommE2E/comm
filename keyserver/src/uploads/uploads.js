@@ -4,15 +4,19 @@ import type { $Request, $Response, Middleware } from 'express';
 import invariant from 'invariant';
 import multer from 'multer';
 import { Readable } from 'stream';
+import t from 'tcomb';
 
 import type {
+  UploadMediaMetadataRequest,
   UploadMultimediaResult,
   UploadDeletionRequest,
   Dimensions,
 } from 'lib/types/media-types.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { tShape } from 'lib/utils/validation-utils.js';
 
-import { validateAndConvert } from './media-utils.js';
+import { getMediaType, validateAndConvert } from './media-utils.js';
+import type { UploadInput } from '../creators/upload-creator.js';
 import createUploads from '../creators/upload-creator.js';
 import { deleteUpload } from '../deleters/upload-deleters.js';
 import {
@@ -22,6 +26,7 @@ import {
 } from '../fetchers/upload-fetchers.js';
 import type { MulterRequest } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');
@@ -87,6 +92,44 @@ async function multimediaUploadResponder(
   }
   const results = await createUploads(viewer, uploadInfos);
   return { results };
+}
+
+const uploadMediaMetadataInputValidator = tShape({
+  filename: t.String,
+  width: t.Number,
+  height: t.Number,
+  blobHolder: t.String,
+  encryptionKey: t.String,
+  mimeType: t.String,
+  loop: t.maybe(t.Boolean),
+});
+
+async function uploadMediaMetadataResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<UploadMultimediaResult> {
+  const request: UploadMediaMetadataRequest = input;
+  await validateInput(viewer, uploadMediaMetadataInputValidator, input);
+
+  const mediaType = getMediaType(request.mimeType);
+  if (!mediaType) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const { filename, blobHolder, encryptionKey, mimeType, width, height, loop } =
+    request;
+  const uploadInfo: UploadInput = {
+    name: filename,
+    mime: mimeType,
+    mediaType,
+    content: { storage: 'blob_service', blobHolder },
+    encryptionKey,
+    dimensions: { width, height },
+    loop: loop ?? false,
+  };
+
+  const [result] = await createUploads(viewer, [uploadInfo]);
+  return result;
 }
 
 async function uploadDownloadResponder(
@@ -168,4 +211,5 @@ export {
   multimediaUploadResponder,
   uploadDownloadResponder,
   uploadDeletionResponder,
+  uploadMediaMetadataResponder,
 };
