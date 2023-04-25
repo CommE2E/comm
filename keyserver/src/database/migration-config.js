@@ -3,6 +3,7 @@
 import fs from 'fs';
 
 import { policyTypes } from 'lib/facts/policies.js';
+import { messageTypes } from 'lib/types/message-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
@@ -158,10 +159,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
             ADD INDEX IF NOT EXISTS thread (thread);
           
           UPDATE uploads 
-            SET thread = (
-              SELECT thread FROM messages 
-              WHERE messages.id = uploads.container
-            );
+          SET thread = (
+            SELECT thread FROM messages
+            WHERE messages.id = uploads.container
+          );
         `,
         { multipleStatements: true },
       );
@@ -323,6 +324,16 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     30,
     async () => {
       await dbQuery(SQL`DROP TABLE versions;`);
+    },
+  ],
+  [
+    31,
+    async () => {
+      await dbQuery(SQL`
+        UPDATE messages
+        SET target_message = JSON_VALUE(content, "$.sourceMessageID")
+        WHERE type = ${messageTypes.SIDEBAR_SOURCE};
+      `);
     },
   ],
 ]);
