@@ -42,10 +42,12 @@ import {
   convertThreadStoreOperationsToClientDBOperations,
 } from 'lib/utils/thread-ops-utils.js';
 
+import { updateClientDBThreadStoreThreadInfos } from './client-db-utils.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import type { AppState } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
+import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultGlobalThemeInfo } from '../types/themes.js';
@@ -528,6 +530,8 @@ const migrations = {
 
     return state;
   },
+  [38]: state =>
+    updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
