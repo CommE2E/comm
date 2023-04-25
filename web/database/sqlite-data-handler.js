@@ -1,18 +1,24 @@
 // @flow
 
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
+
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
 import { databaseModule } from './database-module-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 function SQLiteDataHandler(): React.Node {
+  const dispatch = useDispatch();
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated),
   );
   const currentLoggedInUserID = useSelector(state =>
     state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
   );
+  const loggedIn = useSelector(isLoggedIn);
 
   const handleSensitiveData = React.useCallback(async () => {
     try {
@@ -53,8 +59,30 @@ function SQLiteDataHandler(): React.Node {
         return;
       }
       await handleSensitiveData();
+      if (!loggedIn) {
+        return;
+      }
+      const data = await databaseModule.schedule({
+        type: workerRequestMessageTypes.GET_CLIENT_STORE,
+      });
+
+      if (!data?.store?.drafts) {
+        return;
+      }
+      dispatch({
+        type: setClientDBStoreActionType,
+        payload: {
+          drafts: data.store.drafts,
+        },
+      });
     })();
-  }, [currentLoggedInUserID, handleSensitiveData, rehydrateConcluded]);
+  }, [
+    currentLoggedInUserID,
+    dispatch,
+    handleSensitiveData,
+    loggedIn,
+    rehydrateConcluded,
+  ]);
 
   return null;
 }
