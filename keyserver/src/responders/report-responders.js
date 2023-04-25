@@ -2,7 +2,7 @@
 
 import type { $Response, $Request } from 'express';
 import t from 'tcomb';
-import type { TStructProps } from 'tcomb';
+import type { TInterface, TStructProps } from 'tcomb';
 
 import {
   type ReportCreationResponse,
@@ -12,7 +12,9 @@ import {
   type ThreadInconsistencyReportShape,
   type EntryInconsistencyReportShape,
   reportTypes,
+  reportInfoValidator,
 } from 'lib/types/report-types.js';
+import { userInfoValidator } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
   tShape,
@@ -131,6 +133,9 @@ const reportCreationRequestInputValidator = t.union([
   userInconsistencyReportCreationRequest,
 ]);
 
+export const reportCreationResponseValidator: TInterface<ReportCreationResponse> =
+  tShape<ReportCreationResponse>({ id: t.String });
+
 async function reportCreationResponder(
   viewer: Viewer,
   input: any,
@@ -202,6 +207,12 @@ async function reportMultiCreationResponder(
 const fetchErrorReportInfosRequestInputValidator = tShape({
   cursor: t.maybe(t.String),
 });
+
+export const fetchErrorReportInfosResponseValidator: TInterface<FetchErrorReportInfosResponse> =
+  tShape<FetchErrorReportInfosResponse>({
+    reports: t.list(reportInfoValidator),
+    userInfos: t.list(userInfoValidator),
+  });
 
 async function errorReportFetchInfosResponder(
   viewer: Viewer,

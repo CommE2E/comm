@@ -1,8 +1,14 @@
 // @flow
 
 import t from 'tcomb';
-import type { TUnion } from 'tcomb';
+import type { TInterface, TUnion } from 'tcomb';
 
+import { rawEntryInfoValidator } from 'lib/types/entry-types.js';
+import { mediaValidator } from 'lib/types/media-types.js';
+import {
+  rawMessageInfoValidator,
+  messageTruncationStatusesValidator,
+} from 'lib/types/message-types.js';
 import {
   type ThreadDeletionRequest,
   type RoleChangeRequest,
@@ -20,7 +26,10 @@ import {
   type ToggleMessagePinRequest,
   type ToggleMessagePinResult,
   threadTypes,
+  rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
+import { serverUpdateInfoValidator } from 'lib/types/update-types.js';
+import { userInfosValidator } from 'lib/types/user-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import { values } from 'lib/utils/objects.js';
 import {
@@ -28,6 +37,7 @@ import {
   tNumEnum,
   tColor,
   tPassword,
+  tID,
 } from 'lib/utils/validation-utils.js';
 
 import {
@@ -53,6 +63,14 @@ const threadDeletionRequestInputValidator = tShape({
   accountPassword: t.maybe(tPassword),
 });
 
+export const leaveThreadResultValidator: TInterface<LeaveThreadResult> =
+  tShape<LeaveThreadResult>({
+    threadInfos: t.maybe(t.dict(tID, rawThreadInfoValidator)),
+    updatesResult: tShape({
+      newUpdates: t.list(serverUpdateInfoValidator),
+    }),
+  });
+
 async function threadDeletionResponder(
   viewer: Viewer,
   input: any,
@@ -70,6 +88,16 @@ const roleChangeRequestInputValidator = tShape({
     return String(int) === str && int > 0;
   }),
 });
+
+export const changeThreadSettingsResultValidator: TInterface<ChangeThreadSettingsResult> =
+  tShape<ChangeThreadSettingsResult>({
+    newMessageInfos: t.list(rawMessageInfoValidator),
+    threadInfo: t.maybe(rawThreadInfoValidator),
+    threadInfos: t.maybe(t.dict(tID, rawThreadInfoValidator)),
+    updatesResult: tShape({
+      newUpdates: t.list(serverUpdateInfoValidator),
+    }),
+  });
 
 async function roleUpdateResponder(
   viewer: Viewer,
@@ -154,6 +182,18 @@ const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
     ...threadRequestValidationShape,
   }),
 ]);
+
+export const newThreadResponseValidator: TInterface<NewThreadResponse> =
+  tShape<NewThreadResponse>({
+    updatesResult: tShape({
+      newUpdates: t.list(serverUpdateInfoValidator),
+    }),
+    newMessageInfos: t.list(rawMessageInfoValidator),
+    newThreadInfo: t.maybe(rawThreadInfoValidator),
+    userInfos: userInfosValidator,
+    newThreadID: t.maybe(tID),
+  });
+
 async function threadCreationResponder(
   viewer: Viewer,
   input: any,
@@ -171,6 +211,19 @@ const joinThreadRequestInputValidator = tShape({
   calendarQuery: t.maybe(entryQueryInputValidator),
   inviteLinkSecret: t.maybe(t.String),
 });
+
+export const threadJoinResultValidator: TInterface<ThreadJoinResult> =
+  tShape<ThreadJoinResult>({
+    threadInfos: t.maybe(t.dict(tID, rawThreadInfoValidator)),
+    updatesResult: tShape({
+      newUpdates: t.list(serverUpdateInfoValidator),
+    }),
+    rawMessageInfos: t.list(rawMessageInfoValidator),
+    truncationStatuses: messageTruncationStatusesValidator,
+    userInfos: userInfosValidator,
+    rawEntryInfos: t.maybe(t.list(rawEntryInfoValidator)),
+  });
+
 async function threadJoinResponder(
   viewer: Viewer,
   input: any,
@@ -190,6 +243,10 @@ const threadFetchMediaRequestInputValidator = tShape({
   limit: t.Number,
   offset: t.Number,
 });
+
+export const threadFetchMediaResultValidator: TInterface<ThreadFetchMediaResult> =
+  tShape<ThreadFetchMediaResult>({ media: t.list(mediaValidator) });
+
 async function threadFetchMediaResponder(
   viewer: Viewer,
   input: any,
@@ -203,6 +260,13 @@ const toggleMessagePinRequestInputValidator = tShape({
   messageID: t.String,
   action: t.enums.of(['pin', 'unpin']),
 });
+
+export const toggleMessagePinResultValidator: TInterface<ToggleMessagePinResult> =
+  tShape<ToggleMessagePinResult>({
+    newMessageInfos: t.list(rawMessageInfoValidator),
+    threadID: tID,
+  });
+
 async function toggleMessagePinResponder(
   viewer: Viewer,
   input: any,
