@@ -44,11 +44,15 @@ function EditUserAvatar(props: Props): React.Node {
   const navigateToUserEmojiAvatarCreation = React.useCallback(() => {
     navigation.navigate(EmojiUserAvatarCreationRouteName);
   }, [navigation]);
+  const navigateToCamera = React.useCallback(() => {
+    navigation.navigate('UserAvatarCameraModal');
+  }, [navigation]);
 
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
       { id: 'emoji', onPress: navigateToUserEmojiAvatarCreation },
       { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
+      { id: 'camera', onPress: navigateToCamera },
     ];
 
     if (ensAvatarURI) {
@@ -60,6 +64,7 @@ function EditUserAvatar(props: Props): React.Node {
     return configOptions;
   }, [
     ensAvatarURI,
+    navigateToCamera,
     navigateToUserEmojiAvatarCreation,
     removeUserAvatar,
     selectFromGalleryAndUpdateUserAvatar,

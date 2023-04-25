@@ -300,7 +300,7 @@ function useRemoveThreadAvatar(threadID: string): [() => void, boolean] {
 }
 
 type ShowAvatarActionSheetOptions = {
-  +id: 'emoji' | 'image' | 'ens' | 'cancel' | 'remove',
+  +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
 };
 function useShowAvatarActionSheet(
@@ -318,6 +318,8 @@ function useShowAvatarActionSheet(
         return 'Use Emoji';
       } else if (option.id === 'image') {
         return 'Select image';
+      } else if (option.id === 'camera') {
+        return 'Camera';
       } else if (option.id === 'ens') {
         return 'Use ENS Avatar';
       } else if (option.id === 'remove') {
@@ -348,6 +350,14 @@ function useShowAvatarActionSheet(
         return (
           <SWMansionIcon
             name="image-1"
+            size={22}
+            style={styles.bottomSheetIcon}
+          />
+        );
+      } else if (option.id === 'camera') {
+        return (
+          <SWMansionIcon
+            name="camera"
             size={22}
             style={styles.bottomSheetIcon}
           />

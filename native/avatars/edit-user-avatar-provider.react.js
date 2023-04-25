@@ -14,7 +14,10 @@ import type {
   ENSAvatarDBContent,
 } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+import type {
+  MediaLibrarySelection,
+  PhotoCapture,
+} from 'lib/types/media-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -26,6 +29,9 @@ import { useSelector } from '../redux/redux-utils.js';
 export type EditUserAvatarContextType = {
   +userAvatarSaveInProgress: boolean,
   +selectFromGalleryAndUpdateUserAvatar: () => Promise<void>,
+  +selectFromCameraAndUpdateUserAvatar: (
+    selection: PhotoCapture,
+  ) => Promise<void>,
   +setENSUserAvatar: () => void,
   +removeUserAvatar: () => void,
 };
@@ -94,6 +100,38 @@ function EditUserAvatarProvider(props: Props): React.Node {
     uploadUserAvatarSelectedMedia,
   ]);
 
+  const selectFromCameraAndUpdateUserAvatar = React.useCallback(
+    async (selection: PhotoCapture) => {
+      const uploadedMediaID = await uploadUserAvatarSelectedMedia(selection);
+
+      if (!uploadedMediaID) {
+        return;
+      }
+
+      const imageAvatarUpdateRequest: ImageAvatarDBContent = {
+        type: 'image',
+        uploadID: uploadedMediaID,
+      };
+
+      dispatchActionPromise(
+        updateUserAvatarActionTypes,
+        (async () => {
+          setUserAvatarMediaUploadInProgress(false);
+          try {
+            return await updateUserAvatarCall(imageAvatarUpdateRequest);
+          } catch {
+            Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          }
+        })(),
+      );
+    },
+    [
+      dispatchActionPromise,
+      updateUserAvatarCall,
+      uploadUserAvatarSelectedMedia,
+    ],
+  );
+
   const setENSUserAvatar = React.useCallback(() => {
     const ensAvatarRequest: ENSAvatarDBContent = {
       type: 'ens',
@@ -132,11 +170,13 @@ function EditUserAvatarProvider(props: Props): React.Node {
     () => ({
       userAvatarSaveInProgress,
       selectFromGalleryAndUpdateUserAvatar,
+      selectFromCameraAndUpdateUserAvatar,
       setENSUserAvatar,
       removeUserAvatar,
     }),
     [
       removeUserAvatar,
+      selectFromCameraAndUpdateUserAvatar,
       selectFromGalleryAndUpdateUserAvatar,
       setENSUserAvatar,
       userAvatarSaveInProgress,
