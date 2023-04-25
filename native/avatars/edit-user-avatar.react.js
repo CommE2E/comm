@@ -12,7 +12,10 @@ import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import { EditUserAvatarContext } from './edit-user-avatar-provider.react.js';
 import UserAvatar from './user-avatar.react.js';
-import { EmojiUserAvatarCreationRouteName } from '../navigation/route-names.js';
+import {
+  EmojiUserAvatarCreationRouteName,
+  UserAvatarCameraModalRouteName,
+} from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
@@ -41,14 +44,20 @@ function EditUserAvatar(props: Props): React.Node {
   const ensAvatarURI = useENSAvatar(ethAddress);
 
   const { navigate } = useNavigation();
+
   const navigateToUserEmojiAvatarCreation = React.useCallback(() => {
     navigate(EmojiUserAvatarCreationRouteName);
+  }, [navigate]);
+
+  const navigateToCamera = React.useCallback(() => {
+    navigate(UserAvatarCameraModalRouteName);
   }, [navigate]);
 
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
       { id: 'emoji', onPress: navigateToUserEmojiAvatarCreation },
       { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
+      { id: 'camera', onPress: navigateToCamera },
     ];
 
     if (ensAvatarURI) {
@@ -60,6 +69,7 @@ function EditUserAvatar(props: Props): React.Node {
     return configOptions;
   }, [
     ensAvatarURI,
+    navigateToCamera,
     navigateToUserEmojiAvatarCreation,
     removeUserAvatar,
     setENSUserAvatar,
