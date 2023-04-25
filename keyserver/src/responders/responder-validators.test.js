@@ -15,9 +15,24 @@ import {
 } from './entry-responders.js';
 import { getSessionPublicKeysResponseValidator } from './keys-responders.js';
 import { messageReportCreationResultValidator } from './message-report-responder.js';
+import {
+  fetchMessageInfosResponseValidator,
+  fetchPinnedMessagesResultValidator,
+  sendEditMessageResponseValidator,
+  sendMessageResponseValidator,
+} from './message-responders.js';
 import { relationshipErrorsValidator } from './relationship-responders.js';
+import { reportCreationResponseValidator } from './report-responders.js';
 import { userSearchResultValidator } from './search-responders.js';
 import { siweNonceResponseValidator } from './siwe-nonce-responders.js';
+import {
+  changeThreadSettingsResultValidator,
+  leaveThreadResultValidator,
+  newThreadResponseValidator,
+  threadFetchMediaResultValidator,
+  threadJoinResultValidator,
+  toggleMessagePinResultValidator,
+} from './thread-responders.js';
 import {
   logInResponseValidator,
   registerResponseValidator,
@@ -615,5 +630,291 @@ describe('entry reponders', () => {
         rawEntryInfos: undefined,
       }),
     ).toBe(false);
+  });
+});
+
+describe('thread responders', () => {
+  it('should validate change thread settings response', () => {
+    const response = {
+      updatesResult: {
+        newUpdates: [
+          {
+            type: 1,
+            id: '93601',
+            time: 1682759546258,
+            threadInfo: {
+              id: '92796',
+              type: 6,
+              name: '',
+              description: '',
+              color: 'b8753d',
+              creationTime: 1682076700918,
+              parentThreadID: '1',
+              members: [],
+              roles: {},
+              currentUser: {
+                role: '85172',
+                permissions: {},
+                subscription: {
+                  home: true,
+                  pushNotifs: true,
+                },
+                unread: false,
+              },
+              repliesCount: 0,
+              containingThreadID: '1',
+              community: '1',
+              pinnedCount: 0,
+            },
+          },
+        ],
+      },
+      newMessageInfos: [
+        {
+          type: 4,
+          threadID: '92796',
+          creatorID: '83928',
+          time: 1682759546275,
+          field: 'color',
+          value: 'b8753d',
+          id: '93602',
+        },
+      ],
+    };
+    expect(changeThreadSettingsResultValidator.is(response)).toBe(true);
+    expect(
+      changeThreadSettingsResultValidator.is({
+        ...response,
+        newMessageInfos: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate leave thread response', () => {
+    const response = {
+      updatesResult: {
+        newUpdates: [
+          { type: 3, id: '93595', time: 1682759498811, threadID: '93561' },
+        ],
+      },
+    };
+    expect(leaveThreadResultValidator.is(response)).toBe(true);
+    expect(
+      leaveThreadResultValidator.is({
+        ...response,
+        updatedResult: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate new thread response', () => {
+    const response = {
+      newThreadID: '93619',
+      updatesResult: {
+        newUpdates: [
+          {
+            type: 4,
+            id: '93621',
+            time: 1682759805331,
+            threadInfo: {
+              id: '93619',
+              type: 5,
+              name: 'a',
+              description: '',
+              color: 'b8753d',
+              creationTime: 1682759805298,
+              parentThreadID: '92796',
+              members: [],
+              roles: {},
+              currentUser: {
+                role: '85172',
+                permissions: {},
+                subscription: {
+                  home: true,
+                  pushNotifs: true,
+                },
+                unread: false,
+              },
+              repliesCount: 0,
+              containingThreadID: '92796',
+              community: '1',
+              sourceMessageID: '93614',
+              pinnedCount: 0,
+            },
+            rawMessageInfos: [],
+            truncationStatus: 'exhaustive',
+            rawEntryInfos: [],
+          },
+        ],
+      },
+      userInfos: {
+        '256': { id: '256', username: 'ashoat' },
+        '83928': { id: '83928', username: 'temp_user3' },
+      },
+      newMessageInfos: [],
+    };
+    expect(newThreadResponseValidator.is(response)).toBe(true);
+    expect(
+      newThreadResponseValidator.is({
+        ...response,
+        newMessageInfos: {},
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate thread join response', () => {
+    const response = {
+      rawMessageInfos: [
+        {
+          type: 8,
+          threadID: '93619',
+          creatorID: '83928',
+          time: 1682759915935,
+          id: '93640',
+        },
+      ],
+      truncationStatuses: {},
+      userInfos: {
+        '256': { id: '256', username: 'ashoat' },
+        '83928': { id: '83928', username: 'temp_user3' },
+      },
+      updatesResult: {
+        newUpdates: [],
+      },
+    };
+    expect(threadJoinResultValidator.is(response)).toBe(true);
+    expect(
+      threadJoinResultValidator.is({
+        ...response,
+        updatesResult: [],
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate thread fetch media response', () => {
+    const response = {
+      media: [
+        {
+          type: 'photo',
+          id: '93642',
+          uri: 'http://0.0.0.0:3000/comm/upload/93642/1e0d7a5262952e3b',
+          dimensions: { width: 220, height: 220 },
+        },
+      ],
+    };
+    expect(threadFetchMediaResultValidator.is(response)).toBe(true);
+    expect(
+      threadFetchMediaResultValidator.is({ ...response, media: undefined }),
+    ).toBe(false);
+  });
+
+  it('should validate toggle message pin response', () => {
+    const response = { threadID: '123', newMessageInfos: [] };
+    expect(toggleMessagePinResultValidator.is(response)).toBe(true);
+    expect(
+      toggleMessagePinResultValidator.is({ ...response, threadID: undefined }),
+    ).toBe(false);
+  });
+});
+
+describe('message responders', () => {
+  it('should validate send message response', () => {
+    const response = {
+      newMessageInfo: {
+        type: 0,
+        threadID: '93619',
+        creatorID: '83928',
+        time: 1682761023640,
+        text: 'a',
+        localID: 'local3',
+        id: '93649',
+      },
+    };
+    expect(sendMessageResponseValidator.is(response)).toBe(true);
+    expect(
+      sendMessageResponseValidator.is({
+        ...response,
+        newMEssageInfos: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate fetch message infos response', () => {
+    const response = {
+      rawMessageInfos: [
+        {
+          type: 0,
+          id: '83954',
+          threadID: '83938',
+          time: 1673561155110,
+          creatorID: '256',
+          text: 'welcome to Comm!',
+        },
+      ],
+      truncationStatuses: { '83938': 'exhaustive' },
+      userInfos: {
+        '256': { id: '256', username: 'ashoat' },
+        '83928': { id: '83928', username: 'temp_user3' },
+      },
+    };
+    expect(fetchMessageInfosResponseValidator.is(response)).toBe(true);
+    expect(
+      fetchMessageInfosResponseValidator.is({
+        ...response,
+        userInfos: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate send edit message response', () => {
+    const response = {
+      newMessageInfos: [
+        {
+          type: 0,
+          id: '83954',
+          threadID: '83938',
+          time: 1673561155110,
+          creatorID: '256',
+          text: 'welcome to Comm!',
+        },
+      ],
+    };
+    expect(sendEditMessageResponseValidator.is(response)).toBe(true);
+    expect(
+      sendEditMessageResponseValidator.is({
+        ...response,
+        newMessageInfos: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate fetch pinned message response', () => {
+    const response = {
+      pinnedMessages: [
+        {
+          type: 0,
+          id: '83954',
+          threadID: '83938',
+          time: 1673561155110,
+          creatorID: '256',
+          text: 'welcome to Comm!',
+        },
+      ],
+    };
+    expect(fetchPinnedMessagesResultValidator.is(response)).toBe(true);
+    expect(
+      fetchPinnedMessagesResultValidator.is({
+        ...response,
+        pinnedMessages: undefined,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('report responders', () => {
+  it('should validate report creation response', () => {
+    const response = { id: '123' };
+    expect(reportCreationResponseValidator.is(response)).toBe(true);
+    expect(reportCreationResponseValidator.is({})).toBe(false);
   });
 });
