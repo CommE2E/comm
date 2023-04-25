@@ -1,12 +1,14 @@
 // @flow
 
 import crypto from 'crypto';
+import invariant from 'invariant';
 
 import type {
   MediaType,
   UploadMultimediaResult,
   Dimensions,
 } from 'lib/types/media-types.js';
+import { makeBlobServiceURI } from 'lib/utils/blob-service.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import createIDs from './id-creator.js';
@@ -21,6 +23,7 @@ export type UploadInput = {
   buffer: Buffer,
   dimensions: Dimensions,
   loop: boolean,
+  blobHolder?: string,
   encryptionKey?: string,
 };
 async function createUploads(
@@ -35,11 +38,23 @@ async function createUploads(
   const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
     const secret = crypto.randomBytes(8).toString('hex');
-    const { dimensions, mediaType, loop, encryptionKey } = uploadInfo;
+    const { dimensions, mediaType, loop, encryptionKey, blobHolder } =
+      uploadInfo;
+    const uri = blobHolder
+      ? makeBlobServiceURI(blobHolder)
+      : getUploadURL(id, secret);
+
+    if (blobHolder) {
+      invariant(
+        uploadInfo.buffer.length === 0,
+        'buffer should be empty for blob service uploads',
+      );
+    }
+
     return {
       uploadResult: {
         id,
-        uri: getUploadURL(id, secret),
+        uri,
         dimensions,
         mediaType,
         loop,
@@ -53,7 +68,7 @@ async function createUploads(
         uploadInfo.buffer,
         secret,
         Date.now(),
-        JSON.stringify({ ...dimensions, loop, encryptionKey }),
+        JSON.stringify({ ...dimensions, loop, blobHolder, encryptionKey }),
       ],
     };
   });
