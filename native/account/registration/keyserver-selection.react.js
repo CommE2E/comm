@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, TextInput } from 'react-native';
+import { Text, TextInput, View } from 'react-native';
 
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
@@ -46,57 +46,64 @@ function KeyserverSelection(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   return (
-    <RegistrationContainer>
-      <Text style={styles.header}>Select a keyserver to join</Text>
-      <Text style={styles.body}>
-        Chat communities on Comm are hosted on keyservers, which are
-        user-operated backends.
-      </Text>
-      <Text style={styles.body}>
-        Keyservers allow Comm to offer strong privacy guarantees without
-        sacrificing functionality.
-      </Text>
-      <RegistrationTile
-        selected={currentSelection === 'ashoat'}
-        onSelect={selectAshoat}
-      >
-        <RegistrationTileHeader>
-          <CommIcon
-            name="cloud-filled"
-            size={16}
-            color={colors.panelForegroundLabel}
-            style={styles.cloud}
-          />
-          <Text style={styles.tileTitleText}>ashoat</Text>
-        </RegistrationTileHeader>
-        <Text style={styles.tileBody}>
-          Ashoat is Comm’s founder, and his keyserver currently hosts most of
-          the communities on Comm.
+    <View style={styles.container}>
+      <RegistrationContainer>
+        <Text style={styles.header}>Select a keyserver to join</Text>
+        <Text style={styles.body}>
+          Chat communities on Comm are hosted on keyservers, which are
+          user-operated backends.
         </Text>
-      </RegistrationTile>
-      <RegistrationTile
-        selected={currentSelection === 'custom'}
-        onSelect={selectCustom}
-      >
-        <RegistrationTileHeader>
-          <Text style={styles.tileTitleText}>Enter a keyserver</Text>
-        </RegistrationTileHeader>
-        <TextInput
-          value={customKeyserver}
-          onChangeText={setCustomKeyserver}
-          style={styles.keyserverInput}
-          placeholderTextColor={colors.panelSecondaryForegroundBorder}
-          placeholder="Keyserver"
-          onFocus={onCustomKeyserverFocus}
-          ref={customKeyserverTextInputRef}
-        />
-      </RegistrationTile>
+        <Text style={styles.body}>
+          Keyservers allow Comm to offer strong privacy guarantees without
+          sacrificing functionality.
+        </Text>
+        <RegistrationTile
+          selected={currentSelection === 'ashoat'}
+          onSelect={selectAshoat}
+        >
+          <RegistrationTileHeader>
+            <CommIcon
+              name="cloud-filled"
+              size={16}
+              color={colors.panelForegroundLabel}
+              style={styles.cloud}
+            />
+            <Text style={styles.tileTitleText}>ashoat</Text>
+          </RegistrationTileHeader>
+          <Text style={styles.tileBody}>
+            Ashoat is Comm’s founder, and his keyserver currently hosts most of
+            the communities on Comm.
+          </Text>
+        </RegistrationTile>
+        <RegistrationTile
+          selected={currentSelection === 'custom'}
+          onSelect={selectCustom}
+        >
+          <RegistrationTileHeader>
+            <Text style={styles.tileTitleText}>Enter a keyserver</Text>
+          </RegistrationTileHeader>
+          <TextInput
+            value={customKeyserver}
+            onChangeText={setCustomKeyserver}
+            style={styles.keyserverInput}
+            placeholderTextColor={colors.panelSecondaryForegroundBorder}
+            placeholder="Keyserver"
+            onFocus={onCustomKeyserverFocus}
+            ref={customKeyserverTextInputRef}
+          />
+        </RegistrationTile>
+      </RegistrationContainer>
       <RegistrationButton onPress={onSubmit} label="Next" />
-    </RegistrationContainer>
+    </View>
   );
 }
 
 const unboundStyles = {
+  container: {
+    backgroundColor: 'panelBackground',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
   header: {
     fontSize: 24,
     color: 'panelForegroundLabel',
