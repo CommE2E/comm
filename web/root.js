@@ -26,6 +26,11 @@ import history from './router-history.js';
 import Socket from './socket.react.js';
 import { workerRequestMessageTypes } from './types/worker-types.js';
 
+const currentLoggedInUserID = preloadedState.currentUserInfo?.anonymous
+  ? undefined
+  : preloadedState.currentUserInfo?.id;
+const isDatabaseSupported = isSQLiteSupported(currentLoggedInUserID);
+
 const migrations = {
   [1]: async state => {
     const {
@@ -43,11 +48,7 @@ const migrations = {
     };
   },
   [2]: async state => {
-    const currentLoggedInUserID = preloadedState.currentUserInfo?.anonymous
-      ? undefined
-      : preloadedState.currentUserInfo?.id;
-    const isSupported = isSQLiteSupported(currentLoggedInUserID);
-    if (!isSupported) {
+    if (!isDatabaseSupported) {
       return state;
     }
 
@@ -69,17 +70,20 @@ const migrations = {
     return state;
   },
 };
+const persistWhitelist = [
+  'enabledApps',
+  'deviceID',
+  'cryptoStore',
+  'notifPermissionAlertInfo',
+  'commServicesAccessToken',
+];
+
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: [
-    'enabledApps',
-    'deviceID',
-    'draftStore',
-    'cryptoStore',
-    'notifPermissionAlertInfo',
-    'commServicesAccessToken',
-  ],
+  whitelist: isDatabaseSupported
+    ? persistWhitelist
+    : [...persistWhitelist, 'draftStore'],
   migrate: (creatAsyncMigrate(migrations, { debug: isDev }): any),
   version: 2,
 };
