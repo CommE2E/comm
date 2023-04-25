@@ -15,6 +15,7 @@ import Multimedia from '../media/multimedia.react.js';
 type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
+  +shouldDisplayPinIndicator: boolean,
 };
 type Props = {
   ...BaseProps,
@@ -75,6 +76,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       <ComposedMessage
         item={item}
         threadInfo={this.props.threadInfo}
+        shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
         sendFailed={sendFailed(item, inputState)}
         fixedWidth={multimedia.length > 1}
         borderRadius={16}
