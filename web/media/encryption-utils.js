@@ -4,6 +4,7 @@ import invariant from 'invariant';
 
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { fileInfoFromData } from 'lib/media/file-utils.js';
+import { fetchableMediaURI } from 'lib/media/media-utils.js';
 import type {
   MediaMissionFailure,
   MediaMissionStep,
@@ -139,8 +140,12 @@ async function decryptMedia(
   // Step 1 - Fetch the encrypted media and convert it to a Uint8Array
   let data;
   const fetchStartTime = Date.now();
+  const url = fetchableMediaURI(holder);
   try {
-    const response = await fetch(holder);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+    }
     const buffer = await response.arrayBuffer();
     data = new Uint8Array(buffer);
   } catch (e) {
@@ -149,7 +154,7 @@ async function decryptMedia(
   }
   steps.push({
     step: 'fetch_buffer',
-    url: holder,
+    url,
     time: Date.now() - fetchStartTime,
     success,
     exceptionMessage,

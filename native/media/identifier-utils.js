@@ -1,5 +1,7 @@
 // @flow
 
+import { fetchableMediaURI } from 'lib/media/media-utils.js';
+
 function getCompatibleMediaURI(uri: string, ext: ?string): string {
   if (!ext) {
     return uri;
@@ -42,11 +44,13 @@ function getMediaLibraryIdentifier(inputURI: string): ?string {
 }
 
 function getFetchableURI(inputURI: string): string {
+  // support for blob service URIs
+  let uri = fetchableMediaURI(inputURI);
+
   // React Native always resolves Apple's assets-library:// and FBMediaKit's
   // ph:// scheme as an image so that the Image component can render thumbnails
   // of videos. In order to force fetch() to return a blob of the video, we need
   // to use the ph-upload:// scheme. https://git.io/Jerlh
-  let uri = inputURI;
   if (uri.startsWith('assets-library://')) {
     const mediaNativeID = getMediaLibraryIdentifier(uri);
     if (mediaNativeID) {
