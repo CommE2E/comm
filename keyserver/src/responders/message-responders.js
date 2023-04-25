@@ -1,7 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import t from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 
 import { onlyOneEmojiRegex } from 'lib/shared/emojis.js';
 import {
@@ -23,11 +23,14 @@ import {
   type SendEditMessageResponse,
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
+  messageTruncationStatusesValidator,
+  rawMessageInfoValidator,
 } from 'lib/types/message-types.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
 import type { TextMessageData } from 'lib/types/messages/text.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
+import { userInfosValidator } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 import {
@@ -65,6 +68,10 @@ const sendTextMessageRequestInputValidator = tShape({
   text: t.String,
   sidebarCreation: t.maybe(t.Boolean),
 });
+
+export const sendMessageResponseValidator: TInterface<SendMessageResponse> =
+  tShape<SendMessageResponse>({ newMessageInfo: rawMessageInfoValidator });
+
 async function textMessageCreationResponder(
   viewer: Viewer,
   input: any,
@@ -118,6 +125,14 @@ const fetchMessageInfosRequestInputValidator = tShape({
   cursors: t.dict(t.String, t.maybe(t.String)),
   numberPerThread: t.maybe(t.Number),
 });
+
+export const fetchMessageInfosResponseValidator: TInterface<FetchMessageInfosResponse> =
+  tShape<FetchMessageInfosResponse>({
+    rawMessageInfos: t.list(rawMessageInfoValidator),
+    truncationStatuses: messageTruncationStatusesValidator,
+    userInfos: userInfosValidator,
+  });
+
 async function messageFetchResponder(
   viewer: Viewer,
   input: any,
@@ -305,6 +320,12 @@ const editMessageRequestInputValidator = tShape({
   targetMessageID: t.String,
   text: t.String,
 });
+
+export const sendEditMessageResponseValidator: TInterface<SendEditMessageResponse> =
+  tShape<SendEditMessageResponse>({
+    newMessageInfos: t.list(rawMessageInfoValidator),
+  });
+
 async function editMessageCreationResponder(
   viewer: Viewer,
   input: any,
@@ -388,6 +409,12 @@ async function editMessageCreationResponder(
 const fetchPinnedMessagesResponderInputValidator = tShape({
   threadID: t.String,
 });
+
+export const fetchPinnedMessagesResultValidator: TInterface<FetchPinnedMessagesResult> =
+  tShape<FetchPinnedMessagesResult>({
+    pinnedMessages: t.list(rawMessageInfoValidator),
+  });
+
 async function fetchPinnedMessagesResponder(
   viewer: Viewer,
   input: any,
