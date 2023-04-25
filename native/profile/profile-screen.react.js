@@ -27,7 +27,6 @@ import { SingleLine } from '../components/single-line.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   EditPasswordRouteName,
-  EmojiUserAvatarCreationRouteName,
   DeleteAccountRouteName,
   BuildInfoRouteName,
   DevToolsRouteName,
@@ -130,10 +129,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           <View
             style={[this.props.styles.section, this.props.styles.avatarSection]}
           >
-            <EditUserAvatar
-              onPressEmojiAvatarFlow={this.onPressEmojiAvatarFlow}
-              userID={this.props.currentUserInfo?.id}
-            />
+            <EditUserAvatar userID={this.props.currentUserInfo?.id} />
           </View>
         </>
       );
@@ -192,10 +188,6 @@ class ProfileScreen extends React.PureComponent<Props> {
       </View>
     );
   }
-
-  onPressEmojiAvatarFlow = () => {
-    this.props.navigation.navigate(EmojiUserAvatarCreationRouteName);
-  };
 
   onPressLogOut = () => {
     if (this.loggedOutOrLoggingOut) {

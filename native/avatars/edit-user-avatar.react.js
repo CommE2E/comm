@@ -1,5 +1,6 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
@@ -11,17 +12,17 @@ import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import { EditUserAvatarContext } from './edit-user-avatar-provider.react.js';
 import UserAvatar from './user-avatar.react.js';
+import { EmojiUserAvatarCreationRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +userID: ?string,
-  +onPressEmojiAvatarFlow: () => mixed,
   +disabled?: boolean,
 };
 function EditUserAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const { userID, onPressEmojiAvatarFlow, disabled } = props;
+  const { userID, disabled } = props;
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
@@ -39,9 +40,14 @@ function EditUserAvatar(props: Props): React.Node {
   );
   const ensAvatarURI = useENSAvatar(ethAddress);
 
+  const { navigate } = useNavigation();
+  const navigateToUserEmojiAvatarCreation = React.useCallback(() => {
+    navigate(EmojiUserAvatarCreationRouteName);
+  }, [navigate]);
+
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
-      { id: 'emoji', onPress: onPressEmojiAvatarFlow },
+      { id: 'emoji', onPress: navigateToUserEmojiAvatarCreation },
       { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
     ];
 
@@ -54,7 +60,7 @@ function EditUserAvatar(props: Props): React.Node {
     return configOptions;
   }, [
     ensAvatarURI,
-    onPressEmojiAvatarFlow,
+    navigateToUserEmojiAvatarCreation,
     removeUserAvatar,
     setENSUserAvatar,
     selectFromGalleryAndUpdateUserAvatar,
