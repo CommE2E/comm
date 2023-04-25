@@ -13,7 +13,7 @@ import type {
   UpdateUserAvatarRemoveRequest,
 } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+import type { NativeMediaSelection } from 'lib/types/media-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -25,6 +25,7 @@ import { useSelector } from '../redux/redux-utils.js';
 export type EditUserAvatarContextType = {
   +userAvatarSaveInProgress: boolean,
   +selectFromGalleryAndUpdateUserAvatar: () => Promise<void>,
+  +updateImageUserAvatar: (selection: NativeMediaSelection) => Promise<void>,
   +setENSUserAvatar: () => void,
   +removeUserAvatar: () => void,
 };
@@ -61,7 +62,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
   );
 
   const updateImageUserAvatar = React.useCallback(
-    async (selection: ?MediaLibrarySelection) => {
+    async (selection: ?NativeMediaSelection) => {
       const imageAvatarUpdateRequest = await uploadUserAvatarSelectedMedia(
         selection,
       );
@@ -135,12 +136,14 @@ function EditUserAvatarProvider(props: Props): React.Node {
     () => ({
       userAvatarSaveInProgress,
       selectFromGalleryAndUpdateUserAvatar,
+      updateImageUserAvatar,
       setENSUserAvatar,
       removeUserAvatar,
     }),
     [
       removeUserAvatar,
       selectFromGalleryAndUpdateUserAvatar,
+      updateImageUserAvatar,
       setENSUserAvatar,
       userAvatarSaveInProgress,
     ],
