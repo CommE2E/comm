@@ -1,5 +1,6 @@
 #include "CommUtilsModule.h"
 #include "../Tools/Base64.h"
+#include "olm/olm.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <fstream>
@@ -11,7 +12,9 @@ using namespace facebook::react;
 
 CommUtilsModule::CommUtilsModule(std::shared_ptr<CallInvoker> jsInvoker)
     : CommUtilsModuleSchemaCxxSpecJSI(jsInvoker),
-      utilsThread(std::make_unique<WorkerThread>("utils")) {
+      utilsThread(std::make_unique<WorkerThread>("utils")),
+      olmUtilityBuffer(::olm_utility_size()) {
+  this->olmUtility = ::olm_utility(olmUtilityBuffer.data());
 }
 
 jsi::Value CommUtilsModule::writeBufferToFile(
@@ -108,6 +111,26 @@ CommUtilsModule::base64EncodeBuffer(jsi::Runtime &rt, jsi::Object data) {
   auto bytes = std::vector<uint8_t>{dataPtr, dataPtr + size};
   auto base64 = Base64::encode(bytes);
   return jsi::String::createFromUtf8(rt, base64);
+}
+
+jsi::String CommUtilsModule::sha256(jsi::Runtime &rt, jsi::Object data) {
+  auto arrayBuffer = data.getArrayBuffer(rt);
+  auto inputPtr = arrayBuffer.data(rt);
+  auto inputSize = arrayBuffer.size(rt);
+
+  auto sha256Size = ::olm_sha256_length(this->olmUtility);
+  OlmBuffer sha256Bytes(sha256Size);
+  auto outputLength = ::olm_sha256(
+      this->olmUtility, inputPtr, inputSize, sha256Bytes.data(), sha256Size);
+  if (outputLength == std::size_t(-1)) {
+    throw jsi::JSError(
+        rt,
+        "olm error: " +
+            std::string{::olm_utility_last_error(this->olmUtility)});
+  }
+
+  std::string sha256String{sha256Bytes.begin(), sha256Bytes.end()};
+  return jsi::String::createFromUtf8(rt, sha256String);
 }
 
 } // namespace comm
