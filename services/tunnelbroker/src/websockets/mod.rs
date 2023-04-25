@@ -4,6 +4,7 @@ use std::net::SocketAddr;
 use std::{env, io::Error};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::mpsc;
+use tokio_tungstenite::tungstenite::Message;
 use tracing::{debug, error, info};
 use tunnelbroker_messages::messages::Messages;
 
@@ -41,17 +42,22 @@ async fn accept_connection(raw_stream: TcpStream, addr: SocketAddr) {
   let (_outgoing, incoming) = ws_stream.split();
 
   let handle_incoming = incoming.try_for_each(|msg| {
-    let message_text = msg.to_text().unwrap();
-    debug!("Received message from {}: {}", addr, message_text);
-
-    match handle_message(message_text) {
-      Ok(_) => {
-        debug!("Successfully handled message: {}", message_text)
+    debug!("Received message from {}", addr);
+    match msg {
+      Message::Text(text) => {
+        match handle_message(&text) {
+          Ok(_) => {
+            debug!("Successfully handled message: {}", text)
+          }
+          Err(e) => {
+            error!("Failed to process message: {}", e);
+          }
+        };
       }
-      Err(e) => {
-        error!("Failed to process message: {}", e);
+      _ => {
+        error!("Invalid message was received");
       }
-    };
+    }
 
     future::ok(())
   });
@@ -61,9 +67,10 @@ async fn accept_connection(raw_stream: TcpStream, addr: SocketAddr) {
   // TODO: Use device's public key, once we support the SessionRequest message
   ACTIVE_CONNECTIONS.insert("test".to_string(), tx.clone());
 
+  debug!("Polling for messages from: {}", addr);
   tokio::select! {
     Some(_) = rx.recv() => { debug!("Received message from channel") },
-    Ok(_) = handle_incoming => { debug!("Received message from websocket" )},
+    Ok(_) = handle_incoming => { debug!("Received message from websocket") },
     else => {
       info!("Connection with {} closed.", addr);
       ACTIVE_CONNECTIONS.remove("test");

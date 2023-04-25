@@ -5,7 +5,8 @@ use dashmap::DashMap;
 use once_cell::sync::Lazy;
 use std::io::{self, Error, ErrorKind};
 use tokio::sync::mpsc::UnboundedSender;
-use tracing;
+use tracing::{self, Level};
+use tracing_subscriber::EnvFilter;
 use tunnelbroker_messages::Messages;
 
 pub static ACTIVE_CONNECTIONS: Lazy<
@@ -14,7 +15,12 @@ pub static ACTIVE_CONNECTIONS: Lazy<
 
 #[tokio::main]
 async fn main() -> Result<(), io::Error> {
-  let subscriber = tracing_subscriber::FmtSubscriber::new();
+  let filter = EnvFilter::builder()
+    .with_default_directive(Level::INFO.into())
+    .with_env_var(constants::LOG_LEVEL_ENV_VAR)
+    .from_env_lossy();
+
+  let subscriber = tracing_subscriber::fmt().with_env_filter(filter).finish();
   tracing::subscriber::set_global_default(subscriber)
     .expect("Unable to configure tracing");
 
