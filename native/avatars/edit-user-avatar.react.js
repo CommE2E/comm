@@ -8,7 +8,6 @@ import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
 import {
-  useENSUserAvatar,
   useSelectFromGalleryAndUpdateUserAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
@@ -29,7 +28,8 @@ function EditUserAvatar(props: Props): React.Node {
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
-  const { userAvatarSaveInProgress, removeUserAvatar } = editUserAvatarContext;
+  const { userAvatarSaveInProgress, setENSUserAvatar, removeUserAvatar } =
+    editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const ethAddress = React.useMemo(
@@ -41,12 +41,8 @@ function EditUserAvatar(props: Props): React.Node {
   const [selectFromGalleryAndUpdateUserAvatar, isGalleryAvatarUpdateLoading] =
     useSelectFromGalleryAndUpdateUserAvatar();
 
-  const [saveENSUserAvatar, isENSAvatarUpdateLoading] = useENSUserAvatar();
-
   const isAvatarUpdateInProgress =
-    isGalleryAvatarUpdateLoading ||
-    isENSAvatarUpdateLoading ||
-    userAvatarSaveInProgress;
+    isGalleryAvatarUpdateLoading || userAvatarSaveInProgress;
 
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
@@ -55,7 +51,7 @@ function EditUserAvatar(props: Props): React.Node {
     ];
 
     if (ensAvatarURI) {
-      configOptions.push({ id: 'ens', onPress: saveENSUserAvatar });
+      configOptions.push({ id: 'ens', onPress: setENSUserAvatar });
     }
 
     configOptions.push({ id: 'remove', onPress: removeUserAvatar });
@@ -65,7 +61,7 @@ function EditUserAvatar(props: Props): React.Node {
     ensAvatarURI,
     onPressEmojiAvatarFlow,
     removeUserAvatar,
-    saveENSUserAvatar,
+    setENSUserAvatar,
     selectFromGalleryAndUpdateUserAvatar,
   ]);
 
