@@ -42,6 +42,7 @@ function MessageResult(props: MessageResultProps): React.Node {
             <Message
               item={item}
               threadInfo={threadInfo}
+              shouldDisplayPinIndicator={false}
               key={item.messageInfo.id}
             />
           </MessageListContext.Provider>
