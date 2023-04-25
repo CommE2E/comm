@@ -7,10 +7,7 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
-import {
-  useSelectFromGalleryAndUpdateUserAvatar,
-  useShowAvatarActionSheet,
-} from './avatar-hooks.js';
+import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import { EditUserAvatarContext } from './edit-user-avatar-provider.react.js';
 import UserAvatar from './user-avatar.react.js';
@@ -28,8 +25,12 @@ function EditUserAvatar(props: Props): React.Node {
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
-  const { userAvatarSaveInProgress, setENSUserAvatar, removeUserAvatar } =
-    editUserAvatarContext;
+  const {
+    userAvatarSaveInProgress,
+    selectFromGalleryAndUpdateUserAvatar,
+    setENSUserAvatar,
+    removeUserAvatar,
+  } = editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const ethAddress = React.useMemo(
@@ -37,12 +38,6 @@ function EditUserAvatar(props: Props): React.Node {
     [currentUserInfo],
   );
   const ensAvatarURI = useENSAvatar(ethAddress);
-
-  const [selectFromGalleryAndUpdateUserAvatar, isGalleryAvatarUpdateLoading] =
-    useSelectFromGalleryAndUpdateUserAvatar();
-
-  const isAvatarUpdateInProgress =
-    isGalleryAvatarUpdateLoading || userAvatarSaveInProgress;
 
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
@@ -71,7 +66,7 @@ function EditUserAvatar(props: Props): React.Node {
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
 
   let spinner;
-  if (isAvatarUpdateInProgress) {
+  if (userAvatarSaveInProgress) {
     spinner = (
       <View style={styles.spinnerContainer}>
         <ActivityIndicator color="white" size="large" />
