@@ -179,25 +179,13 @@ function rawThreadInfosFromServerThreadInfos(
   serverResult: FetchServerThreadInfosResult,
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
-  const hasCodeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, 70);
-  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
-  const hasCodeVersionBelow102 = !hasMinCodeVersion(
-    viewer.platformDetails,
-    102,
-  );
-  const hasCodeVersionBelow104 = !hasMinCodeVersion(
-    viewer.platformDetails,
-    104,
-  );
+  const codeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, 70);
+  const codeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
+  const codeVersionBelow102 = !hasMinCodeVersion(viewer.platformDetails, 102);
+  const codeVersionBelow104 = !hasMinCodeVersion(viewer.platformDetails, 104);
+  const codeVersionBelow209 = !hasMinCodeVersion(viewer.platformDetails, 209);
+  const codeVersionBelow213 = !hasMinCodeVersion(viewer.platformDetails, 213);
 
-  // TODO (atul): Replace with `hasMinCodeVersion` check once we have a
-  //              native release with thread avatar editing enabled.
-  const filterThreadEditAvatarPermission = true;
-
-  const hasCodeVersionBelow209 = !hasMinCodeVersion(
-    viewer.platformDetails,
-    209,
-  );
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
@@ -205,13 +193,13 @@ function rawThreadInfosFromServerThreadInfos(
       serverThreadInfo,
       viewerID,
       {
-        includeVisibilityRules: hasCodeVersionBelow70,
-        filterMemberList: hasCodeVersionBelow70,
-        shimThreadTypes: hasCodeVersionBelow87 ? shimCommunityRoot : null,
-        hideThreadStructure: hasCodeVersionBelow102,
-        filterDetailedThreadEditPermissions: hasCodeVersionBelow104,
-        filterThreadEditAvatarPermission,
-        excludePinInfo: hasCodeVersionBelow209,
+        includeVisibilityRules: codeVersionBelow70,
+        filterMemberList: codeVersionBelow70,
+        shimThreadTypes: codeVersionBelow87 ? shimCommunityRoot : null,
+        hideThreadStructure: codeVersionBelow102,
+        filterDetailedThreadEditPermissions: codeVersionBelow104,
+        filterThreadEditAvatarPermission: codeVersionBelow213,
+        excludePinInfo: codeVersionBelow209,
       },
     );
     if (threadInfo) {
