@@ -48,7 +48,6 @@ function updateRolesAndPermissions(
   threadStoreInfos: ThreadStoreThreadInfos,
 ): ThreadStoreThreadInfos {
   const updatedThreadStoreInfos = { ...threadStoreInfos };
-  const rootNodes = constructThreadTraversalNodes(updatedThreadStoreInfos);
 
   const recursivelyUpdateRoles = (node: $ReadOnly<ThreadTraversalNode>) => {
     const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
@@ -64,8 +63,6 @@ function updateRolesAndPermissions(
 
     return node.children?.map(recursivelyUpdateRoles);
   };
-
-  rootNodes.map(recursivelyUpdateRoles);
 
   const recursivelyUpdatePermissions = (
     node: $ReadOnly<ThreadTraversalNode>,
@@ -110,8 +107,45 @@ function updateRolesAndPermissions(
     );
   };
 
-  rootNodes.map(node => recursivelyUpdatePermissions(node, null));
+  const recursivelyUpdateCurrentMemberPermissions = (
+    node: $ReadOnly<ThreadTraversalNode>,
+    permissionsFromParent: ?ThreadPermissionsBlob,
+  ) => {
+    const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
+    const { currentUser, roles } = threadInfo;
+    const { role } = currentUser;
 
+    const rolePermissions = role ? roles[role].permissions : null;
+    const computedPermissions = makePermissionsBlob(
+      rolePermissions,
+      permissionsFromParent,
+      threadInfo.id,
+      threadInfo.type,
+    );
+
+    updatedThreadStoreInfos[node.threadID] = {
+      ...threadInfo,
+      currentUser: {
+        ...currentUser,
+        permissions: getAllThreadPermissions(
+          computedPermissions,
+          threadInfo.id,
+        ),
+      },
+    };
+
+    return node.children?.map(child =>
+      recursivelyUpdateCurrentMemberPermissions(
+        child,
+        makePermissionsForChildrenBlob(computedPermissions),
+      ),
+    );
+  };
+
+  const rootNodes = constructThreadTraversalNodes(updatedThreadStoreInfos);
+  rootNodes.map(recursivelyUpdateRoles);
+  rootNodes.map(node => recursivelyUpdatePermissions(node, null));
+  rootNodes.map(node => recursivelyUpdateCurrentMemberPermissions(node, null));
   return updatedThreadStoreInfos;
 }
 
