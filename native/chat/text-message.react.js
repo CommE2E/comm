@@ -23,6 +23,7 @@ import textMessageSendFailed from './text-message-send-failed.js';
 import { getMessageTooltipKey } from './utils.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
 import { MarkdownContext } from '../markdown/markdown-context.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import {
   OverlayContext,
   type OverlayContextType,
@@ -37,8 +38,10 @@ import { useShouldRenderEditButton } from '../utils/edit-messages-utils.js';
 type BaseProps = {
   ...React.ElementConfig<typeof View>,
   +item: ChatTextMessageInfoItemWithHeight,
-  +navigation: ChatNavigationProp<'MessageList'>,
-  +route: NavigationRoute<'MessageList'>,
+  +navigation:
+    | ChatNavigationProp<'MessageList'>
+    | AppNavigationProp<'TogglePinModal'>,
+  +route: NavigationRoute<'MessageList'> | NavigationRoute<'TogglePinModal'>,
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
