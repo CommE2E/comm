@@ -14,6 +14,7 @@ import {
   useModalContext,
   type PushModal,
 } from 'lib/components/modal-provider.react.js';
+import { fetchableMediaURI } from 'lib/media/media-utils.js';
 import type { MediaType, EncryptedMediaType } from 'lib/types/media-types.js';
 
 import EncryptedMultimedia from './encrypted-multimedia.react.js';
@@ -118,11 +119,13 @@ class Multimedia extends React.PureComponent<Props> {
     // Media element is the actual image or video element (or encrypted version)
     let mediaElement;
     if (mediaSource.type === 'photo') {
-      mediaElement = <img src={mediaSource.uri} />;
+      const uri = fetchableMediaURI(mediaSource.uri);
+      mediaElement = <img src={uri} />;
     } else if (mediaSource.type === 'video') {
+      const uri = fetchableMediaURI(mediaSource.uri);
       mediaElement = (
         <video controls>
-          <source src={mediaSource.uri} />
+          <source src={uri} />
         </video>
       );
     } else if (

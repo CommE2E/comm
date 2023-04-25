@@ -5,6 +5,7 @@ import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { fetchableMediaURI } from 'lib/media/media-utils.js';
 import type { EncryptedMediaType, MediaType } from 'lib/types/media-types.js';
 
 import EncryptedMultimedia from './encrypted-multimedia.react.js';
@@ -42,11 +43,13 @@ class MultimediaModal extends React.PureComponent<Props> {
     let mediaModalItem;
     const { media } = this.props;
     if (media.type === 'photo') {
-      mediaModalItem = <img src={media.uri} />;
+      const uri = fetchableMediaURI(media.uri);
+      mediaModalItem = <img src={uri} />;
     } else if (media.type === 'video') {
+      const uri = fetchableMediaURI(media.uri);
       mediaModalItem = (
         <video controls>
-          <source src={media.uri} />
+          <source src={uri} />
         </video>
       );
     } else {
