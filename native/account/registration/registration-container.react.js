@@ -3,8 +3,11 @@
 import { useHeaderHeight } from '@react-navigation/elements';
 import * as React from 'react';
 import { ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useStyles } from '../../themes/colors.js';
+
+const safeAreaEdges = ['bottom'];
 
 type ViewProps = React.ElementConfig<typeof ScrollView>;
 type Props = {
@@ -29,17 +32,22 @@ function RegistrationContainer(props: Props): React.Node {
   );
 
   return (
-    <ScrollView
-      contentContainerStyle={contentContainerStyle}
-      style={backgroundStyle}
-      {...rest}
-    >
-      {children}
-    </ScrollView>
+    <SafeAreaView style={styles.fill} edges={safeAreaEdges}>
+      <ScrollView
+        contentContainerStyle={contentContainerStyle}
+        style={backgroundStyle}
+        {...rest}
+      >
+        {children}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const unboundStyles = {
+  fill: {
+    flex: 1,
+  },
   scrollViewContentContainer: {
     padding: 16,
   },
