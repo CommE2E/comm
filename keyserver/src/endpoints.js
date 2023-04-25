@@ -63,7 +63,10 @@ import {
   updateUserAvatarResponder,
 } from './responders/user-responders.js';
 import { codeVerificationResponder } from './responders/verification-responders.js';
-import { uploadDeletionResponder } from './uploads/uploads.js';
+import {
+  uploadMediaMetadataResponder,
+  uploadDeletionResponder,
+} from './uploads/uploads.js';
 
 const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_account: {
@@ -260,6 +263,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   update_user_avatar: {
     responder: updateUserAvatarResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  upload_media_metadata: {
+    responder: uploadMediaMetadataResponder,
     requiredPolicies: baseLegalPolicies,
   },
 };
