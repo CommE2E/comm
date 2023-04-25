@@ -19,6 +19,9 @@ lazy_static = "1.4.0"
 num_cpus = "1.13.1"
 sha2 = "0.10.2"
 hex = "0.4.3"
+tokio-tungstenite = "0.18.0"
+url = "2.3.1"
+futures-util = "0.3.28"
 
 [build-dependencies]
 tonic-build = "0.8"
