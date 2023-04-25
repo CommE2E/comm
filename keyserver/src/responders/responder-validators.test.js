@@ -1,6 +1,24 @@
 // @flow
 
 import {
+  setThreadUnreadStatusResult,
+  updateActivityResultValidator,
+} from 'lib/types/activity-types.js';
+
+import {
+  fetchEntryInfosResponseValidator,
+  fetchEntryRevisionInfosResultValidator,
+  saveEntryResponseValidator,
+  deleteEntryResponseValidator,
+  deltaEntryInfosResultValidator,
+  restoreEntryResponseValidator,
+} from './entry-responders.js';
+import { getSessionPublicKeysResponseValidator } from './keys-responders.js';
+import { messageReportCreationResultValidator } from './message-report-responder.js';
+import { relationshipErrorsValidator } from './relationship-responders.js';
+import { userSearchResultValidator } from './search-responders.js';
+import { siweNonceResponseValidator } from './siwe-nonce-responders.js';
+import {
   logInResponseValidator,
   registerResponseValidator,
   logOutResponseValidator,
@@ -328,6 +346,274 @@ describe('user responder validators', () => {
     expect(logInResponseValidator.is(response)).toBe(true);
     expect(
       logInResponseValidator.is({ ...response, currentUserInfo: undefined }),
+    ).toBe(false);
+  });
+});
+
+describe('search responder', () => {
+  it('should validate search response', () => {
+    const response = {
+      userInfos: [
+        { id: '83817', username: 'temp_user0' },
+        { id: '83853', username: 'temp_user1' },
+        { id: '83890', username: 'temp_user2' },
+        { id: '83928', username: 'temp_user3' },
+      ],
+    };
+
+    expect(userSearchResultValidator.is(response)).toBe(true);
+    response.userInfos.push({ id: 123 });
+    expect(userSearchResultValidator.is(response)).toBe(false);
+  });
+});
+
+describe('message report responder', () => {
+  it('should validate message report response', () => {
+    const response = {
+      messageInfo: {
+        type: 0,
+        threadID: '101113',
+        creatorID: '5',
+        time: 1682429699746,
+        text: 'text',
+        id: '101121',
+      },
+    };
+
+    expect(messageReportCreationResultValidator.is(response)).toBe(true);
+    response.messageInfo.type = -2;
+    expect(messageReportCreationResultValidator.is(response)).toBe(false);
+  });
+});
+
+describe('relationship responder', () => {
+  it('should validate relationship response', () => {
+    const response = {
+      invalid_user: ['83817', '83890'],
+      already_friends: ['83890'],
+    };
+
+    expect(relationshipErrorsValidator.is(response)).toBe(true);
+    expect(
+      relationshipErrorsValidator.is({ ...response, user_blocked: {} }),
+    ).toBe(false);
+  });
+});
+
+describe('activity responder', () => {
+  it('should validate update activity response', () => {
+    const response = { unfocusedToUnread: ['93095'] };
+    expect(updateActivityResultValidator.is(response)).toBe(true);
+    response.unfocusedToUnread.push(123);
+    expect(updateActivityResultValidator.is(response)).toBe(false);
+  });
+
+  it('should validate set thread unread response', () => {
+    const response = { resetToUnread: false };
+    expect(setThreadUnreadStatusResult.is(response)).toBe(true);
+    expect(setThreadUnreadStatusResult.is({ ...response, unread: false })).toBe(
+      false,
+    );
+  });
+});
+
+describe('keys responder', () => {
+  it('should validate get session public keys response', () => {
+    const response = {
+      identityKey: 'key',
+      oneTimeKey: 'key',
+    };
+
+    expect(getSessionPublicKeysResponseValidator.is(response)).toBe(true);
+    expect(getSessionPublicKeysResponseValidator.is(null)).toBe(true);
+    expect(
+      getSessionPublicKeysResponseValidator.is({
+        ...response,
+        identityKey: undefined,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('siwe nonce responders', () => {
+  it('should validate siwe nonce response', () => {
+    const response = { nonce: 'nonce' };
+    expect(siweNonceResponseValidator.is(response)).toBe(true);
+    expect(siweNonceResponseValidator.is({ nonce: 123 })).toBe(false);
+  });
+});
+
+describe('entry reponders', () => {
+  it('should validate entry fetch response', () => {
+    const response = {
+      rawEntryInfos: [
+        {
+          id: '92860',
+          threadID: '85068',
+          text: 'text',
+          year: 2023,
+          month: 4,
+          day: 2,
+          creationTime: 1682082939882,
+          creatorID: '83853',
+          deleted: false,
+        },
+      ],
+      userInfos: {
+        '123': {
+          id: '123',
+          username: 'username',
+        },
+      },
+    };
+    expect(fetchEntryInfosResponseValidator.is(response)).toBe(true);
+    expect(
+      fetchEntryInfosResponseValidator.is({
+        ...response,
+        userInfos: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate entry revision fetch response', () => {
+    const response = {
+      result: [
+        {
+          id: '93297',
+          authorID: '83853',
+          text: 'text',
+          lastUpdate: 1682603494202,
+          deleted: false,
+          threadID: '83859',
+          entryID: '93270',
+        },
+        {
+          id: '93284',
+          authorID: '83853',
+          text: 'text',
+          lastUpdate: 1682603426996,
+          deleted: true,
+          threadID: '83859',
+          entryID: '93270',
+        },
+      ],
+    };
+    expect(fetchEntryRevisionInfosResultValidator.is(response)).toBe(true);
+    expect(
+      fetchEntryRevisionInfosResultValidator.is({
+        ...response,
+        result: {},
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate entry save response', () => {
+    const response = {
+      entryID: '93270',
+      newMessageInfos: [
+        {
+          type: 9,
+          threadID: '83859',
+          creatorID: '83853',
+          time: 1682603362817,
+          entryID: '93270',
+          date: '2023-04-03',
+          text: 'text',
+          id: '93272',
+        },
+      ],
+      updatesResult: { viewerUpdates: [], userInfos: [] },
+    };
+
+    expect(saveEntryResponseValidator.is(response)).toBe(true);
+    expect(
+      saveEntryResponseValidator.is({
+        ...response,
+        entryID: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate entry delete response', () => {
+    const response = {
+      threadID: '83859',
+      newMessageInfos: [
+        {
+          type: 11,
+          threadID: '83859',
+          creatorID: '83853',
+          time: 1682603427038,
+          entryID: '93270',
+          date: '2023-04-03',
+          text: 'text',
+          id: '93285',
+        },
+      ],
+      updatesResult: { viewerUpdates: [], userInfos: [] },
+    };
+    expect(deleteEntryResponseValidator.is(response)).toBe(true);
+    expect(
+      deleteEntryResponseValidator.is({
+        ...response,
+        threadID: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate entry restore response', () => {
+    const response = {
+      newMessageInfos: [
+        {
+          type: 11,
+          threadID: '83859',
+          creatorID: '83853',
+          time: 1682603427038,
+          entryID: '93270',
+          date: '2023-04-03',
+          text: 'text',
+          id: '93285',
+        },
+      ],
+      updatesResult: { viewerUpdates: [], userInfos: [] },
+    };
+    expect(restoreEntryResponseValidator.is(response)).toBe(true);
+    expect(
+      restoreEntryResponseValidator.is({
+        ...response,
+        newMessageInfos: undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('should validate entry delta response', () => {
+    const response = {
+      rawEntryInfos: [
+        {
+          id: '92860',
+          threadID: '85068',
+          text: 'text',
+          year: 2023,
+          month: 4,
+          day: 2,
+          creationTime: 1682082939882,
+          creatorID: '83853',
+          deleted: false,
+        },
+      ],
+      deletedEntryIDs: ['92860'],
+      userInfos: {
+        '123': {
+          id: '123',
+          username: 'username',
+        },
+      },
+    };
+    expect(deltaEntryInfosResultValidator.is(response)).toBe(true);
+    expect(
+      deltaEntryInfosResultValidator.is({
+        ...response,
+        rawEntryInfos: undefined,
+      }),
     ).toBe(false);
   });
 });
