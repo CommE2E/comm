@@ -1,5 +1,11 @@
 // @flow
 
+import {
+  getBlobFetchableURL,
+  holderFromBlobServiceURI,
+  isBlobServiceURI,
+} from 'lib/utils/blob-service.js';
+
 function getCompatibleMediaURI(uri: string, ext: ?string): string {
   if (!ext) {
     return uri;
@@ -42,6 +48,11 @@ function getMediaLibraryIdentifier(inputURI: string): ?string {
 }
 
 function getFetchableURI(inputURI: string): string {
+  if (isBlobServiceURI(inputURI)) {
+    const holder = holderFromBlobServiceURI(inputURI);
+    return getBlobFetchableURL(holder);
+  }
+
   // React Native always resolves Apple's assets-library:// and FBMediaKit's
   // ph:// scheme as an image so that the Image component can render thumbnails
   // of videos. In order to force fetch() to return a blob of the video, we need

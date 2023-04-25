@@ -6,6 +6,11 @@ import type {
   MediaMissionStep,
   MediaMissionFailure,
 } from 'lib/types/media-types.js';
+import {
+  isBlobServiceURI,
+  getBlobFetchableURL,
+  holderFromBlobServiceURI,
+} from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { probeFile } from './blob-utils.js';
@@ -193,4 +198,13 @@ async function validateFile(
   };
 }
 
-export { preloadImage, validateFile };
+function fetchableMediaURI(uri: string): string {
+  if (isBlobServiceURI(uri)) {
+    const holder = holderFromBlobServiceURI(uri);
+    return getBlobFetchableURL(holder);
+  }
+
+  return uri;
+}
+
+export { preloadImage, validateFile, fetchableMediaURI };

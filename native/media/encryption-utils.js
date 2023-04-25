@@ -268,6 +268,9 @@ async function decryptMedia(
   let data;
   try {
     const response = await fetch(getFetchableURI(holder));
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+    }
     const buf = await response.arrayBuffer();
     data = new Uint8Array(buf);
   } catch (e) {
