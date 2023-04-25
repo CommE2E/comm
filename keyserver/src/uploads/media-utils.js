@@ -30,6 +30,18 @@ function initializeSharp(buffer: Buffer, mime: string) {
   });
 }
 
+function getMediaType(inputMimeType: string): 'photo' | 'video' | null {
+  if (!serverCanHandleTypes.has(inputMimeType)) {
+    return null;
+  }
+  const mediaType = mediaConfig[inputMimeType]?.mediaType;
+  invariant(
+    mediaType === 'photo' || mediaType === 'video',
+    `mediaType for ${inputMimeType} should be photo or video`,
+  );
+  return mediaType;
+}
+
 type ValidateAndConvertInput = {
   +initialBuffer: Buffer,
   +initialName: string,
@@ -63,14 +75,10 @@ async function validateAndConvert(
       'inputDimensions should be set in validateAndConvert for encrypted files',
     );
 
-    if (!serverCanHandleTypes.has(inputMimeType)) {
+    const mediaType = getMediaType(inputMimeType);
+    if (!mediaType) {
       return null;
     }
-    const mediaType = mediaConfig[inputMimeType]?.mediaType;
-    invariant(
-      mediaType === 'photo' || mediaType === 'video',
-      `mediaType for ${inputMimeType} should be photo or video`,
-    );
 
     return {
       name: initialName,
@@ -216,4 +224,4 @@ async function convertImage(
   };
 }
 
-export { validateAndConvert };
+export { getMediaType, validateAndConvert };
