@@ -12,6 +12,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { calculatePaddedLength, pad, unpad } from 'lib/utils/pkcs7-padding.js';
 
 import * as AES from './aes-crypto-utils.js';
+import { fetchableMediaURI } from './media-utils.js';
 
 const PADDING_THRESHOLD = 5000000; // 5MB
 
@@ -139,8 +140,9 @@ async function decryptMedia(
   // Step 1 - Fetch the encrypted media and convert it to a Uint8Array
   let data;
   const fetchStartTime = Date.now();
+  const url = fetchableMediaURI(holder);
   try {
-    const response = await fetch(holder);
+    const response = await fetch(url);
     const buffer = await response.arrayBuffer();
     data = new Uint8Array(buffer);
   } catch (e) {
@@ -149,7 +151,7 @@ async function decryptMedia(
   }
   steps.push({
     step: 'fetch_buffer',
-    url: holder,
+    url,
     time: Date.now() - fetchStartTime,
     success,
     exceptionMessage,
