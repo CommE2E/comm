@@ -12,6 +12,7 @@ import type {
   ThreadFetchMediaResult,
   ThreadFetchMediaRequest,
 } from 'lib/types/thread-types.js';
+import { makeBlobServiceURI } from 'lib/utils/blob-service.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -29,7 +30,7 @@ async function fetchUpload(
   secret: string,
 ): Promise<UploadInfo> {
   const query = SQL`
-    SELECT content, mime
+    SELECT content, mime, extra
     FROM uploads
     WHERE id = ${id} AND secret = ${secret}
   `;
@@ -39,7 +40,11 @@ async function fetchUpload(
     throw new ServerError('invalid_parameters');
   }
   const [row] = result;
-  const { content, mime } = row;
+  const { content, mime, extra } = row;
+  const { blobHolder } = JSON.parse(extra);
+  if (blobHolder) {
+    throw new ServerError('resource_unavailable');
+  }
   return { content, mime };
 }
 
@@ -51,7 +56,7 @@ async function fetchUploadChunk(
 ): Promise<UploadInfo> {
   // We use pos + 1 because SQL is 1-indexed whereas js is 0-indexed
   const query = SQL`
-    SELECT SUBSTRING(content, ${pos + 1}, ${len}) AS content, mime
+    SELECT SUBSTRING(content, ${pos + 1}, ${len}) AS content, mime, extra
     FROM uploads
     WHERE id = ${id} AND secret = ${secret}
   `;
@@ -61,7 +66,13 @@ async function fetchUploadChunk(
     throw new ServerError('invalid_parameters');
   }
   const [row] = result;
-  const { content, mime } = row;
+  const { content, mime, extra } = row;
+  if (extra) {
+    const { blobHolder } = JSON.parse(extra);
+    if (blobHolder) {
+      throw new ServerError('resource_unavailable');
+    }
+  }
   return {
     content,
     mime,
@@ -71,7 +82,7 @@ async function fetchUploadChunk(
 // Returns total size in bytes.
 async function getUploadSize(id: string, secret: string): Promise<number> {
   const query = SQL`
-    SELECT LENGTH(content) AS length
+    SELECT LENGTH(content) AS length, extra
     FROM uploads
     WHERE id = ${id} AND secret = ${secret}
   `;
@@ -82,7 +93,13 @@ async function getUploadSize(id: string, secret: string): Promise<number> {
   }
 
   const [row] = result;
-  const { length } = row;
+  const { length, extra } = row;
+  if (extra) {
+    const { blobHolder } = JSON.parse(extra);
+    if (blobHolder) {
+      throw new ServerError('resource_unavailable');
+    }
+  }
   return length;
 }
 
@@ -97,14 +114,21 @@ function getUploadURL(id: string, secret: string): string {
   return `${baseDomain}${uploadPath}`;
 }
 
+function makeUploadURI(holder: ?string, id: string, secret: string): string {
+  if (holder) {
+    return makeBlobServiceURI(holder);
+  }
+  return getUploadURL(id, secret);
+}
+
 function imagesFromRow(row: Object): Image | EncryptedImage {
   const uploadExtra = JSON.parse(row.uploadExtra);
-  const { width, height } = uploadExtra;
+  const { width, height, blobHolder } = uploadExtra;
 
   const { uploadType: type, uploadSecret: secret } = row;
   const id = row.uploadID.toString();
   const dimensions = { width, height };
-  const uri = getUploadURL(id, secret);
+  const uri = makeUploadURI(blobHolder, id, secret);
   const isEncrypted = !!uploadExtra.encryptionKey;
   if (type !== 'photo') {
     throw new ServerError('invalid_parameters');
@@ -188,15 +212,17 @@ async function fetchMediaForThread(
 
   const media = uploads.map(upload => {
     const { uploadID, uploadType, uploadSecret, uploadExtra } = upload;
-    const { width, height, encryptionKey } = JSON.parse(uploadExtra);
+    const { width, height, encryptionKey, blobHolder } =
+      JSON.parse(uploadExtra);
     const dimensions = { width, height };
+    const uri = makeUploadURI(blobHolder, uploadID, uploadSecret);
 
     if (uploadType === 'photo') {
       if (encryptionKey) {
         return {
           type: 'encrypted_photo',
           id: uploadID.toString(),
-          holder: getUploadURL(uploadID, uploadSecret),
+          holder: uri,
           encryptionKey,
           dimensions,
         };
@@ -204,24 +230,31 @@ async function fetchMediaForThread(
       return {
         type: 'photo',
         id: uploadID.toString(),
-        uri: getUploadURL(uploadID, uploadSecret),
+        uri,
         dimensions,
       };
     }
 
     const { thumbnailID, thumbnailUploadSecret, thumbnailUploadExtra } = upload;
+    const {
+      encryptionKey: thumbnailEncryptionKey,
+      blobHolder: thumbnailBlobHolder,
+    } = JSON.parse(thumbnailUploadExtra);
+    const thumbnailURI = makeUploadURI(
+      thumbnailBlobHolder,
+      thumbnailID,
+      thumbnailUploadSecret,
+    );
 
     if (encryptionKey) {
-      const { encryptionKey: thumbnailEncryptionKey } =
-        JSON.parse(thumbnailUploadExtra);
       return {
         type: 'encrypted_video',
         id: uploadID.toString(),
-        holder: getUploadURL(uploadID, uploadSecret),
+        holder: uri,
         encryptionKey,
         dimensions,
         thumbnailID,
-        thumbnailHolder: getUploadURL(thumbnailID, thumbnailUploadSecret),
+        thumbnailHolder: thumbnailURI,
         thumbnailEncryptionKey,
       };
     }
@@ -229,10 +262,10 @@ async function fetchMediaForThread(
     return {
       type: 'video',
       id: uploadID.toString(),
-      uri: getUploadURL(uploadID, uploadSecret),
+      uri,
       dimensions,
       thumbnailID,
-      thumbnailURI: getUploadURL(thumbnailID, thumbnailUploadSecret),
+      thumbnailURI,
     };
   });
 
@@ -279,12 +312,15 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
     const primaryUploadID = mediaMessageContent.uploadID;
     const primaryUpload = uploadMap[primaryUploadID];
 
-    const primaryUploadSecret = primaryUpload.uploadSecret;
-    const primaryUploadURI = getUploadURL(primaryUploadID, primaryUploadSecret);
-
     const uploadExtra = JSON.parse(primaryUpload.uploadExtra);
-    const { width, height, loop, encryptionKey } = uploadExtra;
+    const { width, height, loop, blobHolder, encryptionKey } = uploadExtra;
     const dimensions = { width, height };
+
+    const primaryUploadURI = makeUploadURI(
+      blobHolder,
+      primaryUploadID,
+      primaryUpload.uploadSecret,
+    );
 
     if (mediaMessageContent.type === 'photo') {
       if (encryptionKey) {
@@ -309,12 +345,13 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
     const thumbnailUploadID = mediaMessageContent.thumbnailUploadID;
     const thumbnailUpload = uploadMap[thumbnailUploadID];
 
-    const thumbnailUploadSecret = thumbnailUpload.uploadSecret;
-    const thumbnailUploadURI = getUploadURL(
-      thumbnailUploadID,
-      thumbnailUploadSecret,
-    );
     const thumbnailUploadExtra = JSON.parse(thumbnailUpload.uploadExtra);
+    const { blobHolder: thumbnailBlobHolder } = thumbnailUploadExtra;
+    const thumbnailUploadURI = makeUploadURI(
+      thumbnailBlobHolder,
+      thumbnailUploadID,
+      thumbnailUpload.uploadSecret,
+    );
 
     if (encryptionKey) {
       const video = {
@@ -349,6 +386,7 @@ export {
   fetchUploadChunk,
   getUploadSize,
   getUploadURL,
+  makeUploadURI,
   imagesFromRow,
   fetchImages,
   fetchMediaForThread,
