@@ -134,7 +134,12 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
       <Text style={styles.modalConfirmationText}>
         {modalInfo.confirmationText}
       </Text>
-      <MessageResult item={modifiedItem} threadInfo={threadInfo} />
+      <MessageResult
+        item={modifiedItem}
+        threadInfo={threadInfo}
+        navigation={navigation}
+        route={route}
+      />
       <View style={styles.buttonsContainer}>
         <Button style={modalInfo.buttonStyle} onPress={onPress}>
           <Text style={styles.textColor}>{modalInfo.buttonText}</Text>
