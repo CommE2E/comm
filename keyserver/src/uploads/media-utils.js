@@ -76,7 +76,7 @@ async function validateAndConvert(
       name: initialName,
       mime: inputMimeType,
       mediaType,
-      buffer: initialBuffer,
+      content: { storage: 'keyserver', buffer: initialBuffer },
       dimensions: inputDimensions,
       loop: inputLoop,
       encryptionKey: inputEncryptionKey,
@@ -101,7 +101,7 @@ async function validateAndConvert(
       mime: mime,
       mediaType: mediaType,
       name: initialName,
-      buffer: initialBuffer,
+      content: { storage: 'keyserver', buffer: initialBuffer },
       dimensions: inputDimensions,
       loop: inputLoop,
     };
@@ -160,7 +160,7 @@ async function convertImage(
       mime,
       mediaType: 'photo',
       name,
-      buffer: initialBuffer,
+      content: { storage: 'keyserver', buffer: initialBuffer },
       dimensions: initialDimensions,
       loop: inputLoop,
     };
@@ -210,7 +210,7 @@ async function convertImage(
     mime: targetMIME,
     mediaType: 'photo',
     name: convertedName,
-    buffer: convertedBuffer,
+    content: { storage: 'keyserver', buffer: convertedBuffer },
     dimensions: convertedDimensions,
     loop: inputLoop,
   };
