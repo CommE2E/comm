@@ -15,6 +15,7 @@ import { Timestamp } from './timestamp.react.js';
 import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils.js';
 import { ChatContext } from '../chat/chat-context.js';
 import { KeyboardContext } from '../keyboard/keyboard-state.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -27,8 +28,10 @@ import { AnimatedView } from '../types/styles.js';
 type Props = {
   ...React.ElementConfig<typeof View>,
   +item: ChatRobotextMessageInfoItemWithHeight,
-  +navigation: ChatNavigationProp<'MessageList'>,
-  +route: NavigationRoute<'MessageList'>,
+  +navigation:
+    | ChatNavigationProp<'MessageList'>
+    | AppNavigationProp<'TogglePinModal'>,
+  +route: NavigationRoute<'MessageList'> | NavigationRoute<'TogglePinModal'>,
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
