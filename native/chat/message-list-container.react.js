@@ -1,9 +1,10 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome5.js';
 import { useNavigationState } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -209,6 +210,18 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 }
 
 const unboundStyles = {
+  pinnedCountBanner: {
+    backgroundColor: 'panelForeground',
+    height: 30,
+    flexDirection: 'row',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pinnedCountText: {
+    color: 'panelBackgroundLabel',
+    marginRight: 5,
+  },
   container: {
     backgroundColor: 'listBackground',
     flex: 1,
@@ -349,8 +362,40 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       state => threadInfoSelector(state)[genesis.id],
     );
 
+    const bannerText = React.useMemo(() => {
+      if (!threadInfo.pinnedCount || threadInfo.pinnedCount === 0) {
+        return '';
+      }
+
+      const messageNoun = threadInfo.pinnedCount === 1 ? 'message' : 'messages';
+      return `${threadInfo.pinnedCount} pinned ${messageNoun}`;
+    }, [threadInfo.pinnedCount]);
+
+    const pinnedCountBanner = React.useMemo(() => {
+      if (!bannerText) {
+        return null;
+      }
+
+      return (
+        <View style={styles.pinnedCountBanner}>
+          <Text style={styles.pinnedCountText}>{bannerText}</Text>
+          <Icon
+            name="chevron-right"
+            size={12}
+            color={colors.panelBackgroundLabel}
+          />
+        </View>
+      );
+    }, [
+      bannerText,
+      styles.pinnedCountBanner,
+      styles.pinnedCountText,
+      colors.panelBackgroundLabel,
+    ]);
+
     return (
       <MessageListContextProvider threadInfo={threadInfo}>
+        {pinnedCountBanner}
         <MessageListContainer
           {...props}
           usernameInputText={usernameInputText}
