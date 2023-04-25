@@ -6,7 +6,7 @@ import {
   type StackNavigationHelpers,
 } from '@react-navigation/stack';
 import * as React from 'react';
-import { View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import KeyserverSelection from './keyserver-selection.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
@@ -16,6 +16,8 @@ import {
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+
+const safeAreaEdges = ['bottom'];
 
 export type RegistrationNavigationProp<
   RouteName: $Keys<RegistrationParamList> = $Keys<RegistrationParamList>,
@@ -45,19 +47,19 @@ type Props = {
 function RegistrationNavigator(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   return (
-    <View style={styles.view}>
+    <SafeAreaView style={styles.container} edges={safeAreaEdges}>
       <Registration.Navigator screenOptions={screenOptions}>
         <Registration.Screen
           name={KeyserverSelectionRouteName}
           component={KeyserverSelection}
         />
       </Registration.Navigator>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const unboundStyles = {
-  view: {
+  container: {
     flex: 1,
     backgroundColor: 'panelBackground',
   },
