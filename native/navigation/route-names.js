@@ -78,6 +78,7 @@ export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const ThreadSettingsRouteName = 'ThreadSettings';
+export const UserAvatarCameraModalRouteName = 'UserAvatarCameraModal';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
 export const RegistrationRouteName = 'Registration';
@@ -117,6 +118,7 @@ export type OverlayParamList = {
   +ImageModal: ImageModalParams,
   +ActionResultModal: ActionResultModalParams,
   +ChatCameraModal: ChatCameraModalParams,
+  +UserAvatarCameraModal: void,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
 };
