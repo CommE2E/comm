@@ -8451,8 +8451,475 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
     },
   };
 
+// Clear out contents of role permissions AND member permissions
+// AND current member permissions to ensure `updateRolesAndPermissions`
+// constructs them properly without dependingon anything from existing store.
+const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadStoreThreadInfos =
+  {
+    '1': {
+      color: 'b8753d',
+      community: null,
+      containingThreadID: null,
+      creationTime: 1679537878106,
+      currentUser: {
+        permissions: {},
+        role: '83795',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description:
+        'This is the first community on Comm. In the future it will be possible to create chats outside of a community, but for now all of these chats get set with GENESIS as their parent. GENESIS is hosted on Ashoat’s keyserver.',
+      id: '1',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: '83796',
+        },
+        {
+          id: '84589',
+          isSender: false,
+          permissions: {},
+          role: '83795',
+        },
+      ],
+      name: 'GENESIS',
+      parentThreadID: null,
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '83795': {
+          id: '83795',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+        '83796': {
+          id: '83796',
+          isDefault: false,
+          name: 'Admins',
+          permissions: {},
+        },
+      },
+      type: 12,
+    },
+    '84596': {
+      color: '575757',
+      community: '1',
+      containingThreadID: '1',
+      creationTime: 1680734420100,
+      currentUser: {
+        permissions: {},
+        role: '84597',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description:
+        'This is your private chat, where you can set reminders and jot notes in private!',
+      id: '84596',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '84589',
+          isSender: false,
+          permissions: {},
+          role: '84597',
+        },
+      ],
+      name: 'hillary',
+      parentThreadID: '1',
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '84597': {
+          id: '84597',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      type: 7,
+    },
+    '84598': {
+      color: '5c9f5f',
+      community: '1',
+      containingThreadID: '1',
+      creationTime: 1680734420159,
+      currentUser: {
+        permissions: {},
+        role: '84599',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description: '',
+      id: '84598',
+      members: [
+        {
+          id: '256',
+          isSender: true,
+          permissions: {},
+          role: '84599',
+        },
+        {
+          id: '84589',
+          isSender: false,
+          permissions: {},
+          role: '84599',
+        },
+      ],
+      name: '',
+      parentThreadID: '1',
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '84599': {
+          id: '84599',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      type: 6,
+    },
+    '84627': {
+      color: 'aa4b4b',
+      community: '1',
+      containingThreadID: '1',
+      creationTime: 1680734427175,
+      currentUser: {
+        permissions: {},
+        role: '84628',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description: '',
+      id: '84627',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '83969',
+          isSender: false,
+          permissions: {},
+          role: '84628',
+        },
+        {
+          id: '84589',
+          isSender: false,
+          permissions: {},
+          role: '84628',
+        },
+      ],
+      name: '',
+      parentThreadID: '1',
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '84628': {
+          id: '84628',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      type: 6,
+    },
+    '84656': {
+      color: '6d49ab',
+      community: '1',
+      containingThreadID: '1',
+      creationTime: 1680734490721,
+      currentUser: {
+        permissions: {},
+        role: '84657',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description: '',
+      id: '84656',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '83809',
+          isSender: true,
+          permissions: {},
+          role: '84657',
+        },
+        {
+          id: '83969',
+          isSender: true,
+          permissions: {},
+          role: '84657',
+        },
+        {
+          id: '84589',
+          isSender: false,
+          permissions: {},
+          role: '84657',
+        },
+      ],
+      name: 'group',
+      parentThreadID: '1',
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '84657': {
+          id: '84657',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      type: 4,
+    },
+    '86071': {
+      color: '6d49ab',
+      community: '1',
+      containingThreadID: '1',
+      creationTime: 1681160151827,
+      currentUser: {
+        permissions: {},
+        role: '86072',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description: '',
+      id: '86071',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '84589',
+          isSender: true,
+          permissions: {},
+          role: '86072',
+        },
+        {
+          id: '85999',
+          isSender: true,
+          permissions: {},
+          role: '86072',
+        },
+      ],
+      name: '',
+      parentThreadID: '1',
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '86072': {
+          id: '86072',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      type: 6,
+    },
+    '87789': {
+      color: '6d49ab',
+      community: '1',
+      containingThreadID: '1',
+      creationTime: 1682367957349,
+      currentUser: {
+        permissions: {},
+        role: '87790',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description: '',
+      id: '87789',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '83809',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '83969',
+          isSender: false,
+          permissions: {},
+          role: '87790',
+        },
+        {
+          id: '84589',
+          isSender: false,
+          permissions: {},
+          role: '87790',
+        },
+      ],
+      name: 'Subthread',
+      parentThreadID: '84656',
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '87790': {
+          id: '87790',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      type: 3,
+    },
+    '87817': {
+      color: '6d49ab',
+      community: '1',
+      containingThreadID: '1',
+      creationTime: 1682368005862,
+      currentUser: {
+        permissions: {},
+        role: '87818',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description: '',
+      id: '87817',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '83809',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '83969',
+          isSender: false,
+          permissions: {},
+          role: '87818',
+        },
+        {
+          id: '84589',
+          isSender: true,
+          permissions: {},
+          role: '87818',
+        },
+      ],
+      name: '',
+      parentThreadID: '84656',
+      pinnedCount: 0,
+      repliesCount: 0,
+      roles: {
+        '87818': {
+          id: '87818',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      type: 3,
+    },
+    '87837': {
+      color: '6d49ab',
+      community: '1',
+      containingThreadID: '86071',
+      creationTime: 1682368041060,
+      currentUser: {
+        permissions: {},
+        role: '87838',
+        subscription: {
+          home: true,
+          pushNotifs: true,
+        },
+        unread: false,
+      },
+      description: '',
+      id: '87837',
+      members: [
+        {
+          id: '256',
+          isSender: false,
+          permissions: {},
+          role: null,
+        },
+        {
+          id: '84589',
+          isSender: true,
+          permissions: {},
+          role: '87838',
+        },
+        {
+          id: '85999',
+          isSender: false,
+          permissions: {},
+          role: '87838',
+        },
+      ],
+      name: 'Hello',
+      parentThreadID: '86071',
+      pinnedCount: 0,
+      repliesCount: 1,
+      roles: {
+        '87838': {
+          id: '87838',
+          isDefault: true,
+          name: 'Members',
+          permissions: {},
+        },
+      },
+      sourceMessageID: '86339',
+      type: 5,
+    },
+  };
+
 export {
   threadStoreThreads,
   threadStoreThreadsWithEmptyRolePermissions,
   threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions,
+  threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions,
 };
