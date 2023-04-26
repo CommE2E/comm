@@ -6,6 +6,7 @@ lib/node_modules
 web/dist
 web/flow-typed
 web/node_modules
+web/opaque-ke-wasm/pkg
 keyserver/app_compiled
 keyserver/landing_compiled
 keyserver/dist
