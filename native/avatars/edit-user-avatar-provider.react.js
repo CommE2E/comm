@@ -9,7 +9,6 @@ import {
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
-  ImageAvatarDBContent,
   ENSAvatarDBContent,
   UpdateUserAvatarRemoveRequest,
 } from 'lib/types/avatar-types.js';
@@ -57,39 +56,38 @@ function EditUserAvatarProvider(props: Props): React.Node {
     userAvatarMediaUploadInProgress ||
     updateUserAvatarLoadingStatus === 'loading';
 
-  const uploadUserAvatarSelectedMedia = useUploadSelectedMedia(
+  const uploadSelectedMedia = useUploadSelectedMedia(
     setUserAvatarMediaUploadInProgress,
   );
+
+  const updateImageUserAvatar = React.useCallback(
+    async (selection: ?MediaLibrarySelection) => {
+      const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
+
+      if (!imageAvatarUpdateRequest) {
+        return;
+      }
+
+      dispatchActionPromise(
+        updateUserAvatarActionTypes,
+        (async () => {
+          setUserAvatarMediaUploadInProgress(false);
+          try {
+            return await updateUserAvatarCall(imageAvatarUpdateRequest);
+          } catch (e) {
+            Alert.alert('Avatar update failed', 'Unable to update avatar.');
+            throw e;
+          }
+        })(),
+      );
+    },
+    [dispatchActionPromise, updateUserAvatarCall, uploadSelectedMedia],
+  );
+
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
-    const selection: ?MediaLibrarySelection = await selectFromGallery();
-    const uploadedMediaID = await uploadUserAvatarSelectedMedia(selection);
-
-    if (!uploadedMediaID) {
-      return;
-    }
-
-    const imageAvatarUpdateRequest: ImageAvatarDBContent = {
-      type: 'image',
-      uploadID: uploadedMediaID,
-    };
-
-    dispatchActionPromise(
-      updateUserAvatarActionTypes,
-      (async () => {
-        setUserAvatarMediaUploadInProgress(false);
-        try {
-          return await updateUserAvatarCall(imageAvatarUpdateRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
-    );
-  }, [
-    dispatchActionPromise,
-    updateUserAvatarCall,
-    uploadUserAvatarSelectedMedia,
-  ]);
+    const selection = await selectFromGallery();
+    await updateImageUserAvatar(selection);
+  }, [updateImageUserAvatar]);
 
   const setENSUserAvatar = React.useCallback(() => {
     const ensAvatarRequest: ENSAvatarDBContent = {
