@@ -166,13 +166,13 @@ async function processAppRequest(
   ) {
     const cryptoKey = await generateDatabaseCryptoKey();
     await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
-    return;
+    return undefined;
   }
 
   // database operations
   if (message.type === workerRequestMessageTypes.INIT) {
     await initDatabase(message.sqljsFilePath, message.sqljsFilename);
-    return;
+    return undefined;
   }
 
   if (!sqliteDb) {
@@ -222,6 +222,7 @@ async function processAppRequest(
   }
 
   throttledPersist();
+  return undefined;
 }
 
 function connectHandler(event: SharedWorkerMessageEvent) {

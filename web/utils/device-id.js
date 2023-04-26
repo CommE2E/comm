@@ -28,6 +28,8 @@ const deviceIDFormatRegex: RegExp = new RegExp(
 
 // generateDeviceID has to be kept in sync with generate_device_id
 // which is defined in native/native_rust_library/src/crypto_tools.rs
+// Next line is because ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function generateDeviceID(type: DeviceType): string {
   const suffix = generateRandomString(deviceIDCharLength, alphanumeric);
 

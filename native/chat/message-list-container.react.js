@@ -272,7 +272,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const { setPendingThreadUpdateHandler } = inputState;
     React.useEffect(() => {
       if (!isFocused) {
-        return;
+        return undefined;
       }
       setPendingThreadUpdateHandler(threadInfo.id, setBaseThreadInfo);
       return () => {
@@ -299,7 +299,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     }, [setParams, threadInfo]);
     React.useEffect(() => {
       if (!isSearching) {
-        return;
+        return undefined;
       }
       inputState.registerSendCallback(hideSearch);
       return () => inputState.unregisterSendCallback(hideSearch);

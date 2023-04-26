@@ -625,7 +625,7 @@ async function createReadStatusUpdates(latestMessages: LatestMessages) {
     return;
   }
 
-  return await createUpdates(readStatusUpdates);
+  await createUpdates(readStatusUpdates);
 }
 
 function updateLatestMessages(latestMessages: LatestMessages) {
@@ -681,7 +681,7 @@ function updateLatestMessages(latestMessages: LatestMessages) {
   query.append(SQL`WHERE `);
   query.append(mergeOrConditions(conditions));
 
-  return dbQuery(query);
+  dbQuery(query);
 }
 
 export default createMessages;

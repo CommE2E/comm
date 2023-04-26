@@ -120,7 +120,7 @@ const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
 
   React.useEffect(() => {
     if (!devTools) {
-      return;
+      return undefined;
     }
     const unsubscribe = devTools.subscribe(handleActionFromMonitor);
     return unsubscribe;

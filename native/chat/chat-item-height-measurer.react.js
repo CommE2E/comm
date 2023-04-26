@@ -38,6 +38,8 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
   return null;
 };
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 const heightMeasurerDummy = (item: NativeChatMessageItem) => {
   invariant(
     item.itemType === 'message',

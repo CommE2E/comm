@@ -20,7 +20,7 @@ function InvestorProfileModal(props: Props): React.Node {
   const selectedInvestor = React.useMemo(() => {
     const foundInvestor = keyedInvestorData[investorID];
     if (!foundInvestor) {
-      return;
+      return undefined;
     }
 
     return (

@@ -71,7 +71,7 @@ function DimensionsUpdater(): null {
   }, []);
   React.useEffect(() => {
     if (!rnsacThinksAndroidKeyboardResizesFrame) {
-      return;
+      return undefined;
     }
     const showListener = addKeyboardShowListener(keyboardShow);
     const dismissListener = addKeyboardDismissListener(keyboardDismiss);

@@ -68,6 +68,7 @@ function PossiblyEmptyNavStateInfoBar(
         return () => clearTimeout(timeout);
       }
     }
+    return undefined;
   }, [threadInfoInput, threadInfo]);
 
   const content = React.useMemo(() => {

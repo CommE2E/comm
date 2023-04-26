@@ -55,6 +55,8 @@ function fetchUpdateInfos(
   return fetchUpdateInfosWithQuery({ viewer, calendarQuery }, query);
 }
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
   const type = assertUpdateType(row.type);
   if (type === updateTypes.DELETE_ACCOUNT) {

@@ -69,6 +69,8 @@ type ListItem =
       +verticalBounds: ?VerticalBounds,
     };
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function keyExtractor(item: ListItem) {
   if (item.userInfo) {
     return item.userInfo.id;
@@ -261,6 +263,8 @@ function RelationshipList(props: Props): React.Node {
   const { navigate } = navigation;
   const styles = useStyles(unboundStyles);
   const renderItem = React.useCallback(
+    // ESLint doesn't recognize that invariant always throws
+    // eslint-disable-next-line consistent-return
     ({ item }: { item: ListItem, ... }) => {
       if (item.type === 'empty') {
         const action = {

@@ -160,7 +160,7 @@ function PushNotificationsHandler(): React.Node {
   // Redirect to thread on notification click
   React.useEffect(() => {
     if (!navigator.serviceWorker || !supported) {
-      return;
+      return undefined;
     }
 
     const callback = (event: MessageEvent) => {
