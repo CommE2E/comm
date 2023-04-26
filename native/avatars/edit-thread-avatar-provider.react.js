@@ -10,18 +10,21 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { UpdateUserAvatarRemoveRequest } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MediaLibrarySelection } from 'lib/types/media-types.js';
 import type { UpdateThreadRequest } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 export type EditThreadAvatarContextType = {
   +threadAvatarSaveInProgress: boolean,
+  +selectFromGalleryAndUpdateThreadAvatar: () => Promise<void>,
   +removeThreadAvatar: () => void,
 };
 
@@ -47,11 +50,76 @@ function EditThreadAvatarProvider(props: Props): React.Node {
     ),
   );
 
+  const [
+    threadAvatarMediaUploadInProgress,
+    setThreadAvatarMediaUploadInProgress,
+  ] = React.useState<$ReadOnlySet<string>>(new Set<string>());
+
   const threadAvatarSaveInProgress =
+    threadAvatarMediaUploadInProgress.has(activeThreadID) ||
     updateThreadAvatarLoadingStatus === 'loading';
 
   const dispatchActionPromise = useDispatchActionPromise();
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
+
+  const updateThreadAvatarMediaUploadInProgress = React.useCallback(
+    (inProgress: boolean) =>
+      setThreadAvatarMediaUploadInProgress(prevState => {
+        const updatedSet = new Set(prevState);
+        if (inProgress) {
+          updatedSet.add(activeThreadID);
+        } else {
+          updatedSet.delete(activeThreadID);
+        }
+        return updatedSet;
+      }),
+    [activeThreadID],
+  );
+
+  const uploadThreadAvatarSelectedMedia = useUploadSelectedMedia(
+    updateThreadAvatarMediaUploadInProgress,
+  );
+
+  const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
+    const selection: ?MediaLibrarySelection = await selectFromGallery();
+    const imageAvatarUpdateRequest = await uploadThreadAvatarSelectedMedia(
+      selection,
+    );
+
+    if (!imageAvatarUpdateRequest) {
+      return;
+    }
+
+    const updateThreadRequest: UpdateThreadRequest = {
+      threadID: activeThreadID,
+      changes: {
+        avatar: imageAvatarUpdateRequest,
+      },
+    };
+
+    const action = changeThreadSettingsActionTypes.started;
+    dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      (async () => {
+        updateThreadAvatarMediaUploadInProgress(false);
+        try {
+          return await changeThreadSettingsCall(updateThreadRequest);
+        } catch (e) {
+          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
+        }
+      })(),
+      {
+        customKeyName: `${action}:${activeThreadID}:avatar`,
+      },
+    );
+  }, [
+    activeThreadID,
+    changeThreadSettingsCall,
+    dispatchActionPromise,
+    updateThreadAvatarMediaUploadInProgress,
+    uploadThreadAvatarSelectedMedia,
+  ]);
 
   const removeThreadAvatar = React.useCallback(() => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
@@ -83,9 +151,14 @@ function EditThreadAvatarProvider(props: Props): React.Node {
   const context = React.useMemo(
     () => ({
       threadAvatarSaveInProgress,
+      selectFromGalleryAndUpdateThreadAvatar,
       removeThreadAvatar,
     }),
-    [removeThreadAvatar, threadAvatarSaveInProgress],
+    [
+      removeThreadAvatar,
+      selectFromGalleryAndUpdateThreadAvatar,
+      threadAvatarSaveInProgress,
+    ],
   );
 
   return (
