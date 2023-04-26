@@ -165,6 +165,7 @@ type Props = {
     text: string,
   ) => Promise<SendEditMessageResponse>,
   +navigation: ?ChatNavigationProp<'MessageList'>,
+  +isFocused?: boolean,
 };
 type State = {
   +text: string,
@@ -403,6 +404,21 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     } else if (imageGalleryIsOpen && !imageGalleryWasOpen) {
       this.expandButtons();
       this.setIOSKeyboardHeight();
+    }
+
+    if (!this.props.isFocused && prevProps.isFocused && this.isEditMode()) {
+      this.setState({ text: this.props.draft, isExitingEditMode: true }, () => {
+        this.exitEditMode();
+      });
+    }
+    if (this.props.isFocused && !prevProps.isFocused) {
+      this.setState({ isExitingEditMode: false });
+    }
+    if (
+      this.props.inputState?.editState.editedMessage &&
+      !prevProps.inputState?.editState.editedMessage
+    ) {
+      this.blockNavigation();
     }
   }
 
@@ -725,8 +741,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   updateText = (text: string) => {
+    if (this.state.isExitingEditMode) {
+      return;
+    }
     this.setState({ text, textEdited: true });
-    if (this.isEditMode() || this.state.isExitingEditMode) {
+    if (this.isEditMode()) {
       return;
     }
     this.saveDraft(text);
@@ -840,6 +859,44 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return text !== originalText;
   };
 
+  unblockNavigation = () => {
+    if (!this.props.navigation) {
+      return;
+    }
+    this.props.navigation.setParams({ removeEditMode: null });
+  };
+
+  removeEditMode = action => {
+    if (!this.props.navigation) {
+      return;
+    }
+    if (this.state.isExitingEditMode) {
+      return;
+    }
+    const { navigation: nav } = this.props;
+    if (!this.isMessageEdited()) {
+      this.unblockNavigation();
+      nav.dispatch(action);
+      return;
+    }
+    const onDiscard = () => {
+      this.unblockNavigation();
+      this.setState({ isExitingEditMode: true }, () => {
+        nav.dispatch(action);
+      });
+    };
+    exitEditAlert(onDiscard);
+  };
+
+  blockNavigation = () => {
+    if (!this.props.navigation) {
+      return;
+    }
+    this.props.navigation.setParams({
+      removeEditMode: this.removeEditMode,
+    });
+  };
+
   editMessage = async (messageID: string, text: string) => {
     if (!this.isMessageEdited()) {
       this.exitEditMode();
@@ -885,6 +942,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   exitEditMode = () => {
     this.props.inputState?.setEditedMessage(null, () => {
+      this.unblockNavigation();
       this.updateText(this.props.draft);
       this.focusAndUpdateButtonsVisibility();
       this.updateSendButton(this.props.draft);
@@ -911,19 +969,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       saveExit();
       return;
     }
-    Alert.alert(
-      'Discard changes?',
-      'You have unsaved changes. Are you sure to discard them and leave the ' +
-        'screen?',
-      [
-        { text: 'Don’t leave', style: 'cancel' },
-        {
-          text: 'Discard edit',
-          style: 'destructive',
-          onPress: saveExit,
-        },
-      ],
-    );
+    exitEditAlert(saveExit);
   };
 
   onPressJoin = () => {
@@ -1108,6 +1154,7 @@ type ConnectedChatInputBarBaseProps = {
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
   +openCamera: () => mixed,
   +navigation?: ChatNavigationProp<'MessageList'>,
+  +isFocused?: boolean,
 };
 function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const navContext = React.useContext(NavContext);
@@ -1298,12 +1345,15 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
       });
     }, [keyboardState, navigation, route.key, threadInfo]);
 
+    const isFocused = props.navigation.isFocused();
+
     return (
       <ConnectedChatInputBarBase
         {...restProps}
         onInputBarLayout={onInputBarLayout}
         openCamera={openCamera}
         navigation={navigation}
+        isFocused={isFocused}
       />
     );
   });
