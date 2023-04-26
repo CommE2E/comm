@@ -54,7 +54,8 @@
       { "props": "never", "children": "ignore" }
     ],
     "eqeqeq": ["error", "always"],
-    "no-constant-condition": ["error", { "checkLoops": false }]
+    "no-constant-condition": ["error", { "checkLoops": false }],
+    "consistent-return": "error"
   },
   "settings": {
     "react": {
