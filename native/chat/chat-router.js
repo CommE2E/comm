@@ -128,7 +128,19 @@ function ChatRouter(
         );
         return baseGetStateForAction(clearedState, navigateAction, options);
       } else {
-        return baseGetStateForAction(lastState, action, options);
+        const result = baseGetStateForAction(lastState, action, options);
+        if (
+          result !== null &&
+          result?.index &&
+          result.index > lastState.index &&
+          lastState.routes[lastState.index].params?.removeEditMode
+        ) {
+          const removeEditMode: Function =
+            lastState.routes[lastState.index].params?.removeEditMode;
+          removeEditMode(action);
+          return lastState;
+        }
+        return result;
       }
     },
     actionCreators: {
