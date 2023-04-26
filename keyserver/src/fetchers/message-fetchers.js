@@ -24,6 +24,7 @@ import {
   defaultMaxMessageAge,
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
+  rawMessageInfoIsNotMessageSidebarSourceReactionOrEdit,
 } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -742,13 +743,14 @@ async function fetchDerivedMessages(
 
   for (const message of messages) {
     let { rawMessageInfo } = message;
+    rawMessageInfo =
+      rawMessageInfoIsNotMessageSidebarSourceReactionOrEdit(rawMessageInfo);
+    invariant(
+      rawMessageInfo,
+      'SIDEBAR_SOURCE or TOGGLE_PIN should not point to a ' +
+        'SIDEBAR_SOURCE, REACTION or EDIT_MESSAGE',
+    );
     if (rawMessageInfo.id) {
-      invariant(
-        rawMessageInfo.type !== messageTypes.SIDEBAR_SOURCE &&
-          rawMessageInfo.type !== messageTypes.REACTION &&
-          rawMessageInfo.type !== messageTypes.EDIT_MESSAGE,
-        'SIDEBAR_SOURCE should not point to a SIDEBAR_SOURCE, REACTION or EDIT_MESSAGE',
-      );
       const editedContent = edits.get(rawMessageInfo.id);
       if (editedContent && rawMessageInfo.type === messageTypes.TEXT) {
         rawMessageInfo = {
