@@ -1,5 +1,5 @@
 // @flow
 
-const shouldRenderAvatars: boolean = false;
+const shouldRenderAvatars: boolean = true;
 
 export { shouldRenderAvatars };
