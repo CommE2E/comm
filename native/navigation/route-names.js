@@ -74,6 +74,7 @@ export const SidebarListModalRouteName = 'SidebarListModal';
 export const SubchannelsListModalRouteName = 'SubchannelsListModal';
 export const TabNavigatorRouteName = 'TabNavigator';
 export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
+export const ThreadAvatarCameraModalRouteName = 'ThreadAvatarCameraModal';
 export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
@@ -119,6 +120,7 @@ export type OverlayParamList = {
   +ActionResultModal: ActionResultModalParams,
   +ChatCameraModal: ChatCameraModalParams,
   +UserAvatarCameraModal: void,
+  +ThreadAvatarCameraModal: void,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
 };

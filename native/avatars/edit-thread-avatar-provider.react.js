@@ -10,7 +10,10 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { UpdateUserAvatarRemoveRequest } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+import type {
+  MediaLibrarySelection,
+  NativeMediaSelection,
+} from 'lib/types/media-types.js';
 import type { UpdateThreadRequest } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
@@ -25,6 +28,7 @@ import { useSelector } from '../redux/redux-utils.js';
 export type EditThreadAvatarContextType = {
   +threadAvatarSaveInProgress: boolean,
   +selectFromGalleryAndUpdateThreadAvatar: () => Promise<void>,
+  +updateImageThreadAvatar: (selection: NativeMediaSelection) => Promise<void>,
   +removeThreadAvatar: () => void,
 };
 
@@ -81,7 +85,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
   );
 
   const updateImageThreadAvatar = React.useCallback(
-    async (selection: ?MediaLibrarySelection) => {
+    async (selection: ?NativeMediaSelection) => {
       const imageAvatarUpdateRequest = await uploadThreadAvatarSelectedMedia(
         selection,
       );
@@ -159,11 +163,13 @@ function EditThreadAvatarProvider(props: Props): React.Node {
     () => ({
       threadAvatarSaveInProgress,
       selectFromGalleryAndUpdateThreadAvatar,
+      updateImageThreadAvatar,
       removeThreadAvatar,
     }),
     [
       removeThreadAvatar,
       selectFromGalleryAndUpdateThreadAvatar,
+      updateImageThreadAvatar,
       threadAvatarSaveInProgress,
     ],
   );

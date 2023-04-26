@@ -11,7 +11,10 @@ import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import { EditThreadAvatarContext } from './edit-thread-avatar-provider.react.js';
 import ThreadAvatar from './thread-avatar.react.js';
-import { EmojiThreadAvatarCreationRouteName } from '../navigation/route-names.js';
+import {
+  EmojiThreadAvatarCreationRouteName,
+  ThreadAvatarCameraModalRouteName,
+} from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -42,10 +45,18 @@ function EditThreadAvatar(props: Props): React.Node {
     });
   }, [navigate, threadInfo.containingThreadID, threadInfo.id]);
 
+  const navigateToCamera = React.useCallback(() => {
+    navigate<'ThreadAvatarCameraModal'>({
+      name: ThreadAvatarCameraModalRouteName,
+      params: { threadID: threadInfo.id },
+    });
+  }, [navigate, threadInfo.id]);
+
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
       { id: 'emoji', onPress: navigateToThreadEmojiAvatarCreation },
       { id: 'image', onPress: selectFromGalleryAndUpdateThreadAvatar },
+      { id: 'camera', onPress: navigateToCamera },
     ];
 
     if (threadInfo.avatar) {
@@ -54,6 +65,7 @@ function EditThreadAvatar(props: Props): React.Node {
 
     return configOptions;
   }, [
+    navigateToCamera,
     navigateToThreadEmojiAvatarCreation,
     removeThreadAvatar,
     selectFromGalleryAndUpdateThreadAvatar,
