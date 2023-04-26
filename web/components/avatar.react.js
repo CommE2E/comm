@@ -17,6 +17,7 @@ function Avatar(props: Props): React.Node {
   const { avatarInfo, size } = props;
 
   const containerSizeClassName = classnames({
+    [css.imgContainer]: avatarInfo.type === 'image',
     [css.micro]: size === 'micro',
     [css.small]: size === 'small',
     [css.large]: size === 'large',
