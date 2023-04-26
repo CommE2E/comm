@@ -222,6 +222,9 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
 
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
+    if (!selection) {
+      return;
+    }
 
     const uploadedMediaID = await uploadSelectedMedia(selection);
 
