@@ -133,12 +133,12 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
 
 function useUploadSelectedMedia(
   setProcessingOrUploadInProgress: SetState<boolean>,
-): (selection: ?NativeMediaSelection) => Promise<?string> {
+): (selection: NativeMediaSelection) => Promise<?string> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
 
   return React.useCallback(
-    async (selection: ?NativeMediaSelection) => {
+    async (selection: NativeMediaSelection) => {
       if (!selection) {
         Alert.alert(
           'Media selection failed',
@@ -222,6 +222,9 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
 
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
+    if (!selection) {
+      return;
+    }
 
     const uploadedMediaID = await uploadSelectedMedia(selection);
 
@@ -284,6 +287,9 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
 
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
+    if (!selection) {
+      return;
+    }
 
     const uploadedMediaID = await uploadSelectedMedia(selection);
 
