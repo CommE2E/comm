@@ -6,10 +6,7 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
-import {
-  useSelectFromGalleryAndUpdateThreadAvatar,
-  useShowAvatarActionSheet,
-} from './avatar-hooks.js';
+import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import { EditThreadAvatarContext } from './edit-thread-avatar-provider.react.js';
 import ThreadAvatar from './thread-avatar.react.js';
@@ -26,14 +23,11 @@ function EditThreadAvatar(props: Props): React.Node {
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
-  const { threadAvatarSaveInProgress, removeThreadAvatar } =
-    editThreadAvatarContext;
-
-  const [selectFromGalleryAndUpdateThreadAvatar, isGalleryAvatarUpdateLoading] =
-    useSelectFromGalleryAndUpdateThreadAvatar(threadInfo.id);
-
-  const isAvatarUpdateInProgress =
-    isGalleryAvatarUpdateLoading || threadAvatarSaveInProgress;
+  const {
+    threadAvatarSaveInProgress,
+    selectFromGalleryAndUpdateThreadAvatar,
+    removeThreadAvatar,
+  } = editThreadAvatarContext;
 
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
@@ -56,7 +50,7 @@ function EditThreadAvatar(props: Props): React.Node {
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
 
   let spinner;
-  if (isAvatarUpdateInProgress) {
+  if (threadAvatarSaveInProgress) {
     spinner = (
       <View style={styles.spinnerContainer}>
         <ActivityIndicator color="white" size="large" />

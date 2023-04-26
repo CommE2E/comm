@@ -57,8 +57,13 @@ function EditUserAvatarProvider(props: Props): React.Node {
     userAvatarMediaUploadInProgress ||
     updateUserAvatarLoadingStatus === 'loading';
 
+  const updateUserAvatarMediaUploadInProgress = React.useCallback(
+    (inProgress: boolean) => setUserAvatarMediaUploadInProgress(inProgress),
+    [],
+  );
+
   const uploadUserAvatarSelectedMedia = useUploadSelectedMedia(
-    setUserAvatarMediaUploadInProgress,
+    updateUserAvatarMediaUploadInProgress,
   );
 
   const updateImageUserAvatar = React.useCallback(
