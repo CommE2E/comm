@@ -15,6 +15,7 @@ export type MessageListParams = {
   +threadInfo: ThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +searching?: boolean,
+  +disableNavigation?: boolean,
 };
 
 export type MessageListContextType = {

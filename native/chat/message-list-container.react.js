@@ -293,6 +293,15 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       }
     }, [isSearching, navigationStack, setParams, threadInfo]);
 
+    const shouldBlockNavigation = React.useMemo(
+      () => !!inputState.editState.editedMessage,
+      [inputState.editState.editedMessage],
+    );
+
+    React.useEffect(() => {
+      setParams({ disableNavigation: shouldBlockNavigation });
+    }, [shouldBlockNavigation, isSearching, props.navigation, setParams]);
+
     const hideSearch = React.useCallback(() => {
       setBaseThreadInfo(threadInfo);
       setParams({ searching: false });

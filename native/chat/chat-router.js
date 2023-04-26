@@ -10,6 +10,7 @@ import type {
   GenericNavigationAction,
 } from '@react-navigation/native';
 import { StackRouter, CommonActions } from '@react-navigation/native';
+import Alert from 'react-native/Libraries/Alert/Alert.js';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -65,6 +66,15 @@ export type ChatRouterNavigationHelpers = {
   +replaceWithThread: (threadInfo: ThreadInfo) => void,
   +clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
   +pushNewThread: (threadInfo: ThreadInfo) => void,
+};
+
+const displayAlert = () => {
+  Alert.alert(
+    'You are in edit mode',
+    'Exit edit mode before navigating to another screen',
+    [{ text: 'OK' }],
+    { cancelable: true },
+  );
 };
 
 function ChatRouter(
@@ -128,7 +138,17 @@ function ChatRouter(
         );
         return baseGetStateForAction(clearedState, navigateAction, options);
       } else {
-        return baseGetStateForAction(lastState, action, options);
+        const result = baseGetStateForAction(lastState, action, options);
+        if (
+          result !== null &&
+          result?.index &&
+          result.index > lastState.index &&
+          lastState.routes[lastState.index].params?.disableNavigation
+        ) {
+          displayAlert();
+          return lastState;
+        }
+        return result;
       }
     },
     actionCreators: {
