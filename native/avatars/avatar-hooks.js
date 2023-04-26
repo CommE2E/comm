@@ -17,10 +17,7 @@ import {
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type {
-  ImageAvatarDBContent,
-  UpdateUserAvatarRemoveRequest,
-} from 'lib/types/avatar-types.js';
+import type { ImageAvatarDBContent } from 'lib/types/avatar-types.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
@@ -264,45 +261,6 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   );
 }
 
-function useRemoveThreadAvatar(threadID: string): [() => void, boolean] {
-  const dispatchActionPromise = useDispatchActionPromise();
-  const changeThreadSettingsCall = useServerCall(changeThreadSettings);
-  const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
-    threadAvatarLoadingStatusSelector,
-  );
-
-  const removeThreadAvatar = React.useCallback(() => {
-    const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
-      type: 'remove',
-    };
-
-    const updateThreadRequest: UpdateThreadRequest = {
-      threadID,
-      changes: {
-        avatar: removeAvatarRequest,
-      },
-    };
-
-    dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      (async () => {
-        try {
-          return await changeThreadSettingsCall(updateThreadRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
-      { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
-    );
-  }, [changeThreadSettingsCall, dispatchActionPromise, threadID]);
-
-  return React.useMemo(
-    () => [removeThreadAvatar, updateThreadAvatarLoadingStatus === 'loading'],
-    [removeThreadAvatar, updateThreadAvatarLoadingStatus],
-  );
-}
-
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
@@ -433,5 +391,4 @@ export {
   useProcessSelectedMedia,
   useShowAvatarActionSheet,
   useSelectFromGalleryAndUpdateThreadAvatar,
-  useRemoveThreadAvatar,
 };

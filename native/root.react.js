@@ -22,6 +22,7 @@ import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
+import { EditThreadAvatarProvider } from './avatars/edit-thread-avatar-provider.react.js';
 import { EditUserAvatarProvider } from './avatars/edit-user-avatar-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
@@ -258,23 +259,25 @@ function Root() {
                     <ENSCacheProvider provider={provider}>
                       <MediaCacheProvider persistence={filesystemMediaCache}>
                         <EditUserAvatarProvider>
-                          <MarkdownContextProvider>
-                            <ChatContextProvider>
-                              <SQLiteDataHandler />
-                              <ConnectedStatusBar />
-                              <ReduxPersistGate persistor={getPersistor()}>
-                                {gated}
-                              </ReduxPersistGate>
-                              <PersistedStateGate>
-                                <Socket
-                                  detectUnsupervisedBackgroundRef={
-                                    detectUnsupervisedBackgroundRef
-                                  }
-                                />
-                              </PersistedStateGate>
-                              {navigation}
-                            </ChatContextProvider>
-                          </MarkdownContextProvider>
+                          <EditThreadAvatarProvider>
+                            <MarkdownContextProvider>
+                              <ChatContextProvider>
+                                <SQLiteDataHandler />
+                                <ConnectedStatusBar />
+                                <ReduxPersistGate persistor={getPersistor()}>
+                                  {gated}
+                                </ReduxPersistGate>
+                                <PersistedStateGate>
+                                  <Socket
+                                    detectUnsupervisedBackgroundRef={
+                                      detectUnsupervisedBackgroundRef
+                                    }
+                                  />
+                                </PersistedStateGate>
+                                {navigation}
+                              </ChatContextProvider>
+                            </MarkdownContextProvider>
+                          </EditThreadAvatarProvider>
                         </EditUserAvatarProvider>
                       </MediaCacheProvider>
                     </ENSCacheProvider>
