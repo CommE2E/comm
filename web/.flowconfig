@@ -1,3 +1,6 @@
+[ignore]
+.*/opaque-ke-wasm
+
 [include]
 ../lib
 
