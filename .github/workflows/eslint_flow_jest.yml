@@ -66,3 +66,7 @@ jobs:
       - name: '[web] test'
         working-directory: ./web
         run: yarn test
+
+      - name: '[native] test'
+        working-directory: ./native
+        run: yarn test
