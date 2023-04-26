@@ -57,37 +57,39 @@ function EditUserAvatarProvider(props: Props): React.Node {
     userAvatarMediaUploadInProgress ||
     updateUserAvatarLoadingStatus === 'loading';
 
+  const updateImageUserAvatarPromise = React.useCallback(
+    async (imageAvatarUpdateRequest: ImageAvatarDBContent) => {
+      setUserAvatarMediaUploadInProgress(false);
+      try {
+        return await updateUserAvatarCall(imageAvatarUpdateRequest);
+      } catch (e) {
+        Alert.alert('Avatar update failed', 'Unable to update avatar.');
+        throw e;
+      }
+    },
+    [updateUserAvatarCall],
+  );
+
   const uploadUserAvatarSelectedMedia = useUploadSelectedMedia(
     setUserAvatarMediaUploadInProgress,
   );
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
-    const uploadedMediaID = await uploadUserAvatarSelectedMedia(selection);
+    const imageAvatarUpdateRequest = await uploadUserAvatarSelectedMedia(
+      selection,
+    );
 
-    if (!uploadedMediaID) {
+    if (!imageAvatarUpdateRequest) {
       return;
     }
 
-    const imageAvatarUpdateRequest: ImageAvatarDBContent = {
-      type: 'image',
-      uploadID: uploadedMediaID,
-    };
-
     dispatchActionPromise(
       updateUserAvatarActionTypes,
-      (async () => {
-        setUserAvatarMediaUploadInProgress(false);
-        try {
-          return await updateUserAvatarCall(imageAvatarUpdateRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
+      updateImageUserAvatarPromise(imageAvatarUpdateRequest),
     );
   }, [
     dispatchActionPromise,
-    updateUserAvatarCall,
+    updateImageUserAvatarPromise,
     uploadUserAvatarSelectedMedia,
   ]);
 
