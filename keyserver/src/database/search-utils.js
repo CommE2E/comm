@@ -134,9 +134,25 @@ async function processMessagesInDBForSearch(): Promise<void> {
   }
 }
 
+const fulltextOperands = ['+', '<', '>', '~'];
+
+function processQueryForSearch(query: string): string {
+  if (query === '') {
+    return '';
+  }
+  const stemmedQuery = segmentAndStem(query);
+
+  return stemmedQuery
+    .split(' ')
+    .filter(word => !fulltextOperands.includes(word))
+    .map(segment => `+${segment}`)
+    .join(' ');
+}
+
 export {
   processMessagesForSearch,
   processMessagesInDBForSearch,
   segmentAndStem,
   stopwords,
+  processQueryForSearch,
 };

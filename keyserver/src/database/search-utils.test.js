@@ -1,5 +1,10 @@
 // @flow
-import { segmentAndStem, stopwords } from './search-utils.js';
+
+import {
+  segmentAndStem,
+  stopwords,
+  processQueryForSearch,
+} from './search-utils.js';
 
 const alphaNumericRegex = /^[A-Za-z0-9 ]*$/;
 const lowerCaseRegex = /^[a-z ]*$/;
@@ -48,5 +53,16 @@ describe('segmentAndStem(message: string)', () => {
     expect(segmentAndStem(notRemovedASCIIPunctuation)).toBe(
       notRemovedASCIIPunctuation,
     );
+  });
+});
+
+describe('processQueryForSearch(query: string)', () => {
+  it('should add + before every word', () => {
+    expect(processQueryForSearch('test')).toBe('+test');
+    expect(processQueryForSearch('test hello')).toBe('+test +hello');
+    expect(processQueryForSearch('test  \nhello')).toBe('+test +hello');
+  });
+  it('should remove + < > ~ from the query', () => {
+    expect(processQueryForSearch('+ < > ~')).toBe('');
   });
 });
