@@ -391,6 +391,8 @@ async function fetchMessageInfos(
   };
 }
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function hasTimeFilterForThread(
   timeFilterData: TimeFilterData,
   threadID: string,

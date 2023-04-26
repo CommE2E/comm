@@ -204,6 +204,8 @@ type GetMessageActionTooltipStyleParams = {
   +tooltipPosition: TooltipPosition,
 };
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function getMessageActionTooltipStyle({
   sourcePositionInfo,
   tooltipSize,
@@ -529,7 +531,7 @@ function createTooltip(params: CreateTooltipParams) {
     threadInfo,
   } = params;
   if (!tooltipMessagePosition) {
-    return;
+    return undefined;
   }
   const tooltipPosition = findTooltipPosition({
     sourcePositionInfo: tooltipMessagePosition,
@@ -539,7 +541,7 @@ function createTooltip(params: CreateTooltipParams) {
     preventDisplayingBelowSource: containsInlineEngagement,
   });
   if (!tooltipPosition) {
-    return;
+    return undefined;
   }
 
   const tooltipPositionStyle = getMessageActionTooltipStyle({

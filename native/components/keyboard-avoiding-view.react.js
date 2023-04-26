@@ -143,6 +143,8 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     this.waitingForLayout = [];
   };
 
+  // ESLint doesn't recognize that invariant always throws
+  // eslint-disable-next-line consistent-return
   render() {
     const {
       behavior,

@@ -89,7 +89,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   React.useEffect(() => {
     // skip for unencrypted videos
     if (!holder || !encryptionKey) {
-      return;
+      return undefined;
     }
 
     let isMounted = true;

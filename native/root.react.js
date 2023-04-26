@@ -195,7 +195,7 @@ function Root() {
   const navContainer = navContainerRef.current;
   React.useEffect(() => {
     if (!navContainer) {
-      return;
+      return undefined;
     }
     return navContainer.addListener('__unsafe_action__', event => {
       const { action, noop } = event.data;

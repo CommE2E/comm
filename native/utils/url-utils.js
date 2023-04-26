@@ -17,6 +17,8 @@ const productionNodeServerURL = 'https://squadcal.org';
 const productionLandingURL = 'https://comm.app';
 const devIsEmulator: boolean = __DEV__ && DeviceInfo.isEmulatorSync();
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function getDevServerHostname(): string {
   if (!devIsEmulator) {
     checkForMissingNatDevHostname();

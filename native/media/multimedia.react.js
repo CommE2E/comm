@@ -155,6 +155,8 @@ class Multimedia extends React.PureComponent<Props, State> {
     }
   };
 
+  // ESLint doesn't recognize that invariant always throws
+  // eslint-disable-next-line consistent-return
   static sourceFromMediaInfo(mediaInfo: MediaInfo | AvatarMediaInfo): Source {
     if (mediaInfo.type === 'photo') {
       return { kind: 'uri', uri: mediaInfo.uri };

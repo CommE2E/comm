@@ -1,6 +1,7 @@
 // @flow
 
 import { useNavigation } from '@react-navigation/native';
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import Animated, {
@@ -283,6 +284,8 @@ function TooltipInlineEngagement(
     initialCoordinates,
     positioning,
   } = props;
+  // ESLint doesn't recognize that invariant always throws
+  // eslint-disable-next-line consistent-return
   const inlineEngagementStyles = React.useMemo(() => {
     if (positioning === 'left') {
       return {
@@ -307,6 +310,10 @@ function TooltipInlineEngagement(
         top: inlineEngagementCenterStyle.topOffset,
       };
     }
+    invariant(
+      false,
+      `${positioning} is not a valid positioning value for InlineEngagement`,
+    );
   }, [positioning]);
   const inlineEngagementContainer = React.useMemo(() => {
     const opacity = isOpeningSidebar
