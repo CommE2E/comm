@@ -1,5 +1,6 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
@@ -10,16 +11,16 @@ import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import { EditThreadAvatarContext } from './edit-thread-avatar-provider.react.js';
 import ThreadAvatar from './thread-avatar.react.js';
+import { EmojiThreadAvatarCreationRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +threadInfo: RawThreadInfo | ThreadInfo,
-  +onPressEmojiAvatarFlow: () => mixed,
   +disabled?: boolean,
 };
 function EditThreadAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const { threadInfo, onPressEmojiAvatarFlow, disabled } = props;
+  const { threadInfo, disabled } = props;
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
@@ -28,6 +29,18 @@ function EditThreadAvatar(props: Props): React.Node {
     selectFromGalleryAndUpdateThreadAvatar,
     removeThreadAvatar,
   } = editThreadAvatarContext;
+
+  const { navigate } = useNavigation();
+
+  const navigateToThreadEmojiAvatarCreation = React.useCallback(() => {
+    navigate<'EmojiThreadAvatarCreation'>({
+      name: EmojiThreadAvatarCreationRouteName,
+      params: {
+        threadID: threadInfo.id,
+        containingThreadID: threadInfo.containingThreadID,
+      },
+    });
+  }, [navigate, threadInfo.containingThreadID, threadInfo.id]);
 
   const selectFromGallery = React.useCallback(
     () => selectFromGalleryAndUpdateThreadAvatar(threadInfo.id),
@@ -41,11 +54,11 @@ function EditThreadAvatar(props: Props): React.Node {
 
   const actionSheetConfig = React.useMemo(
     () => [
-      { id: 'emoji', onPress: onPressEmojiAvatarFlow },
+      { id: 'emoji', onPress: navigateToThreadEmojiAvatarCreation },
       { id: 'image', onPress: selectFromGallery },
       { id: 'remove', onPress: removeAvatar },
     ],
-    [onPressEmojiAvatarFlow, removeAvatar, selectFromGallery],
+    [navigateToThreadEmojiAvatarCreation, removeAvatar, selectFromGallery],
   );
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
