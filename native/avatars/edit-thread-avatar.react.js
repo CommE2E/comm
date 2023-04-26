@@ -1,16 +1,17 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
-  useRemoveThreadAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
+import { EditThreadAvatarContext } from './edit-thread-avatar-provider.react.js';
 import ThreadAvatar from './thread-avatar.react.js';
 import { useStyles } from '../themes/colors.js';
 
@@ -23,24 +24,30 @@ function EditThreadAvatar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { threadInfo, onPressEmojiAvatarFlow, disabled } = props;
 
+  const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
+  invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
+  const { threadAvatarSaveInProgress, removeThreadAvatar } =
+    editThreadAvatarContext;
+
   const [selectFromGalleryAndUpdateThreadAvatar, isGalleryAvatarUpdateLoading] =
     useSelectFromGalleryAndUpdateThreadAvatar(threadInfo.id);
 
-  const [removeThreadAvatar, isRemoveAvatarUpdateLoading] =
-    useRemoveThreadAvatar(threadInfo.id);
-
   const isAvatarUpdateInProgress =
-    isGalleryAvatarUpdateLoading || isRemoveAvatarUpdateLoading;
+    isGalleryAvatarUpdateLoading || threadAvatarSaveInProgress;
+
+  const removeAvatar = React.useCallback(() => {
+    removeThreadAvatar(threadInfo.id);
+  }, [removeThreadAvatar, threadInfo.id]);
 
   const actionSheetConfig = React.useMemo(
     () => [
       { id: 'emoji', onPress: onPressEmojiAvatarFlow },
       { id: 'image', onPress: selectFromGalleryAndUpdateThreadAvatar },
-      { id: 'remove', onPress: removeThreadAvatar },
+      { id: 'remove', onPress: removeAvatar },
     ],
     [
       onPressEmojiAvatarFlow,
-      removeThreadAvatar,
+      removeAvatar,
       selectFromGalleryAndUpdateThreadAvatar,
     ],
   );
