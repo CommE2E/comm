@@ -7,7 +7,6 @@ import { createStore, applyMiddleware, type Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction.js';
 import { persistReducer, persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/es/integration/react.js';
-import storage from 'redux-persist/es/storage/index.js';
 import thunk from 'redux-thunk';
 
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
@@ -19,6 +18,7 @@ import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import { isSQLiteSupported } from './database/utils/db-utils.js';
 import ErrorBoundary from './error-boundary.react.js';
 import Loading from './loading.react.js';
+import commReduxStorageEngine from './redux/comm-redux-storage-engine.js';
 import { creatAsyncMigrate } from './redux/create-async-migrate.js';
 import { reducer } from './redux/redux-setup.js';
 import type { AppState, Action } from './redux/redux-setup.js';
@@ -80,7 +80,7 @@ const persistWhitelist = [
 
 const persistConfig = {
   key: 'root',
-  storage,
+  storage: commReduxStorageEngine,
   whitelist: isDatabaseSupported
     ? persistWhitelist
     : [...persistWhitelist, 'draftStore'],

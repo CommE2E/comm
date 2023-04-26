@@ -1,7 +1,11 @@
 // @flow
 
+import { getStoredState, purgeStoredState } from 'redux-persist';
 import { DEFAULT_VERSION } from 'redux-persist/es/constants.js';
+import storage from 'redux-persist/es/storage/index.js';
 import type { PersistState } from 'redux-persist/es/types.js';
+
+import { databaseModule } from '../database/database-module-provider.js';
 
 type MigrationManifest = {
   [number | string]: (PersistedState) => Promise<PersistedState>,
@@ -21,10 +25,24 @@ function creatAsyncMigrate(
     currentVersion: number,
   ): Promise<PersistedState> {
     if (!state) {
-      if (process.env.NODE_ENV !== 'production' && debug) {
-        console.log('redux-persist: no inbound state, skipping migration');
+      const isSupported = await databaseModule.isDatabaseSupported();
+      if (!isSupported) {
+        if (process.env.NODE_ENV !== 'production' && debug) {
+          console.log('redux-persist: no inbound state, skipping migration');
+        }
+        return undefined;
       }
-      return undefined;
+
+      const oldStorage = await getStoredState({ storage, key: 'root' });
+      if (!oldStorage) {
+        return undefined;
+      }
+
+      state = oldStorage;
+      purgeStoredState({ storage, key: 'root' });
+      if (process.env.NODE_ENV !== 'production' && debug) {
+        console.log('redux-persist: migrating state to SQLite storage');
+      }
     }
 
     const inboundVersion: number =
