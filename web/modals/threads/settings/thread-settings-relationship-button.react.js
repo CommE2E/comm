@@ -102,6 +102,7 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
         />
       );
     }
+    return undefined;
   }, [relationshipButton]);
 
   const dispatchActionPromise = useDispatchActionPromise();

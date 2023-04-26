@@ -21,7 +21,7 @@ function FocusHandler(): React.Node {
   }, []);
   React.useEffect(() => {
     if (typeof window === 'undefined') {
-      return;
+      return undefined;
     }
     window.addEventListener('focus', onFocus);
     window.addEventListener('blur', onBlur);

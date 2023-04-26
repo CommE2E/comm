@@ -160,6 +160,7 @@ class DeleteThread extends React.PureComponent<Props> {
           cancelable: false,
         });
       }
+      throw e;
     }
   }
 }

@@ -51,7 +51,7 @@ function Keyservers(): React.Node {
   const [eyeNode, setEyeNode] = React.useState(null);
   useIsomorphicLayoutEffect(() => {
     if (!eyeNode) {
-      return;
+      return undefined;
     }
     eyeNode.addEventListener('load', onEyeIllustrationLoad);
     return () => eyeNode.removeEventListener('load', onEyeIllustrationLoad);
@@ -60,7 +60,7 @@ function Keyservers(): React.Node {
   const [cloudNode, setCloudNode] = React.useState(null);
   useIsomorphicLayoutEffect(() => {
     if (!cloudNode) {
-      return;
+      return undefined;
     }
     cloudNode.addEventListener('load', onCloudIllustrationLoad);
     return () => cloudNode.removeEventListener('load', onCloudIllustrationLoad);

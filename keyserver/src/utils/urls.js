@@ -60,6 +60,8 @@ function getAndAssertCommAppURLFacts(): AppURLFacts {
   return urlFacts;
 }
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
   const commURLFacts = getCommAppURLFacts();
   if (commURLFacts && url.startsWith(commURLFacts.baseRoutePath)) {

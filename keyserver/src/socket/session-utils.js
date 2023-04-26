@@ -235,7 +235,7 @@ async function processClientResponses(
 
   const activityUpdatePromise = (async () => {
     if (activityUpdates.length === 0) {
-      return;
+      return undefined;
     }
     return await activityUpdater(viewer, { updates: activityUpdates });
   })();

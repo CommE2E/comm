@@ -69,6 +69,7 @@ function EnumSettingsOption(props: Props): React.Node {
     } else if (type === 'radio') {
       return <Radio checked={selected} />;
     }
+    return undefined;
   }, [disabled, type, selected]);
 
   const optionContainerClasses = classnames(css.optionContainer, {

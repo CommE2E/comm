@@ -31,7 +31,7 @@ function AddMembersListContent(props: Props): React.Node {
 
   const membersInParentThread = React.useMemo(() => {
     if (!groupedAvailableUsersList['undefined']) {
-      return;
+      return null;
     }
     const label = hasParentThread ? 'Users in parent channel' : null;
     return [label, groupedAvailableUsersList['undefined']];

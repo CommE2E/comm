@@ -97,6 +97,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
     }, [otherUserInfo]);
 
     const hasPermissionForTab = React.useCallback(
+      // ESLint doesn't recognize that invariant always throws
+      // eslint-disable-next-line consistent-return
       (thread: ThreadInfo, tab: TabType) => {
         if (tab === 'general') {
           return (

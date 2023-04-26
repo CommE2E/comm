@@ -433,6 +433,8 @@ class Calendar extends React.PureComponent<Props, State> {
     });
   }
 
+  // ESLint doesn't recognize that invariant always throws
+  // eslint-disable-next-line consistent-return
   renderItem = (row: { item: CalendarItemWithHeight, ... }) => {
     const item = row.item;
     if (item.itemType === 'loader') {
@@ -497,6 +499,8 @@ class Calendar extends React.PureComponent<Props, State> {
     });
   };
 
+  // ESLint doesn't recognize that invariant always throws
+  // eslint-disable-next-line consistent-return
   static keyExtractor = (item: CalendarItemWithHeight | CalendarItem) => {
     if (item.itemType === 'loader') {
       return item.key;
@@ -523,6 +527,8 @@ class Calendar extends React.PureComponent<Props, State> {
     return { length, offset, index };
   };
 
+  // ESLint doesn't recognize that invariant always throws
+  // eslint-disable-next-line consistent-return
   static itemHeight = (item: CalendarItemWithHeight) => {
     if (item.itemType === 'loader') {
       return 56;

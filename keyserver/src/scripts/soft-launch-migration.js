@@ -57,7 +57,8 @@ async function createGenesisCommunity() {
   if (genesisThreadInfo && genesisThreadInfo.type === threadTypes.GENESIS) {
     return;
   } else if (genesisThreadInfo) {
-    return await updateGenesisCommunityType();
+    await updateGenesisCommunityType();
+    return;
   }
 
   console.log('creating GENESIS community');

@@ -168,7 +168,7 @@ function ChatThreadComposer(props: Props): React.Node {
 
   React.useEffect(() => {
     if (!inputState) {
-      return;
+      return undefined;
     }
     inputState.registerSendCallback(hideSearch);
     return () => inputState.unregisterSendCallback(hideSearch);

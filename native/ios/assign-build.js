@@ -41,7 +41,7 @@ const getPreReleaseVersions = async (authToken) => {
   if (!IOS_APP_ID) {
     console.log('ERROR: No IOS_APP_ID found in env.');
     process.exit(1);
-    return;
+    return undefined;
   }
 
   const res = await request({
@@ -64,7 +64,7 @@ const getCurrentVersionInfo = (preReleaseVersions, currentVersion) => {
   if (!preReleaseVersions) {
     console.log('ERROR: No preReleaseVersions found.');
     process.exit(1);
-    return;
+    return undefined;
   }
 
   return preReleaseVersions.filter(
@@ -76,7 +76,7 @@ const getCurrentVersionID = (currentVersionInfo) => {
   if (!currentVersionInfo || !currentVersionInfo.id) {
     console.log('ERROR: currentVersionID could not be determined.');
     process.exit(1);
-    return;
+    return undefined;
   }
   return currentVersionInfo.id;
 };
@@ -85,7 +85,7 @@ const getBuildInfoForVersionID = async (authToken, versionID) => {
   if (!versionID) {
     console.log('ERROR: versionID is undefined.');
     process.exit(1);
-    return; 
+    return undefined;
   }
 
   const res = await request({
@@ -107,7 +107,7 @@ const getBuildID = (buildInfo) => {
   if (!buildInfo || !buildInfo.id) {
     console.log('ERROR: buildID could not be determined.');
     process.exit(1);
-    return;
+    return undefined;
   }
   return buildInfo.id;
 };

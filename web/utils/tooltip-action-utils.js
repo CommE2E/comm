@@ -282,7 +282,7 @@ function createTooltip(params: CreateTooltipParams) {
     threadInfo,
   } = params;
   if (!tooltipMessagePosition) {
-    return;
+    return undefined;
   }
   const tooltipPosition = findTooltipPosition({
     sourcePositionInfo: tooltipMessagePosition,
@@ -292,7 +292,7 @@ function createTooltip(params: CreateTooltipParams) {
     preventDisplayingBelowSource: containsInlineEngagement,
   });
   if (!tooltipPosition) {
-    return;
+    return undefined;
   }
 
   const tooltipPositionStyle = getMessageActionTooltipStyle({

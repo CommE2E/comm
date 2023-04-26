@@ -35,6 +35,7 @@ function Avatar(props: Props): React.Node {
     if (avatarInfo.type === 'emoji') {
       return { backgroundColor: `#${avatarInfo.color}` };
     }
+    return undefined;
   }, [avatarInfo.color, avatarInfo.type]);
 
   const avatar = React.useMemo(() => {

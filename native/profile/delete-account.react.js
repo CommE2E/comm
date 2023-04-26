@@ -178,6 +178,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
           { cancelable: false },
         );
       }
+      throw e;
     }
   }
 

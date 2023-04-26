@@ -180,6 +180,8 @@ type GetMessageActionTooltipStyleParams = {
   +tooltipPosition: TooltipPosition,
 };
 
+// ESLint doesn't recognize that invariant always throws
+// eslint-disable-next-line consistent-return
 function getMessageActionTooltipStyle({
   sourcePositionInfo,
   tooltipSize,

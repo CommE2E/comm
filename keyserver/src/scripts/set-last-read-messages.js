@@ -19,7 +19,7 @@ async function main() {
 
 async function createLastMessageColumn() {
   try {
-    return await dbQuery(SQL`
+    await dbQuery(SQL`
       ALTER TABLE memberships 
       ADD last_read_message bigint(20) NOT NULL DEFAULT 0,
       ADD last_message bigint(20) NOT NULL DEFAULT 0

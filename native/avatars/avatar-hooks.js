@@ -100,7 +100,7 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
     });
 
     if (canceled || assets.length === 0) {
-      return;
+      return undefined;
     }
 
     const asset = assets.pop();
@@ -144,7 +144,7 @@ function useUploadSelectedMedia(
           'Media selection failed',
           'Unable to select media from Media Library.',
         );
-        return;
+        return undefined;
       }
 
       setProcessingOrUploadInProgress(true);
@@ -158,7 +158,7 @@ function useUploadSelectedMedia(
           'Unable to process selected media.',
         );
         setProcessingOrUploadInProgress(false);
-        return;
+        return undefined;
       }
 
       if (!processedMedia.success) {
@@ -167,7 +167,7 @@ function useUploadSelectedMedia(
           'Unable to process selected media.',
         );
         setProcessingOrUploadInProgress(false);
-        return;
+        return undefined;
       }
 
       let uploadedMedia: UploadMultimediaResult;
@@ -179,7 +179,7 @@ function useUploadSelectedMedia(
           'Unable to upload selected media. Please try again.',
         );
         setProcessingOrUploadInProgress(false);
-        return;
+        return undefined;
       }
 
       return uploadedMedia.id;
@@ -240,8 +240,9 @@ function useSelectFromGalleryAndUpdateUserAvatar(): [
         setProcessingOrUploadInProgress(false);
         try {
           return await updateUserAvatarCall(imageAvatarUpdateRequest);
-        } catch {
+        } catch (e) {
           Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
         }
       })(),
     );
@@ -308,8 +309,9 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
         setProcessingOrUploadInProgress(false);
         try {
           return await changeThreadSettingsCall(updateThreadRequest);
-        } catch {
+        } catch (e) {
           Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
         }
       })(),
       { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
@@ -344,8 +346,9 @@ function useRemoveUserAvatar(): [() => void, boolean] {
       (async () => {
         try {
           return await updateUserAvatarCall(removeAvatarRequest);
-        } catch {
+        } catch (e) {
           Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
         }
       })(),
     );
@@ -381,8 +384,9 @@ function useRemoveThreadAvatar(threadID: string): [() => void, boolean] {
       (async () => {
         try {
           return await changeThreadSettingsCall(updateThreadRequest);
-        } catch {
+        } catch (e) {
           Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
         }
       })(),
       { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
@@ -413,8 +417,9 @@ function useENSUserAvatar(): [() => void, boolean] {
       (async () => {
         try {
           return await updateUserAvatarCall(ensAvatarRequest);
-        } catch {
+        } catch (e) {
           Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
         }
       })(),
     );

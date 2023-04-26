@@ -375,7 +375,7 @@ async function updateLastReadMessage(
       AND user = ${viewer.userID}
   `);
 
-  return await dbQuery(query);
+  await dbQuery(query);
 }
 
 async function setThreadUnreadStatus(

@@ -894,6 +894,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     });
   };
 
+  // ESLint doesn't recognize that invariant always throws
+  // eslint-disable-next-line consistent-return
   renderItem = (row: { item: ChatSettingsItem, ... }) => {
     const item = row.item;
     if (item.itemType === 'header') {

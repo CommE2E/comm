@@ -132,7 +132,7 @@ function ChatMessageListContainer(props: Props): React.Node {
   React.useEffect(() => {
     const currentContainerRef = containerRef.current;
     if (!currentContainerRef) {
-      return;
+      return undefined;
     }
     currentContainerRef.addEventListener('paste', onPaste);
     return () => {
