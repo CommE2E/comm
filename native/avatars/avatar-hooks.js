@@ -128,7 +128,7 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
 
 function useUploadSelectedMedia(
   setProcessingOrUploadInProgress: SetState<boolean>,
-): (selection: ?NativeMediaSelection) => Promise<?string> {
+): (selection: ?NativeMediaSelection) => Promise<?ImageAvatarDBContent> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
 
@@ -177,7 +177,14 @@ function useUploadSelectedMedia(
         return undefined;
       }
 
-      return uploadedMedia.id;
+      if (!uploadedMedia.id) {
+        return undefined;
+      }
+
+      return {
+        type: 'image',
+        uploadID: uploadedMedia.id,
+      };
     },
     [
       processSelectedMedia,
@@ -218,16 +225,11 @@ function useSelectFromGalleryAndUpdateThreadAvatar(
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
 
-    const uploadedMediaID = await uploadSelectedMedia(selection);
+    const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
 
-    if (!uploadedMediaID) {
+    if (!imageAvatarUpdateRequest) {
       return;
     }
-
-    const imageAvatarUpdateRequest: ImageAvatarDBContent = {
-      type: 'image',
-      uploadID: uploadedMediaID,
-    };
 
     const updateThreadRequest: UpdateThreadRequest = {
       threadID,
