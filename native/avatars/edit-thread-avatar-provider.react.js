@@ -53,15 +53,31 @@ function EditThreadAvatarProvider(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
 
-  const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
-    React.useState(false);
+  const [
+    threadAvatarMediaUploadInProgress,
+    setThreadAvatarMediaUploadInProgress,
+  ] = React.useState<$ReadOnlySet<string>>(new Set<string>());
+
+  const updateThreadAvatarMediaUploadInProgress = React.useCallback(
+    (inProgress: boolean) =>
+      setThreadAvatarMediaUploadInProgress(prevState => {
+        const updatedSet = new Set(prevState);
+        if (inProgress) {
+          updatedSet.add(activeThreadID);
+        } else {
+          updatedSet.delete(activeThreadID);
+        }
+        return updatedSet;
+      }),
+    [activeThreadID],
+  );
 
   const threadAvatarSaveInProgress =
-    processingOrUploadInProgress ||
+    threadAvatarMediaUploadInProgress.has(activeThreadID) ||
     updateThreadAvatarLoadingStatus === 'loading';
 
   const uploadSelectedMedia = useUploadSelectedMedia(
-    setProcessingOrUploadInProgress,
+    updateThreadAvatarMediaUploadInProgress,
   );
 
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(
@@ -88,7 +104,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
       dispatchActionPromise(
         changeThreadSettingsActionTypes,
         (async () => {
-          setProcessingOrUploadInProgress(false);
+          updateThreadAvatarMediaUploadInProgress(false);
           try {
             return await changeThreadSettingsCall(updateThreadRequest);
           } catch (e) {
@@ -101,7 +117,12 @@ function EditThreadAvatarProvider(props: Props): React.Node {
         },
       );
     },
-    [changeThreadSettingsCall, dispatchActionPromise, uploadSelectedMedia],
+    [
+      changeThreadSettingsCall,
+      dispatchActionPromise,
+      updateThreadAvatarMediaUploadInProgress,
+      uploadSelectedMedia,
+    ],
   );
 
   const removeThreadAvatar = React.useCallback(
