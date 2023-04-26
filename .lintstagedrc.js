@@ -33,6 +33,9 @@ module.exports = {
   '{native,lib}/**/*.js': function nativeFlow(files) {
     return 'yarn workspace native flow --quiet';
   },
+  '{native,lib}/**/*.js': function nativeFlow(files) {
+    return 'yarn workspace native test';
+  },
   '{keyserver,web,lib}/**/*.js': function keyserverFlow(files) {
     return 'yarn workspace keyserver flow --quiet';
   },
