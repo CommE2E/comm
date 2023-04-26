@@ -55,3 +55,7 @@
   width: 112px;
   min-width: 112px;
 }
+
+.imgContainer {
+  object-fit: cover;
+}
