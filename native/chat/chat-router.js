@@ -28,6 +28,7 @@ import {
   ChatThreadListRouteName,
   ComposeSubchannelRouteName,
 } from '../navigation/route-names.js';
+import { exitEditAlert } from '../utils/edit-messages-utils.js';
 
 type ClearScreensAction = {
   +type: 'CLEAR_SCREENS',
@@ -128,7 +129,22 @@ function ChatRouter(
         );
         return baseGetStateForAction(clearedState, navigateAction, options);
       } else {
-        return baseGetStateForAction(lastState, action, options);
+        const result = baseGetStateForAction(lastState, action, options);
+        if (
+          result !== null &&
+          result?.index &&
+          result.index > lastState.index &&
+          lastState.routes[lastState.index].params?.disableNavigation
+        ) {
+          const disableNavigation: Function =
+            lastState.routes[lastState.index].params?.disableNavigation;
+          const onDiscard = () => {
+            disableNavigation(action);
+          };
+          exitEditAlert(onDiscard);
+          return lastState;
+        }
+        return result;
       }
     },
     actionCreators: {

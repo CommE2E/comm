@@ -7,6 +7,7 @@ import * as React from 'react';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type UserInfo } from 'lib/types/user-types.js';
 
+import type { ChatRouterNavigationAction } from './chat-router.js';
 import type { MarkdownRules } from '../markdown/rules.react.js';
 import { useTextMessageRulesFunc } from '../markdown/rules.react.js';
 import { MessageListRouteName } from '../navigation/route-names.js';
@@ -15,6 +16,7 @@ export type MessageListParams = {
   +threadInfo: ThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +searching?: boolean,
+  +disableNavigation?: ?(ChatRouterNavigationAction) => void,
 };
 
 export type MessageListContextType = {

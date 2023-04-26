@@ -293,6 +293,35 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       }
     }, [isSearching, navigationStack, setParams, threadInfo]);
 
+    const shouldBlockNavigation = React.useMemo(
+      () => !!inputState.editState.editedMessage,
+      [inputState.editState.editedMessage],
+    );
+
+    const removeEditMode = React.useCallback(
+      action => {
+        inputState.setEditedMessage(null, () => {
+          setParams({ disableNavigation: null });
+          props.navigation.dispatch(action);
+        });
+      },
+      [inputState, props.navigation, setParams],
+    );
+
+    React.useEffect(() => {
+      if (shouldBlockNavigation) {
+        setParams({ disableNavigation: removeEditMode });
+      } else {
+        setParams({ disableNavigation: null });
+      }
+    }, [
+      shouldBlockNavigation,
+      isSearching,
+      props.navigation,
+      setParams,
+      removeEditMode,
+    ]);
+
     const hideSearch = React.useCallback(() => {
       setBaseThreadInfo(threadInfo);
       setParams({ searching: false });
