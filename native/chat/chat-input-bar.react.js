@@ -165,13 +165,14 @@ type Props = {
     text: string,
   ) => Promise<SendEditMessageResponse>,
   +navigation: ?ChatNavigationProp<'MessageList'>,
+  +isFocused?: boolean,
 };
 type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
   +selectionState: SyncedSelectionData,
-  +isExitingEditMode: boolean,
+  +isExitingDuringEditMode: boolean,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
@@ -198,7 +199,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       textEdited: false,
       buttonsExpanded: true,
       selectionState: { text: props.draft, selection: { start: 0, end: 0 } },
-      isExitingEditMode: false,
+      isExitingDuringEditMode: false,
     };
 
     this.setUpActionIconAnimations();
@@ -403,6 +404,22 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     } else if (imageGalleryIsOpen && !imageGalleryWasOpen) {
       this.expandButtons();
       this.setIOSKeyboardHeight();
+    }
+
+    if (!this.props.isFocused && prevProps.isFocused && this.isEditMode()) {
+      this.setState(
+        { text: this.props.draft, isExitingDuringEditMode: true },
+        this.exitEditMode,
+      );
+    }
+    if (this.props.isFocused && !prevProps.isFocused) {
+      this.setState({ isExitingDuringEditMode: false });
+    }
+    if (
+      this.props.inputState?.editState.editedMessage &&
+      !prevProps.inputState?.editState.editedMessage
+    ) {
+      this.blockNavigation();
     }
   }
 
@@ -725,8 +742,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   updateText = (text: string) => {
+    if (this.state.isExitingDuringEditMode) {
+      return;
+    }
     this.setState({ text, textEdited: true });
-    if (this.isEditMode() || this.state.isExitingEditMode) {
+    if (this.isEditMode()) {
       return;
     }
     this.saveDraft(text);
@@ -840,6 +860,41 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return text !== originalText;
   };
 
+  unblockNavigation = () => {
+    if (!this.props.navigation) {
+      return;
+    }
+    this.props.navigation.setParams({ removeEditMode: null });
+  };
+
+  removeEditMode = action => {
+    if (!this.props.navigation) {
+      return;
+    }
+    if (this.state.isExitingDuringEditMode) {
+      return;
+    }
+    const { navigation: nav } = this.props;
+    const unblockAndDispatch = () => {
+      this.unblockNavigation();
+      nav.dispatch(action);
+    };
+    if (!this.isMessageEdited()) {
+      unblockAndDispatch();
+      return;
+    }
+    exitEditAlert(unblockAndDispatch);
+  };
+
+  blockNavigation = () => {
+    if (!this.props.navigation) {
+      return;
+    }
+    this.props.navigation.setParams({
+      removeEditMode: this.removeEditMode,
+    });
+  };
+
   editMessage = async (messageID: string, text: string) => {
     if (!this.isMessageEdited()) {
       this.exitEditMode();
@@ -885,6 +940,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   exitEditMode = () => {
     this.props.inputState?.setEditedMessage(null, () => {
+      this.unblockNavigation();
       this.updateText(this.props.draft);
       this.focusAndUpdateButtonsVisibility();
       this.updateSendButton(this.props.draft);
@@ -899,7 +955,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     e.preventDefault();
     const saveExit = () => {
       this.props.inputState?.setEditedMessage(null, () => {
-        this.setState({ isExitingEditMode: true }, () => {
+        this.setState({ isExitingDuringEditMode: true }, () => {
           if (!this.props.navigation) {
             return;
           }
@@ -1108,6 +1164,7 @@ type ConnectedChatInputBarBaseProps = {
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
   +openCamera: () => mixed,
   +navigation?: ChatNavigationProp<'MessageList'>,
+  +isFocused?: boolean,
 };
 function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const navContext = React.useContext(NavContext);
@@ -1298,12 +1355,15 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
       });
     }, [keyboardState, navigation, route.key, threadInfo]);
 
+    const isFocused = props.navigation.isFocused();
+
     return (
       <ConnectedChatInputBarBase
         {...restProps}
         onInputBarLayout={onInputBarLayout}
         openCamera={openCamera}
         navigation={navigation}
+        isFocused={isFocused}
       />
     );
   });
