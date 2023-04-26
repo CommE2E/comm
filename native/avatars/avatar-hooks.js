@@ -13,7 +13,6 @@ import {
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
 import type { ImageAvatarDBContent } from 'lib/types/avatar-types.js';
-import type { SetState } from 'lib/types/hook-types.js';
 import type {
   NativeMediaSelection,
   MediaLibrarySelection,
@@ -114,7 +113,7 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
 }
 
 function useUploadSelectedMedia(
-  setProcessingOrUploadInProgress: SetState<boolean>,
+  setProcessingOrUploadInProgress: (inProgress: boolean) => void,
 ): (selection: NativeMediaSelection) => Promise<?ImageAvatarDBContent> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
