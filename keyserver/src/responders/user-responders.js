@@ -246,6 +246,7 @@ const registerRequestInputValidator = tShape({
   // old clients, but we no longer do anything with it.
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+  initialNotificationsEncryptedMessage: t.maybe(t.String),
 });
 
 export const registerResponseValidator: TInterface<RegisterResponse> =
