@@ -1,6 +1,7 @@
 // @flow
 
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -13,6 +14,7 @@ import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import { TogglePinModalRouteName } from '../navigation/route-names.js';
 import {
   createTooltip,
   type TooltipParams,
@@ -32,6 +34,7 @@ function TooltipMenu(
   props: TooltipMenuProps<'TextMessageTooltipModal'>,
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
+  const navigation = useNavigation();
 
   const inputState = React.useContext(InputStateContext);
   const { text } = route.params.item.messageInfo;
@@ -84,7 +87,15 @@ function TooltipMenu(
     [],
   );
 
-  const onPressTogglePin = React.useCallback(() => {}, []);
+  const onPressTogglePin = React.useCallback(() => {
+    navigation.navigate<'TogglePinModal'>({
+      name: TogglePinModalRouteName,
+      params: {
+        threadInfo: route.params.item.threadInfo,
+        item: route.params.item,
+      },
+    });
+  }, [navigation, route.params.item]);
   const renderPinIcon = React.useCallback(
     style => <CommIcon name="pin" style={style} size={16} />,
     [],
