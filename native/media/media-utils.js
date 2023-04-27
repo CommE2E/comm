@@ -41,12 +41,15 @@ export type MediaResult =
   | {
       +mediaType: 'encrypted_photo',
       ...SharedMediaResult,
+      +blobHash: string,
       +encryptionKey: string,
     }
   | {
       +mediaType: 'encrypted_video',
       ...SharedMediaResult,
+      +blobHash: string,
       +encryptionKey: string,
+      +thumbnailBlobHash: string,
       +thumbnailEncryptionKey: string,
       +uploadThumbnailURI: string,
       +loop: boolean,
