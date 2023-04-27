@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
+import WebSocket from 'ws';
 
 import './cron/cron.js';
 import { migrate } from './database/migrations.js';
@@ -62,6 +63,19 @@ import {
     for (let i = 0; i < cpuCount; i++) {
       cluster.fork();
     }
+
+    // Refactor to method
+    let tunnelbrokerSocket = new WebSocket("ws://localhost:51001");
+    tunnelbrokerSocket.onopen = (event) => {
+      let message = {
+        type: "sessionRequest",
+        accessToken: "foobar",
+        deviceId: "foo",
+        deviceType: "keyserver",
+      };
+      tunnelbrokerSocket.send(JSON.stringify(message));
+    };
+
     cluster.on('exit', () => cluster.fork());
   } else {
     const server = express();
