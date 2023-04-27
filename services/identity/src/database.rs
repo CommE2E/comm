@@ -24,10 +24,10 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
   NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY, USERS_TABLE,
   USERS_TABLE_DEVICES_ATTRIBUTE,
+  USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
+  USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME,
@@ -820,19 +820,19 @@ fn create_device_info(
       AttributeValue::S(flattened_device_key_upload.key_payload_signature),
     ),
     (
-      USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(flattened_device_key_upload.identity_prekey),
+      USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME.to_string(),
+      AttributeValue::S(flattened_device_key_upload.content_prekey),
     ),
     (
-      USERS_TABLE_DEVICES_MAP_IDENTITY_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+      USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME
         .to_string(),
-      AttributeValue::S(flattened_device_key_upload.identity_prekey_signature),
+      AttributeValue::S(flattened_device_key_upload.content_prekey_signature),
     ),
     (
       USERS_TABLE_DEVICES_MAP_IDENTITY_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
       AttributeValue::L(
         flattened_device_key_upload
-          .identity_onetime_keys
+          .content_onetime_keys
           .into_iter()
           .map(AttributeValue::S)
           .collect(),
