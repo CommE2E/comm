@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 if ! [[ "$OSTYPE" == 'msys' ]]; then
-  exit 1
+  exit 0
 fi
 
 nuget install
