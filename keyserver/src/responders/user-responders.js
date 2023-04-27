@@ -78,6 +78,7 @@ import {
   createAccount,
   processSIWEAccountCreation,
 } from '../creators/account-creator.js';
+import { createOlmSession } from '../creators/olm-session-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteAccount } from '../deleters/account-deleters.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
@@ -252,6 +253,7 @@ type ProcessSuccessfulLoginParams = {
   +calendarQuery: ?CalendarQuery,
   +socialProof?: ?SIWESocialProof,
   +signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
+  +initialNotificationsEncryptedMessage?: string,
 };
 
 async function processSuccessfulLogin(
@@ -264,6 +266,7 @@ async function processSuccessfulLogin(
     calendarQuery,
     socialProof,
     signedIdentityKeysBlob,
+    initialNotificationsEncryptedMessage,
   } = params;
 
   const request: LogInRequest = input;
@@ -282,6 +285,17 @@ async function processSuccessfulLogin(
     deleteCookie(viewer.cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
+  if (
+    userViewerData.cookieID &&
+    initialNotificationsEncryptedMessage &&
+    signedIdentityKeysBlob
+  ) {
+    await createOlmSession(
+      initialNotificationsEncryptedMessage,
+      'notifications',
+      userViewerData.cookieID,
+    );
+  }
 
   if (
     notAcknowledgedPolicies.length &&
@@ -361,6 +375,7 @@ const logInRequestInputValidator = tShape({
   // old clients, but we no longer do anything with it.
   primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+  initialNotificationsEncryptedMessage: t.maybe(t.String),
 });
 
 async function logInResponder(
@@ -371,7 +386,8 @@ async function logInResponder(
   const request: LogInRequest = input;
 
   let identityKeys: ?IdentityKeysBlob;
-  const { signedIdentityKeysBlob } = request;
+  const { signedIdentityKeysBlob, initialNotificationsEncryptedMessage } =
+    request;
   if (signedIdentityKeysBlob) {
     identityKeys = JSON.parse(signedIdentityKeysBlob.payload);
 
@@ -435,6 +451,7 @@ async function logInResponder(
     userID: id,
     calendarQuery,
     signedIdentityKeysBlob,
+    initialNotificationsEncryptedMessage,
   });
 }
 

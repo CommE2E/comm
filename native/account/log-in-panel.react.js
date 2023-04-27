@@ -37,6 +37,7 @@ import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
+import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import type { StateContainer } from '../utils/state-container.js';
 
 export type LogInState = {
@@ -54,6 +55,9 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+  +initialNotificationsEncryptedMessage: (
+    oneTimeKeysCount: number,
+  ) => Promise<string>,
 };
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
@@ -227,9 +231,12 @@ class LogInPanel extends React.PureComponent<Props> {
 
     Keyboard.dismiss();
     const extraInfo = await this.props.logInExtraInfo();
+    const initialNotificationsEncryptedMessage =
+      await this.props.initialNotificationsEncryptedMessage(1);
+    console.log(initialNotificationsEncryptedMessage);
     this.props.dispatchActionPromise(
       logInActionTypes,
-      this.logInAction(extraInfo),
+      this.logInAction({ ...extraInfo, initialNotificationsEncryptedMessage }),
       undefined,
       ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
@@ -364,6 +371,8 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogIn = useServerCall(logIn);
+    const callInitialNotificationsEncryptedMessage =
+      useInitialNotificationsEncryptedMessage();
 
     return (
       <LogInPanel
@@ -372,6 +381,9 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         logIn={callLogIn}
+        initialNotificationsEncryptedMessage={
+          callInitialNotificationsEncryptedMessage
+        }
       />
     );
   });
