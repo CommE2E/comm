@@ -80,13 +80,8 @@ function EditThreadAvatarProvider(props: Props): React.Node {
     updateThreadAvatarMediaUploadInProgress,
   );
 
-  const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(
-    async (threadID: string) => {
-      const selection: ?MediaLibrarySelection = await selectFromGallery();
-      if (!selection) {
-        return;
-      }
-
+  const updateImageThreadAvatar = React.useCallback(
+    async (selection: MediaLibrarySelection, threadID: string) => {
       const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
 
       if (!imageAvatarUpdateRequest) {
@@ -123,6 +118,17 @@ function EditThreadAvatarProvider(props: Props): React.Node {
       updateThreadAvatarMediaUploadInProgress,
       uploadSelectedMedia,
     ],
+  );
+
+  const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(
+    async (threadID: string) => {
+      const selection: ?MediaLibrarySelection = await selectFromGallery();
+      if (!selection) {
+        return;
+      }
+      await updateImageThreadAvatar(selection, threadID);
+    },
+    [updateImageThreadAvatar],
   );
 
   const removeThreadAvatar = React.useCallback(
