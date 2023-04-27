@@ -560,6 +560,7 @@ const siweAuthRequestInputValidator = tShape<SIWEAuthRequest>({
   platformDetails: tPlatformDetails,
   watchedIDs: t.list(tID),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+  initialNotificationsEncryptedMessage: t.maybe(t.String),
 });
 
 async function siweAuthResponder(
@@ -578,6 +579,7 @@ async function siweAuthResponder(
     deviceTokenUpdateRequest,
     platformDetails,
     signedIdentityKeysBlob,
+    initialNotificationsEncryptedMessage,
   } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
@@ -688,6 +690,7 @@ async function siweAuthResponder(
     calendarQuery,
     socialProof,
     signedIdentityKeysBlob,
+    initialNotificationsEncryptedMessage,
   });
   return validateOutput(viewer, logInResponseValidator, response);
 }
