@@ -181,6 +181,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   scrollToMessageCallbacks: Array<(messageID: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
   pendingThreadUpdateHandlers = new Map<string, (ThreadInfo) => mixed>();
+  // TODO: flip the switch
+  // Note that this enables Blob service for encrypted media only
+  useBlobServiceUploads = false;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -827,54 +830,103 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult;
     try {
       const uploadPromises = [];
-      uploadPromises.push(
-        this.props.uploadMultimedia(
-          { uri: uploadURI, name: filename, type: mime },
-          {
-            ...processedMedia.dimensions,
-            loop:
-              processedMedia.mediaType === 'video' ||
-              processedMedia.mediaType === 'encrypted_video'
-                ? processedMedia.loop
-                : undefined,
-            encryptionKey: processedMedia.encryptionKey,
-          },
-          {
-            onProgress: (percent: number) =>
-              this.setProgress(
-                localMessageID,
-                localMediaID,
-                'uploading',
-                percent,
-              ),
-            uploadBlob: this.uploadBlob,
-          },
-        ),
-      );
-
       if (
-        processedMedia.mediaType === 'video' ||
-        processedMedia.mediaType === 'encrypted_video'
+        this.useBlobServiceUploads &&
+        (processedMedia.mediaType === 'encrypted_photo' ||
+          processedMedia.mediaType === 'encrypted_video')
       ) {
         uploadPromises.push(
-          this.props.uploadMultimedia(
+          this.blobServiceUpload(
             {
-              uri: processedMedia.uploadThumbnailURI,
-              name: replaceExtension(`thumb${filename}`, 'jpg'),
-              type: 'image/jpeg',
+              uri: uploadURI,
+              filename: filename,
+              mimeType: mime,
+              blobHash: processedMedia.blobHash,
+              encryptionKey: processedMedia.encryptionKey,
+              dimensions: processedMedia.dimensions,
             },
+            {
+              onProgress: (percent: number) => {
+                console.log('progress:', percent);
+                this.setProgress(
+                  localMessageID,
+                  localMediaID,
+                  'uploading',
+                  percent,
+                );
+              },
+            },
+          ),
+        );
+
+        if (processedMedia.mediaType === 'encrypted_video') {
+          uploadPromises.push(
+            this.blobServiceUpload({
+              uri: processedMedia.uploadThumbnailURI,
+              filename: replaceExtension(`thumb${filename}`, 'jpg'),
+              mimeType: 'image/jpeg',
+              blobHash: processedMedia.thumbnailBlobHash,
+              encryptionKey: processedMedia.thumbnailEncryptionKey,
+              loop: false,
+              dimensions: processedMedia.dimensions,
+            }),
+          );
+        }
+        [uploadResult, uploadThumbnailResult] = await Promise.all(
+          uploadPromises,
+        );
+      } else {
+        uploadPromises.push(
+          this.props.uploadMultimedia(
+            { uri: uploadURI, name: filename, type: mime },
             {
               ...processedMedia.dimensions,
-              loop: false,
-              encryptionKey: processedMedia.thumbnailEncryptionKey,
+              loop:
+                processedMedia.mediaType === 'video' ||
+                processedMedia.mediaType === 'encrypted_video'
+                  ? processedMedia.loop
+                  : undefined,
+              encryptionKey: processedMedia.encryptionKey,
             },
             {
+              onProgress: (percent: number) =>
+                this.setProgress(
+                  localMessageID,
+                  localMediaID,
+                  'uploading',
+                  percent,
+                ),
               uploadBlob: this.uploadBlob,
             },
           ),
         );
+
+        if (
+          processedMedia.mediaType === 'video' ||
+          processedMedia.mediaType === 'encrypted_video'
+        ) {
+          uploadPromises.push(
+            this.props.uploadMultimedia(
+              {
+                uri: processedMedia.uploadThumbnailURI,
+                name: replaceExtension(`thumb${filename}`, 'jpg'),
+                type: 'image/jpeg',
+              },
+              {
+                ...processedMedia.dimensions,
+                loop: false,
+                encryptionKey: processedMedia.thumbnailEncryptionKey,
+              },
+              {
+                uploadBlob: this.uploadBlob,
+              },
+            ),
+          );
+        }
+        [uploadResult, uploadThumbnailResult] = await Promise.all(
+          uploadPromises,
+        );
       }
-      [uploadResult, uploadThumbnailResult] = await Promise.all(uploadPromises);
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
