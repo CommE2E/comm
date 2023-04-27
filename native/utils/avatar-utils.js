@@ -17,14 +17,10 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
-import { FeatureFlagsContext } from '../components/feature-flags-provider.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 
 function useShouldRenderAvatars(): boolean {
-  const { configuration: featureFlagConfig } =
-    React.useContext(FeatureFlagsContext);
-
-  return !!featureFlagConfig['AVATARS_DISPLAY'];
+  return true;
 }
 
 function useSaveUserAvatar(): (
