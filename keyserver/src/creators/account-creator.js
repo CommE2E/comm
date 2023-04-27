@@ -32,6 +32,7 @@ import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import createIDs from './id-creator.js';
 import createMessages from './message-creator.js';
+import { createOlmSession } from './olm-session-creator.js';
 import {
   createThread,
   createPrivateThread,
@@ -81,7 +82,11 @@ async function createAccount(
     WHERE LCASE(username) = LCASE(${request.username})
   `;
   const promises = [dbQuery(usernameQuery)];
-  const { calendarQuery, signedIdentityKeysBlob } = request;
+  const {
+    calendarQuery,
+    signedIdentityKeysBlob,
+    initialNotificationsEncryptedMessage,
+  } = request;
   if (calendarQuery) {
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
@@ -124,6 +129,13 @@ async function createAccount(
   ]);
   viewer.setNewCookie(userViewerData);
 
+  if (userViewerData.cookieID && initialNotificationsEncryptedMessage) {
+    await createOlmSession(
+      initialNotificationsEncryptedMessage,
+      'notifications',
+      userViewerData.cookieID,
+    );
+  }
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, 0);
   }
