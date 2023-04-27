@@ -6,8 +6,12 @@
 
 #include "olm/olm.h"
 
+// base64-encoded
 #define KEYSIZE 43
+#define SIGNATURESIZE 86
+
 #define ID_KEYS_PREFIX_OFFSET 15
+#define SIGNING_KEYS_PREFIX_OFFSET 71
 #define PRE_KEY_PREFIX_OFFSET 25
 #define ONE_TIME_KEYS_PREFIX_OFFSET 25
 #define ONE_TIME_KEYS_MIDDLE_OFFSET 12
