@@ -1,6 +1,7 @@
 // @flow
 
 import type {
+  InviteLink,
   InviteLinkVerificationRequest,
   InviteLinkVerificationResponse,
 } from 'lib/types/link-types.js';
@@ -55,4 +56,23 @@ async function checkIfInviteLinkIsValid(
   return result.length === 1;
 }
 
-export { verifyInviteLink, checkIfInviteLinkIsValid };
+async function fetchPrimaryInviteLinks(): Promise<$ReadOnlyArray<InviteLink>> {
+  const query = SQL`
+    SELECT name, role, community, expiration_time AS expirationTime, 
+      limit_of_uses AS limitOfUses, number_of_uses AS numberOfUses
+    FROM invite_links
+    WHERE \`primary\` = 1
+  `;
+  const [result] = await dbQuery(query);
+  return result.map(row => ({
+    name: row.name,
+    primary: row.primary,
+    role: row.role.toString(),
+    communityID: row.community.toString(),
+    expirationTime: row.expirationTime,
+    limitOfUses: row.limitOfUses,
+    numberOfUses: row.numberOfUses,
+  }));
+}
+
+export { verifyInviteLink, checkIfInviteLinkIsValid, fetchPrimaryInviteLinks };
