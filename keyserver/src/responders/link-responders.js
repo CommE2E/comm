@@ -5,10 +5,14 @@ import t from 'tcomb';
 import type {
   InviteLinkVerificationRequest,
   InviteLinkVerificationResponse,
+  FetchInviteLinksResponse,
 } from 'lib/types/link-types.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
-import { verifyInviteLink } from '../fetchers/link-fetchers.js';
+import {
+  fetchPrimaryInviteLinks,
+  verifyInviteLink,
+} from '../fetchers/link-fetchers.js';
 import { Viewer } from '../session/viewer.js';
 import { validateInput } from '../utils/validation-utils.js';
 
@@ -29,4 +33,11 @@ async function inviteLinkVerificationResponder(
   return await verifyInviteLink(viewer, request);
 }
 
-export { inviteLinkVerificationResponder };
+async function fetchPrimaryInviteLinksResponder(): Promise<FetchInviteLinksResponse> {
+  const primaryLinks = await fetchPrimaryInviteLinks();
+  return {
+    links: primaryLinks,
+  };
+}
+
+export { inviteLinkVerificationResponder, fetchPrimaryInviteLinksResponder };
