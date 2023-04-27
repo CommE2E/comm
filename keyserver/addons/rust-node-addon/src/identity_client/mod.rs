@@ -5,7 +5,7 @@ pub mod identity_client {
 
 use identity_client::identity_client_service_client::IdentityClientServiceClient;
 use identity_client::{
-  DeviceKeyUpload, IdentityKeyInfo, RegistrationFinishRequest,
+  ContentKeyInfo, DeviceKeyUpload, RegistrationFinishRequest,
   RegistrationStartRequest,
 };
 use lazy_static::lazy_static;
