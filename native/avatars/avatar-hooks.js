@@ -13,10 +13,6 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
 import {
-  updateUserAvatar,
-  updateUserAvatarActionTypes,
-} from 'lib/actions/user-actions.js';
-import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
@@ -188,68 +184,6 @@ function useUploadSelectedMedia(
       setProcessingOrUploadInProgress,
       uploadProcessedMedia,
     ],
-  );
-}
-
-const updateUserAvatarLoadingStatusSelector = createLoadingStatusSelector(
-  updateUserAvatarActionTypes,
-);
-function useSelectFromGalleryAndUpdateUserAvatar(): [
-  () => Promise<void>,
-  boolean,
-] {
-  const dispatchActionPromise = useDispatchActionPromise();
-  const updateUserAvatarCall = useServerCall(updateUserAvatar);
-
-  const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
-    React.useState(false);
-
-  const updateUserAvatarLoadingStatus: LoadingStatus = useSelector(
-    updateUserAvatarLoadingStatusSelector,
-  );
-
-  const inProgress = React.useMemo(
-    () =>
-      processingOrUploadInProgress ||
-      updateUserAvatarLoadingStatus === 'loading',
-    [processingOrUploadInProgress, updateUserAvatarLoadingStatus],
-  );
-
-  const uploadSelectedMedia = useUploadSelectedMedia(
-    setProcessingOrUploadInProgress,
-  );
-
-  const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
-    const selection: ?MediaLibrarySelection = await selectFromGallery();
-
-    const uploadedMediaID = await uploadSelectedMedia(selection);
-
-    if (!uploadedMediaID) {
-      return;
-    }
-
-    const imageAvatarUpdateRequest: ImageAvatarDBContent = {
-      type: 'image',
-      uploadID: uploadedMediaID,
-    };
-
-    dispatchActionPromise(
-      updateUserAvatarActionTypes,
-      (async () => {
-        setProcessingOrUploadInProgress(false);
-        try {
-          return await updateUserAvatarCall(imageAvatarUpdateRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
-    );
-  }, [dispatchActionPromise, updateUserAvatarCall, uploadSelectedMedia]);
-
-  return React.useMemo(
-    () => [selectFromGalleryAndUpdateUserAvatar, inProgress],
-    [selectFromGalleryAndUpdateUserAvatar, inProgress],
   );
 }
 
@@ -481,10 +415,11 @@ const unboundStyles = {
 };
 
 export {
+  selectFromGallery,
+  useUploadSelectedMedia,
   useUploadProcessedMedia,
   useProcessSelectedMedia,
   useShowAvatarActionSheet,
-  useSelectFromGalleryAndUpdateUserAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
   useRemoveThreadAvatar,
 };
