@@ -25,6 +25,7 @@ import {
 } from './responders/website-responders.js';
 import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
+import { createTunnelbrokerWebsocket } from './socket/tunnelbroker.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
@@ -63,6 +64,7 @@ import {
       cluster.fork();
     }
     cluster.on('exit', () => cluster.fork());
+    createTunnelbrokerWebsocket();
   } else {
     const server = express();
     expressWs(server);
