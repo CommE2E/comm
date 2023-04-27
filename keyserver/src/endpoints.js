@@ -27,6 +27,7 @@ import {
   reactionMessageCreationResponder,
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
+  searchMessagesResponder,
 } from './responders/message-responders.js';
 import { updateRelationshipsResponder } from './responders/relationship-responders.js';
 import {
@@ -248,6 +249,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   verify_code: {
     responder: codeVerificationResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  search_messages: {
+    responder: searchMessagesResponder,
     requiredPolicies: baseLegalPolicies,
   },
   siwe_nonce: {
