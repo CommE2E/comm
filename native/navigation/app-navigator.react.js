@@ -14,6 +14,7 @@ import type {
 } from './overlay-navigator.react.js';
 import type { RootNavigationProp } from './root-navigator.react.js';
 import {
+  UserAvatarCameraModalRouteName,
   ImageModalRouteName,
   MultimediaMessageTooltipModalRouteName,
   ActionResultModalRouteName,
@@ -34,6 +35,7 @@ import TextMessageTooltipModal from '../chat/text-message-tooltip-modal.react.js
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react.js';
 import ChatCameraModal from '../media/chat-camera-modal.react.js';
 import ImageModal from '../media/image-modal.react.js';
+import UserAvatarCameraModal from '../media/user-avatar-camera-modal.react.js';
 import VideoPlaybackModal from '../media/video-playback-modal.react.js';
 import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react.js';
 import PushHandler from '../push/push-handler.react.js';
@@ -134,6 +136,10 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
         <App.Screen
           name={ChatCameraModalRouteName}
           component={ChatCameraModal}
+        />
+        <App.Screen
+          name={UserAvatarCameraModalRouteName}
+          component={UserAvatarCameraModal}
         />
         <App.Screen
           name={VideoPlaybackModalRouteName}
