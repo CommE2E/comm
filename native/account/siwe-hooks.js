@@ -12,6 +12,7 @@ import {
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 
 type SIWEServerCallParams = {
   +message: string,
@@ -52,19 +53,32 @@ function useSIWEServerCall(
     }),
   );
 
+  const callInitialNotificationsEncryptedMessage =
+    useInitialNotificationsEncryptedMessage();
+
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
     async ({ message, signature }) => {
       const extraInfo = await logInExtraInfo();
+      const initialNotificationsEncryptedMessage =
+        await callInitialNotificationsEncryptedMessage();
 
       dispatchActionPromise(
         siweAuthActionTypes,
-        callSIWE(message, signature, extraInfo),
+        callSIWE(message, signature, {
+          ...extraInfo,
+          initialNotificationsEncryptedMessage,
+        }),
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
-    [logInExtraInfo, dispatchActionPromise, callSIWE],
+    [
+      logInExtraInfo,
+      dispatchActionPromise,
+      callSIWE,
+      callInitialNotificationsEncryptedMessage,
+    ],
   );
 }
 
