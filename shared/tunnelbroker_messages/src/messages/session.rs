@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 /// The workflow when estabilishing a tunnelbroker connection:
-///   - Client sends SessionRequest
+///   - Client sends ConnectionInitializationMessage
 ///   - Tunnelbroker validates access_token with identity service
 ///   - Tunnelbroker emits an AMQP message declaring that it has opened a new
 ///     connection with a given device, so that the respective tunnelbroker
@@ -31,9 +31,10 @@ pub enum DeviceTypes {
 /// service before continuing with the request.
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
-pub struct SessionRequest {
+pub struct ConnectionInitializationMessage {
   pub device_id: String,
   pub access_token: String,
+  pub user_id: String,
   pub notify_token: Option<String>,
   pub device_type: DeviceTypes,
   pub device_app_version: Option<String>,
@@ -41,7 +42,7 @@ pub struct SessionRequest {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct SessionResponse {
+pub struct ConnectionInitializationResponse {
   pub session_id: String,
 }
 
@@ -55,11 +56,13 @@ mod session_tests {
       "type": "sessionRequest",
       "accessToken": "xkdeifjsld",
       "deviceId": "foo",
+      "userId": "alice",
       "deviceType": "keyserver"
     }"#;
 
     let request =
-      serde_json::from_str::<SessionRequest>(example_payload).unwrap();
+      serde_json::from_str::<ConnectionInitializationMessage>(example_payload)
+        .unwrap();
     assert_eq!(request.device_id, "foo");
     assert_eq!(request.access_token, "xkdeifjsld");
     assert_eq!(request.device_os, None);
