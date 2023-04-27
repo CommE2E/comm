@@ -24,6 +24,7 @@ import { commCoreModule } from '../native-modules.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
@@ -45,6 +46,8 @@ function SIWEPanel(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const getSIWENonceCall = useServerCall(getSIWENonce);
   const siweAuthCall = useServerCall(siweAuth);
+  const callInitialNotificationsEncryptedMessage =
+    useInitialNotificationsEncryptedMessage();
 
   const logInExtraInfo = useSelector(state =>
     nativeLogInExtraInfoSelector({
@@ -141,15 +144,25 @@ function SIWEPanel(props: Props): React.Node {
   const handleSIWE = React.useCallback(
     async ({ message, signature }) => {
       const extraInfo = await logInExtraInfo();
+      const initialNotificationsEncryptedMessage =
+        await callInitialNotificationsEncryptedMessage();
 
       dispatchActionPromise(
         siweAuthActionTypes,
-        callSIWE(message, signature, extraInfo),
+        callSIWE(message, signature, {
+          ...extraInfo,
+          initialNotificationsEncryptedMessage,
+        }),
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
-    [logInExtraInfo, dispatchActionPromise, callSIWE],
+    [
+      logInExtraInfo,
+      dispatchActionPromise,
+      callSIWE,
+      callInitialNotificationsEncryptedMessage,
+    ],
   );
   const closeBottomSheet = bottomSheetRef.current?.close;
   const { closing } = props;
