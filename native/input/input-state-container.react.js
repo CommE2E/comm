@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import * as Upload from 'react-native-background-upload';
 import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
+import * as uuid from 'uuid';
 
 import {
   createLocalMessageActionType,
@@ -18,10 +19,12 @@ import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { newThread } from 'lib/actions/thread-actions.js';
 import {
   uploadMultimedia,
+  uploadMediaMetadata,
   updateMultimediaMessageMediaActionType,
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions.js';
+import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { pathFromURI, replaceExtension } from 'lib/media/file-utils.js';
 import {
@@ -48,11 +51,13 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
+  Dimensions,
   UploadMultimediaResult,
   Media,
   NativeMediaSelection,
   MediaMissionResult,
   MediaMission,
+  UploadMediaMetadataRequest,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -85,6 +90,8 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { toBase64URL } from 'lib/utils/base64.js';
+import { makeBlobServiceEndpointURL } from 'lib/utils/blob-service.js';
 import type {
   CallServerEndpointOptions,
   CallServerEndpointResponse,
@@ -137,6 +144,9 @@ type Props = {
     multimedia: Object,
     extras: MultimediaUploadExtras,
     callbacks: MultimediaUploadCallbacks,
+  ) => Promise<UploadMultimediaResult>,
+  +uploadMediaMetadata: (
+    input: UploadMediaMetadataRequest,
   ) => Promise<UploadMultimediaResult>,
   +sendMultimediaMessage: (
     threadID: string,
@@ -1072,6 +1082,111 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
+  async blobServiceUpload(
+    input: {
+      uri: string,
+      filename: string,
+      mimeType: string,
+      blobHash: string,
+      encryptionKey: string,
+      dimensions: Dimensions,
+      loop?: boolean,
+    },
+    options?: ?CallServerEndpointOptions,
+  ): Promise<void> {
+    const newHolder = uuid.v4();
+    const blobHash = toBase64URL(input.blobHash);
+
+    // 1. Assign new holder for blob with given blobHash
+    let blobAlreadyExists: boolean;
+    try {
+      const assignHolderEndpoint = blobService.httpEndpoints.ASSIGN_HOLDER;
+      const assignHolderResponse = await fetch(
+        makeBlobServiceEndpointURL(assignHolderEndpoint),
+        {
+          method: assignHolderEndpoint.method,
+          body: JSON.stringify({
+            holder: newHolder,
+            blob_hash: blobHash,
+          }),
+          headers: {
+            'content-type': 'application/json',
+          },
+        },
+      );
+
+      if (!assignHolderResponse.ok) {
+        const { status, statusText } = assignHolderResponse;
+        throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
+      }
+      const { data_exists: dataExistsResponse } =
+        await assignHolderResponse.json();
+      blobAlreadyExists = dataExistsResponse;
+    } catch (e) {
+      throw new Error(
+        `Failed to assign holder: ${
+          getMessageForException(e) ?? 'unknown error'
+        }`,
+      );
+    }
+
+    // 2. Upload blob contents if blob doesn't exist
+    if (!blobAlreadyExists) {
+      let path = input.uri;
+      if (Platform.OS === 'android') {
+        const resolvedPath = pathFromURI(input.uri);
+        if (resolvedPath) {
+          path = resolvedPath;
+        }
+      }
+      const uploadEndpoint = blobService.httpEndpoints.UPLOAD_BLOB;
+      const { method } = uploadEndpoint;
+      const uploadID = await Upload.startUpload({
+        url: makeBlobServiceEndpointURL(uploadEndpoint),
+        method,
+        path,
+        type: 'multipart',
+        field: 'blob_data',
+        parameters: {
+          blob_hash: blobHash,
+        },
+      });
+      if (options && options.abortHandler) {
+        options.abortHandler(() => {
+          Upload.cancelUpload(uploadID);
+        });
+      }
+      await new Promise((resolve, reject) => {
+        Upload.addListener('error', uploadID, data => {
+          reject(data.error);
+        });
+        Upload.addListener('cancelled', uploadID, () => {
+          reject(new Error('request aborted'));
+        });
+        Upload.addListener('completed', uploadID, data => {
+          resolve(data);
+        });
+        if (options && options.onProgress) {
+          const { onProgress } = options;
+          Upload.addListener('progress', uploadID, data =>
+            onProgress(data.progress / 100),
+          );
+        }
+      });
+    }
+
+    // 3. Send upload metadata to the keyserver, return response
+    const { filename, mimeType, loop, dimensions, encryptionKey } = input;
+    return await this.props.uploadMediaMetadata({
+      ...dimensions,
+      filename,
+      mimeType,
+      blobHolder: newHolder,
+      encryptionKey,
+      loop: loop ?? false,
+    });
+  }
+
   uploadBlob = async (
     url: string,
     cookie: ?string,
@@ -1622,6 +1737,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
     const calendarQuery = useCalendarQuery();
     const callUploadMultimedia = useServerCall(uploadMultimedia);
+    const callUploadMediaMetadata = useServerCall(uploadMediaMetadata);
     const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
     const callSendTextMessage = useServerCall(sendTextMessage);
     const callNewThread = useServerCall(newThread);
@@ -1635,6 +1751,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     return (
       <InputStateContainer
         {...props}
+        uploadMediaMetadata={callUploadMediaMetadata}
         viewerID={viewerID}
         nextLocalID={nextLocalID}
         messageStoreMessages={messageStoreMessages}
