@@ -16,6 +16,8 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import { activeThreadSelector } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 export type EditThreadAvatarContextType = {
@@ -26,22 +28,27 @@ export type EditThreadAvatarContextType = {
 const EditThreadAvatarContext: React.Context<?EditThreadAvatarContextType> =
   React.createContext<?EditThreadAvatarContextType>();
 
-const threadAvatarLoadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:avatar`,
-);
-
 type Props = {
   +children: React.Node,
 };
 function EditThreadAvatarProvider(props: Props): React.Node {
   const { children } = props;
 
+  const navContext = React.useContext(NavContext);
+  const activeThreadID = React.useMemo(
+    () => activeThreadSelector(navContext) ?? '',
+    [navContext],
+  );
+
+  const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
+    createLoadingStatusSelector(
+      changeThreadSettingsActionTypes,
+      `${changeThreadSettingsActionTypes.started}:${activeThreadID}:avatar`,
+    ),
+  );
+
   const dispatchActionPromise = useDispatchActionPromise();
   const changeThreadSettingsCall = useServerCall(changeThreadSettings);
-  const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
-    threadAvatarLoadingStatusSelector,
-  );
 
   const threadAvatarSaveInProgress =
     updateThreadAvatarLoadingStatus === 'loading';
@@ -59,6 +66,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
         },
       };
 
+      const action = changeThreadSettingsActionTypes.started;
       dispatchActionPromise(
         changeThreadSettingsActionTypes,
         (async () => {
@@ -69,7 +77,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
             throw e;
           }
         })(),
-        { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
+        { customKeyName: `${action}:${threadID}:avatar` },
       );
     },
     [changeThreadSettingsCall, dispatchActionPromise],
