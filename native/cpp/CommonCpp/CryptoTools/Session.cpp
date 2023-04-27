@@ -11,6 +11,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
     std::uint8_t *ownerIdentityKeys,
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
+    const OlmBuffer &preKeySignature,
     const OlmBuffer &oneTimeKeys,
     size_t keyIndex) {
   std::unique_ptr<Session> session(new Session(account, ownerIdentityKeys));
@@ -29,8 +30,12 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
           session->ownerUserAccount,
           idKeys.data() + ID_KEYS_PREFIX_OFFSET,
           KEYSIZE,
+          idKeys.data() + SIGNING_KEYS_PREFIX_OFFSET,
+          KEYSIZE,
           preKeys.data() + PRE_KEY_PREFIX_OFFSET,
           KEYSIZE,
+          preKeySignature.data(),
+          SIGNATURESIZE,
           oneTimeKeys.data() + ONE_TIME_KEYS_PREFIX_OFFSET +
               (KEYSIZE + ONE_TIME_KEYS_MIDDLE_OFFSET) * keyIndex,
           KEYSIZE,
