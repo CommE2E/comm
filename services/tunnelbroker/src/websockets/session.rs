@@ -49,7 +49,7 @@ pub fn handle_first_message_from_device(
   let serialized_message = serde_json::from_str::<Messages>(message)?;
 
   match serialized_message {
-    Messages::SessionRequest(mut session_info) => {
+    Messages::ConnectionInitializationMessage(mut session_info) => {
       let device_info = DeviceInfo {
         device_id: session_info.device_id.clone(),
         notify_token: session_info.notify_token.take(),
@@ -110,20 +110,12 @@ impl WebsocketSession {
   }
 
   pub async fn handle_websocket_frame_from_device(
-    &mut self,
-    frame: Message,
+    &self,
+    msg: Message,
   ) -> Result<(), SessionError> {
-    match frame {
-      Message::Text(payload) => {
-        debug!("Received message from device: {}", payload);
-        Ok(())
-      }
-      Message::Close(_) => {
-        self.close().await;
-        Ok(())
-      }
-      _ => Err(SessionError::InvalidMessage),
-    }
+    debug!("Received frame: {:?}", msg);
+
+    Ok(())
   }
 
   pub async fn next_amqp_message(
