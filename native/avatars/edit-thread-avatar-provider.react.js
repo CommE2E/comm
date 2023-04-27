@@ -80,46 +80,53 @@ function EditThreadAvatarProvider(props: Props): React.Node {
     updateThreadAvatarMediaUploadInProgress,
   );
 
+  const updateImageThreadAvatar = React.useCallback(
+    async (selection: ?MediaLibrarySelection) => {
+      const imageAvatarUpdateRequest = await uploadThreadAvatarSelectedMedia(
+        selection,
+      );
+
+      if (!imageAvatarUpdateRequest) {
+        return;
+      }
+
+      const updateThreadRequest: UpdateThreadRequest = {
+        threadID: activeThreadID,
+        changes: {
+          avatar: imageAvatarUpdateRequest,
+        },
+      };
+
+      const action = changeThreadSettingsActionTypes.started;
+      dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        (async () => {
+          updateThreadAvatarMediaUploadInProgress(false);
+          try {
+            return await changeThreadSettingsCall(updateThreadRequest);
+          } catch (e) {
+            Alert.alert('Avatar update failed', 'Unable to update avatar.');
+            throw e;
+          }
+        })(),
+        {
+          customKeyName: `${action}:${activeThreadID}:avatar`,
+        },
+      );
+    },
+    [
+      activeThreadID,
+      changeThreadSettingsCall,
+      dispatchActionPromise,
+      updateThreadAvatarMediaUploadInProgress,
+      uploadThreadAvatarSelectedMedia,
+    ],
+  );
+
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
     const selection: ?MediaLibrarySelection = await selectFromGallery();
-    const imageAvatarUpdateRequest = await uploadThreadAvatarSelectedMedia(
-      selection,
-    );
-
-    if (!imageAvatarUpdateRequest) {
-      return;
-    }
-
-    const updateThreadRequest: UpdateThreadRequest = {
-      threadID: activeThreadID,
-      changes: {
-        avatar: imageAvatarUpdateRequest,
-      },
-    };
-
-    const action = changeThreadSettingsActionTypes.started;
-    dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      (async () => {
-        updateThreadAvatarMediaUploadInProgress(false);
-        try {
-          return await changeThreadSettingsCall(updateThreadRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
-      {
-        customKeyName: `${action}:${activeThreadID}:avatar`,
-      },
-    );
-  }, [
-    activeThreadID,
-    changeThreadSettingsCall,
-    dispatchActionPromise,
-    updateThreadAvatarMediaUploadInProgress,
-    uploadThreadAvatarSelectedMedia,
-  ]);
+    await updateImageThreadAvatar(selection);
+  }, [updateImageThreadAvatar]);
 
   const removeThreadAvatar = React.useCallback(() => {
     const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
