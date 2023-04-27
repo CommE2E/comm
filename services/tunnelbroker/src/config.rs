@@ -14,7 +14,7 @@ pub struct AppConfig {
   #[arg(long, default_value_t = 51001)]
   pub http_port: u16,
   /// AMQP server URI
-  #[arg(long, default_value_t = String::from("amqp://localhost:5672"))]
+  #[arg(long, default_value_t = String::from("amqp://comm:comm@localhost:5672"))]
   pub amqp_uri: String,
   /// AWS Localstack service URL
   #[arg(env = "LOCALSTACK_ENDPOINT")]
