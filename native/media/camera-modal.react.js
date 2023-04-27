@@ -225,7 +225,7 @@ type TouchableOpacityInstance = React.AbstractComponent<
 >;
 
 type BaseProps = {
-  +handlePhotoCapture: (capture: PhotoCapture) => void,
+  +handlePhotoCapture: (capture: PhotoCapture) => mixed,
   +navigation: $Values<
     $ObjMapi<OverlayParamList, <K>(K) => AppNavigationProp<K>>,
   >,
