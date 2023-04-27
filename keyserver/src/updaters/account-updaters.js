@@ -183,10 +183,7 @@ async function updateUserAvatar(
   const selectResult = resultSet.pop();
 
   const knownUserInfos: UserInfos = await fetchKnownUserInfos(viewer);
-  const userUpdatesPromise = createUserAvatarUpdates(
-    knownUserInfos,
-    viewer.userID,
-  );
+  const userUpdatesPromise = createUserAvatarUpdates(knownUserInfos, viewer);
   handleAsyncPromise(userUpdatesPromise);
 
   if (request.type === 'remove') {
@@ -210,22 +207,33 @@ async function updateUserAvatar(
 
 async function createUserAvatarUpdates(
   knownUserInfos: UserInfos,
-  updatedUserID: string,
+  viewer: Viewer,
 ): Promise<void> {
-  const usersToUpdate: $ReadOnlyArray<UserInfo> = values(knownUserInfos).filter(
-    (user: UserInfo): boolean => user.id !== updatedUserID,
-  );
   const time = Date.now();
-  const updateDatas: $ReadOnlyArray<UpdateData> = usersToUpdate.map(
+  const peersToUpdate: $ReadOnlyArray<UserInfo> = values(knownUserInfos).filter(
+    (user: UserInfo): boolean => user.id !== viewer.userID,
+  );
+  const peerUpdateDatas: $ReadOnlyArray<UpdateData> = peersToUpdate.map(
     (user: UserInfo): UpdateData => ({
       type: updateTypes.UPDATE_USER,
       userID: user.id,
       time,
-      updatedUserID: updatedUserID,
+      updatedUserID: viewer.userID,
     }),
   );
+  const peerUpdatesPromise = createUpdates(peerUpdateDatas);
 
-  await createUpdates(updateDatas);
+  const currentUserUpdateData: UpdateData = {
+    type: updateTypes.UPDATE_CURRENT_USER,
+    userID: viewer.userID,
+    time,
+  };
+  const currentUserUpdatePromise = createUpdates([currentUserUpdateData], {
+    viewer,
+    updatesForCurrentSession: 'return',
+  });
+
+  await Promise.all([peerUpdatesPromise, currentUserUpdatePromise]);
 }
 
 export {
