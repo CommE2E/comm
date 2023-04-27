@@ -64,10 +64,13 @@ function EditUserAvatar(props: Props): React.Node {
       configOptions.push({ id: 'ens', onPress: setENSUserAvatar });
     }
 
-    configOptions.push({ id: 'remove', onPress: removeUserAvatar });
+    if (currentUserInfo?.avatar) {
+      configOptions.push({ id: 'remove', onPress: removeUserAvatar });
+    }
 
     return configOptions;
   }, [
+    currentUserInfo?.avatar,
     ensAvatarURI,
     navigateToCamera,
     navigateToUserEmojiAvatarCreation,
