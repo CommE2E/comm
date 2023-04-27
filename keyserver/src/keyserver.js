@@ -25,6 +25,7 @@ import {
 } from './responders/website-responders.js';
 import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
+import { createAndMaintainTunnelbrokerWebsocket } from './socket/tunnelbroker.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
@@ -62,7 +63,8 @@ import {
 
     // Allow login to be optional until staging environment is available
     try {
-      await verifyUserLoggedIn();
+      const identityInfo = await verifyUserLoggedIn();
+      createAndMaintainTunnelbrokerWebsocket(identityInfo);
     } catch (e) {
       console.warn('failed_identity_login');
     }
