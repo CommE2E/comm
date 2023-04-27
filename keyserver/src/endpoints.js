@@ -19,7 +19,10 @@ import {
 } from './responders/entry-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
 import { getSessionPublicKeysResponder } from './responders/keys-responders.js';
-import { inviteLinkVerificationResponder } from './responders/link-responders.js';
+import {
+  fetchPrimaryInviteLinksResponder,
+  inviteLinkVerificationResponder,
+} from './responders/link-responders.js';
 import { messageReportCreationResponder } from './responders/message-report-responder.js';
 import {
   textMessageCreationResponder,
@@ -145,6 +148,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   fetch_pinned_messages: {
     responder: fetchPinnedMessagesResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  fetch_primary_invite_links: {
+    responder: fetchPrimaryInviteLinksResponder,
     requiredPolicies: baseLegalPolicies,
   },
   fetch_thread_media: {
