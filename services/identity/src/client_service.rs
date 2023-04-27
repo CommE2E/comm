@@ -66,9 +66,9 @@ pub struct FlattenedDeviceKeyUpload {
   pub device_id_key: String,
   pub key_payload: String,
   pub key_payload_signature: String,
-  pub identity_prekey: String,
-  pub identity_prekey_signature: String,
-  pub identity_onetime_keys: Vec<String>,
+  pub content_prekey: String,
+  pub content_prekey_signature: String,
+  pub content_onetime_keys: Vec<String>,
   pub notif_prekey: String,
   pub notif_prekey_signature: String,
   pub notif_onetime_keys: Vec<String>,
@@ -107,22 +107,22 @@ impl IdentityClientService for ClientService {
       device_key_upload:
         Some(client_proto::DeviceKeyUpload {
           device_key_info:
-            Some(client_proto::IdentityKeyInfo {
+            Some(client_proto::ContentKeyInfo {
               payload,
               payload_signature,
               social_proof: _social_proof,
             }),
-          identity_upload:
+          content_upload:
             Some(client_proto::PreKey {
-              pre_key: identity_prekey,
-              pre_key_signature: identity_prekey_signature,
+              pre_key: content_prekey,
+              pre_key_signature: content_prekey_signature,
             }),
           notif_upload:
             Some(client_proto::PreKey {
               pre_key: notif_prekey,
               pre_key_signature: notif_prekey_signature,
             }),
-          onetime_identity_prekeys,
+          onetime_content_prekeys,
           onetime_notif_prekeys,
         }),
     } = message
@@ -139,9 +139,9 @@ impl IdentityClientService for ClientService {
           device_id_key: key_info.primary_identity_public_keys.ed25519,
           key_payload: payload,
           key_payload_signature: payload_signature,
-          identity_prekey,
-          identity_prekey_signature,
-          identity_onetime_keys: onetime_identity_prekeys,
+          content_prekey,
+          content_prekey_signature,
+          content_onetime_keys: onetime_content_prekeys,
           notif_prekey,
           notif_prekey_signature,
           notif_onetime_keys: onetime_notif_prekeys,
@@ -314,22 +314,22 @@ impl IdentityClientService for ClientService {
       device_key_upload:
         Some(client_proto::DeviceKeyUpload {
           device_key_info:
-            Some(client_proto::IdentityKeyInfo {
+            Some(client_proto::ContentKeyInfo {
               payload,
               payload_signature,
               social_proof: _social_proof,
             }),
-          identity_upload:
+          content_upload:
             Some(client_proto::PreKey {
-              pre_key: identity_prekey,
-              pre_key_signature: identity_prekey_signature,
+              pre_key: content_prekey,
+              pre_key_signature: content_prekey_signature,
             }),
           notif_upload:
             Some(client_proto::PreKey {
               pre_key: notif_prekey,
               pre_key_signature: notif_prekey_signature,
             }),
-          onetime_identity_prekeys,
+          onetime_content_prekeys,
           onetime_notif_prekeys,
         }),
     } = message
@@ -353,9 +353,9 @@ impl IdentityClientService for ClientService {
           device_id_key: key_info.primary_identity_public_keys.ed25519,
           key_payload: payload,
           key_payload_signature: payload_signature,
-          identity_prekey,
-          identity_prekey_signature,
-          identity_onetime_keys: onetime_identity_prekeys,
+          content_prekey,
+          content_prekey_signature,
+          content_onetime_keys: onetime_content_prekeys,
           notif_prekey,
           notif_prekey_signature,
           notif_onetime_keys: onetime_notif_prekeys,
@@ -446,22 +446,22 @@ impl IdentityClientService for ClientService {
         device_key_upload:
           Some(client_proto::DeviceKeyUpload {
             device_key_info:
-              Some(client_proto::IdentityKeyInfo {
+              Some(client_proto::ContentKeyInfo {
                 payload,
                 payload_signature,
                 social_proof: Some(social_proof),
               }),
-            identity_upload:
+            content_upload:
               Some(client_proto::PreKey {
-                pre_key: identity_prekey,
-                pre_key_signature: identity_prekey_signature,
+                pre_key: content_prekey,
+                pre_key_signature: content_prekey_signature,
               }),
             notif_upload:
               Some(client_proto::PreKey {
                 pre_key: notif_prekey,
                 pre_key_signature: notif_prekey_signature,
               }),
-            onetime_identity_prekeys,
+            onetime_content_prekeys,
             onetime_notif_prekeys,
           }),
       } = message
@@ -473,9 +473,9 @@ impl IdentityClientService for ClientService {
             device_id_key: key_info.primary_identity_public_keys.ed25519,
             key_payload: payload,
             key_payload_signature: payload_signature,
-            identity_prekey,
-            identity_prekey_signature,
-            identity_onetime_keys: onetime_identity_prekeys,
+            content_prekey,
+            content_prekey_signature,
+            content_onetime_keys: onetime_content_prekeys,
             notif_prekey,
             notif_prekey_signature,
             notif_onetime_keys: onetime_notif_prekeys,
