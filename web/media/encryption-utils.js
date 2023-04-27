@@ -69,6 +69,7 @@ async function encryptFile(input: File): Promise<{
     dataSize: encryptedData?.byteLength ?? -1,
     isPadded: shouldPad,
     time: Date.now() - startEncrypt,
+    sha256: null,
     success,
     exceptionMessage,
   });
