@@ -453,7 +453,7 @@ function useShowAvatarActionSheet(
       } else if (option.id === 'ens') {
         return 'Use ENS Avatar';
       } else if (option.id === 'remove') {
-        return 'Remove avatar';
+        return 'Clear avatar';
       } else {
         return 'Cancel';
       }
