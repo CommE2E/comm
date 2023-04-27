@@ -27,12 +27,12 @@ pub async fn register_user(
     .start(&password)
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
   let device_key_upload = DeviceKeyUpload {
-    device_key_info: Some(IdentityKeyInfo {
+    device_key_info: Some(ContentKeyInfo {
       payload: signed_identity_keys_blob.payload,
       payload_signature: signed_identity_keys_blob.signature,
       social_proof: None,
     }),
-    identity_upload: Some(identity_client::PreKey {
+    content_upload: Some(identity_client::PreKey {
       pre_key: String::new(),
       pre_key_signature: String::new(),
     }),
@@ -40,7 +40,7 @@ pub async fn register_user(
       pre_key: String::new(),
       pre_key_signature: String::new(),
     }),
-    onetime_identity_prekeys: Vec::new(),
+    onetime_content_prekeys: Vec::new(),
     onetime_notif_prekeys: Vec::new(),
   };
   let registration_start_request = Request::new(RegistrationStartRequest {
