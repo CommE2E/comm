@@ -49,6 +49,7 @@ public:
       const std::string &targetUserId,
       const OlmBuffer &idKeys,
       const OlmBuffer &preKeys,
+      const OlmBuffer &preKeySignature,
       const OlmBuffer &oneTimeKeys,
       size_t keyIndex = 0);
   bool hasSessionFor(const std::string &targetUserId);

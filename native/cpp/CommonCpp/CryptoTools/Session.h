@@ -25,6 +25,7 @@ public:
       std::uint8_t *ownerIdentityKeys,
       const OlmBuffer &idKeys,
       const OlmBuffer &preKeys,
+      const OlmBuffer &preKeySignature,
       const OlmBuffer &oneTimeKeys,
       size_t keyIndex = 0);
   static std::unique_ptr<Session> createSessionAsResponder(

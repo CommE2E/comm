@@ -32,7 +32,8 @@ limitations under the License.
     remove_one_time_keys(session: Session): void;
     generate_prekey(): void;
     prekey(): string;
-    unpublished_prekey(): string;
+    unpublished_prekey(): ?string;
+    prekey_signature(): ?string;
     forget_old_prekey(): void;
     mark_prekey_as_published(): void;
     last_prekey_publish_time(): number;
@@ -56,7 +57,9 @@ limitations under the License.
     create_outbound(
       account: Account,
       their_identity_key: string,
-      their_pre_key: string,
+      their_signing_key: string,
+      their_prekey: string,
+      their_prekey_signature: string,
       their_one_time_key: string,
     ): void;
     create_inbound(account: Account, one_time_key_message: string): void;
