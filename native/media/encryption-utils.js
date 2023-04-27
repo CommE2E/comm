@@ -28,6 +28,7 @@ const PADDING_THRESHOLD = 5000000; // we don't pad files larger than this
 type EncryptedFileResult = {
   +success: true,
   +uri: string,
+  +sha256Hash: string,
   +encryptionKey: string,
 };
 
@@ -87,11 +88,12 @@ async function encryptFile(uri: string): Promise<{
   const startEncrypt = Date.now();
   const paddedLength = calculatePaddedLength(data.byteLength);
   const shouldPad = paddedLength <= PADDING_THRESHOLD;
-  let key, encryptedData;
+  let key, encryptedData, sha256Hash;
   try {
     const plaintextData = shouldPad ? pad(data) : data;
     key = AES.generateKey();
     encryptedData = AES.encrypt(key, plaintextData);
+    sha256Hash = commUtilsModule.sha256(encryptedData.buffer);
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
@@ -101,10 +103,14 @@ async function encryptFile(uri: string): Promise<{
     dataSize: encryptedData?.byteLength ?? -1,
     isPadded: shouldPad,
     time: Date.now() - startEncrypt,
+    sha256: sha256Hash,
     success,
     exceptionMessage,
   });
-  if (!success || !encryptedData || !key) {
+  if (encryptedData && !sha256Hash) {
+    return { steps, result: { success: false, reason: 'digest_failed' } };
+  }
+  if (!success || !encryptedData || !key || !sha256Hash) {
     return {
       steps,
       result: { success: false, reason: 'encryption_failed' },
@@ -139,6 +145,7 @@ async function encryptFile(uri: string): Promise<{
       success: true,
       uri: destinationURI,
       encryptionKey: uintArrayToHexString(key),
+      sha256Hash,
     },
   };
 }
@@ -180,6 +187,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
         ...preprocessedMedia,
         mediaType: 'encrypted_photo',
         uploadURI: encryptionResult.uri,
+        blobHash: encryptionResult.sha256Hash,
         encryptionKey: encryptionResult.encryptionKey,
         shouldDisposePath: pathFromURI(encryptionResult.uri),
       },
@@ -201,8 +209,10 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
       ...preprocessedMedia,
       mediaType: 'encrypted_video',
       uploadURI: encryptionResult.uri,
+      blobHash: encryptionResult.sha256Hash,
       encryptionKey: encryptionResult.encryptionKey,
       uploadThumbnailURI: thumbnailEncryptionResult.uri,
+      thumbnailBlobHash: thumbnailEncryptionResult.sha256Hash,
       thumbnailEncryptionKey: thumbnailEncryptionResult.encryptionKey,
       shouldDisposePath: pathFromURI(encryptionResult.uri),
     },
