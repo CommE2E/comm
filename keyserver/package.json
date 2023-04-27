@@ -80,7 +80,7 @@
     "stream-combiner": "^0.2.2",
     "tcomb": "^3.2.29",
     "twin-bcrypt": "^2.1.1",
-    "uuid": "^3.3.3",
+    "uuid": "^3.4.0",
     "web": "0.0.1",
     "web-push": "^3.5.0"
   },
