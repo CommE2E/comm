@@ -32,18 +32,23 @@ function EditThreadAvatar(props: Props): React.Node {
   const isAvatarUpdateInProgress =
     isGalleryAvatarUpdateLoading || isRemoveAvatarUpdateLoading;
 
-  const actionSheetConfig = React.useMemo(
-    () => [
+  const actionSheetConfig = React.useMemo(() => {
+    const configOptions = [
       { id: 'emoji', onPress: onPressEmojiAvatarFlow },
       { id: 'image', onPress: selectFromGalleryAndUpdateThreadAvatar },
-      { id: 'remove', onPress: removeThreadAvatar },
-    ],
-    [
-      onPressEmojiAvatarFlow,
-      removeThreadAvatar,
-      selectFromGalleryAndUpdateThreadAvatar,
-    ],
-  );
+    ];
+
+    if (threadInfo.avatar) {
+      configOptions.push({ id: 'remove', onPress: removeThreadAvatar });
+    }
+
+    return configOptions;
+  }, [
+    onPressEmojiAvatarFlow,
+    removeThreadAvatar,
+    selectFromGalleryAndUpdateThreadAvatar,
+    threadInfo.avatar,
+  ]);
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
 
