@@ -107,7 +107,7 @@ const userInconsistencyReportCreationRequest = tShape({
   ),
 });
 
-const reportCreationRequestInputValidator = t.union([
+const reportCreationRequestInputValidator = t.union<ReportCreationRequest>([
   tShape({
     type: t.maybe(
       t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
@@ -138,20 +138,23 @@ export const reportCreationResponseValidator: TInterface<ReportCreationResponse>
 
 async function reportCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<ReportCreationResponse> {
-  await validateInput(viewer, reportCreationRequestInputValidator, input);
-  if (input.type === null || input.type === undefined) {
-    input.type = reportTypes.ERROR;
+  let request = await validateInput(
+    viewer,
+    reportCreationRequestInputValidator,
+    input,
+  );
+  if (request.type === null || request.type === undefined) {
+    request.type = reportTypes.ERROR;
   }
-  if (!input.platformDetails && input.deviceType) {
-    const { deviceType, codeVersion, stateVersion, ...rest } = input;
-    input = {
+  if (!request.platformDetails && request.deviceType) {
+    const { deviceType, codeVersion, stateVersion, ...rest } = request;
+    request = {
       ...rest,
       platformDetails: { platform: deviceType, codeVersion, stateVersion },
     };
   }
-  const request: ReportCreationRequest = input;
   const response = await createReport(viewer, request);
   if (!response) {
     throw new ServerError('ignored_report');
@@ -159,43 +162,46 @@ async function reportCreationResponder(
   return validateOutput(viewer, reportCreationResponseValidator, response);
 }
 
-const reportMultiCreationRequestInputValidator = tShape({
-  reports: t.list(
-    t.union([
-      tShape({
-        type: t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
-        platformDetails: tPlatformDetails,
-        errors: t.list(
-          tShape({
-            errorMessage: t.String,
-            stack: t.maybe(t.String),
-            componentStack: t.maybe(t.String),
-          }),
-        ),
-        preloadedState: t.Object,
-        currentState: t.Object,
-        actions: t.list(t.union([t.Object, t.String])),
-      }),
-      threadInconsistencyReportCreationRequest,
-      entryInconsistencyReportCreationRquest,
-      mediaMissionReportCreationRequest,
-      userInconsistencyReportCreationRequest,
-    ]),
-  ),
-});
+const reportMultiCreationRequestInputValidator =
+  tShape<ReportMultiCreationRequest>({
+    reports: t.list(
+      t.union([
+        tShape({
+          type: t.irreducible(
+            'reportTypes.ERROR',
+            x => x === reportTypes.ERROR,
+          ),
+          platformDetails: tPlatformDetails,
+          errors: t.list(
+            tShape({
+              errorMessage: t.String,
+              stack: t.maybe(t.String),
+              componentStack: t.maybe(t.String),
+            }),
+          ),
+          preloadedState: t.Object,
+          currentState: t.Object,
+          actions: t.list(t.union([t.Object, t.String])),
+        }),
+        threadInconsistencyReportCreationRequest,
+        entryInconsistencyReportCreationRquest,
+        mediaMissionReportCreationRequest,
+        userInconsistencyReportCreationRequest,
+      ]),
+    ),
+  });
 
 type ReportMultiCreationRequest = {
   reports: $ReadOnlyArray<ReportCreationRequest>,
 };
 async function reportMultiCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<void> {
-  const request: ReportMultiCreationRequest = input;
-  await validateInput(
+  const request = await validateInput(
     viewer,
     reportMultiCreationRequestInputValidator,
-    request,
+    input,
   );
   await Promise.all(
     request.reports.map(reportCreationRequest =>
@@ -204,9 +210,10 @@ async function reportMultiCreationResponder(
   );
 }
 
-const fetchErrorReportInfosRequestInputValidator = tShape({
-  cursor: t.maybe(t.String),
-});
+const fetchErrorReportInfosRequestInputValidator =
+  tShape<FetchErrorReportInfosRequest>({
+    cursor: t.maybe(t.String),
+  });
 
 export const fetchErrorReportInfosResponseValidator: TInterface<FetchErrorReportInfosResponse> =
   tShape<FetchErrorReportInfosResponse>({
@@ -216,13 +223,12 @@ export const fetchErrorReportInfosResponseValidator: TInterface<FetchErrorReport
 
 async function errorReportFetchInfosResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<FetchErrorReportInfosResponse> {
-  const request: FetchErrorReportInfosRequest = input;
-  await validateInput(
+  const request = await validateInput(
     viewer,
     fetchErrorReportInfosRequestInputValidator,
-    request,
+    input,
   );
   const response = await fetchErrorReportInfos(viewer, request);
   return validateOutput(
