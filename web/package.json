@@ -75,7 +75,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-switch": "^7.0.0",
-    "react-timeago": "^5.2.0",
+    "react-timeago": "^7.1.0",
     "redux": "^4.0.4",
     "redux-devtools-extension": "^2.13.2",
     "redux-persist": "^6.0.0",
