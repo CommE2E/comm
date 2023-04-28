@@ -231,7 +231,7 @@ function convertObject<T, I>(
     return assertWithValidator(converted, validator);
   }
 
-  if (validator.meta.kind === 'maybe') {
+  if (validator.meta.kind === 'maybe' || validator.meta.kind === 'subtype') {
     return convertObject(
       validator.meta.type,
       input,
