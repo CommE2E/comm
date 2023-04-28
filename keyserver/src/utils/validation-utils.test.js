@@ -106,4 +106,17 @@ describe('id conversion', () => {
       convertClientIDsToServerIDs('0', validator, clientData),
     ).toStrictEqual(serverData);
   });
+
+  it('should convert a refinement', () => {
+    const validator = t.refinement(tID, () => true);
+    const serverData = '1';
+    const clientData = '0|1';
+
+    expect(
+      convertServerIDsToClientIDs('0', validator, serverData),
+    ).toStrictEqual(clientData);
+    expect(
+      convertClientIDsToServerIDs('0', validator, clientData),
+    ).toStrictEqual(serverData);
+  });
 });

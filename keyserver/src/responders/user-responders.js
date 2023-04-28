@@ -134,7 +134,7 @@ import { getOlmUtility } from '../utils/olm-utils.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const subscriptionUpdateRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   updatedFields: tShape({
     pushNotifs: t.maybe(t.Boolean),
     home: t.maybe(t.Boolean),
@@ -403,7 +403,7 @@ const logInRequestInputValidator = tShape({
   username: t.maybe(t.String),
   usernameOrEmail: t.maybe(t.union([tEmail, tOldValidUsername])),
   password: tPassword,
-  watchedIDs: t.list(t.String),
+  watchedIDs: t.list(tID),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
@@ -514,7 +514,7 @@ const siweAuthRequestInputValidator = tShape({
   calendarQuery: entryQueryInputValidator,
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
-  watchedIDs: t.list(t.String),
+  watchedIDs: t.list(tID),
   signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
 });
 
@@ -647,7 +647,7 @@ async function siweAuthResponder(
 const updatePasswordRequestInputValidator = tShape({
   code: t.String,
   password: tPassword,
-  watchedIDs: t.list(t.String),
+  watchedIDs: t.list(tID),
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,

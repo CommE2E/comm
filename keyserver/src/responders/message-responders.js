@@ -37,6 +37,7 @@ import {
   tRegex,
   tShape,
   tMediaMessageMedia,
+  tID,
 } from 'lib/utils/validation-utils.js';
 
 import createMessages from '../creators/message-creator.js';
@@ -63,7 +64,7 @@ import {
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const sendTextMessageRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   localID: t.maybe(t.String),
   text: t.String,
   sidebarCreation: t.maybe(t.Boolean),
@@ -123,7 +124,7 @@ async function textMessageCreationResponder(
 }
 
 const fetchMessageInfosRequestInputValidator = tShape({
-  cursors: t.dict(t.String, t.maybe(t.String)),
+  cursors: t.dict(tID, t.maybe(tID)),
   numberPerThread: t.maybe(t.Number),
 });
 
@@ -154,13 +155,13 @@ async function messageFetchResponder(
 const sendMultimediaMessageRequestInputValidator = t.union([
   // This option is only used for messageTypes.IMAGES
   tShape({
-    threadID: t.String,
+    threadID: tID,
     localID: t.String,
     sidebarCreation: t.maybe(t.Boolean),
-    mediaIDs: t.list(t.String),
+    mediaIDs: t.list(tID),
   }),
   tShape({
-    threadID: t.String,
+    threadID: tID,
     localID: t.String,
     sidebarCreation: t.maybe(t.Boolean),
     mediaMessageContents: t.list(tMediaMessageMedia),
@@ -248,9 +249,9 @@ async function multimediaMessageCreationResponder(
 }
 
 const sendReactionMessageRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   localID: t.maybe(t.String),
-  targetMessageID: t.String,
+  targetMessageID: tID,
   reaction: tRegex(onlyOneEmojiRegex),
   action: t.enums.of(['add_reaction', 'remove_reaction']),
 });
@@ -323,7 +324,7 @@ async function reactionMessageCreationResponder(
 }
 
 const editMessageRequestInputValidator = tShape({
-  targetMessageID: t.String,
+  targetMessageID: tID,
   text: t.String,
 });
 
@@ -414,7 +415,7 @@ async function editMessageCreationResponder(
 }
 
 const fetchPinnedMessagesResponderInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
 });
 
 export const fetchPinnedMessagesResultValidator: TInterface<FetchPinnedMessagesResult> =
