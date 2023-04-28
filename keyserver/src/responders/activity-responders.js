@@ -12,7 +12,7 @@ import {
   setThreadUnreadStatusResult,
   updateActivityResultValidator,
 } from 'lib/types/activity-types.js';
-import { tShape } from 'lib/utils/validation-utils.js';
+import { tShape, tID } from 'lib/utils/validation-utils.js';
 
 import type { Viewer } from '../session/viewer.js';
 import {
@@ -24,7 +24,7 @@ import { validateInput, validateOutput } from '../utils/validation-utils.js';
 const activityUpdatesInputValidator: TList<Array<ActivityUpdate>> = t.list(
   tShape({
     focus: t.Bool,
-    threadID: t.String,
+    threadID: tID,
     latestMessage: t.maybe(t.String),
   }),
 );
@@ -43,8 +43,8 @@ async function updateActivityResponder(
   return validateOutput(viewer, updateActivityResultValidator, result);
 }
 
-const setThreadUnreadStatusValidator = tShape({
-  threadID: t.String,
+const setThreadUnreadStatusValidator = tShape<SetThreadUnreadStatusRequest>({
+  threadID: tID,
   unread: t.Bool,
   latestMessage: t.maybe(t.String),
 });
