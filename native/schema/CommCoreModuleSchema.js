@@ -67,6 +67,18 @@ export interface Spec extends TurboModule {
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;
   +generateNonce: () => Promise<string>;
+  +registerUser: (
+    username: string,
+    password: string,
+    keyPayload: string,
+    keyPayloadSignature: string,
+    identityPrekey: string,
+    identityPrekeySignature: string,
+    notifPrekey: string,
+    notifPrekeySignature: string,
+    identityOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

@@ -1249,4 +1249,52 @@ jsi::Value CommCoreModule::generateNonce(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::registerUser(
+    jsi::Runtime &rt,
+    jsi::String username,
+    jsi::String password,
+    jsi::String keyPayload,
+    jsi::String keyPayloadSignature,
+    jsi::String identityPrekey,
+    jsi::String identityPrekeySignature,
+    jsi::String notifPrekey,
+    jsi::String notifPrekeySignature,
+    jsi::Array identityOneTimeKeys,
+    jsi::Array notifOneTimeKeys) {
+  return createPromiseAsJSIValue(
+      rt,
+      [this,
+       &username,
+       &password,
+       &keyPayload,
+       &keyPayloadSignature,
+       &identityPrekey,
+       &identityPrekeySignature,
+       &notifPrekey,
+       &notifPrekeySignature,
+       &identityOneTimeKeys,
+       &notifOneTimeKeys](
+          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityRegisterUser(
+              jsiStringToRustString(username, innerRt),
+              jsiStringToRustString(password, innerRt),
+              jsiStringToRustString(keyPayload, innerRt),
+              jsiStringToRustString(keyPayloadSignature, innerRt),
+              jsiStringToRustString(identityPrekey, innerRt),
+              jsiStringToRustString(identityPrekeySignature, innerRt),
+              jsiStringToRustString(notifPrekey, innerRt),
+              jsiStringToRustString(notifPrekeySignature, innerRt),
+              jsiStringArrayToRustVec(identityOneTimeKeys, innerRt),
+              jsiStringArrayToRustVec(notifOneTimeKeys, innerRt),
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
+}
+
 } // namespace comm

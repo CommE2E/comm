@@ -45,6 +45,7 @@
 		8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B652FA5295EAA5B009F8163 /* RustCallback.cpp */; };
 		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
 		8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
+		8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BC9568429FC49B00060AE4A /* JSIRust.cpp */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
@@ -184,6 +185,8 @@
 		8B99B59928D50D4900EB5ADB /* cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cxx.h; sourceTree = "<group>"; };
 		8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnative_rust_library.a; path = ../native_rust_library/target/universal/release/libnative_rust_library.a; sourceTree = "<group>"; };
 		8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lib.rs.cc; sourceTree = "<group>"; };
+		8BC9568329FC49920060AE4A /* JSIRust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIRust.h; sourceTree = "<group>"; };
+		8BC9568429FC49B00060AE4A /* JSIRust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSIRust.cpp; sourceTree = "<group>"; };
 		8E43C32B291E5B4A009378F5 /* TerminateApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TerminateApp.mm; path = Comm/TerminateApp.mm; sourceTree = "<group>"; };
 		8E43C32E291E5B9D009378F5 /* TerminateApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TerminateApp.h; path = ../cpp/CommonCpp/Tools/TerminateApp.h; sourceTree = "<group>"; };
 		8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseManager.cpp; sourceTree = "<group>"; };
@@ -377,6 +380,8 @@
 				CBED0E2C284E086100CD3863 /* PersistentStorageUtilities */,
 				726E5D722731A4240032361D /* InternalModules */,
 				71BE843C2636A944002849D2 /* CommCoreModule.cpp */,
+				8BC9568429FC49B00060AE4A /* JSIRust.cpp */,
+				8BC9568329FC49920060AE4A /* JSIRust.h */,
 				71BE843E2636A944002849D2 /* CommCoreModule.h */,
 				7FBB2A7329E944FD002C6493 /* CommUtilsModule.cpp */,
 				7FBB2A7429E9450E002C6493 /* CommUtilsModule.h */,
@@ -979,6 +984,7 @@
 				7F0C6E31291C4468002AA2D9 /* ExpoModulesProvider.swift in Sources */,
 				75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */,
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
+				8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */,
 				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */,
 				CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */,
