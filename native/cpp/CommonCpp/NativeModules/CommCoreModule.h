@@ -4,9 +4,11 @@
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
 #include "../_generated/commJSI.h"
+#include "JSIRust.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 #include <memory>
+#include <string>
 
 namespace comm {
 
@@ -64,6 +66,18 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) override;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) override;
   virtual jsi::Value generateNonce(jsi::Runtime &rt) override;
+  virtual jsi::Value registerUser(
+      jsi::Runtime &rt,
+      jsi::String username,
+      jsi::String password,
+      jsi::String keyPayload,
+      jsi::String keyPayloadSignature,
+      jsi::String contentPrekey,
+      jsi::String contentPrekeySignature,
+      jsi::String notifPrekey,
+      jsi::String notifPrekeySignature,
+      jsi::Array contentOneTimeKeys,
+      jsi::Array notifOneTimeKeys) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
