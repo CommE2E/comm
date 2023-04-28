@@ -47,6 +47,7 @@ public:
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) = 0;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) = 0;
   virtual jsi::Value generateNonce(jsi::Runtime &rt) = 0;
+  virtual jsi::Value registerUser(jsi::Runtime &rt, jsi::String username, jsi::String password, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
 
 };
 
@@ -283,6 +284,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::generateNonce, jsInvoker_, instance_);
+    }
+    jsi::Value registerUser(jsi::Runtime &rt, jsi::String username, jsi::String password, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) override {
+      static_assert(
+          bridging::getParameterCount(&T::registerUser) == 11,
+          "Expected registerUser(...) to have 11 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::registerUser, jsInvoker_, instance_, std::move(username), std::move(password), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys));
     }
 
   private:
