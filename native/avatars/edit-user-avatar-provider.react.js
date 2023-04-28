@@ -62,7 +62,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
   );
 
   const updateImageUserAvatar = React.useCallback(
-    async (selection: ?NativeMediaSelection) => {
+    async (selection: NativeMediaSelection) => {
       const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
 
       if (!imageAvatarUpdateRequest) {
@@ -87,6 +87,9 @@ function EditUserAvatarProvider(props: Props): React.Node {
 
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
     const selection = await selectFromGallery();
+    if (!selection) {
+      return;
+    }
     await updateImageUserAvatar(selection);
   }, [updateImageUserAvatar]);
 
