@@ -3,12 +3,14 @@
 import t from 'tcomb';
 import type { TList } from 'tcomb';
 
-import type {
-  UpdateActivityResult,
-  UpdateActivityRequest,
-  SetThreadUnreadStatusRequest,
-  SetThreadUnreadStatusResult,
-  ActivityUpdate,
+import {
+  type UpdateActivityResult,
+  type UpdateActivityRequest,
+  type SetThreadUnreadStatusRequest,
+  type SetThreadUnreadStatusResult,
+  type ActivityUpdate,
+  setThreadUnreadStatusResult,
+  updateActivityResultValidator,
 } from 'lib/types/activity-types.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
@@ -17,7 +19,7 @@ import {
   activityUpdater,
   setThreadUnreadStatus,
 } from '../updaters/activity-updaters.js';
-import { validateInput } from '../utils/validation-utils.js';
+import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const activityUpdatesInputValidator: TList<Array<ActivityUpdate>> = t.list(
   tShape({
@@ -37,7 +39,8 @@ async function updateActivityResponder(
 ): Promise<UpdateActivityResult> {
   const request: UpdateActivityRequest = input;
   await validateInput(viewer, inputValidator, request);
-  return await activityUpdater(viewer, request);
+  const result = await activityUpdater(viewer, request);
+  return validateOutput(viewer, updateActivityResultValidator, result);
 }
 
 const setThreadUnreadStatusValidator = tShape({
@@ -52,7 +55,8 @@ async function threadSetUnreadStatusResponder(
   const request: SetThreadUnreadStatusRequest = input;
   await validateInput(viewer, setThreadUnreadStatusValidator, request);
 
-  return await setThreadUnreadStatus(viewer, request);
+  const result = await setThreadUnreadStatus(viewer, request);
+  return validateOutput(viewer, setThreadUnreadStatusResult, result);
 }
 
 export {
