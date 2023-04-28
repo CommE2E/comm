@@ -63,7 +63,7 @@ import {
 } from '../updaters/upload-updaters.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const sendTextMessageRequestInputValidator = tShape({
+const sendTextMessageRequestInputValidator = tShape<SendTextMessageRequest>({
   threadID: tID,
   localID: t.maybe(t.String),
   text: t.String,
@@ -75,10 +75,13 @@ export const sendMessageResponseValidator: TInterface<SendMessageResponse> =
 
 async function textMessageCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SendMessageResponse> {
-  const request: SendTextMessageRequest = input;
-  await validateInput(viewer, sendTextMessageRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    sendTextMessageRequestInputValidator,
+    input,
+  );
 
   const { threadID, localID, text: rawText, sidebarCreation } = request;
   const text = trimMessage(rawText);
@@ -123,10 +126,12 @@ async function textMessageCreationResponder(
   return validateOutput(viewer, sendMessageResponseValidator, response);
 }
 
-const fetchMessageInfosRequestInputValidator = tShape({
-  cursors: t.dict(tID, t.maybe(tID)),
-  numberPerThread: t.maybe(t.Number),
-});
+const fetchMessageInfosRequestInputValidator = tShape<FetchMessageInfosRequest>(
+  {
+    cursors: t.dict(tID, t.maybe(tID)),
+    numberPerThread: t.maybe(t.Number),
+  },
+);
 
 export const fetchMessageInfosResponseValidator: TInterface<FetchMessageInfosResponse> =
   tShape<FetchMessageInfosResponse>({
@@ -137,10 +142,13 @@ export const fetchMessageInfosResponseValidator: TInterface<FetchMessageInfosRes
 
 async function messageFetchResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<FetchMessageInfosResponse> {
-  const request: FetchMessageInfosRequest = input;
-  await validateInput(viewer, fetchMessageInfosRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    fetchMessageInfosRequestInputValidator,
+    input,
+  );
   const response = await fetchMessageInfos(
     viewer,
     { threadCursors: request.cursors },
@@ -152,30 +160,30 @@ async function messageFetchResponder(
   });
 }
 
-const sendMultimediaMessageRequestInputValidator = t.union([
-  // This option is only used for messageTypes.IMAGES
-  tShape({
-    threadID: tID,
-    localID: t.String,
-    sidebarCreation: t.maybe(t.Boolean),
-    mediaIDs: t.list(tID),
-  }),
-  tShape({
-    threadID: tID,
-    localID: t.String,
-    sidebarCreation: t.maybe(t.Boolean),
-    mediaMessageContents: t.list(tMediaMessageMedia),
-  }),
-]);
+const sendMultimediaMessageRequestInputValidator =
+  t.union<SendMultimediaMessageRequest>([
+    // This option is only used for messageTypes.IMAGES
+    tShape({
+      threadID: tID,
+      localID: t.String,
+      sidebarCreation: t.maybe(t.Boolean),
+      mediaIDs: t.list(tID),
+    }),
+    tShape({
+      threadID: tID,
+      localID: t.String,
+      sidebarCreation: t.maybe(t.Boolean),
+      mediaMessageContents: t.list(tMediaMessageMedia),
+    }),
+  ]);
 async function multimediaMessageCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SendMessageResponse> {
-  const request: SendMultimediaMessageRequest = input;
-  await validateInput(
+  const request = await validateInput(
     viewer,
     sendMultimediaMessageRequestInputValidator,
-    request,
+    input,
   );
 
   if (
@@ -248,19 +256,23 @@ async function multimediaMessageCreationResponder(
   return validateOutput(viewer, sendMessageResponseValidator, response);
 }
 
-const sendReactionMessageRequestInputValidator = tShape({
-  threadID: tID,
-  localID: t.maybe(t.String),
-  targetMessageID: tID,
-  reaction: tRegex(onlyOneEmojiRegex),
-  action: t.enums.of(['add_reaction', 'remove_reaction']),
-});
+const sendReactionMessageRequestInputValidator =
+  tShape<SendReactionMessageRequest>({
+    threadID: tID,
+    localID: t.maybe(t.String),
+    targetMessageID: tID,
+    reaction: tRegex(onlyOneEmojiRegex),
+    action: t.enums.of(['add_reaction', 'remove_reaction']),
+  });
 async function reactionMessageCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SendMessageResponse> {
-  const request: SendReactionMessageRequest = input;
-  await validateInput(viewer, sendReactionMessageRequestInputValidator, input);
+  const request = await validateInput(
+    viewer,
+    sendReactionMessageRequestInputValidator,
+    input,
+  );
 
   const { threadID, localID, targetMessageID, reaction, action } = request;
 
@@ -323,7 +335,7 @@ async function reactionMessageCreationResponder(
   return validateOutput(viewer, sendMessageResponseValidator, response);
 }
 
-const editMessageRequestInputValidator = tShape({
+const editMessageRequestInputValidator = tShape<SendEditMessageRequest>({
   targetMessageID: tID,
   text: t.String,
 });
@@ -335,10 +347,13 @@ export const sendEditMessageResponseValidator: TInterface<SendEditMessageRespons
 
 async function editMessageCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SendEditMessageResponse> {
-  const request: SendEditMessageRequest = input;
-  await validateInput(viewer, editMessageRequestInputValidator, input);
+  const request = await validateInput(
+    viewer,
+    editMessageRequestInputValidator,
+    input,
+  );
 
   const { targetMessageID, text: rawText } = request;
   const text = trimMessage(rawText);
@@ -414,9 +429,10 @@ async function editMessageCreationResponder(
   return validateOutput(viewer, sendEditMessageResponseValidator, response);
 }
 
-const fetchPinnedMessagesResponderInputValidator = tShape({
-  threadID: tID,
-});
+const fetchPinnedMessagesResponderInputValidator =
+  tShape<FetchPinnedMessagesRequest>({
+    threadID: tID,
+  });
 
 export const fetchPinnedMessagesResultValidator: TInterface<FetchPinnedMessagesResult> =
   tShape<FetchPinnedMessagesResult>({
@@ -425,10 +441,9 @@ export const fetchPinnedMessagesResultValidator: TInterface<FetchPinnedMessagesR
 
 async function fetchPinnedMessagesResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<FetchPinnedMessagesResult> {
-  const request: FetchPinnedMessagesRequest = input;
-  await validateInput(
+  const request = await validateInput(
     viewer,
     fetchPinnedMessagesResponderInputValidator,
     input,

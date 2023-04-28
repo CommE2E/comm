@@ -29,16 +29,15 @@ const activityUpdatesInputValidator: TList<Array<ActivityUpdate>> = t.list(
   }),
 );
 
-const inputValidator = tShape({
+const inputValidator = tShape<UpdateActivityRequest>({
   updates: activityUpdatesInputValidator,
 });
 
 async function updateActivityResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<UpdateActivityResult> {
-  const request: UpdateActivityRequest = input;
-  await validateInput(viewer, inputValidator, request);
+  const request = await validateInput(viewer, inputValidator, input);
   const result = await activityUpdater(viewer, request);
   return validateOutput(viewer, updateActivityResultValidator, result);
 }
@@ -50,10 +49,13 @@ const setThreadUnreadStatusValidator = tShape<SetThreadUnreadStatusRequest>({
 });
 async function threadSetUnreadStatusResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SetThreadUnreadStatusResult> {
-  const request: SetThreadUnreadStatusRequest = input;
-  await validateInput(viewer, setThreadUnreadStatusValidator, request);
+  const request = await validateInput(
+    viewer,
+    setThreadUnreadStatusValidator,
+    input,
+  );
 
   const result = await setThreadUnreadStatus(viewer, request);
   return validateOutput(viewer, setThreadUnreadStatusResult, result);

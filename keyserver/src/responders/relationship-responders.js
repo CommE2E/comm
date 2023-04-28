@@ -13,7 +13,7 @@ import type { Viewer } from '../session/viewer.js';
 import { updateRelationships } from '../updaters/relationship-updaters.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const updateRelationshipInputValidator = tShape({
+const updateRelationshipInputValidator = tShape<RelationshipRequest>({
   action: t.enums.of(relationshipActionsList, 'relationship action'),
   userIDs: t.list(t.String),
 });
@@ -27,10 +27,13 @@ export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
 
 async function updateRelationshipsResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<RelationshipErrors> {
-  const request: RelationshipRequest = input;
-  await validateInput(viewer, updateRelationshipInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    updateRelationshipInputValidator,
+    input,
+  );
   const response = await updateRelationships(viewer, request);
   return validateOutput(viewer, relationshipErrorsValidator, response);
 }

@@ -58,7 +58,7 @@ import {
 } from '../updaters/thread-updaters.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const threadDeletionRequestInputValidator = tShape({
+const threadDeletionRequestInputValidator = tShape<ThreadDeletionRequest>({
   threadID: tID,
   accountPassword: t.maybe(tPassword),
 });
@@ -73,10 +73,13 @@ export const leaveThreadResultValidator: TInterface<LeaveThreadResult> =
 
 async function threadDeletionResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<LeaveThreadResult> {
-  const request: ThreadDeletionRequest = input;
-  await validateInput(viewer, threadDeletionRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    threadDeletionRequestInputValidator,
+    input,
+  );
   const result = await deleteThread(viewer, request);
   return validateOutput(viewer, leaveThreadResultValidator, result);
 }
@@ -106,44 +109,53 @@ export const changeThreadSettingsResultValidator: TInterface<ChangeThreadSetting
 
 async function roleUpdateResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<ChangeThreadSettingsResult> {
-  const request: RoleChangeRequest = input;
-  await validateInput(viewer, roleChangeRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    roleChangeRequestInputValidator,
+    input,
+  );
   const result = await updateRole(viewer, request);
   return validateOutput(viewer, changeThreadSettingsResultValidator, result);
 }
 
-const removeMembersRequestInputValidator = tShape({
+const removeMembersRequestInputValidator = tShape<RemoveMembersRequest>({
   threadID: tID,
   memberIDs: t.list(t.String),
 });
 
 async function memberRemovalResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<ChangeThreadSettingsResult> {
-  const request: RemoveMembersRequest = input;
-  await validateInput(viewer, removeMembersRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    removeMembersRequestInputValidator,
+    input,
+  );
   const result = await removeMembers(viewer, request);
   return validateOutput(viewer, changeThreadSettingsResultValidator, result);
 }
 
-const leaveThreadRequestInputValidator = tShape({
+const leaveThreadRequestInputValidator = tShape<LeaveThreadRequest>({
   threadID: tID,
 });
 
 async function threadLeaveResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<LeaveThreadResult> {
-  const request: LeaveThreadRequest = input;
-  await validateInput(viewer, leaveThreadRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    leaveThreadRequestInputValidator,
+    input,
+  );
   const result = await leaveThread(viewer, request);
   return validateOutput(viewer, leaveThreadResultValidator, result);
 }
 
-const updateThreadRequestInputValidator = tShape({
+const updateThreadRequestInputValidator = tShape<UpdateThreadRequest>({
   threadID: tID,
   changes: tShape({
     type: t.maybe(tNumEnum(values(threadTypes))),
@@ -159,10 +171,13 @@ const updateThreadRequestInputValidator = tShape({
 
 async function threadUpdateResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<ChangeThreadSettingsResult> {
-  const request: UpdateThreadRequest = input;
-  await validateInput(viewer, updateThreadRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    updateThreadRequestInputValidator,
+    input,
+  );
   const result = await updateThread(viewer, request);
   return validateOutput(viewer, changeThreadSettingsResultValidator, result);
 }
@@ -205,10 +220,13 @@ export const newThreadResponseValidator: TInterface<NewThreadResponse> =
 
 async function threadCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<NewThreadResponse> {
-  const request: ServerNewThreadRequest = input;
-  await validateInput(viewer, newThreadRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    newThreadRequestInputValidator,
+    input,
+  );
 
   const result = await createThread(viewer, request, {
     silentlyFailMembers: request.type === threadTypes.SIDEBAR,
@@ -216,7 +234,7 @@ async function threadCreationResponder(
   return validateOutput(viewer, newThreadResponseValidator, result);
 }
 
-const joinThreadRequestInputValidator = tShape({
+const joinThreadRequestInputValidator = tShape<ServerThreadJoinRequest>({
   threadID: tID,
   calendarQuery: t.maybe(entryQueryInputValidator),
   inviteLinkSecret: t.maybe(t.String),
@@ -236,10 +254,13 @@ export const threadJoinResultValidator: TInterface<ThreadJoinResult> =
 
 async function threadJoinResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<ThreadJoinResult> {
-  const request: ServerThreadJoinRequest = input;
-  await validateInput(viewer, joinThreadRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    joinThreadRequestInputValidator,
+    input,
+  );
 
   if (request.calendarQuery) {
     await verifyCalendarQueryThreadIDs(request.calendarQuery);
@@ -249,7 +270,7 @@ async function threadJoinResponder(
   return validateOutput(viewer, threadJoinResultValidator, result);
 }
 
-const threadFetchMediaRequestInputValidator = tShape({
+const threadFetchMediaRequestInputValidator = tShape<ThreadFetchMediaRequest>({
   threadID: tID,
   limit: t.Number,
   offset: t.Number,
@@ -260,15 +281,18 @@ export const threadFetchMediaResultValidator: TInterface<ThreadFetchMediaResult>
 
 async function threadFetchMediaResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<ThreadFetchMediaResult> {
-  const request: ThreadFetchMediaRequest = input;
-  await validateInput(viewer, threadFetchMediaRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    threadFetchMediaRequestInputValidator,
+    input,
+  );
   const result = await fetchMediaForThread(viewer, request);
   return validateOutput(viewer, threadFetchMediaResultValidator, result);
 }
 
-const toggleMessagePinRequestInputValidator = tShape({
+const toggleMessagePinRequestInputValidator = tShape<ToggleMessagePinRequest>({
   messageID: tID,
   action: t.enums.of(['pin', 'unpin']),
 });
@@ -281,10 +305,13 @@ export const toggleMessagePinResultValidator: TInterface<ToggleMessagePinResult>
 
 async function toggleMessagePinResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<ToggleMessagePinResult> {
-  const request: ToggleMessagePinRequest = input;
-  await validateInput(viewer, toggleMessagePinRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    toggleMessagePinRequestInputValidator,
+    input,
+  );
   const result = await toggleMessagePinForThread(viewer, request);
   return validateOutput(viewer, toggleMessagePinResultValidator, result);
 }
