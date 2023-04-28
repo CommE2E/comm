@@ -29,7 +29,7 @@ import {
   fetchReduxToolsImport,
 } from '../fetchers/report-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import { validateInput } from '../utils/validation-utils.js';
+import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const tActionSummary = tShape({
   type: t.String,
@@ -156,7 +156,7 @@ async function reportCreationResponder(
   if (!response) {
     throw new ServerError('ignored_report');
   }
-  return response;
+  return validateOutput(viewer, reportCreationResponseValidator, response);
 }
 
 const reportMultiCreationRequestInputValidator = tShape({
@@ -224,7 +224,12 @@ async function errorReportFetchInfosResponder(
     fetchErrorReportInfosRequestInputValidator,
     request,
   );
-  return await fetchErrorReportInfos(viewer, request);
+  const response = await fetchErrorReportInfos(viewer, request);
+  return validateOutput(
+    viewer,
+    fetchErrorReportInfosResponseValidator,
+    response,
+  );
 }
 
 async function errorReportDownloadResponder(
