@@ -14,12 +14,20 @@ import type {
   UpdateUserAvatarRequest,
 } from 'lib/types/avatar-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
-import type { PasswordUpdate } from 'lib/types/user-types.js';
+import type { UpdateData } from 'lib/types/update-types.js';
+import type {
+  PasswordUpdate,
+  UserInfo,
+  UserInfos,
+} from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
 
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { getUploadURL } from '../fetchers/upload-fetchers.js';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 
 async function accountUpdater(
@@ -174,6 +182,13 @@ async function updateUserAvatar(
   const [resultSet] = await dbQuery(query, { multipleStatements: true });
   const selectResult = resultSet.pop();
 
+  const knownUserInfos: UserInfos = await fetchKnownUserInfos(viewer);
+  const userUpdatesPromise = createUserAvatarUpdates(
+    knownUserInfos,
+    viewer.userID,
+  );
+  handleAsyncPromise(userUpdatesPromise);
+
   if (request.type === 'remove') {
     return null;
   } else if (request.type !== 'image') {
@@ -191,6 +206,26 @@ async function updateUserAvatar(
       uri: getUploadURL(uploadID, upload_secret),
     };
   }
+}
+
+async function createUserAvatarUpdates(
+  knownUserInfos: UserInfos,
+  updatedUserID: string,
+): Promise<void> {
+  const usersToUpdate: $ReadOnlyArray<UserInfo> = values(knownUserInfos).filter(
+    (user: UserInfo): boolean => user.id !== updatedUserID,
+  );
+  const time = Date.now();
+  const updateDatas: $ReadOnlyArray<UpdateData> = usersToUpdate.map(
+    (user: UserInfo): UpdateData => ({
+      type: updateTypes.UPDATE_USER,
+      userID: user.id,
+      time,
+      updatedUserID: updatedUserID,
+    }),
+  );
+
+  await createUpdates(updateDatas);
 }
 
 export {
