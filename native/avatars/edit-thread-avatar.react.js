@@ -6,10 +6,7 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
-import {
-  useSelectFromGalleryAndUpdateThreadAvatar,
-  useShowAvatarActionSheet,
-} from './avatar-hooks.js';
+import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import { EditThreadAvatarContext } from './edit-thread-avatar-provider.react.js';
 import ThreadAvatar from './thread-avatar.react.js';
@@ -26,14 +23,16 @@ function EditThreadAvatar(props: Props): React.Node {
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
-  const { threadAvatarSaveInProgress, removeThreadAvatar } =
-    editThreadAvatarContext;
+  const {
+    threadAvatarSaveInProgress,
+    selectFromGalleryAndUpdateThreadAvatar,
+    removeThreadAvatar,
+  } = editThreadAvatarContext;
 
-  const [selectFromGalleryAndUpdateThreadAvatar, isGalleryAvatarUpdateLoading] =
-    useSelectFromGalleryAndUpdateThreadAvatar(threadInfo.id);
-
-  const isAvatarUpdateInProgress =
-    isGalleryAvatarUpdateLoading || threadAvatarSaveInProgress;
+  const selectFromGallery = React.useCallback(
+    () => selectFromGalleryAndUpdateThreadAvatar(threadInfo.id),
+    [selectFromGalleryAndUpdateThreadAvatar, threadInfo.id],
+  );
 
   const removeAvatar = React.useCallback(
     () => removeThreadAvatar(threadInfo.id),
@@ -43,20 +42,16 @@ function EditThreadAvatar(props: Props): React.Node {
   const actionSheetConfig = React.useMemo(
     () => [
       { id: 'emoji', onPress: onPressEmojiAvatarFlow },
-      { id: 'image', onPress: selectFromGalleryAndUpdateThreadAvatar },
+      { id: 'image', onPress: selectFromGallery },
       { id: 'remove', onPress: removeAvatar },
     ],
-    [
-      onPressEmojiAvatarFlow,
-      removeAvatar,
-      selectFromGalleryAndUpdateThreadAvatar,
-    ],
+    [onPressEmojiAvatarFlow, removeAvatar, selectFromGallery],
   );
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
 
   let spinner;
-  if (isAvatarUpdateInProgress) {
+  if (threadAvatarSaveInProgress) {
     spinner = (
       <View style={styles.spinnerContainer}>
         <ActivityIndicator color="white" size="large" />

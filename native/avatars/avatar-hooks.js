@@ -7,30 +7,20 @@ import { Platform } from 'react-native';
 import Alert from 'react-native/Libraries/Alert/Alert.js';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  changeThreadSettings,
-  changeThreadSettingsActionTypes,
-} from 'lib/actions/thread-actions.js';
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { ImageAvatarDBContent } from 'lib/types/avatar-types.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   NativeMediaSelection,
   MediaLibrarySelection,
   MediaMissionFailure,
   UploadMultimediaResult,
 } from 'lib/types/media-types.js';
-import type { UpdateThreadRequest } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -191,79 +181,6 @@ function useUploadSelectedMedia(
   );
 }
 
-const threadAvatarLoadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:avatar`,
-);
-function useSelectFromGalleryAndUpdateThreadAvatar(
-  threadID: string,
-): [() => Promise<void>, boolean] {
-  const dispatchActionPromise = useDispatchActionPromise();
-  const changeThreadSettingsCall = useServerCall(changeThreadSettings);
-
-  const [processingOrUploadInProgress, setProcessingOrUploadInProgress] =
-    React.useState(false);
-
-  const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
-    threadAvatarLoadingStatusSelector,
-  );
-
-  const inProgress = React.useMemo(
-    () =>
-      processingOrUploadInProgress ||
-      updateThreadAvatarLoadingStatus === 'loading',
-    [processingOrUploadInProgress, updateThreadAvatarLoadingStatus],
-  );
-
-  const uploadSelectedMedia = useUploadSelectedMedia(
-    setProcessingOrUploadInProgress,
-  );
-
-  const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(async () => {
-    const selection: ?MediaLibrarySelection = await selectFromGallery();
-    if (!selection) {
-      return;
-    }
-
-    const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
-
-    if (!imageAvatarUpdateRequest) {
-      return;
-    }
-
-    const updateThreadRequest: UpdateThreadRequest = {
-      threadID,
-      changes: {
-        avatar: imageAvatarUpdateRequest,
-      },
-    };
-
-    dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      (async () => {
-        setProcessingOrUploadInProgress(false);
-        try {
-          return await changeThreadSettingsCall(updateThreadRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
-      { customKeyName: `${changeThreadSettingsActionTypes.started}:avatar` },
-    );
-  }, [
-    changeThreadSettingsCall,
-    dispatchActionPromise,
-    threadID,
-    uploadSelectedMedia,
-  ]);
-
-  return React.useMemo(
-    () => [selectFromGalleryAndUpdateThreadAvatar, inProgress],
-    [inProgress, selectFromGalleryAndUpdateThreadAvatar],
-  );
-}
-
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
@@ -393,5 +310,4 @@ export {
   useUploadProcessedMedia,
   useProcessSelectedMedia,
   useShowAvatarActionSheet,
-  useSelectFromGalleryAndUpdateThreadAvatar,
 };
