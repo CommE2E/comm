@@ -49,7 +49,7 @@ mod ffi {
     #[cxx_name = "identityInitializeClient"]
     fn initialize_identity_client(addr: String) -> Box<IdentityClient>;
 
-    #[cxx_name = "registerUser"]
+    #[cxx_name = "identityRegisterUser"]
     fn register_user(
       username: String,
       password: String,
