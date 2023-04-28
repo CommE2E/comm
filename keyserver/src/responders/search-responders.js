@@ -13,7 +13,7 @@ import { searchForUsers } from '../search/users.js';
 import type { Viewer } from '../session/viewer.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const userSearchRequestInputValidator = tShape({
+const userSearchRequestInputValidator = tShape<UserSearchRequest>({
   prefix: t.maybe(t.String),
 });
 
@@ -24,10 +24,13 @@ export const userSearchResultValidator: TInterface<UserSearchResult> =
 
 async function userSearchResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<UserSearchResult> {
-  const request: UserSearchRequest = input;
-  await validateInput(viewer, userSearchRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    userSearchRequestInputValidator,
+    input,
+  );
   const searchResults = await searchForUsers(request);
   const result = { userInfos: searchResults };
   return validateOutput(viewer, userSearchResultValidator, result);
