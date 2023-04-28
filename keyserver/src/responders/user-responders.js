@@ -32,7 +32,6 @@ import {
 import {
   type ClientAvatar,
   clientAvatarValidator,
-  type UpdateUserAvatarRequest,
   type UpdateUserAvatarResponse,
 } from 'lib/types/avatar-types.js';
 import type {
@@ -119,6 +118,7 @@ import {
   createNewUserCookie,
   setNewSession,
 } from '../session/cookies.js';
+import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 import {
   accountUpdater,
@@ -133,13 +133,14 @@ import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-u
 import { getOlmUtility } from '../utils/olm-utils.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const subscriptionUpdateRequestInputValidator = tShape({
-  threadID: tID,
-  updatedFields: tShape({
-    pushNotifs: t.maybe(t.Boolean),
-    home: t.maybe(t.Boolean),
-  }),
-});
+const subscriptionUpdateRequestInputValidator =
+  tShape<SubscriptionUpdateRequest>({
+    threadID: tID,
+    updatedFields: tShape({
+      pushNotifs: t.maybe(t.Boolean),
+      home: t.maybe(t.Boolean),
+    }),
+  });
 
 export const subscriptionUpdateResponseValidator: TInterface<SubscriptionUpdateResponse> =
   tShape<SubscriptionUpdateResponse>({
@@ -148,17 +149,20 @@ export const subscriptionUpdateResponseValidator: TInterface<SubscriptionUpdateR
 
 async function userSubscriptionUpdateResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SubscriptionUpdateResponse> {
-  const request: SubscriptionUpdateRequest = input;
-  await validateInput(viewer, subscriptionUpdateRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    subscriptionUpdateRequestInputValidator,
+    input,
+  );
   const threadSubscription = await userSubscriptionUpdater(viewer, request);
   return validateOutput(viewer, subscriptionUpdateResponseValidator, {
     threadSubscription,
   });
 }
 
-const accountUpdateInputValidator = tShape({
+const accountUpdateInputValidator = tShape<PasswordUpdate>({
   updatedFields: tShape({
     email: t.maybe(tEmail),
     password: t.maybe(tPassword),
@@ -168,28 +172,36 @@ const accountUpdateInputValidator = tShape({
 
 async function passwordUpdateResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<void> {
-  const request: PasswordUpdate = input;
-  await validateInput(viewer, accountUpdateInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    accountUpdateInputValidator,
+    input,
+  );
   await accountUpdater(viewer, request);
 }
 
 async function sendVerificationEmailResponder(viewer: Viewer): Promise<void> {
-  await validateInput(viewer, null, null);
+  if (!viewer.isSocket) {
+    await verifyClientSupported(viewer, viewer.platformDetails);
+  }
   await checkAndSendVerificationEmail(viewer);
 }
 
-const resetPasswordRequestInputValidator = tShape({
+const resetPasswordRequestInputValidator = tShape<ResetPasswordRequest>({
   usernameOrEmail: t.union([tEmail, tOldValidUsername]),
 });
 
 async function sendPasswordResetEmailResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<void> {
-  const request: ResetPasswordRequest = input;
-  await validateInput(viewer, resetPasswordRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    resetPasswordRequestInputValidator,
+    input,
+  );
   await checkAndSendPasswordResetEmail(request);
 }
 
@@ -199,7 +211,9 @@ export const logOutResponseValidator: TInterface<LogOutResponse> =
   });
 
 async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
-  await validateInput(viewer, null, null);
+  if (!viewer.isSocket) {
+    await verifyClientSupported(viewer, viewer.platformDetails);
+  }
   if (viewer.loggedIn) {
     const [anonymousViewerData] = await Promise.all([
       createNewAnonymousCookie({
@@ -219,16 +233,19 @@ async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
   return validateOutput(viewer, logOutResponseValidator, response);
 }
 
-const deleteAccountRequestInputValidator = tShape({
+const deleteAccountRequestInputValidator = tShape<DeleteAccountRequest>({
   password: t.maybe(tPassword),
 });
 
 async function accountDeletionResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<LogOutResponse> {
-  const request: DeleteAccountRequest = input;
-  await validateInput(viewer, deleteAccountRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    deleteAccountRequestInputValidator,
+    input,
+  );
   const result = await deleteAccount(viewer, request);
   invariant(result, 'deleteAccount should return result if handed request');
   return validateOutput(viewer, logOutResponseValidator, result);
@@ -239,7 +256,7 @@ const deviceTokenUpdateRequestInputValidator = tShape({
   deviceToken: t.String,
 });
 
-const registerRequestInputValidator = tShape({
+const registerRequestInputValidator = tShape<RegisterRequest>({
   username: t.String,
   email: t.maybe(tEmail),
   password: tPassword,
@@ -268,10 +285,13 @@ export const registerResponseValidator: TInterface<RegisterResponse> =
 
 async function accountCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<RegisterResponse> {
-  const request: RegisterRequest = input;
-  await validateInput(viewer, registerRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    registerRequestInputValidator,
+    input,
+  );
   const { signedIdentityKeysBlob } = request;
   if (signedIdentityKeysBlob) {
     const identityKeys: IdentityKeysBlob = JSON.parse(
@@ -399,7 +419,7 @@ async function processSuccessfulLogin(
   return response;
 }
 
-const logInRequestInputValidator = tShape({
+const logInRequestInputValidator = tShape<LogInRequest>({
   username: t.maybe(t.String),
   usernameOrEmail: t.maybe(t.union([tEmail, tOldValidUsername])),
   password: tPassword,
@@ -434,10 +454,13 @@ export const logInResponseValidator: TInterface<LogInResponse> =
 
 async function logInResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<LogInResponse> {
-  await validateInput(viewer, logInRequestInputValidator, input);
-  const request: LogInRequest = input;
+  const request = await validateInput(
+    viewer,
+    logInRequestInputValidator,
+    input,
+  );
 
   let identityKeys: ?IdentityKeysBlob;
   const { signedIdentityKeysBlob } = request;
@@ -508,7 +531,7 @@ async function logInResponder(
   return validateOutput(viewer, logInResponseValidator, response);
 }
 
-const siweAuthRequestInputValidator = tShape({
+const siweAuthRequestInputValidator = tShape<SIWEAuthRequest>({
   signature: t.String,
   message: t.String,
   calendarQuery: entryQueryInputValidator,
@@ -520,10 +543,14 @@ const siweAuthRequestInputValidator = tShape({
 
 async function siweAuthResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<LogInResponse> {
-  await validateInput(viewer, siweAuthRequestInputValidator, input);
-  const request: SIWEAuthRequest = input;
+  const request = await validateInput(
+    viewer,
+    siweAuthRequestInputValidator,
+    input,
+  );
+
   const {
     message,
     signature,
@@ -644,7 +671,7 @@ async function siweAuthResponder(
   return validateOutput(viewer, logInResponseValidator, response);
 }
 
-const updatePasswordRequestInputValidator = tShape({
+const updatePasswordRequestInputValidator = tShape<UpdatePasswordRequest>({
   code: t.String,
   password: tPassword,
   watchedIDs: t.list(tID),
@@ -655,10 +682,14 @@ const updatePasswordRequestInputValidator = tShape({
 
 async function oldPasswordUpdateResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<LogInResponse> {
-  await validateInput(viewer, updatePasswordRequestInputValidator, input);
-  const request: UpdatePasswordRequest = input;
+  const request = await validateInput(
+    viewer,
+    updatePasswordRequestInputValidator,
+    input,
+  );
+
   if (request.calendarQuery) {
     request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
   }
@@ -666,7 +697,7 @@ async function oldPasswordUpdateResponder(
   return validateOutput(viewer, logInResponseValidator, response);
 }
 
-const updateUserSettingsInputValidator = tShape({
+const updateUserSettingsInputValidator = tShape<UpdateUserSettingsRequest>({
   name: t.irreducible(
     userSettingsTypes.DEFAULT_NOTIFICATIONS,
     x => x === userSettingsTypes.DEFAULT_NOTIFICATIONS,
@@ -676,26 +707,29 @@ const updateUserSettingsInputValidator = tShape({
 
 async function updateUserSettingsResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<void> {
-  const request: UpdateUserSettingsRequest = input;
-  await validateInput(viewer, updateUserSettingsInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    updateUserSettingsInputValidator,
+    input,
+  );
   await updateUserSettings(viewer, request);
 }
 
-const policyAcknowledgmentRequestInputValidator = tShape({
-  policy: t.maybe(t.enums.of(policies)),
-});
+const policyAcknowledgmentRequestInputValidator =
+  tShape<PolicyAcknowledgmentRequest>({
+    policy: t.maybe(t.enums.of(policies)),
+  });
 
 async function policyAcknowledgmentResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<void> {
-  const request: PolicyAcknowledgmentRequest = input;
-  await validateInput(
+  const request = await validateInput(
     viewer,
     policyAcknowledgmentRequestInputValidator,
-    request,
+    input,
   );
   await viewerAcknowledgmentUpdater(viewer, request.policy);
 }
@@ -712,10 +746,13 @@ const updateUserAvatarResponderValidator = t.union([
 
 async function updateUserAvatarResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<?ClientAvatar | UpdateUserAvatarResponse> {
-  const request: UpdateUserAvatarRequest = input;
-  await validateInput(viewer, updateUserAvatarRequestValidator, request);
+  const request = await validateInput(
+    viewer,
+    updateUserAvatarRequestValidator,
+    input,
+  );
   const result = await updateUserAvatar(viewer, request);
   return validateOutput(viewer, updateUserAvatarResponderValidator, result);
 }

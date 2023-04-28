@@ -13,7 +13,7 @@ import { fetchSessionPublicKeys } from '../fetchers/key-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const getSessionPublicKeysInputValidator = tShape({
+const getSessionPublicKeysInputValidator = tShape<GetSessionPublicKeysArgs>({
   session: t.String,
 });
 
@@ -23,13 +23,16 @@ export const getSessionPublicKeysResponseValidator: TUnion<GetSessionPublicKeysR
 
 async function getSessionPublicKeysResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<GetSessionPublicKeysResponse> {
   if (!viewer.loggedIn) {
     return null;
   }
-  const request: GetSessionPublicKeysArgs = input;
-  await validateInput(viewer, getSessionPublicKeysInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    getSessionPublicKeysInputValidator,
+    input,
+  );
   const response = await fetchSessionPublicKeys(request.session);
   return validateOutput(
     viewer,

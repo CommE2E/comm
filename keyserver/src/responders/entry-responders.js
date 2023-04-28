@@ -136,10 +136,14 @@ export const fetchEntryInfosResponseValidator: TInterface<FetchEntryInfosRespons
 
 async function entryFetchResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<FetchEntryInfosResponse> {
-  await validateInput(viewer, entryQueryInputValidator, input);
-  const request = normalizeCalendarQuery(input);
+  const inputQuery = await validateInput(
+    viewer,
+    entryQueryInputValidator,
+    input,
+  );
+  const request = normalizeCalendarQuery(inputQuery);
 
   await verifyCalendarQueryThreadIDs(request);
 
@@ -150,9 +154,10 @@ async function entryFetchResponder(
   });
 }
 
-const entryRevisionHistoryFetchInputValidator = tShape({
-  id: tID,
-});
+const entryRevisionHistoryFetchInputValidator =
+  tShape<FetchEntryRevisionInfosRequest>({
+    id: tID,
+  });
 
 export const fetchEntryRevisionInfosResultValidator: TInterface<FetchEntryRevisionInfosResult> =
   tShape<FetchEntryRevisionInfosResult>({
@@ -161,10 +166,13 @@ export const fetchEntryRevisionInfosResultValidator: TInterface<FetchEntryRevisi
 
 async function entryRevisionFetchResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<FetchEntryRevisionInfosResult> {
-  const request: FetchEntryRevisionInfosRequest = input;
-  await validateInput(viewer, entryRevisionHistoryFetchInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    entryRevisionHistoryFetchInputValidator,
+    input,
+  );
   const entryHistory = await fetchEntryRevisionInfo(viewer, request.id);
   const response = { result: entryHistory };
   return validateOutput(
@@ -174,7 +182,7 @@ async function entryRevisionFetchResponder(
   );
 }
 
-const createEntryRequestInputValidator = tShape({
+const createEntryRequestInputValidator = tShape<CreateEntryRequest>({
   text: t.String,
   sessionID: t.maybe(t.String),
   timestamp: t.Number,
@@ -193,15 +201,18 @@ export const saveEntryResponseValidator: TInterface<SaveEntryResponse> =
 
 async function entryCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SaveEntryResponse> {
-  const request: CreateEntryRequest = input;
-  await validateInput(viewer, createEntryRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    createEntryRequestInputValidator,
+    input,
+  );
   const response = await createEntry(viewer, request);
   return validateOutput(viewer, saveEntryResponseValidator, response);
 }
 
-const saveEntryRequestInputValidator = tShape({
+const saveEntryRequestInputValidator = tShape<SaveEntryRequest>({
   entryID: tID,
   text: t.String,
   prevText: t.String,
@@ -212,15 +223,18 @@ const saveEntryRequestInputValidator = tShape({
 
 async function entryUpdateResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SaveEntryResponse> {
-  const request: SaveEntryRequest = input;
-  await validateInput(viewer, saveEntryRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    saveEntryRequestInputValidator,
+    input,
+  );
   const response = await updateEntry(viewer, request);
   return validateOutput(viewer, saveEntryResponseValidator, response);
 }
 
-const deleteEntryRequestInputValidator = tShape({
+const deleteEntryRequestInputValidator = tShape<DeleteEntryRequest>({
   entryID: tID,
   prevText: t.String,
   sessionID: t.maybe(t.String),
@@ -237,15 +251,18 @@ export const deleteEntryResponseValidator: TInterface<DeleteEntryResponse> =
 
 async function entryDeletionResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<DeleteEntryResponse> {
-  const request: DeleteEntryRequest = input;
-  await validateInput(viewer, deleteEntryRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    deleteEntryRequestInputValidator,
+    input,
+  );
   const response = await deleteEntry(viewer, request);
   return validateOutput(viewer, deleteEntryResponseValidator, response);
 }
 
-const restoreEntryRequestInputValidator = tShape({
+const restoreEntryRequestInputValidator = tShape<RestoreEntryRequest>({
   entryID: tID,
   sessionID: t.maybe(t.String),
   timestamp: t.Number,
@@ -260,10 +277,13 @@ export const restoreEntryResponseValidator: TInterface<RestoreEntryResponse> =
 
 async function entryRestorationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<RestoreEntryResponse> {
-  const request: RestoreEntryRequest = input;
-  await validateInput(viewer, restoreEntryRequestInputValidator, request);
+  const request = await validateInput(
+    viewer,
+    restoreEntryRequestInputValidator,
+    input,
+  );
   const response = await restoreEntry(viewer, request);
   return validateOutput(viewer, restoreEntryResponseValidator, response);
 }
@@ -277,10 +297,13 @@ export const deltaEntryInfosResultValidator: TInterface<DeltaEntryInfosResult> =
 
 async function calendarQueryUpdateResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<DeltaEntryInfosResult> {
-  const request: CalendarQuery = input;
-  await validateInput(viewer, newEntryQueryInputValidator, input);
+  const request = await validateInput(
+    viewer,
+    newEntryQueryInputValidator,
+    input,
+  );
 
   await verifyCalendarQueryThreadIDs(request);
   if (!viewer.loggedIn) {

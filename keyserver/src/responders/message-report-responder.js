@@ -13,23 +13,23 @@ import createMessageReport from '../creators/message-report-creator.js';
 import type { Viewer } from '../session/viewer.js';
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const messageReportCreationRequestInputValidator = tShape({
-  messageID: tID,
-});
+const messageReportCreationRequestInputValidator =
+  tShape<MessageReportCreationRequest>({
+    messageID: tID,
+  });
 
 export const messageReportCreationResultValidator: TInterface<MessageReportCreationResult> =
   tShape<MessageReportCreationResult>({ messageInfo: rawMessageInfoValidator });
 
 async function messageReportCreationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<MessageReportCreationResult> {
-  await validateInput(
+  const request = await validateInput(
     viewer,
     messageReportCreationRequestInputValidator,
     input,
   );
-  const request: MessageReportCreationRequest = input;
 
   const rawMessageInfos = await createMessageReport(viewer, request);
   const result = { messageInfo: rawMessageInfos[0] };

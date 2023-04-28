@@ -21,19 +21,33 @@ import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-
 import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 
+const convertToNewIDSchema = false;
+const keyserverPrefixID = '256';
+
 async function validateInput<T>(
   viewer: Viewer,
-  inputValidator: ?TType<T>,
-  input: T,
-) {
+  inputValidator: TType<T>,
+  input: mixed,
+): Promise<T> {
   if (!viewer.isSocket) {
     await checkClientSupported(viewer, inputValidator, input);
   }
-  checkInputValidator(inputValidator, input);
-}
+  const convertedInput = checkInputValidator(inputValidator, input);
 
-const convertToNewIDSchema = false;
-const keyserverPrefixID = '256';
+  if (
+    hasMinCodeVersion(viewer.platformDetails, 1000) &&
+    !isWebPlatform(viewer.platformDetails?.platform) &&
+    convertToNewIDSchema
+  ) {
+    return convertClientIDsToServerIDs(
+      keyserverPrefixID,
+      inputValidator,
+      convertedInput,
+    );
+  }
+
+  return convertedInput;
+}
 
 function validateOutput<T>(
   viewer: Viewer,
@@ -96,9 +110,9 @@ function convertClientIDsToServerIDs<T>(
   return convertObject(outputValidator, data, [tID], conversionFunction);
 }
 
-function checkInputValidator<T>(inputValidator: ?TType<T>, input: T) {
-  if (!inputValidator || inputValidator.is(input)) {
-    return;
+function checkInputValidator<T>(inputValidator: TType<T>, input: mixed): T {
+  if (inputValidator.is(input)) {
+    return assertWithValidator(input, inputValidator);
   }
   const error = new ServerError('invalid_parameters');
   error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
