@@ -11,7 +11,7 @@ import { tShape, tNull } from 'lib/utils/validation-utils.js';
 
 import { fetchSessionPublicKeys } from '../fetchers/key-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import { validateInput } from '../utils/validation-utils.js';
+import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const getSessionPublicKeysInputValidator = tShape({
   session: t.String,
@@ -30,7 +30,12 @@ async function getSessionPublicKeysResponder(
   }
   const request: GetSessionPublicKeysArgs = input;
   await validateInput(viewer, getSessionPublicKeysInputValidator, request);
-  return await fetchSessionPublicKeys(request.session);
+  const response = await fetchSessionPublicKeys(request.session);
+  return validateOutput(
+    viewer,
+    getSessionPublicKeysResponseValidator,
+    response,
+  );
 }
 
 export { getSessionPublicKeysResponder };

@@ -11,7 +11,7 @@ import { tShape } from 'lib/utils/validation-utils.js';
 
 import type { Viewer } from '../session/viewer.js';
 import { updateRelationships } from '../updaters/relationship-updaters.js';
-import { validateInput } from '../utils/validation-utils.js';
+import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const updateRelationshipInputValidator = tShape({
   action: t.enums.of(relationshipActionsList, 'relationship action'),
@@ -31,7 +31,8 @@ async function updateRelationshipsResponder(
 ): Promise<RelationshipErrors> {
   const request: RelationshipRequest = input;
   await validateInput(viewer, updateRelationshipInputValidator, request);
-  return await updateRelationships(viewer, request);
+  const response = await updateRelationships(viewer, request);
+  return validateOutput(viewer, relationshipErrorsValidator, response);
 }
 
 export { updateRelationshipsResponder };

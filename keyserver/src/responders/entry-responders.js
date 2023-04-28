@@ -46,7 +46,7 @@ import {
   compareNewCalendarQuery,
 } from '../updaters/entry-updaters.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
-import { validateInput } from '../utils/validation-utils.js';
+import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 type EntryQueryInput = {
   +startDate: string,
@@ -144,7 +144,10 @@ async function entryFetchResponder(
   await verifyCalendarQueryThreadIDs(request);
 
   const response = await fetchEntryInfos(viewer, [request]);
-  return { ...response, userInfos: {} };
+  return validateOutput(viewer, fetchEntryInfosResponseValidator, {
+    ...response,
+    userInfos: {},
+  });
 }
 
 const entryRevisionHistoryFetchInputValidator = tShape({
@@ -163,7 +166,12 @@ async function entryRevisionFetchResponder(
   const request: FetchEntryRevisionInfosRequest = input;
   await validateInput(viewer, entryRevisionHistoryFetchInputValidator, request);
   const entryHistory = await fetchEntryRevisionInfo(viewer, request.id);
-  return { result: entryHistory };
+  const response = { result: entryHistory };
+  return validateOutput(
+    viewer,
+    fetchEntryRevisionInfosResultValidator,
+    response,
+  );
 }
 
 const createEntryRequestInputValidator = tShape({
@@ -189,7 +197,8 @@ async function entryCreationResponder(
 ): Promise<SaveEntryResponse> {
   const request: CreateEntryRequest = input;
   await validateInput(viewer, createEntryRequestInputValidator, request);
-  return await createEntry(viewer, request);
+  const response = await createEntry(viewer, request);
+  return validateOutput(viewer, saveEntryResponseValidator, response);
 }
 
 const saveEntryRequestInputValidator = tShape({
@@ -207,7 +216,8 @@ async function entryUpdateResponder(
 ): Promise<SaveEntryResponse> {
   const request: SaveEntryRequest = input;
   await validateInput(viewer, saveEntryRequestInputValidator, request);
-  return await updateEntry(viewer, request);
+  const response = await updateEntry(viewer, request);
+  return validateOutput(viewer, saveEntryResponseValidator, response);
 }
 
 const deleteEntryRequestInputValidator = tShape({
@@ -231,7 +241,8 @@ async function entryDeletionResponder(
 ): Promise<DeleteEntryResponse> {
   const request: DeleteEntryRequest = input;
   await validateInput(viewer, deleteEntryRequestInputValidator, request);
-  return await deleteEntry(viewer, request);
+  const response = await deleteEntry(viewer, request);
+  return validateOutput(viewer, deleteEntryResponseValidator, response);
 }
 
 const restoreEntryRequestInputValidator = tShape({
@@ -253,7 +264,8 @@ async function entryRestorationResponder(
 ): Promise<RestoreEntryResponse> {
   const request: RestoreEntryRequest = input;
   await validateInput(viewer, restoreEntryRequestInputValidator, request);
-  return await restoreEntry(viewer, request);
+  const response = await restoreEntry(viewer, request);
+  return validateOutput(viewer, restoreEntryResponseValidator, response);
 }
 
 export const deltaEntryInfosResultValidator: TInterface<DeltaEntryInfosResult> =
@@ -283,12 +295,12 @@ async function calendarQueryUpdateResponder(
     commitSessionUpdate(viewer, sessionUpdate),
   ]);
 
-  return {
+  return validateOutput(viewer, deltaEntryInfosResultValidator, {
     rawEntryInfos: response.rawEntryInfos,
     deletedEntryIDs: response.deletedEntryIDs,
     // Old clients expect userInfos object
     userInfos: [],
-  };
+  });
 }
 
 export {

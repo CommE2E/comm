@@ -60,7 +60,7 @@ import {
   assignImages,
   assignMessageContainerToMedia,
 } from '../updaters/upload-updaters.js';
-import { validateInput } from '../utils/validation-utils.js';
+import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,
@@ -118,7 +118,8 @@ async function textMessageCreationResponder(
   }
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
-  return { newMessageInfo: rawMessageInfos[0] };
+  const response = { newMessageInfo: rawMessageInfos[0] };
+  return validateOutput(viewer, sendMessageResponseValidator, response);
 }
 
 const fetchMessageInfosRequestInputValidator = tShape({
@@ -144,7 +145,10 @@ async function messageFetchResponder(
     { threadCursors: request.cursors },
     request.numberPerThread ? request.numberPerThread : defaultNumberPerThread,
   );
-  return { ...response, userInfos: {} };
+  return validateOutput(viewer, fetchMessageInfosResponseValidator, {
+    ...response,
+    userInfos: {},
+  });
 }
 
 const sendMultimediaMessageRequestInputValidator = t.union([
@@ -239,7 +243,8 @@ async function multimediaMessageCreationResponder(
     );
   }
 
-  return { newMessageInfo };
+  const response = { newMessageInfo };
+  return validateOutput(viewer, sendMessageResponseValidator, response);
 }
 
 const sendReactionMessageRequestInputValidator = tShape({
@@ -313,7 +318,8 @@ async function reactionMessageCreationResponder(
 
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
-  return { newMessageInfo: rawMessageInfos[0] };
+  const response = { newMessageInfo: rawMessageInfos[0] };
+  return validateOutput(viewer, sendMessageResponseValidator, response);
 }
 
 const editMessageRequestInputValidator = tShape({
@@ -403,7 +409,8 @@ async function editMessageCreationResponder(
 
   const newMessageInfos = await createMessages(viewer, messagesData);
 
-  return { newMessageInfos };
+  const response = { newMessageInfos };
+  return validateOutput(viewer, sendEditMessageResponseValidator, response);
 }
 
 const fetchPinnedMessagesResponderInputValidator = tShape({
@@ -425,7 +432,8 @@ async function fetchPinnedMessagesResponder(
     fetchPinnedMessagesResponderInputValidator,
     input,
   );
-  return await fetchPinnedMessageInfos(viewer, request);
+  const response = await fetchPinnedMessageInfos(viewer, request);
+  return validateOutput(viewer, fetchPinnedMessagesResultValidator, response);
 }
 
 export {
