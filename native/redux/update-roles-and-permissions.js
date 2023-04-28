@@ -37,6 +37,10 @@ function constructThreadTraversalNodes(
     children: parentThreadMap[nodeID]?.map(constructNodes) ?? null,
   });
 
+  if (!parentThreadMap['root']) {
+    return [];
+  }
+
   return parentThreadMap['root'].map(constructNodes);
 }
 
