@@ -68,7 +68,7 @@ const entryQueryInputValidator: TInterface<EntryQueryInput> = tShape({
         }),
         tShape({
           type: tString(calendarThreadFilterTypes.THREAD_LIST),
-          threadIDs: t.list(t.String),
+          threadIDs: t.list(tID),
         }),
       ]),
     ),
@@ -85,7 +85,7 @@ const newEntryQueryInputValidator: TInterface<CalendarQuery> = tShape({
       }),
       tShape({
         type: tString(calendarThreadFilterTypes.THREAD_LIST),
-        threadIDs: t.list(t.String),
+        threadIDs: t.list(tID),
       }),
     ]),
   ),
@@ -151,7 +151,7 @@ async function entryFetchResponder(
 }
 
 const entryRevisionHistoryFetchInputValidator = tShape({
-  id: t.String,
+  id: tID,
 });
 
 export const fetchEntryRevisionInfosResultValidator: TInterface<FetchEntryRevisionInfosResult> =
@@ -179,7 +179,7 @@ const createEntryRequestInputValidator = tShape({
   sessionID: t.maybe(t.String),
   timestamp: t.Number,
   date: tDate,
-  threadID: t.String,
+  threadID: tID,
   localID: t.maybe(t.String),
   calendarQuery: t.maybe(newEntryQueryInputValidator),
 });
@@ -202,7 +202,7 @@ async function entryCreationResponder(
 }
 
 const saveEntryRequestInputValidator = tShape({
-  entryID: t.String,
+  entryID: tID,
   text: t.String,
   prevText: t.String,
   sessionID: t.maybe(t.String),
@@ -221,7 +221,7 @@ async function entryUpdateResponder(
 }
 
 const deleteEntryRequestInputValidator = tShape({
-  entryID: t.String,
+  entryID: tID,
   prevText: t.String,
   sessionID: t.maybe(t.String),
   timestamp: t.Number,
@@ -246,7 +246,7 @@ async function entryDeletionResponder(
 }
 
 const restoreEntryRequestInputValidator = tShape({
-  entryID: t.String,
+  entryID: tID,
   sessionID: t.maybe(t.String),
   timestamp: t.Number,
   calendarQuery: t.maybe(newEntryQueryInputValidator),

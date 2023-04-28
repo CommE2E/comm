@@ -59,7 +59,7 @@ import {
 import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const threadDeletionRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   accountPassword: t.maybe(tPassword),
 });
 
@@ -81,14 +81,18 @@ async function threadDeletionResponder(
   return validateOutput(viewer, leaveThreadResultValidator, result);
 }
 
-const roleChangeRequestInputValidator = tShape({
-  threadID: t.String,
-  memberIDs: t.list(t.String),
-  role: t.refinement(t.String, str => {
-    const int = parseInt(str, 10);
-    return String(int) === str && int > 0;
-  }),
-});
+export const roleChangeRequestInputValidator: TInterface<RoleChangeRequest> =
+  tShape<RoleChangeRequest>({
+    threadID: tID,
+    memberIDs: t.list(t.String),
+    role: t.refinement(tID, str => {
+      if (str.indexOf('|') !== -1) {
+        str = str.split('|')[1];
+      }
+      const int = parseInt(str, 10);
+      return String(int) === str && int > 0;
+    }),
+  });
 
 export const changeThreadSettingsResultValidator: TInterface<ChangeThreadSettingsResult> =
   tShape<ChangeThreadSettingsResult>({
@@ -111,7 +115,7 @@ async function roleUpdateResponder(
 }
 
 const removeMembersRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   memberIDs: t.list(t.String),
 });
 
@@ -126,7 +130,7 @@ async function memberRemovalResponder(
 }
 
 const leaveThreadRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
 });
 
 async function threadLeaveResponder(
@@ -140,13 +144,13 @@ async function threadLeaveResponder(
 }
 
 const updateThreadRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   changes: tShape({
     type: t.maybe(tNumEnum(values(threadTypes))),
     name: t.maybe(t.String),
     description: t.maybe(t.String),
     color: t.maybe(tColor),
-    parentThreadID: t.maybe(t.String),
+    parentThreadID: t.maybe(tID),
     newMemberIDs: t.maybe(t.list(t.String)),
     avatar: t.maybe(updateUserAvatarRequestValidator),
   }),
@@ -167,14 +171,14 @@ const threadRequestValidationShape = {
   name: t.maybe(t.String),
   description: t.maybe(t.String),
   color: t.maybe(tColor),
-  parentThreadID: t.maybe(t.String),
+  parentThreadID: t.maybe(tID),
   initialMemberIDs: t.maybe(t.list(t.String)),
   calendarQuery: t.maybe(entryQueryInputValidator),
 };
 const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
   tShape({
     type: tNumEnum([threadTypes.SIDEBAR]),
-    sourceMessageID: t.String,
+    sourceMessageID: tID,
     ...threadRequestValidationShape,
   }),
   tShape({
@@ -213,7 +217,7 @@ async function threadCreationResponder(
 }
 
 const joinThreadRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   calendarQuery: t.maybe(entryQueryInputValidator),
   inviteLinkSecret: t.maybe(t.String),
 });
@@ -246,7 +250,7 @@ async function threadJoinResponder(
 }
 
 const threadFetchMediaRequestInputValidator = tShape({
-  threadID: t.String,
+  threadID: tID,
   limit: t.Number,
   offset: t.Number,
 });
@@ -265,7 +269,7 @@ async function threadFetchMediaResponder(
 }
 
 const toggleMessagePinRequestInputValidator = tShape({
-  messageID: t.String,
+  messageID: tID,
   action: t.enums.of(['pin', 'unpin']),
 });
 
