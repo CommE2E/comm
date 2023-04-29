@@ -88,7 +88,11 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 import { toBase64Url } from 'lib/utils/base64.js';
-import { makeBlobServiceEndpointURL } from 'lib/utils/blob-service.js';
+import {
+  makeBlobServiceEndpointURL,
+  holderFromBlobServiceURI,
+  isBlobServiceURI,
+} from 'lib/utils/blob-service.js';
 import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
@@ -179,6 +183,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
+  // TODO: flip the switch
+  // Note that this enables Blob service for encrypted media only
+  useBlobServiceUploads = false;
 
   // When the user sends a multimedia message that triggers the creation of a
   // sidebar, the sidebar gets created right away, but the message needs to wait
@@ -778,15 +785,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           serverID: null,
           messageID: null,
           failed: false,
-          file: encryptionResult ? encryptionResult.file : fixedFile,
+          file: encryptionResult?.file ?? fixedFile,
           mediaType: encryptionResult ? 'encrypted_photo' : mediaType,
           dimensions,
-          uri: encryptionResult ? encryptionResult.uri : uri,
+          uri: encryptionResult?.uri ?? uri,
           loop: false,
           uriIsReal: false,
-          encryptionKey: encryptionResult
-            ? encryptionResult.encryptionKey
-            : null,
+          blobHash: encryptionResult?.sha256Hash,
+          encryptionKey: encryptionResult?.encryptionKey,
           progressPercent: 0,
           abort: null,
           steps,
@@ -839,20 +845,43 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let uploadResult, uploadExceptionMessage;
     const uploadStart = Date.now();
     try {
-      let uploadExtras = { ...upload.dimensions, loop: false };
-      if (encryptionKey) {
-        uploadExtras = { ...uploadExtras, encryptionKey };
+      const callbacks = {
+        onProgress: (percent: number) =>
+          this.setProgress(threadID, localID, percent),
+        abortHandler: (abort: () => void) =>
+          this.handleAbortCallback(threadID, localID, abort),
+      };
+      if (
+        this.useBlobServiceUploads &&
+        (upload.mediaType === 'encrypted_photo' ||
+          upload.mediaType === 'encrypted_video')
+      ) {
+        const { blobHash, dimensions } = upload;
+        invariant(
+          encryptionKey && blobHash && dimensions,
+          'incomplete encrypted upload',
+        );
+        uploadResult = await this.blobServiceUpload(
+          {
+            file: upload.file,
+            blobHash,
+            encryptionKey,
+            dimensions,
+            loop: false,
+          },
+          { ...callbacks },
+        );
+      } else {
+        let uploadExtras = { ...upload.dimensions, loop: false };
+        if (encryptionKey) {
+          uploadExtras = { ...uploadExtras, encryptionKey };
+        }
+        uploadResult = await this.props.uploadMultimedia(
+          upload.file,
+          uploadExtras,
+          callbacks,
+        );
       }
-      uploadResult = await this.props.uploadMultimedia(
-        upload.file,
-        uploadExtras,
-        {
-          onProgress: (percent: number) =>
-            this.setProgress(threadID, localID, percent),
-          abortHandler: (abort: () => void) =>
-            this.handleAbortCallback(threadID, localID, abort),
-        },
-      );
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
       this.handleUploadFailure(threadID, localID);
@@ -1221,6 +1250,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         }
         if (pendingUpload.serverID) {
           this.props.deleteUpload(pendingUpload.serverID);
+          if (isBlobServiceURI(pendingUpload.uri)) {
+            const endpoint = blobService.httpEndpoints.DELETE_BLOB;
+            const holder = holderFromBlobServiceURI(pendingUpload.uri);
+            fetch(makeBlobServiceEndpointURL(endpoint, { holder }), {
+              method: endpoint.method,
+            });
+          }
         }
         const newPendingUploads = _omit([localUploadID])(currentPendingUploads);
         return {
