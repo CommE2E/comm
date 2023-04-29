@@ -21,6 +21,7 @@ type EncryptFileResult = {
   +file: File,
   +uri: string,
   +encryptionKey: string,
+  +sha256Hash: string,
 };
 
 async function encryptFile(input: File): Promise<{
@@ -55,11 +56,14 @@ async function encryptFile(input: File): Promise<{
   const startEncrypt = Date.now();
   const paddedLength = calculatePaddedLength(data.length);
   const shouldPad = paddedLength <= PADDING_THRESHOLD;
-  let key, encryptedData;
+  let key, encryptedData, sha256;
   try {
     const plaintextData = shouldPad ? pad(data) : data;
     key = await AES.generateKey();
     encryptedData = await AES.encrypt(key, plaintextData);
+
+    const hashBytes = await crypto.subtle.digest('SHA-256', encryptedData);
+    sha256 = btoa(String.fromCharCode(...new Uint8Array(hashBytes)));
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
@@ -69,11 +73,14 @@ async function encryptFile(input: File): Promise<{
     dataSize: encryptedData?.byteLength ?? -1,
     isPadded: shouldPad,
     time: Date.now() - startEncrypt,
-    sha256: null,
+    sha256,
     success,
     exceptionMessage,
   });
-  if (!success || !encryptedData || !key) {
+  if (encryptedData && !sha256) {
+    return { steps, result: { success: false, reason: 'digest_failed' } };
+  }
+  if (!success || !encryptedData || !key || !sha256) {
     return { steps, result: { success: false, reason: 'encryption_failed' } };
   }
 
@@ -86,6 +93,7 @@ async function encryptFile(input: File): Promise<{
       file: output,
       uri: URL.createObjectURL(output),
       encryptionKey: uintArrayToHexString(key),
+      sha256Hash: sha256,
     },
   };
 }
