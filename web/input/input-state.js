@@ -23,6 +23,7 @@ export type PendingMultimediaUpload = {
   mediaType: MediaType | EncryptedMediaType,
   dimensions: ?Dimensions,
   uri: string,
+  blobHash: ?string,
   encryptionKey: ?string,
   loop: boolean,
   // URLs created with createObjectURL aren't considered "real". The distinction
