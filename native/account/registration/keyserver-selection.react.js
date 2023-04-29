@@ -41,6 +41,13 @@ function KeyserverSelection(props: Props): React.Node {
     setCurrentSelection('custom');
   }, []);
 
+  let buttonState = 'disabled';
+  if (
+    currentSelection === 'ashoat' ||
+    (currentSelection === 'custom' && customKeyserver)
+  ) {
+    buttonState = 'enabled';
+  }
   const onSubmit = React.useCallback(() => {}, []);
 
   const styles = useStyles(unboundStyles);
@@ -93,7 +100,7 @@ function KeyserverSelection(props: Props): React.Node {
           />
         </RegistrationTile>
       </RegistrationContainer>
-      <RegistrationButton onPress={onSubmit} label="Next" />
+      <RegistrationButton onPress={onSubmit} label="Next" state={buttonState} />
     </View>
   );
 }
