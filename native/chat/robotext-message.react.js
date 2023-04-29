@@ -30,8 +30,12 @@ type Props = {
   +item: ChatRobotextMessageInfoItemWithHeight,
   +navigation:
     | ChatNavigationProp<'MessageList'>
-    | AppNavigationProp<'TogglePinModal'>,
-  +route: NavigationRoute<'MessageList'> | NavigationRoute<'TogglePinModal'>,
+    | AppNavigationProp<'TogglePinModal'>
+    | ChatNavigationProp<'MessageResultsScreen'>,
+  +route:
+    | NavigationRoute<'MessageList'>
+    | NavigationRoute<'TogglePinModal'>
+    | NavigationRoute<'MessageResultsScreen'>,
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
