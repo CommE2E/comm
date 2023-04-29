@@ -2,6 +2,7 @@ use crate::config::CONFIG;
 use crate::database::DatabaseClient;
 use crate::s3::S3Client;
 
+use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use anyhow::Result;
 use tracing::info;
@@ -14,6 +15,22 @@ mod handlers {
 
   // convenience exports to be used in handlers
   use super::context::{handle_db_error, AppContext};
+}
+
+fn cors_config() -> Cors {
+  if CONFIG.is_sandbox {
+    // All origins, methods, request headers and exposed headers allowed.
+    // Credentials supported. Max age 1 hour. Does not send wildcard.
+    return Cors::permissive();
+  }
+
+  Cors::default()
+    .allowed_origin("https://web.comm.app")
+    // for local development using prod service
+    .allowed_origin("http://localhost:3000")
+    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+    .allow_any_header()
+    .expose_any_header()
 }
 
 pub async fn run_http_server(
@@ -32,6 +49,7 @@ pub async fn run_http_server(
     };
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
+      .wrap(cors_config())
       .app_data(web::Data::new(ctx))
       .service(
         web::resource("/blob/{holder}")

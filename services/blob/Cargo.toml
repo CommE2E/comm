@@ -7,6 +7,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+actix-cors = "0.6"
 actix-multipart = "0.6.0"
 actix-web = "4.3"
 anyhow = "1.0"
