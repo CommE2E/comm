@@ -66,6 +66,7 @@ pub async fn get_blob_handler(
   Ok(
     HttpResponse::Ok()
       .content_type("application/octet-stream")
+      .append_header(("Content-Length", file_size.to_string()))
       .streaming(Box::pin(stream.in_current_span())),
   )
 }
