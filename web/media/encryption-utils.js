@@ -13,6 +13,7 @@ import { calculatePaddedLength, pad, unpad } from 'lib/utils/pkcs7-padding.js';
 
 import * as AES from './aes-crypto-utils.js';
 import { fetchableMediaURI } from './media-utils.js';
+import { olmUtility } from '../olm/olm-utils.js';
 
 const PADDING_THRESHOLD = 5000000; // 5MB
 
@@ -21,6 +22,7 @@ type EncryptFileResult = {
   +file: File,
   +uri: string,
   +encryptionKey: string,
+  +sha256Hash: string,
 };
 
 async function encryptFile(input: File): Promise<{
@@ -55,11 +57,15 @@ async function encryptFile(input: File): Promise<{
   const startEncrypt = Date.now();
   const paddedLength = calculatePaddedLength(data.length);
   const shouldPad = paddedLength <= PADDING_THRESHOLD;
-  let key, encryptedData;
+  let key, encryptedData, sha256;
   try {
     const plaintextData = shouldPad ? pad(data) : data;
     key = await AES.generateKey();
     encryptedData = await AES.encrypt(key, plaintextData);
+
+    const olmUtil = await olmUtility();
+    // The Olm sha256 zeroes the original buffer so we need to copy it
+    sha256 = olmUtil.sha256(new Uint8Array(encryptedData));
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
@@ -69,11 +75,11 @@ async function encryptFile(input: File): Promise<{
     dataSize: encryptedData?.byteLength ?? -1,
     isPadded: shouldPad,
     time: Date.now() - startEncrypt,
-    sha256: null,
+    sha256,
     success,
     exceptionMessage,
   });
-  if (!success || !encryptedData || !key) {
+  if (!success || !encryptedData || !key || !sha256) {
     return { steps, result: { success: false, reason: 'encryption_failed' } };
   }
 
@@ -86,6 +92,7 @@ async function encryptFile(input: File): Promise<{
       file: output,
       uri: URL.createObjectURL(output),
       encryptionKey: uintArrayToHexString(key),
+      sha256Hash: sha256,
     },
   };
 }
