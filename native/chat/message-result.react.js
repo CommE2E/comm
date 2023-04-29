@@ -6,6 +6,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
+import type { ChatNavigationProp } from './chat.react';
 import { MessageListContextProvider } from './message-list-types.js';
 import { Message } from './message.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
@@ -16,8 +17,12 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 type MessageResultProps = {
   +item: ChatMessageInfoItemWithHeight,
   +threadInfo: ThreadInfo,
-  +navigation: AppNavigationProp<'TogglePinModal'>,
-  +route: NavigationRoute<'TogglePinModal'>,
+  +navigation:
+    | AppNavigationProp<'TogglePinModal'>
+    | ChatNavigationProp<'MessageResultsScreen'>,
+  +route:
+    | NavigationRoute<'TogglePinModal'>
+    | NavigationRoute<'MessageResultsScreen'>,
 };
 
 function MessageResult(props: MessageResultProps): React.Node {
