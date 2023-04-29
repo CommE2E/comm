@@ -195,7 +195,7 @@ async function fetchMediaForThread(
       if (encryptionKey) {
         return {
           type: 'encrypted_photo',
-          id: uploadID,
+          id: uploadID.toString(),
           holder: getUploadURL(uploadID, uploadSecret),
           encryptionKey,
           dimensions,
@@ -203,7 +203,7 @@ async function fetchMediaForThread(
       }
       return {
         type: 'photo',
-        id: uploadID,
+        id: uploadID.toString(),
         uri: getUploadURL(uploadID, uploadSecret),
         dimensions,
       };
@@ -216,7 +216,7 @@ async function fetchMediaForThread(
         JSON.parse(thumbnailUploadExtra);
       return {
         type: 'encrypted_video',
-        id: uploadID,
+        id: uploadID.toString(),
         holder: getUploadURL(uploadID, uploadSecret),
         encryptionKey,
         dimensions,
@@ -228,7 +228,7 @@ async function fetchMediaForThread(
 
     return {
       type: 'video',
-      id: uploadID,
+      id: uploadID.toString(),
       uri: getUploadURL(uploadID, uploadSecret),
       dimensions,
       thumbnailID,
