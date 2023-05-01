@@ -6,6 +6,7 @@ import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
+import type { UpdateUserAvatarResponse } from 'lib/actions/user-actions.js';
 import { baseLegalPolicies, policies } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
@@ -44,7 +45,6 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types.js';
-import type { CreateUpdatesResult } from 'lib/types/update-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import {
@@ -629,9 +629,6 @@ async function policyAcknowledgmentResponder(
   await viewerAcknowledgmentUpdater(viewer, request.policy);
 }
 
-export type UpdateUserAvatarResponse = {
-  +updates: CreateUpdatesResult,
-};
 async function updateUserAvatarResponder(
   viewer: Viewer,
   input: any,
