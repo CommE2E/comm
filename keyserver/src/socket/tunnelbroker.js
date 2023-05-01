@@ -1,12 +1,14 @@
 // @flow
 import WebSocket from 'ws';
 
+import { SessionRequestMessage } from 'lib/types/tunnelbroker-messages.js';
+
 function createTunnelbrokerWebsocket() {
   try {
     const tunnelbrokerSocket = new WebSocket('ws://localhost:51001');
     tunnelbrokerSocket.on('open', () => {
       // TODO: Replace keyserver details with actual details
-      const message = {
+      const message: SessionRequestMessage = {
         type: 'sessionRequest',
         accessToken: 'foobar',
         deviceId: 'foo',
@@ -18,7 +20,7 @@ function createTunnelbrokerWebsocket() {
       tunnelbrokerSocket.send(JSON.stringify(message));
     });
 
-    tunnelbrokerSocket.on('message', (message) => {
+    tunnelbrokerSocket.on('message', message => {
       // TODO: Handle RefreshKeyMessage
       console.log('Received message from tunnelbroker: {}' + message);
     });
@@ -27,7 +29,7 @@ function createTunnelbrokerWebsocket() {
       console.log('Connection to tunnelbroker closed');
     });
 
-    tunnelbrokerSocket.on('error', (event) => {
+    tunnelbrokerSocket.on('error', event => {
       console.log('Tunnelbroker socket error: ' + event.message);
     });
   } catch (err) {
