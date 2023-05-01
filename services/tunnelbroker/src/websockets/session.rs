@@ -19,7 +19,7 @@ impl WebsocketSession {
     message: &str,
   ) -> Result<(), serde_json::Error> {
     match serde_json::from_str::<Messages>(message)? {
-      Messages::SessionRequest(session_info) => {
+      Messages::ConnectionInitializationMessage(session_info) => {
         ACTIVE_CONNECTIONS.insert(session_info.device_id, self.tx.clone());
       }
       _ => {
