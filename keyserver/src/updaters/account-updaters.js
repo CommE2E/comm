@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   ResetPasswordRequest,
   UpdatePasswordRequest,
@@ -14,7 +15,10 @@ import type {
   UpdateUserAvatarRequest,
 } from 'lib/types/avatar-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
-import type { UpdateData } from 'lib/types/update-types.js';
+import type {
+  CreateUpdatesResult,
+  UpdateData,
+} from 'lib/types/update-types.js';
 import type {
   PasswordUpdate,
   UserInfo,
@@ -27,7 +31,6 @@ import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { getUploadURL } from '../fetchers/upload-fetchers.js';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 
 async function accountUpdater(
@@ -119,7 +122,7 @@ async function updateUserSettings(
 async function updateUserAvatar(
   viewer: Viewer,
   request: UpdateUserAvatarRequest,
-): Promise<?ClientAvatar> {
+): Promise<?ClientAvatar | CreateUpdatesResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -183,8 +186,14 @@ async function updateUserAvatar(
   const selectResult = resultSet.pop();
 
   const knownUserInfos: UserInfos = await fetchKnownUserInfos(viewer);
-  const userUpdatesPromise = createUserAvatarUpdates(viewer, knownUserInfos);
-  handleAsyncPromise(userUpdatesPromise);
+  const updates: CreateUpdatesResult = await createUserAvatarUpdates(
+    viewer,
+    knownUserInfos,
+  );
+
+  if (hasMinCodeVersion(viewer.platformDetails, 215)) {
+    return updates;
+  }
 
   if (request.type === 'remove') {
     return null;
@@ -208,7 +217,7 @@ async function updateUserAvatar(
 async function createUserAvatarUpdates(
   viewer: Viewer,
   knownUserInfos: UserInfos,
-): Promise<void> {
+): Promise<CreateUpdatesResult> {
   const time = Date.now();
   const userUpdates: $ReadOnlyArray<UpdateData> = values(knownUserInfos).map(
     (user: UserInfo): UpdateData => ({
@@ -225,7 +234,7 @@ async function createUserAvatarUpdates(
     time,
   };
 
-  await createUpdates([...userUpdates, currentUserUpdate], {
+  return await createUpdates([...userUpdates, currentUserUpdate], {
     viewer,
     updatesForCurrentSession: 'return',
   });

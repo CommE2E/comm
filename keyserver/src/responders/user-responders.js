@@ -44,6 +44,7 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types.js';
+import type { CreateUpdatesResult } from 'lib/types/update-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import {
@@ -631,7 +632,7 @@ async function policyAcknowledgmentResponder(
 async function updateUserAvatarResponder(
   viewer: Viewer,
   input: any,
-): Promise<?ClientAvatar> {
+): Promise<?ClientAvatar | CreateUpdatesResult> {
   const request: UpdateUserAvatarRequest = input;
   await validateInput(viewer, updateUserAvatarRequestValidator, request);
   return await updateUserAvatar(viewer, request);
