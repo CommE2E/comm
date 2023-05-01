@@ -5,9 +5,12 @@ mod proto {
 use proto::tunnelbroker_service_server::{
   TunnelbrokerService, TunnelbrokerServiceServer,
 };
+use proto::Empty;
 use tonic::transport::Server;
+use tonic::Status;
+use tracing::debug;
 
-use crate::constants;
+use crate::{constants, ACTIVE_CONNECTIONS};
 
 #[derive(Debug, Default)]
 struct TunnelbrokerGRPC {}
@@ -16,9 +19,19 @@ struct TunnelbrokerGRPC {}
 impl TunnelbrokerService for TunnelbrokerGRPC {
   async fn send_message_to_device(
     &self,
-    _request: tonic::Request<proto::MessageToDevice>,
+    request: tonic::Request<proto::MessageToDevice>,
   ) -> Result<tonic::Response<proto::Empty>, tonic::Status> {
-    unimplemented!()
+    let message = request.into_inner();
+
+    debug!("Received message for {}", &message.device_id);
+    // TODO: Persist messages for inactive connections
+    let tx = ACTIVE_CONNECTIONS
+      .get(&message.device_id)
+      .ok_or(Status::unavailable("Device does not exist"))?;
+    tx.send(message.payload).expect("Unable to send message");
+
+    let response = tonic::Response::new(Empty {});
+    Ok(response)
   }
 }
 

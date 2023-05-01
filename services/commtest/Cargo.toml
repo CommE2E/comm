@@ -20,8 +20,10 @@ num_cpus = "1.13.1"
 sha2 = "0.10.2"
 hex = "0.4.3"
 tokio-tungstenite = "0.18.0"
+tunnelbroker_messages = { path = "../../shared/tunnelbroker_messages" }
 url = "2.3.1"
 futures-util = "0.3.28"
+serde_json = "1.0.96"
 
 [build-dependencies]
 tonic-build = "0.8"
