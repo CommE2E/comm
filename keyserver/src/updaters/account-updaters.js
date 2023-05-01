@@ -183,10 +183,7 @@ async function updateUserAvatar(
   const selectResult = resultSet.pop();
 
   const knownUserInfos: UserInfos = await fetchKnownUserInfos(viewer);
-  const userUpdatesPromise = createUserAvatarUpdates(
-    knownUserInfos,
-    viewer.userID,
-  );
+  const userUpdatesPromise = createUserAvatarUpdates(viewer, knownUserInfos);
   handleAsyncPromise(userUpdatesPromise);
 
   if (request.type === 'remove') {
@@ -209,23 +206,29 @@ async function updateUserAvatar(
 }
 
 async function createUserAvatarUpdates(
+  viewer: Viewer,
   knownUserInfos: UserInfos,
-  updatedUserID: string,
 ): Promise<void> {
-  const usersToUpdate: $ReadOnlyArray<UserInfo> = values(knownUserInfos).filter(
-    (user: UserInfo): boolean => user.id !== updatedUserID,
-  );
   const time = Date.now();
-  const updateDatas: $ReadOnlyArray<UpdateData> = usersToUpdate.map(
+  const userUpdates: $ReadOnlyArray<UpdateData> = values(knownUserInfos).map(
     (user: UserInfo): UpdateData => ({
       type: updateTypes.UPDATE_USER,
       userID: user.id,
       time,
-      updatedUserID: updatedUserID,
+      updatedUserID: viewer.userID,
     }),
   );
 
-  await createUpdates(updateDatas);
+  const currentUserUpdate: UpdateData = {
+    type: updateTypes.UPDATE_CURRENT_USER,
+    userID: viewer.userID,
+    time,
+  };
+
+  await createUpdates([...userUpdates, currentUserUpdate], {
+    viewer,
+    updatesForCurrentSession: 'return',
+  });
 }
 
 export {
