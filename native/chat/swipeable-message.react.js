@@ -145,7 +145,7 @@ type Props = {
   +triggerReply?: () => mixed,
   +triggerSidebar?: () => mixed,
   +isViewer: boolean,
-  +messageBoxStyle: ViewStyle,
+  +contentStyle: ViewStyle,
   +threadColor: string,
   +children: React.Node,
 };
@@ -230,19 +230,19 @@ function SwipeableMessage(props: Props): React.Node {
     ],
   );
 
-  const transformMessageBoxStyle = useAnimatedStyle(
+  const transformContentStyle = useAnimatedStyle(
     () => ({
       transform: [{ translateX: translateX.value }],
     }),
     [],
   );
 
-  const { messageBoxStyle, children } = props;
+  const { contentStyle, children } = props;
 
   if (!triggerReply && !triggerSidebar) {
     return (
       <PanGestureHandler enabled={false}>
-        <Animated.View style={messageBoxStyle}>{children}</Animated.View>
+        <Animated.View style={contentStyle}>{children}</Animated.View>
       </PanGestureHandler>
     );
   }
@@ -311,7 +311,7 @@ function SwipeableMessage(props: Props): React.Node {
       failOffsetY={[-5, 5]}
       key="gesture"
     >
-      <Animated.View style={[messageBoxStyle, transformMessageBoxStyle]}>
+      <Animated.View style={[contentStyle, transformContentStyle]}>
         {children}
       </Animated.View>
     </PanGestureHandler>,
