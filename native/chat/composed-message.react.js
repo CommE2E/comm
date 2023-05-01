@@ -157,7 +157,7 @@ class ComposedMessage extends React.PureComponent<Props> {
           triggerReply={triggerReply}
           triggerSidebar={triggerSidebar}
           isViewer={isViewer}
-          messageBoxStyle={swipeableMessageBoxStyle}
+          contentStyle={swipeableMessageBoxStyle}
           threadColor={item.threadInfo.color}
         >
           {avatar}
