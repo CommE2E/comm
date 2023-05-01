@@ -99,11 +99,11 @@ class ComposedMessage extends React.PureComponent<Props> {
       { maxWidth: composedMessageMaxWidth },
     ];
 
-    const messageBoxStyleContainerStyle = [styles.messageBoxContainer];
+    const messageBoxContainerStyle = [styles.messageBoxContainer];
     const positioningStyle = isViewer
-      ? { alignItems: 'flex-end' }
-      : { alignItems: 'flex-start' };
-    messageBoxStyleContainerStyle.push(positioningStyle);
+      ? styles.rightChatContainer
+      : styles.leftChatContainer;
+    messageBoxContainerStyle.push(positioningStyle);
 
     let deliveryIcon = null;
     let failedSendInfo = null;
@@ -152,7 +152,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     const messageBox = (
-      <View style={messageBoxStyleContainerStyle}>
+      <View style={messageBoxContainerStyle}>
         <SwipeableMessage
           triggerReply={triggerReply}
           triggerSidebar={triggerSidebar}
@@ -243,12 +243,18 @@ const styles = StyleSheet.create({
   leftChatBubble: {
     justifyContent: 'flex-end',
   },
+  leftChatContainer: {
+    alignItems: 'flex-start',
+  },
   messageBoxContainer: {
     flex: 1,
     marginRight: 5,
   },
   rightChatBubble: {
     justifyContent: 'flex-start',
+  },
+  rightChatContainer: {
+    alignItems: 'flex-end',
   },
   swipeableContainer: {
     alignItems: 'flex-end',
