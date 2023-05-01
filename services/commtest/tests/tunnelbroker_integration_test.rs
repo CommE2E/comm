@@ -20,6 +20,7 @@ async fn send_refresh_request() {
       "type": "sessionRequest",
       "accessToken": "xkdeifjsld",
       "deviceId": "foo",
+      "userId": "alice",
       "deviceType": "keyserver"
     }"#;
 

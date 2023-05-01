@@ -109,14 +109,13 @@ impl WebsocketSession {
     })
   }
 
-  pub async fn handle_websocket_frame_from_device(
-    &mut self,
-    frame: Message,
-  ) -> Result<(), SessionError> {
-    match frame {
-      Message::Text(payload) => {
-        debug!("Received message from device: {}", payload);
-        Ok(())
+  pub fn handle_message_from_device(
+    &self,
+    message: &str,
+  ) -> Result<(), serde_json::Error> {
+    match serde_json::from_str::<Messages>(message)? {
+      Messages::ConnectionInitializationMessage(session_info) => {
+        ACTIVE_CONNECTIONS.insert(session_info.device_id, self.tx.clone());
       }
       Message::Close(_) => {
         self.close().await;
