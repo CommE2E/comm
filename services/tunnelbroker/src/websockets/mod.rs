@@ -83,7 +83,7 @@ fn handle_message(
   tx: &tokio::sync::mpsc::UnboundedSender<std::string::String>,
 ) -> Result<(), serde_json::Error> {
   match serde_json::from_str::<Messages>(message)? {
-    Messages::SessionRequest(session_info) => {
+    Messages::ConnectionInitializationMessage(session_info) => {
       ACTIVE_CONNECTIONS.insert(session_info.device_id, tx.clone());
     }
     _ => {
