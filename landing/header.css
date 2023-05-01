@@ -1,19 +1,20 @@
-nav.wrapper {
-  transition-property: max-width;
-  transition: 300ms;
-  max-width: 1850px;
-  margin-left: auto;
-  margin-right: auto;
-  display: grid;
-  padding: 16px 0;
+nav.headerContainer {
+  display: flex;
+  justify-content: center;
+}
+
+div.headerNavContentContainer {
+  display: flex;
   align-items: center;
-  grid-template-columns: 40px repeat(12, 1fr) 40px;
-  column-gap: 1.5%;
-  grid-template-areas: '. logo logo . . . page_nav page_nav . . sIcons sIcons sIcons .';
+  justify-content: space-between;
+  padding: 18px 32px;
+  width: 1850px;
 }
 
 .logo {
-  grid-area: logo;
+  display: flex;
+  align-items: center;
+  min-width: 85px;
 }
 
 .logo h1 {
@@ -34,23 +35,21 @@ nav.wrapper {
   color: #ffffff;
 }
 
-.page_nav {
-  grid-area: page_nav;
+.pageNav {
   display: flex;
   justify-content: space-evenly;
   min-width: 225px;
 }
 
-.social_icons_container {
-  grid-area: sIcons;
+.socialIconsContainer {
   display: flex;
   justify-self: flex-end;
   align-items: center;
 }
 
-div.twitter_icon,
-div.github_icon,
-div.webapp_icon {
+div.twitterIcon,
+div.githubIcon,
+div.webappIcon {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -62,70 +61,57 @@ div.webapp_icon {
   transition: 300ms;
 }
 
-div.twitter_icon svg,
-div.github_icon svg,
-div.webapp_icon svg {
+div.menuIcon {
+  display: none;
+}
+
+div.twitterIcon svg,
+div.githubIcon svg,
+div.webappIcon svg {
   transition: 300ms;
 }
 
-div.github_icon:hover svg {
+div.githubIcon:hover svg {
   color: #151013;
   transition: 300ms;
 }
-div.github_icon:hover {
+div.githubIcon:hover {
   background-color: #ffffff;
   transition: 300ms;
 }
 
-div.webapp_icon:hover {
+div.webappIcon:hover {
   background-color: var(--btn-bg);
   transition: 300ms;
 }
-div.twitter_icon:hover {
+
+div.twitterIcon:hover {
   background-color: #1d9bf0;
   transition: 300ms;
 }
 
-@media screen and (max-width: 1099px) {
-  nav.wrapper {
-    grid-template-columns: 16px repeat(12, 1fr) 16px;
-    grid-template-areas: '. logo logo logo page_nav page_nav page_nav page_nav page_nav page_nav sIcons sIcons sIcons .';
-  }
-
-  .logo {
-    min-width: 85px;
-  }
-
-  .page_nav {
-    justify-content: center;
-    gap: 12px;
-  }
-
-  .social_icon {
-    display: block;
-  }
-
-  div.webapp_icon {
+@media screen and (max-width: 480px) {
+  .pageNav {
     display: none;
   }
-}
 
-@media screen and (max-width: 480px) {
-  nav.wrapper {
-    grid-template-columns: 16px repeat(6, 1fr) 16px;
-    grid-template-rows: 1fr 1fr;
-    column-gap: 1.5%;
-    row-gap: 25px;
-    grid-template-areas:
-      '. logo logo . sIcons sIcons sIcons .'
-      '. page_nav page_nav page_nav page_nav page_nav page_nav .';
+  div.twitterIcon,
+  div.githubIcon,
+  div.webappIcon {
+    display: none;
   }
 
-  .page_nav {
-    grid-area: page_nav;
+  div.menuIcon {
     display: flex;
     justify-content: center;
-    gap: 40px;
-    min-width: 225px;
+    align-items: center;
+    font-size: 24px;
+    margin-inline: 4px;
+    width: 44px;
+    height: 44px;
+  }
+
+  div.menuIcon:hover {
+    cursor: pointer;
   }
 }
