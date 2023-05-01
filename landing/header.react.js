@@ -25,6 +25,7 @@ function Header(): React.Node {
     <nav className={css.wrapper}>
       <NavLink to="/" className={css.logo}>
         <h1>Comm</h1>
+        <div className={css.beta_badge}>Beta</div>
       </NavLink>
       <div className={css.page_nav}>
         <NavLink to="/" exact {...navLinkProps}>

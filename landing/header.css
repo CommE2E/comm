@@ -14,6 +14,18 @@ nav.wrapper {
 
 .logo {
   grid-area: logo;
+  display: flex;
+  align-items: center;
+}
+
+/* TODO: fix the colors */
+.beta_badge {
+  margin-left: 8px;
+  padding: 4px 16px;
+  background-color: #ebebeb26;
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  color: white;
 }
 
 .logo h1 {
