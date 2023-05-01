@@ -94,10 +94,6 @@ class ComposedMessage extends React.PureComponent<Props> {
       { marginBottom: containerMarginBottom },
       highlightStyle,
     ];
-    const swipeableMessageBoxStyle = [
-      styles.swipeableContainer,
-      { maxWidth: composedMessageMaxWidth },
-    ];
 
     const messageBoxContainerStyle = [styles.messageBoxContainer];
     const positioningStyle = isViewer
@@ -151,19 +147,22 @@ class ComposedMessage extends React.PureComponent<Props> {
       avatar = <View style={styles.avatarOffset} />;
     }
 
+    const messageBoxStyle = {
+      opacity: contentAndHeaderOpacity,
+      maxWidth: composedMessageMaxWidth,
+    };
+
     const messageBox = (
       <View style={messageBoxContainerStyle}>
         <SwipeableMessage
           triggerReply={triggerReply}
           triggerSidebar={triggerSidebar}
           isViewer={isViewer}
-          contentStyle={swipeableMessageBoxStyle}
+          contentStyle={styles.swipeableContainer}
           threadColor={item.threadInfo.color}
         >
           {avatar}
-          <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
-            {children}
-          </AnimatedView>
+          <AnimatedView style={messageBoxStyle}>{children}</AnimatedView>
         </SwipeableMessage>
       </View>
     );
