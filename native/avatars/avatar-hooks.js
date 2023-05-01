@@ -113,7 +113,7 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
 }
 
 function useUploadSelectedMedia(
-  setProcessingOrUploadInProgress: (inProgress: boolean) => void,
+  setProcessingOrUploadInProgress: (inProgress: boolean) => mixed,
 ): (selection: NativeMediaSelection) => Promise<?ImageAvatarDBContent> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
