@@ -7,11 +7,9 @@ use std::io::{self, Error, ErrorKind};
 use tokio::sync::mpsc::UnboundedSender;
 use tracing::{self, Level};
 use tracing_subscriber::EnvFilter;
-use tunnelbroker_messages::Messages;
 
-pub static ACTIVE_CONNECTIONS: Lazy<
-  DashMap<String, UnboundedSender<Messages>>,
-> = Lazy::new(DashMap::new);
+pub static ACTIVE_CONNECTIONS: Lazy<DashMap<String, UnboundedSender<String>>> =
+  Lazy::new(DashMap::new);
 
 #[tokio::main]
 async fn main() -> Result<(), io::Error> {
