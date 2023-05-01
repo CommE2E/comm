@@ -2,15 +2,17 @@
 
 import WebSocket from 'ws';
 
+import { type TBConnectionInitializationMessage } from 'lib/types/tunnelbroker-messages.js';
+
 function createTunnelbrokerWebsocket() {
   try {
     const tunnelbrokerSocket = new WebSocket('ws://localhost:51001');
     tunnelbrokerSocket.on('open', () => {
       // TODO: Replace keyserver details with actual details
-      const message = {
+      const message: TBConnectionInitializationMessage = {
         type: 'sessionRequest',
         accessToken: 'foobar',
-        deviceId: 'foo',
+        deviceID: 'foo',
         deviceType: 'keyserver',
       };
       console.log(
