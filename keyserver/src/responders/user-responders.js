@@ -28,7 +28,6 @@ import {
 import type {
   ClientAvatar,
   UpdateUserAvatarRequest,
-  UpdateUserAvatarResponse,
 } from 'lib/types/avatar-types.js';
 import type {
   IdentityKeysBlob,
@@ -632,7 +631,7 @@ async function policyAcknowledgmentResponder(
 async function updateUserAvatarResponder(
   viewer: Viewer,
   input: any,
-): Promise<?ClientAvatar | UpdateUserAvatarResponse> {
+): Promise<?ClientAvatar> {
   const request: UpdateUserAvatarRequest = input;
   await validateInput(viewer, updateUserAvatarRequestValidator, request);
   return await updateUserAvatar(viewer, request);
