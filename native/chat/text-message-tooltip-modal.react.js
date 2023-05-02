@@ -1,6 +1,7 @@
 // @flow
 
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation, StackActions } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -13,6 +14,11 @@ import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
+import {
+  TextMessageTooltipModalRouteName,
+  TogglePinModalRouteName,
+} from '../navigation/route-names.js';
 import {
   createTooltip,
   type TooltipParams,
@@ -32,7 +38,9 @@ function TooltipMenu(
   props: TooltipMenuProps<'TextMessageTooltipModal'>,
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
+  const navigation = useNavigation();
 
+  const overlayContext = React.useContext(OverlayContext);
   const inputState = React.useContext(InputStateContext);
   const { text } = route.params.item.messageInfo;
   const onPressReply = React.useCallback(() => {
@@ -84,7 +92,30 @@ function TooltipMenu(
     [],
   );
 
-  const onPressTogglePin = React.useCallback(() => {}, []);
+  const onPressTogglePin = React.useCallback(() => {
+    // If the most recent overlay is the tooltip modal, prior to opening the
+    // toggle pin modal, we want to dismiss it so the overlay is not visible
+    // once the toggle pin modal is closed. This is also necessary with the
+    // TetxMessageTooltipModal, since otherwise the toggle pin modal fails to
+    // render the message since we 'hide' the original message and
+    // show another message on top when the tooltip is active, and this
+    // state carries through into the modal.
+    const mostRecentOverlay = overlayContext?.visibleOverlays.slice(-1)[0];
+    const routeName = mostRecentOverlay?.routeName;
+    const routeKey = mostRecentOverlay?.routeKey;
+    if (routeName !== TextMessageTooltipModalRouteName) {
+      return;
+    }
+
+    navigation.dispatch({
+      ...StackActions.replace(TogglePinModalRouteName, {
+        threadInfo: route.params.item.threadInfo,
+        item: route.params.item,
+      }),
+      source: routeKey,
+    });
+  }, [navigation, overlayContext, route.params.item]);
+
   const renderPinIcon = React.useCallback(
     style => <CommIcon name="pin" style={style} size={16} />,
     [],

@@ -1,5 +1,6 @@
 // @flow
 
+import { StackActions, useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 
 import { useOnPressReport } from './message-report-utils.js';
@@ -7,6 +8,11 @@ import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.
 import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
+import {
+  TogglePinModalRouteName,
+  MultimediaMessageTooltipModalRouteName,
+} from '../navigation/route-names.js';
 import {
   createTooltip,
   type TooltipParams,
@@ -25,8 +31,27 @@ function TooltipMenu(
   props: TooltipMenuProps<'MultimediaMessageTooltipModal'>,
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
+  const navigation = useNavigation();
 
-  const onPressTogglePin = React.useCallback(() => {}, []);
+  const overlayContext = React.useContext(OverlayContext);
+
+  const onPressTogglePin = React.useCallback(() => {
+    const mostRecentOverlay = overlayContext?.visibleOverlays.slice(-1)[0];
+    const routeName = mostRecentOverlay?.routeName;
+    const routeKey = mostRecentOverlay?.routeKey;
+    if (routeName !== MultimediaMessageTooltipModalRouteName) {
+      return;
+    }
+
+    navigation.dispatch({
+      ...StackActions.replace(TogglePinModalRouteName, {
+        threadInfo: route.params.item.threadInfo,
+        item: route.params.item,
+      }),
+      source: routeKey,
+    });
+  }, [navigation, overlayContext, route.params.item]);
+
   const renderPinIcon = React.useCallback(
     style => <CommIcon name="pin" style={style} size={16} />,
     [],
