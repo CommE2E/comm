@@ -176,6 +176,7 @@ limitations under the License.
     PRIVATE_KEY_LENGTH: typeof PRIVATE_KEY_LENGTH,
     Account: typeof Account,
     Utility: typeof Utility,
+    Session: typeof Session
   };
 
 }
