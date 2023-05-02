@@ -6,6 +6,7 @@ import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
+import type { UpdateUserAvatarResponse } from 'lib/actions/user-actions.js';
 import { baseLegalPolicies, policies } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
