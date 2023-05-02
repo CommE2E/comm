@@ -120,14 +120,6 @@ function useUploadSelectedMedia(
 
   return React.useCallback(
     async (selection: NativeMediaSelection) => {
-      if (!selection) {
-        Alert.alert(
-          'Media selection failed',
-          'Unable to select media from Media Library.',
-        );
-        return undefined;
-      }
-
       setProcessingOrUploadInProgress(true);
 
       let processedMedia;
