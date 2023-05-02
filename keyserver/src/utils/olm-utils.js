@@ -4,6 +4,7 @@ import olm from '@commapp/olm';
 import type {
   Account as OlmAccount,
   Utility as OlmUtility,
+  Session as OlmSession,
 } from '@commapp/olm';
 import uuid from 'uuid';
 
@@ -40,6 +41,28 @@ async function unpickleOlmAccount(
     pickledOlmAccount.pickledAccount,
   );
   return account;
+}
+
+async function createPickledOlmSession(
+  account: OlmAccount,
+  accountPicklingKey: string,
+  initialEncryptedMessage: string,
+): Promise<string> {
+  await olm.init();
+  const session = new olm.Session();
+  session.create_inbound(account, initialEncryptedMessage);
+  session.decrypt(0, initialEncryptedMessage);
+  return session.pickle(accountPicklingKey);
+}
+
+async function unpickleOlmSession(
+  pickledSession: string,
+  picklingKey: string,
+): Promise<OlmSession> {
+  await olm.init();
+  const session = new olm.Session();
+  session.unpickle(picklingKey, pickledSession);
+  return session;
 }
 
 let cachedOLMUtility: OlmUtility;
@@ -84,7 +107,9 @@ async function validateAccountPrekey(account: OlmAccount): Promise<void> {
 
 export {
   createPickledOlmAccount,
+  createPickledOlmSession,
   getOlmUtility,
   unpickleOlmAccount,
+  unpickleOlmSession,
   validateAccountPrekey,
 };
