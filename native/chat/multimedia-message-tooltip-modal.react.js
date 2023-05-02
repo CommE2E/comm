@@ -7,6 +7,7 @@ import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.
 import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import {
   createTooltip,
   type TooltipParams,
@@ -15,6 +16,7 @@ import {
 } from '../tooltip/tooltip.react.js';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import { useNavigateToPinModal } from '../utils/toggle-pin-utils.js';
 
 export type MultimediaMessageTooltipModalParams = TooltipParams<{
   +item: ChatMultimediaMessageInfoItem,
@@ -26,7 +28,10 @@ function TooltipMenu(
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
 
-  const onPressTogglePin = React.useCallback(() => {}, []);
+  const overlayContext = React.useContext(OverlayContext);
+
+  const onPressTogglePin = useNavigateToPinModal(overlayContext, route);
+
   const renderPinIcon = React.useCallback(
     style => <CommIcon name="pin-outline" style={style} size={16} />,
     [],

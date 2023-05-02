@@ -13,6 +13,7 @@ import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import {
   createTooltip,
   type TooltipParams,
@@ -21,6 +22,7 @@ import {
 } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
+import { useNavigateToPinModal } from '../utils/toggle-pin-utils.js';
 
 export type TextMessageTooltipModalParams = TooltipParams<{
   +item: ChatTextMessageInfoItemWithHeight,
@@ -33,6 +35,7 @@ function TooltipMenu(
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
 
+  const overlayContext = React.useContext(OverlayContext);
   const inputState = React.useContext(InputStateContext);
   const { text } = route.params.item.messageInfo;
   const onPressReply = React.useCallback(() => {
@@ -84,7 +87,8 @@ function TooltipMenu(
     [],
   );
 
-  const onPressTogglePin = React.useCallback(() => {}, []);
+  const onPressTogglePin = useNavigateToPinModal(overlayContext, route);
+
   const renderPinIcon = React.useCallback(
     style => <CommIcon name="pin-outline" style={style} size={16} />,
     [],
