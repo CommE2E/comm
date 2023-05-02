@@ -1,6 +1,6 @@
 use crate::ffi::string_callback;
 use crate::identity::Empty;
-use comm_opaque2::client::Registration;
+use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use lazy_static::lazy_static;
 use serde::Serialize;
@@ -18,7 +18,8 @@ mod identity {
 use crypto_tools::generate_device_id;
 use identity::identity_client_service_client::IdentityClientServiceClient;
 use identity::{
-  DeviceKeyUpload, IdentityKeyInfo, PreKey, RegistrationFinishRequest,
+  DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginFinishRequest,
+  OpaqueLoginStartRequest, PreKey, RegistrationFinishRequest,
   RegistrationStartRequest,
 };
 
@@ -64,20 +65,20 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "identityLoginUserPakeBlocking"]
-    fn identity_login_user_pake_blocking(
-      client: Box<IdentityClient>,
+    #[cxx_name = "identityLoginPasswordUser"]
+    fn login_password_user(
       username: String,
       password: String,
       key_payload: String,
       key_payload_signature: String,
-      identity_prekey: String,
-      identity_prekey_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
       notif_prekey: String,
       notif_prekey_signature: String,
-      identity_onetime_keys: Vec<String>,
+      content_onetime_keys: Vec<String>,
       notif_onetime_keys: Vec<String>,
-    ) -> Result<String>;
+      promise_id: u32,
+    );
 
     #[cxx_name = "identityLoginUserWalletBlocking"]
     fn identity_login_user_wallet_blocking(
@@ -167,7 +168,7 @@ fn register_user(
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
-    let register_user_info = RegisterUserInfo {
+    let password_user_info = PasswordUserInfo {
       username,
       password,
       key_payload,
@@ -179,12 +180,12 @@ fn register_user(
       content_onetime_keys,
       notif_onetime_keys,
     };
-    let result = register_user_helper(register_user_info).await;
+    let result = register_user_helper(password_user_info).await;
     handle_string_result_as_callback(result, promise_id);
   });
 }
 
-struct RegisterUserInfo {
+struct PasswordUserInfo {
   username: String,
   password: String,
   key_payload: String,
@@ -204,31 +205,31 @@ struct UserIDAndDeviceAccessToken {
 }
 
 async fn register_user_helper(
-  register_user_info: RegisterUserInfo,
+  password_user_info: PasswordUserInfo,
 ) -> Result<String, Error> {
   let mut client_registration = Registration::new();
   let opaque_registration_request = client_registration
-    .start(&register_user_info.password)
+    .start(&password_user_info.password)
     .map_err(handle_error)?;
   let registration_start_request = RegistrationStartRequest {
     opaque_registration_request,
-    username: register_user_info.username,
+    username: password_user_info.username,
     device_key_upload: Some(DeviceKeyUpload {
       device_key_info: Some(IdentityKeyInfo {
-        payload: register_user_info.key_payload,
-        payload_signature: register_user_info.key_payload_signature,
+        payload: password_user_info.key_payload,
+        payload_signature: password_user_info.key_payload_signature,
         social_proof: None,
       }),
       content_upload: Some(PreKey {
-        pre_key: register_user_info.content_prekey,
-        pre_key_signature: register_user_info.content_prekey_signature,
+        pre_key: password_user_info.content_prekey,
+        pre_key_signature: password_user_info.content_prekey_signature,
       }),
       notif_upload: Some(PreKey {
-        pre_key: register_user_info.notif_prekey,
-        pre_key_signature: register_user_info.notif_prekey_signature,
+        pre_key: password_user_info.notif_prekey,
+        pre_key_signature: password_user_info.notif_prekey_signature,
       }),
-      onetime_content_prekeys: register_user_info.content_onetime_keys,
-      onetime_notif_prekeys: register_user_info.notif_onetime_keys,
+      onetime_content_prekeys: password_user_info.content_onetime_keys,
+      onetime_notif_prekeys: password_user_info.notif_onetime_keys,
     }),
   };
 
@@ -241,7 +242,7 @@ async fn register_user_helper(
 
   let opaque_registration_upload = client_registration
     .finish(
-      &register_user_info.password,
+      &password_user_info.password,
       &registration_start_response.opaque_registration_response,
     )
     .map_err(handle_error)?;
@@ -262,32 +263,90 @@ async fn register_user_helper(
 }
 
 #[instrument]
-fn identity_login_user_pake_blocking(
-  client: Box<IdentityClient>,
+fn login_password_user(
   username: String,
   password: String,
   key_payload: String,
   key_payload_signature: String,
-  identity_prekey: String,
-  identity_prekey_signature: String,
+  content_prekey: String,
+  content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
-  identity_onetime_keys: Vec<String>,
+  content_onetime_keys: Vec<String>,
   notif_onetime_keys: Vec<String>,
-) -> Result<String, Status> {
-  RUNTIME.block_on(identity_client::login_user_pake(
-    client,
-    username,
-    password,
-    key_payload,
-    key_payload_signature,
-    identity_prekey,
-    identity_prekey_signature,
-    notif_prekey,
-    notif_prekey_signature,
-    identity_onetime_keys,
-    notif_onetime_keys,
-  ))
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let password_user_info = PasswordUserInfo {
+      username,
+      password,
+      key_payload,
+      key_payload_signature,
+      content_prekey,
+      content_prekey_signature,
+      notif_prekey,
+      notif_prekey_signature,
+      content_onetime_keys,
+      notif_onetime_keys,
+    };
+    let result = login_password_user_helper(password_user_info).await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn login_password_user_helper(
+  password_user_info: PasswordUserInfo,
+) -> Result<String, Error> {
+  let mut client_login = Login::new();
+  let opaque_login_request = client_login
+    .start(&password_user_info.password)
+    .map_err(handle_error)?;
+  let login_start_request = OpaqueLoginStartRequest {
+    opaque_login_request,
+    username: password_user_info.username,
+    device_key_upload: Some(DeviceKeyUpload {
+      device_key_info: Some(IdentityKeyInfo {
+        payload: password_user_info.key_payload,
+        payload_signature: password_user_info.key_payload_signature,
+        social_proof: None,
+      }),
+      content_upload: Some(PreKey {
+        pre_key: password_user_info.content_prekey,
+        pre_key_signature: password_user_info.content_prekey_signature,
+      }),
+      notif_upload: Some(PreKey {
+        pre_key: password_user_info.notif_prekey,
+        pre_key_signature: password_user_info.notif_prekey_signature,
+      }),
+      onetime_content_prekeys: password_user_info.content_onetime_keys,
+      onetime_notif_prekeys: password_user_info.notif_onetime_keys,
+    }),
+  };
+
+  let mut identity_client =
+    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let login_start_response = identity_client
+    .login_password_user_start(login_start_request)
+    .await?
+    .into_inner();
+
+  let opaque_login_upload = client_login
+    .finish(&login_start_response.opaque_login_response)
+    .map_err(handle_error)?;
+  let login_finish_request = OpaqueLoginFinishRequest {
+    session_id: login_start_response.session_id,
+    opaque_login_upload,
+  };
+
+  let login_finish_response = identity_client
+    .login_password_user_finish(login_finish_request)
+    .await?
+    .into_inner();
+  let user_id_and_access_token = UserIDAndDeviceAccessToken {
+    user_id: login_finish_response.user_id,
+    access_token: login_finish_response.access_token,
+  };
+  Ok(serde_json::to_string(&user_id_and_access_token)?)
 }
 
 #[instrument]
