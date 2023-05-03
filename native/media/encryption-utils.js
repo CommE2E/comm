@@ -396,4 +396,26 @@ async function decryptMedia(
   };
 }
 
-export { encryptMedia, decryptMedia };
+function encryptBase64(
+  base64: string,
+  keyBytes?: Uint8Array,
+): { +base64: string, +keyHex: string } {
+  const rawData = commUtilsModule.base64DecodeBuffer(base64);
+  const aesKey = keyBytes ?? AES.generateKey();
+  const encrypted = AES.encrypt(aesKey, new Uint8Array(rawData));
+  return {
+    base64: commUtilsModule.base64EncodeBuffer(encrypted.buffer),
+    keyHex: uintArrayToHexString(aesKey),
+  };
+}
+
+function decryptBase64(encrypted: string, keyHex: string): string {
+  const encryptedData = commUtilsModule.base64DecodeBuffer(encrypted);
+  const decryptedData = AES.decrypt(
+    hexToUintArray(keyHex),
+    new Uint8Array(encryptedData),
+  );
+  return commUtilsModule.base64EncodeBuffer(decryptedData.buffer);
+}
+
+export { encryptMedia, decryptMedia, encryptBase64, decryptBase64 };
