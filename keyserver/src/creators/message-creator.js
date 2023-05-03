@@ -157,9 +157,12 @@ async function createMessages(
         ? creationString(viewer, messageData.localID)
         : null;
 
-    const targetMessageID = messageData.targetMessageID
-      ? messageData.targetMessageID
-      : null;
+    let targetMessageID = null;
+    if (messageData.targetMessageID) {
+      targetMessageID = messageData.targetMessageID;
+    } else if (messageData.sourceMessage) {
+      targetMessageID = messageData.sourceMessage.id;
+    }
 
     messageInsertRows.push([
       serverID,
