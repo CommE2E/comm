@@ -16,11 +16,13 @@ type Source =
   | {
       +kind: 'uri',
       +uri: string,
+      +thumbHash?: ?string,
     }
   | {
       +kind: 'encrypted',
       +holder: string,
       +encryptionKey: string,
+      +thumbHash?: ?string,
     };
 type BaseProps = {
   +mediaInfo: MediaInfo | AvatarMediaInfo,
@@ -111,6 +113,7 @@ class Multimedia extends React.PureComponent<Props, State> {
     if (source.kind === 'encrypted') {
       return (
         <EncryptedImage
+          thumbHash={source.thumbHash}
           holder={source.holder}
           encryptionKey={source.encryptionKey}
           onLoad={this.onLoad}
@@ -121,12 +124,14 @@ class Multimedia extends React.PureComponent<Props, State> {
         />
       );
     }
-    const { uri } = source;
+    const { uri, thumbHash } = source;
+    const placeholder = thumbHash ? { thumbhash: thumbHash } : null;
     if (uri.startsWith('http')) {
       return (
         <RemoteImage
           uri={uri}
           onLoad={this.onLoad}
+          placeholder={placeholder}
           spinnerColor={this.props.spinnerColor}
           style={styles.image}
           invisibleLoad={invisibleLoad}
@@ -138,6 +143,7 @@ class Multimedia extends React.PureComponent<Props, State> {
         <Image
           source={{ uri }}
           onLoad={this.onLoad}
+          placeholder={placeholder}
           style={styles.image}
           key={uri}
         />
