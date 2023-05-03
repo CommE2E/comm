@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import Alert from 'react-native/Libraries/Alert/Alert.js';
+import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
@@ -121,11 +122,16 @@ function useUploadSelectedMedia(
   return React.useCallback(
     async (selection: NativeMediaSelection) => {
       setProcessingOrUploadInProgress(true);
+      const urisToBeDisposed: Set<string> = new Set([selection.uri]);
 
       let processedMedia;
       try {
         processedMedia = await processSelectedMedia(selection);
+        if (processedMedia.uploadURI) {
+          urisToBeDisposed.add(processedMedia.uploadURI);
+        }
       } catch (e) {
+        urisToBeDisposed.forEach(filesystem.unlink);
         Alert.alert(
           'Media processing failed',
           'Unable to process selected media.',
@@ -135,6 +141,7 @@ function useUploadSelectedMedia(
       }
 
       if (!processedMedia.success) {
+        urisToBeDisposed.forEach(filesystem.unlink);
         Alert.alert(
           'Media processing failed',
           'Unable to process selected media.',
@@ -146,7 +153,10 @@ function useUploadSelectedMedia(
       let uploadedMedia: UploadMultimediaResult;
       try {
         uploadedMedia = await uploadProcessedMedia(processedMedia);
+        console.log(urisToBeDisposed);
+        urisToBeDisposed.forEach(filesystem.unlink);
       } catch {
+        urisToBeDisposed.forEach(filesystem.unlink);
         Alert.alert(
           'Media upload failed',
           'Unable to upload selected media. Please try again.',
