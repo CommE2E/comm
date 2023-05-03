@@ -23,6 +23,7 @@ public:
   virtual jsi::Value writeBufferToFile(jsi::Runtime &rt, jsi::String path, jsi::Object data) = 0;
   virtual jsi::Value readBufferFromFile(jsi::Runtime &rt, jsi::String path) = 0;
   virtual jsi::String base64EncodeBuffer(jsi::Runtime &rt, jsi::Object data) = 0;
+  virtual jsi::Object base64DecodeBuffer(jsi::Runtime &rt, jsi::String base64) = 0;
   virtual jsi::String sha256(jsi::Runtime &rt, jsi::Object data) = 0;
 
 };
@@ -68,6 +69,14 @@ private:
 
       return bridging::callFromJs<jsi::String>(
           rt, &T::base64EncodeBuffer, jsInvoker_, instance_, std::move(data));
+    }
+    jsi::Object base64DecodeBuffer(jsi::Runtime &rt, jsi::String base64) override {
+      static_assert(
+          bridging::getParameterCount(&T::base64DecodeBuffer) == 2,
+          "Expected base64DecodeBuffer(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Object>(
+          rt, &T::base64DecodeBuffer, jsInvoker_, instance_, std::move(base64));
     }
     jsi::String sha256(jsi::Runtime &rt, jsi::Object data) override {
       static_assert(

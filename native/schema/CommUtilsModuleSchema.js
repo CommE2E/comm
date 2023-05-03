@@ -12,6 +12,7 @@ interface Spec extends TurboModule {
   +writeBufferToFile: (path: string, data: JSIArrayBuffer) => Promise<void>;
   +readBufferFromFile: (path: string) => Promise<JSIArrayBuffer>;
   +base64EncodeBuffer: (data: JSIArrayBuffer) => string;
+  +base64DecodeBuffer: (base64: string) => JSIArrayBuffer;
   // crypto utils
   +sha256: (data: JSIArrayBuffer) => string;
 }
@@ -21,6 +22,7 @@ export interface UtilsModuleSpec {
   +writeBufferToFile: (path: string, data: ArrayBuffer) => Promise<void>;
   +readBufferFromFile: (path: string) => Promise<ArrayBuffer>;
   +base64EncodeBuffer: (data: ArrayBuffer) => string;
+  +base64DecodeBuffer: (base64: string) => ArrayBuffer;
   +sha256: (data: ArrayBuffer) => string;
 }
 
