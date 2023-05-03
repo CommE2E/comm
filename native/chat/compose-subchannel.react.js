@@ -69,8 +69,7 @@ function ComposeSubchannel(props: Props): React.Node {
   const tagInputRef = React.useRef();
   const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
     setUsernameInputText('');
-    invariant(tagInputRef.current, 'tagInput should be set');
-    tagInputRef.current.focus();
+    tagInputRef.current?.focus();
   }, []);
 
   const waitingOnThreadIDRef = React.useRef<?string>();
