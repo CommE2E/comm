@@ -8,6 +8,7 @@ import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 import type { ImageStyle } from '../types/styles.js';
 
 type Props = {
+  +placeholder: ?ImageSource,
   +source: ?ImageSource,
   +onLoad: () => void,
   +spinnerColor: string,
@@ -15,7 +16,7 @@ type Props = {
   +invisibleLoad: boolean,
 };
 function LoadableImage(props: Props): React.Node {
-  const { source, onLoad: onLoadProp } = props;
+  const { source, placeholder, onLoad: onLoadProp } = props;
 
   const [loaded, setLoaded] = React.useState(false);
 
@@ -30,7 +31,14 @@ function LoadableImage(props: Props): React.Node {
   );
 
   if (!loaded && props.invisibleLoad) {
-    return <Image source={source} onLoad={onLoad} style={invisibleStyle} />;
+    return (
+      <Image
+        source={source}
+        placeholder={placeholder}
+        onLoad={onLoad}
+        style={invisibleStyle}
+      />
+    );
   }
 
   let spinner;
@@ -44,8 +52,13 @@ function LoadableImage(props: Props): React.Node {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={source}
+        placeholder={placeholder}
+        onLoad={onLoad}
+        style={props.style}
+      />
       {spinner}
-      <Image source={source} onLoad={onLoad} style={props.style} />
     </View>
   );
 }

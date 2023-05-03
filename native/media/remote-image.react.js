@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 
 import { type ConnectionStatus } from 'lib/types/socket-types.js';
 
@@ -14,6 +15,7 @@ type BaseProps = {
   +spinnerColor: string,
   +style: ImageStyle,
   +invisibleLoad: boolean,
+  +placeholder?: ?ImageSource,
 };
 type Props = {
   ...BaseProps,
@@ -41,12 +43,13 @@ class RemoteImage extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { style, spinnerColor, invisibleLoad, uri } = this.props;
+    const { style, spinnerColor, invisibleLoad, uri, placeholder } = this.props;
     const source = { uri };
 
     return (
       <LoadableImage
         source={source}
+        placeholder={placeholder}
         onLoad={this.onLoad}
         spinnerColor={spinnerColor}
         style={style}
