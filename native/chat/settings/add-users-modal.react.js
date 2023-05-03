@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
 
@@ -62,8 +61,7 @@ function AddUsersModal(props: Props): React.Node {
   const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
     setUsernameInputText('');
     setUserInfoInputArray([]);
-    invariant(tagInputRef.current, 'tagInput should be set');
-    tagInputRef.current.focus();
+    tagInputRef.current?.focus();
   }, []);
 
   const { navigation } = props;

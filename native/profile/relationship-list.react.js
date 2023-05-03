@@ -205,8 +205,7 @@ function RelationshipList(props: Props): React.Node {
   const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
     setCurrentTags([]);
     setSearchInputText('');
-    invariant(tagInputRef.current, 'tagInput should be set');
-    tagInputRef.current.focus();
+    tagInputRef.current?.focus();
   }, []);
 
   const callUpdateRelationships = useServerCall(updateRelationships);
