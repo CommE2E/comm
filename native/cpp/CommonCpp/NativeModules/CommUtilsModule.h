@@ -29,6 +29,8 @@ class CommUtilsModule
   readBufferFromFile(jsi::Runtime &rt, jsi::String path) override;
   virtual jsi::String
   base64EncodeBuffer(jsi::Runtime &rt, jsi::Object data) override;
+  virtual jsi::Object
+  base64DecodeBuffer(jsi::Runtime &rt, jsi::String base64) override;
   virtual jsi::String sha256(jsi::Runtime &rt, jsi::Object data) override;
 
 public:
