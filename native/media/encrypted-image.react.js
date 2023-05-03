@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 
-import { decryptMedia } from './encryption-utils.js';
+import { decryptBase64, decryptMedia } from './encryption-utils.js';
 import LoadableImage from './loadable-image.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ImageStyle } from '../types/styles.js';
@@ -16,13 +16,14 @@ type BaseProps = {
   +spinnerColor: string,
   +style: ImageStyle,
   +invisibleLoad: boolean,
+  +thumbHash?: ?string,
 };
 type Props = {
   ...BaseProps,
 };
 
 function EncryptedImage(props: Props): React.Node {
-  const { holder, encryptionKey, onLoad: onLoadProp } = props;
+  const { holder, encryptionKey, onLoad: onLoadProp, thumbHash } = props;
 
   const mediaCache = React.useContext(MediaCacheContext);
   const [source, setSource] = React.useState(null);
@@ -37,6 +38,18 @@ function EncryptedImage(props: Props): React.Node {
     }
     prevConnectionStatusRef.current = connectionStatus;
   }
+
+  const placeholder = React.useMemo(() => {
+    if (!thumbHash) {
+      return null;
+    }
+    try {
+      const thumbhash = decryptBase64(thumbHash, encryptionKey);
+      return { thumbhash };
+    } catch (e) {
+      return null;
+    }
+  }, [thumbHash, encryptionKey]);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -74,6 +87,7 @@ function EncryptedImage(props: Props): React.Node {
 
   return (
     <LoadableImage
+      placeholder={placeholder}
       source={source}
       onLoad={onLoad}
       spinnerColor={spinnerColor}
