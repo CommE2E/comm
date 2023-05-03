@@ -113,6 +113,23 @@ CommUtilsModule::base64EncodeBuffer(jsi::Runtime &rt, jsi::Object data) {
   return jsi::String::createFromUtf8(rt, base64);
 }
 
+jsi::Object
+CommUtilsModule::base64DecodeBuffer(jsi::Runtime &rt, jsi::String base64) {
+  auto bytes = Base64::decode(base64.utf8(rt));
+  auto size = bytes.size();
+
+  auto arrayBuffer =
+      rt.global()
+          .getPropertyAsFunction(rt, "ArrayBuffer")
+          // ArrayBuffer constructor takes one parameter: byte length
+          .callAsConstructor(rt, {static_cast<double>(size)})
+          .asObject(rt)
+          .getArrayBuffer(rt);
+
+  memcpy(arrayBuffer.data(rt), bytes.data(), size);
+  return arrayBuffer;
+}
+
 jsi::String CommUtilsModule::sha256(jsi::Runtime &rt, jsi::Object data) {
   auto arrayBuffer = data.getArrayBuffer(rt);
   auto inputPtr = arrayBuffer.data(rt);
