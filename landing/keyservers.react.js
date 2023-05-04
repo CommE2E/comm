@@ -8,7 +8,6 @@ import { useIsomorphicLayoutEffect } from 'lib/hooks/isomorphic-layout-effect.re
 import { assetsCacheURLPrefix } from './asset-meta-data.js';
 import css from './keyservers.css';
 import ReadDocsButton from './read-docs-btn.react.js';
-import StarBackground from './star-background.react.js';
 
 function Keyservers(): React.Node {
   React.useEffect(() => {
@@ -67,78 +66,73 @@ function Keyservers(): React.Node {
   }, [cloudNode, onCloudIllustrationLoad]);
 
   return (
-    <div>
-      <StarBackground />
-      <div className={css.body_grid}>
-        <div className={`${css.hero_image} ${css.starting_section}`}>
-          <lottie-player
-            id="eye-illustration"
-            ref={setEyeNode}
-            mode="normal"
-            src={`${assetsCacheURLPrefix}/animated_eye.json`}
-            speed={1}
-          />
-        </div>
-        <div className={`${css.hero_copy} ${css.section}`}>
-          <h1 className={css.mono}>
-            Reclaim your
-            <span className={css.purple_accent}> digital&nbsp;identity.</span>
-          </h1>
-          <p>
-            The Internet is broken today. Private user data is owned by
-            mega-corporations and farmed for their benefit.
-          </p>
-          <p>
-            E2E encryption has the potential to change this equation. But
-            it&rsquo;s constrained by a crucial limitation.
-          </p>
-        </div>
+    <div className={css.body_grid}>
+      <div className={`${css.hero_image} ${css.starting_section}`}>
+        <lottie-player
+          id="eye-illustration"
+          ref={setEyeNode}
+          mode="normal"
+          src={`${assetsCacheURLPrefix}/animated_eye.json`}
+          speed={1}
+        />
+      </div>
+      <div className={`${css.hero_copy} ${css.section}`}>
+        <h1 className={css.mono}>
+          Reclaim your
+          <span className={css.purple_accent}> digital&nbsp;identity.</span>
+        </h1>
+        <p>
+          The Internet is broken today. Private user data is owned by
+          mega-corporations and farmed for their benefit.
+        </p>
+        <p>
+          E2E encryption has the potential to change this equation. But
+          it&rsquo;s constrained by a crucial limitation.
+        </p>
+      </div>
 
-        <div className={`${css.server_image} ${css.starting_section}`}>
-          <lottie-player
-            id="cloud-illustration"
-            ref={setCloudNode}
-            mode="normal"
-            src={`${assetsCacheURLPrefix}/animated_cloud.json`}
-            speed={1}
-          />
-        </div>
-        <div className={`${css.server_copy} ${css.section}`}>
-          <h1 className={css.mono}>Apps need servers.</h1>
-          <p>
-            Sophisticated applications rely on servers to do things that your
-            devices simply can&rsquo;t.
-          </p>
-          <p>
-            That&rsquo;s why E2E encryption only works for simple chat apps
-            today. There&rsquo;s no way to build a robust server layer that has
-            access to your data without leaking that data to corporations.
-          </p>
-        </div>
+      <div className={`${css.server_image} ${css.starting_section}`}>
+        <lottie-player
+          id="cloud-illustration"
+          ref={setCloudNode}
+          mode="normal"
+          src={`${assetsCacheURLPrefix}/animated_cloud.json`}
+          speed={1}
+        />
+      </div>
+      <div className={`${css.server_copy} ${css.section}`}>
+        <h1 className={css.mono}>Apps need servers.</h1>
+        <p>
+          Sophisticated applications rely on servers to do things that your
+          devices simply can&rsquo;t.
+        </p>
+        <p>
+          That&rsquo;s why E2E encryption only works for simple chat apps today.
+          There&rsquo;s no way to build a robust server layer that has access to
+          your data without leaking that data to corporations.
+        </p>
+      </div>
 
-        <div className={css.keyserver_company}>
-          <h1>
-            Comm
-            <span className={css.mono}>
-              {' '}
-              is the <span className={css.purple_accent}>keyserver</span>{' '}
-              company.
-            </span>
-          </h1>
-        </div>
+      <div className={css.keyserver_company}>
+        <h1>
+          Comm
+          <span className={css.mono}>
+            {' '}
+            is the <span className={css.purple_accent}>keyserver</span> company.
+          </span>
+        </h1>
+      </div>
 
-        <div className={css.keyserver_copy}>
-          <p>In the future, people have their own servers.</p>
-          <p>
-            Your keyserver is the home of your digital identity. It owns your
-            private keys and your personal data. It&rsquo;s your password
-            manager, your crypto bank, your digital surrogate, and your second
-            brain.
-          </p>
-        </div>
-        <div className={css.read_the_docs}>
-          <ReadDocsButton />
-        </div>
+      <div className={css.keyserver_copy}>
+        <p>In the future, people have their own servers.</p>
+        <p>
+          Your keyserver is the home of your digital identity. It owns your
+          private keys and your personal data. It&rsquo;s your password manager,
+          your crypto bank, your digital surrogate, and your second brain.
+        </p>
+      </div>
+      <div className={css.read_the_docs}>
+        <ReadDocsButton />
       </div>
     </div>
   );
