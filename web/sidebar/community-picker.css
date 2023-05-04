@@ -20,10 +20,11 @@
 }
 
 .footer {
+  display: flex;
+  flex-direction: column;
   border-top: 1px solid var(--community-drawer-lines);
   padding: 12px 0 12px 0;
   align-items: center;
-  display: flex;
   margin-right: 16px;
 }
 
@@ -48,6 +49,16 @@
 .itemContainer svg {
   color: var(--fg);
   padding: 0;
+}
+
+.plusIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--community-creation-btn-bg);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 
 .settingsIcon {
