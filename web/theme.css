@@ -88,6 +88,7 @@
   --community-settings-selected: var(--violet-dark-60);
   --unread-bg: var(--error-primary);
   --settings-btn-bg: var(--violet-dark-100);
+  --community-creation-btn-bg: var(--shades-black-80);
   --modal-bg: var(--shades-black-90);
   --modal-fg: var(--shades-white-60);
   --join-bg: var(--shades-black-90);

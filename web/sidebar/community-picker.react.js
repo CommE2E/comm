@@ -62,6 +62,20 @@ function CommunityPicker(): React.Node {
     [css.sideLineActive]: isSettingsOpen,
   });
 
+  const isCommunityCreationButtonEnabled = false;
+  let communityCreationButton;
+  if (isCommunityCreationButtonEnabled) {
+    communityCreationButton = (
+      <a className={css.itemContainer}>
+        <div className={css.sideLine} />
+        <div className={css.plusIcon}>
+          <SWMansionIcon icon="plus-small" size={26} />
+        </div>
+        <div className={css.buttonTitle}>Create community</div>
+      </a>
+    );
+  }
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -76,6 +90,7 @@ function CommunityPicker(): React.Node {
       </div>
       <div className={css.spacer} />
       <div className={css.footer}>
+        {communityCreationButton}
         <a className={css.itemContainer} onClick={openAccountSettings}>
           <div className={sideLineSettings} />
           <div className={css.settingsIcon} onClick={openAccountSettings}>
