@@ -10,7 +10,7 @@ use tonic::transport::Server;
 use tonic::Status;
 use tracing::debug;
 
-use crate::{constants, ACTIVE_CONNECTIONS};
+use crate::{constants, ACTIVE_CONNECTIONS, CONFIG};
 
 #[derive(Debug, Default)]
 struct TunnelbrokerGRPC {}
@@ -36,7 +36,7 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
 }
 
 pub async fn run_server() -> Result<(), tonic::transport::Error> {
-  let addr = format!("[::1]:{}", constants::GRPC_SERVER_PORT)
+  let addr = format!("[::1]:{}", CONFIG.grpc_port)
     .parse()
     .expect("Unable to parse gRPC address");
 
