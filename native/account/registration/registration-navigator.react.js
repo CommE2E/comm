@@ -8,10 +8,12 @@ import {
 import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
   KeyserverSelectionRouteName,
+  CoolOrNerdModeSelectionRouteName,
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
@@ -49,6 +51,10 @@ function RegistrationNavigator(props: Props): React.Node {
   return (
     <SafeAreaView style={styles.container} edges={safeAreaEdges}>
       <Registration.Navigator screenOptions={screenOptions}>
+        <Registration.Screen
+          name={CoolOrNerdModeSelectionRouteName}
+          component={CoolOrNerdModeSelection}
+        />
         <Registration.Screen
           name={KeyserverSelectionRouteName}
           component={KeyserverSelection}

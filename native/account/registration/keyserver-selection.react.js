@@ -10,11 +10,18 @@ import {
   RegistrationTile,
   RegistrationTileHeader,
 } from './registration-tile.react.js';
+import type { CoolOrNerdMode } from './registration-types.js';
 import CommIcon from '../../components/comm-icon.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 
 type Selection = 'ashoat' | 'custom';
+
+export type KeyserverSelectionParams = {
+  +userSelections: {
+    +coolOrNerdMode: CoolOrNerdMode,
+  },
+};
 
 type Props = {
   +navigation: RegistrationNavigationProp<'KeyserverSelection'>,
