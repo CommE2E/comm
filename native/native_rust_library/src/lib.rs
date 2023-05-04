@@ -20,7 +20,7 @@ use identity::identity_client_service_client::IdentityClientServiceClient;
 use identity::{
   DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginFinishRequest,
   OpaqueLoginStartRequest, PreKey, RegistrationFinishRequest,
-  RegistrationStartRequest,
+  RegistrationStartRequest, WalletLoginRequest,
 };
 
 lazy_static! {
@@ -80,20 +80,21 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "identityLoginUserWalletBlocking"]
-    fn identity_login_user_wallet_blocking(
-      client: Box<IdentityClient>,
+    #[cxx_name = "identityLoginWalletUser"]
+    fn login_wallet_user(
       siwe_message: String,
       siwe_signature: String,
       key_payload: String,
       key_payload_signature: String,
-      identity_prekey: String,
-      identity_prekey_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
       notif_prekey: String,
       notif_prekey_signature: String,
-      identity_onetime_keys: Vec<String>,
+      content_onetime_keys: Vec<String>,
       notif_onetime_keys: Vec<String>,
-    ) -> Result<String>;
+      social_proof: String,
+      promise_id: u32,
+    );
 
     #[cxx_name = "identityGenerateNonce"]
     fn generate_nonce(promise_id: u32);
@@ -349,33 +350,91 @@ async fn login_password_user_helper(
   Ok(serde_json::to_string(&user_id_and_access_token)?)
 }
 
-#[instrument]
-fn identity_login_user_wallet_blocking(
-  client: Box<IdentityClient>,
+struct WalletUserInfo {
   siwe_message: String,
   siwe_signature: String,
   key_payload: String,
   key_payload_signature: String,
-  identity_prekey: String,
-  identity_prekey_signature: String,
+  content_prekey: String,
+  content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
-  identity_onetime_keys: Vec<String>,
+  content_onetime_keys: Vec<String>,
   notif_onetime_keys: Vec<String>,
-) -> Result<String, Status> {
-  RUNTIME.block_on(identity_client::login_user_wallet(
-    client,
-    siwe_message,
-    siwe_signature,
-    key_payload,
-    key_payload_signature,
-    identity_prekey,
-    identity_prekey_signature,
-    notif_prekey,
-    notif_prekey_signature,
-    identity_onetime_keys,
-    notif_onetime_keys,
-  ))
+  social_proof: String,
+}
+
+#[instrument]
+fn login_wallet_user(
+  siwe_message: String,
+  siwe_signature: String,
+  key_payload: String,
+  key_payload_signature: String,
+  content_prekey: String,
+  content_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  content_onetime_keys: Vec<String>,
+  notif_onetime_keys: Vec<String>,
+  social_proof: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let wallet_user_info = WalletUserInfo {
+      siwe_message,
+      siwe_signature,
+      key_payload,
+      key_payload_signature,
+      content_prekey,
+      content_prekey_signature,
+      notif_prekey,
+      notif_prekey_signature,
+      content_onetime_keys,
+      notif_onetime_keys,
+      social_proof,
+    };
+    let result = login_wallet_user_helper(wallet_user_info).await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn login_wallet_user_helper(
+  wallet_user_info: WalletUserInfo,
+) -> Result<String, Error> {
+  let login_request = WalletLoginRequest {
+    siwe_message: wallet_user_info.siwe_message,
+    siwe_signature: wallet_user_info.siwe_signature,
+    device_key_upload: Some(DeviceKeyUpload {
+      device_key_info: Some(IdentityKeyInfo {
+        payload: wallet_user_info.key_payload,
+        payload_signature: wallet_user_info.key_payload_signature,
+        social_proof: Some(wallet_user_info.social_proof),
+      }),
+      content_upload: Some(PreKey {
+        pre_key: wallet_user_info.content_prekey,
+        pre_key_signature: wallet_user_info.content_prekey_signature,
+      }),
+      notif_upload: Some(PreKey {
+        pre_key: wallet_user_info.notif_prekey,
+        pre_key_signature: wallet_user_info.notif_prekey_signature,
+      }),
+      onetime_content_prekeys: wallet_user_info.content_onetime_keys,
+      onetime_notif_prekeys: wallet_user_info.notif_onetime_keys,
+    }),
+  };
+
+  let mut identity_client =
+    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let login_response = identity_client
+    .login_wallet_user(login_request)
+    .await?
+    .into_inner();
+
+  let user_id_and_access_token = UserIDAndDeviceAccessToken {
+    user_id: login_response.user_id,
+    access_token: login_response.access_token,
+  };
+  Ok(serde_json::to_string(&user_id_and_access_token)?)
 }
 
 #[derive(
