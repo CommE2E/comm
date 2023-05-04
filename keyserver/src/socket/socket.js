@@ -144,7 +144,7 @@ const clientSocketMessageInputValidator = t.union([
     id: t.Number,
     payload: tShape({
       endpoint: t.String,
-      input: t.Object,
+      input: t.maybe(t.Object),
     }),
   }),
 ]);
