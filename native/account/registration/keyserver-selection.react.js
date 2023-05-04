@@ -107,7 +107,11 @@ function KeyserverSelection(props: Props): React.Node {
           />
         </RegistrationTile>
       </RegistrationContainer>
-      <RegistrationButton onPress={onSubmit} label="Next" state={buttonState} />
+      <RegistrationButton
+        onPress={onSubmit}
+        label="Next"
+        variant={buttonState}
+      />
     </View>
   );
 }

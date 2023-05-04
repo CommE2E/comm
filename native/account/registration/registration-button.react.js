@@ -9,32 +9,32 @@ import { useStyles } from '../../themes/colors.js';
 type Props = {
   +onPress: () => mixed,
   +label: string,
-  +state?: 'enabled' | 'disabled' | 'loading',
+  +variant?: 'enabled' | 'disabled' | 'loading',
 };
 function RegistrationButton(props: Props): React.Node {
-  const { onPress, label, state } = props;
+  const { onPress, label, variant } = props;
 
   const styles = useStyles(unboundStyles);
   const buttonStyle = React.useMemo(() => {
-    if (state === 'disabled' || state === 'loading') {
+    if (variant === 'disabled' || variant === 'loading') {
       return [styles.button, styles.disabledButton];
     } else {
       return styles.button;
     }
-  }, [state, styles.button, styles.disabledButton]);
+  }, [variant, styles.button, styles.disabledButton]);
   const buttonTextStyle = React.useMemo(() => {
-    if (state === 'disabled') {
+    if (variant === 'disabled') {
       return [styles.buttonText, styles.disabledButtonText];
     }
     return styles.buttonText;
-  }, [state, styles.buttonText, styles.disabledButtonText]);
+  }, [variant, styles.buttonText, styles.disabledButtonText]);
 
   return (
     <Button
       onPress={onPress}
       iosActiveOpacity={0.6}
       style={buttonStyle}
-      disabled={state === 'disabled' || state === 'loading'}
+      disabled={variant === 'disabled' || variant === 'loading'}
     >
       <Text style={buttonTextStyle}>{label}</Text>
     </Button>
