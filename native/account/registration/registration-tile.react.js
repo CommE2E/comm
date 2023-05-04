@@ -20,22 +20,6 @@ type TileProps = {
 function RegistrationTile(props: TileProps): React.Node {
   const { children, selected, onSelect } = props;
 
-  const [body, header] = React.useMemo(() => {
-    let registrationBody = children;
-    let registrationHeader;
-    if (Array.isArray(children)) {
-      registrationBody = [];
-      for (const child of children) {
-        if (child.type.name === RegistrationTileHeader.name) {
-          registrationHeader = React.cloneElement(child);
-        } else {
-          registrationBody.push(child);
-        }
-      }
-    }
-    return [registrationBody, registrationHeader];
-  }, [children]);
-
   const registrationTileContext = React.useMemo(
     () => ({ selected }),
     [selected],
@@ -54,8 +38,7 @@ function RegistrationTile(props: TileProps): React.Node {
         activeOpacity={0.6}
         style={tileStyle}
       >
-        {header}
-        {body}
+        {children}
       </TouchableOpacity>
     </RegistrationTileContext.Provider>
   );
