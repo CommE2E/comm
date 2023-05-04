@@ -86,6 +86,24 @@ resource "aws_dynamodb_table" "blob-service-reverse-index" {
   }
 }
 
+resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
+  name           = "tunnelbroker-undelivered-messages"
+  hash_key       = "deviceID"
+  range_key      = "createdAt"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "deviceID"
+    type = "S"
+  }
+
+  attribute {
+    name = "createdAt"
+    type = "N"
+  }
+}
+
 resource "aws_dynamodb_table" "identity-users" {
   name           = "identity-users"
   hash_key       = "userID"
