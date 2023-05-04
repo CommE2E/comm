@@ -84,7 +84,11 @@ function CoolOrNerdModeSelection(props: Props): React.Node {
           </Text>
         </RegistrationTile>
       </RegistrationContainer>
-      <RegistrationButton onPress={onSubmit} label="Next" state={buttonState} />
+      <RegistrationButton
+        onPress={onSubmit}
+        label="Next"
+        variant={buttonState}
+      />
     </View>
   );
 }
