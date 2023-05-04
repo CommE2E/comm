@@ -65,11 +65,10 @@ function CommunityPicker(): React.Node {
     [css.sideLineActive]: isSettingsOpen,
   });
 
+  const isCommunityCreationButtonEnabled = true;
   const onPressCommunityCreationButton = React.useCallback(() => {
     modalContext.pushModal(<CommunityCreationModal />);
   }, [modalContext]);
-
-  const isCommunityCreationButtonEnabled = false;
   let communityCreationButton;
   if (isCommunityCreationButtonEnabled) {
     communityCreationButton = (
