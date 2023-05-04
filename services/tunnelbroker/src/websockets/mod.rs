@@ -1,3 +1,4 @@
+use crate::CONFIG;
 use futures::future;
 use futures_util::stream::SplitSink;
 use futures_util::SinkExt;
@@ -15,7 +16,7 @@ use crate::ACTIVE_CONNECTIONS;
 
 pub async fn run_server() -> Result<(), Error> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
-    .unwrap_or_else(|_| "127.0.0.1:51001".to_string());
+    .unwrap_or_else(|_| format!("127.0.0.1:{}", &CONFIG.http_port));
 
   let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
   info!("Listening on: {}", addr);
