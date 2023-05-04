@@ -90,6 +90,18 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
       jsi::Array notifOneTimeKeys) override;
+  virtual jsi::Value loginWalletUser(
+      jsi::Runtime &rt,
+      jsi::String siweMessage,
+      jsi::String siweSignature,
+      jsi::String keyPayload,
+      jsi::String keyPayloadSignature,
+      jsi::String contentPrekey,
+      jsi::String contentPrekeySignature,
+      jsi::String notifPrekey,
+      jsi::String notifPrekeySignature,
+      jsi::Array contentOneTimeKeys,
+      jsi::Array notifOneTimeKeys) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
