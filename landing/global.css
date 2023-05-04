@@ -9,6 +9,34 @@
   --logo-color: var(--white);
   --sub-heading-color: var(--purple);
   --sans-serif: 'IBM Plex Sans', sans-serif;
+  --white-100: #ffffff;
+  --white-90: #f5f5f5;
+  --white-80: #ebebeb;
+  --white-70: #e0e0e0;
+  --white-60: #cccccc;
+  --black-100: #0a0a0a;
+  --black-90: #1f1f1f;
+  --black-80: #404040;
+  --black-70: #666666;
+  --black-60: #808080;
+  --violet-dark-100: #7e57c2;
+  --violet-dark-80: #6d49ab;
+  --violet-dark-60: #563894;
+  --violet-dark-40: #44297a;
+  --violet-dark-40: #331f5c;
+  --success-light-10: #d5f6e3;
+  --success-light-50: #6cdf9c;
+  --success-primary: #00c853;
+  --success-dark-50: #029841;
+  --success-dark-90: #034920;
+  --error-light-10: #feebe6;
+  --error-light-50: #f9947b;
+  --error-primary: #f53100;
+  --error-dark-50: #b62602;
+  --error-dark-90: #4f1203;
+  --page-background: #111111;
+  --light-dark-page-background: #1a1a1a;
+  --comparison-cards: #18181a;
 }
 
 /* ===== GENERAL PAGE STYLES ===== */
