@@ -53,6 +53,7 @@ public:
   virtual jsi::Value generateNonce(jsi::Runtime &rt) = 0;
   virtual jsi::Value registerUser(jsi::Runtime &rt, jsi::String username, jsi::String password, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
   virtual jsi::Value loginPasswordUser(jsi::Runtime &rt, jsi::String username, jsi::String password, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
+  virtual jsi::Value loginWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String socialProof) = 0;
 
 };
 
@@ -337,6 +338,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::loginPasswordUser, jsInvoker_, instance_, std::move(username), std::move(password), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys));
+    }
+    jsi::Value loginWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String socialProof) override {
+      static_assert(
+          bridging::getParameterCount(&T::loginWalletUser) == 12,
+          "Expected loginWalletUser(...) to have 12 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::loginWalletUser, jsInvoker_, instance_, std::move(siweMessage), std::move(siweSignature), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys), std::move(socialProof));
     }
 
   private:
