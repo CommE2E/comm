@@ -50,7 +50,7 @@ async function validateInput<T>(
 }
 
 function validateOutput<T>(
-  viewer: Viewer,
+  viewer: ?Viewer,
   outputValidator: TType<T>,
   data: T,
 ): T {
@@ -63,8 +63,8 @@ function validateOutput<T>(
   }
 
   if (
-    hasMinCodeVersion(viewer.platformDetails, 1000) &&
-    !isWebPlatform(viewer.platformDetails?.platform) &&
+    hasMinCodeVersion(viewer?.platformDetails, 1000) &&
+    !isWebPlatform(viewer?.platformDetails?.platform) &&
     convertToNewIDSchema
   ) {
     return convertServerIDsToClientIDs(
