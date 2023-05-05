@@ -37,6 +37,7 @@ import {
   clientSocketMessageTypes,
   stateSyncPayloadTypes,
   serverSocketMessageTypes,
+  serverServerSocketMessageValidator,
 } from 'lib/types/socket-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -86,6 +87,7 @@ import {
   checkInputValidator,
   checkClientSupported,
   policiesValidator,
+  validateOutput,
 } from '../utils/validation-utils.js';
 
 const clientSocketMessageInputValidator = t.union([
@@ -375,7 +377,18 @@ class Socket {
       "shouldn't send message until connection established",
     );
     if (this.ws.readyState === 1) {
-      this.ws.send(JSON.stringify(message));
+      const { viewer } = this;
+      if (viewer) {
+        const validatedMessage = validateOutput(
+          viewer,
+          serverServerSocketMessageValidator,
+          message,
+        );
+
+        this.ws.send(JSON.stringify(validatedMessage));
+      } else {
+        this.ws.send(JSON.stringify(message));
+      }
     }
   };
 
