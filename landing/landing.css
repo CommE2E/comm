@@ -11,11 +11,7 @@
 }
 
 .innerContainer {
-  background-image: radial-gradient(
-    circle at top left,
-    #2d008888 0%,
-    #ffffff00 50%
-  );
+  background-color: var(--page-background);
   margin: 0;
   padding: 0;
   height: 100%;
