@@ -39,6 +39,7 @@ import FullScreenThreadMediaGallery from './fullscreen-thread-media-gallery.reac
 import HomeChatThreadList from './home-chat-thread-list.react.js';
 import MessageListContainer from './message-list-container.react.js';
 import MessageListHeaderTitle from './message-list-header-title.react.js';
+import MessageResultsScreen from './message-results-screen.react.js';
 import MessageStorePruner from './message-store-pruner.react.js';
 import DeleteThread from './settings/delete-thread.react.js';
 import EmojiThreadAvatarCreation from './settings/emoji-thread-avatar-creation.react.js';
@@ -59,6 +60,7 @@ import {
   ThreadSettingsRouteName,
   EmojiThreadAvatarCreationRouteName,
   FullScreenThreadMediaGalleryRouteName,
+  MessageResultsScreenRouteName,
   MessageListRouteName,
   ChatThreadListRouteName,
   HomeChatThreadListRouteName,
@@ -266,6 +268,10 @@ const deleteThreadOptions = {
   headerTitle: 'Delete chat',
   headerBackTitleVisible: false,
 };
+const messageResultsScreenOptions = {
+  headerTitle: 'Pinned Messages',
+  headerBackTitleVisible: false,
+};
 
 export type ChatNavigationProp<
   RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
@@ -373,6 +379,11 @@ export default function ChatComponent(props: Props): React.Node {
             name={DeleteThreadRouteName}
             component={DeleteThread}
             options={deleteThreadOptions}
+          />
+          <Chat.Screen
+            name={MessageResultsScreenRouteName}
+            component={MessageResultsScreen}
+            options={messageResultsScreenOptions}
           />
         </Chat.Navigator>
         <MessageStorePruner />
