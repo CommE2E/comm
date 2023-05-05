@@ -41,7 +41,9 @@ import {
   TermsAndPrivacyRouteName,
   RegistrationRouteName,
   InviteLinkModalRouteName,
+  ViewInviteLinksModalRouteName,
 } from './route-names.js';
+import ViewInviteLinksModal from './view-invite-links-modal.react.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
@@ -208,6 +210,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={InviteLinkModalRouteName}
         component={InviteLinkModal}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={ViewInviteLinksModalRouteName}
+        component={ViewInviteLinksModal}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen
