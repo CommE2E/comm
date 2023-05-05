@@ -1,8 +1,12 @@
 // @flow
 
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { InviteLink } from 'lib/types/link-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -11,6 +15,7 @@ import SubchannelsButton from './subchannels-button.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
 import { SingleLine } from '../components/single-line.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
@@ -20,14 +25,25 @@ export type DrawerItemProps = {
   +toggleExpanded: (threadID: string) => void,
   +expanded: boolean,
   +navigateToThread: (params: MessageListParams) => void,
+  +navigateToInviteLinksView: (
+    community: ThreadInfo,
+    inviteLink: InviteLink,
+  ) => void,
 };
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const {
-    itemData: { threadInfo, itemChildren, labelStyle, hasSubchannelsButton },
+    itemData: {
+      threadInfo,
+      itemChildren,
+      labelStyle,
+      hasSubchannelsButton,
+      inviteLink,
+    },
     navigateToThread,
     expanded,
     toggleExpanded,
+    navigateToInviteLinksView,
   } = props;
 
   const styles = useStyles(unboundStyles);
@@ -38,9 +54,10 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         key={item.threadInfo.id}
         itemData={item}
         navigateToThread={navigateToThread}
+        navigateToInviteLinksView={navigateToInviteLinksView}
       />
     ),
-    [navigateToThread],
+    [navigateToInviteLinksView, navigateToThread],
   );
 
   const children = React.useMemo(() => {
@@ -95,6 +112,49 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     );
   }, [shouldRenderAvatars, styles.avatarContainer, threadInfo]);
 
+  const insets = useSafeAreaInsets();
+  const { showActionSheetWithOptions } = useActionSheet();
+  const inviteLinksButton = React.useMemo(() => {
+    if (!inviteLink) {
+      return null;
+    }
+    const options = ['Invite Link', 'Cancel'];
+    const containerStyle = {
+      paddingBottom: insets.bottom,
+    };
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          showActionSheetWithOptions(
+            {
+              options,
+              cancelButtonIndex: 1,
+              containerStyle,
+            },
+            selectedIndex => {
+              if (selectedIndex === 0) {
+                navigateToInviteLinksView(threadInfo, inviteLink);
+              }
+            },
+          )
+        }
+      >
+        <SWMansionIcon
+          name="menu-vertical"
+          size={22}
+          style={styles.inviteLinksButton}
+        />
+      </TouchableOpacity>
+    );
+  }, [
+    insets.bottom,
+    inviteLink,
+    navigateToInviteLinksView,
+    showActionSheetWithOptions,
+    styles.inviteLinksButton,
+    threadInfo,
+  ]);
+
   return (
     <View>
       <View style={styles.threadEntry}>
@@ -107,6 +167,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           {avatar}
           <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>
+        {inviteLinksButton}
       </View>
       {children}
     </View>
@@ -119,6 +180,9 @@ const unboundStyles = {
   },
   chatView: {
     marginLeft: 16,
+  },
+  inviteLinksButton: {
+    color: 'drawerItemLabelLevel0',
   },
   threadEntry: {
     flexDirection: 'row',
@@ -138,6 +202,7 @@ const unboundStyles = {
 export type CommunityDrawerItemChatProps = {
   +itemData: CommunityDrawerItemData<TextStyle>,
   +navigateToThread: (params: MessageListParams) => void,
+  +navigateToInviteLinksView: () => void,
 };
 
 function CommunityDrawerItemChat(
