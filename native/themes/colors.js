@@ -136,6 +136,8 @@ const light = Object.freeze({
   messageLabel: designSystemColors.shadesBlack100,
   modalSeparator: designSystemColors.shadesWhite60,
   secondaryButtonBorder: designSystemColors.shadesWhite100,
+  inviteLinkLinkColor: designSystemColors.shadesBlack100,
+  inviteLinkButtonBackground: designSystemColors.shadesWhite60,
 });
 export type Colors = $Exact<typeof light>;
 
@@ -228,6 +230,8 @@ const dark: Colors = Object.freeze({
   messageLabel: designSystemColors.shadesWhite60,
   modalSeparator: designSystemColors.shadesBlack80,
   secondaryButtonBorder: designSystemColors.shadesWhite100,
+  inviteLinkLinkColor: designSystemColors.shadesWhite80,
+  inviteLinkButtonBackground: designSystemColors.shadesBlack80,
 });
 const colors = { light, dark };
 
