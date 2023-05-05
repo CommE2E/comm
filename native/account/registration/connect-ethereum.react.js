@@ -9,6 +9,7 @@ import type { RegistrationNavigationProp } from './registration-navigator.react.
 import type { CoolOrNerdMode } from './registration-types.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
 
 export type ConnectEthereumParams = {
   +userSelections: {
@@ -39,6 +40,9 @@ function ConnectEthereum(props: Props): React.Node {
           username and your ENS avatar as your avatar. You&apos;ll also be able
           to secure your account with a wallet signature instead of a password.
         </Text>
+        <View style={styles.ethereumLogoContainer}>
+          <EthereumLogoDark />
+        </View>
       </RegistrationContainer>
       <RegistrationButton
         onPress={onConnect}
@@ -70,6 +74,9 @@ const unboundStyles = {
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
     paddingBottom: 16,
+  },
+  ethereumLogoContainer: {
+    alignItems: 'center',
   },
 };
 
