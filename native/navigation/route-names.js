@@ -29,6 +29,7 @@ import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
 import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
+import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
 import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
 import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camera-modal.react.js';
@@ -68,6 +69,7 @@ export const HomeChatThreadListRouteName = 'HomeChatThreadList';
 export const ImageModalRouteName = 'ImageModal';
 export const ImagePasteModalRouteName = 'ImagePasteModal';
 export const InviteLinkModalRouteName = 'InviteLinkModal';
+export const InviteLinkNavigatorRouteName = 'InviteLinkNavigator';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const MessageListRouteName = 'MessageList';
 export const MessageReactionsModalRouteName = 'MessageReactionsModal';
@@ -93,6 +95,7 @@ export const ThreadSettingsRouteName = 'ThreadSettings';
 export const UserAvatarCameraModalRouteName = 'UserAvatarCameraModal';
 export const TogglePinModalRouteName = 'TogglePinModal';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
+export const ViewInviteLinksRouteName = 'ViewInviteLinks';
 export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
 export const RegistrationRouteName = 'Registration';
 export const KeyserverSelectionRouteName = 'KeyserverSelection';
@@ -117,6 +120,7 @@ export type RootParamList = {
   +MessageReactionsModal: MessageReactionsModalParams,
   +Registration: void,
   +InviteLinkModal: InviteLinkModalParams,
+  +InviteLinkNavigator: void,
 };
 
 export type MessageTooltipRouteNames =
@@ -197,6 +201,10 @@ export type RegistrationParamList = {
   +UsernameSelection: UsernameSelectionParams,
 };
 
+export type InviteLinkParamList = {
+  +ViewInviteLinks: ViewInviteLinksScreenParams,
+};
+
 export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
@@ -206,6 +214,7 @@ export type ScreenParamList = {
   ...ProfileParamList,
   ...CommunityDrawerParamList,
   ...RegistrationParamList,
+  ...InviteLinkParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
