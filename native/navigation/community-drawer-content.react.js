@@ -1,14 +1,23 @@
 // @flow
 
+import { useDrawerStatus } from '@react-navigation/drawer';
 import * as React from 'react';
 import { FlatList, Platform, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
 import {
+  fetchPrimaryInviteLinkActionTypes,
+  fetchPrimaryInviteLinks,
+} from 'lib/actions/link-actions.js';
+import {
   childThreadInfos,
   communityThreadSelector,
 } from 'lib/selectors/thread-selectors.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 import {
   createRecursiveDrawerItemsData,
   appendSuffix,
@@ -34,6 +43,21 @@ function CommunityDrawerContent(): React.Node {
     [resolvedCommunities],
   );
   const styles = useStyles(unboundStyles);
+
+  const callFetchPrimaryLinks = useServerCall(fetchPrimaryInviteLinks);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const drawerStatus = useDrawerStatus();
+  React.useEffect(() => {
+    (async () => {
+      if (drawerStatus !== 'open') {
+        return;
+      }
+      await dispatchActionPromise(
+        fetchPrimaryInviteLinkActionTypes,
+        callFetchPrimaryLinks(),
+      );
+    })();
+  }, [callFetchPrimaryLinks, dispatchActionPromise, drawerStatus]);
 
   const [openCommunity, setOpenCommunity] = React.useState(
     communitiesSuffixed.length === 1 ? communitiesSuffixed[0].id : null,
