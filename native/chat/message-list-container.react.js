@@ -38,7 +38,10 @@ import {
   type OverlayContextType,
 } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { ThreadSettingsRouteName } from '../navigation/route-names.js';
+import {
+  ThreadSettingsRouteName,
+  MessageResultsScreenRouteName,
+} from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
@@ -370,6 +373,16 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       bannerText = `${threadInfo.pinnedCount} pinned ${messageNoun}`;
     }
 
+    const navigateToMessageResults = React.useCallback(() => {
+      props.navigation.navigate<'MessageResultsScreen'>({
+        name: MessageResultsScreenRouteName,
+        params: {
+          threadInfo,
+        },
+        key: `PinnedMessages${threadInfo.id}`,
+      });
+    }, [props.navigation, threadInfo]);
+
     const pinnedCountBanner = React.useMemo(() => {
       if (!bannerText) {
         return null;
@@ -377,7 +390,12 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
 
       return (
         <View style={styles.pinnedCountBanner}>
-          <Text style={styles.pinnedCountText}>{bannerText}</Text>
+          <Text
+            onPress={navigateToMessageResults}
+            style={styles.pinnedCountText}
+          >
+            {bannerText}
+          </Text>
           <Icon
             name="chevron-right"
             size={12}
@@ -386,6 +404,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         </View>
       );
     }, [
+      navigateToMessageResults,
       bannerText,
       styles.pinnedCountBanner,
       styles.pinnedCountText,
