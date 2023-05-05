@@ -95,6 +95,8 @@ const light = Object.freeze({
   messageLabel: '#0A0A0A',
   modalSeparator: '#CCCCCC',
   secondaryButtonBorder: '#FFFFFF',
+  inviteLinkHeaderColor: '#EBEBEB',
+  inviteLinkButtonBackground: '#404040',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -186,6 +188,8 @@ const dark: Colors = Object.freeze({
   messageLabel: '#CCCCCC',
   modalSeparator: '#404040',
   secondaryButtonBorder: '#FFFFFF',
+  inviteLinkHeaderColor: '#EBEBEB',
+  inviteLinkButtonBackground: '#404040',
 });
 const colors = { light, dark };
 
