@@ -6,6 +6,7 @@ import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { InviteLinkModalParams } from './invite-link-modal.react';
 import type { ConnectEthereumParams } from '../account/registration/connect-ethereum.react.js';
 import type { KeyserverSelectionParams } from '../account/registration/keyserver-selection.react.js';
+import type { ViewInviteLinksModalParams } from './view-invite-links-modal.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
@@ -90,6 +91,7 @@ export const ThreadSettingsRouteName = 'ThreadSettings';
 export const UserAvatarCameraModalRouteName = 'UserAvatarCameraModal';
 export const TogglePinModalRouteName = 'TogglePinModal';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
+export const ViewInviteLinksModalRouteName = 'ViewInviteLinksModal';
 export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
 export const RegistrationRouteName = 'Registration';
 export const KeyserverSelectionRouteName = 'KeyserverSelection';
@@ -111,6 +113,7 @@ export type RootParamList = {
   +MessageReactionsModal: MessageReactionsModalParams,
   +Registration: void,
   +InviteLinkModal: InviteLinkModalParams,
+  +ViewInviteLinksModal: ViewInviteLinksModalParams,
 };
 
 export type MessageTooltipRouteNames =
