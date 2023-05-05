@@ -8,12 +8,14 @@ import {
 import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ConnectEthereum from './connect-ethereum.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
   KeyserverSelectionRouteName,
   CoolOrNerdModeSelectionRouteName,
+  ConnectEthereumRouteName,
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
@@ -58,6 +60,10 @@ function RegistrationNavigator(props: Props): React.Node {
         <Registration.Screen
           name={KeyserverSelectionRouteName}
           component={KeyserverSelection}
+        />
+        <Registration.Screen
+          name={ConnectEthereumRouteName}
+          component={ConnectEthereum}
         />
       </Registration.Navigator>
     </SafeAreaView>

@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text, TextInput, View } from 'react-native';
 
@@ -12,7 +13,10 @@ import {
 } from './registration-tile.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
 import CommIcon from '../../components/comm-icon.react.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  ConnectEthereumRouteName,
+} from '../../navigation/route-names.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 
 type Selection = 'ashoat' | 'custom';
@@ -48,14 +52,27 @@ function KeyserverSelection(props: Props): React.Node {
     setCurrentSelection('custom');
   }, []);
 
-  let buttonState = 'disabled';
-  if (
-    currentSelection === 'ashoat' ||
-    (currentSelection === 'custom' && customKeyserver)
-  ) {
-    buttonState = 'enabled';
+  let keyserverUsername;
+  if (currentSelection === 'ashoat') {
+    keyserverUsername = 'ashoat';
+  } else if (currentSelection === 'custom' && customKeyserver) {
+    keyserverUsername = customKeyserver;
   }
-  const onSubmit = React.useCallback(() => {}, []);
+
+  const buttonState = keyserverUsername ? 'enabled' : 'disabled';
+
+  const { navigate } = props.navigation;
+  const { coolOrNerdMode } = props.route.params.userSelections;
+  const onSubmit = React.useCallback(() => {
+    invariant(
+      keyserverUsername,
+      'Button should be disabled if keyserverUsername is not set',
+    );
+    navigate<'ConnectEthereum'>({
+      name: ConnectEthereumRouteName,
+      params: { userSelections: { coolOrNerdMode, keyserverUsername } },
+    });
+  }, [navigate, coolOrNerdMode, keyserverUsername]);
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();

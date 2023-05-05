@@ -4,6 +4,7 @@ import type { RouteProp } from '@react-navigation/native';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { InviteLinkModalParams } from './invite-link-modal.react';
+import type { ConnectEthereumParams } from '../account/registration/connect-ethereum.react.js';
 import type { KeyserverSelectionParams } from '../account/registration/keyserver-selection.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
@@ -89,6 +90,7 @@ export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
 export const RegistrationRouteName = 'Registration';
 export const KeyserverSelectionRouteName = 'KeyserverSelection';
 export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
+export const ConnectEthereumRouteName = 'ConnectEthereum';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -172,6 +174,7 @@ export type CommunityDrawerParamList = { +TabNavigator: void };
 export type RegistrationParamList = {
   +CoolOrNerdModeSelection: void,
   +KeyserverSelection: KeyserverSelectionParams,
+  +ConnectEthereum: ConnectEthereumParams,
 };
 
 export type ScreenParamList = {
