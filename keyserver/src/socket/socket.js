@@ -4,6 +4,7 @@ import type { $Request } from 'express';
 import invariant from 'invariant';
 import _debounce from 'lodash/debounce.js';
 import t from 'tcomb';
+import type { TUnion } from 'tcomb';
 import WebSocket from 'ws';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
@@ -90,7 +91,7 @@ import {
   validateOutput,
 } from '../utils/validation-utils.js';
 
-const clientSocketMessageInputValidator = t.union([
+const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
   tShape({
     type: t.irreducible(
       'clientSocketMessageTypes.INITIAL',
@@ -190,10 +191,10 @@ class Socket {
     let clientSocketMessage: ?ClientSocketMessage;
     try {
       this.resetTimeout();
-      clientSocketMessage = JSON.parse(messageString);
-      checkInputValidator(
+      const messageObject = JSON.parse(messageString);
+      clientSocketMessage = checkInputValidator(
         clientSocketMessageInputValidator,
-        clientSocketMessage,
+        messageObject,
       );
       if (clientSocketMessage.type === clientSocketMessageTypes.INITIAL) {
         if (this.viewer) {
