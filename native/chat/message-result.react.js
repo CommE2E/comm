@@ -13,6 +13,7 @@ import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { VerticalBounds } from '../types/layout-types.js';
 
 type MessageResultProps = {
   +item: ChatMessageInfoItemWithHeight,
@@ -23,6 +24,7 @@ type MessageResultProps = {
   +route:
     | NavigationRoute<'TogglePinModal'>
     | NavigationRoute<'MessageResultsScreen'>,
+  +messageVerticalBounds: ?VerticalBounds,
 };
 
 function MessageResult(props: MessageResultProps): React.Node {
@@ -40,7 +42,7 @@ function MessageResult(props: MessageResultProps): React.Node {
             navigation={props.navigation}
             route={props.route}
             toggleFocus={onToggleFocus}
-            verticalBounds={null}
+            verticalBounds={props.messageVerticalBounds}
           />
           <Text style={styles.messageDate}>
             {longAbsoluteDate(props.item.messageInfo.time)}
