@@ -692,20 +692,12 @@ async function fetchPinnedMessageInfos(
   if (messageRows.length === 0) {
     return { pinnedMessages: [] };
   }
-  const derivedMessages = await fetchDerivedMessages(messageRows, viewer);
 
-  const parsedPinnedMessages = await parseMessageSQLResult(
-    messageRows,
-    derivedMessages,
-    viewer,
-  );
-
-  const pinnedRawMessageInfos = parsedPinnedMessages.map(
-    message => message.rawMessageInfo,
-  );
+  const pinnedAndRelatedMessages =
+    await rawMessageInfoForRowsAndRelatedMessages(messageRows, viewer);
 
   const shimmedPinnedRawMessageInfos = shimUnsupportedRawMessageInfos(
-    pinnedRawMessageInfos,
+    pinnedAndRelatedMessages,
     viewer.platformDetails,
   );
 
