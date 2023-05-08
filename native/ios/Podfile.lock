@@ -4,7 +4,7 @@ PODS:
   - boost (1.76.0)
   - DoubleConversion (1.1.6)
   - DVAssetLoaderDelegate (0.3.3)
-  - EXApplication (5.0.1):
+  - EXApplication (5.1.1):
     - ExpoModulesCore
   - EXConstants (14.0.2):
     - ExpoModulesCore
@@ -841,7 +841,7 @@ SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
-  EXApplication: 034b1c40a8e9fe1bff76a1e511ee90dff64ad834
+  EXApplication: d8f53a7eee90a870a75656280e8d4b85726ea903
   EXConstants: 3c86653c422dd77e40d10cbbabb3025003977415
   EXFileSystem: 60602b6eefa6873f97172c684b7537c9760b50d6
   EXFont: 319606bfe48c33b5b5063fb0994afdc496befe80
