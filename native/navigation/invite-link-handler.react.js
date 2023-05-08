@@ -23,7 +23,9 @@ function InviteLinkHandler(): null {
   React.useEffect(() => {
     // This listener listens for an event where a user clicked a link when the
     // app was running
-    Linking.addEventListener('url', ({ url }) => setCurrentLink(url));
+    const subscription = Linking.addEventListener('url', ({ url }) =>
+      setCurrentLink(url),
+    );
     // We're also checking if the app was opened by using an invite link.
     // In that case the listener won't be called and we're instead checking
     // if the initial URL is set.
@@ -33,6 +35,8 @@ function InviteLinkHandler(): null {
         setCurrentLink(initialURL);
       }
     })();
+
+    return () => subscription.remove();
   }, []);
 
   const loggedIn = useSelector(isLoggedIn);
