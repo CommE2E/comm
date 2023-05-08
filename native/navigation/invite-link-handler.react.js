@@ -1,8 +1,9 @@
 // @flow
 
 import { useNavigation } from '@react-navigation/native';
+import * as Application from 'expo-application';
 import * as React from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import {
   verifyInviteLink,
@@ -16,6 +17,7 @@ import {
 
 import { InviteLinkModalRouteName } from './route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { useOnFirstLaunchEffect } from '../utils/hooks.js';
 
 function InviteLinkHandler(): null {
   const [currentLink, setCurrentLink] = React.useState(null);
@@ -38,6 +40,21 @@ function InviteLinkHandler(): null {
 
     return () => subscription.remove();
   }, []);
+
+  useOnFirstLaunchEffect('ANDROID_REFERRER', () => {
+    (async () => {
+      if (Platform.OS === 'android') {
+        const installReferrer = await Application.getInstallReferrerAsync();
+        if (!installReferrer) {
+          return;
+        }
+        const linkSecret = parseInstallReferrer(installReferrer);
+        if (linkSecret) {
+          setCurrentLink(linkSecret);
+        }
+      }
+    })();
+  });
 
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
@@ -80,6 +97,12 @@ function InviteLinkHandler(): null {
 const urlRegex = /invite\/(\S+)$/;
 function parseSecret(url: string) {
   const match = urlRegex.exec(url);
+  return match?.[1];
+}
+
+const referrerRegex = /utm_source=(invite\/(\S+))$/;
+function parseInstallReferrer(referrer: string) {
+  const match = referrerRegex.exec(referrer);
   return match?.[1];
 }
 
