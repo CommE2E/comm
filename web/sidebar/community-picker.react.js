@@ -4,8 +4,10 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
+import CommunityCreationModal from './community-creation/community-creation-modal.react.js';
 import CommunityDrawer from './community-drawer.react.js';
 import css from './community-picker.css';
 import {
@@ -16,6 +18,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 function CommunityPicker(): React.Node {
   const dispatch = useDispatch();
+  const modalContext = useModalContext();
 
   const openAccountSettings = React.useCallback(
     (event: SyntheticEvent<HTMLButtonElement>) => {
@@ -62,11 +65,15 @@ function CommunityPicker(): React.Node {
     [css.sideLineActive]: isSettingsOpen,
   });
 
+  const onPressCommunityCreationButton = React.useCallback(() => {
+    modalContext.pushModal(<CommunityCreationModal />);
+  }, [modalContext]);
+
   const isCommunityCreationButtonEnabled = false;
   let communityCreationButton;
   if (isCommunityCreationButtonEnabled) {
     communityCreationButton = (
-      <a className={css.itemContainer}>
+      <a className={css.itemContainer} onClick={onPressCommunityCreationButton}>
         <div className={css.sideLine} />
         <div className={css.plusIcon}>
           <SWMansionIcon icon="plus-small" size={26} />
