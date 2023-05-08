@@ -46,13 +46,12 @@ function CommunityPill(props: Props): React.Node {
     keyserverOperatorUsername,
   ]);
 
+  const roundCorners = React.useMemo(() => ({ left: false, right: true }), []);
+
   return (
     <View style={styles.container}>
       {keyserverOperatorLabel}
-      <ThreadPill
-        threadInfo={community}
-        roundCorners={{ left: false, right: true }}
-      />
+      <ThreadPill threadInfo={community} roundCorners={roundCorners} />
     </View>
   );
 }
