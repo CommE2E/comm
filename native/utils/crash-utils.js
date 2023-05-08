@@ -12,6 +12,7 @@ async function wipeAndExit() {
   await Promise.all([
     getPersistor().purge(),
     __DEV__ ? AsyncStorage.removeItem(navStateAsyncStorageKey) : null,
+    AsyncStorage.removeItem('ANDROID_REFERRER'),
   ]);
   await sleep(50);
   commCoreModule.terminate();
