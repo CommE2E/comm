@@ -45,6 +45,7 @@ type BaseProps = {
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
+  +shouldDisplayPinIndicator: boolean,
 };
 type Props = {
   ...BaseProps,
@@ -198,6 +199,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       focused,
       toggleFocus,
       verticalBounds,
+      shouldDisplayPinIndicator,
       navigation,
       route,
       overlayContext,
@@ -212,6 +214,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         sendFailed={multimediaMessageSendFailed(item)}
         focused={focused}
         swipeOptions={this.canNavigateToSidebar() ? 'sidebar' : 'none'}
+        shouldDisplayPinIndicator={shouldDisplayPinIndicator}
         {...viewProps}
       >
         <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>

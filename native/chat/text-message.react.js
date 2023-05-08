@@ -49,6 +49,7 @@ type BaseProps = {
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
+  +shouldDisplayPinIndicator: boolean,
 };
 type Props = {
   ...BaseProps,
@@ -83,6 +84,7 @@ class TextMessage extends React.PureComponent<Props> {
       focused,
       toggleFocus,
       verticalBounds,
+      shouldDisplayPinIndicator,
       overlayContext,
       chatContext,
       isLinkModalActive,
@@ -115,6 +117,7 @@ class TextMessage extends React.PureComponent<Props> {
           sendFailed={textMessageSendFailed(item)}
           focused={focused}
           swipeOptions={swipeOptions}
+          shouldDisplayPinIndicator={shouldDisplayPinIndicator}
           {...viewProps}
         >
           <InnerTextMessage

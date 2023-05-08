@@ -23,6 +23,7 @@ import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
 import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
+import CommIcon from '../components/comm-icon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
@@ -40,6 +41,7 @@ type BaseProps = {
   +sendFailed: boolean,
   +focused: boolean,
   +swipeOptions: SwipeOptions,
+  +shouldDisplayPinIndicator: boolean,
   +children: React.Node,
 };
 type Props = {
@@ -62,6 +64,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       sendFailed,
       focused,
       swipeOptions,
+      shouldDisplayPinIndicator,
       children,
       composedMessageMaxWidth,
       colors,
@@ -73,7 +76,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
-    const { hasBeenEdited } = item;
+    const { hasBeenEdited, isPinned } = item;
 
     const { isViewer } = creator;
     const alignStyle = isViewer
@@ -147,23 +150,46 @@ class ComposedMessage extends React.PureComponent<Props> {
       avatar = <View style={styles.avatarOffset} />;
     }
 
+    const pinIconPositioning = isViewer ? 'left' : 'right';
+    const pinIconName = pinIconPositioning === 'left' ? 'pin-mirror' : 'pin';
+    const messageBoxTopLevelContainerStyle =
+      pinIconPositioning === 'left'
+        ? styles.rightMessageBoxTopLevelContainerStyle
+        : styles.leftMessageBoxTopLevelContainerStyle;
+
+    let pinIcon;
+    if (isPinned && shouldDisplayPinIndicator) {
+      pinIcon = (
+        <View style={styles.pinIconContainer}>
+          <CommIcon
+            name={pinIconName}
+            size={12}
+            style={{ color: `#${item.threadInfo.color}` }}
+          />
+        </View>
+      );
+    }
+
     const messageBoxStyle = {
       opacity: contentAndHeaderOpacity,
       maxWidth: composedMessageMaxWidth,
     };
 
     const messageBox = (
-      <View style={messageBoxContainerStyle}>
-        <SwipeableMessage
-          triggerReply={triggerReply}
-          triggerSidebar={triggerSidebar}
-          isViewer={isViewer}
-          contentStyle={styles.swipeableContainer}
-          threadColor={item.threadInfo.color}
-        >
-          {avatar}
-          <AnimatedView style={messageBoxStyle}>{children}</AnimatedView>
-        </SwipeableMessage>
+      <View style={messageBoxTopLevelContainerStyle}>
+        {pinIcon}
+        <View style={messageBoxContainerStyle}>
+          <SwipeableMessage
+            triggerReply={triggerReply}
+            triggerSidebar={triggerSidebar}
+            isViewer={isViewer}
+            contentStyle={styles.swipeableContainer}
+            threadColor={item.threadInfo.color}
+          >
+            {avatar}
+            <AnimatedView style={messageBoxStyle}>{children}</AnimatedView>
+          </SwipeableMessage>
+        </View>
       </View>
     );
 
@@ -245,15 +271,24 @@ const styles = StyleSheet.create({
   leftChatContainer: {
     alignItems: 'flex-start',
   },
+  leftMessageBoxTopLevelContainerStyle: {
+    flexDirection: 'row-reverse',
+  },
   messageBoxContainer: {
-    flex: 1,
     marginRight: 5,
+  },
+  pinIconContainer: {
+    marginRight: 4,
+    marginTop: 4,
   },
   rightChatBubble: {
     justifyContent: 'flex-start',
   },
   rightChatContainer: {
     alignItems: 'flex-end',
+  },
+  rightMessageBoxTopLevelContainerStyle: {
+    flexDirection: 'row',
   },
   swipeableContainer: {
     alignItems: 'flex-end',

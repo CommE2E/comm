@@ -39,6 +39,7 @@ type BaseProps = {
     | NavigationRoute<'MessageResultsScreen'>,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
+  shouldDisplayPinIndicator: boolean,
 };
 type Props = {
   ...BaseProps,
@@ -71,6 +72,7 @@ class Message extends React.Component<Props> {
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
+          shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
         />
       );
     } else if (this.props.item.messageShapeType === 'multimedia') {
@@ -80,6 +82,7 @@ class Message extends React.Component<Props> {
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
+          shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
         />
       );
     } else {
