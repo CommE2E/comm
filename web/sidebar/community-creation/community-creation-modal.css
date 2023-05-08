@@ -1,0 +1,7 @@
+div.modal_body {
+  display: flex;
+  flex-direction: column;
+  width: 383px;
+  height: 560px;
+  overflow: hidden;
+}
