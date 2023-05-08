@@ -9,7 +9,7 @@ import _mapValues from 'lodash/fp/mapValues.js';
 import _pickBy from 'lodash/fp/pickBy.js';
 import uuidv4 from 'uuid/v4.js';
 
-import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
+import { oldValidUsernameRegex } from 'lib/shared/account-validation-utils.js';
 import { isMentioned } from 'lib/shared/mention-utils.js';
 import {
   createMessageInfo,

@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
+import { oldValidUsernameRegexString } from 'lib/shared/account-validation-utils.js';
 import { getNewTextAndSelection } from 'lib/shared/mention-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';

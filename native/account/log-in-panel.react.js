@@ -10,7 +10,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import {
   validEmailRegex,
   oldValidUsernameRegex,
-} from 'lib/shared/account-utils.js';
+} from 'lib/shared/account-validation-utils.js';
 import {
   type LogInInfo,
   type LogInExtraInfo,

@@ -3,7 +3,7 @@
 import ashoat from 'lib/facts/ashoat.js';
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
-import { usernameMaxLength } from 'lib/shared/account-utils.js';
+import { usernameMaxLength } from 'lib/shared/account-validation-utils.js';
 import { sortIDs } from 'lib/shared/relationship-utils.js';
 import { undirectedStatus } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types.js';

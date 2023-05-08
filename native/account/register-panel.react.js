@@ -15,7 +15,7 @@ import Animated from 'react-native-reanimated';
 
 import { registerActionTypes, register } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { validUsernameRegex } from 'lib/shared/account-utils.js';
+import { validUsernameRegex } from 'lib/shared/account-validation-utils.js';
 import type {
   RegisterInfo,
   LogInExtraInfo,

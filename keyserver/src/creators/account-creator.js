@@ -10,7 +10,7 @@ import { policyTypes } from 'lib/facts/policies.js';
 import {
   validUsernameRegex,
   oldValidUsernameRegex,
-} from 'lib/shared/account-utils.js';
+} from 'lib/shared/account-validation-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   RegisterResponse,
