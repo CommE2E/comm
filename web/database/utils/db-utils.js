@@ -3,7 +3,7 @@
 import { detect as detectBrowser } from 'detect-browser';
 import type { QueryExecResult } from 'sql.js';
 
-import { isStaff } from 'lib/shared/user-utils.js';
+import { isStaff } from 'lib/shared/staff-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 
 import { DB_SUPPORTED_BROWSERS, DB_SUPPORTED_OS } from './constants.js';

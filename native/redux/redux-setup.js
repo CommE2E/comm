@@ -19,7 +19,7 @@ import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils.js';
-import { isStaff } from 'lib/shared/user-utils.js';
+import { isStaff } from 'lib/shared/staff-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
