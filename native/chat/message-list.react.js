@@ -194,6 +194,7 @@ class MessageList extends React.PureComponent<Props, State> {
         route={route}
         toggleFocus={this.toggleMessageFocus}
         verticalBounds={messageListVerticalBounds}
+        shouldDisplayPinIndicator={true}
       />
     );
   };
