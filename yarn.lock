@@ -11000,6 +11000,11 @@ expirymanager@^0.9.3:
   resolved "https://registry.yarnpkg.com/expirymanager/-/expirymanager-0.9.4.tgz#dc9f2dfc2a8160dc88c24fe0bca8c085908bd322"
   integrity sha512-bKcLuZPTs9mFxQ2VJPYJCMuGVAM9Ah6KfezbDA3IegbGeqR39WdPi+T7GgDGVuBPjYDFsSP/va5csiNVCGT1Mw==
 
+expo-application@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/expo-application/-/expo-application-5.1.1.tgz#5206bf0cf89cb0e32d1f5037a0481e5c86b951ab"
+  integrity sha512-aDatTcTTCdTbHw8h4/Tq2ilc6InM5ntF9xWCJdOcnUEcglxxGphVI/lzJKBaBF6mJECA8mEOjpVg2EGxOctTwg==
+
 expo-application@~5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/expo-application/-/expo-application-5.0.1.tgz#628aeee74697d7aa39d0c0173dbf9383e06e53e9"
