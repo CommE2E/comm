@@ -43,6 +43,7 @@ function MessageResult(props: MessageResultProps): React.Node {
             route={props.route}
             toggleFocus={onToggleFocus}
             verticalBounds={props.messageVerticalBounds}
+            shouldDisplayPinIndicator={false}
           />
           <Text style={styles.messageDate}>
             {longAbsoluteDate(props.item.messageInfo.time)}
