@@ -11,6 +11,7 @@ import {
   fetchMostRecentMessagesActionTypes,
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions.js';
+import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import {
   type ChatMessageItem,
@@ -46,13 +47,10 @@ type BaseProps = {
 
 type Props = {
   ...BaseProps,
-  // Redux state
   +activeChatThreadID: ?string,
   +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   +startReached: boolean,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +fetchMessagesBeforeCursor: (
     threadID: string,
     beforeMessageID: string,
@@ -60,9 +58,9 @@ type Props = {
   +fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
-  // withInputState
   +inputState: ?InputState,
   +clearTooltip: () => mixed,
+  +oldestMessageServerID: ?string,
 };
 type Snapshot = {
   +scrollTop: number,
@@ -106,16 +104,6 @@ class ChatMessageList extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props, prevState, snapshot: ?Snapshot) {
     const { messageListData } = this.props;
     const prevMessageListData = prevProps.messageListData;
-
-    if (
-      this.loadingFromScroll &&
-      messageListData &&
-      (!prevMessageListData ||
-        messageListData.length > prevMessageListData.length ||
-        this.props.startReached)
-    ) {
-      this.loadingFromScroll = false;
-    }
 
     const { messageContainer } = this;
     if (messageContainer && prevMessageListData !== messageListData) {
@@ -229,7 +217,7 @@ class ChatMessageList extends React.PureComponent<Props> {
     this.possiblyLoadMoreMessages();
   };
 
-  possiblyLoadMoreMessages() {
+  async possiblyLoadMoreMessages() {
     if (!this.messageContainer) {
       return;
     }
@@ -250,29 +238,19 @@ class ChatMessageList extends React.PureComponent<Props> {
     const threadID = this.props.activeChatThreadID;
     invariant(threadID, 'should be set');
 
-    const oldestMessageServerID = this.oldestMessageServerID();
+    const { oldestMessageServerID } = this.props;
     if (oldestMessageServerID) {
-      this.props.dispatchActionPromise(
+      await this.props.dispatchActionPromise(
         fetchMessagesBeforeCursorActionTypes,
         this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
       );
     } else {
-      this.props.dispatchActionPromise(
+      await this.props.dispatchActionPromise(
         fetchMostRecentMessagesActionTypes,
         this.props.fetchMostRecentMessages(threadID),
       );
     }
-  }
-
-  oldestMessageServerID(): ?string {
-    const data = this.props.messageListData;
-    invariant(data, 'should be set');
-    for (let i = data.length - 1; i >= 0; i--) {
-      if (data[i].itemType === 'message' && data[i].messageInfo.id) {
-        return data[i].messageInfo.id;
-      }
-    }
-    return null;
+    this.loadingFromScroll = false;
   }
 }
 
@@ -324,6 +302,8 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
       return { getTextMessageMarkdownRules };
     }, [getTextMessageMarkdownRules]);
 
+    const oldestMessageServerID = useOldestMessageServerID(threadInfo.id);
+
     return (
       <MessageListContext.Provider value={messageListContext}>
         <ChatMessageList
@@ -336,6 +316,7 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
           fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
           fetchMostRecentMessages={callFetchMostRecentMessages}
           clearTooltip={clearTooltip}
+          oldestMessageServerID={oldestMessageServerID}
         />
       </MessageListContext.Provider>
     );
