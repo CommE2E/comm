@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
-import EmojiPicker from 'rn-emoji-keyboard';
 
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
@@ -14,6 +13,7 @@ import ReactionSelectionPopover from './reaction-selection-popover.react.js';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react.js';
 import { Timestamp } from './timestamp.react.js';
 import { useAnimatedMessageTooltipButton } from './utils.js';
+import EmojiKeyboard from '../components/emoji-keyboard.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
@@ -149,10 +149,10 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
         <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
         {inlineEngagement}
       </Animated.View>
-      <EmojiPicker
+      <EmojiKeyboard
         onEmojiSelected={onEmojiSelected}
-        open={emojiPickerOpen}
-        onClose={dismissTooltip}
+        emojiKeyboardOpen={emojiPickerOpen}
+        onEmojiKeyboardClose={dismissTooltip}
       />
     </>
   );
