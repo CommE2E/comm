@@ -140,6 +140,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         threadInfo={threadInfo}
         navigation={navigation}
         route={route}
+        messageVerticalBounds={null}
       />
       <View style={styles.buttonsContainer}>
         <Button style={modalInfo.buttonStyle} onPress={onPress}>
