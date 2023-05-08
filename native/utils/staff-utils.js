@@ -1,6 +1,6 @@
 // @flow
 
-import { isStaff } from 'lib/shared/user-utils.js';
+import { isStaff } from 'lib/shared/staff-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 
