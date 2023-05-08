@@ -11,6 +11,8 @@ import Pill from './pill.react.js';
 import ThreadPill from './thread-pill.react.js';
 import { useColors } from '../themes/colors.js';
 
+const threadPillRoundCorners = { left: false, right: true };
+
 type Props = {
   +community: ThreadInfo,
 };
@@ -51,7 +53,7 @@ function CommunityPill(props: Props): React.Node {
       {keyserverOperatorLabel}
       <ThreadPill
         threadInfo={community}
-        roundCorners={{ left: false, right: true }}
+        roundCorners={threadPillRoundCorners}
       />
     </View>
   );
