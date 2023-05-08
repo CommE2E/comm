@@ -36,6 +36,9 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
   const measureMessages = useHeightMeasurer();
   const [measuredMessages, setMeasuredMessages] = React.useState([]);
 
+  const [messageVerticalBounds, setMessageVerticalBounds] = React.useState();
+  const scrollViewContainerRef = React.useRef();
+
   const callFetchPinnedMessages = useServerCall(fetchPinnedMessages);
   const userInfos = useSelector(state => state.userStore.userInfos);
 
@@ -155,6 +158,23 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     [measuredMessages],
   );
 
+  const onLayout = React.useCallback(() => {
+    scrollViewContainerRef.current?.measure(
+      (x, y, width, height, pageX, pageY) => {
+        if (
+          height === null ||
+          height === undefined ||
+          pageY === null ||
+          pageY === undefined
+        ) {
+          return;
+        }
+
+        setMessageVerticalBounds({ height, y: pageY });
+      },
+    );
+  }, []);
+
   const messageResultsToDisplay = React.useMemo(
     () =>
       modifiedItems.map(item => (
@@ -164,13 +184,14 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
           threadInfo={threadInfo}
           navigation={navigation}
           route={route}
+          messageVerticalBounds={messageVerticalBounds}
         />
       )),
-    [modifiedItems, threadInfo, navigation, route],
+    [modifiedItems, threadInfo, navigation, route, messageVerticalBounds],
   );
 
   return (
-    <View>
+    <View ref={scrollViewContainerRef} onLayout={onLayout}>
       <ScrollView>{messageResultsToDisplay}</ScrollView>
     </View>
   );
