@@ -12,6 +12,7 @@ import {
   fetchMostRecentMessagesActionTypes,
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions.js';
+import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { useWatchThread } from 'lib/shared/thread-utils.js';
@@ -59,13 +60,10 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +startReached: boolean,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +fetchMessagesBeforeCursor: (
     threadID: string,
     beforeMessageID: string,
@@ -73,10 +71,9 @@ type Props = {
   +fetchMostRecentMessages: (
     threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
-  // withOverlayContext
   +overlayContext: ?OverlayContextType,
-  // withKeyboardState
   +keyboardState: ?KeyboardState,
+  +oldestMessageServerID: ?string,
 };
 type State = {
   +focusedMessageKey: ?string,
@@ -140,15 +137,6 @@ class MessageList extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const newListData = this.props.messageListData;
-    const oldListData = prevProps.messageListData;
-    if (
-      this.state.loadingFromScroll &&
-      (newListData.length > oldListData.length || this.props.startReached)
-    ) {
-      this.setState({ loadingFromScroll: false });
-    }
-
     const modalIsOpen = MessageList.modalOpen(this.props);
     const modalWasOpen = MessageList.modalOpen(prevProps);
     if (!modalIsOpen && modalWasOpen) {
@@ -295,30 +283,30 @@ class MessageList extends React.PureComponent<Props, State> {
     }
 
     this.setState({ loadingFromScroll: true });
-    const oldestMessageServerID = this.oldestMessageServerID();
+    const { oldestMessageServerID } = this.props;
     const threadID = this.props.threadInfo.id;
-    if (oldestMessageServerID) {
-      this.props.dispatchActionPromise(
-        fetchMessagesBeforeCursorActionTypes,
-        this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
-      );
-    } else {
-      this.props.dispatchActionPromise(
-        fetchMostRecentMessagesActionTypes,
-        this.props.fetchMostRecentMessages(threadID),
-      );
-    }
-  };
 
-  oldestMessageServerID(): ?string {
-    const data = this.props.messageListData;
-    for (let i = data.length - 1; i >= 0; i--) {
-      if (data[i].itemType === 'message' && data[i].messageInfo.id) {
-        return data[i].messageInfo.id;
+    (async () => {
+      try {
+        if (oldestMessageServerID) {
+          await this.props.dispatchActionPromise(
+            fetchMessagesBeforeCursorActionTypes,
+            this.props.fetchMessagesBeforeCursor(
+              threadID,
+              oldestMessageServerID,
+            ),
+          );
+        } else {
+          await this.props.dispatchActionPromise(
+            fetchMostRecentMessagesActionTypes,
+            this.props.fetchMostRecentMessages(threadID),
+          );
+        }
+      } finally {
+        this.setState({ loadingFromScroll: false });
       }
-    }
-    return null;
-  }
+    })();
+  };
 }
 
 const unboundStyles = {
@@ -360,6 +348,8 @@ const ConnectedMessageList: React.ComponentType<BaseProps> =
     );
     const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
 
+    const oldestMessageServerID = useOldestMessageServerID(threadID);
+
     useWatchThread(props.threadInfo);
 
     return (
@@ -373,6 +363,7 @@ const ConnectedMessageList: React.ComponentType<BaseProps> =
         fetchMostRecentMessages={callFetchMostRecentMessages}
         overlayContext={overlayContext}
         keyboardState={keyboardState}
+        oldestMessageServerID={oldestMessageServerID}
       />
     );
   });
