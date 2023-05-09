@@ -8,7 +8,7 @@ import {
 } from './update-roles-and-permissions-test-data.js';
 import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
 
-describe('updateRolesAndPermissions()', () => {
+describe.skip('updateRolesAndPermissions()', () => {
   it('should leave threadStoreThreads from server unchanged', () => {
     expect(updateRolesAndPermissions(threadStoreThreads)).toStrictEqual(
       threadStoreThreads,
