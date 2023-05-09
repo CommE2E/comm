@@ -435,6 +435,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       );
     },
   ],
+  [36, updateRolesAndPermissionsForAllThreads],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
