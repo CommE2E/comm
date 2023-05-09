@@ -76,15 +76,21 @@ function LandingSite(): React.Node {
     }
   }, [onKeyservers, onPrivacy, onSupport, onTerms, onTeam, onInvestors, onQR]);
 
-  let header = <Header />;
-  if (onQR) {
-    header = null;
-  }
+  const header = React.useMemo(() => {
+    if (onQR) {
+      return null;
+    }
 
-  let footer = <Footer />;
-  if (onQR) {
-    footer = null;
-  }
+    return <Header />;
+  }, [onQR]);
+
+  const footer = React.useMemo(() => {
+    if (onQR) {
+      return null;
+    }
+
+    return <Footer />;
+  }, [onQR]);
 
   return (
     <div className={css.container}>
