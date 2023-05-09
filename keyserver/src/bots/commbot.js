@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 
 import bots from 'lib/facts/bots.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { createThread } from '../creators/thread-creator.js';
 import { createBotViewer } from '../session/bots.js';

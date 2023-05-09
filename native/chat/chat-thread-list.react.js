@@ -30,8 +30,8 @@ import {
   getThreadListSearchResults,
 } from 'lib/shared/thread-utils.js';
 import type { UserSearchResult } from 'lib/types/search-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { threadTypes } from 'lib/types/thread-types.js';
 import type {
   GlobalAccountUserInfo,
   UserInfo,

@@ -7,7 +7,7 @@ import type { Media, Image, EncryptedImage } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
   ThreadFetchMediaResult,
   ThreadFetchMediaRequest,

@@ -16,12 +16,9 @@ import {
   getSingleOtherUser,
   threadUIName,
 } from 'lib/shared/thread-utils.js';
-import {
-  type ThreadInfo,
-  threadTypes,
-  threadPermissions,
-  type ThreadChanges,
-} from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react.js';

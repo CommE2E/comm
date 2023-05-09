@@ -9,6 +9,7 @@ import {
   rawMessageInfoValidator,
   messageTruncationStatusesValidator,
 } from 'lib/types/message-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ThreadDeletionRequest,
   type RoleChangeRequest,
@@ -25,7 +26,6 @@ import {
   type ThreadFetchMediaRequest,
   type ToggleMessagePinRequest,
   type ToggleMessagePinResult,
-  threadTypes,
   rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { serverUpdateInfoValidator } from 'lib/types/update-types.js';

@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { createPendingThread } from 'lib/shared/thread-utils.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import Button from '../components/button.react.js';

@@ -79,11 +79,11 @@ import {
   type MediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThreadRequest,
   type NewThreadResult,
   type ThreadInfo,
-  threadTypes,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,

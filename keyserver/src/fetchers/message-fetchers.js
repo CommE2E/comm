@@ -28,7 +28,7 @@ import {
   type FetchPinnedMessagesResult,
   isMessageSidebarSourceReactionOrEdit,
 } from 'lib/types/message-types.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import {

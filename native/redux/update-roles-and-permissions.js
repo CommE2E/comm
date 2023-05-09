@@ -6,9 +6,9 @@ import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions.js';
+import type { ThreadPermissionsBlob } from 'lib/types/thread-permission-types.js';
 import type {
   RawThreadInfo,
-  ThreadPermissionsBlob,
   ThreadStoreThreadInfos,
   MemberInfo,
 } from 'lib/types/thread-types.js';

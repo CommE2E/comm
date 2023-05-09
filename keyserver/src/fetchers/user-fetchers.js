@@ -9,10 +9,8 @@ import {
   directedStatus,
   userRelationshipStatus,
 } from 'lib/types/relationship-types.js';
-import {
-  communityThreadTypes,
-  threadPermissions,
-} from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { communityThreadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   UserInfos,
   CurrentUserInfo,

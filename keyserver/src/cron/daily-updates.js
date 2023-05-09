@@ -4,7 +4,7 @@ import invariant from 'invariant';
 
 import ashoat from 'lib/facts/ashoat.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   getDate,
   dateString,

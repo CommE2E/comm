@@ -10,10 +10,8 @@ import {
   memberIsAdmin,
   threadHasPermission,
 } from 'lib/shared/thread-utils.js';
-import {
-  type RelativeMemberInfo,
-  threadPermissions,
-} from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { type RelativeMemberInfo } from 'lib/types/thread-types.js';
 
 import AddMembersModal from './add-members-modal.react.js';
 import ThreadMembersList from './members-list.react.js';

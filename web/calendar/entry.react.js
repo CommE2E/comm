@@ -36,7 +36,7 @@ import {
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,

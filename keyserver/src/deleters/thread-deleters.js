@@ -2,10 +2,10 @@
 
 import { permissionLookup } from 'lib/permissions/thread-permissions.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadDeletionRequest,
   type LeaveThreadResult,
-  threadPermissions,
 } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import { ServerError } from 'lib/utils/errors.js';

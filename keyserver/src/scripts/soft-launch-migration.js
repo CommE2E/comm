@@ -7,7 +7,7 @@ import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import testers from 'lib/facts/testers.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { threadTypes, type ThreadType } from 'lib/types/thread-types.js';
+import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 
 import { main } from './utils.js';
 import createMessages from '../creators/message-creator.js';
