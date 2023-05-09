@@ -2,13 +2,16 @@
 
 import t, { type TUnion, type TInterface } from 'tcomb';
 
-import type {
-  InviteLinkVerificationRequest,
-  InviteLinkVerificationResponse,
-  FetchInviteLinksResponse,
+import {
+  type InviteLinkVerificationRequest,
+  type InviteLinkVerificationResponse,
+  type FetchInviteLinksResponse,
+  type InviteLink,
+  inviteLinkValidator,
 } from 'lib/types/link-types.js';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
+import { createOrUpdatePublicLink } from '../creators/invite-link-creator.js';
 import {
   fetchPrimaryInviteLinks,
   verifyInviteLink,
@@ -61,4 +64,26 @@ async function fetchPrimaryInviteLinksResponder(
   };
 }
 
-export { inviteLinkVerificationResponder, fetchPrimaryInviteLinksResponder };
+const createOrUpdatePublicLinkInputValidator = tShape({
+  name: t.String,
+  communityID: tID,
+});
+
+async function createOrUpdatePublicLinkResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<InviteLink> {
+  const request = await validateInput(
+    viewer,
+    createOrUpdatePublicLinkInputValidator,
+    input,
+  );
+  const response = await createOrUpdatePublicLink(viewer, request);
+  return validateOutput(viewer.platformDetails, inviteLinkValidator, response);
+}
+
+export {
+  inviteLinkVerificationResponder,
+  fetchPrimaryInviteLinksResponder,
+  createOrUpdatePublicLinkResponder,
+};
