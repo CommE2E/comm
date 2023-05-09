@@ -8,6 +8,14 @@ nav.mobileNav {
   z-index: 1;
   background-color: var(--comparison-cards);
   padding: 8px 16px 0;
+  transition: 500ms;
+  transition-property: top;
+}
+
+nav.activeMobileNav {
+  top: 0;
+  transition: 500ms;
+  transition-property: top;
 }
 
 div.tabContainer {
