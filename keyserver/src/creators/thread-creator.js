@@ -13,12 +13,14 @@ import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import {
+  threadTypes,
+  threadTypeIsCommunityRoot,
+} from 'lib/types/thread-types-enum.js';
 import {
   type ServerNewThreadRequest,
   type NewThreadResponse,
-  threadTypes,
-  threadPermissions,
-  threadTypeIsCommunityRoot,
 } from 'lib/types/thread-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import { pushAll } from 'lib/utils/array.js';

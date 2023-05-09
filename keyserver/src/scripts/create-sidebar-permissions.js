@@ -1,9 +1,9 @@
 // @flow
 
 import {
-  threadPermissions,
   threadPermissionPropagationPrefixes,
-} from 'lib/types/thread-types.js';
+  threadPermissions,
+} from 'lib/types/thread-permission-types.js';
 
 import { endScript } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';

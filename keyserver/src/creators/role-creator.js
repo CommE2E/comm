@@ -1,7 +1,8 @@
 // @flow
 
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
-import type { RoleInfo, ThreadType } from 'lib/types/thread-types.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import type { RoleInfo } from 'lib/types/thread-types.js';
 
 import createIDs from './id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';

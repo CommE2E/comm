@@ -12,7 +12,7 @@ import type {
   SetThreadUnreadStatusResult,
 } from 'lib/types/activity-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 

@@ -11,9 +11,8 @@ import {
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
+import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
-  threadTypes,
-  type ThreadType,
   type RawThreadInfo,
   type ServerThreadInfo,
 } from 'lib/types/thread-types.js';

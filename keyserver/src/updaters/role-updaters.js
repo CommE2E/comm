@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
-import type { ThreadType } from 'lib/types/thread-types.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';

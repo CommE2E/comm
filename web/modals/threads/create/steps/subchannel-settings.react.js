@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import css from './subchannel-settings.css';
 import CommIcon from '../../../../CommIcon.react.js';

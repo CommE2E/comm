@@ -17,7 +17,7 @@ import {
   useThreadListSearch,
   threadIsPending,
 } from 'lib/shared/thread-utils.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 import {

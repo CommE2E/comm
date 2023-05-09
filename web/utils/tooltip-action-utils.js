@@ -14,8 +14,8 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { isComposableMessageType } from 'lib/types/message-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import {

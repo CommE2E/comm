@@ -1,6 +1,6 @@
 // @flow
 
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { main } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';
