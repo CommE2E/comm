@@ -11,7 +11,7 @@ import baseReducer from 'lib/reducers/master-reducer.js';
 import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { invalidSessionDowngrade } from 'lib/shared/account-utils.js';
+import { invalidSessionDowngrade } from 'lib/shared/session-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import type {
   CryptoStore,
