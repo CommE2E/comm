@@ -1,0 +1,44 @@
+nav.mobileNav {
+  position: absolute;
+  top: -110vh;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 1;
+  background-color: var(--comparison-cards);
+  padding: 8px 16px 0;
+}
+
+div.tabContainer {
+  border-bottom: 1px solid var(--black-90);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab {
+  color: var(--white-60);
+  transition: 150ms;
+  transition-property: color;
+}
+
+.activeTab {
+  color: var(--white-100);
+}
+
+.tabContent {
+  padding: 16px 0;
+}
+
+div.socialIconsContainer {
+  display: flex;
+  column-gap: 24px;
+  margin-top: 16px;
+}
+
+div.socialIconsContainer a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon {
+  color: var(--white-60);
+}
