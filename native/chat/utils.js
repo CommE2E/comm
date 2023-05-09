@@ -412,6 +412,46 @@ function chatMessageItemKey(
   return messageKey(item.messageInfo);
 }
 
+function modifyItemForResultScreen(
+  item: ChatMessageItemWithHeight,
+): ChatMessageInfoItemWithHeight {
+  invariant(item.itemType !== 'loader', 'should not be loader');
+
+  if (item.messageShapeType === 'robotext') {
+    return item;
+  }
+
+  if (item.messageShapeType === 'multimedia') {
+    return {
+      ...item,
+      startsConversation: false,
+      startsCluster: true,
+      endsCluster: true,
+      messageInfo: {
+        ...item.messageInfo,
+        creator: {
+          ...item.messageInfo.creator,
+          isViewer: false,
+        },
+      },
+    };
+  }
+
+  return {
+    ...item,
+    startsConversation: false,
+    startsCluster: true,
+    endsCluster: true,
+    messageInfo: {
+      ...item.messageInfo,
+      creator: {
+        ...item.messageInfo.creator,
+        isViewer: false,
+      },
+    },
+  };
+}
+
 export {
   chatMessageItemKey,
   chatMessageItemHeight,
@@ -421,4 +461,5 @@ export {
   isMessageTooltipKey,
   useContentAndHeaderOpacity,
   useDeliveryIconOpacity,
+  modifyItemForResultScreen,
 };
