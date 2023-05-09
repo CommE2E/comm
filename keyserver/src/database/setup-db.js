@@ -267,7 +267,7 @@ async function createTables() {
         is_content tinyint(1) NOT NULL,
         version bigint(20) NOT NULL,
         pickled_olm_session text 
-          CHARACTER SET ascii 
+          CHARACTER SET latin1 
           COLLATE latin1_bin NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
