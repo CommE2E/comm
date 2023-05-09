@@ -178,10 +178,9 @@ function SQLiteDataHandler(): React.Node {
         }
         if (staffCanSee) {
           Alert.alert(
-            `Error setting threadStore or messageStore: ${
-              getMessageForException(setStoreException) ??
-              '{no exception message}'
-            }`,
+            'Error setting threadStore or messageStore',
+            getMessageForException(setStoreException) ??
+              '{no exception message}',
           );
         }
         await callFetchNewCookieFromNativeCredentials(
