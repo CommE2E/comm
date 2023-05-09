@@ -89,6 +89,9 @@
   --unread-bg: var(--error-primary);
   --settings-btn-bg: var(--violet-dark-100);
   --community-creation-btn-bg: var(--shades-black-80);
+  --community-creation-ancestry-bg: var(--shades-black-80);
+  --community-creation-ancestry-text: var(--shades-black-60);
+  --community-creation-form-notice: var(--shades-white-60);
   --modal-bg: var(--shades-black-90);
   --modal-fg: var(--shades-white-60);
   --join-bg: var(--shades-black-90);
