@@ -18,6 +18,14 @@
   overflow: auto;
 }
 
+.innerContainerMobileNav {
+  overflow-y: hidden;
+}
+
+.pageContentContainer {
+  position: relative;
+}
+
 .wrapper {
   transition-property: max-width;
   transition: 300ms;
