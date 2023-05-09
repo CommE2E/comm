@@ -18,7 +18,7 @@ import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
 import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
-} from 'lib/shared/account-utils.js';
+} from 'lib/shared/session-utils.js';
 import { isStaff } from 'lib/shared/staff-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
