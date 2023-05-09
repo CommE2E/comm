@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 
@@ -14,6 +15,7 @@ import Header from './header.react.js';
 import Investors from './investors.react.js';
 import Keyservers from './keyservers.react.js';
 import css from './landing.css';
+import MobileNav from './mobile-nav.react.js';
 import Privacy from './privacy.react.js';
 import QR from './qr.react.js';
 import SIWE from './siwe.react.js';
@@ -46,6 +48,13 @@ function LandingSite(): React.Node {
       )),
     [modalContext.modals],
   );
+
+  const [showMobileNav, setShowMobileNav] = React.useState<boolean>(false);
+
+  const innerContainerClassName = classNames({
+    [css.innerContainer]: true,
+    [css.innerContainerMobileNav]: showMobileNav,
+  });
 
   useScrollToTopOnNavigate();
   const onPrivacy = useRouteMatch({ path: '/privacy' });
@@ -88,11 +97,17 @@ function LandingSite(): React.Node {
 
   return (
     <div className={css.container}>
-      <div className={css.innerContainer}>
+      <div className={innerContainerClassName}>
         {header}
-        {activePage}
-        {footer}
-        {modals}
+        <div className={css.pageContentContainer}>
+          <MobileNav
+            showMobileNav={showMobileNav}
+            setShowMobileNav={setShowMobileNav}
+          />
+          {activePage}
+          {footer}
+          {modals}
+        </div>
       </div>
     </div>
   );
