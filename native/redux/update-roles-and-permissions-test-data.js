@@ -10,96 +10,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1679537878106,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: null,
-          value: false,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: null,
-          value: false,
-        },
-        edit_message: {
-          source: null,
-          value: false,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: null,
-          value: false,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: null,
-          value: false,
-        },
-        edit_thread_description: {
-          source: null,
-          value: false,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '1',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: null,
-          value: false,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '1',
-          value: true,
-        },
-        voiced: {
-          source: null,
-          value: false,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: null, value: false },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: null, value: false },
+        edit_message: { source: null, value: false },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: null, value: false },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: null, value: false },
+        edit_thread_description: { source: null, value: false },
+        join_thread: { source: null, value: false },
+        know_of: { source: '1', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: null, value: false },
+        remove_members: { source: null, value: false },
+        visible: { source: '1', value: true },
+        voiced: { source: null, value: false },
       },
       role: '83795',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description:
@@ -110,90 +44,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: '1',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '1',
-            value: true,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: '1', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: '1', value: true },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: '83796',
       },
@@ -201,90 +72,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: null,
-            value: false,
-          },
-          edit_thread_description: {
-            source: null,
-            value: false,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: null,
-            value: false,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: null, value: false },
+          edit_thread_description: { source: null, value: false },
+          join_thread: { source: null, value: false },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: null, value: false },
+          visible: { source: '1', value: true },
+          voiced: { source: null, value: false },
         },
         role: '83795',
       },
@@ -358,96 +166,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1680734420100,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84596',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84596',
-          value: true,
-        },
-        edit_message: {
-          source: '84596',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: null,
-          value: false,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '84596',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84596',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84596',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84596',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '84596',
-          value: true,
-        },
-        voiced: {
-          source: '84596',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84596', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84596', value: true },
+        edit_message: { source: '84596', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: null, value: false },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '84596', value: true },
+        edit_thread_description: { source: '84596', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84596', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84596', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '84596', value: true },
+        voiced: { source: '84596', value: true },
       },
       role: '84597',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description:
@@ -458,90 +200,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -549,90 +228,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84596',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84596',
-            value: true,
-          },
-          edit_message: {
-            source: '84596',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84596',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84596',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84596',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84596',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84596',
-            value: true,
-          },
-          voiced: {
-            source: '84596',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84596', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84596', value: true },
+          edit_message: { source: '84596', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84596', value: true },
+          edit_thread_description: { source: '84596', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84596', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84596', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84596', value: true },
+          voiced: { source: '84596', value: true },
         },
         role: '84597',
       },
@@ -671,96 +287,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1680734420159,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84598',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84598',
-          value: true,
-        },
-        edit_message: {
-          source: '84598',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: '84598',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '84598',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84598',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84598',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84598',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '84598',
-          value: true,
-        },
-        voiced: {
-          source: '84598',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84598', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84598', value: true },
+        edit_message: { source: '84598', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: '84598', value: true },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '84598', value: true },
+        edit_thread_description: { source: '84598', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84598', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84598', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '84598', value: true },
+        voiced: { source: '84598', value: true },
       },
       role: '84599',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -770,90 +320,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '84598',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '84598',
-            value: true,
-          },
-          edit_message: {
-            source: '84598',
-            value: true,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84598',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '84598',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84598',
-            value: true,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '84598',
-            value: true,
-          },
-          voiced: {
-            source: '84598',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '84598', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '84598', value: true },
+          edit_message: { source: '84598', value: true },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '84598', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '84598', value: true },
+          edit_thread_description: { source: '84598', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '84598', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84598', value: true },
+          remove_members: { source: '1', value: true },
+          visible: { source: '84598', value: true },
+          voiced: { source: '84598', value: true },
         },
         role: '84599',
       },
@@ -861,90 +348,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84598',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84598',
-            value: true,
-          },
-          edit_message: {
-            source: '84598',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84598',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84598',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84598',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84598',
-            value: true,
-          },
-          voiced: {
-            source: '84598',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84598', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84598', value: true },
+          edit_message: { source: '84598', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84598', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84598', value: true },
+          edit_thread_description: { source: '84598', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84598', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84598', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84598', value: true },
+          voiced: { source: '84598', value: true },
         },
         role: '84599',
       },
@@ -984,96 +408,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1680734427175,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84627',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84627',
-          value: true,
-        },
-        edit_message: {
-          source: '84627',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: '84627',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '84627',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84627',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84627',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84627',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '84627',
-          value: true,
-        },
-        voiced: {
-          source: '84627',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84627', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84627', value: true },
+        edit_message: { source: '84627', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: '84627', value: true },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '84627', value: true },
+        edit_thread_description: { source: '84627', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84627', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84627', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '84627', value: true },
+        voiced: { source: '84627', value: true },
       },
       role: '84628',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -1083,90 +441,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -1174,90 +469,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84627',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84627',
-            value: true,
-          },
-          edit_message: {
-            source: '84627',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84627',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84627',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84627',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84627',
-            value: true,
-          },
-          voiced: {
-            source: '84627',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84627', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84627', value: true },
+          edit_message: { source: '84627', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84627', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84627', value: true },
+          edit_thread_description: { source: '84627', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84627', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84627', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84627', value: true },
+          voiced: { source: '84627', value: true },
         },
         role: '84628',
       },
@@ -1265,90 +497,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84627',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84627',
-            value: true,
-          },
-          edit_message: {
-            source: '84627',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84627',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84627',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84627',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84627',
-            value: true,
-          },
-          voiced: {
-            source: '84627',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84627', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84627', value: true },
+          edit_message: { source: '84627', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84627', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84627', value: true },
+          edit_thread_description: { source: '84627', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84627', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84627', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84627', value: true },
+          voiced: { source: '84627', value: true },
         },
         role: '84628',
       },
@@ -1388,96 +557,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1680734490721,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '84656',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84656',
-          value: true,
-        },
-        create_subthreads: {
-          source: '84656',
-          value: true,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84656',
-          value: true,
-        },
-        edit_message: {
-          source: '84656',
-          value: true,
-        },
-        edit_permissions: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84656',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84656',
-          value: true,
-        },
-        leave_thread: {
-          source: '84656',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84656',
-          value: true,
-        },
-        remove_members: {
-          source: '84656',
-          value: true,
-        },
-        visible: {
-          source: '84656',
-          value: true,
-        },
-        voiced: {
-          source: '84656',
-          value: true,
-        },
+        add_members: { source: '84656', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84656', value: true },
+        create_subthreads: { source: '84656', value: true },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84656', value: true },
+        edit_message: { source: '84656', value: true },
+        edit_permissions: { source: '84656', value: true },
+        edit_thread: { source: '84656', value: true },
+        edit_thread_avatar: { source: '84656', value: true },
+        edit_thread_color: { source: '84656', value: true },
+        edit_thread_description: { source: '84656', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84656', value: true },
+        leave_thread: { source: '84656', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84656', value: true },
+        remove_members: { source: '84656', value: true },
+        visible: { source: '84656', value: true },
+        voiced: { source: '84656', value: true },
       },
       role: '84657',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -1487,90 +590,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -1578,90 +618,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '83809',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '84656',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84656',
-            value: true,
-          },
-          create_subthreads: {
-            source: '84656',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84656',
-            value: true,
-          },
-          edit_message: {
-            source: '84656',
-            value: true,
-          },
-          edit_permissions: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84656',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: '84656',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84656',
-            value: true,
-          },
-          remove_members: {
-            source: '84656',
-            value: true,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: '84656',
-            value: true,
-          },
+          add_members: { source: '84656', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84656', value: true },
+          create_subthreads: { source: '84656', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84656', value: true },
+          edit_message: { source: '84656', value: true },
+          edit_permissions: { source: '84656', value: true },
+          edit_thread: { source: '84656', value: true },
+          edit_thread_avatar: { source: '84656', value: true },
+          edit_thread_color: { source: '84656', value: true },
+          edit_thread_description: { source: '84656', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: '84656', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84656', value: true },
+          remove_members: { source: '84656', value: true },
+          visible: { source: '84656', value: true },
+          voiced: { source: '84656', value: true },
         },
         role: '84657',
       },
@@ -1669,90 +646,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '84656',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84656',
-            value: true,
-          },
-          create_subthreads: {
-            source: '84656',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84656',
-            value: true,
-          },
-          edit_message: {
-            source: '84656',
-            value: true,
-          },
-          edit_permissions: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84656',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: '84656',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84656',
-            value: true,
-          },
-          remove_members: {
-            source: '84656',
-            value: true,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: '84656',
-            value: true,
-          },
+          add_members: { source: '84656', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84656', value: true },
+          create_subthreads: { source: '84656', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84656', value: true },
+          edit_message: { source: '84656', value: true },
+          edit_permissions: { source: '84656', value: true },
+          edit_thread: { source: '84656', value: true },
+          edit_thread_avatar: { source: '84656', value: true },
+          edit_thread_color: { source: '84656', value: true },
+          edit_thread_description: { source: '84656', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: '84656', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84656', value: true },
+          remove_members: { source: '84656', value: true },
+          visible: { source: '84656', value: true },
+          voiced: { source: '84656', value: true },
         },
         role: '84657',
       },
@@ -1760,90 +674,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '84656',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84656',
-            value: true,
-          },
-          create_subthreads: {
-            source: '84656',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84656',
-            value: true,
-          },
-          edit_message: {
-            source: '84656',
-            value: true,
-          },
-          edit_permissions: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84656',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: '84656',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84656',
-            value: true,
-          },
-          remove_members: {
-            source: '84656',
-            value: true,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: '84656',
-            value: true,
-          },
+          add_members: { source: '84656', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84656', value: true },
+          create_subthreads: { source: '84656', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84656', value: true },
+          edit_message: { source: '84656', value: true },
+          edit_permissions: { source: '84656', value: true },
+          edit_thread: { source: '84656', value: true },
+          edit_thread_avatar: { source: '84656', value: true },
+          edit_thread_color: { source: '84656', value: true },
+          edit_thread_description: { source: '84656', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: '84656', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84656', value: true },
+          remove_members: { source: '84656', value: true },
+          visible: { source: '84656', value: true },
+          voiced: { source: '84656', value: true },
         },
         role: '84657',
       },
@@ -1890,96 +741,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1681160151827,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '86071',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '86071',
-          value: true,
-        },
-        edit_message: {
-          source: '86071',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: '86071',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '86071',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '86071',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '86071',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '86071',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '86071',
-          value: true,
-        },
-        voiced: {
-          source: '86071',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '86071', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '86071', value: true },
+        edit_message: { source: '86071', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: '86071', value: true },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '86071', value: true },
+        edit_thread_description: { source: '86071', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '86071', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '86071', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '86071', value: true },
+        voiced: { source: '86071', value: true },
       },
       role: '86072',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -1989,90 +774,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -2080,90 +802,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: true,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '86071',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '86071',
-            value: true,
-          },
-          edit_message: {
-            source: '86071',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '86071',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '86071',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '86071',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '86071', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '86071', value: true },
+          edit_message: { source: '86071', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '86071', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '86071', value: true },
+          edit_thread_description: { source: '86071', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '86071', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '86071', value: true },
+          voiced: { source: '86071', value: true },
         },
         role: '86072',
       },
@@ -2171,90 +830,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '85999',
         isSender: true,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '86071',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '86071',
-            value: true,
-          },
-          edit_message: {
-            source: '86071',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '86071',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '86071',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '86071',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '86071', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '86071', value: true },
+          edit_message: { source: '86071', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '86071', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '86071', value: true },
+          edit_thread_description: { source: '86071', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '86071', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '86071', value: true },
+          voiced: { source: '86071', value: true },
         },
         role: '86072',
       },
@@ -2294,96 +890,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1682367957349,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '87789',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '87789',
-          value: true,
-        },
-        create_subthreads: {
-          source: '87789',
-          value: true,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '87789',
-          value: true,
-        },
-        edit_message: {
-          source: '87789',
-          value: true,
-        },
-        edit_permissions: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '87789',
-          value: true,
-        },
-        join_thread: {
-          source: '84656',
-          value: true,
-        },
-        know_of: {
-          source: '87789',
-          value: true,
-        },
-        leave_thread: {
-          source: '87789',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '87789',
-          value: true,
-        },
-        remove_members: {
-          source: '87789',
-          value: true,
-        },
-        visible: {
-          source: '87789',
-          value: true,
-        },
-        voiced: {
-          source: '87789',
-          value: true,
-        },
+        add_members: { source: '87789', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '87789', value: true },
+        create_subthreads: { source: '87789', value: true },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '87789', value: true },
+        edit_message: { source: '87789', value: true },
+        edit_permissions: { source: '87789', value: true },
+        edit_thread: { source: '87789', value: true },
+        edit_thread_avatar: { source: '87789', value: true },
+        edit_thread_color: { source: '87789', value: true },
+        edit_thread_description: { source: '87789', value: true },
+        join_thread: { source: '84656', value: true },
+        know_of: { source: '87789', value: true },
+        leave_thread: { source: '87789', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '87789', value: true },
+        remove_members: { source: '87789', value: true },
+        visible: { source: '87789', value: true },
+        voiced: { source: '87789', value: true },
       },
       role: '87790',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -2393,90 +923,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -2484,90 +951,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '83809',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: null,
-            value: false,
-          },
-          edit_thread_description: {
-            source: null,
-            value: false,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: null,
-            value: false,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: null, value: false },
+          edit_thread_description: { source: null, value: false },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: null, value: false },
+          visible: { source: '84656', value: true },
+          voiced: { source: null, value: false },
         },
         role: null,
       },
@@ -2575,90 +979,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87789',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87789',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87789',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87789',
-            value: true,
-          },
-          edit_message: {
-            source: '87789',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87789',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87789',
-            value: true,
-          },
-          leave_thread: {
-            source: '87789',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87789',
-            value: true,
-          },
-          remove_members: {
-            source: '87789',
-            value: true,
-          },
-          visible: {
-            source: '87789',
-            value: true,
-          },
-          voiced: {
-            source: '87789',
-            value: true,
-          },
+          add_members: { source: '87789', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87789', value: true },
+          create_subthreads: { source: '87789', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87789', value: true },
+          edit_message: { source: '87789', value: true },
+          edit_permissions: { source: '87789', value: true },
+          edit_thread: { source: '87789', value: true },
+          edit_thread_avatar: { source: '87789', value: true },
+          edit_thread_color: { source: '87789', value: true },
+          edit_thread_description: { source: '87789', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87789', value: true },
+          leave_thread: { source: '87789', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87789', value: true },
+          remove_members: { source: '87789', value: true },
+          visible: { source: '87789', value: true },
+          voiced: { source: '87789', value: true },
         },
         role: '87790',
       },
@@ -2666,90 +1007,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87789',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87789',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87789',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87789',
-            value: true,
-          },
-          edit_message: {
-            source: '87789',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87789',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87789',
-            value: true,
-          },
-          leave_thread: {
-            source: '87789',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87789',
-            value: true,
-          },
-          remove_members: {
-            source: '87789',
-            value: true,
-          },
-          visible: {
-            source: '87789',
-            value: true,
-          },
-          voiced: {
-            source: '87789',
-            value: true,
-          },
+          add_members: { source: '87789', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87789', value: true },
+          create_subthreads: { source: '87789', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87789', value: true },
+          edit_message: { source: '87789', value: true },
+          edit_permissions: { source: '87789', value: true },
+          edit_thread: { source: '87789', value: true },
+          edit_thread_avatar: { source: '87789', value: true },
+          edit_thread_color: { source: '87789', value: true },
+          edit_thread_description: { source: '87789', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87789', value: true },
+          leave_thread: { source: '87789', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87789', value: true },
+          remove_members: { source: '87789', value: true },
+          visible: { source: '87789', value: true },
+          voiced: { source: '87789', value: true },
         },
         role: '87790',
       },
@@ -2796,96 +1074,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1682368005862,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '87817',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '87817',
-          value: true,
-        },
-        create_subthreads: {
-          source: '87817',
-          value: true,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '87817',
-          value: true,
-        },
-        edit_message: {
-          source: '87817',
-          value: true,
-        },
-        edit_permissions: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '87817',
-          value: true,
-        },
-        join_thread: {
-          source: '84656',
-          value: true,
-        },
-        know_of: {
-          source: '87817',
-          value: true,
-        },
-        leave_thread: {
-          source: '87817',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '87817',
-          value: true,
-        },
-        remove_members: {
-          source: '87817',
-          value: true,
-        },
-        visible: {
-          source: '87817',
-          value: true,
-        },
-        voiced: {
-          source: '87817',
-          value: true,
-        },
+        add_members: { source: '87817', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '87817', value: true },
+        create_subthreads: { source: '87817', value: true },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '87817', value: true },
+        edit_message: { source: '87817', value: true },
+        edit_permissions: { source: '87817', value: true },
+        edit_thread: { source: '87817', value: true },
+        edit_thread_avatar: { source: '87817', value: true },
+        edit_thread_color: { source: '87817', value: true },
+        edit_thread_description: { source: '87817', value: true },
+        join_thread: { source: '84656', value: true },
+        know_of: { source: '87817', value: true },
+        leave_thread: { source: '87817', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '87817', value: true },
+        remove_members: { source: '87817', value: true },
+        visible: { source: '87817', value: true },
+        voiced: { source: '87817', value: true },
       },
       role: '87818',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -2895,90 +1107,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -2986,90 +1135,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '83809',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: null,
-            value: false,
-          },
-          edit_thread_description: {
-            source: null,
-            value: false,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: null,
-            value: false,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: null, value: false },
+          edit_thread_description: { source: null, value: false },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: null, value: false },
+          visible: { source: '84656', value: true },
+          voiced: { source: null, value: false },
         },
         role: null,
       },
@@ -3077,90 +1163,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87817',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87817',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87817',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87817',
-            value: true,
-          },
-          edit_message: {
-            source: '87817',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87817',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87817',
-            value: true,
-          },
-          leave_thread: {
-            source: '87817',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87817',
-            value: true,
-          },
-          remove_members: {
-            source: '87817',
-            value: true,
-          },
-          visible: {
-            source: '87817',
-            value: true,
-          },
-          voiced: {
-            source: '87817',
-            value: true,
-          },
+          add_members: { source: '87817', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87817', value: true },
+          create_subthreads: { source: '87817', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87817', value: true },
+          edit_message: { source: '87817', value: true },
+          edit_permissions: { source: '87817', value: true },
+          edit_thread: { source: '87817', value: true },
+          edit_thread_avatar: { source: '87817', value: true },
+          edit_thread_color: { source: '87817', value: true },
+          edit_thread_description: { source: '87817', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87817', value: true },
+          leave_thread: { source: '87817', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87817', value: true },
+          remove_members: { source: '87817', value: true },
+          visible: { source: '87817', value: true },
+          voiced: { source: '87817', value: true },
         },
         role: '87818',
       },
@@ -3168,90 +1191,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '87817',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87817',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87817',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87817',
-            value: true,
-          },
-          edit_message: {
-            source: '87817',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87817',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87817',
-            value: true,
-          },
-          leave_thread: {
-            source: '87817',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87817',
-            value: true,
-          },
-          remove_members: {
-            source: '87817',
-            value: true,
-          },
-          visible: {
-            source: '87817',
-            value: true,
-          },
-          voiced: {
-            source: '87817',
-            value: true,
-          },
+          add_members: { source: '87817', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87817', value: true },
+          create_subthreads: { source: '87817', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87817', value: true },
+          edit_message: { source: '87817', value: true },
+          edit_permissions: { source: '87817', value: true },
+          edit_thread: { source: '87817', value: true },
+          edit_thread_avatar: { source: '87817', value: true },
+          edit_thread_color: { source: '87817', value: true },
+          edit_thread_description: { source: '87817', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87817', value: true },
+          leave_thread: { source: '87817', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87817', value: true },
+          remove_members: { source: '87817', value: true },
+          visible: { source: '87817', value: true },
+          voiced: { source: '87817', value: true },
         },
         role: '87818',
       },
@@ -3298,96 +1258,30 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
     creationTime: 1682368041060,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '87837',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: null,
-          value: false,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: null,
-          value: false,
-        },
-        edit_message: {
-          source: '87837',
-          value: true,
-        },
-        edit_permissions: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '87837',
-          value: true,
-        },
-        join_thread: {
-          source: '86071',
-          value: true,
-        },
-        know_of: {
-          source: '86071',
-          value: true,
-        },
-        leave_thread: {
-          source: '87837',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '87837',
-          value: true,
-        },
-        remove_members: {
-          source: '87837',
-          value: true,
-        },
-        visible: {
-          source: '86071',
-          value: true,
-        },
-        voiced: {
-          source: '87837',
-          value: true,
-        },
+        add_members: { source: '87837', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: null, value: false },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: null, value: false },
+        edit_message: { source: '87837', value: true },
+        edit_permissions: { source: '87837', value: true },
+        edit_thread: { source: '87837', value: true },
+        edit_thread_avatar: { source: '87837', value: true },
+        edit_thread_color: { source: '87837', value: true },
+        edit_thread_description: { source: '87837', value: true },
+        join_thread: { source: '86071', value: true },
+        know_of: { source: '86071', value: true },
+        leave_thread: { source: '87837', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '87837', value: true },
+        remove_members: { source: '87837', value: true },
+        visible: { source: '86071', value: true },
+        voiced: { source: '87837', value: true },
       },
       role: '87838',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -3397,90 +1291,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -3488,90 +1319,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '87837',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: '87837',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87837',
-            value: true,
-          },
-          join_thread: {
-            source: '86071',
-            value: true,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: '87837',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87837',
-            value: true,
-          },
-          remove_members: {
-            source: '87837',
-            value: true,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '87837',
-            value: true,
-          },
+          add_members: { source: '87837', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: '87837', value: true },
+          edit_permissions: { source: '87837', value: true },
+          edit_thread: { source: '87837', value: true },
+          edit_thread_avatar: { source: '87837', value: true },
+          edit_thread_color: { source: '87837', value: true },
+          edit_thread_description: { source: '87837', value: true },
+          join_thread: { source: '86071', value: true },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: '87837', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87837', value: true },
+          remove_members: { source: '87837', value: true },
+          visible: { source: '86071', value: true },
+          voiced: { source: '87837', value: true },
         },
         role: '87838',
       },
@@ -3579,90 +1347,27 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
         id: '85999',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87837',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: '87837',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87837',
-            value: true,
-          },
-          join_thread: {
-            source: '86071',
-            value: true,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: '87837',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87837',
-            value: true,
-          },
-          remove_members: {
-            source: '87837',
-            value: true,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '87837',
-            value: true,
-          },
+          add_members: { source: '87837', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: '87837', value: true },
+          edit_permissions: { source: '87837', value: true },
+          edit_thread: { source: '87837', value: true },
+          edit_thread_avatar: { source: '87837', value: true },
+          edit_thread_color: { source: '87837', value: true },
+          edit_thread_description: { source: '87837', value: true },
+          join_thread: { source: '86071', value: true },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: '87837', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87837', value: true },
+          remove_members: { source: '87837', value: true },
+          visible: { source: '86071', value: true },
+          voiced: { source: '87837', value: true },
         },
         role: '87838',
       },
@@ -3706,96 +1411,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1679537878106,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: null,
-          value: false,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: null,
-          value: false,
-        },
-        edit_message: {
-          source: null,
-          value: false,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: null,
-          value: false,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: null,
-          value: false,
-        },
-        edit_thread_description: {
-          source: null,
-          value: false,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '1',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: null,
-          value: false,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '1',
-          value: true,
-        },
-        voiced: {
-          source: null,
-          value: false,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: null, value: false },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: null, value: false },
+        edit_message: { source: null, value: false },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: null, value: false },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: null, value: false },
+        edit_thread_description: { source: null, value: false },
+        join_thread: { source: null, value: false },
+        know_of: { source: '1', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: null, value: false },
+        remove_members: { source: null, value: false },
+        visible: { source: '1', value: true },
+        voiced: { source: null, value: false },
       },
       role: '83795',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description:
@@ -3806,90 +1445,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: '1',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '1',
-            value: true,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: '1', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: '1', value: true },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: '83796',
       },
@@ -3897,90 +1473,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: null,
-            value: false,
-          },
-          edit_thread_description: {
-            source: null,
-            value: false,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: null,
-            value: false,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: null, value: false },
+          edit_thread_description: { source: null, value: false },
+          join_thread: { source: null, value: false },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: null, value: false },
+          visible: { source: '1', value: true },
+          voiced: { source: null, value: false },
         },
         role: '83795',
       },
@@ -4012,96 +1525,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1680734420100,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84596',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84596',
-          value: true,
-        },
-        edit_message: {
-          source: '84596',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: null,
-          value: false,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '84596',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84596',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84596',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84596',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '84596',
-          value: true,
-        },
-        voiced: {
-          source: '84596',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84596', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84596', value: true },
+        edit_message: { source: '84596', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: null, value: false },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '84596', value: true },
+        edit_thread_description: { source: '84596', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84596', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84596', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '84596', value: true },
+        voiced: { source: '84596', value: true },
       },
       role: '84597',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description:
@@ -4112,90 +1559,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -4203,90 +1587,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84596',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84596',
-            value: true,
-          },
-          edit_message: {
-            source: '84596',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84596',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84596',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84596',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84596',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84596',
-            value: true,
-          },
-          voiced: {
-            source: '84596',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84596', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84596', value: true },
+          edit_message: { source: '84596', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84596', value: true },
+          edit_thread_description: { source: '84596', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84596', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84596', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84596', value: true },
+          voiced: { source: '84596', value: true },
         },
         role: '84597',
       },
@@ -4312,96 +1633,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1680734420159,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84598',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84598',
-          value: true,
-        },
-        edit_message: {
-          source: '84598',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: '84598',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '84598',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84598',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84598',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84598',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '84598',
-          value: true,
-        },
-        voiced: {
-          source: '84598',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84598', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84598', value: true },
+        edit_message: { source: '84598', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: '84598', value: true },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '84598', value: true },
+        edit_thread_description: { source: '84598', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84598', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84598', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '84598', value: true },
+        voiced: { source: '84598', value: true },
       },
       role: '84599',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -4411,90 +1666,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '84598',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '84598',
-            value: true,
-          },
-          edit_message: {
-            source: '84598',
-            value: true,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84598',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '84598',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84598',
-            value: true,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '84598',
-            value: true,
-          },
-          voiced: {
-            source: '84598',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '84598', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '84598', value: true },
+          edit_message: { source: '84598', value: true },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '84598', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '84598', value: true },
+          edit_thread_description: { source: '84598', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '84598', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84598', value: true },
+          remove_members: { source: '1', value: true },
+          visible: { source: '84598', value: true },
+          voiced: { source: '84598', value: true },
         },
         role: '84599',
       },
@@ -4502,90 +1694,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84598',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84598',
-            value: true,
-          },
-          edit_message: {
-            source: '84598',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84598',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84598',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84598',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84598',
-            value: true,
-          },
-          voiced: {
-            source: '84598',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84598', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84598', value: true },
+          edit_message: { source: '84598', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84598', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84598', value: true },
+          edit_thread_description: { source: '84598', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84598', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84598', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84598', value: true },
+          voiced: { source: '84598', value: true },
         },
         role: '84599',
       },
@@ -4611,96 +1740,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1680734427175,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84627',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84627',
-          value: true,
-        },
-        edit_message: {
-          source: '84627',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: '84627',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '84627',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84627',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84627',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84627',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '84627',
-          value: true,
-        },
-        voiced: {
-          source: '84627',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84627', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84627', value: true },
+        edit_message: { source: '84627', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: '84627', value: true },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '84627', value: true },
+        edit_thread_description: { source: '84627', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84627', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84627', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '84627', value: true },
+        voiced: { source: '84627', value: true },
       },
       role: '84628',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -4710,90 +1773,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -4801,90 +1801,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84627',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84627',
-            value: true,
-          },
-          edit_message: {
-            source: '84627',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84627',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84627',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84627',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84627',
-            value: true,
-          },
-          voiced: {
-            source: '84627',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84627', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84627', value: true },
+          edit_message: { source: '84627', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84627', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84627', value: true },
+          edit_thread_description: { source: '84627', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84627', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84627', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84627', value: true },
+          voiced: { source: '84627', value: true },
         },
         role: '84628',
       },
@@ -4892,90 +1829,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84627',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84627',
-            value: true,
-          },
-          edit_message: {
-            source: '84627',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84627',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84627',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84627',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84627',
-            value: true,
-          },
-          voiced: {
-            source: '84627',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84627', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84627', value: true },
+          edit_message: { source: '84627', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84627', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84627', value: true },
+          edit_thread_description: { source: '84627', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84627', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84627', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84627', value: true },
+          voiced: { source: '84627', value: true },
         },
         role: '84628',
       },
@@ -5001,96 +1875,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1680734490721,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '84656',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '84656',
-          value: true,
-        },
-        create_subthreads: {
-          source: '84656',
-          value: true,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '84656',
-          value: true,
-        },
-        edit_message: {
-          source: '84656',
-          value: true,
-        },
-        edit_permissions: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '84656',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '84656',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '84656',
-          value: true,
-        },
-        leave_thread: {
-          source: '84656',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '84656',
-          value: true,
-        },
-        remove_members: {
-          source: '84656',
-          value: true,
-        },
-        visible: {
-          source: '84656',
-          value: true,
-        },
-        voiced: {
-          source: '84656',
-          value: true,
-        },
+        add_members: { source: '84656', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '84656', value: true },
+        create_subthreads: { source: '84656', value: true },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '84656', value: true },
+        edit_message: { source: '84656', value: true },
+        edit_permissions: { source: '84656', value: true },
+        edit_thread: { source: '84656', value: true },
+        edit_thread_avatar: { source: '84656', value: true },
+        edit_thread_color: { source: '84656', value: true },
+        edit_thread_description: { source: '84656', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '84656', value: true },
+        leave_thread: { source: '84656', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '84656', value: true },
+        remove_members: { source: '84656', value: true },
+        visible: { source: '84656', value: true },
+        voiced: { source: '84656', value: true },
       },
       role: '84657',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -5100,90 +1908,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -5191,90 +1936,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '83809',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '84656',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84656',
-            value: true,
-          },
-          create_subthreads: {
-            source: '84656',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84656',
-            value: true,
-          },
-          edit_message: {
-            source: '84656',
-            value: true,
-          },
-          edit_permissions: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84656',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: '84656',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84656',
-            value: true,
-          },
-          remove_members: {
-            source: '84656',
-            value: true,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: '84656',
-            value: true,
-          },
+          add_members: { source: '84656', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84656', value: true },
+          create_subthreads: { source: '84656', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84656', value: true },
+          edit_message: { source: '84656', value: true },
+          edit_permissions: { source: '84656', value: true },
+          edit_thread: { source: '84656', value: true },
+          edit_thread_avatar: { source: '84656', value: true },
+          edit_thread_color: { source: '84656', value: true },
+          edit_thread_description: { source: '84656', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: '84656', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84656', value: true },
+          remove_members: { source: '84656', value: true },
+          visible: { source: '84656', value: true },
+          voiced: { source: '84656', value: true },
         },
         role: '84657',
       },
@@ -5282,90 +1964,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '84656',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84656',
-            value: true,
-          },
-          create_subthreads: {
-            source: '84656',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84656',
-            value: true,
-          },
-          edit_message: {
-            source: '84656',
-            value: true,
-          },
-          edit_permissions: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84656',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: '84656',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84656',
-            value: true,
-          },
-          remove_members: {
-            source: '84656',
-            value: true,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: '84656',
-            value: true,
-          },
+          add_members: { source: '84656', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84656', value: true },
+          create_subthreads: { source: '84656', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84656', value: true },
+          edit_message: { source: '84656', value: true },
+          edit_permissions: { source: '84656', value: true },
+          edit_thread: { source: '84656', value: true },
+          edit_thread_avatar: { source: '84656', value: true },
+          edit_thread_color: { source: '84656', value: true },
+          edit_thread_description: { source: '84656', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: '84656', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84656', value: true },
+          remove_members: { source: '84656', value: true },
+          visible: { source: '84656', value: true },
+          voiced: { source: '84656', value: true },
         },
         role: '84657',
       },
@@ -5373,90 +1992,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '84656',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84656',
-            value: true,
-          },
-          create_subthreads: {
-            source: '84656',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84656',
-            value: true,
-          },
-          edit_message: {
-            source: '84656',
-            value: true,
-          },
-          edit_permissions: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84656',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: '84656',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84656',
-            value: true,
-          },
-          remove_members: {
-            source: '84656',
-            value: true,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: '84656',
-            value: true,
-          },
+          add_members: { source: '84656', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84656', value: true },
+          create_subthreads: { source: '84656', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84656', value: true },
+          edit_message: { source: '84656', value: true },
+          edit_permissions: { source: '84656', value: true },
+          edit_thread: { source: '84656', value: true },
+          edit_thread_avatar: { source: '84656', value: true },
+          edit_thread_color: { source: '84656', value: true },
+          edit_thread_description: { source: '84656', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: '84656', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84656', value: true },
+          remove_members: { source: '84656', value: true },
+          visible: { source: '84656', value: true },
+          voiced: { source: '84656', value: true },
         },
         role: '84657',
       },
@@ -5482,96 +2038,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1681160151827,
     currentUser: {
       permissions: {
-        add_members: {
-          source: null,
-          value: false,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '86071',
-          value: true,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '86071',
-          value: true,
-        },
-        edit_message: {
-          source: '86071',
-          value: true,
-        },
-        edit_permissions: {
-          source: null,
-          value: false,
-        },
-        edit_thread: {
-          source: '86071',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: null,
-          value: false,
-        },
-        edit_thread_color: {
-          source: '86071',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '86071',
-          value: true,
-        },
-        join_thread: {
-          source: null,
-          value: false,
-        },
-        know_of: {
-          source: '86071',
-          value: true,
-        },
-        leave_thread: {
-          source: null,
-          value: false,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '86071',
-          value: true,
-        },
-        remove_members: {
-          source: null,
-          value: false,
-        },
-        visible: {
-          source: '86071',
-          value: true,
-        },
-        voiced: {
-          source: '86071',
-          value: true,
-        },
+        add_members: { source: null, value: false },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '86071', value: true },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '86071', value: true },
+        edit_message: { source: '86071', value: true },
+        edit_permissions: { source: null, value: false },
+        edit_thread: { source: '86071', value: true },
+        edit_thread_avatar: { source: null, value: false },
+        edit_thread_color: { source: '86071', value: true },
+        edit_thread_description: { source: '86071', value: true },
+        join_thread: { source: null, value: false },
+        know_of: { source: '86071', value: true },
+        leave_thread: { source: null, value: false },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '86071', value: true },
+        remove_members: { source: null, value: false },
+        visible: { source: '86071', value: true },
+        voiced: { source: '86071', value: true },
       },
       role: '86072',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -5581,90 +2071,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -5672,90 +2099,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: true,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '86071',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '86071',
-            value: true,
-          },
-          edit_message: {
-            source: '86071',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '86071',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '86071',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '86071',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '86071', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '86071', value: true },
+          edit_message: { source: '86071', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '86071', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '86071', value: true },
+          edit_thread_description: { source: '86071', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '86071', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '86071', value: true },
+          voiced: { source: '86071', value: true },
         },
         role: '86072',
       },
@@ -5763,90 +2127,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '85999',
         isSender: true,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '86071',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '86071',
-            value: true,
-          },
-          edit_message: {
-            source: '86071',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '86071',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '86071',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '86071',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '86071', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '86071', value: true },
+          edit_message: { source: '86071', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '86071', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '86071', value: true },
+          edit_thread_description: { source: '86071', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '86071', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '86071', value: true },
+          voiced: { source: '86071', value: true },
         },
         role: '86072',
       },
@@ -5872,96 +2173,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1682367957349,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '87789',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '87789',
-          value: true,
-        },
-        create_subthreads: {
-          source: '87789',
-          value: true,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '87789',
-          value: true,
-        },
-        edit_message: {
-          source: '87789',
-          value: true,
-        },
-        edit_permissions: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '87789',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '87789',
-          value: true,
-        },
-        join_thread: {
-          source: '84656',
-          value: true,
-        },
-        know_of: {
-          source: '87789',
-          value: true,
-        },
-        leave_thread: {
-          source: '87789',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '87789',
-          value: true,
-        },
-        remove_members: {
-          source: '87789',
-          value: true,
-        },
-        visible: {
-          source: '87789',
-          value: true,
-        },
-        voiced: {
-          source: '87789',
-          value: true,
-        },
+        add_members: { source: '87789', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '87789', value: true },
+        create_subthreads: { source: '87789', value: true },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '87789', value: true },
+        edit_message: { source: '87789', value: true },
+        edit_permissions: { source: '87789', value: true },
+        edit_thread: { source: '87789', value: true },
+        edit_thread_avatar: { source: '87789', value: true },
+        edit_thread_color: { source: '87789', value: true },
+        edit_thread_description: { source: '87789', value: true },
+        join_thread: { source: '84656', value: true },
+        know_of: { source: '87789', value: true },
+        leave_thread: { source: '87789', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '87789', value: true },
+        remove_members: { source: '87789', value: true },
+        visible: { source: '87789', value: true },
+        voiced: { source: '87789', value: true },
       },
       role: '87790',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -5971,90 +2206,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -6062,90 +2234,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '83809',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: null,
-            value: false,
-          },
-          edit_thread_description: {
-            source: null,
-            value: false,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: null,
-            value: false,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: null, value: false },
+          edit_thread_description: { source: null, value: false },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: null, value: false },
+          visible: { source: '84656', value: true },
+          voiced: { source: null, value: false },
         },
         role: null,
       },
@@ -6153,90 +2262,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87789',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87789',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87789',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87789',
-            value: true,
-          },
-          edit_message: {
-            source: '87789',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87789',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87789',
-            value: true,
-          },
-          leave_thread: {
-            source: '87789',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87789',
-            value: true,
-          },
-          remove_members: {
-            source: '87789',
-            value: true,
-          },
-          visible: {
-            source: '87789',
-            value: true,
-          },
-          voiced: {
-            source: '87789',
-            value: true,
-          },
+          add_members: { source: '87789', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87789', value: true },
+          create_subthreads: { source: '87789', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87789', value: true },
+          edit_message: { source: '87789', value: true },
+          edit_permissions: { source: '87789', value: true },
+          edit_thread: { source: '87789', value: true },
+          edit_thread_avatar: { source: '87789', value: true },
+          edit_thread_color: { source: '87789', value: true },
+          edit_thread_description: { source: '87789', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87789', value: true },
+          leave_thread: { source: '87789', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87789', value: true },
+          remove_members: { source: '87789', value: true },
+          visible: { source: '87789', value: true },
+          voiced: { source: '87789', value: true },
         },
         role: '87790',
       },
@@ -6244,90 +2290,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87789',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87789',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87789',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87789',
-            value: true,
-          },
-          edit_message: {
-            source: '87789',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87789',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87789',
-            value: true,
-          },
-          leave_thread: {
-            source: '87789',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87789',
-            value: true,
-          },
-          remove_members: {
-            source: '87789',
-            value: true,
-          },
-          visible: {
-            source: '87789',
-            value: true,
-          },
-          voiced: {
-            source: '87789',
-            value: true,
-          },
+          add_members: { source: '87789', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87789', value: true },
+          create_subthreads: { source: '87789', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87789', value: true },
+          edit_message: { source: '87789', value: true },
+          edit_permissions: { source: '87789', value: true },
+          edit_thread: { source: '87789', value: true },
+          edit_thread_avatar: { source: '87789', value: true },
+          edit_thread_color: { source: '87789', value: true },
+          edit_thread_description: { source: '87789', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87789', value: true },
+          leave_thread: { source: '87789', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87789', value: true },
+          remove_members: { source: '87789', value: true },
+          visible: { source: '87789', value: true },
+          voiced: { source: '87789', value: true },
         },
         role: '87790',
       },
@@ -6353,96 +2336,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1682368005862,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '87817',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: '87817',
-          value: true,
-        },
-        create_subthreads: {
-          source: '87817',
-          value: true,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: '87817',
-          value: true,
-        },
-        edit_message: {
-          source: '87817',
-          value: true,
-        },
-        edit_permissions: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '87817',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '87817',
-          value: true,
-        },
-        join_thread: {
-          source: '84656',
-          value: true,
-        },
-        know_of: {
-          source: '87817',
-          value: true,
-        },
-        leave_thread: {
-          source: '87817',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '87817',
-          value: true,
-        },
-        remove_members: {
-          source: '87817',
-          value: true,
-        },
-        visible: {
-          source: '87817',
-          value: true,
-        },
-        voiced: {
-          source: '87817',
-          value: true,
-        },
+        add_members: { source: '87817', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: '87817', value: true },
+        create_subthreads: { source: '87817', value: true },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: '87817', value: true },
+        edit_message: { source: '87817', value: true },
+        edit_permissions: { source: '87817', value: true },
+        edit_thread: { source: '87817', value: true },
+        edit_thread_avatar: { source: '87817', value: true },
+        edit_thread_color: { source: '87817', value: true },
+        edit_thread_description: { source: '87817', value: true },
+        join_thread: { source: '84656', value: true },
+        know_of: { source: '87817', value: true },
+        leave_thread: { source: '87817', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '87817', value: true },
+        remove_members: { source: '87817', value: true },
+        visible: { source: '87817', value: true },
+        voiced: { source: '87817', value: true },
       },
       role: '87818',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -6452,90 +2369,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: '1',
-            value: true,
-          },
-          create_subthreads: {
-            source: '1',
-            value: true,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: '1',
-            value: true,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: '1', value: true },
+          create_subthreads: { source: '1', value: true },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: '1', value: true },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -6543,90 +2397,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '83809',
         isSender: false,
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: null,
-            value: false,
-          },
-          edit_thread_description: {
-            source: null,
-            value: false,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: null,
-            value: false,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: null, value: false },
+          edit_thread_description: { source: null, value: false },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: null, value: false },
+          visible: { source: '84656', value: true },
+          voiced: { source: null, value: false },
         },
         role: null,
       },
@@ -6634,90 +2425,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '83969',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87817',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87817',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87817',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87817',
-            value: true,
-          },
-          edit_message: {
-            source: '87817',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87817',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87817',
-            value: true,
-          },
-          leave_thread: {
-            source: '87817',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87817',
-            value: true,
-          },
-          remove_members: {
-            source: '87817',
-            value: true,
-          },
-          visible: {
-            source: '87817',
-            value: true,
-          },
-          voiced: {
-            source: '87817',
-            value: true,
-          },
+          add_members: { source: '87817', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87817', value: true },
+          create_subthreads: { source: '87817', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87817', value: true },
+          edit_message: { source: '87817', value: true },
+          edit_permissions: { source: '87817', value: true },
+          edit_thread: { source: '87817', value: true },
+          edit_thread_avatar: { source: '87817', value: true },
+          edit_thread_color: { source: '87817', value: true },
+          edit_thread_description: { source: '87817', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87817', value: true },
+          leave_thread: { source: '87817', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87817', value: true },
+          remove_members: { source: '87817', value: true },
+          visible: { source: '87817', value: true },
+          voiced: { source: '87817', value: true },
         },
         role: '87818',
       },
@@ -6725,90 +2453,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '87817',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87817',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87817',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87817',
-            value: true,
-          },
-          edit_message: {
-            source: '87817',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87817',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87817',
-            value: true,
-          },
-          leave_thread: {
-            source: '87817',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87817',
-            value: true,
-          },
-          remove_members: {
-            source: '87817',
-            value: true,
-          },
-          visible: {
-            source: '87817',
-            value: true,
-          },
-          voiced: {
-            source: '87817',
-            value: true,
-          },
+          add_members: { source: '87817', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87817', value: true },
+          create_subthreads: { source: '87817', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87817', value: true },
+          edit_message: { source: '87817', value: true },
+          edit_permissions: { source: '87817', value: true },
+          edit_thread: { source: '87817', value: true },
+          edit_thread_avatar: { source: '87817', value: true },
+          edit_thread_color: { source: '87817', value: true },
+          edit_thread_description: { source: '87817', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87817', value: true },
+          leave_thread: { source: '87817', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87817', value: true },
+          remove_members: { source: '87817', value: true },
+          visible: { source: '87817', value: true },
+          voiced: { source: '87817', value: true },
         },
         role: '87818',
       },
@@ -6834,96 +2499,30 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     creationTime: 1682368041060,
     currentUser: {
       permissions: {
-        add_members: {
-          source: '87837',
-          value: true,
-        },
-        change_role: {
-          source: null,
-          value: false,
-        },
-        create_sidebars: {
-          source: null,
-          value: false,
-        },
-        create_subthreads: {
-          source: null,
-          value: false,
-        },
-        delete_thread: {
-          source: null,
-          value: false,
-        },
-        edit_entries: {
-          source: null,
-          value: false,
-        },
-        edit_message: {
-          source: '87837',
-          value: true,
-        },
-        edit_permissions: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread_avatar: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread_color: {
-          source: '87837',
-          value: true,
-        },
-        edit_thread_description: {
-          source: '87837',
-          value: true,
-        },
-        join_thread: {
-          source: '86071',
-          value: true,
-        },
-        know_of: {
-          source: '86071',
-          value: true,
-        },
-        leave_thread: {
-          source: '87837',
-          value: true,
-        },
-        manage_pins: {
-          source: null,
-          value: false,
-        },
-        membership: {
-          source: null,
-          value: false,
-        },
-        react_to_message: {
-          source: '87837',
-          value: true,
-        },
-        remove_members: {
-          source: '87837',
-          value: true,
-        },
-        visible: {
-          source: '86071',
-          value: true,
-        },
-        voiced: {
-          source: '87837',
-          value: true,
-        },
+        add_members: { source: '87837', value: true },
+        change_role: { source: null, value: false },
+        create_sidebars: { source: null, value: false },
+        create_subthreads: { source: null, value: false },
+        delete_thread: { source: null, value: false },
+        edit_entries: { source: null, value: false },
+        edit_message: { source: '87837', value: true },
+        edit_permissions: { source: '87837', value: true },
+        edit_thread: { source: '87837', value: true },
+        edit_thread_avatar: { source: '87837', value: true },
+        edit_thread_color: { source: '87837', value: true },
+        edit_thread_description: { source: '87837', value: true },
+        join_thread: { source: '86071', value: true },
+        know_of: { source: '86071', value: true },
+        leave_thread: { source: '87837', value: true },
+        manage_pins: { source: null, value: false },
+        membership: { source: null, value: false },
+        react_to_message: { source: '87837', value: true },
+        remove_members: { source: '87837', value: true },
+        visible: { source: '86071', value: true },
+        voiced: { source: '87837', value: true },
       },
       role: '87838',
-      subscription: {
-        home: true,
-        pushNotifs: true,
-      },
+      subscription: { home: true, pushNotifs: true },
       unread: false,
     },
     description: '',
@@ -6933,90 +2532,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '256',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '1',
-            value: true,
-          },
-          change_role: {
-            source: '1',
-            value: true,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_entries: {
-            source: '1',
-            value: true,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: '1',
-            value: true,
-          },
-          edit_thread: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '1',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '1',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: '1',
-            value: true,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: '1',
-            value: true,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: '1',
-            value: true,
-          },
+          add_members: { source: '1', value: true },
+          change_role: { source: '1', value: true },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: '1', value: true },
+          edit_entries: { source: '1', value: true },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: '1', value: true },
+          edit_thread: { source: '1', value: true },
+          edit_thread_avatar: { source: '1', value: true },
+          edit_thread_color: { source: '1', value: true },
+          edit_thread_description: { source: '1', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: '1', value: true },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: '1', value: true },
+          visible: { source: '1', value: true },
+          voiced: { source: '1', value: true },
         },
         role: null,
       },
@@ -7024,90 +2560,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '84589',
         isSender: true,
         permissions: {
-          add_members: {
-            source: '87837',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: '87837',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87837',
-            value: true,
-          },
-          join_thread: {
-            source: '86071',
-            value: true,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: '87837',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87837',
-            value: true,
-          },
-          remove_members: {
-            source: '87837',
-            value: true,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '87837',
-            value: true,
-          },
+          add_members: { source: '87837', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: '87837', value: true },
+          edit_permissions: { source: '87837', value: true },
+          edit_thread: { source: '87837', value: true },
+          edit_thread_avatar: { source: '87837', value: true },
+          edit_thread_color: { source: '87837', value: true },
+          edit_thread_description: { source: '87837', value: true },
+          join_thread: { source: '86071', value: true },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: '87837', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87837', value: true },
+          remove_members: { source: '87837', value: true },
+          visible: { source: '86071', value: true },
+          voiced: { source: '87837', value: true },
         },
         role: '87838',
       },
@@ -7115,90 +2588,27 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
         id: '85999',
         isSender: false,
         permissions: {
-          add_members: {
-            source: '87837',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: '87837',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87837',
-            value: true,
-          },
-          join_thread: {
-            source: '86071',
-            value: true,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: '87837',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87837',
-            value: true,
-          },
-          remove_members: {
-            source: '87837',
-            value: true,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '87837',
-            value: true,
-          },
+          add_members: { source: '87837', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: '87837', value: true },
+          edit_permissions: { source: '87837', value: true },
+          edit_thread: { source: '87837', value: true },
+          edit_thread_avatar: { source: '87837', value: true },
+          edit_thread_color: { source: '87837', value: true },
+          edit_thread_description: { source: '87837', value: true },
+          join_thread: { source: '86071', value: true },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: '87837', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87837', value: true },
+          remove_members: { source: '87837', value: true },
+          visible: { source: '86071', value: true },
+          voiced: { source: '87837', value: true },
         },
         role: '87838',
       },
@@ -7219,10 +2629,9 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
     type: 5,
   },
 };
-
 // Clear out contents of role permissions AND member permissions to
 // ensure `updateRolesAndPermissions` constructs them properly
-// without dependingon anything from existing store.
+// without depending on anything from existing store.
 const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStoreThreadInfos =
   {
     '1': {
@@ -7232,114 +2641,38 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1679537878106,
       currentUser: {
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: null,
-            value: false,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: null,
-            value: false,
-          },
-          edit_thread_description: {
-            source: null,
-            value: false,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '1',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: null,
-            value: false,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '1',
-            value: true,
-          },
-          voiced: {
-            source: null,
-            value: false,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: null, value: false },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: null, value: false },
+          edit_thread_description: { source: null, value: false },
+          join_thread: { source: null, value: false },
+          know_of: { source: '1', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: null, value: false },
+          remove_members: { source: null, value: false },
+          visible: { source: '1', value: true },
+          voiced: { source: null, value: false },
         },
         role: '83795',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description:
         'This is the first community on Comm. In the future it will be possible to create chats outside of a community, but for now all of these chats get set with GENESIS as their parent. GENESIS is hosted on Ashoat’s keyserver.',
       id: '1',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: '83796',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '83795',
-        },
+        { id: '256', isSender: false, permissions: {}, role: '83796' },
+        { id: '84589', isSender: false, permissions: {}, role: '83795' },
       ],
       name: 'GENESIS',
       parentThreadID: null,
@@ -7368,114 +2701,38 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1680734420100,
       currentUser: {
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84596',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84596',
-            value: true,
-          },
-          edit_message: {
-            source: '84596',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: null,
-            value: false,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84596',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84596',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84596',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84596',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84596',
-            value: true,
-          },
-          voiced: {
-            source: '84596',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84596', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84596', value: true },
+          edit_message: { source: '84596', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: null, value: false },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84596', value: true },
+          edit_thread_description: { source: '84596', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84596', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84596', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84596', value: true },
+          voiced: { source: '84596', value: true },
         },
         role: '84597',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description:
         'This is your private chat, where you can set reminders and jot notes in private!',
       id: '84596',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84597',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '84589', isSender: false, permissions: {}, role: '84597' },
       ],
       name: 'hillary',
       parentThreadID: '1',
@@ -7498,113 +2755,37 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1680734420159,
       currentUser: {
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84598',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84598',
-            value: true,
-          },
-          edit_message: {
-            source: '84598',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84598',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84598',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84598',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84598',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84598',
-            value: true,
-          },
-          voiced: {
-            source: '84598',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84598', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84598', value: true },
+          edit_message: { source: '84598', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84598', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84598', value: true },
+          edit_thread_description: { source: '84598', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84598', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84598', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84598', value: true },
+          voiced: { source: '84598', value: true },
         },
         role: '84599',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '84598',
       members: [
-        {
-          id: '256',
-          isSender: true,
-          permissions: {},
-          role: '84599',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84599',
-        },
+        { id: '256', isSender: true, permissions: {}, role: '84599' },
+        { id: '84589', isSender: false, permissions: {}, role: '84599' },
       ],
       name: '',
       parentThreadID: '1',
@@ -7627,119 +2808,38 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1680734427175,
       currentUser: {
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84627',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84627',
-            value: true,
-          },
-          edit_message: {
-            source: '84627',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '84627',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84627',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84627',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84627',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '84627',
-            value: true,
-          },
-          voiced: {
-            source: '84627',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84627', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84627', value: true },
+          edit_message: { source: '84627', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '84627', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '84627', value: true },
+          edit_thread_description: { source: '84627', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84627', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84627', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '84627', value: true },
+          voiced: { source: '84627', value: true },
         },
         role: '84628',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '84627',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83969',
-          isSender: false,
-          permissions: {},
-          role: '84628',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84628',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83969', isSender: false, permissions: {}, role: '84628' },
+        { id: '84589', isSender: false, permissions: {}, role: '84628' },
       ],
       name: '',
       parentThreadID: '1',
@@ -7762,125 +2862,39 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1680734490721,
       currentUser: {
         permissions: {
-          add_members: {
-            source: '84656',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '84656',
-            value: true,
-          },
-          create_subthreads: {
-            source: '84656',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '84656',
-            value: true,
-          },
-          edit_message: {
-            source: '84656',
-            value: true,
-          },
-          edit_permissions: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '84656',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '84656',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '84656',
-            value: true,
-          },
-          leave_thread: {
-            source: '84656',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '84656',
-            value: true,
-          },
-          remove_members: {
-            source: '84656',
-            value: true,
-          },
-          visible: {
-            source: '84656',
-            value: true,
-          },
-          voiced: {
-            source: '84656',
-            value: true,
-          },
+          add_members: { source: '84656', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '84656', value: true },
+          create_subthreads: { source: '84656', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '84656', value: true },
+          edit_message: { source: '84656', value: true },
+          edit_permissions: { source: '84656', value: true },
+          edit_thread: { source: '84656', value: true },
+          edit_thread_avatar: { source: '84656', value: true },
+          edit_thread_color: { source: '84656', value: true },
+          edit_thread_description: { source: '84656', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '84656', value: true },
+          leave_thread: { source: '84656', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '84656', value: true },
+          remove_members: { source: '84656', value: true },
+          visible: { source: '84656', value: true },
+          voiced: { source: '84656', value: true },
         },
         role: '84657',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '84656',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83809',
-          isSender: true,
-          permissions: {},
-          role: '84657',
-        },
-        {
-          id: '83969',
-          isSender: true,
-          permissions: {},
-          role: '84657',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84657',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83809', isSender: true, permissions: {}, role: '84657' },
+        { id: '83969', isSender: true, permissions: {}, role: '84657' },
+        { id: '84589', isSender: false, permissions: {}, role: '84657' },
       ],
       name: 'group',
       parentThreadID: '1',
@@ -7903,119 +2917,38 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1681160151827,
       currentUser: {
         permissions: {
-          add_members: {
-            source: null,
-            value: false,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '86071',
-            value: true,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '86071',
-            value: true,
-          },
-          edit_message: {
-            source: '86071',
-            value: true,
-          },
-          edit_permissions: {
-            source: null,
-            value: false,
-          },
-          edit_thread: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: null,
-            value: false,
-          },
-          edit_thread_color: {
-            source: '86071',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '86071',
-            value: true,
-          },
-          join_thread: {
-            source: null,
-            value: false,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: null,
-            value: false,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '86071',
-            value: true,
-          },
-          remove_members: {
-            source: null,
-            value: false,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '86071',
-            value: true,
-          },
+          add_members: { source: null, value: false },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '86071', value: true },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '86071', value: true },
+          edit_message: { source: '86071', value: true },
+          edit_permissions: { source: null, value: false },
+          edit_thread: { source: '86071', value: true },
+          edit_thread_avatar: { source: null, value: false },
+          edit_thread_color: { source: '86071', value: true },
+          edit_thread_description: { source: '86071', value: true },
+          join_thread: { source: null, value: false },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: null, value: false },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '86071', value: true },
+          remove_members: { source: null, value: false },
+          visible: { source: '86071', value: true },
+          voiced: { source: '86071', value: true },
         },
         role: '86072',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '86071',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '84589',
-          isSender: true,
-          permissions: {},
-          role: '86072',
-        },
-        {
-          id: '85999',
-          isSender: true,
-          permissions: {},
-          role: '86072',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '84589', isSender: true, permissions: {}, role: '86072' },
+        { id: '85999', isSender: true, permissions: {}, role: '86072' },
       ],
       name: '',
       parentThreadID: '1',
@@ -8038,125 +2971,39 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1682367957349,
       currentUser: {
         permissions: {
-          add_members: {
-            source: '87789',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87789',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87789',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87789',
-            value: true,
-          },
-          edit_message: {
-            source: '87789',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87789',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87789',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87789',
-            value: true,
-          },
-          leave_thread: {
-            source: '87789',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87789',
-            value: true,
-          },
-          remove_members: {
-            source: '87789',
-            value: true,
-          },
-          visible: {
-            source: '87789',
-            value: true,
-          },
-          voiced: {
-            source: '87789',
-            value: true,
-          },
+          add_members: { source: '87789', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87789', value: true },
+          create_subthreads: { source: '87789', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87789', value: true },
+          edit_message: { source: '87789', value: true },
+          edit_permissions: { source: '87789', value: true },
+          edit_thread: { source: '87789', value: true },
+          edit_thread_avatar: { source: '87789', value: true },
+          edit_thread_color: { source: '87789', value: true },
+          edit_thread_description: { source: '87789', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87789', value: true },
+          leave_thread: { source: '87789', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87789', value: true },
+          remove_members: { source: '87789', value: true },
+          visible: { source: '87789', value: true },
+          voiced: { source: '87789', value: true },
         },
         role: '87790',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '87789',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83809',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83969',
-          isSender: false,
-          permissions: {},
-          role: '87790',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '87790',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83809', isSender: false, permissions: {}, role: null },
+        { id: '83969', isSender: false, permissions: {}, role: '87790' },
+        { id: '84589', isSender: false, permissions: {}, role: '87790' },
       ],
       name: 'Subthread',
       parentThreadID: '84656',
@@ -8179,125 +3026,39 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1682368005862,
       currentUser: {
         permissions: {
-          add_members: {
-            source: '87817',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: '87817',
-            value: true,
-          },
-          create_subthreads: {
-            source: '87817',
-            value: true,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: '87817',
-            value: true,
-          },
-          edit_message: {
-            source: '87817',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87817',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87817',
-            value: true,
-          },
-          join_thread: {
-            source: '84656',
-            value: true,
-          },
-          know_of: {
-            source: '87817',
-            value: true,
-          },
-          leave_thread: {
-            source: '87817',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87817',
-            value: true,
-          },
-          remove_members: {
-            source: '87817',
-            value: true,
-          },
-          visible: {
-            source: '87817',
-            value: true,
-          },
-          voiced: {
-            source: '87817',
-            value: true,
-          },
+          add_members: { source: '87817', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: '87817', value: true },
+          create_subthreads: { source: '87817', value: true },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: '87817', value: true },
+          edit_message: { source: '87817', value: true },
+          edit_permissions: { source: '87817', value: true },
+          edit_thread: { source: '87817', value: true },
+          edit_thread_avatar: { source: '87817', value: true },
+          edit_thread_color: { source: '87817', value: true },
+          edit_thread_description: { source: '87817', value: true },
+          join_thread: { source: '84656', value: true },
+          know_of: { source: '87817', value: true },
+          leave_thread: { source: '87817', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87817', value: true },
+          remove_members: { source: '87817', value: true },
+          visible: { source: '87817', value: true },
+          voiced: { source: '87817', value: true },
         },
         role: '87818',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '87817',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83809',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83969',
-          isSender: false,
-          permissions: {},
-          role: '87818',
-        },
-        {
-          id: '84589',
-          isSender: true,
-          permissions: {},
-          role: '87818',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83809', isSender: false, permissions: {}, role: null },
+        { id: '83969', isSender: false, permissions: {}, role: '87818' },
+        { id: '84589', isSender: true, permissions: {}, role: '87818' },
       ],
       name: '',
       parentThreadID: '84656',
@@ -8320,119 +3081,38 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       creationTime: 1682368041060,
       currentUser: {
         permissions: {
-          add_members: {
-            source: '87837',
-            value: true,
-          },
-          change_role: {
-            source: null,
-            value: false,
-          },
-          create_sidebars: {
-            source: null,
-            value: false,
-          },
-          create_subthreads: {
-            source: null,
-            value: false,
-          },
-          delete_thread: {
-            source: null,
-            value: false,
-          },
-          edit_entries: {
-            source: null,
-            value: false,
-          },
-          edit_message: {
-            source: '87837',
-            value: true,
-          },
-          edit_permissions: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_avatar: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_color: {
-            source: '87837',
-            value: true,
-          },
-          edit_thread_description: {
-            source: '87837',
-            value: true,
-          },
-          join_thread: {
-            source: '86071',
-            value: true,
-          },
-          know_of: {
-            source: '86071',
-            value: true,
-          },
-          leave_thread: {
-            source: '87837',
-            value: true,
-          },
-          manage_pins: {
-            source: null,
-            value: false,
-          },
-          membership: {
-            source: null,
-            value: false,
-          },
-          react_to_message: {
-            source: '87837',
-            value: true,
-          },
-          remove_members: {
-            source: '87837',
-            value: true,
-          },
-          visible: {
-            source: '86071',
-            value: true,
-          },
-          voiced: {
-            source: '87837',
-            value: true,
-          },
+          add_members: { source: '87837', value: true },
+          change_role: { source: null, value: false },
+          create_sidebars: { source: null, value: false },
+          create_subthreads: { source: null, value: false },
+          delete_thread: { source: null, value: false },
+          edit_entries: { source: null, value: false },
+          edit_message: { source: '87837', value: true },
+          edit_permissions: { source: '87837', value: true },
+          edit_thread: { source: '87837', value: true },
+          edit_thread_avatar: { source: '87837', value: true },
+          edit_thread_color: { source: '87837', value: true },
+          edit_thread_description: { source: '87837', value: true },
+          join_thread: { source: '86071', value: true },
+          know_of: { source: '86071', value: true },
+          leave_thread: { source: '87837', value: true },
+          manage_pins: { source: null, value: false },
+          membership: { source: null, value: false },
+          react_to_message: { source: '87837', value: true },
+          remove_members: { source: '87837', value: true },
+          visible: { source: '86071', value: true },
+          voiced: { source: '87837', value: true },
         },
         role: '87838',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '87837',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '84589',
-          isSender: true,
-          permissions: {},
-          role: '87838',
-        },
-        {
-          id: '85999',
-          isSender: false,
-          permissions: {},
-          role: '87838',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '84589', isSender: true, permissions: {}, role: '87838' },
+        { id: '85999', isSender: false, permissions: {}, role: '87838' },
       ],
       name: 'Hello',
       parentThreadID: '86071',
@@ -8450,10 +3130,9 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
       type: 5,
     },
   };
-
 // Clear out contents of role permissions AND member permissions
 // AND current member permissions to ensure `updateRolesAndPermissions`
-// constructs them properly without dependingon anything from existing store.
+// constructs them properly without depending on anything from existing store.
 const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadStoreThreadInfos =
   {
     '1': {
@@ -8464,28 +3143,15 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '83795',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description:
         'This is the first community on Comm. In the future it will be possible to create chats outside of a community, but for now all of these chats get set with GENESIS as their parent. GENESIS is hosted on Ashoat’s keyserver.',
       id: '1',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: '83796',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '83795',
-        },
+        { id: '256', isSender: false, permissions: {}, role: '83796' },
+        { id: '84589', isSender: false, permissions: {}, role: '83795' },
       ],
       name: 'GENESIS',
       parentThreadID: null,
@@ -8515,28 +3181,15 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '84597',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description:
         'This is your private chat, where you can set reminders and jot notes in private!',
       id: '84596',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84597',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '84589', isSender: false, permissions: {}, role: '84597' },
       ],
       name: 'hillary',
       parentThreadID: '1',
@@ -8560,27 +3213,14 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '84599',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '84598',
       members: [
-        {
-          id: '256',
-          isSender: true,
-          permissions: {},
-          role: '84599',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84599',
-        },
+        { id: '256', isSender: true, permissions: {}, role: '84599' },
+        { id: '84589', isSender: false, permissions: {}, role: '84599' },
       ],
       name: '',
       parentThreadID: '1',
@@ -8604,33 +3244,15 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '84628',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '84627',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83969',
-          isSender: false,
-          permissions: {},
-          role: '84628',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84628',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83969', isSender: false, permissions: {}, role: '84628' },
+        { id: '84589', isSender: false, permissions: {}, role: '84628' },
       ],
       name: '',
       parentThreadID: '1',
@@ -8654,39 +3276,16 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '84657',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '84656',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83809',
-          isSender: true,
-          permissions: {},
-          role: '84657',
-        },
-        {
-          id: '83969',
-          isSender: true,
-          permissions: {},
-          role: '84657',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '84657',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83809', isSender: true, permissions: {}, role: '84657' },
+        { id: '83969', isSender: true, permissions: {}, role: '84657' },
+        { id: '84589', isSender: false, permissions: {}, role: '84657' },
       ],
       name: 'group',
       parentThreadID: '1',
@@ -8710,33 +3309,15 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '86072',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '86071',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '84589',
-          isSender: true,
-          permissions: {},
-          role: '86072',
-        },
-        {
-          id: '85999',
-          isSender: true,
-          permissions: {},
-          role: '86072',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '84589', isSender: true, permissions: {}, role: '86072' },
+        { id: '85999', isSender: true, permissions: {}, role: '86072' },
       ],
       name: '',
       parentThreadID: '1',
@@ -8760,39 +3341,16 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '87790',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '87789',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83809',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83969',
-          isSender: false,
-          permissions: {},
-          role: '87790',
-        },
-        {
-          id: '84589',
-          isSender: false,
-          permissions: {},
-          role: '87790',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83809', isSender: false, permissions: {}, role: null },
+        { id: '83969', isSender: false, permissions: {}, role: '87790' },
+        { id: '84589', isSender: false, permissions: {}, role: '87790' },
       ],
       name: 'Subthread',
       parentThreadID: '84656',
@@ -8816,39 +3374,16 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '87818',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '87817',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83809',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '83969',
-          isSender: false,
-          permissions: {},
-          role: '87818',
-        },
-        {
-          id: '84589',
-          isSender: true,
-          permissions: {},
-          role: '87818',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '83809', isSender: false, permissions: {}, role: null },
+        { id: '83969', isSender: false, permissions: {}, role: '87818' },
+        { id: '84589', isSender: true, permissions: {}, role: '87818' },
       ],
       name: '',
       parentThreadID: '84656',
@@ -8872,33 +3407,15 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       currentUser: {
         permissions: {},
         role: '87838',
-        subscription: {
-          home: true,
-          pushNotifs: true,
-        },
+        subscription: { home: true, pushNotifs: true },
         unread: false,
       },
       description: '',
       id: '87837',
       members: [
-        {
-          id: '256',
-          isSender: false,
-          permissions: {},
-          role: null,
-        },
-        {
-          id: '84589',
-          isSender: true,
-          permissions: {},
-          role: '87838',
-        },
-        {
-          id: '85999',
-          isSender: false,
-          permissions: {},
-          role: '87838',
-        },
+        { id: '256', isSender: false, permissions: {}, role: null },
+        { id: '84589', isSender: true, permissions: {}, role: '87838' },
+        { id: '85999', isSender: false, permissions: {}, role: '87838' },
       ],
       name: 'Hello',
       parentThreadID: '86071',
@@ -8916,7 +3433,6 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
       type: 5,
     },
   };
-
 export {
   threadStoreThreads,
   threadStoreThreadsWithEmptyRolePermissions,
