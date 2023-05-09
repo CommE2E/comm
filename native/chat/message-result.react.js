@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -10,6 +11,7 @@ import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 import type { ChatNavigationProp } from './chat.react';
 import { MessageListContextProvider } from './message-list-types.js';
 import { Message } from './message.react.js';
+import { modifyItemForResultScreen } from './utils.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors.js';
@@ -33,12 +35,16 @@ function MessageResult(props: MessageResultProps): React.Node {
 
   const onToggleFocus = React.useCallback(() => {}, []);
 
+  const item = modifyItemForResultScreen(props.item);
+
+  invariant(item.itemType !== 'loader', 'should not be loader');
+
   return (
     <ScrollView style={styles.container}>
       <MessageListContextProvider threadInfo={props.threadInfo}>
         <View style={styles.viewContainer}>
           <Message
-            item={props.item}
+            item={item}
             focused={false}
             navigation={props.navigation}
             route={props.route}

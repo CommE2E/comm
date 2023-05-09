@@ -15,6 +15,7 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import MessageResult from './message-result.react.js';
+import { modifyItemForResultScreen } from './utils.js';
 import Button from '../components/button.react.js';
 import Modal from '../components/modal.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -65,44 +66,12 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     };
   }, [isPinned, styles.pinButton, styles.removePinButton]);
 
-  const modifiedItem = React.useMemo(() => {
-    // The if / else if / else conditional is for Flow
-    if (item.messageShapeType === 'robotext') {
-      return item;
-    } else if (item.messageShapeType === 'multimedia') {
-      return {
-        ...item,
-        threadCreatedFromMessage: undefined,
-        reactions: {},
-        startsConversation: false,
-        startsCluster: true,
-        endsCluster: true,
-        messageInfo: {
-          ...item.messageInfo,
-          creator: {
-            ...item.messageInfo.creator,
-            isViewer: false,
-          },
-        },
-      };
-    } else {
-      return {
-        ...item,
-        threadCreatedFromMessage: undefined,
-        reactions: {},
-        startsConversation: false,
-        startsCluster: true,
-        endsCluster: true,
-        messageInfo: {
-          ...item.messageInfo,
-          creator: {
-            ...item.messageInfo.creator,
-            isViewer: false,
-          },
-        },
-      };
-    }
-  }, [item]);
+  const modifiedItem = React.useMemo(
+    () => modifyItemForResultScreen(item),
+    [item],
+  );
+
+  invariant(modifiedItem.itemType !== 'loader', 'should not be loader');
 
   const createToggleMessagePinPromise = React.useCallback(async () => {
     invariant(messageInfo.id, 'messageInfo.id should be defined');
