@@ -4,10 +4,12 @@ import html from 'common-tags/lib/html/index.js';
 import { detect as detectBrowser } from 'detect-browser';
 import type { $Response, $Request } from 'express';
 import fs from 'fs';
+import _isEqual from 'lodash/fp/isEqual.js';
 import _keyBy from 'lodash/fp/keyBy.js';
 import * as React from 'react';
 // eslint-disable-next-line import/extensions
 import ReactDOMServer from 'react-dom/server';
+import t from 'tcomb';
 import { promisify } from 'util';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
@@ -23,17 +25,28 @@ import {
   createPendingThread,
 } from 'lib/shared/thread-utils.js';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
+import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import { defaultNumberPerThread } from 'lib/types/message-types.js';
+import {
+  defaultNumberPerThread,
+  messageStoreValidator,
+} from 'lib/types/message-types.js';
 import { defaultEnabledReports } from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { threadStoreValidator } from 'lib/types/thread-types.js';
+import {
+  currentUserInfoValidator,
+  userInfosValidator,
+} from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
+import { tBool, tNumber, tShape, tString } from 'lib/utils/validation-utils.js';
 import getTitle from 'web/title/getTitle.js';
+import { navInfoValidator } from 'web/types/nav-types.js';
 import { navInfoFromURL } from 'web/url-utils.js';
 
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
@@ -49,6 +62,7 @@ import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
 import { streamJSON, waitForStream } from '../utils/json-stream.js';
 import { getAppURLFactsFromRequestURL } from '../utils/urls.js';
+import { validateOutput } from '../utils/validation-utils.js';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -140,6 +154,86 @@ async function getWebpackCompiledRootComponentForSSR() {
     );
   }
 }
+
+const initialReduxStateValidator = tShape({
+  navInfo: navInfoValidator,
+  deviceID: t.Nil,
+  currentUserInfo: currentUserInfoValidator,
+  draftStore: t.irreducible('default draftStore', _isEqual({ drafts: {} })),
+  sessionID: t.maybe(t.String),
+  entryStore: entryStoreValidator,
+  threadStore: threadStoreValidator,
+  userStore: tShape({
+    userInfos: userInfosValidator,
+    inconsistencyReports: t.irreducible(
+      'default inconsistencyReports',
+      _isEqual([]),
+    ),
+  }),
+  messageStore: messageStoreValidator,
+  updatesCurrentAsOf: t.Number,
+  loadingStatuses: t.irreducible('default loadingStatuses', _isEqual({})),
+  calendarFilters: t.irreducible(
+    'defaultCalendarFilters',
+    _isEqual(defaultCalendarFilters),
+  ),
+  urlPrefix: tString(''),
+  windowDimensions: t.irreducible(
+    'default windowDimensions',
+    _isEqual({ width: 0, height: 0 }),
+  ),
+  baseHref: t.String,
+  notifPermissionAlertInfo: t.irreducible(
+    'default notifPermissionAlertInfo',
+    _isEqual(defaultNotifPermissionAlertInfo),
+  ),
+  connection: tShape({
+    status: tString('connecting'),
+    queuedActivityUpdates: t.irreducible(
+      'default queuedActivityUpdates',
+      _isEqual([]),
+    ),
+    actualizedCalendarQuery: tShape({
+      startDate: t.String,
+      endDate: t.String,
+      filters: t.irreducible(
+        'default filters',
+        _isEqual(defaultCalendarFilters),
+      ),
+    }),
+    lateResponses: t.irreducible('default lateResponses', _isEqual([])),
+    showDisconnectedBar: tBool(false),
+  }),
+  watchedThreadIDs: t.irreducible('default watchedThreadIDs', _isEqual([])),
+  lifecycleState: tString('active'),
+  enabledApps: t.irreducible(
+    'defaultWebEnabledApps',
+    _isEqual(defaultWebEnabledApps),
+  ),
+  reportStore: t.irreducible(
+    'default reportStore',
+    _isEqual({
+      enabledReports: defaultEnabledReports,
+      queuedReports: [],
+    }),
+  ),
+  nextLocalID: tNumber(0),
+  cookie: t.Nil,
+  deviceToken: t.Nil,
+  dataLoaded: t.Boolean,
+  windowActive: tBool(true),
+  userPolicies: t.irreducible('default userPolicies', _isEqual({})),
+  cryptoStore: t.irreducible(
+    'default cryptoStore',
+    _isEqual({
+      primaryIdentityKeys: null,
+      notificationIdentityKeys: null,
+    }),
+  ),
+  pushApiPublicKey: t.maybe(t.String),
+  _persist: t.Nil,
+  commServicesAccessToken: t.Nil,
+});
 
 async function websiteResponder(
   viewer: Viewer,
@@ -432,7 +526,12 @@ async function websiteResponder(
     _persist: null,
     commServicesAccessToken: null,
   });
-  const jsonStream = streamJSON(res, initialReduxState);
+  const validatedInitialReduxState = validateOutput(
+    viewer,
+    initialReduxStateValidator,
+    initialReduxState,
+  );
+  const jsonStream = streamJSON(res, validatedInitialReduxState);
 
   await waitForStream(jsonStream);
   res.end(html`
