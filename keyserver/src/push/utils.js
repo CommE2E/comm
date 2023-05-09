@@ -14,7 +14,7 @@ import type {
   WNSNotification,
 } from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import {
   getAPNPushProfileForCodeVersion,

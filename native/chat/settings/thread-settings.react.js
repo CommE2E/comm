@@ -29,12 +29,12 @@ import {
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ThreadInfo,
   type ResolvedThreadInfo,
   type RelativeMemberInfo,
-  threadPermissions,
-  threadTypes,
 } from 'lib/types/thread-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {

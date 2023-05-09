@@ -7,7 +7,7 @@ import type {
   SaveEntryResponse,
 } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { dateFromString } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';

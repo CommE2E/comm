@@ -4,7 +4,8 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import type { ThreadInfo, ThreadType } from 'lib/types/thread-types.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useNavigateToThread } from './message-list-types.js';
 import Button from '../components/button.react.js';

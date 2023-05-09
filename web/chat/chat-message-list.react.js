@@ -20,7 +20,8 @@ import {
 import { messageKey } from 'lib/shared/message-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,

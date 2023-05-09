@@ -10,7 +10,7 @@ import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
 } from 'lib/shared/thread-utils.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import ComposedMessage from './composed-message.react.js';

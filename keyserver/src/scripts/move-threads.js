@@ -1,7 +1,7 @@
 // @flow
 
 import ashoat from 'lib/facts/ashoat.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { main } from './utils.js';
 import { createScriptViewer } from '../session/scripts.js';

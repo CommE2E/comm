@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { threadTypes } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,

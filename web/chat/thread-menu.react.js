@@ -15,11 +15,9 @@ import {
   viewerIsMember,
   threadIsChannel,
 } from 'lib/shared/thread-utils.js';
-import {
-  type ThreadInfo,
-  threadTypes,
-  threadPermissions,
-} from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,

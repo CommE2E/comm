@@ -5,7 +5,7 @@ import { View, StyleSheet } from 'react-native';
 import tinycolor from 'tinycolor2';
 
 import { threadLabel } from 'lib/shared/thread-utils.js';
-import type { ThreadType } from 'lib/types/thread-types.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import Pill from './pill.react.js';
 import ThreadIcon from './thread-icon.react.js';

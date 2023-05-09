@@ -5,7 +5,8 @@ import * as React from 'react';
 import { Text } from 'react-native';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from '../../components/button.react.js';
 import Modal from '../../components/modal.react.js';

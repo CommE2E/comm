@@ -11,12 +11,14 @@ import {
   getRoleForPermissions,
 } from 'lib/permissions/thread-permissions.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
+import type {
+  ThreadPermissionsBlob,
+  ThreadRolePermissionsBlob,
+} from 'lib/types/thread-permission-types.js';
 import {
-  type ThreadPermissionsBlob,
-  type ThreadRolePermissionsBlob,
   type ThreadType,
   assertThreadType,
-} from 'lib/types/thread-types.js';
+} from 'lib/types/thread-types-enum.js';
 import {
   updateTypes,
   type ServerUpdateInfo,

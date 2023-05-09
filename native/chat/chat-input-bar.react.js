@@ -64,9 +64,9 @@ import type {
   MessageInfo,
 } from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadInfo,
-  threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
   type RelativeMemberInfo,

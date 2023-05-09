@@ -10,7 +10,8 @@ import {
   createPendingThread,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
-import { threadTypes, type ThreadInfo } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
 import { useSelector } from '../redux/redux-utils.js';

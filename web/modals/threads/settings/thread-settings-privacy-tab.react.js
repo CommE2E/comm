@@ -10,11 +10,8 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
-import {
-  type ThreadInfo,
-  type ThreadChanges,
-  threadTypes,
-} from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,

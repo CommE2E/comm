@@ -15,7 +15,7 @@ import {
   defaultCalendarQuery,
 } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   updateTypes,
   type ServerCreateUpdatesResponse,

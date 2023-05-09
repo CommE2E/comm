@@ -75,12 +75,12 @@ import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThreadRequest,
   type NewThreadResult,
   type ThreadInfo,
   type RawThreadInfo,
-  threadTypes,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,

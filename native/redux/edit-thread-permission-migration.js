@@ -1,12 +1,12 @@
 // @flow
 
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   MemberInfo,
   ThreadCurrentUserInfo,
   RawThreadInfo,
   RoleInfo,
 } from 'lib/types/thread-types.js';
-import { threadTypes } from 'lib/types/thread-types.js';
 
 function addDetailedThreadEditPermissionsToUser<
   T: MemberInfo | ThreadCurrentUserInfo,

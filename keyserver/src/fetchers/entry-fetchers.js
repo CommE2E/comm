@@ -17,10 +17,8 @@ import type {
 } from 'lib/types/entry-types.js';
 import { calendarThreadFilterTypes } from 'lib/types/filter-types.js';
 import type { HistoryRevisionInfo } from 'lib/types/history-types.js';
-import {
-  threadPermissions,
-  type ThreadPermission,
-} from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import type { ThreadPermission } from 'lib/types/thread-permission-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 
