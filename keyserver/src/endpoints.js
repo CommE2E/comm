@@ -20,6 +20,7 @@ import {
 import type { JSONResponder } from './responders/handlers.js';
 import { getSessionPublicKeysResponder } from './responders/keys-responders.js';
 import {
+  createOrUpdatePublicLinkResponder,
   fetchPrimaryInviteLinksResponder,
   inviteLinkVerificationResponder,
 } from './responders/link-responders.js';
@@ -94,6 +95,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   create_multimedia_message: {
     responder: multimediaMessageCreationResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  create_or_update_public_link: {
+    responder: createOrUpdatePublicLinkResponder,
     requiredPolicies: baseLegalPolicies,
   },
   create_reaction_message: {
