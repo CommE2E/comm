@@ -27,6 +27,7 @@ import {
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
   isMessageSidebarSourceReactionOrEdit,
+  type SearchMessagesResponse,
 } from 'lib/types/message-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
@@ -902,17 +903,17 @@ async function rawMessageInfoForRowsAndRelatedMessages(
   return [...rawMessageInfos, ...rawRelatedMessageInfos];
 }
 
-const searchMessagesPageSize: number = defaultNumberPerThread + 1;
+const searchMessagesPageSize = defaultNumberPerThread + 1;
 
 async function searchMessagesInSingleChat(
   inputQuery: string,
   threadID: string,
   viewer?: Viewer,
   cursor?: string,
-): Promise<$ReadOnlyArray<RawMessageInfo>> {
+): Promise<SearchMessagesResponse> {
   if (inputQuery === '') {
     console.warn('received empty search query');
-    return [];
+    return { messages: [], endReached: true };
   }
   const pattern = processQueryForSearch(inputQuery);
 
@@ -942,18 +943,25 @@ async function searchMessagesInSingleChat(
 
   const [results] = await dbQuery(query);
   if (results.length === 0) {
-    return [];
+    return { messages: [], endReached: true };
   }
 
+  const endReached = results.length < searchMessagesPageSize;
+
+  const resultsPage = endReached ? results : results.slice(0, -1);
+
   const rawMessageInfos = await rawMessageInfoForRowsAndRelatedMessages(
-    results,
+    resultsPage,
     viewer,
   );
 
-  return shimUnsupportedRawMessageInfos(
-    rawMessageInfos,
-    viewer?.platformDetails,
-  );
+  return {
+    messages: shimUnsupportedRawMessageInfos(
+      rawMessageInfos,
+      viewer?.platformDetails,
+    ),
+    endReached: endReached,
+  };
 }
 
 export {
@@ -970,5 +978,4 @@ export {
   fetchRelatedMessages,
   rawMessageInfoForRowsAndRelatedMessages,
   searchMessagesInSingleChat,
-  searchMessagesPageSize,
 };

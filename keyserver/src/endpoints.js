@@ -28,6 +28,7 @@ import {
   reactionMessageCreationResponder,
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
+  searchMessagesResponder,
 } from './responders/message-responders.js';
 import { updateRelationshipsResponder } from './responders/relationship-responders.js';
 import {
@@ -184,6 +185,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   restore_entry: {
     responder: entryRestorationResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  search_messages: {
+    responder: searchMessagesResponder,
     requiredPolicies: baseLegalPolicies,
   },
   search_users: {
