@@ -14,6 +14,8 @@ import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,
@@ -25,8 +27,6 @@ import {
   type ThreadJoinResult,
   type ToggleMessagePinRequest,
   type ToggleMessagePinResult,
-  threadPermissions,
-  threadTypes,
 } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import { ServerError } from 'lib/utils/errors.js';

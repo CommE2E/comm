@@ -6,7 +6,7 @@ import genesis from 'lib/facts/genesis.js';
 import { usernameMaxLength } from 'lib/shared/account-utils.js';
 import { sortIDs } from 'lib/shared/relationship-utils.js';
 import { undirectedStatus } from 'lib/types/relationship-types.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { createThread } from '../creators/thread-creator.js';
 import { dbQuery, SQL } from '../database/database.js';

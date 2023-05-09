@@ -4,7 +4,7 @@ import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import { getAPNsNotificationTopic } from './providers.js';

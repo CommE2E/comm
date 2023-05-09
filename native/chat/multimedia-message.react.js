@@ -15,7 +15,7 @@ import {
   useCanCreateSidebarFromMessage,
 } from 'lib/shared/thread-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
-import { threadPermissions } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import ComposedMessage from './composed-message.react.js';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';

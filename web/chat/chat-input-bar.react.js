@@ -30,9 +30,9 @@ import {
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadInfo,
-  threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
   type RelativeMemberInfo,

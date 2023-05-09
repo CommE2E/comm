@@ -1,6 +1,6 @@
 // @flow
 
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { newThreadRequestInputValidator } from './thread-responders.js';
 

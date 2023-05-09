@@ -17,9 +17,9 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadInfo,
-  threadPermissions,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types.js';

@@ -12,11 +12,11 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
-  ThreadType,
   ThreadPermission,
   ThreadPermissionsBlob,
   ThreadRolePermissionsBlob,
-} from 'lib/types/thread-types.js';
+} from 'lib/types/thread-permission-types.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import { fetchThreadInfos } from './thread-fetchers.js';
 import { fetchKnownUserInfos } from './user-fetchers.js';

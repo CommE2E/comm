@@ -7,11 +7,8 @@ import {
   useENSResolvedAvatar,
 } from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
-import {
-  threadTypes,
-  type RawThreadInfo,
-  type ThreadInfo,
-} from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { type RawThreadInfo, type ThreadInfo } from 'lib/types/thread-types.js';
 
 import Avatar from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';

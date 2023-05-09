@@ -12,11 +12,8 @@ import {
   chatNameMaxLength,
 } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
-import {
-  type ThreadInfo,
-  type ThreadChanges,
-  threadPermissions,
-} from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
