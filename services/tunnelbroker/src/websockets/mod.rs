@@ -1,3 +1,5 @@
+mod session;
+
 use crate::CONFIG;
 use futures::future;
 use futures_util::stream::SplitSink;
@@ -47,11 +49,12 @@ async fn accept_connection(raw_stream: TcpStream, addr: SocketAddr) {
   // Create channel for messages to be passed to this connection
   let (tx, mut rx) = mpsc::unbounded_channel::<String>();
 
+  let session = session::WebsocketSession::new(tx.clone());
   let handle_incoming = incoming.try_for_each(|msg| {
     debug!("Received message from {}", addr);
     match msg {
       Message::Text(text) => {
-        match handle_message_from_device(&text, &tx) {
+        match session.handle_message_from_device(&text) {
           Ok(_) => {
             debug!("Successfully handled message: {}", text)
           }
@@ -79,22 +82,6 @@ async fn accept_connection(raw_stream: TcpStream, addr: SocketAddr) {
       ACTIVE_CONNECTIONS.remove("test");
     }
   }
-}
-
-fn handle_message_from_device(
-  message: &str,
-  tx: &tokio::sync::mpsc::UnboundedSender<std::string::String>,
-) -> Result<(), serde_json::Error> {
-  match serde_json::from_str::<Messages>(message)? {
-    Messages::SessionRequest(session_info) => {
-      ACTIVE_CONNECTIONS.insert(session_info.device_id, tx.clone());
-    }
-    _ => {
-      debug!("Received invalid request");
-    }
-  }
-
-  Ok(())
 }
 
 async fn handle_message_from_service(
