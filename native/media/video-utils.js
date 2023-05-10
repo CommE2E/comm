@@ -19,6 +19,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 
 import { ffmpeg } from './ffmpeg.js';
 import { temporaryDirectoryPath } from './file-utils.js';
+import { generateThumbhashStep } from './media-utils.js';
 
 // These are some numbers I sorta kinda made up
 // We should try to calculate them on a per-device basis
@@ -48,6 +49,7 @@ type ProcessVideoResponse = {
   +mime: string,
   +dimensions: Dimensions,
   +loop: boolean,
+  +thumbHash: ?string,
 };
 async function processVideo(
   input: ProcessVideoInfo,
@@ -104,12 +106,17 @@ async function processVideo(
         result: { success: false, reason: 'video_generate_thumbnail_failed' },
       };
     }
+    const thumbnailURI = `file://${plan.thumbnailPath}`;
+    const thumbhashStep = await generateThumbhashStep(thumbnailURI);
+    steps.push(thumbhashStep);
+    const { thumbHash } = thumbhashStep;
     return {
       steps,
       result: {
         success: true,
         uri: input.uri,
-        thumbnailURI: `file://${plan.thumbnailPath}`,
+        thumbnailURI,
+        thumbHash,
         mime: 'video/mp4',
         dimensions: input.dimensions,
         loop: false,
@@ -165,12 +172,17 @@ async function processVideo(
     mediaConfig[input.mime].videoConfig &&
     mediaConfig[input.mime].videoConfig.loop
   );
+  const thumbnailURI = `file://${plan.thumbnailPath}`;
+  const thumbhashStep = await generateThumbhashStep(thumbnailURI);
+  steps.push(thumbhashStep);
+  const { thumbHash } = thumbhashStep;
   return {
     steps,
     result: {
       success: true,
       uri: `file://${plan.outputPath}`,
-      thumbnailURI: `file://${plan.thumbnailPath}`,
+      thumbnailURI,
+      thumbHash,
       mime: 'video/mp4',
       dimensions,
       loop,
