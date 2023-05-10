@@ -10,7 +10,7 @@ import type { ImageStyle } from '../types/styles.js';
 type Props = {
   +placeholder: ?ImageSource,
   +source: ?ImageSource,
-  +onLoad: () => void,
+  +onLoad?: () => void,
   +spinnerColor: string,
   +style: ImageStyle,
   +invisibleLoad: boolean,

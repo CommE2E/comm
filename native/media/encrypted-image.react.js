@@ -12,7 +12,7 @@ import type { ImageStyle } from '../types/styles.js';
 type BaseProps = {
   +holder: string,
   +encryptionKey: string,
-  +onLoad: (uri: string) => void,
+  +onLoad?: (uri: string) => void,
   +spinnerColor: string,
   +style: ImageStyle,
   +invisibleLoad: boolean,
