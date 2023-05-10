@@ -10,6 +10,8 @@ import type {
 } from 'lib/types/media-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
+import { generateThumbhashStep } from './media-utils.js';
+
 type ProcessImageInfo = {
   uri: string,
   dimensions: Dimensions,
@@ -22,6 +24,7 @@ type ProcessImageResponse = {
   uri: string,
   mime: string,
   dimensions: Dimensions,
+  thumbHash: ?string,
 };
 async function processImage(input: ProcessImageInfo): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
@@ -38,9 +41,12 @@ async function processImage(input: ProcessImageInfo): Promise<{
     inputOrientation: orientation,
   });
   if (plan.action === 'none') {
+    const thumbhashStep = await generateThumbhashStep(uri);
+    steps.push(thumbhashStep);
+    const { thumbHash } = thumbhashStep;
     return {
       steps,
-      result: { success: true, uri, dimensions, mime },
+      result: { success: true, uri, dimensions, mime, thumbHash },
     };
   }
   const { targetMIME, compressionRatio, fitInside } = plan;
@@ -99,7 +105,14 @@ async function processImage(input: ProcessImageInfo): Promise<{
     };
   }
 
-  return { steps, result: { success: true, uri, dimensions, mime } };
+  const thumbhashStep = await generateThumbhashStep(uri);
+  steps.push(thumbhashStep);
+  const { thumbHash } = thumbhashStep;
+
+  return {
+    steps,
+    result: { success: true, uri, dimensions, mime, thumbHash },
+  };
 }
 
 export { processImage };
