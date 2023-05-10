@@ -126,6 +126,8 @@ COPY --chown=comm native/expo-modules/android-lifecycle/package.json \
   native/expo-modules/android-lifecycle/
 COPY --chown=comm native/expo-modules/aes-crypto/package.json \
   native/expo-modules/aes-crypto/
+COPY --chown=comm native/expo-modules/thumbhash/package.json \
+  native/expo-modules/thumbhash/
 COPY --chown=comm services/electron-update-server/package.json \
   services/electron-update-server/
 

@@ -1,0 +1,17 @@
+{
+  "name": "@commapp/thumbhash",
+  "version": "0.0.1",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "description": "Thumbhash generator module",
+  "dependencies": {},
+  "devDependencies": {
+    "expo-module-scripts": "^3.0.3",
+    "expo-modules-core": "1.1.1"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}
