@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 // @flow
 
 import invariant from 'invariant';
@@ -7,6 +6,7 @@ import { View } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import MessageSearchContent from './search-content.react.js';
 import { MessageSearchContext } from './search-provider.react.js';
 import Statement from './statement.react.js';
 import type { ChatNavigationProp } from '../chat/chat.react.js';
@@ -63,7 +63,19 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     );
   }
 
-  return <View></View>;
+  return (
+    <View>
+      <MessageSearchContent
+        navigation={props.navigation}
+        route={props.route}
+        query={query}
+        measuredMessages={measuredMessages}
+        appendMeasuredMessages={appendMeasuredMessages}
+        lastSearchResultsID={lastID}
+        setLastSearchResultsID={setLastID}
+      />
+    </View>
+  );
 }
 
 const unboundStyles = {
