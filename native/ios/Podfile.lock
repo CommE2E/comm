@@ -561,6 +561,8 @@ PODS:
   - SQLCipher-Amalgamation/standard (4.4.3):
     - OpenSSL-Universal
     - SQLCipher-Amalgamation/common
+  - Thumbhash (0.0.1):
+    - ExpoModulesCore
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -648,6 +650,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - "SQLCipher-Amalgamation (from `../../node_modules/@commapp/sqlcipher-amalgamation`)"
+  - Thumbhash (from `../expo-modules/thumbhash/ios`)
   - Yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -833,6 +836,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   SQLCipher-Amalgamation:
     :path: "../../node_modules/@commapp/sqlcipher-amalgamation"
+  Thumbhash:
+    :path: "../expo-modules/thumbhash/ios"
   Yoga:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
@@ -934,6 +939,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 18503de6621dd2c420d680e33d46bf8e1d5169b0
   SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
   SQLCipher-Amalgamation: cbd36045fe7b458b8a442958a01aefdbc44c20f8
+  Thumbhash: 38f05b358a74ff8946820dc5f8330071e931925a
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
 
 PODFILE CHECKSUM: 60ed9de6b14a66c6022cd82cafcb04594edd7eaf
