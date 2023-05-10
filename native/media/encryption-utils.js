@@ -181,6 +181,12 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
   }
 
   if (preprocessedMedia.mediaType === 'photo') {
+    const thumbHashResult = preprocessedMedia.thumbHash
+      ? encryptBase64(
+          preprocessedMedia.thumbHash,
+          hexToUintArray(encryptionResult.encryptionKey),
+        )
+      : null;
     return {
       steps,
       result: {
@@ -188,6 +194,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
         mediaType: 'encrypted_photo',
         uploadURI: encryptionResult.uri,
         blobHash: encryptionResult.sha256Hash,
+        thumbHash: thumbHashResult?.base64,
         encryptionKey: encryptionResult.encryptionKey,
         shouldDisposePath: pathFromURI(encryptionResult.uri),
       },
@@ -203,6 +210,13 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
     return { steps, result: thumbnailEncryptionResult };
   }
 
+  const thumbHashResult = preprocessedMedia.thumbHash
+    ? encryptBase64(
+        preprocessedMedia.thumbHash,
+        hexToUintArray(thumbnailEncryptionResult.encryptionKey),
+      )
+    : null;
+
   return {
     steps,
     result: {
@@ -210,6 +224,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
       mediaType: 'encrypted_video',
       uploadURI: encryptionResult.uri,
       blobHash: encryptionResult.sha256Hash,
+      thumbHash: thumbHashResult?.base64,
       encryptionKey: encryptionResult.encryptionKey,
       uploadThumbnailURI: thumbnailEncryptionResult.uri,
       thumbnailBlobHash: thumbnailEncryptionResult.sha256Hash,
