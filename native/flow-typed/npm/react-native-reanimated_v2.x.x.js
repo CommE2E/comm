@@ -133,6 +133,12 @@ declare module 'react-native-reanimated' {
     extrapolate?: ?ExtrapolateType,
   ) => number;
 
+  declare export type InterpolateColor = (
+    input: number,
+    inputRange: $ReadOnlyArray<number>,
+    outputRange: $ReadOnlyArray<number | string>,
+  ) => NodeImpl;
+
   declare type EasingType = { ... };
   declare type EasingModule = {
     +ease: EasingType,
@@ -393,6 +399,18 @@ declare module 'react-native-reanimated' {
     build(): AnimationConfigFunction<ExitAnimationsValues>;
   }
 
+  declare export class FadeInDown extends ComplexAnimationBuilder {
+    static createInstance(): FadeInDown;
+
+    build(): AnimationConfigFunction<EntryAnimationsValues>;
+  }
+
+  declare export class FadeOutDown extends ComplexAnimationBuilder {
+    static createInstance(): FadeOutDown;
+
+    build(): AnimationConfigFunction<ExitAnimationsValues>;
+  }
+
   declare type $SyntheticEvent<T: { ... }> = {
     +nativeEvent: $ReadOnly<$Exact<T>>,
     ...
@@ -480,6 +498,15 @@ declare module 'react-native-reanimated' {
     springConfig?: WithSpringConfig,
   ) => number;
 
+  declare type WithTimingConfig = $Shape<{|
+    +duration: number,
+  |}>;
+
+  declare type WithTiming = (
+    toValue: number | string,
+    timingConfig?: WithTimingConfig,
+  ) => number;
+
   declare type RunOnJS = <F>(func: F) => F;
 
   declare type CancelAnimation = (animation: number) => void;
@@ -522,6 +549,7 @@ declare module 'react-native-reanimated' {
   declare export var interpolateNode: InterpolateNode;
   declare export var interpolateColors: InterpolateColors;
   declare export var interpolate: Interpolate;
+  declare export var interpolateColor: InterpolateColor;
   declare export var Extrapolate: ExtrapolateModule;
   declare export var timing: Timing;
   declare export var SpringUtils: SpringUtilsModule;
@@ -534,6 +562,7 @@ declare module 'react-native-reanimated' {
   declare export var useDerivedValue: UseDerivedValue;
   declare export var useAnimatedStyle: UseAnimatedStyle;
   declare export var withSpring: WithSpring;
+  declare export var withTiming: WithTiming;
   declare export var runOnJS: RunOnJS;
   declare export var cancelAnimation: CancelAnimation;
 
@@ -576,6 +605,7 @@ declare module 'react-native-reanimated' {
     +interpolateNode: InterpolateNode,
     +interpolateColors: InterpolateColors,
     +interpolate: Interpolate,
+    +interpolateColor: InterpolateColor,
     +Extrapolate: ExtrapolateModule,
     +timing: Timing,
     +spring: Spring,
@@ -588,6 +618,7 @@ declare module 'react-native-reanimated' {
     +useDerivedValue: UseDerivedValue,
     +useAnimatedStyle: UseAnimatedStyle,
     +withSpring: WithSpring,
+    +withTiming: WithTiming,
     +runOnJS: RunOnJS,
     +cancelAnimation: CancelAnimation,
     ...
