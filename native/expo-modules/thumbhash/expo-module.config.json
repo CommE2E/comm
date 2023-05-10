@@ -1,0 +1,9 @@
+{
+  "platforms": ["ios", "android"],
+  "ios": {
+    "modules": ["ThumbhashModule"]
+  },
+  "android": {
+    "modules": ["app.comm.android.thumbhash.ThumbhashModule"]
+  }
+}
