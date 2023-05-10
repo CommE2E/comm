@@ -102,21 +102,26 @@ class Multimedia extends React.PureComponent<Props, State> {
     const { currentSource, departingSource } = this.state;
     if (departingSource) {
       images.push(this.renderSource(currentSource, true));
-      images.push(this.renderSource(departingSource, true));
+      images.push(this.renderSource(departingSource, false, false));
     } else {
       images.push(this.renderSource(currentSource));
     }
     return <View style={styles.container}>{images}</View>;
   }
 
-  renderSource(source: Source, invisibleLoad?: boolean = false) {
+  renderSource(
+    source: Source,
+    invisibleLoad?: boolean = false,
+    triggerOnLoad?: boolean = true,
+  ) {
+    const onLoadProp = triggerOnLoad ? this.onLoad : undefined;
     if (source.kind === 'encrypted') {
       return (
         <EncryptedImage
           thumbHash={source.thumbHash}
           holder={source.holder}
           encryptionKey={source.encryptionKey}
-          onLoad={this.onLoad}
+          onLoad={onLoadProp}
           spinnerColor={this.props.spinnerColor}
           style={styles.image}
           invisibleLoad={invisibleLoad}
@@ -130,7 +135,7 @@ class Multimedia extends React.PureComponent<Props, State> {
       return (
         <RemoteImage
           uri={uri}
-          onLoad={this.onLoad}
+          onLoad={onLoadProp}
           placeholder={placeholder}
           spinnerColor={this.props.spinnerColor}
           style={styles.image}
@@ -142,7 +147,7 @@ class Multimedia extends React.PureComponent<Props, State> {
       return (
         <Image
           source={{ uri }}
-          onLoad={this.onLoad}
+          onLoad={onLoadProp}
           placeholder={placeholder}
           style={styles.image}
           key={uri}

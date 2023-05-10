@@ -11,7 +11,7 @@ import type { ImageStyle } from '../types/styles.js';
 
 type BaseProps = {
   +uri: string,
-  +onLoad: (uri: string) => void,
+  +onLoad?: (uri: string) => void,
   +spinnerColor: string,
   +style: ImageStyle,
   +invisibleLoad: boolean,
