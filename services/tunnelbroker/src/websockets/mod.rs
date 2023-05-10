@@ -1,7 +1,7 @@
 mod session;
 
+use crate::database::DatabaseClient;
 use crate::CONFIG;
-use futures::future;
 use futures_util::stream::SplitSink;
 use futures_util::SinkExt;
 use futures_util::{StreamExt, TryStreamExt};
@@ -16,7 +16,7 @@ use tunnelbroker_messages::messages::Messages;
 
 use crate::ACTIVE_CONNECTIONS;
 
-pub async fn run_server() -> Result<(), Error> {
+pub async fn run_server(db_client: DatabaseClient) -> Result<(), Error> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
     .unwrap_or_else(|_| format!("127.0.0.1:{}", &CONFIG.http_port));
 
@@ -24,14 +24,18 @@ pub async fn run_server() -> Result<(), Error> {
   info!("Listening on: {}", addr);
 
   while let Ok((stream, addr)) = listener.accept().await {
-    tokio::spawn(accept_connection(stream, addr));
+    tokio::spawn(accept_connection(stream, addr, db_client.clone()));
   }
 
   Ok(())
 }
 
 /// Handler for any incoming websocket connections
-async fn accept_connection(raw_stream: TcpStream, addr: SocketAddr) {
+async fn accept_connection(
+  raw_stream: TcpStream,
+  addr: SocketAddr,
+  db_client: DatabaseClient,
+) {
   debug!("Incoming connection from: {}", addr);
 
   let ws_stream = match tokio_tungstenite::accept_async(raw_stream).await {
@@ -49,12 +53,12 @@ async fn accept_connection(raw_stream: TcpStream, addr: SocketAddr) {
   // Create channel for messages to be passed to this connection
   let (tx, mut rx) = mpsc::unbounded_channel::<String>();
 
-  let session = session::WebsocketSession::new(tx.clone());
-  let handle_incoming = incoming.try_for_each(|msg| {
+  let session = session::WebsocketSession::new(tx.clone(), db_client.clone());
+  let handle_incoming = incoming.try_for_each(|msg| async {
     debug!("Received message from {}", addr);
     match msg {
       Message::Text(text) => {
-        match session.handle_message_from_device(&text) {
+        match session.handle_message_from_device(&text).await {
           Ok(_) => {
             debug!("Successfully handled message: {}", text)
           }
@@ -67,8 +71,7 @@ async fn accept_connection(raw_stream: TcpStream, addr: SocketAddr) {
         error!("Invalid message was received");
       }
     }
-
-    future::ok(())
+    Ok(())
   });
 
   debug!("Polling for messages from: {}", addr);
