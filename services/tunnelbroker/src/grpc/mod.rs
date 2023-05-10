@@ -7,13 +7,14 @@ use proto::tunnelbroker_service_server::{
 };
 use proto::Empty;
 use tonic::transport::Server;
-use tonic::Status;
-use tracing::debug;
+use tracing::{debug, error};
 
+use crate::database::{handle_ddb_error, DatabaseClient};
 use crate::{constants, ACTIVE_CONNECTIONS, CONFIG};
 
-#[derive(Debug, Default)]
-struct TunnelbrokerGRPC {}
+struct TunnelbrokerGRPC {
+  client: DatabaseClient,
+}
 
 #[tonic::async_trait]
 impl TunnelbrokerService for TunnelbrokerGRPC {
@@ -24,18 +25,27 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
     let message = request.into_inner();
 
     debug!("Received message for {}", &message.device_id);
-    // TODO: Persist messages for inactive connections
-    let tx = ACTIVE_CONNECTIONS
-      .get(&message.device_id)
-      .ok_or(Status::unavailable("Device does not exist"))?;
-    tx.send(message.payload).expect("Unable to send message");
+    if let Some(tx) = ACTIVE_CONNECTIONS.get(&message.device_id) {
+      if let Err(_) = tx.send(message.payload) {
+        error!("Unable to send message to device: {}", &message.device_id);
+        ACTIVE_CONNECTIONS.remove(&message.device_id);
+      }
+    } else {
+      self
+        .client
+        .persist_message(&message.device_id, &message.payload)
+        .await
+        .map_err(handle_ddb_error)?;
+    }
 
     let response = tonic::Response::new(Empty {});
     Ok(response)
   }
 }
 
-pub async fn run_server() -> Result<(), tonic::transport::Error> {
+pub async fn run_server(
+  client: DatabaseClient,
+) -> Result<(), tonic::transport::Error> {
   let addr = format!("[::1]:{}", CONFIG.grpc_port)
     .parse()
     .expect("Unable to parse gRPC address");
@@ -44,7 +54,7 @@ pub async fn run_server() -> Result<(), tonic::transport::Error> {
   Server::builder()
     .http2_keepalive_interval(Some(constants::GRPC_KEEP_ALIVE_PING_INTERVAL))
     .http2_keepalive_timeout(Some(constants::GRPC_KEEP_ALIVE_PING_TIMEOUT))
-    .add_service(TunnelbrokerServiceServer::new(TunnelbrokerGRPC::default()))
+    .add_service(TunnelbrokerServiceServer::new(TunnelbrokerGRPC { client }))
     .serve(addr)
     .await
 }

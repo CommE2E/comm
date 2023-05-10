@@ -28,10 +28,10 @@ async fn main() -> Result<()> {
 
   config::parse_cmdline_args()?;
   let aws_config = config::load_aws_config().await;
-  let _db_client = database::DatabaseClient::new(&aws_config);
+  let db_client = database::DatabaseClient::new(&aws_config);
 
-  let grpc_server = grpc::run_server();
-  let websocket_server = websockets::run_server();
+  let grpc_server = grpc::run_server(db_client.clone());
+  let websocket_server = websockets::run_server(db_client.clone());
 
   tokio::select! {
     Ok(_) = grpc_server => { Ok(()) },
