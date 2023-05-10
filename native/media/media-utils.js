@@ -9,12 +9,15 @@ import type {
   MediaMissionStep,
   MediaMissionFailure,
   NativeMediaSelection,
+  GenerateThumbhashMediaMissionStep,
 } from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import { fetchFileInfo } from './file-utils.js';
 import { processImage } from './image-utils.js';
 import { saveMedia } from './save-media.js';
 import { processVideo } from './video-utils.js';
+import { generateThumbHash } from '../utils/thumbhash-module.js';
 
 type MediaProcessConfig = {
   +hasWiFi: boolean,
@@ -29,6 +32,7 @@ type SharedMediaResult = {
   +filename: string,
   +mime: string,
   +dimensions: Dimensions,
+  +thumbHash: ?string,
 };
 export type MediaResult =
   | { +mediaType: 'photo', ...SharedMediaResult }
@@ -88,7 +92,8 @@ async function innerProcessMedia(
     mediaType = null,
     mime = null,
     loop = false,
-    resultReturned = false;
+    resultReturned = false,
+    thumbHash = null;
   const returnResult = (failure?: MediaMissionFailure) => {
     invariant(
       !resultReturned,
@@ -118,6 +123,7 @@ async function innerProcessMedia(
         mediaType,
         dimensions,
         loop,
+        thumbHash,
       });
     } else {
       sendResult({
@@ -128,6 +134,7 @@ async function innerProcessMedia(
         mime,
         mediaType,
         dimensions,
+        thumbHash,
       });
     }
   };
@@ -208,6 +215,7 @@ async function innerProcessMedia(
       mime,
       dimensions,
       loop,
+      thumbHash,
     } = videoResult);
   } else if (mediaType === 'photo') {
     const { steps: imageSteps, result: imageResult } = await processImage({
@@ -221,7 +229,7 @@ async function innerProcessMedia(
     if (!imageResult.success) {
       return await finish(imageResult);
     }
-    ({ uri: uploadURI, mime, dimensions } = imageResult);
+    ({ uri: uploadURI, mime, dimensions, thumbHash } = imageResult);
   } else {
     invariant(false, `unknown mediaType ${mediaType}`);
   }
@@ -264,4 +272,22 @@ function getDimensions(uri: string): Promise<Dimensions> {
   });
 }
 
-export { processMedia, getDimensions };
+async function generateThumbhashStep(
+  uri: string,
+): Promise<GenerateThumbhashMediaMissionStep> {
+  let thumbHash, exceptionMessage;
+  try {
+    thumbHash = await generateThumbHash(uri);
+  } catch (err) {
+    exceptionMessage = getMessageForException(err);
+  }
+
+  return {
+    step: 'generate_thumbhash',
+    success: !!thumbHash && !exceptionMessage,
+    exceptionMessage,
+    thumbHash,
+  };
+}
+
+export { processMedia, getDimensions, generateThumbhashStep };
