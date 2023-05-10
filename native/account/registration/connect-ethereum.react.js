@@ -22,24 +22,62 @@ type Props = {
   +navigation: RegistrationNavigationProp<'ConnectEthereum'>,
   +route: NavigationRoute<'ConnectEthereum'>,
 };
-// eslint-disable-next-line no-unused-vars
 function ConnectEthereum(props: Props): React.Node {
   const onConnect = React.useCallback(() => {}, []);
   const onSkip = React.useCallback(() => {}, []);
 
+  const isNerdMode =
+    props.route.params.userSelections.coolOrNerdMode === 'nerd';
   const styles = useStyles(unboundStyles);
+
+  let body;
+  if (!isNerdMode) {
+    body = (
+      <Text style={styles.body}>
+        Connecting your Ethereum wallet allows you to use your ENS name and
+        avatar in the app. You&apos;ll also be able to log in with your wallet
+        instead of a password.
+      </Text>
+    );
+  } else {
+    body = (
+      <>
+        <Text style={styles.body}>
+          Connecting your Ethereum wallet has three benefits:
+        </Text>
+        <View style={styles.list}>
+          <View style={styles.listItem}>
+            <Text style={styles.listItemNumber}>{'1. '}</Text>
+            <Text style={styles.listItemContent}>
+              Your peers will be able to cryptographically verify that your Comm
+              account is associated with your Ethereum wallet.
+            </Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.listItemNumber}>{'2. '}</Text>
+            <Text style={styles.listItemContent}>
+              You&apos;ll be able to use your ENS name and avatar in the app.
+            </Text>
+          </View>
+          <View style={styles.listItem}>
+            <Text style={styles.listItemNumber}>{'3. '}</Text>
+            <Text style={styles.listItemContent}>
+              You can choose to skip setting a password, and to log in with your
+              Ethereum wallet instead.
+            </Text>
+          </View>
+        </View>
+      </>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <RegistrationContainer>
         <Text style={styles.header}>
           Do you want to connect an Ethereum Wallet to your account?
         </Text>
-        <Text style={styles.body}>
-          Connecting your Ethereum wallet allows you to cryptographically prove
-          your identity to your peers. You can use your ENS name as your
-          username and your ENS avatar as your avatar. You&apos;ll also be able
-          to secure your account with a wallet signature instead of a password.
-        </Text>
+        {body}
         <View style={styles.ethereumLogoContainer}>
           <EthereumLogoDark />
         </View>
@@ -77,6 +115,24 @@ const unboundStyles = {
   },
   ethereumLogoContainer: {
     alignItems: 'center',
+  },
+  list: {
+    paddingBottom: 16,
+  },
+  listItem: {
+    flexDirection: 'row',
+  },
+  listItemNumber: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
+  },
+  listItemContent: {
+    flexShrink: 1,
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
   },
 };
 
