@@ -72,6 +72,7 @@ import {
 } from '../navigation/route-names.js';
 import MessageSearch from '../search/message-search.react.js';
 import SearchHeader from '../search/search-header.react.js';
+import SearchMessagesButton from '../search/search-messages-button.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 const unboundStyles = {
@@ -218,6 +219,8 @@ const messageListOptions = ({ navigation, route }) => {
   const areSettingsEnabled =
     !threadIsPending(route.params.threadInfo.id) && !isSearchEmpty;
 
+  const headerRightStyle = { flexDirection: 'row' };
+
   return {
     // This is a render prop, not a component
     // eslint-disable-next-line react/display-name
@@ -234,10 +237,16 @@ const messageListOptions = ({ navigation, route }) => {
       ? // This is a render prop, not a component
         // eslint-disable-next-line react/display-name
         () => (
-          <ThreadSettingsButton
-            threadInfo={route.params.threadInfo}
-            navigate={navigation.navigate}
-          />
+          <View style={headerRightStyle}>
+            <SearchMessagesButton
+              threadInfo={route.params.threadInfo}
+              navigate={navigation.navigate}
+            />
+            <ThreadSettingsButton
+              threadInfo={route.params.threadInfo}
+              navigate={navigation.navigate}
+            />
+          </View>
         )
       : undefined,
     headerBackTitleVisible: false,
