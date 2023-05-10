@@ -34,9 +34,9 @@ declare module 'react-native-reanimated' {
     +originY?: number,
     +[key: string]: any,
   |};
-  
+
   declare class NodeImpl { }
-  
+
   declare class ValueImpl extends NodeImpl {
     constructor(val: number): this;
     setValue(num: number): void;
@@ -101,6 +101,15 @@ declare module 'react-native-reanimated' {
 
   declare export type Debug = (string, NodeParam) => NodeImpl;
 
+  declare type AnimationCallback = (
+    finished?: boolean,
+    current?: AnimatableValue
+  ) => void;
+
+  declare type Animatable = number | string | Array<number>;
+  declare type AnimatableValueObject = { [key: string]: Animatable };
+  declare export type AnimatableValue = Animatable | AnimatableValueObject;
+
   declare type ExtrapolateType = { ... };
   declare type ExtrapolateModule = {
     +CLAMP: ExtrapolateType,
@@ -133,6 +142,19 @@ declare module 'react-native-reanimated' {
     extrapolate?: ?ExtrapolateType,
   ) => number;
 
+  declare export type InterpolateColorConfig = $Shape<{
+    +gamma: number,
+    +useCorrectedHSVInterpolation: boolean,
+  }>;
+
+  declare export type InterpolateColor = <T: string | number> (
+    input: number,
+    inputRange: $ReadOnlyArray<number>,
+    outputRange: $ReadOnlyArray<T>,
+    colorSpace?: 'RGB' | 'HSV',
+    interpolateColorConfig?: InterpolateColorConfig,
+  ) => T;
+
   declare type EasingType = { ... };
   declare type EasingModule = {
     +ease: EasingType,
@@ -144,6 +166,7 @@ declare module 'react-native-reanimated' {
   };
   declare export var EasingNode: EasingModule;
   declare type EasingFn = (t: number) => number;
+  declare type EasingFnFactory = { factory: () => EasingFn };
 
   declare export type TimingState = {
     +finished: ValueImpl,
@@ -393,6 +416,18 @@ declare module 'react-native-reanimated' {
     build(): AnimationConfigFunction<ExitAnimationsValues>;
   }
 
+  declare export class FadeInDown extends ComplexAnimationBuilder {
+    static createInstance(): FadeInDown;
+
+    build(): AnimationConfigFunction<EntryAnimationsValues>;
+  }
+
+  declare export class FadeOutDown extends ComplexAnimationBuilder {
+    static createInstance(): FadeOutDown;
+
+    build(): AnimationConfigFunction<ExitAnimationsValues>;
+  }
+
   declare type $SyntheticEvent<T: { ... }> = {
     +nativeEvent: $ReadOnly<$Exact<T>>,
     ...
@@ -480,6 +515,17 @@ declare module 'react-native-reanimated' {
     springConfig?: WithSpringConfig,
   ) => number;
 
+  declare type WithTimingConfig = $Shape<{
+    +duration: number,
+    +easing: EasingFn | EasingFnFactory,
+  }>;
+
+  declare type WithTiming = <T: AnimatableValue>(
+    toValue: T,
+    timingConfig?: WithTimingConfig,
+    callback?: AnimationCallback,
+  ) => T;
+
   declare type RunOnJS = <F>(func: F) => F;
 
   declare type CancelAnimation = (animation: number) => void;
@@ -522,6 +568,7 @@ declare module 'react-native-reanimated' {
   declare export var interpolateNode: InterpolateNode;
   declare export var interpolateColors: InterpolateColors;
   declare export var interpolate: Interpolate;
+  declare export var interpolateColor: InterpolateColor;
   declare export var Extrapolate: ExtrapolateModule;
   declare export var timing: Timing;
   declare export var SpringUtils: SpringUtilsModule;
@@ -534,6 +581,7 @@ declare module 'react-native-reanimated' {
   declare export var useDerivedValue: UseDerivedValue;
   declare export var useAnimatedStyle: UseAnimatedStyle;
   declare export var withSpring: WithSpring;
+  declare export var withTiming: WithTiming;
   declare export var runOnJS: RunOnJS;
   declare export var cancelAnimation: CancelAnimation;
 
@@ -576,6 +624,7 @@ declare module 'react-native-reanimated' {
     +interpolateNode: InterpolateNode,
     +interpolateColors: InterpolateColors,
     +interpolate: Interpolate,
+    +interpolateColor: InterpolateColor,
     +Extrapolate: ExtrapolateModule,
     +timing: Timing,
     +spring: Spring,
@@ -588,6 +637,7 @@ declare module 'react-native-reanimated' {
     +useDerivedValue: UseDerivedValue,
     +useAnimatedStyle: UseAnimatedStyle,
     +withSpring: WithSpring,
+    +withTiming: WithTiming,
     +runOnJS: RunOnJS,
     +cancelAnimation: CancelAnimation,
     ...
