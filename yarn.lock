@@ -1719,10 +1719,10 @@
     stream-browserify "^3.0.0"
     util "^0.12.4"
 
-"@commapp/olm@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.0.7.tgz#d87a08ab2f4d84d0d15e016dc0c0dd5784ac608d"
-  integrity sha512-qd62ou58teWbg5WoRik2+hkOPPxJiAiuRKidswqgdbBcR4mm9EnI7ifVsHSXDvQpreDp3fvuYHhGzOhzobOaQQ==
+"@commapp/olm@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.0.8.tgz#e8a3428b2cdd396518d00c2a37f18a069e34b49b"
+  integrity sha512-7rmWZXgR83I9u8idrsVXeIsgI9kf2CvAPX88jkx0vPnjjeARDCUdxvgY+ksIPOkBD12NubGZdvHuhnDT99hoiQ==
 
 "@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.3":
   version "0.0.3"
@@ -17836,9 +17836,9 @@ octokit-pagination-methods@^1.1.0:
   resolved "https://registry.yarnpkg.com/octokit-pagination-methods/-/octokit-pagination-methods-1.1.0.tgz#cf472edc9d551055f9ef73f6e42b4dbb4c80bea4"
   integrity sha512-fZ4qZdQ2nxJvtcasX7Ghl+WlWS/d9IgnBIwFZXVNNZUmzpno91SX5bc5vuxiuKoCtK78XxGGNuSCrDC7xYB3OQ==
 
-"olm@git+https://github.com/CommE2E/olm.git#v0.0.7":
+"olm@git+https://github.com/CommE2E/olm.git#v0.0.8":
   version "0.0.0"
-  resolved "git+https://github.com/CommE2E/olm.git#67f3a01fb0fe5edeacfc2a81fdcd8cec9afdef14"
+  resolved "git+https://github.com/CommE2E/olm.git#6ac9c650ee71788e6c37740325d724153bfb9ec0"
 
 on-finished@2.4.1:
   version "2.4.1"
