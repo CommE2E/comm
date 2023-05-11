@@ -238,31 +238,6 @@ CryptoModule::getSessionByUserId(const std::string &userId) {
   return this->sessions.at(userId);
 }
 
-bool CryptoModule::matchesInboundSession(
-    const std::string &targetUserId,
-    EncryptedData encryptedData,
-    const OlmBuffer &theirIdentityKey) const {
-  OlmSession *session = this->sessions.at(targetUserId)->getOlmSession();
-  // Check that the inbound session matches the message it was created from.
-  OlmBuffer tmpEncryptedMessage(encryptedData.message);
-  if (1 !=
-      ::olm_matches_inbound_session(
-          session, tmpEncryptedMessage.data(), tmpEncryptedMessage.size())) {
-    return false;
-  }
-
-  // Check that the inbound session matches the key this message is supposed
-  // to be from.
-  tmpEncryptedMessage = OlmBuffer(encryptedData.message);
-  return 1 ==
-      ::olm_matches_inbound_session_from(
-             session,
-             theirIdentityKey.data() + ID_KEYS_PREFIX_OFFSET,
-             KEYSIZE,
-             tmpEncryptedMessage.data(),
-             tmpEncryptedMessage.size());
-}
-
 Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   Persist persist;
   size_t accountPickleLength = ::olm_pickle_account_length(this->account);
@@ -339,21 +314,13 @@ EncryptedData CryptoModule::encrypt(
 
 std::string CryptoModule::decrypt(
     const std::string &targetUserId,
-    EncryptedData encryptedData,
-    const OlmBuffer &theirIdentityKey) {
+    EncryptedData encryptedData) {
   if (!this->hasSessionFor(targetUserId)) {
     throw std::runtime_error{"error decrypt => uninitialized session"};
   }
   OlmSession *session = this->sessions.at(targetUserId)->getOlmSession();
 
   OlmBuffer tmpEncryptedMessage(encryptedData.message);
-
-  if (encryptedData.messageType == (size_t)olm::MessageType::PRE_KEY) {
-    if (!this->matchesInboundSession(
-            targetUserId, encryptedData, theirIdentityKey)) {
-      throw std::runtime_error{"error decrypt => matchesInboundSession"};
-    }
-  }
 
   size_t maxSize = ::olm_decrypt_max_plaintext_length(
       session,
