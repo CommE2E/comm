@@ -41,6 +41,7 @@ import {
   convertRawThreadInfoToClientDBThreadInfo,
   convertThreadStoreOperationsToClientDBOperations,
 } from 'lib/utils/thread-ops-utils.js';
+import { getUUID } from 'lib/utils/uuid.js';
 
 import { updateClientDBThreadStoreThreadInfos } from './client-db-utils.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
@@ -535,6 +536,16 @@ const migrations = {
   [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
   [40]: state =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
+  [41]: (state: AppState) => {
+    const queuedReports = state.reportStore.queuedReports.map(report => ({
+      ...report,
+      id: getUUID(),
+    }));
+    return {
+      ...state,
+      reportStore: { ...state.reportStore, queuedReports },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -615,7 +626,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 40,
+  version: 41,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
