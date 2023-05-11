@@ -26,10 +26,11 @@ type Props = {
   ...BaseProps,
   +editState: ?EditState,
   +clearEditModal: () => void,
+  +setDraft: string => void,
 };
 
 function EditTextMessage(props: Props): React.Node {
-  const { editState, background, clearEditModal, threadInfo } = props;
+  const { editState, background, clearEditModal, threadInfo, setDraft } = props;
 
   const editedMessageDraft = editState?.editedMessageDraft ?? '';
   const threadColor = threadInfo.color;
@@ -56,6 +57,7 @@ function EditTextMessage(props: Props): React.Node {
         <ChatInputTextArea
           focus={!background}
           currentText={editedMessageDraft}
+          setCurrentText={setDraft}
         />
       </div>
       <div className={css.bottomRow}>
@@ -73,12 +75,13 @@ function EditTextMessage(props: Props): React.Node {
 
 const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedEditTextMessage(props) {
-    const { editState, clearEditModal } = useEditModalContext();
+    const { editState, clearEditModal, setDraft } = useEditModalContext();
     return (
       <EditTextMessage
         {...props}
         editState={editState}
         clearEditModal={clearEditModal}
+        setDraft={setDraft}
       />
     );
   });
