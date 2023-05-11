@@ -4,7 +4,12 @@ import Icon from '@expo/vector-icons/Feather.js';
 import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  useDerivedValue,
+  withTiming,
+  interpolateColor,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
@@ -55,6 +60,7 @@ type Props = {
   +inputState: ?InputState,
   +navigateToSidebar: () => mixed,
   +shouldRenderAvatars: boolean,
+  +editedMessageStyle: AnimatedStyleObj,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   render() {
@@ -73,6 +79,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       contentAndHeaderOpacity,
       deliveryIconOpacity,
       shouldRenderAvatars,
+      editedMessageStyle,
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
@@ -88,15 +95,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       containerMarginBottom += clusterEndHeight;
     }
 
-    const highlightStyle =
-      id && this.props.inputState?.editState.editedMessage?.id === id
-        ? { backgroundColor: `#${item.threadInfo.color}40` }
-        : null;
-
-    const containerStyle = [
-      { marginBottom: containerMarginBottom },
-      highlightStyle,
-    ];
+    const containerStyle = { marginBottom: containerMarginBottom };
 
     const messageBoxContainerStyle = [styles.messageBoxContainer];
     const positioningStyle = isViewer
@@ -217,7 +216,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
           <MessageHeader item={item} focused={focused} display="lowContrast" />
         </AnimatedView>
-        <View style={containerStyle}>
+        <AnimatedView style={[containerStyle, editedMessageStyle]}>
           <View style={styles.alignment}>
             <View style={[styles.content, alignStyle]}>
               {deliveryIcon}
@@ -226,7 +225,7 @@ class ComposedMessage extends React.PureComponent<Props> {
             {failedSendInfo}
             {inlineEngagement}
           </View>
-        </View>
+        </AnimatedView>
       </View>
     );
   }
@@ -305,6 +304,21 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
     const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
     const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
     const shouldRenderAvatars = useShouldRenderAvatars();
+    const progress = useDerivedValue(() => {
+      const isHighlighted =
+        inputState?.editState.editedMessage?.id === props.item.messageInfo.id;
+      return withTiming(isHighlighted ? 1 : 0);
+    });
+    const editedMessageStyle = useAnimatedStyle(() => {
+      const backgroundColor = interpolateColor(
+        progress.value,
+        [0, 1],
+        ['transparent', `#${props.item.threadInfo.color}40`],
+      );
+      return {
+        backgroundColor,
+      };
+    });
 
     return (
       <ComposedMessage
@@ -316,6 +330,7 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
         contentAndHeaderOpacity={contentAndHeaderOpacity}
         deliveryIconOpacity={deliveryIconOpacity}
         shouldRenderAvatars={shouldRenderAvatars}
+        editedMessageStyle={editedMessageStyle}
       />
     );
   });
