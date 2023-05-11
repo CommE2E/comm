@@ -14,6 +14,7 @@ import {
   restoreEntryResponseValidator,
 } from './entry-responders.js';
 import { getSessionPublicKeysResponseValidator } from './keys-responders.js';
+import { inviteLinkVerificationResponseValidator } from './link-responders.js';
 import { messageReportCreationResultValidator } from './message-report-responder.js';
 import {
   fetchMessageInfosResponseValidator,
@@ -936,5 +937,19 @@ describe('report responders', () => {
     const response = { id: '123' };
     expect(reportCreationResponseValidator.is(response)).toBe(true);
     expect(reportCreationResponseValidator.is({})).toBe(false);
+  });
+});
+
+describe('link responders', () => {
+  it('should validate invite link verification response', () => {
+    const response = {
+      status: 'already_joined',
+      community: {
+        name: 'name',
+        id: '123',
+      },
+    };
+    expect(inviteLinkVerificationResponseValidator.is(response)).toBe(true);
+    expect(inviteLinkVerificationResponseValidator.is({})).toBe(false);
   });
 });
