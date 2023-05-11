@@ -1,6 +1,6 @@
 // @flow
 
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 
 import { main } from './utils.js';
 import { createUpdates } from '../creators/update-creator.js';

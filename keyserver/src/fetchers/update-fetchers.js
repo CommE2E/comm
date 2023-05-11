@@ -3,11 +3,8 @@
 import invariant from 'invariant';
 
 import type { CalendarQuery } from 'lib/types/entry-types.js';
-import {
-  type RawUpdateInfo,
-  updateTypes,
-  assertUpdateType,
-} from 'lib/types/update-types.js';
+import { updateTypes, assertUpdateType } from 'lib/types/update-types-enum.js';
+import { type RawUpdateInfo } from 'lib/types/update-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import {
