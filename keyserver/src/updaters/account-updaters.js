@@ -15,7 +15,7 @@ import type {
   UpdateUserAvatarRequest,
   UpdateUserAvatarResponse,
 } from 'lib/types/avatar-types.js';
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import type {
   CreateUpdatesResult,
   UpdateData,

@@ -2,7 +2,7 @@
 
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 
 import { main } from './utils.js';
 import { createUpdates } from '../creators/update-creator.js';

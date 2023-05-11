@@ -2,7 +2,8 @@
 
 import type { Shape } from 'lib/types/core.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
-import { type UpdateData, updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
+import { type UpdateData } from 'lib/types/update-types.js';
 
 import { endScript } from './utils.js';
 import { createUpdates } from '../creators/update-creator.js';
