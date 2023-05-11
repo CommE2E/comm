@@ -838,7 +838,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   isEditMode = () => {
     const editState = this.props.inputState?.editState;
-    return editState && editState.editedMessage !== null;
+    const isThisThread =
+      editState?.editedMessage?.threadID === this.props.threadInfo.id;
+    return editState && editState.editedMessage !== null && isThisThread;
   };
 
   isMessageEdited = () => {
