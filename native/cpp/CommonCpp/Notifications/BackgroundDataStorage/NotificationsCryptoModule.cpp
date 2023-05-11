@@ -233,4 +233,18 @@ void NotificationsCryptoModule::clearSensitiveData() {
         "might be violated.");
   }
 }
+
+std::string NotificationsCryptoModule::decrypt(
+    const std::string &data,
+    const size_t messageType,
+    const std::string &callingProcessName) {
+  std::string decryptedData;
+  auto caller = [&](crypto::CryptoModule &cryptoModule) {
+    decryptedData = cryptoModule.decrypt(
+        NotificationsCryptoModule::keyserverHostedNotificationsID,
+        {std::vector<uint8_t>(data.begin(), data.end()), messageType});
+  };
+  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+  return decryptedData;
+}
 } // namespace comm
