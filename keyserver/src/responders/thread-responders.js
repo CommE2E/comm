@@ -81,7 +81,11 @@ async function threadDeletionResponder(
     input,
   );
   const result = await deleteThread(viewer, request);
-  return validateOutput(viewer, leaveThreadResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    leaveThreadResultValidator,
+    result,
+  );
 }
 
 export const roleChangeRequestInputValidator: TInterface<RoleChangeRequest> =
@@ -117,7 +121,11 @@ async function roleUpdateResponder(
     input,
   );
   const result = await updateRole(viewer, request);
-  return validateOutput(viewer, changeThreadSettingsResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    changeThreadSettingsResultValidator,
+    result,
+  );
 }
 
 const removeMembersRequestInputValidator = tShape<RemoveMembersRequest>({
@@ -135,7 +143,11 @@ async function memberRemovalResponder(
     input,
   );
   const result = await removeMembers(viewer, request);
-  return validateOutput(viewer, changeThreadSettingsResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    changeThreadSettingsResultValidator,
+    result,
+  );
 }
 
 const leaveThreadRequestInputValidator = tShape<LeaveThreadRequest>({
@@ -152,7 +164,11 @@ async function threadLeaveResponder(
     input,
   );
   const result = await leaveThread(viewer, request);
-  return validateOutput(viewer, leaveThreadResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    leaveThreadResultValidator,
+    result,
+  );
 }
 
 const updateThreadRequestInputValidator = tShape<UpdateThreadRequest>({
@@ -179,7 +195,11 @@ async function threadUpdateResponder(
     input,
   );
   const result = await updateThread(viewer, request);
-  return validateOutput(viewer, changeThreadSettingsResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    changeThreadSettingsResultValidator,
+    result,
+  );
 }
 
 const threadRequestValidationShape = {
@@ -233,7 +253,11 @@ async function threadCreationResponder(
   const result = await createThread(viewer, request, {
     silentlyFailMembers: request.type === threadTypes.SIDEBAR,
   });
-  return validateOutput(viewer, newThreadResponseValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    newThreadResponseValidator,
+    result,
+  );
 }
 
 const joinThreadRequestInputValidator = tShape<ServerThreadJoinRequest>({
@@ -269,7 +293,11 @@ async function threadJoinResponder(
   }
 
   const result = await joinThread(viewer, request);
-  return validateOutput(viewer, threadJoinResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    threadJoinResultValidator,
+    result,
+  );
 }
 
 const threadFetchMediaRequestInputValidator = tShape<ThreadFetchMediaRequest>({
@@ -291,7 +319,11 @@ async function threadFetchMediaResponder(
     input,
   );
   const result = await fetchMediaForThread(viewer, request);
-  return validateOutput(viewer, threadFetchMediaResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    threadFetchMediaResultValidator,
+    result,
+  );
 }
 
 const toggleMessagePinRequestInputValidator = tShape<ToggleMessagePinRequest>({
@@ -315,7 +347,11 @@ async function toggleMessagePinResponder(
     input,
   );
   const result = await toggleMessagePinForThread(viewer, request);
-  return validateOutput(viewer, toggleMessagePinResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    toggleMessagePinResultValidator,
+    result,
+  );
 }
 
 export {

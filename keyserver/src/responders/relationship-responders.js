@@ -35,7 +35,11 @@ async function updateRelationshipsResponder(
     input,
   );
   const response = await updateRelationships(viewer, request);
-  return validateOutput(viewer, relationshipErrorsValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    relationshipErrorsValidator,
+    response,
+  );
 }
 
 export { updateRelationshipsResponder };

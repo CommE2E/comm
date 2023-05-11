@@ -380,7 +380,7 @@ class Socket {
     if (this.ws.readyState === 1) {
       const { viewer } = this;
       const validatedMessage = validateOutput(
-        viewer,
+        viewer?.platformDetails,
         serverServerSocketMessageValidator,
         message,
       );
