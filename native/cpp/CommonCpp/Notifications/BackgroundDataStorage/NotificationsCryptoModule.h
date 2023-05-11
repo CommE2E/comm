@@ -37,5 +37,9 @@ public:
       const std::string &callingProcessName);
   static bool
   isNotificationsSessionInitialized(const std::string &callingProcessName);
+  static std::string decrypt(
+      const std::string &data,
+      const size_t messageType,
+      const std::string &callingProcessName);
 };
 } // namespace comm
