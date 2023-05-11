@@ -6,7 +6,7 @@ import type {
   LogOutResponse,
   DeleteAccountRequest,
 } from 'lib/types/account-types.js';
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';

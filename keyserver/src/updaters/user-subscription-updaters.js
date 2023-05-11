@@ -5,7 +5,7 @@ import type {
   ThreadSubscription,
   SubscriptionUpdateRequest,
 } from 'lib/types/subscription-types.js';
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { createUpdates } from '../creators/update-creator.js';

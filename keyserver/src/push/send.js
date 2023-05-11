@@ -34,7 +34,7 @@ import type {
   ResolvedNotifTexts,
 } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import { getAPNsNotificationTopic } from './providers.js';

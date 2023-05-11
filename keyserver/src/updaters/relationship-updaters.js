@@ -13,7 +13,8 @@ import {
   directedStatus,
 } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { updateTypes, type UpdateData } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
+import { type UpdateData } from 'lib/types/update-types.js';
 import { cartesianProduct } from 'lib/utils/array.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';

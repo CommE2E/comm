@@ -19,8 +19,8 @@ import {
   type ThreadType,
   assertThreadType,
 } from 'lib/types/thread-types-enum.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import {
-  updateTypes,
   type ServerUpdateInfo,
   type CreateUpdatesResult,
 } from 'lib/types/update-types.js';
