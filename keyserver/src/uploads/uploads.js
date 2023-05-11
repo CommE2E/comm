@@ -4,16 +4,17 @@ import type { $Request, $Response, Middleware } from 'express';
 import invariant from 'invariant';
 import multer from 'multer';
 import { Readable } from 'stream';
-import t from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 
-import type {
-  UploadMediaMetadataRequest,
-  UploadMultimediaResult,
-  UploadDeletionRequest,
-  Dimensions,
+import {
+  type UploadMediaMetadataRequest,
+  type UploadMultimediaResult,
+  uploadMultimediaResultValidator,
+  type UploadDeletionRequest,
+  type Dimensions,
 } from 'lib/types/media-types.js';
 import { ServerError } from 'lib/utils/errors.js';
-import { tShape } from 'lib/utils/validation-utils.js';
+import { tShape, tID } from 'lib/utils/validation-utils.js';
 
 import { getMediaType, validateAndConvert } from './media-utils.js';
 import type { UploadInput } from '../creators/upload-creator.js';
@@ -26,7 +27,7 @@ import {
 } from '../fetchers/upload-fetchers.js';
 import type { MulterRequest } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
-import { validateInput } from '../utils/validation-utils.js';
+import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');
@@ -34,6 +35,10 @@ const multerProcessor: Middleware<> = upload.array('multimedia');
 type MultimediaUploadResult = {
   results: UploadMultimediaResult[],
 };
+const MultimediaUploadResultValidator = tShape<MultimediaUploadResult>({
+  results: t.list(uploadMultimediaResultValidator),
+});
+
 async function multimediaUploadResponder(
   viewer: Viewer,
   req: MulterRequest,
@@ -91,7 +96,13 @@ async function multimediaUploadResponder(
     throw new ServerError('invalid_parameters');
   }
   const results = await createUploads(viewer, uploadInfos);
-  return { results };
+  return validateOutput(
+    viewer.platformDetails,
+    MultimediaUploadResultValidator,
+    {
+      results,
+    },
+  );
 }
 
 const uploadMediaMetadataInputValidator = tShape({
@@ -141,9 +152,14 @@ async function uploadDownloadResponder(
   if (!uploadID || !secret) {
     throw new ServerError('invalid_parameters');
   }
+  const convertedUploadID = await validateInput(viewer, tID, uploadID);
 
   if (!req.headers.range) {
-    const { content, mime } = await fetchUpload(viewer, uploadID, secret);
+    const { content, mime } = await fetchUpload(
+      viewer,
+      convertedUploadID,
+      secret,
+    );
     res.type(mime);
     res.set('Cache-Control', 'public, max-age=31557600, immutable');
     if (process.env.NODE_ENV === 'development') {
@@ -154,7 +170,7 @@ async function uploadDownloadResponder(
     }
     res.send(content);
   } else {
-    const totalUploadSize = await getUploadSize(uploadID, secret);
+    const totalUploadSize = await getUploadSize(convertedUploadID, secret);
     const range = req.range(totalUploadSize);
     if (typeof range === 'number' && range < 0) {
       throw new ServerError(
@@ -169,7 +185,7 @@ async function uploadDownloadResponder(
     const { start, end } = range[0];
     const respWidth = end - start + 1;
     const { content, mime } = await fetchUploadChunk(
-      uploadID,
+      convertedUploadID,
       secret,
       start,
       respWidth,
@@ -198,11 +214,20 @@ async function uploadDownloadResponder(
   }
 }
 
+const uploadDeletionRequestInputValidator: TInterface<UploadDeletionRequest> =
+  tShape<UploadDeletionRequest>({
+    id: tID,
+  });
 async function uploadDeletionResponder(
   viewer: Viewer,
-  request: UploadDeletionRequest,
+  input: mixed,
 ): Promise<void> {
-  const { id } = request;
+  const { id } = await validateInput(
+    viewer,
+    uploadDeletionRequestInputValidator,
+    input,
+  );
+
   await deleteUpload(viewer, id);
 }
 
