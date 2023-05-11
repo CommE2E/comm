@@ -7,6 +7,7 @@ import _cloneDeep from 'lodash/fp/cloneDeep.js';
 import _flow from 'lodash/fp/flow.js';
 import _mapValues from 'lodash/fp/mapValues.js';
 import _pickBy from 'lodash/fp/pickBy.js';
+import t from 'tcomb';
 import uuidv4 from 'uuid/v4.js';
 
 import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
@@ -28,14 +29,17 @@ import {
   type RawMessageInfo,
   type MessageData,
 } from 'lib/types/message-types.js';
+import { rawMessageInfoValidator } from 'lib/types/message-types.js';
 import type {
   WebNotification,
   WNSNotification,
   ResolvedNotifTexts,
 } from 'lib/types/notif-types.js';
+import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { promiseAll } from 'lib/utils/promises.js';
+import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
@@ -60,6 +64,7 @@ import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { fetchUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import { getENSNames } from '../utils/ens-cache.js';
+import { validateOutput } from '../utils/validation-utils.js';
 
 type Device = {
   +platform: Platform,
@@ -253,11 +258,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const webVersionsToTokens = byPlatform.get('web');
       if (webVersionsToTokens) {
         for (const [codeVersion, deviceTokens] of webVersionsToTokens) {
+          const platformDetails = { platform: 'web', codeVersion };
           const deliveryPromise = (async () => {
             const notification = await prepareWebNotification({
               notifTexts,
               threadID: threadInfo.id,
               unreadCount: unreadCounts[userID],
+              platformDetails,
             });
             return await sendWebNotification(notification, [...deviceTokens], {
               ...notificationInfo,
@@ -301,11 +308,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       const windowsVersionsToTokens = byPlatform.get('windows');
       if (windowsVersionsToTokens) {
         for (const [codeVersion, deviceTokens] of windowsVersionsToTokens) {
+          const platformDetails = { platform: 'windows', codeVersion };
           const deliveryPromise = (async () => {
             const notification = await prepareWNSNotification({
               notifTexts,
               threadID: threadInfo.id,
               unreadCount: unreadCounts[userID],
+              platformDetails,
             });
             return await sendWNSNotification(notification, [...deviceTokens], {
               ...notificationInfo,
@@ -609,9 +618,23 @@ type APNsNotifInputData = {
   +unreadCount: number,
   +platformDetails: PlatformDetails,
 };
+const apnsNotifInputDataValidator = tShape<APNsNotifInputData>({
+  notifTexts: resolvedNotifTextsValidator,
+  newRawMessageInfos: t.list(rawMessageInfoValidator),
+  threadID: tID,
+  collapseKey: t.maybe(t.String),
+  badgeOnly: t.Boolean,
+  unreadCount: t.Number,
+  platformDetails: tPlatformDetails,
+});
 async function prepareAPNsNotification(
   inputData: APNsNotifInputData,
 ): Promise<apn.Notification> {
+  const convertedData = validateOutput(
+    inputData.platformDetails,
+    apnsNotifInputDataValidator,
+    inputData,
+  );
   const {
     notifTexts,
     newRawMessageInfos,
@@ -620,7 +643,7 @@ async function prepareAPNsNotification(
     badgeOnly,
     unreadCount,
     platformDetails,
-  } = inputData;
+  } = convertedData;
 
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
@@ -680,9 +703,18 @@ type AndroidNotifInputData = {
   ...APNsNotifInputData,
   +dbID: string,
 };
+const androidNotifInputDataValidator = tShape<AndroidNotifInputData>({
+  ...apnsNotifInputDataValidator.meta.props,
+  dbID: t.String,
+});
 async function prepareAndroidNotification(
   inputData: AndroidNotifInputData,
 ): Promise<Object> {
+  const convertedData = validateOutput(
+    inputData.platformDetails,
+    androidNotifInputDataValidator,
+    inputData,
+  );
   const {
     notifTexts,
     newRawMessageInfos,
@@ -692,7 +724,7 @@ async function prepareAndroidNotification(
     unreadCount,
     platformDetails: { codeVersion },
     dbID,
-  } = inputData;
+  } = convertedData;
 
   const notifID = collapseKey ? collapseKey : dbID;
   const { merged, ...rest } = notifTexts;
@@ -746,11 +778,23 @@ type WebNotifInputData = {
   +notifTexts: ResolvedNotifTexts,
   +threadID: string,
   +unreadCount: number,
+  +platformDetails: PlatformDetails,
 };
+const webNotifInputDataValidator = tShape<WebNotifInputData>({
+  notifTexts: resolvedNotifTextsValidator,
+  threadID: tID,
+  unreadCount: t.Number,
+  platformDetails: tPlatformDetails,
+});
 async function prepareWebNotification(
   inputData: WebNotifInputData,
 ): Promise<WebNotification> {
-  const { notifTexts, threadID, unreadCount } = inputData;
+  const convertedData = validateOutput(
+    inputData.platformDetails,
+    webNotifInputDataValidator,
+    inputData,
+  );
+  const { notifTexts, threadID, unreadCount } = convertedData;
   const id = uuidv4();
   const { merged, ...rest } = notifTexts;
   const notification = {
@@ -766,11 +810,23 @@ type WNSNotifInputData = {
   +notifTexts: ResolvedNotifTexts,
   +threadID: string,
   +unreadCount: number,
+  +platformDetails: PlatformDetails,
 };
+const wnsNotifInputDataValidator = tShape<WNSNotifInputData>({
+  notifTexts: resolvedNotifTextsValidator,
+  threadID: tID,
+  unreadCount: t.Number,
+  platformDetails: tPlatformDetails,
+});
 async function prepareWNSNotification(
   inputData: WNSNotifInputData,
 ): Promise<WNSNotification> {
-  const { notifTexts, threadID, unreadCount } = inputData;
+  const convertedData = validateOutput(
+    inputData.platformDetails,
+    wnsNotifInputDataValidator,
+    inputData,
+  );
+  const { notifTexts, threadID, unreadCount } = convertedData;
   const { merged, ...rest } = notifTexts;
   const notification = {
     ...rest,
