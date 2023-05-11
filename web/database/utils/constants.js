@@ -20,7 +20,6 @@ export const DB_SUPPORTED_BROWSERS: $ReadOnlyArray<string> = [
   'edge',
   'edge-chromium',
   'chrome',
-  'safari',
   'firefox',
   'opera',
 ];
