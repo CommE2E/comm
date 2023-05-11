@@ -39,7 +39,11 @@ async function updateActivityResponder(
 ): Promise<UpdateActivityResult> {
   const request = await validateInput(viewer, inputValidator, input);
   const result = await activityUpdater(viewer, request);
-  return validateOutput(viewer, updateActivityResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    updateActivityResultValidator,
+    result,
+  );
 }
 
 const setThreadUnreadStatusValidator = tShape<SetThreadUnreadStatusRequest>({
@@ -58,7 +62,11 @@ async function threadSetUnreadStatusResponder(
   );
 
   const result = await setThreadUnreadStatus(viewer, request);
-  return validateOutput(viewer, setThreadUnreadStatusResult, result);
+  return validateOutput(
+    viewer.platformDetails,
+    setThreadUnreadStatusResult,
+    result,
+  );
 }
 
 export {

@@ -33,7 +33,11 @@ async function userSearchResponder(
   );
   const searchResults = await searchForUsers(request);
   const result = { userInfos: searchResults };
-  return validateOutput(viewer, userSearchResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    userSearchResultValidator,
+    result,
+  );
 }
 
 export { userSearchResponder };

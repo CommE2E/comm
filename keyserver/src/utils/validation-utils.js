@@ -5,8 +5,11 @@ import _mapValues from 'lodash/fp/mapValues.js';
 import type { TType, TInterface } from 'tcomb';
 
 import type { PolicyType } from 'lib/facts/policies.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
-import { isWebPlatform } from 'lib/types/device-types.js';
+import {
+  hasMinCodeVersion,
+  FUTURE_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
+import { type PlatformDetails, isWebPlatform } from 'lib/types/device-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
   tCookie,
@@ -35,7 +38,7 @@ async function validateInput<T>(
   const convertedInput = checkInputValidator(inputValidator, input);
 
   if (
-    hasMinCodeVersion(viewer.platformDetails, 1000) &&
+    hasMinCodeVersion(viewer.platformDetails, FUTURE_CODE_VERSION) &&
     !isWebPlatform(viewer.platformDetails?.platform) &&
     convertToNewIDSchema
   ) {
@@ -50,7 +53,7 @@ async function validateInput<T>(
 }
 
 function validateOutput<T>(
-  viewer: ?Viewer,
+  platformDetails: ?PlatformDetails,
   outputValidator: TType<T>,
   data: T,
 ): T {
@@ -63,8 +66,8 @@ function validateOutput<T>(
   }
 
   if (
-    hasMinCodeVersion(viewer?.platformDetails, 1000) &&
-    !isWebPlatform(viewer?.platformDetails?.platform) &&
+    hasMinCodeVersion(platformDetails, FUTURE_CODE_VERSION) &&
+    !isWebPlatform(platformDetails?.platform) &&
     convertToNewIDSchema
   ) {
     return convertServerIDsToClientIDs(
