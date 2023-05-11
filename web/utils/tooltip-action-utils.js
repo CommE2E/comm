@@ -28,6 +28,7 @@ import {
   type TooltipSize,
   type TooltipPosition,
 } from './tooltip-utils.js';
+import { useEditModalContext } from '../chat/edit-message-provider.js';
 import MessageTooltip from '../chat/message-tooltip.react.js';
 import type { PositionInfo } from '../chat/position-types.js';
 import { useTooltipContext } from '../chat/tooltip-provider.js';
@@ -231,25 +232,33 @@ function useMessageEditAction(
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
-
   const canEditMessage = useCanEditMessage(threadInfo, messageInfo);
+  const { renderEditModal } = useEditModalContext();
 
   return React.useMemo(() => {
     if (!canEditMessage) {
       return null;
     }
+
     const buttonContent = (
       <SWMansionIcon icon="edit-1" size={18} disableFill={false} />
     );
+
     const onClickEdit = () => {
-      // TODO: Enter edit mode
+      renderEditModal({
+        messageInfo: item,
+        threadInfo,
+        isError: false,
+        editedMessageDraft: messageInfo.text,
+      });
     };
+
     return {
       actionButtonContent: buttonContent,
       onClick: onClickEdit,
       label: 'Edit',
     };
-  }, [canEditMessage]);
+  }, [canEditMessage, item, messageInfo.text, renderEditModal, threadInfo]);
 }
 
 function useMessageTooltipActions(
