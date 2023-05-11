@@ -527,7 +527,7 @@ async function websiteResponder(
     commServicesAccessToken: null,
   });
   const validatedInitialReduxState = validateOutput(
-    viewer,
+    viewer.platformDetails,
     initialReduxStateValidator,
     initialReduxState,
   );

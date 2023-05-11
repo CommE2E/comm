@@ -35,7 +35,7 @@ async function getSessionPublicKeysResponder(
   );
   const response = await fetchSessionPublicKeys(request.session);
   return validateOutput(
-    viewer,
+    viewer.platformDetails,
     getSessionPublicKeysResponseValidator,
     response,
   );

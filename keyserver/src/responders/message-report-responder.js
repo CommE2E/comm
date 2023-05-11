@@ -33,7 +33,11 @@ async function messageReportCreationResponder(
 
   const rawMessageInfos = await createMessageReport(viewer, request);
   const result = { messageInfo: rawMessageInfos[0] };
-  return validateOutput(viewer, messageReportCreationResultValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    messageReportCreationResultValidator,
+    result,
+  );
 }
 
 export { messageReportCreationResponder };

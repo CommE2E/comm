@@ -148,10 +148,14 @@ async function entryFetchResponder(
   await verifyCalendarQueryThreadIDs(request);
 
   const response = await fetchEntryInfos(viewer, [request]);
-  return validateOutput(viewer, fetchEntryInfosResponseValidator, {
-    ...response,
-    userInfos: {},
-  });
+  return validateOutput(
+    viewer.platformDetails,
+    fetchEntryInfosResponseValidator,
+    {
+      ...response,
+      userInfos: {},
+    },
+  );
 }
 
 const entryRevisionHistoryFetchInputValidator =
@@ -176,7 +180,7 @@ async function entryRevisionFetchResponder(
   const entryHistory = await fetchEntryRevisionInfo(viewer, request.id);
   const response = { result: entryHistory };
   return validateOutput(
-    viewer,
+    viewer.platformDetails,
     fetchEntryRevisionInfosResultValidator,
     response,
   );
@@ -209,7 +213,11 @@ async function entryCreationResponder(
     input,
   );
   const response = await createEntry(viewer, request);
-  return validateOutput(viewer, saveEntryResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    saveEntryResponseValidator,
+    response,
+  );
 }
 
 const saveEntryRequestInputValidator = tShape<SaveEntryRequest>({
@@ -231,7 +239,11 @@ async function entryUpdateResponder(
     input,
   );
   const response = await updateEntry(viewer, request);
-  return validateOutput(viewer, saveEntryResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    saveEntryResponseValidator,
+    response,
+  );
 }
 
 const deleteEntryRequestInputValidator = tShape<DeleteEntryRequest>({
@@ -259,7 +271,11 @@ async function entryDeletionResponder(
     input,
   );
   const response = await deleteEntry(viewer, request);
-  return validateOutput(viewer, deleteEntryResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    deleteEntryResponseValidator,
+    response,
+  );
 }
 
 const restoreEntryRequestInputValidator = tShape<RestoreEntryRequest>({
@@ -285,7 +301,11 @@ async function entryRestorationResponder(
     input,
   );
   const response = await restoreEntry(viewer, request);
-  return validateOutput(viewer, restoreEntryResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    restoreEntryResponseValidator,
+    response,
+  );
 }
 
 export const deltaEntryInfosResultValidator: TInterface<DeltaEntryInfosResult> =
@@ -318,12 +338,16 @@ async function calendarQueryUpdateResponder(
     commitSessionUpdate(viewer, sessionUpdate),
   ]);
 
-  return validateOutput(viewer, deltaEntryInfosResultValidator, {
-    rawEntryInfos: response.rawEntryInfos,
-    deletedEntryIDs: response.deletedEntryIDs,
-    // Old clients expect userInfos object
-    userInfos: [],
-  });
+  return validateOutput(
+    viewer.platformDetails,
+    deltaEntryInfosResultValidator,
+    {
+      rawEntryInfos: response.rawEntryInfos,
+      deletedEntryIDs: response.deletedEntryIDs,
+      // Old clients expect userInfos object
+      userInfos: [],
+    },
+  );
 }
 
 export {
