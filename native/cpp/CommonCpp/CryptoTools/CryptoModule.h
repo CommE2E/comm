@@ -73,10 +73,8 @@ public:
 
   EncryptedData
   encrypt(const std::string &targetUserId, const std::string &content);
-  std::string decrypt(
-      const std::string &targetUserId,
-      EncryptedData encryptedData,
-      const OlmBuffer &theirIdentityKey);
+  std::string
+  decrypt(const std::string &targetUserId, EncryptedData encryptedData);
 
   std::string signMessage(const std::string &message);
   static void verifySignature(
