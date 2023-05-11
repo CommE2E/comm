@@ -40,6 +40,7 @@ import {
   type ReduxCrashReport,
 } from 'lib/utils/sanitization.js';
 import sleep from 'lib/utils/sleep.js';
+import { getUUID } from 'lib/utils/uuid.js';
 
 import Button from './components/button.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
@@ -172,6 +173,7 @@ class Crash extends React.PureComponent<Props, State> {
         componentStack: data.info && data.info.componentStack,
       })),
       ...sanitizedReduxReport,
+      id: getUUID(),
     });
     this.setState({
       errorReportID: result.id,

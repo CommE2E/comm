@@ -100,6 +100,7 @@ import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 import { useIsReportEnabled } from 'lib/utils/report-utils.js';
+import { getUUID } from 'lib/utils/uuid.js';
 
 import {
   type EditInputBarMessageParameters,
@@ -1391,6 +1392,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadServerID: ids.serverID,
       uploadLocalID: ids.localID,
       messageLocalID: ids.localMessageID,
+      id: getUUID(),
     };
     this.props.dispatch({
       type: queueReportsActionType,
