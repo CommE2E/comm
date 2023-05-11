@@ -27,7 +27,7 @@ const cancelButtonColor: ButtonColor = {
 
 function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo } = props;
-  const { editState, clearEditModal } = useEditModalContext();
+  const { editState, clearEditModal, setDraft } = useEditModalContext();
 
   const editedMessageDraft = editState?.editedMessageDraft ?? '';
   const threadColor = threadInfo.color;
@@ -60,6 +60,7 @@ function EditTextMessage(props: Props): React.Node {
         <ChatInputTextArea
           focus={!background}
           currentText={editedMessageDraft}
+          setCurrentText={setDraft}
         />
       </div>
       <div className={css.bottomRow}>
