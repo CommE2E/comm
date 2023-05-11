@@ -157,9 +157,13 @@ async function userSubscriptionUpdateResponder(
     input,
   );
   const threadSubscription = await userSubscriptionUpdater(viewer, request);
-  return validateOutput(viewer, subscriptionUpdateResponseValidator, {
-    threadSubscription,
-  });
+  return validateOutput(
+    viewer.platformDetails,
+    subscriptionUpdateResponseValidator,
+    {
+      threadSubscription,
+    },
+  );
 }
 
 const accountUpdateInputValidator = tShape<PasswordUpdate>({
@@ -230,7 +234,11 @@ async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
       anonymous: true,
     },
   };
-  return validateOutput(viewer, logOutResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    logOutResponseValidator,
+    response,
+  );
 }
 
 const deleteAccountRequestInputValidator = tShape<DeleteAccountRequest>({
@@ -248,7 +256,11 @@ async function accountDeletionResponder(
   );
   const result = await deleteAccount(viewer, request);
   invariant(result, 'deleteAccount should return result if handed request');
-  return validateOutput(viewer, logOutResponseValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    logOutResponseValidator,
+    result,
+  );
 }
 
 const deviceTokenUpdateRequestInputValidator = tShape({
@@ -313,7 +325,11 @@ async function accountCreationResponder(
     }
   }
   const response = await createAccount(viewer, request);
-  return validateOutput(viewer, registerResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    registerResponseValidator,
+    response,
+  );
 }
 
 type ProcessSuccessfulLoginParams = {
@@ -528,7 +544,11 @@ async function logInResponder(
     calendarQuery,
     signedIdentityKeysBlob,
   });
-  return validateOutput(viewer, logInResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    logInResponseValidator,
+    response,
+  );
 }
 
 const siweAuthRequestInputValidator = tShape<SIWEAuthRequest>({
@@ -668,7 +688,11 @@ async function siweAuthResponder(
     socialProof,
     signedIdentityKeysBlob,
   });
-  return validateOutput(viewer, logInResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    logInResponseValidator,
+    response,
+  );
 }
 
 const updatePasswordRequestInputValidator = tShape<UpdatePasswordRequest>({
@@ -694,7 +718,11 @@ async function oldPasswordUpdateResponder(
     request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
   }
   const response = await updatePassword(viewer, request);
-  return validateOutput(viewer, logInResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    logInResponseValidator,
+    response,
+  );
 }
 
 const updateUserSettingsInputValidator = tShape<UpdateUserSettingsRequest>({
@@ -754,7 +782,11 @@ async function updateUserAvatarResponder(
     input,
   );
   const result = await updateUserAvatar(viewer, request);
-  return validateOutput(viewer, updateUserAvatarResponderValidator, result);
+  return validateOutput(
+    viewer.platformDetails,
+    updateUserAvatarResponderValidator,
+    result,
+  );
 }
 
 export {

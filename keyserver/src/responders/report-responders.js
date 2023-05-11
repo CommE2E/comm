@@ -159,7 +159,11 @@ async function reportCreationResponder(
   if (!response) {
     throw new ServerError('ignored_report');
   }
-  return validateOutput(viewer, reportCreationResponseValidator, response);
+  return validateOutput(
+    viewer.platformDetails,
+    reportCreationResponseValidator,
+    response,
+  );
 }
 
 const reportMultiCreationRequestInputValidator =
@@ -232,7 +236,7 @@ async function errorReportFetchInfosResponder(
   );
   const response = await fetchErrorReportInfos(viewer, request);
   return validateOutput(
-    viewer,
+    viewer.platformDetails,
     fetchErrorReportInfosResponseValidator,
     response,
   );
