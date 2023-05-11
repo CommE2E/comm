@@ -1,0 +1,61 @@
+.editMessage {
+  padding: 10px;
+  background-color: var(--shades-black-90);
+  border-radius: 8px;
+}
+
+.bottomRow {
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.buttons {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.iconContainer {
+  color: var(--error);
+}
+
+.iconContainer > svg {
+  height: 16px;
+  display: flex;
+}
+
+.failedText {
+  font-size: 13px;
+  white-space: nowrap;
+  flex: 1;
+  align-items: center;
+}
+
+.errorColor {
+  color: var(--error);
+}
+
+.whiteColor {
+  color: var(--fg);
+  margin-left: 2px;
+}
+
+.failedText > div {
+  float: left;
+  margin-right: 2px;
+}
+
+.buttons > button {
+  padding: 4px;
+  border-radius: 4px;
+  border: none;
+  color: var(--fg);
+  white-space: nowrap;
+  flex: 1;
+  align-items: center;
+  float: right;
+}
+
+.saveButton {
+  margin-left: 8px;
+}
