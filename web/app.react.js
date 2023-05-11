@@ -31,6 +31,7 @@ import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
+import { EditModalProvider } from './chat/edit-message-provider.js';
 import { TooltipProvider } from './chat/tooltip-provider.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import { initOpaque } from './crypto/opaque-utils.js';
@@ -158,21 +159,23 @@ class App extends React.PureComponent<Props> {
     }
     return (
       <DndProvider backend={HTML5Backend}>
-        <TooltipProvider>
-          <MenuProvider>
-            <WagmiConfig client={wagmiClient}>
-              <WagmiENSCacheProvider>
-                <FocusHandler />
-                <VisibilityHandler />
-                <DeviceIDUpdater />
-                <PolicyAcknowledgmentHandler />
-                <PushNotificationsHandler />
-                {content}
-                {this.props.modals}
-              </WagmiENSCacheProvider>
-            </WagmiConfig>
-          </MenuProvider>
-        </TooltipProvider>
+        <EditModalProvider>
+          <TooltipProvider>
+            <MenuProvider>
+              <WagmiConfig client={wagmiClient}>
+                <WagmiENSCacheProvider>
+                  <FocusHandler />
+                  <VisibilityHandler />
+                  <DeviceIDUpdater />
+                  <PolicyAcknowledgmentHandler />
+                  <PushNotificationsHandler />
+                  {content}
+                  {this.props.modals}
+                </WagmiENSCacheProvider>
+              </WagmiConfig>
+            </MenuProvider>
+          </TooltipProvider>
+        </EditModalProvider>
       </DndProvider>
     );
   }
