@@ -16,7 +16,11 @@ import {
 } from 'react-native';
 import Alert from 'react-native/Libraries/Alert/Alert.js';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
-import Animated, { EasingNode } from 'react-native-reanimated';
+import Animated, {
+  EasingNode,
+  FadeInDown,
+  FadeOutDown,
+} from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -579,7 +583,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (isEditMode && this.props.editedMessagePreview) {
       const { message } = this.props.editedMessagePreview;
       editedMessage = (
-        <AnimatedView style={this.props.styles.editView}>
+        <AnimatedView
+          style={this.props.styles.editView}
+          entering={FadeInDown}
+          exiting={FadeOutDown}
+        >
           <View style={this.props.styles.editViewContent}>
             <TouchableOpacity
               onPress={this.scrollToEditedMessage}
@@ -607,7 +615,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     return (
-      <View
+      <AnimatedView
         style={this.props.styles.container}
         onLayout={this.props.onInputBarLayout}
       >
@@ -616,7 +624,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         {editedMessage}
         {content}
         {keyboardInputHost}
-      </View>
+      </AnimatedView>
     );
   }
 
