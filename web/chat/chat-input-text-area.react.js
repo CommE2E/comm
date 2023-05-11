@@ -10,6 +10,7 @@ type BaseProps = {
   +escape?: () => void,
   +focus: boolean,
   +currentText: string,
+  +setCurrentText: (text: string) => void,
 };
 type Props = {
   ...BaseProps,
@@ -47,6 +48,7 @@ class ChatInputTextArea extends React.PureComponent<Props> {
           rows="1"
           placeholder="Type your message"
           value={this.props.currentText}
+          onChange={this.onChangeMessageText}
           onKeyDown={this.onKeyDown}
           ref={this.textareaRef}
           autoFocus
@@ -60,6 +62,14 @@ class ChatInputTextArea extends React.PureComponent<Props> {
     if (textarea) {
       textarea.focus();
     }
+  };
+
+  setCurrentText = (text: string) => {
+    this.props.setCurrentText(text);
+  };
+
+  onChangeMessageText = (event: SyntheticEvent<HTMLTextAreaElement>) => {
+    this.setCurrentText(event.currentTarget.value);
   };
 
   focusAndUpdateText = () => {
