@@ -24,12 +24,12 @@ import {
   type NewUpdatesRedisMessage,
 } from 'lib/types/redis-types.js';
 import type { RawThreadInfo } from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import {
   type ServerUpdateInfo,
   type UpdateData,
   type RawUpdateInfo,
   type CreateUpdatesResult,
-  updateTypes,
 } from 'lib/types/update-types.js';
 import type {
   UserInfos,

@@ -16,10 +16,8 @@ import {
 } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  updateTypes,
-  type ServerCreateUpdatesResponse,
-} from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
+import { type ServerCreateUpdatesResponse } from 'lib/types/update-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';

@@ -28,7 +28,7 @@ import {
   type ToggleMessagePinRequest,
   type ToggleMessagePinResult,
 } from 'lib/types/thread-types.js';
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';

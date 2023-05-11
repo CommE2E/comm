@@ -20,7 +20,7 @@ import {
 } from 'lib/types/message-types.js';
 import { redisMessageTypes } from 'lib/types/redis-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { updateTypes } from 'lib/types/update-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import createIDs from './id-creator.js';
