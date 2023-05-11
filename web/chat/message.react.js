@@ -9,6 +9,8 @@ import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import css from './chat-message-list.css';
+import { useEditModalContext } from './edit-message-provider.js';
+import { ComposedEditTextMessage } from './edit-text-message.react.js';
 import MultimediaMessage from './multimedia-message.react.js';
 import RobotextMessage from './robotext-message.react.js';
 import TextMessage from './text-message.react.js';
@@ -29,8 +31,22 @@ function Message(props: Props): React.Node {
       </div>
     );
   }
+
+  const { editState } = useEditModalContext();
+
   let message;
-  if (item.messageInfo.type === messageTypes.TEXT) {
+  if (
+    item.messageInfo.id &&
+    editState?.messageInfo.messageInfo?.id === item.messageInfo.id
+  ) {
+    message = (
+      <ComposedEditTextMessage
+        item={props.item}
+        threadInfo={props.threadInfo}
+        background={true}
+      ></ComposedEditTextMessage>
+    );
+  } else if (item.messageInfo.type === messageTypes.TEXT) {
     message = (
       <TextMessage
         item={item}
