@@ -18,6 +18,7 @@ type EditModalContextType = {
   +renderEditModal: (params: EditState) => void,
   +clearEditModal: () => void,
   +editState: ?EditState,
+  +setDraft: string => void,
 };
 
 const EditModalContext: React.Context<EditModalContextType> =
@@ -25,6 +26,7 @@ const EditModalContext: React.Context<EditModalContextType> =
     renderEditModal: () => {},
     clearEditModal: () => {},
     editState: null,
+    setDraft: () => {},
   });
 
 type Props = {
@@ -48,13 +50,27 @@ function EditModalProvider(props: Props): React.Node {
     return null;
   }, []);
 
+  const setDraft = React.useCallback(
+    (draft: ?string) => {
+      if (!editState) {
+        return;
+      }
+      setEditState({
+        ...editState,
+        editedMessageDraft: draft,
+      });
+    },
+    [editState, setEditState],
+  );
+
   const value = React.useMemo(
     () => ({
       renderEditModal,
       clearEditModal: clearEditModal,
       editState,
+      setDraft,
     }),
-    [renderEditModal, clearEditModal, editState],
+    [renderEditModal, clearEditModal, editState, setDraft],
   );
 
   let modalOverlay;

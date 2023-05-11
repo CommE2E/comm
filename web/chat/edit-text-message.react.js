@@ -26,6 +26,7 @@ type Props = {
   ...BaseProps,
   +editState: ?EditState,
   +clearEditModal: () => void,
+  +setDraft: string => void,
 };
 class EditTextMessage extends React.PureComponent<Props> {
   myRef: { current: null | HTMLDivElement };
@@ -71,6 +72,7 @@ class EditTextMessage extends React.PureComponent<Props> {
           <ChatInputTextArea
             focus={!this.props.background}
             currentText={editedMessageDraft}
+            setCurrentText={this.props.setDraft}
           />
         </div>
         <div className={css.bottomRow}>
@@ -93,12 +95,13 @@ class EditTextMessage extends React.PureComponent<Props> {
 
 const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedEditTextMessage(props) {
-    const { editState, clearEditModal } = useEditModalContext();
+    const { editState, clearEditModal, setDraft } = useEditModalContext();
     return (
       <EditTextMessage
         {...props}
         editState={editState}
         clearEditModal={clearEditModal}
+        setDraft={setDraft}
       />
     );
   });

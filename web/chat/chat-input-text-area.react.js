@@ -11,11 +11,12 @@ type Props = {
   +escape?: () => void,
   +focus: boolean,
   +currentText: string,
+  +setCurrentText: (text: string) => void,
 };
 
 const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
   function ChatInputTextArea(props: Props) {
-    const { currentText, focus, escape, send } = props;
+    const { currentText, focus, escape, send, setCurrentText } = props;
     const textareaRef = React.useRef(null);
 
     const focusAndUpdateText = React.useCallback(() => {
@@ -71,7 +72,10 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
       }
     };
 
-    const onChangeMessageText = () => {
+    const onChangeMessageText = (
+      event: SyntheticEvent<HTMLTextAreaElement>,
+    ) => {
+      setCurrentText(event.currentTarget.value);
       updateHeight();
     };
 
