@@ -305,8 +305,12 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
     const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
     const shouldRenderAvatars = useShouldRenderAvatars();
     const progress = useDerivedValue(() => {
+      const isThisThread =
+        inputState?.editState.editedMessage?.threadID ===
+        props.item.threadInfo.id;
       const isHighlighted =
-        inputState?.editState.editedMessage?.id === props.item.messageInfo.id;
+        inputState?.editState.editedMessage?.id === props.item.messageInfo.id &&
+        isThisThread;
       return withTiming(isHighlighted ? 1 : 0);
     });
     const editedMessageStyle = useAnimatedStyle(() => {
