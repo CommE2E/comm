@@ -36,6 +36,7 @@ import {
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
+import { assignReportsID } from 'lib/utils/report-utils.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -535,6 +536,13 @@ const migrations = {
   [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
   [40]: state =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
+  [41]: (state: AppState) => {
+    const queuedReports = assignReportsID(state.reportStore.queuedReports);
+    return {
+      ...state,
+      reportStore: { ...state.reportStore, queuedReports },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -615,7 +623,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 40,
+  version: 41,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
