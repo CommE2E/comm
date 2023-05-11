@@ -1,0 +1,60 @@
+.editMessage {
+  padding: 10px;
+  background-color: var(--modal-bg);
+  border-radius: 8px;
+}
+
+.backgroundEditMessage {
+  width: 1000px;
+}
+
+.bottomRow {
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.buttons {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.icon {
+  color: var(--error);
+  height: 16px;
+  display: flex;
+  float: left;
+  margin-right: 2px;
+}
+
+.failedText {
+  font-size: 13px;
+  white-space: nowrap;
+  flex: 1;
+  align-items: center;
+}
+
+.errorColor {
+  color: var(--error);
+}
+
+.whiteColor {
+  color: var(--fg);
+  margin-left: 2px;
+}
+
+.failedText > div {
+  float: left;
+  margin-right: 2px;
+}
+
+.smallButton {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  float: right;
+}
+
+.saveButton {
+  margin-left: 8px;
+}
