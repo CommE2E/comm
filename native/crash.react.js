@@ -34,7 +34,10 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
-import { useIsReportEnabled } from 'lib/utils/report-utils.js';
+import {
+  generateReportID,
+  useIsReportEnabled,
+} from 'lib/utils/report-utils.js';
 import {
   sanitizeReduxReport,
   type ReduxCrashReport,
@@ -172,6 +175,7 @@ class Crash extends React.PureComponent<Props, State> {
         componentStack: data.info && data.info.componentStack,
       })),
       ...sanitizedReduxReport,
+      id: generateReportID(),
     });
     this.setState({
       errorReportID: result.id,

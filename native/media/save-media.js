@@ -22,7 +22,10 @@ import {
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
-import { useIsReportEnabled } from 'lib/utils/report-utils.js';
+import {
+  generateReportID,
+  useIsReportEnabled,
+} from 'lib/utils/report-utils.js';
 
 import { fetchBlob } from './blob-utils.js';
 import {
@@ -110,6 +113,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
         uploadLocalID: uploadIDIsLocal ? uploadID : undefined,
         messageServerID,
         messageLocalID,
+        id: generateReportID(),
       };
       dispatch({
         type: queueReportsActionType,
