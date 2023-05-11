@@ -5,6 +5,8 @@ import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
+import { trimMessage } from 'lib/shared/message-utils.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import cssInputBar from './chat-input-bar.css';
@@ -26,8 +28,10 @@ const cancelButtonColor: ButtonColor = {
 };
 
 function EditTextMessage(props: Props): React.Node {
-  const { background, threadInfo } = props;
-  const { editState, clearEditModal, setDraft } = useEditModalContext();
+  const { background, threadInfo, item } = props;
+  const { editState, clearEditModal, setDraft, setError } =
+    useEditModalContext();
+  const editMessage = useEditMessage();
 
   const editedMessageDraft = editState?.editedMessageDraft ?? '';
   const threadColor = threadInfo.color;
@@ -37,6 +41,36 @@ function EditTextMessage(props: Props): React.Node {
     }),
     [threadColor],
   );
+
+  const isMessageEdited = React.useMemo(() => {
+    const { messageInfo } = item;
+    if (!messageInfo || !messageInfo.text || !editState) {
+      return false;
+    }
+    if (!editedMessageDraft) {
+      return false;
+    }
+    const trimmedDraft = trimMessage(editedMessageDraft);
+    return trimmedDraft !== messageInfo.text;
+  }, [editState, editedMessageDraft, item]);
+
+  const checkAndEdit = async () => {
+    const { id: messageInfoID } = item.messageInfo;
+    if (!isMessageEdited) {
+      clearEditModal();
+      return;
+    }
+    if (!messageInfoID || !editState?.editedMessageDraft) {
+      return;
+    }
+    try {
+      await editMessage(messageInfoID, editState.editedMessageDraft);
+      clearEditModal();
+    } catch (e) {
+      setError(true);
+    }
+  };
+
   let editFailed;
   if (editState?.isError) {
     editFailed = (
@@ -61,6 +95,7 @@ function EditTextMessage(props: Props): React.Node {
           focus={!background}
           currentText={editedMessageDraft}
           setCurrentText={setDraft}
+          send={checkAndEdit}
         />
       </div>
       <div className={css.bottomRow}>
@@ -70,6 +105,7 @@ function EditTextMessage(props: Props): React.Node {
             className={[css.saveButton, css.smallButton]}
             variant="filled"
             buttonColor={saveButtonColor}
+            onClick={checkAndEdit}
           >
             Save (enter)
           </Button>
