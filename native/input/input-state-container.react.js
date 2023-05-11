@@ -99,7 +99,10 @@ import type {
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
-import { useIsReportEnabled } from 'lib/utils/report-utils.js';
+import {
+  generateReportID,
+  useIsReportEnabled,
+} from 'lib/utils/report-utils.js';
 
 import {
   type EditInputBarMessageParameters,
@@ -1391,6 +1394,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadServerID: ids.serverID,
       uploadLocalID: ids.localID,
       messageLocalID: ids.localMessageID,
+      id: generateReportID(),
     };
     this.props.dispatch({
       type: queueReportsActionType,

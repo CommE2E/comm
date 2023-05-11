@@ -96,6 +96,7 @@ import {
 import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
+import { generateReportID } from 'lib/utils/report-utils.js';
 
 import {
   type PendingMultimediaUpload,
@@ -1253,6 +1254,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         uploadServerID,
         uploadLocalID,
         messageLocalID,
+        id: generateReportID(),
       }),
     );
     this.props.dispatch({ type: queueReportsActionType, payload: { reports } });
