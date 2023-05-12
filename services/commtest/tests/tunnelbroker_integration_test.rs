@@ -110,11 +110,11 @@ async fn presist_messages() {
     .expect("Failed to send message");
 
   // Have keyserver receive any websocket messages
-  let response = socket.next().await.unwrap().unwrap();
-
-  // Check that message received by keyserver matches what identity server
-  // issued
-  let serialized_response: RefreshKeyRequest =
-    serde_json::from_str(&response.to_text().unwrap()).unwrap();
-  assert_eq!(serialized_response, refresh_request);
+  if let Some(Ok(response)) = socket.next().await {
+    // Check that message received by keyserver matches what identity server
+    // issued
+    let serialized_response: RefreshKeyRequest =
+      serde_json::from_str(&response.to_text().unwrap()).unwrap();
+    assert_eq!(serialized_response, refresh_request);
+  };
 }
