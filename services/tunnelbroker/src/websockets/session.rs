@@ -7,8 +7,8 @@ use tracing::{debug, error};
 use tunnelbroker_messages::{session::DeviceTypes, Messages};
 
 use crate::{
-  constants::dynamodb::undelivered_messages::CREATED_AT,
-  database::DatabaseClient, ACTIVE_CONNECTIONS,
+  database::{self, DatabaseClient, DeviceMessage},
+  ACTIVE_CONNECTIONS,
 };
 
 pub struct DeviceInfo {
@@ -29,6 +29,7 @@ pub struct WebsocketSession {
 pub enum SessionError {
   InvalidMessage,
   SerializationError(serde_json::Error),
+  MessageError(database::MessageErrors),
 }
 
 fn consume_error<T>(result: Result<T, SessionError>) {
@@ -104,16 +105,15 @@ impl WebsocketSession {
         ACTIVE_CONNECTIONS.insert(device_info.device_id.clone(), tx.clone());
 
         for message in messages {
-          let payload =
-            message.get("payload").unwrap().as_s().unwrap().to_string();
-          let created_at =
-            message.get(CREATED_AT).unwrap().as_n().unwrap().to_string();
-          self.send_message_to_device(payload).await;
-          self
+          let device_message = DeviceMessage::from_hashmap(message)?;
+          self.send_message_to_device(device_message.payload).await;
+          if let Err(e) = self
             .db_client
-            .delete_message(&device_info.device_id, &created_at)
+            .delete_message(&device_info.device_id, &device_message.created_at)
             .await
-            .expect("Failed to delete messages");
+          {
+            error!("Failed to delete message: {}:", e);
+          }
         }
 
         debug!("Flushed messages for device: {}", &session_info.device_id);
