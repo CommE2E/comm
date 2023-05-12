@@ -34,6 +34,7 @@ tonic = "0.8"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 tunnelbroker_messages = { path = "../../shared/tunnelbroker_messages" }
+derive_more = "0.99.17"
 
 [build-dependencies]
 tonic-build = "0.8"
