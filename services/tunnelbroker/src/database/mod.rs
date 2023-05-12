@@ -15,6 +15,9 @@ use crate::constants::dynamodb::undelivered_messages::{
   CREATED_AT, PARTITION_KEY, PAYLOAD, SORT_KEY, TABLE_NAME,
 };
 
+pub mod message;
+pub use message::*;
+
 #[derive(Clone)]
 pub struct DatabaseClient {
   client: Arc<Client>,
