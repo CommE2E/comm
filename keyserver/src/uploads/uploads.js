@@ -72,6 +72,11 @@ async function multimediaUploadResponder(
   if (inputMimeType && typeof inputMimeType !== 'string') {
     throw new ServerError('invalid_parameters');
   }
+  const inputThumbHash =
+    files.length === 1 && body.thumbHash ? body.thumbHash : null;
+  if (inputThumbHash && typeof inputThumbHash !== 'string') {
+    throw new ServerError('invalid_parameters');
+  }
 
   const validationResults = await Promise.all(
     files.map(({ buffer, size, originalname }) =>
@@ -82,6 +87,7 @@ async function multimediaUploadResponder(
         inputLoop,
         inputEncryptionKey,
         inputMimeType,
+        inputThumbHash,
         size,
       }),
     ),
@@ -102,6 +108,7 @@ const uploadMediaMetadataInputValidator = tShape({
   encryptionKey: t.String,
   mimeType: t.String,
   loop: t.maybe(t.Boolean),
+  thumbHash: t.maybe(t.String),
 });
 
 async function uploadMediaMetadataResponder(
@@ -126,6 +133,7 @@ async function uploadMediaMetadataResponder(
     encryptionKey,
     dimensions: { width, height },
     loop: loop ?? false,
+    thumbHash: request.thumbHash,
   };
 
   const [result] = await createUploads(viewer, [uploadInfo]);
@@ -191,6 +199,8 @@ async function uploadDownloadResponder(
     // HTTP 206 Partial Content
     // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/206
     res.writeHead(206, respHeaders);
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
     const stream = new Readable();
     stream.push(content);
     stream.push(null);
