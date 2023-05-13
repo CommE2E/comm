@@ -32,6 +32,7 @@ export type UploadInput = {
   +dimensions: Dimensions,
   +loop: boolean,
   +encryptionKey?: string,
+  +thumbHash?: string,
 };
 async function createUploads(
   viewer: Viewer,
@@ -45,7 +46,8 @@ async function createUploads(
   const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
     const secret = crypto.randomBytes(8).toString('hex');
-    const { content, dimensions, mediaType, loop, encryptionKey } = uploadInfo;
+    const { content, dimensions, mediaType, loop, encryptionKey, thumbHash } =
+      uploadInfo;
     const buffer =
       content.storage === 'keyserver' ? content.buffer : Buffer.alloc(0);
     const blobHolder =
@@ -69,7 +71,13 @@ async function createUploads(
         buffer,
         secret,
         Date.now(),
-        JSON.stringify({ ...dimensions, loop, blobHolder, encryptionKey }),
+        JSON.stringify({
+          ...dimensions,
+          loop,
+          blobHolder,
+          encryptionKey,
+          thumbHash,
+        }),
       ],
     };
   });
