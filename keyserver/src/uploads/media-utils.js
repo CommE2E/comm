@@ -49,6 +49,7 @@ type ValidateAndConvertInput = {
   +inputLoop: boolean,
   +inputEncryptionKey: ?string,
   +inputMimeType: ?string,
+  +inputThumbHash: ?string,
   +size: number, // in bytes
 };
 async function validateAndConvert(
@@ -61,8 +62,14 @@ async function validateAndConvert(
     inputLoop,
     inputEncryptionKey,
     inputMimeType,
+    inputThumbHash,
     size, // in bytes
   } = input;
+
+  let passthroughParams;
+  if (inputThumbHash) {
+    passthroughParams = { thumbHash: inputThumbHash };
+  }
 
   // we don't want to transcode encrypted files
   if (inputEncryptionKey) {
@@ -81,6 +88,7 @@ async function validateAndConvert(
     }
 
     return {
+      ...passthroughParams,
       name: initialName,
       mime: inputMimeType,
       mediaType,
@@ -106,6 +114,7 @@ async function validateAndConvert(
       'inputDimensions should be set in validateAndConvert',
     );
     return {
+      ...passthroughParams,
       mime: mime,
       mediaType: mediaType,
       name: initialName,
@@ -120,7 +129,7 @@ async function validateAndConvert(
     return null;
   }
 
-  return convertImage(
+  const convertedImage = await convertImage(
     initialBuffer,
     mime,
     initialName,
@@ -128,6 +137,14 @@ async function validateAndConvert(
     inputLoop,
     size,
   );
+  if (!convertedImage) {
+    return null;
+  }
+
+  return {
+    ...passthroughParams,
+    ...convertedImage,
+  };
 }
 
 async function convertImage(
