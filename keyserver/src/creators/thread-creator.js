@@ -284,7 +284,7 @@ async function createThread(
       const existingThreadID = existingThreadResult[0].id.toString();
 
       let calendarQuery;
-      if (hasMinCodeVersion(viewer.platformDetails, 87)) {
+      if (hasMinCodeVersion(viewer.platformDetails, { native: 87 })) {
         invariant(request.calendarQuery, 'calendar query should exist');
         calendarQuery = {
           ...request.calendarQuery,
@@ -482,7 +482,7 @@ async function createThread(
     updatesForCurrentSession,
   );
 
-  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
     return {
       newThreadID: id,
       updatesResult: {

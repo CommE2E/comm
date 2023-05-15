@@ -178,12 +178,24 @@ function rawThreadInfosFromServerThreadInfos(
   serverResult: FetchServerThreadInfosResult,
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
-  const codeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, 70);
-  const codeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
-  const codeVersionBelow102 = !hasMinCodeVersion(viewer.platformDetails, 102);
-  const codeVersionBelow104 = !hasMinCodeVersion(viewer.platformDetails, 104);
-  const codeVersionBelow209 = !hasMinCodeVersion(viewer.platformDetails, 209);
-  const codeVersionBelow213 = !hasMinCodeVersion(viewer.platformDetails, 213);
+  const codeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 70,
+  });
+  const codeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 87,
+  });
+  const codeVersionBelow102 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 102,
+  });
+  const codeVersionBelow104 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 104,
+  });
+  const codeVersionBelow209 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 209,
+  });
+  const codeVersionBelow213 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 213,
+  });
 
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {

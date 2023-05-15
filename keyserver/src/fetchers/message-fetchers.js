@@ -429,7 +429,9 @@ function parseMessageSelectionCriteria(
   criteria: MessageSelectionCriteria,
 ): ParsedMessageSelectionCriteria {
   const minMessageTime = Date.now() - defaultMaxMessageAge;
-  const shouldApplyTimeFilter = hasMinCodeVersion(viewer.platformDetails, 130);
+  const shouldApplyTimeFilter = hasMinCodeVersion(viewer.platformDetails, {
+    native: 130,
+  });
 
   let globalTimeFilter;
   if (criteria.newerThan) {
