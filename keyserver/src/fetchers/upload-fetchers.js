@@ -123,7 +123,7 @@ function makeUploadURI(holder: ?string, id: string, secret: string): string {
 
 function imagesFromRow(row: Object): Image | EncryptedImage {
   const uploadExtra = JSON.parse(row.uploadExtra);
-  const { width, height, blobHolder } = uploadExtra;
+  const { width, height, blobHolder, thumbHash } = uploadExtra;
 
   const { uploadType: type, uploadSecret: secret } = row;
   const id = row.uploadID.toString();
@@ -134,13 +134,14 @@ function imagesFromRow(row: Object): Image | EncryptedImage {
     throw new ServerError('invalid_parameters');
   }
   if (!isEncrypted) {
-    return { id, type: 'photo', uri, dimensions };
+    return { id, type: 'photo', uri, dimensions, thumbHash };
   }
   return {
     id,
     type: 'encrypted_photo',
     holder: uri,
     dimensions,
+    thumbHash,
     encryptionKey: uploadExtra.encryptionKey,
   };
 }
@@ -212,7 +213,7 @@ async function fetchMediaForThread(
 
   const media = uploads.map(upload => {
     const { uploadID, uploadType, uploadSecret, uploadExtra } = upload;
-    const { width, height, encryptionKey, blobHolder } =
+    const { width, height, encryptionKey, blobHolder, thumbHash } =
       JSON.parse(uploadExtra);
     const dimensions = { width, height };
     const uri = makeUploadURI(blobHolder, uploadID, uploadSecret);
@@ -225,6 +226,7 @@ async function fetchMediaForThread(
           holder: uri,
           encryptionKey,
           dimensions,
+          thumbHash,
         };
       }
       return {
@@ -232,6 +234,7 @@ async function fetchMediaForThread(
         id: uploadID.toString(),
         uri,
         dimensions,
+        thumbHash,
       };
     }
 
@@ -239,6 +242,7 @@ async function fetchMediaForThread(
     const {
       encryptionKey: thumbnailEncryptionKey,
       blobHolder: thumbnailBlobHolder,
+      thumbHash: thumbnailThumbHash,
     } = JSON.parse(thumbnailUploadExtra);
     const thumbnailURI = makeUploadURI(
       thumbnailBlobHolder,
@@ -256,6 +260,7 @@ async function fetchMediaForThread(
         thumbnailID,
         thumbnailHolder: thumbnailURI,
         thumbnailEncryptionKey,
+        thumbnailThumbHash,
       };
     }
 
@@ -266,6 +271,7 @@ async function fetchMediaForThread(
       dimensions,
       thumbnailID,
       thumbnailURI,
+      thumbnailThumbHash,
     };
   });
 
@@ -313,7 +319,8 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
     const primaryUpload = uploadMap[primaryUploadID];
 
     const uploadExtra = JSON.parse(primaryUpload.uploadExtra);
-    const { width, height, loop, blobHolder, encryptionKey } = uploadExtra;
+    const { width, height, loop, blobHolder, encryptionKey, thumbHash } =
+      uploadExtra;
     const dimensions = { width, height };
 
     const primaryUploadURI = makeUploadURI(
@@ -330,6 +337,7 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
           holder: primaryUploadURI,
           encryptionKey,
           dimensions,
+          thumbHash,
         });
       } else {
         media.push({
@@ -337,6 +345,7 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
           id: primaryUploadID,
           uri: primaryUploadURI,
           dimensions,
+          thumbHash,
         });
       }
       continue;
@@ -346,7 +355,8 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
     const thumbnailUpload = uploadMap[thumbnailUploadID];
 
     const thumbnailUploadExtra = JSON.parse(thumbnailUpload.uploadExtra);
-    const { blobHolder: thumbnailBlobHolder } = thumbnailUploadExtra;
+    const { blobHolder: thumbnailBlobHolder, thumbHash: thumbnailThumbHash } =
+      thumbnailUploadExtra;
     const thumbnailUploadURI = makeUploadURI(
       thumbnailBlobHolder,
       thumbnailUploadID,
@@ -363,6 +373,7 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
         thumbnailID: thumbnailUploadID,
         thumbnailHolder: thumbnailUploadURI,
         thumbnailEncryptionKey: thumbnailUploadExtra.encryptionKey,
+        thumbnailThumbHash,
       };
       media.push(loop ? { ...video, loop } : video);
     } else {
@@ -373,6 +384,7 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
         dimensions,
         thumbnailID: thumbnailUploadID,
         thumbnailURI: thumbnailUploadURI,
+        thumbnailThumbHash,
       };
       media.push(loop ? { ...video, loop } : video);
     }

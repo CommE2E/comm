@@ -329,6 +329,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               uri,
               type: 'photo',
               dimensions: shimmedDimensions,
+              thumbHash: null,
             };
           }
           invariant(
@@ -341,6 +342,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             type: 'encrypted_photo',
             encryptionKey,
             dimensions: shimmedDimensions,
+            thumbHash: null,
           };
         },
       );
