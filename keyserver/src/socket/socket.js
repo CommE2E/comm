@@ -466,16 +466,6 @@ class Socket {
       ),
     };
 
-    if (
-      viewer.userAgent?.includes('Electron') &&
-      viewer.platform === 'web' &&
-      !serverRequests.find(
-        request => request.type === serverRequestTypes.PLATFORM_DETAILS,
-      )
-    ) {
-      serverRequests.push({ type: serverRequestTypes.PLATFORM_DETAILS });
-    }
-
     const isCookieMissingSignedIdentityKeysBlobPromise =
       isCookieMissingSignedIdentityKeysBlob(viewer.cookieID);
 
