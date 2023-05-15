@@ -53,13 +53,11 @@ async function rescindPushNotifs(
     for (const delivery of deliveries) {
       if (delivery.iosID && delivery.iosDeviceTokens) {
         // Old iOS
-        const notification = prepareIOSNotification(
-          delivery.iosID,
-          row.unread_count,
-          threadID,
-        );
+        const notifications = [
+          prepareIOSNotification(delivery.iosID, row.unread_count, threadID),
+        ];
         deliveryPromises[id] = apnPush({
-          notification,
+          notifications,
           deviceTokens: delivery.iosDeviceTokens,
           platformDetails: { platform: 'ios' },
         });
@@ -78,14 +76,16 @@ async function rescindPushNotifs(
       } else if (delivery.deviceType === 'ios') {
         // New iOS
         const { iosID, deviceTokens, codeVersion } = delivery;
-        const notification = prepareIOSNotification(
-          iosID,
-          row.unread_count,
-          threadID,
-          codeVersion,
-        );
+        const notifications = [
+          prepareIOSNotification(
+            iosID,
+            row.unread_count,
+            threadID,
+            codeVersion,
+          ),
+        ];
         deliveryPromises[id] = apnPush({
-          notification,
+          notifications,
           deviceTokens,
           platformDetails: { platform: 'ios', codeVersion },
         });

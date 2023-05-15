@@ -37,6 +37,7 @@ import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import { prepareEncryptedIOSNotifications } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
 import {
@@ -64,6 +65,7 @@ import { getENSNames } from '../utils/ens-cache.js';
 type Device = {
   +platform: Platform,
   +deviceToken: string,
+  +cookieID: string,
   +codeVersion: ?number,
 };
 type PushUserInfo = {
@@ -190,12 +192,16 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
       const iosVersionsToTokens = byPlatform.get('ios');
       if (iosVersionsToTokens) {
-        for (const [codeVersion, deviceTokens] of iosVersionsToTokens) {
+        for (const [
+          codeVersion,
+          { cookieIDs, deviceTokens },
+        ] of iosVersionsToTokens) {
           const platformDetails = { platform: 'ios', codeVersion };
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
             platformDetails,
           );
+
           const deliveryPromise = (async () => {
             const notification = await prepareAPNsNotification({
               notifTexts,
@@ -214,6 +220,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
                 ...notificationInfo,
                 codeVersion,
               },
+              [...cookieIDs],
             );
           })();
           deliveryPromises.push(deliveryPromise);
@@ -221,7 +228,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const androidVersionsToTokens = byPlatform.get('android');
       if (androidVersionsToTokens) {
-        for (const [codeVersion, deviceTokens] of androidVersionsToTokens) {
+        for (const [codeVersion, { deviceTokens }] of androidVersionsToTokens) {
           const platformDetails = { platform: 'android', codeVersion };
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
@@ -252,7 +259,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const webVersionsToTokens = byPlatform.get('web');
       if (webVersionsToTokens) {
-        for (const [codeVersion, deviceTokens] of webVersionsToTokens) {
+        for (const [codeVersion, { deviceTokens }] of webVersionsToTokens) {
           const deliveryPromise = (async () => {
             const notification = await prepareWebNotification({
               notifTexts,
@@ -269,7 +276,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const macosVersionsToTokens = byPlatform.get('macos');
       if (macosVersionsToTokens) {
-        for (const [codeVersion, deviceTokens] of macosVersionsToTokens) {
+        for (const [codeVersion, { deviceTokens }] of macosVersionsToTokens) {
           const platformDetails = { platform: 'macos', codeVersion };
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
@@ -300,7 +307,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const windowsVersionsToTokens = byPlatform.get('windows');
       if (windowsVersionsToTokens) {
-        for (const [codeVersion, deviceTokens] of windowsVersionsToTokens) {
+        for (const [codeVersion, { deviceTokens }] of windowsVersionsToTokens) {
           const deliveryPromise = (async () => {
             const notification = await prepareWNSNotification({
               notifTexts,
@@ -578,7 +585,10 @@ async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
 
 function getDevicesByPlatform(
   devices: Device[],
-): Map<Platform, Map<number, Set<string>>> {
+): Map<
+  Platform,
+  Map<number, { cookieIDs: Set<string>, deviceTokens: Set<string> }>,
+> {
   const byPlatform = new Map();
   for (const device of devices) {
     let innerMap = byPlatform.get(device.platform);
@@ -590,12 +600,14 @@ function getDevicesByPlatform(
       device.codeVersion !== null && device.codeVersion !== undefined
         ? device.codeVersion
         : -1;
-    let innerMostSet = innerMap.get(codeVersion);
-    if (!innerMostSet) {
-      innerMostSet = new Set();
-      innerMap.set(codeVersion, innerMostSet);
+    let innerMostSetPair = innerMap.get(codeVersion);
+    if (!innerMostSetPair) {
+      innerMostSetPair = { cookieIDs: new Set(), deviceTokens: new Set() };
+      innerMap.set(codeVersion, innerMostSetPair);
     }
-    innerMostSet.add(device.deviceToken);
+    const { cookieIDs, deviceTokens } = innerMostSetPair;
+    cookieIDs.add(device.cookieID);
+    deviceTokens.add(device.deviceToken);
   }
   return byPlatform;
 }
@@ -645,6 +657,7 @@ async function prepareAPNsNotification(
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadID;
+  notification.payload.badge = unreadCount;
 
   if (platformDetails.codeVersion && platformDetails.codeVersion > 198) {
     notification.mutableContent = true;
@@ -822,10 +835,23 @@ async function sendAPNsNotification(
   notification: apn.Notification,
   deviceTokens: $ReadOnlyArray<string>,
   notificationInfo: NotificationInfo,
+  cookieIDs?: $ReadOnlyArray<string>,
 ): Promise<APNsResult> {
-  const { source, codeVersion } = notificationInfo;
+  const { source, codeVersion, collapseKey } = notificationInfo;
+
+  let notifications = [];
+  const shouldEncryptNotification = platform === 'ios' && !collapseKey;
+  if (shouldEncryptNotification && cookieIDs) {
+    notifications = await prepareEncryptedIOSNotifications(
+      cookieIDs,
+      notification,
+    );
+  } else {
+    notifications = [notification];
+  }
+
   const response = await apnPush({
-    notification,
+    notifications,
     deviceTokens,
     platformDetails: { platform, codeVersion },
   });
@@ -1078,7 +1104,10 @@ async function updateBadgeCount(
 
   const iosVersionsToTokens = byPlatform.get('ios');
   if (iosVersionsToTokens) {
-    for (const [codeVersion, deviceTokens] of iosVersionsToTokens) {
+    for (const [
+      codeVersion,
+      { cookieIDs, deviceTokens },
+    ] of iosVersionsToTokens) {
       const notification = new apn.Notification();
       notification.topic = getAPNsNotificationTopic({
         platform: 'ios',
@@ -1087,19 +1116,25 @@ async function updateBadgeCount(
       notification.badge = unreadCount;
       notification.pushType = 'alert';
       deliveryPromises.push(
-        sendAPNsNotification('ios', notification, [...deviceTokens], {
-          source,
-          dbID,
-          userID,
-          codeVersion,
-        }),
+        sendAPNsNotification(
+          'ios',
+          notification,
+          [...deviceTokens],
+          {
+            source,
+            dbID,
+            userID,
+            codeVersion,
+          },
+          [...cookieIDs],
+        ),
       );
     }
   }
 
   const androidVersionsToTokens = byPlatform.get('android');
   if (androidVersionsToTokens) {
-    for (const [codeVersion, deviceTokens] of androidVersionsToTokens) {
+    for (const [codeVersion, { deviceTokens }] of androidVersionsToTokens) {
       const notificationData =
         codeVersion < 69
           ? { badge: unreadCount.toString() }
@@ -1118,7 +1153,7 @@ async function updateBadgeCount(
 
   const macosVersionsToTokens = byPlatform.get('macos');
   if (macosVersionsToTokens) {
-    for (const [codeVersion, deviceTokens] of macosVersionsToTokens) {
+    for (const [codeVersion, { deviceTokens }] of macosVersionsToTokens) {
       const notification = new apn.Notification();
       notification.topic = getAPNsNotificationTopic({
         platform: 'macos',

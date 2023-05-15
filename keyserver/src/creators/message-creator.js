@@ -52,6 +52,7 @@ type UserThreadInfo = {
     {
       +platform: string,
       +deviceToken: string,
+      +cookieID: string,
       +codeVersion: ?string,
     },
   >,
@@ -323,7 +324,7 @@ async function postMessageSend(
   const time = earliestFocusedTimeConsideredExpired();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
-    SELECT m.user, m.thread, c.platform, c.device_token, c.versions,
+    SELECT m.user, m.thread, c.platform, c.device_token, c.versions, c.id,
       f.user AS focused_user
   `;
   query.append(subthreadSelects);
@@ -335,7 +336,7 @@ async function postMessageSend(
   `);
   appendSQLArray(query, subthreadJoins, SQL` `);
   query.append(SQL`
-    WHERE (m.role > 0 OR f.user IS NOT NULL) AND
+    WHERE (m.role > 0 OR f.user IS NOT NULL) AND c.id IS NOT NULL AND
       JSON_EXTRACT(m.permissions, ${visibleExtractString}) IS TRUE AND
       m.thread IN (${[...threadsToMessageIndices.keys()]})
   `);
@@ -349,6 +350,7 @@ async function postMessageSend(
     const focusedUser = !!row.focused_user;
     const { platform } = row;
     const versions = JSON.parse(row.versions);
+    const cookieID = row.id.toString();
     let thisUserInfo = perUserInfo.get(userID);
     if (!thisUserInfo) {
       thisUserInfo = {
@@ -388,6 +390,7 @@ async function postMessageSend(
       thisUserInfo.devices.set(deviceToken, {
         platform,
         deviceToken,
+        cookieID,
         codeVersion: versions ? versions.codeVersion : null,
       });
     }
