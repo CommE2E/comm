@@ -12,29 +12,30 @@ import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
 
 export type PendingMultimediaUpload = {
-  localID: string,
+  +localID: string,
   // Pending uploads are assigned a serverID once they are complete
-  serverID: ?string,
+  +serverID: ?string,
   // Pending uploads are assigned a messageID once they are sent
-  messageID: ?string,
+  +messageID: ?string,
   // This is set to true if the upload fails for whatever reason
-  failed: boolean,
-  file: File,
-  mediaType: MediaType | EncryptedMediaType,
-  dimensions: ?Dimensions,
-  uri: string,
-  blobHash: ?string,
-  encryptionKey: ?string,
-  loop: boolean,
+  +failed: boolean,
+  +file: File,
+  +mediaType: MediaType | EncryptedMediaType,
+  +dimensions: ?Dimensions,
+  +uri: string,
+  +blobHash: ?string,
+  +encryptionKey: ?string,
+  +thumbHash: ?string,
+  +loop: boolean,
   // URLs created with createObjectURL aren't considered "real". The distinction
   // is required because those "fake" URLs must be disposed properly
-  uriIsReal: boolean,
-  progressPercent: number,
+  +uriIsReal: boolean,
+  +progressPercent: number,
   // This is set once the network request begins and used if the upload is
   // cancelled
-  abort: ?() => void,
-  steps: MediaMissionStep[],
-  selectTime: number,
+  +abort: ?() => void,
+  +steps: MediaMissionStep[],
+  +selectTime: number,
 };
 
 export type TypeaheadState = {
