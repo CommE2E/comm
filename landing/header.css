@@ -14,37 +14,47 @@ div.headerNavContentContainer {
 .logo {
   display: flex;
   align-items: center;
-  min-width: 85px;
+  min-width: 180px;
 }
 
-.logo h1 {
-  font-size: 28px;
-  font-weight: 500;
-  color: var(--logo-color);
+.logoText {
+  color: var(--white-100);
+  margin-right: 8px;
+}
+
+.betaBadge {
+  padding: 4px 16px;
+  background-color: #ebebeb26;
+  border-radius: 16px;
+  color: var(--white-100);
 }
 
 .tab {
-  font-size: 24px;
-  font-weight: 500;
-  color: #808080;
-  font-family: var(--sans-serif);
+  color: var(--black-60);
   transition: 150ms;
   transition-property: color;
 }
 .tab:hover {
-  color: #ffffff;
+  color: var(--white-100);
+}
+
+.activeTab {
+  color: var(--white-100);
 }
 
 .pageNav {
   display: flex;
-  justify-content: space-evenly;
-  min-width: 225px;
+  column-gap: 72px;
 }
 
 .socialIconsContainer {
   display: flex;
   justify-self: flex-end;
   align-items: center;
+}
+
+.icon {
+  color: var(--white-100);
 }
 
 div.twitterIcon,
@@ -90,7 +100,7 @@ div.twitterIcon:hover {
   transition: 300ms;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 848px) {
   .pageNav {
     display: none;
   }
