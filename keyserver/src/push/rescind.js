@@ -58,9 +58,11 @@ async function rescindPushNotifs(
           row.unread_count,
           threadID,
         );
+        const targetedNotifications = delivery.iosDeviceTokens.map(
+          deviceToken => ({ deviceToken, notification }),
+        );
         deliveryPromises[id] = apnPush({
-          notification,
-          deviceTokens: delivery.iosDeviceTokens,
+          targetedNotifications,
           platformDetails: { platform: 'ios' },
         });
       } else if (delivery.androidID) {
@@ -84,9 +86,12 @@ async function rescindPushNotifs(
           threadID,
           codeVersion,
         );
-        deliveryPromises[id] = apnPush({
+        const targetedNotifications = deviceTokens.map(deviceToken => ({
+          deviceToken,
           notification,
-          deviceTokens,
+        }));
+        deliveryPromises[id] = apnPush({
+          targetedNotifications,
           platformDetails: { platform: 'ios', codeVersion },
         });
       } else if (delivery.deviceType === 'android') {

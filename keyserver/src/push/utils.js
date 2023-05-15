@@ -1,6 +1,5 @@
 // @flow
 
-import apn from '@parse/node-apn';
 import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
@@ -24,6 +23,7 @@ import {
   ensureWebPushInitialized,
   getWNSToken,
 } from './providers.js';
+import type { TargetedAPNsNotification } from './types.js';
 import { dbQuery, SQL } from '../database/database.js';
 
 const fcmTokenInvalidationErrors = new Set([
@@ -46,12 +46,10 @@ type APNPushResult =
       +invalidTokens?: $ReadOnlyArray<string>,
     };
 async function apnPush({
-  notification,
-  deviceTokens,
+  targetedNotifications,
   platformDetails,
 }: {
-  +notification: apn.Notification,
-  +deviceTokens: $ReadOnlyArray<string>,
+  +targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>,
   +platformDetails: PlatformDetails,
 }): Promise<APNPushResult> {
   const pushProfile = getAPNPushProfileForCodeVersion(platformDetails);
@@ -61,10 +59,22 @@ async function apnPush({
     return { success: true };
   }
   invariant(apnProvider, `keyserver/secrets/${pushProfile}.json should exist`);
-  const result = await apnProvider.send(notification, deviceTokens);
+
+  const results = await Promise.all(
+    targetedNotifications.map(({ notification, deviceToken }) => {
+      return apnProvider.send(notification, deviceToken);
+    }),
+  );
+
+  const mergedResults = { sent: [], failed: [] };
+  for (const result of results) {
+    mergedResults.sent.push(...result.sent);
+    mergedResults.failed.push(...result.failed);
+  }
+
   const errors = [];
   const invalidTokens = [];
-  for (const error of result.failed) {
+  for (const error of mergedResults.failed) {
     errors.push(error);
     /* eslint-disable eqeqeq */
     if (
