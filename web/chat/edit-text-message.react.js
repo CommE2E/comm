@@ -33,6 +33,7 @@ type Props = {
     messageID: string,
     text: string,
   ) => Promise<SendEditMessageResult>,
+  +setError: boolean => void,
   +setDraft: string => void,
 };
 class EditTextMessage extends React.PureComponent<Props> {
@@ -129,7 +130,7 @@ class EditTextMessage extends React.PureComponent<Props> {
       );
       this.exitEditMode();
     } catch (e) {
-      // TODO: Handle error
+      this.props.setError(true);
     }
   };
 
@@ -140,7 +141,8 @@ class EditTextMessage extends React.PureComponent<Props> {
 
 const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedEditTextMessage(props) {
-    const { editState, clearEditModal, setDraft } = useEditModalContext();
+    const { editState, clearEditModal, setError, setDraft } =
+      useEditModalContext();
     const editMessage = useEditMessage();
     return (
       <EditTextMessage
@@ -148,6 +150,7 @@ const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
         editState={editState}
         clearEditModal={clearEditModal}
         editMessage={editMessage}
+        setError={setError}
         setDraft={setDraft}
       />
     );
