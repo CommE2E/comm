@@ -128,7 +128,7 @@ async function updateRole(
   };
   const newMessageInfos = await createMessages(viewer, [messageData]);
 
-  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
   }
 
@@ -218,7 +218,7 @@ async function removeMembers(
     return await createMessages(viewer, [messageData]);
   })();
 
-  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
   }
 
@@ -252,7 +252,7 @@ async function leaveThread(
   const threadInfo = fetchThreadResult.threadInfos[request.threadID];
 
   if (!viewerIsMember(threadInfo)) {
-    if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+    if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
       return {
         updatesResult: { newUpdates: [] },
       };
@@ -304,7 +304,7 @@ async function leaveThread(
   };
   await createMessages(viewer, [messageData]);
 
-  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
     return { updatesResult: { newUpdates: viewerUpdates } };
   }
 
@@ -788,7 +788,7 @@ async function updateThread(
     newMessageInfos = await createMessages(viewer, messageDatas);
   }
 
-  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
   }
 
@@ -826,8 +826,12 @@ async function joinThread(
   }
 
   // TODO: determine code version
-  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
-  const hasCodeVersionBelow62 = !hasMinCodeVersion(viewer.platformDetails, 62);
+  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 87,
+  });
+  const hasCodeVersionBelow62 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 62,
+  });
 
   const { calendarQuery } = request;
   if (isMember) {

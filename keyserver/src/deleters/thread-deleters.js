@@ -41,7 +41,7 @@ async function deleteThread(
     // never receives the response
     const [{ updateInfos }, fetchThreadInfoResult] = await Promise.all([
       fetchUpdateInfoForThreadDeletion(viewer, threadID),
-      hasMinCodeVersion(viewer.platformDetails, 62)
+      hasMinCodeVersion(viewer.platformDetails, { native: 62 })
         ? undefined
         : fetchThreadInfos(viewer),
     ]);
@@ -108,7 +108,7 @@ async function deleteThread(
     dbQuery(query),
   ]);
 
-  if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
     return { updatesResult: { newUpdates: viewerUpdates } };
   }
 

@@ -842,8 +842,8 @@ async function setCookiePlatformDetails(
   platformDetails: PlatformDetails,
 ): Promise<void> {
   if (
-    hasMinCodeVersion(platformDetails, 70) &&
-    !hasMinCodeVersion(viewer.platformDetails, 70)
+    hasMinCodeVersion(platformDetails, { native: 70 }) &&
+    !hasMinCodeVersion(viewer.platformDetails, { native: 70 })
   ) {
     await updateThreadMembers(viewer);
   }
