@@ -33,6 +33,7 @@ type Props = {
     messageID: string,
     text: string,
   ) => Promise<SendEditMessageResult>,
+  +setError: boolean => void,
   +setDraft: string => void,
 };
 
@@ -45,6 +46,7 @@ function EditTextMessage(props: Props): React.Node {
     setDraft,
     item,
     editMessage,
+    setError,
   } = props;
 
   const editedMessageDraft = editState?.editedMessageDraft ?? '';
@@ -78,7 +80,7 @@ function EditTextMessage(props: Props): React.Node {
       await editMessage(messageInfoID, editState.editedMessageDraft);
       clearEditModal();
     } catch (e) {
-      // TODO: handle error
+      setError(true);
     }
   };
 
@@ -124,7 +126,8 @@ function EditTextMessage(props: Props): React.Node {
 
 const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedEditTextMessage(props) {
-    const { editState, clearEditModal, setDraft } = useEditModalContext();
+    const { editState, clearEditModal, setError, setDraft } =
+      useEditModalContext();
     const editMessage = useEditMessage();
     return (
       <EditTextMessage
@@ -132,6 +135,7 @@ const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
         editState={editState}
         clearEditModal={clearEditModal}
         editMessage={editMessage}
+        setError={setError}
         setDraft={setDraft}
       />
     );
