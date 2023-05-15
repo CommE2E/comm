@@ -85,7 +85,9 @@ function LandingSite(): React.Node {
     }
   }, [onKeyservers, onPrivacy, onSupport, onTerms, onTeam, onInvestors, onQR]);
 
-  let header = <Header />;
+  let header = (
+    <Header showMobileNav={showMobileNav} setShowMobileNav={setShowMobileNav} />
+  );
   if (onQR) {
     header = null;
   }
