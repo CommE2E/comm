@@ -170,20 +170,30 @@ class Multimedia extends React.PureComponent<Props, State> {
   // eslint-disable-next-line consistent-return
   static sourceFromMediaInfo(mediaInfo: MediaInfo | AvatarMediaInfo): Source {
     if (mediaInfo.type === 'photo') {
-      return { kind: 'uri', uri: mediaInfo.uri };
+      return {
+        kind: 'uri',
+        uri: mediaInfo.uri,
+        thumbHash: mediaInfo.thumbHash,
+      };
     } else if (mediaInfo.type === 'video') {
-      return { kind: 'uri', uri: mediaInfo.thumbnailURI };
+      return {
+        kind: 'uri',
+        uri: mediaInfo.thumbnailURI,
+        thumbHash: mediaInfo.thumbnailThumbHash,
+      };
     } else if (mediaInfo.type === 'encrypted_photo') {
       return {
         kind: 'encrypted',
         holder: mediaInfo.holder,
         encryptionKey: mediaInfo.encryptionKey,
+        thumbHash: mediaInfo.thumbHash,
       };
     } else if (mediaInfo.type === 'encrypted_video') {
       return {
         kind: 'encrypted',
         holder: mediaInfo.thumbnailHolder,
         encryptionKey: mediaInfo.thumbnailEncryptionKey,
+        thumbHash: mediaInfo.thumbnailThumbHash,
       };
     } else {
       invariant(false, 'Invalid mediaInfo type');
