@@ -23,6 +23,7 @@ const std::string NotificationsCryptoModule::keyserverHostedNotificationsID =
     "keyserverHostedNotificationsID";
 const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
     "{\"type\": \"init\"}";
+const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
 
 crypto::CryptoModule NotificationsCryptoModule::deserializeCryptoModule(
     const std::string &path,
