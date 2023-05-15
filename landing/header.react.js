@@ -7,20 +7,44 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
+import type { SetState } from 'lib/types/hook-types.js';
+
 import css from './header.css';
 import typography from './typography.css';
 
-function Header(): React.Node {
+type Props = {
+  +showMobileNav: boolean,
+  +setShowMobileNav: SetState<boolean>,
+};
+
+function Header(props: Props): React.Node {
+  const { showMobileNav, setShowMobileNav } = props;
+
+  const headerContentContainerClassName = classNames({
+    [css.headerNavContentContainer]: true,
+    [css.headerContainerMobileNavActive]: showMobileNav,
+  });
+
   const logoTextClassName = classNames([typography.heading2, css.logoText]);
   const badgeClassName = classNames([typography.paragraph2, css.betaBadge]);
   const navLinkClassName = classNames([typography.subheading2, css.tab]);
 
+  const onClickLogo = React.useCallback(() => {
+    setShowMobileNav(false);
+  }, [setShowMobileNav]);
+
+  const onClickMobileNavIcon = React.useCallback(() => {
+    setShowMobileNav(!showMobileNav);
+  }, [setShowMobileNav, showMobileNav]);
+
   return (
     <nav className={css.headerContainer}>
-      <div className={css.headerNavContentContainer}>
+      <div className={headerContentContainerClassName}>
         <div className={css.logo}>
           <NavLink to="/">
-            <h1 className={logoTextClassName}>Comm</h1>
+            <h1 onClick={onClickLogo} className={logoTextClassName}>
+              Comm
+            </h1>
           </NavLink>
           <div className={badgeClassName}>Beta</div>
         </div>
@@ -74,7 +98,7 @@ function Header(): React.Node {
               <FontAwesomeIcon icon={faGithub} className={css.icon} size="sm" />
             </div>
           </a>
-          <div className={css.menuIcon}>
+          <div className={css.menuIcon} onClick={onClickMobileNavIcon}>
             <FontAwesomeIcon icon={faBars} className={css.icon} size="sm" />
           </div>
         </div>
