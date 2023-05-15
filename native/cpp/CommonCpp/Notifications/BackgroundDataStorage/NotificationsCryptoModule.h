@@ -24,6 +24,7 @@ class NotificationsCryptoModule {
       const std::string &callingProcessName);
 
 public:
+  const static int olmEncryptedTypeMessage;
   static void
   initializeNotificationsCryptoAccount(const std::string &callingProcessName);
   static void clearSensitiveData();
