@@ -52,6 +52,7 @@ type UserThreadInfo = {
     {
       +platform: string,
       +deviceToken: string,
+      +cookieID: string,
       +codeVersion: ?string,
     },
   >,
@@ -323,7 +324,7 @@ async function postMessageSend(
   const time = earliestFocusedTimeConsideredExpired();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
-    SELECT m.user, m.thread, c.platform, c.device_token, c.versions,
+    SELECT m.user, m.thread, c.platform, c.device_token, c.versions, c.id,
       f.user AS focused_user
   `;
   query.append(subthreadSelects);
@@ -349,6 +350,7 @@ async function postMessageSend(
     const focusedUser = !!row.focused_user;
     const { platform } = row;
     const versions = JSON.parse(row.versions);
+    const cookieID = row.id;
     let thisUserInfo = perUserInfo.get(userID);
     if (!thisUserInfo) {
       thisUserInfo = {
@@ -384,10 +386,11 @@ async function postMessageSend(
         }
       }
     }
-    if (deviceToken) {
+    if (deviceToken && cookieID) {
       thisUserInfo.devices.set(deviceToken, {
         platform,
         deviceToken,
+        cookieID: cookieID.toString(),
         codeVersion: versions ? versions.codeVersion : null,
       });
     }
