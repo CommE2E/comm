@@ -9,6 +9,15 @@ div.headerNavContentContainer {
   justify-content: space-between;
   padding: 18px 32px;
   width: 1850px;
+  z-index: var(--header-z-index);
+  background-color: transparent;
+  transition: 650ms;
+  transition-property: background-color;
+}
+
+div.headerContainerMobileNavActive {
+  background-color: var(--comparison-cards);
+  transition: 250ms;
 }
 
 .logo {
