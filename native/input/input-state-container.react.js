@@ -635,6 +635,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           type: 'photo',
           dimensions: selection.dimensions,
           localMediaSelection: selection,
+          thumbHash: null,
         });
         ids = { type: 'photo', localMediaID };
       }
@@ -649,6 +650,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           loop: false,
           thumbnailID: localThumbnailID,
           thumbnailURI: selection.uri,
+          thumbnailThumbHash: null,
         });
         ids = { type: 'video', localMediaID, localThumbnailID };
       }
@@ -802,6 +804,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           await encryptMedia(processedMedia);
         encryptionSteps = encryptionReturn.steps;
         if (!encryptionResult.success) {
+          steps.push(...encryptionSteps);
           onUploadFailed(localMediaID, encryptionResult.reason);
           return await onUploadFinished(encryptionResult);
         }
@@ -845,6 +848,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               blobHash: processedMedia.blobHash,
               encryptionKey: processedMedia.encryptionKey,
               dimensions: processedMedia.dimensions,
+              thumbHash:
+                processedMedia.mediaType === 'encrypted_photo'
+                  ? processedMedia.thumbHash
+                  : null,
             },
             {
               onProgress: (percent: number) => {
@@ -869,6 +876,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               encryptionKey: processedMedia.thumbnailEncryptionKey,
               loop: false,
               dimensions: processedMedia.dimensions,
+              thumbHash: processedMedia.thumbHash,
             }),
           );
         }
@@ -887,6 +895,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                   ? processedMedia.loop
                   : undefined,
               encryptionKey: processedMedia.encryptionKey,
+              thumbHash:
+                processedMedia.mediaType === 'photo' ||
+                processedMedia.mediaType === 'encrypted_photo'
+                  ? processedMedia.thumbHash
+                  : null,
             },
             {
               onProgress: (percent: number) =>
@@ -916,6 +929,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 ...processedMedia.dimensions,
                 loop: false,
                 encryptionKey: processedMedia.thumbnailEncryptionKey,
+                thumbHash: processedMedia.thumbHash,
               },
               {
                 uploadBlob: this.uploadBlob,
@@ -981,7 +995,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       ) {
         invariant(uploadThumbnailResult, 'uploadThumbnailResult exists');
         const { uri: thumbnailURI, id: thumbnailID } = uploadThumbnailResult;
-        const { thumbnailEncryptionKey } = processedMedia;
+        const { thumbnailEncryptionKey, thumbHash: thumbnailThumbHash } =
+          processedMedia;
 
         if (processedMedia.mediaType === 'encrypted_video') {
           updateMediaPayload = {
@@ -991,6 +1006,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               thumbnailID,
               thumbnailHolder: thumbnailURI,
               thumbnailEncryptionKey,
+              thumbnailThumbHash,
             },
           };
         } else {
@@ -1000,9 +1016,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               ...updateMediaPayload.mediaUpdate,
               thumbnailID,
               thumbnailURI,
+              thumbnailThumbHash,
             },
           };
         }
+      } else {
+        updateMediaPayload = {
+          ...updateMediaPayload,
+          mediaUpdate: {
+            ...updateMediaPayload.mediaUpdate,
+            thumbHash: processedMedia.thumbHash,
+          },
+        };
       }
 
       // When we dispatch this action, it updates Redux and triggers the
@@ -1142,6 +1167,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       encryptionKey: string,
       dimensions: Dimensions,
       loop?: boolean,
+      thumbHash: ?string,
     },
     options?: ?CallServerEndpointOptions,
   ): Promise<void> {
@@ -1227,7 +1253,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     // 3. Send upload metadata to the keyserver, return response
-    const { filename, mimeType, loop, dimensions, encryptionKey } = input;
+    const { filename, mimeType, loop, dimensions, encryptionKey, thumbHash } =
+      input;
     return await this.props.uploadMediaMetadata({
       ...dimensions,
       filename,
@@ -1235,6 +1262,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       blobHolder: newHolder,
       encryptionKey,
       loop: loop ?? false,
+      ...(thumbHash ? { thumbHash } : null),
     });
   }
 
