@@ -27,11 +27,23 @@ declare module '@parse/node-apn' {
     pushType: NotificationPushType;
     threadId: string;
     payload: any;
-    badge: number;
+    badge: ?number;
     sound: string;
     contentAvailable: boolean;
     mutableContent: boolean;
     urlArgs: string[];
+    // Detailed explanation of this field can be found here:
+    // https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification?language=objc#2943363
+    // More fields can be added here, if they ever need to 
+    // be accessed from apn.Notification instance
+    aps: {
+      +badge: string | number,
+      +alert: string,
+      +'thread-id': string,
+      +'mutable-content': boolean,
+      +sound: string,
+      ...
+    };
   }
 
   declare type ProviderToken = {|
