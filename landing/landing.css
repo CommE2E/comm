@@ -7,7 +7,7 @@
   word-break: break-word;
   height: 100%;
   position: relative;
-  z-index: 0;
+  z-index: var(--landing-page-z-index);
 }
 
 .innerContainer {
