@@ -103,6 +103,7 @@ import {
   InputStateContext,
 } from './input-state.js';
 import { encryptFile } from '../media/encryption-utils.js';
+import { generateThumbHash } from '../media/image-utils.js';
 import { validateFile, preloadImage } from '../media/media-utils.js';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -778,6 +779,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return { steps, result: encryptionResult };
     }
 
+    const { steps: thumbhashSteps, result: thumbhashResult } =
+      await generateThumbHash(fixedFile, encryptionResult?.encryptionKey);
+    const thumbHash = thumbhashResult.success
+      ? thumbhashResult.thumbHash
+      : null;
+    steps.push(...thumbhashSteps);
+
     return {
       steps,
       result: {
@@ -795,6 +803,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           uriIsReal: false,
           blobHash: encryptionResult?.sha256Hash,
           encryptionKey: encryptionResult?.encryptionKey,
+          thumbHash,
           progressPercent: 0,
           abort: null,
           steps,
@@ -858,9 +867,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         (upload.mediaType === 'encrypted_photo' ||
           upload.mediaType === 'encrypted_video')
       ) {
-        const { blobHash, dimensions } = upload;
+        const { blobHash, dimensions, thumbHash } = upload;
         invariant(
-          encryptionKey && blobHash && dimensions,
+          encryptionKey && blobHash && dimensions && thumbHash,
           'incomplete encrypted upload',
         );
         uploadResult = await this.blobServiceUpload(
@@ -870,11 +879,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             encryptionKey,
             dimensions,
             loop: false,
+            ...(thumbHash && { thumbHash }),
           },
           { ...callbacks },
         );
       } else {
-        let uploadExtras = { ...upload.dimensions, loop: false };
+        let uploadExtras = {
+          ...upload.dimensions,
+          loop: false,
+          thumbHash: upload.thumbHash,
+        };
         if (encryptionKey) {
           uploadExtras = { ...uploadExtras, encryptionKey };
         }
@@ -1042,6 +1056,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       encryptionKey: string,
       dimensions: Dimensions,
       loop?: boolean,
+      thumbHash?: string,
     },
     options?: ?CallServerEndpointOptions,
   ): Promise<void> {
@@ -1149,6 +1164,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       encryptionKey: input.encryptionKey,
       mimeType: input.file.type,
       filename: input.file.name,
+      thumbHash: input.thumbHash,
     });
   }
 
