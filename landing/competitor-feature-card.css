@@ -1,0 +1,56 @@
+.container {
+  max-width: 432px;
+  background-color: var(--comparison-cards);
+  padding: 32px;
+  border-radius: 16px;
+}
+
+.container:hover {
+  cursor: pointer;
+  background-color: var(--comparison-cards-hovered);
+}
+
+.headingContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.headingText {
+  color: var(--white-100);
+}
+
+.comingSoonBadge {
+  background-color: var(--badge);
+  padding: 5px 10px;
+  border-radius: 16px;
+}
+
+.comingSoonText {
+  color: var(--white-100);
+  margin-left: 8px;
+}
+
+.comingSoonIcon {
+  color: var(--coming-soon-icon);
+}
+
+hr {
+  margin: 24px 0;
+  border-radius: 8px;
+  height: 1.5px;
+  background-color: var(--black-80);
+  border: none;
+}
+
+.descriptionText {
+  color: var(--white-80);
+  height: 80px;
+  margin-top: 8px;
+}
+
+.readMoreText {
+  color: var(--violet-dark-100);
+  margin-top: 16px;
+}
