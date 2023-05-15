@@ -1,7 +1,103 @@
-div.modal_body {
+div.modalBody {
   display: flex;
   flex-direction: column;
-  width: 383px;
-  height: 560px;
   overflow: hidden;
+}
+
+div.ancestryContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  background-color: var(--community-creation-ancestry-bg);
+  margin-top: 20px;
+}
+
+div.ancestryContainer p {
+  color: var(--community-creation-ancestry-text);
+}
+
+div.avatarContainer {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+div.formTitle {
+  padding-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  vertical-align: top;
+  color: var(--fg);
+}
+
+div.formContent {
+  display: flex;
+  font-family: var(--font-stack);
+  color: var(--fg);
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+div.formContent textarea {
+  padding: 12px;
+  background: var(--modal-bg);
+  color: var(--fg);
+  border: 1px solid var(--border-color);
+  font-size: var(--m-font-16);
+  border-radius: 4px;
+  width: 100%;
+  resize: vertical;
+  min-height: 20px;
+}
+
+div.formNotice {
+  color: var(--community-creation-form-notice);
+  font-size: 10px;
+  text-align: center;
+}
+
+hr {
+  margin: 20px 0;
+  height: 0;
+  border: none;
+  border-top: #ffffff33 solid 1px;
+}
+
+div.optionalSettingsContainer {
+  color: var(--enum-option-icon-color);
+}
+
+div.optionalSettingsLabel {
+  color: var(--compose-subchannel-label-color);
+  padding-bottom: 20px;
+}
+
+div.createCommunityButtonContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.keyserverContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 10px;
+  margin: 0 6px;
+  border-radius: 8px;
+  background-color: var(--community-creation-keyserver-container);
+}
+
+.keyserverName {
+  padding-left: 6px;
+  color: var(--thread-ancestor-color);
+  font-size: var(--s-font-14);
+  font-weight: var(--semi-bold);
 }

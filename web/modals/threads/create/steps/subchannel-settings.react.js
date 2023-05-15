@@ -31,7 +31,9 @@ const secretStatements = [
 
 const announcementStatements = [
   {
-    statement: 'Admins can create Announcement channels.',
+    statement:
+      'Only admins and other admin-appointed roles can send ' +
+      'messages in an announcement channel.',
     isStatementValid: true,
     styleStatementBasedOnValidity: false,
   },
