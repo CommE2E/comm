@@ -293,10 +293,9 @@ async function fetchLoggedInUserInfo(
 
   const [userRow] = userResult;
 
-  const stillExpectsEmailFields = !hasMinCodeVersion(
-    viewer.platformDetails,
-    87,
-  );
+  const stillExpectsEmailFields = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 87,
+  });
 
   if (!userRow) {
     throw new ServerError('unknown_error');
@@ -342,7 +341,9 @@ async function fetchLoggedInUserInfo(
     loggedInUserInfo = { ...loggedInUserInfo, avatar: clientAvatar };
   }
 
-  const featureGateSettings = !hasMinCodeVersion(viewer.platformDetails, 1000);
+  const featureGateSettings = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 1000,
+  });
 
   if (featureGateSettings) {
     return loggedInUserInfo;

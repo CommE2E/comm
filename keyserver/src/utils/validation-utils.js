@@ -37,7 +37,9 @@ async function validateInput<T>(
   const convertedInput = checkInputValidator(inputValidator, input);
 
   if (
-    hasMinCodeVersion(viewer.platformDetails, FUTURE_CODE_VERSION) &&
+    hasMinCodeVersion(viewer.platformDetails, {
+      native: FUTURE_CODE_VERSION,
+    }) &&
     !isWebPlatform(viewer.platformDetails?.platform) &&
     convertToNewIDSchema
   ) {
@@ -69,7 +71,7 @@ function validateOutput<T>(
   }
 
   if (
-    hasMinCodeVersion(platformDetails, FUTURE_CODE_VERSION) &&
+    hasMinCodeVersion(platformDetails, { native: FUTURE_CODE_VERSION }) &&
     !isWebPlatform(platformDetails?.platform) &&
     convertToNewIDSchema
   ) {
@@ -204,7 +206,7 @@ async function policiesValidator(
   if (!policies.length) {
     return;
   }
-  if (!hasMinCodeVersion(viewer.platformDetails, 181)) {
+  if (!hasMinCodeVersion(viewer.platformDetails, { native: 181 })) {
     return;
   }
 
