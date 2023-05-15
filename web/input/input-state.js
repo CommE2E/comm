@@ -25,6 +25,7 @@ export type PendingMultimediaUpload = {
   uri: string,
   blobHash: ?string,
   encryptionKey: ?string,
+  thumbHash: ?string,
   loop: boolean,
   // URLs created with createObjectURL aren't considered "real". The distinction
   // is required because those "fake" URLs must be disposed properly
