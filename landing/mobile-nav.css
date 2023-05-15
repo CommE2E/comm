@@ -5,7 +5,7 @@ nav.mobileNav {
   left: 0;
   right: 0;
   height: 100vh;
-  z-index: 1;
+  z-index: var(--mobile-nav-z-index);
   background-color: var(--comparison-cards);
   padding: 8px 16px 0;
   transition: 500ms;
