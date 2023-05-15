@@ -372,7 +372,7 @@ async function processSuccessfulLogin(
 
   if (
     notAcknowledgedPolicies.length &&
-    hasMinCodeVersion(viewer.platformDetails, 181)
+    hasMinCodeVersion(viewer.platformDetails, { native: 181 })
   ) {
     const currentUserInfo = await fetchLoggedInUserInfo(viewer);
     return {
@@ -505,7 +505,7 @@ async function logInResponder(
   }
   const username = request.username ?? request.usernameOrEmail;
   if (!username) {
-    if (hasMinCodeVersion(viewer.platformDetails, 150)) {
+    if (hasMinCodeVersion(viewer.platformDetails, { native: 150 })) {
       throw new ServerError('invalid_credentials');
     } else {
       throw new ServerError('invalid_parameters');
@@ -522,7 +522,7 @@ async function logInResponder(
   } = await promiseAll(promises);
 
   if (userResult.length === 0) {
-    if (hasMinCodeVersion(viewer.platformDetails, 150)) {
+    if (hasMinCodeVersion(viewer.platformDetails, { native: 150 })) {
       throw new ServerError('invalid_credentials');
     } else {
       throw new ServerError('invalid_parameters');

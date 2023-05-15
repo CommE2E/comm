@@ -371,7 +371,9 @@ async function checkState(
   status: StateCheckStatus,
   calendarQuery: CalendarQuery,
 ): Promise<StateCheckResult> {
-  const shouldCheckUserInfos = hasMinCodeVersion(viewer.platformDetails, 59);
+  const shouldCheckUserInfos = hasMinCodeVersion(viewer.platformDetails, {
+    native: 59,
+  });
 
   if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };

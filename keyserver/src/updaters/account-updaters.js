@@ -192,7 +192,7 @@ async function updateUserAvatar(
     knownUserInfos,
   );
 
-  if (hasMinCodeVersion(viewer.platformDetails, 215)) {
+  if (hasMinCodeVersion(viewer.platformDetails, { native: 215 })) {
     const updateUserAvatarResponse: UpdateUserAvatarResponse = {
       updates,
     };

@@ -68,7 +68,9 @@ async function createAccount(
   if (request.password.trim() === '') {
     throw new ServerError('empty_password');
   }
-  const usernameRegex = hasMinCodeVersion(viewer.platformDetails, 69)
+  const usernameRegex = hasMinCodeVersion(viewer.platformDetails, {
+    native: 69,
+  })
     ? validUsernameRegex
     : oldValidUsernameRegex;
   if (request.username.search(usernameRegex) === -1) {
@@ -91,7 +93,7 @@ async function createAccount(
     reservedUsernamesSet.has(request.username.toLowerCase()) ||
     isValidEthereumAddress(request.username.toLowerCase())
   ) {
-    if (hasMinCodeVersion(viewer.platformDetails, 120)) {
+    if (hasMinCodeVersion(viewer.platformDetails, { native: 120 })) {
       throw new ServerError('username_reserved');
     } else {
       throw new ServerError('username_taken');
