@@ -10,6 +10,7 @@ class NotificationsCryptoModule {
   const static std::string notificationsCryptoAccountID;
   const static std::string keyserverHostedNotificationsID;
   const static std::string initialEncryptedMessageContent;
+  const static int olmEncryptedTypeMessage;
 
   static void serializeAndFlushCryptoModule(
       crypto::CryptoModule &cryptoModule,
