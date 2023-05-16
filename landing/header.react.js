@@ -16,6 +16,10 @@ import type { SetState } from 'lib/types/hook-types.js';
 import css from './header.css';
 import typography from './typography.css';
 
+// This value comes from the breakpoint value in header.css. Please make sure
+// that this value is in sync with header.css if ever changed
+export const HEADER_BREAKPOINT = 848; // px
+
 type Props = {
   +showMobileNav: boolean,
   +setShowMobileNav: SetState<boolean>,
