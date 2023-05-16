@@ -35,7 +35,8 @@ const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
 
 type Props = {
-  +onClose: () => mixed,
+  +onClosed: () => mixed,
+  +onClosing: () => mixed,
   +closing: boolean,
   +setLoading: boolean => mixed,
 };
@@ -56,17 +57,17 @@ function SIWEPanel(props: Props): React.Node {
     state => getSIWENonceLoadingStatusSelector(state) === 'error',
   );
 
-  const { onClose } = props;
+  const { onClosing } = props;
   React.useEffect(() => {
     if (getSIWENonceCallFailed) {
       Alert.alert(
         'Unknown error',
         'Uhh... try again?',
-        [{ text: 'OK', onPress: onClose }],
+        [{ text: 'OK', onPress: onClosing }],
         { cancelable: false },
       );
     }
-  }, [getSIWENonceCallFailed, onClose]);
+  }, [getSIWENonceCallFailed, onClosing]);
 
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
@@ -128,13 +129,13 @@ function SIWEPanel(props: Props): React.Node {
         Alert.alert(
           'Unknown error',
           'Uhh... try again?',
-          [{ text: 'OK', onPress: onClose }],
+          [{ text: 'OK', onPress: onClosing }],
           { cancelable: false },
         );
         throw e;
       }
     },
-    [onClose, siweAuthCall],
+    [onClosing, siweAuthCall],
   );
 
   const handleSIWE = React.useCallback(
@@ -164,13 +165,13 @@ function SIWEPanel(props: Props): React.Node {
           await handleSIWE({ message, signature });
         }
       } else if (data.type === 'siwe_closed') {
-        onClose();
+        onClosing();
         closeBottomSheet?.();
       } else if (data.type === 'walletconnect_modal_update') {
         setWalletConnectModalOpen(data.state === 'open');
       }
     },
-    [handleSIWE, onClose, closeBottomSheet],
+    [handleSIWE, onClosing, closeBottomSheet],
   );
   const prevClosingRef = React.useRef();
   React.useEffect(() => {
@@ -209,6 +210,7 @@ function SIWEPanel(props: Props): React.Node {
     [],
   );
 
+  const { onClosed } = props;
   const onBottomSheetChange = React.useCallback(
     (index: number) => {
       if (disableOnClose.current) {
@@ -216,10 +218,10 @@ function SIWEPanel(props: Props): React.Node {
         return;
       }
       if (index === -1) {
-        onClose();
+        onClosed();
       }
     },
-    [onClose],
+    [onClosed],
   );
 
   let bottomSheet;
