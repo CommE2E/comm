@@ -911,19 +911,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       saveExit();
       return;
     }
-    Alert.alert(
-      'Discard changes?',
-      'You have unsaved changes. Are you sure to discard them and leave the ' +
-        'screen?',
-      [
-        { text: 'Don’t leave', style: 'cancel' },
-        {
-          text: 'Discard edit',
-          style: 'destructive',
-          onPress: saveExit,
-        },
-      ],
-    );
+    exitEditAlert(saveExit);
   };
 
   onPressJoin = () => {

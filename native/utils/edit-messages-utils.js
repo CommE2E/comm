@@ -13,19 +13,23 @@ function useShouldRenderEditButton(): boolean {
 }
 
 function exitEditAlert(onDiscard: () => void): void {
-  Alert.alert('Are you sure?', 'Your edits will be discarded.', [
-    {
-      text: 'Continue editing',
-      style: 'cancel',
-    },
-    {
-      text: 'Discard edit',
-      style: 'destructive',
-      onPress: () => {
-        onDiscard();
+  Alert.alert(
+    'Discard changes?',
+    'You have unsaved changes which will be discarded if you navigate away.',
+    [
+      {
+        text: 'Continue editing',
+        style: 'cancel',
       },
-    },
-  ]);
+      {
+        text: 'Discard edit',
+        style: 'destructive',
+        onPress: () => {
+          onDiscard();
+        },
+      },
+    ],
+  );
 }
 
 export { useShouldRenderEditButton, exitEditAlert };
