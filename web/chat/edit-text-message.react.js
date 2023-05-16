@@ -102,15 +102,28 @@ function EditTextMessage(props: Props): React.Node {
     });
   }, [background, updatePosition]);
 
+  const preventCloseTab = React.useCallback(
+    event => {
+      if (!isMessageEdited) {
+        return event;
+      }
+      event.preventDefault();
+      return (event.returnValue = '');
+    },
+    [isMessageEdited],
+  );
+
   useEffect(() => {
     if (!background) {
       return () => {};
     }
     window.addEventListener('resize', updateDimensions);
+    window.addEventListener('beforeunload', preventCloseTab);
     return () => {
       window.removeEventListener('resize', updateDimensions);
+      window.removeEventListener('beforeunload', preventCloseTab);
     };
-  }, [background, updateDimensions]);
+  }, [background, preventCloseTab, updateDimensions]);
 
   useEffect(() => {
     updateDimensions();
