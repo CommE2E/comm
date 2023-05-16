@@ -143,7 +143,7 @@ function EditModalProvider(props: Props): React.Node {
       return null;
     }
     return (
-      <ModalOverlay onClose={clearEditModal}>
+      <ModalOverlay onClose={clearEditModal} disableAutoFocus={true}>
         <FocusTrap>{modal}</FocusTrap>
       </ModalOverlay>
     );
