@@ -51,6 +51,19 @@ function LandingSite(): React.Node {
 
   const [showMobileNav, setShowMobileNav] = React.useState<boolean>(false);
 
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 848 && showMobileNav) {
+        setShowMobileNav(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [showMobileNav, setShowMobileNav]);
+
   const innerContainerClassName = classNames({
     [css.innerContainer]: true,
     [css.innerContainerMobileNav]: showMobileNav,
