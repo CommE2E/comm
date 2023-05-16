@@ -49,6 +49,7 @@ import { getPersistor } from './redux/persist.js';
 import { store } from './redux/redux-setup.js';
 import { useSelector } from './redux/redux-utils.js';
 import { RootContext } from './root-context.js';
+import { MessageSearchProvider } from './search/search-provider.react.js';
 import Socket from './socket.react.js';
 import { StaffContextProvider } from './staff/staff-context.provider.react.js';
 import { useLoadCommFonts } from './themes/fonts.js';
@@ -262,19 +263,21 @@ function Root() {
                           <EditThreadAvatarProvider>
                             <MarkdownContextProvider>
                               <ChatContextProvider>
-                                <SQLiteDataHandler />
-                                <ConnectedStatusBar />
-                                <ReduxPersistGate persistor={getPersistor()}>
-                                  {gated}
-                                </ReduxPersistGate>
-                                <PersistedStateGate>
-                                  <Socket
-                                    detectUnsupervisedBackgroundRef={
-                                      detectUnsupervisedBackgroundRef
-                                    }
-                                  />
-                                </PersistedStateGate>
-                                {navigation}
+                                <MessageSearchProvider>
+                                  <SQLiteDataHandler />
+                                  <ConnectedStatusBar />
+                                  <ReduxPersistGate persistor={getPersistor()}>
+                                    {gated}
+                                  </ReduxPersistGate>
+                                  <PersistedStateGate>
+                                    <Socket
+                                      detectUnsupervisedBackgroundRef={
+                                        detectUnsupervisedBackgroundRef
+                                      }
+                                    />
+                                  </PersistedStateGate>
+                                  {navigation}
+                                </MessageSearchProvider>
                               </ChatContextProvider>
                             </MarkdownContextProvider>
                           </EditThreadAvatarProvider>
