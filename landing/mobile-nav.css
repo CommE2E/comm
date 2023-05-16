@@ -6,16 +6,15 @@ nav.mobileNav {
   right: 0;
   height: 100vh;
   z-index: var(--mobile-nav-z-index);
-  background-color: var(--comparison-cards);
+  background-color: transparent;
   padding: 8px 16px 0;
-  transition: 500ms;
-  transition-property: top;
+  transition: top 500ms, background-color 0ms 500ms;
 }
 
 nav.activeMobileNav {
   top: 0;
-  transition: 500ms;
-  transition-property: top;
+  transition: top 500ms;
+  background-color: var(--comparison-cards);
 }
 
 div.tabContainer {
@@ -25,8 +24,7 @@ div.tabContainer {
 
 .tab {
   color: var(--white-60);
-  transition: 150ms;
-  transition-property: color;
+  transition: color 150ms;
 }
 
 .activeTab {
