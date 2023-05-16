@@ -59,6 +59,10 @@ public:
   void removeThreads(std::vector<std::string> ids) const override;
   void replaceThread(const Thread &thread) const override;
   void removeAllThreads() const override;
+  void replaceReport(const Report &report) const override;
+  void removeReports(const std::vector<std::string> &ids) const override;
+  void removeAllReports() const override;
+  std::vector<Report> getAllReports() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
