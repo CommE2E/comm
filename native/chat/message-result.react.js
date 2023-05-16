@@ -7,7 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
-import type { ChatNavigationProp } from './chat.react';
+import { type ChatNavigationProp } from './chat.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
 import { Message } from './message.react.js';
 import { modifyItemForResultScreen } from './utils.js';
@@ -22,10 +22,12 @@ type MessageResultProps = {
   +threadInfo: ThreadInfo,
   +navigation:
     | AppNavigationProp<'TogglePinModal'>
-    | ChatNavigationProp<'MessageResultsScreen'>,
+    | ChatNavigationProp<'MessageResultsScreen'>
+    | ChatNavigationProp<'MessageSearch'>,
   +route:
     | NavigationRoute<'TogglePinModal'>
-    | NavigationRoute<'MessageResultsScreen'>,
+    | NavigationRoute<'MessageResultsScreen'>
+    | NavigationRoute<'MessageSearch'>,
   +messageVerticalBounds: ?VerticalBounds,
 };
 
