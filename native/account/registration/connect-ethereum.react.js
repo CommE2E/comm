@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
@@ -82,16 +83,18 @@ function ConnectEthereum(props: Props): React.Node {
           <EthereumLogoDark />
         </View>
       </RegistrationContentContainer>
-      <RegistrationButton
-        onPress={onConnect}
-        label="Connect Ethereum wallet"
-        variant="enabled"
-      />
-      <RegistrationButton
-        onPress={onSkip}
-        label="Do not connect"
-        variant="enabled"
-      />
+      <RegistrationButtonContainer>
+        <RegistrationButton
+          onPress={onConnect}
+          label="Connect Ethereum wallet"
+          variant="enabled"
+        />
+        <RegistrationButton
+          onPress={onSkip}
+          label="Do not connect"
+          variant="enabled"
+        />
+      </RegistrationButtonContainer>
     </View>
   );
 }

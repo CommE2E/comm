@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, TextInput, View } from 'react-native';
 
+import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
@@ -124,11 +125,13 @@ function KeyserverSelection(props: Props): React.Node {
           />
         </RegistrationTile>
       </RegistrationContentContainer>
-      <RegistrationButton
-        onPress={onSubmit}
-        label="Next"
-        variant={buttonState}
-      />
+      <RegistrationButtonContainer>
+        <RegistrationButton
+          onPress={onSubmit}
+          label="Next"
+          variant={buttonState}
+        />
+      </RegistrationButtonContainer>
     </View>
   );
 }
