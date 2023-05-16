@@ -145,7 +145,9 @@ function EditModalProvider(props: Props): React.Node {
   let modalOverlay;
   if (modal) {
     modalOverlay = (
-      <ModalOverlay onClose={clearEditModal}>{modal}</ModalOverlay>
+      <ModalOverlay onClose={clearEditModal} disableTab={true}>
+        {modal}
+      </ModalOverlay>
     );
   }
 
