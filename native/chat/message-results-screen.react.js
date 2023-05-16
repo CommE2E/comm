@@ -116,48 +116,6 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     threadInfo,
   ]);
 
-  const modifiedItems = React.useMemo(
-    () =>
-      measuredMessages.map(item => {
-        invariant(item.itemType !== 'loader', 'should not be loader');
-        invariant(
-          item.messageShapeType !== 'robotext',
-          'should not be robotext',
-        );
-
-        if (item.messageShapeType === 'multimedia') {
-          return {
-            ...item,
-            startsConversation: false,
-            startsCluster: true,
-            endsCluster: true,
-            messageInfo: {
-              ...item.messageInfo,
-              creator: {
-                ...item.messageInfo.creator,
-                isViewer: false,
-              },
-            },
-          };
-        }
-
-        return {
-          ...item,
-          startsConversation: false,
-          startsCluster: true,
-          endsCluster: true,
-          messageInfo: {
-            ...item.messageInfo,
-            creator: {
-              ...item.messageInfo.creator,
-              isViewer: false,
-            },
-          },
-        };
-      }),
-    [measuredMessages],
-  );
-
   const onLayout = React.useCallback(() => {
     scrollViewContainerRef.current?.measure(
       (x, y, width, height, pageX, pageY) => {
@@ -177,17 +135,21 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
 
   const messageResultsToDisplay = React.useMemo(
     () =>
-      modifiedItems.map(item => (
-        <MessageResult
-          key={item.messageInfo.id}
-          item={item}
-          threadInfo={threadInfo}
-          navigation={navigation}
-          route={route}
-          messageVerticalBounds={messageVerticalBounds}
-        />
-      )),
-    [modifiedItems, threadInfo, navigation, route, messageVerticalBounds],
+      measuredMessages.map(item => {
+        invariant(item.itemType !== 'loader', 'should not be loader');
+
+        return (
+          <MessageResult
+            key={item.messageInfo.id}
+            item={item}
+            threadInfo={threadInfo}
+            navigation={navigation}
+            route={route}
+            messageVerticalBounds={messageVerticalBounds}
+          />
+        );
+      }),
+    [measuredMessages, threadInfo, navigation, route, messageVerticalBounds],
   );
 
   return (
