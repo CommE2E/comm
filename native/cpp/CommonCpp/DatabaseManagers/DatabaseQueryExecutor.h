@@ -7,6 +7,7 @@
 #include "entities/MessageStoreThread.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
+#include "entities/Report.h"
 #include "entities/Thread.h"
 
 #include <folly/Optional.h>
@@ -61,6 +62,10 @@ public:
   virtual void removeThreads(std::vector<std::string> ids) const = 0;
   virtual void replaceThread(const Thread &thread) const = 0;
   virtual void removeAllThreads() const = 0;
+  virtual void replaceReport(const Report &report) const = 0;
+  virtual void removeReports(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllReports() const = 0;
+  virtual std::vector<Report> getAllReports() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
