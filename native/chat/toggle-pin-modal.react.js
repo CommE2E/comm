@@ -65,45 +65,6 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     };
   }, [isPinned, styles.pinButton, styles.removePinButton]);
 
-  const modifiedItem = React.useMemo(() => {
-    // The if / else if / else conditional is for Flow
-    if (item.messageShapeType === 'robotext') {
-      return item;
-    } else if (item.messageShapeType === 'multimedia') {
-      return {
-        ...item,
-        threadCreatedFromMessage: undefined,
-        reactions: {},
-        startsConversation: false,
-        startsCluster: true,
-        endsCluster: true,
-        messageInfo: {
-          ...item.messageInfo,
-          creator: {
-            ...item.messageInfo.creator,
-            isViewer: false,
-          },
-        },
-      };
-    } else {
-      return {
-        ...item,
-        threadCreatedFromMessage: undefined,
-        reactions: {},
-        startsConversation: false,
-        startsCluster: true,
-        endsCluster: true,
-        messageInfo: {
-          ...item.messageInfo,
-          creator: {
-            ...item.messageInfo.creator,
-            isViewer: false,
-          },
-        },
-      };
-    }
-  }, [item]);
-
   const createToggleMessagePinPromise = React.useCallback(async () => {
     invariant(messageInfo.id, 'messageInfo.id should be defined');
     const result = await callToggleMessagePin({
@@ -136,7 +97,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         {modalInfo.confirmationText}
       </Text>
       <MessageResult
-        item={modifiedItem}
+        item={item}
         threadInfo={threadInfo}
         navigation={navigation}
         route={route}
