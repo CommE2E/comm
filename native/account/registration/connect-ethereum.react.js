@@ -92,7 +92,7 @@ function ConnectEthereum(props: Props): React.Node {
         <RegistrationButton
           onPress={onSkip}
           label="Do not connect"
-          variant="enabled"
+          variant="outline"
         />
       </RegistrationButtonContainer>
     </View>

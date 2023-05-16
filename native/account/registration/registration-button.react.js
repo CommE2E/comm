@@ -9,7 +9,7 @@ import { useStyles } from '../../themes/colors.js';
 type Props = {
   +onPress: () => mixed,
   +label: string,
-  +variant?: 'enabled' | 'disabled' | 'loading',
+  +variant?: 'enabled' | 'disabled' | 'loading' | 'outline',
 };
 function RegistrationButton(props: Props): React.Node {
   const { onPress, label, variant } = props;
@@ -18,10 +18,12 @@ function RegistrationButton(props: Props): React.Node {
   const buttonStyle = React.useMemo(() => {
     if (variant === 'disabled' || variant === 'loading') {
       return [styles.button, styles.disabledButton];
+    } else if (variant === 'outline') {
+      return [styles.button, styles.outlineButton];
     } else {
       return styles.button;
     }
-  }, [variant, styles.button, styles.disabledButton]);
+  }, [variant, styles.button, styles.disabledButton, styles.outlineButton]);
   const buttonTextStyle = React.useMemo(() => {
     if (variant === 'disabled') {
       return [styles.buttonText, styles.disabledButtonText];
@@ -55,6 +57,11 @@ const unboundStyles = {
   },
   disabledButton: {
     backgroundColor: 'disabledButton',
+  },
+  outlineButton: {
+    backgroundColor: 'panelBackground',
+    borderColor: 'panelForegroundLabel',
+    borderWidth: 1,
   },
   disabledButtonText: {
     color: 'disabledButtonText',
