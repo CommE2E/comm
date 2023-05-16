@@ -1,10 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 
 import Button from '../../components/button.react.js';
-import { useStyles } from '../../themes/colors.js';
+import { useColors, useStyles } from '../../themes/colors.js';
 
 type Props = {
   +onPress: () => mixed,
@@ -27,9 +27,28 @@ function RegistrationButton(props: Props): React.Node {
   const buttonTextStyle = React.useMemo(() => {
     if (variant === 'disabled') {
       return [styles.buttonText, styles.disabledButtonText];
+    } else if (variant === 'loading') {
+      return [styles.buttonText, styles.invisibleLoadingText];
     }
     return styles.buttonText;
-  }, [variant, styles.buttonText, styles.disabledButtonText]);
+  }, [
+    variant,
+    styles.buttonText,
+    styles.disabledButtonText,
+    styles.invisibleLoadingText,
+  ]);
+
+  const colors = useColors();
+  const spinner = React.useMemo(() => {
+    if (variant !== 'loading') {
+      return undefined;
+    }
+    return (
+      <View style={styles.spinner}>
+        <ActivityIndicator size="small" color={colors.panelForegroundLabel} />
+      </View>
+    );
+  }, [variant, styles.spinner, colors.panelForegroundLabel]);
 
   return (
     <Button
@@ -39,6 +58,7 @@ function RegistrationButton(props: Props): React.Node {
       disabled={variant === 'disabled' || variant === 'loading'}
     >
       <Text style={buttonTextStyle}>{label}</Text>
+      {spinner}
     </Button>
   );
 }
@@ -65,6 +85,16 @@ const unboundStyles = {
   },
   disabledButtonText: {
     color: 'disabledButtonText',
+  },
+  invisibleLoadingText: {
+    color: 'transparent',
+  },
+  spinner: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 };
 
