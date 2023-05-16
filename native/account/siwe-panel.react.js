@@ -2,7 +2,7 @@
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import { ActivityIndicator, View, Alert } from 'react-native';
+import { Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 
@@ -37,6 +37,7 @@ const siweAuthLoadingStatusSelector =
 type Props = {
   +onClose: () => mixed,
   +closing: boolean,
+  +setLoading: boolean => mixed,
 };
 function SIWEPanel(props: Props): React.Node {
   const navContext = React.useContext(NavContext);
@@ -243,24 +244,13 @@ function SIWEPanel(props: Props): React.Node {
     );
   }
 
-  let activity;
-  if (!getSIWENonceCallFailed && (isLoading || siweAuthCallLoading)) {
-    activity = <ActivityIndicator size="large" />;
-  }
+  const setLoadingProp = props.setLoading;
+  const loading = !getSIWENonceCallFailed && (isLoading || siweAuthCallLoading);
+  React.useEffect(() => {
+    setLoadingProp(loading);
+  }, [setLoadingProp, loading]);
 
-  const activityContainer = React.useMemo(
-    () => ({
-      flex: 1,
-    }),
-    [],
-  );
-
-  return (
-    <>
-      <View style={activityContainer}>{activity}</View>
-      {bottomSheet}
-    </>
-  );
+  return bottomSheet;
 }
 
 export default SIWEPanel;

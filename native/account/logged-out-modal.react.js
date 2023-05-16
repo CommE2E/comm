@@ -23,12 +23,12 @@ import type { Dispatch } from 'lib/types/redux-types.js';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
+import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
 import LogInPanel from './log-in-panel.react.js';
 import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
 import RegisterPanel from './register-panel.react.js';
 import type { RegisterState } from './register-panel.react.js';
-import SIWEPanel from './siwe-panel.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import {
@@ -597,7 +597,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     let siwePanel;
     if (this.state.mode === 'siwe') {
       siwePanel = (
-        <SIWEPanel
+        <FullscreenSIWEPanel
           onClose={this.goBackToPrompt}
           closing={this.state.nextMode === 'prompt'}
         />
