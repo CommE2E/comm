@@ -7,7 +7,7 @@ nav.mobileNav {
   height: 100vh;
   z-index: var(--mobile-nav-z-index);
   background-color: transparent;
-  padding: 8px 16px 0;
+  padding: 8px 32px 0;
   transition: top 500ms, background-color 0ms 500ms;
 }
 
@@ -27,6 +27,7 @@ div.tabContainer {
   transition: color 150ms;
 }
 
+.tab:hover,
 .activeTab {
   color: var(--white-100);
 }
@@ -47,4 +48,7 @@ div.socialIconsContainer a {
 
 .icon {
   color: var(--white-60);
+}
+.icon:hover {
+  color: var(--white-100);
 }
