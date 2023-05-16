@@ -1,6 +1,7 @@
 // @flow
 
 import classNames from 'classnames';
+import FocusTrap from 'focus-trap-react';
 import * as React from 'react';
 
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
@@ -74,19 +75,21 @@ function Modal(props: ModalProps): React.Node {
   }
   return (
     <ModalOverlay onClose={onClose}>
-      <div className={modalContainerClasses}>
-        <div className={modalHeader}>
-          <div className={css.modalHeaderTitle}>
-            <h2 className={css.title}>
-              {headerIcon}
-              {name}
-            </h2>
-            {cornerCloseButton}
+      <FocusTrap>
+        <div className={modalContainerClasses}>
+          <div className={modalHeader}>
+            <div className={css.modalHeaderTitle}>
+              <h2 className={css.title}>
+                {headerIcon}
+                {name}
+              </h2>
+              {cornerCloseButton}
+            </div>
+            {subtitleNode}
           </div>
-          {subtitleNode}
+          {children}
         </div>
-        {children}
-      </div>
+      </FocusTrap>
     </ModalOverlay>
   );
 }

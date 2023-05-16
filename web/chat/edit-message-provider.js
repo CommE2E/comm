@@ -1,5 +1,6 @@
 // @flow
 
+import FocusTrap from 'focus-trap-react';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -141,7 +142,11 @@ function EditModalProvider(props: Props): React.Node {
     if (!modal) {
       return null;
     }
-    return <ModalOverlay onClose={clearEditModal}>{modal}</ModalOverlay>;
+    return (
+      <ModalOverlay onClose={clearEditModal}>
+        <FocusTrap>{modal}</FocusTrap>
+      </ModalOverlay>
+    );
   }, [clearEditModal, modal]);
 
   return (
