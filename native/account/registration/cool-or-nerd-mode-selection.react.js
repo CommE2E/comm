@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import RegistrationButton from './registration-button.react.js';
-import RegistrationContainer from './registration-container.react.js';
+import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
   RegistrationTile,
@@ -48,7 +48,7 @@ function CoolOrNerdModeSelection(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.container}>
-      <RegistrationContainer>
+      <RegistrationContentContainer>
         <Text style={styles.header}>To begin, choose your fighter</Text>
         <Text style={styles.body}>
           Do you want Comm to choose reasonable defaults for you, or do you want
@@ -83,7 +83,7 @@ function CoolOrNerdModeSelection(props: Props): React.Node {
             We select reasonable defaults for you.
           </Text>
         </RegistrationTile>
-      </RegistrationContainer>
+      </RegistrationContentContainer>
       <RegistrationButton
         onPress={onSubmit}
         label="Next"

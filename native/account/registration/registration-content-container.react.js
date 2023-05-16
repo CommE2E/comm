@@ -12,7 +12,7 @@ type Props = {
   ...ViewProps,
   +children: React.Node,
 };
-function RegistrationContainer(props: Props): React.Node {
+function RegistrationContentContainer(props: Props): React.Node {
   const { children, style, ...rest } = props;
 
   const headerHeight = useHeaderHeight();
@@ -52,4 +52,4 @@ const unboundStyles = {
   },
 };
 
-export default RegistrationContainer;
+export default RegistrationContentContainer;
