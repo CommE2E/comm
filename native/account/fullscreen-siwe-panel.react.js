@@ -21,10 +21,16 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     [],
   );
 
+  const { onClose, closing } = props;
   return (
     <>
       <View style={activityContainer}>{activity}</View>
-      <SIWEPanel {...props} setLoading={setLoading} />
+      <SIWEPanel
+        closing={closing}
+        onClosed={onClose}
+        onClosing={onClose}
+        setLoading={setLoading}
+      />
     </>
   );
 }
