@@ -68,7 +68,10 @@ import {
   type ScreenParamList,
   type ChatParamList,
   type ChatTopTabsParamList,
+  MessageSearchRouteName,
 } from '../navigation/route-names.js';
+import MessageSearch from '../search/message-search.react.js';
+import SearchHeader from '../search/search-header.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 const unboundStyles = {
@@ -268,6 +271,14 @@ const deleteThreadOptions = {
   headerTitle: 'Delete chat',
   headerBackTitleVisible: false,
 };
+const messageSearchOptions = {
+  // eslint-disable-next-line react/display-name
+  headerTitle: () => <SearchHeader />,
+  headerBackTitleVisible: false,
+  headerTitleContainerStyle: {
+    width: '100%',
+  },
+};
 const messageResultsScreenOptions = {
   headerTitle: 'Pinned Messages',
   headerBackTitleVisible: false,
@@ -384,6 +395,11 @@ export default function ChatComponent(props: Props): React.Node {
             name={MessageResultsScreenRouteName}
             component={MessageResultsScreen}
             options={messageResultsScreenOptions}
+          />
+          <Chat.Screen
+            name={MessageSearchRouteName}
+            component={MessageSearch}
+            options={messageSearchOptions}
           />
         </Chat.Navigator>
         <MessageStorePruner />
