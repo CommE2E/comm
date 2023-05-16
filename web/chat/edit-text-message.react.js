@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import { useCallback, useEffect } from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
@@ -13,7 +14,7 @@ import cssInputBar from './chat-input-bar.css';
 import ChatInputTextArea from './chat-input-text-area.react.js';
 import ComposedMessage from './composed-message.react.js';
 import { useEditModalContext } from './edit-message-provider.js';
-import type { EditState } from './edit-message-provider.js';
+import type { EditState, ModalPosition } from './edit-message-provider.js';
 import css from './edit-text-message.css';
 import type { ButtonColor } from '../components/button.react.js';
 import Button from '../components/button.react.js';
@@ -35,6 +36,7 @@ type Props = {
   ) => Promise<SendEditMessageResult>,
   +setError: boolean => void,
   +setDraft: string => void,
+  +updatePosition: ModalPosition => void,
 };
 
 function EditTextMessage(props: Props): React.Node {
@@ -47,7 +49,10 @@ function EditTextMessage(props: Props): React.Node {
     item,
     editMessage,
     setError,
+    updatePosition,
   } = props;
+
+  const myRef = React.useRef(null);
 
   const editedMessageDraft = editState?.editedMessageDraft ?? '';
   const threadColor = threadInfo.color;
@@ -84,6 +89,34 @@ function EditTextMessage(props: Props): React.Node {
     }
   };
 
+  const updateDimensions = useCallback(() => {
+    if (!myRef.current || !background) {
+      return;
+    }
+    const { left, top, width, height } = myRef.current.getBoundingClientRect();
+    updatePosition({
+      left,
+      top,
+      width,
+      height,
+    });
+  }, [background, updatePosition]);
+
+  useEffect(() => {
+    if (!background) {
+      return () => {};
+    }
+    window.addEventListener('resize', updateDimensions);
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, [background, updateDimensions]);
+
+  useEffect(() => {
+    updateDimensions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   let editFailed;
   if (editState?.isError) {
     editFailed = (
@@ -98,12 +131,13 @@ function EditTextMessage(props: Props): React.Node {
   }
 
   return (
-    <div className={css.editMessage} style={{ width: props.width }}>
+    <div className={css.editMessage} style={{ width: props.width }} ref={myRef}>
       <div className={cssInputBar.inputBarTextInput}>
         <ChatInputTextArea
           focus={!background}
           currentText={editedMessageDraft}
           setCurrentText={setDraft}
+          onChangePosition={updateDimensions}
           send={checkAndEdit}
         />
       </div>
@@ -126,7 +160,7 @@ function EditTextMessage(props: Props): React.Node {
 
 const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedEditTextMessage(props) {
-    const { editState, clearEditModal, setError, setDraft } =
+    const { editState, clearEditModal, setError, setDraft, updatePosition } =
       useEditModalContext();
     const editMessage = useEditMessage();
     return (
@@ -137,6 +171,7 @@ const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
         editMessage={editMessage}
         setError={setError}
         setDraft={setDraft}
+        updatePosition={updatePosition}
       />
     );
   });
