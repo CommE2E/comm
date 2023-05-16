@@ -1,16 +1,30 @@
 // @flow
 
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
+import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import type { NewThreadResult } from 'lib/types/thread-types.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
 import css from './community-creation-modal.css';
 import CommIcon from '../../CommIcon.react.js';
-import Button from '../../components/button.react.js';
+import Button, { buttonThemes } from '../../components/button.react.js';
 import EnumSettingsOption from '../../components/enum-settings-option.react.js';
 import UserAvatar from '../../components/user-avatar.react.js';
+import LoadingIndicator from '../../loading-indicator.react.js';
 import Input from '../../modals/input.react.js';
 import Modal from '../../modals/modal.react.js';
+import { updateNavInfoActionType } from '../../redux/action-types.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { nonThreadCalendarQuery } from '../../selectors/nav-selectors.js';
 
 const announcementStatements = [
   {
@@ -23,22 +37,79 @@ const announcementStatements = [
   },
 ];
 
+const createNewCommunityLoadingStatusSelector =
+  createLoadingStatusSelector(newThreadActionTypes);
+
 function CommunityCreationModal(): React.Node {
   const modalContext = useModalContext();
+
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  const callNewThread = useServerCall(newThread);
+  const calendarQueryFunc = useSelector(nonThreadCalendarQuery);
+
+  const [errorMessage, setErrorMessage] = React.useState<?string>();
 
   const [pendingCommunityName, setPendingCommunityName] =
     React.useState<string>('');
 
   const onChangePendingCommunityName = React.useCallback(
-    (event: SyntheticEvent<HTMLInputElement>) =>
-      setPendingCommunityName(event.currentTarget.value),
+    (event: SyntheticEvent<HTMLInputElement>) => {
+      setErrorMessage();
+      setPendingCommunityName(event.currentTarget.value);
+    },
     [],
   );
 
   const [announcementSetting, setAnnouncementSetting] = React.useState(false);
   const onAnnouncementSelected = React.useCallback(() => {
+    setErrorMessage();
     setAnnouncementSetting(!announcementSetting);
   }, [announcementSetting]);
+
+  const callCreateNewCommunity = React.useCallback(async () => {
+    const calendarQuery = calendarQueryFunc();
+
+    try {
+      const newThreadResult: NewThreadResult = await callNewThread({
+        name: pendingCommunityName,
+        type: announcementSetting
+          ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
+          : threadTypes.COMMUNITY_ROOT,
+        calendarQuery,
+      });
+      return newThreadResult;
+    } catch (e) {
+      setErrorMessage('Community creation failed. Please try again.');
+      return undefined;
+    }
+  }, [
+    announcementSetting,
+    calendarQueryFunc,
+    callNewThread,
+    pendingCommunityName,
+  ]);
+
+  const createNewCommunity = React.useCallback(async () => {
+    setErrorMessage();
+
+    const newThreadResultPromise = callCreateNewCommunity();
+    dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
+    const newThreadResult: ?NewThreadResult = await newThreadResultPromise;
+
+    if (newThreadResult) {
+      const { newThreadID } = newThreadResult;
+      await dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          activeChatThreadID: newThreadID,
+        },
+      });
+
+      modalContext.popModal();
+    }
+  }, [callCreateNewCommunity, dispatch, dispatchActionPromise, modalContext]);
 
   const megaphoneIcon = React.useMemo(
     () => <CommIcon icon="megaphone" size={24} />,
@@ -53,6 +124,23 @@ function CommunityCreationModal(): React.Node {
         <UserAvatar userID="256" size="profile" />
       </div>
     );
+  }
+
+  const createNewCommunityLoadingStatus: LoadingStatus = useSelector(
+    createNewCommunityLoadingStatusSelector,
+  );
+  let buttonContent;
+  if (createNewCommunityLoadingStatus === 'loading') {
+    buttonContent = (
+      <LoadingIndicator
+        status={createNewCommunityLoadingStatus}
+        size="medium"
+      />
+    );
+  } else if (errorMessage) {
+    buttonContent = errorMessage;
+  } else {
+    buttonContent = 'Create community';
   }
 
   return (
@@ -99,7 +187,17 @@ function CommunityCreationModal(): React.Node {
             />
           </div>
           <div className={css.createCommunityButtonContainer}>
-            <Button variant="filled">Create community</Button>
+            <Button
+              onClick={createNewCommunity}
+              variant="filled"
+              buttonColor={
+                errorMessage ? buttonThemes.danger : buttonThemes.standard
+              }
+            >
+              <div className={css.createCommunityButtonContent}>
+                {buttonContent}
+              </div>
+            </Button>
           </div>
         </form>
       </div>
