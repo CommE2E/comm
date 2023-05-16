@@ -11,6 +11,7 @@ type BaseProps = {
   +focus: boolean,
   +currentText: string,
   +setCurrentText: (text: string) => void,
+  +onChangePosition: any => void,
 };
 type Props = {
   ...BaseProps,
@@ -39,6 +40,7 @@ class ChatInputTextArea extends React.PureComponent<Props> {
       const newHeight = Math.min(textarea.scrollHeight, 150);
       textarea.style.height = `${newHeight}px`;
     }
+    this.props.onChangePosition();
   }
 
   render() {
