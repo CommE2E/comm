@@ -15,7 +15,7 @@ import cssInputBar from './chat-input-bar.css';
 import ChatInputTextArea from './chat-input-text-area.react.js';
 import ComposedMessage from './composed-message.react.js';
 import { useEditModalContext } from './edit-message-provider.js';
-import type { EditState } from './edit-message-provider.js';
+import type { EditState, ModalPosition } from './edit-message-provider.js';
 import css from './edit-text-message.css';
 
 type BaseProps = {
@@ -35,6 +35,7 @@ type Props = {
   ) => Promise<SendEditMessageResult>,
   +setError: boolean => void,
   +setDraft: string => void,
+  +updatePosition: ModalPosition => void,
 };
 class EditTextMessage extends React.PureComponent<Props> {
   myRef: { current: null | HTMLDivElement };
@@ -42,7 +43,34 @@ class EditTextMessage extends React.PureComponent<Props> {
   constructor(props: any) {
     super(props);
     this.myRef = React.createRef();
+
+    this.updateDimensions = this.updateDimensions.bind(this);
   }
+
+  componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener('resize', this.updateDimensions, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateDimensions, false);
+  }
+
+  updateDimensions = () => {
+    if (!this.props.background) {
+      return;
+    }
+    if (this.myRef.current) {
+      const { left, top, width, height } =
+        this.myRef.current.getBoundingClientRect();
+      this.props.updatePosition({
+        left,
+        top,
+        width,
+        height,
+      });
+    }
+  };
 
   render() {
     invariant(
@@ -82,6 +110,7 @@ class EditTextMessage extends React.PureComponent<Props> {
             focus={!this.props.background}
             currentText={editedMessageDraft}
             setCurrentText={this.props.setDraft}
+            onChangePosition={this.updateDimensions}
           />
         </div>
         <div className={css.bottomRow}>
@@ -141,7 +170,7 @@ class EditTextMessage extends React.PureComponent<Props> {
 
 const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedEditTextMessage(props) {
-    const { editState, clearEditModal, setError, setDraft } =
+    const { editState, clearEditModal, setError, setDraft, updatePosition } =
       useEditModalContext();
     const editMessage = useEditMessage();
     return (
@@ -152,6 +181,7 @@ const ConnectedEditTextMessage: React.ComponentType<BaseProps> =
         editMessage={editMessage}
         setError={setError}
         setDraft={setDraft}
+        updatePosition={updatePosition}
       />
     );
   });
