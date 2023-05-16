@@ -11,6 +11,7 @@ import type { CoolOrNerdMode } from './registration-types.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
+import SIWEPanel from '../siwe-panel.react.js';
 
 export type ConnectEthereumParams = {
   +userSelections: {
@@ -19,14 +20,13 @@ export type ConnectEthereumParams = {
   },
 };
 
+type PanelState = 'closed' | 'opening' | 'open' | 'closing';
+
 type Props = {
   +navigation: RegistrationNavigationProp<'ConnectEthereum'>,
   +route: NavigationRoute<'ConnectEthereum'>,
 };
 function ConnectEthereum(props: Props): React.Node {
-  const onConnect = React.useCallback(() => {}, []);
-  const onSkip = React.useCallback(() => {}, []);
-
   const isNerdMode =
     props.route.params.userSelections.coolOrNerdMode === 'nerd';
   const styles = useStyles(unboundStyles);
@@ -72,6 +72,41 @@ function ConnectEthereum(props: Props): React.Node {
     );
   }
 
+  const [panelState, setPanelState] = React.useState<PanelState>('closed');
+  const openPanel = React.useCallback(() => {
+    setPanelState('opening');
+  }, []);
+  const onPanelClosed = React.useCallback(() => {
+    setPanelState('closed');
+  }, []);
+  const onPanelClosing = React.useCallback(() => {
+    setPanelState('closing');
+  }, []);
+
+  const siwePanelSetLoading = React.useCallback(
+    (loading: boolean) => {
+      if (panelState === 'closing' || panelState === 'closed') {
+        return;
+      }
+      setPanelState(loading ? 'opening' : 'open');
+    },
+    [panelState],
+  );
+
+  let siwePanel;
+  if (panelState !== 'closed') {
+    siwePanel = (
+      <SIWEPanel
+        onClosing={onPanelClosing}
+        onClosed={onPanelClosed}
+        closing={panelState === 'closing'}
+        setLoading={siwePanelSetLoading}
+      />
+    );
+  }
+
+  const onSkip = React.useCallback(() => {}, []);
+
   return (
     <View style={styles.container}>
       <RegistrationContentContainer style={styles.scrollViewContentContainer}>
@@ -85,9 +120,9 @@ function ConnectEthereum(props: Props): React.Node {
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
         <RegistrationButton
-          onPress={onConnect}
+          onPress={openPanel}
           label="Connect Ethereum wallet"
-          variant="enabled"
+          variant={panelState === 'opening' ? 'loading' : 'enabled'}
         />
         <RegistrationButton
           onPress={onSkip}
@@ -95,6 +130,7 @@ function ConnectEthereum(props: Props): React.Node {
           variant="outline"
         />
       </RegistrationButtonContainer>
+      {siwePanel}
     </View>
   );
 }
