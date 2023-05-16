@@ -2,10 +2,11 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text, TextInput } from 'react-native';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
+import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
@@ -78,7 +79,7 @@ function KeyserverSelection(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   return (
-    <View style={styles.container}>
+    <RegistrationContainer>
       <RegistrationContentContainer>
         <Text style={styles.header}>Select a keyserver to join</Text>
         <Text style={styles.body}>
@@ -132,16 +133,11 @@ function KeyserverSelection(props: Props): React.Node {
           variant={buttonState}
         />
       </RegistrationButtonContainer>
-    </View>
+    </RegistrationContainer>
   );
 }
 
 const unboundStyles = {
-  container: {
-    backgroundColor: 'panelBackground',
-    justifyContent: 'space-between',
-    flex: 1,
-  },
   header: {
     fontSize: 24,
     color: 'panelForegroundLabel',
