@@ -11,7 +11,7 @@ import {
 
 import AppLanding from './app-landing.react.js';
 import Footer from './footer.react.js';
-import Header from './header.react.js';
+import Header, { HEADER_BREAKPOINT } from './header.react.js';
 import Investors from './investors.react.js';
 import Keyservers from './keyservers.react.js';
 import css from './landing.css';
@@ -50,6 +50,19 @@ function LandingSite(): React.Node {
   );
 
   const [showMobileNav, setShowMobileNav] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > HEADER_BREAKPOINT && showMobileNav) {
+        setShowMobileNav(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [showMobileNav, setShowMobileNav]);
 
   const innerContainerClassName = classNames({
     [css.innerContainer]: true,
