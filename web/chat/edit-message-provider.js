@@ -145,7 +145,11 @@ function EditModalProvider(props: Props): React.Node {
       return null;
     }
     return (
-      <ModalOverlay onClose={clearEditModal} disableTab={true}>
+      <ModalOverlay
+        onClose={clearEditModal}
+        disableTab={true}
+        disableAutoFocus={true}
+      >
         {modal}
       </ModalOverlay>
     );
