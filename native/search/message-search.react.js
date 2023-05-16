@@ -7,6 +7,7 @@ import { View } from 'react-native';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import MessageSearchContent from './search-content.react.js';
 import SearchFooter from './search-footer.react.js';
 import { MessageSearchContext } from './search-provider.react.js';
 import type { ChatNavigationProp } from '../chat/chat.react.js';
@@ -33,13 +34,10 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     });
   }, [props.navigation, clearQuery]);
 
-  // eslint-disable-next-line no-unused-vars
   const [lastID, setLastID] = React.useState();
 
-  // eslint-disable-next-line no-unused-vars
   const [searchResults, setSearchResults] = React.useState([]);
 
-  // eslint-disable-next-line no-unused-vars
   const appendSearchResults = React.useCallback(
     (newMessages: $ReadOnlyArray<MessageInfo>) => {
       setSearchResults(oldMessages => [...oldMessages, ...newMessages]);
@@ -62,7 +60,17 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     );
   }
 
-  return null;
+  return (
+    <MessageSearchContent
+      navigation={props.navigation}
+      route={props.route}
+      query={query}
+      lastSearchResultsID={lastID}
+      setLastSearchResultsID={setLastID}
+      searchResults={searchResults}
+      appendSearchResults={appendSearchResults}
+    />
+  );
 }
 
 const unboundStyles = {
