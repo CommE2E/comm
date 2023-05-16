@@ -7,6 +7,10 @@ import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import { ConnectedEditTextMessage } from './edit-text-message.react.js';
+
+const deliveryIconWidth = 20;
+
 export type ModalPosition = {
   +left: number,
   +top: number,
@@ -58,9 +62,27 @@ function EditModalProvider(props: Props): React.Node {
   }, []);
 
   const modal = React.useMemo(() => {
-    // TODO: Add modal
-    return null;
-  }, []);
+    if (!editState || !editState.position) {
+      return null;
+    }
+
+    const tooltipNode = (
+      <ConnectedEditTextMessage
+        item={editState.messageInfo}
+        threadInfo={editState.threadInfo}
+        background={false}
+        width={editState.position.width - deliveryIconWidth}
+      />
+    );
+
+    const tooltipContainerStyle = {
+      position: 'fixed',
+      left: editState.position.left,
+      top: editState.position.top,
+    };
+
+    return <div style={tooltipContainerStyle}>{tooltipNode}</div>;
+  }, [editState]);
 
   const setDraft = React.useCallback(
     (draft: ?string) => {
