@@ -599,7 +599,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       siwePanel = (
         <SIWEPanel
           onClose={this.goBackToPrompt}
-          nextMode={this.state.nextMode}
+          closing={this.state.nextMode === 'prompt'}
         />
       );
     }
