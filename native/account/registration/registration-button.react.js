@@ -45,7 +45,7 @@ const unboundStyles = {
   button: {
     backgroundColor: 'purpleButton',
     borderRadius: 8,
-    margin: 16,
+    marginVertical: 8,
   },
   buttonText: {
     fontSize: 18,
