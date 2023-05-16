@@ -34,6 +34,7 @@ import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camer
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
+import type { MessageSearchParams } from '../search/message-search.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
 export const AddUsersModalRouteName = 'AddUsersModal';
@@ -97,6 +98,7 @@ export const KeyserverSelectionRouteName = 'KeyserverSelection';
 export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
 export const ConnectEthereumRouteName = 'ConnectEthereum';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
+export const MessageSearchRouteName = 'MessageSearch';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -161,6 +163,7 @@ export type ChatParamList = {
   +DeleteThread: DeleteThreadParams,
   +FullScreenThreadMediaGallery: FullScreenThreadMediaGalleryParams,
   +MessageResultsScreen: MessageResultsScreenParams,
+  +MessageSearch: MessageSearchParams,
 };
 
 export type ChatTopTabsParamList = {
