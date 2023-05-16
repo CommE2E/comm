@@ -20,7 +20,6 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
-import type { LoggedOutMode } from './logged-out-modal.react.js';
 import { commCoreModule } from '../native-modules.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -37,7 +36,7 @@ const siweAuthLoadingStatusSelector =
 
 type Props = {
   +onClose: () => mixed,
-  +nextMode: LoggedOutMode,
+  +closing: boolean,
 };
 function SIWEPanel(props: Props): React.Node {
   const navContext = React.useContext(NavContext);
@@ -151,7 +150,7 @@ function SIWEPanel(props: Props): React.Node {
     [logInExtraInfo, dispatchActionPromise, callSIWE],
   );
   const closeBottomSheet = bottomSheetRef.current?.close;
-  const { nextMode } = props;
+  const { closing } = props;
   const disableOnClose = React.useRef(false);
   const handleMessage = React.useCallback(
     async event => {
@@ -172,13 +171,13 @@ function SIWEPanel(props: Props): React.Node {
     },
     [handleSIWE, onClose, closeBottomSheet],
   );
-  const prevNextModeRef = React.useRef();
+  const prevClosingRef = React.useRef();
   React.useEffect(() => {
-    if (nextMode === 'prompt' && prevNextModeRef.current === 'siwe') {
+    if (closing && !prevClosingRef.current) {
       closeBottomSheet?.();
     }
-    prevNextModeRef.current = nextMode;
-  }, [nextMode, closeBottomSheet]);
+    prevClosingRef.current = closing;
+  }, [closing, closeBottomSheet]);
 
   const source = React.useMemo(
     () => ({
