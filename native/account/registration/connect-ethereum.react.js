@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import RegistrationButton from './registration-button.react.js';
-import RegistrationContainer from './registration-container.react.js';
+import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
@@ -73,7 +73,7 @@ function ConnectEthereum(props: Props): React.Node {
 
   return (
     <View style={styles.container}>
-      <RegistrationContainer style={styles.scrollViewContentContainer}>
+      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>
           Do you want to connect an Ethereum Wallet to your account?
         </Text>
@@ -81,7 +81,7 @@ function ConnectEthereum(props: Props): React.Node {
         <View style={styles.ethereumLogoContainer}>
           <EthereumLogoDark />
         </View>
-      </RegistrationContainer>
+      </RegistrationContentContainer>
       <RegistrationButton
         onPress={onConnect}
         label="Connect Ethereum wallet"

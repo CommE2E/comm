@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Text, TextInput, View } from 'react-native';
 
 import RegistrationButton from './registration-button.react.js';
-import RegistrationContainer from './registration-container.react.js';
+import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
   RegistrationTile,
@@ -78,7 +78,7 @@ function KeyserverSelection(props: Props): React.Node {
   const colors = useColors();
   return (
     <View style={styles.container}>
-      <RegistrationContainer>
+      <RegistrationContentContainer>
         <Text style={styles.header}>Select a keyserver to join</Text>
         <Text style={styles.body}>
           Chat communities on Comm are hosted on keyservers, which are
@@ -123,7 +123,7 @@ function KeyserverSelection(props: Props): React.Node {
             ref={customKeyserverTextInputRef}
           />
         </RegistrationTile>
-      </RegistrationContainer>
+      </RegistrationContentContainer>
       <RegistrationButton
         onPress={onSubmit}
         label="Next"
