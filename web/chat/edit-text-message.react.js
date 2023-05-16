@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import { useCallback, useEffect } from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
@@ -29,9 +30,11 @@ const cancelButtonColor: ButtonColor = {
 
 function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo, item } = props;
-  const { editState, clearEditModal, setDraft, setError } =
+  const { editState, clearEditModal, setDraft, setError, updatePosition } =
     useEditModalContext();
   const editMessage = useEditMessage();
+
+  const myRef = React.useRef(null);
 
   const editedMessageDraft = editState?.editedMessageDraft ?? '';
   const threadColor = threadInfo.color;
@@ -70,6 +73,34 @@ function EditTextMessage(props: Props): React.Node {
     }
   };
 
+  const updateDimensions = useCallback(() => {
+    if (!myRef.current || !background) {
+      return;
+    }
+    const { left, top, width, height } = myRef.current.getBoundingClientRect();
+    updatePosition({
+      left,
+      top,
+      width,
+      height,
+    });
+  }, [background, updatePosition]);
+
+  useEffect(() => {
+    if (!background) {
+      return () => {};
+    }
+    window.addEventListener('resize', updateDimensions);
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, [background, updateDimensions]);
+
+  useEffect(() => {
+    updateDimensions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   let editFailed;
   if (editState?.isError) {
     editFailed = (
@@ -84,12 +115,13 @@ function EditTextMessage(props: Props): React.Node {
   }
 
   return (
-    <div className={css.editMessage} style={{ width: props.width }}>
+    <div className={css.editMessage} style={{ width: props.width }} ref={myRef}>
       <div className={cssInputBar.inputBarTextInput}>
         <ChatInputTextArea
           focus={!background}
           currentText={editedMessageDraft}
           setCurrentText={setDraft}
+          onChangePosition={updateDimensions}
           send={checkAndEdit}
         />
       </div>
