@@ -6,7 +6,6 @@ import {
   type StackNavigationHelpers,
 } from '@react-navigation/stack';
 import * as React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ConnectEthereum from './connect-ethereum.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
@@ -19,9 +18,6 @@ import {
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
-import { useStyles } from '../../themes/colors.js';
-
-const safeAreaEdges = ['bottom'];
 
 export type RegistrationNavigationProp<
   RouteName: $Keys<RegistrationParamList> = $Keys<RegistrationParamList>,
@@ -49,32 +45,22 @@ type Props = {
 };
 // eslint-disable-next-line no-unused-vars
 function RegistrationNavigator(props: Props): React.Node {
-  const styles = useStyles(unboundStyles);
   return (
-    <SafeAreaView style={styles.container} edges={safeAreaEdges}>
-      <Registration.Navigator screenOptions={screenOptions}>
-        <Registration.Screen
-          name={CoolOrNerdModeSelectionRouteName}
-          component={CoolOrNerdModeSelection}
-        />
-        <Registration.Screen
-          name={KeyserverSelectionRouteName}
-          component={KeyserverSelection}
-        />
-        <Registration.Screen
-          name={ConnectEthereumRouteName}
-          component={ConnectEthereum}
-        />
-      </Registration.Navigator>
-    </SafeAreaView>
+    <Registration.Navigator screenOptions={screenOptions}>
+      <Registration.Screen
+        name={CoolOrNerdModeSelectionRouteName}
+        component={CoolOrNerdModeSelection}
+      />
+      <Registration.Screen
+        name={KeyserverSelectionRouteName}
+        component={KeyserverSelection}
+      />
+      <Registration.Screen
+        name={ConnectEthereumRouteName}
+        component={ConnectEthereum}
+      />
+    </Registration.Navigator>
   );
 }
-
-const unboundStyles = {
-  container: {
-    flex: 1,
-    backgroundColor: 'panelBackground',
-  },
-};
 
 export default RegistrationNavigator;

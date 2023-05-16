@@ -5,6 +5,7 @@ import { Text, View } from 'react-native';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
+import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
@@ -108,30 +109,32 @@ function ConnectEthereum(props: Props): React.Node {
   const onSkip = React.useCallback(() => {}, []);
 
   return (
-    <View style={styles.container}>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-        <Text style={styles.header}>
-          Do you want to connect an Ethereum Wallet to your account?
-        </Text>
-        {body}
-        <View style={styles.ethereumLogoContainer}>
-          <EthereumLogoDark />
-        </View>
-      </RegistrationContentContainer>
-      <RegistrationButtonContainer>
-        <RegistrationButton
-          onPress={openPanel}
-          label="Connect Ethereum wallet"
-          variant={panelState === 'opening' ? 'loading' : 'enabled'}
-        />
-        <RegistrationButton
-          onPress={onSkip}
-          label="Do not connect"
-          variant="outline"
-        />
-      </RegistrationButtonContainer>
+    <>
+      <RegistrationContainer>
+        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+          <Text style={styles.header}>
+            Do you want to connect an Ethereum Wallet to your account?
+          </Text>
+          {body}
+          <View style={styles.ethereumLogoContainer}>
+            <EthereumLogoDark />
+          </View>
+        </RegistrationContentContainer>
+        <RegistrationButtonContainer>
+          <RegistrationButton
+            onPress={openPanel}
+            label="Connect Ethereum wallet"
+            variant={panelState === 'opening' ? 'loading' : 'enabled'}
+          />
+          <RegistrationButton
+            onPress={onSkip}
+            label="Do not connect"
+            variant="outline"
+          />
+        </RegistrationButtonContainer>
+      </RegistrationContainer>
       {siwePanel}
-    </View>
+    </>
   );
 }
 

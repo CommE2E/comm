@@ -2,10 +2,11 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
+import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
@@ -48,7 +49,7 @@ function CoolOrNerdModeSelection(props: Props): React.Node {
   const buttonState = currentSelection ? 'enabled' : 'disabled';
   const styles = useStyles(unboundStyles);
   return (
-    <View style={styles.container}>
+    <RegistrationContainer>
       <RegistrationContentContainer>
         <Text style={styles.header}>To begin, choose your fighter</Text>
         <Text style={styles.body}>
@@ -92,7 +93,7 @@ function CoolOrNerdModeSelection(props: Props): React.Node {
           variant={buttonState}
         />
       </RegistrationButtonContainer>
-    </View>
+    </RegistrationContainer>
   );
 }
 
