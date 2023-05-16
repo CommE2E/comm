@@ -11,11 +11,19 @@ type Props = {
   +focus: boolean,
   +currentText: string,
   +setCurrentText: (text: string) => void,
+  +onChangePosition: () => void,
 };
 
 const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
   function ChatInputTextArea(props: Props) {
-    const { currentText, focus, escape, send, setCurrentText } = props;
+    const {
+      currentText,
+      focus,
+      escape,
+      send,
+      setCurrentText,
+      onChangePosition,
+    } = props;
     const textareaRef = React.useRef(null);
 
     const focusAndUpdateText = React.useCallback(() => {
@@ -48,7 +56,8 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
         const newHeight = Math.min(textarea.scrollHeight, 150);
         textarea.style.height = `${newHeight}px`;
       }
-    }, []);
+      onChangePosition();
+    }, [onChangePosition]);
 
     React.useEffect(() => {
       updateHeight();
