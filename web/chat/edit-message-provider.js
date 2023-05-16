@@ -7,11 +7,19 @@ import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+export type ModalPosition = {
+  +left: number,
+  +top: number,
+  +width: number,
+  +height: number,
+};
+
 export type EditState = {
   +messageInfo: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +editedMessageDraft: ?string,
   +isError: boolean,
+  +position?: ModalPosition,
 };
 
 type EditModalContextType = {
@@ -20,6 +28,7 @@ type EditModalContextType = {
   +editState: ?EditState,
   +setDraft: string => void,
   +setError: boolean => void,
+  +updatePosition: ModalPosition => void,
 };
 
 const EditModalContext: React.Context<EditModalContextType> =
@@ -29,6 +38,7 @@ const EditModalContext: React.Context<EditModalContextType> =
     editState: null,
     setDraft: () => {},
     setError: () => {},
+    updatePosition: () => {},
   });
 
 type Props = {
@@ -77,6 +87,20 @@ function EditModalProvider(props: Props): React.Node {
     },
     [editState, setEditState],
   );
+
+  const updatePosition = React.useCallback(
+    (position: ModalPosition) => {
+      if (!editState) {
+        return;
+      }
+      setEditState({
+        ...editState,
+        position,
+      });
+    },
+    [editState, setEditState],
+  );
+
   const value = React.useMemo(
     () => ({
       renderEditModal,
@@ -84,8 +108,16 @@ function EditModalProvider(props: Props): React.Node {
       editState,
       setDraft,
       setError,
+      updatePosition,
     }),
-    [renderEditModal, clearEditModal, editState, setDraft, setError],
+    [
+      renderEditModal,
+      clearEditModal,
+      editState,
+      setDraft,
+      setError,
+      updatePosition,
+    ],
   );
 
   const modalOverlay = React.useMemo(() => {
