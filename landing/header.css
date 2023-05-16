@@ -116,6 +116,7 @@ div.webappIcon svg {
   }
 }
 
+/* max-width should be kept in sync with HEADER_BREAKPOINT in header.react */
 @media screen and (max-width: 848px) {
   .pageNav {
     display: none;
@@ -144,6 +145,7 @@ div.webappIcon svg {
   }
 }
 
+/* max-width should be kept in sync with HEADER_BREAKPOINT in header.react */
 @media screen and (max-width: 848px) and (hover: hover) {
   div.menuIcon:hover {
     cursor: pointer;
