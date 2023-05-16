@@ -73,7 +73,7 @@ function ConnectEthereum(props: Props): React.Node {
 
   return (
     <View style={styles.container}>
-      <RegistrationContainer>
+      <RegistrationContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>
           Do you want to connect an Ethereum Wallet to your account?
         </Text>
@@ -102,6 +102,9 @@ const unboundStyles = {
     justifyContent: 'space-between',
     flex: 1,
   },
+  scrollViewContentContainer: {
+    flexGrow: 1,
+  },
   header: {
     fontSize: 24,
     color: 'panelForegroundLabel',
@@ -114,7 +117,9 @@ const unboundStyles = {
     paddingBottom: 16,
   },
   ethereumLogoContainer: {
+    flexGrow: 1,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   list: {
     paddingBottom: 16,
