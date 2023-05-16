@@ -11,6 +11,8 @@ import { useSearchMessages } from 'lib/shared/search-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+//import MessageSearchContent from './search-content.react.js';
+//dummy change
 import SearchFooter from './search-footer.react.js';
 import { MessageSearchContext } from './search-provider.react.js';
 import { useHeightMeasurer } from '../chat/chat-context.js';
