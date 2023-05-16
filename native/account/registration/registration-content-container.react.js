@@ -5,7 +5,6 @@ import * as React from 'react';
 import { ScrollView } from 'react-native';
 
 import KeyboardAvoidingView from '../../components/keyboard-avoiding-view.react.js';
-import { useStyles } from '../../themes/colors.js';
 
 type ViewProps = React.ElementConfig<typeof ScrollView>;
 type Props = {
@@ -23,10 +22,9 @@ function RegistrationContentContainer(props: Props): React.Node {
     [headerHeight],
   );
 
-  const styles = useStyles(unboundStyles);
   const contentContainerStyle = React.useMemo(
     () => [styles.scrollViewContentContainer, style],
-    [styles.scrollViewContentContainer, style],
+    [style],
   );
 
   return (
@@ -43,7 +41,7 @@ function RegistrationContentContainer(props: Props): React.Node {
   );
 }
 
-const unboundStyles = {
+const styles = {
   fill: {
     flex: 1,
   },
