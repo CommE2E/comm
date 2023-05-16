@@ -41,6 +41,7 @@
     "ethers": "^5.7.2",
     "fast-json-stable-stringify": "^2.0.0",
     "file-type": "^12.3.0",
+    "focus-trap-react": "^10.1.4",
     "invariant": "^2.2.4",
     "just-clone": "^3.2.1",
     "lodash": "^4.17.21",
