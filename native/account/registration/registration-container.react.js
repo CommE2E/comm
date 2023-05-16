@@ -34,6 +34,7 @@ function RegistrationContainer(props: Props): React.Node {
       <ScrollView
         contentContainerStyle={contentContainerStyle}
         style={backgroundStyle}
+        alwaysBounceVertical={false}
         {...rest}
       >
         {children}
