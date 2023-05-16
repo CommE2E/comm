@@ -25,6 +25,8 @@ import {
   type FetchPinnedMessagesResult,
   messageTruncationStatusesValidator,
   rawMessageInfoValidator,
+  type SearchMessagesResponse,
+  type SearchMessagesRequest,
 } from 'lib/types/message-types.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
@@ -48,6 +50,7 @@ import {
   fetchMessageInfoByID,
   fetchThreadMessagesCount,
   fetchPinnedMessageInfos,
+  searchMessagesInSingleChat,
 } from '../fetchers/message-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
@@ -476,6 +479,27 @@ async function fetchPinnedMessagesResponder(
   );
 }
 
+const searchMessagesResponderInputValidator = tShape({
+  query: t.String,
+  threadID: t.String,
+  cursor: t.maybe(t.String),
+});
+
+async function searchMessagesResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<SearchMessagesResponse> {
+  const request: SearchMessagesRequest = input;
+  await validateInput(viewer, searchMessagesResponderInputValidator, input);
+
+  return await searchMessagesInSingleChat(
+    request.query,
+    request.threadID,
+    viewer,
+    request.cursor,
+  );
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -483,4 +507,5 @@ export {
   reactionMessageCreationResponder,
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
+  searchMessagesResponder,
 };
