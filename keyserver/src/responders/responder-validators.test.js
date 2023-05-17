@@ -14,7 +14,10 @@ import {
   restoreEntryResponseValidator,
 } from './entry-responders.js';
 import { getSessionPublicKeysResponseValidator } from './keys-responders.js';
-import { inviteLinkVerificationResponseValidator } from './link-responders.js';
+import {
+  inviteLinkVerificationResponseValidator,
+  fetchInviteLinksResponseValidator,
+} from './link-responders.js';
 import { messageReportCreationResultValidator } from './message-report-responder.js';
 import {
   fetchMessageInfosResponseValidator,
@@ -951,5 +954,23 @@ describe('link responders', () => {
     };
     expect(inviteLinkVerificationResponseValidator.is(response)).toBe(true);
     expect(inviteLinkVerificationResponseValidator.is({})).toBe(false);
+  });
+
+  it('should validate invite link verification response', () => {
+    const response = {
+      links: [
+        {
+          name: 'name',
+          primary: true,
+          role: '123',
+          communityID: '123',
+          expirationTime: 123,
+          limitOfUses: 123,
+          numberOfUses: 123,
+        },
+      ],
+    };
+    expect(fetchInviteLinksResponseValidator.is(response)).toBe(true);
+    expect(fetchInviteLinksResponseValidator.is({ links: {} })).toBe(false);
   });
 });
