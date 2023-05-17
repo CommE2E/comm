@@ -7,11 +7,14 @@ import { TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   InviteLinkNavigatorRouteName,
+  ManagePublicLinkRouteName,
   ViewInviteLinksRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -37,39 +40,78 @@ function InviteLinksButton(props: Props): React.Node {
       },
     });
   }, [community, inviteLink, navigate]);
+  const navigateToManagePublicLinkView = React.useCallback(() => {
+    navigate<'InviteLinkNavigator'>(InviteLinkNavigatorRouteName, {
+      screen: ManagePublicLinkRouteName,
+      params: {
+        community,
+      },
+    });
+  }, [community, navigate]);
 
   const insets = useSafeAreaInsets();
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const styles = useStyles(unboundStyles);
 
   const { showActionSheetWithOptions } = useActionSheet();
-  const options = React.useMemo(() => ['Invite Link', 'Cancel'], []);
+  const actions = React.useMemo(() => {
+    if (!community) {
+      return null;
+    }
+
+    const result = [];
+    const canManageLinks = threadHasPermission(
+      community,
+      threadPermissions.MANAGE_INVITE_LINKS,
+    );
+    if (canManageLinks) {
+      result.push({
+        label: 'Manage Invite Links',
+        action: navigateToManagePublicLinkView,
+      });
+    }
+
+    if (inviteLink) {
+      result.push({
+        label: 'Invite Link',
+        action: navigateToInviteLinksView,
+      });
+    }
+
+    if (result.length > 0) {
+      return result;
+    }
+    return null;
+  }, [
+    community,
+    inviteLink,
+    navigateToInviteLinksView,
+    navigateToManagePublicLinkView,
+  ]);
 
   const openActionSheet = React.useCallback(() => {
+    if (!actions) {
+      return;
+    }
+    const options = [...actions.map(a => a.label), 'Cancel'];
     showActionSheetWithOptions(
       {
         options,
-        cancelButtonIndex: 1,
+        cancelButtonIndex: options.length - 1,
         containerStyle: {
           paddingBottom: insets.bottom,
         },
         userInterfaceStyle: activeTheme ?? 'dark',
       },
       selectedIndex => {
-        if (selectedIndex === 0) {
-          navigateToInviteLinksView();
+        if (selectedIndex !== undefined && selectedIndex < actions.length) {
+          actions[selectedIndex].action();
         }
       },
     );
-  }, [
-    activeTheme,
-    insets.bottom,
-    navigateToInviteLinksView,
-    options,
-    showActionSheetWithOptions,
-  ]);
+  }, [actions, activeTheme, insets.bottom, showActionSheetWithOptions]);
 
-  if (!inviteLink) {
+  if (!actions) {
     return null;
   }
   return (
