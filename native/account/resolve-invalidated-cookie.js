@@ -14,15 +14,23 @@ async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
   logInActionSource: LogInActionSource,
+  getInitialNotificationsEncryptedMessage?: () => Promise<string>,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (!keychainCredentials) {
     return;
   }
-  const extraInfo = await nativeLogInExtraInfoSelector({
+  let extraInfo = await nativeLogInExtraInfoSelector({
     redux: store.getState(),
     navContext: getGlobalNavContext(),
   })();
+
+  if (getInitialNotificationsEncryptedMessage) {
+    const initialNotificationsEncryptedMessage =
+      await getInitialNotificationsEncryptedMessage();
+    extraInfo = { ...extraInfo, initialNotificationsEncryptedMessage };
+  }
+
   const { calendarQuery } = extraInfo;
   await dispatchRecoveryAttempt(
     logInActionTypes,
