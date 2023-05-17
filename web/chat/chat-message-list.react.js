@@ -29,6 +29,7 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import css from './chat-message-list.css';
+import { useEditModalContext } from './edit-message-provider.js';
 import { MessageListContext } from './message-list-types.js';
 import Message from './message.react.js';
 import RelationshipPrompt from './relationship-prompt/relationship-prompt.js';
@@ -62,6 +63,7 @@ type Props = {
   +inputState: ?InputState,
   +clearTooltip: () => mixed,
   +oldestMessageServerID: ?string,
+  +isEditState: boolean,
 };
 type Snapshot = {
   +scrollTop: number,
@@ -120,7 +122,10 @@ class ChatMessageList extends React.PureComponent<Props> {
         messageListData &&
         messageListData[0].itemType === 'message' &&
         messageListData[0].messageInfo.localID) ||
-      (hasNewMessage && snapshot && Math.abs(snapshot.scrollTop) <= 1)
+      (hasNewMessage &&
+        snapshot &&
+        Math.abs(snapshot.scrollTop) <= 1 &&
+        !this.props.isEditState)
     ) {
       this.scrollToBottom();
     } else if (hasNewMessage && messageContainer && snapshot) {
@@ -308,6 +313,9 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
 
     const oldestMessageServerID = useOldestMessageServerID(threadInfo.id);
 
+    const { editState } = useEditModalContext();
+    const isEditState = editState !== null;
+
     return (
       <MessageListContext.Provider value={messageListContext}>
         <ChatMessageList
@@ -321,6 +329,7 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
           fetchMostRecentMessages={callFetchMostRecentMessages}
           clearTooltip={clearTooltip}
           oldestMessageServerID={oldestMessageServerID}
+          isEditState={isEditState}
         />
       </MessageListContext.Provider>
     );
