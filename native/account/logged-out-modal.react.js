@@ -62,6 +62,7 @@ import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils.js';
+import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import {
   type StateContainer,
   type StateChange,
@@ -136,6 +137,8 @@ type Props = {
   +styles: typeof unboundStyles,
   // Redux dispatch functions
   +dispatch: Dispatch,
+  // Keyserver olm sessions functions
+  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 type State = {
   +mode: LoggedOutMode,
@@ -315,6 +318,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         cookie,
         urlPrefix,
         actionSource,
+        this.props.getInitialNotificationsEncryptedMessage,
       );
       if (
         sessionChange &&
@@ -778,6 +782,8 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
 
     const dispatch = useDispatch();
+    const getInitialNotificationsEncryptedMessage =
+      useInitialNotificationsEncryptedMessage();
     return (
       <LoggedOutModal
         {...props}
@@ -791,6 +797,9 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         splashStyle={splashStyle}
         styles={styles}
         dispatch={dispatch}
+        getInitialNotificationsEncryptedMessage={
+          getInitialNotificationsEncryptedMessage
+        }
       />
     );
   });
