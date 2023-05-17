@@ -1,8 +1,6 @@
 // @flow
 
-import _mapKeys from 'lodash/fp/mapKeys.js';
-import _mapValues from 'lodash/fp/mapValues.js';
-import type { TType, TInterface } from 'tcomb';
+import type { TType } from 'tcomb';
 
 import type { PolicyType } from 'lib/facts/policies.js';
 import {
@@ -17,15 +15,16 @@ import {
   tPlatform,
   tPlatformDetails,
   assertWithValidator,
-  tID,
+  convertToNewIDSchema,
+  keyserverPrefixID,
+  convertClientIDsToServerIDs,
+  convertObject,
+  convertServerIDsToClientIDs,
 } from 'lib/utils/validation-utils.js';
 
 import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
-
-const convertToNewIDSchema = false;
-const keyserverPrefixID = '256';
 
 async function validateInput<T>(
   viewer: Viewer,
@@ -42,11 +41,15 @@ async function validateInput<T>(
     !isWebPlatform(viewer.platformDetails?.platform) &&
     convertToNewIDSchema
   ) {
-    return convertClientIDsToServerIDs(
-      keyserverPrefixID,
-      inputValidator,
-      convertedInput,
-    );
+    try {
+      return convertClientIDsToServerIDs(
+        keyserverPrefixID,
+        inputValidator,
+        convertedInput,
+      );
+    } catch (err) {
+      throw new ServerError(err.message);
+    }
   }
 
   return convertedInput;
@@ -78,39 +81,6 @@ function validateOutput<T>(
   }
 
   return data;
-}
-
-function convertServerIDsToClientIDs<T>(
-  serverPrefixID: string,
-  outputValidator: TType<T>,
-  data: T,
-): T {
-  const conversionFunction = id => {
-    if (id.indexOf('|') !== -1) {
-      console.warn(`Server id '${id}' already has a prefix`);
-      return id;
-    }
-    return `${serverPrefixID}|${id}`;
-  };
-
-  return convertObject(outputValidator, data, [tID], conversionFunction);
-}
-
-function convertClientIDsToServerIDs<T>(
-  serverPrefixID: string,
-  outputValidator: TType<T>,
-  data: T,
-): T {
-  const prefix = serverPrefixID + '|';
-  const conversionFunction = id => {
-    if (id.startsWith(prefix)) {
-      return id.substr(prefix.length);
-    }
-
-    throw new ServerError('invalid_client_id_prefix');
-  };
-
-  return convertObject(outputValidator, data, [tID], conversionFunction);
 }
 
 function checkInputValidator<T>(inputValidator: TType<T>, input: mixed): T {
@@ -227,87 +197,6 @@ function findFirstInputMatchingValidator(
   return null;
 }
 
-function convertObject<T, I>(
-  validator: TType<I>,
-  input: I,
-  typesToConvert: $ReadOnlyArray<TType<T>>,
-  conversionFunction: T => T,
-): I {
-  if (input === null || input === undefined) {
-    return input;
-  }
-
-  // While they should be the same runtime object,
-  // `TValidator` is `TType<T>` and `validator` is `TType<I>`.
-  // Having them have different types allows us to use `assertWithValidator`
-  // to change `input` flow type
-  const TValidator = typesToConvert[typesToConvert.indexOf(validator)];
-  if (TValidator && TValidator.is(input)) {
-    const TInput = assertWithValidator(input, TValidator);
-    const converted = conversionFunction(TInput);
-    return assertWithValidator(converted, validator);
-  }
-
-  if (validator.meta.kind === 'maybe' || validator.meta.kind === 'subtype') {
-    return convertObject(
-      validator.meta.type,
-      input,
-      typesToConvert,
-      conversionFunction,
-    );
-  }
-  if (validator.meta.kind === 'interface' && typeof input === 'object') {
-    const recastValidator: TInterface<typeof input> = (validator: any);
-    const result = {};
-    for (const key in input) {
-      const innerValidator = recastValidator.meta.props[key];
-      result[key] = convertObject(
-        innerValidator,
-        input[key],
-        typesToConvert,
-        conversionFunction,
-      );
-    }
-    return assertWithValidator(result, recastValidator);
-  }
-  if (validator.meta.kind === 'union') {
-    for (const innerValidator of validator.meta.types) {
-      if (innerValidator.is(input)) {
-        return convertObject(
-          innerValidator,
-          input,
-          typesToConvert,
-          conversionFunction,
-        );
-      }
-    }
-    return input;
-  }
-  if (validator.meta.kind === 'list' && Array.isArray(input)) {
-    const innerValidator = validator.meta.type;
-    return (input.map(value =>
-      convertObject(innerValidator, value, typesToConvert, conversionFunction),
-    ): any);
-  }
-  if (validator.meta.kind === 'dict' && typeof input === 'object') {
-    const domainValidator = validator.meta.domain;
-    const codomainValidator = validator.meta.codomain;
-    if (typesToConvert.includes(domainValidator)) {
-      input = _mapKeys(key => conversionFunction(key))(input);
-    }
-    return _mapValues(value =>
-      convertObject(
-        codomainValidator,
-        value,
-        typesToConvert,
-        conversionFunction,
-      ),
-    )(input);
-  }
-
-  return input;
-}
-
 async function policiesValidator(
   viewer: Viewer,
   policies: $ReadOnlyArray<PolicyType>,
@@ -339,8 +228,5 @@ export {
   sanitizeInput,
   findFirstInputMatchingValidator,
   checkClientSupported,
-  convertServerIDsToClientIDs,
-  convertClientIDsToServerIDs,
-  convertObject,
   policiesValidator,
 };
