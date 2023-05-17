@@ -8,15 +8,18 @@ import {
 import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ManagePublicLinkScreen from './manage-public-link-screen.react.js';
 import ViewInviteLinksHeaderLeftButton from './view-invite-links-header-left-button.react.js';
 import ViewInviteLinksHeaderTitle from './view-invite-links-header-title.react.js';
 import ViewInviteLinksScreen from './view-invite-links-screen.react.js';
+import HeaderBackButton from '../navigation/header-back-button.react.js';
 import { defaultStackScreenOptions } from '../navigation/options.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   type InviteLinkParamList,
   ViewInviteLinksRouteName,
   type ScreenParamList,
+  ManagePublicLinkRouteName,
 } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
@@ -41,6 +44,12 @@ const viewInviteLinksOptions = ({ route }) => ({
   headerBackImage: () => null,
   headerBackTitleStyle: { marginLeft: 20 },
 });
+
+const managePublicLinkOptions = {
+  headerTitle: 'Public Link',
+  headerBackTitleVisible: false,
+  headerLeft: HeaderBackButton,
+};
 
 type Props = {
   +navigation: RootNavigationProp<'InviteLinkNavigator'>,
@@ -67,6 +76,11 @@ function InviteLinksNavigator(props: Props): React.Node {
           name={ViewInviteLinksRouteName}
           component={ViewInviteLinksScreen}
           options={viewInviteLinksOptions}
+        />
+        <InviteLinksStack.Screen
+          name={ManagePublicLinkRouteName}
+          component={ManagePublicLinkScreen}
+          options={managePublicLinkOptions}
         />
       </InviteLinksStack.Navigator>
     </SafeAreaView>
