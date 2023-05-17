@@ -2,14 +2,15 @@
 
 import t from 'tcomb';
 
-import { tPassword, tShape, tID } from 'lib/utils/validation-utils.js';
-
 import {
+  tPassword,
+  tShape,
+  tID,
   convertServerIDsToClientIDs,
-  sanitizeInput,
-  redactedString,
   convertClientIDsToServerIDs,
-} from './validation-utils.js';
+} from 'lib/utils/validation-utils.js';
+
+import { sanitizeInput, redactedString } from './validation-utils.js';
 
 describe('sanitization', () => {
   it('should redact a string', () => {
