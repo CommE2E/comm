@@ -2,10 +2,11 @@
 
 import t, { type TUnion, type TInterface } from 'tcomb';
 
-import type {
-  InviteLinkVerificationRequest,
-  InviteLinkVerificationResponse,
-  FetchInviteLinksResponse,
+import {
+  type InviteLinkVerificationRequest,
+  type InviteLinkVerificationResponse,
+  type FetchInviteLinksResponse,
+  inviteLinkValidator,
 } from 'lib/types/link-types.js';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
@@ -52,13 +53,22 @@ async function inviteLinkVerificationResponder(
   );
 }
 
+export const fetchInviteLinksResponseValidator: TInterface<FetchInviteLinksResponse> =
+  tShape<FetchInviteLinksResponse>({
+    links: t.list(inviteLinkValidator),
+  });
+
 async function fetchPrimaryInviteLinksResponder(
   viewer: Viewer,
 ): Promise<FetchInviteLinksResponse> {
   const primaryLinks = await fetchPrimaryInviteLinks(viewer);
-  return {
-    links: primaryLinks,
-  };
+  return validateOutput(
+    viewer.platformDetails,
+    fetchInviteLinksResponseValidator,
+    {
+      links: primaryLinks,
+    },
+  );
 }
 
 export { inviteLinkVerificationResponder, fetchPrimaryInviteLinksResponder };
