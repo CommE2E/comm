@@ -98,17 +98,15 @@ function CommunityCreationModal(): React.Node {
     dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
     const newThreadResult: NewThreadResult = await newThreadResultPromise;
 
-    if (newThreadResult) {
-      const { newThreadID } = newThreadResult;
-      await dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          activeChatThreadID: newThreadID,
-        },
-      });
+    const { newThreadID } = newThreadResult;
+    await dispatch({
+      type: updateNavInfoActionType,
+      payload: {
+        activeChatThreadID: newThreadID,
+      },
+    });
 
-      modalContext.popModal();
-    }
+    modalContext.popModal();
   }, [callCreateNewCommunity, dispatch, dispatchActionPromise, modalContext]);
 
   const megaphoneIcon = React.useMemo(
