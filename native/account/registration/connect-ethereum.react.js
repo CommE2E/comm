@@ -3,6 +3,16 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import {
+  exactSearchUser,
+  exactSearchUserActionTypes,
+} from 'lib/actions/user-actions.js';
+import type { SIWEResult } from 'lib/types/siwe-types.js';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils.js';
+
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
@@ -28,8 +38,8 @@ type Props = {
   +route: NavigationRoute<'ConnectEthereum'>,
 };
 function ConnectEthereum(props: Props): React.Node {
-  const isNerdMode =
-    props.route.params.userSelections.coolOrNerdMode === 'nerd';
+  const { userSelections } = props.route.params;
+  const isNerdMode = userSelections.coolOrNerdMode === 'nerd';
   const styles = useStyles(unboundStyles);
 
   let body;
@@ -94,8 +104,27 @@ function ConnectEthereum(props: Props): React.Node {
     [panelState],
   );
 
-  const onSkip = React.useCallback(() => {}, []);
-  const onSuccessfulWalletSignature = React.useCallback(() => {}, []);
+  const exactSearchUserCall = useServerCall(exactSearchUser);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  const onResult = React.useCallback(
+    async (result: SIWEResult) => {
+      const searchPromise = exactSearchUserCall(result.address);
+      dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+      const { userInfo } = await searchPromise;
+
+      if (userInfo) {
+        // show duplicate account screen
+      } else {
+        // show avatar selection screen
+      }
+    },
+    [exactSearchUserCall, dispatchActionPromise],
+  );
+
+  const onSkip = React.useCallback(() => {
+    // show username selection screen
+  }, []);
 
   let siwePanel;
   if (panelState !== 'closed') {
@@ -104,7 +133,7 @@ function ConnectEthereum(props: Props): React.Node {
         onClosing={onPanelClosing}
         onClosed={onPanelClosed}
         closing={panelState === 'closing'}
-        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+        onSuccessfulWalletSignature={onResult}
         setLoading={siwePanelSetLoading}
       />
     );
