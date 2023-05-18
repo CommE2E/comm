@@ -8,6 +8,7 @@
 #include <InternalModules/GlobalDBSingletonJNIHelper.h>
 #include <NativeModules/CommCoreModule.h>
 #include <NativeModules/CommUtilsModule.h>
+#include <Notifications/BackgroundDataStorage/NotificationsCryptoModuleJNIHelper.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
 #include <PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperationsJNIHelper.h>
 
@@ -66,5 +67,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
     comm::MessageOperationsUtilitiesJNIHelper::registerNatives();
     comm::GlobalDBSingletonJNIHelper::registerNatives();
     comm::DatabaseInitializerJNIHelper::registerNatives();
+    comm::NotificationsCryptoModuleJNIHelper::registerNatives();
   });
 }
