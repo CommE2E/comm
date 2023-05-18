@@ -27,4 +27,21 @@ async function searchForUsers(
   return userInfos;
 }
 
-export { searchForUsers };
+async function searchForUser(
+  usernameQuery: string,
+): Promise<?GlobalAccountUserInfo> {
+  const query = SQL`
+    SELECT id, username
+    FROM users
+    WHERE LOWER(username) = LOWER(${usernameQuery})
+  `;
+  const [result] = await dbQuery(query);
+
+  if (result.length === 0) {
+    return null;
+  }
+  const { id, username } = result[0];
+  return { id, username };
+}
+
+export { searchForUsers, searchForUser };

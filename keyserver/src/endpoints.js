@@ -38,7 +38,10 @@ import {
   reportMultiCreationResponder,
   errorReportFetchInfosResponder,
 } from './responders/report-responders.js';
-import { userSearchResponder } from './responders/search-responders.js';
+import {
+  userSearchResponder,
+  exactUserSearchResponder,
+} from './responders/search-responders.js';
 import { siweNonceResponder } from './responders/siwe-nonce-responders.js';
 import {
   threadDeletionResponder,
@@ -132,6 +135,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   delete_upload: {
     responder: uploadDeletionResponder,
     requiredPolicies: baseLegalPolicies,
+  },
+  exact_search_user: {
+    responder: exactUserSearchResponder,
+    requiredPolicies: [],
   },
   fetch_entries: {
     responder: entryFetchResponder,
