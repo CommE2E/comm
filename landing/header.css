@@ -57,6 +57,10 @@ div.headerNavContentContainer {
   color: var(--white-100);
 }
 
+div.socialIconsContainer a {
+  -webkit-tap-highlight-color: transparent;
+}
+
 div.twitterIcon,
 div.githubIcon,
 div.webappIcon {
@@ -81,23 +85,26 @@ div.webappIcon svg {
   transition: 300ms;
 }
 
-div.githubIcon:hover svg {
-  color: #151013;
-  transition: 300ms;
-}
-div.githubIcon:hover {
-  background-color: #ffffff;
-  transition: 300ms;
-}
+@media screen and (hover: hover) {
+  div.githubIcon:hover svg {
+    color: #151013;
+    transition: 300ms;
+  }
 
-div.webappIcon:hover {
-  background-color: var(--btn-bg);
-  transition: 300ms;
-}
+  div.githubIcon:hover {
+    background-color: #ffffff;
+    transition: 300ms;
+  }
 
-div.twitterIcon:hover {
-  background-color: #1d9bf0;
-  transition: 300ms;
+  div.webappIcon:hover {
+    background-color: var(--btn-bg);
+    transition: 300ms;
+  }
+
+  div.twitterIcon:hover {
+    background-color: #1d9bf0;
+    transition: 300ms;
+  }
 }
 
 @media screen and (max-width: 848px) {
@@ -117,11 +124,21 @@ div.twitterIcon:hover {
     align-items: center;
     font-size: 24px;
     margin-inline: 4px;
+    border-radius: 50px;
     width: 44px;
     height: 44px;
+    transition: 300ms;
   }
 
+  div.menuIcon svg {
+    transition: 300ms;
+  }
+}
+
+@media screen and (max-width: 848px) and (hover: hover) {
   div.menuIcon:hover {
     cursor: pointer;
+    background-color: var(--btn-bg);
+    transition: 300ms;
   }
 }
