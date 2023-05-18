@@ -74,7 +74,7 @@ function CommunityPicker(): React.Node {
     modalContext.pushModal(<CommunityCreationModal />);
   }, [modalContext]);
 
-  const isCommunityCreationButtonEnabled = false;
+  const isCommunityCreationButtonEnabled = true;
   let communityCreationButton;
   if (isCommunityCreationButtonEnabled) {
     communityCreationButton = (
