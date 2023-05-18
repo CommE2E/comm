@@ -299,6 +299,7 @@ function reducer(state: AppState = defaultState, action: Action) {
           },
         ],
         threadStoreOperations: [],
+        reportStoreOperations: [],
       });
     }
     return state;
@@ -360,6 +361,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     draftStoreOperations,
     messageStoreOperations,
     threadStoreOperations: threadStoreOperationsWithUnreadFix,
+    reportStoreOperations: [],
   });
 
   return state;
