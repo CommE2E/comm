@@ -104,7 +104,7 @@ function CommunityDrawerContent(): React.Node {
     [childThreadInfosMap, communitiesSuffixed, labelStyles],
   );
 
-  const isCommunityCreationButtonEnabled = false;
+  const isCommunityCreationButtonEnabled = true;
   let communityCreationButton;
   if (isCommunityCreationButtonEnabled) {
     communityCreationButton = (
