@@ -199,4 +199,4 @@ function AddMembersModal(props: Props): React.Node {
   );
 }
 
-export default AddMembersModal;
+export { AddMembersModal, AddMembersModalContent };
