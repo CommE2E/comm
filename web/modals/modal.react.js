@@ -15,6 +15,7 @@ export type ModalSize = 'small' | 'large' | 'fit-content';
 
 export type ModalOverridableProps = {
   +name: string,
+  +subtitle?: string,
   +icon?: Icon,
   +onClose: () => void,
   +withCloseButton?: boolean,
@@ -33,6 +34,7 @@ function Modal(props: ModalProps): React.Node {
     children,
     onClose,
     name,
+    subtitle,
     icon,
     withCloseButton = true,
     modalHeaderCentered = false,
@@ -66,15 +68,22 @@ function Modal(props: ModalProps): React.Node {
     return <SWMansionIcon size={24} icon={icon} />;
   }, [icon]);
 
+  let subtitleNode;
+  if (subtitle) {
+    subtitleNode = <h2 className={css.subtitle}>{subtitle}</h2>;
+  }
   return (
     <ModalOverlay onClose={onClose}>
       <div className={modalContainerClasses}>
         <div className={modalHeader}>
-          <h2 className={css.title}>
-            {headerIcon}
-            {name}
-          </h2>
-          {cornerCloseButton}
+          <div className={css.modalHeaderTitle}>
+            <h2 className={css.title}>
+              {headerIcon}
+              {name}
+            </h2>
+            {cornerCloseButton}
+          </div>
+          {subtitleNode}
         </div>
         {children}
       </div>
