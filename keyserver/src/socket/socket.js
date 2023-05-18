@@ -80,6 +80,7 @@ import {
   extendCookieLifespan,
   createNewAnonymousCookie,
   isCookieMissingSignedIdentityKeysBlob,
+  isCookieMissingOlmNotificationsSession,
 } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
@@ -479,6 +480,9 @@ class Socket {
     const isCookieMissingSignedIdentityKeysBlobPromise =
       isCookieMissingSignedIdentityKeysBlob(viewer.cookieID);
 
+    const isCookieMissingOlmNotificationsSessionPromise =
+      isCookieMissingOlmNotificationsSession(viewer);
+
     if (!sessionInitializationResult.sessionContinued) {
       const [threadsResult, entriesResult, currentUserInfo, knownUserInfos] =
         await Promise.all([
@@ -555,12 +559,21 @@ class Socket {
       });
     }
 
-    const signedIdentityKeysBlobMissing =
-      await isCookieMissingSignedIdentityKeysBlobPromise;
+    const [signedIdentityKeysBlobMissing, olmNotificationsSessionMissing] =
+      await Promise.all([
+        isCookieMissingSignedIdentityKeysBlobPromise,
+        isCookieMissingOlmNotificationsSessionPromise,
+      ]);
 
     if (signedIdentityKeysBlobMissing) {
       serverRequests.push({
         type: serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB,
+      });
+    }
+
+    if (olmNotificationsSessionMissing) {
+      serverRequests.push({
+        type: serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE,
       });
     }
 
