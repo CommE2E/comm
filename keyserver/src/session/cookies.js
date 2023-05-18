@@ -6,7 +6,10 @@ import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
 
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  FUTURE_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isWebPlatform } from 'lib/types/device-types.js';
@@ -823,6 +826,26 @@ async function isCookieMissingSignedIdentityKeysBlob(
   );
 }
 
+async function isCookieMissingOlmNotificationsSession(
+  viewer: Viewer,
+): Promise<boolean> {
+  if (
+    !viewer.platformDetails ||
+    viewer.platformDetails.platform !== 'ios' ||
+    !viewer.platformDetails.codeVersion ||
+    viewer.platformDetails.codeVersion < FUTURE_CODE_VERSION
+  ) {
+    return false;
+  }
+  const query = SQL`
+    SELECT * 
+    FROM olm_sessions
+    WHERE cookie_id = ${viewer.cookieID} AND is_content = FALSE
+  `;
+  const [queryResult] = await dbQuery(query);
+  return queryResult.length === 0;
+}
+
 async function setCookiePlatform(
   viewer: Viewer,
   platform: Platform,
@@ -874,4 +897,5 @@ export {
   isCookieMissingSignedIdentityKeysBlob,
   setCookiePlatform,
   setCookiePlatformDetails,
+  isCookieMissingOlmNotificationsSession,
 };
