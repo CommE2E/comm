@@ -94,6 +94,9 @@ function ConnectEthereum(props: Props): React.Node {
     [panelState],
   );
 
+  const onSkip = React.useCallback(() => {}, []);
+  const onSuccessfulWalletSignature = React.useCallback(() => {}, []);
+
   let siwePanel;
   if (panelState !== 'closed') {
     siwePanel = (
@@ -101,12 +104,11 @@ function ConnectEthereum(props: Props): React.Node {
         onClosing={onPanelClosing}
         onClosed={onPanelClosed}
         closing={panelState === 'closing'}
+        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
         setLoading={siwePanelSetLoading}
       />
     );
   }
-
-  const onSkip = React.useCallback(() => {}, []);
 
   return (
     <>

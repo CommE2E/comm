@@ -9,21 +9,17 @@ import WebView from 'react-native-webview';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
-  siweAuth,
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { LogInStartingPayload } from 'lib/types/account-types.js';
-import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
+import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
 import { commCoreModule } from '../native-modules.js';
-import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
@@ -37,21 +33,13 @@ const siweAuthLoadingStatusSelector =
 type Props = {
   +onClosed: () => mixed,
   +onClosing: () => mixed,
+  +onSuccessfulWalletSignature: SIWEResult => mixed,
   +closing: boolean,
   +setLoading: boolean => mixed,
 };
 function SIWEPanel(props: Props): React.Node {
-  const navContext = React.useContext(NavContext);
   const dispatchActionPromise = useDispatchActionPromise();
   const getSIWENonceCall = useServerCall(getSIWENonce);
-  const siweAuthCall = useServerCall(siweAuth);
-
-  const logInExtraInfo = useSelector(state =>
-    nativeLogInExtraInfoSelector({
-      redux: state,
-      navContext,
-    }),
-  );
 
   const getSIWENonceCallFailed = useSelector(
     state => getSIWENonceLoadingStatusSelector(state) === 'error',
@@ -117,42 +105,8 @@ function SIWEPanel(props: Props): React.Node {
     snapToIndex?.(0);
   }, [snapToIndex, snapPoints]);
 
-  const callSIWE = React.useCallback(
-    async (message, signature, extraInfo) => {
-      try {
-        return await siweAuthCall({
-          message,
-          signature,
-          ...extraInfo,
-        });
-      } catch (e) {
-        Alert.alert(
-          'Unknown error',
-          'Uhh... try again?',
-          [{ text: 'OK', onPress: onClosing }],
-          { cancelable: false },
-        );
-        throw e;
-      }
-    },
-    [onClosing, siweAuthCall],
-  );
-
-  const handleSIWE = React.useCallback(
-    async ({ message, signature }) => {
-      const extraInfo = await logInExtraInfo();
-
-      dispatchActionPromise(
-        siweAuthActionTypes,
-        callSIWE(message, signature, extraInfo),
-        undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
-      );
-    },
-    [logInExtraInfo, dispatchActionPromise, callSIWE],
-  );
   const closeBottomSheet = bottomSheetRef.current?.close;
-  const { closing } = props;
+  const { closing, onSuccessfulWalletSignature } = props;
   const disableOnClose = React.useRef(false);
   const handleMessage = React.useCallback(
     async event => {
@@ -162,7 +116,7 @@ function SIWEPanel(props: Props): React.Node {
         if (address && signature) {
           disableOnClose.current = true;
           closeBottomSheet?.();
-          await handleSIWE({ message, signature });
+          await onSuccessfulWalletSignature({ address, message, signature });
         }
       } else if (data.type === 'siwe_closed') {
         onClosing();
@@ -171,7 +125,7 @@ function SIWEPanel(props: Props): React.Node {
         setWalletConnectModalOpen(data.state === 'open');
       }
     },
-    [handleSIWE, onClosing, closeBottomSheet],
+    [onSuccessfulWalletSignature, onClosing, closeBottomSheet],
   );
   const prevClosingRef = React.useRef();
   React.useEffect(() => {
