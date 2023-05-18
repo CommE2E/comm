@@ -62,27 +62,39 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
   return signedIdentityKeysBlob;
 }
 
+type NativeGetClientResponsesSelectorInputType = {
+  ...NavPlusRedux,
+  getInitialNotificationsEncryptedMessage: () => Promise<string>,
+};
+
 const nativeGetClientResponsesSelector: (
-  input: NavPlusRedux,
+  input: NativeGetClientResponsesSelectorInputType,
 ) => (
   serverRequests: $ReadOnlyArray<ClientServerRequest>,
 ) => Promise<$ReadOnlyArray<ClientClientResponse>> = createSelector(
-  (input: NavPlusRedux) => getClientResponsesSelector(input.redux),
-  (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
+  (input: NativeGetClientResponsesSelectorInputType) =>
+    getClientResponsesSelector(input.redux),
+  (input: NativeGetClientResponsesSelectorInputType) =>
+    calendarActiveSelector(input.navContext),
+  (input: NativeGetClientResponsesSelectorInputType) =>
+    input.getInitialNotificationsEncryptedMessage,
   (
       getClientResponsesFunc: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
         getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
+        getInitialNotificationsEncryptedMessage: ?() => Promise<string>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
       ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
       calendarActive: boolean,
+      getInitialNotificationsEncryptedMessage: () => Promise<string>,
     ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
         oneTimeKeyGenerator,
         getSignedIdentityKeysBlob,
+        getInitialNotificationsEncryptedMessage,
         serverRequests,
       ),
 );
