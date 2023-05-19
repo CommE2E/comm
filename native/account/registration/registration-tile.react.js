@@ -82,6 +82,7 @@ const unboundStyles = {
     marginTop: 24,
     borderWidth: 1,
     backgroundColor: 'panelForeground',
+    borderColor: 'panelForeground',
   },
   selectedTile: {
     borderColor: 'panelForegroundLabel',
