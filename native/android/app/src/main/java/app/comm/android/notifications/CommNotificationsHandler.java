@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.util.JsonReader;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Lifecycle;
@@ -21,11 +22,14 @@ import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
 import app.comm.android.fbjni.MessageOperationsUtilities;
 import app.comm.android.fbjni.NetworkModule;
+import app.comm.android.fbjni.NotificationsCryptoModule;
 import app.comm.android.fbjni.ThreadOperations;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.io.File;
 import me.leolin.shortcutbadger.ShortcutBadger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String BADGE_KEY = "badge";
@@ -33,6 +37,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String BACKGROUND_NOTIF_TYPE_KEY = "backgroundNotifType";
   private static final String SET_UNREAD_STATUS_KEY = "setUnreadStatus";
   private static final String NOTIF_ID_KEY = "id";
+  private static final String ENCRYPTED_PAYLOAD_KEY = "encryptedPayload";
+  private static final String ENCRYPTION_FAILED_KEY = "encryptionFailed";
 
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
@@ -76,6 +82,25 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     if ("true".equals(rescind) &&
         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
       handleNotificationRescind(message);
+    }
+
+    if (message.getData().get(ENCRYPTED_PAYLOAD_KEY) != null) {
+      try {
+        message = this.decryptRemoteMessage(message);
+      } catch (JSONException e) {
+        Log.w("COMM", "Malformed notification JSON payload.", e);
+        return;
+      } catch (IllegalStateException e) {
+        Log.w("COMM", "Android notification type violation.", e);
+        return;
+      } catch (Exception e) {
+        Log.w("COMM", "Notification decryption failure.", e);
+        return;
+      }
+    } else if ("1".equals(message.getData().get(ENCRYPTION_FAILED_KEY))) {
+      Log.w(
+          "COMM",
+          "Received unencrypted notification for client with existing olm session for notifications");
     }
 
     String badge = message.getData().get(BADGE_KEY);
@@ -204,5 +229,30 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         message.getData().get(NOTIF_ID_KEY).hashCode(),
         intent,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+  }
+
+  private RemoteMessage decryptRemoteMessage(RemoteMessage message)
+      throws JSONException, IllegalStateException {
+    String encryptedSerializedPayload =
+        message.getData().get(ENCRYPTED_PAYLOAD_KEY);
+    String decryptedSerializedPayload = NotificationsCryptoModule.decrypt(
+        encryptedSerializedPayload,
+        NotificationsCryptoModule.olmEncryptedTypeMessage(),
+        "CommNotificationsHandler");
+
+    JSONObject decryptedPayload = new JSONObject(decryptedSerializedPayload);
+
+    ((Iterable<String>)() -> decryptedPayload.keys())
+        .forEach(payloadFieldName -> {
+          if (decryptedPayload.optJSONArray(payloadFieldName) != null ||
+              decryptedPayload.optJSONObject(payloadFieldName) != null) {
+            throw new IllegalStateException(
+                "Notification payload JSON is not {[string]: string} type.");
+          }
+          String payloadFieldValue =
+              decryptedPayload.optString(payloadFieldName);
+          message.getData().put(payloadFieldName, payloadFieldValue);
+        });
+    return message;
   }
 }
