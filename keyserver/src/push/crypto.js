@@ -3,6 +3,7 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
+import type { AndroidNotification } from './types.js';
 import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
 
 async function encryptIOSNotification(
@@ -93,6 +94,50 @@ async function encryptIOSNotification(
   return encryptedNotification;
 }
 
+async function encryptAndroidNotification(
+  cookieID: string,
+  notification: AndroidNotification,
+): Promise<AndroidNotification> {
+  const encryptedNotification = {
+    data: {
+      id: notification.data.id,
+      badgeOnly: notification.data.badgeOnly,
+    },
+  };
+
+  const {
+    data: { id, badgeOnly, ...unencryptedPayload },
+  } = notification;
+
+  let encryptedSerializedPayload;
+  try {
+    const unencryptedSerializedPayload = JSON.stringify(unencryptedPayload);
+    const { serializedPayload } = await encryptAndUpdateOlmSession(
+      cookieID,
+      'notifications',
+      {
+        serializedPayload: unencryptedSerializedPayload,
+      },
+    );
+    encryptedSerializedPayload = serializedPayload;
+  } catch (e) {
+    console.log('Notification encryption failed: ' + e);
+
+    encryptedNotification.data = {
+      ...unencryptedPayload,
+      ...encryptedNotification.data,
+      encryptionFailed: '1',
+    };
+    return encryptedNotification;
+  }
+
+  encryptedNotification.data = {
+    ...encryptedNotification.data,
+    encryptedPayload: encryptedSerializedPayload.body,
+  };
+  return encryptedNotification;
+}
+
 function prepareEncryptedIOSNotifications(
   cookieIDs: $ReadOnlyArray<string>,
   notification: apn.Notification,
@@ -103,4 +148,17 @@ function prepareEncryptedIOSNotifications(
   return Promise.all(notificationPromises);
 }
 
-export { prepareEncryptedIOSNotifications };
+function prepareEncryptedAndroidNotifications(
+  cookieIDs: $ReadOnlyArray<string>,
+  notification: AndroidNotification,
+): Promise<Array<AndroidNotification>> {
+  const notificationPromises = cookieIDs.map(cookieID =>
+    encryptAndroidNotification(cookieID, notification),
+  );
+  return Promise.all(notificationPromises);
+}
+
+export {
+  prepareEncryptedIOSNotifications,
+  prepareEncryptedAndroidNotifications,
+};
