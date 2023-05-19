@@ -50,8 +50,15 @@ function KeyserverSelection(props: Props): React.Node {
       customKeyserverTextInputRef.current?.focus();
     }
   }, [customKeyserverEmpty]);
+
+  const [customKeyserverInputFocused, setCustomKeyserverInputFocused] =
+    React.useState(false);
   const onCustomKeyserverFocus = React.useCallback(() => {
     setCurrentSelection('custom');
+    setCustomKeyserverInputFocused(true);
+  }, []);
+  const onCustomKeyserverBlur = React.useCallback(() => {
+    setCustomKeyserverInputFocused(false);
   }, []);
 
   let keyserverUsername;
@@ -77,6 +84,18 @@ function KeyserverSelection(props: Props): React.Node {
   }, [navigate, coolOrNerdMode, keyserverUsername]);
 
   const styles = useStyles(unboundStyles);
+  const keyserverInputStyle = React.useMemo(
+    () =>
+      customKeyserverInputFocused
+        ? [styles.keyserverInput, styles.focusedKeyserverInput]
+        : styles.keyserverInput,
+    [
+      customKeyserverInputFocused,
+      styles.keyserverInput,
+      styles.focusedKeyserverInput,
+    ],
+  );
+
   const colors = useColors();
   return (
     <RegistrationContainer>
@@ -118,10 +137,11 @@ function KeyserverSelection(props: Props): React.Node {
           <TextInput
             value={customKeyserver}
             onChangeText={setCustomKeyserver}
-            style={styles.keyserverInput}
+            style={keyserverInputStyle}
             placeholderTextColor={colors.panelSecondaryForegroundBorder}
             placeholder="Keyserver"
             onFocus={onCustomKeyserverFocus}
+            onBlur={onCustomKeyserverBlur}
             ref={customKeyserverTextInputRef}
           />
         </RegistrationTile>
@@ -167,6 +187,9 @@ const unboundStyles = {
     borderWidth: 1,
     borderRadius: 4,
     padding: 12,
+  },
+  focusedKeyserverInput: {
+    borderColor: 'panelForegroundLabel',
   },
 };
 
