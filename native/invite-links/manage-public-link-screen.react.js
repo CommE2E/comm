@@ -37,23 +37,38 @@ function ManagePublicLinkScreen(props: Props): React.Node {
   const [name, setName] = React.useState(
     inviteLink?.name ?? Math.random().toString(36).slice(-9),
   );
+  const [error, setError] = React.useState(null);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callCreateOrUpdatePublicLink = useServerCall(createOrUpdatePublicLink);
+  const createActionPromise = React.useCallback(async () => {
+    setError(null);
+    try {
+      return await callCreateOrUpdatePublicLink({
+        name,
+        communityID: community.id,
+      });
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    }
+  }, [callCreateOrUpdatePublicLink, community.id, name]);
   const createInviteLink = React.useCallback(() => {
     dispatchActionPromise(
       createOrUpdatePublicLinkActionTypes,
-      callCreateOrUpdatePublicLink({
-        name,
-        communityID: community.id,
-      }),
+      createActionPromise(),
     );
-  }, [callCreateOrUpdatePublicLink, community.id, dispatchActionPromise, name]);
+  }, [createActionPromise, dispatchActionPromise]);
   const createOrUpdatePublicLinkStatus = useSelector(
     createOrUpdatePublicLinkStatusSelector,
   );
 
   const styles = useStyles(unboundStyles);
+
+  let errorComponent = null;
+  if (error) {
+    errorComponent = <Text style={styles.error}>{error}</Text>;
+  }
 
   return (
     <View>
@@ -80,6 +95,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
             editable={createOrUpdatePublicLinkStatus !== 'loading'}
           />
         </View>
+        {errorComponent}
         <Button
           style={[styles.button, styles.buttonPrimary]}
           onPress={createInviteLink}
@@ -123,7 +139,7 @@ const unboundStyles = {
   inviteLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   inviteLinkPrefix: {
     fontSize: 14,
@@ -145,6 +161,7 @@ const unboundStyles = {
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 24,
+    marginTop: 8,
   },
   buttonPrimary: {
     backgroundColor: 'purpleButton',
@@ -155,6 +172,13 @@ const unboundStyles = {
     fontWeight: '500',
     fontSize: 16,
     lineHeight: 24,
+  },
+  error: {
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 18,
+    textAlign: 'center',
+    color: 'redText',
   },
 };
 
