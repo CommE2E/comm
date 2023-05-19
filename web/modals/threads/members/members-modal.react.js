@@ -13,7 +13,7 @@ import {
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { type RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import AddMembersModal from './add-members-modal.react.js';
+import { AddMembersModal } from './add-members-modal.react.js';
 import ThreadMembersList from './members-list.react.js';
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
@@ -131,7 +131,7 @@ function ThreadMembersModal(props: Props): React.Node {
       name="Members"
       searchPlaceholder="Search members"
       onClose={onClose}
-      size="fit-content"
+      size="large"
     >
       {renderModalContent}
     </SearchModal>

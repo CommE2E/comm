@@ -14,6 +14,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import CommunityCreationMembersModal from './community-creation-members-modal.react.js';
 import css from './community-creation-modal.css';
 import CommIcon from '../../CommIcon.react.js';
 import Button, { buttonThemes } from '../../components/button.react.js';
@@ -107,6 +108,12 @@ function CommunityCreationModal(): React.Node {
     });
 
     modalContext.popModal();
+    modalContext.pushModal(
+      <CommunityCreationMembersModal
+        onClose={modalContext.popModal}
+        threadID={newThreadID}
+      />,
+    );
   }, [callCreateNewCommunity, dispatch, dispatchActionPromise, modalContext]);
 
   const megaphoneIcon = React.useMemo(
