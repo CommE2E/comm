@@ -828,9 +828,10 @@ async function isCookieMissingOlmNotificationsSession(
 ): Promise<boolean> {
   if (
     !viewer.platformDetails ||
-    viewer.platformDetails.platform !== 'ios' ||
+    (viewer.platformDetails.platform !== 'ios' &&
+      viewer.platformDetails.platform !== 'android') ||
     !viewer.platformDetails.codeVersion ||
-    viewer.platformDetails.codeVersion < 1000
+    viewer.platformDetails.codeVersion < 10
   ) {
     return false;
   }

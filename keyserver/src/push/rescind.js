@@ -69,7 +69,7 @@ async function rescindPushNotifs(
           threadID,
         );
         deliveryPromises[id] = fcmPush({
-          notification,
+          notifications: [notification],
           deviceTokens: delivery.androidDeviceTokens,
           codeVersion: null,
         });
@@ -98,7 +98,7 @@ async function rescindPushNotifs(
           threadID,
         );
         deliveryPromises[id] = fcmPush({
-          notification,
+          notifications: [notification],
           deviceTokens,
           codeVersion,
         });
