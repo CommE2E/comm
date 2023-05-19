@@ -14,3 +14,8 @@ export type AndroidNotification = {
     +[string]: string,
   },
 };
+
+export type TargetedAndroidNotification = {
+  +notification: AndroidNotification,
+  +deviceToken: string,
+};

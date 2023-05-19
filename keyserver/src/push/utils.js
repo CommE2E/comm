@@ -23,7 +23,10 @@ import {
   ensureWebPushInitialized,
   getWNSToken,
 } from './providers.js';
-import type { TargetedAPNsNotification } from './types.js';
+import type {
+  TargetedAPNsNotification,
+  TargetedAndroidNotification,
+} from './types.js';
 import { dbQuery, SQL } from '../database/database.js';
 
 const fcmTokenInvalidationErrors = new Set([
@@ -102,13 +105,11 @@ type FCMPushResult = {
   +invalidTokens?: $ReadOnlyArray<string>,
 };
 async function fcmPush({
-  notification,
-  deviceTokens,
+  targetedNotifications,
   collapseKey,
   codeVersion,
 }: {
-  +notification: Object,
-  +deviceTokens: $ReadOnlyArray<string>,
+  +targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification>,
   +codeVersion: ?number,
   +collapseKey?: ?string,
 }): Promise<FCMPushResult> {
@@ -131,7 +132,7 @@ async function fcmPush({
   // won't explain which of the device tokens is invalid. So we're forced to
   // avoid the multicast functionality and call it once per deviceToken.
   const promises = [];
-  for (const deviceToken of deviceTokens) {
+  for (const { notification, deviceToken } of targetedNotifications) {
     promises.push(
       fcmSinglePush(fcmProvider, notification, deviceToken, options),
     );
@@ -146,7 +147,7 @@ async function fcmPush({
     for (const error of pushResult.errors) {
       errors.push(error);
       if (fcmTokenInvalidationErrors.has(error.errorInfo.code)) {
-        invalidTokens.push(deviceTokens[i]);
+        invalidTokens.push(targetedNotifications[i].deviceToken);
       }
     }
     for (const id of pushResult.fcmIDs) {
