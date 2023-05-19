@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 
+import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import css from './community-creation-members-modal.css';
-import CommIcon from '../../CommIcon.react.js';
 import Search from '../../components/search.react.js';
 import Modal from '../../modals/modal.react.js';
 import { AddMembersModalContent } from '../../modals/threads/members/add-members-modal.react.js';
@@ -23,13 +23,7 @@ function CommunityCreationMembersModal(props: Props): React.Node {
       onClose={onClose}
       size="large"
     >
-      <div className={css.ancestryContainer}>
-        <p>within</p>
-        <div className={css.keyserverContainer}>
-          <CommIcon icon="cloud-filled" size={18} color="white" />
-          <div className={css.keyserverName}>ashoat</div>
-        </div>
-      </div>
+      <CommunityCreationKeyserverLabel />
       <div className={css.container}>
         <Search
           onChangeText={setSearchText}

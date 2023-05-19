@@ -14,6 +14,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import CommunityCreationMembersModal from './community-creation-members-modal.react.js';
 import css from './community-creation-modal.css';
 import CommIcon from '../../CommIcon.react.js';
@@ -155,13 +156,7 @@ function CommunityCreationModal(): React.Node {
       size="large"
     >
       <div className={css.modalBody}>
-        <div className={css.ancestryContainer}>
-          <p>within</p>
-          <div className={css.keyserverContainer}>
-            <CommIcon icon="cloud-filled" size={18} color="white" />
-            <div className={css.keyserverName}>ashoat</div>
-          </div>
-        </div>
+        <CommunityCreationKeyserverLabel />
         {avatarNode}
         <form method="POST" className={css.formContainer}>
           <div>

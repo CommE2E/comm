@@ -4,33 +4,3 @@
   overflow: hidden;
   margin: 16px;
 }
-
-div.ancestryContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  background-color: var(--community-creation-ancestry-bg);
-  margin-top: 20px;
-}
-
-div.ancestryContainer p {
-  color: var(--community-creation-ancestry-text);
-}
-
-.keyserverContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 5px 10px;
-  margin: 0 6px;
-  border-radius: 8px;
-  background-color: var(--community-creation-keyserver-container);
-}
-
-.keyserverName {
-  padding-left: 6px;
-  color: var(--thread-ancestor-color);
-  font-size: var(--s-font-14);
-  font-weight: var(--semi-bold);
-}
