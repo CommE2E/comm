@@ -193,7 +193,7 @@ const dark: Colors = Object.freeze({
   panelForegroundSecondaryLabel: designSystemColors.shadesWhite60,
   panelForegroundTertiaryLabel: '#AAAAAA',
   panelIosHighlightUnderlay: '#313035',
-  panelSecondaryForeground: '#333333',
+  panelSecondaryForeground: designSystemColors.shadesBlack80,
   panelSecondaryForegroundBorder: designSystemColors.shadesBlack70,
   purpleLink: designSystemColors.violetLight100,
   purpleButton: designSystemColors.violetDark100,
