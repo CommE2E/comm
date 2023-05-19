@@ -1,10 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Alert } from 'react-native';
+import { Text, View, Alert } from 'react-native';
 
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
+import { useENSName } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { SIWEResult } from 'lib/types/siwe-types.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -19,10 +21,7 @@ import { useSIWEServerCall } from '../siwe-hooks.js';
 const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
 
-export type ExistingEthereumAccountParams = {
-  +message: string,
-  +signature: string,
-};
+export type ExistingEthereumAccountParams = SIWEResult;
 
 type Props = {
   +navigation: RegistrationNavigationProp<'ExistingEthereumAccount'>,
@@ -48,18 +47,31 @@ function ExistingEthereumAccount(props: Props): React.Node {
     state => siweAuthLoadingStatusSelector(state) === 'loading',
   );
 
+  const { address } = params;
+  const walletIdentifier = useENSName(address);
+  const walletIdentifierTitle =
+    walletIdentifier === address ? 'Ethereum wallet' : 'ENS name';
+
   const { goBack } = props.navigation;
   const styles = useStyles(unboundStyles);
   return (
     <RegistrationContainer>
       <RegistrationContentContainer>
-        <Text style={styles.header}>
-          Account already exists for Ethereum wallet
-        </Text>
+        <Text style={styles.header}>Account already exists for wallet</Text>
         <Text style={styles.body}>
           You can proceed to log in with this wallet, or go back and use a
           different wallet.
         </Text>
+        <View style={styles.walletTile}>
+          <Text style={styles.walletIdentifierTitleText}>
+            {walletIdentifierTitle}
+          </Text>
+          <View style={styles.walletIdentifier}>
+            <Text style={styles.walletIdentifierText} numberOfLines={1}>
+              {walletIdentifier}
+            </Text>
+          </View>
+        </View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
         <RegistrationButton
@@ -87,7 +99,30 @@ const unboundStyles = {
     fontSize: 15,
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
-    paddingBottom: 16,
+    paddingBottom: 40,
+  },
+  walletTile: {
+    backgroundColor: 'panelForeground',
+    borderRadius: 8,
+    padding: 24,
+    alignItems: 'center',
+  },
+  walletIdentifierTitleText: {
+    fontSize: 17,
+    color: 'panelForegroundLabel',
+    textAlign: 'center',
+  },
+  walletIdentifier: {
+    backgroundColor: 'panelSecondaryForeground',
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 56,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  walletIdentifierText: {
+    fontSize: 15,
+    color: 'panelForegroundLabel',
   },
 };
 
