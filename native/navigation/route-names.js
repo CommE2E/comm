@@ -7,6 +7,7 @@ import type { InviteLinkModalParams } from './invite-link-modal.react';
 import type { ConnectEthereumParams } from '../account/registration/connect-ethereum.react.js';
 import type { ExistingEthereumAccountParams } from '../account/registration/existing-ethereum-account.react.js';
 import type { KeyserverSelectionParams } from '../account/registration/keyserver-selection.react.js';
+import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
@@ -97,6 +98,7 @@ export const KeyserverSelectionRouteName = 'KeyserverSelection';
 export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
 export const ConnectEthereumRouteName = 'ConnectEthereum';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
+export const UsernameSelectionRouteName = 'UsernameSelection';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -189,6 +191,7 @@ export type RegistrationParamList = {
   +KeyserverSelection: KeyserverSelectionParams,
   +ConnectEthereum: ConnectEthereumParams,
   +ExistingEthereumAccount: ExistingEthereumAccountParams,
+  +UsernameSelection: UsernameSelectionParams,
 };
 
 export type ScreenParamList = {
