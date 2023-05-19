@@ -1,7 +1,11 @@
 // @flow
 
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faExternalLinkAlt, faBars } from '@fortawesome/free-solid-svg-icons';
+import {
+  faExternalLinkAlt,
+  faBars,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
@@ -99,7 +103,11 @@ function Header(props: Props): React.Node {
             </div>
           </a>
           <div className={css.menuIcon} onClick={onClickMobileNavIcon}>
-            <FontAwesomeIcon icon={faBars} className={css.icon} size="sm" />
+            <FontAwesomeIcon
+              icon={showMobileNav ? faTimes : faBars}
+              className={css.icon}
+              size="sm"
+            />
           </div>
         </div>
       </div>
