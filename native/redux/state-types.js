@@ -8,6 +8,7 @@ import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
+import type { InviteLinksStore } from 'lib/types/link-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
@@ -57,4 +58,5 @@ export type AppState = {
   frozen: boolean,
   userPolicies: UserPolicies,
   +commServicesAccessToken: ?string,
+  +inviteLinksStore: InviteLinksStore,
 };

@@ -118,6 +118,9 @@ const defaultState = ({
   frozen: false,
   userPolicies: {},
   commServicesAccessToken: null,
+  inviteLinksStore: {
+    links: {},
+  },
 }: AppState);
 
 function reducer(state: AppState = defaultState, action: Action) {

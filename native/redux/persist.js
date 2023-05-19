@@ -533,6 +533,12 @@ const migrations = {
   [38]: state =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
   [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
+  [40]: (state: AppState) => ({
+    ...state,
+    inviteLinksStore: {
+      links: {},
+    },
+  }),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
