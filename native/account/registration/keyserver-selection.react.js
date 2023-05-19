@@ -2,13 +2,14 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, TextInput } from 'react-native';
+import { Text } from 'react-native';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
+import RegistrationTextInput from './registration-text-input.react.js';
 import {
   RegistrationTile,
   RegistrationTileHeader,
@@ -50,15 +51,8 @@ function KeyserverSelection(props: Props): React.Node {
       customKeyserverTextInputRef.current?.focus();
     }
   }, [customKeyserverEmpty]);
-
-  const [customKeyserverInputFocused, setCustomKeyserverInputFocused] =
-    React.useState(false);
   const onCustomKeyserverFocus = React.useCallback(() => {
     setCurrentSelection('custom');
-    setCustomKeyserverInputFocused(true);
-  }, []);
-  const onCustomKeyserverBlur = React.useCallback(() => {
-    setCustomKeyserverInputFocused(false);
   }, []);
 
   let keyserverUsername;
@@ -84,18 +78,6 @@ function KeyserverSelection(props: Props): React.Node {
   }, [navigate, coolOrNerdMode, keyserverUsername]);
 
   const styles = useStyles(unboundStyles);
-  const keyserverInputStyle = React.useMemo(
-    () =>
-      customKeyserverInputFocused
-        ? [styles.keyserverInput, styles.focusedKeyserverInput]
-        : styles.keyserverInput,
-    [
-      customKeyserverInputFocused,
-      styles.keyserverInput,
-      styles.focusedKeyserverInput,
-    ],
-  );
-
   const colors = useColors();
   return (
     <RegistrationContainer>
@@ -134,14 +116,11 @@ function KeyserverSelection(props: Props): React.Node {
           <RegistrationTileHeader>
             <Text style={styles.tileTitleText}>Enter a keyserver</Text>
           </RegistrationTileHeader>
-          <TextInput
+          <RegistrationTextInput
             value={customKeyserver}
             onChangeText={setCustomKeyserver}
-            style={keyserverInputStyle}
-            placeholderTextColor={colors.panelSecondaryForegroundBorder}
             placeholder="Keyserver"
             onFocus={onCustomKeyserverFocus}
-            onBlur={onCustomKeyserverBlur}
             ref={customKeyserverTextInputRef}
           />
         </RegistrationTile>
@@ -180,16 +159,6 @@ const unboundStyles = {
   },
   cloud: {
     marginRight: 8,
-  },
-  keyserverInput: {
-    color: 'panelForegroundLabel',
-    borderColor: 'panelSecondaryForegroundBorder',
-    borderWidth: 1,
-    borderRadius: 4,
-    padding: 12,
-  },
-  focusedKeyserverInput: {
-    borderColor: 'panelForegroundLabel',
   },
 };
 
