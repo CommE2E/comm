@@ -122,10 +122,9 @@ function ConnectEthereum(props: Props): React.Node {
       const { userInfo } = await searchPromise;
 
       if (userInfo) {
-        const { message, signature } = result;
         navigate<'ExistingEthereumAccount'>({
           name: ExistingEthereumAccountRouteName,
-          params: { message, signature },
+          params: result,
         });
       } else {
         // show avatar selection screen
