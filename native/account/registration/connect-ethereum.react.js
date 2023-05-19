@@ -19,7 +19,10 @@ import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  ExistingEthereumAccountRouteName,
+} from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
 import SIWEPanel from '../siwe-panel.react.js';
@@ -111,6 +114,7 @@ function ConnectEthereum(props: Props): React.Node {
   const exactSearchUserCall = useServerCall(exactSearchUser);
   const dispatchActionPromise = useDispatchActionPromise();
 
+  const { navigate } = props.navigation;
   const onSuccessfulWalletSignature = React.useCallback(
     async (result: SIWEResult) => {
       const searchPromise = exactSearchUserCall(result.address);
@@ -118,12 +122,16 @@ function ConnectEthereum(props: Props): React.Node {
       const { userInfo } = await searchPromise;
 
       if (userInfo) {
-        // show duplicate account screen
+        const { message, signature } = result;
+        navigate<'ExistingEthereumAccount'>({
+          name: ExistingEthereumAccountRouteName,
+          params: { message, signature },
+        });
       } else {
         // show avatar selection screen
       }
     },
-    [exactSearchUserCall, dispatchActionPromise],
+    [exactSearchUserCall, dispatchActionPromise, navigate],
   );
 
   let siwePanel;
@@ -144,7 +152,7 @@ function ConnectEthereum(props: Props): React.Node {
       <RegistrationContainer>
         <RegistrationContentContainer style={styles.scrollViewContentContainer}>
           <Text style={styles.header}>
-            Do you want to connect an Ethereum Wallet to your account?
+            Do you want to connect an Ethereum wallet?
           </Text>
           {body}
           <View style={styles.ethereumLogoContainer}>
