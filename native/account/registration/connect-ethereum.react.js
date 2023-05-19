@@ -22,6 +22,7 @@ import type { CoolOrNerdMode } from './registration-types.js';
 import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
+  UsernameSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
@@ -41,8 +42,9 @@ type Props = {
   +route: NavigationRoute<'ConnectEthereum'>,
 };
 function ConnectEthereum(props: Props): React.Node {
-  const isNerdMode =
-    props.route.params.userSelections.coolOrNerdMode === 'nerd';
+  const { params } = props.route;
+  const { userSelections } = props.route.params;
+  const isNerdMode = userSelections.coolOrNerdMode === 'nerd';
   const styles = useStyles(unboundStyles);
 
   let body;
@@ -107,14 +109,17 @@ function ConnectEthereum(props: Props): React.Node {
     [panelState],
   );
 
+  const { navigate } = props.navigation;
   const onSkip = React.useCallback(() => {
-    // show username selection screen
-  }, []);
+    navigate<'UsernameSelection'>({
+      name: UsernameSelectionRouteName,
+      params,
+    });
+  }, [navigate, params]);
 
   const exactSearchUserCall = useServerCall(exactSearchUser);
   const dispatchActionPromise = useDispatchActionPromise();
 
-  const { navigate } = props.navigation;
   const onSuccessfulWalletSignature = React.useCallback(
     async (result: SIWEResult) => {
       const searchPromise = exactSearchUserCall(result.address);
