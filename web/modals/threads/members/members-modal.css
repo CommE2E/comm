@@ -1,5 +1,4 @@
 div.modalContentContainer {
-  width: 383px;
   height: 617px;
   overflow: hidden;
   display: flex;
@@ -68,7 +67,6 @@ div.addMembersContent {
   flex-direction: column;
   overflow: auto;
   color: var(--fg);
-  width: 383px;
   height: 617px;
 }
 
