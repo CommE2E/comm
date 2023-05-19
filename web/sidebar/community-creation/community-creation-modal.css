@@ -59,7 +59,7 @@ div.formContent textarea {
 
 div.formNotice {
   color: var(--community-creation-form-notice);
-  font-size: 10px;
+  font-size: var(--xs-font-12);
   text-align: center;
 }
 
