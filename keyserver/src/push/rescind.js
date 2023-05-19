@@ -73,8 +73,12 @@ async function rescindPushNotifs(
           threadID,
         );
         deliveryPromises[id] = fcmPush({
-          notification,
-          deviceTokens: delivery.androidDeviceTokens,
+          targetedNotifications: delivery.androidDeviceTokens.map(
+            deviceToken => ({
+              deviceToken,
+              notification,
+            }),
+          ),
           codeVersion: null,
         });
       } else if (delivery.deviceType === 'ios') {
@@ -103,8 +107,10 @@ async function rescindPushNotifs(
           threadID,
         );
         deliveryPromises[id] = fcmPush({
-          notification,
-          deviceTokens,
+          targetedNotifications: deviceTokens.map(deviceToken => ({
+            deviceToken,
+            notification,
+          })),
           codeVersion,
         });
       }
