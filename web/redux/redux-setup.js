@@ -26,6 +26,7 @@ import {
   calendarThreadFilterTypes,
 } from 'lib/types/filter-types.js';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
+import type { InviteLinksStore } from 'lib/types/link-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
@@ -96,6 +97,7 @@ export type AppState = {
   pushApiPublicKey: ?string,
   _persist: ?PersistState,
   +commServicesAccessToken: ?string,
+  +inviteLinksStore: InviteLinksStore,
 };
 
 export type Action =
