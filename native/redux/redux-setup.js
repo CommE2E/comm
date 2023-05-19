@@ -49,6 +49,7 @@ import { defaultDimensionsInfo } from './dimensions-updater.react.js';
 import { persistConfig, setPersistor } from './persist.js';
 import { processDBStoreOperations } from './redux-utils.js';
 import type { AppState } from './state-types.js';
+import reduceGlobalThemeInfo from './theme-reducer.js';
 import { defaultNavInfo } from '../navigation/default-state.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
@@ -213,6 +214,11 @@ function reducer(state: AppState = defaultState, action: Action) {
     return state;
   }
 
+  state = {
+    ...state,
+    globalThemeInfo: reduceGlobalThemeInfo(state.globalThemeInfo, action),
+  };
+
   if (action.type === setCustomServer) {
     return {
       ...state,
@@ -246,13 +252,8 @@ function reducer(state: AppState = defaultState, action: Action) {
       connectivity: action.payload,
     };
   } else if (action.type === updateThemeInfoActionType) {
-    return {
-      ...state,
-      globalThemeInfo: {
-        ...state.globalThemeInfo,
-        ...action.payload,
-      },
-    };
+    // Handled above by reduceGlobalThemeInfo
+    return state;
   } else if (action.type === updateDeviceCameraInfoActionType) {
     return {
       ...state,
