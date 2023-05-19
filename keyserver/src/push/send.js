@@ -42,9 +42,13 @@ import { updateTypes } from 'lib/types/update-types-enum.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
-import { prepareEncryptedIOSNotifications } from './crypto.js';
+import {
+  prepareEncryptedIOSNotifications,
+  prepareEncryptedAndroidNotifications,
+} from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
+import type { AndroidNotification } from './types.js';
 import {
   apnPush,
   fcmPush,
@@ -236,31 +240,38 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const androidVersionsToTokens = byPlatform.get('android');
       if (androidVersionsToTokens) {
-        for (const [codeVersion, { deviceTokens }] of androidVersionsToTokens) {
+        for (const [
+          codeVersion,
+          { cookieIDs, deviceTokens },
+        ] of androidVersionsToTokens) {
           const platformDetails = { platform: 'android', codeVersion };
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
             platformDetails,
           );
           const deliveryPromise = (async () => {
-            const notification = await prepareAndroidNotification({
-              notifTexts,
-              newRawMessageInfos: shimmedNewRawMessageInfos,
-              threadID: threadInfo.id,
-              collapseKey: notifInfo.collapseKey,
-              badgeOnly,
-              unreadCount: unreadCounts[userID],
-              platformDetails,
-              dbID,
-            });
-            return await sendAndroidNotification(
-              notification,
-              [...deviceTokens],
+            const notificationsArray = await prepareAndroidNotification(
               {
-                ...notificationInfo,
-                codeVersion,
+                notifTexts,
+                newRawMessageInfos: shimmedNewRawMessageInfos,
+                threadID: threadInfo.id,
+                collapseKey: notifInfo.collapseKey,
+                badgeOnly,
+                unreadCount: unreadCounts[userID],
+                platformDetails,
+                dbID,
+              },
+              [...cookieIDs],
+            );
+            const notificationDeviceTokenPairs = [...deviceTokens].map(
+              (deviceToken, idx) => {
+                return { deviceToken, notification: notificationsArray[idx] };
               },
             );
+            return await sendAndroidNotification(notificationDeviceTokenPairs, {
+              ...notificationInfo,
+              codeVersion,
+            });
           })();
           deliveryPromises.push(deliveryPromise);
         }
@@ -758,7 +769,8 @@ const androidNotifInputDataValidator = tShape<AndroidNotifInputData>({
 });
 async function prepareAndroidNotification(
   inputData: AndroidNotifInputData,
-): Promise<Object> {
+  cookieIDs: $ReadOnlyArray<string>,
+): Promise<Array<AndroidNotification>> {
   const convertedData = validateOutput(
     inputData.platformDetails,
     androidNotifInputDataValidator,
@@ -774,6 +786,16 @@ async function prepareAndroidNotification(
     platformDetails: { codeVersion },
     dbID,
   } = convertedData;
+
+  const isTextNotification = newRawMessageInfos.every(
+    newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
+  );
+
+  const shouldBeEncrypted =
+    isTextNotification &&
+    !collapseKey &&
+    codeVersion &&
+    codeVersion > FUTURE_CODE_VERSION;
 
   const notifID = collapseKey ? collapseKey : dbID;
   const { merged, ...rest } = notifTexts;
@@ -805,22 +827,38 @@ async function prepareAndroidNotification(
     data: { ...notification.data, messageInfos },
   };
 
-  if (
-    Buffer.byteLength(JSON.stringify(copyWithMessageInfos)) <=
-    fcmMaxNotificationPayloadByteSize
-  ) {
-    return copyWithMessageInfos;
-  }
+  const evaluateAndSelectNotification = (notif, notifWithMessageInfos) => {
+    if (
+      Buffer.byteLength(JSON.stringify(notifWithMessageInfos)) <=
+      fcmMaxNotificationPayloadByteSize
+    ) {
+      return notifWithMessageInfos;
+    }
+    if (
+      Buffer.byteLength(JSON.stringify(notif)) >
+      fcmMaxNotificationPayloadByteSize
+    ) {
+      console.warn(
+        `Android notification ${notifID} exceeds size limit, even with messageInfos omitted`,
+      );
+    }
+    return notif;
+  };
 
-  if (
-    Buffer.byteLength(JSON.stringify(notification)) >
-    fcmMaxNotificationPayloadByteSize
-  ) {
-    console.warn(
-      `Android notification ${notifID} exceeds size limit, even with messageInfos omitted`,
+  if (shouldBeEncrypted) {
+    const [notifications, notificationsWithMessageInfos] = await Promise.all([
+      prepareEncryptedAndroidNotifications(cookieIDs, notification),
+      prepareEncryptedAndroidNotifications(cookieIDs, copyWithMessageInfos),
+    ]);
+    return notificationsWithMessageInfos.map((notif, idx) =>
+      evaluateAndSelectNotification(notifications[idx], notif),
     );
   }
-  return notification;
+  const notificationToSend = evaluateAndSelectNotification(
+    notification,
+    copyWithMessageInfos,
+  );
+  return cookieIDs.map(() => notificationToSend);
 }
 
 type WebNotifInputData = {
@@ -976,8 +1014,10 @@ type AndroidResult = {
   invalidTokens?: $ReadOnlyArray<string>,
 };
 async function sendAndroidNotification(
-  notification: Object,
-  deviceTokens: $ReadOnlyArray<string>,
+  notificationDeviceTokenPairs: $ReadOnlyArray<{
+    +notification: AndroidNotification,
+    +deviceToken: string,
+  }>,
   notificationInfo: NotificationInfo,
 ): Promise<AndroidResult> {
   const collapseKey = notificationInfo.collapseKey
@@ -985,11 +1025,13 @@ async function sendAndroidNotification(
     : null; // for Flow...
   const { source, codeVersion } = notificationInfo;
   const response = await fcmPush({
-    notification,
-    deviceTokens,
+    notificationDeviceTokenPairs,
     collapseKey,
     codeVersion,
   });
+  const deviceTokens = notificationDeviceTokenPairs.map(
+    pair => pair.deviceToken,
+  );
   const androidIDs = response.fcmIDs ? response.fcmIDs : [];
   const delivery: AndroidDelivery = {
     source,
@@ -1217,14 +1259,29 @@ async function updateBadgeCount(
 
   const androidVersionsToTokens = byPlatform.get('android');
   if (androidVersionsToTokens) {
-    for (const [codeVersion, { deviceTokens }] of androidVersionsToTokens) {
+    for (const [
+      codeVersion,
+      { cookieIDs, deviceTokens },
+    ] of androidVersionsToTokens) {
       const notificationData =
         codeVersion < 69
           ? { badge: unreadCount.toString() }
           : { badge: unreadCount.toString(), badgeOnly: '1' };
       const notification = { data: notificationData };
+      const notificationsArray =
+        codeVersion > FUTURE_CODE_VERSION
+          ? await prepareEncryptedAndroidNotifications(
+              [...cookieIDs],
+              notification,
+            )
+          : [...cookieIDs].map(() => notification);
+      const notificationDeviceTokenPairs = [...deviceTokens].map(
+        (deviceToken, idx) => {
+          return { deviceToken, notification: notificationsArray[idx] };
+        },
+      );
       deliveryPromises.push(
-        sendAndroidNotification(notification, [...deviceTokens], {
+        sendAndroidNotification(notificationDeviceTokenPairs, {
           source,
           dbID,
           userID,
