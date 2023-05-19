@@ -6,3 +6,11 @@ export type TargetedAPNsNotification = {
   +notification: apn.Notification,
   +deviceToken: string,
 };
+
+export type AndroidNotification = {
+  +data: {
+    +id?: string,
+    +badgeOnly?: string,
+    +[string]: string,
+  },
+};
