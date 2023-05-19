@@ -21,10 +21,14 @@ import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
 import app.comm.android.fbjni.MessageOperationsUtilities;
 import app.comm.android.fbjni.NetworkModule;
+import app.comm.android.fbjni.NotificationsCryptoModule;
 import app.comm.android.fbjni.ThreadOperations;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class CommNotificationsHandler extends FirebaseMessagingService {
@@ -33,6 +37,10 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String BACKGROUND_NOTIF_TYPE_KEY = "backgroundNotifType";
   private static final String SET_UNREAD_STATUS_KEY = "setUnreadStatus";
   private static final String NOTIF_ID_KEY = "id";
+  private static final String ENCRYPTED_KEY = "encrypted";
+
+  private static final Set<String> UNENCRYPTED_FIELDS =
+      Set.of(NOTIF_ID_KEY, BADGE_ONLY_KEY, ENCRYPTED_KEY);
 
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
@@ -76,6 +84,20 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     if ("true".equals(rescind) &&
         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
       handleNotificationRescind(message);
+    }
+
+    String encrypted = message.getData().get(ENCRYPTED_KEY);
+    if (encrypted != null && "1".equals(encrypted)) {
+      try {
+        message = this.decryptRemoteMessage(message);
+      } catch (Exception e) {
+        Log.w("COMM", "Failed to decrypt encrypted notification", e);
+        return;
+      }
+    } else if (encrypted != null) {
+      Log.w(
+          "COMM",
+          "Received unencrypted notification for client with existing olm session for notifications");
     }
 
     String badge = message.getData().get(BADGE_KEY);
@@ -204,5 +226,27 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         message.getData().get(NOTIF_ID_KEY).hashCode(),
         intent,
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+  }
+
+  private RemoteMessage decryptRemoteMessage(RemoteMessage message) {
+    List<String> payloadFieldNames =
+        new ArrayList<>(message.getData().keySet());
+    for (String payloadFieldName : payloadFieldNames) {
+      if (UNENCRYPTED_FIELDS.contains(payloadFieldName)) {
+        continue;
+      }
+      String encryptedPayloadFieldValue =
+          message.getData().get(payloadFieldName);
+      if (encryptedPayloadFieldValue == null) {
+        continue;
+      }
+
+      String decryptedPayloadFieldValue = NotificationsCryptoModule.decrypt(
+          encryptedPayloadFieldValue,
+          NotificationsCryptoModule.olmEncryptedTypeMessage(),
+          "CommNotificationsHandler");
+      message.getData().put(payloadFieldName, decryptedPayloadFieldValue);
+    }
+    return message;
   }
 }
