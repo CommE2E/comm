@@ -101,7 +101,7 @@ function Terms(): React.Node {
         display, license, sell, commercialize or otherwise exploit for any
         purpose any Content not owned by you, (i) without the prior consent of
         the owner of that Content or (ii) in a way that violates someone else’s
-        (including Comm Technologies&apos;) rights. You further agree to comply
+        (including Comm Technologies&rsquo;) rights. You further agree to comply
         with all applicable open source licenses.
       </p>
 
@@ -241,7 +241,7 @@ function Terms(): React.Node {
       <p>
         You may not assign, delegate or transfer these Terms or your rights or
         obligations hereunder, or your Services account, in any way (by
-        operation of law or otherwise) without Comm Technologies&apos; prior
+        operation of law or otherwise) without Comm Technologies&rsquo; prior
         written consent. We may transfer, assign, or delegate these Terms and
         our rights and obligations without consent.
       </p>

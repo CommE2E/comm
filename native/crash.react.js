@@ -133,10 +133,10 @@ class Crash extends React.PureComponent<Props, State> {
         <ConnectedStatusBar barStyle="dark-content" />
         <Icon name="bug" size={32} color="red" />
         <Text style={styles.header}>{this.errorTitle}</Text>
-        <Text style={styles.text}>I&apos;m sorry, but the app crashed.</Text>
+        <Text style={styles.text}>I&rsquo;m sorry, but the app crashed.</Text>
         {crashID}
         <Text style={styles.text}>
-          Here&apos;s some text that&apos;s probably not helpful:
+          Here&rsquo;s some text that&rsquo;s probably not helpful:
         </Text>
         <ScrollView style={styles.scrollView}>
           <Text style={styles.errorText}>{errorText}</Text>

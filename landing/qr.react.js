@@ -58,7 +58,7 @@ function QR(): React.Node {
       <a href="https://commapp.notion.site/commapp/Comm-is-hiring-db097b0d63eb4695b32f8988c8e640fd">
         <div className={`${css.qr_link} ${css.qr_link_comm}`}>
           <FontAwesomeIcon icon={faBriefcase} size="lg" style={iconStyle} />
-          <h3>We&apos;re hiring!</h3>
+          <h3>We&rsquo;re hiring!</h3>
         </div>
       </a>
     </div>

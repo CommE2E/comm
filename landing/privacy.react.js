@@ -392,7 +392,7 @@ function Privacy(): React.Node {
       <h2>Terms of Use</h2>
 
       <p>
-        Remember that your use of Comm Technologies&apos; Services is at all
+        Remember that your use of Comm Technologies&rsquo; Services is at all
         times subject to our <a href="https://comm.app/terms">Terms of Use</a>,
         which incorporates this Privacy Policy. Any terms we use in this Policy
         without defining them have the definitions given to them in the Terms of

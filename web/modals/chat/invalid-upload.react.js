@@ -7,7 +7,7 @@ import Alert from '../alert.react.js';
 function InvalidUploadModal(): React.Node {
   return (
     <Alert title="Invalid upload">
-      We don&apos;t support that file type yet :(
+      We don&rsquo;t support that file type yet :(
     </Alert>
   );
 }
