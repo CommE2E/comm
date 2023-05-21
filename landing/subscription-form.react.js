@@ -69,14 +69,14 @@ function SubscriptionForm(): React.Node {
 
   let btnText = 'Request Access';
   let btnStyle = css.button;
-  let inputStyle = css.email_input;
+  let inputStyle = css.emailInput;
   if (subscriptionFormStatus.status === 'error') {
     btnText = subscriptionFormStatus.error;
-    btnStyle = `${css.button} ${css.button_failure}`;
-    inputStyle = `${css.email_input} ${css.email_input_failure}`;
+    btnStyle = `${css.button} ${css.buttonFailure}`;
+    inputStyle = `${css.emailInput} ${css.emailInputFailure}`;
   } else if (subscriptionFormStatus.status === 'success') {
     btnText = 'Requested!';
-    btnStyle = `${css.button} ${css.button_success}`;
+    btnStyle = `${css.button} ${css.buttonSuccess}`;
   }
 
   const inputClassName = classNames([typography.paragraph2, inputStyle]);
