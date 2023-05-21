@@ -12,11 +12,11 @@ form {
   min-width: 184px;
 }
 
-.button_success {
+.buttonSuccess {
   background-color: var(--success-dark-90);
 }
 
-.button_failure {
+.buttonFailure {
   background-color: var(--error-dark-50);
 }
 
@@ -24,15 +24,15 @@ form {
   background-color: var(--violet-dark-80);
 }
 
-.button_success:hover {
+.buttonSuccess:hover {
   background-color: var(--success-dark-90);
 }
 
-.button_failure:hover {
+.buttonFailure:hover {
   background: var(--error-dark-50);
 }
 
-input.email_input {
+input.emailInput {
   flex: 1;
   padding: 16px 24px;
   background-color: transparent;
@@ -44,12 +44,12 @@ input.email_input {
   margin-right: 12px;
 }
 
-input.email_input:focus {
+input.emailInput:focus {
   border: 1.5px solid var(--white-100);
   transition: 300ms;
 }
 
-input.email_input_failure {
+input.emailInputFailure {
   border: 1px solid var(--error-dark-50);
 }
 
@@ -62,7 +62,7 @@ input.email_input_failure {
     height: 50px;
   }
 
-  input.email_input {
+  input.emailInput {
     width: 100%;
     height: 50px;
     margin-bottom: 16px;
