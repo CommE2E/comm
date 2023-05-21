@@ -16,6 +16,8 @@ span.multimedia > .multimediaImage {
 }
 span.multimedia > .multimediaImage > img,
 span.multimedia > .multimediaImage > video {
+  /* this should be in sync with the MAX_THUMBNAIL_HEIGHT */
+  /* in multimedia.react.js */
   max-height: 200px;
   max-width: 100%;
 }
