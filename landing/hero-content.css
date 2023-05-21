@@ -1,19 +1,18 @@
-.cycling_header {
-  font-weight: bold;
-  font-family: 'iA Writer Duo S', monospace;
-  padding-bottom: 16px;
-  font-size: clamp(2.5rem, -0.5rem + 4vw, 4.25rem);
-}
-@media (max-width: 1099px) {
-  .cycling_header {
-    font-size: clamp(1.5rem, 0.0122rem + 5.9514vw, 4.1rem);
-  }
+.header {
+  color: var(--white-80);
+  margin-bottom: 24px;
 }
 
-.sub_heading {
-  color: var(--sub-heading-color);
-  font-size: clamp(1rem, 0.5556rem + 2.2222vw, 3.125rem);
-  margin-bottom: 60px;
+.header span {
+  background: linear-gradient(90deg, #5d34b3 0%, #a314d5 49.31%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subHeader {
+  color: var(--white-80);
+  margin-bottom: 56px;
 }
 
 form {
@@ -23,17 +22,6 @@ form {
   form {
     width: 100%;
   }
-}
-
-.cycling_content,
-.sub_heading {
-  font-family: 'iA Writer Duo S', monospace;
-  text-align: left;
-  line-height: 1.35;
-}
-
-.cycling_content {
-  background: var(--sub-heading-color);
 }
 
 .contentWrapper {
