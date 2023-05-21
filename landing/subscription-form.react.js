@@ -1,10 +1,12 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { validEmailRegex } from 'lib/shared/account-utils.js';
 
 import css from './subscription-form.css';
+import typography from './typography.css';
 
 type SubscriptionFormStatus =
   | { +status: 'pending' }
@@ -65,7 +67,7 @@ function SubscriptionForm(): React.Node {
     setSubscriptionFormStatus({ status: 'pending' });
   }, [email]);
 
-  let btnText = 'Subscribe for updates';
+  let btnText = 'Request Access';
   let btnStyle = css.button;
   let inputStyle = css.email_input;
   if (subscriptionFormStatus.status === 'error') {
@@ -73,10 +75,12 @@ function SubscriptionForm(): React.Node {
     btnStyle = `${css.button} ${css.button_failure}`;
     inputStyle = `${css.email_input} ${css.email_input_failure}`;
   } else if (subscriptionFormStatus.status === 'success') {
-    btnText = 'Subscribed!';
+    btnText = 'Requested!';
     btnStyle = `${css.button} ${css.button_success}`;
-    inputStyle = `${css.email_input} ${css.email_input_success}`;
   }
+
+  const inputClassName = classNames([typography.paragraph2, inputStyle]);
+  const buttonClassName = classNames([typography.paragraph2, btnStyle]);
 
   const onEmailChange = React.useCallback(e => {
     setEmail(e.target.value);
@@ -89,10 +93,10 @@ function SubscriptionForm(): React.Node {
         id="subscription-form"
         value={email}
         onChange={onEmailChange}
-        className={inputStyle}
+        className={inputClassName}
         placeholder="Enter your email"
       />
-      <button className={btnStyle} onClick={onEmailSubmitted}>
+      <button className={buttonClassName} onClick={onEmailSubmitted}>
         {btnText}
       </button>
     </form>
