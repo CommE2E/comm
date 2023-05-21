@@ -39,17 +39,30 @@ class MultimediaMessage extends React.PureComponent<Props> {
       const pendingUpload = pendingUploads
         ? pendingUploads.find(upload => upload.localID === singleMedia.id)
         : null;
+      const thumbHash =
+        singleMedia.thumbHash ??
+        singleMedia.thumbnailThumbHash ??
+        pendingUpload?.thumbHash;
       let mediaSource;
       if (singleMedia.type === 'photo' || singleMedia.type === 'video') {
-        mediaSource = {
-          type: singleMedia.type,
-          uri: singleMedia.uri,
-        };
+        const { type, uri, thumbnailURI, dimensions } = singleMedia;
+        mediaSource = { type, uri, thumbHash, thumbnailURI, dimensions };
       } else {
+        const {
+          type,
+          holder,
+          encryptionKey,
+          thumbnailEncryptionKey,
+          dimensions,
+        } = singleMedia;
+        const thumbHashEncryptionKey = thumbnailEncryptionKey ?? encryptionKey;
         mediaSource = {
-          type: singleMedia.type,
-          holder: singleMedia.holder,
-          encryptionKey: singleMedia.encryptionKey,
+          type,
+          holder,
+          encryptionKey,
+          dimensions,
+          thumbHash,
+          thumbHashEncryptionKey,
         };
       }
 
