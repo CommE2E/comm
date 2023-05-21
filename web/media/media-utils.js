@@ -1,5 +1,8 @@
 // @flow
 
+import { useState, useEffect } from 'react';
+import { thumbHashToDataURL } from 'thumbhash';
+
 import type {
   MediaType,
   Dimensions,
@@ -9,7 +12,9 @@ import type {
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { probeFile } from './blob-utils.js';
+import { decryptThumbhashToDataURL } from './encryption-utils.js';
 import { getOrientation } from './image-utils.js';
+import { base64DecodeBuffer } from '../utils/base64-utils.js';
 
 async function preloadImage(uri: string): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
@@ -193,4 +198,37 @@ async function validateFile(
   };
 }
 
-export { preloadImage, validateFile };
+function usePlaceholder(thumbHash: ?string, encryptionKey: ?string): ?string {
+  const [placeholder, setPlaceholder] = useState(null);
+
+  useEffect(() => {
+    if (!thumbHash) {
+      setPlaceholder(null);
+      return;
+    }
+
+    if (!encryptionKey) {
+      const binaryThumbHash = base64DecodeBuffer(thumbHash);
+      const placeholderImage = thumbHashToDataURL(binaryThumbHash);
+      setPlaceholder(placeholderImage);
+      return;
+    }
+
+    // decrypt thumb hash
+    (async () => {
+      try {
+        const decryptedThumbHash = await decryptThumbhashToDataURL(
+          thumbHash,
+          encryptionKey,
+        );
+        setPlaceholder(decryptedThumbHash);
+      } catch {
+        setPlaceholder(null);
+      }
+    })();
+  }, [thumbHash, encryptionKey]);
+
+  return placeholder;
+}
+
+export { preloadImage, validateFile, usePlaceholder };
