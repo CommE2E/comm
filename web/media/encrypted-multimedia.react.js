@@ -1,12 +1,15 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { AlertCircle as AlertCircleIcon } from 'react-feather';
 
+import type { Shape } from 'lib/types/core.js';
 import type { EncryptedMediaType } from 'lib/types/media-types.js';
 
 import { decryptMedia } from './encryption-utils.js';
+import LoadableVideo from './loadable-video.react.js';
 import css from './media.css';
 import LoadingIndicator from '../loading-indicator.react.js';
 
@@ -14,10 +17,14 @@ type Props = {
   +holder: string,
   +encryptionKey: string,
   +type: EncryptedMediaType,
+  +thumbnailHolder: ?string,
+  +thumbnailEncryptionKey: ?string,
+  +placeholderSrc?: ?string,
+  +elementStyle?: ?Shape<CSSStyleDeclaration>,
 };
 
 function EncryptedMultimedia(props: Props): React.Node {
-  const { holder, encryptionKey } = props;
+  const { holder, encryptionKey, placeholderSrc, elementStyle } = props;
 
   const [source, setSource] = React.useState(null);
   const videoRef = React.useRef(null);
@@ -80,9 +87,30 @@ function EncryptedMultimedia(props: Props): React.Node {
 
   let mediaNode;
   if (props.type === 'encrypted_photo') {
-    mediaNode = <img src={source?.uri} key={holder} />;
+    mediaNode = (
+      <img
+        src={source?.uri ?? placeholderSrc}
+        key={holder}
+        style={elementStyle}
+      />
+    );
   } else {
-    mediaNode = <video controls ref={videoRef} key={holder} />;
+    const { thumbnailHolder, thumbnailEncryptionKey } = props;
+    invariant(
+      thumbnailHolder && thumbnailEncryptionKey,
+      'Thumbnail missing for encrypted video',
+    );
+
+    mediaNode = (
+      <LoadableVideo
+        uri={null}
+        ref={videoRef}
+        key={holder}
+        thumbnailSource={{ thumbnailHolder, thumbnailEncryptionKey }}
+        elementStyle={elementStyle}
+        thumbHashDataURL={placeholderSrc}
+      />
+    );
   }
 
   return (
