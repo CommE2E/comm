@@ -95,12 +95,29 @@ class MultimediaModal extends React.PureComponent<Props, State> {
         media.type === 'encrypted_photo' || media.type === 'encrypted_video',
         'invalid media type',
       );
-      const { type, holder, encryptionKey } = media;
+      const {
+        type,
+        holder,
+        encryptionKey,
+        thumbnailHolder,
+        thumbnailEncryptionKey,
+      } = media;
+      const dimensions = this.state.dimensions ?? media.dimensions;
+      const elementStyle = dimensions
+        ? {
+            width: `${dimensions.width}px`,
+            height: `${dimensions.height}px`,
+          }
+        : undefined;
       mediaModalItem = (
         <EncryptedMultimedia
           type={type}
           holder={holder}
           encryptionKey={encryptionKey}
+          thumbnailHolder={thumbnailHolder}
+          thumbnailEncryptionKey={thumbnailEncryptionKey}
+          placeholderSrc={placeholderImage}
+          elementStyle={elementStyle}
         />
       );
     }

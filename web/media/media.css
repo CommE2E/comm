@@ -57,7 +57,8 @@ span.multimedia > svg.progressIndicator {
   height: 50px;
 }
 
-span.multimedia .loadingIndicator {
+span.multimedia .loadingIndicator,
+div.multimediaModalOverlay .loadingIndicator {
   position: absolute;
   top: 0;
   bottom: 0;
