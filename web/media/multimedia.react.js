@@ -10,10 +10,7 @@ import {
   AlertCircle as AlertCircleIcon,
 } from 'react-feather';
 
-import {
-  useModalContext,
-  type PushModal,
-} from 'lib/components/modal-provider.react.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { fetchableMediaURI } from 'lib/media/media-utils.js';
 import type { MediaType, EncryptedMediaType } from 'lib/types/media-types.js';
 
@@ -34,21 +31,21 @@ type MediaSource =
       +encryptionKey: string,
     };
 
-type BaseProps = {
+type Props = {
   +mediaSource: MediaSource,
   +pendingUpload?: ?PendingMultimediaUpload,
   +remove?: (uploadID: string) => void,
   +multimediaCSSClass: string,
   +multimediaImageCSSClass: string,
 };
-type Props = {
-  ...BaseProps,
-  +pushModal: PushModal,
-};
 
-class Multimedia extends React.PureComponent<Props> {
-  componentDidUpdate(prevProps: Props) {
-    const { mediaSource, pendingUpload } = this.props;
+function Multimedia(props: Props): React.Node {
+  const { mediaSource, pendingUpload } = props;
+  const prevPropsRef = React.useRef({ mediaSource, pendingUpload });
+  React.useEffect(() => {
+    const prevProps = prevPropsRef.current;
+    prevPropsRef.current = { mediaSource, pendingUpload };
+
     if (
       prevProps.mediaSource.type === 'encrypted_photo' ||
       prevProps.mediaSource.type === 'encrypted_video'
@@ -56,7 +53,7 @@ class Multimedia extends React.PureComponent<Props> {
       return;
     }
 
-    const prevUri = prevProps.mediaSource?.uri;
+    const prevUri = prevProps.mediaSource.uri;
     if (!prevUri || mediaSource.uri === prevUri) {
       return;
     }
@@ -66,128 +63,129 @@ class Multimedia extends React.PureComponent<Props> {
     ) {
       URL.revokeObjectURL(prevUri);
     }
-  }
+  }, [mediaSource, pendingUpload]);
 
-  render(): React.Node {
-    let progressIndicator, errorIndicator, removeButton;
-
-    const {
-      pendingUpload,
-      remove,
-      mediaSource,
-      multimediaImageCSSClass,
-      multimediaCSSClass,
-    } = this.props;
-    if (pendingUpload) {
-      const { progressPercent, failed } = pendingUpload;
-
-      if (progressPercent !== 0 && progressPercent !== 1) {
-        const outOfHundred = Math.floor(progressPercent * 100);
-        const text = `${outOfHundred}%`;
-        progressIndicator = (
-          <CircularProgressbar
-            value={outOfHundred}
-            text={text}
-            background
-            backgroundPadding={6}
-            className={css.progressIndicator}
-          />
-        );
-      }
-
-      if (failed) {
-        errorIndicator = (
-          <AlertCircleIcon className={css.uploadError} size={36} />
-        );
-      }
-
-      if (remove) {
-        removeButton = (
-          <Button onClick={this.remove}>
-            <XCircleIcon className={css.removeUpload} />
-          </Button>
-        );
-      }
-    }
-
-    const imageContainerClasses = [
-      css.multimediaImage,
-      multimediaImageCSSClass,
-    ];
-    imageContainerClasses.push(css.clickable);
-
-    // Media element is the actual image or video element (or encrypted version)
-    let mediaElement;
-    if (mediaSource.type === 'photo') {
-      const uri = fetchableMediaURI(mediaSource.uri);
-      mediaElement = <img src={uri} />;
-    } else if (mediaSource.type === 'video') {
-      const uri = fetchableMediaURI(mediaSource.uri);
-      mediaElement = (
-        <video controls>
-          <source src={uri} />
-        </video>
+  const { remove: removeProp } = props;
+  const handleRemove = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.stopPropagation();
+      invariant(
+        removeProp && pendingUpload,
+        'Multimedia cannot be removed as either remove or pendingUpload ' +
+          'are unspecified',
       );
-    } else if (
+      removeProp(pendingUpload.localID);
+    },
+    [removeProp, pendingUpload],
+  );
+
+  const { pushModal } = useModalContext();
+  const handleClick = React.useCallback(() => {
+    let media;
+    if (
       mediaSource.type === 'encrypted_photo' ||
       mediaSource.type === 'encrypted_video'
     ) {
-      const { ...encryptedMediaProps } = mediaSource;
-      mediaElement = <EncryptedMultimedia {...encryptedMediaProps} />;
+      const { type, holder, encryptionKey } = mediaSource;
+      media = { type, holder, encryptionKey };
+    } else {
+      const { type, uri } = mediaSource;
+      invariant(uri, 'uri is missing for media modal');
+      media = { type, uri };
+    }
+    pushModal(<MultimediaModal media={media} />);
+  }, [pushModal, mediaSource]);
+
+  let progressIndicator, errorIndicator, removeButton;
+
+  const { multimediaImageCSSClass, multimediaCSSClass } = props;
+  if (pendingUpload) {
+    const { progressPercent, failed } = pendingUpload;
+
+    if (progressPercent !== 0 && progressPercent !== 1) {
+      const outOfHundred = Math.floor(progressPercent * 100);
+      const text = `${outOfHundred}%`;
+      progressIndicator = (
+        <CircularProgressbar
+          value={outOfHundred}
+          text={text}
+          background
+          backgroundPadding={6}
+          className={css.progressIndicator}
+        />
+      );
     }
 
-    // Media node is the container for the media element (button if photo)
-    let mediaNode;
-    if (
-      mediaSource.type === 'photo' ||
-      mediaSource.type === 'encrypted_photo'
-    ) {
-      mediaNode = (
-        <Button
-          className={classNames(imageContainerClasses)}
-          onClick={this.onClick}
-        >
-          {mediaElement}
-          {removeButton}
+    if (failed) {
+      errorIndicator = (
+        <AlertCircleIcon className={css.uploadError} size={36} />
+      );
+    }
+
+    if (removeProp) {
+      removeButton = (
+        <Button onClick={handleRemove}>
+          <XCircleIcon className={css.removeUpload} />
         </Button>
       );
-    } else {
-      mediaNode = (
-        <div className={classNames(imageContainerClasses)}>{mediaElement}</div>
-      );
     }
+  }
 
-    const containerClasses = [css.multimedia, multimediaCSSClass];
-    return (
-      <span className={classNames(containerClasses)}>
-        {mediaNode}
-        {progressIndicator}
-        {errorIndicator}
-      </span>
+  const imageContainerClasses = [css.multimediaImage, multimediaImageCSSClass];
+  imageContainerClasses.push(css.clickable);
+
+  // Media element is the actual image or video element (or encrypted version)
+  let mediaElement;
+  if (mediaSource.type === 'photo') {
+    const uri = fetchableMediaURI(mediaSource.uri);
+    mediaElement = <img src={uri} />;
+  } else if (mediaSource.type === 'video') {
+    const uri = fetchableMediaURI(mediaSource.uri);
+    mediaElement = (
+      <video controls>
+        <source src={uri} />
+      </video>
+    );
+  } else if (
+    mediaSource.type === 'encrypted_photo' ||
+    mediaSource.type === 'encrypted_video'
+  ) {
+    const { type, holder, encryptionKey } = mediaSource;
+    mediaElement = (
+      <EncryptedMultimedia
+        type={type}
+        holder={holder}
+        encryptionKey={encryptionKey}
+      />
     );
   }
 
-  remove: (event: SyntheticEvent<HTMLElement>) => void = event => {
-    event.stopPropagation();
-    const { remove, pendingUpload } = this.props;
-    invariant(
-      remove && pendingUpload,
-      'Multimedia cannot be removed as either remove or pendingUpload ' +
-        'are unspecified',
+  // Media node is the container for the media element (button if photo)
+  let mediaNode;
+  if (mediaSource.type === 'photo' || mediaSource.type === 'encrypted_photo') {
+    mediaNode = (
+      <Button
+        className={classNames(imageContainerClasses)}
+        onClick={handleClick}
+      >
+        {mediaElement}
+        {removeButton}
+      </Button>
     );
-    remove(pendingUpload.localID);
-  };
+  } else {
+    mediaNode = (
+      <div className={classNames(imageContainerClasses)}>{mediaElement}</div>
+    );
+  }
 
-  onClick: () => void = () => {
-    const { pushModal, mediaSource } = this.props;
-    pushModal(<MultimediaModal media={mediaSource} />);
-  };
+  const containerClasses = [css.multimedia, multimediaCSSClass];
+  return (
+    <span className={classNames(containerClasses)}>
+      {mediaNode}
+      {progressIndicator}
+      {errorIndicator}
+    </span>
+  );
 }
 
-function ConnectedMultimediaContainer(props: BaseProps): React.Node {
-  const modalContext = useModalContext();
-
-  return <Multimedia {...props} pushModal={modalContext.pushModal} />;
-}
-
-export default ConnectedMultimediaContainer;
+export default Multimedia;
