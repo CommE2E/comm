@@ -1,32 +1,32 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
-import TextLoop from 'react-text-loop';
 
 import { assetMetaData } from './asset-meta-data.js';
 import css from './hero-content.css';
 import SubscriptionForm from './subscription-form.react.js';
+import typography from './typography.css';
 
 function HeroContent(): React.Node {
   const [hero] = assetMetaData;
 
+  const headerClassName = classNames([typography.display3, css.header]);
+  const subheaderClassName = classNames([
+    typography.subheading2,
+    css.subHeader,
+  ]);
+
   return (
     <section className={hero.infoStyle}>
       <div className={css.contentWrapper}>
-        <h1 className={css.cycling_header}>
-          {'Comm is crypto-native\nchat for '}
-          <TextLoop
-            interval={1750}
-            springConfig={{ stiffness: 180, damping: 16 }}
-          >
-            <span className={css.cycling_content}>DAOs</span>
-            <span className={css.cycling_content}>venture funds</span>
-            <span className={css.cycling_content}>open source</span>
-            <span className={css.cycling_content}>gaming guilds</span>
-            <span className={css.cycling_content}>social clubs</span>
-          </TextLoop>
+        <h1 className={headerClassName}>
+          Comm is an encrypted messaging app for <span>communities</span>
         </h1>
-        <p className={css.sub_heading}>(think &quot;Web3 Discord&quot;)</p>
+        <p className={subheaderClassName}>
+          We extend Signal&rsquo;s model of E2E encryption with personal servers
+          to enable richer functionality.
+        </p>
         <SubscriptionForm />
       </div>
     </section>
