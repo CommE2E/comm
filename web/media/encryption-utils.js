@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { thumbHashToDataURL } from 'thumbhash';
 
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { fileInfoFromData } from 'lib/media/file-utils.js';
@@ -13,6 +14,7 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { calculatePaddedLength, pad, unpad } from 'lib/utils/pkcs7-padding.js';
 
 import * as AES from './aes-crypto-utils.js';
+import { base64DecodeBuffer } from '../utils/base64-utils.js';
 
 const PADDING_THRESHOLD = 5000000; // 5MB
 
@@ -236,4 +238,16 @@ async function decryptMedia(
   return { steps, result: { success: true, uri: objectURL } };
 }
 
-export { encryptFile, decryptMedia };
+async function decryptThumbhashToDataURL(
+  encryptedThumbHash: string,
+  keyHex: string,
+): Promise<string> {
+  const encryptedData = base64DecodeBuffer(encryptedThumbHash);
+  const thumbhashBytes = await AES.decrypt(
+    hexToUintArray(keyHex),
+    encryptedData,
+  );
+  return thumbHashToDataURL(thumbhashBytes);
+}
+
+export { encryptFile, decryptMedia, decryptThumbhashToDataURL };
