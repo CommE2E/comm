@@ -12,23 +12,39 @@ import {
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { fetchableMediaURI } from 'lib/media/media-utils.js';
-import type { MediaType, EncryptedMediaType } from 'lib/types/media-types.js';
+import type {
+  Dimensions,
+  EncryptedMediaType,
+  MediaType,
+} from 'lib/types/media-types.js';
 
 import EncryptedMultimedia from './encrypted-multimedia.react.js';
+import LoadableVideo from './loadable-video.react.js';
+import { usePlaceholder } from './media-utils.js';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react.js';
 import Button from '../components/button.react.js';
 import { type PendingMultimediaUpload } from '../input/input-state.js';
 
+// this should be in sync with the max-height value
+// for span.multimedia > multimediaImage in media.css
+const MAX_THUMBNAIL_HEIGHT = 200;
+
 type MediaSource =
   | {
       +type: MediaType,
       +uri: string,
+      +dimensions: ?Dimensions,
+      +thumbHash: ?string,
+      +thumbnailURI: ?string,
     }
   | {
       +type: EncryptedMediaType,
       +holder: string,
       +encryptionKey: string,
+      +dimensions: ?Dimensions,
+      +thumbHash: ?string,
+      +thumbHashEncryptionKey: ?string,
     };
 
 type Props = {
@@ -134,17 +150,43 @@ function Multimedia(props: Props): React.Node {
   const imageContainerClasses = [css.multimediaImage, multimediaImageCSSClass];
   imageContainerClasses.push(css.clickable);
 
+  const thumbHash = mediaSource.thumbHash ?? pendingUpload?.thumbHash;
+  const { thumbHashEncryptionKey } = mediaSource;
+  const placeholderImage = usePlaceholder(thumbHash, thumbHashEncryptionKey);
+
+  const { dimensions } = mediaSource;
+  const elementStyle = React.useMemo(() => {
+    if (!dimensions) {
+      return undefined;
+    }
+    const { width, height } = dimensions;
+    // Resize the image to fit in max width while preserving aspect ratio
+    const calculatedWidth =
+      Math.min(MAX_THUMBNAIL_HEIGHT, height) * (width / height);
+    return {
+      background: placeholderImage
+        ? `center / cover url(${placeholderImage})`
+        : undefined,
+      width: `${calculatedWidth}px`,
+      // height is limited by the max-height style in media.css
+      height: `${height}px`,
+    };
+  }, [dimensions, placeholderImage]);
+
   // Media element is the actual image or video element (or encrypted version)
   let mediaElement;
   if (mediaSource.type === 'photo') {
     const uri = fetchableMediaURI(mediaSource.uri);
-    mediaElement = <img src={uri} />;
+    mediaElement = <img src={uri} style={elementStyle} />;
   } else if (mediaSource.type === 'video') {
     const uri = fetchableMediaURI(mediaSource.uri);
     mediaElement = (
-      <video controls>
-        <source src={uri} />
-      </video>
+      <LoadableVideo
+        uri={uri}
+        thumbnailURI={mediaSource.thumbnailURI}
+        thumbHashDataURL={placeholderImage}
+        elementStyle={elementStyle}
+      />
     );
   } else if (
     mediaSource.type === 'encrypted_photo' ||
@@ -156,6 +198,8 @@ function Multimedia(props: Props): React.Node {
         type={type}
         holder={holder}
         encryptionKey={encryptionKey}
+        elementStyle={elementStyle}
+        placeholderSrc={placeholderImage}
       />
     );
   }
