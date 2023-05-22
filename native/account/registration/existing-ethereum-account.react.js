@@ -96,6 +96,7 @@ const unboundStyles = {
     paddingBottom: 16,
   },
   body: {
+    fontFamily: 'Arial',
     fontSize: 15,
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
