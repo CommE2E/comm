@@ -13,6 +13,7 @@ import {
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
 import { createOrUpdatePublicLink } from '../creators/invite-link-creator.js';
+import { deleteInviteLink } from '../deleters/link-deleters.js';
 import {
   fetchPrimaryInviteLinks,
   verifyInviteLink,
@@ -93,8 +94,26 @@ async function createOrUpdatePublicLinkResponder(
   return validateOutput(viewer.platformDetails, inviteLinkValidator, response);
 }
 
+const disableInviteLinkInputValidator = tShape({
+  name: t.String,
+  communityID: tID,
+});
+
+async function disableInviteLinkResponder(
+  viewer: Viewer,
+  input: mixed,
+): Promise<void> {
+  const request = await validateInput(
+    viewer,
+    disableInviteLinkInputValidator,
+    input,
+  );
+  await deleteInviteLink(viewer, request);
+}
+
 export {
   inviteLinkVerificationResponder,
   fetchPrimaryInviteLinksResponder,
   createOrUpdatePublicLinkResponder,
+  disableInviteLinkResponder,
 };
