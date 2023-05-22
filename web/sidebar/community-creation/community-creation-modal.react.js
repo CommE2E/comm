@@ -31,7 +31,7 @@ import { nonThreadCalendarQuery } from '../../selectors/nav-selectors.js';
 const announcementStatements = [
   {
     statement:
-      `This option sets the community&apos;s root channel to an ` +
+      `This option sets the community’s root channel to an ` +
       `announcement channel. Only admins and other admin-appointed ` +
       `roles can send messages in an announcement channel.`,
     isStatementValid: true,
@@ -171,7 +171,7 @@ function CommunityCreationModal(): React.Node {
             </div>
           </div>
           <div className={css.formNotice}>
-            You may edit your community&apos;s image and name later.
+            You may edit your community&rsquo;s image and name later.
           </div>
           <hr />
           <div className={css.optionalSettingsContainer}>
