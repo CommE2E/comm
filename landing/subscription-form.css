@@ -5,11 +5,14 @@ form {
 .button {
   cursor: pointer;
   border: none;
-  padding: 16px 32px;
+  padding: 17px 32px; /* We have 17 to compensate for no border */
   border-radius: 4px;
   color: var(--white-100);
   background: var(--violet-dark-60);
   min-width: 184px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .buttonSuccess {
@@ -30,6 +33,12 @@ form {
 
 .buttonFailure:hover {
   background: var(--error-dark-50);
+}
+
+div.inputContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 input.emailInput {
@@ -53,6 +62,18 @@ input.emailInputFailure {
   border: 1px solid var(--error-dark-50);
 }
 
+p.feedbackText {
+  margin-top: 8px;
+}
+
+p.feedbackTextSuccess {
+  color: var(--success-dark-50);
+}
+
+p.feedbackTextFailure {
+  color: var(--error-dark-50);
+}
+
 @media (max-width: 1099px) {
   form {
     display: block;
@@ -60,11 +81,17 @@ input.emailInputFailure {
   .button {
     width: 100%;
     height: 50px;
+    margin-top: 8px;
   }
 
   input.emailInput {
     width: 100%;
     height: 50px;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+  }
+
+  p.feedbackText {
+    text-align: center;
+    margin-top: 0;
   }
 }
