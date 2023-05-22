@@ -13,11 +13,15 @@ function AppLanding(): React.Node {
   const [hero] = imageAssetMetaData;
 
   return (
-    <main className={css.wrapper}>
-      <div className={hero.imageStyle}>
-        <Picture url={hero.url} alt={hero.alt} />
-      </div>
-      <HeroContent />
+    <main>
+      <section className={css.heroSection}>
+        <div className={css.heroContainer}>
+          <div className={css.heroImage}>
+            <Picture url={hero.url} alt={hero.alt} />
+          </div>
+          <HeroContent />
+        </div>
+      </section>
     </main>
   );
 }
