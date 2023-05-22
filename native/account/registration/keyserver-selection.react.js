@@ -143,6 +143,7 @@ const unboundStyles = {
     paddingBottom: 16,
   },
   body: {
+    fontFamily: 'Arial',
     fontSize: 15,
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
@@ -154,6 +155,7 @@ const unboundStyles = {
     color: 'panelForegroundLabel',
   },
   tileBody: {
+    fontFamily: 'Arial',
     fontSize: 13,
     color: 'panelForegroundSecondaryLabel',
   },
