@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { FlatList, Platform } from 'react-native';
+import { FlatList, Platform, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
@@ -17,6 +17,7 @@ import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
 
 const maxDepth = 2;
@@ -79,9 +80,27 @@ function CommunityDrawerContent(): React.Node {
     [childThreadInfosMap, communitiesSuffixed, labelStyles],
   );
 
+  const isCommunityCreationButtonEnabled = false;
+  let communityCreationButton;
+  if (isCommunityCreationButtonEnabled) {
+    communityCreationButton = (
+      <View style={styles.communityCreationContainer}>
+        <View style={styles.communityCreationIconContainer}>
+          <SWMansionIcon
+            name="plus"
+            size={22}
+            style={styles.communityCreationIcon}
+          />
+        </View>
+        <Text style={styles.communityCreationText}>Create community</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.drawerContent} edges={safeAreaEdges}>
       <FlatList data={drawerItemsData} renderItem={renderItem} />
+      {communityCreationButton}
     </SafeAreaView>
   );
 }
@@ -91,7 +110,32 @@ const unboundStyles = {
     flex: 1,
     paddingRight: 8,
     paddingTop: 8,
-    backgroundColor: 'drawerBackground',
+    paddingBottom: 8,
+  },
+  communityCreationContainer: {
+    flexDirection: 'row',
+    padding: 24,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: 'panelSeparator',
+  },
+  communityCreationText: {
+    color: 'panelForegroundLabel',
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+  },
+  communityCreationIconContainer: {
+    height: 28,
+    width: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 16,
+    marginRight: 12,
+    backgroundColor: 'panelSecondaryForeground',
+  },
+  communityCreationIcon: {
+    color: 'panelForegroundLabel',
   },
 };
 const labelUnboundStyles = {
