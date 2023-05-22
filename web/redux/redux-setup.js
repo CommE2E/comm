@@ -8,7 +8,6 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
-import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { invalidSessionDowngrade } from 'lib/shared/session-utils.js';
@@ -21,10 +20,7 @@ import type {
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
-import {
-  type CalendarFilter,
-  calendarThreadFilterTypes,
-} from 'lib/types/filter-types.js';
+import { type CalendarFilter } from 'lib/types/filter-types.js';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
@@ -42,9 +38,8 @@ import {
   setDeviceIDActionType,
   updateNavInfoActionType,
   updateWindowDimensionsActionType,
-  updateCalendarCommunityFilter,
-  clearCalendarCommunityFilter,
 } from './action-types.js';
+import { reduceCommunityPickerStore } from './community-picker-reducer.js';
 import {
   reduceCryptoStore,
   setPrimaryIdentityKeys,
@@ -56,7 +51,6 @@ import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import { getVisibility } from './visibility.js';
 import { databaseModule } from '../database/database-module-provider.js';
-import { filterThreadIDsBelongingToCommunity } from '../selectors/calendar-selectors.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
 import { type NavInfo } from '../types/nav-types.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
@@ -121,15 +115,7 @@ export type Action =
   | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | { +type: 'SET_NOTIFICATION_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | { +type: 'SET_PICKLED_PRIMARY_ACCOUNT', payload: ?PickledOLMAccount }
-  | { +type: 'SET_PICKLED_NOTIFICATION_ACCOUNT', payload: ?PickledOLMAccount }
-  | {
-      +type: 'UPDATE_CALENDAR_COMMUNITY_FILTER',
-      +payload: string,
-    }
-  | {
-      +type: 'CLEAR_CALENDAR_COMMUNITY_FILTER',
-      +payload: void,
-    };
+  | { +type: 'SET_PICKLED_NOTIFICATION_ACCOUNT', payload: ?PickledOLMAccount };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
@@ -145,39 +131,6 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       ...state,
       windowActive: action.payload,
     });
-  } else if (action.type === updateCalendarCommunityFilter) {
-    const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
-
-    const threadIDs = Array.from(
-      filterThreadIDsBelongingToCommunity(
-        action.payload,
-        state.threadStore.threadInfos,
-      ),
-    );
-    return {
-      ...state,
-      calendarFilters: [
-        ...nonThreadFilters,
-        {
-          type: calendarThreadFilterTypes.THREAD_LIST,
-          threadIDs,
-        },
-      ],
-      communityPickerStore: {
-        ...state.communityPickerStore,
-        calendar: action.payload,
-      },
-    };
-  } else if (action.type === clearCalendarCommunityFilter) {
-    const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
-    return {
-      ...state,
-      calendarFilters: nonThreadFilters,
-      communityPickerStore: {
-        ...state.communityPickerStore,
-        calendar: null,
-      },
-    };
   } else if (action.type === setNewSessionActionType) {
     if (
       invalidSessionDowngrade(
@@ -237,6 +190,12 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     }
   }
 
+  const communityPickerStore = reduceCommunityPickerStore(
+    state.communityPickerStore,
+    state.threadStore,
+    action,
+  );
+
   state = {
     ...state,
     navInfo: reduceNavInfo(
@@ -246,6 +205,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     ),
     deviceID: reduceDeviceID(state.deviceID, action),
     cryptoStore: reduceCryptoStore(state.cryptoStore, action),
+    communityPickerStore,
   };
 
   return validateState(oldState, state);
