@@ -4,16 +4,14 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { clearCalendarCommunityFilter } from 'lib/actions/community-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
 import CommunityCreationModal from './community-creation/community-creation-modal.react.js';
 import CommunityDrawer from './community-drawer.react.js';
 import css from './community-picker.css';
-import {
-  clearCalendarCommunityFilter,
-  updateNavInfoActionType,
-} from '../redux/action-types.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function CommunityPicker(): React.Node {

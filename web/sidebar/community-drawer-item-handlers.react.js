@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { updateCalendarCommunityFilter } from 'lib/actions/community-actions.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
-import { updateCalendarCommunityFilter } from '../redux/action-types.js';
 import { useCommunityIsPickedCalendar } from '../selectors/calendar-selectors.js';
 import {
   useOnClickThread,
