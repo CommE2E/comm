@@ -5,6 +5,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
+import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type {
   ClientDBMessageInfo,
@@ -48,6 +49,9 @@ export interface Spec extends TurboModule {
   +getAllThreadsSync: () => $ReadOnlyArray<ClientDBThreadInfo>;
   +processThreadStoreOperations: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
+  ) => Promise<void>;
+  +processReportStoreOperations: (
+    operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
   ) => Promise<void>;
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
