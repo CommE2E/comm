@@ -2,6 +2,7 @@
 
 import { useSelector as reactReduxUseSelector } from 'react-redux';
 
+import { convertReportStoreOperationToClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
 import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils.js';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
@@ -24,12 +25,17 @@ async function processDBStoreOperations(
     draftStoreOperations,
     threadStoreOperations,
     messageStoreOperations,
+    reportStoreOperations,
   } = storeOperations;
 
   const convertedThreadStoreOperations =
     convertThreadStoreOperationsToClientDBOperations(threadStoreOperations);
   const convertedMessageStoreOperations =
     convertMessageStoreOperationsToClientDBOperations(messageStoreOperations);
+  const convertedReportStoreOperations =
+    convertReportStoreOperationToClientDBReportStoreOperation(
+      reportStoreOperations,
+    );
 
   try {
     const promises = [];
@@ -50,6 +56,13 @@ async function processDBStoreOperations(
     if (draftStoreOperations.length > 0) {
       promises.push(
         commCoreModule.processDraftStoreOperations(draftStoreOperations),
+      );
+    }
+    if (convertedReportStoreOperations.length > 0) {
+      promises.push(
+        commCoreModule.processReportStoreOperations(
+          convertedReportStoreOperations,
+        ),
       );
     }
     await Promise.all(promises);
