@@ -15,15 +15,25 @@
   margin-bottom: 56px;
 }
 
+.heroInfo {
+  display: flex;
+  padding: 144px 0 224px 32px;
+  flex-direction: column;
+  flex: 1;
+}
+
 form {
   width: 92%;
 }
-@media (max-width: 1099px) {
+@media screen and (max-width: 848px) {
   form {
     width: 100%;
   }
 }
 
-.contentWrapper {
-  flex-basis: 300px;
+@media screen and (max-width: 1280px) {
+  .heroInfo {
+    padding: 0;
+    max-width: 716px;
+  }
 }
