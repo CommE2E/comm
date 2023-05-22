@@ -596,7 +596,10 @@ function getDevicesByPlatform(
       byPlatform.set(device.platform, innerMap);
     }
     const codeVersion: number =
-      device.codeVersion !== null && device.codeVersion !== undefined
+      device.codeVersion !== null &&
+      device.codeVersion !== undefined &&
+      device.platform !== 'windows' &&
+      device.platform !== 'macos'
         ? device.codeVersion
         : -1;
     let innerMostSet = innerMap.get(codeVersion);
