@@ -21,6 +21,7 @@ import type { JSONResponder } from './responders/handlers.js';
 import { getSessionPublicKeysResponder } from './responders/keys-responders.js';
 import {
   createOrUpdatePublicLinkResponder,
+  disableInviteLinkResponder,
   fetchPrimaryInviteLinksResponder,
   inviteLinkVerificationResponder,
 } from './responders/link-responders.js';
@@ -103,6 +104,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   create_reaction_message: {
     responder: reactionMessageCreationResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  disable_invite_link: {
+    responder: disableInviteLinkResponder,
     requiredPolicies: baseLegalPolicies,
   },
   edit_message: {
