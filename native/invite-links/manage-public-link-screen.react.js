@@ -1,11 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Alert } from 'react-native';
 
 import {
   createOrUpdatePublicLink,
   createOrUpdatePublicLinkActionTypes,
+  disableInviteLink as callDisableInviteLink,
+  disableInviteLinkLinkActionTypes,
 } from 'lib/actions/link-actions.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -41,7 +43,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callCreateOrUpdatePublicLink = useServerCall(createOrUpdatePublicLink);
-  const createActionPromise = React.useCallback(async () => {
+  const createCreateOrUpdateActionPromise = React.useCallback(async () => {
     setError(null);
     try {
       return await callCreateOrUpdatePublicLink({
@@ -56,9 +58,9 @@ function ManagePublicLinkScreen(props: Props): React.Node {
   const createInviteLink = React.useCallback(() => {
     dispatchActionPromise(
       createOrUpdatePublicLinkActionTypes,
-      createActionPromise(),
+      createCreateOrUpdateActionPromise(),
     );
-  }, [createActionPromise, dispatchActionPromise]);
+  }, [createCreateOrUpdateActionPromise, dispatchActionPromise]);
   const createOrUpdatePublicLinkStatus = useSelector(
     createOrUpdatePublicLinkStatusSelector,
   );
@@ -68,6 +70,67 @@ function ManagePublicLinkScreen(props: Props): React.Node {
   let errorComponent = null;
   if (error) {
     errorComponent = <Text style={styles.error}>{error}</Text>;
+  }
+
+  const disableInviteLinkServerCall = useServerCall(callDisableInviteLink);
+  const createDisableLinkActionPromise = React.useCallback(async () => {
+    setError(null);
+    try {
+      return await disableInviteLinkServerCall({
+        name,
+        communityID: community.id,
+      });
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    }
+  }, [disableInviteLinkServerCall, community.id, name]);
+  const disableInviteLink = React.useCallback(() => {
+    dispatchActionPromise(
+      disableInviteLinkLinkActionTypes,
+      createDisableLinkActionPromise(),
+    );
+  }, [createDisableLinkActionPromise, dispatchActionPromise]);
+  const disableInviteLinkStatus = useSelector(disableInviteLinkStatusSelector);
+
+  const isLoading =
+    createOrUpdatePublicLinkStatus === 'loading' ||
+    disableInviteLinkStatus === 'loading';
+
+  const onDisableButtonClick = React.useCallback(() => {
+    Alert.alert(
+      'Disable public link',
+      'Are you sure you want to disable your public link? Members who have your community’s public link but have not joined will not able to with the disabled link. \n' +
+        '\n' +
+        'Other communities may also claim your previous public link url.',
+      [
+        {
+          text: 'Confirm disable',
+          style: 'destructive',
+          onPress: disableInviteLink,
+        },
+        {
+          text: 'Cancel',
+        },
+      ],
+      {
+        cancelable: true,
+      },
+    );
+  }, [disableInviteLink]);
+  let disablePublicLinkButton = null;
+  if (inviteLink) {
+    disablePublicLinkButton = (
+      <View style={styles.destructiveButtonContainer}>
+        <Button
+          style={[styles.button, styles.destructiveButton]}
+          onPress={onDisableButtonClick}
+          disabled={isLoading}
+        >
+          <Text style={styles.destructiveButtonText}>Disable public link</Text>
+        </Button>
+      </View>
+    );
   }
 
   return (
@@ -92,24 +155,28 @@ function ManagePublicLinkScreen(props: Props): React.Node {
             autoCorrect={false}
             autoCapitalize="none"
             keyboardType="ascii-capable"
-            editable={createOrUpdatePublicLinkStatus !== 'loading'}
+            editable={!isLoading}
           />
         </View>
         {errorComponent}
         <Button
           style={[styles.button, styles.buttonPrimary]}
           onPress={createInviteLink}
-          disabled={createOrUpdatePublicLinkStatus === 'loading'}
+          disabled={isLoading}
         >
           <Text style={styles.buttonText}>Save & enable public link</Text>
         </Button>
       </View>
+      {disablePublicLinkButton}
     </View>
   );
 }
 
 const createOrUpdatePublicLinkStatusSelector = createLoadingStatusSelector(
   createOrUpdatePublicLinkActionTypes,
+);
+const disableInviteLinkStatusSelector = createLoadingStatusSelector(
+  disableInviteLinkLinkActionTypes,
 );
 
 const unboundStyles = {
@@ -165,6 +232,21 @@ const unboundStyles = {
   },
   buttonPrimary: {
     backgroundColor: 'purpleButton',
+  },
+  destructiveButtonContainer: {
+    margin: 16,
+  },
+  destructiveButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: 'vibrantRedButton',
+  },
+  destructiveButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    lineHeight: 24,
+    color: 'vibrantRedButton',
+    textAlign: 'center',
   },
   buttonText: {
     color: 'whiteText',
