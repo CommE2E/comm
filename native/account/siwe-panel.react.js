@@ -107,14 +107,12 @@ function SIWEPanel(props: Props): React.Node {
 
   const closeBottomSheet = bottomSheetRef.current?.close;
   const { closing, onSuccessfulWalletSignature } = props;
-  const disableOnClose = React.useRef(false);
   const handleMessage = React.useCallback(
     async event => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
       if (data.type === 'siwe_success') {
         const { address, message, signature } = data;
         if (address && signature) {
-          disableOnClose.current = true;
           closeBottomSheet?.();
           await onSuccessfulWalletSignature({ address, message, signature });
         }
@@ -167,10 +165,6 @@ function SIWEPanel(props: Props): React.Node {
   const { onClosed } = props;
   const onBottomSheetChange = React.useCallback(
     (index: number) => {
-      if (disableOnClose.current) {
-        disableOnClose.current = false;
-        return;
-      }
       if (index === -1) {
         onClosed();
       }
