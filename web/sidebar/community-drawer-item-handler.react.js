@@ -2,6 +2,8 @@
 
 export type CommunityDrawerItemHandler = {
   +onClick: (event: SyntheticEvent<HTMLElement>) => void,
+  +expanded: boolean,
+  +toggleExpanded: () => void,
   +isActive: boolean,
 };
 
