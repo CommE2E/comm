@@ -5,11 +5,11 @@ import * as React from 'react';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react';
 
-import type { HandlerProps } from './community-drawer-item-handlers.react';
 import css from './community-drawer-item.css';
 import CommunityDrawerItemChat from './community-drawer-item.react.js';
 import { ExpandButton } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
+import type { NavigationTab } from '../types/nav-types.js';
 
 const indentation = 14;
 const subchannelsButtonIndentation = 24;
@@ -21,7 +21,7 @@ function getChildren({
   paddingLeft,
   threadInfo,
   expandable,
-  handler,
+  handlerType,
 }: {
   expanded: boolean,
   hasSubchannelsButton: boolean,
@@ -29,7 +29,7 @@ function getChildren({
   paddingLeft: number,
   threadInfo: ThreadInfo,
   expandable: boolean,
-  handler: React.ComponentType<HandlerProps>,
+  handlerType: NavigationTab,
 }): React.Node {
   if (!expanded) {
     return null;
@@ -51,7 +51,7 @@ function getChildren({
       key={item.threadInfo.id}
       paddingLeft={paddingLeft + indentation}
       expandable={expandable}
-      handler={handler}
+      handlerType={handlerType}
     />
   ));
 }
