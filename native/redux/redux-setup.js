@@ -347,6 +347,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     draftStoreOperations,
     threadStoreOperations,
     messageStoreOperations,
+    reportStoreOperations,
   } = storeOperations;
 
   const fixUnreadActiveThreadResult = fixUnreadActiveThread(state, action);
@@ -361,7 +362,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     draftStoreOperations,
     messageStoreOperations,
     threadStoreOperations: threadStoreOperationsWithUnreadFix,
-    reportStoreOperations: [],
+    reportStoreOperations,
   });
 
   return state;
