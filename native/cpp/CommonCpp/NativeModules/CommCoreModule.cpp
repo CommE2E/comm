@@ -290,6 +290,24 @@ jsi::Array parseDBMessageStoreThreads(
   return jsiThreads;
 }
 
+jsi::Array parseDBReportStore(
+    jsi::Runtime &rt,
+    std::shared_ptr<std::vector<Report>> reportStoreVectorPtr) {
+  size_t numThreads = reportStoreVectorPtr->size();
+  jsi::Array jsiReports = jsi::Array(rt, numThreads);
+  size_t writeIdx = 0;
+
+  for (const Report &report : *reportStoreVectorPtr) {
+
+    jsi::Object jsiReport = jsi::Object(rt);
+    jsiReport.setProperty(rt, "id", report.id);
+    jsiReport.setProperty(rt, "report", report.report);
+
+    jsiReports.setValueAtIndex(rt, writeIdx++, jsiReport);
+  }
+  return jsiReports;
+}
+
 jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -299,6 +317,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<Thread> threadsVector;
           std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
           std::vector<MessageStoreThread> messageStoreThreadsVector;
+          std::vector<Report> reportStoreVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -306,6 +325,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
             messageStoreThreadsVector =
                 DatabaseManager::getQueryExecutor().getAllMessageStoreThreads();
+            reportStoreVector =
+                DatabaseManager::getQueryExecutor().getAllReports();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -319,11 +340,14 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           auto messageStoreThreadsVectorPtr =
               std::make_shared<std::vector<MessageStoreThread>>(
                   std::move(messageStoreThreadsVector));
+          auto reportStoreVectorPtr = std::make_shared<std::vector<Report>>(
+              std::move(reportStoreVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
                                          threadsVectorPtr,
                                          messageStoreThreadsVectorPtr,
+                                         reportStoreVectorPtr,
                                          error,
                                          promise]() {
             if (error.size()) {
@@ -336,6 +360,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             jsi::Array jsiThreads = parseDBThreads(innerRt, threadsVectorPtr);
             jsi::Array jsiMessageStoreThreads = parseDBMessageStoreThreads(
                 innerRt, messageStoreThreadsVectorPtr);
+            jsi::Array jsiReportStore =
+                parseDBReportStore(innerRt, reportStoreVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -343,6 +369,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             jsiClientDBStore.setProperty(innerRt, "drafts", jsiDrafts);
             jsiClientDBStore.setProperty(
                 innerRt, "messageStoreThreads", jsiMessageStoreThreads);
+            jsiClientDBStore.setProperty(innerRt, "reports", jsiReportStore);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
