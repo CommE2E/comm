@@ -31,15 +31,22 @@ function ChatThreadList(): React.Node {
 
   const isBackground = activeTab === 'Background';
 
+  const communityID = useSelector(state => state.communityPickerStore.chat);
+
   const threadComponents: React.Node[] = React.useMemo(() => {
-    const threads = threadList.map(item => (
-      <ChatThreadListItem item={item} key={item.threadInfo.id} />
-    ));
+    const threads = threadList
+      .filter(
+        item =>
+          !communityID ||
+          item.threadInfo.community === communityID ||
+          item.threadInfo.id === communityID,
+      )
+      .map(item => <ChatThreadListItem item={item} key={item.threadInfo.id} />);
     if (threads.length === 0 && isBackground) {
       threads.push(<EmptyItem key="emptyItem" />);
     }
     return threads;
-  }, [threadList, isBackground]);
+  }, [threadList, isBackground, communityID]);
 
   return (
     <>
