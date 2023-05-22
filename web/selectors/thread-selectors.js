@@ -113,7 +113,7 @@ function useDrawerSelectedThreadID(): ?string {
     state => state.navInfo.activeChatThreadID,
   );
   const pickedCommunityID = useSelector(
-    state => state.calendarPickedCommunityID,
+    state => state.communityPickerStore.calendar,
   );
   const inCalendar = useSelector(state => state.navInfo.tab === 'calendar');
 
