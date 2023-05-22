@@ -7,6 +7,7 @@ import {
   exactSearchUser,
   exactSearchUserActionTypes,
 } from 'lib/actions/user-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import {
   useServerCall,
@@ -24,9 +25,14 @@ import {
   ExistingEthereumAccountRouteName,
   UsernameSelectionRouteName,
 } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
 import SIWEPanel from '../siwe-panel.react.js';
+
+const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
+  exactSearchUserActionTypes,
+);
 
 export type ConnectEthereumParams = {
   +userSelections: {
@@ -151,6 +157,14 @@ function ConnectEthereum(props: Props): React.Node {
     );
   }
 
+  const exactSearchUserCallLoading = useSelector(
+    state => exactSearchUserLoadingStatusSelector(state) === 'loading',
+  );
+  const connectButtonVariant =
+    exactSearchUserCallLoading || panelState === 'opening'
+      ? 'loading'
+      : 'enabled';
+
   return (
     <>
       <RegistrationContainer>
@@ -167,7 +181,7 @@ function ConnectEthereum(props: Props): React.Node {
           <RegistrationButton
             onPress={openPanel}
             label="Connect Ethereum wallet"
-            variant={panelState === 'opening' ? 'loading' : 'enabled'}
+            variant={connectButtonVariant}
           />
           <RegistrationButton
             onPress={onSkip}
