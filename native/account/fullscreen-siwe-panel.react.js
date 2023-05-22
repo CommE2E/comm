@@ -9,7 +9,7 @@ import { useSIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 
 type Props = {
-  +onClose: () => mixed,
+  +goBackToPrompt: () => mixed,
   +closing: boolean,
 };
 function FullscreenSIWEPanel(props: Props): React.Node {
@@ -24,18 +24,18 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     [],
   );
 
-  const onCloseProp = props.onClose;
+  const { goBackToPrompt } = props;
   const siweServerCallParams = React.useMemo(() => {
     const onServerCallFailure = () => {
       Alert.alert(
         'Unknown error',
         'Uhh... try again?',
-        [{ text: 'OK', onPress: onCloseProp }],
+        [{ text: 'OK', onPress: goBackToPrompt }],
         { cancelable: false },
       );
     };
     return { onFailure: onServerCallFailure };
-  }, [onCloseProp]);
+  }, [goBackToPrompt]);
   const siweServerCall = useSIWEServerCall(siweServerCallParams);
 
   const successRef = React.useRef(false);
@@ -47,11 +47,11 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     [siweServerCall],
   );
 
-  const onClose = React.useCallback(() => {
+  const ifBeforeSuccessGoBackToPrompt = React.useCallback(() => {
     if (!successRef.current) {
-      onCloseProp();
+      goBackToPrompt();
     }
-  }, [onCloseProp]);
+  }, [goBackToPrompt]);
 
   const { closing } = props;
   return (
@@ -59,8 +59,8 @@ function FullscreenSIWEPanel(props: Props): React.Node {
       <View style={activityContainer}>{activity}</View>
       <SIWEPanel
         closing={closing}
-        onClosed={onClose}
-        onClosing={onClose}
+        onClosed={ifBeforeSuccessGoBackToPrompt}
+        onClosing={ifBeforeSuccessGoBackToPrompt}
         onSuccessfulWalletSignature={onSuccess}
         setLoading={setLoading}
       />

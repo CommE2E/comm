@@ -598,7 +598,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (this.state.mode === 'siwe') {
       siwePanel = (
         <FullscreenSIWEPanel
-          onClose={this.goBackToPrompt}
+          goBackToPrompt={this.goBackToPrompt}
           closing={this.state.nextMode === 'prompt'}
         />
       );
