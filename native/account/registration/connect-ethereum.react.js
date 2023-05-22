@@ -191,6 +191,7 @@ const unboundStyles = {
     paddingBottom: 16,
   },
   body: {
+    fontFamily: 'Arial',
     fontSize: 15,
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
@@ -208,12 +209,14 @@ const unboundStyles = {
     flexDirection: 'row',
   },
   listItemNumber: {
+    fontFamily: 'Arial',
     fontWeight: 'bold',
     fontSize: 15,
     lineHeight: 20,
     color: 'panelForegroundSecondaryLabel',
   },
   listItemContent: {
+    fontFamily: 'Arial',
     flexShrink: 1,
     fontSize: 15,
     lineHeight: 20,
