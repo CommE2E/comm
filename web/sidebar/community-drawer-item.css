@@ -46,7 +46,7 @@
 }
 
 .communityBase {
-  padding-top: 2px;
+  padding-top: 4px;
   padding-bottom: 2px;
   padding-right: 4px;
   overflow: hidden;
@@ -56,7 +56,6 @@
   background-color: var(--drawer-open-community-bg);
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
-  padding-top: 4px;
   padding-bottom: 4px;
 }
 
