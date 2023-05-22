@@ -177,6 +177,10 @@ const initialReduxStateValidator = tShape({
     'defaultCalendarFilters',
     _isEqual(defaultCalendarFilters),
   ),
+  communityPickerStore: t.irreducible(
+    'default communityPickerStore',
+    _isEqual({ chat: null, calendar: null }),
+  ),
   urlPrefix: tString(''),
   windowDimensions: t.irreducible(
     'default windowDimensions',
@@ -496,6 +500,7 @@ async function websiteResponder(
     updatesCurrentAsOf: currentAsOfPromise,
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
+    communityPickerStore: { chat: null, calendar: null },
     // We can use paths local to the <base href> on web
     urlPrefix: '',
     windowDimensions: { width: 0, height: 0 },
