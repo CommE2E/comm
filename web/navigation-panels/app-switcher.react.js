@@ -4,16 +4,14 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import {
-  mostRecentlyReadThreadSelector,
-  unreadCount,
-} from 'lib/selectors/thread-selectors.js';
+import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 
 import NavigationPanel from './navigation-panel.react.js';
 import css from './topbar.css';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { navTabSelector } from '../selectors/nav-selectors.js';
+import { unreadCountInSelectedCommunity } from '../selectors/thread-selectors.js';
 
 function AppSwitcher(): React.Node {
   const activeChatThreadID = useSelector(
@@ -49,7 +47,7 @@ function AppSwitcher(): React.Node {
     ],
   );
 
-  const boundUnreadCount = useSelector(unreadCount);
+  const boundUnreadCount = useSelector(unreadCountInSelectedCommunity);
 
   let chatBadge = null;
   if (boundUnreadCount > 0) {
