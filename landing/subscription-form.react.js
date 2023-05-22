@@ -68,19 +68,29 @@ function SubscriptionForm(): React.Node {
   }, [email]);
 
   let btnText = 'Request Access';
+  let feedbackText = '';
   let btnStyle = css.button;
   let inputStyle = css.emailInput;
+  let feedbackTextStyle = css.feedbackText;
   if (subscriptionFormStatus.status === 'error') {
     btnText = subscriptionFormStatus.error;
+    feedbackText = `${subscriptionFormStatus.error}, please try again`;
     btnStyle = `${css.button} ${css.buttonFailure}`;
     inputStyle = `${css.emailInput} ${css.emailInputFailure}`;
+    feedbackTextStyle = `${css.feedbackText} ${css.feedbackTextFailure}`;
   } else if (subscriptionFormStatus.status === 'success') {
     btnText = 'Requested!';
+    feedbackText = 'We will be in touch with next steps!';
     btnStyle = `${css.button} ${css.buttonSuccess}`;
+    feedbackTextStyle = `${css.feedbackText} ${css.feedbackTextSuccess}`;
   }
 
   const inputClassName = classNames([typography.paragraph2, inputStyle]);
   const buttonClassName = classNames([typography.paragraph2, btnStyle]);
+  const feedbackTextClassName = classNames([
+    typography.paragraph2,
+    feedbackTextStyle,
+  ]);
 
   const onEmailChange = React.useCallback(e => {
     setEmail(e.target.value);
@@ -88,17 +98,22 @@ function SubscriptionForm(): React.Node {
 
   return (
     <form>
-      <input
-        type="text"
-        id="subscription-form"
-        value={email}
-        onChange={onEmailChange}
-        className={inputClassName}
-        placeholder="Enter your email"
-      />
-      <button className={buttonClassName} onClick={onEmailSubmitted}>
-        {btnText}
-      </button>
+      <div className={css.inputContainer}>
+        <input
+          type="text"
+          id="subscription-form"
+          value={email}
+          onChange={onEmailChange}
+          className={inputClassName}
+          placeholder="Enter your email"
+        />
+        <p className={feedbackTextClassName}>{feedbackText}</p>
+      </div>
+      <div>
+        <button className={buttonClassName} onClick={onEmailSubmitted}>
+          {btnText}
+        </button>
+      </div>
     </form>
   );
 }
