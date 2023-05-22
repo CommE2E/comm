@@ -4,7 +4,10 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { clearCalendarCommunityFilter } from 'lib/actions/community-actions.js';
+import {
+  clearCalendarCommunityFilter,
+  clearChatCommunityFilter,
+} from 'lib/actions/community-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
@@ -41,6 +44,9 @@ function CommunityPicker(): React.Node {
         dispatch({
           type: updateNavInfoActionType,
           payload: { tab: 'chat' },
+        });
+        dispatch({
+          type: clearChatCommunityFilter,
         });
       }
     },
