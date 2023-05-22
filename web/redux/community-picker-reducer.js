@@ -3,6 +3,8 @@
 import {
   updateCalendarCommunityFilter,
   clearCalendarCommunityFilter,
+  updateChatCommunityFilter,
+  clearChatCommunityFilter,
 } from 'lib/actions/community-actions.js';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 
@@ -22,6 +24,16 @@ export function reduceCommunityPickerStore(
     return {
       ...communityPickerStore,
       calendar: null,
+    };
+  } else if (action.type === updateChatCommunityFilter) {
+    return {
+      ...communityPickerStore,
+      chat: action.payload,
+    };
+  } else if (action.type === clearChatCommunityFilter) {
+    return {
+      ...communityPickerStore,
+      chat: null,
     };
   }
   return communityPickerStore;
