@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import { convertClientDBReportToClientReportCreationRequest } from 'lib/ops/report-store-ops.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   logInActionSources,
@@ -157,10 +158,13 @@ function SQLiteDataHandler(): React.Node {
         mediaCacheContext?.evictCache(),
       ]);
       try {
-        const { threads, messages, drafts, messageStoreThreads } =
+        const { threads, messages, drafts, messageStoreThreads, reports } =
           await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           convertClientDBThreadInfosToRawThreadInfos(threads);
+        const reportsFromDb =
+          convertClientDBReportToClientReportCreationRequest(reports);
+
         dispatch({
           type: setClientDBStoreActionType,
           payload: {
@@ -169,6 +173,7 @@ function SQLiteDataHandler(): React.Node {
             threadStore: { threadInfos: threadInfosFromDB },
             currentUserID: currentLoggedInUserID,
             messageStoreThreads,
+            reports: reportsFromDb,
           },
         });
       } catch (setStoreException) {
