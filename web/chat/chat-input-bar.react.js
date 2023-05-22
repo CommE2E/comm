@@ -338,13 +338,13 @@ class ChatInputBar extends React.PureComponent<Props> {
     ) {
       content = (
         <span className={css.explanation}>
-          You can&apos;t send messages to a user that you&apos;ve blocked.
+          You can&rsquo;t send messages to a user that you&rsquo;ve blocked.
         </span>
       );
     } else if (isMember) {
       content = (
         <span className={css.explanation}>
-          You don&apos;t have permission to send messages.
+          You don&rsquo;t have permission to send messages.
         </span>
       );
     } else if (defaultMembersAreVoiced && canJoin) {
@@ -352,7 +352,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     } else {
       content = (
         <span className={css.explanation}>
-          You don&apos;t have permission to send messages.
+          You don&rsquo;t have permission to send messages.
         </span>
       );
     }

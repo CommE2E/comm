@@ -75,7 +75,7 @@ function TermsAndPrivacyModal(): React.Node {
         >
           Privacy Policy
         </a>
-        . In order to continue using Comm, we&apos;re asking you to read
+        . In order to continue using Comm, we&rsquo;re asking you to read
         through, acknowledge, and accept the updated policies.
       </div>
 

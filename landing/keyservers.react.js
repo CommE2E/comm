@@ -90,7 +90,7 @@ function Keyservers(): React.Node {
           </p>
           <p>
             E2E encryption has the potential to change this equation. But
-            it&apos;s constrained by a crucial limitation.
+            it&rsquo;s constrained by a crucial limitation.
           </p>
         </div>
 
@@ -107,11 +107,11 @@ function Keyservers(): React.Node {
           <h1 className={css.mono}>Apps need servers.</h1>
           <p>
             Sophisticated applications rely on servers to do things that your
-            devices simply can&apos;t.
+            devices simply can&rsquo;t.
           </p>
           <p>
-            That&apos;s why E2E encryption only works for simple chat apps
-            today. There&apos;s no way to build a robust server layer that has
+            That&rsquo;s why E2E encryption only works for simple chat apps
+            today. There&rsquo;s no way to build a robust server layer that has
             access to your data without leaking that data to corporations.
           </p>
         </div>
@@ -131,7 +131,7 @@ function Keyservers(): React.Node {
           <p>In the future, people have their own servers.</p>
           <p>
             Your keyserver is the home of your digital identity. It owns your
-            private keys and your personal data. It&apos;s your password
+            private keys and your personal data. It&rsquo;s your password
             manager, your crypto bank, your digital surrogate, and your second
             brain.
           </p>

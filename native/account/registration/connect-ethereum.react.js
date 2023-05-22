@@ -50,7 +50,7 @@ function ConnectEthereum(props: Props): React.Node {
     body = (
       <Text style={styles.body}>
         Connecting your Ethereum wallet allows you to use your ENS name and
-        avatar in the app. You&apos;ll also be able to log in with your wallet
+        avatar in the app. You&rsquo;ll also be able to log in with your wallet
         instead of a password.
       </Text>
     );
@@ -71,7 +71,7 @@ function ConnectEthereum(props: Props): React.Node {
           <View style={styles.listItem}>
             <Text style={styles.listItemNumber}>{'2. '}</Text>
             <Text style={styles.listItemContent}>
-              You&apos;ll be able to use your ENS name and avatar in the app.
+              You&rsquo;ll be able to use your ENS name and avatar in the app.
             </Text>
           </View>
           <View style={styles.listItem}>
