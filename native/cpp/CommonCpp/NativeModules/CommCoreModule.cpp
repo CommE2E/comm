@@ -6,6 +6,7 @@
 #include "InternalModules/GlobalDBSingleton.h"
 #include "InternalModules/RustPromiseManager.h"
 #include "MessageStoreOperations.h"
+#include "ReportStoreOperations.h"
 #include "TerminateApp.h"
 #include "ThreadStoreOperations.h"
 #include "lib.rs.h"
@@ -790,6 +791,82 @@ void CommCoreModule::processThreadStoreOperationsSync(
       throw e;
     }
   });
+}
+
+const std::string REPLACE_REPORT_OPERATION = "replace_report";
+const std::string REMOVE_REPORTS_OPERATION = "remove_reports";
+const std::string REMOVE_ALL_REPORTS_OPERATION = "remove_all_reports";
+
+std::vector<std::unique_ptr<ReportStoreOperationBase>>
+createReportStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
+  std::vector<std::unique_ptr<ReportStoreOperationBase>> reportStoreOps;
+  for (auto idx = 0; idx < operations.size(rt); idx++) {
+    auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
+    auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
+
+    if (op_type == REMOVE_ALL_REPORTS_OPERATION) {
+      reportStoreOps.push_back(std::make_unique<RemoveAllReportsOperation>());
+      continue;
+    }
+
+    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
+    if (op_type == REPLACE_REPORT_OPERATION) {
+      reportStoreOps.push_back(
+          std::make_unique<ReplaceReportOperation>(rt, payload_obj));
+    } else if (op_type == REMOVE_REPORTS_OPERATION) {
+      reportStoreOps.push_back(
+          std::make_unique<RemoveReportsOperation>(rt, payload_obj));
+    } else {
+      throw std::runtime_error{"unsupported operation: " + op_type};
+    }
+  }
+  return reportStoreOps;
+}
+
+jsi::Value CommCoreModule::processReportStoreOperations(
+    jsi::Runtime &rt,
+    jsi::Array operations) {
+  std::string createOperationsError;
+  std::shared_ptr<std::vector<std::unique_ptr<ReportStoreOperationBase>>>
+      reportStoreOpsPtr;
+  try {
+    auto reportStoreOps = createReportStoreOperations(rt, operations);
+    reportStoreOpsPtr = std::make_shared<
+        std::vector<std::unique_ptr<ReportStoreOperationBase>>>(
+        std::move(reportStoreOps));
+  } catch (std::runtime_error &e) {
+    createOperationsError = e.what();
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error = createOperationsError;
+
+          if (!error.size()) {
+            try {
+              DatabaseManager::getQueryExecutor().beginTransaction();
+              for (const auto &operation : *reportStoreOpsPtr) {
+                operation->execute();
+              }
+              DatabaseManager::getQueryExecutor().commitTransaction();
+            } catch (std::system_error &e) {
+              error = e.what();
+              DatabaseManager::getQueryExecutor().rollbackTransaction();
+            }
+          }
+
+          this->jsInvoker_->invokeAsync([=]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
 }
 
 void CommCoreModule::terminate(jsi::Runtime &rt) {

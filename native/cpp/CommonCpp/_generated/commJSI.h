@@ -31,6 +31,7 @@ public:
   virtual void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
   virtual jsi::Value processThreadStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
+  virtual jsi::Value processReportStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual void processThreadStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
@@ -157,6 +158,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::processThreadStoreOperations, jsInvoker_, instance_, std::move(operations));
+    }
+    jsi::Value processReportStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
+      static_assert(
+          bridging::getParameterCount(&T::processReportStoreOperations) == 2,
+          "Expected processReportStoreOperations(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::processReportStoreOperations, jsInvoker_, instance_, std::move(operations));
     }
     void processThreadStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) override {
       static_assert(
