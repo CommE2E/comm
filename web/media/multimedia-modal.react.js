@@ -6,20 +6,32 @@ import { XCircle as XCircleIcon } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { fetchableMediaURI } from 'lib/media/media-utils.js';
-import type { EncryptedMediaType, MediaType } from 'lib/types/media-types.js';
+import type {
+  EncryptedMediaType,
+  MediaType,
+  Dimensions,
+} from 'lib/types/media-types.js';
 
 import EncryptedMultimedia from './encrypted-multimedia.react.js';
+import LoadableVideo from './loadable-video.react.js';
+import { usePlaceholder } from './media-utils.js';
 import css from './media.css';
 
 type MediaInfo =
   | {
       +type: MediaType,
       +uri: string,
+      +dimensions: ?Dimensions,
+      +thumbHash: ?string,
+      +thumbnailURI: ?string,
     }
   | {
       +type: EncryptedMediaType,
       +holder: string,
       +encryptionKey: string,
+      +dimensions: ?Dimensions,
+      +thumbHash: ?string,
+      +thumbHashEncryptionKey: ?string,
     };
 
 type BaseProps = {
@@ -29,28 +41,51 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +popModal: (modal: ?React.Node) => void,
+  +placeholderImage: ?string,
 };
 
-class MultimediaModal extends React.PureComponent<Props> {
+type State = {
+  +dimensions: ?Dimensions,
+};
+
+class MultimediaModal extends React.PureComponent<Props, State> {
   overlay: ?HTMLDivElement;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { dimensions: null };
+  }
 
   componentDidMount() {
     invariant(this.overlay, 'overlay ref unset');
     this.overlay.focus();
+    this.calculateMediaDimensions();
+    window.addEventListener('resize', this.calculateMediaDimensions);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.calculateMediaDimensions);
   }
 
   render(): React.Node {
     let mediaModalItem;
-    const { media } = this.props;
+    const { media, placeholderImage } = this.props;
+    const style = {
+      backgroundImage: placeholderImage
+        ? `url(${placeholderImage})`
+        : undefined,
+    };
     if (media.type === 'photo') {
       const uri = fetchableMediaURI(media.uri);
-      mediaModalItem = <img src={uri} />;
+      mediaModalItem = <img src={uri} style={style} />;
     } else if (media.type === 'video') {
       const uri = fetchableMediaURI(media.uri);
       mediaModalItem = (
-        <video controls>
-          <source src={uri} />
-        </video>
+        <LoadableVideo
+          uri={uri}
+          thumbnailURI={media.thumbnailURI}
+          thumbHashDataURL={placeholderImage}
+        />
       );
     } else {
       invariant(
@@ -58,11 +93,20 @@ class MultimediaModal extends React.PureComponent<Props> {
         'invalid media type',
       );
       const { type, holder, encryptionKey } = media;
+      const dimensions = this.state.dimensions ?? media.dimensions;
+      const elementStyle = dimensions
+        ? {
+            width: `${dimensions.width}px`,
+            height: `${dimensions.height}px`,
+          }
+        : undefined;
       mediaModalItem = (
         <EncryptedMultimedia
           type={type}
           holder={holder}
           encryptionKey={encryptionKey}
+          placeholderSrc={placeholderImage}
+          elementStyle={elementStyle}
         />
       );
     }
@@ -75,7 +119,7 @@ class MultimediaModal extends React.PureComponent<Props> {
         tabIndex={0}
         onKeyDown={this.onKeyDown}
       >
-        {mediaModalItem}
+        <div className={css.mediaContainer}>{mediaModalItem}</div>
         <XCircleIcon
           onClick={this.props.popModal}
           className={css.closeMultimediaModal}
@@ -101,12 +145,50 @@ class MultimediaModal extends React.PureComponent<Props> {
         this.props.popModal();
       }
     };
+
+  calculateMediaDimensions: () => void = () => {
+    if (!this.overlay || !this.props.media.dimensions) {
+      return;
+    }
+    const containerWidth = this.overlay.clientWidth;
+    const containerHeight = this.overlay.clientHeight;
+    const containerAspectRatio = containerWidth / containerHeight;
+
+    const { width: mediaWidth, height: mediaHeight } =
+      this.props.media.dimensions;
+    const mediaAspectRatio = mediaWidth / mediaHeight;
+
+    let newWidth, newHeight;
+    if (containerAspectRatio > mediaAspectRatio) {
+      newWidth = Math.min(mediaWidth, containerHeight * mediaAspectRatio);
+      newHeight = newWidth / mediaAspectRatio;
+    } else {
+      newHeight = Math.min(mediaHeight, containerWidth / mediaAspectRatio);
+      newWidth = newHeight * mediaAspectRatio;
+    }
+    this.setState({
+      dimensions: {
+        width: newWidth,
+        height: newHeight,
+      },
+    });
+  };
 }
 
 function ConnectedMultiMediaModal(props: BaseProps): React.Node {
   const modalContext = useModalContext();
+  const placeholderImage = usePlaceholder(
+    props.media.thumbHash,
+    props.media.thumbHashEncryptionKey,
+  );
 
-  return <MultimediaModal {...props} popModal={modalContext.popModal} />;
+  return (
+    <MultimediaModal
+      {...props}
+      popModal={modalContext.popModal}
+      placeholderImage={placeholderImage}
+    />
+  );
 }
 
 export default ConnectedMultiMediaModal;

@@ -48,18 +48,27 @@ function ThreadSettingsMediaGalleryModal(
 
   const onClick = React.useCallback(
     (media: Media) => {
-      // This branching is needed for Flow.
-      let mediaInfo;
+      const thumbHash = media.thumbnailThumbHash ?? media.thumbHash;
+      let mediaInfo = {
+        thumbHash,
+        dimensions: media.dimensions,
+      };
       if (media.type === 'photo' || media.type === 'video') {
+        const { uri, thumbnailURI } = media;
         mediaInfo = {
+          ...mediaInfo,
           type: media.type,
-          uri: media.uri,
+          uri,
+          thumbnailURI,
         };
       } else {
+        const { holder, encryptionKey, thumbnailEncryptionKey } = media;
         mediaInfo = {
+          ...mediaInfo,
           type: media.type,
-          holder: media.holder,
-          encryptionKey: media.encryptionKey,
+          holder,
+          encryptionKey,
+          thumbHashEncryptionKey: thumbnailEncryptionKey ?? encryptionKey,
         };
       }
       pushModal(<MultimediaModal media={mediaInfo} />);
