@@ -133,6 +133,10 @@ function navInfoFromURL(
     newNavInfo.settingsSection = urlInfo.settings;
   }
 
+  if (urlInfo.inviteSecret) {
+    newNavInfo.inviteSecret = urlInfo.inviteSecret;
+  }
+
   return newNavInfo;
 }
 
