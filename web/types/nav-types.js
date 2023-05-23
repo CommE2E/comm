@@ -29,6 +29,7 @@ export type NavInfo = {
   +settingsSection?: NavigationSettingsSection,
   +selectedUserList?: $ReadOnlyArray<string>,
   +chatMode?: NavigationChatMode,
+  +inviteSecret?: string,
 };
 
 export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
@@ -40,4 +41,5 @@ export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   settingsSection: t.maybe(navigationSettingsSectionValidator),
   selectedUserList: t.maybe(t.list(t.String)),
   chatMode: t.maybe(navigationChatModeValidator),
+  inviteSecret: t.maybe(t.String),
 });
