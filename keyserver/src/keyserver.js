@@ -109,12 +109,6 @@ import {
         downloadHandler(uploadDownloadResponder),
       );
 
-      // This endpoint should be handled by the mobile app. If the server
-      // receives this request, it means that the app is not installed and we
-      // should redirect the user to a place from which the app can be
-      // downloaded.
-      router.get('/invite/:secret', inviteResponder);
-
       // $FlowFixMe express-ws has side effects that can't be typed
       router.ws('/ws', onConnection);
       router.get('/worker/:worker', webWorkerResponder);
@@ -146,6 +140,12 @@ import {
       landingRouter.get('*', landingHandler);
       server.use(landingBaseRoutePath, landingRouter);
     }
+
+    // This endpoint should be handled by the mobile app. If the server
+    // receives this request, it means that the app is not installed and we
+    // should redirect the user to a place from which the app can be
+    // downloaded.
+    server.get('/invite/:secret', inviteResponder);
 
     if (commAppBaseRoutePath) {
       const commAppRouter = express.Router();
