@@ -7,7 +7,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
 import { updateCalendarCommunityFilter } from '../redux/action-types.js';
-import { useCommunityIsPicked } from '../selectors/calendar-selectors.js';
+import { useCommunityIsPickedCalendar } from '../selectors/calendar-selectors.js';
 import {
   useOnClickThread,
   useThreadIsActive,
@@ -45,7 +45,7 @@ function CalendarDrawerItemHandler(props: HandlerProps): React.Node {
       payload: threadInfo.id,
     });
   }, [dispatch, threadInfo.id]);
-  const isActive = useCommunityIsPicked(threadInfo.id);
+  const isActive = useCommunityIsPickedCalendar(threadInfo.id);
 
   const handler = React.useMemo(
     () => ({ onClick, isActive }),
