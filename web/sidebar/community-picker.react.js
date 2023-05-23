@@ -10,6 +10,7 @@ import {
 } from 'lib/actions/community-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
 import CommunityCreationModal from './community-creation/community-creation-modal.react.js';
 import CommunityDrawer from './community-drawer.react.js';
@@ -87,6 +88,17 @@ function CommunityPicker(): React.Node {
     );
   }
 
+  const boundUnreadCount = useSelector(unreadCount);
+  let chatBadge = null;
+  if (boundUnreadCount > 0 && !isCalendarOpen) {
+    if (boundUnreadCount < 100) {
+      chatBadge = <span className={css.chatBadge}>{boundUnreadCount}</span>;
+    } else {
+      const classes = classNames(css.chatBadge, css.chatBadgePlus);
+      chatBadge = <span className={classes}>99+</span>;
+    }
+  }
+
   return (
     <div className={css.container}>
       <div className={css.header}>
@@ -94,6 +106,8 @@ function CommunityPicker(): React.Node {
           <div className={sideLineInbox} />
           <SWMansionIcon icon="inbox" size={24} />
           <div className={css.buttonTitle}> {inboxButtonTitle} </div>
+          <div className={css.spacer} />
+          {chatBadge}
         </a>
       </div>
       <div className={css.drawerWrapper}>
