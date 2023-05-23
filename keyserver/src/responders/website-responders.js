@@ -61,7 +61,10 @@ import { getWebPushConfig } from '../push/providers.js';
 import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
 import { streamJSON, waitForStream } from '../utils/json-stream.js';
-import { getAppURLFactsFromRequestURL } from '../utils/urls.js';
+import {
+  getAppURLFactsFromRequestURL,
+  getCommAppURLFacts,
+} from '../utils/urls.js';
 import { validateOutput } from '../utils/validation-utils.js';
 
 const { renderToNodeStream } = ReactDOMServer;
@@ -564,6 +567,14 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
       ? `&referrer=${encodeURIComponent(`utm_source=invite/${secret}`)}`
       : '';
     const redirectUrl = `${stores.googlePlayUrl}${referrer}`;
+    res.writeHead(301, {
+      Location: redirectUrl,
+    });
+    res.end();
+    return;
+  } else if (detectionResult.os !== 'iOS') {
+    const baseRoutePath = getCommAppURLFacts()?.baseRoutePath;
+    const redirectUrl = `${baseRoutePath}handle/invite/${secret}`;
     res.writeHead(301, {
       Location: redirectUrl,
     });
