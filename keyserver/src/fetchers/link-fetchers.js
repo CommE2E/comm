@@ -71,7 +71,7 @@ async function fetchPrimaryInviteLinks(
   const [result] = await dbQuery(query);
   return result.map(row => ({
     name: row.name,
-    primary: row.primary,
+    primary: row.primary === 1,
     role: row.role.toString(),
     communityID: row.community.toString(),
     expirationTime: row.expirationTime,
