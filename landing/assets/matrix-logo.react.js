@@ -2,11 +2,17 @@
 
 import * as React from 'react';
 
-function MatrixLogo(): React.Node {
+type Props = {
+  +size?: number,
+};
+
+function MatrixLogo(props: Props): React.Node {
+  const { size } = props;
+
   return (
     <svg
-      width="50"
-      height="50"
+      width={size ?? 50}
+      height={size ?? 50}
       viewBox="0 0 50 50"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
