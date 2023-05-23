@@ -20,7 +20,6 @@ function ListLoadingIndicator(): React.Node {
 
 const unboundStyles = {
   loadingIndicator: {
-    backgroundColor: 'listBackground',
     flex: 1,
     padding: 10,
   },
