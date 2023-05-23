@@ -2,13 +2,19 @@
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
 import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
 import CommIcon from '../components/comm-icon.react.js';
 import Pill from '../components/pill.react.js';
+import RegistrationContainer from '../account/registration/registration-container.react.js';
+import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
+import CommIcon from '../components/comm-icon.react.js';
+import Pill from '../components/pill.react.js';
 import { type NavigationRoute } from '../navigation/route-names.js';
+import { useColors, useStyles } from '../themes/colors.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
