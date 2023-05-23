@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils.js';
 
+import { useNavigateToThread } from './message-list-types.js';
 import { useOnPressReport } from './message-report-utils.js';
 import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
 import TextMessageTooltipButton from './text-message-tooltip-button.react.js';
@@ -34,20 +35,24 @@ function TooltipMenu(
   props: TooltipMenuProps<'TextMessageTooltipModal'>,
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
+  const { threadInfo } = props.route.params.item;
 
   const overlayContext = React.useContext(OverlayContext);
   const inputState = React.useContext(InputStateContext);
   const { text } = route.params.item.messageInfo;
+  const navigateToThread = useNavigateToThread();
+
   const onPressReply = React.useCallback(() => {
     invariant(
       inputState,
       'inputState should be set in TextMessageTooltipModal.onPressReply',
     );
+    navigateToThread({ threadInfo });
     inputState.editInputMessage({
       message: createMessageReply(text),
       mode: 'prepend',
     });
-  }, [inputState, text]);
+  }, [inputState, navigateToThread, threadInfo, text]);
   const renderReplyIcon = React.useCallback(
     style => <CommIcon name="reply" style={style} size={12} />,
     [],

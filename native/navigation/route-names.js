@@ -236,4 +236,5 @@ export const threadRoutes = [
   ComposeSubchannelRouteName,
   FullScreenThreadMediaGalleryRouteName,
   MessageResultsScreenRouteName,
+  MessageSearchRouteName,
 ];
