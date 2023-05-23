@@ -98,19 +98,7 @@ function Multimedia(props: Props): React.Node {
 
   const { pushModal } = useModalContext();
   const handleClick = React.useCallback(() => {
-    let media;
-    if (
-      mediaSource.type === 'encrypted_photo' ||
-      mediaSource.type === 'encrypted_video'
-    ) {
-      const { type, holder, encryptionKey } = mediaSource;
-      media = { type, holder, encryptionKey };
-    } else {
-      const { type, uri } = mediaSource;
-      invariant(uri, 'uri is missing for media modal');
-      media = { type, uri };
-    }
-    pushModal(<MultimediaModal media={media} />);
+    pushModal(<MultimediaModal media={mediaSource} />);
   }, [pushModal, mediaSource]);
 
   let progressIndicator, errorIndicator, removeButton;
