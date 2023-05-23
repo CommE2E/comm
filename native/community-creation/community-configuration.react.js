@@ -47,6 +47,7 @@ function CommunityConfiguration(props: Props): React.Node {
             icon={cloudIcon}
           />
         </View>
+
         <ThreadSettingsCategoryHeader type="full" title="COMMUNITY INFO" />
         <View style={styles.communityNameRow}>
           <Text style={styles.communityNameLabel}>Name</Text>
@@ -60,6 +61,12 @@ function CommunityConfiguration(props: Props): React.Node {
           />
         </View>
         <ThreadSettingsCategoryFooter type="full" />
+
+        <View style={styles.communityNameNoticeContainer}>
+          <Text style={styles.communityNameNoticeText}>
+            You may edit your community&rsquo;s image and name later.
+          </Text>
+        </View>
       </RegistrationContentContainer>
     </RegistrationContainer>
   );
@@ -101,6 +108,14 @@ const unboundStyles = {
     paddingRight: 0,
     paddingVertical: 0,
     borderBottomColor: 'transparent',
+  },
+  communityNameNoticeContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  communityNameNoticeText: {
+    color: 'panelForegroundTertiaryLabel',
   },
 };
 
