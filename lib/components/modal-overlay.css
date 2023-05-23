@@ -5,7 +5,6 @@ div.modalOverlay {
   height: 100%;
   z-index: 4;
   width: 100%;
-  background-color: #000000e6;
   display: flex;
   flex-direction: column;
   align-items: center;

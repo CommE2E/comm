@@ -141,7 +141,14 @@ function EditModalProvider(props: Props): React.Node {
     if (!modal) {
       return null;
     }
-    return <ModalOverlay onClose={clearEditModal}>{modal}</ModalOverlay>;
+    return (
+      <ModalOverlay
+        onClose={clearEditModal}
+        backgroundColor="var(--modal-overlay-background-80)"
+      >
+        {modal}
+      </ModalOverlay>
+    );
   }, [clearEditModal, modal]);
 
   return (
