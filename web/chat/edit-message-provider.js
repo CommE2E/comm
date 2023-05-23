@@ -142,7 +142,11 @@ function EditModalProvider(props: Props): React.Node {
       return null;
     }
     return (
-      <ModalOverlay onClose={clearEditModal} disableAutoFocus={true}>
+      <ModalOverlay
+        onClose={clearEditModal}
+        disableAutoFocus={true}
+        backgroundColor="var(--modal-overlay-background-80)"
+      >
         {modal}
       </ModalOverlay>
     );
