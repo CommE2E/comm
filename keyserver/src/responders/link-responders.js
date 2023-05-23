@@ -42,7 +42,7 @@ export const inviteLinkVerificationResponseValidator: TUnion<InviteLinkVerificat
 
 async function inviteLinkVerificationResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<InviteLinkVerificationResponse> {
   const request = await validateInput(
     viewer,
