@@ -149,6 +149,7 @@ function EditModalProvider(props: Props): React.Node {
         onClose={clearEditModal}
         disableTab={true}
         disableAutoFocus={true}
+        backgroundColor="var(--modal-overlay-background-80)"
       >
         {modal}
       </ModalOverlay>
