@@ -18,7 +18,6 @@ native
 !native/ios/Podfile
 !native/cpp/CommonCpp/grpc
 !native/expo-modules/comm-expo-package/package.json
-!native/expo-modules/thumbhash/package.json
 
 web/node_modules
 web/dist
