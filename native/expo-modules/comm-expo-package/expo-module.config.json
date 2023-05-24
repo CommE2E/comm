@@ -1,13 +1,12 @@
 {
   "platforms": ["ios", "android"],
   "ios": {
-    "modules": ["AESCryptoModule", "HelloWorldModule", "ThumbhashModule"]
+    "modules": ["AESCryptoModule", "ThumbhashModule"]
   },
   "android": {
     "modules": [
       "app.comm.android.aescrypto.AESCryptoModule",
       "app.comm.android.lifecycle.AndroidLifecycleModule",
-      "app.comm.android.expo.HelloWorldModule",
       "app.comm.android.thumbhash.ThumbhashModule"
     ]
   }
