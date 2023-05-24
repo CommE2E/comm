@@ -1082,7 +1082,7 @@ const unboundStyles = {
   },
   textInput: {
     backgroundColor: 'listInputBackground',
-    borderRadius: 12,
+    borderRadius: 8,
     color: 'listForegroundLabel',
     fontSize: 16,
     marginLeft: 4,
