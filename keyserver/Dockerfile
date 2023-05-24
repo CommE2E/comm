@@ -124,8 +124,6 @@ COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
   keyserver/addons/rust-node-addon/
 COPY --chown=comm native/expo-modules/comm-expo-package/package.json \
   native/expo-modules/comm-expo-package/
-COPY --chown=comm native/expo-modules/thumbhash/package.json \
-  native/expo-modules/thumbhash/
 COPY --chown=comm services/electron-update-server/package.json \
   services/electron-update-server/
 
