@@ -1,6 +1,4 @@
 PODS:
-  - AESCrypto (0.0.1):
-    - ExpoModulesCore
   - boost (1.76.0)
   - CommExpoPackage (0.0.1):
     - ExpoModulesCore
@@ -568,7 +566,6 @@ PODS:
   - Yoga (1.14.0)
 
 DEPENDENCIES:
-  - AESCrypto (from `../expo-modules/aes-crypto/ios`)
   - boost (from `../../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - CommExpoPackage (from `../expo-modules/comm-expo-package/ios`)
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -675,8 +672,6 @@ SPEC REPOS:
     - SPTPersistentCache
 
 EXTERNAL SOURCES:
-  AESCrypto:
-    :path: "../expo-modules/aes-crypto/ios"
   boost:
     :podspec: "../../node_modules/react-native/third-party-podspecs/boost.podspec"
   CommExpoPackage:
@@ -847,7 +842,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AESCrypto: 3f397599b6b8e66c3b8a16e09bed17e6ad03482d
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   CommExpoPackage: 3f9d8a25537fb9d80f79a63fd1e73c51f55b87e9
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54

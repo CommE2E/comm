@@ -1,9 +1,0 @@
-{
-  "platforms": ["ios", "android"],
-  "ios": {
-    "modules": ["AESCryptoModule"]
-  },
-  "android": {
-    "modules": ["app.comm.android.aescrypto.AESCryptoModule"]
-  }
-}
