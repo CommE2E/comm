@@ -1,0 +1,39 @@
+.container {
+  border-radius: 16px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  background: var(--modal-bg);
+  width: 398px;
+  gap: 32px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.heading {
+  font-size: var(--xl-font-20);
+  line-height: var(--line-height-display);
+  font-weight: var(--semi-bold);
+  color: var(--fg);
+}
+
+.text {
+  font-size: var(--s-font-14);
+  color: var(--label-default-color);
+}
+
+hr {
+  width: 100%;
+  background: var(--border);
+}
+
+button {
+  width: 100%;
+}
