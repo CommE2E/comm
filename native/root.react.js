@@ -57,6 +57,9 @@ import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
 import { provider } from './utils/ethers-utils.js';
 
+// Add custom items to expo-dev-menu
+import './dev-menu.js';
+
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
