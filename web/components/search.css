@@ -3,7 +3,7 @@ div.searchContainer {
   display: flex;
   align-items: center;
   margin: 1rem;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 8px;
 }
 
