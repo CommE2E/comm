@@ -1,9 +1,12 @@
 {
   "platforms": ["ios", "android"],
   "ios": {
-    "modules": ["HelloWorldModule"]
+    "modules": ["AESCryptoModule", "HelloWorldModule"]
   },
   "android": {
-    "modules": ["app.comm.android.expo.HelloWorldModule"]
+    "modules": [
+      "app.comm.android.aescrypto.AESCryptoModule",
+      "app.comm.android.expo.HelloWorldModule"
+    ]
   }
 }
