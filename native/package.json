@@ -51,6 +51,7 @@
   "dependencies": {
     "@commapp/android-lifecycle": "0.0.1",
     "@commapp/aes-crypto": "0.0.1",
+    "@commapp/expo-package": "0.0.1",
     "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
     "@commapp/thumbhash": "0.0.1",
     "@ethersproject/shims": "^5.7.0",
