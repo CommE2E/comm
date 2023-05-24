@@ -66,6 +66,24 @@ function CommunityConfiguration(props: Props): React.Node {
             You may edit your community&rsquo;s image and name later.
           </Text>
         </View>
+
+        <ThreadSettingsCategoryHeader type="full" title="OPTIONAL SETTINGS" />
+        <View style={styles.enumCell}>
+          <View style={styles.enumIcon}>
+            <CommIcon name="megaphone" size={24} color={colors.purpleButton} />
+          </View>
+          <View style={styles.enumInfoContainer}>
+            <Text style={styles.enumInfoName}>Announcement root</Text>
+            <Text style={styles.enumInfoDescription}>
+              Make it so that only admins can post to the root channel of the
+              community.
+            </Text>
+          </View>
+          <View style={styles.enumCheckBoxContainer}>
+            <View style={styles.enumCheckBox}></View>
+          </View>
+        </View>
+        <ThreadSettingsCategoryFooter type="full" />
       </RegistrationContentContainer>
     </RegistrationContainer>
   );
@@ -118,6 +136,41 @@ const unboundStyles = {
   },
   communityNameNoticeText: {
     color: 'panelForegroundTertiaryLabel',
+  },
+  enumCell: {
+    flexDirection: 'row',
+    height: 96,
+    backgroundColor: 'panelForeground',
+  },
+  enumIcon: {
+    padding: 16,
+  },
+  enumInfoContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    padding: 8,
+  },
+  enumInfoName: {
+    color: 'panelForegroundLabel',
+    fontSize: 18,
+    lineHeight: 24,
+  },
+  enumInfoDescription: {
+    color: 'panelForegroundSecondaryLabel',
+    lineHeight: 18,
+  },
+  enumCheckBoxContainer: {
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  enumCheckBox: {
+    height: 32,
+    width: 32,
+    borderRadius: 3.5,
+    borderWidth: 1,
+    borderColor: 'panelSecondaryForegroundBorder',
   },
 };
 
