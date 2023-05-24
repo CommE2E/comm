@@ -11,6 +11,7 @@
     "keyserver/addons/rust-node-addon",
     "native/expo-modules/android-lifecycle",
     "native/expo-modules/aes-crypto",
+    "native/expo-modules/comm-expo-package",
     "native/expo-modules/thumbhash",
     "services/electron-update-server",
     "web/opaque-ke-wasm"
