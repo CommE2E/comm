@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
@@ -34,6 +34,16 @@ function CommunityConfiguration(props: Props): React.Node {
   );
 
   const [pendingCommunityName, setPendingCommunityName] = React.useState('');
+  const [announcementSetting, setAnnouncementSetting] = React.useState(false);
+
+  const onCheckBoxPress = React.useCallback(() => {
+    setAnnouncementSetting(!announcementSetting);
+  }, [announcementSetting]);
+
+  let checkBoxFill;
+  if (announcementSetting) {
+    checkBoxFill = <View style={styles.enumCheckBoxFill} />;
+  }
 
   return (
     <RegistrationContainer>
@@ -79,9 +89,13 @@ function CommunityConfiguration(props: Props): React.Node {
               community.
             </Text>
           </View>
-          <View style={styles.enumCheckBoxContainer}>
-            <View style={styles.enumCheckBox}></View>
-          </View>
+          <TouchableOpacity
+            onPress={onCheckBoxPress}
+            style={styles.enumCheckBoxContainer}
+            activeOpacity={0.4}
+          >
+            <View style={styles.enumCheckBox}>{checkBoxFill}</View>
+          </TouchableOpacity>
         </View>
         <ThreadSettingsCategoryFooter type="full" />
       </RegistrationContentContainer>
@@ -171,6 +185,14 @@ const unboundStyles = {
     borderRadius: 3.5,
     borderWidth: 1,
     borderColor: 'panelSecondaryForegroundBorder',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  enumCheckBoxFill: {
+    height: 20,
+    width: 20,
+    borderRadius: 2.1875,
+    backgroundColor: 'panelForegroundSecondaryLabel',
   },
 };
 
