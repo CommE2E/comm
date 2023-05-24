@@ -2,19 +2,18 @@
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import { Text, View } from 'react-native';
 
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
 import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
+import {
+  ThreadSettingsCategoryFooter,
+  ThreadSettingsCategoryHeader,
+} from '../chat/settings/thread-settings-category.react.js';
 import CommIcon from '../components/comm-icon.react.js';
 import Pill from '../components/pill.react.js';
-import RegistrationContainer from '../account/registration/registration-container.react.js';
-import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
-import CommIcon from '../components/comm-icon.react.js';
-import Pill from '../components/pill.react.js';
+import TextInput from '../components/text-input.react.js';
 import { type NavigationRoute } from '../navigation/route-names.js';
-import { useColors, useStyles } from '../themes/colors.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -34,6 +33,8 @@ function CommunityConfiguration(props: Props): React.Node {
     />
   );
 
+  const [pendingCommunityName, setPendingCommunityName] = React.useState('');
+
   return (
     <RegistrationContainer>
       <RegistrationContentContainer style={styles.containerPaddingOverride}>
@@ -45,6 +46,19 @@ function CommunityConfiguration(props: Props): React.Node {
             icon={cloudIcon}
           />
         </View>
+        <ThreadSettingsCategoryHeader type="full" title="COMMUNITY INFO" />
+        <View style={styles.communityNameRow}>
+          <Text style={styles.communityNameLabel}>Name</Text>
+          <TextInput
+            style={styles.communityNamePendingValue}
+            placeholder="Community Name"
+            placeholderTextColor={colors.panelSecondaryForegroundBorder}
+            value={pendingCommunityName}
+            onChangeText={setPendingCommunityName}
+            editable={true}
+          />
+        </View>
+        <ThreadSettingsCategoryFooter type="full" />
       </RegistrationContentContainer>
     </RegistrationContainer>
   );
@@ -67,6 +81,28 @@ const unboundStyles = {
   },
   containerPaddingOverride: {
     padding: 0,
+  },
+  communityNameRow: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+  },
+  communityNameLabel: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    width: 96,
+  },
+  communityNamePendingValue: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    margin: 0,
+    paddingLeft: 4,
+    paddingRight: 0,
+    paddingVertical: 0,
+    borderBottomColor: 'transparent',
   },
 };
 
