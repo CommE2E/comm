@@ -105,6 +105,8 @@ export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
 export const ConnectEthereumRouteName = 'ConnectEthereum';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
 export const UsernameSelectionRouteName = 'UsernameSelection';
+export const CommunityCreationRouteName = 'CommunityCreation';
+export const CommunityConfigurationRouteName = 'CommunityConfiguration';
 export const MessageSearchRouteName = 'MessageSearch';
 
 export type RootParamList = {
@@ -121,6 +123,7 @@ export type RootParamList = {
   +SubchannelsListModal: SubchannelListModalParams,
   +MessageReactionsModal: MessageReactionsModalParams,
   +Registration: void,
+  +CommunityCreation: void,
   +InviteLinkModal: InviteLinkModalParams,
   +InviteLinkNavigator: void,
 };
@@ -208,6 +211,10 @@ export type InviteLinkParamList = {
   +ManagePublicLink: ManagePublicLinkScreenParams,
 };
 
+export type CommunityCreationParamList = {
+  +CommunityConfiguration: void,
+};
+
 export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
@@ -218,6 +225,7 @@ export type ScreenParamList = {
   ...CommunityDrawerParamList,
   ...RegistrationParamList,
   ...InviteLinkParamList,
+  ...CommunityCreationParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =

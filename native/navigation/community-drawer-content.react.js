@@ -1,8 +1,9 @@
 // @flow
 
 import { useDrawerStatus } from '@react-navigation/drawer';
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { FlatList, Platform, View, Text } from 'react-native';
+import { FlatList, Platform, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
@@ -25,6 +26,7 @@ import {
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
+import { CommunityCreationRouteName } from './route-names.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -104,20 +106,27 @@ function CommunityDrawerContent(): React.Node {
     [childThreadInfosMap, communitiesSuffixed, labelStyles],
   );
 
+  const { navigate } = useNavigation();
+  const onPressCommunityCreation = React.useCallback(() => {
+    navigate(CommunityCreationRouteName);
+  }, [navigate]);
+
   const isCommunityCreationButtonEnabled = false;
   let communityCreationButton;
   if (isCommunityCreationButtonEnabled) {
     communityCreationButton = (
-      <View style={styles.communityCreationContainer}>
-        <View style={styles.communityCreationIconContainer}>
-          <SWMansionIcon
-            name="plus"
-            size={22}
-            style={styles.communityCreationIcon}
-          />
+      <TouchableOpacity onPress={onPressCommunityCreation} activeOpacity={0.4}>
+        <View style={styles.communityCreationContainer}>
+          <View style={styles.communityCreationIconContainer}>
+            <SWMansionIcon
+              name="plus"
+              size={22}
+              style={styles.communityCreationIcon}
+            />
+          </View>
+          <Text style={styles.communityCreationText}>Create community</Text>
         </View>
-        <Text style={styles.communityCreationText}>Create community</Text>
-      </View>
+      </TouchableOpacity>
     );
   }
 
