@@ -89,4 +89,8 @@ dependencies {
   implementation project(':expo-modules-core')
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${getKotlinVersion()}"
   implementation 'com.facebook.react:react-native:+'
+
+  // dependencies of AndroidLifecycleModule
+  implementation "androidx.lifecycle:lifecycle-runtime:2.5.1"
+  implementation "androidx.lifecycle:lifecycle-process:2.5.1"
 }

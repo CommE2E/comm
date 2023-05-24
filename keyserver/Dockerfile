@@ -122,8 +122,6 @@ COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
   keyserver/addons/rust-node-addon/install_ci_deps.sh \
   keyserver/addons/rust-node-addon/postinstall.sh \
   keyserver/addons/rust-node-addon/
-COPY --chown=comm native/expo-modules/android-lifecycle/package.json \
-  native/expo-modules/android-lifecycle/
 COPY --chown=comm native/expo-modules/comm-expo-package/package.json \
   native/expo-modules/comm-expo-package/
 COPY --chown=comm native/expo-modules/thumbhash/package.json \
