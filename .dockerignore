@@ -17,7 +17,6 @@ native
 !native/.flowconfig
 !native/ios/Podfile
 !native/cpp/CommonCpp/grpc
-!native/expo-modules/android-lifecycle/package.json
 !native/expo-modules/comm-expo-package/package.json
 !native/expo-modules/thumbhash/package.json
 

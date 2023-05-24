@@ -49,7 +49,6 @@
     "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git"
   },
   "dependencies": {
-    "@commapp/android-lifecycle": "0.0.1",
     "@commapp/expo-package": "0.0.1",
     "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
     "@commapp/thumbhash": "0.0.1",
