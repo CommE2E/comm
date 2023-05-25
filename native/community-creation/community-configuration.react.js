@@ -4,6 +4,8 @@ import * as React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResult } from 'lib/types/thread-types.js';
 import {
@@ -25,12 +27,17 @@ import Pill from '../components/pill.react.js';
 import TextInput from '../components/text-input.react.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import { type NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
   +navigation: CommunityCreationNavigationProp<'CommunityConfiguration'>,
   +route: NavigationRoute<'CommunityConfiguration'>,
 };
+
+const createNewCommunityLoadingStatusSelector =
+  createLoadingStatusSelector(newThreadActionTypes);
+
 // eslint-disable-next-line no-unused-vars
 function CommunityConfiguration(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
@@ -40,6 +47,10 @@ function CommunityConfiguration(props: Props): React.Node {
 
   const callNewThread = useServerCall(newThread);
   const calendarQueryFunc = useCalendarQuery();
+
+  const createNewCommunityLoadingStatus: LoadingStatus = useSelector(
+    createNewCommunityLoadingStatusSelector,
+  );
 
   const cloudIcon = (
     <CommIcon
@@ -141,6 +152,11 @@ function CommunityConfiguration(props: Props): React.Node {
           <RegistrationButton
             onPress={createNewCommunity}
             label="Create Community"
+            variant={
+              createNewCommunityLoadingStatus === 'loading'
+                ? 'loading'
+                : 'enabled'
+            }
           />
         </RegistrationButtonContainer>
       </RegistrationContentContainer>
