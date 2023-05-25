@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
@@ -67,10 +66,9 @@ function KeyserverSelection(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { coolOrNerdMode } = props.route.params.userSelections;
   const onSubmit = React.useCallback(() => {
-    invariant(
-      keyserverUsername,
-      'Button should be disabled if keyserverUsername is not set',
-    );
+    if (!keyserverUsername) {
+      return;
+    }
     navigate<'ConnectEthereum'>({
       name: ConnectEthereumRouteName,
       params: { userSelections: { coolOrNerdMode, keyserverUsername } },
@@ -121,6 +119,8 @@ function KeyserverSelection(props: Props): React.Node {
             onChangeText={setCustomKeyserver}
             placeholder="Keyserver"
             onFocus={onCustomKeyserverFocus}
+            returnKeyType="go"
+            onSubmitEditing={onSubmit}
             ref={customKeyserverTextInputRef}
           />
         </RegistrationTile>
