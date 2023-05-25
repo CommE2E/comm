@@ -50,13 +50,13 @@ function UsernameSelection(props: Props): React.Node {
   const validUsername = username.search(validUsernameRegex) > -1;
 
   const [usernameError, setUsernameError] = React.useState<?UsernameError>();
-  const styles = useStyles(unboundStyles);
   const checkUsernameValidity = React.useCallback(() => {
-    if (validUsername) {
-      return true;
+    if (!validUsername) {
+      setUsernameError('username_invalid');
+      return false;
     }
-    setUsernameError('username_invalid');
-    return false;
+    setUsernameError(null);
+    return true;
   }, [validUsername]);
 
   const exactSearchUserCall = useServerCall(exactSearchUser);
@@ -106,6 +106,7 @@ function UsernameSelection(props: Props): React.Node {
     buttonVariant = 'enabled';
   }
 
+  const styles = useStyles(unboundStyles);
   let errorText;
   if (usernameError === 'username_invalid') {
     errorText = (
@@ -153,7 +154,7 @@ function UsernameSelection(props: Props): React.Node {
           keyboardType="ascii-capable"
           textContentType="username"
           autoComplete="username-new"
-          returnKeyType="next"
+          returnKeyType="go"
           onSubmitEditing={onProceed}
           editable={!exactSearchUserCallLoading}
           onBlur={checkUsernameValidity}
