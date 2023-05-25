@@ -12,7 +12,10 @@ import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors.js';
-import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import {
+  getPotentialMemberItems,
+  useSearchUsers,
+} from 'lib/shared/search-utils.js';
 import {
   useExistingThreadInfoFinder,
   pendingThreadType,
@@ -58,7 +61,6 @@ type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
   +resolveToUser: (user: AccountUserInfo) => void,
-  +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
   +genesisThreadInfo: ?ThreadInfo,
@@ -154,7 +156,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
             userInfoInputArray={userInfoInputArray}
             updateTagInput={this.props.updateTagInput}
             resolveToUser={this.props.resolveToUser}
-            otherUserInfos={this.props.otherUserInfos}
             userSearchResults={this.props.userSearchResults}
           />
         </>
@@ -249,16 +250,24 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
     const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-    const userSearchResults = React.useMemo(
-      () =>
-        getPotentialMemberItems({
-          text: usernameInputText,
-          userInfos: otherUserInfos,
-          searchIndex: userSearchIndex,
-          excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
-        }),
-      [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
-    );
+
+    const serverSearchResults = useSearchUsers(usernameInputText);
+
+    const userSearchResults = React.useMemo(() => {
+      return getPotentialMemberItems({
+        text: usernameInputText,
+        userInfos: otherUserInfos,
+        searchIndex: userSearchIndex,
+        excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
+        includeServerSearchUsers: serverSearchResults,
+      });
+    }, [
+      usernameInputText,
+      otherUserInfos,
+      userSearchIndex,
+      userInfoInputArray,
+      serverSearchResults,
+    ]);
 
     const [baseThreadInfo, setBaseThreadInfo] = React.useState(
       props.route.params.threadInfo,
@@ -421,7 +430,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
           userInfoInputArray={userInfoInputArray}
           updateTagInput={updateTagInput}
           resolveToUser={resolveToUser}
-          otherUserInfos={otherUserInfos}
           userSearchResults={userSearchResults}
           threadInfo={threadInfo}
           genesisThreadInfo={genesisThreadInfo}

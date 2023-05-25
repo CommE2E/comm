@@ -165,13 +165,13 @@ function CommunityCreationMembers(props: Props): React.Node {
   );
 
   const onSelectUser = React.useCallback(
-    userID => {
-      if (selectedUserIDs.some(existingUserID => userID === existingUserID)) {
+    ({ id }: AccountUserInfo) => {
+      if (selectedUserIDs.some(existingUserID => id === existingUserID)) {
         return;
       }
       setSelectedUsers(oldUserInfoInputArray => [
         ...oldUserInfoInputArray,
-        otherUserInfos[userID],
+        otherUserInfos[id],
       ]);
       setUsernameInputText('');
     },

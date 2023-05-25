@@ -19,7 +19,6 @@ type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
   +resolveToUser: (user: AccountUserInfo) => void,
-  +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchResults: $ReadOnlyArray<UserListItem>,
 };
 
@@ -36,7 +35,6 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
     userInfoInputArray,
     updateTagInput,
     resolveToUser,
-    otherUserInfos,
     userSearchResults,
   }) {
     const styles = useStyles(unboundStyles);
@@ -61,14 +59,13 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
     }, [userSearchResults, userInfoInputArray]);
 
     const onUserSelect = React.useCallback(
-      (userID: string) => {
+      (userInfo: AccountUserInfo) => {
         for (const existingUserInfo of userInfoInputArray) {
-          if (userID === existingUserInfo.id) {
+          if (userInfo.id === existingUserInfo.id) {
             return;
           }
         }
-        const userInfo = otherUserInfos[userID];
-        if (nonFriends.has(userID)) {
+        if (nonFriends.has(userInfo.id)) {
           resolveToUser(userInfo);
           return;
         }
@@ -79,7 +76,6 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
       [
         userInfoInputArray,
         nonFriends,
-        otherUserInfos,
         updateTagInput,
         resolveToUser,
         updateUsernameInput,
