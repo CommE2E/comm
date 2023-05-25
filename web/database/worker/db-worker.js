@@ -131,6 +131,7 @@ function getClientStore(): ClientDBStore {
     messages: [],
     threads: [],
     messageStoreThreads: [],
+    reports: [],
   };
 }
 
