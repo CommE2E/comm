@@ -134,6 +134,17 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
   );
 
   const messageResultsToDisplay = React.useMemo(() => {
+    const items = modifiedItems.map(item => (
+      <MessageResult
+        key={item.messageInfo.id}
+        item={item}
+        threadInfo={threadInfo}
+      />
+    ));
+    return <>{items}</>;
+  }, [modifiedItems, threadInfo]);
+
+  const loadingIndicator = React.useMemo(() => {
     if (loadingStatus === 'loading') {
       return (
         <div className={css.loadingIndicator}>
@@ -141,18 +152,13 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
         </div>
       );
     }
-    return modifiedItems.map(item => (
-      <MessageResult
-        key={item.messageInfo.id}
-        item={item}
-        threadInfo={threadInfo}
-      />
-    ));
-  }, [modifiedItems, threadInfo, loadingStatus]);
+    return null;
+  }, [loadingStatus]);
 
   return (
     <Modal name={modalName} onClose={popModal} size="large">
       <hr className={css.separator} />
+      <div className={css.topSpace}>{loadingIndicator}</div>
       <div className={css.messageResultsContainer}>
         {messageResultsToDisplay}
       </div>
