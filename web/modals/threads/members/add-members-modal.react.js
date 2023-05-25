@@ -64,6 +64,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
         otherUserInfos,
         userSearchIndex,
         excludeUserIDs,
+        [],
         parentThreadInfo,
         communityThreadInfo,
         threadInfo.type,

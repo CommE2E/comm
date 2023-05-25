@@ -176,6 +176,7 @@ function AddUsersModal(props: Props): React.Node {
         otherUserInfos,
         userSearchIndex,
         excludeUserIDs,
+        [],
         parentThreadInfo,
         communityThreadInfo,
         threadInfo.type,
