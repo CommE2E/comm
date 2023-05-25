@@ -1,7 +1,7 @@
 {
   "platforms": ["ios", "android"],
   "ios": {
-    "modules": ["AESCryptoModule", "ThumbhashModule"]
+    "modules": ["AESCryptoModule", "BlobUtilsModule", "ThumbhashModule"]
   },
   "android": {
     "modules": [
