@@ -66,19 +66,6 @@ private func decrypt(rawKey: Uint8Array,
   plaintext.copyBytes(to: destination.rawBufferPtr())
 }
 
-// MARK: - Utilities
-
-extension TypedArray {
-  func data() -> Data {
-    Data(bytes: self.rawPointer, count: self.byteLength)
-  }
-  
-  func rawBufferPtr() -> UnsafeMutableRawBufferPointer {
-    UnsafeMutableRawBufferPointer(start: self.rawPointer,
-                                  count: self.byteLength)
-  }
-}
-
 // MARK: - Exception definitions
 
 private class InvalidKeyLengthException: Exception {
