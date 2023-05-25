@@ -18,7 +18,7 @@ import {
   type WorkerRequestProxyMessage,
   workerWriteRequests,
 } from '../../types/worker-types.js';
-import { getSQLiteDBVersion, setupSQLiteDB } from '../queries/db-queries.js';
+import { migrate, setupSQLiteDB } from '../queries/db-queries.js';
 import {
   getAllDrafts,
   moveDraft,
@@ -91,14 +91,12 @@ async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
     console.info(
       'Database exists and is properly encrypted, using persisted data',
     );
+    migrate(sqliteDb);
   } else {
     sqliteDb = new SQL.Database();
     setupSQLiteDB(sqliteDb);
     console.info('Creating fresh database');
   }
-
-  const dbVersion = getSQLiteDBVersion(sqliteDb);
-  console.info(`Db version: ${dbVersion}`);
 }
 
 function processDraftStoreOperations(

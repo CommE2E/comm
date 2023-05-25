@@ -2,6 +2,8 @@
 
 import type { SqliteDatabase } from 'sql.js';
 
+import { migrations } from '../utils/migrations.js';
+
 function getSQLiteDBVersion(db: SqliteDatabase): number {
   const versionData = db.exec('PRAGMA user_version;');
   if (!versionData.length || !versionData[0].values.length) {
@@ -14,6 +16,10 @@ function getSQLiteDBVersion(db: SqliteDatabase): number {
     );
   }
   return dbVersion;
+}
+
+function setSQLiteDBVersion(db: SqliteDatabase, version: number) {
+  db.exec(`PRAGMA user_version=${version};`);
 }
 
 function setupSQLiteDB(db: SqliteDatabase) {
@@ -33,6 +39,31 @@ function setupSQLiteDB(db: SqliteDatabase) {
        item TEXT NOT NULL
      );
   `);
+  const migrationKeys = migrations.size ? migrations.keys() : [0];
+  const newDatabaseVersion = Math.max(...migrationKeys);
+  setSQLiteDBVersion(db, newDatabaseVersion);
 }
 
-export { getSQLiteDBVersion, setupSQLiteDB };
+function migrate(sqliteDb: SqliteDatabase): boolean {
+  const dbVersion = getSQLiteDBVersion(sqliteDb);
+  console.info(`Db version: ${dbVersion}`);
+
+  for (const [idx, migration] of migrations.entries()) {
+    if (idx <= dbVersion) {
+      continue;
+    }
+
+    try {
+      migration(sqliteDb);
+      console.log(`migration ${idx} succeeded.`);
+      setSQLiteDBVersion(sqliteDb, idx);
+    } catch (e) {
+      console.error(`migration ${idx} failed.`);
+      console.error(e);
+      return false;
+    }
+  }
+  return true;
+}
+
+export { getSQLiteDBVersion, setupSQLiteDB, setSQLiteDBVersion, migrate };
