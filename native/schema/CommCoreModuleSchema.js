@@ -54,6 +54,9 @@ export interface Spec extends TurboModule {
   +processReportStoreOperations: (
     operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
   ) => Promise<void>;
+  +processReportStoreOperationsSync: (
+    operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
+  ) => void;
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
