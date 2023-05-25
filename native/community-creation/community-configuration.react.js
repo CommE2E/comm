@@ -62,17 +62,28 @@ function CommunityConfiguration(props: Props): React.Node {
 
   const [pendingCommunityName, setPendingCommunityName] = React.useState('');
   const [announcementSetting, setAnnouncementSetting] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<?string>();
+
+  const onChangePendingCommunityName = React.useCallback(newValue => {
+    setErrorMessage();
+    setPendingCommunityName(newValue);
+  }, []);
 
   const callCreateNewCommunity = React.useCallback(async () => {
     const calendarQuery = calendarQueryFunc();
-    const newThreadResult: NewThreadResult = await callNewThread({
-      name: pendingCommunityName,
-      type: announcementSetting
-        ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
-        : threadTypes.COMMUNITY_ROOT,
-      calendarQuery,
-    });
-    return newThreadResult;
+    try {
+      const newThreadResult: NewThreadResult = await callNewThread({
+        name: pendingCommunityName,
+        type: announcementSetting
+          ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
+          : threadTypes.COMMUNITY_ROOT,
+        calendarQuery,
+      });
+      return newThreadResult;
+    } catch (e) {
+      setErrorMessage('Community creation failed. Please try again.');
+      throw e;
+    }
   }, [
     announcementSetting,
     calendarQueryFunc,
@@ -81,12 +92,14 @@ function CommunityConfiguration(props: Props): React.Node {
   ]);
 
   const createNewCommunity = React.useCallback(async () => {
+    setErrorMessage();
     const newThreadResultPromise = callCreateNewCommunity();
     dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
     await newThreadResultPromise;
   }, [callCreateNewCommunity, dispatchActionPromise]);
 
   const onCheckBoxPress = React.useCallback(() => {
+    setErrorMessage();
     setAnnouncementSetting(!announcementSetting);
   }, [announcementSetting]);
 
@@ -115,7 +128,7 @@ function CommunityConfiguration(props: Props): React.Node {
             placeholder="Community Name"
             placeholderTextColor={colors.panelSecondaryForegroundBorder}
             value={pendingCommunityName}
-            onChangeText={setPendingCommunityName}
+            onChangeText={onChangePendingCommunityName}
             editable={true}
           />
         </View>
@@ -159,6 +172,9 @@ function CommunityConfiguration(props: Props): React.Node {
             }
           />
         </RegistrationButtonContainer>
+        <View style={styles.errorMessageContainer}>
+          <Text style={styles.errorMessageText}>{errorMessage}</Text>
+        </View>
       </RegistrationContentContainer>
     </RegistrationContainer>
   );
@@ -254,6 +270,12 @@ const unboundStyles = {
     width: 20,
     borderRadius: 2.1875,
     backgroundColor: 'panelForegroundSecondaryLabel',
+  },
+  errorMessageContainer: {
+    alignItems: 'center',
+  },
+  errorMessageText: {
+    color: 'redText',
   },
 };
 
