@@ -21,7 +21,10 @@ import RegistrationContentContainer from './registration-content-container.react
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  PasswordSelectionRouteName,
+} from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 
@@ -42,7 +45,6 @@ type Props = {
   +navigation: RegistrationNavigationProp<'UsernameSelection'>,
   +route: NavigationRoute<'UsernameSelection'>,
 };
-// eslint-disable-next-line no-unused-vars
 function UsernameSelection(props: Props): React.Node {
   const [username, setUsername] = React.useState('');
   const validUsername = username.search(validUsernameRegex) > -1;
@@ -59,6 +61,8 @@ function UsernameSelection(props: Props): React.Node {
 
   const exactSearchUserCall = useServerCall(exactSearchUser);
   const dispatchActionPromise = useDispatchActionPromise();
+  const { navigate } = props.navigation;
+  const { userSelections } = props.route.params;
   const onProceed = React.useCallback(async () => {
     if (!checkUsernameValidity()) {
       return;
@@ -74,11 +78,22 @@ function UsernameSelection(props: Props): React.Node {
     }
 
     setUsernameError(undefined);
+    navigate<'PasswordSelection'>({
+      name: PasswordSelectionRouteName,
+      params: {
+        userSelections: {
+          ...userSelections,
+          username,
+        },
+      },
+    });
   }, [
     checkUsernameValidity,
     username,
     exactSearchUserCall,
     dispatchActionPromise,
+    navigate,
+    userSelections,
   ]);
 
   const exactSearchUserCallLoading = useSelector(
