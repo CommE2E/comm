@@ -22,6 +22,7 @@ import { getFetchableURI } from './identifier-utils.js';
 import type { MediaResult } from './media-utils.js';
 import { commUtilsModule } from '../native-modules.js';
 import * as AES from '../utils/aes-crypto-module.js';
+import { arrayBufferFromBlob } from '../utils/blob-utils-module.js';
 
 const PADDING_THRESHOLD = 5000000; // we don't pad files larger than this
 
@@ -63,7 +64,8 @@ async function encryptFile(uri: string): Promise<{
       data = new Uint8Array(buffer);
     } else {
       const response = await fetch(getFetchableURI(uri));
-      const buffer = await response.arrayBuffer();
+      const blob = await response.blob();
+      const buffer = arrayBufferFromBlob(blob);
       data = new Uint8Array(buffer);
     }
   } catch (e) {
@@ -296,8 +298,9 @@ async function decryptMedia(
     if (!response.ok) {
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
-    const buf = await response.arrayBuffer();
-    data = new Uint8Array(buf);
+    const blob = await response.blob();
+    const buffer = arrayBufferFromBlob(blob);
+    data = new Uint8Array(buffer);
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
