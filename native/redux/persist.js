@@ -7,6 +7,12 @@ import Orientation from 'react-native-orientation-locker';
 import { createMigrate, createTransform } from 'redux-persist';
 import type { Transform } from 'redux-persist/es/types.js';
 
+import {
+  type ReportStoreOperation,
+  type ClientDBReportStoreOperation,
+  convertReportStoreOperationToClientDBReportStoreOperation,
+  convertReportsToReplaceReportOps,
+} from 'lib/ops/report-store-ops.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
 import {
@@ -541,6 +547,26 @@ const migrations = {
       reportStore: { ...state.reportStore, queuedReports },
     };
   },
+  [41]: (state: AppState) => {
+    const reportStoreOperations: $ReadOnlyArray<ReportStoreOperation> = [
+      { type: 'remove_all_reports' },
+      ...convertReportsToReplaceReportOps(state.reportStore.queuedReports),
+    ];
+    const dbOperations: $ReadOnlyArray<ClientDBReportStoreOperation> =
+      convertReportStoreOperationToClientDBReportStoreOperation(
+        reportStoreOperations,
+      );
+
+    try {
+      commCoreModule.processReportStoreOperationsSync(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return { ...state, cookie: null };
+    }
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -621,7 +647,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 40,
+  version: 41,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
