@@ -35,6 +35,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) override;
   virtual jsi::Value
   processDraftStoreOperations(jsi::Runtime &rt, jsi::Array operations) override;
+  virtual jsi::Value processReportStoreOperations(
+      jsi::Runtime &rt,
+      jsi::Array operations) override;
   virtual jsi::Value processMessageStoreOperations(
       jsi::Runtime &rt,
       jsi::Array operations) override;
