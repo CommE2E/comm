@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, FlatList, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -34,7 +34,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const styles = useStyles(unboundStyles);
 
   const renderItem = React.useCallback(
-    ({ item }) => (
+    item => (
       <MemoizedCommunityDrawerItemChat
         key={item.threadInfo.id}
         itemData={item}
@@ -42,6 +42,11 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
       />
     ),
     [navigateToThread],
+  );
+
+  const childrenItems = React.useMemo(
+    () => itemChildren.map(item => renderItem(item)),
+    [itemChildren, renderItem],
   );
 
   const children = React.useMemo(() => {
@@ -55,12 +60,11 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         </View>
       );
     }
-    return <FlatList data={itemChildren} renderItem={renderItem} />;
+    return childrenItems;
   }, [
     expanded,
-    itemChildren,
-    renderItem,
     hasSubchannelsButton,
+    childrenItems,
     styles.subchannelsButton,
     threadInfo,
   ]);
