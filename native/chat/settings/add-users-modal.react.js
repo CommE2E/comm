@@ -210,16 +210,16 @@ function AddUsersModal(props: Props): React.Node {
   );
 
   const onUserSelect = React.useCallback(
-    (userID: string) => {
+    ({ id }: AccountUserInfo) => {
       if (isLoading) {
         return;
       }
-      if (userInfoInputIDs.some(existingUserID => userID === existingUserID)) {
+      if (userInfoInputIDs.some(existingUserID => id === existingUserID)) {
         return;
       }
       setUserInfoInputArray(oldUserInfoInputArray => [
         ...oldUserInfoInputArray,
-        otherUserInfos[userID],
+        otherUserInfos[id],
       ]);
       setUsernameInputText('');
     },

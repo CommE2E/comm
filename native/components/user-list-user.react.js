@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, Platform, Alert } from 'react-native';
 
-import type { UserListItem } from 'lib/types/user-types.js';
+import type { UserListItem, AccountUserInfo } from 'lib/types/user-types.js';
 
 import Button from './button.react.js';
 import { SingleLine } from './single-line.react.js';
@@ -19,7 +19,7 @@ const getUserListItemHeight = (item: UserListItem): number => {
 
 type BaseProps = {
   +userInfo: UserListItem,
-  +onSelect: (userID: string) => void,
+  +onSelect: (user: AccountUserInfo) => void,
   +textStyle?: TextStyle,
 };
 type Props = {
@@ -58,7 +58,9 @@ class UserListUser extends React.PureComponent<Props> {
   onSelect = () => {
     const { userInfo } = this.props;
     if (!userInfo.alertText) {
-      this.props.onSelect(userInfo.id);
+      const { alertText, alertTitle, notice, disabled, ...accountUserInfo } =
+        userInfo;
+      this.props.onSelect(accountUserInfo);
       return;
     }
     Alert.alert(userInfo.alertTitle, userInfo.alertText, [{ text: 'OK' }], {
