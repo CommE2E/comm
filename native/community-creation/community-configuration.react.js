@@ -3,7 +3,17 @@
 import * as React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
+import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import type { NewThreadResult } from 'lib/types/thread-types.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
+
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
+import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
+import RegistrationButton from '../account/registration/registration-button.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
 import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
 import {
@@ -13,6 +23,7 @@ import {
 import CommIcon from '../components/comm-icon.react.js';
 import Pill from '../components/pill.react.js';
 import TextInput from '../components/text-input.react.js';
+import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import { type NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
@@ -25,6 +36,11 @@ function CommunityConfiguration(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  const callNewThread = useServerCall(newThread);
+  const calendarQueryFunc = useCalendarQuery();
+
   const cloudIcon = (
     <CommIcon
       name="cloud-filled"
@@ -35,6 +51,29 @@ function CommunityConfiguration(props: Props): React.Node {
 
   const [pendingCommunityName, setPendingCommunityName] = React.useState('');
   const [announcementSetting, setAnnouncementSetting] = React.useState(false);
+
+  const callCreateNewCommunity = React.useCallback(async () => {
+    const calendarQuery = calendarQueryFunc();
+    const newThreadResult: NewThreadResult = await callNewThread({
+      name: pendingCommunityName,
+      type: announcementSetting
+        ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
+        : threadTypes.COMMUNITY_ROOT,
+      calendarQuery,
+    });
+    return newThreadResult;
+  }, [
+    announcementSetting,
+    calendarQueryFunc,
+    callNewThread,
+    pendingCommunityName,
+  ]);
+
+  const createNewCommunity = React.useCallback(async () => {
+    const newThreadResultPromise = callCreateNewCommunity();
+    dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
+    await newThreadResultPromise;
+  }, [callCreateNewCommunity, dispatchActionPromise]);
 
   const onCheckBoxPress = React.useCallback(() => {
     setAnnouncementSetting(!announcementSetting);
@@ -98,6 +137,12 @@ function CommunityConfiguration(props: Props): React.Node {
           </TouchableOpacity>
         </View>
         <ThreadSettingsCategoryFooter type="full" />
+        <RegistrationButtonContainer>
+          <RegistrationButton
+            onPress={createNewCommunity}
+            label="Create Community"
+          />
+        </RegistrationButtonContainer>
       </RegistrationContentContainer>
     </RegistrationContainer>
   );
