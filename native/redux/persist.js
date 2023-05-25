@@ -31,6 +31,10 @@ import {
   type MessageStore,
   type ClientDBMessageStoreOperation,
 } from 'lib/types/message-types.js';
+import type {
+  ReportStore,
+  ClientReportCreationRequest,
+} from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import type {
   ClientDBThreadStoreOperation,
@@ -637,6 +641,20 @@ const messageStoreMessagesBlocklistTransform: Transform = createTransform(
   { whitelist: ['messageStore'] },
 );
 
+type PersistedReportStore = $Diff<
+  ReportStore,
+  { +queuedReports: $ReadOnlyArray<ClientReportCreationRequest> },
+>;
+const reportStoreTransform: Transform = createTransform(
+  (state: ReportStore): PersistedReportStore => {
+    return { enabledReports: state.enabledReports };
+  },
+  (state: PersistedReportStore): ReportStore => {
+    return { ...state, queuedReports: [] };
+  },
+  { whitelist: ['reportStore'] },
+);
+
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
@@ -653,7 +671,7 @@ const persistConfig = {
   ],
   debug: __DEV__,
   version: 42,
-  transforms: [messageStoreMessagesBlocklistTransform],
+  transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
