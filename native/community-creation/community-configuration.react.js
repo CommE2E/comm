@@ -13,6 +13,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
 import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
@@ -23,7 +24,6 @@ import {
   ThreadSettingsCategoryHeader,
 } from '../chat/settings/thread-settings-category.react.js';
 import CommIcon from '../components/comm-icon.react.js';
-import Pill from '../components/pill.react.js';
 import TextInput from '../components/text-input.react.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import {
@@ -55,14 +55,6 @@ function CommunityConfiguration(props: Props): React.Node {
 
   const createNewCommunityLoadingStatus: LoadingStatus = useSelector(
     createNewCommunityLoadingStatusSelector,
-  );
-
-  const cloudIcon = (
-    <CommIcon
-      name="cloud-filled"
-      size={12}
-      color={colors.panelForegroundLabel}
-    />
   );
 
   const [pendingCommunityName, setPendingCommunityName] = React.useState('');
@@ -118,15 +110,7 @@ function CommunityConfiguration(props: Props): React.Node {
   return (
     <RegistrationContainer>
       <RegistrationContentContainer style={styles.containerPaddingOverride}>
-        <View style={styles.keyserverRowContainer}>
-          <Text style={styles.withinText}>within</Text>
-          <Pill
-            label="ashoat"
-            backgroundColor={colors.codeBackground}
-            icon={cloudIcon}
-          />
-        </View>
-
+        <CommunityCreationKeyserverLabel />
         <ThreadSettingsCategoryHeader type="full" title="COMMUNITY INFO" />
         <View style={styles.communityNameRow}>
           <Text style={styles.communityNameLabel}>Name</Text>
@@ -188,20 +172,6 @@ function CommunityConfiguration(props: Props): React.Node {
 }
 
 const unboundStyles = {
-  keyserverRowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'panelForeground',
-    height: 48,
-    borderColor: 'panelForegroundBorder',
-    borderBottomWidth: 1,
-  },
-  withinText: {
-    color: 'panelForegroundLabel',
-    fontSize: 14,
-    marginRight: 6,
-  },
   containerPaddingOverride: {
     padding: 0,
   },
