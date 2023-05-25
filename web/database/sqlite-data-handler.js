@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import { convertClientDBReportToClientReportCreationRequest } from 'lib/ops/report-store-ops.js';
 
 import { databaseModule } from './database-module-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -65,13 +66,17 @@ function SQLiteDataHandler(): React.Node {
         type: workerRequestMessageTypes.GET_CLIENT_STORE,
       });
 
-      if (!data?.store?.drafts) {
+      if (!data?.store?.drafts && !data?.store?.reports) {
         return;
       }
+      const reports = convertClientDBReportToClientReportCreationRequest(
+        data.store.reports,
+      );
       dispatch({
         type: setClientDBStoreActionType,
         payload: {
           drafts: data.store.drafts,
+          reports,
         },
       });
     })();

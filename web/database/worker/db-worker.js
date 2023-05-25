@@ -28,6 +28,7 @@ import {
 } from '../queries/draft-queries.js';
 import { getMetadata, setMetadata } from '../queries/metadata-queries.js';
 import {
+  getAllReports,
   removeAllReports,
   removeReports,
   updateReport,
@@ -156,7 +157,7 @@ function getClientStore(): ClientDBStore {
     messages: [],
     threads: [],
     messageStoreThreads: [],
-    reports: [],
+    reports: getAllReports(sqliteDb),
   };
 }
 
