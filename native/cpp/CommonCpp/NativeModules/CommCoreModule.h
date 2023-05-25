@@ -38,6 +38,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value processReportStoreOperations(
       jsi::Runtime &rt,
       jsi::Array operations) override;
+  virtual void processReportStoreOperationsSync(
+      jsi::Runtime &rt,
+      jsi::Array operations) override;
   virtual jsi::Value processMessageStoreOperations(
       jsi::Runtime &rt,
       jsi::Array operations) override;
