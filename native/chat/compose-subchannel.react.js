@@ -198,15 +198,15 @@ function ComposeSubchannel(props: Props): React.Node {
   );
   const userSearchResults = React.useMemo(
     () =>
-      getPotentialMemberItems(
-        usernameInputText,
-        otherUserInfos,
-        userSearchIndex,
-        userInfoInputIDs,
-        parentThreadInfo,
-        communityThreadInfo,
+      getPotentialMemberItems({
+        text: usernameInputText,
+        userInfos: otherUserInfos,
+        searchIndex: userSearchIndex,
+        excludeUserIDs: userInfoInputIDs,
+        inputParentThreadInfo: parentThreadInfo,
+        inputCommunityThreadInfo: communityThreadInfo,
         threadType,
-      ),
+      }),
     [
       usernameInputText,
       otherUserInfos,
