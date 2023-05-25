@@ -203,6 +203,7 @@ function ComposeSubchannel(props: Props): React.Node {
         otherUserInfos,
         userSearchIndex,
         userInfoInputIDs,
+        [],
         parentThreadInfo,
         communityThreadInfo,
         threadType,
