@@ -59,15 +59,15 @@ function AddMembersModalContent(props: ContentProps): React.Node {
 
   const userSearchResults = React.useMemo(
     () =>
-      getPotentialMemberItems(
-        searchText,
-        otherUserInfos,
-        userSearchIndex,
+      getPotentialMemberItems({
+        text: searchText,
+        userInfos: otherUserInfos,
+        searchIndex: userSearchIndex,
         excludeUserIDs,
-        parentThreadInfo,
-        communityThreadInfo,
-        threadInfo.type,
-      ),
+        inputParentThreadInfo: parentThreadInfo,
+        inputCommunityThreadInfo: communityThreadInfo,
+        threadType: threadInfo.type,
+      }),
     [
       communityThreadInfo,
       excludeUserIDs,
