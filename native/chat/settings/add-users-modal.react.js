@@ -171,15 +171,15 @@ function AddUsersModal(props: Props): React.Node {
   );
   const userSearchResults = React.useMemo(
     () =>
-      getPotentialMemberItems(
-        usernameInputText,
-        otherUserInfos,
-        userSearchIndex,
+      getPotentialMemberItems({
+        text: usernameInputText,
+        userInfos: otherUserInfos,
+        searchIndex: userSearchIndex,
         excludeUserIDs,
-        parentThreadInfo,
-        communityThreadInfo,
-        threadInfo.type,
-      ),
+        inputParentThreadInfo: parentThreadInfo,
+        inputCommunityThreadInfo: communityThreadInfo,
+        threadType: threadInfo.type,
+      }),
     [
       usernameInputText,
       otherUserInfos,

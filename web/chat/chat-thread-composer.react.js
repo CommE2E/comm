@@ -45,12 +45,12 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const userListItems = React.useMemo(
     () =>
-      getPotentialMemberItems(
-        usernameInputText,
-        otherUserInfos,
-        userSearchIndex,
-        userInfoInputIDs,
-      ),
+      getPotentialMemberItems({
+        text: usernameInputText,
+        userInfos: otherUserInfos,
+        searchIndex: userSearchIndex,
+        excludeUserIDs: userInfoInputIDs,
+      }),
     [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputIDs],
   );
   const userListItemsWithENSNames = useENSNames(userListItems);

@@ -146,17 +146,15 @@ function CommunityCreationMembers(props: Props): React.Node {
 
   const userSearchResults = React.useMemo(
     () =>
-      getPotentialMemberItems(
-        usernameInputText,
-        otherUserInfos,
-        userSearchIndex,
-        selectedUserIDs,
-        null,
-        null,
-        announcement
+      getPotentialMemberItems({
+        text: usernameInputText,
+        userInfos: otherUserInfos,
+        searchIndex: userSearchIndex,
+        excludeUserIDs: selectedUserIDs,
+        threadType: announcement
           ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
           : threadTypes.COMMUNITY_ROOT,
-      ),
+      }),
     [
       announcement,
       otherUserInfos,
