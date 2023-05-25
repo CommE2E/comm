@@ -2,7 +2,10 @@
 
 import initSqlJs from 'sql.js';
 
-import { getSQLiteDBVersion } from './queries/db-queries.js';
+import {
+  getSQLiteDBVersion,
+  setSQLiteDBVersion,
+} from './queries/db-queries.js';
 
 describe('sql.js', () => {
   it('should construct a Database', async () => {
@@ -15,5 +18,12 @@ describe('sql.js', () => {
     const SQL = await initSqlJs();
     const db = new SQL.Database();
     expect(getSQLiteDBVersion(db)).toBe(0);
+  });
+
+  it('should update database version', async () => {
+    const SQL = await initSqlJs();
+    const db = new SQL.Database();
+    setSQLiteDBVersion(db, 10);
+    expect(getSQLiteDBVersion(db)).toBe(10);
   });
 });
