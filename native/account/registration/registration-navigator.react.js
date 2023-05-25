@@ -11,6 +11,7 @@ import ConnectEthereum from './connect-ethereum.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
 import ExistingEthereumAccount from './existing-ethereum-account.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
+import PasswordSelection from './password-selection.react.js';
 import UsernameSelection from './username-selection.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
@@ -19,6 +20,7 @@ import {
   ConnectEthereumRouteName,
   ExistingEthereumAccountRouteName,
   UsernameSelectionRouteName,
+  PasswordSelectionRouteName,
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
@@ -70,6 +72,10 @@ function RegistrationNavigator(props: Props): React.Node {
       <Registration.Screen
         name={UsernameSelectionRouteName}
         component={UsernameSelection}
+      />
+      <Registration.Screen
+        name={PasswordSelectionRouteName}
+        component={PasswordSelection}
       />
     </Registration.Navigator>
   );
