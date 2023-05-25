@@ -5,7 +5,6 @@ import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
@@ -241,9 +240,7 @@ function useMessageEditAction(
     if (!canEditMessage) {
       return null;
     }
-    const buttonContent = (
-      <SWMansionIcon icon="edit-1" size={18} disableFill={false} />
-    );
+    const buttonContent = <CommIcon icon="edit-filled" size={18} />;
     const onClickEdit = () => {
       clearTooltip();
       renderEditModal({
