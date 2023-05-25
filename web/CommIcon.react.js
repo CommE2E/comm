@@ -18,7 +18,8 @@ export type CommIcons =
   | 'emote-smile-filled'
   | 'pin'
   | 'unpin'
-  | 'pin-mirror';
+  | 'pin-mirror'
+  | 'edit-filled';
 
 type CommIconProps = {
   +icon: CommIcons,
