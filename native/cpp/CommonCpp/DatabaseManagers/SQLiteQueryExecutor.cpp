@@ -375,6 +375,15 @@ bool create_message_store_threads_table(sqlite3 *db) {
   return create_table(db, query, "message_store_threads");
 }
 
+bool create_reports_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS reports ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 report TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "reports");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -443,6 +452,11 @@ bool create_schema(sqlite3 *db) {
       "	 start_reached INTEGER NOT NULL,"
       "	 last_navigated_to BIGINT NOT NULL,"
       "	 last_pruned BIGINT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS reports ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 report TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -682,7 +696,8 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {25, {add_not_null_constraint_to_metadata, true}},
      {26, {add_avatar_column_to_threads_table, true}},
      {27, {add_pinned_count_column_to_threads, true}},
-     {28, {create_message_store_threads_table, true}}}};
+     {28, {create_message_store_threads_table, true}},
+     {29, {create_reports_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -896,7 +911,11 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("start_reached", &MessageStoreThread::start_reached),
           make_column(
               "last_navigated_to", &MessageStoreThread::last_navigated_to),
-          make_column("last_pruned", &MessageStoreThread::last_pruned)));
+          make_column("last_pruned", &MessageStoreThread::last_pruned)),
+      make_table(
+          "reports",
+          make_column("id", &Report::id, unique(), primary_key()),
+          make_column("report", &Report::report)));
   storage.on_open = on_database_open;
   return storage;
 }
@@ -1121,6 +1140,24 @@ void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
 void SQLiteQueryExecutor::removeAllThreads() const {
   SQLiteQueryExecutor::getStorage().remove_all<Thread>();
 };
+
+void SQLiteQueryExecutor::replaceReport(const Report &report) const {
+  SQLiteQueryExecutor::getStorage().replace(report);
+}
+
+void SQLiteQueryExecutor::removeAllReports() const {
+  SQLiteQueryExecutor::getStorage().remove_all<Report>();
+}
+
+void SQLiteQueryExecutor::removeReports(
+    const std::vector<std::string> &ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<Report>(
+      where(in(&Report::id, ids)));
+}
+
+std::vector<Report> SQLiteQueryExecutor::getAllReports() const {
+  return SQLiteQueryExecutor::getStorage().get_all<Report>();
+}
 
 void SQLiteQueryExecutor::beginTransaction() const {
   SQLiteQueryExecutor::getStorage().begin_transaction();
