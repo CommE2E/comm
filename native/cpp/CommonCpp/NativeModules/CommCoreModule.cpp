@@ -894,6 +894,31 @@ jsi::Value CommCoreModule::processReportStoreOperations(
       });
 }
 
+void CommCoreModule::processReportStoreOperationsSync(
+    jsi::Runtime &rt,
+    jsi::Array operations) {
+  std::vector<std::unique_ptr<ReportStoreOperationBase>> reportStoreOps;
+
+  try {
+    reportStoreOps = createReportStoreOperations(rt, operations);
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+
+  this->runSyncOrThrowJSError<void>(rt, [&reportStoreOps]() {
+    try {
+      DatabaseManager::getQueryExecutor().beginTransaction();
+      for (const auto &operation : reportStoreOps) {
+        operation->execute();
+      }
+      DatabaseManager::getQueryExecutor().commitTransaction();
+    } catch (const std::exception &e) {
+      DatabaseManager::getQueryExecutor().rollbackTransaction();
+      throw e;
+    }
+  });
+}
+
 void CommCoreModule::terminate(jsi::Runtime &rt) {
   TerminateApp::terminate();
 }
