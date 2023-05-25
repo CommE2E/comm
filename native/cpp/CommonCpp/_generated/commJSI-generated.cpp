@@ -46,6 +46,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllThreadsSyn
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperations(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processThreadStoreOperations(rt, args[0].asObject(rt).asArray(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processReportStoreOperations(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processReportStoreOperations(rt, args[0].asObject(rt).asArray(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperationsSync(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processThreadStoreOperationsSync(rt, args[0].asObject(rt).asArray(rt));
   return jsi::Value::undefined();
@@ -117,6 +120,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["processMessageStoreOperationsSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processMessageStoreOperationsSync};
   methodMap_["getAllThreadsSync"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllThreadsSync};
   methodMap_["processThreadStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperations};
+  methodMap_["processReportStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processReportStoreOperations};
   methodMap_["processThreadStoreOperationsSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperationsSync};
   methodMap_["initializeCryptoAccount"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
