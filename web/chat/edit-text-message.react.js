@@ -45,6 +45,11 @@ function EditTextMessage(props: Props): React.Node {
     [threadColor],
   );
 
+  const isMessageEmpty = React.useMemo(
+    () => trimMessage(editedMessageDraft) === '',
+    [editedMessageDraft],
+  );
+
   const isMessageEdited = React.useMemo(() => {
     const { messageInfo } = item;
     if (!messageInfo || !messageInfo.text || !editState) {
@@ -59,6 +64,9 @@ function EditTextMessage(props: Props): React.Node {
 
   const checkAndEdit = async () => {
     const { id: messageInfoID } = item.messageInfo;
+    if (isMessageEmpty) {
+      return;
+    }
     if (!isMessageEdited) {
       clearEditModal();
       return;
@@ -149,6 +157,7 @@ function EditTextMessage(props: Props): React.Node {
             variant="filled"
             buttonColor={saveButtonColor}
             onClick={checkAndEdit}
+            disabled={isMessageEmpty}
           >
             Save (enter)
           </Button>
