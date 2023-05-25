@@ -108,6 +108,7 @@ export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
 export const UsernameSelectionRouteName = 'UsernameSelection';
 export const CommunityCreationRouteName = 'CommunityCreation';
 export const CommunityConfigurationRouteName = 'CommunityConfiguration';
+export const CommunityCreationMembersRouteName = 'CommunityCreationMembers';
 export const MessageSearchRouteName = 'MessageSearch';
 export const PasswordSelectionRouteName = 'PasswordSelection';
 
@@ -216,6 +217,7 @@ export type InviteLinkParamList = {
 
 export type CommunityCreationParamList = {
   +CommunityConfiguration: void,
+  +CommunityCreationMembers: void,
 };
 
 export type ScreenParamList = {
