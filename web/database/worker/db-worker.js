@@ -3,6 +3,7 @@
 import localforage from 'localforage';
 import initSqlJs, { type SqliteDatabase } from 'sql.js';
 
+import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type {
   ClientDBDraftStoreOperation,
   DraftStoreOperation,
@@ -26,6 +27,11 @@ import {
   updateDraft,
 } from '../queries/draft-queries.js';
 import { getMetadata, setMetadata } from '../queries/metadata-queries.js';
+import {
+  removeAllReports,
+  removeReports,
+  updateReport,
+} from '../queries/report-queries.js';
 import {
   getPersistStorageItem,
   removePersistStorageItem,
@@ -116,6 +122,27 @@ function processDraftStoreOperations(
       moveDraft(sqliteDb, oldKey, newKey);
     } else {
       throw new Error('Unsupported draft operation');
+    }
+  }
+}
+
+function processReportStoreOperations(
+  operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
+) {
+  if (!sqliteDb) {
+    throw new Error('Database not initialized');
+  }
+  for (const operation: ClientDBReportStoreOperation of operations) {
+    if (operation.type === 'remove_all_reports') {
+      removeAllReports(sqliteDb);
+    } else if (operation.type === 'remove_reports') {
+      const { ids } = operation.payload;
+      removeReports(sqliteDb, ids);
+    } else if (operation.type === 'replace_report') {
+      const { id, report } = operation.payload;
+      updateReport(sqliteDb, id, report);
+    } else {
+      throw new Error('Unsupported report operation');
     }
   }
 }
@@ -217,9 +244,13 @@ async function processAppRequest(
   }
 
   if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
-    const { draftStoreOperations } = message.storeOperations;
+    const { draftStoreOperations, reportStoreOperations } =
+      message.storeOperations;
     if (draftStoreOperations) {
       processDraftStoreOperations(draftStoreOperations);
+    }
+    if (reportStoreOperations) {
+      processReportStoreOperations(reportStoreOperations);
     }
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
     setMetadata(sqliteDb, CURRENT_USER_ID_KEY, message.userID);

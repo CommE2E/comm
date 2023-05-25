@@ -7,6 +7,7 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
+import { convertReportStoreOperationToClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -176,17 +177,24 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     state = baseReducerResult.state;
 
     const {
-      storeOperations: { draftStoreOperations },
+      storeOperations: { draftStoreOperations, reportStoreOperations },
     } = baseReducerResult;
-    if (draftStoreOperations.length) {
+    if (draftStoreOperations.length > 0 || reportStoreOperations.length > 0) {
       (async () => {
         const isSupported = await databaseModule.isDatabaseSupported();
         if (!isSupported) {
           return;
         }
+        const convertedReportStoreOperations =
+          convertReportStoreOperationToClientDBReportStoreOperation(
+            reportStoreOperations,
+          );
         await databaseModule.schedule({
           type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-          storeOperations: { draftStoreOperations },
+          storeOperations: {
+            draftStoreOperations,
+            reportStoreOperations: convertedReportStoreOperations,
+          },
         });
       })();
     }
