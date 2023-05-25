@@ -6,6 +6,10 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
+import {
+  searchUsers,
+  searchUsersActionTypes,
+} from 'lib/actions/user-actions.js';
 import genesis from 'lib/facts/genesis.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
@@ -18,7 +22,15 @@ import {
   pendingThreadType,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import type {
+  AccountUserInfo,
+  UserListItem,
+  GlobalAccountUserInfo,
+} from 'lib/types/user-types.js';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils.js';
 
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
 import { ChatInputBar } from './chat-input-bar.react.js';
@@ -58,7 +70,6 @@ type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
   +resolveToUser: (user: AccountUserInfo) => void,
-  +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
   +genesisThreadInfo: ?ThreadInfo,
@@ -154,7 +165,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
             userInfoInputArray={userInfoInputArray}
             updateTagInput={this.props.updateTagInput}
             resolveToUser={this.props.resolveToUser}
-            otherUserInfos={this.props.otherUserInfos}
             userSearchResults={this.props.userSearchResults}
           />
         </>
@@ -249,16 +259,50 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
     const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-    const userSearchResults = React.useMemo(
-      () =>
-        getPotentialMemberItems(
-          usernameInputText,
-          otherUserInfos,
-          userSearchIndex,
-          userInfoInputArray.map(userInfo => userInfo.id),
-        ),
-      [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
+
+    const currentUserID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
     );
+
+    const [serverSearchResults, setServerSearchResults] = React.useState<
+      $ReadOnlyArray<GlobalAccountUserInfo>,
+    >([]);
+    const callSearchUsers = useServerCall(searchUsers);
+    const dispatchActionPromise = useDispatchActionPromise();
+    React.useEffect(() => {
+      const searchUsersPromise = (async () => {
+        if (usernameInputText.length === 0) {
+          setServerSearchResults([]);
+        } else {
+          const { userInfos } = await callSearchUsers(usernameInputText);
+          setServerSearchResults(
+            userInfos.filter(({ id }) => id !== currentUserID),
+          );
+        }
+      })();
+      dispatchActionPromise(searchUsersActionTypes, searchUsersPromise);
+    }, [
+      callSearchUsers,
+      currentUserID,
+      dispatchActionPromise,
+      usernameInputText,
+    ]);
+
+    const userSearchResults = React.useMemo(() => {
+      return getPotentialMemberItems(
+        usernameInputText,
+        otherUserInfos,
+        userSearchIndex,
+        userInfoInputArray.map(userInfo => userInfo.id),
+        serverSearchResults,
+      );
+    }, [
+      usernameInputText,
+      otherUserInfos,
+      userSearchIndex,
+      userInfoInputArray,
+      serverSearchResults,
+    ]);
 
     const [baseThreadInfo, setBaseThreadInfo] = React.useState(
       props.route.params.threadInfo,
@@ -421,7 +465,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
           userInfoInputArray={userInfoInputArray}
           updateTagInput={updateTagInput}
           resolveToUser={resolveToUser}
-          otherUserInfos={otherUserInfos}
           userSearchResults={userSearchResults}
           threadInfo={threadInfo}
           genesisThreadInfo={genesisThreadInfo}
