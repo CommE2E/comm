@@ -111,7 +111,7 @@ function CommunityDrawerContent(): React.Node {
     navigate(CommunityCreationRouteName);
   }, [navigate]);
 
-  const isCommunityCreationButtonEnabled = false;
+  const isCommunityCreationButtonEnabled = true;
   let communityCreationButton;
   if (isCommunityCreationButtonEnabled) {
     communityCreationButton = (
