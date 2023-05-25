@@ -7,7 +7,8 @@
     "modules": [
       "app.comm.android.aescrypto.AESCryptoModule",
       "app.comm.android.lifecycle.AndroidLifecycleModule",
-      "app.comm.android.thumbhash.ThumbhashModule"
+      "app.comm.android.thumbhash.ThumbhashModule",
+      "app.comm.android.utils.BlobUtilsModule"
     ]
   }
 }
