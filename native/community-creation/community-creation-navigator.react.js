@@ -8,11 +8,13 @@ import {
 import * as React from 'react';
 
 import CommunityConfiguration from './community-configuration.react.js';
+import CommunityCreationMembers from './community-creation-members.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   CommunityConfigurationRouteName,
   type ScreenParamList,
   type CommunityCreationParamList,
+  CommunityCreationMembersRouteName,
 } from '../navigation/route-names.js';
 import { useColors } from '../themes/colors.js';
 
@@ -28,6 +30,10 @@ const CommunityCreation = createStackNavigator<
 
 const communityConfigurationOptions = {
   headerTitle: 'Create a community',
+};
+
+const communityCreationMembersOptions = {
+  headerTitle: 'Add members',
 };
 
 type Props = {
@@ -56,6 +62,11 @@ function CommunityCreationNavigator(props: Props): React.Node {
         name={CommunityConfigurationRouteName}
         component={CommunityConfiguration}
         options={communityConfigurationOptions}
+      />
+      <CommunityCreation.Screen
+        name={CommunityCreationMembersRouteName}
+        component={CommunityCreationMembers}
+        options={communityCreationMembersOptions}
       />
     </CommunityCreation.Navigator>
   );

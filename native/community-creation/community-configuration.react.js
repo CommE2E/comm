@@ -26,7 +26,10 @@ import CommIcon from '../components/comm-icon.react.js';
 import Pill from '../components/pill.react.js';
 import TextInput from '../components/text-input.react.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
-import { type NavigationRoute } from '../navigation/route-names.js';
+import {
+  CommunityCreationMembersRouteName,
+  type NavigationRoute,
+} from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
@@ -42,6 +45,8 @@ const createNewCommunityLoadingStatusSelector =
 function CommunityConfiguration(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
+
+  const { navigate } = props.navigation;
 
   const dispatchActionPromise = useDispatchActionPromise();
 
@@ -96,7 +101,9 @@ function CommunityConfiguration(props: Props): React.Node {
     const newThreadResultPromise = callCreateNewCommunity();
     dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
     await newThreadResultPromise;
-  }, [callCreateNewCommunity, dispatchActionPromise]);
+
+    navigate(CommunityCreationMembersRouteName);
+  }, [callCreateNewCommunity, dispatchActionPromise, navigate]);
 
   const onCheckBoxPress = React.useCallback(() => {
     setErrorMessage();
