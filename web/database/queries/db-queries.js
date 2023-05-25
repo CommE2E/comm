@@ -38,6 +38,11 @@ function setupSQLiteDB(db: SqliteDatabase) {
        key TEXT UNIQUE PRIMARY KEY NOT NULL,
        item TEXT NOT NULL
      );
+     
+     CREATE TABLE IF NOT EXISTS reports (
+       id TEXT UNIQUE PRIMARY KEY NOT NULL,
+       report TEXT NOT NULL
+     );
   `);
   const migrationKeys = migrations.size ? migrations.keys() : [0];
   const newDatabaseVersion = Math.max(...migrationKeys);
