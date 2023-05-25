@@ -4,7 +4,7 @@ import _sum from 'lodash/fp/sum.js';
 import * as React from 'react';
 import { FlatList } from 'react-native';
 
-import type { UserListItem } from 'lib/types/user-types.js';
+import type { UserListItem, AccountUserInfo } from 'lib/types/user-types.js';
 
 import { UserListUser, getUserListItemHeight } from './user-list-user.react.js';
 import { type IndicatorStyle, useIndicatorStyle } from '../themes/colors.js';
@@ -12,7 +12,7 @@ import type { TextStyle } from '../types/styles.js';
 
 type BaseProps = {
   +userInfos: $ReadOnlyArray<UserListItem>,
-  +onSelect: (userID: string) => void,
+  +onSelect: (user: AccountUserInfo) => void,
   +itemTextStyle?: TextStyle,
 };
 type Props = {

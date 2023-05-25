@@ -248,13 +248,13 @@ function ComposeSubchannel(props: Props): React.Node {
   );
 
   const onUserSelect = React.useCallback(
-    (userID: string) => {
-      if (userInfoInputIDs.some(existingUserID => userID === existingUserID)) {
+    ({ id }: AccountUserInfo) => {
+      if (userInfoInputIDs.some(existingUserID => id === existingUserID)) {
         return;
       }
       setUserInfoInputArray(oldUserInfoInputArray => [
         ...oldUserInfoInputArray,
-        otherUserInfos[userID],
+        otherUserInfos[id],
       ]);
       setUsernameInputText('');
     },
