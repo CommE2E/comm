@@ -14,6 +14,7 @@ import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import type { KeyPressEvent } from '../../types/react-native.js';
 
 export type PasswordSelectionParams = {
   +userSelections: {
@@ -77,8 +78,52 @@ function PasswordSelection(props: Props): React.Node {
     confirmPasswordInputRef.current?.focus();
   }, []);
 
-  /* eslint-disable react-hooks/rules-of-hooks */
+  const iosPasswordBeingAutoFilled = React.useRef(false);
+  const confirmPasswordEmpty = confirmPassword.length === 0;
+  const onPasswordKeyPress = React.useCallback(
+    (event: KeyPressEvent) => {
+      const { key } = event.nativeEvent;
+      // On iOS, paste doesn't trigger onKeyPress, but password autofill does
+      // Password autofill calls onKeyPress with `key` set to the whole password
+      if (
+        key.length > 1 &&
+        key !== 'Backspace' &&
+        key !== 'Enter' &&
+        confirmPasswordEmpty
+      ) {
+        iosPasswordBeingAutoFilled.current = true;
+      }
+    },
+    [confirmPasswordEmpty],
+  );
+
   const passwordInputRef = React.useRef();
+  const passwordLength = password.length;
+  const onChangePasswordInput = React.useCallback(
+    (input: string) => {
+      setPassword(input);
+      if (iosPasswordBeingAutoFilled.current) {
+        // On iOS, paste doesn't trigger onKeyPress, but password autofill does
+        iosPasswordBeingAutoFilled.current = false;
+        setConfirmPassword(input);
+        passwordInputRef.current?.blur();
+      } else if (
+        Platform.OS === 'android' &&
+        input.length - passwordLength > 1 &&
+        confirmPasswordEmpty
+      ) {
+        // On Android, password autofill doesn't trigger onKeyPress. Instead we
+        // rely on observing when the password field changes by more than one
+        // character at a time. This means we treat paste the same way as
+        // password autofill
+        setConfirmPassword(input);
+        passwordInputRef.current?.blur();
+      }
+    },
+    [passwordLength, confirmPasswordEmpty],
+  );
+
+  /* eslint-disable react-hooks/rules-of-hooks */
   if (Platform.OS === 'android') {
     // It's okay to call this hook conditionally because
     // the condition is guaranteed to never change
@@ -97,7 +142,7 @@ function PasswordSelection(props: Props): React.Node {
         <Text style={styles.header}>Pick a password</Text>
         <RegistrationTextInput
           value={password}
-          onChangeText={setPassword}
+          onChangeText={onChangePasswordInput}
           placeholder="Password"
           autoFocus={Platform.select({
             android: false,
@@ -108,6 +153,7 @@ function PasswordSelection(props: Props): React.Node {
           autoComplete="password-new"
           returnKeyType="next"
           onSubmitEditing={focusConfirmPasswordInput}
+          onKeyPress={onPasswordKeyPress}
           onBlur={potentiallyClearErrors}
           ref={passwordInputRef}
         />
