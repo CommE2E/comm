@@ -124,6 +124,7 @@ const unboundStyles = {
     fontSize: 32,
     bottom: 1,
     marginRight: 5,
+    color: 'black',
   },
 };
 
