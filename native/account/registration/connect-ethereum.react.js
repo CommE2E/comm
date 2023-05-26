@@ -24,6 +24,7 @@ import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
   UsernameSelectionRouteName,
+  AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
@@ -137,11 +138,22 @@ function ConnectEthereum(props: Props): React.Node {
           name: ExistingEthereumAccountRouteName,
           params: result,
         });
-      } else {
-        // show avatar selection screen
+        return;
       }
+
+      const newUserSelections = {
+        ...userSelections,
+        accountSelections: {
+          accountType: 'ethereum',
+          ...result,
+        },
+      };
+      navigate<'AvatarSelection'>({
+        name: AvatarSelectionRouteName,
+        params: { userSelections: newUserSelections },
+      });
     },
-    [exactSearchUserCall, dispatchActionPromise, navigate],
+    [userSelections, exactSearchUserCall, dispatchActionPromise, navigate],
   );
 
   let siwePanel;

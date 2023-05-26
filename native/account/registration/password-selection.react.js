@@ -12,7 +12,10 @@ import RegistrationContentContainer from './registration-content-container.react
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  AvatarSelectionRouteName,
+} from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import type { KeyPressEvent } from '../../types/react-native.js';
 
@@ -30,7 +33,6 @@ type Props = {
   +navigation: RegistrationNavigationProp<'PasswordSelection'>,
   +route: NavigationRoute<'PasswordSelection'>,
 };
-// eslint-disable-next-line no-unused-vars
 function PasswordSelection(props: Props): React.Node {
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
@@ -57,11 +59,28 @@ function PasswordSelection(props: Props): React.Node {
     return potentiallyClearErrors();
   }, [passwordsMatch, passwordIsEmpty, potentiallyClearErrors]);
 
+  const { userSelections } = props.route.params;
+  const { navigate } = props.navigation;
   const onProceed = React.useCallback(() => {
     if (!checkPasswordValidity()) {
       return;
     }
-  }, [checkPasswordValidity]);
+
+    const { coolOrNerdMode, keyserverUsername, username } = userSelections;
+    const newUserSelections = {
+      coolOrNerdMode,
+      keyserverUsername,
+      accountSelections: {
+        accountType: 'username',
+        username,
+        password,
+      },
+    };
+    navigate<'AvatarSelection'>({
+      name: AvatarSelectionRouteName,
+      params: { userSelections: newUserSelections },
+    });
+  }, [checkPasswordValidity, userSelections, password, navigate]);
 
   const styles = useStyles(unboundStyles);
   let errorText;
