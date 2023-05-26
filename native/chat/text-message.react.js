@@ -33,7 +33,6 @@ import { TextMessageTooltipModalRouteName } from '../navigation/route-names.js';
 import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
-import { useShouldRenderEditButton } from '../utils/edit-messages-utils.js';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,
@@ -64,7 +63,6 @@ type Props = {
   // MarkdownContext
   +isLinkModalActive: boolean,
   +canEditMessage: boolean,
-  +shouldRenderEditButton: boolean,
   +canTogglePins: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
@@ -92,7 +90,6 @@ class TextMessage extends React.PureComponent<Props> {
       isLinkModalActive,
       canCreateSidebarFromMessage,
       canEditMessage,
-      shouldRenderEditButton,
       canTogglePins,
       ...viewProps
     } = this.props;
@@ -157,7 +154,7 @@ class TextMessage extends React.PureComponent<Props> {
       result.push('reply');
     }
 
-    if (this.props.canEditMessage && this.props.shouldRenderEditButton) {
+    if (this.props.canEditMessage) {
       result.push('edit');
     }
 
@@ -267,8 +264,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       props.item.messageInfo,
     );
 
-    const shouldRenderEditButton = useShouldRenderEditButton();
-
     const canEditMessage = useCanEditMessage(
       props.item.threadInfo,
       props.item.messageInfo,
@@ -289,7 +284,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         chatContext={chatContext}
         isLinkModalActive={isLinkModalActive}
         canEditMessage={canEditMessage}
-        shouldRenderEditButton={shouldRenderEditButton}
         canTogglePins={canTogglePins}
       />
     );
