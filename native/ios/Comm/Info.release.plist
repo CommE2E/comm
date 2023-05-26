@@ -19,11 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.219</string>
+	<string>1.0.220</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>219</string>
+	<string>220</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>rainbow</string>
