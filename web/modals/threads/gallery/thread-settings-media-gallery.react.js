@@ -8,6 +8,7 @@ import type { Media } from 'lib/types/media-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
+import GalleryItem from './thread-settings-media-gallery-item.react.js';
 import css from './thread-settings-media-gallery.css';
 import Tabs from '../../../components/tabs.react.js';
 import MultimediaModal from '../../../media/multimedia-modal.react.js';
@@ -84,28 +85,63 @@ function ThreadSettingsMediaGalleryModal(
 
   const filteredMediaInfos = React.useMemo(() => {
     if (tab === 'Images') {
-      return mediaInfos.filter(mediaInfo => mediaInfo.type === 'photo');
+      return mediaInfos.filter(
+        mediaInfo =>
+          mediaInfo.type === 'photo' || mediaInfo.type === 'encrypted_photo',
+      );
     } else if (tab === 'Videos') {
-      return mediaInfos.filter(mediaInfo => mediaInfo.type === 'video');
+      return mediaInfos.filter(
+        mediaInfo =>
+          mediaInfo.type === 'video' || mediaInfo.type === 'encrypted_video',
+      );
     }
     return mediaInfos;
   }, [tab, mediaInfos]);
 
   const mediaCoverPhotos = React.useMemo(
-    () => filteredMediaInfos.map(media => media.thumbnailURI || media.uri),
+    () =>
+      filteredMediaInfos.map(media => {
+        if (media.type === 'photo') {
+          return {
+            kind: 'plain',
+            uri: media.uri,
+            thumbHash: media.thumbHash,
+          };
+        } else if (media.type === 'video') {
+          return {
+            kind: 'plain',
+            uri: media.thumbnailURI,
+            thumbHash: media.thumbnailThumbHash,
+          };
+        } else if (media.type === 'encrypted_photo') {
+          return {
+            kind: 'encrypted',
+            holder: media.holder,
+            encryptionKey: media.encryptionKey,
+            thumbHash: media.thumbHash,
+          };
+        } else {
+          return {
+            kind: 'encrypted',
+            holder: media.thumbnailHolder,
+            encryptionKey: media.thumbnailEncryptionKey,
+            thumbHash: media.thumbnailThumbHash,
+          };
+        }
+      }),
     [filteredMediaInfos],
   );
 
   const mediaGalleryItems = React.useMemo(
     () =>
       filteredMediaInfos.map((media, i) => (
-        <div
+        <GalleryItem
           key={i}
           onClick={() => onClick(media)}
-          className={css.mediaContainer}
-        >
-          <img src={mediaCoverPhotos[i]} className={css.media} />
-        </div>
+          imageSource={mediaCoverPhotos[i]}
+          imageCSSClass={css.media}
+          imageContainerCSSClass={css.mediaContainer}
+        />
       )),
     [filteredMediaInfos, onClick, mediaCoverPhotos],
   );
