@@ -75,7 +75,7 @@ div.main-header {
 }
 div.main-header > .wordmark {
   color: var(--fg);
-  padding-left: 92px;
+  padding-left: 34px;
   font-family: var(--font-logo);
   line-height: var(--line-height-text);
   font-weight: var(--semi-bold);
