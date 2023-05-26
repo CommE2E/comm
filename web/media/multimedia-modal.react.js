@@ -125,12 +125,13 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     return (
       <div
         className={css.multimediaModalOverlay}
-        ref={this.overlayRef}
         onClick={this.onBackgroundClick}
         tabIndex={0}
         onKeyDown={this.onKeyDown}
       >
-        <div className={css.mediaContainer}>{mediaModalItem}</div>
+        <div ref={this.overlayRef} className={css.mediaContainer}>
+          {mediaModalItem}
+        </div>
         <XCircleIcon
           onClick={this.props.popModal}
           className={css.closeMultimediaModal}
