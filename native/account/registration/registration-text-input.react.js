@@ -3,12 +3,23 @@
 import * as React from 'react';
 import { TextInput } from 'react-native';
 
-import { useStyles, useColors } from '../../themes/colors.js';
+import {
+  useStyles,
+  useColors,
+  useKeyboardAppearance,
+} from '../../themes/colors.js';
 
 type Props = React.ElementConfig<typeof TextInput>;
 
 function ForwardedRegistrationTextInput(props: Props, ref): React.Node {
-  const { onFocus, onBlur, style, placeholderTextColor, ...rest } = props;
+  const {
+    onFocus,
+    onBlur,
+    style,
+    placeholderTextColor,
+    keyboardAppearance,
+    ...rest
+  } = props;
 
   const [focused, setFocused] = React.useState(false);
   const ourOnFocus = React.useCallback(
@@ -39,6 +50,9 @@ function ForwardedRegistrationTextInput(props: Props, ref): React.Node {
   const ourPlaceholderTextColor =
     placeholderTextColor ?? colors.panelSecondaryForegroundBorder;
 
+  const themeKeyboardAppearance = useKeyboardAppearance();
+  const ourKeyboardAppearance = keyboardAppearance ?? themeKeyboardAppearance;
+
   return (
     <TextInput
       {...rest}
@@ -46,6 +60,7 @@ function ForwardedRegistrationTextInput(props: Props, ref): React.Node {
       placeholderTextColor={ourPlaceholderTextColor}
       onFocus={ourOnFocus}
       onBlur={ourOnBlur}
+      keyboardAppearance={ourKeyboardAppearance}
       ref={ref}
     />
   );
