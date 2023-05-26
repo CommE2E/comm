@@ -17,14 +17,21 @@ type Props = {
   +holder: string,
   +encryptionKey: string,
   +type: EncryptedMediaType,
-  +thumbnailHolder: ?string,
-  +thumbnailEncryptionKey: ?string,
+  +thumbnailHolder?: ?string,
+  +thumbnailEncryptionKey?: ?string,
   +placeholderSrc?: ?string,
+  +multimediaClassName?: string,
   +elementStyle?: ?Shape<CSSStyleDeclaration>,
 };
 
 function EncryptedMultimedia(props: Props): React.Node {
-  const { holder, encryptionKey, placeholderSrc, elementStyle } = props;
+  const {
+    holder,
+    encryptionKey,
+    placeholderSrc,
+    elementStyle,
+    multimediaClassName,
+  } = props;
 
   const [source, setSource] = React.useState(null);
   const videoRef = React.useRef(null);
@@ -91,6 +98,7 @@ function EncryptedMultimedia(props: Props): React.Node {
       <img
         src={source?.uri ?? placeholderSrc}
         key={holder}
+        className={multimediaClassName}
         style={elementStyle}
       />
     );
@@ -109,6 +117,7 @@ function EncryptedMultimedia(props: Props): React.Node {
         thumbnailSource={{ thumbnailHolder, thumbnailEncryptionKey }}
         elementStyle={elementStyle}
         thumbHashDataURL={placeholderSrc}
+        multimediaClassName={multimediaClassName}
       />
     );
   }

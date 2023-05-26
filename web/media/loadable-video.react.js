@@ -21,10 +21,17 @@ type Props = {
   +thumbnailSource: ThumbnailSource,
   +thumbHashDataURL?: ?string,
   +elementStyle?: ?Shape<CSSStyleDeclaration>,
+  +multimediaClassName?: string,
 };
 
 function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
-  const { uri, thumbHashDataURL, thumbnailSource, elementStyle } = props;
+  const {
+    uri,
+    thumbHashDataURL,
+    thumbnailSource,
+    elementStyle,
+    multimediaClassName,
+  } = props;
   const { thumbnailURI, thumbnailHolder, thumbnailEncryptionKey } =
     thumbnailSource;
 
@@ -72,7 +79,13 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
   }
   const poster = thumbnailImage ?? thumbHashDataURL;
   return (
-    <video controls poster={poster} style={elementStyle} ref={videoRef}>
+    <video
+      controls
+      poster={poster}
+      className={multimediaClassName}
+      style={elementStyle}
+      ref={videoRef}
+    >
       {videoSource}
     </video>
   );
