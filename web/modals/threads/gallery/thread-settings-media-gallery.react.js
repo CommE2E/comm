@@ -83,68 +83,61 @@ function ThreadSettingsMediaGalleryModal(
     [pushModal],
   );
 
-  const filteredMediaInfos = React.useMemo(() => {
+  const mediaGalleryItems = React.useMemo(() => {
+    let filteredMediaInfos = mediaInfos;
     if (tab === 'Images') {
-      return mediaInfos.filter(
+      filteredMediaInfos = mediaInfos.filter(
         mediaInfo =>
           mediaInfo.type === 'photo' || mediaInfo.type === 'encrypted_photo',
       );
     } else if (tab === 'Videos') {
-      return mediaInfos.filter(
+      filteredMediaInfos = mediaInfos.filter(
         mediaInfo =>
           mediaInfo.type === 'video' || mediaInfo.type === 'encrypted_video',
       );
     }
-    return mediaInfos;
-  }, [tab, mediaInfos]);
 
-  const mediaCoverPhotos = React.useMemo(
-    () =>
-      filteredMediaInfos.map(media => {
-        if (media.type === 'photo') {
-          return {
-            kind: 'plain',
-            uri: media.uri,
-            thumbHash: media.thumbHash,
-          };
-        } else if (media.type === 'video') {
-          return {
-            kind: 'plain',
-            uri: media.thumbnailURI,
-            thumbHash: media.thumbnailThumbHash,
-          };
-        } else if (media.type === 'encrypted_photo') {
-          return {
-            kind: 'encrypted',
-            holder: media.holder,
-            encryptionKey: media.encryptionKey,
-            thumbHash: media.thumbHash,
-          };
-        } else {
-          return {
-            kind: 'encrypted',
-            holder: media.thumbnailHolder,
-            encryptionKey: media.thumbnailEncryptionKey,
-            thumbHash: media.thumbnailThumbHash,
-          };
-        }
-      }),
-    [filteredMediaInfos],
-  );
+    return filteredMediaInfos.map((media, i) => {
+      let imageSource;
+      if (media.type === 'photo') {
+        imageSource = {
+          kind: 'plain',
+          uri: media.uri,
+          thumbHash: media.thumbHash,
+        };
+      } else if (media.type === 'video') {
+        imageSource = {
+          kind: 'plain',
+          uri: media.thumbnailURI,
+          thumbHash: media.thumbnailThumbHash,
+        };
+      } else if (media.type === 'encrypted_photo') {
+        imageSource = {
+          kind: 'encrypted',
+          holder: media.holder,
+          encryptionKey: media.encryptionKey,
+          thumbHash: media.thumbHash,
+        };
+      } else {
+        imageSource = {
+          kind: 'encrypted',
+          holder: media.thumbnailHolder,
+          encryptionKey: media.thumbnailEncryptionKey,
+          thumbHash: media.thumbnailThumbHash,
+        };
+      }
 
-  const mediaGalleryItems = React.useMemo(
-    () =>
-      filteredMediaInfos.map((media, i) => (
+      return (
         <GalleryItem
           key={i}
           onClick={() => onClick(media)}
-          imageSource={mediaCoverPhotos[i]}
+          imageSource={imageSource}
           imageCSSClass={css.media}
           imageContainerCSSClass={css.mediaContainer}
         />
-      )),
-    [filteredMediaInfos, onClick, mediaCoverPhotos],
-  );
+      );
+    });
+  }, [tab, mediaInfos, onClick]);
 
   const handleScroll = React.useCallback(
     async event => {
