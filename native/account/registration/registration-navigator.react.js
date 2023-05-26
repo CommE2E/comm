@@ -7,6 +7,7 @@ import {
 } from '@react-navigation/stack';
 import * as React from 'react';
 
+import AvatarSelection from './avatar-selection.react.js';
 import ConnectEthereum from './connect-ethereum.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
 import ExistingEthereumAccount from './existing-ethereum-account.react.js';
@@ -21,6 +22,7 @@ import {
   ExistingEthereumAccountRouteName,
   UsernameSelectionRouteName,
   PasswordSelectionRouteName,
+  AvatarSelectionRouteName,
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
@@ -76,6 +78,10 @@ function RegistrationNavigator(props: Props): React.Node {
       <Registration.Screen
         name={PasswordSelectionRouteName}
         component={PasswordSelection}
+      />
+      <Registration.Screen
+        name={AvatarSelectionRouteName}
+        component={AvatarSelection}
       />
     </Registration.Navigator>
   );
