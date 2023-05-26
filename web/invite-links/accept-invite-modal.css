@@ -29,11 +29,11 @@
   color: var(--label-default-color);
 }
 
-hr {
+.container hr {
   width: 100%;
   background: var(--border);
 }
 
-button {
+.container button {
   width: 100%;
 }
