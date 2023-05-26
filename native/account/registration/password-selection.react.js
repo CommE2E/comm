@@ -1,7 +1,9 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
+
+import sleep from 'lib/utils/sleep.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -75,6 +77,18 @@ function PasswordSelection(props: Props): React.Node {
     confirmPasswordInputRef.current?.focus();
   }, []);
 
+  /* eslint-disable react-hooks/rules-of-hooks */
+  const passwordInputRef = React.useRef();
+  if (Platform.OS === 'android') {
+    React.useEffect(() => {
+      (async () => {
+        await sleep(250);
+        passwordInputRef.current?.focus();
+      })();
+    }, []);
+  }
+  /* eslint-enable react-hooks/rules-of-hooks */
+
   return (
     <RegistrationContainer>
       <RegistrationContentContainer>
@@ -83,13 +97,17 @@ function PasswordSelection(props: Props): React.Node {
           value={password}
           onChangeText={setPassword}
           placeholder="Password"
-          autoFocus={true}
+          autoFocus={Platform.select({
+            android: false,
+            default: true,
+          })}
           secureTextEntry={true}
           textContentType="newPassword"
           autoComplete="password-new"
           returnKeyType="next"
           onSubmitEditing={focusConfirmPasswordInput}
           onBlur={potentiallyClearErrors}
+          ref={passwordInputRef}
         />
         <RegistrationTextInput
           value={confirmPassword}
