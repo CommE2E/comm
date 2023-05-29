@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import _keyBy from 'lodash/fp/keyBy.js';
 
 import {
   startDateForYearAndMonth,
@@ -55,7 +56,8 @@ function canonicalURLFromReduxState(
       }
     } else if (navInfo.tab === 'chat') {
       if (navInfo.chatMode === 'create') {
-        const users = navInfo.selectedUserList?.join('+') ?? '';
+        const users =
+          navInfo.selectedUserList?.map(({ id }) => id)?.join('+') ?? '';
         const potentiallyTrailingSlash = users.length > 0 ? '/' : '';
         newURL += `thread/new/${users}${potentiallyTrailingSlash}`;
       } else {
@@ -126,7 +128,10 @@ function navInfoFromURL(
   };
 
   if (urlInfo.selectedUserList) {
-    newNavInfo.selectedUserList = urlInfo.selectedUserList;
+    const selectedUsers = _keyBy('id')(navInfo?.selectedUserList ?? []);
+    newNavInfo.selectedUserList = urlInfo.selectedUserList
+      ?.map(id => selectedUsers[id])
+      ?.filter(Boolean);
   }
 
   if (urlInfo.settings) {
