@@ -1,30 +1,33 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
-import { updateUserAvatarActionTypes } from 'lib/actions/user-actions.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 
+import { EditUserAvatarContext } from '../avatars/edit-user-avatar-provider.react.js';
 import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
-import { useSelector } from '../redux/redux-utils.js';
-import { useSaveUserAvatar } from '../utils/avatar-utils.js';
-
-const userAvatarLoadingStatusSelector = createLoadingStatusSelector(
-  updateUserAvatarActionTypes,
-);
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
 
 // eslint-disable-next-line no-unused-vars
 function EmojiUserAvatarCreation(props: { ... }): React.Node {
-  const saveUserAvatar = useSaveUserAvatar();
-  const saveUserAvatarCallLoading = useSelector(
-    state => userAvatarLoadingStatusSelector(state) === 'loading',
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
+
+  const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
+  const setAvatar = React.useCallback(
+    async avatarRequest => {
+      const result = await setUserAvatar(avatarRequest);
+      displayActionResultModal('Avatar updated!');
+      return result;
+    },
+    [setUserAvatar],
   );
 
   return (
     <EmojiAvatarCreation
-      saveAvatarCall={saveUserAvatar}
-      saveAvatarCallLoading={saveUserAvatarCallLoading}
+      saveAvatarCall={setAvatar}
+      saveAvatarCallLoading={userAvatarSaveInProgress}
       savedEmojiAvatarSelector={savedEmojiAvatarSelectorForCurrentUser}
     />
   );
