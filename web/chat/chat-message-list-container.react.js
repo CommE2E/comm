@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
@@ -28,45 +27,13 @@ type Props = {
 
 function ChatMessageListContainer(props: Props): React.Node {
   const { activeChatThreadID } = props;
-  const {
-    isChatCreation,
-    selectedUserIDs,
-    otherUserInfos,
-    userInfoInputArray,
-  } = useInfosForPendingThread();
+  const { isChatCreation, selectedUserInfos, otherUserInfos } =
+    useInfosForPendingThread();
 
   const threadInfo = useThreadInfoForPossiblyPendingThread(activeChatThreadID);
   invariant(threadInfo, 'ThreadInfo should be set');
 
   const dispatch = useDispatch();
-
-  // The effect removes members from list in navInfo
-  // if some of the user IDs don't exist in redux store
-  React.useEffect(() => {
-    if (!isChatCreation) {
-      return;
-    }
-    const existingSelectedUsersSet = new Set(
-      userInfoInputArray.map(userInfo => userInfo.id),
-    );
-    if (
-      selectedUserIDs?.length !== existingSelectedUsersSet.size ||
-      !_isEqual(new Set(selectedUserIDs), existingSelectedUsersSet)
-    ) {
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          selectedUserList: Array.from(existingSelectedUsersSet),
-        },
-      });
-    }
-  }, [
-    dispatch,
-    isChatCreation,
-    otherUserInfos,
-    selectedUserIDs,
-    userInfoInputArray,
-  ]);
 
   React.useEffect(() => {
     if (isChatCreation && activeChatThreadID !== threadInfo?.id) {
@@ -158,14 +125,14 @@ function ChatMessageListContainer(props: Props): React.Node {
     }
     const chatUserSelection = (
       <ChatThreadComposer
-        userInfoInputArray={userInfoInputArray}
+        userInfoInputArray={selectedUserInfos}
         otherUserInfos={otherUserInfos}
         threadID={threadInfo.id}
         inputState={inputState}
       />
     );
 
-    if (!userInfoInputArray.length) {
+    if (!selectedUserInfos.length) {
       return chatUserSelection;
     }
     return (
@@ -179,8 +146,8 @@ function ChatMessageListContainer(props: Props): React.Node {
     inputState,
     isChatCreation,
     otherUserInfos,
+    selectedUserInfos,
     threadInfo,
-    userInfoInputArray,
   ]);
 
   return connectDropTarget(
