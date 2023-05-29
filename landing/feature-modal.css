@@ -1,0 +1,44 @@
+.modalContainer {
+  background-color: var(--comparison-cards);
+  border-radius: 8px;
+  padding: 24px 32px;
+  width: 624px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.featureContainer {
+  display: flex;
+}
+
+.closeIconContainer {
+  margin-left: 22px;
+  cursor: pointer;
+}
+
+.closeIcon {
+  color: var(--white-80);
+}
+
+.furtherReadingContainer {
+  border-top: 1px solid var(--black-80);
+  padding-top: 24px;
+  margin-top: 24px;
+}
+
+.furtherReadingsText {
+  color: var(--white-100);
+  margin-bottom: 16px;
+}
+
+.linksContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.linkText {
+  color: var(--violet-dark-100);
+  text-decoration: underline;
+}
