@@ -41,6 +41,14 @@ export type EditThreadAvatarContextType = {
 const EditThreadAvatarContext: React.Context<?EditThreadAvatarContextType> =
   React.createContext<?EditThreadAvatarContextType>();
 
+const displayFailureAlert = () =>
+  Alert.alert(
+    'Couldn’t save avatar',
+    'Please try again later',
+    [{ text: 'OK' }],
+    { cancelable: true },
+  );
+
 type Props = {
   +children: React.Node,
 };
@@ -113,7 +121,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
           try {
             return await changeThreadSettingsCall(updateThreadRequest);
           } catch (e) {
-            Alert.alert('Avatar update failed', 'Unable to update avatar.');
+            displayFailureAlert();
             throw e;
           }
         })(),
@@ -154,7 +162,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
         try {
           return await changeThreadSettingsCall(updateThreadRequest);
         } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          displayFailureAlert();
           throw e;
         }
       })();
