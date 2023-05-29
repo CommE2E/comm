@@ -39,11 +39,10 @@ function EditThreadAvatar(props: Props): React.Node {
     navigate<'EmojiThreadAvatarCreation'>({
       name: EmojiThreadAvatarCreationRouteName,
       params: {
-        threadID: threadInfo.id,
-        containingThreadID: threadInfo.containingThreadID,
+        threadInfo,
       },
     });
-  }, [navigate, threadInfo.containingThreadID, threadInfo.id]);
+  }, [navigate, threadInfo]);
 
   const selectFromGallery = React.useCallback(
     () => selectFromGalleryAndUpdateThreadAvatar(threadInfo.id),
