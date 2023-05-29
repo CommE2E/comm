@@ -44,6 +44,7 @@ import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
+import { infoFromURL } from 'lib/utils/url-utils.js';
 import { tBool, tNumber, tShape, tString } from 'lib/utils/validation-utils.js';
 import getTitle from 'web/title/getTitle.js';
 import { navInfoValidator } from 'web/types/nav-types.js';
@@ -56,6 +57,7 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
+  fetchUserInfos,
 } from '../fetchers/user-fetchers.js';
 import { getWebPushConfig } from '../push/providers.js';
 import { setNewSession } from '../session/cookies.js';
@@ -258,20 +260,41 @@ async function websiteResponder(
     baseLegalPolicies,
   );
 
-  let initialNavInfo;
-  try {
-    initialNavInfo = navInfoFromURL(req.url, {
-      now: currentDateInTimeZone(viewer.timeZone),
-    });
-  } catch (e) {
-    throw new ServerError(e.message);
-  }
+  const initialNavInfoPromise = (async () => {
+    try {
+      const urlInfo = infoFromURL(req.url);
 
-  const calendarQuery = {
-    startDate: initialNavInfo.startDate,
-    endDate: initialNavInfo.endDate,
-    filters: defaultCalendarFilters,
-  };
+      let backupInfo = {
+        now: currentDateInTimeZone(viewer.timeZone),
+      };
+      // Some user ids in selectedUserList might not exist in the userStore
+      // (e.g. they were included in the results of the user search endpoint)
+      // Because of that we keep their userInfos inside the navInfo.
+      if (urlInfo.selectedUserList) {
+        const fetchedUserInfos = await fetchUserInfos(urlInfo.selectedUserList);
+        const userInfos = {};
+        for (const userID in fetchedUserInfos) {
+          const userInfo = fetchedUserInfos[userID];
+          if (userInfo.username) {
+            userInfos[userID] = userInfo;
+          }
+        }
+        backupInfo = { userInfos, ...backupInfo };
+      }
+      return navInfoFromURL(urlInfo, backupInfo);
+    } catch (e) {
+      throw new ServerError(e.message);
+    }
+  })();
+
+  const calendarQueryPromise = (async () => {
+    const initialNavInfo = await initialNavInfoPromise;
+    return {
+      startDate: initialNavInfo.startDate,
+      endDate: initialNavInfo.endDate,
+      filters: defaultCalendarFilters,
+    };
+  })();
   const messageSelectionCriteria = { joinedThreads: true };
   const initialTime = Date.now();
 
@@ -282,11 +305,15 @@ async function websiteResponder(
     messageSelectionCriteria,
     defaultNumberPerThread,
   );
-  const entryInfoPromise = fetchEntryInfos(viewer, [calendarQuery]);
+  const entryInfoPromise = (async () => {
+    const calendarQuery = await calendarQueryPromise;
+    return await fetchEntryInfos(viewer, [calendarQuery]);
+  })();
   const currentUserInfoPromise = fetchCurrentUserInfo(viewer);
   const userInfoPromise = fetchKnownUserInfos(viewer);
 
   const sessionIDPromise = (async () => {
+    const calendarQuery = await calendarQueryPromise;
     if (viewer.loggedIn) {
       await setNewSession(viewer, calendarQuery, initialTime);
     }
@@ -356,14 +383,19 @@ async function websiteResponder(
   })();
 
   const navInfoPromise = (async () => {
-    const [{ threadInfos }, messageStore, currentUserInfo, userStore] =
-      await Promise.all([
-        threadInfoPromise,
-        messageStorePromise,
-        currentUserInfoPromise,
-        userStorePromise,
-      ]);
-    const finalNavInfo = initialNavInfo;
+    const [
+      { threadInfos },
+      messageStore,
+      currentUserInfo,
+      userStore,
+      finalNavInfo,
+    ] = await Promise.all([
+      threadInfoPromise,
+      messageStorePromise,
+      currentUserInfoPromise,
+      userStorePromise,
+      initialNavInfoPromise,
+    ]);
 
     const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;
     if (
@@ -509,10 +541,10 @@ async function websiteResponder(
     windowDimensions: { width: 0, height: 0 },
     baseHref,
     notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-    connection: {
+    connection: (async () => ({
       ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
-      actualizedCalendarQuery: calendarQuery,
-    },
+      actualizedCalendarQuery: await calendarQueryPromise,
+    }))(),
     watchedThreadIDs: [],
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,

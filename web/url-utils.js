@@ -3,11 +3,12 @@
 import invariant from 'invariant';
 import _keyBy from 'lodash/fp/keyBy.js';
 
+import type { AccountUserInfo } from 'lib/types/user-types.js';
 import {
   startDateForYearAndMonth,
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils.js';
-import { infoFromURL } from 'lib/utils/url-utils.js';
+import { infoFromURL, type URLInfo } from 'lib/utils/url-utils.js';
 
 import { yearExtractor, monthExtractor } from './selectors/nav-selectors.js';
 import type { NavInfo } from './types/nav-types.js';
@@ -77,10 +78,13 @@ function canonicalURLFromReduxState(
 // Given a URL, this function parses out a navInfo object, leaving values as
 // default if they are unspecified.
 function navInfoFromURL(
-  url: string,
-  backupInfo: { now?: Date, navInfo?: NavInfo },
+  urlInfo: URLInfo,
+  backupInfo: {
+    +now?: Date,
+    +userInfos?: { +[id: string]: AccountUserInfo },
+    +navInfo?: NavInfo,
+  },
 ): NavInfo {
-  const urlInfo = infoFromURL(url);
   const { navInfo } = backupInfo;
   const now = backupInfo.now ? backupInfo.now : new Date();
 
@@ -129,8 +133,9 @@ function navInfoFromURL(
 
   if (urlInfo.selectedUserList) {
     const selectedUsers = _keyBy('id')(navInfo?.selectedUserList ?? []);
+    const userInfos = backupInfo.userInfos ?? {};
     newNavInfo.selectedUserList = urlInfo.selectedUserList
-      ?.map(id => selectedUsers[id])
+      ?.map(id => selectedUsers[id] ?? userInfos[id])
       ?.filter(Boolean);
   }
 
