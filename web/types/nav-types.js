@@ -7,6 +7,10 @@ import {
   type ThreadInfo,
   threadInfoValidator,
 } from 'lib/types/thread-types.js';
+import {
+  type AccountUserInfo,
+  accountUserInfoValidator,
+} from 'lib/types/user-types.js';
 import { tID, tShape } from 'lib/utils/validation-utils.js';
 
 export type NavigationTab = 'calendar' | 'chat' | 'settings';
@@ -27,7 +31,7 @@ export type NavInfo = {
   +activeChatThreadID: ?string,
   +pendingThread?: ThreadInfo,
   +settingsSection?: NavigationSettingsSection,
-  +selectedUserList?: $ReadOnlyArray<string>,
+  +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
   +chatMode?: NavigationChatMode,
   +inviteSecret?: ?string,
 };
@@ -39,7 +43,7 @@ export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   activeChatThreadID: t.maybe(tID),
   pendingThread: t.maybe(threadInfoValidator),
   settingsSection: t.maybe(navigationSettingsSectionValidator),
-  selectedUserList: t.maybe(t.list(t.String)),
+  selectedUserList: t.maybe(t.list(accountUserInfoValidator)),
   chatMode: t.maybe(navigationChatModeValidator),
   inviteSecret: t.maybe(t.String),
 });

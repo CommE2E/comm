@@ -18,33 +18,29 @@ import { useSelector } from '../redux/redux-utils.js';
 
 type InfosForPendingThread = {
   +isChatCreation: boolean,
-  +selectedUserIDs: ?$ReadOnlyArray<string>,
+  +selectedUserInfos: $ReadOnlyArray<AccountUserInfo>,
   +otherUserInfos: { [id: string]: AccountUserInfo },
-  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
 };
 
 function useInfosForPendingThread(): InfosForPendingThread {
   const isChatCreation = useSelector(
     state => state.navInfo.chatMode === 'create',
   );
-  const selectedUserIDs = useSelector(state => state.navInfo.selectedUserList);
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userInfoInputArray: $ReadOnlyArray<AccountUserInfo> = React.useMemo(
-    () => selectedUserIDs?.map(id => otherUserInfos[id]).filter(Boolean) ?? [],
-    [otherUserInfos, selectedUserIDs],
+  const selectedUserInfos = useSelector(
+    state => state.navInfo.selectedUserList ?? [],
   );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   return {
     isChatCreation,
-    selectedUserIDs,
+    selectedUserInfos,
     otherUserInfos,
-    userInfoInputArray,
   };
 }
 
 function useThreadInfoForPossiblyPendingThread(
   activeChatThreadID: ?string,
 ): ?ThreadInfo {
-  const { isChatCreation, userInfoInputArray } = useInfosForPendingThread();
+  const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
   const loggedInUserInfo = useLoggedInUserInfo();
   invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
@@ -86,13 +82,13 @@ function useThreadInfoForPossiblyPendingThread(
   const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
   const threadInfo = React.useMemo(() => {
     if (isChatCreation) {
-      if (userInfoInputArray.length === 0) {
+      if (selectedUserInfos.length === 0) {
         return pendingNewThread;
       }
 
       return existingThreadInfoFinderForCreatingThread({
         searching: true,
-        userInfoInputArray,
+        userInfoInputArray: selectedUserInfos,
       });
     }
 
@@ -104,8 +100,8 @@ function useThreadInfoForPossiblyPendingThread(
     existingThreadInfoFinder,
     existingThreadInfoFinderForCreatingThread,
     isChatCreation,
-    userInfoInputArray,
     pendingNewThread,
+    selectedUserInfos,
   ]);
 
   return threadInfo;

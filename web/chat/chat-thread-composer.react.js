@@ -1,5 +1,7 @@
 // @flow
+
 import classNames from 'classnames';
+import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -57,12 +59,11 @@ function ChatThreadComposer(props: Props): React.Node {
   const userListItemsWithENSNames = useENSNames(userListItems);
 
   const onSelectUserFromSearch = React.useCallback(
-    (id: string) => {
-      const selectedUserIDs = userInfoInputArray.map(user => user.id);
+    (user: AccountUserInfo) => {
       dispatch({
         type: updateNavInfoActionType,
         payload: {
-          selectedUserList: [...selectedUserIDs, id],
+          selectedUserList: [...userInfoInputArray, user],
         },
       });
       setUsernameInputText('');
@@ -71,15 +72,17 @@ function ChatThreadComposer(props: Props): React.Node {
   );
 
   const onRemoveUserFromSelected = React.useCallback(
-    (id: string) => {
-      const selectedUserIDs = userInfoInputArray.map(user => user.id);
-      if (!selectedUserIDs.includes(id)) {
+    (userID: string) => {
+      const newSelectedUserList = userInfoInputArray.filter(
+        ({ id }) => userID !== id,
+      );
+      if (_isEqual(userInfoInputArray)(newSelectedUserList)) {
         return;
       }
       dispatch({
         type: updateNavInfoActionType,
         payload: {
-          selectedUserList: selectedUserIDs.filter(userID => userID !== id),
+          selectedUserList: newSelectedUserList,
         },
       });
     },
@@ -102,23 +105,27 @@ function ChatThreadComposer(props: Props): React.Node {
     }
 
     const userItems = userListItemsWithENSNames.map(
-      (userSearchResult: UserListItem) => (
-        <li key={userSearchResult.id} className={css.searchResultsItem}>
-          <Button
-            variant="text"
-            onClick={() => onSelectUserFromSearch(userSearchResult.id)}
-            className={css.searchResultsButton}
-          >
-            <div className={css.userContainer}>
-              <UserAvatar size="small" userID={userSearchResult.id} />
-              <div className={css.userName} style={usernameStyle}>
-                {userSearchResult.username}
+      (userSearchResult: UserListItem) => {
+        const { alertTitle, alertText, notice, disabled, ...accountUserInfo } =
+          userSearchResult;
+        return (
+          <li key={userSearchResult.id} className={css.searchResultsItem}>
+            <Button
+              variant="text"
+              onClick={() => onSelectUserFromSearch(accountUserInfo)}
+              className={css.searchResultsButton}
+            >
+              <div className={css.userContainer}>
+                <UserAvatar size="small" userID={userSearchResult.id} />
+                <div className={css.userName} style={usernameStyle}>
+                  {userSearchResult.username}
+                </div>
               </div>
-            </div>
-            <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
-          </Button>
-        </li>
-      ),
+              <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
+            </Button>
+          </li>
+        );
+      },
     );
 
     return <ul className={css.searchResultsContainer}>{userItems}</ul>;
