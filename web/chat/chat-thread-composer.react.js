@@ -8,7 +8,10 @@ import { useDispatch } from 'react-redux';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors.js';
-import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import {
+  getPotentialMemberItems,
+  useSearchUsers,
+} from 'lib/shared/search-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
@@ -45,6 +48,8 @@ function ChatThreadComposer(props: Props): React.Node {
     [userInfoInputArray],
   );
 
+  const serverSearchResults = useSearchUsers(usernameInputText);
+
   const userListItems = React.useMemo(
     () =>
       getPotentialMemberItems({
@@ -52,9 +57,17 @@ function ChatThreadComposer(props: Props): React.Node {
         userInfos: otherUserInfos,
         searchIndex: userSearchIndex,
         excludeUserIDs: userInfoInputIDs,
+        includeServerSearchUsers: serverSearchResults,
       }),
-    [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputIDs],
+    [
+      usernameInputText,
+      otherUserInfos,
+      userSearchIndex,
+      userInfoInputIDs,
+      serverSearchResults,
+    ],
   );
+
   const userListItemsWithENSNames = useENSNames(userListItems);
 
   const onSelectUserFromSearch = React.useCallback(
