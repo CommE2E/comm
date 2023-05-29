@@ -9,8 +9,8 @@ import {
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
-  ENSAvatarDBContent,
-  UpdateUserAvatarRemoveRequest,
+  UpdateUserAvatarRequest,
+  UpdateUserAvatarResponse,
 } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { NativeMediaSelection } from 'lib/types/media-types.js';
@@ -26,8 +26,9 @@ export type EditUserAvatarContextType = {
   +userAvatarSaveInProgress: boolean,
   +selectFromGalleryAndUpdateUserAvatar: () => Promise<void>,
   +updateImageUserAvatar: (selection: NativeMediaSelection) => Promise<void>,
-  +setENSUserAvatar: () => void,
-  +removeUserAvatar: () => void,
+  +setUserAvatar: (
+    avatarRequest: UpdateUserAvatarRequest,
+  ) => Promise<UpdateUserAvatarResponse>,
 };
 
 const EditUserAvatarContext: React.Context<?EditUserAvatarContextType> =
@@ -93,56 +94,34 @@ function EditUserAvatarProvider(props: Props): React.Node {
     await updateImageUserAvatar(selection);
   }, [updateImageUserAvatar]);
 
-  const setENSUserAvatar = React.useCallback(() => {
-    const ensAvatarRequest: ENSAvatarDBContent = {
-      type: 'ens',
-    };
-
-    dispatchActionPromise(
-      updateUserAvatarActionTypes,
-      (async () => {
+  const setUserAvatar = React.useCallback(
+    (avatarRequest: UpdateUserAvatarRequest) => {
+      const promise = (async () => {
         try {
-          return await updateUserAvatarCall(ensAvatarRequest);
+          return await updateUserAvatarCall(avatarRequest);
         } catch (e) {
           Alert.alert('Avatar update failed', 'Unable to update avatar.');
           throw e;
         }
-      })(),
-    );
-  }, [dispatchActionPromise, updateUserAvatarCall]);
-
-  const removeUserAvatar = React.useCallback(() => {
-    const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
-      type: 'remove',
-    };
-
-    dispatchActionPromise(
-      updateUserAvatarActionTypes,
-      (async () => {
-        try {
-          return await updateUserAvatarCall(removeAvatarRequest);
-        } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
-          throw e;
-        }
-      })(),
-    );
-  }, [dispatchActionPromise, updateUserAvatarCall]);
+      })();
+      dispatchActionPromise(updateUserAvatarActionTypes, promise);
+      return promise;
+    },
+    [dispatchActionPromise, updateUserAvatarCall],
+  );
 
   const context = React.useMemo(
     () => ({
       userAvatarSaveInProgress,
       selectFromGalleryAndUpdateUserAvatar,
       updateImageUserAvatar,
-      setENSUserAvatar,
-      removeUserAvatar,
+      setUserAvatar,
     }),
     [
-      removeUserAvatar,
+      userAvatarSaveInProgress,
       selectFromGalleryAndUpdateUserAvatar,
       updateImageUserAvatar,
-      setENSUserAvatar,
-      userAvatarSaveInProgress,
+      setUserAvatar,
     ],
   );
 

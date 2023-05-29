@@ -32,8 +32,7 @@ function EditUserAvatar(props: Props): React.Node {
   const {
     userAvatarSaveInProgress,
     selectFromGalleryAndUpdateUserAvatar,
-    setENSUserAvatar,
-    removeUserAvatar,
+    setUserAvatar,
   } = editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
@@ -52,6 +51,14 @@ function EditUserAvatar(props: Props): React.Node {
   const navigateToCamera = React.useCallback(() => {
     navigate(UserAvatarCameraModalRouteName);
   }, [navigate]);
+
+  const setENSUserAvatar = React.useCallback(() => {
+    setUserAvatar({ type: 'ens' });
+  }, [setUserAvatar]);
+
+  const removeUserAvatar = React.useCallback(() => {
+    setUserAvatar({ type: 'remove' });
+  }, [setUserAvatar]);
 
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
