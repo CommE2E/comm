@@ -201,6 +201,7 @@ class App extends React.PureComponent<Props> {
     const wordmarkClasses = classnames({
       [css.wordmark]: true,
       [css['electron-non-draggable']]: electron,
+      [css['wordmark-macos']]: electron?.platform === 'macos',
     });
 
     return (

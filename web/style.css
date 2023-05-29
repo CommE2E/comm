@@ -82,6 +82,9 @@ div.main-header > .wordmark {
   font-size: var(--logo-font-22);
   margin-right: 40px;
 }
+div.main-header > .wordmark-macos {
+  padding-left: 92px;
+}
 .wordmark > a {
   color: inherit;
 }
