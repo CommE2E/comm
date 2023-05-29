@@ -265,4 +265,5 @@ export const threadRoutes = [
   FullScreenThreadMediaGalleryRouteName,
   MessageResultsScreenRouteName,
   MessageSearchRouteName,
+  EmojiThreadAvatarCreationRouteName,
 ];
