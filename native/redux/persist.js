@@ -36,12 +36,12 @@ import {
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { assignReportsID } from 'lib/utils/report-utils.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
   convertThreadStoreOperationsToClientDBOperations,
 } from 'lib/utils/thread-ops-utils.js';
+import { getUUID } from 'lib/utils/uuid.js';
 
 import { updateClientDBThreadStoreThreadInfos } from './client-db-utils.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
@@ -537,7 +537,10 @@ const migrations = {
   [40]: state =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
   [41]: (state: AppState) => {
-    const queuedReports = assignReportsID(state.reportStore.queuedReports);
+    const queuedReports = state.reportStore.queuedReports.map(report => ({
+      ...report,
+      id: getUUID(),
+    }));
     return {
       ...state,
       reportStore: { ...state.reportStore, queuedReports },
