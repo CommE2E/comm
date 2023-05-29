@@ -1,5 +1,15 @@
 // @flow
 
+const competitors = Object.freeze({
+  DISCORD: 'discord',
+  KEYBASE: 'keybase',
+  MATRIX: 'matrix',
+  SIGNAL: 'signal',
+  SLACK: 'slack',
+  TELEGRAM: 'telegram',
+});
+export type Competitors = $Values<typeof competitors>;
+
 type FeatureComparison = {
   +title: string,
   +comingSoon: boolean,
@@ -11,7 +21,7 @@ type FeatureComparison = {
 };
 
 type Competitor = {
-  +id: string,
+  +id: Competitors,
   +name: string,
   +featureComparison: $ReadOnlyArray<FeatureComparison>,
 };
