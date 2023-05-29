@@ -8,9 +8,10 @@ import MatrixLogo from './assets/matrix-logo.react.js';
 import SignalLogo from './assets/signal-logo.react.js';
 import SlackLogo from './assets/slack-logo.react.js';
 import TelegramLogo from './assets/telegram-logo.react.js';
+import type { Competitors } from './competitor-data.js';
 
 type Props = {
-  +name: 'discord' | 'keybase' | 'matrix' | 'signal' | 'slack' | 'telegram',
+  +name: Competitors,
   +size?: number,
 };
 
