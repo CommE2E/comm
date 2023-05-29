@@ -33,6 +33,14 @@ const updateUserAvatarLoadingStatusSelector = createLoadingStatusSelector(
   updateUserAvatarActionTypes,
 );
 
+const failureAlert = () =>
+  Alert.alert(
+    'Couldn’t save avatar',
+    'Please try again later',
+    [{ text: 'OK' }],
+    { cancelable: true },
+  );
+
 type Props = {
   +children: React.Node,
 };
@@ -72,7 +80,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
           try {
             return await updateUserAvatarCall(imageAvatarUpdateRequest);
           } catch (e) {
-            Alert.alert('Avatar update failed', 'Unable to update avatar.');
+            failureAlert();
             throw e;
           }
         })(),
@@ -95,7 +103,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
         try {
           return await updateUserAvatarCall(avatarRequest);
         } catch (e) {
-          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          failureAlert();
           throw e;
         }
       })();
