@@ -5,12 +5,24 @@ import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import {
+  searchUsers,
+  searchUsersActionTypes,
+} from 'lib/actions/user-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
-import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import type {
+  AccountUserInfo,
+  UserListItem,
+  GlobalAccountUserInfo,
+} from 'lib/types/user-types.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
 import css from './chat-thread-composer.css';
 import Button from '../components/button.react.js';
@@ -46,6 +58,34 @@ function ChatThreadComposer(props: Props): React.Node {
     [userInfoInputArray],
   );
 
+  const currentUserID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+
+  const [serverSearchResults, setServerSearchResults] = React.useState<
+    $ReadOnlyArray<GlobalAccountUserInfo>,
+  >([]);
+  const callSearchUsers = useServerCall(searchUsers);
+  const dispatchActionPromise = useDispatchActionPromise();
+  React.useEffect(() => {
+    const searchUsersPromise = (async () => {
+      if (usernameInputText.length === 0) {
+        setServerSearchResults([]);
+      } else {
+        const { userInfos } = await callSearchUsers(usernameInputText);
+        setServerSearchResults(
+          userInfos.filter(({ id }) => id !== currentUserID),
+        );
+      }
+    })();
+    dispatchActionPromise(searchUsersActionTypes, searchUsersPromise);
+  }, [
+    callSearchUsers,
+    currentUserID,
+    dispatchActionPromise,
+    usernameInputText,
+  ]);
+
   const userListItems = React.useMemo(
     () =>
       getPotentialMemberItems(
@@ -53,9 +93,17 @@ function ChatThreadComposer(props: Props): React.Node {
         otherUserInfos,
         userSearchIndex,
         userInfoInputIDs,
+        serverSearchResults,
       ),
-    [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputIDs],
+    [
+      usernameInputText,
+      otherUserInfos,
+      userSearchIndex,
+      userInfoInputIDs,
+      serverSearchResults,
+    ],
   );
+
   const userListItemsWithENSNames = useENSNames(userListItems);
 
   const onSelectUserFromSearch = React.useCallback(
