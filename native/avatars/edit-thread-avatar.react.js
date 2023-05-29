@@ -30,7 +30,7 @@ function EditThreadAvatar(props: Props): React.Node {
   const {
     threadAvatarSaveInProgress,
     selectFromGalleryAndUpdateThreadAvatar,
-    removeThreadAvatar,
+    setThreadAvatar,
   } = editThreadAvatarContext;
 
   const { navigate } = useNavigation();
@@ -58,8 +58,8 @@ function EditThreadAvatar(props: Props): React.Node {
   }, [navigate, threadInfo.id]);
 
   const removeAvatar = React.useCallback(
-    () => removeThreadAvatar(threadInfo.id),
-    [removeThreadAvatar, threadInfo.id],
+    () => setThreadAvatar(threadInfo.id, { type: 'remove' }),
+    [setThreadAvatar, threadInfo.id],
   );
 
   const actionSheetConfig = React.useMemo(() => {
