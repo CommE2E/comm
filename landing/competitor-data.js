@@ -1,5 +1,7 @@
 // @flow
 
+import _keyBy from 'lodash/fp/keyBy.js';
+
 const competitors = Object.freeze({
   DISCORD: 'discord',
   KEYBASE: 'keybase',
@@ -101,4 +103,7 @@ const competitorData: $ReadOnlyArray<Competitor> = [
   },
 ];
 
-export { competitorData };
+const keyedCompetitorData: { [key: string]: Competitor } =
+  _keyBy('id')(competitorData);
+
+export { keyedCompetitorData };
