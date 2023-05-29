@@ -441,6 +441,93 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
       },
     ],
   },
+  telegram: {
+    id: 'telegram',
+    name: 'Telegram',
+    featureComparison: [
+      {
+        title: 'Encryption',
+        comingSoon: true,
+        competitorDescriptionShort:
+          'Outside of rarely-used “Secret Chats”, Telegram staff is able to read the contents of all messages sent on the app.',
+        commDescriptionShort:
+          'Comm uses Signal’s Double Ratchet algorithm, the industry standard for E2E encryption.',
+        competitorDescriptionLong: [
+          'Despite being presented as a privacy-focused messaging app, Telegram does not offer E2E encryption as a default. While there is a “Secret Chats” feature, those chats only work for 1-on-1 chats, and only appear on a single primary device.',
+        ],
+        commDescriptionLong: [
+          'Comm’s servers do not have access to plaintext user content. DMs are stored on individual user devices, and communities are hosted on individual users’ keyservers.',
+          'Comm uses Matrix’s implementation of Signal’s Double Ratchet algorithm for DMs. Communication between keyservers and user devices is secured via TLS.',
+        ],
+        furtherReadingLinks: [
+          'https://signal.org/docs/specifications/doubleratchet/',
+        ],
+      },
+      {
+        title: 'Communities',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Telegram has a Topics feature for group chats, but communities aren’t a top-level concept.',
+        commDescriptionShort:
+          'Comm supports communities as a core primitive, à la Slack or Discord.',
+        competitorDescriptionLong: [
+          'Telegram has a Topics feature for group chats. It allows group chats with more than 200 members to subdivide into multiple “Topics”. These topics have one level of depth, and it can be annoying to browse topics or to associate topics with a parent chat.',
+        ],
+        commDescriptionLong: [
+          'Comm’s implementation of communities looks a lot like IRC, Slack, or Discord. The core difference is that Comm supports a full tree structure of channels for each community.',
+          'Comm also supports a threads feature, also similar to Slack and Discord. Comm threads appear in your inbox underneath their parent channel.',
+        ],
+        furtherReadingLinks: [
+          'https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups',
+        ],
+      },
+      {
+        title: 'Notifications',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Telegram has a single function to mute notifs from a chat.',
+        commDescriptionShort:
+          'Comm allows you to manage notif alerts separately from notif badging.',
+        competitorDescriptionLong: [
+          'Telegram supports temporary muting notifs from a chat, disabling message previews, and changing the notification sound associated with a chat.',
+        ],
+        commDescriptionLong: [
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+        ],
+      },
+      {
+        title: 'Noisy chats',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Telegram has a Chat Folders feature, but it’s not easy to move a noisy chat out of your inbox.',
+        commDescriptionShort:
+          'When you disable notifs for a chat, Comm moves it out of your inbox into a separate Background tab.',
+        competitorDescriptionLong: [
+          'Telegram has a Chat Folders feature. Your primary inbox always shows all chats, but Chat Folders can be configured to show or hide a set of selected chats. If you want to separate all of your chats into two Chat Folders, it takes a lot of steps.',
+        ],
+        commDescriptionLong: [
+          'When you disable notifs for a chat, Comm moves it out of your inbox into a separate Background tab. The Background tab is a core primitive in Comm, and helps you separate signal from noise.',
+        ],
+        furtherReadingLinks: [
+          'https://twitter.com/CommDotApp/status/1545193952554336257',
+        ],
+      },
+      {
+        title: 'Badging',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Telegram’s unread count is based on the number of unread messages.',
+        commDescriptionShort:
+          'Comm’s unread count is based on the number of unread chats.',
+        competitorDescriptionLong: [
+          'Telegram’s unread count is based on the number of unread messages. If somebody sends 3 messages in a row to the same chat, your unread count will be incremented by 3.',
+        ],
+        commDescriptionLong: [
+          'Comm’s unread count is based on the number of unread chats. If somebody sends 3 messages in a row to the same chat, your unread count will be incremented by 1.',
+        ],
+      },
+    ],
+  },
 });
 
 export { competitorData };
