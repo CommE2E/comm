@@ -1,21 +1,15 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
-import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selectors.js';
 
+import { EditThreadAvatarContext } from '../../avatars/edit-thread-avatar-provider.react.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
 import type { ChatNavigationProp } from '../../chat/chat.react.js';
+import { displayActionResultModal } from '../../navigation/action-result-modal.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
-import { useSelector } from '../../redux/redux-utils.js';
-import { useSaveThreadAvatar } from '../../utils/avatar-utils.js';
-
-const threadAvatarLoadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-  `${changeThreadSettingsActionTypes.started}:avatar`,
-);
 
 export type EmojiThreadAvatarCreationParams = {
   +threadID: string,
@@ -35,20 +29,24 @@ function EmojiThreadAvatarCreation(props: Props): React.Node {
     containingThreadID,
   );
 
-  const saveThreadAvatar = useSaveThreadAvatar();
-  const saveThreadAvatarCallLoading = useSelector(
-    state => threadAvatarLoadingStatusSelector(state) === 'loading',
-  );
+  const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
+  invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
 
-  const saveThreadAvatarCallback = React.useCallback(
-    newAvatarRequest => saveThreadAvatar(newAvatarRequest, threadID),
-    [saveThreadAvatar, threadID],
+  const { setThreadAvatar, threadAvatarSaveInProgress } =
+    editThreadAvatarContext;
+  const setAvatar = React.useCallback(
+    async avatarRequest => {
+      const result = await setThreadAvatar(threadID, avatarRequest);
+      displayActionResultModal('Avatar updated!');
+      return result;
+    },
+    [setThreadAvatar, threadID],
   );
 
   return (
     <EmojiAvatarCreation
-      saveAvatarCall={saveThreadAvatarCallback}
-      saveAvatarCallLoading={saveThreadAvatarCallLoading}
+      saveAvatarCall={setAvatar}
+      saveAvatarCallLoading={threadAvatarSaveInProgress}
       savedEmojiAvatarSelector={selector}
     />
   );
