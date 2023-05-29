@@ -1,0 +1,55 @@
+.competitorComparisonSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px;
+}
+
+.headerText {
+  color: var(--white-80);
+  text-align: center;
+  margin-bottom: 72px;
+}
+
+.competitorsContainer {
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  column-gap: 16px;
+  padding: 16px 32px;
+  background-color: var(--comparison-cards);
+  border-radius: 16px;
+  width: 560px;
+  max-width: 90vw;
+}
+
+.logoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.competitorLogo {
+  opacity: 0.35;
+}
+
+.competitorLogo:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.activeCompetitorLogo {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.bump {
+  width: 80%;
+  height: 4px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  background-color: var(--violet-dark-100);
+  position: absolute;
+  bottom: -16px;
+}
