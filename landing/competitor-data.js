@@ -26,8 +26,8 @@ export type Competitor = {
   +featureComparison: $ReadOnlyArray<FeatureComparison>,
 };
 
-const competitorData: $ReadOnlyArray<Competitor> = [
-  {
+const competitorData: { [key: string]: Competitor } = Object.freeze({
+  signal: {
     id: 'signal',
     name: 'Signal',
     featureComparison: [
@@ -109,6 +109,6 @@ const competitorData: $ReadOnlyArray<Competitor> = [
       },
     ],
   },
-];
+});
 
 export { competitorData };
