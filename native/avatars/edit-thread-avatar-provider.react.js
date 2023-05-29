@@ -8,13 +8,16 @@ import {
   changeThreadSettingsActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { UpdateUserAvatarRemoveRequest } from 'lib/types/avatar-types.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   MediaLibrarySelection,
   NativeMediaSelection,
 } from 'lib/types/media-types.js';
-import type { UpdateThreadRequest } from 'lib/types/thread-types.js';
+import type {
+  UpdateThreadRequest,
+  ChangeThreadSettingsPayload,
+} from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -32,7 +35,10 @@ export type EditThreadAvatarContextType = {
     selection: NativeMediaSelection,
     threadID: string,
   ) => Promise<void>,
-  +removeThreadAvatar: (threadID: string) => void,
+  +setThreadAvatar: (
+    threadID: string,
+    avatarRequest: UpdateUserAvatarRequest,
+  ) => Promise<ChangeThreadSettingsPayload>,
 };
 
 const EditThreadAvatarContext: React.Context<?EditThreadAvatarContextType> =
@@ -138,32 +144,29 @@ function EditThreadAvatarProvider(props: Props): React.Node {
     [updateImageThreadAvatar],
   );
 
-  const removeThreadAvatar = React.useCallback(
-    (threadID: string) => {
-      const removeAvatarRequest: UpdateUserAvatarRemoveRequest = {
-        type: 'remove',
-      };
-
+  const setThreadAvatar = React.useCallback(
+    (threadID: string, avatarRequest: UpdateUserAvatarRequest) => {
       const updateThreadRequest: UpdateThreadRequest = {
         threadID,
         changes: {
-          avatar: removeAvatarRequest,
+          avatar: avatarRequest,
         },
       };
-
       const action = changeThreadSettingsActionTypes.started;
+      const promise = (async () => {
+        try {
+          return await changeThreadSettingsCall(updateThreadRequest);
+        } catch (e) {
+          Alert.alert('Avatar update failed', 'Unable to update avatar.');
+          throw e;
+        }
+      })();
       dispatchActionPromise(
         changeThreadSettingsActionTypes,
-        (async () => {
-          try {
-            return await changeThreadSettingsCall(updateThreadRequest);
-          } catch (e) {
-            Alert.alert('Avatar update failed', 'Unable to update avatar.');
-            throw e;
-          }
-        })(),
+        promise,
         { customKeyName: `${action}:${threadID}:avatar` },
       );
+      return promise;
     },
     [changeThreadSettingsCall, dispatchActionPromise],
   );
@@ -173,13 +176,13 @@ function EditThreadAvatarProvider(props: Props): React.Node {
       threadAvatarSaveInProgress,
       selectFromGalleryAndUpdateThreadAvatar,
       updateImageThreadAvatar,
-      removeThreadAvatar,
+      setThreadAvatar,
     }),
     [
-      removeThreadAvatar,
+      threadAvatarSaveInProgress,
       selectFromGalleryAndUpdateThreadAvatar,
       updateImageThreadAvatar,
-      threadAvatarSaveInProgress,
+      setThreadAvatar,
     ],
   );
 
