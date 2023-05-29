@@ -43,6 +43,7 @@
   --comparison-cards-hovered: #1c1c1f;
   --coming-soon-icon: #dca008;
   --badge: #ebebeb14;
+  --modal-overlay: rgba(0, 0, 0, 0.8);
 }
 
 /* ===== GENERAL PAGE STYLES ===== */
