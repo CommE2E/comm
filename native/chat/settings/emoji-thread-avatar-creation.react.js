@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selectors.js';
+import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import { EditThreadAvatarContext } from '../../avatars/edit-thread-avatar-provider.react.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
@@ -12,8 +13,7 @@ import { displayActionResultModal } from '../../navigation/action-result-modal.j
 import type { NavigationRoute } from '../../navigation/route-names.js';
 
 export type EmojiThreadAvatarCreationParams = {
-  +threadID: string,
-  +containingThreadID?: ?string,
+  +threadInfo: RawThreadInfo | ThreadInfo,
 };
 
 type Props = {
@@ -22,7 +22,7 @@ type Props = {
 };
 
 function EmojiThreadAvatarCreation(props: Props): React.Node {
-  const { threadID, containingThreadID } = props.route.params;
+  const { id: threadID, containingThreadID } = props.route.params.threadInfo;
 
   const selector = savedEmojiAvatarSelectorForThread(
     threadID,
