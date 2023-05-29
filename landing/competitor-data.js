@@ -10,7 +10,7 @@ const competitors = Object.freeze({
 });
 export type Competitors = $Values<typeof competitors>;
 
-type FeatureComparison = {
+export type FeatureComparison = {
   +title: string,
   +comingSoon: boolean,
   +competitorDescriptionShort: string,
@@ -20,7 +20,7 @@ type FeatureComparison = {
   +furtherReadingLinks?: $ReadOnlyArray<string>,
 };
 
-type Competitor = {
+export type Competitor = {
   +id: Competitors,
   +name: string,
   +featureComparison: $ReadOnlyArray<FeatureComparison>,
