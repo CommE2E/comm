@@ -28,6 +28,7 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { registerConfig } from 'lib/utils/config.js';
+import { infoFromURL } from 'lib/utils/url-utils.js';
 import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
 import Calendar from './calendar/calendar.react.js';
@@ -132,7 +133,8 @@ class App extends React.PureComponent<Props> {
         history.push(newURL);
       }
     } else if (pathname !== prevProps.location.pathname) {
-      const newNavInfo = navInfoFromURL(pathname, { navInfo });
+      const urlInfo = infoFromURL(pathname);
+      const newNavInfo = navInfoFromURL(urlInfo, { navInfo });
       if (!_isEqual(newNavInfo)(navInfo)) {
         this.props.dispatch({
           type: updateNavInfoActionType,
