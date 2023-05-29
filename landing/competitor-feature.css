@@ -9,6 +9,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+  row-gap: 8px;
 }
 
 .headingText {
@@ -40,7 +42,7 @@ hr {
 
 .descriptionText {
   color: var(--white-80);
-  height: 80px;
+  min-height: 80px;
   margin-top: 8px;
 }
 
