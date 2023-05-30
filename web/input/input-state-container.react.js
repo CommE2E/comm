@@ -1017,9 +1017,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         type: updateMultimediaMessageMediaActionType,
         payload: {
           messageID: uploadAfterPreload.messageID,
-          currentMediaID: uploadAfterPreload.serverID
-            ? uploadAfterPreload.serverID
-            : uploadAfterPreload.localID,
+          currentMediaID: result.id ?? uploadAfterPreload.localID,
           mediaUpdate,
         },
       });
