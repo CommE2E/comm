@@ -8,6 +8,7 @@ import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selec
 import { EditUserAvatarContext } from '../avatars/edit-user-avatar-provider.react.js';
 import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 // eslint-disable-next-line no-unused-vars
 function EmojiUserAvatarCreation(props: { ... }): React.Node {
@@ -24,11 +25,15 @@ function EmojiUserAvatarCreation(props: { ... }): React.Node {
     [setUserAvatar],
   );
 
+  const savedEmojiAvatarFunc = useSelector(
+    savedEmojiAvatarSelectorForCurrentUser,
+  );
+
   return (
     <EmojiAvatarCreation
       saveAvatarCall={setAvatar}
       saveAvatarCallLoading={userAvatarSaveInProgress}
-      savedEmojiAvatarSelector={savedEmojiAvatarSelectorForCurrentUser}
+      savedEmojiAvatarFunc={savedEmojiAvatarFunc}
     />
   );
 }
