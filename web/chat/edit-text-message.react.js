@@ -28,6 +28,9 @@ const cancelButtonColor: ButtonColor = {
   backgroundColor: 'transparent',
 };
 
+export const editBoxTopMargin = 10;
+export const editBoxHeight = 84;
+
 function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo, item } = props;
   const { editState, clearEditModal, setDraft, setError, updatePosition } =
@@ -138,6 +141,8 @@ function EditTextMessage(props: Props): React.Node {
     [css.backgroundEditMessage]: background,
   });
 
+  const maxTextAreaHeight = editState?.maxHeight;
+
   return (
     <div className={containerStyle} ref={myRef}>
       <div className={cssInputBar.inputBarTextInput}>
@@ -147,6 +152,7 @@ function EditTextMessage(props: Props): React.Node {
           setCurrentText={setDraft}
           onChangePosition={updateDimensions}
           send={checkAndEdit}
+          maxHeight={maxTextAreaHeight}
         />
       </div>
       <div className={css.bottomRow}>

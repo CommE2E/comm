@@ -7,7 +7,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
-import { createMessageReply } from 'lib/shared/message-utils.js';
+import { createMessageReply, messageKey } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import {
   threadHasPermission,
@@ -233,7 +233,7 @@ function useMessageEditAction(
   const { messageInfo } = item;
 
   const canEditMessage = useCanEditMessage(threadInfo, messageInfo);
-  const { renderEditModal } = useEditModalContext();
+  const { renderEditModal, scrollToMessage } = useEditModalContext();
   const { clearTooltip } = useTooltipContext();
 
   return React.useMemo(() => {
@@ -242,13 +242,16 @@ function useMessageEditAction(
     }
     const buttonContent = <CommIcon icon="edit-filled" size={18} />;
     const onClickEdit = () => {
+      const callback = (maxHeight: number) =>
+        renderEditModal({
+          messageInfo: item,
+          threadInfo,
+          isError: false,
+          editedMessageDraft: messageInfo.text,
+          maxHeight: maxHeight,
+        });
       clearTooltip();
-      renderEditModal({
-        messageInfo: item,
-        threadInfo,
-        isError: false,
-        editedMessageDraft: messageInfo.text,
-      });
+      scrollToMessage(messageKey(messageInfo), callback);
     };
     return {
       actionButtonContent: buttonContent,
@@ -259,8 +262,9 @@ function useMessageEditAction(
     canEditMessage,
     clearTooltip,
     item,
-    messageInfo.text,
+    messageInfo,
     renderEditModal,
+    scrollToMessage,
     threadInfo,
   ]);
 }
