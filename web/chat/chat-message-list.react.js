@@ -28,8 +28,11 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import { defaultMaxHeight } from './chat-input-text-area.react.js';
 import css from './chat-message-list.css';
+import type { ScrollToMessageCallback } from './edit-message-provider.js';
 import { useEditModalContext } from './edit-message-provider.js';
+import { editBoxHeight, editBoxTopMargin } from './edit-text-message.react.js';
 import { MessageListContext } from './message-list-types.js';
 import Message from './message.react.js';
 import RelationshipPrompt from './relationship-prompt/relationship-prompt.js';
@@ -64,18 +67,39 @@ type Props = {
   +clearTooltip: () => mixed,
   +oldestMessageServerID: ?string,
   +isEditState: boolean,
+  +addScrollToMessageListener: ScrollToMessageCallback => mixed,
+  +removeScrollToMessageListener: ScrollToMessageCallback => mixed,
 };
 type Snapshot = {
   +scrollTop: number,
   +scrollHeight: number,
 };
-class ChatMessageList extends React.PureComponent<Props> {
+
+type State = {
+  +scrollTimeoutID: ?TimeoutID,
+  +scrollingEndCallback: ?() => mixed,
+};
+
+class ChatMessageList extends React.PureComponent<Props, State> {
   container: ?HTMLDivElement;
   messageContainer: ?HTMLDivElement;
   loadingFromScroll = false;
 
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      scrollTimeoutID: null,
+      scrollingEndCallback: null,
+    };
+  }
+
   componentDidMount() {
     this.scrollToBottom();
+    this.props.addScrollToMessageListener(this.scrollToMessage);
+  }
+
+  componentWillUnmount() {
+    this.props.removeScrollToMessageListener(this.scrollToMessage);
   }
 
   getSnapshotBeforeUpdate(prevProps: Props) {
@@ -178,6 +202,98 @@ class ChatMessageList extends React.PureComponent<Props> {
     );
   };
 
+  scrollingEndCallbackWrapper = (
+    messageID: string,
+    callback: (maxHeight: number) => mixed,
+  ): (() => mixed) => {
+    return () => {
+      const maxHeight = this.getMaxEditTextAreaHeight(messageID);
+      callback(maxHeight);
+    };
+  };
+
+  scrollToMessage = (
+    messageID: string,
+    callback: (maxHeight: number) => mixed,
+  ) => {
+    const element = document.getElementById(messageID);
+    if (!element) {
+      return;
+    }
+    const scrollingEndCallback = this.scrollingEndCallbackWrapper(
+      messageID,
+      callback,
+    );
+    if (!this.willMessageEditWindowOverflow(messageID)) {
+      scrollingEndCallback();
+      return;
+    }
+    this.setState(
+      {
+        scrollingEndCallback,
+      },
+      () => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // It covers the case when browser decide not to scroll to the message
+        // because it's already in the view.
+        // In this case, the 'scroll' event won't be triggered,
+        // so we need to call the callback manually.
+        this.handleScrollEnd();
+      },
+    );
+  };
+
+  getMaxEditTextAreaHeight = (messageID: string): number => {
+    const { messageContainer } = this;
+    if (!messageContainer) {
+      return defaultMaxHeight;
+    }
+    const messageElement = document.getElementById(messageID);
+    if (!messageElement) {
+      console.log(`couldn't find the message element`);
+      return defaultMaxHeight;
+    }
+
+    const msgPos = messageElement.getBoundingClientRect();
+    const containerPos = messageContainer.getBoundingClientRect();
+
+    const messageBottom = msgPos.bottom;
+    const containerTop = containerPos.top;
+
+    const maxHeight =
+      messageBottom - containerTop - editBoxHeight - editBoxTopMargin;
+
+    return maxHeight;
+  };
+
+  willMessageEditWindowOverflow(messageID: string) {
+    const { messageContainer } = this;
+    if (!messageContainer) {
+      return false;
+    }
+    const messageElement = document.getElementById(messageID);
+    if (!messageElement) {
+      console.log(`couldn't find the message element`);
+      return false;
+    }
+
+    const msgPos = messageElement.getBoundingClientRect();
+    const containerPos = messageContainer.getBoundingClientRect();
+
+    const messageHeight = msgPos.height;
+    const offset = Math.max(
+      0,
+      defaultMaxHeight + editBoxHeight - messageHeight,
+    );
+
+    const messageTop = msgPos.top - offset;
+    const messageBottom = msgPos.bottom;
+    const containerTop = containerPos.top;
+    const containerBottom = containerPos.bottom;
+
+    return messageBottom > containerBottom || messageTop < containerTop;
+  }
+
   render() {
     const { messageListData, threadInfo, inputState } = this.props;
     if (!messageListData) {
@@ -221,6 +337,20 @@ class ChatMessageList extends React.PureComponent<Props> {
     }
     this.props.clearTooltip();
     this.possiblyLoadMoreMessages();
+    this.handleScrollEnd();
+  };
+
+  handleScrollEnd = () => {
+    if (this.state.scrollTimeoutID) {
+      clearTimeout(this.state.scrollTimeoutID);
+    }
+    const scrollTimeoutID = setTimeout(() => {
+      if (this.state.scrollingEndCallback) {
+        this.state.scrollingEndCallback();
+      }
+      this.setState({ scrollingEndCallback: null });
+    }, 100);
+    this.setState({ scrollTimeoutID });
   };
 
   async possiblyLoadMoreMessages() {
@@ -313,7 +443,11 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
 
     const oldestMessageServerID = useOldestMessageServerID(threadInfo.id);
 
-    const { editState } = useEditModalContext();
+    const {
+      editState,
+      addScrollToMessageListener,
+      removeScrollToMessageListener,
+    } = useEditModalContext();
     const isEditState = editState !== null;
 
     return (
@@ -330,6 +464,8 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
           clearTooltip={clearTooltip}
           oldestMessageServerID={oldestMessageServerID}
           isEditState={isEditState}
+          addScrollToMessageListener={addScrollToMessageListener}
+          removeScrollToMessageListener={removeScrollToMessageListener}
         />
       </MessageListContext.Provider>
     );
