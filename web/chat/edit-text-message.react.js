@@ -28,6 +28,8 @@ const cancelButtonColor: ButtonColor = {
   backgroundColor: 'transparent',
 };
 
+export const maximumEditTextHeight = 234;
+
 function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo, item } = props;
   const { editState, clearEditModal, setDraft, setError, updatePosition } =

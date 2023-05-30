@@ -24,6 +24,11 @@ export type EditState = {
   +position?: ModalPosition,
 };
 
+export type ScrollToMessageCallback = (
+  messageKey: string,
+  callback: () => void,
+) => void;
+
 type EditModalContextType = {
   +renderEditModal: (params: EditState) => void,
   +clearEditModal: () => void,
@@ -31,6 +36,9 @@ type EditModalContextType = {
   +setDraft: string => void,
   +setError: boolean => void,
   +updatePosition: ModalPosition => void,
+  +scrollToMessage: ScrollToMessageCallback,
+  +addScrollToMessageListener: ScrollToMessageCallback => void,
+  +removeScrollToMessageListener: ScrollToMessageCallback => void,
 };
 
 const EditModalContext: React.Context<EditModalContextType> =
@@ -41,6 +49,9 @@ const EditModalContext: React.Context<EditModalContextType> =
     setDraft: () => {},
     setError: () => {},
     updatePosition: () => {},
+    scrollToMessage: () => {},
+    addScrollToMessageListener: () => {},
+    removeScrollToMessageListener: () => {},
   });
 
 type Props = {
@@ -50,6 +61,9 @@ function EditModalProvider(props: Props): React.Node {
   const { children } = props;
 
   const [editState, setEditState] = React.useState<?EditState>(null);
+
+  const [scrollToMessageCallbacks, setScrollToMessageCallbacks] =
+    React.useState<Array<ScrollToMessageCallback>>([]);
 
   const clearEditModal = React.useCallback(() => {
     setEditState(null);
@@ -118,6 +132,31 @@ function EditModalProvider(props: Props): React.Node {
     [editState, setEditState],
   );
 
+  const scrollToMessage: ScrollToMessageCallback = React.useCallback(
+    (messageKey: string, callback: () => void) => {
+      scrollToMessageCallbacks.forEach((callback2: ScrollToMessageCallback) =>
+        callback2(messageKey, callback),
+      );
+    },
+    [scrollToMessageCallbacks],
+  );
+
+  const addScrollToMessageListener = React.useCallback(
+    (callback: ScrollToMessageCallback): void => {
+      setScrollToMessageCallbacks([...scrollToMessageCallbacks, callback]);
+    },
+    [scrollToMessageCallbacks],
+  );
+
+  const removeScrollToMessageListener = React.useCallback(
+    (callback: ScrollToMessageCallback) => {
+      setScrollToMessageCallbacks(
+        scrollToMessageCallbacks.filter(candidate => candidate !== callback),
+      );
+    },
+    [scrollToMessageCallbacks],
+  );
+
   const value = React.useMemo(
     () => ({
       renderEditModal,
@@ -126,6 +165,9 @@ function EditModalProvider(props: Props): React.Node {
       setDraft,
       setError,
       updatePosition,
+      scrollToMessage,
+      addScrollToMessageListener,
+      removeScrollToMessageListener,
     }),
     [
       renderEditModal,
@@ -134,6 +176,9 @@ function EditModalProvider(props: Props): React.Node {
       setDraft,
       setError,
       updatePosition,
+      scrollToMessage,
+      addScrollToMessageListener,
+      removeScrollToMessageListener,
     ],
   );
 
