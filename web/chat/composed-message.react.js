@@ -11,6 +11,7 @@ import {
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
+import { messageKey } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -188,7 +189,11 @@ class ComposedMessage extends React.PureComponent<Props> {
             onMouseLeave={this.props.onMouseLeave}
           >
             {pinIcon}
-            <div className={messageBoxClassName} style={messageBoxStyle}>
+            <div
+              className={messageBoxClassName}
+              style={messageBoxStyle}
+              id={messageKey(item.messageInfo)}
+            >
               {this.props.children}
             </div>
           </div>
