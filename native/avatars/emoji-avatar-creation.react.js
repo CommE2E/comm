@@ -17,21 +17,16 @@ import type {
 import Avatar from './avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorRows from '../components/color-rows.react.js';
-import { useSelector } from '../redux/redux-utils.js';
-import type { AppState } from '../redux/state-types.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +saveAvatarCall: (newAvatarRequest: UpdateUserAvatarRequest) => mixed,
   +saveAvatarCallLoading: boolean,
-  +savedEmojiAvatarSelector: (state: AppState) => () => ClientEmojiAvatar,
+  +savedEmojiAvatarFunc: () => ClientEmojiAvatar,
 };
 
 function EmojiAvatarCreation(props: Props): React.Node {
-  const { saveAvatarCall, saveAvatarCallLoading, savedEmojiAvatarSelector } =
-    props;
-
-  const savedEmojiAvatarFunc = useSelector(savedEmojiAvatarSelector);
+  const { saveAvatarCall, saveAvatarCallLoading, savedEmojiAvatarFunc } = props;
 
   const [pendingEmoji, setPendingEmoji] = React.useState<string>(
     () => savedEmojiAvatarFunc().emoji,

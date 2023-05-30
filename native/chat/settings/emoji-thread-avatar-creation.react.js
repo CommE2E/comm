@@ -11,6 +11,7 @@ import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
 import type { ChatNavigationProp } from '../../chat/chat.react.js';
 import { displayActionResultModal } from '../../navigation/action-result-modal.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
 
 export type EmojiThreadAvatarCreationParams = {
   +threadInfo: RawThreadInfo | ThreadInfo,
@@ -28,6 +29,7 @@ function EmojiThreadAvatarCreation(props: Props): React.Node {
     threadID,
     containingThreadID,
   );
+  const savedEmojiAvatarFunc = useSelector(selector);
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
@@ -47,7 +49,7 @@ function EmojiThreadAvatarCreation(props: Props): React.Node {
     <EmojiAvatarCreation
       saveAvatarCall={setAvatar}
       saveAvatarCallLoading={threadAvatarSaveInProgress}
-      savedEmojiAvatarSelector={selector}
+      savedEmojiAvatarFunc={savedEmojiAvatarFunc}
     />
   );
 }
