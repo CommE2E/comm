@@ -6,6 +6,7 @@ import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { InviteLinkModalParams } from './invite-link-modal.react';
 import type { AvatarSelectionParams } from '../account/registration/avatar-selection.react.js';
 import type { ConnectEthereumParams } from '../account/registration/connect-ethereum.react.js';
+import type { EmojiAvatarSelectionParams } from '../account/registration/emoji-avatar-selection.react.js';
 import type { ExistingEthereumAccountParams } from '../account/registration/existing-ethereum-account.react.js';
 import type { KeyserverSelectionParams } from '../account/registration/keyserver-selection.react.js';
 import type { PasswordSelectionParams } from '../account/registration/password-selection.react.js';
@@ -113,6 +114,7 @@ export const CommunityCreationMembersRouteName = 'CommunityCreationMembers';
 export const MessageSearchRouteName = 'MessageSearch';
 export const PasswordSelectionRouteName = 'PasswordSelection';
 export const AvatarSelectionRouteName = 'AvatarSelection';
+export const EmojiAvatarSelectionRouteName = 'EmojiAvatarSelection';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -211,6 +213,7 @@ export type RegistrationParamList = {
   +UsernameSelection: UsernameSelectionParams,
   +PasswordSelection: PasswordSelectionParams,
   +AvatarSelection: AvatarSelectionParams,
+  +EmojiAvatarSelection: EmojiAvatarSelectionParams,
 };
 
 export type InviteLinkParamList = {
