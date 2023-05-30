@@ -27,6 +27,7 @@ import {
   type TooltipSize,
   type TooltipPosition,
 } from './tooltip-utils.js';
+import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
 import MessageTooltip from '../chat/message-tooltip.react.js';
 import type { PositionInfo } from '../chat/position-types.js';
@@ -226,7 +227,7 @@ function useMessageEditAction(
   const { messageInfo } = item;
 
   const canEditMessage = useCanEditMessage(threadInfo, messageInfo);
-  const { renderEditModal } = useEditModalContext();
+  const { renderEditModal, scrollToMessage } = useEditModalContext();
   const { clearTooltip } = useTooltipContext();
 
   return React.useMemo(() => {
@@ -235,13 +236,16 @@ function useMessageEditAction(
     }
     const buttonContent = <CommIcon icon="edit-filled" size={18} />;
     const onClickEdit = () => {
+      const callback = (maxHeight: number) =>
+        renderEditModal({
+          messageInfo: item,
+          threadInfo,
+          isError: false,
+          editedMessageDraft: messageInfo.text,
+          maxHeight: maxHeight,
+        });
       clearTooltip();
-      renderEditModal({
-        messageInfo: item,
-        threadInfo,
-        isError: false,
-        editedMessageDraft: messageInfo.text,
-      });
+      scrollToMessage(getComposedMessageID(messageInfo), callback);
     };
     return {
       actionButtonContent: buttonContent,
@@ -252,8 +256,9 @@ function useMessageEditAction(
     canEditMessage,
     clearTooltip,
     item,
-    messageInfo.text,
+    messageInfo,
     renderEditModal,
+    scrollToMessage,
     threadInfo,
   ]);
 }

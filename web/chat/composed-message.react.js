@@ -14,6 +14,7 @@ import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
+import { getComposedMessageID } from './chat-constants.js';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
@@ -22,6 +23,8 @@ import CommIcon from '../CommIcon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { useMessageTooltip } from '../utils/tooltip-action-utils.js';
 import { tooltipPositions } from '../utils/tooltip-utils.js';
+
+export type ComposedMessageID = string;
 
 const availableTooltipPositionsForViewerMessage = [
   tooltipPositions.LEFT,
@@ -188,7 +191,11 @@ class ComposedMessage extends React.PureComponent<Props> {
             onMouseLeave={this.props.onMouseLeave}
           >
             {pinIcon}
-            <div className={messageBoxClassName} style={messageBoxStyle}>
+            <div
+              className={messageBoxClassName}
+              style={messageBoxStyle}
+              id={getComposedMessageID(item.messageInfo)}
+            >
               {this.props.children}
             </div>
           </div>

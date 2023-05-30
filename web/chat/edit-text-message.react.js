@@ -10,7 +10,7 @@ import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { trimMessage } from 'lib/shared/message-utils.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import cssInputBar from './chat-input-bar.css';
+import { editBoxBottomRowHeight } from './chat-constants.js';
 import ChatInputTextArea from './chat-input-text-area.react.js';
 import ComposedMessage from './composed-message.react.js';
 import { useEditModalContext } from './edit-message-provider.js';
@@ -27,6 +27,8 @@ type Props = {
 const cancelButtonColor: ButtonColor = {
   backgroundColor: 'transparent',
 };
+
+const bottomRowStyle = { height: editBoxBottomRowHeight };
 
 function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo, item } = props;
@@ -138,18 +140,19 @@ function EditTextMessage(props: Props): React.Node {
     [css.backgroundEditMessage]: background,
   });
 
+  const maxTextAreaHeight = editState?.maxHeight;
+
   return (
     <div className={containerStyle} ref={myRef}>
-      <div className={cssInputBar.inputBarTextInput}>
-        <ChatInputTextArea
-          focus={!background}
-          currentText={editedMessageDraft}
-          setCurrentText={setDraft}
-          onChangePosition={updateDimensions}
-          send={checkAndEdit}
-        />
-      </div>
-      <div className={css.bottomRow}>
+      <ChatInputTextArea
+        focus={!background}
+        currentText={editedMessageDraft}
+        setCurrentText={setDraft}
+        onChangePosition={updateDimensions}
+        send={checkAndEdit}
+        maxHeight={maxTextAreaHeight}
+      />
+      <div className={css.bottomRow} style={bottomRowStyle}>
         {editFailed}
         <div className={css.buttons}>
           <Button

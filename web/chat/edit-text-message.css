@@ -1,4 +1,5 @@
 .editMessage {
+  /* Related to editBoxHeight in the `edit-text-message` component */
   padding: 10px;
   background-color: var(--modal-bg);
   border-radius: 8px;
@@ -9,6 +10,7 @@
 }
 
 .bottomRow {
+  /* Related to editBoxHeight in the `edit-text-message` component */
   padding-top: 10px;
   display: flex;
   align-items: center;
