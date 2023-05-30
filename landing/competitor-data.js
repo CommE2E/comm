@@ -185,6 +185,83 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
       },
     ],
   },
+  matrix: {
+    id: 'matrix',
+    name: 'Matrix',
+    featureComparison: [
+      {
+        title: 'Encryption',
+        comingSoon: true,
+        competitorDescriptionShort:
+          'E2E encryption is optional in Matrix. Two-person encrypted chats use Double Ratchet, but group chats use a less secure algorithm called Megolm.',
+        commDescriptionShort:
+          'Comm uses Matrix’s implementation of Signal’s Double Ratchet algorithm for both two-person and group chats.',
+        competitorDescriptionLong: [
+          'E2E encryption is optional in Matrix. Two-person encrypted chats use Double Ratchet, but group chats use a less secure algorithm called Megolm.',
+          'Megolm is a “group ratchet” which trades off security/privacy guarantees to enable scale and performance. Many E2E-encrypted apps (such as WhatsApp) use “group ratchets” for group chats.',
+        ],
+        commDescriptionLong: [
+          'Comm uses Matrix’s implementation of Signal’s Double Ratchet algorithm for both two-person and group chats. However, we don’t use Megolm due to concerns over privacy implications.',
+          'Instead of using a group ratchet, Comm arranges group chats in a “pairwise” way. When a user sends a message to a group chat, Comm handles that by sending that message individually to all users in the group chat.',
+          'The downside is that group chats don’t scale as well. Comm’s solution for large group chats is keyserver-hosted communities, which avoid sacrificing security/privacy guarantees by using a federated version of a classic client/server paradigm.',
+        ],
+        furtherReadingLinks: ['https://nebuchadnezzar-megolm.github.io/'],
+      },
+      {
+        title: 'Search',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Matrix searches encrypted chats locally by downloading the full history to your client device.',
+        commDescriptionShort:
+          'Comm utilizes user-hosted keyservers to handle search on the server side.',
+        competitorDescriptionLong: [
+          'While Matrix itself doesn’t handle searches of encrypted chats, the most popular Matrix client Element has support for this.',
+          'Element searches encrypted chats locally by downloading the full history to your client device. This isn’t supported in the web app, however.',
+        ],
+        commDescriptionLong: [
+          'For keyserver-hosted chats, Comm utilizes the keyserver to handle search on the server side.',
+          'For users without keyservers, DMs are stored locally. In this case Comm handles search locally, and mirrors the full history of DMs across all of a user’s devices. Unlike Element, Comm’s search works on our web app.',
+        ],
+      },
+      {
+        title: 'Key resets',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Matrix homeservers can change a user account’s associated public keys in order to facilitate account recovery.',
+        commDescriptionShort:
+          'Comm backs up user keys, and facilitates account recovery by recovering those original keys.',
+        competitorDescriptionLong: [
+          'Matrix homeservers are responsible for owning a user’s identity. As such, those homeservers have the ability to reset an account, as well as the public keys used for E2E encryption. This functionality is used to facilitate account recovery.',
+        ],
+        commDescriptionLong: [
+          'Comm backs up user keys, and facilitates account recovery by recovering those original keys. Note that if the user forgets the secret securing their backup, they will not be able to recover their account.',
+        ],
+        furtherReadingLinks: [
+          'https://twitter.com/CommDotApp/status/1539397765536444416',
+          'https://twitter.com/CommDotApp/status/1545193952554336257',
+        ],
+      },
+      {
+        title: 'Backup',
+        comingSoon: true,
+        competitorDescriptionShort:
+          'Matrix relies on individual implementations and homeservers to handle backup.',
+        commDescriptionShort:
+          'Comm backs up all of your user data, encrypted with either a password or an ETH wallet.',
+        competitorDescriptionLong: [
+          'Matrix relies on homeservers to handle backup of unencrypted chats. Backup of encrypted chats is handled differently depending on which implementations of Matrix you’re using.',
+          'The most popular implementation of Matrix is Element. Element backs up a group chat’s messages just once for the group, encrypted with the chat keys. Meanwhile, a given user’s chat keys are backed up separately, and encrypted with the user’s Security Phrase/Key.',
+        ],
+        commDescriptionLong: [
+          'Comm backs up all of your user data via our backup service. The backup is encrypted so that Comm is not able to access the data.',
+          'Since Comm doesn’t use a group ratchet due to privacy concerns (see “Encryption” section), group chat backups are not shared between users.',
+        ],
+        furtherReadingLinks: [
+          'https://twitter.com/CommDotApp/status/1539397765536444416',
+        ],
+      },
+    ],
+  },
   signal: {
     id: 'signal',
     name: 'Signal',
