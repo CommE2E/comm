@@ -109,6 +109,82 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
       },
     ],
   },
+  keybase: {
+    id: 'keybase',
+    name: 'Keybase',
+    featureComparison: [
+      {
+        title: 'Active development',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Following its acquisition by Zoom, Keybase is no longer in active development.',
+        commDescriptionShort: 'Comm is actively in development.',
+        competitorDescriptionLong: [
+          'Following its acquisition by Zoom, Keybase is no longer in active development.',
+        ],
+        commDescriptionLong: ['Comm is actively in development.'],
+      },
+      {
+        title: 'Encryption',
+        comingSoon: true,
+        competitorDescriptionShort:
+          'Keybase has a custom implementation of E2E encryption that doesn’t guarantee forward secrecy.',
+        commDescriptionShort:
+          'Comm uses the Double Ratchet algorithm. Pioneered by Signal, Double Ratchet is the industry standard for E2E encryption.',
+        competitorDescriptionLong: [
+          'Keybase’s implementation of E2E encryption is unique in the industry. Whereas most most E2E-encrypted messaging apps use something like Signal’s Double Ratchet to preserve forward secrecy, Keybase took a different approach because they wanted to allow new chat members to see the full history of the chat prior to when they joined.',
+        ],
+        commDescriptionLong: [
+          'Comm uses Matrix.org’s implementation of Double Ratchet, and as such is able to preserve forward secrecy. We allow new chat members to see full chat history by query peers’ keyservers.',
+        ],
+      },
+      {
+        title: 'Search',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Keybase searches chats locally by downloading the full history to your client device.',
+        commDescriptionShort:
+          'Comm utilizes user-hosted keyservers to handle search on the server side.',
+        competitorDescriptionLong: [
+          'Keybase, like all other E2E-encrypted apps, is only able to execute search queries on your local device. As such, in order to fully execute a search query for a chat, Keybase must download that chat’s full history to the client device.',
+        ],
+        commDescriptionLong: [
+          'Though much research has been done on searchable encryption over the past 20 years, it remains an unsolved problem. Comm is able to circumvent the problem by sending queries to user-hosted keyservers, which are able to access plaintext data.',
+        ],
+      },
+      {
+        title: 'Key resets',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Keybase’s servers can reset anybody’s public keys in order to facilitate account recovery.',
+        commDescriptionShort:
+          'Comm backs up user keys, and facilitates account recovery by recovering those original keys.',
+        competitorDescriptionLong: [
+          'Keybase’s servers have the ability to reset any account’s public keys at any time. This functionality is used to facilitate account recovery',
+        ],
+        commDescriptionLong: [
+          'Comm backs up user keys, and facilitates account recovery by recovering those original keys. Note that if the user forgets the secret securing their backup, they will not be able to recover their account.',
+        ],
+        furtherReadingLinks: [
+          'https://twitter.com/CommDotApp/status/1545193952554336257',
+        ],
+      },
+      {
+        title: 'Notifications',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Keybase has a single function to mute notifs from a chat.',
+        commDescriptionShort:
+          'Comm allows you to manage notif alerts separately from notif badging.',
+        competitorDescriptionLong: [
+          'Keybase has a single function to mute notifs from a chat.',
+        ],
+        commDescriptionLong: [
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+        ],
+      },
+    ],
+  },
   signal: {
     id: 'signal',
     name: 'Signal',
