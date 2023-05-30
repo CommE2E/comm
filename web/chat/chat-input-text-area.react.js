@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { defaultMaxTextAreaHeight } from './chat-constants.js';
 import css from './chat-input-bar.css';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
   +currentText: string,
   +setCurrentText: (text: string) => void,
   +onChangePosition: () => void,
+  +maxHeight?: number,
 };
 
 const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
@@ -23,6 +25,7 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
       send,
       setCurrentText,
       onChangePosition,
+      maxHeight = defaultMaxTextAreaHeight,
     } = props;
     const textareaRef = React.useRef(null);
 
@@ -53,11 +56,11 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
       const textarea = textareaRef.current;
       if (textarea) {
         textarea.style.height = 'auto';
-        const newHeight = Math.min(textarea.scrollHeight, 150);
+        const newHeight = Math.min(textarea.scrollHeight, maxHeight);
         textarea.style.height = `${newHeight}px`;
       }
       onChangePosition();
-    }, [onChangePosition]);
+    }, [maxHeight, onChangePosition]);
 
     React.useEffect(() => {
       focusAndUpdateText();
