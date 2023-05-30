@@ -19,11 +19,23 @@ import {
 import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
 
+export type UserAvatarSelection =
+  | { +needsUpload: true, +mediaSelection: NativeMediaSelection }
+  | { +needsUpload: false, +updateUserAvatarRequest: UpdateUserAvatarRequest };
+type RegistrationMode =
+  | { +registrationMode: 'off' }
+  | {
+      +registrationMode: 'on',
+      +successCallback: UserAvatarSelection => mixed,
+    };
+const registrationModeOff = { registrationMode: 'off' };
+
 export type EditUserAvatarContextType = {
   +userAvatarSaveInProgress: boolean,
   +selectFromGalleryAndUpdateUserAvatar: () => Promise<void>,
   +updateImageUserAvatar: (selection: NativeMediaSelection) => Promise<void>,
   +setUserAvatar: (avatarRequest: UpdateUserAvatarRequest) => Promise<void>,
+  +setRegistrationMode: (registrationMode: RegistrationMode) => void,
 };
 
 const EditUserAvatarContext: React.Context<?EditUserAvatarContextType> =
@@ -47,6 +59,9 @@ type Props = {
 function EditUserAvatarProvider(props: Props): React.Node {
   const { children } = props;
 
+  const [registrationMode, setRegistrationMode] =
+    React.useState<RegistrationMode>(registrationModeOff);
+
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
 
@@ -67,26 +82,37 @@ function EditUserAvatarProvider(props: Props): React.Node {
 
   const updateImageUserAvatar = React.useCallback(
     async (selection: NativeMediaSelection) => {
-      const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
+      if (registrationMode.registrationMode === 'on') {
+        registrationMode.successCallback({
+          needsUpload: true,
+          mediaSelection: selection,
+        });
+        return;
+      }
 
+      const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
       if (!imageAvatarUpdateRequest) {
         return;
       }
 
-      dispatchActionPromise(
-        updateUserAvatarActionTypes,
-        (async () => {
-          setUserAvatarMediaUploadInProgress(false);
-          try {
-            return await updateUserAvatarCall(imageAvatarUpdateRequest);
-          } catch (e) {
-            displayFailureAlert();
-            throw e;
-          }
-        })(),
-      );
+      const promise = (async () => {
+        setUserAvatarMediaUploadInProgress(false);
+        try {
+          return await updateUserAvatarCall(imageAvatarUpdateRequest);
+        } catch (e) {
+          displayFailureAlert();
+          throw e;
+        }
+      })();
+      dispatchActionPromise(updateUserAvatarActionTypes, promise);
+      await promise;
     },
-    [dispatchActionPromise, updateUserAvatarCall, uploadSelectedMedia],
+    [
+      registrationMode,
+      uploadSelectedMedia,
+      updateUserAvatarCall,
+      dispatchActionPromise,
+    ],
   );
 
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
@@ -98,10 +124,18 @@ function EditUserAvatarProvider(props: Props): React.Node {
   }, [updateImageUserAvatar]);
 
   const setUserAvatar = React.useCallback(
-    async (avatarRequest: UpdateUserAvatarRequest) => {
+    async (request: UpdateUserAvatarRequest) => {
+      if (registrationMode.registrationMode === 'on') {
+        registrationMode.successCallback({
+          needsUpload: false,
+          updateUserAvatarRequest: request,
+        });
+        return;
+      }
+
       const promise = (async () => {
         try {
-          return await updateUserAvatarCall(avatarRequest);
+          return await updateUserAvatarCall(request);
         } catch (e) {
           displayFailureAlert();
           throw e;
@@ -110,7 +144,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       dispatchActionPromise(updateUserAvatarActionTypes, promise);
       await promise;
     },
-    [dispatchActionPromise, updateUserAvatarCall],
+    [registrationMode, updateUserAvatarCall, dispatchActionPromise],
   );
 
   const context = React.useMemo(
@@ -119,12 +153,14 @@ function EditUserAvatarProvider(props: Props): React.Node {
       selectFromGalleryAndUpdateUserAvatar,
       updateImageUserAvatar,
       setUserAvatar,
+      setRegistrationMode,
     }),
     [
       userAvatarSaveInProgress,
       selectFromGalleryAndUpdateUserAvatar,
       updateImageUserAvatar,
       setUserAvatar,
+      setRegistrationMode,
     ],
   );
 
