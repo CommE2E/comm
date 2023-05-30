@@ -139,6 +139,7 @@ function EmojiAvatarCreation(props: Props): React.Node {
 
 const unboundStyles = {
   container: {
+    flexGrow: 1,
     flex: 1,
     justifyContent: 'space-between',
   },
@@ -168,8 +169,10 @@ const unboundStyles = {
     backgroundColor: 'modalSubtext',
   },
   buttonsContainer: {
+    flexGrow: 1,
     paddingHorizontal: 16,
     paddingBottom: 8,
+    justifyContent: 'flex-end',
   },
   saveButton: {
     backgroundColor: 'purpleButton',

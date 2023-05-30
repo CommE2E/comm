@@ -10,6 +10,7 @@ import * as React from 'react';
 import AvatarSelection from './avatar-selection.react.js';
 import ConnectEthereum from './connect-ethereum.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
+import EmojiAvatarSelection from './emoji-avatar-selection.react.js';
 import ExistingEthereumAccount from './existing-ethereum-account.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
 import PasswordSelection from './password-selection.react.js';
@@ -23,6 +24,7 @@ import {
   UsernameSelectionRouteName,
   PasswordSelectionRouteName,
   AvatarSelectionRouteName,
+  EmojiAvatarSelectionRouteName,
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
@@ -82,6 +84,10 @@ function RegistrationNavigator(props: Props): React.Node {
       <Registration.Screen
         name={AvatarSelectionRouteName}
         component={AvatarSelection}
+      />
+      <Registration.Screen
+        name={EmojiAvatarSelectionRouteName}
+        component={EmojiAvatarSelection}
       />
     </Registration.Navigator>
   );
