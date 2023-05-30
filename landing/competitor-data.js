@@ -344,6 +344,103 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
       },
     ],
   },
+  slack: {
+    id: 'slack',
+    name: 'Slack',
+    featureComparison: [
+      {
+        title: 'Encryption',
+        comingSoon: true,
+        competitorDescriptionShort:
+          'Slack staff is able to read the contents of all messages sent on the app.',
+        commDescriptionShort:
+          'Comm uses Signal’s Double Ratchet algorithm, the industry standard for E2E encryption.',
+        competitorDescriptionLong: [
+          'Slack staff is able to read the contents of all messages sent on the app. Their product team hasn’t indicated any interest in privacy or encryption features.',
+        ],
+        commDescriptionLong: [
+          'Comm’s servers do not have access to plaintext user content. DMs are stored on individual user devices, and communities are hosted on individual users’ keyservers.',
+          'Comm uses Matrix’s implementation of Signal’s Double Ratchet algorithm for DMs. Communication between keyservers and user devices is secured via TLS.',
+        ],
+        furtherReadingLinks: [
+          'https://signal.org/docs/specifications/doubleratchet/',
+        ],
+      },
+      {
+        title: 'Inbox',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Slack separates notifs into individual channels, threads, and DMs within individual communities.',
+        commDescriptionShort:
+          'Comm has a unified inbox that shows all unread chats across all communities.',
+        competitorDescriptionLong: [
+          'To sort through notifs from different communities in Slack, you have to navigate into each individual community, and then use the sidebar to navigate into each individual channel, DM, or thread. While there is a feature to sort unread chats first, it’s easy to miss.',
+        ],
+        commDescriptionLong: [
+          'Comm’s inbox is the first thing you see when you open the app. It resembles a typical messaging app, with all of your chats appearing ordered by the most recent message.',
+          'Threads appear underneath their parent chat, and when a thread is bumped it bumps the whole parent chat to the top.',
+        ],
+      },
+      {
+        title: 'Communities',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Slack supports communities with a flat list of channels.',
+        commDescriptionShort:
+          'Comm allows you to nest channels inside other channels.',
+        competitorDescriptionLong: [
+          'Slack is built to support communities, also known as “slacks” on the platform. Each server has a flat list of channels.',
+        ],
+        commDescriptionLong: [
+          'Comm’s implementation of communities looks a lot like Slack’s. The core difference is that Comm supports a full tree structure of channels for each community.',
+          'Comm also supports a threads feature, also similar to Slack’s. Comm threads appear in your inbox underneath their parent channel.',
+        ],
+      },
+      {
+        title: 'Notifications',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Slack has a single function to mute notifs from a chat.',
+        commDescriptionShort:
+          'Comm allows you to manage notif alerts separately from notif badging.',
+        competitorDescriptionLong: [
+          'Slack has several features for managing notifs across a whole community. However, when it comes to managing notifs from a specific chat, Slack is more limited. There’s only one option, which is to completely mute a chat.',
+        ],
+        commDescriptionLong: [
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+        ],
+      },
+      {
+        title: 'Badging',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Slack’s unread count is based on the number of unread messages.',
+        commDescriptionShort:
+          'Comm’s unread count is based on the number of unread chats.',
+        competitorDescriptionLong: [
+          'Slack’s unread count is based on the number of unread messages. If somebody sends 3 messages in a row to the same chat, your unread count will be incremented by 3.',
+        ],
+        commDescriptionLong: [
+          'Comm’s unread count is based on the number of unread chats. If somebody sends 3 messages in a row to the same chat, your unread count will be incremented by 1.',
+        ],
+      },
+      {
+        title: 'Unified account',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Your identity on Slack is specific to a community.',
+        commDescriptionShort:
+          'Your identity on Comm is universal, and can be shared across communities.',
+        competitorDescriptionLong: [
+          'Each community on Slack is basically its own walled garden. Each user has a distinct identity for each community, which means a distinct set of DMs and a distinct profile.',
+        ],
+        commDescriptionLong: [
+          'Your identity on Comm is universal, which means you can share the same profile and username across all the communities you’re a part of. Ethereum users can use their ENS name and avatar on Comm.',
+          'DMs exist outside the bounds of any particular community, which means you don’t have to maintain multiple conversations with the same user.',
+        ],
+      },
+    ],
+  },
 });
 
 export { competitorData };
