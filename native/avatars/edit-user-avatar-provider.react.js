@@ -36,6 +36,7 @@ export type EditUserAvatarContextType = {
   +updateImageUserAvatar: (selection: NativeMediaSelection) => Promise<void>,
   +setUserAvatar: (avatarRequest: UpdateUserAvatarRequest) => Promise<void>,
   +setRegistrationMode: (registrationMode: RegistrationMode) => void,
+  +registrationModeEnabled: boolean,
 };
 
 const EditUserAvatarContext: React.Context<?EditUserAvatarContextType> =
@@ -147,6 +148,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
     [registrationMode, updateUserAvatarCall, dispatchActionPromise],
   );
 
+  const registrationModeEnabled = registrationMode.registrationMode === 'on';
   const context = React.useMemo(
     () => ({
       userAvatarSaveInProgress,
@@ -154,6 +156,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       updateImageUserAvatar,
       setUserAvatar,
       setRegistrationMode,
+      registrationModeEnabled,
     }),
     [
       userAvatarSaveInProgress,
@@ -161,6 +164,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       updateImageUserAvatar,
       setUserAvatar,
       setRegistrationMode,
+      registrationModeEnabled,
     ],
   );
 
