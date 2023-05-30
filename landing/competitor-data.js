@@ -27,6 +27,88 @@ export type Competitor = {
 };
 
 const competitorData: { [key: string]: Competitor } = Object.freeze({
+  discord: {
+    id: 'discord',
+    name: 'Discord',
+    featureComparison: [
+      {
+        title: 'Encryption',
+        comingSoon: true,
+        competitorDescriptionShort:
+          'Discord staff is able to read the contents of all messages sent on the app.',
+        commDescriptionShort:
+          'Comm uses Signal’s Double Ratchet algorithm, the industry standard for E2E encryption.',
+        competitorDescriptionLong: [
+          'Discord staff is able to read the contents of all messages sent on the app. Their product team has indicated that they aren’t focused on privacy or encryption features.',
+        ],
+        commDescriptionLong: [
+          'Comm’s servers do not have access to plaintext user content. DMs are stored on individual user devices, and communities are hosted on individual users’ keyservers.',
+          'Comm uses Matrix’s implementation of Signal’s Double Ratchet algorithm for DMs. Communication between keyservers and user devices is secured via TLS.',
+        ],
+        furtherReadingLinks: [
+          'https://signal.org/docs/specifications/doubleratchet/',
+        ],
+      },
+      {
+        title: 'Inbox',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Discord’s inbox is basically a simple notification queue tucked away in a corner.',
+        commDescriptionShort:
+          'Comm’s inbox is the first thing you see when you open the app. It helps separate signal from noise.',
+        competitorDescriptionLong: [
+          'Discord’s inbox is basically a simple notification queue tucked away in a corner. It merges all tags (including @all tags) into a single interface. Since any member of any channel in a server is able to tag you, typically this interface is relatively low-signal.',
+        ],
+        commDescriptionLong: [
+          'Comm’s inbox is the first thing you see when you open the app. It resembles a typical messaging app, with all of your chats appearing ordered by the most recent message.',
+          'Threads appear underneath their parent chat, and when a thread is bumped it bumps the whole parent chat to the top.',
+        ],
+      },
+      {
+        title: 'Communities',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Discord supports communities with a flat list of channels.',
+        commDescriptionShort:
+          'Comm allows you to nest channels inside other channels.',
+        competitorDescriptionLong: [
+          'Discord is built to support communities, also known as “servers” on the platform. Each server has a flat list of channels.',
+        ],
+        commDescriptionLong: [
+          'Comm’s implementation of communities looks a lot like Discord’s. The core difference is that Comm supports a full tree structure of channels for each community.',
+          'Comm also supports a threads feature, also similar to Discord’s. Comm threads appear in your inbox underneath their parent channel.',
+        ],
+      },
+      {
+        title: 'Notifications',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Discord has a single function to mute notifs from a chat.',
+        commDescriptionShort:
+          'Comm allows you to manage notif alerts separately from notif badging.',
+        competitorDescriptionLong: [
+          'Discord has a single function to mute notifs from a chat. You can mute notifs temporarily or permanently.',
+        ],
+        commDescriptionLong: [
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+        ],
+      },
+      {
+        title: 'Badging',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Discord’s unread count is based on the number of unread messages.',
+        commDescriptionShort:
+          'Comm’s unread count is based on the number of unread chats.',
+        competitorDescriptionLong: [
+          'Discord’s unread count is based on the number of unread messages. If somebody sends 3 messages in a row to the same chat, your unread count will be incremented by 3.',
+        ],
+        commDescriptionLong: [
+          'Comm’s unread count is based on the number of unread chats. If somebody sends 3 messages in a row to the same chat, your unread count will be incremented by 1.',
+        ],
+      },
+    ],
+  },
   signal: {
     id: 'signal',
     name: 'Signal',
