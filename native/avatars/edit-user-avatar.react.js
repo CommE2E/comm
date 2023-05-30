@@ -16,6 +16,8 @@ import UserAvatar from './user-avatar.react.js';
 import {
   EmojiUserAvatarCreationRouteName,
   UserAvatarCameraModalRouteName,
+  EmojiAvatarSelectionRouteName,
+  RegistrationUserAvatarCameraModalRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
@@ -30,6 +32,7 @@ function EditUserAvatar(props: Props): React.Node {
     userAvatarSaveInProgress,
     selectFromGalleryAndUpdateUserAvatar,
     setUserAvatar,
+    registrationModeEnabled,
   } = editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
@@ -44,13 +47,25 @@ function EditUserAvatar(props: Props): React.Node {
 
   const { navigate } = useNavigation();
 
-  const navigateToUserEmojiAvatarCreation = React.useCallback(() => {
-    navigate(EmojiUserAvatarCreationRouteName);
-  }, [navigate]);
+  const usernameOrEthAddress = userInfo?.username;
+  const navigateToEmojiSelection = React.useCallback(() => {
+    if (!registrationModeEnabled) {
+      navigate(EmojiUserAvatarCreationRouteName);
+      return;
+    }
+    navigate<'EmojiAvatarSelection'>({
+      name: EmojiAvatarSelectionRouteName,
+      params: { usernameOrEthAddress },
+    });
+  }, [navigate, registrationModeEnabled, usernameOrEthAddress]);
 
   const navigateToCamera = React.useCallback(() => {
-    navigate(UserAvatarCameraModalRouteName);
-  }, [navigate]);
+    navigate(
+      registrationModeEnabled
+        ? RegistrationUserAvatarCameraModalRouteName
+        : UserAvatarCameraModalRouteName,
+    );
+  }, [navigate, registrationModeEnabled]);
 
   const setENSUserAvatar = React.useCallback(() => {
     setUserAvatar({ type: 'ens' });
@@ -63,7 +78,7 @@ function EditUserAvatar(props: Props): React.Node {
   const hasCurrentAvatar = !!userInfo?.avatar;
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
-      { id: 'emoji', onPress: navigateToUserEmojiAvatarCreation },
+      { id: 'emoji', onPress: navigateToEmojiSelection },
       { id: 'image', onPress: selectFromGalleryAndUpdateUserAvatar },
       { id: 'camera', onPress: navigateToCamera },
     ];
@@ -81,7 +96,7 @@ function EditUserAvatar(props: Props): React.Node {
     hasCurrentAvatar,
     ensAvatarURI,
     navigateToCamera,
-    navigateToUserEmojiAvatarCreation,
+    navigateToEmojiSelection,
     removeUserAvatar,
     setENSUserAvatar,
     selectFromGalleryAndUpdateUserAvatar,
