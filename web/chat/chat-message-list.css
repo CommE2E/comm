@@ -18,6 +18,9 @@ div.mirroredMessageContainer {
 div.mirroredMessageContainer > div {
   transform: scaleY(-1);
 }
+div.disableAnchor {
+  overflow-anchor: none;
+}
 
 div.message {
   display: flex;

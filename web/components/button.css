@@ -8,6 +8,11 @@
   border: none;
 }
 
+/*
+ * Changes to the height of the button component should be reflected in
+ * the `chat-constants.js`component in the `editBoxBottomRowHeight`
+ * variable as well.
+ */
 .btn {
   --border-width: 1px;
   --border-radius: 8px;

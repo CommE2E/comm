@@ -13,6 +13,7 @@ div.inputBarTextInput {
   display: flex;
   background: var(--text-input-bg);
   border-radius: 8px;
+  /* Related to editBoxHeight in the `edit-text-message` component */
   padding: 8px;
   align-items: center;
   flex-grow: 1;
