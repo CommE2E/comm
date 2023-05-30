@@ -29,7 +29,12 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import css from './chat-message-list.css';
+import type {
+  EditState,
+  ScrollToMessageCallback,
+} from './edit-message-provider.js';
 import { useEditModalContext } from './edit-message-provider.js';
+import { maximumEditTextHeight } from './edit-text-message.react.js';
 import { MessageListContext } from './message-list-types.js';
 import Message from './message.react.js';
 import RelationshipPrompt from './relationship-prompt/relationship-prompt.js';
@@ -64,18 +69,40 @@ type Props = {
   +clearTooltip: () => mixed,
   +oldestMessageServerID: ?string,
   +isEditState: boolean,
+  +renderEditModal: (params: EditState) => void,
+  +addScrollToMessageListener: ScrollToMessageCallback => void,
+  +removeScrollToMessageListener: ScrollToMessageCallback => void,
 };
 type Snapshot = {
   +scrollTop: number,
   +scrollHeight: number,
 };
-class ChatMessageList extends React.PureComponent<Props> {
+
+type State = {
+  +scrollTimeoutID: ?TimeoutID,
+  +scrollingEndCallback: ?() => void,
+};
+
+class ChatMessageList extends React.PureComponent<Props, State> {
   container: ?HTMLDivElement;
   messageContainer: ?HTMLDivElement;
   loadingFromScroll = false;
 
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      scrollTimeoutID: null,
+      scrollingEndCallback: null,
+    };
+  }
+
   componentDidMount() {
     this.scrollToBottom();
+    this.props.addScrollToMessageListener(this.scrollToMessage);
+  }
+
+  componentWillUnmount() {
+    this.props.removeScrollToMessageListener(this.scrollToMessage);
   }
 
   getSnapshotBeforeUpdate(prevProps: Props) {
@@ -169,14 +196,56 @@ class ChatMessageList extends React.PureComponent<Props> {
     const { threadInfo } = this.props;
     invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
     return (
-      <Message
-        item={item}
-        threadInfo={threadInfo}
-        shouldDisplayPinIndicator={true}
+      <div
+        id={ChatMessageList.keyExtractor(item)}
         key={ChatMessageList.keyExtractor(item)}
-      />
+      >
+        <Message
+          item={item}
+          threadInfo={threadInfo}
+          shouldDisplayPinIndicator={true}
+        />
+      </div>
     );
   };
+
+  scrollToMessage = (messageID: string, callback: () => void) => {
+    const element = document.getElementById(messageID);
+    if (!element) {
+      return;
+    }
+    if (this.isMessageOverflowed(messageID)) {
+      callback();
+      return;
+    }
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    this.setState({ scrollingEndCallback: callback });
+  };
+
+  isMessageOverflowed(messageID: string) {
+    const { messageContainer } = this;
+    if (!messageContainer) {
+      return false;
+    }
+    const messageElement = document.getElementById(messageID);
+    if (!messageElement) {
+      console.log(`couldn't find the message element`);
+      return false;
+    }
+
+    const msgPos = messageElement.getBoundingClientRect();
+    const containerPos = messageContainer.getBoundingClientRect();
+
+    const messageHeight = msgPos.height;
+    const offset = maximumEditTextHeight - messageHeight + 10;
+
+    const messageTop = msgPos.top - offset;
+    const messageBottom = msgPos.bottom;
+    const containerTop = containerPos.top;
+    const containerBottom = containerPos.bottom;
+
+    return messageBottom <= containerBottom && messageTop >= containerTop;
+  }
 
   render() {
     const { messageListData, threadInfo, inputState } = this.props;
@@ -221,6 +290,17 @@ class ChatMessageList extends React.PureComponent<Props> {
     }
     this.props.clearTooltip();
     this.possiblyLoadMoreMessages();
+
+    if (this.state.scrollTimeoutID) {
+      clearTimeout(this.state.scrollTimeoutID);
+    }
+    const scrollTimeoutID = setTimeout(() => {
+      if (this.state.scrollingEndCallback) {
+        this.state.scrollingEndCallback();
+      }
+      this.setState({ scrollingEndCallback: null });
+    }, 100);
+    this.setState({ scrollTimeoutID });
   };
 
   async possiblyLoadMoreMessages() {
@@ -313,7 +393,12 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
 
     const oldestMessageServerID = useOldestMessageServerID(threadInfo.id);
 
-    const { editState } = useEditModalContext();
+    const {
+      editState,
+      renderEditModal,
+      addScrollToMessageListener,
+      removeScrollToMessageListener,
+    } = useEditModalContext();
     const isEditState = editState !== null;
 
     return (
@@ -330,6 +415,9 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
           clearTooltip={clearTooltip}
           oldestMessageServerID={oldestMessageServerID}
           isEditState={isEditState}
+          renderEditModal={renderEditModal}
+          addScrollToMessageListener={addScrollToMessageListener}
+          removeScrollToMessageListener={removeScrollToMessageListener}
         />
       </MessageListContext.Provider>
     );
