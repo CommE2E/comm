@@ -60,8 +60,15 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
     }, [onChangePosition]);
 
     React.useEffect(() => {
-      updateHeight();
       focusAndUpdateText();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    React.useEffect(() => {
+      updateHeight();
+      // We want to update the height when the text changes. We can't include
+      // updateHeight in the dep list because it causes a stack overflow... see
+      // comments on D8035 for more details
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentText]);
 
