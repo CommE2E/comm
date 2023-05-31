@@ -22,6 +22,7 @@ import {
 import textMessageSendFailed from './text-message-send-failed.js';
 import { getMessageTooltipKey } from './utils.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
+import { InputStateContext } from '../input/input-state.js';
 import { MarkdownContext } from '../markdown/markdown-context.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import {
@@ -248,6 +249,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
     const markdownContext = React.useContext(MarkdownContext);
+    const inputContext = React.useContext(InputStateContext);
     invariant(markdownContext, 'markdownContext should be set');
 
     const { linkModalActive, clearMarkdownContextData } = markdownContext;
@@ -264,10 +266,12 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       props.item.messageInfo,
     );
 
-    const canEditMessage = useCanEditMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-    );
+    const isThisMessageEdited =
+      inputContext?.editState.editedMessage?.id === props.item.messageInfo.id;
+
+    const canEditMessage =
+      useCanEditMessage(props.item.threadInfo, props.item.messageInfo) &&
+      !isThisMessageEdited;
 
     const canTogglePins = threadHasPermission(
       props.item.threadInfo,

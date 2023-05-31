@@ -81,7 +81,8 @@ function TooltipMenu(
     const enterEditMode = () => {
       inputState.setEditedMessage(messageInfo, updateInputBar);
     };
-    if (inputState.editState.editedMessage) {
+    const { editedMessage, isEditedMessageChanged } = inputState.editState;
+    if (isEditedMessageChanged && editedMessage) {
       exitEditAlert(enterEditMode);
     } else {
       enterEditMode();
