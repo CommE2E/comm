@@ -308,6 +308,30 @@ async function serverThreadInfoFromMessageInfo(
   return threads.threadInfos[threadID];
 }
 
+async function fetchThreadsWithLatestMessages(
+  userID: string,
+  home: boolean,
+  fromMessageID: string,
+): Promise<$ReadOnlyArray<string>> {
+  const query = SQL`
+    SELECT t.id
+    FROM threads t
+    LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${userID}
+    WHERE m.last_message < ${fromMessageID} AND
+      JSON_EXTRACT(m.subscription, '$.home') IS ${home}
+    ORDER BY m.last_message DESC
+    LIMIT 25
+  `;
+
+  const [result] = await dbQuery(query);
+
+  const ids = [];
+  for (const row of result) {
+    ids.push(row.id.toString());
+  }
+  return ids;
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
@@ -318,4 +342,5 @@ export {
   personalThreadQuery,
   fetchPersonalThreadID,
   serverThreadInfoFromMessageInfo,
+  fetchThreadsWithLatestMessages,
 };
