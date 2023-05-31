@@ -41,7 +41,6 @@ import {
   tPlatformDetails,
 } from 'lib/utils/validation-utils.js';
 
-import { createOlmSession } from '../creators/olm-session-creator.js';
 import { saveOneTimeKeys } from '../creators/one-time-keys-creator.js';
 import createReport from '../creators/report-creator.js';
 import { SQL } from '../database/database.js';
@@ -131,13 +130,6 @@ const clientResponseInputValidator: TUnion<ClientResponse> = t.union([
       x => x === serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB,
     ),
     signedIdentityKeysBlob: signedIdentityKeysBlobValidator,
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE',
-      x => x === serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE,
-    ),
-    initialNotificationsEncryptedMessage: t.String,
   }),
 ]);
 
@@ -234,24 +226,6 @@ async function processClientResponses(
             viewer.cookieID,
             signedIdentityKeysBlob,
           ),
-        );
-      } catch (e) {
-        continue;
-      }
-    } else if (
-      clientResponse.type ===
-      serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE
-    ) {
-      invariant(
-        t.String.is(clientResponse.initialNotificationsEncryptedMessage),
-        'initialNotificationsEncryptedMessage expected in client response',
-      );
-      const { initialNotificationsEncryptedMessage } = clientResponse;
-      try {
-        await createOlmSession(
-          initialNotificationsEncryptedMessage,
-          'notifications',
-          viewer.cookieID,
         );
       } catch (e) {
         continue;
