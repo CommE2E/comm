@@ -78,6 +78,8 @@
     "react-router-dom": "^5.2.0",
     "react-switch": "^7.0.0",
     "react-timeago": "^7.1.0",
+    "react-virtualized-auto-sizer": "^1.0.19",
+    "react-window": "^1.8.9",
     "redux": "^4.0.4",
     "redux-devtools-extension": "^2.13.2",
     "redux-persist": "^6.0.0",
