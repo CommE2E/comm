@@ -115,6 +115,8 @@ export const MessageSearchRouteName = 'MessageSearch';
 export const PasswordSelectionRouteName = 'PasswordSelection';
 export const AvatarSelectionRouteName = 'AvatarSelection';
 export const EmojiAvatarSelectionRouteName = 'EmojiAvatarSelection';
+export const RegistrationUserAvatarCameraModalRouteName =
+  'RegistrationUserAvatarCameraModal';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -214,6 +216,7 @@ export type RegistrationParamList = {
   +PasswordSelection: PasswordSelectionParams,
   +AvatarSelection: AvatarSelectionParams,
   +EmojiAvatarSelection: EmojiAvatarSelectionParams,
+  +RegistrationUserAvatarCameraModal: void,
 };
 
 export type InviteLinkParamList = {
