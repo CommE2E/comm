@@ -7,6 +7,7 @@ import {
   exactSearchUser,
   exactSearchUserActionTypes,
 } from 'lib/actions/user-actions.js';
+import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import {
@@ -127,10 +128,23 @@ function ConnectEthereum(props: Props): React.Node {
   const exactSearchUserCall = useServerCall(exactSearchUser);
   const dispatchActionPromise = useDispatchActionPromise();
 
+  const cacheContext = React.useContext(ENSCacheContext);
+  const { ensCache } = cacheContext;
+
   const onSuccessfulWalletSignature = React.useCallback(
     async (result: SIWEResult) => {
       const searchPromise = exactSearchUserCall(result.address);
       dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+
+      // We want to figure out if the user has an ENS avatar now
+      // so that we can default to the ENS avatar in AvatarSelection
+      const avatarURIPromise = (async () => {
+        if (!ensCache) {
+          return null;
+        }
+        return await ensCache.getAvatarURIForAddress(result.address);
+      })();
+
       const { userInfo } = await searchPromise;
 
       if (userInfo) {
@@ -141,11 +155,14 @@ function ConnectEthereum(props: Props): React.Node {
         return;
       }
 
+      const avatarURI = await avatarURIPromise;
+
       const newUserSelections = {
         ...userSelections,
         accountSelections: {
           accountType: 'ethereum',
           ...result,
+          avatarURI,
         },
       };
       navigate<'AvatarSelection'>({
@@ -153,7 +170,13 @@ function ConnectEthereum(props: Props): React.Node {
         params: { userSelections: newUserSelections },
       });
     },
-    [userSelections, exactSearchUserCall, dispatchActionPromise, navigate],
+    [
+      userSelections,
+      exactSearchUserCall,
+      dispatchActionPromise,
+      navigate,
+      ensCache,
+    ],
   );
 
   let siwePanel;

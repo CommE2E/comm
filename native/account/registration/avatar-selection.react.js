@@ -28,6 +28,7 @@ import { useStyles } from '../../themes/colors.js';
 type EthereumAccountSelections = {
   +accountType: 'ethereum',
   ...SIWEResult,
+  +avatarURI: ?string,
 };
 
 type UsernameAccountSelections = {
@@ -56,6 +57,12 @@ type AvatarData =
       +clientAvatar: ClientAvatar,
     };
 
+const ensDefaultSelection = {
+  needsUpload: false,
+  updateUserAvatarRequest: { type: 'ens' },
+  clientAvatar: { type: 'ens' },
+};
+
 type Props = {
   +navigation: RegistrationNavigationProp<'AvatarSelection'>,
   +route: NavigationRoute<'AvatarSelection'>,
@@ -72,7 +79,15 @@ function AvatarSelection(props: Props): React.Node {
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
   const { setRegistrationMode } = editUserAvatarContext;
 
-  const [avatarData, setAvatarData] = React.useState<?AvatarData>();
+  const prefetchedAvatarURI =
+    accountSelections.accountType === 'ethereum'
+      ? accountSelections.avatarURI
+      : undefined;
+
+  const [avatarData, setAvatarData] = React.useState<?AvatarData>(
+    prefetchedAvatarURI ? ensDefaultSelection : undefined,
+  );
+
   const setClientAvatarFromSelection = React.useCallback(
     (selection: UserAvatarSelection) => {
       if (selection.needsUpload) {
@@ -128,7 +143,11 @@ function AvatarSelection(props: Props): React.Node {
         <Text style={styles.header}>Pick an avatar</Text>
         <View style={styles.stagedAvatarSection}>
           <View style={styles.editUserAvatar}>
-            <EditUserAvatar userInfo={userInfoOverride} disabled={false} />
+            <EditUserAvatar
+              userInfo={userInfoOverride}
+              disabled={false}
+              prefetchedAvatarURI={prefetchedAvatarURI}
+            />
           </View>
         </View>
       </RegistrationContentContainer>
