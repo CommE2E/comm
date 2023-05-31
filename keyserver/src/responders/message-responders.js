@@ -27,6 +27,8 @@ import {
   rawMessageInfoValidator,
   type SearchMessagesResponse,
   type SearchMessagesRequest,
+  type FetchLatestMessagesRequest,
+  type FetchLatestMessagesResponse,
 } from 'lib/types/message-types.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
@@ -52,7 +54,10 @@ import {
   fetchPinnedMessageInfos,
   searchMessagesInSingleChat,
 } from '../fetchers/message-fetchers.js';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import {
+  fetchServerThreadInfos,
+  fetchThreadsWithLatestMessages,
+} from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
   fetchImages,
@@ -500,6 +505,54 @@ async function searchMessagesResponder(
   );
 }
 
+const fetchLatestMessagesInputValidator = tShape<FetchLatestMessagesRequest>({
+  home: t.Boolean,
+  fromMessage: tID,
+});
+
+const fetchLatestMessagesResponseValidator =
+  tShape<FetchLatestMessagesResponse>({
+    rawMessageInfos: t.list(rawMessageInfoValidator),
+    truncationStatuses: messageTruncationStatusesValidator,
+  });
+
+async function fetchLatestMessages(
+  viewer: Viewer,
+  input: mixed,
+): Promise<FetchLatestMessagesResponse> {
+  const request = await validateInput(
+    viewer,
+    fetchLatestMessagesInputValidator,
+    input,
+  );
+  const result = await fetchThreadsWithLatestMessages(
+    viewer.userID,
+    request.home,
+    request.fromMessage,
+  );
+
+  if (result.length === 0) {
+    return { rawMessageInfos: [], truncationStatuses: {} };
+  }
+
+  const threadCursors = {};
+  for (const threadID of result) {
+    threadCursors[threadID] = null;
+  }
+
+  const response = await fetchMessageInfos(
+    viewer,
+    { threadCursors, joinedThreads: true, newerThan: 0 },
+    1,
+  );
+
+  return validateOutput(
+    viewer.platformDetails,
+    fetchLatestMessagesResponseValidator,
+    response,
+  );
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -508,4 +561,5 @@ export {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
+  fetchLatestMessages,
 };

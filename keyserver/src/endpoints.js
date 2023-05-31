@@ -37,6 +37,7 @@ import {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
+  fetchLatestMessages,
 } from './responders/message-responders.js';
 import { updateRelationshipsResponder } from './responders/relationship-responders.js';
 import {
@@ -216,6 +217,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   search_messages: {
     responder: searchMessagesResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  fetch_latest_messages: {
+    responder: fetchLatestMessages,
     requiredPolicies: baseLegalPolicies,
   },
   search_users: {
