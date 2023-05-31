@@ -37,7 +37,6 @@ import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
-import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import type { StateContainer } from '../utils/state-container.js';
 
 export type LogInState = {
@@ -55,7 +54,6 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
@@ -229,12 +227,9 @@ class LogInPanel extends React.PureComponent<Props> {
 
     Keyboard.dismiss();
     const extraInfo = await this.props.logInExtraInfo();
-    const initialNotificationsEncryptedMessage =
-      await this.props.getInitialNotificationsEncryptedMessage();
-
     this.props.dispatchActionPromise(
       logInActionTypes,
-      this.logInAction({ ...extraInfo, initialNotificationsEncryptedMessage }),
+      this.logInAction(extraInfo),
       undefined,
       ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
@@ -369,8 +364,6 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogIn = useServerCall(logIn);
-    const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage();
 
     return (
       <LogInPanel
@@ -379,9 +372,6 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         logIn={callLogIn}
-        getInitialNotificationsEncryptedMessage={
-          getInitialNotificationsEncryptedMessage
-        }
       />
     );
   });
