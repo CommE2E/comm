@@ -53,3 +53,24 @@
   position: absolute;
   bottom: -16px;
 }
+
+.featureCardsContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-top: 48px;
+}
+
+/* 2*16(padding) + 3*432(cards) + 2*40(gap) */
+@media screen and (max-width: 1408px) {
+  .featureCardsContainer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 2*16(padding) + 2*432(cards) + 40(gap) */
+@media screen and (max-width: 936px) {
+  .featureCardsContainer {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
