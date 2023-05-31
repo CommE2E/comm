@@ -24,7 +24,11 @@ import { useStyles } from '../themes/colors.js';
 
 type Props =
   | { +userID: ?string, +disabled?: boolean }
-  | { +userInfo: ?GenericUserInfoWithAvatar, +disabled?: boolean };
+  | {
+      +userInfo: ?GenericUserInfoWithAvatar,
+      +disabled?: boolean,
+      +prefetchedAvatarURI: ?string,
+    };
 function EditUserAvatar(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
@@ -43,7 +47,8 @@ function EditUserAvatar(props: Props): React.Node {
     () => getETHAddressForUserInfo(userInfo),
     [userInfo],
   );
-  const ensAvatarURI = useENSAvatar(ethAddress);
+  const fetchedENSAvatarURI = useENSAvatar(ethAddress);
+  const ensAvatarURI = fetchedENSAvatarURI ?? props.prefetchedAvatarURI;
 
   const { navigate } = useNavigation();
 
