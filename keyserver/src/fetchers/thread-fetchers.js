@@ -308,6 +308,44 @@ async function serverThreadInfoFromMessageInfo(
   return threads.threadInfos[threadID];
 }
 
+async function fetchThreadsWithLatestMessages(
+  userID: string,
+  home: boolean,
+  fromMessageID: string,
+): Promise<{
+  +allThreads: $ReadOnlyArray<string>,
+  +threadsExcludingParents: Set<string>,
+}> {
+  const query = SQL`
+    SELECT m.thread, t.type, t.parent_thread_id
+    FROM memberships m
+    LEFT JOIN threads t ON m.thread = t.id
+    WHERE m.user = ${userID} AND
+      m.role > 0 AND
+      m.last_message < ${fromMessageID} AND
+      JSON_EXTRACT(m.subscription, '$.home') IS ${home}
+    ORDER BY m.last_message DESC
+    LIMIT 25
+  `;
+
+  const [result] = await dbQuery(query);
+
+  const allThreads = new Set();
+  const threadsExcludingParents = new Set();
+  for (const row of result) {
+    allThreads.add(row.thread.toString());
+    threadsExcludingParents.add(row.thread.toString());
+    if (row.type === threadTypes.SIDEBAR) {
+      allThreads.add(row.parent_thread_id);
+    }
+  }
+
+  return {
+    allThreads: [...allThreads],
+    threadsExcludingParents,
+  };
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
@@ -318,4 +356,5 @@ export {
   personalThreadQuery,
   fetchPersonalThreadID,
   serverThreadInfoFromMessageInfo,
+  fetchThreadsWithLatestMessages,
 };

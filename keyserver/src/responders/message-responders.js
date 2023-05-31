@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import _min from 'lodash/fp/min.js';
 import t, { type TInterface } from 'tcomb';
 
 import { onlyOneEmojiRegex } from 'lib/shared/emojis.js';
@@ -27,6 +28,8 @@ import {
   rawMessageInfoValidator,
   type SearchMessagesResponse,
   type SearchMessagesRequest,
+  type FetchLatestMessagesRequest,
+  type FetchLatestMessagesResponse,
 } from 'lib/types/message-types.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
@@ -52,7 +55,10 @@ import {
   fetchPinnedMessageInfos,
   searchMessagesInSingleChat,
 } from '../fetchers/message-fetchers.js';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import {
+  fetchServerThreadInfos,
+  fetchThreadsWithLatestMessages,
+} from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
   fetchImages,
@@ -514,6 +520,58 @@ async function searchMessagesResponder(
   );
 }
 
+const fetchLatestMessagesInputValidator = tShape<FetchLatestMessagesRequest>({
+  home: t.Boolean,
+  fromMessage: tID,
+});
+
+const fetchLatestMessagesResponseValidator =
+  tShape<FetchLatestMessagesResponse>({
+    rawMessageInfos: t.list(rawMessageInfoValidator),
+    truncationStatuses: messageTruncationStatusesValidator,
+    oldestMessage: t.maybe(tID),
+  });
+
+async function fetchLatestMessages(
+  viewer: Viewer,
+  input: mixed,
+): Promise<FetchLatestMessagesResponse> {
+  const request = await validateInput(
+    viewer,
+    fetchLatestMessagesInputValidator,
+    input,
+  );
+  const { allThreads, threadsExcludingParents } =
+    await fetchThreadsWithLatestMessages(
+      viewer.userID,
+      request.home,
+      request.fromMessage,
+    );
+
+  if (allThreads.length === 0) {
+    return { rawMessageInfos: [], truncationStatuses: {}, oldestMessage: null };
+  }
+
+  const threadCursors = {};
+  for (const threadID of allThreads) {
+    threadCursors[threadID] = null;
+  }
+
+  const response = await fetchMessageInfos(viewer, { threadCursors }, 1);
+
+  const oldestMessage = _min(
+    response.rawMessageInfos
+      .filter(message => threadsExcludingParents.has(message.threadID))
+      .map(message => Number(message.id)),
+  ).toString();
+
+  return validateOutput(
+    viewer.platformDetails,
+    fetchLatestMessagesResponseValidator,
+    { ...response, oldestMessage },
+  );
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -522,4 +580,5 @@ export {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
+  fetchLatestMessages,
 };
