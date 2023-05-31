@@ -30,7 +30,6 @@ import {
   nativeGetClientResponsesSelector,
   nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors.js';
-import { useInitialNotificationsEncryptedMessage } from './utils/crypto-utils.js';
 
 const NativeSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function NativeSocket(props: BaseSocketProps) {
@@ -89,8 +88,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogOut = useServerCall(logOut);
-    const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage();
 
     const socketCrashLoopRecovery = React.useCallback(async () => {
       if (!accountHasPassword(currentUserInfo)) {
@@ -111,7 +108,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         cookie,
         urlPrefix,
         logInActionSources.refetchUserDataAfterAcknowledgment,
-        getInitialNotificationsEncryptedMessage,
       );
     }, [
       callLogOut,
@@ -121,7 +117,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       dispatchActionPromise,
       preRequestUserState,
       urlPrefix,
-      getInitialNotificationsEncryptedMessage,
     ]);
 
     return (
@@ -145,9 +140,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         logOut={callLogOut}
         noDataAfterPolicyAcknowledgment={noDataAfterPolicyAcknowledgment}
         socketCrashLoopRecovery={socketCrashLoopRecovery}
-        getInitialNotificationsEncryptedMessage={
-          getInitialNotificationsEncryptedMessage
-        }
       />
     );
   });
