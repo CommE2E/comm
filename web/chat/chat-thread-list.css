@@ -15,9 +15,6 @@
   top: -7px;
   left: 30px;
 }
-.thread:first-child {
-  padding-top: 6px;
-}
 
 .activeThread,
 .threadListSidebar:hover {
@@ -265,6 +262,7 @@ div.threadListContainer {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  flex: 1;
 }
 
 div.createNewThread {
