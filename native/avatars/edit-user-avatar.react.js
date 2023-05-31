@@ -7,6 +7,7 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
+import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
 
 import { useShowAvatarActionSheet } from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
@@ -19,14 +20,10 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
-type Props = {
-  +userID: ?string,
-  +disabled?: boolean,
-};
+type Props =
+  | { +userID: ?string, +disabled?: boolean }
+  | { +userInfo: ?GenericUserInfoWithAvatar, +disabled?: boolean };
 function EditUserAvatar(props: Props): React.Node {
-  const styles = useStyles(unboundStyles);
-  const { userID, disabled } = props;
-
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
   const {
@@ -36,9 +33,12 @@ function EditUserAvatar(props: Props): React.Node {
   } = editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const userInfoProp = props.userInfo;
+  const userInfo: ?GenericUserInfoWithAvatar = userInfoProp ?? currentUserInfo;
+
   const ethAddress = React.useMemo(
-    () => getETHAddressForUserInfo(currentUserInfo),
-    [currentUserInfo],
+    () => getETHAddressForUserInfo(userInfo),
+    [userInfo],
   );
   const ensAvatarURI = useENSAvatar(ethAddress);
 
@@ -60,6 +60,7 @@ function EditUserAvatar(props: Props): React.Node {
     setUserAvatar({ type: 'remove' });
   }, [setUserAvatar]);
 
+  const hasCurrentAvatar = !!userInfo?.avatar;
   const actionSheetConfig = React.useMemo(() => {
     const configOptions = [
       { id: 'emoji', onPress: navigateToUserEmojiAvatarCreation },
@@ -71,13 +72,13 @@ function EditUserAvatar(props: Props): React.Node {
       configOptions.push({ id: 'ens', onPress: setENSUserAvatar });
     }
 
-    if (currentUserInfo?.avatar) {
+    if (hasCurrentAvatar) {
       configOptions.push({ id: 'remove', onPress: removeUserAvatar });
     }
 
     return configOptions;
   }, [
-    currentUserInfo?.avatar,
+    hasCurrentAvatar,
     ensAvatarURI,
     navigateToCamera,
     navigateToUserEmojiAvatarCreation,
@@ -88,6 +89,8 @@ function EditUserAvatar(props: Props): React.Node {
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);
 
+  const styles = useStyles(unboundStyles);
+
   let spinner;
   if (userAvatarSaveInProgress) {
     spinner = (
@@ -97,9 +100,17 @@ function EditUserAvatar(props: Props): React.Node {
     );
   }
 
+  const { userID } = props;
+  const userAvatar = userID ? (
+    <UserAvatar userID={userID} size="profile" />
+  ) : (
+    <UserAvatar userInfo={userInfo} size="profile" />
+  );
+
+  const { disabled } = props;
   return (
     <TouchableOpacity onPress={showAvatarActionSheet} disabled={disabled}>
-      <UserAvatar userID={userID} size="profile" />
+      {userAvatar}
       {spinner}
       {!disabled ? <EditAvatarBadge /> : null}
     </TouchableOpacity>
