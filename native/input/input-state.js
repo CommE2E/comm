@@ -25,6 +25,7 @@ export type PendingMultimediaUploads = {
 
 export type EditState = {
   +editedMessage: ?MessageInfo,
+  +isEditedMessageChanged: boolean,
 };
 
 export type EditInputBarMessageParameters = {
@@ -69,6 +70,7 @@ export type InputState = {
     editedMessage: ?MessageInfo,
     callback?: () => void,
   ) => void,
+  +setEditedMessageChanged: (isEditedMessageChanged: boolean) => void,
   +scrollToMessage: (messageKey: string) => void,
   +addScrollToMessageListener: ((messageKey: string) => void) => void,
   +removeScrollToMessageListener: ((messageKey: string) => void) => void,

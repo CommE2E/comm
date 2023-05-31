@@ -175,6 +175,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     pendingUploads: {},
     editState: {
       editedMessage: null,
+      isEditedMessageChanged: false,
     },
   };
   sendCallbacks: Array<() => void> = [];
@@ -423,6 +424,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
       editState,
       setEditedMessage: this.setEditedMessage,
+      setEditedMessageChanged: this.setEditedMessageChanged,
       scrollToMessage: this.scrollToMessage,
       addScrollToMessageListener: this.addScrollToMessageListener,
       removeScrollToMessageListener: this.removeScrollToMessageListener,
@@ -1427,10 +1429,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   setEditedMessage = (editedMessage: ?MessageInfo, callback?: () => void) => {
     this.setState(
       {
-        editState: { editedMessage },
+        editState: { editedMessage, isEditedMessageChanged: false },
       },
       callback,
     );
+  };
+
+  setEditedMessageChanged = (isEditedMessageChanged: boolean) => {
+    this.setState(prevState => ({
+      editState: { ...prevState.editState, isEditedMessageChanged },
+    }));
   };
 
   removeEditInputMessageListener = (
