@@ -1,7 +1,10 @@
 // @flow
 
 import invariant from 'invariant';
+import _sum from 'lodash/fp/sum.js';
 import * as React from 'react';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { VariableSizeList } from 'react-window';
 
 import { emptyItemText } from 'lib/shared/thread-utils.js';
 
@@ -13,6 +16,25 @@ import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnClickNewThread } from '../selectors/thread-selectors.js';
+
+const sizes = {
+  search: 68,
+  thread: 81,
+  sidebars: { sidebar: 32, seeMore: 22, spacer: 6 },
+};
+
+const getThreadItemSize = item => {
+  const sidebarHeight = _sum(item.sidebars.map(s => sizes.sidebars[s.type]));
+  return sizes.thread + sidebarHeight;
+};
+
+const renderItem = ({ index, data, style }) => {
+  return (
+    <div style={style}>
+      {index === 0 ? data[0] : <ChatThreadListItem item={data[index]} />}
+    </div>
+  );
+};
 
 function ChatThreadList(): React.Node {
   const threadListContext = React.useContext(ThreadListContext);
@@ -33,31 +55,81 @@ function ChatThreadList(): React.Node {
 
   const communityID = useSelector(state => state.communityPickerStore.chat);
 
-  const threadComponents: React.Node[] = React.useMemo(() => {
-    const threads = threadList
-      .filter(
+  const search = React.useMemo(
+    () => (
+      <Search
+        onChangeText={setSearchText}
+        searchText={searchText}
+        placeholder="Search chats"
+      />
+    ),
+    [searchText, setSearchText],
+  );
+
+  const threadListContainerRef = React.useRef();
+
+  const threads = React.useMemo(
+    () =>
+      threadList.filter(
         item =>
           !communityID ||
           item.threadInfo.community === communityID ||
           item.threadInfo.id === communityID,
-      )
-      .map(item => <ChatThreadListItem item={item} key={item.threadInfo.id} />);
-    if (threads.length === 0 && isBackground) {
-      threads.push(<EmptyItem key="emptyItem" />);
+      ),
+    [communityID, threadList],
+  );
+
+  React.useEffect(() => {
+    if (threadListContainerRef.current) {
+      threadListContainerRef.current.resetAfterIndex(0, false);
     }
-    return threads;
-  }, [threadList, isBackground, communityID]);
+  }, [threads]);
+
+  const threadListContainer = React.useMemo(() => {
+    if (isBackground && threads.length === 0) {
+      return (
+        <>
+          {search}
+          <EmptyItem />
+        </>
+      );
+    }
+
+    const items = [search, ...threads];
+
+    const itemKey = index =>
+      index === 0 ? 'search' : items[index].threadInfo.id;
+
+    const itemSize = index => {
+      if (index === 0) {
+        return sizes.search;
+      }
+
+      return getThreadItemSize(items[index]);
+    };
+
+    return (
+      <AutoSizer disableWidth>
+        {({ height }) => (
+          <VariableSizeList
+            itemData={items}
+            itemCount={items.length}
+            itemSize={itemSize}
+            itemKey={itemKey}
+            height={height}
+            overscanCount={1}
+            ref={threadListContainerRef}
+          >
+            {renderItem}
+          </VariableSizeList>
+        )}
+      </AutoSizer>
+    );
+  }, [isBackground, search, threads]);
 
   return (
     <>
-      <div className={css.threadListContainer}>
-        <Search
-          onChangeText={setSearchText}
-          searchText={searchText}
-          placeholder="Search chats"
-        />
-        <div>{threadComponents}</div>
-      </div>
+      <div className={css.threadListContainer}>{threadListContainer}</div>
       <div className={css.createNewThread}>
         <Button
           variant="filled"
