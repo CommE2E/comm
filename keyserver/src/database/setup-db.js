@@ -11,9 +11,11 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { createThread } from '../creators/thread-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { updateDBVersion } from '../database/db-version.js';
-import { newDatabaseVersion } from '../database/migration-config.js';
+import {
+  newDatabaseVersion,
+  createOlmAccounts,
+} from '../database/migration-config.js';
 import { createScriptViewer } from '../session/scripts.js';
-import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
 async function setupDB() {
   await createTables();
@@ -474,31 +476,6 @@ async function createThreads() {
 
 async function setUpMetadataTable() {
   await updateDBVersion(newDatabaseVersion);
-}
-
-async function createOlmAccounts() {
-  const [pickledContentAccount, pickledNotificationsAccount] =
-    await Promise.all([createPickledOlmAccount(), createPickledOlmAccount()]);
-
-  await dbQuery(
-    SQL`
-      INSERT INTO olm_accounts (is_content, version, 
-        pickling_key, pickled_olm_account)
-      VALUES
-      (
-        TRUE, 
-        0, 
-        ${pickledContentAccount.picklingKey}, 
-        ${pickledContentAccount.pickledAccount}
-      ),
-      (
-        FALSE, 
-        0, 
-        ${pickledNotificationsAccount.picklingKey}, 
-        ${pickledNotificationsAccount.pickledAccount}
-      );
-    `,
-  );
 }
 
 export { setupDB };

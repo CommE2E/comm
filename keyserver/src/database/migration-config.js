@@ -408,34 +408,23 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [
     35,
     async () => {
-      const [pickledContentAccount, pickledNotificationsAccount] =
-        await Promise.all([
-          createPickledOlmAccount(),
-          createPickledOlmAccount(),
-        ]);
-
-      await dbQuery(
-        SQL`
-          INSERT INTO olm_accounts (is_content, version, 
-            pickling_key, pickled_olm_account)
-          VALUES
-          (
-            TRUE, 
-            0, 
-            ${pickledContentAccount.picklingKey}, 
-            ${pickledContentAccount.pickledAccount}
-          ),
-          (
-            FALSE, 
-            0, 
-            ${pickledNotificationsAccount.picklingKey}, 
-            ${pickledNotificationsAccount.pickledAccount}
-          );
-        `,
-      );
+      await createOlmAccounts();
     },
   ],
   [36, updateRolesAndPermissionsForAllThreads],
+  [
+    37,
+    async () => {
+      await dbQuery(
+        SQL`
+          DELETE FROM olm_accounts;
+          DELETE FROM olm_sessions;
+        `,
+        { multipleStatements: true },
+      );
+      await createOlmAccounts();
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
@@ -532,4 +521,29 @@ async function writeSquadCalRoute(filePath: string): Promise<void> {
   await writeJSONToFile(newJSON, filePath);
 }
 
-export { migrations, newDatabaseVersion };
+async function createOlmAccounts() {
+  const [pickledContentAccount, pickledNotificationsAccount] =
+    await Promise.all([createPickledOlmAccount(), createPickledOlmAccount()]);
+
+  await dbQuery(
+    SQL`
+      INSERT INTO olm_accounts (is_content, version, 
+        pickling_key, pickled_olm_account)
+      VALUES
+      (
+        TRUE, 
+        0, 
+        ${pickledContentAccount.picklingKey}, 
+        ${pickledContentAccount.pickledAccount}
+      ),
+      (
+        FALSE, 
+        0, 
+        ${pickledNotificationsAccount.picklingKey}, 
+        ${pickledNotificationsAccount.pickledAccount}
+      );
+    `,
+  );
+}
+
+export { migrations, newDatabaseVersion, createOlmAccounts };
