@@ -15,6 +15,7 @@ import ExistingEthereumAccount from './existing-ethereum-account.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
 import PasswordSelection from './password-selection.react.js';
 import UsernameSelection from './username-selection.react.js';
+import RegistrationUserAvatarCameraModal from '../../media/registration-user-avatar-camera-modal.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import {
   KeyserverSelectionRouteName,
@@ -25,6 +26,7 @@ import {
   PasswordSelectionRouteName,
   AvatarSelectionRouteName,
   EmojiAvatarSelectionRouteName,
+  RegistrationUserAvatarCameraModalRouteName,
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
@@ -47,6 +49,10 @@ const screenOptions = {
   headerLeftContainerStyle: {
     paddingLeft: 12,
   },
+};
+
+const cameraScreenOptions = {
+  headerShown: false,
 };
 
 type Props = {
@@ -88,6 +94,11 @@ function RegistrationNavigator(props: Props): React.Node {
       <Registration.Screen
         name={EmojiAvatarSelectionRouteName}
         component={EmojiAvatarSelection}
+      />
+      <Registration.Screen
+        name={RegistrationUserAvatarCameraModalRouteName}
+        component={RegistrationUserAvatarCameraModal}
+        options={cameraScreenOptions}
       />
     </Registration.Navigator>
   );

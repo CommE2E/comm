@@ -34,6 +34,7 @@ import type { PhotoCapture } from 'lib/types/media-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 
 import SendMediaButton from './send-media-button.react.js';
+import type { RegistrationNavigationProp } from '../account/registration/registration-navigator.react.js';
 import ContentLoading from '../components/content-loading.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -41,7 +42,6 @@ import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context.js';
-import type { OverlayParamList } from '../navigation/route-names.js';
 import { updateDeviceCameraInfoActionType } from '../redux/action-types.js';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -226,9 +226,11 @@ type TouchableOpacityInstance = React.AbstractComponent<
 
 type BaseProps = {
   +handlePhotoCapture: (capture: PhotoCapture) => mixed,
-  +navigation: $Values<
-    $ObjMapi<OverlayParamList, <K>(K) => AppNavigationProp<K>>,
-  >,
+  +navigation:
+    | AppNavigationProp<'ChatCameraModal'>
+    | AppNavigationProp<'UserAvatarCameraModal'>
+    | AppNavigationProp<'ThreadAvatarCameraModal'>
+    | RegistrationNavigationProp<'RegistrationUserAvatarCameraModal'>,
 };
 type Props = {
   ...BaseProps,
@@ -502,7 +504,9 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   static isActive(props) {
     const { overlayContext } = props;
-    invariant(overlayContext, 'CameraModal should have OverlayContext');
+    if (!overlayContext) {
+      return true;
+    }
     return !overlayContext.isDismissing;
   }
 
@@ -580,7 +584,9 @@ class CameraModal extends React.PureComponent<Props, State> {
 
   get containerStyle() {
     const { overlayContext } = this.props;
-    invariant(overlayContext, 'CameraModal should have OverlayContext');
+    if (!overlayContext) {
+      return styles.container;
+    }
     return {
       ...styles.container,
       opacity: overlayContext.position,
@@ -850,7 +856,12 @@ class CameraModal extends React.PureComponent<Props, State> {
   };
 
   close = () => {
-    this.props.navigation.goBackOnce();
+    const { overlayContext, navigation } = this.props;
+    if (overlayContext && navigation.goBackOnce) {
+      navigation.goBackOnce();
+    } else {
+      navigation.goBack();
+    }
   };
 
   takePhoto = async () => {
