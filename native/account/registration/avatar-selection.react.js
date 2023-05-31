@@ -1,8 +1,14 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import type {
+  UpdateUserAvatarRequest,
+  ClientAvatar,
+} from 'lib/types/avatar-types.js';
+import type { NativeMediaSelection } from 'lib/types/media-types.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
@@ -11,6 +17,10 @@ import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import {
+  EditUserAvatarContext,
+  type UserAvatarSelection,
+} from '../../avatars/edit-user-avatar-provider.react.js';
 import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
@@ -34,6 +44,18 @@ export type AvatarSelectionParams = {
   },
 };
 
+type AvatarData =
+  | {
+      +needsUpload: true,
+      +mediaSelection: NativeMediaSelection,
+      +clientAvatar: ClientAvatar,
+    }
+  | {
+      +needsUpload: false,
+      +updateUserAvatarRequest: UpdateUserAvatarRequest,
+      +clientAvatar: ClientAvatar,
+    };
+
 type Props = {
   +navigation: RegistrationNavigationProp<'AvatarSelection'>,
   +route: NavigationRoute<'AvatarSelection'>,
@@ -46,7 +68,47 @@ function AvatarSelection(props: Props): React.Node {
       ? accountSelections.username
       : accountSelections.address;
 
-  const [avatarData] = React.useState();
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
+  const { setRegistrationMode } = editUserAvatarContext;
+
+  const [avatarData, setAvatarData] = React.useState<?AvatarData>();
+  const setClientAvatarFromSelection = React.useCallback(
+    (selection: UserAvatarSelection) => {
+      if (selection.needsUpload) {
+        setAvatarData({
+          ...selection,
+          clientAvatar: {
+            type: 'image',
+            uri: selection.mediaSelection.uri,
+          },
+        });
+      } else if (selection.updateUserAvatarRequest.type !== 'remove') {
+        const clientRequest = selection.updateUserAvatarRequest;
+        invariant(
+          clientRequest.type !== 'image',
+          'image avatars need to be uploaded',
+        );
+        setAvatarData({
+          ...selection,
+          clientAvatar: clientRequest,
+        });
+      } else {
+        setAvatarData(undefined);
+      }
+    },
+    [],
+  );
+
+  React.useEffect(() => {
+    setRegistrationMode({
+      registrationMode: 'on',
+      successCallback: setClientAvatarFromSelection,
+    });
+    return () => {
+      setRegistrationMode({ registrationMode: 'off' });
+    };
+  }, [setRegistrationMode, setClientAvatarFromSelection]);
 
   const onProceed = React.useCallback(() => {}, []);
 
