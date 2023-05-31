@@ -37,7 +37,6 @@ import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
-import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import { type StateContainer } from '../utils/state-container.js';
 
 export type RegisterState = {
@@ -56,7 +55,6 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
-  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 type State = {
   +confirmPasswordFocused: boolean,
@@ -291,14 +289,9 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     } else {
       Keyboard.dismiss();
       const extraInfo = await this.props.logInExtraInfo();
-      const initialNotificationsEncryptedMessage =
-        await this.props.getInitialNotificationsEncryptedMessage();
       this.props.dispatchActionPromise(
         registerActionTypes,
-        this.registerAction({
-          ...extraInfo,
-          initialNotificationsEncryptedMessage,
-        }),
+        this.registerAction(extraInfo),
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
@@ -464,8 +457,6 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callRegister = useServerCall(register);
-    const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage();
 
     return (
       <RegisterPanel
@@ -474,9 +465,6 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         register={callRegister}
-        getInitialNotificationsEncryptedMessage={
-          getInitialNotificationsEncryptedMessage
-        }
       />
     );
   });

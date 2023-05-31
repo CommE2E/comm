@@ -32,7 +32,6 @@ import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import createIDs from './id-creator.js';
 import createMessages from './message-creator.js';
-import { createOlmSession } from './olm-session-creator.js';
 import {
   createThread,
   createPrivateThread,
@@ -84,11 +83,7 @@ async function createAccount(
     WHERE LCASE(username) = LCASE(${request.username})
   `;
   const promises = [dbQuery(usernameQuery)];
-  const {
-    calendarQuery,
-    signedIdentityKeysBlob,
-    initialNotificationsEncryptedMessage,
-  } = request;
+  const { calendarQuery, signedIdentityKeysBlob } = request;
   if (calendarQuery) {
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
@@ -135,16 +130,6 @@ async function createAccount(
     await setNewSession(viewer, calendarQuery, 0);
   }
 
-  const olmSessionPromise = (async () => {
-    if (userViewerData.cookieID && initialNotificationsEncryptedMessage) {
-      await createOlmSession(
-        initialNotificationsEncryptedMessage,
-        'notifications',
-        userViewerData.cookieID,
-      );
-    }
-  })();
-
   await Promise.all([
     updateThread(
       createScriptViewer(ashoat.id),
@@ -155,7 +140,6 @@ async function createAccount(
       { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
     ),
     viewerAcknowledgmentUpdater(viewer, policyTypes.tosAndPrivacyPolicy),
-    olmSessionPromise,
   ]);
 
   const [privateThreadResult, ashoatThreadResult] = await Promise.all([
