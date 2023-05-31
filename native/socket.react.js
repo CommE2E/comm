@@ -53,14 +53,10 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const sessionIdentification = useSelector(sessionIdentificationSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
 
-    const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage();
-
     const getClientResponses = useSelector(state =>
       nativeGetClientResponsesSelector({
         redux: state,
         navContext,
-        getInitialNotificationsEncryptedMessage,
       }),
     );
     const sessionStateFunc = useSelector(state =>
@@ -93,6 +89,8 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogOut = useServerCall(logOut);
+    const getInitialNotificationsEncryptedMessage =
+      useInitialNotificationsEncryptedMessage();
 
     const socketCrashLoopRecovery = React.useCallback(async () => {
       if (!accountHasPassword(currentUserInfo)) {

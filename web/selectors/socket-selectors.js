@@ -91,7 +91,6 @@ const webGetClientResponsesSelector: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
         getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
-        getInitialNotificationsEncryptedMessage: ?() => Promise<string>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
       ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
       getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
@@ -102,7 +101,6 @@ const webGetClientResponsesSelector: (
         calendarActive,
         null,
         getSignedIdentityKeysBlob,
-        null,
         serverRequests,
       ),
 );
