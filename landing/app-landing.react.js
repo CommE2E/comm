@@ -3,9 +3,7 @@
 import * as React from 'react';
 
 import { imageAssetMetaData } from './asset-meta-data.js';
-import HeroContent from './hero-content.react.js';
-import css from './landing.css';
-import Picture from './Picture.react.js';
+import Hero from './hero.react.js';
 import usePreloadImageAssets from './use-pre-load-image-assets.react.js';
 
 function AppLanding(): React.Node {
@@ -14,15 +12,7 @@ function AppLanding(): React.Node {
 
   return (
     <main>
-      <section className={css.heroSection}>
-        <div className={css.heroContainer}>
-          <div className={css.heroImage}>
-            <Picture url={hero.url} alt={hero.alt} />
-            <div className={css.glow} />
-          </div>
-          <HeroContent />
-        </div>
-      </section>
+      <Hero {...hero} />
     </main>
   );
 }
