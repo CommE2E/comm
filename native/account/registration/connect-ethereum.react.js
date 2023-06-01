@@ -159,7 +159,7 @@ function ConnectEthereum(props: Props): React.Node {
 
       const newUserSelections = {
         ...userSelections,
-        accountSelections: {
+        accountSelection: {
           accountType: 'ethereum',
           ...result,
           avatarURI,

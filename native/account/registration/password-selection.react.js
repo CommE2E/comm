@@ -70,7 +70,7 @@ function PasswordSelection(props: Props): React.Node {
     const newUserSelections = {
       coolOrNerdMode,
       keyserverUsername,
-      accountSelections: {
+      accountSelection: {
         accountType: 'username',
         username,
         password,
