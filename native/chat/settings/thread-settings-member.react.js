@@ -17,7 +17,6 @@ import {
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
-  memberIsAdmin,
   memberHasAdminPowers,
   getAvailableThreadMemberActions,
 } from 'lib/shared/thread-utils.js';
@@ -131,19 +130,24 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     }
 
     let roleInfo = null;
-    if (memberIsAdmin(this.props.memberInfo, this.props.threadInfo)) {
+    const roleName =
+      this.props.memberInfo.role &&
+      this.props.threadInfo.roles[this.props.memberInfo.role].name;
+
+    // The parent admin is not associated to a role ID, so check for it first.
+    if (memberHasAdminPowers(this.props.memberInfo)) {
       roleInfo = (
         <View style={this.props.styles.row}>
           <Text style={this.props.styles.role} numberOfLines={1}>
-            admin
+            Admins
           </Text>
         </View>
       );
-    } else if (memberHasAdminPowers(this.props.memberInfo)) {
+    } else if (roleName) {
       roleInfo = (
         <View style={this.props.styles.row}>
           <Text style={this.props.styles.role} numberOfLines={1}>
-            parent admin
+            {roleName}
           </Text>
         </View>
       );
