@@ -2,7 +2,7 @@
 
 import css from './landing.css';
 
-export type Asset = {
+export type ImageAsset = {
   +alt: string,
   +url: string,
   +title: string,
@@ -12,7 +12,7 @@ export type Asset = {
 };
 
 export const assetsCacheURLPrefix = 'https://dh9fld3hutpxf.cloudfront.net';
-export const assetMetaData = [
+export const imageAssetMetaData = [
   {
     alt: 'a mobile phone screen highlighting chat and DAO voting',
     url: `${assetsCacheURLPrefix}/Header`,
