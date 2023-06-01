@@ -31,6 +31,7 @@ import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
 import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
+import type { CommunityCreationMembersScreenParams } from '../community-creation/community-creation-members.react.js';
 import type { ManagePublicLinkScreenParams } from '../invite-links/manage-public-link-screen.react.js';
 import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
 import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
@@ -220,7 +221,7 @@ export type InviteLinkParamList = {
 
 export type CommunityCreationParamList = {
   +CommunityConfiguration: void,
-  +CommunityCreationMembers: void,
+  +CommunityCreationMembers: CommunityCreationMembersScreenParams,
 };
 
 export type ScreenParamList = {

@@ -19,6 +19,10 @@ import UserList from '../components/user-list.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 
+export type CommunityCreationMembersScreenParams = {
+  +announcement: boolean,
+};
+
 const TagInput = createTagInput<AccountUserInfo>();
 const tagInputProps = {
   placeholder: 'username',
@@ -32,8 +36,9 @@ type Props = {
   +route: NavigationRoute<'CommunityCreationMembers'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function CommunityCreationMembers(props: Props): React.Node {
+  const { announcement } = props.route.params;
+
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
 
@@ -56,9 +61,17 @@ function CommunityCreationMembers(props: Props): React.Node {
         selectedUserIDs,
         null,
         null,
-        threadTypes.COMMUNITY_ROOT,
+        announcement
+          ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
+          : threadTypes.COMMUNITY_ROOT,
       ),
-    [otherUserInfos, selectedUserIDs, userSearchIndex, usernameInputText],
+    [
+      announcement,
+      otherUserInfos,
+      selectedUserIDs,
+      userSearchIndex,
+      usernameInputText,
+    ],
   );
 
   const onSelectUser = React.useCallback(
