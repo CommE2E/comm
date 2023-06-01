@@ -95,8 +95,13 @@ impl IdentityClientService for ClientService {
       .username_taken(message.username.clone())
       .await
       .map_err(handle_db_error)?;
+    let username_in_reserved_usernames_table = self
+      .client
+      .username_in_reserved_usernames_table(&message.username)
+      .await
+      .map_err(handle_db_error)?;
 
-    if username_taken {
+    if username_taken || username_in_reserved_usernames_table {
       return Err(tonic::Status::already_exists("username already exists"));
     }
 
@@ -404,12 +409,35 @@ impl IdentityClientService for ClientService {
   ) -> Result<tonic::Response<OpaqueLoginStartResponse>, tonic::Status> {
     let message = request.into_inner();
 
-    let (user_id, password_file_bytes) = self
+    let user_id_and_password_file = self
       .client
       .get_user_id_and_password_file_from_username(&message.username)
       .await
-      .map_err(handle_db_error)?
-      .ok_or(tonic::Status::not_found("user not found"))?;
+      .map_err(handle_db_error)?;
+
+    let (user_id, password_file_bytes) =
+      if let Some(data) = user_id_and_password_file {
+        data
+      } else {
+        // It's possible that the user attempting login is already registered
+        // on Ashoat's keyserver. If they are, we should send back a gRPC status
+        // code instructing them to get a signed message from Ashoat's keyserver
+        // in order to claim their username and register with the Identity
+        // service.
+        let username_in_reserved_usernames_table = self
+          .client
+          .username_in_reserved_usernames_table(&message.username)
+          .await
+          .map_err(handle_db_error)?;
+
+        if username_in_reserved_usernames_table {
+          return Err(tonic::Status::failed_precondition(
+            "need keyserver message to claim username",
+          ));
+        }
+
+        return Err(tonic::Status::not_found("user not found"));
+      };
 
     if let client_proto::OpaqueLoginStartRequest {
       opaque_login_request: login_message,
