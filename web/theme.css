@@ -153,6 +153,8 @@
   --members-modal-member-text-hover: var(--shades-white-100);
   --label-default-bg: var(--violet-dark-80);
   --label-default-color: var(--shades-white-80);
+  --label-grey-bg: var(--shades-black-80);
+  --label-grey-color: var(--shades-white-80);
   --subchannels-modal-color: var(--shades-black-60);
   --subchannels-modal-color-hover: var(--shades-white-100);
   --color-selector-active-bg: var(--shades-black-80);
