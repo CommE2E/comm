@@ -22,8 +22,9 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
-  NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY, USERS_TABLE,
-  USERS_TABLE_DEVICES_ATTRIBUTE,
+  NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
+  RESERVED_USERNAMES_TABLE, RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+  USERS_TABLE, USERS_TABLE_DEVICES_ATTRIBUTE,
   USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
@@ -597,6 +598,80 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  pub async fn add_username_to_reserved_usernames_table(
+    &self,
+    username: String,
+  ) -> Result<PutItemOutput, Error> {
+    let item = HashMap::from([(
+      RESERVED_USERNAMES_TABLE_PARTITION_KEY.to_string(),
+      AttributeValue::S(username),
+    )]);
+    self
+      .client
+      .put_item()
+      .table_name(RESERVED_USERNAMES_TABLE)
+      .set_item(Some(item))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  pub async fn delete_username_from_reserved_usernames_table(
+    &self,
+    username: String,
+  ) -> Result<DeleteItemOutput, Error> {
+    debug!(
+      "Attempting to delete username {} from reserved usernames table",
+      username
+    );
+
+    match self
+      .client
+      .delete_item()
+      .table_name(RESERVED_USERNAMES_TABLE)
+      .key(
+        RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+        AttributeValue::S(username.clone()),
+      )
+      .send()
+      .await
+    {
+      Ok(out) => {
+        info!(
+          "Username {} has been deleted from reserved usernames table",
+          username
+        );
+        Ok(out)
+      }
+      Err(e) => {
+        error!("DynamoDB client failed to delete username {} from reserved usernames table", username);
+        Err(Error::AwsSdk(e.into()))
+      }
+    }
+  }
+
+  pub async fn username_in_reserved_usernames_table(
+    &self,
+    username: &str,
+  ) -> Result<bool, Error> {
+    match self
+      .client
+      .get_item()
+      .table_name(RESERVED_USERNAMES_TABLE)
+      .key(
+        RESERVED_USERNAMES_TABLE_PARTITION_KEY.to_string(),
+        AttributeValue::S(username.to_string()),
+      )
+      .consistent_read(true)
+      .send()
+      .await
+    {
+      Ok(GetItemOutput { item: Some(_), .. }) => Ok(true),
+      Ok(_) => Ok(false),
+      Err(e) => Err(Error::AwsSdk(e.into())),
+    }
   }
 }
 
