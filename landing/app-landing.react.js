@@ -2,15 +2,15 @@
 
 import * as React from 'react';
 
-import { assetMetaData } from './asset-meta-data.js';
+import { imageAssetMetaData } from './asset-meta-data.js';
 import HeroContent from './hero-content.react.js';
 import css from './landing.css';
 import Picture from './Picture.react.js';
-import usePreloadAssets from './use-pre-load-assets.react.js';
+import usePreloadImageAssets from './use-pre-load-image-assets.react.js';
 
 function AppLanding(): React.Node {
-  usePreloadAssets(assetMetaData);
-  const [hero] = assetMetaData;
+  usePreloadImageAssets(imageAssetMetaData);
+  const [hero] = imageAssetMetaData;
 
   return (
     <main className={css.wrapper}>
