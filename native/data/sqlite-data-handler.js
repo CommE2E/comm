@@ -21,6 +21,7 @@ import { commCoreModule } from '../native-modules.js';
 import { setStoreLoadedActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { StaffContext } from '../staff/staff-context.js';
+import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
@@ -40,6 +41,8 @@ function SQLiteDataHandler(): React.Node {
     state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
   );
   const mediaCacheContext = React.useContext(MediaCacheContext);
+  const getInitialNotificationsEncryptedMessage =
+    useInitialNotificationsEncryptedMessage();
 
   const callFetchNewCookieFromNativeCredentials = React.useCallback(
     async (source: LogInActionSource) => {
@@ -49,6 +52,7 @@ function SQLiteDataHandler(): React.Node {
           cookie,
           urlPrefix,
           source,
+          getInitialNotificationsEncryptedMessage,
         );
         dispatch({ type: setStoreLoadedActionType });
       } catch (fetchCookieException) {
@@ -64,7 +68,13 @@ function SQLiteDataHandler(): React.Node {
         }
       }
     },
-    [cookie, dispatch, staffCanSee, urlPrefix],
+    [
+      cookie,
+      dispatch,
+      staffCanSee,
+      urlPrefix,
+      getInitialNotificationsEncryptedMessage,
+    ],
   );
 
   const callClearSensitiveData = React.useCallback(
