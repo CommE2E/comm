@@ -83,6 +83,10 @@ pub const NONCE_TABLE: &str = "identity-nonces";
 pub const NONCE_TABLE_PARTITION_KEY: &str = "nonce";
 pub const NONCE_TABLE_CREATED_ATTRIBUTE: &str = "created";
 
+// Usernames reserved because they exist in Ashoat's keyserver already
+pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
+pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
+
 // Tokio
 
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
