@@ -18,6 +18,7 @@ import { createSelector } from 'reselect';
 
 import { searchUsers } from 'lib/actions/user-actions.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useFetchLatestMessages } from 'lib/hooks/message-hooks.js';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
@@ -29,6 +30,7 @@ import {
   createPendingThread,
   getThreadListSearchResults,
 } from 'lib/shared/thread-utils.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { UserSearchResult } from 'lib/types/search-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
@@ -112,6 +114,8 @@ type Props = {
   +navigateToThread: (params: MessageListParams) => void,
   // async functions that hit server APIs
   +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
+  +fetchMoreLatestMessages: () => Promise<void>,
+  +loadingStatus: LoadingStatus,
 };
 type SearchStatus = 'inactive' | 'activating' | 'active';
 type State = {
@@ -213,6 +217,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       this.searchCancelButtonOpen.setValue(1);
     } else if (!isActiveOrActivating && wasActiveOrActivating) {
       this.searchCancelButtonOpen.setValue(0);
+    }
+
+    if (this.listData.length < 3 && this.props.loadingStatus !== 'loading') {
+      this.props.fetchMoreLatestMessages();
     }
 
     const { flatList } = this;
@@ -440,12 +448,13 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   }
 
   onEndReached = () => {
-    if (this.listData.length === this.fullListData.length) {
-      return;
+    if (this.listData.length !== this.fullListData.length) {
+      this.setState(prevState => ({
+        numItemsToDisplay: prevState.numItemsToDisplay + 25,
+      }));
+    } else if (this.props.loadingStatus !== 'loading') {
+      this.props.fetchMoreLatestMessages();
     }
-    this.setState(prevState => ({
-      numItemsToDisplay: prevState.numItemsToDisplay + 25,
-    }));
   };
 
   render() {
@@ -488,6 +497,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           scrollEnabled={scrollEnabled}
           onEndReached={this.onEndReached}
           onEndReachedThreshold={1}
+          refreshing={this.props.loadingStatus === 'loading'}
           ref={this.flatListRef}
         />
         {floatingAction}
@@ -629,6 +639,10 @@ const ConnectedChatThreadList: React.ComponentType<BaseProps> =
 
     const navigateToThread = useNavigateToThread();
 
+    const { fetchMoreLatestMessages, loadingStatus } = useFetchLatestMessages(
+      props.route.name === 'HomeChatThreadList',
+    );
+
     return (
       <ChatThreadList
         {...props}
@@ -638,6 +652,8 @@ const ConnectedChatThreadList: React.ComponentType<BaseProps> =
         styles={styles}
         indicatorStyle={indicatorStyle}
         searchUsers={callSearchUsers}
+        fetchMoreLatestMessages={fetchMoreLatestMessages}
+        loadingStatus={loadingStatus}
         usersWithPersonalThread={usersWithPersonalThread}
         navigateToThread={navigateToThread}
       />
