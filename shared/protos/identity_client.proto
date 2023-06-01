@@ -13,6 +13,8 @@ service IdentityClientService {
   // Start/Finish is used here to align with opaque protocol
   rpc RegisterPasswordUserStart(RegistrationStartRequest) returns (
     RegistrationStartResponse) {}
+  rpc RegisterReservedPasswordUserStart(ReservedRegistrationStartRequest)
+    returns (RegistrationStartResponse) {}
   rpc RegisterPasswordUserFinish(RegistrationFinishRequest) returns (
     RegistrationFinishResponse) {}
   // Called by user to update password and receive new access token
@@ -113,6 +115,19 @@ message RegistrationStartRequest {
   string username = 2;
   // Information needed to open a new channel to current user's device
   DeviceKeyUpload deviceKeyUpload = 3;
+}
+
+message ReservedRegistrationStartRequest {
+  // Message sent to initiate PAKE registration (step 1)
+  bytes opaqueRegistrationRequest = 1;
+  string username = 2;
+  // Information needed to open a new channel to current user's device
+  DeviceKeyUpload deviceKeyUpload = 3;
+  // Message from Ashoat's keyserver attesting that a given user has ownership
+  // of a given username
+  string keyserverMessage = 4;
+  // Above message signed with Ashoat's keyserver's signing ed25519 key
+  string keyserverSignature = 5;
 }
 
 // Messages sent from a client to Identity Service
