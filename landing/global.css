@@ -1,7 +1,8 @@
 :root {
   --landing-page-z-index: 0;
-  --mobile-nav-z-index: 1;
-  --header-z-index: 2;
+  --glow-z-index: 1;
+  --mobile-nav-z-index: 2;
+  --header-z-index: 3;
   --purple: #7e57c2;
   --white: #fff;
   --white1: #ebedee;
