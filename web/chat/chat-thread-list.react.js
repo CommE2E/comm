@@ -6,6 +6,7 @@ import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList } from 'react-window';
 
+import { useFetchLatestMessages } from 'lib/hooks/message-hooks.js';
 import { emptyItemText } from 'lib/shared/thread-utils.js';
 
 import ChatThreadListItem from './chat-thread-list-item.react.js';
@@ -16,6 +17,8 @@ import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnClickNewThread } from '../selectors/thread-selectors.js';
+
+const prefetchMessagesThreadThreshold = 5;
 
 const sizes = {
   search: 68,
@@ -66,6 +69,10 @@ function ChatThreadList(): React.Node {
     [searchText, setSearchText],
   );
 
+  const { fetchMoreLatestMessages, loadingStatus } = useFetchLatestMessages(
+    activeTab === 'Focus',
+  );
+
   const threadListContainerRef = React.useRef();
 
   const threads = React.useMemo(
@@ -78,6 +85,29 @@ function ChatThreadList(): React.Node {
       ),
     [communityID, threadList],
   );
+
+  const [currentHeight, setCurrentHeight] = React.useState(0);
+  React.useEffect(() => {
+    if (loadingStatus === 'loading') {
+      return;
+    }
+
+    let totalHeight = sizes.search;
+    for (const threadItem of threads) {
+      totalHeight += getThreadItemSize(threadItem);
+      if (totalHeight > currentHeight) {
+        return;
+      }
+    }
+
+    fetchMoreLatestMessages();
+  }, [
+    currentHeight,
+    fetchMoreLatestMessages,
+    loadingStatus,
+    threads,
+    threads.length,
+  ]);
 
   React.useEffect(() => {
     if (threadListContainerRef.current) {
@@ -108,8 +138,20 @@ function ChatThreadList(): React.Node {
       return getThreadItemSize(items[index]);
     };
 
+    const onItemsRendered = ({ visibleStopIndex }) => {
+      if (
+        visibleStopIndex >= threads.length - prefetchMessagesThreadThreshold &&
+        loadingStatus !== 'loading'
+      ) {
+        fetchMoreLatestMessages();
+      }
+    };
+
     return (
-      <AutoSizer disableWidth>
+      <AutoSizer
+        disableWidth
+        onResize={({ height }) => setCurrentHeight(height)}
+      >
         {({ height }) => (
           <VariableSizeList
             itemData={items}
@@ -118,6 +160,7 @@ function ChatThreadList(): React.Node {
             itemKey={itemKey}
             height={height}
             overscanCount={1}
+            onItemsRendered={onItemsRendered}
             ref={threadListContainerRef}
           >
             {renderItem}
@@ -125,7 +168,7 @@ function ChatThreadList(): React.Node {
         )}
       </AutoSizer>
     );
-  }, [isBackground, search, threads]);
+  }, [fetchMoreLatestMessages, isBackground, loadingStatus, search, threads]);
 
   return (
     <>
