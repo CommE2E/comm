@@ -2,6 +2,7 @@ use crate::constants::{
   BLOB_DOWNLOAD_CHUNK_SIZE, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
 };
 use crate::database::{BlobItem, ReverseIndexItem};
+use crate::http::context::handle_s3_error;
 use crate::tools::MemOps;
 
 use super::{handle_db_error, AppContext};
@@ -30,11 +31,11 @@ pub async fn get_blob_handler(
   let s3_path = ctx.find_s3_path_by_holder(&holder).await?;
   tracing::Span::current().record("s3_path", s3_path.to_full_path());
 
-  let object_metadata =
-    ctx.s3.get_object_metadata(&s3_path).await.map_err(|err| {
-      error!("Failed to get S3 object metadata: {:?}", err);
-      ErrorInternalServerError("server error")
-    })?;
+  let object_metadata = ctx
+    .s3
+    .get_object_metadata(&s3_path)
+    .await
+    .map_err(handle_s3_error)?;
   let file_size: u64 =
     object_metadata.content_length().try_into().map_err(|err| {
       error!("Failed to get S3 object content length: {:?}", err);
@@ -53,10 +54,7 @@ pub async fn get_blob_handler(
       let range = offset..(offset + next_size);
       trace!(?range, "Getting {} bytes of data", next_size);
 
-      let data = s3.get_object_bytes(&s3_path, range).await.map_err(|err| {
-        error!("Failed to download data chunk: {:?}", err);
-        ErrorInternalServerError("download failed")
-      })?;
+      let data = s3.get_object_bytes(&s3_path, range).await.map_err(handle_s3_error)?;
       yield web::Bytes::from(data);
 
       offset += chunk_size;
@@ -168,20 +166,20 @@ async fn process_blob_data(
           chunk_size = s3_chunk.len(),
           "Chunk size exceeded, adding new S3 part"
         );
-        if let Err(err) = upload_session.add_part(s3_chunk.take_out()).await {
-          error!("Failed to upload S3 part: {:?}", err);
-          return Err(ErrorInternalServerError("Internal error"));
-        }
+        upload_session
+          .add_part(s3_chunk.take_out())
+          .await
+          .map_err(handle_s3_error)?;
       }
     }
   }
 
   // add the remaining data as the last S3 part
   if !s3_chunk.is_empty() {
-    if let Err(err) = upload_session.add_part(s3_chunk).await {
-      error!("Failed to upload final part: {:?}", err);
-      return Err(ErrorInternalServerError("Internal error"));
-    }
+    upload_session
+      .add_part(s3_chunk)
+      .await
+      .map_err(handle_s3_error)?;
   }
 
   Ok(())
@@ -214,19 +212,15 @@ pub async fn upload_blob_handler(
     .s3
     .start_upload_session(&blob_item.s3_path)
     .await
-    .map_err(|err| {
-      error!("Failed to start S3 upload session: {:?}", err);
-      ErrorInternalServerError("Internal error")
-    })?;
+    .map_err(handle_s3_error)?;
 
   trace!("Receiving blob data");
   process_blob_data(&mut payload, &mut upload_session).await?;
 
-  // TODO: Handle "No parts to upload" as HTTP 400
-  if let Err(err) = upload_session.finish_upload().await {
-    error!("Failed to finish upload session: {:?}", err);
-    return Err(ErrorInternalServerError("Internal error"));
-  }
+  upload_session
+    .finish_upload()
+    .await
+    .map_err(handle_s3_error)?;
 
   trace!("Upload finished, saving blob item to DB: {:?}", &blob_item);
   ctx
@@ -281,10 +275,11 @@ pub async fn delete_blob_handler(
       .await?;
     debug!("Last holder removed. Deleting S3 object: {:?}", &s3_path);
 
-    ctx.s3.delete_object(&s3_path).await.map_err(|e| {
-      error!("Failed to delete S3 object: {:?}", e);
-      ErrorInternalServerError("server error")
-    })?;
+    ctx
+      .s3
+      .delete_object(&s3_path)
+      .await
+      .map_err(handle_s3_error)?;
 
     ctx
       .db

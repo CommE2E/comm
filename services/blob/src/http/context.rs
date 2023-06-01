@@ -1,8 +1,9 @@
 use crate::database::ReverseIndexItem;
 use crate::database::{BlobItem, DatabaseClient, Error as DBError};
-use crate::s3::{S3Client, S3Path};
+use crate::s3::{Error as S3Error, S3Client, S3Path};
 use actix_web::error::{
-  ErrorInternalServerError, ErrorNotFound, ErrorServiceUnavailable,
+  ErrorBadRequest, ErrorInternalServerError, ErrorNotFound,
+  ErrorServiceUnavailable,
 };
 use actix_web::Error as HttpError;
 use anyhow::Result;
@@ -67,6 +68,19 @@ pub fn handle_db_error(db_error: DBError) -> HttpError {
     err => {
       error!("Encountered an unexpected error: {}", err);
       ErrorInternalServerError("unexpected error")
+    }
+  }
+}
+
+pub fn handle_s3_error(s3_error: S3Error) -> HttpError {
+  match s3_error {
+    S3Error::EmptyUpload => {
+      warn!("Empty upload. Aborting");
+      ErrorBadRequest("Empty upload")
+    }
+    err => {
+      error!("Encountered S3 error: {:?}", err);
+      ErrorInternalServerError("Internal error")
     }
   }
 }
