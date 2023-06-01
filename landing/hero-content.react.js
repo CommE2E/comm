@@ -3,13 +3,13 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { assetMetaData } from './asset-meta-data.js';
+import { imageAssetMetaData } from './asset-meta-data.js';
 import css from './hero-content.css';
 import SubscriptionForm from './subscription-form.react.js';
 import typography from './typography.css';
 
 function HeroContent(): React.Node {
-  const [hero] = assetMetaData;
+  const [hero] = imageAssetMetaData;
 
   const headerClassName = classNames([typography.display3, css.header]);
   const subheaderClassName = classNames([
