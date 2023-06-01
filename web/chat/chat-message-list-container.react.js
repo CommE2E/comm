@@ -33,57 +33,58 @@ function ChatMessageListContainer(props: Props): React.Node {
     selectedUserIDs,
     otherUserInfos,
     userInfoInputArray,
+    setUserInfoInputArray,
   } = useInfosForPendingThread();
+
+  React.useEffect(() => {
+    if (!isChatCreation) {
+      setUserInfoInputArray([]);
+    }
+    // TODO: Check here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isChatCreation]);
 
   const threadInfo = useThreadInfoForPossiblyPendingThread(activeChatThreadID);
   invariant(threadInfo, 'ThreadInfo should be set');
 
   const dispatch = useDispatch();
-
-  // The effect removes members from list in navInfo
-  // if some of the user IDs don't exist in redux store
   React.useEffect(() => {
     if (!isChatCreation) {
       return;
     }
-    const existingSelectedUsersSet = new Set(
-      userInfoInputArray.map(userInfo => userInfo.id),
-    );
-    if (
-      selectedUserIDs?.length !== existingSelectedUsersSet.size ||
-      !_isEqual(new Set(selectedUserIDs), existingSelectedUsersSet)
-    ) {
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          selectedUserList: Array.from(existingSelectedUsersSet),
-        },
-      });
+    const newSelectedUserIDs = userInfoInputArray.map(user => user.id);
+    if (_isEqual(new Set(selectedUserIDs), new Set(newSelectedUserIDs))) {
+      return;
     }
-  }, [
-    dispatch,
-    isChatCreation,
-    otherUserInfos,
-    selectedUserIDs,
-    userInfoInputArray,
-  ]);
+    const payload = {
+      selectedUserList: newSelectedUserIDs,
+    };
+    dispatch({
+      type: updateNavInfoActionType,
+      payload,
+    });
+  }, [dispatch, isChatCreation, selectedUserIDs, userInfoInputArray]);
 
   React.useEffect(() => {
-    if (isChatCreation && activeChatThreadID !== threadInfo?.id) {
-      let payload = {
-        activeChatThreadID: threadInfo?.id,
-      };
-      if (threadIsPending(threadInfo?.id)) {
-        payload = {
-          ...payload,
-          pendingThread: threadInfo,
-        };
-      }
-      dispatch({
-        type: updateNavInfoActionType,
-        payload,
-      });
+    if (!isChatCreation) {
+      return;
     }
+    if (activeChatThreadID === threadInfo?.id) {
+      return;
+    }
+    let payload = {
+      activeChatThreadID: threadInfo?.id,
+    };
+    if (threadIsPending(threadInfo?.id)) {
+      payload = {
+        ...payload,
+        pendingThread: threadInfo,
+      };
+    }
+    dispatch({
+      type: updateNavInfoActionType,
+      payload,
+    });
   }, [activeChatThreadID, dispatch, isChatCreation, threadInfo]);
 
   const inputState = React.useContext(InputStateContext);
@@ -159,6 +160,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     const chatUserSelection = (
       <ChatThreadComposer
         userInfoInputArray={userInfoInputArray}
+        setUserInfoInputArray={setUserInfoInputArray}
         otherUserInfos={otherUserInfos}
         threadID={threadInfo.id}
         inputState={inputState}
@@ -179,6 +181,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     inputState,
     isChatCreation,
     otherUserInfos,
+    setUserInfoInputArray,
     threadInfo,
     userInfoInputArray,
   ]);

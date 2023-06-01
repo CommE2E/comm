@@ -10,6 +10,7 @@ import {
   createPendingThread,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
@@ -21,23 +22,27 @@ type InfosForPendingThread = {
   +selectedUserIDs: ?$ReadOnlyArray<string>,
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  +setUserInfoInputArray: SetState<$ReadOnlyArray<AccountUserInfo>>,
 };
 
 function useInfosForPendingThread(): InfosForPendingThread {
   const isChatCreation = useSelector(
     state => state.navInfo.chatMode === 'create',
   );
-  const selectedUserIDs = useSelector(state => state.navInfo.selectedUserList);
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userInfoInputArray: $ReadOnlyArray<AccountUserInfo> = React.useMemo(
-    () => selectedUserIDs?.map(id => otherUserInfos[id]).filter(Boolean) ?? [],
-    [otherUserInfos, selectedUserIDs],
+  const selectedUserIDs = useSelector(
+    state => state.navInfo.selectedUserList ?? [],
   );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const [userInfoInputArray, setUserInfoInputArray] = React.useState(() =>
+    selectedUserIDs.map(id => otherUserInfos[id]).filter(Boolean),
+  );
+
   return {
     isChatCreation,
     selectedUserIDs,
     otherUserInfos,
     userInfoInputArray,
+    setUserInfoInputArray,
   };
 }
 
