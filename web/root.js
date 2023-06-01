@@ -10,85 +10,18 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 import thunk from 'redux-thunk';
 
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
-import { isDev } from 'lib/utils/dev-utils.js';
 
 import App from './app.react.js';
-import { databaseModule } from './database/database-module-provider.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
-import { isSQLiteSupported } from './database/utils/db-utils.js';
 import ErrorBoundary from './error-boundary.react.js';
 import Loading from './loading.react.js';
-import commReduxStorageEngine from './redux/comm-redux-storage-engine.js';
-import { createAsyncMigrate } from './redux/create-async-migrate.js';
-import { reducer } from './redux/redux-setup.js';
-import type { AppState, Action } from './redux/redux-setup.js';
+import { persistConfig } from './redux/persist.js';
+import { type AppState, type Action, reducer } from './redux/redux-setup.js';
 import history from './router-history.js';
 import Socket from './socket.react.js';
-import { workerRequestMessageTypes } from './types/worker-types.js';
-
-const initiallyLoggedInUserID = preloadedState.currentUserInfo?.anonymous
-  ? undefined
-  : preloadedState.currentUserInfo?.id;
-const isDatabaseSupported = isSQLiteSupported(initiallyLoggedInUserID);
-
-const migrations = {
-  [1]: async state => {
-    const {
-      primaryIdentityPublicKey,
-      ...stateWithoutPrimaryIdentityPublicKey
-    } = state;
-    return {
-      ...stateWithoutPrimaryIdentityPublicKey,
-      cryptoStore: {
-        primaryAccount: null,
-        primaryIdentityKeys: null,
-        notificationAccount: null,
-        notificationIdentityKeys: null,
-      },
-    };
-  },
-  [2]: async state => {
-    if (!isDatabaseSupported) {
-      return state;
-    }
-
-    const { drafts } = state.draftStore;
-    const draftStoreOperations = [];
-    for (const key in drafts) {
-      const text = drafts[key];
-      draftStoreOperations.push({
-        type: 'update',
-        payload: { key, text },
-      });
-    }
-
-    await databaseModule.schedule({
-      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-      storeOperations: { draftStoreOperations },
-    });
-
-    return state;
-  },
-};
-const persistWhitelist = [
-  'enabledApps',
-  'deviceID',
-  'cryptoStore',
-  'notifPermissionAlertInfo',
-  'commServicesAccessToken',
-];
-
-const persistConfig = {
-  key: 'root',
-  storage: commReduxStorageEngine,
-  whitelist: isDatabaseSupported
-    ? persistWhitelist
-    : [...persistWhitelist, 'draftStore'],
-  migrate: (createAsyncMigrate(migrations, { debug: isDev }): any),
-  version: 2,
-};
 
 declare var preloadedState: AppState;
+
 const persistedReducer = persistReducer(persistConfig, reducer);
 const store: Store<AppState, Action> = createStore(
   persistedReducer,
