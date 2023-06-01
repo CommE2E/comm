@@ -22,6 +22,7 @@ use crate::{
   database::{DatabaseClient, Error as DBError, KeyPayload},
   id::generate_uuid,
   nonce::generate_nonce_data,
+  reserved_users::validate_signed_keyserver_message,
   siwe::parse_and_verify_siwe_message,
   token::{AccessTokenData, AuthType},
 };
@@ -35,6 +36,8 @@ use moka::future::Cache;
 use rand::rngs::OsRng;
 use tonic::Response;
 use tracing::error;
+
+use self::client_proto::ReservedRegistrationStartRequest;
 
 #[derive(Clone)]
 pub enum WorkflowInProgress {
@@ -125,6 +128,106 @@ impl IdentityClientService for ClientService {
           onetime_content_prekeys,
           onetime_notif_prekeys,
         }),
+    } = message
+    {
+      let server_registration = comm_opaque2::server::Registration::new();
+      let server_message = server_registration
+        .start(&CONFIG.server_setup, &register_message, username.as_bytes())
+        .map_err(protocol_error_to_grpc_status)?;
+      let key_info = KeyPayload::from_str(&payload)
+        .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
+      let registration_state = UserRegistrationInfo {
+        username,
+        flattened_device_key_upload: FlattenedDeviceKeyUpload {
+          device_id_key: key_info.primary_identity_public_keys.ed25519,
+          key_payload: payload,
+          key_payload_signature: payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          content_onetime_keys: onetime_content_prekeys,
+          notif_prekey,
+          notif_prekey_signature,
+          notif_onetime_keys: onetime_notif_prekeys,
+        },
+      };
+      let session_id = generate_uuid();
+      self
+        .cache
+        .insert(
+          session_id.clone(),
+          WorkflowInProgress::Registration(registration_state),
+        )
+        .await;
+
+      let response = RegistrationStartResponse {
+        session_id,
+        opaque_registration_response: server_message,
+      };
+      Ok(Response::new(response))
+    } else {
+      Err(tonic::Status::invalid_argument("unexpected message data"))
+    }
+  }
+
+  async fn register_reserved_password_user_start(
+    &self,
+    request: tonic::Request<ReservedRegistrationStartRequest>,
+  ) -> Result<tonic::Response<RegistrationStartResponse>, tonic::Status> {
+    let message = request.into_inner();
+    let username_taken = self
+      .client
+      .username_taken(message.username.clone())
+      .await
+      .map_err(handle_db_error)?;
+
+    if username_taken {
+      return Err(tonic::Status::already_exists("username already exists"));
+    }
+
+    if CONFIG.reserved_usernames.contains(&message.username) {
+      return Err(tonic::Status::invalid_argument("username reserved"));
+    }
+
+    let username_in_reserved_usernames_table = self
+      .client
+      .username_in_reserved_usernames_table(&message.username)
+      .await
+      .map_err(handle_db_error)?;
+    if username_in_reserved_usernames_table {
+      validate_signed_keyserver_message(
+        &message.username,
+        &message.keyserver_message,
+        &message.keyserver_signature,
+      )?;
+    } else {
+      return Err(tonic::Status::permission_denied("username not reserved"));
+    }
+
+    if let client_proto::ReservedRegistrationStartRequest {
+      opaque_registration_request: register_message,
+      username,
+      device_key_upload:
+        Some(client_proto::DeviceKeyUpload {
+          device_key_info:
+            Some(client_proto::IdentityKeyInfo {
+              payload,
+              payload_signature,
+              social_proof: _social_proof,
+            }),
+          content_upload:
+            Some(client_proto::PreKey {
+              pre_key: content_prekey,
+              pre_key_signature: content_prekey_signature,
+            }),
+          notif_upload:
+            Some(client_proto::PreKey {
+              pre_key: notif_prekey,
+              pre_key_signature: notif_prekey_signature,
+            }),
+          onetime_content_prekeys,
+          onetime_notif_prekeys,
+        }),
+      ..
     } = message
     {
       let server_registration = comm_opaque2::server::Registration::new();
