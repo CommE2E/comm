@@ -50,6 +50,44 @@ async function preloadImage(uri: string): Promise<{
   return { steps: [step], result: image };
 }
 
+/**
+ * Preloads a media resource (image or video) from a URI. This sends a HTTP GET
+ * request to the URI to let the browser download it and cache it,
+ * so further requests will be loaded from the cache.
+ *
+ * For raw images, use {@link preloadImage} instead.
+ *
+ * @param uri The URI of the media resource.
+ * @returns Steps and the result of the preload. The preload is successul if the
+ * HTTP response is OK (20x).
+ */
+async function preloadMediaResource(uri: string): Promise<{
+  steps: $ReadOnlyArray<MediaMissionStep>,
+  result: { +success: boolean },
+}> {
+  const start = Date.now();
+  let success, exceptionMessage;
+  try {
+    const response = await fetch(uri);
+    // we needt to read the blob to make sure the browser caches it
+    await response.blob();
+    success = response.ok;
+  } catch (e) {
+    success = false;
+    exceptionMessage = getMessageForException(e);
+  }
+
+  const step = {
+    step: 'preload_resource',
+    success,
+    exceptionMessage,
+    time: Date.now() - start,
+    uri,
+  };
+
+  return { steps: [step], result: { success } };
+}
+
 type ProcessFileSuccess = {
   success: true,
   uri: string,
@@ -230,4 +268,4 @@ function usePlaceholder(thumbHash: ?string, encryptionKey: ?string): ?string {
   return placeholder;
 }
 
-export { preloadImage, validateFile, usePlaceholder };
+export { preloadImage, preloadMediaResource, validateFile, usePlaceholder };
