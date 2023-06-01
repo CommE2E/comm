@@ -211,6 +211,18 @@ resource "aws_dynamodb_table" "identity-nonces" {
   }
 }
 
+resource "aws_dynamodb_table" "identity-reserved-usernames" {
+  name           = "identity-reserved-usernames"
+  hash_key       = "username"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "username"
+    type = "S"
+  }
+}
+
 resource "aws_dynamodb_table" "feature-flags" {
   name         = "feature-flags"
   hash_key     = "platform"
