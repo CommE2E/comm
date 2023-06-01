@@ -105,7 +105,11 @@ import {
 } from './input-state.js';
 import { encryptFile } from '../media/encryption-utils.js';
 import { generateThumbHash } from '../media/image-utils.js';
-import { validateFile, preloadImage } from '../media/media-utils.js';
+import {
+  preloadMediaResource,
+  validateFile,
+  preloadImage,
+} from '../media/media-utils.js';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -976,8 +980,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    // we cannot preload encrypted media this way, we don't have cache
-    if (!encryptionKey) {
+    if (encryptionKey) {
+      const { steps: preloadSteps } = await preloadMediaResource(result.uri);
+      steps.push(...preloadSteps);
+    } else {
       const { steps: preloadSteps } = await preloadImage(result.uri);
       steps.push(...preloadSteps);
     }
