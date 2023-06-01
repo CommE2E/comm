@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
@@ -7,31 +8,30 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import Button from './button.react.js';
 import css from './label.css';
 
+type LabelVariant = 'default' | 'grey';
+
 type Props = {
   +size?: string | number,
-  +color?: string,
-  +bg?: string,
+  +variant?: LabelVariant,
   +children: React.Node,
   +onClose?: () => mixed,
 };
 
 function Label(props: Props): React.Node {
-  const {
-    size = '12px',
-    color = 'var(--label-default-color)',
-    bg = 'var(--label-default-bg)',
-    children,
-    onClose,
-  } = props;
+  const { size = '12px', variant = 'default', children, onClose } = props;
 
   const labelStyle = React.useMemo(
     () => ({
       fontSize: size,
-      color: color,
-      background: bg,
     }),
-    [bg, color, size],
+    [size],
   );
+
+  const labelClassNames = classNames({
+    [css.label]: true,
+    [css.default]: variant === 'default',
+    [css.grey]: variant === 'grey',
+  });
 
   const closeButton = React.useMemo(() => {
     if (!onClose) {
@@ -45,7 +45,7 @@ function Label(props: Props): React.Node {
   }, [onClose, size]);
 
   return (
-    <div style={labelStyle} className={css.label}>
+    <div style={labelStyle} className={labelClassNames}>
       {children}
       {closeButton}
     </div>

@@ -10,3 +10,13 @@ button.close {
   margin-left: 4px;
   color: inherit;
 }
+
+.default {
+  color: var(--label-default-color);
+  background-color: var(--label-default-bg);
+}
+
+.grey {
+  color: var(--label-grey-color);
+  background-color: var(--label-grey-bg);
+}
