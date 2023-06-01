@@ -14,6 +14,7 @@ mod id;
 mod interceptor;
 mod keygen;
 mod nonce;
+mod reserved_users;
 mod siwe;
 mod token;
 
