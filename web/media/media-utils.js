@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { thumbHashToDataURL } from 'thumbhash';
 
+import { fetchableMediaURI } from 'lib/media/media-utils.js';
 import type {
   MediaType,
   Dimensions,
@@ -22,10 +23,11 @@ async function preloadImage(uri: string): Promise<{
 }> {
   let image, exceptionMessage;
   const start = Date.now();
+  const imageURI = fetchableMediaURI(uri);
   try {
     image = await new Promise((resolve, reject) => {
       const img = new Image();
-      img.src = uri;
+      img.src = imageURI;
       img.onload = () => {
         resolve(img);
       };
@@ -44,7 +46,7 @@ async function preloadImage(uri: string): Promise<{
     success: !!image,
     exceptionMessage,
     time: Date.now() - start,
-    uri,
+    uri: imageURI,
     dimensions,
   };
   return { steps: [step], result: image };
@@ -66,9 +68,10 @@ async function preloadMediaResource(uri: string): Promise<{
   result: { +success: boolean },
 }> {
   const start = Date.now();
+  const mediaURI = fetchableMediaURI(uri);
   let success, exceptionMessage;
   try {
-    const response = await fetch(uri);
+    const response = await fetch(mediaURI);
     // we need to read the blob to make sure the browser caches it
     await response.blob();
     success = response.ok;
@@ -82,7 +85,7 @@ async function preloadMediaResource(uri: string): Promise<{
     success,
     exceptionMessage,
     time: Date.now() - start,
-    uri,
+    uri: mediaURI,
   };
 
   return { steps: [step], result: { success } };
