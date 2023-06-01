@@ -197,15 +197,15 @@ function useShowAvatarActionSheet(
   const showAvatarActionSheet = React.useCallback(() => {
     const texts = options.map((option: ShowAvatarActionSheetOptions) => {
       if (option.id === 'emoji') {
-        return 'Use Emoji';
+        return 'Select emoji';
       } else if (option.id === 'image') {
         return 'Select image';
       } else if (option.id === 'camera') {
-        return 'Camera';
+        return 'Open camera';
       } else if (option.id === 'ens') {
-        return 'Use ENS Avatar';
+        return 'Use ENS avatar';
       } else if (option.id === 'remove') {
-        return 'Clear avatar';
+        return 'Reset to default';
       } else {
         return 'Cancel';
       }
