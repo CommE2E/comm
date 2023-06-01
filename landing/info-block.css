@@ -1,32 +1,38 @@
-@supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-  .info_block {
-    background: rgba(235, 235, 235, 0.05);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-  }
+.textContainer {
+  width: 910px;
+  max-width: 100vw;
+  padding: 120px 32px;
 }
 
-.info_block {
-  --border-radius: 8px;
-  background: rgba(235, 235, 235, 0.05);
-  border-radius: var(--border-radius);
-  /*  36 / 28 = 1.28571429 */
-  /* 36px is the max padding size, 28px is the max font-size */
-  /* Padding scales down with text */
-  padding: 1.28571429rem;
+.header {
+  color: var(--white-80);
+  margin-bottom: 40px;
 }
 
-.title {
-  font-family: 'iA Writer Duo S', monospace;
-  font-style: normal;
-  text-align: left;
-  line-height: 1.35;
-  padding-bottom: clamp(1rem, 0.5817rem + 2.0915vw, 3rem);
-  font-size: clamp(1.875rem, 1.6136rem + 1.3072vw, 3.125rem);
+.header span {
+  background: linear-gradient(90deg, #5d34b3 0%, #a314d5 49.31%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.description {
-  line-height: 1.5;
-  font-weight: 400;
-  font-family: var(--sans-serif);
+.linkContainer {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+}
+
+.link {
+  color: var(--white-100);
+  text-decoration: underline;
+  margin-right: 8px;
+}
+
+.icon {
+  color: var(--white-100);
+}
+
+.linkContainer:hover .link,
+.linkContainer:hover .icon {
+  color: var(--violet-dark-100);
 }
