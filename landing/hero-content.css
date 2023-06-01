@@ -1,6 +1,7 @@
 .header {
   color: var(--white-80);
   margin-bottom: 24px;
+  z-index: var(--glow-z-index);
 }
 
 .header span {

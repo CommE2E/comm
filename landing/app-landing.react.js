@@ -18,6 +18,7 @@ function AppLanding(): React.Node {
         <div className={css.heroContainer}>
           <div className={css.heroImage}>
             <Picture url={hero.url} alt={hero.alt} />
+            <div className={css.glow} />
           </div>
           <HeroContent />
         </div>
