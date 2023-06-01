@@ -10,7 +10,6 @@ import {
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   memberIsAdmin,
-  memberHasAdminPowers,
   removeMemberFromThread,
   switchMemberAdminRoleInThread,
   getAvailableThreadMemberActions,
@@ -42,6 +41,8 @@ type Props = {
 function ThreadMember(props: Props): React.Node {
   const { memberInfo, threadInfo, setOpenMenu, isMenuOpen } = props;
   const userName = stringForUser(memberInfo);
+  const { roles } = threadInfo;
+  const { role } = memberInfo;
 
   const onMenuChange = React.useCallback(
     menuOpen => {
@@ -133,14 +134,12 @@ function ThreadMember(props: Props): React.Node {
     [],
   );
 
-  const label = React.useMemo(() => {
-    if (memberIsAdmin(memberInfo, threadInfo)) {
-      return <Label>Admin</Label>;
-    } else if (memberHasAdminPowers(memberInfo)) {
-      return <Label>Parent admin</Label>;
-    }
-    return null;
-  }, [memberInfo, threadInfo]);
+  const roleName = role && roles[role].name;
+
+  const label = React.useMemo(
+    () => <Label variant="grey">{roleName}</Label>,
+    [roleName],
+  );
 
   const memberContainerClasses = classNames(css.memberContainer, {
     [css.memberContainerWithMenuOpen]: isMenuOpen,
