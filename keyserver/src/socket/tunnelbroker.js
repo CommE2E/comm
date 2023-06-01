@@ -3,18 +3,36 @@
 import WebSocket from 'ws';
 
 import { type TBKeyserverConnectionInitializationMessage } from 'lib/types/tunnelbroker-messages.js';
+import sleep from 'lib/utils/sleep.js';
 
-function createTunnelbrokerWebsocket() {
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
+
+async function getDeviceID(): Promise<string> {
+  const info = await fetchOlmAccount('content');
+  return JSON.parse(info.account.identity_keys()).ed25519;
+}
+
+async function createAndMaintainTunnelbrokerWebsocket() {
+  // TODO: Fetch accessToken and userID details with actual details
+  const [deviceID] = await Promise.all([getDeviceID()]);
+
+  await openTunnelbrokerConnection(deviceID, 'alice', 'access_token');
+}
+
+async function openTunnelbrokerConnection(
+  deviceID: string,
+  userID: string,
+  accessToken: string,
+) {
   try {
     const tunnelbrokerSocket = new WebSocket('ws://localhost:51001');
-    tunnelbrokerSocket.on('open', () => {
-      // TODO: Replace keyserver details with actual details
+    tunnelbrokerSocket.on('open', async () => {
       const message: TBKeyserverConnectionInitializationMessage = {
         type: 'sessionRequest',
-        accessToken: 'foobar',
-        deviceID: 'foo',
+        accessToken,
+        deviceID,
         deviceType: 'keyserver',
-        userID: 'alice',
+        userID,
       };
       console.log(
         'Sending message to tunnelbroker: ' + JSON.stringify(message),
@@ -22,8 +40,11 @@ function createTunnelbrokerWebsocket() {
       tunnelbrokerSocket.send(JSON.stringify(message));
     });
 
-    tunnelbrokerSocket.on('close', () => {
+    tunnelbrokerSocket.on('close', async () => {
       console.log('Connection to tunnelbroker closed');
+      await sleep(1000);
+      console.log('Attempting to re-establish tunnelbroker connection');
+      openTunnelbrokerConnection(deviceID, userID, accessToken);
     });
 
     tunnelbrokerSocket.on('error', (error: Error) => {
@@ -34,4 +55,4 @@ function createTunnelbrokerWebsocket() {
   }
 }
 
-export { createTunnelbrokerWebsocket };
+export { createAndMaintainTunnelbrokerWebsocket };
