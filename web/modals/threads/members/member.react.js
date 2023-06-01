@@ -42,6 +42,8 @@ type Props = {
 function ThreadMember(props: Props): React.Node {
   const { memberInfo, threadInfo, setOpenMenu, isMenuOpen } = props;
   const userName = stringForUser(memberInfo);
+  const { roles } = threadInfo;
+  const { role } = memberInfo;
 
   const onMenuChange = React.useCallback(
     menuOpen => {
@@ -134,13 +136,18 @@ function ThreadMember(props: Props): React.Node {
   );
 
   const label = React.useMemo(() => {
-    if (memberIsAdmin(memberInfo, threadInfo)) {
-      return <Label>Admin</Label>;
-    } else if (memberHasAdminPowers(memberInfo)) {
+    // The parent admin is not associated to a role ID, so check for it first.
+    if (memberHasAdminPowers(memberInfo)) {
       return <Label>Parent admin</Label>;
     }
+
+    const roleName = role && roles[role].name;
+    if (roleName && roleName !== 'Members') {
+      return <Label>{roleName}</Label>;
+    }
+
     return null;
-  }, [memberInfo, threadInfo]);
+  }, [memberInfo, role, roles]);
 
   const memberContainerClasses = classNames(css.memberContainer, {
     [css.memberContainerWithMenuOpen]: isMenuOpen,
