@@ -25,3 +25,16 @@
 .pageContentContainer {
   position: relative;
 }
+
+.keyserverInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--light-dark-page-background);
+}
+
+.teamInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
