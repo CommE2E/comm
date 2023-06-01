@@ -25,3 +25,31 @@
 .pageContentContainer {
   position: relative;
 }
+
+.keyserverInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--light-dark-page-background);
+}
+
+.teamInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.paragraph {
+  color: var(--white-100);
+  margin-bottom: 40px;
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+  transition: color 150ms;
+}
+
+.link:hover {
+  color: var(--violet-dark-100);
+}
