@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { type ImageAsset } from './asset-meta-data.js';
 
-function usePreloadImageAssets(assets: ImageAsset[]) {
+function usePreloadImageAssets(assets: $ReadOnlyArray<ImageAsset>) {
   React.useEffect(() => {
     const testWEBP = 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
     const testImg = new Image();
