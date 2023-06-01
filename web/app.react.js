@@ -50,6 +50,7 @@ import DeviceIDUpdater from './redux/device-id-updater.js';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler.js';
 import DisconnectedBar from './redux/disconnected-bar.js';
 import FocusHandler from './redux/focus-handler.react.js';
+import { persistConfig } from './redux/persist.js';
 import PolicyAcknowledgmentHandler from './redux/policy-acknowledgment-handler.js';
 import { useSelector } from './redux/redux-utils.js';
 import VisibilityHandler from './redux/visibility-handler.react.js';
@@ -84,6 +85,7 @@ registerConfig({
   platformDetails: {
     platform: electron?.platform ?? 'web',
     codeVersion: 1,
+    stateVersion: persistConfig.version,
   },
 });
 
