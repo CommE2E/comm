@@ -4,15 +4,24 @@ import WebSocket from 'ws';
 
 import { type TBKeyserverConnectionInitializationMessage } from 'lib/types/tunnelbroker-messages.js';
 
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
+
+async function getDeviceID(): Promise<string> {
+  const info = await fetchOlmAccount('content');
+  return JSON.parse(info.account.identity_keys()).curve25519;
+}
+
 function createTunnelbrokerWebsocket() {
   try {
     const tunnelbrokerSocket = new WebSocket('ws://localhost:51001');
-    tunnelbrokerSocket.on('open', () => {
-      // TODO: Replace keyserver details with actual details
+    tunnelbrokerSocket.on('open', async () => {
+      const [deviceID] = await Promise.all([getDeviceID()]);
+
+      // TODO: Replace accessToken and userID details with actual details
       const message: TBKeyserverConnectionInitializationMessage = {
         type: 'sessionRequest',
         accessToken: 'foobar',
-        deviceID: 'foo',
+        deviceID,
         deviceType: 'keyserver',
         userID: 'alice',
       };
