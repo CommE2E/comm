@@ -3,11 +3,54 @@ use aws_sdk_s3::{
   model::{CompletedMultipartUpload, CompletedPart},
   output::CreateMultipartUploadOutput,
   types::ByteStream,
+  Error as S3Error,
 };
 use std::{
   ops::{Bound, RangeBounds},
   sync::Arc,
 };
+
+#[derive(
+  Debug, derive_more::Display, derive_more::From, derive_more::Error,
+)]
+pub enum Error {
+  #[display(...)]
+  AwsSdk(S3Error),
+  #[display(...)]
+  ByteStream(std::io::Error),
+  #[display(...)]
+  InvalidPath(S3PathError),
+  #[display(fmt = "There are no parts to upload")]
+  EmptyUpload,
+  #[display(fmt = "Missing upload ID")]
+  MissingUploadID,
+}
+
+#[derive(Debug, derive_more::Error)]
+pub enum S3PathError {
+  MissingSeparator(#[error(ignore)] String),
+  MissingBucketName(#[error(ignore)] String),
+  MissingObjectName(#[error(ignore)] String),
+}
+
+impl std::fmt::Display for S3PathError {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    match self {
+      S3PathError::MissingSeparator(path) => {
+        write!(f, "S3 path: [{}] should contain the '/' separator", path)
+      }
+      S3PathError::MissingBucketName(path) => {
+        write!(f, "Expected bucket name in S3 path: [{}]", path)
+      }
+      S3PathError::MissingObjectName(path) => {
+        write!(f, "Expected object name in S3 path: [{}]", path)
+      }
+    }
+  }
+}
+
+#[allow(unused)]
+type S3Result<T> = Result<T, Error>;
 
 /// A helper structure representing an S3 object path
 #[derive(Clone, Debug)]
