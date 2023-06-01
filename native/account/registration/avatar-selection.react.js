@@ -26,7 +26,7 @@ export type AvatarSelectionParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
     +keyserverUsername: string,
-    +accountSelections: AccountSelection,
+    +accountSelection: AccountSelection,
   },
 };
 
@@ -42,19 +42,19 @@ type Props = {
 };
 function AvatarSelection(props: Props): React.Node {
   const { userSelections } = props.route.params;
-  const { accountSelections } = userSelections;
+  const { accountSelection } = userSelections;
   const username =
-    accountSelections.accountType === 'username'
-      ? accountSelections.username
-      : accountSelections.address;
+    accountSelection.accountType === 'username'
+      ? accountSelection.username
+      : accountSelection.address;
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
   const { setRegistrationMode } = editUserAvatarContext;
 
   const prefetchedAvatarURI =
-    accountSelections.accountType === 'ethereum'
-      ? accountSelections.avatarURI
+    accountSelection.accountType === 'ethereum'
+      ? accountSelection.avatarURI
       : undefined;
 
   const [avatarData, setAvatarData] = React.useState<?AvatarData>(
