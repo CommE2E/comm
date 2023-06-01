@@ -6,7 +6,6 @@ import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import css from './footer.css';
-import SubscriptionForm from './subscription-form.react.js';
 
 const navLinkProps = {
   activeStyle: {
@@ -57,9 +56,6 @@ function Footer(): React.Node {
               icon={faExternalLinkSquareAlt}
             />
           </a>
-        </div>
-        <div className={css.submissionForm}>
-          <SubscriptionForm />
         </div>
       </div>
     </footer>
