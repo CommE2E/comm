@@ -40,14 +40,7 @@
   grid-template-rows: repeat(auto-fill, 1fr);
   column-gap: 1.5%;
   row-gap: 75px;
-  grid-template-areas:
-    '.    hImg  hImg  hImg  hImg  .     hInfo hInfo hInfo hInfo hInfo hInfo hInfo .'
-    '.    fImg  fImg  fImg  fImg  fImg  .     fInfo fInfo fInfo fInfo fInfo fInfo .'
-    '.    cInfo cInfo cInfo cInfo cInfo cInfo .     cImg  cImg  cImg  cImg  cImg  cImg'
-    '.    eImg  eImg  eImg  eImg  eImg  .     eInfo eInfo eInfo eInfo eInfo eInfo .'
-    '.    sInfo sInfo sInfo sInfo sInfo sInfo .     sImg  sImg  sImg  sImg  sImg  .'
-    'oImg oImg  oImg  oImg  oImg  oImg  .     oInfo oInfo oInfo oInfo oInfo oInfo .'
-    '.    lInfo lInfo lInfo lInfo lInfo lInfo .     lImg  lImg  lImg  lImg  lImg  .';
+  grid-template-areas: '. hImg hImg hImg hImg . hInfo hInfo hInfo hInfo hInfo hInfo hInfo .';
 }
 
 @media screen and (max-width: 1099px) {
@@ -62,20 +55,7 @@
     grid-template-rows: repeat(auto-fill, 1fr);
     column-gap: 1.5%;
     row-gap: 75px;
-    grid-template-areas:
-      '.    hInfo hInfo hInfo hInfo hInfo hInfo .'
-      '.    fInfo fInfo fInfo fInfo fInfo fInfo .'
-      '.    fImg  fImg  fImg  fImg  fImg  fImg  .'
-      '.    cInfo cInfo cInfo cInfo cInfo cInfo .'
-      '.    cImg  cImg  cImg  cImg  cImg  cImg  cImg'
-      '.    eInfo eInfo eInfo eInfo eInfo eInfo .'
-      '.    eImg  eImg  eImg  eImg  eImg  eImg  .'
-      '.    sInfo sInfo sInfo sInfo sInfo sInfo .'
-      '.    sImg  sImg  sImg  sImg  sImg  sImg  .'
-      '.    oInfo oInfo oInfo oInfo oInfo oInfo .'
-      'oImg oImg  oImg  oImg  oImg  oImg  oImg  .'
-      '.    lInfo lInfo lInfo lInfo lInfo lInfo .'
-      '.    lImg  lImg  lImg  lImg  lImg  lImg  .';
+    grid-template-areas: '. hInfo hInfo hInfo hInfo hInfo hInfo .';
   }
 
   .heroImage {
@@ -87,19 +67,6 @@
     flex-direction: column;
     padding-bottom: 1.5rem;
   }
-
-  .federatedImage {
-    justify-self: center;
-  }
-
-  .encryptedImage {
-    justify-self: center;
-    max-width: 585px;
-  }
-
-  .sovereignImage {
-    justify-self: center;
-  }
 }
 
 .heroImage {
@@ -108,52 +75,4 @@
 
 .heroInfo {
   grid-area: hInfo;
-}
-
-.federatedImage {
-  grid-area: fImg;
-}
-
-.federatedInfo {
-  grid-area: fInfo;
-}
-
-.customizableImage {
-  grid-area: cImg;
-}
-
-.customizableInfo {
-  grid-area: cInfo;
-}
-
-.encryptedImage {
-  grid-area: eImg;
-}
-
-.encryptedInfo {
-  grid-area: eInfo;
-}
-
-.sovereignImage {
-  grid-area: sImg;
-}
-
-.sovereignInfo {
-  grid-area: sInfo;
-}
-
-.openSourceImage {
-  grid-area: oImg;
-}
-
-.openSourceInfo {
-  grid-area: oInfo;
-}
-
-.lessNoisyImage {
-  grid-area: lImg;
-}
-
-.lessNoisyInfo {
-  grid-area: lInfo;
 }
