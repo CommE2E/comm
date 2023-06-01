@@ -43,6 +43,17 @@
   position: relative;
 }
 
+.glow {
+  position: absolute;
+  width: 448px;
+  height: 360px;
+  border-radius: 50%;
+  background-color: var(--violet-dark-40);
+  top: 200px;
+  left: 224px;
+  filter: blur(80px);
+}
+
 .heroImage picture img {
   object-fit: cover;
   object-position: left center;
@@ -51,6 +62,7 @@
   top: 120px;
   width: 624px;
   height: 472px;
+  z-index: var(--glow-z-index);
 }
 
 @media screen and (max-width: 1280px) {
@@ -63,6 +75,17 @@
   .heroImage {
     margin-bottom: 24px;
     max-width: 600px;
+  }
+
+  .glow {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background-color: var(--violet-dark-40);
+    top: 112px;
+    left: 100px;
+    filter: blur(80px);
   }
 
   .heroImage picture img {
