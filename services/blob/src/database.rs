@@ -18,7 +18,7 @@ use crate::{
     BLOB_S3_BUCKET_NAME, BLOB_TABLE_BLOB_HASH_FIELD, BLOB_TABLE_CREATED_FIELD,
     BLOB_TABLE_NAME, BLOB_TABLE_S3_PATH_FIELD,
   },
-  s3::S3Path,
+  s3::{S3Path, S3PathError},
 };
 
 #[derive(Clone, Debug)]
@@ -321,7 +321,7 @@ pub enum Error {
 #[derive(Debug)]
 pub enum BlobDBError {
   HolderAlreadyExists(String),
-  InvalidS3Path(anyhow::Error),
+  InvalidS3Path(S3PathError),
 }
 
 impl Display for BlobDBError {
