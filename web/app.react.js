@@ -81,7 +81,10 @@ registerConfig({
   setSessionIDOnRequest: true,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
-  platformDetails: { platform: electron?.platform ?? 'web' },
+  platformDetails: {
+    platform: electron?.platform ?? 'web',
+    codeVersion: 1,
+  },
 });
 
 type BaseProps = {
