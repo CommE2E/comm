@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import { type Asset } from './asset-meta-data.js';
+import { type ImageAsset } from './asset-meta-data.js';
 
-function usePreloadAssets(assets: Asset[]) {
+function usePreloadImageAssets(assets: ImageAsset[]) {
   React.useEffect(() => {
     const testWEBP = 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
     const testImg = new Image();
@@ -29,4 +29,4 @@ function usePreloadAssets(assets: Asset[]) {
   }, [assets]);
 }
 
-export default usePreloadAssets;
+export default usePreloadImageAssets;
