@@ -16,11 +16,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import {
-  memberIsAdmin,
-  memberHasAdminPowers,
-  getAvailableThreadMemberActions,
-} from 'lib/shared/thread-utils.js';
+import { getAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
@@ -130,24 +126,17 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       );
     }
 
-    let roleInfo = null;
-    if (memberIsAdmin(this.props.memberInfo, this.props.threadInfo)) {
-      roleInfo = (
-        <View style={this.props.styles.row}>
-          <Text style={this.props.styles.role} numberOfLines={1}>
-            admin
-          </Text>
-        </View>
-      );
-    } else if (memberHasAdminPowers(this.props.memberInfo)) {
-      roleInfo = (
-        <View style={this.props.styles.row}>
-          <Text style={this.props.styles.role} numberOfLines={1}>
-            parent admin
-          </Text>
-        </View>
-      );
-    }
+    const roleName =
+      this.props.memberInfo.role &&
+      this.props.threadInfo.roles[this.props.memberInfo.role].name;
+
+    const roleInfo = (
+      <View style={this.props.styles.row}>
+        <Text style={this.props.styles.role} numberOfLines={1}>
+          {roleName}
+        </Text>
+      </View>
+    );
 
     const firstItem = this.props.firstListItem
       ? null
