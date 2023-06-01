@@ -4,19 +4,16 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import type {
-  UpdateUserAvatarRequest,
-  ClientAvatar,
-} from 'lib/types/avatar-types.js';
-import type { NativeMediaSelection } from 'lib/types/media-types.js';
-import type { SIWEResult } from 'lib/types/siwe-types.js';
-
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
-import type { CoolOrNerdMode } from './registration-types.js';
+import type {
+  CoolOrNerdMode,
+  AccountSelection,
+  AvatarData,
+} from './registration-types.js';
 import {
   EditUserAvatarContext,
   type UserAvatarSelection,
@@ -25,37 +22,13 @@ import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
-type EthereumAccountSelections = {
-  +accountType: 'ethereum',
-  ...SIWEResult,
-  +avatarURI: ?string,
-};
-
-type UsernameAccountSelections = {
-  +accountType: 'username',
-  +username: string,
-  +password: string,
-};
-
 export type AvatarSelectionParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
     +keyserverUsername: string,
-    +accountSelections: EthereumAccountSelections | UsernameAccountSelections,
+    +accountSelections: AccountSelection,
   },
 };
-
-type AvatarData =
-  | {
-      +needsUpload: true,
-      +mediaSelection: NativeMediaSelection,
-      +clientAvatar: ClientAvatar,
-    }
-  | {
-      +needsUpload: false,
-      +updateUserAvatarRequest: UpdateUserAvatarRequest,
-      +clientAvatar: ClientAvatar,
-    };
 
 const ensDefaultSelection = {
   needsUpload: false,
