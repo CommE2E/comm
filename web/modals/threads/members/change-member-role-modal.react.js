@@ -8,6 +8,7 @@ import {
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types';
 import {
   useDispatchActionPromise,
@@ -19,6 +20,7 @@ import css from './change-member-role-modal.css';
 import Button, { buttonThemes } from '../../../components/button.react.js';
 import Dropdown from '../../../components/dropdown.react.js';
 import UserAvatar from '../../../components/user-avatar.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
 import UnsavedChangesModal from '../../unsaved-changes-modal.react.js';
 
@@ -32,6 +34,10 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   const { pushModal, popModal } = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
   const callChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
+  const [showErrorMessage, setShowErrorMessage] = React.useState(false);
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
   const modalName = 'Change Role';
 
   const roleOptions = React.useMemo(
@@ -62,12 +68,50 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
     pushModal(<UnsavedChangesModal />);
   }, [initialSelectedRole, popModal, pushModal, selectedRole]);
 
+  const errorMessage = React.useMemo(() => {
+    if (!showErrorMessage) {
+      return null;
+    }
+
+    return (
+      <>
+        <div className={css.roleModalErrorMessage}>Cannot change role.</div>
+        <div className={css.roleModalErrorMessage}>
+          There must be at least one admin at any given time.
+        </div>
+      </>
+    );
+  }, [showErrorMessage]);
+
   const onSave = React.useCallback(() => {
     if (selectedRole === initialSelectedRole) {
       popModal();
       return;
     }
 
+    // Handle case where the sole admin's role is being changed.
+    const memberIsAdmin = memberInfo.role
+      ? roleIsAdminRole(threadInfo.roles[memberInfo.role])
+      : true;
+
+    let otherAdminsExist = false;
+    for (const member of threadInfo.members) {
+      const role = member.role;
+      if (!role || member.id === viewerID) {
+        continue;
+      }
+      if (roleIsAdminRole(threadInfo.roles[role])) {
+        otherAdminsExist = true;
+        break;
+      }
+    }
+
+    if (!otherAdminsExist && memberIsAdmin) {
+      setShowErrorMessage(true);
+      return;
+    }
+
+    setShowErrorMessage(false);
     const createChangeThreadMemberRolesPromise = async () => {
       invariant(selectedRole, 'Expected selected role to be set');
       const result = await callChangeThreadMemberRoles(
@@ -87,10 +131,11 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
     callChangeThreadMemberRoles,
     dispatchActionPromise,
     initialSelectedRole,
-    memberInfo.id,
+    memberInfo,
     popModal,
     selectedRole,
-    threadInfo.id,
+    threadInfo,
+    viewerID,
   ]);
 
   return (
@@ -112,6 +157,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
           setActiveSelection={setSelectedRole}
         />
       </div>
+      {errorMessage}
       <div className={css.roleModalActionButtons}>
         <Button
           variant="outline"
