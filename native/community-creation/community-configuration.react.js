@@ -94,8 +94,16 @@ function CommunityConfiguration(props: Props): React.Node {
     dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
     await newThreadResultPromise;
 
-    navigate(CommunityCreationMembersRouteName);
-  }, [callCreateNewCommunity, dispatchActionPromise, navigate]);
+    navigate<'CommunityCreationMembers'>({
+      name: CommunityCreationMembersRouteName,
+      params: { announcement: announcementSetting },
+    });
+  }, [
+    announcementSetting,
+    callCreateNewCommunity,
+    dispatchActionPromise,
+    navigate,
+  ]);
 
   const onCheckBoxPress = React.useCallback(() => {
     setErrorMessage();
