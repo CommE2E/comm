@@ -3,16 +3,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import {
-  removeUsersFromThread,
-  changeThreadMemberRoles,
-} from 'lib/actions/thread-actions.js';
+import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   memberIsAdmin,
   memberHasAdminPowers,
   removeMemberFromThread,
-  switchMemberAdminRoleInThread,
   getAvailableThreadMemberActions,
 } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
@@ -68,47 +64,18 @@ function ThreadMember(props: Props): React.Node {
     [boundRemoveUsersFromThread, dispatchActionPromise, memberInfo, threadInfo],
   );
 
-  const isCurrentlyAdmin = memberIsAdmin(memberInfo, threadInfo);
-  const boundChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
-
-  const onMemberAdminRoleToggled = React.useCallback(
-    () =>
-      switchMemberAdminRoleInThread(
-        threadInfo,
-        memberInfo,
-        isCurrentlyAdmin,
-        dispatchActionPromise,
-        boundChangeThreadMemberRoles,
-      ),
-    [
-      boundChangeThreadMemberRoles,
-      dispatchActionPromise,
-      isCurrentlyAdmin,
-      memberInfo,
-      threadInfo,
-    ],
-  );
+  const onClickChangeRole = React.useCallback(() => {}, []);
 
   const menuItems = React.useMemo(
     () =>
       getAvailableThreadMemberActions(memberInfo, threadInfo).map(action => {
-        if (action === 'remove_admin') {
+        if (action === 'change_role') {
           return (
             <MenuItem
-              key="remove_admin"
-              text="Remove admin"
-              icon="cross-circle"
-              onClick={onMemberAdminRoleToggled}
-            />
-          );
-        }
-        if (action === 'make_admin') {
-          return (
-            <MenuItem
-              key="make_admin"
-              text="Make admin"
+              key="change_role"
+              text="Change Role"
               icon="plus-circle"
-              onClick={onMemberAdminRoleToggled}
+              onClick={onClickChangeRole}
             />
           );
         }
@@ -116,7 +83,7 @@ function ThreadMember(props: Props): React.Node {
           return (
             <MenuItem
               key="remove_user"
-              text="Remove user"
+              text="Remove User"
               icon="logout"
               onClick={onClickRemoveUser}
               dangerous
@@ -125,7 +92,7 @@ function ThreadMember(props: Props): React.Node {
         }
         return null;
       }),
-    [memberInfo, onClickRemoveUser, onMemberAdminRoleToggled, threadInfo],
+    [memberInfo, onClickRemoveUser, onClickChangeRole, threadInfo],
   );
 
   const userSettingsIcon = React.useMemo(
