@@ -114,14 +114,14 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
 }
 
 function useUploadSelectedMedia(
-  setProcessingOrUploadInProgress: (inProgress: boolean) => mixed,
+  setProcessingOrUploadInProgress?: (inProgress: boolean) => mixed,
 ): (selection: NativeMediaSelection) => Promise<?ImageAvatarDBContent> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
 
   return React.useCallback(
     async (selection: NativeMediaSelection) => {
-      setProcessingOrUploadInProgress(true);
+      setProcessingOrUploadInProgress?.(true);
       const urisToBeDisposed: Set<string> = new Set([selection.uri]);
 
       let processedMedia;
@@ -136,7 +136,7 @@ function useUploadSelectedMedia(
           'Media processing failed',
           'Unable to process selected media.',
         );
-        setProcessingOrUploadInProgress(false);
+        setProcessingOrUploadInProgress?.(false);
         return undefined;
       }
 
@@ -146,7 +146,7 @@ function useUploadSelectedMedia(
           'Media processing failed',
           'Unable to process selected media.',
         );
-        setProcessingOrUploadInProgress(false);
+        setProcessingOrUploadInProgress?.(false);
         return undefined;
       }
 
@@ -160,7 +160,7 @@ function useUploadSelectedMedia(
           'Media upload failed',
           'Unable to upload selected media. Please try again.',
         );
-        setProcessingOrUploadInProgress(false);
+        setProcessingOrUploadInProgress?.(false);
         return undefined;
       }
 
