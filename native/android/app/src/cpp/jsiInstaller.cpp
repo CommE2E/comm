@@ -8,6 +8,7 @@
 #include <InternalModules/GlobalDBSingletonJNIHelper.h>
 #include <NativeModules/CommCoreModule.h>
 #include <NativeModules/CommUtilsModule.h>
+#include <NativeModules/CommValidationModule.h>
 #include <Notifications/BackgroundDataStorage/NotificationsCryptoModuleJNIHelper.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
 #include <PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperationsJNIHelper.h>
@@ -31,6 +32,8 @@ public:
         std::make_shared<comm::CommCoreModule>(jsCallInvoker);
     std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
         std::make_shared<comm::CommUtilsModule>(jsCallInvoker);
+    std::shared_ptr<comm::CommValidationModule> validationNativeModule =
+        std::make_shared<comm::CommValidationModule>(jsCallInvoker);
 
     if (rt != nullptr) {
       rt->global().setProperty(
@@ -41,6 +44,10 @@ public:
           *rt,
           jsi::PropNameID::forAscii(*rt, "CommUtilsModule"),
           jsi::Object::createFromHostObject(*rt, utilsNativeModule));
+      rt->global().setProperty(
+          *rt,
+          jsi::PropNameID::forAscii(*rt, "CommValidationModule"),
+          jsi::Object::createFromHostObject(*rt, validationNativeModule));
     }
 
     jni::local_ref<jni::JObject> sqliteFilePathObj =

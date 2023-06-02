@@ -40,6 +40,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 #import "CommCoreModule.h"
 #import "CommUtilsModule.h"
+#import "CommValidationModule.h"
 #import "GlobalDBSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
@@ -278,6 +279,8 @@ using Runtime = facebook::jsi::Runtime;
           std::make_shared<comm::CommCoreModule>(bridge.jsCallInvoker);
       std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
           std::make_shared<comm::CommUtilsModule>(bridge.jsCallInvoker);
+      std::shared_ptr<comm::CommValidationModule> validationNativeModule =
+          std::make_shared<comm::CommValidationModule>(bridge.jsCallInvoker);
 
       rt.global().setProperty(
           rt,
@@ -287,6 +290,11 @@ using Runtime = facebook::jsi::Runtime;
           rt,
           facebook::jsi::PropNameID::forAscii(rt, "CommUtilsModule"),
           facebook::jsi::Object::createFromHostObject(rt, utilsNativeModule));
+      rt.global().setProperty(
+          rt,
+          facebook::jsi::PropNameID::forAscii(rt, "CommValidationModule"),
+          facebook::jsi::Object::createFromHostObject(
+              rt, validationNativeModule));
     }
   };
   const auto installer =
