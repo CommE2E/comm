@@ -8,6 +8,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
   CoolOrNerdMode,
@@ -88,7 +89,13 @@ function AvatarSelection(props: Props): React.Node {
     [],
   );
 
+  const [registrationInProgress, setRegistrationInProgress] =
+    React.useState(false);
+
   React.useEffect(() => {
+    if (registrationInProgress) {
+      return undefined;
+    }
     setRegistrationMode({
       registrationMode: 'on',
       successCallback: setClientAvatarFromSelection,
@@ -96,9 +103,27 @@ function AvatarSelection(props: Props): React.Node {
     return () => {
       setRegistrationMode({ registrationMode: 'off' });
     };
-  }, [setRegistrationMode, setClientAvatarFromSelection]);
+  }, [
+    registrationInProgress,
+    setRegistrationMode,
+    setClientAvatarFromSelection,
+  ]);
 
-  const onProceed = React.useCallback(() => {}, []);
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { register } = registrationContext;
+
+  const onProceed = React.useCallback(async () => {
+    setRegistrationInProgress(true);
+    try {
+      await register({
+        ...userSelections,
+        avatarData,
+      });
+    } finally {
+      setRegistrationInProgress(false);
+    }
+  }, [register, userSelections, avatarData]);
 
   const clientAvatar = avatarData?.clientAvatar;
   const userInfoOverride = React.useMemo(
@@ -118,7 +143,7 @@ function AvatarSelection(props: Props): React.Node {
           <View style={styles.editUserAvatar}>
             <EditUserAvatar
               userInfo={userInfoOverride}
-              disabled={false}
+              disabled={registrationInProgress}
               prefetchedAvatarURI={prefetchedAvatarURI}
             />
           </View>
@@ -128,7 +153,7 @@ function AvatarSelection(props: Props): React.Node {
         <RegistrationButton
           onPress={onProceed}
           label="Submit"
-          variant="disabled"
+          variant={registrationInProgress ? 'loading' : 'enabled'}
         />
       </RegistrationButtonContainer>
     </RegistrationContainer>
