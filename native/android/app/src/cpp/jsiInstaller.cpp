@@ -6,6 +6,7 @@
 #include <DatabaseManagers/SQLiteQueryExecutor.h>
 #include <InternalModules/DatabaseInitializerJNIHelper.h>
 #include <InternalModules/GlobalDBSingletonJNIHelper.h>
+#include <NativeModules/CommConstants.h>
 #include <NativeModules/CommCoreModule.h>
 #include <NativeModules/CommUtilsModule.h>
 #include <Notifications/BackgroundDataStorage/NotificationsCryptoModuleJNIHelper.h>
@@ -31,6 +32,8 @@ public:
         std::make_shared<comm::CommCoreModule>(jsCallInvoker);
     std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
         std::make_shared<comm::CommUtilsModule>(jsCallInvoker);
+    std::shared_ptr<comm::CommConstants> nativeConstants =
+        std::make_shared<comm::CommConstants>();
 
     if (rt != nullptr) {
       rt->global().setProperty(
@@ -41,6 +44,10 @@ public:
           *rt,
           jsi::PropNameID::forAscii(*rt, "CommUtilsModule"),
           jsi::Object::createFromHostObject(*rt, utilsNativeModule));
+      rt->global().setProperty(
+          *rt,
+          jsi::PropNameID::forAscii(*rt, "CommConstants"),
+          jsi::Object::createFromHostObject(*rt, nativeConstants));
     }
 
     jni::local_ref<jni::JObject> sqliteFilePathObj =
