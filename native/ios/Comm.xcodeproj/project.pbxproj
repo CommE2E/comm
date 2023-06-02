@@ -51,6 +51,7 @@
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
 		CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */; };
+		CB2689002A2DF58000EC7300 /* CommConstants.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB2688FF2A2DF56000EC7300 /* CommConstants.cpp */; };
 		CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47B287718A200171182 /* NonBlockingLock.mm */; };
 		CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47B287718A200171182 /* NonBlockingLock.mm */; };
 		CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47D2877194100171182 /* EncryptedFileUtils.mm */; };
@@ -206,6 +207,8 @@
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
 		CB24361629A397AB00FEC4E1 /* NotificationsCryptoModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationsCryptoModule.h; path = Notifications/BackgroundDataStorage/NotificationsCryptoModule.h; sourceTree = "<group>"; };
 		CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NotificationsCryptoModule.cpp; path = Notifications/BackgroundDataStorage/NotificationsCryptoModule.cpp; sourceTree = "<group>"; };
+		CB2688FE2A2DF55F00EC7300 /* CommConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommConstants.h; sourceTree = "<group>"; };
+		CB2688FF2A2DF56000EC7300 /* CommConstants.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommConstants.cpp; sourceTree = "<group>"; };
 		CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
 		CB38B4792877179A00171182 /* NonBlockingLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NonBlockingLock.h; path = Comm/TemporaryMessageStorage/NonBlockingLock.h; sourceTree = "<group>"; };
 		CB38B47B287718A200171182 /* NonBlockingLock.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NonBlockingLock.mm; path = Comm/TemporaryMessageStorage/NonBlockingLock.mm; sourceTree = "<group>"; };
@@ -382,6 +385,8 @@
 			children = (
 				8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */,
 				8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */,
+				CB2688FF2A2DF56000EC7300 /* CommConstants.cpp */,
+				CB2688FE2A2DF55F00EC7300 /* CommConstants.h */,
 				CBED0E2C284E086100CD3863 /* PersistentStorageUtilities */,
 				726E5D722731A4240032361D /* InternalModules */,
 				71BE843C2636A944002849D2 /* CommCoreModule.cpp */,
@@ -984,6 +989,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB2689002A2DF58000EC7300 /* CommConstants.cpp in Sources */,
 				CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */,
 				CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */,
 				7F0C6E31291C4468002AA2D9 /* ExpoModulesProvider.swift in Sources */,
