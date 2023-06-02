@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
@@ -16,14 +17,43 @@ import type {
   RegistrationServerCallInput,
   UsernameAccountSelection,
   EthereumAccountSelection,
+  AvatarData,
 } from './registration-types.js';
+import { useUploadSelectedMedia } from '../../avatars/avatar-hooks.js';
+import { EditUserAvatarContext } from '../../avatars/edit-user-avatar-provider.react.js';
 import { NavContext } from '../../navigation/navigation-context.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import { setNativeCredentials } from '../native-credentials.js';
 import { useSIWEServerCall } from '../siwe-hooks.js';
 
+// We can't just do everything in one async callback, since the server calls
+// would get bound to Redux state from before the registration. The registration
+// flow has multiple steps where critical Redux state is changed, where
+// subsequent steps depend on accessing the updated Redux state.
+
+// To address this, we break the registration process up into multiple steps.
+// When each step completes we update the currentStep state, and we have Redux
+// selectors that trigger useEffects for subsequent steps when relevant data
+// starts to appear in Redux.
+
+type CurrentStep =
+  | { +step: 'inactive' }
+  | {
+      +step: 'waiting_for_registration_call',
+      +avatarData: ?AvatarData,
+      +resolve: () => void,
+      +reject: Error => void,
+    };
+
+const inactiveStep = { step: 'inactive' };
+
 function useRegistrationServerCall(): RegistrationServerCallInput => Promise<void> {
+  const [currentStep, setCurrentStep] =
+    React.useState<CurrentStep>(inactiveStep);
+
+  // STEP 1: ACCOUNT REGISTRATION
+
   const navContext = React.useContext(NavContext);
   const logInExtraInfo = useSelector(state =>
     nativeLogInExtraInfoSelector({
@@ -104,23 +134,96 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     [siweServerCall],
   );
 
-  const dispatch = useDispatch();
-  return React.useCallback(
-    async (input: RegistrationServerCallInput) => {
-      if (input.accountSelection.accountType === 'username') {
-        await registerUsernameAccount(input.accountSelection);
-      } else {
-        await registerEthereumAccount(input.accountSelection);
-      }
-      dispatch({
-        type: setDataLoadedActionType,
-        payload: {
-          dataLoaded: true,
+  const returnedFunc = React.useCallback(
+    (input: RegistrationServerCallInput) =>
+      new Promise(
+        // eslint-disable-next-line no-async-promise-executor
+        async (resolve, reject) => {
+          try {
+            if (currentStep.step !== 'inactive') {
+              return;
+            }
+            const { accountSelection, avatarData } = input;
+            if (accountSelection.accountType === 'username') {
+              await registerUsernameAccount(accountSelection);
+            } else {
+              await registerEthereumAccount(accountSelection);
+            }
+            setCurrentStep({
+              step: 'waiting_for_registration_call',
+              avatarData,
+              resolve,
+              reject,
+            });
+          } catch (e) {
+            reject(e);
+          }
         },
-      });
-    },
-    [registerUsernameAccount, registerEthereumAccount, dispatch],
+      ),
+    [currentStep, registerUsernameAccount, registerEthereumAccount],
   );
+
+  // STEP 2: SETTING AVATAR
+
+  const uploadSelectedMedia = useUploadSelectedMedia();
+
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
+  const { setUserAvatar } = editUserAvatarContext;
+
+  const hasCurrentUserInfo = useSelector(
+    state => !!state.currentUserInfo && !state.currentUserInfo.anonymous,
+  );
+
+  const dispatch = useDispatch();
+  const avatarBeingSetRef = React.useRef(false);
+  React.useEffect(() => {
+    if (
+      !hasCurrentUserInfo ||
+      currentStep.step !== 'waiting_for_registration_call' ||
+      avatarBeingSetRef.current
+    ) {
+      return;
+    }
+    avatarBeingSetRef.current = true;
+    const { avatarData, resolve } = currentStep;
+    (async () => {
+      try {
+        if (!avatarData) {
+          return;
+        }
+        let updateUserAvatarRequest;
+        if (!avatarData.needsUpload) {
+          ({ updateUserAvatarRequest } = avatarData);
+        } else {
+          const { mediaSelection } = avatarData;
+          updateUserAvatarRequest = await uploadSelectedMedia(mediaSelection);
+          if (!updateUserAvatarRequest) {
+            return;
+          }
+        }
+        await setUserAvatar(updateUserAvatarRequest);
+      } finally {
+        dispatch({
+          type: setDataLoadedActionType,
+          payload: {
+            dataLoaded: true,
+          },
+        });
+        setCurrentStep(inactiveStep);
+        avatarBeingSetRef.current = false;
+        resolve();
+      }
+    })();
+  }, [
+    currentStep,
+    hasCurrentUserInfo,
+    uploadSelectedMedia,
+    setUserAvatar,
+    dispatch,
+  ]);
+
+  return returnedFunc;
 }
 
 export { useRegistrationServerCall };
