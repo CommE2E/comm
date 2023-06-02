@@ -2,7 +2,11 @@
 
 import * as React from 'react';
 
-export type RegistrationContextType = {};
+import type { RegistrationServerCallInput } from './registration-types.js';
+
+export type RegistrationContextType = {
+  +register: RegistrationServerCallInput => Promise<void>,
+};
 
 const RegistrationContext: React.Context<?RegistrationContextType> =
   React.createContext<?RegistrationContextType>();
