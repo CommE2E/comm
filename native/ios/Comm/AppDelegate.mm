@@ -38,6 +38,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #import <jsireact/JSIExecutor.h>
 #import <reacthermes/HermesExecutorFactory.h>
 
+#import "CommConstants.h"
 #import "CommCoreModule.h"
 #import "CommUtilsModule.h"
 #import "GlobalDBSingleton.h"
@@ -278,6 +279,8 @@ using Runtime = facebook::jsi::Runtime;
           std::make_shared<comm::CommCoreModule>(bridge.jsCallInvoker);
       std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
           std::make_shared<comm::CommUtilsModule>(bridge.jsCallInvoker);
+      std::shared_ptr<comm::CommConstants> nativeConstants =
+          std::make_shared<comm::CommConstants>();
 
       rt.global().setProperty(
           rt,
@@ -287,6 +290,10 @@ using Runtime = facebook::jsi::Runtime;
           rt,
           facebook::jsi::PropNameID::forAscii(rt, "CommUtilsModule"),
           facebook::jsi::Object::createFromHostObject(rt, utilsNativeModule));
+      rt.global().setProperty(
+          rt,
+          facebook::jsi::PropNameID::forAscii(rt, "CommConstants"),
+          facebook::jsi::Object::createFromHostObject(rt, nativeConstants));
     }
   };
   const auto installer =
