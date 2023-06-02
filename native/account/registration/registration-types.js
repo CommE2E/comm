@@ -36,3 +36,10 @@ export type AvatarData =
       +updateUserAvatarRequest: UpdateUserAvatarRequest,
       +clientAvatar: ClientAvatar,
     };
+
+export type RegistrationServerCallInput = {
+  +coolOrNerdMode: CoolOrNerdMode,
+  +keyserverUsername: string,
+  +accountSelection: AccountSelection,
+  +avatarData: ?AvatarData,
+};
