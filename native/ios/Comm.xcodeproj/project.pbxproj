@@ -66,6 +66,8 @@
 		CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; };
 		CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; };
 		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
+		CB6B0A622A29E8F800CC510C /* validationJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB6B0A612A29E8F800CC510C /* validationJSI-generated.cpp */; };
+		CB6B0A652A29E90700CC510C /* CommValidationModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB6B0A642A29E90700CC510C /* CommValidationModule.cpp */; };
 		CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */; };
 		CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17B295C580500B17035 /* CommIOSNotificationsBridgeQueue.mm */; };
 		CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
@@ -229,6 +231,10 @@
 		CB38F2BE286C6C980010535C /* DeleteEntryMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeleteEntryMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteEntryMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/UpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB6B0A602A29E8F800CC510C /* validationJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = validationJSI.h; sourceTree = "<group>"; };
+		CB6B0A612A29E8F800CC510C /* validationJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "validationJSI-generated.cpp"; sourceTree = "<group>"; };
+		CB6B0A632A29E90700CC510C /* CommValidationModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommValidationModule.h; sourceTree = "<group>"; };
+		CB6B0A642A29E90700CC510C /* CommValidationModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommValidationModule.cpp; sourceTree = "<group>"; };
 		CB7EF17B295C580500B17035 /* CommIOSNotificationsBridgeQueue.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotificationsBridgeQueue.mm; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.mm; sourceTree = "<group>"; };
 		CB7EF17C295C580500B17035 /* CommIOSNotificationsBridgeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CommIOSNotificationsBridgeQueue.h; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.h; sourceTree = "<group>"; };
 		CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotifications.mm; path = Comm/CommIOSNotifications/CommIOSNotifications.mm; sourceTree = "<group>"; };
@@ -378,6 +384,8 @@
 		71BE843A2636A944002849D2 /* NativeModules */ = {
 			isa = PBXGroup;
 			children = (
+				CB6B0A642A29E90700CC510C /* CommValidationModule.cpp */,
+				CB6B0A632A29E90700CC510C /* CommValidationModule.h */,
 				CBED0E2C284E086100CD3863 /* PersistentStorageUtilities */,
 				726E5D722731A4240032361D /* InternalModules */,
 				71BE843C2636A944002849D2 /* CommCoreModule.cpp */,
@@ -454,6 +462,8 @@
 		71F971B4270726C000DDC5BF /* _generated */ = {
 			isa = PBXGroup;
 			children = (
+				CB6B0A612A29E8F800CC510C /* validationJSI-generated.cpp */,
+				CB6B0A602A29E8F800CC510C /* validationJSI.h */,
 				7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */,
 				7FE4D9F3291DFE9300667BF6 /* commJSI.h */,
 				7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */,
@@ -989,6 +999,7 @@
 				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */,
 				CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */,
+				CB6B0A622A29E8F800CC510C /* validationJSI-generated.cpp in Sources */,
 				7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */,
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
@@ -1008,6 +1019,7 @@
 				CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */,
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
 				71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */,
+				CB6B0A652A29E90700CC510C /* CommValidationModule.cpp in Sources */,
 				8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */,
 				7FBB2A7629E94539002C6493 /* utilsJSI-generated.cpp in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
