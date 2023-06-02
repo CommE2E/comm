@@ -16,3 +16,10 @@ codeGen('comm', coreModuleSchemaPath, ['cpp', 'h'], outPath);
 // CommUtilsModule
 const utilsModuleSchemaPath = path.resolve('./schema/CommUtilsModuleSchema.js');
 codeGen('utils', utilsModuleSchemaPath, ['cpp', 'h'], outPath);
+
+// CommValidationModule
+// CommUtilsModule
+const validationModuleSchemaPath = path.resolve(
+  './schema/CommValidationModuleSchema.js',
+);
+codeGen('validation', validationModuleSchemaPath, ['cpp', 'h'], outPath);
