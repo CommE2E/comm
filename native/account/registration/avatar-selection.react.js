@@ -154,7 +154,7 @@ function AvatarSelection(props: Props): React.Node {
       <RegistrationButtonContainer>
         <RegistrationButton
           onPress={onProceed}
-          label="Next"
+          label="Submit"
           variant="disabled"
         />
       </RegistrationButtonContainer>
