@@ -18,14 +18,17 @@ type Props =
 function UserAvatar(props: Props): React.Node {
   const { userID, userInfo: userInfoProp, size } = props;
 
-  const currentUserInfo = useSelector(state => state.currentUserInfo);
-  const userInfo = useSelector(state =>
-    userID ? state.userStore.userInfos[userID] : userInfoProp,
-  );
+  const userInfo = useSelector(state => {
+    if (!userID) {
+      return userInfoProp;
+    } else if (userID === state.currentUserInfo?.id) {
+      return state.currentUserInfo;
+    } else {
+      return state.userStore.userInfos[userID];
+    }
+  });
 
-  const avatarUserInfo =
-    userID === currentUserInfo?.id ? currentUserInfo : userInfo;
-  const avatarInfo = getAvatarForUser(avatarUserInfo);
+  const avatarInfo = getAvatarForUser(userInfo);
 
   const resolvedUserAvatar = useENSResolvedAvatar(avatarInfo, userInfo);
 
