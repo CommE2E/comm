@@ -50,9 +50,9 @@ service IdentityClientService {
   rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
     (InboundKeysForUserResponse) {}
   // Called by clients to get required keys for opening a connection
-  // to a keyserver
-  rpc GetKeyserverKeys(KeyserverKeysRequest) returns
-    (KeyserverKeysResponse) {}
+  // to a user's keyserver
+  rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
+    (OutboundKeyserverResponse) {}
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest) returns (Empty) {}
   // Rotate a devices preKey and preKey signature
@@ -279,24 +279,10 @@ message InboundKeysForUserResponse {
 
 // GetKeyserverKeys
 
-// Information needed when establishing communication to a keyserver
-message KeyserverSessionInfo {
-  IdentityKeyInfo identityInfo = 1;
-  PreKey contentPrekeys = 2;
-  optional string onetimeContentPrekey = 3;
-}
-
-// All keyserver must be registered with an existing user.
-// Conversely, one or zero keyservers can registered to a user.
-message KeyserverKeysRequest {
-  oneof identifier {
-    string username = 1;
-    string walletAddress = 2;
-  }
-}
-
-message KeyserverKeysResponse {
-  KeyserverSessionInfo keyserverInfo = 1;
+// If a user owns a keyserver, return the information needed to initiate a
+// connection.
+message OutboundKeyserverResponse {
+  optional OutboundKeyInfo keyserverInfo = 1;
 }
 
 // UploadOneTimeKeys
