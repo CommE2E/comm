@@ -36,7 +36,7 @@ export type EditUserAvatarContextType = {
   +updateImageUserAvatar: (selection: NativeMediaSelection) => Promise<void>,
   +setUserAvatar: (avatarRequest: UpdateUserAvatarRequest) => Promise<void>,
   +setRegistrationMode: (registrationMode: RegistrationMode) => void,
-  +registrationModeEnabled: boolean,
+  +getRegistrationModeEnabled: () => boolean,
 };
 
 const EditUserAvatarContext: React.Context<?EditUserAvatarContextType> =
@@ -60,8 +60,8 @@ type Props = {
 function EditUserAvatarProvider(props: Props): React.Node {
   const { children } = props;
 
-  const [registrationMode, setRegistrationMode] =
-    React.useState<RegistrationMode>(registrationModeOff);
+  const registrationModeRef =
+    React.useRef<RegistrationMode>(registrationModeOff);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const updateUserAvatarCall = useServerCall(updateUserAvatar);
@@ -83,8 +83,8 @@ function EditUserAvatarProvider(props: Props): React.Node {
 
   const updateImageUserAvatar = React.useCallback(
     async (selection: NativeMediaSelection) => {
-      if (registrationMode.registrationMode === 'on') {
-        registrationMode.successCallback({
+      if (registrationModeRef.current.registrationMode === 'on') {
+        registrationModeRef.current.successCallback({
           needsUpload: true,
           mediaSelection: selection,
         });
@@ -108,12 +108,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       dispatchActionPromise(updateUserAvatarActionTypes, promise);
       await promise;
     },
-    [
-      registrationMode,
-      uploadSelectedMedia,
-      updateUserAvatarCall,
-      dispatchActionPromise,
-    ],
+    [uploadSelectedMedia, updateUserAvatarCall, dispatchActionPromise],
   );
 
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
@@ -126,8 +121,9 @@ function EditUserAvatarProvider(props: Props): React.Node {
 
   const setUserAvatar = React.useCallback(
     async (request: UpdateUserAvatarRequest) => {
-      if (registrationMode.registrationMode === 'on') {
-        registrationMode.successCallback({
+      const regMode = registrationModeRef.current;
+      if (regMode.registrationMode === 'on') {
+        regMode.successCallback({
           needsUpload: false,
           updateUserAvatarRequest: request,
         });
@@ -145,10 +141,17 @@ function EditUserAvatarProvider(props: Props): React.Node {
       dispatchActionPromise(updateUserAvatarActionTypes, promise);
       await promise;
     },
-    [registrationMode, updateUserAvatarCall, dispatchActionPromise],
+    [updateUserAvatarCall, dispatchActionPromise],
   );
 
-  const registrationModeEnabled = registrationMode.registrationMode === 'on';
+  const setRegistrationMode = React.useCallback((mode: RegistrationMode) => {
+    registrationModeRef.current = mode;
+  }, []);
+  const getRegistrationModeEnabled = React.useCallback(
+    () => registrationModeRef.current.registrationMode === 'on',
+    [],
+  );
+
   const context = React.useMemo(
     () => ({
       userAvatarSaveInProgress,
@@ -156,7 +159,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       updateImageUserAvatar,
       setUserAvatar,
       setRegistrationMode,
-      registrationModeEnabled,
+      getRegistrationModeEnabled,
     }),
     [
       userAvatarSaveInProgress,
@@ -164,7 +167,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       updateImageUserAvatar,
       setUserAvatar,
       setRegistrationMode,
-      registrationModeEnabled,
+      getRegistrationModeEnabled,
     ],
   );
 
