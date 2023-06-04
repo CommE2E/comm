@@ -7,10 +7,10 @@ use std::str::FromStr;
 use crate::{
   client_service::client_proto::{
     DeleteUserRequest, Empty, GenerateNonceResponse, InboundKeysForUserRequest,
-    InboundKeysForUserResponse, KeyserverKeysRequest, KeyserverKeysResponse,
-    OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
-    OpaqueLoginStartRequest, OpaqueLoginStartResponse,
-    OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+    InboundKeysForUserResponse, OpaqueLoginFinishRequest,
+    OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
+    OpaqueLoginStartResponse, OutboundKeysForUserRequest,
+    OutboundKeysForUserResponse, OutboundKeyserverResponse,
     RefreshUserPreKeysRequest, RegistrationFinishRequest,
     RegistrationFinishResponse, RegistrationStartRequest,
     RegistrationStartResponse, UpdateUserPasswordFinishRequest,
@@ -611,8 +611,8 @@ impl IdentityClientService for ClientService {
 
   async fn get_keyserver_keys(
     &self,
-    _request: tonic::Request<KeyserverKeysRequest>,
-  ) -> Result<tonic::Response<KeyserverKeysResponse>, tonic::Status> {
+    _request: tonic::Request<OutboundKeysForUserRequest>,
+  ) -> Result<tonic::Response<OutboundKeyserverResponse>, tonic::Status> {
     unimplemented!();
   }
 
