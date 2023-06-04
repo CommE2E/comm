@@ -195,7 +195,7 @@ function PasswordSelection(props: Props): React.Node {
         <RegistrationButton
           onPress={onProceed}
           label="Next"
-          variant={passwordsMatch ? 'enabled' : 'disabled'}
+          variant={passwordsMatch && !passwordIsEmpty ? 'enabled' : 'disabled'}
         />
       </RegistrationButtonContainer>
     </RegistrationContainer>
