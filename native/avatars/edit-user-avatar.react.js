@@ -37,7 +37,7 @@ function EditUserAvatar(props: Props): React.Node {
     userAvatarSaveInProgress,
     selectFromGalleryAndUpdateUserAvatar,
     setUserAvatar,
-    registrationModeEnabled,
+    getRegistrationModeEnabled,
   } = editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
@@ -55,7 +55,7 @@ function EditUserAvatar(props: Props): React.Node {
 
   const usernameOrEthAddress = userInfo?.username;
   const navigateToEmojiSelection = React.useCallback(() => {
-    if (!registrationModeEnabled) {
+    if (!getRegistrationModeEnabled()) {
       navigate(EmojiUserAvatarCreationRouteName);
       return;
     }
@@ -63,15 +63,15 @@ function EditUserAvatar(props: Props): React.Node {
       name: EmojiAvatarSelectionRouteName,
       params: { usernameOrEthAddress },
     });
-  }, [navigate, registrationModeEnabled, usernameOrEthAddress]);
+  }, [navigate, getRegistrationModeEnabled, usernameOrEthAddress]);
 
   const navigateToCamera = React.useCallback(() => {
     navigate(
-      registrationModeEnabled
+      getRegistrationModeEnabled()
         ? RegistrationUserAvatarCameraModalRouteName
         : UserAvatarCameraModalRouteName,
     );
-  }, [navigate, registrationModeEnabled]);
+  }, [navigate, getRegistrationModeEnabled]);
 
   const setENSUserAvatar = React.useCallback(() => {
     setUserAvatar({ type: 'ens' });
