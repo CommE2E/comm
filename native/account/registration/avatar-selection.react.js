@@ -145,7 +145,7 @@ function AvatarSelection(props: Props): React.Node {
           <View style={styles.editUserAvatar}>
             <EditUserAvatar
               userInfo={userInfoOverride}
-              disabled={false}
+              disabled={registrationInProgress}
               prefetchedAvatarURI={prefetchedAvatarURI}
             />
           </View>
