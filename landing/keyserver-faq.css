@@ -1,0 +1,14 @@
+.answerText {
+  color: var(--white-100);
+  margin-top: 16px;
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+  transition: color 150ms;
+}
+
+.link:hover {
+  color: var(--violet-dark-100);
+}
