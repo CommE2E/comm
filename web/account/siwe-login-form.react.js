@@ -3,8 +3,10 @@
 import '@rainbow-me/rainbowkit/styles.css';
 import invariant from 'invariant';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 import { useAccount, useSigner } from 'wagmi';
 
+import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
@@ -100,7 +102,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const attemptSIWEAuth = React.useCallback(
     (message: string, signature: string) => {
       const extraInfo = logInExtraInfo();
-      dispatchActionPromise(
+      return dispatchActionPromise(
         siweAuthActionTypes,
         callSIWEAuthEndpoint(message, signature, extraInfo),
         undefined,
@@ -110,6 +112,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [callSIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
   );
 
+  const dispatch = useDispatch();
   const onSignInButtonClick = React.useCallback(async () => {
     invariant(signer, 'signer must be present during SIWE attempt');
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
@@ -122,8 +125,21 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     );
     const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage(message);
-    attemptSIWEAuth(message, signature);
-  }, [address, attemptSIWEAuth, primaryIdentityPublicKeys, signer, siweNonce]);
+    await attemptSIWEAuth(message, signature);
+    dispatch({
+      type: setDataLoadedActionType,
+      payload: {
+        dataLoaded: true,
+      },
+    });
+  }, [
+    address,
+    attemptSIWEAuth,
+    primaryIdentityPublicKeys,
+    signer,
+    siweNonce,
+    dispatch,
+  ]);
 
   const { cancelSIWEAuthFlow } = props;
 
