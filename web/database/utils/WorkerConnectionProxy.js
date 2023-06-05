@@ -35,7 +35,7 @@ class WorkerConnectionProxy {
 
     if (!id || !this.promiseCallbacks[id]) {
       if (error) {
-        this.onError(error);
+        this.onError(new Error(error));
       } else if (message) {
         this.onError(new Error(`Unknown error for message: ${message.type}`));
       } else {
@@ -46,7 +46,7 @@ class WorkerConnectionProxy {
 
     const callbacks = this.promiseCallbacks[id];
     if (error) {
-      callbacks.reject(error);
+      callbacks.reject(new Error(error));
     } else {
       callbacks.resolve(message);
     }
