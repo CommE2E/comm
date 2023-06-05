@@ -18,6 +18,21 @@ function KeyserverFAQ(): React.Node {
   const answerClassName = classNames([typography.paragraph1, css.answerText]);
 
   const [activeFAQIndex, setActiveFAQIndex] = React.useState(null);
+  const faqAnswerRefs = React.useRef([]);
+
+  React.useEffect(() => {
+    faqAnswerRefs.current.forEach((answerRef, index) => {
+      if (!answerRef) {
+        return;
+      }
+
+      if (index === activeFAQIndex) {
+        answerRef.style.maxHeight = `${answerRef.scrollHeight}px`;
+      } else {
+        answerRef.style.maxHeight = '0';
+      }
+    });
+  }, [activeFAQIndex]);
 
   const onClickFAQItem = React.useCallback(
     (index: number) => {
@@ -51,7 +66,10 @@ function KeyserverFAQ(): React.Node {
               icon={faChevronDown}
             />
           </div>
-          <div className={answerContainerClassName}>
+          <div
+            ref={el => (faqAnswerRefs.current[index] = el)}
+            className={answerContainerClassName}
+          >
             <p className={answerClassName}>{faq.answer}</p>
           </div>
         </div>

@@ -37,12 +37,12 @@
 }
 
 .answerContainer {
-  max-height: 0;
+  transition: 500ms max-height;
   overflow: hidden;
 }
 
 .activeAnswerContainer {
-  max-height: fit-content;
+  transition: 500ms max-height;
 }
 
 .answerText {
