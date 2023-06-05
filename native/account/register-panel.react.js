@@ -12,7 +12,9 @@ import {
   Linking,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { useDispatch } from 'react-redux';
 
+import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { registerActionTypes, register } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
@@ -23,6 +25,7 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -54,6 +57,7 @@ type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
+  +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
   +getInitialNotificationsEncryptedMessage: () => Promise<string>,
@@ -340,6 +344,12 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         password: this.props.registerState.state.passwordInputText,
       });
       this.props.setActiveAlert(false);
+      this.props.dispatch({
+        type: setDataLoadedActionType,
+        payload: {
+          dataLoaded: true,
+        },
+      });
       await setNativeCredentials({
         username: result.currentUserInfo.username,
         password: this.props.registerState.state.passwordInputText,
@@ -462,6 +472,7 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
       }),
     );
 
+    const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const callRegister = useServerCall(register);
     const getInitialNotificationsEncryptedMessage =
@@ -472,6 +483,7 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
         {...props}
         loadingStatus={loadingStatus}
         logInExtraInfo={logInExtraInfo}
+        dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         register={callRegister}
         getInitialNotificationsEncryptedMessage={
