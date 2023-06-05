@@ -135,7 +135,7 @@ export type WorkerResponseMessage =
 export type WorkerResponseProxyMessage = {
   +id?: number,
   +message?: WorkerResponseMessage,
-  +error?: Error,
+  +error?: string,
 };
 
 // SharedWorker types
