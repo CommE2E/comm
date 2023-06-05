@@ -63,15 +63,19 @@ function useSIWEServerCall(
       const initialNotificationsEncryptedMessage =
         await getInitialNotificationsEncryptedMessage();
 
+      const siwePromise = callSIWE(message, signature, {
+        ...extraInfo,
+        initialNotificationsEncryptedMessage,
+      });
+
       dispatchActionPromise(
         siweAuthActionTypes,
-        callSIWE(message, signature, {
-          ...extraInfo,
-          initialNotificationsEncryptedMessage,
-        }),
+        siwePromise,
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
+
+      await siwePromise;
     },
     [
       logInExtraInfo,

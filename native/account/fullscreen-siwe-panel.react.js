@@ -2,7 +2,9 @@
 
 import * as React from 'react';
 import { Alert, ActivityIndicator, View } from 'react-native';
+import { useDispatch } from 'react-redux';
 
+import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 
 import { useSIWEServerCall } from './siwe-hooks.js';
@@ -39,12 +41,19 @@ function FullscreenSIWEPanel(props: Props): React.Node {
   const siweServerCall = useSIWEServerCall(siweServerCallParams);
 
   const successRef = React.useRef(false);
+  const dispatch = useDispatch();
   const onSuccess = React.useCallback(
-    (result: SIWEResult) => {
+    async (result: SIWEResult) => {
       successRef.current = true;
-      return siweServerCall(result);
+      await siweServerCall(result);
+      dispatch({
+        type: setDataLoadedActionType,
+        payload: {
+          dataLoaded: true,
+        },
+      });
     },
-    [siweServerCall],
+    [siweServerCall, dispatch],
   );
 
   const ifBeforeSuccessGoBackToPrompt = React.useCallback(() => {
