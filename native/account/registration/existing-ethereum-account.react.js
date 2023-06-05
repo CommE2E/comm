@@ -2,7 +2,9 @@
 
 import * as React from 'react';
 import { Text, View, Alert } from 'react-native';
+import { useDispatch } from 'react-redux';
 
+import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import { useENSName } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -39,9 +41,16 @@ function ExistingEthereumAccount(props: Props): React.Node {
   const siweServerCall = useSIWEServerCall(siweServerCallParams);
 
   const { params } = props.route;
-  const onProceedToLogIn = React.useCallback(() => {
-    siweServerCall(params);
-  }, [siweServerCall, params]);
+  const dispatch = useDispatch();
+  const onProceedToLogIn = React.useCallback(async () => {
+    await siweServerCall(params);
+    dispatch({
+      type: setDataLoadedActionType,
+      payload: {
+        dataLoaded: true,
+      },
+    });
+  }, [siweServerCall, params, dispatch]);
 
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
