@@ -1,3 +1,4 @@
+use constant_time_eq::constant_time_eq;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
@@ -367,6 +368,26 @@ impl DatabaseClient {
         Err(Error::AwsSdk(e.into()))
       }
     }
+  }
+
+  pub async fn verify_access_token(
+    &self,
+    user_id: String,
+    signing_public_key: String,
+    access_token_to_verify: String,
+  ) -> Result<bool, Error> {
+    let is_valid = self
+      .get_access_token_data(user_id, signing_public_key)
+      .await?
+      .map(|access_token_data| {
+        constant_time_eq(
+          access_token_data.access_token.as_bytes(),
+          access_token_to_verify.as_bytes(),
+        ) && access_token_data.is_valid()
+      })
+      .unwrap_or(false);
+
+    Ok(is_valid)
   }
 
   pub async fn put_access_token_data(
