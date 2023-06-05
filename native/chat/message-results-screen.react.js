@@ -68,8 +68,18 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
       return [];
     }
 
+    const pinnedMessageIDs = new Set();
+    translatedMessageResults.forEach(item => pinnedMessageIDs.add(item.id));
+
+    // Some pinned messages not part of the Redux when a chat is loaded will
+    // get excluded since their `isPinned` flag will not be set as true.
+    // Adding the conditional clause to check if the chatMessageInfo's id
+    // is included in the set of pinned messages fetched from the DB will
+    // ensure we don't skip any pinned messages.
     const chatMessageInfoItems = chatMessageInfos.filter(
-      item => item.itemType === 'message' && item.isPinned,
+      item =>
+        item.itemType === 'message' &&
+        pinnedMessageIDs.has(item.messageInfo.id),
     );
 
     // By the nature of using messageListData and passing in
@@ -94,7 +104,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     }
 
     return sortedChatMessageInfoItems.filter(Boolean);
-  }, [chatMessageInfos, rawMessageResults]);
+  }, [translatedMessageResults, chatMessageInfos, rawMessageResults]);
 
   const measureCallback = React.useCallback(
     (listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>) => {
