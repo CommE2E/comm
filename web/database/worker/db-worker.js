@@ -286,7 +286,7 @@ function connectHandler(event: SharedWorkerMessageEvent) {
 
     if (!id) {
       port.postMessage({
-        error: new Error('Request without identifier'),
+        error: 'Request without identifier',
       });
     }
 
@@ -299,7 +299,7 @@ function connectHandler(event: SharedWorkerMessageEvent) {
     } catch (e) {
       port.postMessage({
         id,
-        error: e,
+        error: e.message,
       });
     }
   };
