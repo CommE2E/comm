@@ -635,20 +635,16 @@ impl IdentityClientService for ClientService {
     request: tonic::Request<VerifyUserAccessTokenRequest>,
   ) -> Result<tonic::Response<VerifyUserAccessTokenResponse>, tonic::Status> {
     let message = request.into_inner();
-    let token_valid = match self
+    let token_valid = self
       .client
-      .get_access_token_data(message.user_id, message.signing_public_key)
+      .verify_access_token(
+        message.user_id,
+        message.signing_public_key,
+        message.access_token,
+      )
       .await
-    {
-      Ok(Some(access_token_data)) => {
-        constant_time_eq(
-          access_token_data.access_token.as_bytes(),
-          message.access_token.as_bytes(),
-        ) && access_token_data.is_valid()
-      }
-      Ok(None) => false,
-      Err(e) => return Err(handle_db_error(e)),
-    };
+      .map_err(handle_db_error)?;
+
     let response = Response::new(VerifyUserAccessTokenResponse { token_valid });
     Ok(response)
   }
