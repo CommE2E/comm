@@ -252,6 +252,7 @@ const messageListOptions = ({ navigation, route }) => {
     headerBackTitleVisible: false,
     headerTitleAlign: isSearchEmpty ? 'center' : 'left',
     headerLeftContainerStyle: { width: Platform.OS === 'ios' ? 32 : 40 },
+    headerTitleStyle: areSettingsEnabled ? { marginRight: 20 } : undefined,
   };
 };
 const composeThreadOptions = {
