@@ -37,6 +37,11 @@ function KeyserverFAQ(): React.Node {
         [css.activeAnswerContainer]: activeFAQIndex === index,
       });
 
+      const iconClassName = classNames({
+        [css.icon]: true,
+        [css.activeIcon]: activeFAQIndex === index,
+      });
+
       return (
         <div
           key={index}
@@ -47,7 +52,7 @@ function KeyserverFAQ(): React.Node {
             <p className={questionClassName}>{faq.question}</p>
             <FontAwesomeIcon
               size="sm"
-              className={css.icon}
+              className={iconClassName}
               icon={faChevronDown}
             />
           </div>
