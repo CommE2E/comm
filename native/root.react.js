@@ -22,6 +22,7 @@ import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
+import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import { EditThreadAvatarProvider } from './avatars/edit-thread-avatar-provider.react.js';
 import { EditUserAvatarProvider } from './avatars/edit-user-avatar-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
@@ -267,19 +268,23 @@ function Root() {
                             <MarkdownContextProvider>
                               <ChatContextProvider>
                                 <MessageSearchProvider>
-                                  <SQLiteDataHandler />
-                                  <ConnectedStatusBar />
-                                  <ReduxPersistGate persistor={getPersistor()}>
-                                    {gated}
-                                  </ReduxPersistGate>
-                                  <PersistedStateGate>
-                                    <Socket
-                                      detectUnsupervisedBackgroundRef={
-                                        detectUnsupervisedBackgroundRef
-                                      }
-                                    />
-                                  </PersistedStateGate>
-                                  {navigation}
+                                  <RegistrationContextProvider>
+                                    <SQLiteDataHandler />
+                                    <ConnectedStatusBar />
+                                    <ReduxPersistGate
+                                      persistor={getPersistor()}
+                                    >
+                                      {gated}
+                                    </ReduxPersistGate>
+                                    <PersistedStateGate>
+                                      <Socket
+                                        detectUnsupervisedBackgroundRef={
+                                          detectUnsupervisedBackgroundRef
+                                        }
+                                      />
+                                    </PersistedStateGate>
+                                    {navigation}
+                                  </RegistrationContextProvider>
                                 </MessageSearchProvider>
                               </ChatContextProvider>
                             </MarkdownContextProvider>
