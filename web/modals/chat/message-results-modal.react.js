@@ -72,8 +72,13 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
       return [];
     }
 
+    const pinnedMessageIDs = new Set();
+    translatedMessageResults.forEach(item => pinnedMessageIDs.add(item.id));
+
     const chatMessageInfoItems = chatMessageInfos.filter(
-      item => item.itemType === 'message' && item.isPinned,
+      item =>
+        item.itemType === 'message' &&
+        pinnedMessageIDs.has(item.messageInfo.id),
     );
 
     // By the nature of using messageListData and passing in
@@ -98,7 +103,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
     }
 
     return sortedChatMessageInfoItems;
-  }, [chatMessageInfos, rawMessageResults]);
+  }, [translatedMessageResults, chatMessageInfos, rawMessageResults]);
 
   const modifiedItems = React.useMemo(
     () =>
