@@ -37,17 +37,19 @@
 }
 
 .answerContainer {
-  max-height: 0;
-  overflow: hidden;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 500ms;
 }
 
 .activeAnswerContainer {
-  max-height: fit-content;
+  grid-template-rows: 1fr;
 }
 
 .answerText {
   color: var(--white-100);
   margin-top: 16px;
+  overflow: hidden;
 }
 
 .link {
