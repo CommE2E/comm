@@ -1,5 +1,6 @@
 // @flow
 
+import { useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { View } from 'react-native';
 
@@ -9,6 +10,7 @@ import { clusterEndHeight, avatarOffset } from './chat-constants.js';
 import type { DisplayType } from './timestamp.react.js';
 import { Timestamp, timestampHeight } from './timestamp.react.js';
 import { SingleLine } from '../components/single-line.react.js';
+import { MessageListRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
@@ -23,6 +25,7 @@ function MessageHeader(props: Props): React.Node {
   const { item, focused, display } = props;
   const { creator, time } = item.messageInfo;
   const { isViewer } = creator;
+  const route = useRoute();
   const modalDisplay = display === 'modal';
 
   const shouldShowUsername = !isViewer && (modalDisplay || item.startsCluster);
@@ -46,8 +49,22 @@ function MessageHeader(props: Props): React.Node {
     authorName = <SingleLine style={style}>{stringForUser}</SingleLine>;
   }
 
+  // We only want to render the top-placed timestamp for a message if it's
+  // rendered in the message list, and not any separate screens (i.e.
+  // the MessageResultsScreen).
+  const presentedFromMessageList = (() => {
+    if (typeof route.params?.presentedFrom !== 'string') {
+      return false;
+    }
+
+    return route.params.presentedFrom.startsWith(MessageListRouteName);
+  })();
+
+  const messageInMessageList =
+    route.name === MessageListRouteName || presentedFromMessageList;
+
   const timestamp =
-    modalDisplay || item.startsConversation ? (
+    messageInMessageList && (modalDisplay || item.startsConversation) ? (
       <Timestamp time={time} display={display} />
     ) : null;
 
