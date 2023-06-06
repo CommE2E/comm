@@ -1,5 +1,7 @@
 // @flow
 
+import localforage from 'localforage';
+
 export const SQLITE_CONTENT = 'sqliteFileContent';
 export const SQLITE_ENCRYPTION_KEY = 'encryptionKey';
 
@@ -21,3 +23,11 @@ export const DB_SUPPORTED_BROWSERS: $ReadOnlyArray<string> = [
   'firefox',
   'opera',
 ];
+
+export const localforageConfig: PartialConfig = {
+  driver: localforage.INDEXEDDB,
+  name: 'comm',
+  storeName: 'commStorage',
+  description: 'Comm encrypted database storage',
+  version: '1.0',
+};

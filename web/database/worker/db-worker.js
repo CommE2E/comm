@@ -40,6 +40,7 @@ import {
 } from '../queries/storage-engine-queries.js';
 import {
   CURRENT_USER_ID_KEY,
+  localforageConfig,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
 } from '../utils/constants.js';
@@ -49,13 +50,6 @@ import {
   generateDatabaseCryptoKey,
 } from '../utils/worker-crypto-utils.js';
 
-const localforageConfig: PartialConfig = {
-  driver: localforage.INDEXEDDB,
-  name: 'comm',
-  storeName: 'commStorage',
-  description: 'Comm encrypted database storage',
-  version: '1.0',
-};
 localforage.config(localforageConfig);
 
 let sqliteDb: ?SqliteDatabase = null;
