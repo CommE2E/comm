@@ -41,7 +41,7 @@ class DatabaseModule {
     }
   }
 
-  init() {
+  init(encryptionKey?: ?SubtleCrypto$JsonWebKey) {
     this.status = databaseStatuses.initInProgress;
     this.worker = new SharedWorker(DATABASE_WORKER_PATH);
     this.worker.onerror = console.error;
@@ -58,6 +58,7 @@ class DatabaseModule {
           type: workerRequestMessageTypes.INIT,
           sqljsFilePath: `${origin}${SQLJS_FILE_PATH}`,
           sqljsFilename,
+          encryptionKey,
         });
         this.status = databaseStatuses.initSuccess;
         console.info('Database initialization success');
@@ -68,7 +69,10 @@ class DatabaseModule {
     })();
   }
 
-  initDBForLoggedInUser(currentLoggedInUserID: ?string) {
+  initDBForLoggedInUser(
+    currentLoggedInUserID: ?string,
+    encryptionKey?: ?SubtleCrypto$JsonWebKey,
+  ) {
     if (this.status === databaseStatuses.initSuccess) {
       return;
     }
@@ -77,7 +81,7 @@ class DatabaseModule {
       this.status === databaseStatuses.notSupported &&
       isSQLiteSupported(currentLoggedInUserID)
     ) {
-      this.init();
+      this.init(encryptionKey);
     }
   }
 
