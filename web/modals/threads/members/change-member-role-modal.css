@@ -1,0 +1,29 @@
+.roleModalDescription {
+  color: var(--change-member-role-modal-description-text);
+  padding: 16px 32px 0 32px;
+  font-size: medium;
+  line-height: 1.5;
+}
+
+.roleModalMember {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.roleModalMemberAvatar {
+  margin-right: 4px;
+}
+
+.roleModalMemberName {
+  margin-left: 4px;
+  font-size: large;
+  color: var(--change-member-role-modal-generic-text);
+}
+
+.roleModalRoleSelector {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}

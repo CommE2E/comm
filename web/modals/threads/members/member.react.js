@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   memberIsAdmin,
@@ -22,6 +23,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import ChangeMemberRoleModal from './change-member-role-modal.react.js';
 import css from './members-modal.css';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
@@ -37,6 +39,7 @@ type Props = {
 
 function ThreadMember(props: Props): React.Node {
   const { memberInfo, threadInfo, setOpenMenu, isMenuOpen } = props;
+  const { pushModal } = useModalContext();
   const userName = stringForUser(memberInfo);
 
   const onMenuChange = React.useCallback(
@@ -64,7 +67,11 @@ function ThreadMember(props: Props): React.Node {
     [boundRemoveUsersFromThread, dispatchActionPromise, memberInfo, threadInfo],
   );
 
-  const onClickChangeRole = React.useCallback(() => {}, []);
+  const onClickChangeRole = React.useCallback(() => {
+    pushModal(
+      <ChangeMemberRoleModal memberInfo={memberInfo} threadInfo={threadInfo} />,
+    );
+  }, [memberInfo, pushModal, threadInfo]);
 
   const menuItems = React.useMemo(
     () =>
