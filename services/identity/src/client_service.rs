@@ -21,6 +21,7 @@ use crate::{
   config::CONFIG,
   database::{DatabaseClient, Error as DBError, KeyPayload},
   id::generate_uuid,
+  interceptor::check_auth,
   nonce::generate_nonce_data,
   reserved_users::validate_signed_keyserver_message,
   siwe::parse_and_verify_siwe_message,
@@ -38,6 +39,7 @@ use tonic::Response;
 use tracing::error;
 
 use self::client_proto::{
+  update_reserved_usernames_list_request::UpdateType,
   ReservedRegistrationStartRequest, UpdateReservedUsernamesListRequest,
 };
 
@@ -788,9 +790,33 @@ impl IdentityClientService for ClientService {
 
   async fn update_reserved_usernames_list(
     &self,
-    _request: tonic::Request<UpdateReservedUsernamesListRequest>,
+    request: tonic::Request<UpdateReservedUsernamesListRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!()
+    // This RPC should only be called by Ashoat's keyserver
+    let authenticated_request = check_auth(request)?;
+    let message = authenticated_request.into_inner();
+    let update_type = message.update_type();
+    let username = message.username;
+    match update_type {
+      UpdateType::Add => {
+        self
+          .client
+          .add_username_to_reserved_usernames_table(username)
+          .await
+          .map_err(handle_db_error)?;
+        let response = Empty {};
+        Ok(Response::new(response))
+      }
+      UpdateType::Remove => {
+        self
+          .client
+          .delete_username_from_reserved_usernames_table(username)
+          .await
+          .map_err(handle_db_error)?;
+        let response = Empty {};
+        Ok(Response::new(response))
+      }
+    }
   }
 }
 
