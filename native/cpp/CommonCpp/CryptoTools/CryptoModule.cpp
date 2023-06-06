@@ -35,7 +35,9 @@ void CryptoModule::createAccount() {
 
   if (-1 ==
       ::olm_create_account(this->account, randomBuffer.data(), randomSize)) {
-    throw std::runtime_error{"error createAccount => ::olm_create_account"};
+    throw std::runtime_error{
+        "error createAccount => " +
+        std::string{::olm_account_last_error(this->account)}};
   };
 }
 
@@ -52,7 +54,8 @@ void CryptoModule::exposePublicIdentityKeys() {
           this->keys.identityKeys.data(),
           this->keys.identityKeys.size())) {
     throw std::runtime_error{
-        "error generateIdentityKeys => ::olm_account_identity_keys"};
+        "error generateIdentityKeys => " +
+        std::string{::olm_account_last_error(this->account)}};
   }
 }
 
@@ -69,7 +72,8 @@ void CryptoModule::generateOneTimeKeys(size_t oneTimeKeysAmount) {
       ::olm_account_generate_one_time_keys(
           this->account, oneTimeKeysAmount, random.data(), random.size())) {
     throw std::runtime_error{
-        "error generateOneTimeKeys => ::olm_account_generate_one_time_keys"};
+        "error generateOneTimeKeys => " +
+        std::string{::olm_account_last_error(this->account)}};
   }
 }
 
@@ -83,7 +87,8 @@ size_t CryptoModule::publishOneTimeKeys() {
           this->keys.oneTimeKeys.data(),
           this->keys.oneTimeKeys.size())) {
     throw std::runtime_error{
-        "error publishOneTimeKeys => ::olm_account_one_time_keys"};
+        "error publishOneTimeKeys => " +
+        std::string{::olm_account_last_error(this->account)}};
   }
   return ::olm_account_mark_keys_as_published(this->account);
 }
@@ -249,7 +254,9 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
           secretKey.size(),
           accountPickleBuffer.data(),
           accountPickleLength)) {
-    throw std::runtime_error{"error storeAsB64 => ::olm_pickle_account"};
+    throw std::runtime_error{
+        "error storeAsB64 => " +
+        std::string{::olm_account_last_error(this->account)}};
   }
   persist.account = accountPickleBuffer;
 
@@ -274,7 +281,9 @@ void CryptoModule::restoreFromB64(
           secretKey.size(),
           persist.account.data(),
           persist.account.size())) {
-    throw std::runtime_error{"error restoreFromB64 => ::olm_unpickle_account"};
+    throw std::runtime_error{
+        "error restoreFromB64 => " +
+        std::string{::olm_account_last_error(this->account)}};
   }
 
   std::unordered_map<std::string, OlmBuffer>::iterator it;
@@ -307,7 +316,8 @@ EncryptedData CryptoModule::encrypt(
           messageRandom.size(),
           encryptedMessage.data(),
           encryptedMessage.size())) {
-    throw std::runtime_error{"error encrypt => ::olm_encrypt"};
+    throw std::runtime_error{
+        "error encrypt => " + std::string{::olm_session_last_error(session)}};
   }
   return {encryptedMessage, messageType};
 }
@@ -336,7 +346,8 @@ std::string CryptoModule::decrypt(
       decryptedMessage.data(),
       decryptedMessage.size());
   if (decryptedSize == -1) {
-    throw std::runtime_error{"error ::olm_decrypt"};
+    throw std::runtime_error{
+        "error decrypt => " + std::string{::olm_session_last_error(session)}};
   }
   return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
