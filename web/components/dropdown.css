@@ -1,0 +1,90 @@
+.dropdownContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.dropdownMenu {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 45px;
+  max-width: 350px;
+  padding: 0 10px;
+  background-color: var(--modal-bg);
+  border-color: var(--dropdown-select-border);
+  border-radius: 5px;
+  border-style: solid;
+}
+
+.dropdownMenu {
+  cursor: pointer;
+}
+
+.dropdownDisplayText {
+  color: var(--change-member-role-modal-generic-text);
+  font-family: var(--font-stack);
+  padding: 5px;
+}
+
+.dropdownIcon {
+  margin-left: auto;
+  font-size: var(--m-font-16);
+}
+
+.dropdownList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 370px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0 10px;
+  list-style: none;
+  margin-top: -15px;
+  width: 100%;
+}
+
+.dropdownListItem {
+  color: var(--dropdown-text);
+  background-color: var(--dropdown-option-bg);
+  width: 100%;
+  height: 45px;
+  display: flex;
+  align-items: center;
+}
+
+.dropdownListItem:hover {
+  background-color: var(--dropdown-option-hover-bg);
+  cursor: pointer;
+}
+
+.dropdownListItemButton {
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.dropdownListDisplayText {
+  color: var(--change-member-role-modal-generic-text);
+  font-family: var(--font-stack);
+  padding: 15px;
+}
+
+.dropdownListCheckIcon {
+  margin-left: auto;
+  margin-right: 10px;
+  color: var(--dropdown-selected-option-check-color);
+}
+
+.dropdownDisabled {
+  color: var(--dropdown-disabled-color);
+  border-color: var(--dropdown-disabled-color);
+}
+
+.dropdownDisabled:hover {
+  cursor: not-allowed;
+}
