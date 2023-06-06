@@ -16,6 +16,7 @@ import type { ChatNavigationProp } from './chat.react';
 import MessageResult from './message-result.react.js';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 
 export type MessageResultsScreenParams = {
@@ -30,6 +31,7 @@ type MessageResultsScreenProps = {
 function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
   const { navigation, route } = props;
   const { threadInfo } = route.params;
+  const styles = useStyles(unboundStyles);
   const { id: threadID } = threadInfo;
   const [rawMessageResults, setRawMessageResults] = React.useState([]);
 
@@ -153,10 +155,20 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
   );
 
   return (
-    <View ref={scrollViewContainerRef} onLayout={onLayout}>
+    <View
+      ref={scrollViewContainerRef}
+      onLayout={onLayout}
+      style={styles.scrollViewContainer}
+    >
       <ScrollView>{messageResultsToDisplay}</ScrollView>
     </View>
   );
 }
+
+const unboundStyles = {
+  scrollViewContainer: {
+    flex: 1,
+  },
+};
 
 export default MessageResultsScreen;
