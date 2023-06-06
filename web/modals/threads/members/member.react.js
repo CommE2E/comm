@@ -6,7 +6,6 @@ import * as React from 'react';
 import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
-  memberIsAdmin,
   removeMemberFromThread,
   getAvailableThreadMemberActions,
 } from 'lib/shared/thread-utils.js';
