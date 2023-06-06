@@ -167,15 +167,18 @@ class PushHandler extends React.PureComponent<Props, State> {
         getCommAndroidNotificationsEventEmitter();
       this.androidNotificationsEventSubscriptions.push(
         commAndroidNotificationsEventEmitter.addListener(
-          'commAndroidNotificationsToken',
+          CommAndroidNotifications.getConstants()
+            .COMM_ANDROID_NOTIFICATIONS_TOKEN,
           this.handleAndroidDeviceToken,
         ),
         commAndroidNotificationsEventEmitter.addListener(
-          'commAndroidNotificationsMessage',
+          CommAndroidNotifications.getConstants()
+            .COMM_ANDROID_NOTIFICATIONS_MESSAGE,
           this.androidMessageReceived,
         ),
         commAndroidNotificationsEventEmitter.addListener(
-          'commAndroidNotificationsNotificationOpened',
+          CommAndroidNotifications.getConstants()
+            .COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED,
           this.androidNotificationOpened,
         ),
       );
