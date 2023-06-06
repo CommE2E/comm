@@ -25,11 +25,15 @@ import {
 } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
-import CommunityDrawerItemCommunity from './community-drawer-item-community.react.js';
+import CommunityDrawerItem from './community-drawer-item.react.js';
 import { CommunityCreationRouteName } from './route-names.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
+import {
+  flattenDrawerItemsData,
+  filterThreadAndDescendantIDs,
+} from '../utils/drawer-utils.react.js';
 
 const maxDepth = 2;
 const safeAreaEdges = Platform.select({
@@ -61,28 +65,15 @@ function CommunityDrawerContent(): React.Node {
     })();
   }, [callFetchPrimaryLinks, dispatchActionPromise, drawerStatus]);
 
-  const [openCommunity, setOpenCommunity] = React.useState(
-    communitiesSuffixed.length === 1 ? communitiesSuffixed[0].id : null,
+  const [expanded, setExpanded] = React.useState(
+    communitiesSuffixed.length === 1 ? [communitiesSuffixed[0].id] : [],
   );
 
-  const navigateToThread = useNavigateToThread();
-  const childThreadInfosMap = useSelector(childThreadInfos);
-
-  const setOpenCommunityOrClose = React.useCallback((index: string) => {
-    setOpenCommunity(open => (open === index ? null : index));
-  }, []);
-
-  const renderItem = React.useCallback(
-    ({ item }) => (
-      <CommunityDrawerItemCommunity
-        key={item.threadInfo.id}
-        itemData={item}
-        toggleExpanded={setOpenCommunityOrClose}
-        expanded={item.threadInfo.id === openCommunity}
-        navigateToThread={navigateToThread}
-      />
-    ),
-    [navigateToThread, openCommunity, setOpenCommunityOrClose],
+  const setOpenCommunityOrClose = React.useCallback(
+    (id: string) => {
+      expanded.includes(id) ? setExpanded([]) : setExpanded([id]);
+    },
+    [expanded],
   );
 
   const labelStylesObj = useStyles(labelUnboundStyles);
@@ -94,6 +85,7 @@ function CommunityDrawerContent(): React.Node {
     ],
     [labelStylesObj],
   );
+  const childThreadInfosMap = useSelector(childThreadInfos);
 
   const drawerItemsData = React.useMemo(
     () =>
@@ -104,6 +96,38 @@ function CommunityDrawerContent(): React.Node {
         maxDepth,
       ),
     [childThreadInfosMap, communitiesSuffixed, labelStyles],
+  );
+
+  const toggleExpanded = React.useCallback(
+    (id: string) => {
+      if (expanded.includes(id)) {
+        setExpanded(expandedState =>
+          filterThreadAndDescendantIDs(expandedState, drawerItemsData, id),
+        );
+        return;
+      }
+      setExpanded([...expanded, id]);
+    },
+    [drawerItemsData, expanded],
+  );
+
+  const navigateToThread = useNavigateToThread();
+
+  const renderItem = React.useCallback(
+    ({ item }) => {
+      return (
+        <CommunityDrawerItem
+          key={item.threadInfo.id}
+          itemData={item}
+          navigateToThread={navigateToThread}
+          expanded={expanded.includes(item.threadInfo.id)}
+          toggleExpanded={
+            item.isCommunity ? setOpenCommunityOrClose : toggleExpanded
+          }
+        />
+      );
+    },
+    [expanded, navigateToThread, setOpenCommunityOrClose, toggleExpanded],
   );
 
   const { navigate } = useNavigation();
@@ -130,9 +154,18 @@ function CommunityDrawerContent(): React.Node {
     );
   }
 
+  const flattenedDrawerItemsData = React.useMemo(
+    () => flattenDrawerItemsData(drawerItemsData, expanded),
+    [drawerItemsData, expanded],
+  );
+
   return (
     <SafeAreaView style={styles.drawerContent} edges={safeAreaEdges}>
-      <FlatList data={drawerItemsData} renderItem={renderItem} />
+      <FlatList
+        data={flattenedDrawerItemsData}
+        renderItem={renderItem}
+        initialNumToRender={30}
+      />
       {communityCreationButton}
     </SafeAreaView>
   );
