@@ -48,6 +48,7 @@ import {
   decryptDatabaseFile,
   encryptDatabaseFile,
   generateDatabaseCryptoKey,
+  importJWKKey,
 } from '../utils/worker-crypto-utils.js';
 
 localforage.config(localforageConfig);
@@ -58,11 +59,19 @@ let encryptionKey: ?CryptoKey = null;
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
 
-async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
-  encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
-  if (!encryptionKey) {
-    const cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
-    await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
+async function initDatabase(
+  sqljsFilePath: string,
+  sqljsFilename: ?string,
+  encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
+) {
+  if (encryptionKeyJWK) {
+    encryptionKey = await importJWKKey(encryptionKeyJWK);
+  } else {
+    encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
+    if (!encryptionKey) {
+      const cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
+      await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
+    }
   }
 
   const encryptedContent = await localforage.getItem(SQLITE_CONTENT);
@@ -198,7 +207,11 @@ async function processAppRequest(
 
   // database operations
   if (message.type === workerRequestMessageTypes.INIT) {
-    await initDatabase(message.sqljsFilePath, message.sqljsFilename);
+    await initDatabase(
+      message.sqljsFilePath,
+      message.sqljsFilename,
+      message.encryptionKey,
+    );
     return undefined;
   } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
     encryptionKey = null;
