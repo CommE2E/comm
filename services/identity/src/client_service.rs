@@ -22,7 +22,11 @@ use crate::{
   database::{DatabaseClient, Error as DBError, KeyPayload},
   id::generate_uuid,
   nonce::generate_nonce_data,
-  reserved_users::validate_signed_account_ownership_message,
+  reserved_users::{
+    validate_add_reserved_username_message,
+    validate_remove_reserved_username_message,
+    validate_signed_account_ownership_message,
+  },
   siwe::parse_and_verify_siwe_message,
   token::{AccessTokenData, AuthType},
 };
@@ -817,16 +821,44 @@ impl IdentityClientService for ClientService {
 
   async fn add_reserved_username(
     &self,
-    _request: tonic::Request<AddReservedUsernameRequest>,
+    request: tonic::Request<AddReservedUsernameRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!()
+    let message = request.into_inner();
+
+    let username = validate_add_reserved_username_message(
+      &message.message,
+      &message.signature,
+    )?;
+
+    self
+      .client
+      .add_username_to_reserved_usernames_table(username)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Response::new(Empty {});
+    Ok(response)
   }
 
   async fn remove_reserved_username(
     &self,
-    _request: tonic::Request<RemoveReservedUsernameRequest>,
+    request: tonic::Request<RemoveReservedUsernameRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!()
+    let message = request.into_inner();
+
+    let username = validate_remove_reserved_username_message(
+      &message.message,
+      &message.signature,
+    )?;
+
+    self
+      .client
+      .delete_username_from_reserved_usernames_table(username)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Response::new(Empty {});
+    Ok(response)
   }
 }
 
