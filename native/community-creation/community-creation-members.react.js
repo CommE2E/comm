@@ -23,6 +23,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 export type CommunityCreationMembersScreenParams = {
   +announcement: boolean,
+  +threadID: string,
 };
 
 const TagInput = createTagInput<AccountUserInfo>();
