@@ -176,6 +176,17 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
     final Map<String, Object> constants = new HashMap<>();
     constants.put(
         "NOTIFICATIONS_IMPORTANCE_HIGH", NotificationManager.IMPORTANCE_HIGH);
+    constants.put(
+        "COMM_ANDROID_NOTIFICATIONS_TOKEN",
+        CommAndroidNotificationsEventEmitter.COMM_ANDROID_NOTIFICATIONS_TOKEN);
+    constants.put(
+        "COMM_ANDROID_NOTIFICATIONS_MESSAGE",
+        CommAndroidNotificationsEventEmitter
+            .COMM_ANDROID_NOTIFICATIONS_MESSAGE);
+    constants.put(
+        "COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED",
+        CommAndroidNotificationsEventEmitter
+            .COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED);
     return constants;
   }
 

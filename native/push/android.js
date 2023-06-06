@@ -4,6 +4,13 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 
+type CommAndroidNotificationsConstants = {
+  +NOTIFICATIONS_IMPORTANCE_HIGH: number,
+  +COMM_ANDROID_NOTIFICATIONS_TOKEN: 'commAndroidNotificationsToken',
+  +COMM_ANDROID_NOTIFICATIONS_MESSAGE: 'commAndroidNotificationsMessage',
+  +COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED: 'commAndroidNotificationsNotificationOpened',
+};
+
 type CommAndroidNotificationsModuleType = {
   +removeAllActiveNotificationsForThread: (threadID: string) => void,
   +getInitialNotification: () => Promise<?AndroidMessage>,
@@ -13,14 +20,14 @@ type CommAndroidNotificationsModuleType = {
     importance: number,
     description: ?string,
   ) => void,
-  +getConstants: () => { +NOTIFICATIONS_IMPORTANCE_HIGH: number, ... },
+  +getConstants: () => CommAndroidNotificationsConstants,
   +setBadge: (count: number) => void,
   +removeAllDeliveredNotifications: () => void,
   +hasPermission: () => Promise<boolean>,
   +getToken: () => Promise<string>,
   +requestNotificationsPermission: () => Promise<boolean>,
   +canRequestNotificationsPermissionFromUser: () => Promise<boolean>,
-  +NOTIFICATIONS_IMPORTANCE_HIGH: string,
+  ...CommAndroidNotificationsConstants,
 };
 export type AndroidMessage = {
   +body: string,
