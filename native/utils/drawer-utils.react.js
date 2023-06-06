@@ -91,4 +91,44 @@ function flattenDrawerItemsDataRecurrent(
   return results;
 }
 
-export { flattenDrawerItemsData };
+function findAllDescendantIDs(
+  data: $ReadOnlyArray<CommunityDrawerItemData<TextStyle>>,
+): $ReadOnlyArray<string> {
+  const results = [];
+  for (const item of data) {
+    results.push(item.threadInfo.id);
+    results.concat(findAllDescendantIDs(item.itemChildren));
+  }
+  return results;
+}
+
+function findThreadChildrenItems(
+  data: $ReadOnlyArray<CommunityDrawerItemData<TextStyle>>,
+  id: string,
+): ?$ReadOnlyArray<CommunityDrawerItemData<TextStyle>> {
+  for (const item of data) {
+    if (item.threadInfo.id === id) {
+      return item.itemChildren;
+    }
+    const result = findThreadChildrenItems(item.itemChildren, id);
+    if (result) {
+      return result;
+    }
+  }
+  return undefined;
+}
+
+function filterThreadAndDescendantIDs(
+  ids: $ReadOnlyArray<string>,
+  allItems: $ReadOnlyArray<CommunityDrawerItemData<TextStyle>>,
+  id: string,
+): $ReadOnlyArray<string> {
+  const childItems = findThreadChildrenItems(allItems, id);
+  if (!childItems) {
+    return [];
+  }
+  const descendants = findAllDescendantIDs(childItems);
+  return ids.filter(item => !descendants.includes(item) && !(item === id));
+}
+
+export { flattenDrawerItemsData, filterThreadAndDescendantIDs };
