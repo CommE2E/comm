@@ -22,6 +22,7 @@ export const DB_SUPPORTED_BROWSERS: $ReadOnlyArray<string> = [
   'chrome',
   'firefox',
   'opera',
+  'safari',
 ];
 
 export const localforageConfig: PartialConfig = {
