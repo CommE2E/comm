@@ -225,4 +225,11 @@
   --pinned-count-text-color: var(--shades-white-90);
   --modal-overlay-background-90: rgba(0, 0, 0, 0.9);
   --modal-overlay-background-80: rgba(0, 0, 0, 0.8);
+  --dropdown-text: var(--shades-white-100);
+  --dropdown-select-bg: var(--shades-black-90);
+  --dropdown-select-border: var(--shades-white-60);
+  --dropdown-option-bg: var(--shades-black-80);
+  --dropdown-option-hover-bg: var(--shades-black-70);
+  --dropdown-selected-option-check-color: var(--violet-dark-100);
+  --dropdown-disabled-color: var(--shades-black-60);
 }
