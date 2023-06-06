@@ -35,7 +35,7 @@ use constant_time_eq::constant_time_eq;
 use moka::future::Cache;
 use rand::rngs::OsRng;
 use tonic::Response;
-use tracing::error;
+use tracing::{debug, error};
 
 use self::client_proto::ReservedRegistrationStartRequest;
 
@@ -749,9 +749,41 @@ impl IdentityClientService for ClientService {
 
   async fn upload_one_time_keys(
     &self,
-    _request: tonic::Request<UploadOneTimeKeysRequest>,
+    request: tonic::Request<UploadOneTimeKeysRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    debug!("Validating token: {:?}", message);
+    let token_valid = self
+      .client
+      .verify_access_token(
+        message.user_id.clone(),
+        message.device_id.clone(),
+        message.access_token,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    if !token_valid {
+      return Err(tonic::Status::unauthenticated("Invalid token"));
+    }
+
+    debug!(
+      "Attempting to update one time keys for user: {}",
+      message.user_id
+    );
+    self
+      .client
+      .append_one_time_prekeys(
+        message.user_id,
+        message.device_id,
+        message.content_one_time_pre_keys,
+        message.notif_one_time_pre_keys,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    Ok(tonic::Response::new(Empty {}))
   }
 
   async fn refresh_user_pre_keys(
