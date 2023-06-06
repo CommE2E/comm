@@ -72,4 +72,47 @@ function flattenDrawerItemsData(
   return results;
 }
 
-export { flattenDrawerItemsData };
+function findAllDescendantIDs<T>(
+  data: $ReadOnlyArray<CommunityDrawerItemData<T>>,
+): $ReadOnlyArray<string> {
+  const results = [];
+  for (const item of data) {
+    results.push(item.threadInfo.id);
+    results.concat(findAllDescendantIDs(item.itemChildren));
+  }
+  return results;
+}
+
+function findThreadChildrenItems<T>(
+  data: $ReadOnlyArray<CommunityDrawerItemData<T>>,
+  id: string,
+): ?$ReadOnlyArray<CommunityDrawerItemData<T>> {
+  for (const item of data) {
+    if (item.threadInfo.id === id) {
+      return item.itemChildren;
+    }
+    const result = findThreadChildrenItems(item.itemChildren, id);
+    if (result) {
+      return result;
+    }
+  }
+  return undefined;
+}
+
+function filterOutThreadAndDescendantIDs<T>(
+  idsToFilter: $ReadOnlyArray<string>,
+  allItems: $ReadOnlyArray<CommunityDrawerItemData<T>>,
+  threadID: string,
+): $ReadOnlyArray<string> {
+  const childItems = findThreadChildrenItems(allItems, threadID);
+  if (!childItems) {
+    return [];
+  }
+  const descendants = findAllDescendantIDs(childItems);
+  const descendantsSet = new Set(descendants);
+  return idsToFilter.filter(
+    item => !descendantsSet.has(item) && item !== threadID,
+  );
+}
+
+export { flattenDrawerItemsData, filterOutThreadAndDescendantIDs };
