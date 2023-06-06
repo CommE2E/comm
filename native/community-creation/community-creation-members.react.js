@@ -1,14 +1,25 @@
 // @flow
 
 import * as React from 'react';
+import { ActivityIndicator } from 'react-native';
 
+import {
+  changeThreadSettings,
+  changeThreadSettingsActionTypes,
+} from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors.js';
 import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
 import CommunityCreationContentContainer from './community-creation-content-container.react.js';
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
@@ -39,8 +50,18 @@ type Props = {
   +route: NavigationRoute<'CommunityCreationMembers'>,
 };
 
+const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadSettingsActionTypes,
+);
+
 function CommunityCreationMembers(props: Props): React.Node {
-  const { announcement } = props.route.params;
+  const { announcement, threadID } = props.route.params;
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const changeThreadSettingsLoadingStatus: LoadingStatus = useSelector(
+    changeThreadSettingsLoadingStatusSelector,
+  );
 
   const { navigation } = props;
   const { setOptions } = navigation;
@@ -58,21 +79,60 @@ function CommunityCreationMembers(props: Props): React.Node {
     [selectedUsers],
   );
 
+  const addSelectedUsersToCommunity = React.useCallback(() => {
+    dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      (async () => {
+        const result = await callChangeThreadSettings({
+          threadID,
+          changes: { newMemberIDs: selectedUserIDs },
+        });
+        navigation.navigate(ChatThreadListRouteName);
+        return result;
+      })(),
+    );
+  }, [
+    callChangeThreadSettings,
+    dispatchActionPromise,
+    navigation,
+    selectedUserIDs,
+    threadID,
+  ]);
+
   const exitCommunityCreationFlow = React.useCallback(() => {
     navigation.navigate(ChatThreadListRouteName);
   }, [navigation]);
 
+  const activityIndicatorStyle = React.useMemo(
+    () => ({ paddingRight: 20 }),
+    [],
+  );
+
   React.useEffect(() => {
     setOptions({
       // eslint-disable-next-line react/display-name
-      headerRight: () => (
-        <LinkButton
-          text={selectedUserIDs.length === 0 ? 'Skip' : 'Done'}
-          onPress={exitCommunityCreationFlow}
-        />
-      ),
+      headerRight: () =>
+        changeThreadSettingsLoadingStatus === 'loading' ? (
+          <ActivityIndicator size="small" style={activityIndicatorStyle} />
+        ) : (
+          <LinkButton
+            text={selectedUserIDs.length === 0 ? 'Skip' : 'Done'}
+            onPress={
+              selectedUserIDs.length === 0
+                ? exitCommunityCreationFlow
+                : addSelectedUsersToCommunity
+            }
+          />
+        ),
     });
-  }, [exitCommunityCreationFlow, selectedUserIDs.length, setOptions]);
+  }, [
+    activityIndicatorStyle,
+    addSelectedUsersToCommunity,
+    changeThreadSettingsLoadingStatus,
+    exitCommunityCreationFlow,
+    selectedUserIDs.length,
+    setOptions,
+  ]);
 
   const userSearchResults = React.useMemo(
     () =>
