@@ -131,24 +131,28 @@ class PushHandler extends React.PureComponent<Props, State> {
         getCommIOSNotificationsEventEmitter();
       this.iosNotificationEventSubscriptions.push(
         commIOSNotificationsEventEmitter.addListener(
-          'remoteNotificationsRegistered',
+          CommIOSNotifications.getConstants()
+            .REMOTE_NOTIFICATIONS_REGISTERED_EVENT,
           registration =>
             this.registerPushPermissions(registration?.deviceToken),
         ),
         commIOSNotificationsEventEmitter.addListener(
-          'remoteNotificationsRegistrationFailed',
+          CommIOSNotifications.getConstants()
+            .REMOTE_NOTIFICATIONS_REGISTRATION_FAILED_EVENT,
           this.failedToRegisterPushPermissionsIOS,
         ),
         commIOSNotificationsEventEmitter.addListener(
-          'notificationReceivedForeground',
+          CommIOSNotifications.getConstants()
+            .NOTIFICATION_RECEIVED_FOREGROUND_EVENT,
           this.iosForegroundNotificationReceived,
         ),
         commIOSNotificationsEventEmitter.addListener(
-          'notificationOpened',
+          CommIOSNotifications.getConstants().NOTIFICATION_OPENED_EVENT,
           this.iosNotificationOpened,
         ),
         commIOSNotificationsEventEmitter.addListener(
-          'notificationReceivedBackground',
+          CommIOSNotifications.getConstants()
+            .NOTIFICATION_RECEIVED_BACKGROUND_EVENT,
           backgroundData => this.saveMessageInfos(backgroundData?.messageInfos),
         ),
       );
