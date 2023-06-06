@@ -7,13 +7,17 @@ type EncryptedData = {
   +ciphertext: Uint8Array,
 };
 
-function generateDatabaseCryptoKey(): Promise<CryptoKey> {
+function generateDatabaseCryptoKey({
+  extractable,
+}: {
+  extractable: boolean,
+}): Promise<CryptoKey> {
   return crypto.subtle.generateKey(
     {
       name: ENCRYPTION_ALGORITHM,
       length: 256,
     },
-    false,
+    extractable,
     ['encrypt', 'decrypt'],
   );
 }

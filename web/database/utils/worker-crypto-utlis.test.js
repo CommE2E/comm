@@ -36,7 +36,7 @@ describe('database encryption utils', () => {
     database = new SQL.Database();
     setUpMockDb(database);
 
-    cryptoKey = await generateDatabaseCryptoKey();
+    cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
   });
 
   it('should encrypt database content', async () => {
@@ -57,7 +57,9 @@ describe('database encryption utils', () => {
     const dbContent: Uint8Array = database.export();
     const encryptedData = await encryptDatabaseFile(dbContent, cryptoKey);
 
-    const newCryptoKey = await generateDatabaseCryptoKey();
+    const newCryptoKey = await generateDatabaseCryptoKey({
+      extractable: false,
+    });
     expect(decryptDatabaseFile(encryptedData, newCryptoKey)).rejects.toThrow();
   });
 

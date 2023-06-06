@@ -61,7 +61,7 @@ let persistInProgress: boolean = false;
 async function initDatabase(sqljsFilePath: string, sqljsFilename: ?string) {
   encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
   if (!encryptionKey) {
-    const cryptoKey = await generateDatabaseCryptoKey();
+    const cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
     await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
   }
 
@@ -191,7 +191,7 @@ async function processAppRequest(
   } else if (
     message.type === workerRequestMessageTypes.GENERATE_DATABASE_ENCRYPTION_KEY
   ) {
-    const cryptoKey = await generateDatabaseCryptoKey();
+    const cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
     await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
     return undefined;
   }
