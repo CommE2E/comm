@@ -22,6 +22,13 @@ public class CommAndroidNotificationsEventEmitter
   private static final String TAG = "CommAndroidNotifications";
   private volatile int listenersCount = 0;
 
+  public static final String COMM_ANDROID_NOTIFICATIONS_TOKEN =
+      "commAndroidNotificationsToken";
+  public static final String COMM_ANDROID_NOTIFICATIONS_MESSAGE =
+      "commAndroidNotificationsMessage";
+  public static final String COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED =
+      "commAndroidNotificationsNotificationOpened";
+
   CommAndroidNotificationsEventEmitter(ReactApplicationContext reactContext) {
     super(reactContext);
     reactContext.addActivityEventListener(
@@ -76,7 +83,8 @@ public class CommAndroidNotificationsEventEmitter
             initialNotification);
     if (jsReadableNotification != null) {
       sendEventToJS(
-          "commAndroidNotificationsNotificationOpened", jsReadableNotification);
+          COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED,
+          jsReadableNotification);
     }
   }
 
@@ -85,7 +93,7 @@ public class CommAndroidNotificationsEventEmitter
     @Override
     public void onReceive(Context context, Intent intent) {
       String token = intent.getStringExtra("token");
-      sendEventToJS("commAndroidNotificationsToken", token);
+      sendEventToJS(COMM_ANDROID_NOTIFICATIONS_TOKEN, token);
     }
   }
 
@@ -97,7 +105,7 @@ public class CommAndroidNotificationsEventEmitter
       WritableMap jsMessage =
           CommAndroidNotificationParser.parseRemoteMessageToJSMessage(message);
       if (jsMessage != null) {
-        sendEventToJS("commAndroidNotificationsMessage", jsMessage);
+        sendEventToJS(COMM_ANDROID_NOTIFICATIONS_MESSAGE, jsMessage);
       }
     }
   }
