@@ -37,7 +37,9 @@ use rand::rngs::OsRng;
 use tonic::Response;
 use tracing::error;
 
-use self::client_proto::ReservedRegistrationStartRequest;
+use self::client_proto::{
+  ReservedRegistrationStartRequest, UpdateReservedUsernamesListRequest,
+};
 
 #[derive(Clone)]
 pub enum WorkflowInProgress {
@@ -782,6 +784,13 @@ impl IdentityClientService for ClientService {
     };
     let response = Response::new(VerifyUserAccessTokenResponse { token_valid });
     Ok(response)
+  }
+
+  async fn update_reserved_usernames_list(
+    &self,
+    _request: tonic::Request<UpdateReservedUsernamesListRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    unimplemented!()
   }
 }
 
