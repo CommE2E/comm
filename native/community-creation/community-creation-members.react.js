@@ -14,9 +14,11 @@ import CommunityCreationContentContainer from './community-creation-content-cont
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
+import LinkButton from '../components/link-button.react.js';
 import { createTagInput } from '../components/tag-input.react.js';
 import UserList from '../components/user-list.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { ChatThreadListRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 export type CommunityCreationMembersScreenParams = {
@@ -39,6 +41,9 @@ type Props = {
 function CommunityCreationMembers(props: Props): React.Node {
   const { announcement } = props.route.params;
 
+  const { navigation } = props;
+  const { setOptions } = navigation;
+
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
 
@@ -51,6 +56,22 @@ function CommunityCreationMembers(props: Props): React.Node {
     () => selectedUsers.map(userInfo => userInfo.id),
     [selectedUsers],
   );
+
+  const exitCommunityCreationFlow = React.useCallback(() => {
+    navigation.navigate(ChatThreadListRouteName);
+  }, [navigation]);
+
+  React.useEffect(() => {
+    setOptions({
+      // eslint-disable-next-line react/display-name
+      headerRight: () => (
+        <LinkButton
+          text={selectedUserIDs.length === 0 ? 'Skip' : 'Done'}
+          onPress={exitCommunityCreationFlow}
+        />
+      ),
+    });
+  }, [exitCommunityCreationFlow, selectedUserIDs.length, setOptions]);
 
   const userSearchResults = React.useMemo(
     () =>
