@@ -3,7 +3,7 @@ use tracing::error;
 
 use crate::config::CONFIG;
 
-pub fn check_auth(req: Request<()>) -> Result<Request<()>, Status> {
+pub fn check_auth<T>(req: Request<T>) -> Result<Request<T>, Status> {
   let token: MetadataValue<_> =
     CONFIG.keyserver_auth_token.parse().map_err(|e| {
       error!("Invalid auth token on server: {}", e);

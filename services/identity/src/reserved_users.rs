@@ -13,7 +13,7 @@ struct AccountOwnershipMessage {
   issued_at: String,
 }
 
-pub fn validate_signed_keyserver_message(
+pub fn validate_signed_account_ownership_message(
   username: &str,
   keyserver_message: &str,
   keyserver_signature: &str,
