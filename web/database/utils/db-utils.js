@@ -45,4 +45,9 @@ function isSQLiteSupported(currentLoggedInUserID: ?string): boolean {
   );
 }
 
-export { parseMultiStatementSQLiteResult, isSQLiteSupported };
+function isDesktopSafari(): boolean {
+  const browser = detectBrowser();
+  return browser.name === 'safari' && browser.os === 'Mac OS';
+}
+
+export { parseMultiStatementSQLiteResult, isSQLiteSupported, isDesktopSafari };
