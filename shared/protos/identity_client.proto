@@ -303,9 +303,11 @@ message KeyserverKeysResponse {
 
 // As OPKs get exhausted, they need to be refreshed
 message UploadOneTimeKeysRequest {
-  // Use device associated with token to insert OPKs
-  string accessToken = 1;
-  repeated string oneTimePreKeys = 2;
+  string userID = 1;
+  string deviceID = 2;
+  string accessToken = 3;
+  repeated string contentOneTimePreKeys = 4;
+  repeated string notifOneTimePreKeys = 5;
 }
 
 // RefreshUserPreKeys
