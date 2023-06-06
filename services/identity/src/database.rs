@@ -218,6 +218,51 @@ impl DatabaseClient {
       .await
   }
 
+  pub async fn append_one_time_prekeys(
+    &self,
+    user_id: String,
+    device_id: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
+  ) -> Result<(), Error> {
+    let notif_keys_av: Vec<AttributeValue> = notif_one_time_keys
+      .into_iter()
+      .map(AttributeValue::S)
+      .collect();
+    let content_keys_av: Vec<AttributeValue> = content_one_time_keys
+      .into_iter()
+      .map(AttributeValue::S)
+      .collect();
+
+    let update_expression =
+      format!("SET {0}.#{1}.{2} = list_append({0}.#{1}.{2}, :n), {0}.#{1}.{3} = list_append({0}.#{1}.{3}, :i)",
+        USERS_TABLE_DEVICES_ATTRIBUTE,
+        "deviceID",
+        USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME,
+        USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME
+      );
+    let expression_attribute_names =
+      HashMap::from([(format!("#{}", "deviceID"), device_id)]);
+    let expression_attribute_values = HashMap::from([
+      (":n".to_string(), AttributeValue::L(notif_keys_av)),
+      (":i".to_string(), AttributeValue::L(content_keys_av)),
+    ]);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .set_expression_attribute_names(Some(expression_attribute_names))
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
+
   async fn add_device_to_users_table(
     &self,
     user_id: String,
