@@ -22,6 +22,19 @@ NSString *const CommIOSNotificationsReceivedBackground =
     @"CommIOSNotificationsReceivedBackground";
 
 /*
+ JavaScript Events Names
+*/
+NSString *const remoteNotificationsRegistered =
+    @"remoteNotificationsRegistered";
+NSString *const remoteNotificationsRegistrationFailed =
+    @"remoteNotificationsRegistrationFailed";
+NSString *const notificationReceivedForeground =
+    @"notificationReceivedForeground";
+NSString *const notificationOpened = @"notificationOpened";
+NSString *const notificationReceivedBackground =
+    @"notificationReceivedBackground";
+
+/*
  UIBackgroundFetchResult enum converter to pass fetch result value
  between Objective - C and JavaScript
 */
@@ -104,11 +117,11 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents {
   return @[
-    @"remoteNotificationsRegistered",
-    @"remoteNotificationsRegistrationFailed",
-    @"notificationReceivedForeground",
-    @"notificationOpened",
-    @"notificationReceivedBackground",
+    remoteNotificationsRegistered,
+    remoteNotificationsRegistrationFailed,
+    notificationReceivedForeground,
+    notificationOpened,
+    notificationReceivedBackground,
   ];
 }
 
@@ -119,7 +132,13 @@ RCT_EXPORT_MODULE()
   return @{
     @"FETCH_RESULT_NEW_DATA" : @"UIBackgroundFetchResultNewData",
     @"FETCH_RESULT_NO_DATA" : @"UIBackgroundFetchResultNoData",
-    @"FETCH_RESULT_FAILED" : @"UIBackgroundFetchResultFailed"
+    @"FETCH_RESULT_FAILED" : @"UIBackgroundFetchResultFailed",
+    @"REMOTE_NOTIFICATIONS_REGISTERED_EVENT" : remoteNotificationsRegistered,
+    @"REMOTE_NOTIFICATIONS_REGISTRATION_FAILED_EVENT" :
+        remoteNotificationsRegistrationFailed,
+    @"NOTIFICATION_RECEIVED_FOREGROUND_EVENT" : notificationReceivedForeground,
+    @"NOTIFICATION_OPENED_EVENT" : notificationOpened,
+    @"NOTIFICATION_RECEIVED_BACKGROUND_EVENT" : notificationReceivedBackground
   };
 }
 
@@ -211,13 +230,13 @@ RCT_EXPORT_MODULE()
 }
 
 /*
- JavaScript Events
+ JavaScript Events Emitters
  */
 - (void)handleNotificationsRegistered:(NSNotification *)notification {
   if (!_hasListeners) {
     return;
   }
-  [self sendEventWithName:@"remoteNotificationsRegistered"
+  [self sendEventWithName:remoteNotificationsRegistered
                      body:notification.userInfo];
 }
 
@@ -225,7 +244,7 @@ RCT_EXPORT_MODULE()
   if (!_hasListeners) {
     return;
   }
-  [self sendEventWithName:@"remoteNotificationsRegistrationFailed"
+  [self sendEventWithName:remoteNotificationsRegistrationFailed
                      body:notification.userInfo];
 }
 
@@ -254,21 +273,21 @@ RCT_EXPORT_MODULE()
     return;
   }
   [self handleNotifInfo:sysNotif.userInfo
-               withName:@"notificationReceivedForeground"];
+               withName:notificationReceivedForeground];
 }
 
 - (void)handleNotificationOpened:(NSNotification *)sysNotif {
   if (!_hasListeners) {
     return;
   }
-  [self handleNotifInfo:sysNotif.userInfo withName:@"notificationOpened"];
+  [self handleNotifInfo:sysNotif.userInfo withName:notificationOpened];
 }
 
 - (void)handleNotificationReceivedBackground:(NSNotification *)sysNotif {
   if (!_hasListeners) {
     return;
   }
-  [self sendEventWithName:@"notificationReceivedBackground"
+  [self sendEventWithName:notificationReceivedBackground
                      body:sysNotif.userInfo];
 }
 
