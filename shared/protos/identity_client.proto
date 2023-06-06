@@ -66,6 +66,13 @@ service IdentityClientService {
   // Called by other services to verify a user's access token
   rpc VerifyUserAccessToken(VerifyUserAccessTokenRequest) returns
     (VerifyUserAccessTokenResponse) {}
+
+  // Ashoat's keyserver actions
+
+  // Called by Ashoat's keyserver to add/remove usernames from the Identity
+  // service's reserved list
+  rpc UpdateReservedUsernamesList(UpdateReservedUsernamesListRequest) returns
+    (Empty) {}
 }
 
 // Helper types
@@ -327,4 +334,15 @@ message VerifyUserAccessTokenRequest {
 
 message VerifyUserAccessTokenResponse {
   bool tokenValid = 1;
+}
+
+// UpdateReservedUsernamesList
+
+message UpdateReservedUsernamesListRequest {
+  enum UpdateType {
+    ADD = 0;
+    REMOVE = 1;
+  }
+  UpdateType updateType = 1;
+  string username = 2;
 }
