@@ -36,6 +36,7 @@ export type InitWorkerRequestMessage = {
   +type: 1,
   +sqljsFilePath: string,
   +sqljsFilename: ?string,
+  +encryptionKey?: ?SubtleCrypto$JsonWebKey,
 };
 
 export type GenerateDatabaseEncryptionKeyRequestMessage = {
