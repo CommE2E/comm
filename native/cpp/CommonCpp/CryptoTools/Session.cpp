@@ -42,7 +42,8 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
           randomBuffer.data(),
           randomBuffer.size())) {
     throw std::runtime_error(
-        "error createOutbound => ::olm_create_outbound_session");
+        "error createOutbound => " +
+        std::string{::olm_session_last_error(session->olmSession)});
   }
   return session;
 }
@@ -64,7 +65,8 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
           tmpEncryptedMessage.data(),
           encryptedMessage.size())) {
     throw std::runtime_error(
-        "error createInbound => ::olm_create_inbound_session");
+        "error createInbound => " +
+        std::string{::olm_session_last_error(session->olmSession)});
   }
   return session;
 }
