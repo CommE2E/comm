@@ -111,24 +111,20 @@ function CommunityDrawerContent(): React.Node {
     navigate(CommunityCreationRouteName);
   }, [navigate]);
 
-  const isCommunityCreationButtonEnabled = false;
-  let communityCreationButton;
-  if (isCommunityCreationButtonEnabled) {
-    communityCreationButton = (
-      <TouchableOpacity onPress={onPressCommunityCreation} activeOpacity={0.4}>
-        <View style={styles.communityCreationContainer}>
-          <View style={styles.communityCreationIconContainer}>
-            <SWMansionIcon
-              name="plus"
-              size={22}
-              style={styles.communityCreationIcon}
-            />
-          </View>
-          <Text style={styles.communityCreationText}>Create community</Text>
+  const communityCreationButton = (
+    <TouchableOpacity onPress={onPressCommunityCreation} activeOpacity={0.4}>
+      <View style={styles.communityCreationContainer}>
+        <View style={styles.communityCreationIconContainer}>
+          <SWMansionIcon
+            name="plus"
+            size={22}
+            style={styles.communityCreationIcon}
+          />
         </View>
-      </TouchableOpacity>
-    );
-  }
+        <Text style={styles.communityCreationText}>Create community</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.drawerContent} edges={safeAreaEdges}>
