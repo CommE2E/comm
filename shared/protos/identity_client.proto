@@ -66,6 +66,15 @@ service IdentityClientService {
   // Called by other services to verify a user's access token
   rpc VerifyUserAccessToken(VerifyUserAccessTokenRequest) returns
     (VerifyUserAccessTokenResponse) {}
+
+  // Ashoat's keyserver actions
+
+  // Called by Ashoat's keyserver to add usernames to the Identity service's
+  // reserved list
+  rpc AddReservedUsername(AddReservedUsernameRequest) returns (Empty) {}
+  // Called by Ashoat's keyserver to remove usernames from the Identity
+  // service's reserved list
+  rpc RemoveReservedUsername(RemoveReservedUsernameRequest) returns (Empty) {}
 }
 
 // Helper types
@@ -327,4 +336,20 @@ message VerifyUserAccessTokenRequest {
 
 message VerifyUserAccessTokenResponse {
   bool tokenValid = 1;
+}
+
+// AddReservedUsername
+
+message AddReservedUsernameRequest {
+  string username = 1;
+  // username signed with Ashoat's keyserver's signing ed25519 key
+  string signature = 2;
+}
+
+// RemoveReservedUsername
+
+message RemoveReservedUsernameRequest {
+  string username = 1;
+  // username signed with Ashoat's keyserver's signing ed25519 key
+  string signature = 2;
 }

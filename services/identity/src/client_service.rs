@@ -37,7 +37,10 @@ use rand::rngs::OsRng;
 use tonic::Response;
 use tracing::error;
 
-use self::client_proto::ReservedRegistrationStartRequest;
+use self::client_proto::{
+  AddReservedUsernameRequest, RemoveReservedUsernameRequest,
+  ReservedRegistrationStartRequest,
+};
 
 #[derive(Clone)]
 pub enum WorkflowInProgress {
@@ -782,6 +785,20 @@ impl IdentityClientService for ClientService {
     };
     let response = Response::new(VerifyUserAccessTokenResponse { token_valid });
     Ok(response)
+  }
+
+  async fn add_reserved_username(
+    &self,
+    _request: tonic::Request<AddReservedUsernameRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    unimplemented!()
+  }
+
+  async fn remove_reserved_username(
+    &self,
+    _request: tonic::Request<RemoveReservedUsernameRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    unimplemented!()
   }
 }
 
