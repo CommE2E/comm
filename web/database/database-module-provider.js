@@ -1,7 +1,7 @@
 // @flow
 
 import { DATABASE_WORKER_PATH, SQLJS_FILE_PATH } from './utils/constants.js';
-import { isSQLiteSupported } from './utils/db-utils.js';
+import { isDesktopSafari, isSQLiteSupported } from './utils/db-utils.js';
 import WorkerConnectionProxy from './utils/WorkerConnectionProxy.js';
 import type { AppState } from '../redux/redux-setup.js';
 import {
@@ -22,6 +22,8 @@ const databaseStatuses = Object.freeze({
 
 type DatabaseStatus = $Values<typeof databaseStatuses>;
 
+const isSafari = isDesktopSafari();
+
 class DatabaseModule {
   worker: SharedWorker;
   workerProxy: WorkerConnectionProxy;
@@ -34,7 +36,7 @@ class DatabaseModule {
       : preloadedState.currentUserInfo?.id;
     const isSupported = isSQLiteSupported(currentLoggedInUserID);
 
-    if (!isSupported) {
+    if (!isSupported || isSafari) {
       this.status = databaseStatuses.notSupported;
     } else {
       this.init();
