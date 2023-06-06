@@ -456,6 +456,9 @@ async function postMessageSend(
             }
             const { generatesNotifs } = messageSpecs[type];
             const messageData = messageDatas[messageIndex];
+            if (!generatesNotifs) {
+              return undefined;
+            }
             const doesGenerateNotif = await generatesNotifs(
               messageInfo,
               messageData,
