@@ -5,7 +5,9 @@ import initSqlJs, { type SqliteDatabase } from 'sql.js';
 import {
   decryptDatabaseFile,
   encryptDatabaseFile,
+  exportKeyToJWK,
   generateDatabaseCryptoKey,
+  importJWKKey,
 } from './worker-crypto-utils.js';
 import { getSQLiteDBVersion } from '../queries/db-queries.js';
 
@@ -79,6 +81,24 @@ describe('database encryption utils', () => {
     const dbContent: Uint8Array = database.export();
     const encryptedData = await encryptDatabaseFile(dbContent, cryptoKey);
     const decrypted = await decryptDatabaseFile(encryptedData, cryptoKey);
+
+    const SQL = await initSqlJs();
+    const newDatabase = new SQL.Database(decrypted);
+    expect(getSQLiteDBVersion(newDatabase)).toBe(TEST_DB_VERSION);
+  });
+
+  it('should export and import key in JWK format', async () => {
+    // creating new key
+    const key = await generateDatabaseCryptoKey({ extractable: true });
+    const dbContent: Uint8Array = database.export();
+    const encryptedData = await encryptDatabaseFile(dbContent, key);
+
+    // exporting and importing key
+    const exportedKey = await exportKeyToJWK(key);
+    const importedKey = await importJWKKey(exportedKey);
+
+    // decrypt using re-created on import key
+    const decrypted = await decryptDatabaseFile(encryptedData, importedKey);
 
     const SQL = await initSqlJs();
     const newDatabase = new SQL.Database(decrypted);
