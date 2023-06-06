@@ -8,6 +8,7 @@ import {
   changeThreadSettingsActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
@@ -25,11 +26,11 @@ import CommunityCreationContentContainer from './community-creation-content-cont
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
+import { useNavigateToThread } from '../chat/message-list-types.js';
 import LinkButton from '../components/link-button.react.js';
 import { createTagInput } from '../components/tag-input.react.js';
 import UserList from '../components/user-list.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { ChatThreadListRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 export type CommunityCreationMembersScreenParams = {
@@ -79,6 +80,10 @@ function CommunityCreationMembers(props: Props): React.Node {
     [selectedUsers],
   );
 
+  const navigateToThread = useNavigateToThread();
+  const threadInfos = useSelector(threadInfoSelector);
+  const communityThreadInfo = threadInfos[threadID];
+
   const addSelectedUsersToCommunity = React.useCallback(() => {
     dispatchActionPromise(
       changeThreadSettingsActionTypes,
@@ -87,21 +92,22 @@ function CommunityCreationMembers(props: Props): React.Node {
           threadID,
           changes: { newMemberIDs: selectedUserIDs },
         });
-        navigation.navigate(ChatThreadListRouteName);
+        navigateToThread({ threadInfo: communityThreadInfo });
         return result;
       })(),
     );
   }, [
     callChangeThreadSettings,
+    communityThreadInfo,
     dispatchActionPromise,
-    navigation,
+    navigateToThread,
     selectedUserIDs,
     threadID,
   ]);
 
   const exitCommunityCreationFlow = React.useCallback(() => {
-    navigation.navigate(ChatThreadListRouteName);
-  }, [navigation]);
+    navigateToThread({ threadInfo: communityThreadInfo });
+  }, [communityThreadInfo, navigateToThread]);
 
   const activityIndicatorStyle = React.useMemo(
     () => ({ paddingRight: 20 }),
