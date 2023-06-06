@@ -74,19 +74,15 @@ function CommunityPicker(): React.Node {
     modalContext.pushModal(<CommunityCreationModal />);
   }, [modalContext]);
 
-  const isCommunityCreationButtonEnabled = false;
-  let communityCreationButton;
-  if (isCommunityCreationButtonEnabled) {
-    communityCreationButton = (
-      <a className={css.itemContainer} onClick={onPressCommunityCreationButton}>
-        <div className={css.sideLine} />
-        <div className={css.plusIcon}>
-          <SWMansionIcon icon="plus-small" size={26} />
-        </div>
-        <div className={css.buttonTitle}>Create community</div>
-      </a>
-    );
-  }
+  const communityCreationButton = (
+    <a className={css.itemContainer} onClick={onPressCommunityCreationButton}>
+      <div className={css.sideLine} />
+      <div className={css.plusIcon}>
+        <SWMansionIcon icon="plus-small" size={26} />
+      </div>
+      <div className={css.buttonTitle}>Create community</div>
+    </a>
+  );
 
   const boundUnreadCount = useSelector(unreadCount);
   let chatBadge = null;
