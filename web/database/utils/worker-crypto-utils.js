@@ -1,6 +1,10 @@
 // @flow
 
 const ENCRYPTION_ALGORITHM = 'AES-GCM';
+const ENCRYPTION_KEY_USAGES: $ReadOnlyArray<CryptoKey$Usages> = [
+  'encrypt',
+  'decrypt',
+];
 
 type EncryptedData = {
   +iv: BufferSource,
@@ -18,7 +22,7 @@ function generateDatabaseCryptoKey({
       length: 256,
     },
     extractable,
-    ['encrypt', 'decrypt'],
+    ENCRYPTION_KEY_USAGES,
   );
 }
 
@@ -61,4 +65,28 @@ async function decryptDatabaseFile(
   return new Uint8Array(decrypted);
 }
 
-export { generateDatabaseCryptoKey, encryptDatabaseFile, decryptDatabaseFile };
+async function exportKeyToJWK(
+  key: CryptoKey,
+): Promise<SubtleCrypto$JsonWebKey> {
+  return await crypto.subtle.exportKey('jwk', key);
+}
+
+async function importJWKKey(
+  jwkKey: SubtleCrypto$JsonWebKey,
+): Promise<CryptoKey> {
+  return await crypto.subtle.importKey(
+    'jwk',
+    jwkKey,
+    ENCRYPTION_ALGORITHM,
+    true,
+    ENCRYPTION_KEY_USAGES,
+  );
+}
+
+export {
+  generateDatabaseCryptoKey,
+  encryptDatabaseFile,
+  decryptDatabaseFile,
+  exportKeyToJWK,
+  importJWKKey,
+};
