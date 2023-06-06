@@ -9,6 +9,17 @@ import type {
 
 type PushPermissions = { alert?: boolean, badge?: boolean, sound?: boolean };
 
+type CommIOSNotificationsConstants = {
+  +FETCH_RESULT_NO_DATA: 'UIBackgroundFetchResultNoData',
+  +FETCH_RESULT_NEW_DATA: 'UIBackgroundFetchResultNewData',
+  +FETCH_RESULT_FAILED: 'UIBackgroundFetchResultFailed',
+  +REMOTE_NOTIFICATIONS_REGISTERED_EVENT: 'remoteNotificationsRegistered',
+  +REMOTE_NOTIFICATIONS_REGISTRATION_FAILED_EVENT: 'remoteNotificationsRegistrationFailed',
+  +NOTIFICATION_RECEIVED_FOREGROUND_EVENT: 'notificationReceivedForeground',
+  +NOTIFICATION_OPENED_EVENT: 'notificationOpened',
+  +NOTIFICATION_RECEIVED_BACKGROUND_EVENT: 'notificationReceivedBackground',
+};
+
 type CommIOSNotificationsModuleType = {
   +requestPermissions: () => void,
   +checkPermissions: () => PushPermissions,
@@ -22,13 +33,11 @@ type CommIOSNotificationsModuleType = {
     ) => void,
   ) => void,
   +completeNotif: (id: string, fetchResult: string) => void,
-  +getConstants: () => { [string]: string },
+  +getConstants: () => CommIOSNotificationsConstants,
   // required since CommIOSNotifications subclasses RCTEventEmitter
   +addListener: (eventName: string) => void,
   +removeListeners: (count: number) => void,
-  +FETCH_RESULT_NO_DATA: string,
-  +FETCH_RESULT_NO_DATA: string,
-  +FETCH_RESULT_FAILED: string,
+  ...CommIOSNotificationsConstants,
 };
 
 const CommIOSNotifications: CommIOSNotificationsModuleType =
