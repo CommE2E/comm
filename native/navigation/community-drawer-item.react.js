@@ -1,9 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { View, FlatList, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
-import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';
@@ -13,68 +12,53 @@ import type { MessageListParams } from '../chat/message-list-types.js';
 import { SingleLine } from '../components/single-line.react.js';
 import InviteLinksButton from '../invite-links/invite-links-button.react.js';
 import { useStyles } from '../themes/colors.js';
-import type { TextStyle } from '../types/styles.js';
 import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
+import type { CommunityDrawerItemDataFlattened } from '../utils/drawer-utils.react.js';
 
 export type DrawerItemProps = {
-  +itemData: CommunityDrawerItemData<TextStyle>,
+  +itemData: CommunityDrawerItemDataFlattened,
   +toggleExpanded: (threadID: string) => void,
-  +expanded: boolean,
+  +isExpanded: boolean,
   +navigateToThread: (params: MessageListParams) => void,
 };
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const {
-    itemData: { threadInfo, itemChildren, labelStyle, hasSubchannelsButton },
+    itemData: {
+      threadInfo,
+      labelStyle,
+      hasSubchannelsButton,
+      hasChildren,
+      itemStyle,
+    },
     navigateToThread,
-    expanded,
+    isExpanded,
     toggleExpanded,
   } = props;
 
   const styles = useStyles(unboundStyles);
 
-  const renderItem = React.useCallback(
-    ({ item }) => (
-      <MemoizedCommunityDrawerItemChat
-        key={item.threadInfo.id}
-        itemData={item}
-        navigateToThread={navigateToThread}
-      />
-    ),
-    [navigateToThread],
-  );
-
-  const children = React.useMemo(() => {
-    if (!expanded) {
-      return null;
-    }
-    if (hasSubchannelsButton) {
+  const subchannelsButton = React.useMemo(() => {
+    if (isExpanded && hasSubchannelsButton) {
       return (
         <View style={styles.subchannelsButton}>
           <SubchannelsButton threadInfo={threadInfo} />
         </View>
       );
     }
-    return <FlatList data={itemChildren} renderItem={renderItem} />;
-  }, [
-    expanded,
-    itemChildren,
-    renderItem,
-    hasSubchannelsButton,
-    styles.subchannelsButton,
-    threadInfo,
-  ]);
+    return null;
+  }, [isExpanded, hasSubchannelsButton, styles.subchannelsButton, threadInfo]);
 
   const onExpandToggled = React.useCallback(() => {
     toggleExpanded(threadInfo.id);
   }, [toggleExpanded, threadInfo.id]);
 
   const itemExpandButton = React.useMemo(() => {
-    if (!itemChildren?.length && !hasSubchannelsButton) {
+    if (!hasChildren && !hasSubchannelsButton) {
       return <ExpandButtonDisabled />;
     }
-    return <ExpandButton onPress={onExpandToggled} expanded={expanded} />;
-  }, [itemChildren?.length, hasSubchannelsButton, onExpandToggled, expanded]);
+    return <ExpandButton onPress={onExpandToggled} expanded={isExpanded} />;
+  }, [hasChildren, hasSubchannelsButton, onExpandToggled, isExpanded]);
 
   const onPress = React.useCallback(() => {
     navigateToThread({ threadInfo });
@@ -96,8 +80,19 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     );
   }, [shouldRenderAvatars, styles.avatarContainer, threadInfo]);
 
+  const containerStyle = React.useMemo(
+    () => [
+      styles.container,
+      {
+        paddingLeft: itemStyle.indentation,
+      },
+      styles[itemStyle.background],
+    ],
+    [itemStyle.indentation, itemStyle.background, styles],
+  );
+
   return (
-    <View>
+    <View style={containerStyle}>
       <View style={styles.threadEntry}>
         {itemExpandButton}
         <TouchableOpacity
@@ -110,17 +105,34 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         </TouchableOpacity>
         <InviteLinksButton community={threadInfo} />
       </View>
-      {children}
+      {subchannelsButton}
     </View>
   );
 }
 
 const unboundStyles = {
+  container: {
+    paddingRight: 24,
+  },
+  none: {
+    paddingVertical: 2,
+  },
+  beginning: {
+    backgroundColor: 'drawerOpenCommunityBackground',
+    borderTopRightRadius: 8,
+    paddingTop: 2,
+  },
+  middle: {
+    backgroundColor: 'drawerOpenCommunityBackground',
+    paddingRight: 24,
+  },
+  end: {
+    backgroundColor: 'drawerOpenCommunityBackground',
+    borderBottomRightRadius: 8,
+    paddingBottom: 2,
+  },
   avatarContainer: {
     marginRight: 8,
-  },
-  chatView: {
-    marginLeft: 16,
   },
   threadEntry: {
     flexDirection: 'row',
@@ -136,34 +148,6 @@ const unboundStyles = {
     marginBottom: 6,
   },
 };
-
-export type CommunityDrawerItemChatProps = {
-  +itemData: CommunityDrawerItemData<TextStyle>,
-  +navigateToThread: (params: MessageListParams) => void,
-};
-
-function CommunityDrawerItemChat(
-  props: CommunityDrawerItemChatProps,
-): React.Node {
-  const [expanded, setExpanded] = React.useState(false);
-  const styles = useStyles(unboundStyles);
-
-  const toggleExpanded = React.useCallback(() => {
-    setExpanded(isExpanded => !isExpanded);
-  }, []);
-
-  return (
-    <View style={styles.chatView}>
-      <CommunityDrawerItem
-        {...props}
-        expanded={expanded}
-        toggleExpanded={toggleExpanded}
-      />
-    </View>
-  );
-}
-const MemoizedCommunityDrawerItemChat: React.ComponentType<CommunityDrawerItemChatProps> =
-  React.memo(CommunityDrawerItemChat);
 
 const MemoizedCommunityDrawerItem: React.ComponentType<DrawerItemProps> =
   React.memo(CommunityDrawerItem);
