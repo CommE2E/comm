@@ -28,6 +28,7 @@ type Props =
       +userInfo: ?GenericUserInfoWithAvatar,
       +disabled?: boolean,
       +prefetchedAvatarURI: ?string,
+      +showSpinnerDuringServerCall?: boolean,
     };
 function EditUserAvatar(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
@@ -111,8 +112,10 @@ function EditUserAvatar(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
 
+  const { showSpinnerDuringServerCall } = props;
+
   let spinner;
-  if (userAvatarSaveInProgress) {
+  if (userAvatarSaveInProgress && showSpinnerDuringServerCall !== false) {
     spinner = (
       <View style={styles.spinnerContainer}>
         <ActivityIndicator color="white" size="large" />
