@@ -1,6 +1,11 @@
 #pragma once
 
+#ifndef EMSCRIPTEN
 #include "../CryptoTools/Persist.h"
+#include <folly/Optional.h>
+#include <jsi/jsi.h>
+#endif
+
 #include "entities/Draft.h"
 #include "entities/Media.h"
 #include "entities/Message.h"
@@ -10,14 +15,13 @@
 #include "entities/Report.h"
 #include "entities/Thread.h"
 
-#include <folly/Optional.h>
-
-#include <jsi/jsi.h>
 #include <string>
 
 namespace comm {
 
+#ifndef EMSCRIPTEN
 namespace jsi = facebook::jsi;
+#endif
 
 /**
  * if any initialization/cleaning up steps are required for specific
@@ -70,8 +74,11 @@ public:
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
+//NOTE we need to extract this to avoid compiling folly and crypto to WASM
+#ifndef EMSCRIPTEN
   virtual folly::Optional<std::string> getOlmPersistAccountData() const = 0;
   virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
+#endif
   virtual void setNotifyToken(std::string token) const = 0;
   virtual void clearNotifyToken() const = 0;
   virtual void setCurrentUserID(std::string userID) const = 0;

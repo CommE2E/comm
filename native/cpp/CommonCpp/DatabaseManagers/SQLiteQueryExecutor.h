@@ -1,6 +1,8 @@
 #pragma once
 
+#ifndef EMSCRIPTEN
 #include "../CryptoTools/Persist.h"
+#endif
 #include "DatabaseQueryExecutor.h"
 #include "entities/Draft.h"
 
@@ -13,9 +15,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void migrate();
   static void assign_encryption_key();
   static auto &getStorage();
-  void setMetadata(std::string entry_name, std::string data) const override;
-  void clearMetadata(std::string entry_name) const override;
-  std::string getMetadata(std::string entry_name) const override;
 
   static std::once_flag initialized;
   static int sqlcipherEncryptionKeySize;
@@ -67,8 +66,10 @@ public:
   void commitTransaction() const override;
   void rollbackTransaction() const override;
   std::vector<OlmPersistSession> getOlmPersistSessionsData() const override;
+#ifndef EMSCRIPTEN
   folly::Optional<std::string> getOlmPersistAccountData() const override;
   void storeOlmPersistData(crypto::Persist persist) const override;
+#endif
   void setNotifyToken(std::string token) const override;
   void clearNotifyToken() const override;
   void setCurrentUserID(std::string userID) const override;
@@ -76,6 +77,9 @@ public:
   void setDeviceID(std::string deviceID) const override;
   std::string getDeviceID() const override;
   static void clearSensitiveData();
+  void setMetadata(std::string entry_name, std::string data) const override;
+  void clearMetadata(std::string entry_name) const override;
+  std::string getMetadata(std::string entry_name) const override;
 };
 
 } // namespace comm

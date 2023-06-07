@@ -19,20 +19,11 @@ import {
   type WorkerRequestProxyMessage,
   workerWriteRequests,
 } from '../../types/worker-types.js';
+import Module from '../_generated/CommQueryCreator.js';
 import { migrate, setupSQLiteDB } from '../queries/db-queries.js';
-import {
-  getAllDrafts,
-  moveDraft,
-  removeAllDrafts,
-  updateDraft,
-} from '../queries/draft-queries.js';
+import { getAllDrafts } from '../queries/draft-queries.js';
 import { getMetadata, setMetadata } from '../queries/metadata-queries.js';
-import {
-  getAllReports,
-  removeAllReports,
-  removeReports,
-  updateReport,
-} from '../queries/report-queries.js';
+import { getAllReports } from '../queries/report-queries.js';
 import {
   getPersistStorageItem,
   removePersistStorageItem,
@@ -55,6 +46,10 @@ localforage.config(localforageConfig);
 
 let sqliteDb: ?SqliteDatabase = null;
 let encryptionKey: ?CryptoKey = null;
+let sqliteQueryExecutor: any = null;
+let dbModule: any = null;
+
+const filename = 'dbfile.sqlite';
 
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
@@ -64,6 +59,13 @@ async function initDatabase(
   sqljsFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
+  dbModule = Module({
+    locateFile: function (path) {
+      return `${sqljsFilePath}/${path}`;
+    },
+  });
+
+  console.log('debug: start');
   if (encryptionKeyJWK) {
     encryptionKey = await importJWKKey(encryptionKeyJWK);
   } else {
@@ -102,11 +104,20 @@ async function initDatabase(
       'Database exists and is properly encrypted, using persisted data',
     );
     migrate(sqliteDb);
+
+    // we have data - creating virtual file with content
+    const stream = dbModule.FS.open(filename, 'w+');
+    dbModule.FS.write(stream, dbContent, 0, dbContent.length, 0);
+    dbModule.FS.close(stream);
   } else {
     sqliteDb = new SQL.Database();
     setupSQLiteDB(sqliteDb);
     console.info('Creating fresh database');
+
+    // no content - database will create the file
   }
+
+  sqliteQueryExecutor = new dbModule.CommQueryCreator(filename);
 }
 
 function processDraftStoreOperations(
@@ -117,13 +128,13 @@ function processDraftStoreOperations(
   }
   for (const operation: DraftStoreOperation of operations) {
     if (operation.type === 'remove_all') {
-      removeAllDrafts(sqliteDb);
+      sqliteQueryExecutor.removeAllDrafts();
     } else if (operation.type === 'update') {
       const { key, text } = operation.payload;
-      updateDraft(sqliteDb, key, text);
+      sqliteQueryExecutor.updateDraft(key, text);
     } else if (operation.type === 'move') {
       const { oldKey, newKey } = operation.payload;
-      moveDraft(sqliteDb, oldKey, newKey);
+      sqliteQueryExecutor.moveDraft(oldKey, newKey);
     } else {
       throw new Error('Unsupported draft operation');
     }
@@ -138,13 +149,14 @@ function processReportStoreOperations(
   }
   for (const operation: ClientDBReportStoreOperation of operations) {
     if (operation.type === 'remove_all_reports') {
-      removeAllReports(sqliteDb);
+      sqliteQueryExecutor.removeAllReports();
     } else if (operation.type === 'remove_reports') {
       const { ids } = operation.payload;
-      removeReports(sqliteDb, ids);
+      //FIXME pass std::vector instead of array
+      sqliteQueryExecutor.removeReports(ids);
     } else if (operation.type === 'replace_report') {
       const { id, report } = operation.payload;
-      updateReport(sqliteDb, id, report);
+      sqliteQueryExecutor.updateReport({ id, report });
     } else {
       throw new Error('Unsupported report operation');
     }
@@ -156,11 +168,11 @@ function getClientStore(): ClientDBStore {
     throw new Error('Database not initialized');
   }
   return {
-    drafts: getAllDrafts(sqliteDb),
+    drafts: getAllDrafts(sqliteQueryExecutor),
     messages: [],
     threads: [],
     messageStoreThreads: [],
-    reports: getAllReports(sqliteDb),
+    reports: getAllReports(sqliteQueryExecutor),
   };
 }
 
@@ -177,7 +189,8 @@ async function persist() {
 
   while (persistNeeded) {
     persistNeeded = false;
-    const dbData = sqliteDb.export();
+    const dbData = dbModule.FS.readFile(filename, { encoding: 'binary' });
+    // const dbData = sqliteDb.export();
     if (!encryptionKey) {
       persistInProgress = false;
       throw new Error('Encryption key is missing');

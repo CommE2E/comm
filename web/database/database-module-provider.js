@@ -11,6 +11,7 @@ import {
 } from '../types/worker-types.js';
 
 declare var sqljsFilename: string;
+declare var commQueryCreatorFileName: string;
 declare var preloadedState: AppState;
 
 const databaseStatuses = Object.freeze({
