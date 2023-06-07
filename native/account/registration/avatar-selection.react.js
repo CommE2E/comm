@@ -145,6 +145,7 @@ function AvatarSelection(props: Props): React.Node {
               userInfo={userInfoOverride}
               disabled={registrationInProgress}
               prefetchedAvatarURI={prefetchedAvatarURI}
+              showSpinnerDuringServerCall={false}
             />
           </View>
         </View>
