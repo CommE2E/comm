@@ -1,6 +1,7 @@
 // @flow
 
 import { create } from '@lottiefiles/lottie-interactivity';
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { useIsomorphicLayoutEffect } from 'lib/hooks/isomorphic-layout-effect.react.js';
@@ -10,6 +11,7 @@ import KeyserverFAQ from './keyserver-faq.react.js';
 import css from './keyservers.css';
 import ReadDocsButton from './read-docs-btn.react.js';
 import RequestAccess from './request-access.react.js';
+import typography from './typography.css';
 
 function Keyservers(): React.Node {
   React.useEffect(() => {
@@ -67,8 +69,14 @@ function Keyservers(): React.Node {
     return () => cloudNode.removeEventListener('load', onCloudIllustrationLoad);
   }, [cloudNode, onCloudIllustrationLoad]);
 
+  const headingClassName = classNames([typography.heading1, css.heading]);
+  const descriptionClassName = classNames([
+    typography.subheading2,
+    css.description,
+  ]);
+
   return (
-    <div>
+    <main>
       <div className={css.body_grid}>
         <div className={`${css.hero_image} ${css.starting_section}`}>
           <lottie-player
@@ -115,34 +123,34 @@ function Keyservers(): React.Node {
             access to your data without leaking that data to corporations.
           </p>
         </div>
-
-        <div className={css.keyserver_company}>
-          <h1>
-            Comm
-            <span className={css.mono}>
-              {' '}
-              is the <span className={css.purple_accent}>keyserver </span>
-              company.
-            </span>
-          </h1>
-        </div>
-
-        <div className={css.keyserver_copy}>
-          <p>In the future, people have their own servers.</p>
-          <p>
-            Your keyserver is the home of your digital identity. It owns your
-            private keys and your personal data. It&rsquo;s your password
-            manager, your crypto bank, your digital surrogate, and your second
-            brain.
-          </p>
-        </div>
-        <div className={css.read_the_docs}>
-          <ReadDocsButton />
-        </div>
       </div>
+
+      <section className={css.keyserver_company_section}>
+        <div className={css.keyserver_company_container}>
+          <div className={css.keyserver_company_copy}>
+            <h1 className={headingClassName}>
+              Comm is the
+              <span className={css.purple_gradient}> keyserver </span>
+              company.
+            </h1>
+            <p className={descriptionClassName}>
+              In the future, people have their own servers.
+            </p>
+            <p className={descriptionClassName}>
+              Your keyserver is the home of your digital identity. It owns your
+              private keys and your personal data. It&rsquo;s your password
+              manager, your crypto bank, your digital surrogate, and your second
+              brain.
+            </p>
+          </div>
+          <div className={css.read_the_docs}>
+            <ReadDocsButton />
+          </div>
+        </div>
+      </section>
       <KeyserverFAQ />
       <RequestAccess />
-    </div>
+    </main>
   );
 }
 
