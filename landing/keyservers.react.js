@@ -83,9 +83,9 @@ function Keyservers(): React.Node {
 
   return (
     <main>
-      <section className={css.hero_section}>
-        <div className={css.hero_container}>
-          <div className={css.hero_image}>
+      <section className={css.heroSection}>
+        <div className={css.heroContainer}>
+          <div className={css.heroImage}>
             <lottie-player
               id="eye-illustration"
               ref={setEyeNode}
@@ -96,7 +96,7 @@ function Keyservers(): React.Node {
           </div>
           <h1 className={heroHeadingClassName}>
             Reclaim your
-            <span className={css.purple_gradient}> digital&nbsp;identity</span>
+            <span className={css.purpleGradient}> digital&nbsp;identity</span>
           </h1>
           <p className={heroDescriptionClassName}>
             The Internet is broken today. Private user data is owned by
@@ -108,9 +108,9 @@ function Keyservers(): React.Node {
           </p>
         </div>
       </section>
-      <section className={css.servers_section}>
-        <div className={css.servers_container}>
-          <div className={css.servers_image}>
+      <section className={css.serversSection}>
+        <div className={css.serversContainer}>
+          <div className={css.serversImage}>
             <lottie-player
               id="cloud-illustration"
               ref={setCloudNode}
@@ -119,7 +119,7 @@ function Keyservers(): React.Node {
               speed={1}
             />
           </div>
-          <div className={css.servers_copy}>
+          <div className={css.serversCopy}>
             <h1 className={headingClassName}>Apps need servers.</h1>
             <p className={descriptionClassName}>
               Sophisticated applications rely on servers to do things that your
@@ -133,12 +133,12 @@ function Keyservers(): React.Node {
           </div>
         </div>
       </section>
-      <section className={css.keyserver_company_section}>
-        <div className={css.keyserver_company_container}>
-          <div className={css.keyserver_company_copy}>
+      <section className={css.keyserverCompanySection}>
+        <div className={css.keyserverCompanyContainer}>
+          <div className={css.keyserverCompanyCopy}>
             <h1 className={headingClassName}>
               Comm is the
-              <span className={css.purple_gradient}> keyserver </span>
+              <span className={css.purpleGradient}> keyserver </span>
               company.
             </h1>
             <p className={descriptionClassName}>
@@ -151,7 +151,7 @@ function Keyservers(): React.Node {
               brain.
             </p>
           </div>
-          <div className={css.read_the_docs}>
+          <div className={css.readTheDocs}>
             <ReadDocsButton />
           </div>
         </div>
