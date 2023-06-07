@@ -3,6 +3,7 @@
   background-color: var(--comparison-cards);
   padding: 32px;
   border-radius: 16px;
+  transition: background-color 150ms;
 }
 
 .container:hover {
