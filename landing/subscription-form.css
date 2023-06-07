@@ -8,11 +8,12 @@ form {
   padding: 17px 32px; /* We have 17 to compensate for no border */
   border-radius: 4px;
   color: var(--white-100);
-  background: var(--violet-dark-60);
+  background-color: var(--violet-dark-60);
   min-width: 184px;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: background-color 150ms;
 }
 
 .buttonSuccess {
