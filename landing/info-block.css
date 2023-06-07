@@ -31,10 +31,12 @@
   color: var(--white-100);
   text-decoration: underline;
   margin-right: 8px;
+  transition: color 150ms;
 }
 
 .icon {
   color: var(--white-100);
+  transition: color 150ms;
 }
 
 .linkContainer:hover .link,
