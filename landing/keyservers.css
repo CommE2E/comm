@@ -7,42 +7,42 @@
   padding-bottom: 24px;
 }
 
-span.purple_gradient {
+span.purpleGradient {
   background: linear-gradient(90deg, #5d34b3 0%, #a314d5 49.31%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.hero_section,
-.servers_section,
-.keyserver_company_section {
+.heroSection,
+.serversSection,
+.keyserverCompanySection {
   display: flex;
   padding: 120px 32px;
   justify-content: center;
 }
 
-.hero_section {
+.heroSection {
   padding-top: 64px;
 }
 
-.servers_section {
+.serversSection {
   background-color: var(--light-dark-page-background);
 }
 
-.hero_container,
-.servers_container,
-.keyserver_company_container {
+.heroContainer,
+.serversContainer,
+.keyserverCompanyContainer {
   display: flex;
   width: 1376px;
   max-width: 90vw;
 }
 
-.hero_container {
+.heroContainer {
   flex-direction: column;
 }
 
-.hero_image {
+.heroImage {
   width: 100%;
   max-height: 376px;
   margin-bottom: 72px;
@@ -52,19 +52,19 @@ span.purple_gradient {
   text-align: center;
 }
 
-.servers_image {
+.serversImage {
   width: 100%;
   max-height: 480px;
 }
 
-.servers_copy {
+.serversCopy {
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding-left: 72px;
 }
 
-.read_the_docs {
+.readTheDocs {
   width: 100%;
   align-self: flex-end;
   margin-bottom: 24px;
@@ -72,21 +72,21 @@ span.purple_gradient {
 }
 
 @media (max-width: 1440px) {
-  .servers_container,
-  .keyserver_company_container {
+  .serversContainer,
+  .keyserverCompanyContainer {
     flex-direction: column;
   }
 
-  .servers_copy {
+  .serversCopy {
     padding-left: 0;
     margin-top: 64px;
   }
 
-  .keyserver_company_copy {
+  .keyserverCompanyCopy {
     margin-bottom: 48px;
   }
 
-  .read_the_docs {
+  .readTheDocs {
     max-width: 504px;
     align-self: flex-start;
     margin: 0;
