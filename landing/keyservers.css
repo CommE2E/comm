@@ -42,16 +42,34 @@ span.purple_gradient {
   -webkit-text-fill-color: transparent;
 }
 
+.servers_section,
 .keyserver_company_section {
   display: flex;
   padding: 120px 32px;
   justify-content: center;
 }
 
+.servers_section {
+  background-color: var(--light-dark-page-background);
+}
+
+.servers_container,
 .keyserver_company_container {
   display: flex;
   width: 1376px;
   max-width: 90vw;
+}
+
+.servers_image {
+  width: 100%;
+  max-height: 480px;
+}
+
+.servers_copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 72px;
 }
 
 .read_the_docs {
@@ -62,8 +80,14 @@ span.purple_gradient {
 }
 
 @media (max-width: 1440px) {
+  .servers_container,
   .keyserver_company_container {
     flex-direction: column;
+  }
+
+  .servers_copy {
+    padding-left: 0;
+    margin-top: 64px;
   }
 
   .keyserver_company_copy {
@@ -80,9 +104,7 @@ span.purple_gradient {
 /* ===== CSS BODY GRID LAYOUT ===== */
 div.body_grid {
   grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    'hero_copy hero_image'
-    'server_image server_copy';
+  grid-template-areas: 'hero_copy hero_image';
 }
 
 div.hero_copy {
@@ -92,15 +114,6 @@ div.hero_copy {
 div.hero_image {
   grid-area: hero_image;
   object-fit: scale-down;
-  align-self: center;
-}
-div.server_image {
-  grid-area: server_image;
-  object-fit: scale-down;
-  align-self: center;
-}
-div.server_copy {
-  grid-area: server_copy;
   align-self: center;
 }
 
@@ -135,9 +148,7 @@ div.body_grid > div + .starting_section {
   div.body_grid {
     grid-template-areas:
       'hero_image'
-      'hero_copy'
-      'server_image'
-      'server_copy';
+      'hero_copy';
   }
 
   /* ===== LAYOUT HACKS ===== */
