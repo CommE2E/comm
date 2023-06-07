@@ -485,18 +485,32 @@ const searchMessagesResponderInputValidator = tShape({
   cursor: t.maybe(t.String),
 });
 
+const searchMessagesResponseValidator: TInterface<SearchMessagesResponse> =
+  tShape<SearchMessagesResponse>({
+    messages: t.list(rawMessageInfoValidator),
+    endReached: t.Boolean,
+  });
+
 async function searchMessagesResponder(
   viewer: Viewer,
-  input: any,
+  input: mixed,
 ): Promise<SearchMessagesResponse> {
-  const request: SearchMessagesRequest = input;
-  await validateInput(viewer, searchMessagesResponderInputValidator, input);
+  const request: SearchMessagesRequest = await validateInput(
+    viewer,
+    searchMessagesResponderInputValidator,
+    input,
+  );
 
-  return await searchMessagesInSingleChat(
+  const response = await searchMessagesInSingleChat(
     request.query,
     request.threadID,
     viewer,
     request.cursor,
+  );
+  return validateOutput(
+    viewer.platformDetails,
+    searchMessagesResponseValidator,
+    response,
   );
 }
 
