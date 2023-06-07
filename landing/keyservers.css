@@ -1,31 +1,3 @@
-div.body_grid {
-  max-width: 1920px;
-  margin-left: auto;
-  margin-right: auto;
-  display: grid;
-  column-gap: 6em;
-  padding: 20px 60px 40px;
-  transition-property: max-width;
-  transition: 300ms;
-}
-
-div.body_grid h1 {
-  font-size: clamp(1.5rem, 1.0817rem + 2.0915vw, 3.5rem);
-}
-
-.mono {
-  font-family: 'iA Writer Duo S', monospace;
-  padding-bottom: 24px;
-}
-
-.mono + p {
-  padding-bottom: 24px;
-}
-
-span.purple_accent {
-  color: #7e57c2;
-}
-
 .heading {
   color: var(--white-80);
   margin-bottom: 40px;
@@ -42,6 +14,7 @@ span.purple_gradient {
   -webkit-text-fill-color: transparent;
 }
 
+.hero_section,
 .servers_section,
 .keyserver_company_section {
   display: flex;
@@ -49,15 +22,34 @@ span.purple_gradient {
   justify-content: center;
 }
 
+.hero_section {
+  padding-top: 64px;
+}
+
 .servers_section {
   background-color: var(--light-dark-page-background);
 }
 
+.hero_container,
 .servers_container,
 .keyserver_company_container {
   display: flex;
   width: 1376px;
   max-width: 90vw;
+}
+
+.hero_container {
+  flex-direction: column;
+}
+
+.hero_image {
+  width: 100%;
+  max-height: 376px;
+  margin-bottom: 72px;
+}
+
+.heroText {
+  text-align: center;
 }
 
 .servers_image {
@@ -98,61 +90,5 @@ span.purple_gradient {
     max-width: 504px;
     align-self: flex-start;
     margin: 0;
-  }
-}
-
-/* ===== CSS BODY GRID LAYOUT ===== */
-div.body_grid {
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas: 'hero_copy hero_image';
-}
-
-div.hero_copy {
-  grid-area: hero_copy;
-  align-self: center;
-}
-div.hero_image {
-  grid-area: hero_image;
-  object-fit: scale-down;
-  align-self: center;
-}
-
-/* ===== LAYOUT HACKS ===== */
-div.body_grid > div + .starting_section {
-  padding-top: 80px;
-}
-
-.section {
-  padding-top: 80px;
-}
-
-/* ===== MEDIUM BREAKPOINT ===== */
-@media (max-width: 1499px) {
-  div.body_grid {
-    padding-left: 60px;
-    padding-right: 60px;
-  }
-}
-
-/* ===== SMALLEST BREAKPOINT ===== */
-@media (max-width: 1099px) {
-  /* ===== COMMON CSS GRID LAYOUT ===== */
-  div.body_grid,
-  div.app_landing_grid {
-    grid-template-columns: minmax(auto, 540px);
-    justify-content: center;
-    padding: 0 3% 2vh;
-  }
-
-  /* ===== CSS BODY GRID LAYOUT ===== */
-  div.body_grid {
-    grid-template-areas:
-      'hero_image'
-      'hero_copy';
-  }
-
-  /* ===== LAYOUT HACKS ===== */
-  .section {
-    padding-top: 20px;
   }
 }
