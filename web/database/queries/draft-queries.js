@@ -37,15 +37,15 @@ function moveDraft(db: SqliteDatabase, oldKey: string, newKey: string) {
   db.exec(query, params);
 }
 
-function getAllDrafts(db: SqliteDatabase): ClientDBDraftInfo[] {
-  const rawDBResult = db.exec(`SELECT * FROM drafts`);
-  const dbResult =
-    parseMultiStatementSQLiteResult<ClientDBDraftInfo>(rawDBResult);
-  if (dbResult.length === 0) {
-    return [];
+//TODO refactor this
+function getAllDrafts(instance: any): ClientDBDraftInfo[] {
+  const vec = instance.getAllDrafts();
+  const result = [];
+  for (let i = 0; i < vec.size(); i += 1) {
+    result.push(vec.get(i));
   }
 
-  return dbResult[0];
+  return result;
 }
 
 export { removeAllDrafts, updateDraft, moveDraft, getAllDrafts };

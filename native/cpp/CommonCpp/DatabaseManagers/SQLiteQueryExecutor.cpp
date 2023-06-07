@@ -1,5 +1,7 @@
 #include "SQLiteQueryExecutor.h"
+#ifndef EMSCRIPTEN
 #include "CommSecureStore.h"
+#endif
 #include "Logger.h"
 #include "sqlite_orm.h"
 
@@ -7,6 +9,12 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+
+#ifdef EMSCRIPTEN
+#include <emscripten/bind.h>
+#endif
+
+#include <iostream>
 
 #define ACCOUNT_ID 1
 
@@ -537,6 +545,7 @@ void trace_queries(sqlite3 *db) {
         char *sql = sqlite3_expanded_sql(statement);
         if (sql != nullptr) {
           std::string sqlStr(sql);
+          Logger::log(sqlStr);
           // TODO: send logs to backup here
         }
         return 0;
@@ -678,7 +687,7 @@ void validate_encryption() {
 typedef bool ShouldBeInTransaction;
 typedef std::function<bool(sqlite3 *)> MigrateFunction;
 typedef std::pair<MigrateFunction, ShouldBeInTransaction> SQLiteMigration;
-std::vector<std::pair<uint, SQLiteMigration>> migrations{
+std::vector<std::pair<int, SQLiteMigration>> migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
      {4, {create_persist_account_table, true}},
@@ -775,7 +784,10 @@ bool set_up_database(sqlite3 *db) {
 }
 
 void SQLiteQueryExecutor::migrate() {
-  validate_encryption();
+  //TODO only native
+  //   validate_encryption();
+
+  Logger::log(SQLiteQueryExecutor::sqliteFilePath);
 
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
@@ -790,6 +802,7 @@ void SQLiteQueryExecutor::migrate() {
   std::stringstream version_msg;
   version_msg << "db version: " << db_version << std::endl;
   Logger::log(version_msg.str());
+  //   Logger::log(CommQueryCreator::mockDatabaseOperation(version_msg.str()));
 
   if (db_version == 0) {
     auto db_created = set_up_database(db);
@@ -835,6 +848,7 @@ void SQLiteQueryExecutor::migrate() {
   sqlite3_close(db);
 }
 
+#ifndef EMSCRIPTEN
 void SQLiteQueryExecutor::assign_encryption_key() {
   CommSecureStore commSecureStore{};
   std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
@@ -843,6 +857,7 @@ void SQLiteQueryExecutor::assign_encryption_key() {
       SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
 }
+#endif
 
 auto &SQLiteQueryExecutor::getStorage() {
   static auto storage = make_storage(
@@ -920,6 +935,7 @@ auto &SQLiteQueryExecutor::getStorage() {
   return storage;
 }
 
+#ifndef EMSCRIPTEN
 void SQLiteQueryExecutor::initialize(std::string &databasePath) {
   std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
     SQLiteQueryExecutor::sqliteFilePath = databasePath;
@@ -934,6 +950,7 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
     SQLiteQueryExecutor::assign_encryption_key();
   });
 }
+#endif
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
   SQLiteQueryExecutor::migrate();
@@ -1176,6 +1193,7 @@ SQLiteQueryExecutor::getOlmPersistSessionsData() const {
   return SQLiteQueryExecutor::getStorage().get_all<OlmPersistSession>();
 }
 
+#ifndef EMSCRIPTEN
 folly::Optional<std::string>
 SQLiteQueryExecutor::getOlmPersistAccountData() const {
   std::vector<OlmPersistAccount> result =
@@ -1201,6 +1219,7 @@ void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
     SQLiteQueryExecutor::getStorage().replace(persistSession);
   }
 }
+#endif
 
 void SQLiteQueryExecutor::setNotifyToken(std::string token) const {
   this->setMetadata("notify_token", token);

@@ -16,6 +16,7 @@
 , corrosion
 , darwin
 , double-conversion
+, emscripten
 , folly
 , fmt
 , glog
@@ -55,6 +56,7 @@ mkShell {
     awscli2
     shellcheck
     terraform
+    emscripten
 
     # android
     openjdk11

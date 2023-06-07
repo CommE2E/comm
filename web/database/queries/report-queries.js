@@ -2,8 +2,6 @@
 
 import { SqliteDatabase } from 'sql.js';
 
-import { parseMultiStatementSQLiteResult } from '../utils/db-utils.js';
-
 type Report = {
   id: string,
   report: string,
@@ -33,18 +31,14 @@ function updateReport(db: SqliteDatabase, id: string, report: string) {
   db.exec(query, params);
 }
 
-function getAllReports(db: SqliteDatabase): Report[] {
-  const query = `
-    SELECT *
-    FROM reports
-  `;
-
-  const rawResult = db.exec(query);
-  const result = parseMultiStatementSQLiteResult<Report>(rawResult);
-  if (result.length === 0 || result[0].length === 0) {
-    return [];
+function getAllReports(instance: any): Report[] {
+  const vec = instance.getAllReports();
+  const result = [];
+  for (let i = 0; i < vec.size(); i += 1) {
+    result.push(vec.get(i));
   }
-  return result[0];
+
+  return result;
 }
 
 function removeReports(db: SqliteDatabase, ids: $ReadOnlyArray<string>) {
