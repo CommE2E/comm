@@ -75,34 +75,39 @@ function Keyservers(): React.Node {
     css.description,
   ]);
 
+  const heroHeadingClassName = classNames([headingClassName, css.heroText]);
+  const heroDescriptionClassName = classNames([
+    descriptionClassName,
+    css.heroText,
+  ]);
+
   return (
     <main>
-      <div className={css.body_grid}>
-        <div className={`${css.hero_image} ${css.starting_section}`}>
-          <lottie-player
-            id="eye-illustration"
-            ref={setEyeNode}
-            mode="normal"
-            src={`${assetsCacheURLPrefix}/animated_eye.json`}
-            speed={1}
-          />
-        </div>
-        <div className={`${css.hero_copy} ${css.section}`}>
-          <h1 className={css.mono}>
+      <section className={css.hero_section}>
+        <div className={css.hero_container}>
+          <div className={css.hero_image}>
+            <lottie-player
+              id="eye-illustration"
+              ref={setEyeNode}
+              mode="normal"
+              src={`${assetsCacheURLPrefix}/animated_eye.json`}
+              speed={1}
+            />
+          </div>
+          <h1 className={heroHeadingClassName}>
             Reclaim your
-            <span className={css.purple_accent}> digital&nbsp;identity.</span>
+            <span className={css.purple_gradient}> digital&nbsp;identity</span>
           </h1>
-          <p>
+          <p className={heroDescriptionClassName}>
             The Internet is broken today. Private user data is owned by
             mega-corporations and farmed for their benefit.
           </p>
-          <p>
+          <p className={heroDescriptionClassName}>
             E2E encryption has the potential to change this equation. But
             it&rsquo;s constrained by a crucial limitation.
           </p>
         </div>
-      </div>
-
+      </section>
       <section className={css.servers_section}>
         <div className={css.servers_container}>
           <div className={css.servers_image}>
