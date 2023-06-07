@@ -3,15 +3,8 @@
 import * as React from 'react';
 import { Alert } from 'react-native';
 
-import {
-  removeUsersFromThread,
-  changeThreadMemberRoles,
-} from 'lib/actions/thread-actions.js';
-import {
-  memberIsAdmin,
-  removeMemberFromThread,
-  switchMemberAdminRoleInThread,
-} from 'lib/shared/thread-utils.js';
+import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
+import { removeMemberFromThread } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
 import {
@@ -65,47 +58,12 @@ function useOnRemoveUser(
   }, [onConfirmRemoveUser, userText]);
 }
 
-function useOnToggleAdmin(
+function useOnChangeRole(
+  // This is temporary until we implement the change role flow
+  // eslint-disable-next-line no-unused-vars
   route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
 ) {
-  const { memberInfo, threadInfo } = route.params;
-  const boundChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
-  const dispatchActionPromise = useDispatchActionPromise();
-
-  const isCurrentlyAdmin = memberIsAdmin(memberInfo, threadInfo);
-  const onConfirmMakeAdmin = React.useCallback(
-    () =>
-      switchMemberAdminRoleInThread(
-        threadInfo,
-        memberInfo,
-        isCurrentlyAdmin,
-        dispatchActionPromise,
-        boundChangeThreadMemberRoles,
-      ),
-    [
-      threadInfo,
-      memberInfo,
-      isCurrentlyAdmin,
-      dispatchActionPromise,
-      boundChangeThreadMemberRoles,
-    ],
-  );
-
-  const userText = stringForUser(memberInfo);
-  const actionClause = isCurrentlyAdmin
-    ? `remove ${userText} as an admin`
-    : `make ${userText} an admin`;
-  return React.useCallback(() => {
-    Alert.alert(
-      'Confirm action',
-      `Are you sure you want to ${actionClause} of this chat?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'OK', onPress: onConfirmMakeAdmin },
-      ],
-      { cancelable: true },
-    );
-  }, [onConfirmMakeAdmin, actionClause]);
+  return React.useCallback(() => {}, []);
 }
 
 function TooltipMenu(
@@ -113,28 +71,22 @@ function TooltipMenu(
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
 
+  const onChangeRole = useOnChangeRole(route);
   const onRemoveUser = useOnRemoveUser(route);
-  const onToggleAdmin = useOnToggleAdmin(route);
 
   return (
     <>
+      <TooltipItem
+        id="change_role"
+        text="Change role"
+        onPress={onChangeRole}
+        key="change_role"
+      />
       <TooltipItem
         id="remove_user"
         text="Remove user"
         onPress={onRemoveUser}
         key="remove_user"
-      />
-      <TooltipItem
-        id="remove_admin"
-        text="Remove admin"
-        onPress={onToggleAdmin}
-        key="remove_admin"
-      />
-      <TooltipItem
-        id="make_admin"
-        text="Make admin"
-        onPress={onToggleAdmin}
-        key="make_admin"
       />
     </>
   );
