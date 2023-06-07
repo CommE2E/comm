@@ -142,6 +142,10 @@ function processQueryForSearch(query: string): string {
   }
   const stemmedQuery = segmentAndStem(query);
 
+  if (stemmedQuery === '') {
+    return '';
+  }
+
   return stemmedQuery
     .split(' ')
     .filter(word => !fulltextOperands.includes(word))

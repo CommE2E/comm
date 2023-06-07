@@ -65,4 +65,9 @@ describe('processQueryForSearch(query: string)', () => {
   it('should remove + < > ~ from the query', () => {
     expect(processQueryForSearch('+ < > ~')).toBe('');
   });
+  it('should return an empty string, if the input consists only of stopwords', () => {
+    const [stopWord1, stopWord2, stopWord3] = stopwords;
+    expect(processQueryForSearch(stopWord1)).toBe('');
+    expect(segmentAndStem(`${stopWord1} ${stopWord2} ${stopWord3}`)).toBe('');
+  });
 });
