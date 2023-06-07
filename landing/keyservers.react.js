@@ -101,30 +101,33 @@ function Keyservers(): React.Node {
             it&rsquo;s constrained by a crucial limitation.
           </p>
         </div>
-
-        <div className={`${css.server_image} ${css.starting_section}`}>
-          <lottie-player
-            id="cloud-illustration"
-            ref={setCloudNode}
-            mode="normal"
-            src={`${assetsCacheURLPrefix}/animated_cloud.json`}
-            speed={1}
-          />
-        </div>
-        <div className={`${css.server_copy} ${css.section}`}>
-          <h1 className={css.mono}>Apps need servers.</h1>
-          <p>
-            Sophisticated applications rely on servers to do things that your
-            devices simply can&rsquo;t.
-          </p>
-          <p>
-            That&rsquo;s why E2E encryption only works for simple chat apps
-            today. There&rsquo;s no way to build a robust server layer that has
-            access to your data without leaking that data to corporations.
-          </p>
-        </div>
       </div>
 
+      <section className={css.servers_section}>
+        <div className={css.servers_container}>
+          <div className={css.servers_image}>
+            <lottie-player
+              id="cloud-illustration"
+              ref={setCloudNode}
+              mode="normal"
+              src={`${assetsCacheURLPrefix}/animated_cloud.json`}
+              speed={1}
+            />
+          </div>
+          <div className={css.servers_copy}>
+            <h1 className={headingClassName}>Apps need servers.</h1>
+            <p className={descriptionClassName}>
+              Sophisticated applications rely on servers to do things that your
+              devices simply can&rsquo;t.
+            </p>
+            <p className={descriptionClassName}>
+              That&rsquo;s why E2E encryption only works for simple chat apps
+              today. There&rsquo;s no way to build a robust server layer that
+              has access to your data without leaking that data to corporations.
+            </p>
+          </div>
+        </div>
+      </section>
       <section className={css.keyserver_company_section}>
         <div className={css.keyserver_company_container}>
           <div className={css.keyserver_company_copy}>
