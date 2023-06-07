@@ -919,6 +919,13 @@ async function searchMessagesInSingleChat(
   }
   const pattern = processQueryForSearch(inputQuery);
 
+  if (pattern === '') {
+    return {
+      endReached: true,
+      messages: [],
+    };
+  }
+
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
     m.user AS creatorID, m.target_message as targetMessageID,
