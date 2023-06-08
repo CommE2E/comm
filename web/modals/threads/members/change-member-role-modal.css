@@ -48,3 +48,9 @@
 .roleModalBackButton {
   padding: 14px 32px;
 }
+
+.roleModalErrorMessage {
+  color: var(--error);
+  display: flex;
+  justify-content: center;
+}
