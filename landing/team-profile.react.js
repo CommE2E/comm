@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
 import css from './team-profile.css';
+import typography from './typography.css';
 
 type Props = {
   +name: string,
@@ -50,8 +51,8 @@ function TeamProfile(props: Props): React.Node {
   return (
     <article className={css.profile}>
       <img alt={`portrait of comm team member ${name}`} src={imageURL} />
-      <p>{name}</p>
-      <small>{role}</small>
+      <p className={typography.paragraph1}>{name}</p>
+      <small className={typography.paragraph2}>{role}</small>
       <span>
         {githubLink}
         {twitterLink}
