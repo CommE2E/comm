@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
@@ -18,6 +19,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
@@ -46,7 +48,13 @@ type Props = {
   +route: NavigationRoute<'UsernameSelection'>,
 };
 function UsernameSelection(props: Props): React.Node {
-  const [username, setUsername] = React.useState('');
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { cachedSelections, setCachedSelections } = registrationContext;
+
+  const [username, setUsername] = React.useState(
+    cachedSelections.username ?? '',
+  );
   const validUsername = username.search(validUsernameRegex) > -1;
 
   const [usernameError, setUsernameError] = React.useState<?UsernameError>();
@@ -78,6 +86,10 @@ function UsernameSelection(props: Props): React.Node {
     }
 
     setUsernameError(undefined);
+    setCachedSelections(oldUserSelections => ({
+      ...oldUserSelections,
+      username,
+    }));
     navigate<'PasswordSelection'>({
       name: PasswordSelectionRouteName,
       params: {
@@ -92,6 +104,7 @@ function UsernameSelection(props: Props): React.Node {
     username,
     exactSearchUserCall,
     dispatchActionPromise,
+    setCachedSelections,
     navigate,
     userSelections,
   ]);
@@ -140,6 +153,7 @@ function UsernameSelection(props: Props): React.Node {
     );
   }
 
+  const shouldAutoFocus = React.useRef(!cachedSelections.username);
   return (
     <RegistrationContainer>
       <RegistrationContentContainer>
@@ -148,7 +162,7 @@ function UsernameSelection(props: Props): React.Node {
           value={username}
           onChangeText={setUsername}
           placeholder="Username"
-          autoFocus={true}
+          autoFocus={shouldAutoFocus.current}
           autoCorrect={false}
           autoCapitalize="none"
           keyboardType="ascii-capable"

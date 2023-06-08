@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 
@@ -9,6 +10,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
@@ -34,8 +36,16 @@ type Props = {
   +route: NavigationRoute<'PasswordSelection'>,
 };
 function PasswordSelection(props: Props): React.Node {
-  const [password, setPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { cachedSelections, setCachedSelections } = registrationContext;
+
+  const [password, setPassword] = React.useState(
+    cachedSelections.password ?? '',
+  );
+  const [confirmPassword, setConfirmPassword] = React.useState(
+    cachedSelections.password ?? '',
+  );
   const passwordsMatch = password === confirmPassword;
   const passwordIsEmpty = password === '';
 
@@ -76,11 +86,21 @@ function PasswordSelection(props: Props): React.Node {
         password,
       },
     };
+    setCachedSelections(oldUserSelections => ({
+      ...oldUserSelections,
+      password,
+    }));
     navigate<'AvatarSelection'>({
       name: AvatarSelectionRouteName,
       params: { userSelections: newUserSelections },
     });
-  }, [checkPasswordValidity, userSelections, password, navigate]);
+  }, [
+    checkPasswordValidity,
+    userSelections,
+    password,
+    setCachedSelections,
+    navigate,
+  ]);
 
   const styles = useStyles(unboundStyles);
   let errorText;
@@ -142,6 +162,8 @@ function PasswordSelection(props: Props): React.Node {
     [passwordLength, confirmPasswordEmpty],
   );
 
+  const shouldAutoFocus = React.useRef(!cachedSelections.password);
+
   /* eslint-disable react-hooks/rules-of-hooks */
   if (Platform.OS === 'android') {
     // It's okay to call this hook conditionally because
@@ -149,11 +171,15 @@ function PasswordSelection(props: Props): React.Node {
     React.useEffect(() => {
       (async () => {
         await sleep(250);
-        passwordInputRef.current?.focus();
+        if (shouldAutoFocus.current) {
+          passwordInputRef.current?.focus();
+        }
       })();
     }, []);
   }
   /* eslint-enable react-hooks/rules-of-hooks */
+
+  const autoFocus = Platform.OS !== 'android' && shouldAutoFocus.current;
 
   return (
     <RegistrationContainer>
@@ -163,10 +189,7 @@ function PasswordSelection(props: Props): React.Node {
           value={password}
           onChangeText={onChangePasswordInput}
           placeholder="Password"
-          autoFocus={Platform.select({
-            android: false,
-            default: true,
-          })}
+          autoFocus={autoFocus}
           secureTextEntry={true}
           textContentType="newPassword"
           autoComplete="password-new"
