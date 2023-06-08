@@ -8,6 +8,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import {
   RegistrationTile,
@@ -25,14 +26,27 @@ type Props = {
   +route: NavigationRoute<'CoolOrNerdModeSelection'>,
 };
 function CoolOrNerdModeSelection(props: Props): React.Node {
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { cachedSelections, setCachedSelections } = registrationContext;
+
   const [currentSelection, setCurrentSelection] =
-    React.useState<?CoolOrNerdMode>();
+    React.useState<?CoolOrNerdMode>(cachedSelections.coolOrNerdMode);
+
   const selectCool = React.useCallback(() => {
     setCurrentSelection('cool');
-  }, []);
+    setCachedSelections(oldUserSelections => ({
+      ...oldUserSelections,
+      coolOrNerdMode: 'cool',
+    }));
+  }, [setCachedSelections]);
   const selectNerd = React.useCallback(() => {
     setCurrentSelection('nerd');
-  }, []);
+    setCachedSelections(oldUserSelections => ({
+      ...oldUserSelections,
+      coolOrNerdMode: 'nerd',
+    }));
+  }, [setCachedSelections]);
 
   const { navigate } = props.navigation;
   const onSubmit = React.useCallback(() => {
