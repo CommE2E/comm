@@ -25,5 +25,26 @@
 .roleModalRoleSelector {
   display: flex;
   justify-content: center;
-  padding: 20px;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 20px 0 20px;
+}
+
+.roleModalActionButtons {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-self: center;
+  align-items: stretch;
+  margin: 16px 200px 16px 0;
+}
+
+.roleModalSaveButton {
+  margin-left: 8px;
+  padding: 14px 32px;
+}
+
+.roleModalBackButton {
+  padding: 14px 32px;
 }
