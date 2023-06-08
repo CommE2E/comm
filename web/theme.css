@@ -231,4 +231,5 @@
   --dropdown-selected-option-check-color: var(--violet-dark-100);
   --change-member-role-modal-description-text: var(--shades-white-80);
   --change-member-role-modal-generic-text: var(--shades-white-100);
+  --unsaved-changes-modal-text-color: var(--shades-white-60);
 }
