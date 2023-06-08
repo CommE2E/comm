@@ -48,3 +48,27 @@
 .roleModalBackButton {
   padding: 14px 32px;
 }
+
+.roleModalDisabled {
+  color: var(--change-member-role-modal-description-text);
+  background-color: var(--change-member-role-modal-disabled-background);
+  padding: 8px;
+  width: 73%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.infoIcon {
+  margin-right: 4px;
+  margin-bottom: 12px;
+}
+
+.infoText {
+  font-size: var(--s-font-14);
+  padding: 4px;
+}
