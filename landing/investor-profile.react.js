@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import css from './investor-profile.css';
+import typography from './typography.css';
 
 type Props = {
   +name: string,
@@ -37,11 +38,16 @@ function InvestorProfile(props: Props): React.Node {
     [css.profile]: true,
     [css.profileModal]: isModalActive,
   });
-
+  const nameClassName = classNames([typography.heading3, css.name]);
   const descriptionClassName = classNames({
+    [typography.paragraph1]: true,
     [css.description]: true,
     [css.descriptionModal]: isModalActive,
   });
+  const involvementClassName = classNames([
+    typography.paragraph3,
+    css.involvement,
+  ]);
 
   const stopPropagation = React.useCallback(e => e.stopPropagation(), []);
 
@@ -91,9 +97,9 @@ function InvestorProfile(props: Props): React.Node {
     <a className={profileContainerClassName} onClick={onClick}>
       <img alt={`image of Comm investor ${name}`} src={imageURL} />
       <div className={css.investorInfoContainer}>
-        <p className={css.name}>{name}</p>
+        <p className={nameClassName}>{name}</p>
         <p className={descriptionClassName}>{description}</p>
-        <p className={css.involvement}>{involvement}</p>
+        <p className={involvementClassName}>{involvement}</p>
         <span>
           {websiteIcon}
           {twitterIcon}

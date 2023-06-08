@@ -29,13 +29,10 @@ div.investorInfoContainer {
 }
 
 p.name {
-  font-size: 24px;
-  font-weight: 500;
   margin-bottom: 12px;
 }
 
 p.description {
-  font-size: 18px;
   margin-bottom: 32px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -46,17 +43,15 @@ p.description {
 }
 
 p.involvement {
-  font-weight: 500;
-  font-size: 14px;
   margin-bottom: 8px;
 }
 
 .profile span svg {
-  color: var(--grey);
+  color: var(--black-60);
 }
 
 .profile span svg:hover {
-  color: var(--white);
+  color: var(--white-100);
 }
 
 .profile span > a + a {
