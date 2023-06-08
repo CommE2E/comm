@@ -13,22 +13,20 @@
 }
 
 .profile p {
-  font-size: 18px;
   text-align: center;
 }
 
 .profile small {
-  color: var(--grey);
-  font-size: 16px;
+  color: var(--black-60);
   text-align: center;
 }
 
 .profile span svg {
-  color: var(--grey);
+  color: var(--black-60);
 }
 
 .profile span svg:hover {
-  color: var(--white);
+  color: var(--white-100);
 }
 
 .profile span {
@@ -40,6 +38,6 @@
 }
 
 .profile span > a {
-  color: var(--white);
+  color: var(--white-100);
   font-size: 20px;
 }

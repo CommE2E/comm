@@ -1,11 +1,13 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { assetsCacheURLPrefix } from './asset-meta-data.js';
 import Button from './button.react.js';
 import TeamProfile from './team-profile.react.js';
 import css from './team.css';
+import typography from './typography.css';
 
 function Team(): React.Node {
   const onRolesClick = React.useCallback(() => {
@@ -15,13 +17,16 @@ function Team(): React.Node {
     );
   }, []);
 
+  const headerClassName = classNames([typography.heading1, css.header]);
+  const subheaderClassName = classNames([typography.subheading2, css.team]);
+
   return (
     <div className={css.wrapper}>
-      <h2 className={css.header}>Team</h2>
+      <h2 className={headerClassName}>Team</h2>
 
       <section>
         <div className={css.headingContent}>
-          <p className={css.team}>
+          <p className={subheaderClassName}>
             Comm is the keyserver company. Come join us and help build the
             future of the decentralized web!
           </p>
@@ -87,7 +92,7 @@ function Team(): React.Node {
         </div>
       </section>
 
-      <h2 className={css.header}>Team at Software Mansion</h2>
+      <h2 className={headerClassName}>Team at Software Mansion</h2>
       <section className={css.teamWrapper}>
         <TeamProfile
           name="Tomasz Pałys"
