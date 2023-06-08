@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
@@ -19,8 +20,12 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
-import type { CoolOrNerdMode } from './registration-types.js';
+import {
+  type CoolOrNerdMode,
+  ensAvatarSelection,
+} from './registration-types.js';
 import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
@@ -52,6 +57,11 @@ type Props = {
 function ConnectEthereum(props: Props): React.Node {
   const { params } = props.route;
   const { userSelections } = props.route.params;
+
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { setCachedSelections } = registrationContext;
+
   const isNerdMode = userSelections.coolOrNerdMode === 'nerd';
   const styles = useStyles(unboundStyles);
 
@@ -157,13 +167,29 @@ function ConnectEthereum(props: Props): React.Node {
 
       const avatarURI = await avatarURIPromise;
 
+      const ethereumAccount = {
+        accountType: 'ethereum',
+        ...result,
+        avatarURI,
+      };
+
+      setCachedSelections(oldUserSelections => {
+        const base = {
+          ...oldUserSelections,
+          ethereumAccount,
+        };
+        if (base.avatarData || !avatarURI) {
+          return base;
+        }
+        return {
+          ...base,
+          avatarData: ensAvatarSelection,
+        };
+      });
+
       const newUserSelections = {
         ...userSelections,
-        accountSelection: {
-          accountType: 'ethereum',
-          ...result,
-          avatarURI,
-        },
+        accountSelection: ethereumAccount,
       };
       navigate<'AvatarSelection'>({
         name: AvatarSelectionRouteName,
@@ -174,6 +200,7 @@ function ConnectEthereum(props: Props): React.Node {
       userSelections,
       exactSearchUserCall,
       dispatchActionPromise,
+      setCachedSelections,
       navigate,
       ensCache,
     ],

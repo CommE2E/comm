@@ -10,10 +10,11 @@ import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
-import type {
-  CoolOrNerdMode,
-  AccountSelection,
-  AvatarData,
+import {
+  type CoolOrNerdMode,
+  type AccountSelection,
+  type AvatarData,
+  ensAvatarSelection,
 } from './registration-types.js';
 import {
   EditUserAvatarContext,
@@ -31,12 +32,6 @@ export type AvatarSelectionParams = {
   },
 };
 
-const ensDefaultSelection = {
-  needsUpload: false,
-  updateUserAvatarRequest: { type: 'ens' },
-  clientAvatar: { type: 'ens' },
-};
-
 type Props = {
   +navigation: RegistrationNavigationProp<'AvatarSelection'>,
   +route: NavigationRoute<'AvatarSelection'>,
@@ -44,10 +39,15 @@ type Props = {
 function AvatarSelection(props: Props): React.Node {
   const { userSelections } = props.route.params;
   const { accountSelection } = userSelections;
-  const username =
+  const usernameOrETHAddress =
     accountSelection.accountType === 'username'
       ? accountSelection.username
       : accountSelection.address;
+
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { cachedSelections, setCachedSelections, register } =
+    registrationContext;
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
@@ -58,35 +58,53 @@ function AvatarSelection(props: Props): React.Node {
       ? accountSelection.avatarURI
       : undefined;
 
-  const [avatarData, setAvatarData] = React.useState<?AvatarData>(
-    prefetchedAvatarURI ? ensDefaultSelection : undefined,
-  );
+  let initialAvatarData = cachedSelections.avatarData;
+  if (!initialAvatarData && prefetchedAvatarURI) {
+    initialAvatarData = ensAvatarSelection;
+  }
+
+  const [avatarData, setAvatarData] =
+    React.useState<?AvatarData>(initialAvatarData);
 
   const setClientAvatarFromSelection = React.useCallback(
     (selection: UserAvatarSelection) => {
       if (selection.needsUpload) {
-        setAvatarData({
+        const newAvatarData = {
           ...selection,
           clientAvatar: {
             type: 'image',
             uri: selection.mediaSelection.uri,
           },
-        });
+        };
+        setAvatarData(newAvatarData);
+        setCachedSelections(oldUserSelections => ({
+          ...oldUserSelections,
+          avatarData: newAvatarData,
+        }));
       } else if (selection.updateUserAvatarRequest.type !== 'remove') {
         const clientRequest = selection.updateUserAvatarRequest;
         invariant(
           clientRequest.type !== 'image',
           'image avatars need to be uploaded',
         );
-        setAvatarData({
+        const newAvatarData = {
           ...selection,
           clientAvatar: clientRequest,
-        });
+        };
+        setAvatarData(newAvatarData);
+        setCachedSelections(oldUserSelections => ({
+          ...oldUserSelections,
+          avatarData: newAvatarData,
+        }));
       } else {
         setAvatarData(undefined);
+        setCachedSelections(oldUserSelections => ({
+          ...oldUserSelections,
+          avatarData: undefined,
+        }));
       }
     },
-    [],
+    [setCachedSelections],
   );
 
   const [registrationInProgress, setRegistrationInProgress] =
@@ -109,10 +127,6 @@ function AvatarSelection(props: Props): React.Node {
     setClientAvatarFromSelection,
   ]);
 
-  const registrationContext = React.useContext(RegistrationContext);
-  invariant(registrationContext, 'registrationContext should be set');
-  const { register } = registrationContext;
-
   const onProceed = React.useCallback(async () => {
     setRegistrationInProgress(true);
     try {
@@ -128,10 +142,10 @@ function AvatarSelection(props: Props): React.Node {
   const clientAvatar = avatarData?.clientAvatar;
   const userInfoOverride = React.useMemo(
     () => ({
-      username,
+      username: usernameOrETHAddress,
       avatar: clientAvatar,
     }),
-    [username, clientAvatar],
+    [usernameOrETHAddress, clientAvatar],
   );
 
   const styles = useStyles(unboundStyles);

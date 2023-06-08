@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
@@ -7,6 +8,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import {
@@ -33,12 +35,26 @@ type Props = {
   +navigation: RegistrationNavigationProp<'KeyserverSelection'>,
   +route: NavigationRoute<'KeyserverSelection'>,
 };
-// eslint-disable-next-line no-unused-vars
 function KeyserverSelection(props: Props): React.Node {
-  const [customKeyserver, setCustomKeyserver] = React.useState('');
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { cachedSelections, setCachedSelections } = registrationContext;
+
+  const initialKeyserverUsername = cachedSelections.keyserverUsername;
+  const [customKeyserver, setCustomKeyserver] = React.useState(
+    initialKeyserverUsername === 'ashoat' ? '' : initialKeyserverUsername,
+  );
   const customKeyserverTextInputRef = React.useRef();
 
-  const [currentSelection, setCurrentSelection] = React.useState<?Selection>();
+  let initialSelection;
+  if (initialKeyserverUsername === 'ashoat') {
+    initialSelection = 'ashoat';
+  } else if (initialKeyserverUsername) {
+    initialSelection = 'custom';
+  }
+
+  const [currentSelection, setCurrentSelection] =
+    React.useState<?Selection>(initialSelection);
   const selectAshoat = React.useCallback(() => {
     setCurrentSelection('ashoat');
     customKeyserverTextInputRef.current?.blur();
@@ -69,11 +85,15 @@ function KeyserverSelection(props: Props): React.Node {
     if (!keyserverUsername) {
       return;
     }
+    setCachedSelections(oldUserSelections => ({
+      ...oldUserSelections,
+      keyserverUsername,
+    }));
     navigate<'ConnectEthereum'>({
       name: ConnectEthereumRouteName,
       params: { userSelections: { coolOrNerdMode, keyserverUsername } },
     });
-  }, [navigate, coolOrNerdMode, keyserverUsername]);
+  }, [navigate, coolOrNerdMode, keyserverUsername, setCachedSelections]);
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
