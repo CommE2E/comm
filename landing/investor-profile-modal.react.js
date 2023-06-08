@@ -39,7 +39,7 @@ function InvestorProfileModal(props: Props): React.Node {
   }, [investorID, popModal]);
 
   return (
-    <ModalOverlay onClose={popModal}>
+    <ModalOverlay onClose={popModal} backgroundColor="var(--modal-overlay)">
       <div className={css.modalContainer}>{selectedInvestor}</div>
     </ModalOverlay>
   );
