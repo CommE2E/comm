@@ -8,6 +8,9 @@ import {
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
+import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types';
 import {
   useDispatchActionPromise,
@@ -19,6 +22,7 @@ import css from './change-member-role-modal.css';
 import Button, { buttonThemes } from '../../../components/button.react.js';
 import Dropdown from '../../../components/dropdown.react.js';
 import UserAvatar from '../../../components/user-avatar.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
 import UnsavedChangesModal from '../../unsaved-changes-modal.react.js';
 
@@ -32,6 +36,9 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   const { pushModal, popModal } = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
   const callChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
+  const otherUsersButNoOtherAdminsValue = useSelector(
+    otherUsersButNoOtherAdmins(threadInfo.id),
+  );
 
   const roleOptions = React.useMemo(
     () =>
@@ -55,6 +62,31 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
 
     pushModal(<UnsavedChangesModal />);
   }, [initialSelectedRole, popModal, pushModal, selectedRole]);
+
+  const disabledRoleChangeMessage = React.useMemo(() => {
+    const memberIsAdmin = roleIsAdminRole(
+      threadInfo.roles[initialSelectedRole],
+    );
+
+    if (!otherUsersButNoOtherAdminsValue || !memberIsAdmin) {
+      return null;
+    }
+
+    return (
+      <>
+        <div className={css.roleModalDisabled}>
+          <SWMansionIcon
+            icon="info-circle"
+            size={36}
+            className={css.infoIcon}
+          />
+          <div className={css.infoText}>
+            There must be at least one admin at any given time in a community.
+          </div>
+        </div>
+      </>
+    );
+  }, [initialSelectedRole, otherUsersButNoOtherAdminsValue, threadInfo.roles]);
 
   const onSave = React.useCallback(() => {
     if (selectedRole === initialSelectedRole) {
@@ -102,8 +134,10 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
           options={roleOptions}
           activeSelection={selectedRole}
           setActiveSelection={setSelectedRole}
+          disabled={!!disabledRoleChangeMessage}
         />
       </div>
+      {disabledRoleChangeMessage}
       <div className={css.roleModalActionButtons}>
         <Button
           variant="outline"
@@ -117,6 +151,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
           className={css.roleModalSaveButton}
           buttonColor={buttonThemes.primary}
           onClick={onSave}
+          disabled={!!disabledRoleChangeMessage}
         >
           Save
         </Button>
