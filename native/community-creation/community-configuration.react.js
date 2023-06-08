@@ -92,11 +92,14 @@ function CommunityConfiguration(props: Props): React.Node {
     setErrorMessage();
     const newThreadResultPromise = callCreateNewCommunity();
     dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
-    await newThreadResultPromise;
+    const newThreadResult = await newThreadResultPromise;
 
     navigate<'CommunityCreationMembers'>({
       name: CommunityCreationMembersRouteName,
-      params: { announcement: announcementSetting },
+      params: {
+        announcement: announcementSetting,
+        threadID: newThreadResult.newThreadID,
+      },
     });
   }, [
     announcementSetting,
