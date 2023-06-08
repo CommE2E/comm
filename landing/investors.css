@@ -2,30 +2,13 @@
   padding: 16px 0;
   margin: 0 auto 48px auto;
   max-width: 1200px;
+  padding-top: 72px;
 }
 
 .header {
-  font-family: 'iA Writer Duo S', monospace;
-  font-weight: 500;
-  line-height: 1.35;
   text-align: center;
-  --scale: calc(0.75rem + 2vw);
-  --smallest-font-size: 30px;
-  --largest-font-size: 50px;
-  --smallest-padding-size: 32px;
-  --largest-padding-size: 64px;
-
-  padding-bottom: clamp(
-    var(--smallest-padding-size),
-    var(--scale),
-    var(--largest-padding-size)
-  );
-
-  font-size: clamp(
-    var(--smallest-font-size),
-    var(--scale),
-    var(--largest-font-size)
-  );
+  color: var(--white-80);
+  margin-bottom: 48px;
 }
 
 .investorContainer {
@@ -49,6 +32,6 @@ div.headingContainer {
 p.subtitle {
   max-width: 60ch;
   margin: 0 auto;
-  padding: 0 16px 36px 16px;
-  font-size: 1.6rem;
+  padding: 0 32px 40px 32px;
+  color: var(--white-80);
 }
