@@ -43,3 +43,18 @@ export type RegistrationServerCallInput = {
   +accountSelection: AccountSelection,
   +avatarData: ?AvatarData,
 };
+
+export type CachedUserSelections = {
+  +coolOrNerdMode?: CoolOrNerdMode,
+  +keyserverUsername?: string,
+  +username?: string,
+  +password?: string,
+  +avatarData?: ?AvatarData,
+  +ethereumAccount?: EthereumAccountSelection,
+};
+
+export const ensAvatarSelection: AvatarData = {
+  needsUpload: false,
+  updateUserAvatarRequest: { type: 'ens' },
+  clientAvatar: { type: 'ens' },
+};
