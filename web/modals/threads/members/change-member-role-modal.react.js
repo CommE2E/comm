@@ -3,8 +3,16 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import {
+  changeThreadMemberRoles,
+  changeThreadMemberRolesActionTypes,
+} from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 
 import css from './change-member-role-modal.css';
@@ -22,6 +30,8 @@ type ChangeMemberRoleModalProps = {
 function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   const { memberInfo, threadInfo } = props;
   const { pushModal, popModal } = useModalContext();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
 
   const roleOptions = React.useMemo(
     () =>
@@ -45,6 +55,35 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
 
     pushModal(<UnsavedChangesModal />);
   }, [initialSelectedRole, popModal, pushModal, selectedRole]);
+
+  const onSave = React.useCallback(() => {
+    if (selectedRole === initialSelectedRole) {
+      popModal();
+      return;
+    }
+
+    const createChangeThreadMemberRolesPromise = () => {
+      return callChangeThreadMemberRoles(
+        threadInfo.id,
+        [memberInfo.id],
+        selectedRole,
+      );
+    };
+
+    dispatchActionPromise(
+      changeThreadMemberRolesActionTypes,
+      createChangeThreadMemberRolesPromise(),
+    );
+    popModal();
+  }, [
+    callChangeThreadMemberRoles,
+    dispatchActionPromise,
+    initialSelectedRole,
+    memberInfo.id,
+    popModal,
+    selectedRole,
+    threadInfo.id,
+  ]);
 
   return (
     <Modal name="Change Role" onClose={popModal} size="large">
@@ -77,6 +116,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
           variant="filled"
           className={css.roleModalSaveButton}
           buttonColor={buttonThemes.primary}
+          onClick={onSave}
         >
           Save
         </Button>
