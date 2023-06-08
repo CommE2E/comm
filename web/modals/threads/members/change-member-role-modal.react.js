@@ -12,6 +12,7 @@ import UserAvatar from '../../../avatars/user-avatar.react.js';
 import Button, { buttonThemes } from '../../../components/button.react.js';
 import Dropdown from '../../../components/dropdown.react.js';
 import Modal from '../../modal.react.js';
+import UnsavedChangesModal from '../../unsaved-changes-modal.react.js';
 
 type ChangeMemberRoleModalProps = {
   +memberInfo: RelativeMemberInfo,
@@ -20,7 +21,7 @@ type ChangeMemberRoleModalProps = {
 
 function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   const { memberInfo, threadInfo } = props;
-  const { popModal } = useModalContext();
+  const { pushModal, popModal } = useModalContext();
 
   const roleOptions = React.useMemo(
     () =>
@@ -35,6 +36,15 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   invariant(initialSelectedRole, "Member's role must be defined");
 
   const [selectedRole, setSelectedRole] = React.useState(initialSelectedRole);
+
+  const onBackClick = React.useCallback(() => {
+    if (selectedRole === initialSelectedRole) {
+      popModal();
+      return;
+    }
+
+    pushModal(<UnsavedChangesModal />);
+  }, [initialSelectedRole, popModal, pushModal, selectedRole]);
 
   return (
     <Modal name="Change Role" onClose={popModal} size="large">
@@ -56,7 +66,11 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
         />
       </div>
       <div className={css.roleModalActionButtons}>
-        <Button variant="outline" className={css.roleModalBackButton}>
+        <Button
+          variant="outline"
+          className={css.roleModalBackButton}
+          onClick={onBackClick}
+        >
           Back
         </Button>
         <Button
