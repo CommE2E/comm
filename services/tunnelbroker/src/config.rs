@@ -13,6 +13,12 @@ pub struct AppConfig {
   /// HTTP server listening port
   #[arg(long, default_value_t = 51001)]
   pub http_port: u16,
+  /// AMQP server listening port
+  #[arg(long, default_value_t = 5672)]
+  pub amqp_port: u16,
+  /// AMQP server listening port
+  #[arg(long, default_value_t = String::from("localhost"))]
+  pub amqp_address: String,
   /// AWS Localstack service URL
   #[arg(env = "LOCALSTACK_ENDPOINT")]
   #[arg(long)]
