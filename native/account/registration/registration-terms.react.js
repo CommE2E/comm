@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View, Image, Linking } from 'react-native';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -15,6 +15,7 @@ import type {
   AccountSelection,
   AvatarData,
 } from './registration-types.js';
+import commSwooshSource from '../../img/comm-swoosh.png';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
@@ -25,6 +26,14 @@ export type RegistrationTermsParams = {
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
   },
+};
+
+const onTermsOfUsePressed = () => {
+  Linking.openURL('https://comm.app/terms');
+};
+
+const onPrivacyPolicyPressed = () => {
+  Linking.openURL('https://comm.app/privacy');
 };
 
 type Props = {
@@ -50,10 +59,31 @@ function RegistrationTerms(props: Props): React.Node {
   }, [register, userSelections]);
 
   const styles = useStyles(unboundStyles);
+
+  /* eslint-disable react-native/no-raw-text */
+  const termsNotice = (
+    <Text style={styles.body}>
+      By registering, you are agreeing to our{' '}
+      <Text style={styles.hyperlinkText} onPress={onTermsOfUsePressed}>
+        Terms of Use
+      </Text>
+      {' and '}
+      <Text style={styles.hyperlinkText} onPress={onPrivacyPolicyPressed}>
+        Privacy Policy
+      </Text>
+      .
+    </Text>
+  );
+  /* eslint-enable react-native/no-raw-text */
+
   return (
     <RegistrationContainer>
-      <RegistrationContentContainer>
+      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
         <Text style={styles.header}>Finish registration</Text>
+        {termsNotice}
+        <View style={styles.commSwooshContainer}>
+          <Image source={commSwooshSource} style={styles.commSwoosh} />
+        </View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
         <RegistrationButton
@@ -67,10 +97,34 @@ function RegistrationTerms(props: Props): React.Node {
 }
 
 const unboundStyles = {
+  scrollViewContentContainer: {
+    flexGrow: 1,
+  },
   header: {
     fontSize: 24,
     color: 'panelForegroundLabel',
     paddingBottom: 16,
+  },
+  body: {
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'panelForegroundSecondaryLabel',
+    paddingBottom: 16,
+  },
+  commSwooshContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  commSwoosh: {
+    resizeMode: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  hyperlinkText: {
+    color: 'purpleLink',
   },
 };
 
