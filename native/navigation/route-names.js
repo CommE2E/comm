@@ -41,6 +41,7 @@ import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camer
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
+import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react.js';
 import type { MessageSearchParams } from '../search/message-search.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
@@ -52,6 +53,7 @@ export const BackgroundChatThreadListRouteName = 'BackgroundChatThreadList';
 export const BlockListRouteName = 'BlockList';
 export const BuildInfoRouteName = 'BuildInfo';
 export const CalendarRouteName = 'Calendar';
+export const ChangeRolesScreenRouteName = 'ChangeRolesScreen';
 export const ChatCameraModalRouteName = 'ChatCameraModal';
 export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
@@ -185,6 +187,7 @@ export type ChatParamList = {
   +FullScreenThreadMediaGallery: FullScreenThreadMediaGalleryParams,
   +MessageResultsScreen: MessageResultsScreenParams,
   +MessageSearch: MessageSearchParams,
+  +ChangeRolesScreen: ChangeRolesScreenParams,
 };
 
 export type ChatTopTabsParamList = {
