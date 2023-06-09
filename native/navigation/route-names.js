@@ -10,6 +10,7 @@ import type { EmojiAvatarSelectionParams } from '../account/registration/emoji-a
 import type { ExistingEthereumAccountParams } from '../account/registration/existing-ethereum-account.react.js';
 import type { KeyserverSelectionParams } from '../account/registration/keyserver-selection.react.js';
 import type { PasswordSelectionParams } from '../account/registration/password-selection.react.js';
+import type { RegistrationTermsParams } from '../account/registration/registration-terms.react.js';
 import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
@@ -118,6 +119,7 @@ export const AvatarSelectionRouteName = 'AvatarSelection';
 export const EmojiAvatarSelectionRouteName = 'EmojiAvatarSelection';
 export const RegistrationUserAvatarCameraModalRouteName =
   'RegistrationUserAvatarCameraModal';
+export const RegistrationTermsRouteName = 'RegistrationTerms';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -218,6 +220,7 @@ export type RegistrationParamList = {
   +AvatarSelection: AvatarSelectionParams,
   +EmojiAvatarSelection: EmojiAvatarSelectionParams,
   +RegistrationUserAvatarCameraModal: void,
+  +RegistrationTerms: RegistrationTermsParams,
 };
 
 export type InviteLinkParamList = {
