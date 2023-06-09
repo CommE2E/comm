@@ -14,12 +14,12 @@
   background-color: var(--page-background);
   margin: 0;
   padding: 0;
-  height: 100%;
-  overflow: auto;
+  min-height: 100vh;
 }
 
 .innerContainerMobileNav {
   overflow-y: hidden;
+  height: 100%;
 }
 
 .pageContentContainer {
