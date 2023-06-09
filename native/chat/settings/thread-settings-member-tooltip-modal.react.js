@@ -13,6 +13,8 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
+import type { AppNavigationProp } from '../../navigation/app-navigator.react';
+import { ChangeRolesScreenRouteName } from '../../navigation/route-names.js';
 import {
   createTooltip,
   type TooltipParams,
@@ -59,19 +61,29 @@ function useOnRemoveUser(
 }
 
 function useOnChangeRole(
-  // This is temporary until we implement the change role flow
-  // eslint-disable-next-line no-unused-vars
   route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
+  navigation: AppNavigationProp<'ThreadSettingsMemberTooltipModal'>,
 ) {
-  return React.useCallback(() => {}, []);
+  const { threadInfo, memberInfo } = route.params;
+  return React.useCallback(() => {
+    navigation.navigate<'ChangeRolesScreen'>({
+      name: ChangeRolesScreenRouteName,
+      params: {
+        threadInfo,
+        memberInfo,
+        role: memberInfo.role,
+      },
+      key: route.key,
+    });
+  }, [navigation, route.key, threadInfo, memberInfo]);
 }
 
 function TooltipMenu(
   props: TooltipMenuProps<'ThreadSettingsMemberTooltipModal'>,
 ): React.Node {
-  const { route, tooltipItem: TooltipItem } = props;
+  const { route, navigation, tooltipItem: TooltipItem } = props;
 
-  const onChangeRole = useOnChangeRole(route);
+  const onChangeRole = useOnChangeRole(route, navigation);
   const onRemoveUser = useOnRemoveUser(route);
 
   return (
