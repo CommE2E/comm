@@ -74,14 +74,14 @@ function MobileNav(props: Props): React.Node {
           target="_blank"
           rel="noreferrer"
         >
-          <FontAwesomeIcon icon={faTwitter} className={css.icon} size="xl" />
+          <FontAwesomeIcon icon={faTwitter} className={css.icon} size="1x" />
         </a>
         <a
           href="https://github.com/CommE2E/comm"
           target="_blank"
           rel="noreferrer"
         >
-          <FontAwesomeIcon icon={faGithub} className={css.icon} size="xl" />
+          <FontAwesomeIcon icon={faGithub} className={css.icon} size="1x" />
         </a>
       </div>
     </nav>
