@@ -68,6 +68,7 @@ function Footer(): React.Node {
             </NavLink>
             <a
               href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234"
+              target="blank"
               className={navLinkClassName}
             >
               Learn how Comm works
@@ -79,6 +80,7 @@ function Footer(): React.Node {
             </a>
             <a
               href="https://commapp.notion.site/Learn-more-about-Comm-1efb9b646d504dddae30a20b4f33200e"
+              target="blank"
               className={navLinkClassName}
             >
               About Comm
@@ -90,14 +92,14 @@ function Footer(): React.Node {
             </a>
           </div>
           <div className={css.socialIconsContainer}>
-            <a href="https://twitter.com/commdotapp">
+            <a href="https://twitter.com/commdotapp" target="blank">
               <FontAwesomeIcon
                 size="lg"
                 className={css.socialIcons}
                 icon={faTwitter}
               />
             </a>
-            <a href="https://github.com/CommE2E/comm">
+            <a href="https://github.com/CommE2E/comm" target="blank">
               <FontAwesomeIcon
                 size="lg"
                 className={css.socialIcons}

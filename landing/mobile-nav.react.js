@@ -69,10 +69,10 @@ function MobileNav(props: Props): React.Node {
         </NavLink>
       </div>
       <div className={css.socialIconsContainer}>
-        <a href="https://twitter.com/commdotapp">
+        <a href="https://twitter.com/commdotapp" target="blank">
           <FontAwesomeIcon icon={faTwitter} className={css.icon} size="xl" />
         </a>
-        <a href="https://github.com/CommE2E/comm">
+        <a href="https://github.com/CommE2E/comm" target="blank">
           <FontAwesomeIcon icon={faGithub} className={css.icon} size="xl" />
         </a>
       </div>
