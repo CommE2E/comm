@@ -3,12 +3,16 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
+import ChangeRolesHeaderRightButton from './change-roles-header-right-button.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import type { ChatNavigationProp } from '../chat/chat.react';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -27,10 +31,40 @@ type Props = {
   +route: NavigationRoute<'ChangeRolesScreen'>,
 };
 
+const changeRolesLoadingStatusSelector = createLoadingStatusSelector(
+  changeThreadMemberRolesActionTypes,
+);
+
 function ChangeRolesScreen(props: Props): React.Node {
-  const { navigation } = props;
+  const { navigation, route } = props;
   const { threadInfo, memberInfo, role } = props.route.params;
   invariant(role, 'Role must be defined');
+
+  const changeRolesLoadingStatus: LoadingStatus = useSelector(
+    changeRolesLoadingStatusSelector,
+  );
+  const activityIndicatorStyle = React.useMemo(
+    () => ({ paddingRight: 15 }),
+    [],
+  );
+
+  React.useEffect(() => {
+    navigation.setOptions({
+      // eslint-disable-next-line react/display-name
+      headerRight: () => {
+        if (changeRolesLoadingStatus === 'loading') {
+          return (
+            <ActivityIndicator
+              size="small"
+              color="white"
+              style={activityIndicatorStyle}
+            />
+          );
+        }
+        return <ChangeRolesHeaderRightButton route={route} />;
+      },
+    });
+  }, [changeRolesLoadingStatus, navigation, activityIndicatorStyle, route]);
 
   const styles = useStyles(unboundStyles);
 
