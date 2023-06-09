@@ -15,6 +15,7 @@ import { NavContext } from './navigation-context.js';
 import {
   getStateFromNavigatorRoute,
   getThreadIDFromRoute,
+  currentLeafRoute,
 } from './navigation-utils.js';
 import {
   AppRouteName,
@@ -315,6 +316,16 @@ const drawerSwipeEnabledSelector: (context: ?NavContextType) => boolean =
     },
   );
 
+function useCurrentLeafRouteName(): ?string {
+  const navContext = React.useContext(NavContext);
+  return React.useMemo(() => {
+    if (!navContext) {
+      return undefined;
+    }
+    return currentLeafRoute(navContext.state).name;
+  }, [navContext]);
+}
+
 export {
   createIsForegroundSelector,
   useIsAppLoggedIn,
@@ -330,4 +341,5 @@ export {
   nonThreadCalendarQuery,
   useCalendarQuery,
   drawerSwipeEnabledSelector,
+  useCurrentLeafRouteName,
 };
