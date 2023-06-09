@@ -20,6 +20,7 @@ export type ChangeRolesScreenParams = {
   +threadInfo: ThreadInfo,
   +memberInfo: RelativeMemberInfo,
   +role: ?string,
+  +shouldShowError?: boolean,
 };
 
 type Props = {
@@ -29,7 +30,7 @@ type Props = {
 
 function ChangeRolesScreen(props: Props): React.Node {
   const { navigation } = props;
-  const { threadInfo, memberInfo, role } = props.route.params;
+  const { threadInfo, memberInfo, role, shouldShowError } = props.route.params;
   invariant(role, 'Role must be defined');
 
   const styles = useStyles(unboundStyles);
@@ -65,6 +66,7 @@ function ChangeRolesScreen(props: Props): React.Node {
         threadInfo,
         memberInfo,
         role: newRole,
+        shouldShowError: false,
       });
     },
     [navigation, setSelectedRole, roleOptions, memberInfo, threadInfo],
@@ -88,7 +90,22 @@ function ChangeRolesScreen(props: Props): React.Node {
       },
       onRoleChange,
     );
-  }, [roleOptions, onRoleChange, activeTheme, showActionSheetWithOptions]);
+  }, [showActionSheetWithOptions, roleOptions, onRoleChange, activeTheme]);
+
+  const errorMessage = React.useMemo(() => {
+    if (!shouldShowError) {
+      return null;
+    }
+
+    return (
+      <View style={styles.errorMessageContainer}>
+        <Text style={styles.errorMessage}>Cannot change role.</Text>
+        <Text style={styles.errorMessage}>
+          There must be at least one admin at any given time.
+        </Text>
+      </View>
+    );
+  }, [shouldShowError, styles.errorMessage, styles.errorMessageContainer]);
 
   return (
     <View>
@@ -109,6 +126,7 @@ function ChangeRolesScreen(props: Props): React.Node {
           <SWMansionIcon name="edit-1" size={20} style={styles.pencilIcon} />
         </TouchableOpacity>
       </View>
+      {errorMessage}
     </View>
   );
 }
@@ -157,6 +175,16 @@ const unboundStyles = {
   },
   pencilIcon: {
     color: 'panelInputSecondaryForeground',
+  },
+  errorMessageContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  errorMessage: {
+    color: 'redText',
+    fontSize: 16,
   },
 };
 
