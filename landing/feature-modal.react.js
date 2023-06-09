@@ -35,7 +35,13 @@ function FeatureModal(props: Props): React.Node {
     }
 
     const links = feature.furtherReadingLinks.map((link, index) => (
-      <a key={index} href={link} target="blank" className={linkClassName}>
+      <a
+        key={index}
+        href={link}
+        target="_blank"
+        rel="noreferrer"
+        className={linkClassName}
+      >
         {link}
       </a>
     ));

@@ -83,7 +83,7 @@ function Header(props: Props): React.Node {
           </NavLink>
         </div>
         <div className={css.socialIconsContainer}>
-          <a href="https://web.comm.app">
+          <a href="https://web.comm.app" target="_blank" rel="noreferrer">
             <div className={css.webappIcon}>
               <FontAwesomeIcon
                 icon={faExternalLinkAlt}
@@ -92,7 +92,11 @@ function Header(props: Props): React.Node {
               />
             </div>
           </a>
-          <a href="https://twitter.com/commdotapp">
+          <a
+            href="https://twitter.com/commdotapp"
+            target="_blank"
+            rel="noreferrer"
+          >
             <div className={css.twitterIcon}>
               <FontAwesomeIcon
                 icon={faTwitter}
@@ -101,7 +105,11 @@ function Header(props: Props): React.Node {
               />
             </div>
           </a>
-          <a href="https://github.com/CommE2E/comm">
+          <a
+            href="https://github.com/CommE2E/comm"
+            target="_blank"
+            rel="noreferrer"
+          >
             <div className={css.githubIcon}>
               <FontAwesomeIcon icon={faGithub} className={css.icon} size="sm" />
             </div>
