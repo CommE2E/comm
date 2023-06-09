@@ -1,3 +1,4 @@
+pub mod amqp;
 pub mod config;
 pub mod constants;
 pub mod database;
@@ -29,6 +30,7 @@ async fn main() -> Result<()> {
   config::parse_cmdline_args()?;
   let aws_config = config::load_aws_config().await;
   let db_client = database::DatabaseClient::new(&aws_config);
+  let amqp_connection = amqp::connect().await;
 
   let grpc_server = grpc::run_server(db_client.clone());
   let websocket_server = websockets::run_server(db_client.clone());
