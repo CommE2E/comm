@@ -71,6 +71,7 @@ import {
   MessageSearchRouteName,
   ChangeRolesScreenRouteName,
 } from '../navigation/route-names.js';
+import ChangeRolesHeaderLeftButton from '../roles/change-roles-header-left-button.react.js';
 import ChangeRolesScreen from '../roles/change-roles-screen.react.js';
 import MessageSearch from '../search/message-search.react.js';
 import SearchHeader from '../search/search-header.react.js';
@@ -296,6 +297,10 @@ const messageResultsScreenOptions = {
   headerBackTitleVisible: false,
 };
 const changeRolesScreenOptions = {
+  // eslint-disable-next-line react/display-name
+  headerLeft: headerLeftProps => (
+    <ChangeRolesHeaderLeftButton {...headerLeftProps} />
+  ),
   headerTitle: 'Change Role',
   presentation: 'modal',
 };
