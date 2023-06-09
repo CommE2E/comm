@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
@@ -7,6 +8,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
   CoolOrNerdMode,
@@ -29,9 +31,23 @@ type Props = {
   +navigation: RegistrationNavigationProp<'RegistrationTerms'>,
   +route: NavigationRoute<'RegistrationTerms'>,
 };
-// eslint-disable-next-line no-unused-vars
 function RegistrationTerms(props: Props): React.Node {
-  const onProceed = React.useCallback(() => {}, []);
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { register } = registrationContext;
+
+  const [registrationInProgress, setRegistrationInProgress] =
+    React.useState(false);
+
+  const { userSelections } = props.route.params;
+  const onProceed = React.useCallback(async () => {
+    setRegistrationInProgress(true);
+    try {
+      await register(userSelections);
+    } finally {
+      setRegistrationInProgress(false);
+    }
+  }, [register, userSelections]);
 
   const styles = useStyles(unboundStyles);
   return (
@@ -43,7 +59,7 @@ function RegistrationTerms(props: Props): React.Node {
         <RegistrationButton
           onPress={onProceed}
           label="Register"
-          variant="disabled"
+          variant={registrationInProgress ? 'loading' : 'enabled'}
         />
       </RegistrationButtonContainer>
     </RegistrationContainer>

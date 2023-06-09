@@ -1,5 +1,6 @@
 // @flow
 
+import { useFocusEffect } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
@@ -21,7 +22,10 @@ import {
   type UserAvatarSelection,
 } from '../../avatars/edit-user-avatar-provider.react.js';
 import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  RegistrationTermsRouteName,
+} from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
 export type AvatarSelectionParams = {
@@ -46,8 +50,7 @@ function AvatarSelection(props: Props): React.Node {
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { cachedSelections, setCachedSelections, register } =
-    registrationContext;
+  const { cachedSelections, setCachedSelections } = registrationContext;
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
@@ -107,13 +110,7 @@ function AvatarSelection(props: Props): React.Node {
     [setCachedSelections],
   );
 
-  const [registrationInProgress, setRegistrationInProgress] =
-    React.useState(false);
-
-  React.useEffect(() => {
-    if (registrationInProgress) {
-      return undefined;
-    }
+  const focusEffect = React.useCallback(() => {
     setRegistrationMode({
       registrationMode: 'on',
       successCallback: setClientAvatarFromSelection,
@@ -121,23 +118,20 @@ function AvatarSelection(props: Props): React.Node {
     return () => {
       setRegistrationMode({ registrationMode: 'off' });
     };
-  }, [
-    registrationInProgress,
-    setRegistrationMode,
-    setClientAvatarFromSelection,
-  ]);
+  }, [setRegistrationMode, setClientAvatarFromSelection]);
+  useFocusEffect(focusEffect);
 
+  const { navigate } = props.navigation;
   const onProceed = React.useCallback(async () => {
-    setRegistrationInProgress(true);
-    try {
-      await register({
-        ...userSelections,
-        avatarData,
-      });
-    } finally {
-      setRegistrationInProgress(false);
-    }
-  }, [register, userSelections, avatarData]);
+    const newUserSelections = {
+      ...userSelections,
+      avatarData,
+    };
+    navigate<'RegistrationTerms'>({
+      name: RegistrationTermsRouteName,
+      params: { userSelections: newUserSelections },
+    });
+  }, [userSelections, avatarData, navigate]);
 
   const clientAvatar = avatarData?.clientAvatar;
   const userInfoOverride = React.useMemo(
@@ -157,7 +151,6 @@ function AvatarSelection(props: Props): React.Node {
           <View style={styles.editUserAvatar}>
             <EditUserAvatar
               userInfo={userInfoOverride}
-              disabled={registrationInProgress}
               prefetchedAvatarURI={prefetchedAvatarURI}
               showSpinnerDuringServerCall={false}
             />
@@ -165,11 +158,7 @@ function AvatarSelection(props: Props): React.Node {
         </View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
-        <RegistrationButton
-          onPress={onProceed}
-          label="Submit"
-          variant={registrationInProgress ? 'loading' : 'enabled'}
-        />
+        <RegistrationButton onPress={onProceed} label="Next" />
       </RegistrationButtonContainer>
     </RegistrationContainer>
   );
