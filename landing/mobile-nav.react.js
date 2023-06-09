@@ -70,10 +70,10 @@ function MobileNav(props: Props): React.Node {
       </div>
       <div className={css.socialIconsContainer}>
         <a href="https://twitter.com/commdotapp" target="blank">
-          <FontAwesomeIcon icon={faTwitter} className={css.icon} size="xl" />
+          <FontAwesomeIcon icon={faTwitter} className={css.icon} size="1x" />
         </a>
         <a href="https://github.com/CommE2E/comm" target="blank">
-          <FontAwesomeIcon icon={faGithub} className={css.icon} size="xl" />
+          <FontAwesomeIcon icon={faGithub} className={css.icon} size="1x" />
         </a>
       </div>
     </nav>
