@@ -296,14 +296,14 @@ const messageResultsScreenOptions = {
   headerTitle: 'Pinned Messages',
   headerBackTitleVisible: false,
 };
-const changeRolesScreenOptions = {
+const changeRolesScreenOptions = ({ route }) => ({
   // eslint-disable-next-line react/display-name
   headerLeft: headerLeftProps => (
-    <ChangeRolesHeaderLeftButton {...headerLeftProps} />
+    <ChangeRolesHeaderLeftButton {...headerLeftProps} route={route} />
   ),
   headerTitle: 'Change Role',
   presentation: 'modal',
-};
+});
 
 export type ChatNavigationProp<
   RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
