@@ -69,7 +69,9 @@ import {
   type ChatParamList,
   type ChatTopTabsParamList,
   MessageSearchRouteName,
+  ChangeRolesScreenRouteName,
 } from '../navigation/route-names.js';
+import ChangeRolesScreen from '../roles/change-roles-screen.react.js';
 import MessageSearch from '../search/message-search.react.js';
 import SearchHeader from '../search/search-header.react.js';
 import SearchMessagesButton from '../search/search-messages-button.react.js';
@@ -293,6 +295,10 @@ const messageResultsScreenOptions = {
   headerTitle: 'Pinned Messages',
   headerBackTitleVisible: false,
 };
+const changeRolesScreenOptions = {
+  headerTitle: 'Change Role',
+  presentation: 'modal',
+};
 
 export type ChatNavigationProp<
   RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
@@ -410,6 +416,11 @@ export default function ChatComponent(props: Props): React.Node {
             name={MessageSearchRouteName}
             component={MessageSearch}
             options={messageSearchOptions}
+          />
+          <Chat.Screen
+            name={ChangeRolesScreenRouteName}
+            component={ChangeRolesScreen}
+            options={changeRolesScreenOptions}
           />
         </Chat.Navigator>
         <MessageStorePruner />
