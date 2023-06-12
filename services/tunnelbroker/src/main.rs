@@ -7,14 +7,8 @@ pub mod websockets;
 
 use anyhow::{anyhow, Result};
 use config::CONFIG;
-use dashmap::DashMap;
-use once_cell::sync::Lazy;
-use tokio::sync::mpsc::UnboundedSender;
 use tracing::{self, Level};
 use tracing_subscriber::EnvFilter;
-
-pub static ACTIVE_CONNECTIONS: Lazy<DashMap<String, UnboundedSender<String>>> =
-  Lazy::new(DashMap::new);
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -32,8 +26,9 @@ async fn main() -> Result<()> {
   let db_client = database::DatabaseClient::new(&aws_config);
   let amqp_connection = amqp::connect().await;
 
-  let grpc_server = grpc::run_server(db_client.clone());
-  let websocket_server = websockets::run_server(db_client.clone());
+  let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
+  let websocket_server =
+    websockets::run_server(db_client.clone(), &amqp_connection);
 
   tokio::select! {
     Ok(_) = grpc_server => { Ok(()) },
