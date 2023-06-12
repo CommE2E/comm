@@ -20,7 +20,6 @@ import FriendListModal from './relationship/friend-list-modal.react.js';
 import Button from '../components/button.react.js';
 import UserAvatar from '../components/user-avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useServerCall(logOut);
@@ -58,13 +57,6 @@ function AccountSettings(): React.Node {
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const stringForUser = useStringForUser(currentUserInfo);
 
-  const contentStyle = React.useMemo(
-    () => ({
-      marginTop: shouldRenderAvatars ? 32 : 0,
-    }),
-    [],
-  );
-
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
@@ -88,7 +80,7 @@ function AccountSettings(): React.Node {
     <div className={css.container}>
       <h4 className={css.header}>My Account</h4>
       <UserAvatar size="profile" userID={currentUserInfo.id} />
-      <div className={css.content} style={contentStyle}>
+      <div className={css.content}>
         <ul>
           <li>
             <p className={css.logoutContainer}>

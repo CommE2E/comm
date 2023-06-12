@@ -14,7 +14,6 @@ import Button from '../../components/button.react.js';
 import Search from '../../components/search.react.js';
 import ThreadAvatar from '../../components/thread-avatar.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { shouldRenderAvatars } from '../../utils/avatar-utils.js';
 import Modal, { type ModalOverridableProps } from '../modal.react.js';
 
 type OptionProps = {
@@ -31,21 +30,7 @@ function ThreadPickerOption(props: OptionProps) {
     onCloseModal();
   }, [threadInfo.id, createNewEntry, onCloseModal]);
 
-  const splotchColorStyle = React.useMemo(
-    () => ({
-      backgroundColor: `#${threadInfo.color}`,
-    }),
-    [threadInfo.color],
-  );
-
   const { uiName } = useResolvedThreadInfo(threadInfo);
-
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return <div style={splotchColorStyle} className={css.threadSplotch} />;
-    }
-    return <ThreadAvatar size="large" threadInfo={threadInfo} />;
-  }, [splotchColorStyle, threadInfo]);
 
   return (
     <div key={threadInfo.id} className={css.threadPickerOptionContainer}>
@@ -53,7 +38,7 @@ function ThreadPickerOption(props: OptionProps) {
         className={css.threadPickerOptionButton}
         onClick={onClickThreadOption}
       >
-        {avatar}
+        <ThreadAvatar size="large" threadInfo={threadInfo} />
         <div className={css.threadNameText}>{uiName}</div>
       </Button>
     </div>
