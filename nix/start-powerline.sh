@@ -72,7 +72,7 @@ Select font with 'for Powerline' in the name" >&2
     elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
       echo ""
       echo "For glyph support, please:
-  Select iTerm2 > Preferences > Profiles > Text > Font > \
+  Select iTerm2 > Settings > Profiles > Text > Font > \
 Select font with 'for Powerline' in the name" >&2
       echo ""
     fi
