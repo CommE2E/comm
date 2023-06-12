@@ -21,17 +21,24 @@ use tracing_futures::Instrument;
 #[instrument(
   name = "get_blob",
   skip_all,
-  fields(holder = %params.as_ref().as_str(), s3_path))
+  fields(blob_hash = %params.as_ref().as_str(), s3_path))
 ]
 pub async fn get_blob_handler(
   ctx: web::Data<AppContext>,
   params: web::Path<String>,
 ) -> actix_web::Result<HttpResponse> {
   info!("Get blob request");
-  let holder = params.into_inner();
-  validate_identifier!(holder);
+  let blob_hash = params.into_inner();
+  validate_identifier!(blob_hash);
 
-  let s3_path = ctx.find_s3_path_by_holder(&holder).await?;
+  let s3_path = match ctx.db.find_blob_item(&blob_hash).await {
+    Ok(Some(BlobItem { s3_path, .. })) => Ok(s3_path),
+    Ok(None) => {
+      debug!("Blob with given hash not found in database");
+      Err(ErrorNotFound("blob not found"))
+    }
+    Err(err) => Err(handle_db_error(err)),
+  }?;
   tracing::Span::current().record("s3_path", s3_path.to_full_path());
 
   let object_metadata = ctx

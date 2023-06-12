@@ -33,22 +33,6 @@ impl AppContext {
       Err(err) => Err(handle_db_error(err)),
     }
   }
-
-  pub async fn find_s3_path_by_holder(
-    &self,
-    holder: &str,
-  ) -> Result<S3Path, HttpError> {
-    match self.db.find_reverse_index_by_holder(holder).await {
-      Ok(Some(reverse_index)) => {
-        self.find_s3_path_by_reverse_index(&reverse_index).await
-      }
-      Ok(None) => {
-        debug!("No db entry found for holder {:?}", holder);
-        Err(ErrorNotFound("blob not found"))
-      }
-      Err(err) => Err(handle_db_error(err)),
-    }
-  }
 }
 
 pub fn handle_db_error(db_error: DBError) -> HttpError {
