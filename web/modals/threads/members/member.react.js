@@ -26,10 +26,10 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import css from './members-modal.css';
+import UserAvatar from '../../../avatars/user-avatar.react.js';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
-import UserAvatar from '../../../components/user-avatar.react.js';
 
 type Props = {
   +memberInfo: RelativeMemberInfo,

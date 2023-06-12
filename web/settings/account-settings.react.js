@@ -17,8 +17,8 @@ import css from './account-settings.css';
 import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
+import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
-import UserAvatar from '../components/user-avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function AccountSettings(): React.Node {

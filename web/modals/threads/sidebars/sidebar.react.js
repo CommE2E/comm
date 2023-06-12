@@ -10,8 +10,8 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './sidebars-modal.css';
+import ThreadAvatar from '../../../avatars/thread-avatar.react.js';
 import Button from '../../../components/button.react.js';
-import ThreadAvatar from '../../../components/thread-avatar.react.js';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react.js';
 import { useOnClickThread } from '../../../selectors/thread-selectors.js';
 

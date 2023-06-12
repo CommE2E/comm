@@ -8,10 +8,10 @@ import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 
 import css from './user-list-row.css';
 import type { UserRowProps } from './user-list.react.js';
+import UserAvatar from '../../avatars/user-avatar.react.js';
 import Button from '../../components/button.react.js';
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
-import UserAvatar from '../../components/user-avatar.react.js';
 
 const dangerButtonColor = {
   color: 'var(--btn-bg-danger)',
