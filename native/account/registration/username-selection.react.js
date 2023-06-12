@@ -37,7 +37,7 @@ const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
 export type UsernameSelectionParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverUsername: string,
+    +keyserverURL: string,
   },
 };
 
