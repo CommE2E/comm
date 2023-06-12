@@ -12,7 +12,6 @@ import type { MessageListParams } from '../chat/message-list-types.js';
 import { SingleLine } from '../components/single-line.react.js';
 import InviteLinksButton from '../invite-links/invite-links-button.react.js';
 import { useStyles } from '../themes/colors.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 import type { CommunityDrawerItemDataFlattened } from '../utils/drawer-utils.react.js';
 
 export type DrawerItemProps = {
@@ -66,20 +65,6 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
-  const shouldRenderAvatars = useShouldRenderAvatars();
-
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return null;
-    }
-
-    return (
-      <View style={styles.avatarContainer}>
-        <ThreadAvatar size="micro" threadInfo={threadInfo} />
-      </View>
-    );
-  }, [shouldRenderAvatars, styles.avatarContainer, threadInfo]);
-
   const containerStyle = React.useMemo(
     () => [
       styles.container,
@@ -100,7 +85,9 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           style={styles.textTouchableWrapper}
           onLongPress={onExpandToggled}
         >
-          {avatar}
+          <View style={styles.avatarContainer}>
+            <ThreadAvatar size="micro" threadInfo={threadInfo} />
+          </View>
           <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>
         <InviteLinksButton community={threadInfo} />

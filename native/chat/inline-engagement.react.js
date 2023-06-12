@@ -36,17 +36,9 @@ type Props = {
   +disabled?: boolean,
   +positioning?: 'left' | 'right',
   +label?: ?string,
-  +shouldRenderAvatars?: boolean,
 };
 function InlineEngagement(props: Props): React.Node {
-  const {
-    disabled = false,
-    reactions,
-    threadInfo,
-    positioning,
-    shouldRenderAvatars,
-    label,
-  } = props;
+  const { disabled = false, reactions, threadInfo, positioning, label } = props;
   const repliesText = useInlineEngagementText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
@@ -158,9 +150,6 @@ function InlineEngagement(props: Props): React.Node {
   } else {
     inlineEngagementPositionStyle.push(styles.rightInlineEngagement);
   }
-  if (shouldRenderAvatars) {
-    inlineEngagementPositionStyle.push({ marginLeft: avatarOffset });
-  }
 
   let body;
   if (isLeft) {
@@ -216,6 +205,7 @@ const unboundStyles = {
     marginBottom: inlineEngagementStyle.marginBottom,
     marginTop: inlineEngagementStyle.marginTop,
     alignItems: 'center',
+    marginLeft: avatarOffset,
   },
   icon: {
     color: 'inlineEngagementLabel',

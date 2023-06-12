@@ -95,7 +95,6 @@ import {
 } from '../../themes/colors.js';
 import type { VerticalBounds } from '../../types/layout-types.js';
 import type { ViewStyle } from '../../types/styles.js';
-import { useShouldRenderAvatars } from '../../utils/avatar-utils.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 const itemPageLength = 5;
@@ -254,7 +253,6 @@ type Props = {
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   +canPromoteSidebar: boolean,
-  +shouldRenderAvatars: boolean,
 };
 type State = {
   +numMembersShowing: number,
@@ -356,25 +354,23 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       const canChangeColor = canEditThreadColor && canStartEditing;
 
       const listData: ChatSettingsItem[] = [];
-      if (this.props.shouldRenderAvatars) {
-        listData.push({
-          itemType: 'header',
-          key: 'avatarHeader',
-          title: 'Channel Avatar',
-          categoryType: 'unpadded',
-        });
-        listData.push({
-          itemType: 'avatar',
-          key: 'avatar',
-          threadInfo,
-          canChangeSettings: canChangeAvatar,
-        });
-        listData.push({
-          itemType: 'footer',
-          key: 'avatarFooter',
-          categoryType: 'outline',
-        });
-      }
+      listData.push({
+        itemType: 'header',
+        key: 'avatarHeader',
+        title: 'Channel Avatar',
+        categoryType: 'unpadded',
+      });
+      listData.push({
+        itemType: 'avatar',
+        key: 'avatar',
+        threadInfo,
+        canChangeSettings: canChangeAvatar,
+      });
+      listData.push({
+        itemType: 'footer',
+        key: 'avatarFooter',
+        categoryType: 'outline',
+      });
 
       listData.push({
         itemType: 'header',
@@ -1241,7 +1237,6 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
     const { canPromoteSidebar } = usePromoteSidebar(threadInfo);
-    const shouldRenderAvatars = useShouldRenderAvatars();
 
     return (
       <ThreadSettings
@@ -1257,7 +1252,6 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         overlayContext={overlayContext}
         keyboardState={keyboardState}
         canPromoteSidebar={canPromoteSidebar}
-        shouldRenderAvatars={shouldRenderAvatars}
       />
     );
   });

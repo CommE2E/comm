@@ -13,7 +13,6 @@ import { SingleLine } from '../components/single-line.react.js';
 import { MessageListRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
   +item: ChatMessageInfoItemWithHeight,
@@ -31,19 +30,11 @@ function MessageHeader(props: Props): React.Node {
   const shouldShowUsername = !isViewer && (modalDisplay || item.startsCluster);
   const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
 
-  const shouldRenderAvatars = useShouldRenderAvatars();
-
   let authorName = null;
   if (stringForUser) {
     const style = [styles.authorName];
     if (modalDisplay) {
       style.push(styles.modal);
-    }
-
-    if (shouldRenderAvatars) {
-      style.push({ marginLeft: 12 + avatarOffset });
-    } else {
-      style.push({ marginLeft: 12 });
     }
 
     authorName = <SingleLine style={style}>{stringForUser}</SingleLine>;
@@ -95,6 +86,7 @@ const unboundStyles = {
     marginRight: 7,
     paddingHorizontal: 12,
     paddingVertical: 4,
+    marginLeft: 12 + avatarOffset,
   },
   modal: {
     // high contrast framed against OverlayNavigator-dimmed background
