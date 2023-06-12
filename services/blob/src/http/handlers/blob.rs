@@ -12,6 +12,7 @@ use actix_web::error::{
 use actix_web::{web, Error as HttpError, HttpResponse};
 use anyhow::Result;
 use async_stream::{try_stream, AsyncStream};
+use comm_services_lib::tools::is_valid_identifier;
 use serde::{Deserialize, Serialize};
 use tokio_stream::StreamExt;
 use tracing::{debug, error, info, instrument, trace, warn};
@@ -28,6 +29,10 @@ pub async fn get_blob_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Get blob request");
   let holder = params.into_inner();
+  if !is_valid_identifier(&holder) {
+    warn!(holder, "Holder is not a valid identifier");
+    return Err(ErrorBadRequest("Bad request"));
+  }
   let s3_path = ctx.find_s3_path_by_holder(&holder).await?;
   tracing::Span::current().record("s3_path", s3_path.to_full_path());
 
@@ -87,6 +92,13 @@ pub async fn assign_holder_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Assign holder request");
   let AssignHolderPayload { holder, blob_hash } = payload.into_inner();
+  if !is_valid_identifier(&holder) || !is_valid_identifier(&blob_hash) {
+    warn!(
+      holder = &holder,
+      blob_hash, "Holder or blob hash is not a valid identifier"
+    );
+    return Err(ErrorBadRequest("Bad request"));
+  }
 
   if ctx
     .db
@@ -137,6 +149,11 @@ async fn get_blob_hash_field(
 
   let blob_hash = String::from_utf8(buf)
     .map_err(|_| ErrorInternalServerError("Internal error"))?;
+
+  if !is_valid_identifier(&blob_hash) {
+    warn!(blob_hash, "Blob hash is not a valid identifier");
+    return Err(ErrorBadRequest("Bad request"));
+  }
   return Ok(blob_hash);
 }
 
@@ -243,6 +260,10 @@ pub async fn delete_blob_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Delete blob request");
   let holder = params.into_inner();
+  if !is_valid_identifier(&holder) {
+    warn!(holder, "Holder is not a valid identifier");
+    return Err(ErrorBadRequest("Bad request"));
+  }
   let reverse_index_item = ctx
     .db
     .find_reverse_index_by_holder(&holder)
