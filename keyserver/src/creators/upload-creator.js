@@ -22,6 +22,7 @@ type UploadContent =
   | {
       +storage: 'blob_service',
       +blobHolder: string,
+      +blobHash: string,
     };
 
 export type UploadInput = {
@@ -52,6 +53,11 @@ async function createUploads(
       content.storage === 'keyserver' ? content.buffer : Buffer.alloc(0);
     const blobHolder =
       content.storage === 'blob_service' ? content.blobHolder : undefined;
+    const blobHash =
+      content.storage === 'blob_service' ? content.blobHash : undefined;
+    if ((blobHolder && !blobHash) || (!blobHolder && blobHash)) {
+      throw new ServerError('invalid_parameters');
+    }
     const uri = makeUploadURI(blobHolder, id, secret);
 
     return {
@@ -75,6 +81,7 @@ async function createUploads(
           ...dimensions,
           loop,
           blobHolder,
+          blobHash,
           encryptionKey,
           thumbHash,
         }),
