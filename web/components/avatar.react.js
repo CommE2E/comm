@@ -6,7 +6,6 @@ import * as React from 'react';
 import type { ResolvedClientAvatar } from 'lib/types/avatar-types';
 
 import css from './avatar.css';
-import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
@@ -64,7 +63,7 @@ function Avatar(props: Props): React.Node {
     emojiSizeClassName,
   ]);
 
-  return shouldRenderAvatars ? avatar : null;
+  return avatar;
 }
 
 export default Avatar;

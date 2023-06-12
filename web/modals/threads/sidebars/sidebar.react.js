@@ -14,7 +14,6 @@ import Button from '../../../components/button.react.js';
 import ThreadAvatar from '../../../components/thread-avatar.react.js';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react.js';
 import { useOnClickThread } from '../../../selectors/thread-selectors.js';
-import { shouldRenderAvatars } from '../../../utils/avatar-utils.js';
 
 type Props = {
   +sidebar: ChatThreadItem,
@@ -43,10 +42,10 @@ function Sidebar(props: Props): React.Node {
     [css.unread]: unread,
   });
 
-  const previewTextClassName = classNames({
-    [css.longTextEllipsis]: true,
-    [css.avatarOffset]: shouldRenderAvatars,
-  });
+  const previewTextClassName = classNames([
+    css.longTextEllipsis,
+    css.avatarOffset,
+  ]);
 
   const lastActivity = React.useMemo(
     () => shortAbsoluteDate(lastUpdatedTime),
