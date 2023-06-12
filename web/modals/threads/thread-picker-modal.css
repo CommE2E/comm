@@ -26,12 +26,6 @@ div.threadPickerOptionContainer {
   border-radius: 8px;
 }
 
-div.threadSplotch {
-  min-width: 40px;
-  height: 40px;
-  border-radius: 10px;
-}
-
 div.threadNameText {
   color: var(--shades-white-100);
   margin-left: 16px;

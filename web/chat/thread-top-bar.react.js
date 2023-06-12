@@ -13,7 +13,6 @@ import css from './thread-top-bar.css';
 import ThreadAvatar from '../components/thread-avatar.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import MessageResultsModal from '../modals/chat/message-results-modal.react.js';
-import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type ThreadTopBarProps = {
   +threadInfo: ThreadInfo,
@@ -21,12 +20,6 @@ type ThreadTopBarProps = {
 function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const { threadInfo } = props;
   const { pushModal } = useModalContext();
-  const threadBackgroundColorStyle = React.useMemo(
-    () => ({
-      background: `#${threadInfo.color}`,
-    }),
-    [threadInfo.color],
-  );
 
   let threadMenu = null;
   if (!threadIsPending(threadInfo.id)) {
@@ -72,23 +65,11 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return (
-        <div
-          className={css.threadColorSquare}
-          style={threadBackgroundColorStyle}
-        />
-      );
-    }
-    return <ThreadAvatar size="small" threadInfo={threadInfo} />;
-  }, [threadBackgroundColorStyle, threadInfo]);
-
   return (
     <>
       <div className={css.topBarContainer}>
         <div className={css.topBarThreadInfo}>
-          {avatar}
+          <ThreadAvatar size="small" threadInfo={threadInfo} />
           <div className={css.threadTitle}>{uiName}</div>
         </div>
         {threadMenu}

@@ -23,7 +23,6 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/thread-selectors.js';
-import { shouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
   +item: ChatThreadItem,
@@ -84,12 +83,6 @@ function ChatThreadListItem(props: Props): React.Node {
     unreadDot = <div className={css.unreadDot} />;
   }
 
-  const { color } = item.threadInfo;
-  const colorSplotchStyle = React.useMemo(
-    () => ({ backgroundColor: `#${color}` }),
-    [color],
-  );
-
   const sidebars = item.sidebars.map((sidebarItem, index) => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
@@ -131,20 +124,13 @@ function ChatThreadListItem(props: Props): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return <div className={css.colorSplotch} style={colorSplotchStyle} />;
-    }
-    return <ThreadAvatar size="large" threadInfo={threadInfo} />;
-  }, [colorSplotchStyle, threadInfo]);
-
   return (
     <>
       <a className={containerClassName} onClick={selectItemIfNotActiveCreation}>
         <div className={css.colorContainer}>
-          <div className={css.colorSplotchContainer}>
+          <div className={css.avatarContainer}>
             <div className={css.dotContainer}>{unreadDot}</div>
-            {avatar}
+            <ThreadAvatar size="large" threadInfo={threadInfo} />
           </div>
         </div>
         <div className={css.threadButton}>
