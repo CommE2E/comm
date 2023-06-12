@@ -34,6 +34,7 @@ services_usage() {
   exit 1
 }
 
+# shellcheck disable=SC2317
 services_command() {
   case "$1" in
     restart)
@@ -67,6 +68,7 @@ db_usage() {
   exit 1
 }
 
+# shellcheck disable=SC2317
 db_command() {
   case "$1" in
     restart)
