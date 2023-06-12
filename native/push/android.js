@@ -13,7 +13,7 @@ type CommAndroidNotificationsConstants = {
 
 type CommAndroidNotificationsModuleType = {
   +removeAllActiveNotificationsForThread: (threadID: string) => void,
-  +getInitialNotification: () => Promise<?AndroidMessage>,
+  +getInitialNotificationThreadID: () => Promise<?string>,
   +createChannel: (
     channelID: string,
     name: string,
@@ -66,7 +66,7 @@ function handleAndroidMessage(
 function getCommAndroidNotificationsEventEmitter(): NativeEventEmitter<{
   commAndroidNotificationsToken: [string],
   commAndroidNotificationsMessage: [AndroidMessage],
-  commAndroidNotificationsNotificationOpened: [AndroidMessage],
+  commAndroidNotificationsNotificationOpened: [string],
 }> {
   return new NativeEventEmitter(CommAndroidNotificationsEventEmitter);
 }
