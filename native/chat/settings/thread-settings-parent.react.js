@@ -9,7 +9,6 @@ import ThreadAvatar from '../../avatars/thread-avatar.react.js';
 import Button from '../../components/button.react.js';
 import ThreadPill from '../../components/thread-pill.react.js';
 import { useStyles } from '../../themes/colors.js';
-import { useShouldRenderAvatars } from '../../utils/avatar-utils.js';
 import { useNavigateToThread } from '../message-list-types.js';
 
 type ParentButtonProps = {
@@ -24,23 +23,11 @@ function ParentButton(props: ParentButtonProps): React.Node {
     navigateToThread({ threadInfo: props.parentThreadInfo });
   }, [props.parentThreadInfo, navigateToThread]);
 
-  const shouldRenderAvatars = useShouldRenderAvatars();
-
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return null;
-    }
-
-    return (
+  return (
+    <Button onPress={onPressParentThread} style={styles.parentContainer}>
       <View style={styles.avatarContainer}>
         <ThreadAvatar size="small" threadInfo={props.parentThreadInfo} />
       </View>
-    );
-  }, [props.parentThreadInfo, shouldRenderAvatars, styles.avatarContainer]);
-
-  return (
-    <Button onPress={onPressParentThread} style={styles.parentContainer}>
-      {avatar}
       <ThreadPill threadInfo={props.parentThreadInfo} />
     </Button>
   );

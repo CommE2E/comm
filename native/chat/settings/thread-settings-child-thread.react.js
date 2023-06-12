@@ -10,7 +10,6 @@ import Button from '../../components/button.react.js';
 import ThreadIcon from '../../components/thread-icon.react.js';
 import ThreadPill from '../../components/thread-pill.react.js';
 import { useColors, useStyles } from '../../themes/colors.js';
-import { useShouldRenderAvatars } from '../../utils/avatar-utils.js';
 import { useNavigateToThread } from '../message-list-types.js';
 
 type Props = {
@@ -29,26 +28,15 @@ function ThreadSettingsChildThread(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const shouldRenderAvatars = useShouldRenderAvatars();
-
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return null;
-    }
-    return (
-      <View style={styles.avatarContainer}>
-        <ThreadAvatar size="small" threadInfo={threadInfo} />
-      </View>
-    );
-  }, [shouldRenderAvatars, styles.avatarContainer, threadInfo]);
-
   const firstItem = props.firstListItem ? null : styles.topBorder;
   const lastItem = props.lastListItem ? styles.lastButton : null;
   return (
     <View style={styles.container}>
       <Button onPress={onPress} style={[styles.button, firstItem, lastItem]}>
         <View style={styles.leftSide}>
-          {avatar}
+          <View style={styles.avatarContainer}>
+            <ThreadAvatar size="small" threadInfo={threadInfo} />
+          </View>
           <ThreadPill threadInfo={threadInfo} />
         </View>
         <ThreadIcon
