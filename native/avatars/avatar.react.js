@@ -6,7 +6,6 @@ import { View, Text, StyleSheet } from 'react-native';
 import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
 
 import Multimedia from '../media/multimedia.react.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
@@ -15,8 +14,6 @@ type Props = {
 
 function Avatar(props: Props): React.Node {
   const { avatarInfo, size } = props;
-
-  const shouldRenderAvatars = useShouldRenderAvatars();
 
   const containerSizeStyle = React.useMemo(() => {
     if (size === 'micro') {
@@ -78,7 +75,7 @@ function Avatar(props: Props): React.Node {
     emojiSizeStyle,
   ]);
 
-  return shouldRenderAvatars ? avatar : null;
+  return avatar;
 }
 
 const styles = StyleSheet.create({

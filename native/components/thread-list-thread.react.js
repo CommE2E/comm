@@ -6,12 +6,10 @@ import type { ThreadInfo, ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import Button from './button.react.js';
-import ColorSplotch from './color-splotch.react.js';
 import { SingleLine } from './single-line.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type SharedProps = {
   +onSelect: (threadID: string) => void,
@@ -25,20 +23,12 @@ type BaseProps = {
 type Props = {
   ...SharedProps,
   +threadInfo: ResolvedThreadInfo,
-  +shouldRenderAvatars: boolean,
   +colors: Colors,
   +styles: typeof unboundStyles,
 };
 class ThreadListThread extends React.PureComponent<Props> {
   render() {
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
-
-    let avatar;
-    if (this.props.shouldRenderAvatars) {
-      avatar = <ThreadAvatar size="small" threadInfo={this.props.threadInfo} />;
-    } else {
-      avatar = <ColorSplotch color={this.props.threadInfo.color} />;
-    }
 
     return (
       <Button
@@ -48,7 +38,7 @@ class ThreadListThread extends React.PureComponent<Props> {
         iosActiveOpacity={0.85}
         style={[this.props.styles.button, this.props.style]}
       >
-        {avatar}
+        <ThreadAvatar size="small" threadInfo={this.props.threadInfo} />
         <SingleLine style={[this.props.styles.text, this.props.textStyle]}>
           {this.props.threadInfo.uiName}
         </SingleLine>
@@ -82,13 +72,11 @@ const ConnectedThreadListThread: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
     const colors = useColors();
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
-    const shouldRenderAvatars = useShouldRenderAvatars();
 
     return (
       <ThreadListThread
         {...rest}
         threadInfo={resolvedThreadInfo}
-        shouldRenderAvatars={shouldRenderAvatars}
         styles={styles}
         colors={colors}
       />

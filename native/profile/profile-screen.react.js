@@ -38,7 +38,6 @@ import {
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type ProfileRowProps = {
@@ -73,7 +72,6 @@ type Props = {
   +staffCanSee: boolean,
   +stringForUser: ?string,
   +isAccountWithPassword: boolean,
-  +shouldRenderAvatars: boolean,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -121,27 +119,18 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
-    let avatarSection;
-    if (this.props.shouldRenderAvatars) {
-      avatarSection = (
-        <>
-          <Text style={this.props.styles.header}>USER AVATAR</Text>
-          <View
-            style={[this.props.styles.section, this.props.styles.avatarSection]}
-          >
-            <EditUserAvatar userID={this.props.currentUserInfo?.id} />
-          </View>
-        </>
-      );
-    }
-
     return (
       <View style={this.props.styles.container}>
         <ScrollView
           contentContainerStyle={this.props.styles.scrollViewContentContainer}
           style={this.props.styles.scrollView}
         >
-          {avatarSection}
+          <Text style={this.props.styles.header}>USER AVATAR</Text>
+          <View
+            style={[this.props.styles.section, this.props.styles.avatarSection]}
+          >
+            <EditUserAvatar userID={this.props.currentUserInfo?.id} />
+          </View>
           <Text style={this.props.styles.header}>ACCOUNT</Text>
           <View style={this.props.styles.section}>
             <Action.Row>
@@ -401,7 +390,6 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     const isAccountWithPassword = useSelector(state =>
       accountHasPassword(state.currentUserInfo),
     );
-    const shouldRenderAvatars = useShouldRenderAvatars();
 
     return (
       <ProfileScreen
@@ -416,7 +404,6 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         staffCanSee={staffCanSee}
         stringForUser={stringForUser}
         isAccountWithPassword={isAccountWithPassword}
-        shouldRenderAvatars={shouldRenderAvatars}
       />
     );
   });

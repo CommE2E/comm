@@ -33,7 +33,6 @@ import { type InputState, InputStateContext } from '../input/input-state.js';
 import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
@@ -59,7 +58,6 @@ type Props = {
   // withInputState
   +inputState: ?InputState,
   +navigateToSidebar: () => mixed,
-  +shouldRenderAvatars: boolean,
   +editedMessageStyle: AnimatedStyleObj,
 };
 class ComposedMessage extends React.PureComponent<Props> {
@@ -78,7 +76,6 @@ class ComposedMessage extends React.PureComponent<Props> {
       navigateToSidebar,
       contentAndHeaderOpacity,
       deliveryIconOpacity,
-      shouldRenderAvatars,
       editedMessageStyle,
       ...viewProps
     } = this.props;
@@ -138,13 +135,13 @@ class ComposedMessage extends React.PureComponent<Props> {
         : undefined;
 
     let avatar;
-    if (!isViewer && item.endsCluster && shouldRenderAvatars) {
+    if (!isViewer && item.endsCluster) {
       avatar = (
         <View style={styles.avatarContainer}>
           <UserAvatar size="small" userID={item.messageInfo.creator.id} />
         </View>
       );
-    } else if (!isViewer && shouldRenderAvatars) {
+    } else if (!isViewer) {
       avatar = <View style={styles.avatarOffset} />;
     }
 
@@ -204,7 +201,6 @@ class ComposedMessage extends React.PureComponent<Props> {
           threadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
           positioning={positioning}
-          shouldRenderAvatars={shouldRenderAvatars}
           label={label}
         />
       );
@@ -302,7 +298,6 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
     const navigateToSidebar = useNavigateToSidebar(props.item);
     const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
     const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
-    const shouldRenderAvatars = useShouldRenderAvatars();
     const progress = useDerivedValue(() => {
       const isThisThread =
         inputState?.editState.editedMessage?.threadID ===
@@ -332,7 +327,6 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
         navigateToSidebar={navigateToSidebar}
         contentAndHeaderOpacity={contentAndHeaderOpacity}
         deliveryIconOpacity={deliveryIconOpacity}
-        shouldRenderAvatars={shouldRenderAvatars}
         editedMessageStyle={editedMessageStyle}
       />
     );

@@ -40,7 +40,6 @@ import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/rout
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { VerticalBounds } from '../../types/layout-types.js';
-import { useShouldRenderAvatars } from '../../utils/avatar-utils.js';
 
 type BaseProps = {
   +memberInfo: RelativeMemberInfo,
@@ -63,7 +62,6 @@ type Props = {
   +keyboardState: ?KeyboardState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
-  +shouldRenderAvatars: boolean,
 };
 class ThreadSettingsMember extends React.PureComponent<Props> {
   editButton: ?React.ElementRef<typeof View>;
@@ -71,25 +69,15 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
   render() {
     const userText = stringForUser(this.props.memberInfo);
 
-    const marginLeftStyle = {
-      marginLeft: this.props.shouldRenderAvatars ? 8 : 0,
-    };
-
     let usernameInfo = null;
     if (this.props.memberInfo.username) {
       usernameInfo = (
-        <SingleLine style={[this.props.styles.username, marginLeftStyle]}>
-          {userText}
-        </SingleLine>
+        <SingleLine style={this.props.styles.username}>{userText}</SingleLine>
       );
     } else {
       usernameInfo = (
         <SingleLine
-          style={[
-            this.props.styles.username,
-            this.props.styles.anonymous,
-            marginLeftStyle,
-          ]}
+          style={[this.props.styles.username, this.props.styles.anonymous]}
         >
           {userText}
         </SingleLine>
@@ -257,6 +245,7 @@ const unboundStyles = {
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
+    marginLeft: 8,
   },
 };
 
@@ -284,7 +273,6 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
-    const shouldRenderAvatars = useShouldRenderAvatars();
 
     return (
       <ThreadSettingsMember
@@ -296,7 +284,6 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
         styles={styles}
         keyboardState={keyboardState}
         overlayContext={overlayContext}
-        shouldRenderAvatars={shouldRenderAvatars}
       />
     );
   });
