@@ -22,7 +22,7 @@ import { useStyles } from '../../themes/colors.js';
 export type RegistrationTermsParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverUsername: string,
+    +keyserverURL: string,
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
   },

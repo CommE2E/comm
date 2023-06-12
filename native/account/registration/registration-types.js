@@ -39,14 +39,14 @@ export type AvatarData =
 
 export type RegistrationServerCallInput = {
   +coolOrNerdMode: CoolOrNerdMode,
-  +keyserverUsername: string,
+  +keyserverURL: string,
   +accountSelection: AccountSelection,
   +avatarData: ?AvatarData,
 };
 
 export type CachedUserSelections = {
   +coolOrNerdMode?: CoolOrNerdMode,
-  +keyserverUsername?: string,
+  +keyserverURL?: string,
   +username?: string,
   +password?: string,
   +avatarData?: ?AvatarData,
