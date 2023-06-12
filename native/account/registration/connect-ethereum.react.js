@@ -44,7 +44,7 @@ const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
 export type ConnectEthereumParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverUsername: string,
+    +keyserverURL: string,
   },
 };
 

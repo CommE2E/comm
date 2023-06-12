@@ -34,7 +34,7 @@ import { useStyles } from '../../themes/colors.js';
 export type AvatarSelectionParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverUsername: string,
+    +keyserverURL: string,
     +accountSelection: AccountSelection,
   },
 };

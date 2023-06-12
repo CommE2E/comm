@@ -24,7 +24,7 @@ import type { KeyPressEvent } from '../../types/react-native.js';
 export type PasswordSelectionParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverUsername: string,
+    +keyserverURL: string,
     +username: string,
   },
 };
@@ -76,10 +76,10 @@ function PasswordSelection(props: Props): React.Node {
       return;
     }
 
-    const { coolOrNerdMode, keyserverUsername, username } = userSelections;
+    const { coolOrNerdMode, keyserverURL, username } = userSelections;
     const newUserSelections = {
       coolOrNerdMode,
-      keyserverUsername,
+      keyserverURL,
       accountSelection: {
         accountType: 'username',
         username,
