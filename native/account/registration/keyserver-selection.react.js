@@ -4,6 +4,16 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
+import {
+  getVersion,
+  getVersionActionTypes,
+} from 'lib/actions/device-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils.js';
+
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
@@ -21,7 +31,9 @@ import {
   type NavigationRoute,
   ConnectEthereumRouteName,
 } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
+import { defaultURLPrefix } from '../../utils/url-utils.js';
 
 type Selection = 'ashoat' | 'custom';
 
@@ -30,6 +42,10 @@ export type KeyserverSelectionParams = {
     +coolOrNerdMode: CoolOrNerdMode,
   },
 };
+
+const getVersionLoadingStatusSelector = createLoadingStatusSelector(
+  getVersionActionTypes,
+);
 
 type Props = {
   +navigation: RegistrationNavigationProp<'KeyserverSelection'>,
@@ -42,12 +58,14 @@ function KeyserverSelection(props: Props): React.Node {
 
   const initialKeyserverUsername = cachedSelections.keyserverUsername;
   const [customKeyserver, setCustomKeyserver] = React.useState(
-    initialKeyserverUsername === 'ashoat' ? '' : initialKeyserverUsername,
+    initialKeyserverUsername === defaultURLPrefix
+      ? ''
+      : initialKeyserverUsername,
   );
   const customKeyserverTextInputRef = React.useRef();
 
   let initialSelection;
-  if (initialKeyserverUsername === 'ashoat') {
+  if (initialKeyserverUsername === defaultURLPrefix) {
     initialSelection = 'ashoat';
   } else if (initialKeyserverUsername) {
     initialSelection = 'custom';
@@ -72,19 +90,39 @@ function KeyserverSelection(props: Props): React.Node {
 
   let keyserverUsername;
   if (currentSelection === 'ashoat') {
-    keyserverUsername = 'ashoat';
+    keyserverUsername = defaultURLPrefix;
   } else if (currentSelection === 'custom' && customKeyserver) {
     keyserverUsername = customKeyserver;
   }
 
-  const buttonState = keyserverUsername ? 'enabled' : 'disabled';
+  const versionLoadingStatus = useSelector(getVersionLoadingStatusSelector);
+  let buttonState = keyserverUsername ? 'enabled' : 'disabled';
+  if (versionLoadingStatus === 'loading') {
+    buttonState = 'loading';
+  }
 
+  const serverCallParamOverride = React.useMemo(
+    () => ({
+      urlPrefix: keyserverUsername,
+    }),
+    [keyserverUsername],
+  );
+  const getVersionCall = useServerCall(getVersion, serverCallParamOverride);
+
+  const dispatchActionPromise = useDispatchActionPromise();
   const { navigate } = props.navigation;
   const { coolOrNerdMode } = props.route.params.userSelections;
-  const onSubmit = React.useCallback(() => {
+  const onSubmit = React.useCallback(async () => {
     if (!keyserverUsername) {
       return;
     }
+
+    const getVersionPromise = getVersionCall();
+    dispatchActionPromise(getVersionActionTypes, getVersionPromise);
+
+    // We don't care about the result; just need to make sure this doesn't throw
+    await getVersionPromise;
+
     setCachedSelections(oldUserSelections => ({
       ...oldUserSelections,
       keyserverUsername,
@@ -93,7 +131,14 @@ function KeyserverSelection(props: Props): React.Node {
       name: ConnectEthereumRouteName,
       params: { userSelections: { coolOrNerdMode, keyserverUsername } },
     });
-  }, [navigate, coolOrNerdMode, keyserverUsername, setCachedSelections]);
+  }, [
+    navigate,
+    coolOrNerdMode,
+    keyserverUsername,
+    setCachedSelections,
+    dispatchActionPromise,
+    getVersionCall,
+  ]);
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
