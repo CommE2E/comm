@@ -116,6 +116,7 @@ const uploadMediaMetadataInputValidator = tShape<UploadMediaMetadataRequest>({
   width: t.Number,
   height: t.Number,
   blobHolder: t.String,
+  blobHash: t.String,
   encryptionKey: t.String,
   mimeType: t.String,
   loop: t.maybe(t.Boolean),
@@ -137,13 +138,21 @@ async function uploadMediaMetadataResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const { filename, blobHolder, encryptionKey, mimeType, width, height, loop } =
-    request;
+  const {
+    filename,
+    blobHolder,
+    blobHash,
+    encryptionKey,
+    mimeType,
+    width,
+    height,
+    loop,
+  } = request;
   const uploadInfo: UploadInput = {
     name: filename,
     mime: mimeType,
     mediaType,
-    content: { storage: 'blob_service', blobHolder },
+    content: { storage: 'blob_service', blobHolder, blobHash },
     encryptionKey,
     dimensions: { width, height },
     loop: loop ?? false,
