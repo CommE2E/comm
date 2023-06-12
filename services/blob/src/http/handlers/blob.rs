@@ -4,6 +4,7 @@ use crate::constants::{
 use crate::database::{BlobItem, ReverseIndexItem};
 use crate::http::context::handle_s3_error;
 use crate::tools::MemOps;
+use crate::validate_identifier;
 
 use super::{handle_db_error, AppContext};
 use actix_web::error::{
@@ -28,6 +29,8 @@ pub async fn get_blob_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Get blob request");
   let holder = params.into_inner();
+  validate_identifier!(holder);
+
   let s3_path = ctx.find_s3_path_by_holder(&holder).await?;
   tracing::Span::current().record("s3_path", s3_path.to_full_path());
 
@@ -87,6 +90,8 @@ pub async fn assign_holder_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Assign holder request");
   let AssignHolderPayload { holder, blob_hash } = payload.into_inner();
+  validate_identifier!(holder);
+  validate_identifier!(blob_hash);
 
   if ctx
     .db
@@ -137,6 +142,8 @@ async fn get_blob_hash_field(
 
   let blob_hash = String::from_utf8(buf)
     .map_err(|_| ErrorInternalServerError("Internal error"))?;
+
+  validate_identifier!(blob_hash);
   return Ok(blob_hash);
 }
 
@@ -243,6 +250,8 @@ pub async fn delete_blob_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Delete blob request");
   let holder = params.into_inner();
+  validate_identifier!(holder);
+
   let reverse_index_item = ctx
     .db
     .find_reverse_index_by_holder(&holder)

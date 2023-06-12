@@ -9,6 +9,7 @@ use tracing::info;
 
 mod context;
 use context::AppContext;
+mod utils;
 
 mod handlers {
   pub(super) mod blob;
