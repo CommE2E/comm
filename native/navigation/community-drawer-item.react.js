@@ -14,7 +14,6 @@ import { SingleLine } from '../components/single-line.react.js';
 import InviteLinksButton from '../invite-links/invite-links-button.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<TextStyle>,
@@ -82,20 +81,6 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
-  const shouldRenderAvatars = useShouldRenderAvatars();
-
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return null;
-    }
-
-    return (
-      <View style={styles.avatarContainer}>
-        <ThreadAvatar size="micro" threadInfo={threadInfo} />
-      </View>
-    );
-  }, [shouldRenderAvatars, styles.avatarContainer, threadInfo]);
-
   return (
     <View>
       <View style={styles.threadEntry}>
@@ -105,7 +90,9 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           style={styles.textTouchableWrapper}
           onLongPress={onExpandToggled}
         >
-          {avatar}
+          <View style={styles.avatarContainer}>
+            <ThreadAvatar size="micro" threadInfo={threadInfo} />
+          </View>
           <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>
         <InviteLinksButton community={threadInfo} />

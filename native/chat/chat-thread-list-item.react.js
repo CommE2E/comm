@@ -15,12 +15,10 @@ import MessagePreview from './message-preview.react.js';
 import SwipeableThread from './swipeable-thread.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import Button from '../components/button.react.js';
-import ColorSplotch from '../components/color-splotch.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type Props = {
   +data: ChatThreadItem,
@@ -118,15 +116,6 @@ function ChatThreadListItem({
   ]);
 
   const resolvedThreadInfo = useResolvedThreadInfo(data.threadInfo);
-  const shouldRenderAvatars = useShouldRenderAvatars();
-
-  const avatar = React.useMemo(() => {
-    if (!shouldRenderAvatars) {
-      return <ColorSplotch color={data.threadInfo.color} size="profile" />;
-    }
-
-    return <ThreadAvatar size="large" threadInfo={data.threadInfo} />;
-  }, [data.threadInfo, shouldRenderAvatars]);
 
   return (
     <>
@@ -145,10 +134,12 @@ function ChatThreadListItem({
           style={styles.container}
         >
           <View style={styles.content}>
-            <View style={styles.colorSplotch}>
+            <View style={styles.avatarContainer}>
               <UnreadDot unread={data.threadInfo.currentUser.unread} />
             </View>
-            <View style={styles.colorSplotch}>{avatar}</View>
+            <View style={styles.avatarContainer}>
+              <ThreadAvatar size="large" threadInfo={data.threadInfo} />
+            </View>
             <View style={styles.threadDetails}>
               <ThreadAncestorsLabel threadInfo={data.threadInfo} />
               <View style={styles.row}>
@@ -182,7 +173,7 @@ const unboundStyles = {
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  colorSplotch: {
+  avatarContainer: {
     marginLeft: 6,
     marginBottom: 12,
   },

@@ -16,7 +16,6 @@ import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import Button from '../components/button.react.js';
 import { ThreadSettingsRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
-import { useShouldRenderAvatars } from '../utils/avatar-utils.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,
@@ -29,7 +28,6 @@ type Props = {
   ...BaseProps,
   +styles: typeof unboundStyles,
   +title: string,
-  +shouldRenderAvatars: boolean,
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   render() {
@@ -40,12 +38,11 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       areSettingsEnabled,
       styles,
       title,
-      shouldRenderAvatars,
       ...rest
     } = this.props;
 
     let avatar;
-    if (!isSearchEmpty && shouldRenderAvatars) {
+    if (!isSearchEmpty) {
       avatar = (
         <View style={styles.avatarContainer}>
           <ThreadAvatar size="small" threadInfo={threadInfo} />
@@ -98,22 +95,13 @@ const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> =
   ) {
     const styles = useStyles(unboundStyles);
 
-    const shouldRenderAvatars = useShouldRenderAvatars();
-
     const { uiName } = useResolvedThreadInfo(props.threadInfo);
 
     const { isSearchEmpty } = props;
 
     const title = isSearchEmpty ? 'New Message' : uiName;
 
-    return (
-      <MessageListHeaderTitle
-        {...props}
-        styles={styles}
-        title={title}
-        shouldRenderAvatars={shouldRenderAvatars}
-      />
-    );
+    return <MessageListHeaderTitle {...props} styles={styles} title={title} />;
   });
 
 export default ConnectedMessageListHeaderTitle;
