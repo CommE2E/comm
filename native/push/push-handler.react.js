@@ -389,10 +389,10 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     this.initialAndroidNotifHandled = true;
-    const initialNotif =
-      await CommAndroidNotifications.getInitialNotification();
-    if (initialNotif) {
-      await this.androidNotificationOpened(initialNotif);
+    const initialNotifThreadID =
+      await CommAndroidNotifications.getInitialNotificationThreadID();
+    if (initialNotifThreadID) {
+      await this.androidNotificationOpened(initialNotifThreadID);
     }
   }
 
@@ -572,9 +572,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     });
   }
 
-  androidNotificationOpened = async (notificationOpen: AndroidMessage) => {
+  androidNotificationOpened = async (threadID: string) => {
     this.onPushNotifBootsApp();
-    const { threadID } = notificationOpen;
     this.onPressNotificationForThread(threadID, true);
   };
 

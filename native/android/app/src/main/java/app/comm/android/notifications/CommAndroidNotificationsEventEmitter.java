@@ -74,18 +74,13 @@ public class CommAndroidNotificationsEventEmitter
   }
 
   private void sendInitialNotificationFromIntentToJS(Intent intent) {
-    RemoteMessage initialNotification = intent.getParcelableExtra("message");
-    if (initialNotification == null) {
+    String initialNotificationThreadID = intent.getStringExtra("threadID");
+    if (initialNotificationThreadID == null) {
       return;
     }
-    WritableMap jsReadableNotification =
-        CommAndroidNotificationParser.parseRemoteMessageToJSMessage(
-            initialNotification);
-    if (jsReadableNotification != null) {
-      sendEventToJS(
-          COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED,
-          jsReadableNotification);
-    }
+    sendEventToJS(
+        COMM_ANDROID_NOTIFICATIONS_NOTIFICATION_OPENED,
+        initialNotificationThreadID);
   }
 
   private class CommAndroidNotificationsTokenReceiver
