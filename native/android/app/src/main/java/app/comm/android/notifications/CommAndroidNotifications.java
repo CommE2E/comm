@@ -61,25 +61,23 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
         continue;
       }
       String notificationThreadID = data.getString("threadID");
-      if (notificationThreadID != null &&
-          notificationThreadID.equals(threadID)) {
+      String notificationGroup = notification.getNotification().getGroup();
+      if (threadID.equals(notificationThreadID) ||
+          threadID.equals(notificationGroup)) {
         notificationManager.cancel(notification.getTag(), notification.getId());
       }
     }
   }
 
   @ReactMethod
-  public void getInitialNotification(Promise promise) {
-    Bundle initialNotification =
-        getCurrentActivity().getIntent().getParcelableExtra("message");
-    if (initialNotification == null) {
+  public void getInitialNotificationThreadID(Promise promise) {
+    String initialNotificationThreadID =
+        getCurrentActivity().getIntent().getStringExtra("threadID");
+    if (initialNotificationThreadID == null) {
       promise.resolve(null);
       return;
     }
-    WritableMap jsReadableNotification =
-        CommAndroidNotificationParser.parseRemoteMessageToJSMessage(
-            initialNotification);
-    promise.resolve(jsReadableNotification);
+    promise.resolve(initialNotificationThreadID);
   }
 
   @ReactMethod
