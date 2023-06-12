@@ -89,12 +89,11 @@ div.colorContainer {
   padding-top: 8px;
 }
 
-div.spacer,
-div.colorSplotch {
+div.spacer {
   width: 42px;
   border-radius: 1.68px;
 }
-div.colorSplotchContainer {
+div.avatarContainer {
   height: 42px;
   display: flex;
 }
