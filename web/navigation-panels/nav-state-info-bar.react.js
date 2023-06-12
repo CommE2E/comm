@@ -7,7 +7,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAncestors from './chat-thread-ancestors.react.js';
 import css from './nav-state-info-bar.css';
-import ThreadAvatar from '../components/thread-avatar.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 
 type NavStateInfoBarProps = {
   +threadInfo: ThreadInfo,

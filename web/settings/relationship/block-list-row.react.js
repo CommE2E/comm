@@ -7,9 +7,9 @@ import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt.js';
 
 import css from './user-list-row.css';
 import type { UserRowProps } from './user-list.react.js';
+import UserAvatar from '../../avatars/user-avatar.react.js';
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
-import UserAvatar from '../../components/user-avatar.react.js';
 
 function BlockListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;

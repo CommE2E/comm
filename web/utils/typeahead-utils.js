@@ -9,10 +9,10 @@ import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
+import UserAvatar from '../avatars/user-avatar.react.js';
 import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
 import Button from '../components/button.react.js';
-import UserAvatar from '../components/user-avatar.react.js';
 
 const webTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,

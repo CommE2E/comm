@@ -11,10 +11,10 @@ import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
 import css from './chat-thread-composer.css';
+import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
 import Label from '../components/label.react.js';
 import Search from '../components/search.react.js';
-import UserAvatar from '../components/user-avatar.react.js';
 import type { InputState } from '../input/input-state.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
