@@ -1264,6 +1264,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       filename,
       mimeType,
       blobHolder: newHolder,
+      blobHash,
       encryptionKey,
       loop: loop ?? false,
       ...(thumbHash ? { thumbHash } : null),
