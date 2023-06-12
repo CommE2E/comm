@@ -1,28 +1,51 @@
 diff --git a/node_modules/hazel-server/lib/cache.js b/node_modules/hazel-server/lib/cache.js
-index 65e9d30..f95f58d 100644
+index 65e9d30..bbf49a3 100644
 --- a/node_modules/hazel-server/lib/cache.js
 +++ b/node_modules/hazel-server/lib/cache.js
-@@ -105,16 +105,18 @@ module.exports = class Cache {
+@@ -1,6 +1,7 @@
+ // Packages
+ const fetch = require('node-fetch')
+ const retry = require('async-retry')
++const { compare } = require('semver')
+ const convertStream = require('stream-to-string')
+ const ms = require('ms')
+ 
+@@ -105,23 +106,26 @@ module.exports = class Cache {
        return
      }
  
 +    const desktopTagPrefix = 'desktop-';
 +
      const release = data.find(item => {
++      if(!item.tag_name.startsWith(desktopTagPrefix)){
++        return false;
++      }
        const isPre = Boolean(pre) === Boolean(item.prerelease)
 -      return !item.draft && isPre
-+      return !item.draft && isPre && item.tag_name.startsWith(desktopTagPrefix)
++      const tag_name = item.tag_name.slice(desktopTagPrefix.length);
++      return !item.draft && isPre && item.assets && Array.isArray(item.assets) &&
++          (!this.latest.version || compare(this.latest.version, tag_name) === -1);
      })
  
-     if (!release || !release.assets || !Array.isArray(release.assets)) {
+-    if (!release || !release.assets || !Array.isArray(release.assets)) {
+-      return
+-    }
+-
+-    const { tag_name } = release
+-
+-    if (this.latest.version === tag_name) {
+-      console.log('Cached version is the same as latest')
++    if (!release) {
++      console.log('No newer version found')
+       this.lastUpdate = Date.now()
        return
      }
  
--    const { tag_name } = release
 +    const tag_name = release.tag_name.slice(desktopTagPrefix.length);
++
+     console.log(`Caching version ${tag_name}...`)
  
-     if (this.latest.version === tag_name) {
-       console.log('Cached version is the same as latest')
+     this.latest.version = tag_name
 diff --git a/node_modules/hazel-server/lib/routes.js b/node_modules/hazel-server/lib/routes.js
 index bbd6f14..28b7f72 100644
 --- a/node_modules/hazel-server/lib/routes.js
