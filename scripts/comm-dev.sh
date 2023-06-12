@@ -34,7 +34,6 @@ services_usage() {
   exit 1
 }
 
-# shellcheck disable=SC2317
 services_command() {
   case "$1" in
     restart)
@@ -53,7 +52,6 @@ services_command() {
     *)
       log "$(basename "$0"): unknown services option '$1'"
       services_usage
-      exit 1
     ;;
   esac
 }
@@ -68,7 +66,6 @@ db_usage() {
   exit 1
 }
 
-# shellcheck disable=SC2317
 db_command() {
   case "$1" in
     restart)
@@ -78,7 +75,6 @@ db_command() {
     *)
       log "$(basename "$0"): unknown db option '$1'"
       db_usage
-      exit 1
     ;;
   esac
 }
