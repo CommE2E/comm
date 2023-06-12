@@ -56,18 +56,16 @@ function KeyserverSelection(props: Props): React.Node {
   invariant(registrationContext, 'registrationContext should be set');
   const { cachedSelections, setCachedSelections } = registrationContext;
 
-  const initialKeyserverUsername = cachedSelections.keyserverUsername;
+  const initialKeyserverURL = cachedSelections.keyserverURL;
   const [customKeyserver, setCustomKeyserver] = React.useState(
-    initialKeyserverUsername === defaultURLPrefix
-      ? ''
-      : initialKeyserverUsername,
+    initialKeyserverURL === defaultURLPrefix ? '' : initialKeyserverURL,
   );
   const customKeyserverTextInputRef = React.useRef();
 
   let initialSelection;
-  if (initialKeyserverUsername === defaultURLPrefix) {
+  if (initialKeyserverURL === defaultURLPrefix) {
     initialSelection = 'ashoat';
-  } else if (initialKeyserverUsername) {
+  } else if (initialKeyserverURL) {
     initialSelection = 'custom';
   }
 
@@ -88,24 +86,24 @@ function KeyserverSelection(props: Props): React.Node {
     setCurrentSelection('custom');
   }, []);
 
-  let keyserverUsername;
+  let keyserverURL;
   if (currentSelection === 'ashoat') {
-    keyserverUsername = defaultURLPrefix;
+    keyserverURL = defaultURLPrefix;
   } else if (currentSelection === 'custom' && customKeyserver) {
-    keyserverUsername = customKeyserver;
+    keyserverURL = customKeyserver;
   }
 
   const versionLoadingStatus = useSelector(getVersionLoadingStatusSelector);
-  let buttonState = keyserverUsername ? 'enabled' : 'disabled';
+  let buttonState = keyserverURL ? 'enabled' : 'disabled';
   if (versionLoadingStatus === 'loading') {
     buttonState = 'loading';
   }
 
   const serverCallParamOverride = React.useMemo(
     () => ({
-      urlPrefix: keyserverUsername,
+      urlPrefix: keyserverURL,
     }),
-    [keyserverUsername],
+    [keyserverURL],
   );
   const getVersionCall = useServerCall(getVersion, serverCallParamOverride);
 
@@ -113,7 +111,7 @@ function KeyserverSelection(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { coolOrNerdMode } = props.route.params.userSelections;
   const onSubmit = React.useCallback(async () => {
-    if (!keyserverUsername) {
+    if (!keyserverURL) {
       return;
     }
 
@@ -125,16 +123,16 @@ function KeyserverSelection(props: Props): React.Node {
 
     setCachedSelections(oldUserSelections => ({
       ...oldUserSelections,
-      keyserverUsername,
+      keyserverURL,
     }));
     navigate<'ConnectEthereum'>({
       name: ConnectEthereumRouteName,
-      params: { userSelections: { coolOrNerdMode, keyserverUsername } },
+      params: { userSelections: { coolOrNerdMode, keyserverURL } },
     });
   }, [
     navigate,
     coolOrNerdMode,
-    keyserverUsername,
+    keyserverURL,
     setCachedSelections,
     dispatchActionPromise,
     getVersionCall,
