@@ -3,7 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import type { ResolvedClientAvatar } from 'lib/types/avatar-types';
+import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
 
 import css from './avatar.css';
 

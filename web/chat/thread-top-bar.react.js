@@ -10,7 +10,7 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
-import ThreadAvatar from '../components/thread-avatar.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import MessageResultsModal from '../modals/chat/message-results-modal.react.js';
 

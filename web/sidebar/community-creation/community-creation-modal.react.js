@@ -17,10 +17,10 @@ import {
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import CommunityCreationMembersModal from './community-creation-members-modal.react.js';
 import css from './community-creation-modal.css';
+import UserAvatar from '../../avatars/user-avatar.react.js';
 import CommIcon from '../../CommIcon.react.js';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import EnumSettingsOption from '../../components/enum-settings-option.react.js';
-import UserAvatar from '../../components/user-avatar.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import Input from '../../modals/input.react.js';
 import Modal from '../../modals/modal.react.js';

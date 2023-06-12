@@ -10,9 +10,9 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './thread-picker-modal.css';
+import ThreadAvatar from '../../avatars/thread-avatar.react.js';
 import Button from '../../components/button.react.js';
 import Search from '../../components/search.react.js';
-import ThreadAvatar from '../../components/thread-avatar.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import Modal, { type ModalOverridableProps } from '../modal.react.js';
 

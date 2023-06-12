@@ -13,7 +13,7 @@ import {
   getChildren,
   getExpandButton,
 } from './community-drawer-utils.react.js';
-import ThreadAvatar from '../components/thread-avatar.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import type { NavigationTab } from '../types/nav-types.js';
 
 export type DrawerItemProps = {

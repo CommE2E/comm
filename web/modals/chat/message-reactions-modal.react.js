@@ -6,7 +6,7 @@ import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
 import css from './message-reactions-modal.css';
-import UserAvatar from '../../components/user-avatar.react.js';
+import UserAvatar from '../../avatars/user-avatar.react.js';
 import Modal from '../modal.react.js';
 
 type Props = {

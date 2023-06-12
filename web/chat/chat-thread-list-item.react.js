@@ -17,7 +17,7 @@ import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
 import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react.js';
-import ThreadAvatar from '../components/thread-avatar.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
   useOnClickThread,

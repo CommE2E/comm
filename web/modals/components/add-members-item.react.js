@@ -5,8 +5,8 @@ import * as React from 'react';
 import type { UserListItem } from 'lib/types/user-types.js';
 
 import css from './add-members.css';
+import UserAvatar from '../../avatars/user-avatar.react.js';
 import Button from '../../components/button.react.js';
-import UserAvatar from '../../components/user-avatar.react.js';
 
 type AddMembersItemProps = {
   +userInfo: UserListItem,
