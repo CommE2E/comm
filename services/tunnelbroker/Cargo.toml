@@ -15,7 +15,6 @@ aws-sdk-dynamodb = "0.27"
 aws-types = "0.55"
 base64 = "0.20"
 clap = { version = "4.2", features = ["derive", "env"] }
-dashmap = "5.4"
 env_logger = "0.9"
 fcm = "0.9"
 futures = "0.3"
