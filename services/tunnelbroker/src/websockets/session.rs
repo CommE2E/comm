@@ -1,15 +1,16 @@
 use derive_more;
 use futures_util::stream::SplitSink;
 use futures_util::SinkExt;
-use tokio::{net::TcpStream, sync::mpsc::UnboundedSender};
+use futures_util::StreamExt;
+use lapin::message::Delivery;
+use lapin::options::{BasicConsumeOptions, QueueDeclareOptions};
+use lapin::types::FieldTable;
+use tokio::net::TcpStream;
 use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
 use tracing::{debug, error};
 use tunnelbroker_messages::{session::DeviceTypes, Messages};
 
-use crate::{
-  database::{self, DatabaseClient, DeviceMessage},
-  ACTIVE_CONNECTIONS,
-};
+use crate::database::{self, DatabaseClient, DeviceMessage};
 
 pub struct DeviceInfo {
   pub device_id: String,
@@ -22,7 +23,9 @@ pub struct DeviceInfo {
 pub struct WebsocketSession {
   tx: SplitSink<WebSocketStream<TcpStream>, Message>,
   db_client: DatabaseClient,
-  device_info: Option<DeviceInfo>,
+  pub device_info: DeviceInfo,
+  // Stream of messages from AMQP endpoint
+  amqp_consumer: lapin::Consumer,
 }
 
 #[derive(Debug, derive_more::Display, derive_more::From)]
@@ -30,100 +33,134 @@ pub enum SessionError {
   InvalidMessage,
   SerializationError(serde_json::Error),
   MessageError(database::MessageErrors),
+  AmqpError(lapin::Error),
 }
 
-fn consume_error<T>(result: Result<T, SessionError>) {
+pub fn consume_error<T>(result: Result<T, SessionError>) {
   if let Err(e) = result {
     error!("{}", e)
   }
 }
+
+// Parse a session request and retrieve the device information
+pub fn handle_first_message_from_device(
+  message: &str,
+) -> Result<DeviceInfo, SessionError> {
+  let serialized_message = serde_json::from_str::<Messages>(message)?;
+
+  match serialized_message {
+    Messages::SessionRequest(mut session_info) => {
+      let device_info = DeviceInfo {
+        device_id: session_info.device_id.clone(),
+        notify_token: session_info.notify_token.take(),
+        device_type: session_info.device_type,
+        device_app_version: session_info.device_app_version.take(),
+        device_os: session_info.device_os.take(),
+      };
+
+      return Ok(device_info);
+    }
+    _ => {
+      debug!("Received invalid request");
+      return Err(SessionError::InvalidMessage);
+    }
+  }
+}
+
 impl WebsocketSession {
-  pub fn new(
+  pub async fn from_frame(
     tx: SplitSink<WebSocketStream<TcpStream>, Message>,
     db_client: DatabaseClient,
-  ) -> WebsocketSession {
-    WebsocketSession {
+    frame: Message,
+    amqp_channel: &lapin::Channel,
+  ) -> Result<WebsocketSession, SessionError> {
+    let device_info = match frame {
+      Message::Text(payload) => handle_first_message_from_device(&payload)?,
+      _ => {
+        error!("Client sent wrong frame type for establishing connection");
+        return Err(SessionError::InvalidMessage);
+      }
+    };
+
+    // We don't currently have a use case to interact directly with the queue,
+    // however, we need to declare a queue for a given device
+    amqp_channel
+      .queue_declare(
+        &device_info.device_id,
+        QueueDeclareOptions::default(),
+        FieldTable::default(),
+      )
+      .await?;
+
+    let amqp_consumer = amqp_channel
+      .basic_consume(
+        &device_info.device_id,
+        "tunnelbroker",
+        BasicConsumeOptions::default(),
+        FieldTable::default(),
+      )
+      .await?;
+
+    Ok(WebsocketSession {
       tx,
       db_client,
-      device_info: None,
-    }
+      device_info,
+      amqp_consumer,
+    })
   }
 
   pub async fn handle_websocket_frame_from_device(
     &mut self,
     frame: Message,
-    tx: UnboundedSender<String>,
-  ) {
-    debug!("Received message from device: {}", frame);
-    let result = match frame {
+  ) -> Result<(), SessionError> {
+    match frame {
       Message::Text(payload) => {
-        self.handle_message_from_device(&payload, tx).await
+        debug!("Received message from device: {}", payload);
+        Ok(())
       }
       Message::Close(_) => {
         self.close().await;
         Ok(())
       }
       _ => Err(SessionError::InvalidMessage),
-    };
-    consume_error(result);
+    }
   }
 
-  pub async fn handle_message_from_device(
+  pub async fn next_amqp_message(
     &mut self,
-    message: &str,
-    tx: UnboundedSender<String>,
+  ) -> Option<Result<Delivery, lapin::Error>> {
+    self.amqp_consumer.next().await
+  }
+
+  pub async fn deliver_persisted_messages(
+    &mut self,
   ) -> Result<(), SessionError> {
-    let serialized_message = serde_json::from_str::<Messages>(message)?;
+    // Check for persisted messages
+    let messages = self
+      .db_client
+      .retrieve_messages(&self.device_info.device_id)
+      .await
+      .unwrap_or_else(|e| {
+        error!("Error while retrieving messages: {}", e);
+        Vec::new()
+      });
 
-    match serialized_message {
-      Messages::SessionRequest(mut session_info) => {
-        // TODO: Authenticate device using auth token
-
-        // Check if session request was already sent
-        if self.device_info.is_some() {
-          return Err(SessionError::InvalidMessage);
-        }
-
-        let device_info = DeviceInfo {
-          device_id: session_info.device_id.clone(),
-          notify_token: session_info.notify_token.take(),
-          device_type: session_info.device_type,
-          device_app_version: session_info.device_app_version.take(),
-          device_os: session_info.device_os.take(),
-        };
-
-        // Check for persisted messages
-        let messages = self
-          .db_client
-          .retrieve_messages(&device_info.device_id)
-          .await
-          .unwrap_or_else(|e| {
-            error!("Error while retrieving messages: {}", e);
-            Vec::new()
-          });
-
-        ACTIVE_CONNECTIONS.insert(device_info.device_id.clone(), tx.clone());
-
-        for message in messages {
-          let device_message = DeviceMessage::from_hashmap(message)?;
-          self.send_message_to_device(device_message.payload).await;
-          if let Err(e) = self
-            .db_client
-            .delete_message(&device_info.device_id, &device_message.created_at)
-            .await
-          {
-            error!("Failed to delete message: {}:", e);
-          }
-        }
-
-        debug!("Flushed messages for device: {}", &session_info.device_id);
-
-        self.device_info = Some(device_info);
-      }
-      _ => {
-        debug!("Received invalid request");
+    for message in messages {
+      let device_message = DeviceMessage::from_hashmap(message)?;
+      self.send_message_to_device(device_message.payload).await;
+      if let Err(e) = self
+        .db_client
+        .delete_message(&self.device_info.device_id, &device_message.created_at)
+        .await
+      {
+        error!("Failed to delete message: {}:", e);
       }
     }
+
+    debug!(
+      "Flushed messages for device: {}",
+      &self.device_info.device_id
+    );
 
     Ok(())
   }
@@ -136,10 +173,6 @@ impl WebsocketSession {
 
   // Release websocket and remove from active connections
   pub async fn close(&mut self) {
-    if let Some(device_info) = &self.device_info {
-      ACTIVE_CONNECTIONS.remove(&device_info.device_id);
-    }
-
     if let Err(e) = self.tx.close().await {
       debug!("Failed to close session: {}", e);
     }
