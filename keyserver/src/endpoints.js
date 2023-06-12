@@ -76,6 +76,7 @@ import {
   updateUserAvatarResponder,
 } from './responders/user-responders.js';
 import { codeVerificationResponder } from './responders/verification-responders.js';
+import { versionResponder } from './responders/version-responders.js';
 import {
   uploadMediaMetadataResponder,
   uploadDeletionResponder,
@@ -308,6 +309,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   get_olm_session_initialization_data: {
     responder: getOlmSessionInitializationDataResponder,
+    requiredPolicies: [],
+  },
+  version: {
+    responder: versionResponder,
     requiredPolicies: [],
   },
 };
