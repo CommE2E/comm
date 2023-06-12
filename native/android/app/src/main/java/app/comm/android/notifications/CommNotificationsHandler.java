@@ -152,13 +152,19 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         Lifecycle.State.RESUMED;
   }
 
+  private boolean notificationGroupingSupported() {
+    // Comm doesn't support notification grouping for clients running
+    // Android versions older than 23
+    return android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.M;
+  }
+
   private void handleNotificationRescind(RemoteMessage message) {
     String setUnreadStatus = message.getData().get(SET_UNREAD_STATUS_KEY);
+    String threadID = message.getData().get(THREAD_ID_KEY);
     if ("true".equals(setUnreadStatus)) {
       File sqliteFile =
           this.getApplicationContext().getDatabasePath("comm.sqlite");
       if (sqliteFile.exists()) {
-        String threadID = message.getData().get(THREAD_ID_KEY);
         GlobalDBSingleton.scheduleOrRun(() -> {
           ThreadOperations.updateSQLiteUnreadStatus(
               sqliteFile.getPath(), threadID, false);
@@ -170,13 +176,50 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       }
     }
     String rescindID = message.getData().get(RESCIND_ID_KEY);
+    boolean groupSummaryPresent = false;
+    boolean threadGroupPresent = false;
+
     for (StatusBarNotification notification :
          notificationManager.getActiveNotifications()) {
       String tag = notification.getTag();
+      boolean isGroupMember =
+          threadID.equals(notification.getNotification().getGroup());
+      boolean isGroupSummary =
+          (notification.getNotification().flags &
+           Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY;
       if (tag != null && tag.equals(rescindID)) {
         notificationManager.cancel(notification.getTag(), notification.getId());
+      } else if (isGroupMember && isGroupSummary) {
+        groupSummaryPresent = true;
+      } else if (isGroupMember) {
+        threadGroupPresent = true;
       }
     }
+
+    if (groupSummaryPresent && !threadGroupPresent) {
+      notificationManager.cancel(threadID, threadID.hashCode());
+    }
+  }
+
+  private void addToThreadGroupAndDisplay(
+      String notificationID,
+      NotificationCompat.Builder notificationBuilder,
+      String threadID) {
+
+    notificationBuilder = notificationBuilder.setGroup(threadID);
+    NotificationCompat.Builder groupSummaryNotificationBuilder =
+        new NotificationCompat.Builder(this.getApplicationContext())
+            .setChannelId(CHANNEL_ID)
+            .setSmallIcon(R.drawable.notif_icon)
+            .setGroup(threadID)
+            .setGroupSummary(true)
+            .setAutoCancel(true)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
+
+    notificationManager.notify(
+        notificationID, notificationID.hashCode(), notificationBuilder.build());
+    notificationManager.notify(
+        threadID, threadID.hashCode(), groupSummaryNotificationBuilder.build());
   }
 
   private void displayNotification(RemoteMessage message) {
@@ -215,7 +258,12 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     if (title != null) {
       notificationBuilder = notificationBuilder.setContentTitle(title);
     }
-    notificationManager.notify(id, id.hashCode(), notificationBuilder.build());
+    if (!this.notificationGroupingSupported() || threadID == null) {
+      notificationManager.notify(
+          id, id.hashCode(), notificationBuilder.build());
+      return;
+    }
+    this.addToThreadGroupAndDisplay(id, notificationBuilder, threadID);
   }
 
   private PendingIntent createStartMainActivityAction(RemoteMessage message) {
