@@ -10,38 +10,46 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 
 import { commCoreModule } from '../native-modules.js';
 
-function useInitialNotificationsEncryptedMessage(): () => Promise<string> {
+function useInitialNotificationsEncryptedMessage(): (
+  callServerEndpointOptions?: ?CallServerEndpointOptions,
+) => Promise<string> {
   const callGetOlmSessionInitializationData = useServerCall(
     getOlmSessionInitializationData,
   );
   const dispatchActionPromise = useDispatchActionPromise();
 
-  return React.useCallback(async () => {
-    const olmSessionDataPromise = callGetOlmSessionInitializationData();
+  return React.useCallback(
+    async callServerEndpointOptions => {
+      const olmSessionDataPromise = callGetOlmSessionInitializationData(
+        callServerEndpointOptions,
+      );
 
-    dispatchActionPromise(
-      getOlmSessionInitializationDataActionTypes,
-      olmSessionDataPromise,
-    );
+      dispatchActionPromise(
+        getOlmSessionInitializationDataActionTypes,
+        olmSessionDataPromise,
+      );
 
-    const { signedIdentityKeysBlob, notifInitializationInfo } =
-      await olmSessionDataPromise;
+      const { signedIdentityKeysBlob, notifInitializationInfo } =
+        await olmSessionDataPromise;
 
-    const { notificationIdentityPublicKeys } = JSON.parse(
-      signedIdentityKeysBlob.payload,
-    );
+      const { notificationIdentityPublicKeys } = JSON.parse(
+        signedIdentityKeysBlob.payload,
+      );
 
-    const { prekey, prekeySignature, oneTimeKey } = notifInitializationInfo;
-    return await commCoreModule.initializeNotificationsSession(
-      JSON.stringify(notificationIdentityPublicKeys),
-      prekey,
-      prekeySignature,
-      oneTimeKey,
-    );
-  }, [callGetOlmSessionInitializationData, dispatchActionPromise]);
+      const { prekey, prekeySignature, oneTimeKey } = notifInitializationInfo;
+      return await commCoreModule.initializeNotificationsSession(
+        JSON.stringify(notificationIdentityPublicKeys),
+        prekey,
+        prekeySignature,
+        oneTimeKey,
+      );
+    },
+    [callGetOlmSessionInitializationData, dispatchActionPromise],
+  );
 }
 
 export { useInitialNotificationsEncryptedMessage };

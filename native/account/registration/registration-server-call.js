@@ -65,15 +65,23 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const callRegister = useServerCall(register);
 
   const registerUsernameAccount = React.useCallback(
-    async (accountSelection: UsernameAccountSelection) => {
+    async (
+      accountSelection: UsernameAccountSelection,
+      keyserverURL: string,
+    ) => {
       const extraInfo = await logInExtraInfo();
       const registerPromise = (async () => {
         try {
-          const result = await callRegister({
-            ...extraInfo,
-            username: accountSelection.username,
-            password: accountSelection.password,
-          });
+          const result = await callRegister(
+            {
+              ...extraInfo,
+              username: accountSelection.username,
+              password: accountSelection.password,
+            },
+            {
+              urlPrefixOverride: keyserverURL,
+            },
+          );
           await setNativeCredentials({
             username: result.currentUserInfo.username,
             password: accountSelection.password,
@@ -135,11 +143,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (currentStep.step !== 'inactive') {
               return;
             }
-            const { accountSelection, avatarData } = input;
+            const { accountSelection, avatarData, keyserverURL } = input;
             if (accountSelection.accountType === 'username') {
-              await registerUsernameAccount(accountSelection);
+              await registerUsernameAccount(accountSelection, keyserverURL);
             } else {
-              await siweServerCall(accountSelection);
+              await siweServerCall(accountSelection, {
+                urlPrefixOverride: keyserverURL,
+              });
             }
             setCurrentStep({
               step: 'waiting_for_registration_call',
