@@ -9,6 +9,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -64,19 +65,12 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
       return item;
     }
 
-    return {
+    const strippedItem = {
       ...item,
       threadCreatedFromMessage: undefined,
       reactions: {},
-      startsConversation: false,
-      messageInfo: {
-        ...item.messageInfo,
-        creator: {
-          ...item.messageInfo.creator,
-          isViewer: false,
-        },
-      },
     };
+    return modifyItemForResultScreen(strippedItem);
   }, [item]);
 
   const onClick = React.useCallback(() => {
