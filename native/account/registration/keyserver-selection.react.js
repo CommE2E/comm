@@ -180,10 +180,13 @@ function KeyserverSelection(props: Props): React.Node {
           <RegistrationTextInput
             value={customKeyserver}
             onChangeText={setCustomKeyserver}
-            placeholder="Keyserver"
+            placeholder="Keyserver URL"
             onFocus={onCustomKeyserverFocus}
             returnKeyType="go"
             onSubmitEditing={onSubmit}
+            keyboardType="url"
+            autoCorrect={false}
+            autoCapitalize="none"
             ref={customKeyserverTextInputRef}
           />
         </RegistrationTile>
