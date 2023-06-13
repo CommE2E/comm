@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import {
   getVersion,
@@ -47,6 +47,8 @@ const getVersionLoadingStatusSelector = createLoadingStatusSelector(
   getVersionActionTypes,
 );
 
+type KeyserverSelectionError = 'cant_reach_keyserver';
+
 type Props = {
   +navigation: RegistrationNavigationProp<'KeyserverSelection'>,
   +route: NavigationRoute<'KeyserverSelection'>,
@@ -69,21 +71,30 @@ function KeyserverSelection(props: Props): React.Node {
     initialSelection = 'custom';
   }
 
+  const [error, setError] = React.useState<?KeyserverSelectionError>();
+
   const [currentSelection, setCurrentSelection] =
     React.useState<?Selection>(initialSelection);
   const selectAshoat = React.useCallback(() => {
     setCurrentSelection('ashoat');
     customKeyserverTextInputRef.current?.blur();
-  }, []);
+    if (currentSelection !== 'ashoat') {
+      setError(undefined);
+    }
+  }, [currentSelection]);
   const customKeyserverEmpty = !customKeyserver;
   const selectCustom = React.useCallback(() => {
     setCurrentSelection('custom');
     if (customKeyserverEmpty) {
       customKeyserverTextInputRef.current?.focus();
     }
-  }, [customKeyserverEmpty]);
+    if (currentSelection !== 'custom') {
+      setError(undefined);
+    }
+  }, [customKeyserverEmpty, currentSelection]);
   const onCustomKeyserverFocus = React.useCallback(() => {
     setCurrentSelection('custom');
+    setError(undefined);
   }, []);
 
   let keyserverURL;
@@ -111,6 +122,7 @@ function KeyserverSelection(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { coolOrNerdMode } = props.route.params.userSelections;
   const onSubmit = React.useCallback(async () => {
+    setError(undefined);
     if (!keyserverURL) {
       return;
     }
@@ -119,7 +131,12 @@ function KeyserverSelection(props: Props): React.Node {
     dispatchActionPromise(getVersionActionTypes, getVersionPromise);
 
     // We don't care about the result; just need to make sure this doesn't throw
-    await getVersionPromise;
+    try {
+      await getVersionPromise;
+    } catch {
+      setError('cant_reach_keyserver');
+      return;
+    }
 
     setCachedSelections(oldUserSelections => ({
       ...oldUserSelections,
@@ -139,6 +156,13 @@ function KeyserverSelection(props: Props): React.Node {
   ]);
 
   const styles = useStyles(unboundStyles);
+  let errorText;
+  if (error === 'cant_reach_keyserver') {
+    errorText = (
+      <Text style={styles.errorText}>Can&rsquo;t reach that keyserver :(</Text>
+    );
+  }
+
   const colors = useColors();
   return (
     <RegistrationContainer>
@@ -190,6 +214,7 @@ function KeyserverSelection(props: Props): React.Node {
             ref={customKeyserverTextInputRef}
           />
         </RegistrationTile>
+        <View style={styles.error}>{errorText}</View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
         <RegistrationButton
@@ -227,6 +252,15 @@ const unboundStyles = {
   },
   cloud: {
     marginRight: 8,
+  },
+  error: {
+    marginTop: 16,
+  },
+  errorText: {
+    fontFamily: 'Arial',
+    fontSize: 15,
+    lineHeight: 20,
+    color: 'redText',
   },
 };
 
