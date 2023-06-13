@@ -1,0 +1,24 @@
+name: Blob service tests (Nix)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'services/blob/**'
+      - 'shared/protos/blob.proto'
+      - 'flake.*'
+      - 'nix/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v17
+        with:
+          extra_nix_config: |
+            extra-substituters = https://comm.cachix.org
+            extra-trusted-public-keys = comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4=
+      - name: Blob unit tests
+        working-directory: ./services/blob
+        run: nix develop --accept-flake-config --command cargo test
