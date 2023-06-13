@@ -12,6 +12,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { setURLPrefix } from 'lib/utils/url-utils.js';
 
 import type {
   RegistrationServerCallInput,
@@ -134,6 +135,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   }, []);
   const siweServerCall = useSIWEServerCall(siweServerCallParams);
 
+  const dispatch = useDispatch();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
       new Promise(
@@ -151,6 +153,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 urlPrefixOverride: keyserverURL,
               });
             }
+            dispatch({
+              type: setURLPrefix,
+              payload: keyserverURL,
+            });
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
@@ -162,7 +168,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           }
         },
       ),
-    [currentStep, registerUsernameAccount, siweServerCall],
+    [currentStep, registerUsernameAccount, siweServerCall, dispatch],
   );
 
   // STEP 2: SETTING AVATAR
@@ -177,7 +183,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     state => !!state.currentUserInfo && !state.currentUserInfo.anonymous,
   );
 
-  const dispatch = useDispatch();
   const avatarBeingSetRef = React.useRef(false);
   React.useEffect(() => {
     if (
