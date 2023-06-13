@@ -9,7 +9,10 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { messageListData } from 'lib/selectors/chat-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { createMessageInfo } from 'lib/shared/message-utils.js';
+import {
+  createMessageInfo,
+  modifyItemForResultScreen,
+} from 'lib/shared/message-utils.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -108,33 +111,8 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
   const modifiedItems = React.useMemo(
     () =>
       sortedUniqueChatMessageInfoItems
-        .map(item => {
-          if (!item) {
-            return null;
-          }
-
-          // We need to modify the item to make sure that the message does
-          // not render with the date header and that the creator
-          // is not considered the viewer.
-          let modifiedItem = item;
-          if (item.messageInfoType === 'composable') {
-            modifiedItem = {
-              ...item,
-              startsConversation: false,
-              startsCluster: true,
-              endsCluster: true,
-              messageInfo: {
-                ...item.messageInfo,
-                creator: {
-                  ...item.messageInfo.creator,
-                  isViewer: false,
-                },
-              },
-            };
-          }
-          return modifiedItem;
-        })
-        .filter(Boolean),
+        .filter(Boolean)
+        .map(item => modifyItemForResultScreen(item)),
     [sortedUniqueChatMessageInfoItems],
   );
 
