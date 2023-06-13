@@ -135,7 +135,18 @@ function ConnectEthereum(props: Props): React.Node {
     });
   }, [navigate, params]);
 
-  const exactSearchUserCall = useServerCall(exactSearchUser);
+  const { keyserverURL } = userSelections;
+  const serverCallParamOverride = React.useMemo(
+    () => ({
+      urlPrefix: keyserverURL,
+    }),
+    [keyserverURL],
+  );
+
+  const exactSearchUserCall = useServerCall(
+    exactSearchUser,
+    serverCallParamOverride,
+  );
   const dispatchActionPromise = useDispatchActionPromise();
 
   const cacheContext = React.useContext(ENSCacheContext);
@@ -215,6 +226,7 @@ function ConnectEthereum(props: Props): React.Node {
         closing={panelState === 'closing'}
         onSuccessfulWalletSignature={onSuccessfulWalletSignature}
         setLoading={siwePanelSetLoading}
+        keyserverCallParamOverride={serverCallParamOverride}
       />
     );
   }

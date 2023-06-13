@@ -16,6 +16,7 @@ import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
+  type BindServerCallsParams,
 } from 'lib/utils/action-utils.js';
 
 import { commCoreModule } from '../native-modules.js';
@@ -36,10 +37,14 @@ type Props = {
   +onSuccessfulWalletSignature: SIWEResult => mixed,
   +closing: boolean,
   +setLoading: boolean => mixed,
+  +keyserverCallParamOverride?: $Shape<BindServerCallsParams>,
 };
 function SIWEPanel(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
-  const getSIWENonceCall = useServerCall(getSIWENonce);
+  const getSIWENonceCall = useServerCall(
+    getSIWENonce,
+    props.keyserverCallParamOverride,
+  );
 
   const getSIWENonceCallFailed = useSelector(
     state => getSIWENonceLoadingStatusSelector(state) === 'error',
