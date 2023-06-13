@@ -76,19 +76,36 @@ async function updateRole(
     throw new ServerError('not_logged_in');
   }
 
-  const [memberIDs, hasPermission] = await Promise.all([
+  const [memberIDs, hasPermission, fetchThreadResult] = await Promise.all([
     verifyUserIDs(request.memberIDs),
     checkThreadPermission(
       viewer,
       request.threadID,
       threadPermissions.CHANGE_ROLE,
     ),
+    fetchThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
   ]);
   if (memberIDs.length === 0) {
     throw new ServerError('invalid_parameters');
   }
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
+  }
+
+  const threadInfo = fetchThreadResult.threadInfos[request.threadID];
+
+  const memberRole = threadInfo.members.find(
+    member => member.id === request.memberIDs[0],
+  )?.role;
+
+  const memberRoleCount = threadInfo.members.filter(
+    member => member.role === memberRole,
+  ).length;
+  const memberRoleName = memberRole && threadInfo.roles[memberRole].name;
+
+  // Prevent the last community admin from having their role changed
+  if (memberRoleName === 'Admins' && memberRoleCount === 1) {
+    throw new ServerError('invalid_parameters');
   }
 
   const query = SQL`
