@@ -41,8 +41,8 @@ async function fetchUpload(
   }
   const [row] = result;
   const { content, mime, extra } = row;
-  const { blobHolder } = JSON.parse(extra);
-  if (blobHolder) {
+  const { blobHash } = JSON.parse(extra);
+  if (blobHash) {
     throw new ServerError('resource_unavailable');
   }
   return { content, mime };
@@ -68,8 +68,8 @@ async function fetchUploadChunk(
   const [row] = result;
   const { content, mime, extra } = row;
   if (extra) {
-    const { blobHolder } = JSON.parse(extra);
-    if (blobHolder) {
+    const { blobHash } = JSON.parse(extra);
+    if (blobHash) {
       throw new ServerError('resource_unavailable');
     }
   }
@@ -95,8 +95,8 @@ async function getUploadSize(id: string, secret: string): Promise<number> {
   const [row] = result;
   const { length, extra } = row;
   if (extra) {
-    const { blobHolder } = JSON.parse(extra);
-    if (blobHolder) {
+    const { blobHash } = JSON.parse(extra);
+    if (blobHash) {
       throw new ServerError('resource_unavailable');
     }
   }
@@ -123,12 +123,12 @@ function makeUploadURI(holder: ?string, id: string, secret: string): string {
 
 function imagesFromRow(row: Object): Image | EncryptedImage {
   const uploadExtra = JSON.parse(row.uploadExtra);
-  const { width, height, blobHolder, thumbHash } = uploadExtra;
+  const { width, height, blobHash, thumbHash } = uploadExtra;
 
   const { uploadType: type, uploadSecret: secret } = row;
   const id = row.uploadID.toString();
   const dimensions = { width, height };
-  const uri = makeUploadURI(blobHolder, id, secret);
+  const uri = makeUploadURI(blobHash, id, secret);
   const isEncrypted = !!uploadExtra.encryptionKey;
   if (type !== 'photo') {
     throw new ServerError('invalid_parameters');
@@ -213,10 +213,10 @@ async function fetchMediaForThread(
 
   const media = uploads.map(upload => {
     const { uploadID, uploadType, uploadSecret, uploadExtra } = upload;
-    const { width, height, encryptionKey, blobHolder, thumbHash } =
+    const { width, height, encryptionKey, blobHash, thumbHash } =
       JSON.parse(uploadExtra);
     const dimensions = { width, height };
-    const uri = makeUploadURI(blobHolder, uploadID, uploadSecret);
+    const uri = makeUploadURI(blobHash, uploadID, uploadSecret);
 
     if (uploadType === 'photo') {
       if (encryptionKey) {
@@ -241,11 +241,11 @@ async function fetchMediaForThread(
     const { thumbnailID, thumbnailUploadSecret, thumbnailUploadExtra } = upload;
     const {
       encryptionKey: thumbnailEncryptionKey,
-      blobHolder: thumbnailBlobHolder,
+      blobHash: thumbnailBlobHash,
       thumbHash: thumbnailThumbHash,
     } = JSON.parse(thumbnailUploadExtra);
     const thumbnailURI = makeUploadURI(
-      thumbnailBlobHolder,
+      thumbnailBlobHash,
       thumbnailID,
       thumbnailUploadSecret,
     );
@@ -319,12 +319,12 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
     const primaryUpload = uploadMap[primaryUploadID];
 
     const uploadExtra = JSON.parse(primaryUpload.uploadExtra);
-    const { width, height, loop, blobHolder, encryptionKey, thumbHash } =
+    const { width, height, loop, blobHash, encryptionKey, thumbHash } =
       uploadExtra;
     const dimensions = { width, height };
 
     const primaryUploadURI = makeUploadURI(
-      blobHolder,
+      blobHash,
       primaryUploadID,
       primaryUpload.uploadSecret,
     );
@@ -355,10 +355,10 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
     const thumbnailUpload = uploadMap[thumbnailUploadID];
 
     const thumbnailUploadExtra = JSON.parse(thumbnailUpload.uploadExtra);
-    const { blobHolder: thumbnailBlobHolder, thumbHash: thumbnailThumbHash } =
+    const { blobHash: thumbnailBlobHash, thumbHash: thumbnailThumbHash } =
       thumbnailUploadExtra;
     const thumbnailUploadURI = makeUploadURI(
-      thumbnailBlobHolder,
+      thumbnailBlobHash,
       thumbnailUploadID,
       thumbnailUpload.uploadSecret,
     );
