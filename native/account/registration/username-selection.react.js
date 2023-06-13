@@ -67,10 +67,21 @@ function UsernameSelection(props: Props): React.Node {
     return true;
   }, [validUsername]);
 
-  const exactSearchUserCall = useServerCall(exactSearchUser);
+  const { userSelections } = props.route.params;
+  const { keyserverURL } = userSelections;
+  const serverCallParamOverride = React.useMemo(
+    () => ({
+      urlPrefix: keyserverURL,
+    }),
+    [keyserverURL],
+  );
+
+  const exactSearchUserCall = useServerCall(
+    exactSearchUser,
+    serverCallParamOverride,
+  );
   const dispatchActionPromise = useDispatchActionPromise();
   const { navigate } = props.navigation;
-  const { userSelections } = props.route.params;
   const onProceed = React.useCallback(async () => {
     if (!checkUsernameValidity()) {
       return;
