@@ -76,19 +76,49 @@ async function updateRole(
     throw new ServerError('not_logged_in');
   }
 
-  const [memberIDs, hasPermission] = await Promise.all([
+  const [memberIDs, hasPermission, fetchThreadResult] = await Promise.all([
     verifyUserIDs(request.memberIDs),
     checkThreadPermission(
       viewer,
       request.threadID,
       threadPermissions.CHANGE_ROLE,
     ),
+    fetchThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
   ]);
   if (memberIDs.length === 0) {
     throw new ServerError('invalid_parameters');
   }
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
+  }
+
+  const threadInfo = fetchThreadResult.threadInfos[request.threadID];
+  if (!threadInfo) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const adminRoleID = Object.keys(threadInfo.roles).find(
+    roleID => threadInfo.roles[roleID].name === 'Admins',
+  );
+
+  // Ensure that there will always still be at least one admin in a community
+  if (adminRoleID) {
+    const memberRoles = memberIDs.map(
+      memberID =>
+        threadInfo.members.find(member => member.id === memberID)?.role,
+    );
+
+    const communityAdminsCount = threadInfo.members.filter(
+      member => member.role === adminRoleID,
+    ).length;
+
+    const changedAdminsCount = memberRoles.filter(
+      memberRole => memberRole === adminRoleID,
+    ).length;
+
+    if (changedAdminsCount >= communityAdminsCount) {
+      throw new ServerError('invalid_parameters');
+    }
   }
 
   const query = SQL`
