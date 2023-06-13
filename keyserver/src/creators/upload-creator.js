@@ -58,7 +58,7 @@ async function createUploads(
     if ((blobHolder && !blobHash) || (!blobHolder && blobHash)) {
       throw new ServerError('invalid_parameters');
     }
-    const uri = makeUploadURI(blobHolder, id, secret);
+    const uri = makeUploadURI(blobHash, id, secret);
 
     return {
       uploadResult: {
