@@ -18,6 +18,20 @@ type Props = {
   +onEmojiKeyboardClose: () => mixed,
 };
 
+const categoryOrder = [
+  'recently_used',
+  'smileys_emotion',
+  'people_body',
+  'animals_nature',
+  'food_drink',
+  'travel_places',
+  'activities',
+  'objects',
+  'symbols',
+  'flags',
+  'search',
+];
+
 function EmojiKeyboard(props: Props): React.Node {
   const { onEmojiSelected, emojiKeyboardOpen, onEmojiKeyboardClose } = props;
 
@@ -28,6 +42,8 @@ function EmojiKeyboard(props: Props): React.Node {
       onClose={onEmojiKeyboardClose}
       enableSearchBar
       enableSearchAnimation={false}
+      enableRecentlyUsed
+      categoryOrder={categoryOrder}
     />
   );
 }
