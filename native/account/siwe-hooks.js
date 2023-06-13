@@ -8,6 +8,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -24,19 +25,22 @@ type UseSIWEServerCallParams = {
 };
 function useSIWEServerCall(
   params: UseSIWEServerCallParams,
-): SIWEServerCallParams => Promise<void> {
+): (SIWEServerCallParams, ?CallServerEndpointOptions) => Promise<void> {
   const { onFailure } = params;
 
   const siweAuthCall = useServerCall(siweAuth);
 
   const callSIWE = React.useCallback(
-    async (message, signature, extraInfo) => {
+    async (message, signature, extraInfo, options) => {
       try {
-        return await siweAuthCall({
-          message,
-          signature,
-          ...extraInfo,
-        });
+        return await siweAuthCall(
+          {
+            message,
+            signature,
+            ...extraInfo,
+          },
+          options,
+        );
       } catch (e) {
         onFailure();
         throw e;
@@ -58,15 +62,20 @@ function useSIWEServerCall(
 
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
-    async ({ message, signature }) => {
+    async ({ message, signature }, options) => {
       const extraInfo = await logInExtraInfo();
       const initialNotificationsEncryptedMessage =
-        await getInitialNotificationsEncryptedMessage();
+        await getInitialNotificationsEncryptedMessage(options);
 
-      const siwePromise = callSIWE(message, signature, {
-        ...extraInfo,
-        initialNotificationsEncryptedMessage,
-      });
+      const siwePromise = callSIWE(
+        message,
+        signature,
+        {
+          ...extraInfo,
+          initialNotificationsEncryptedMessage,
+        },
+        options,
+      );
 
       dispatchActionPromise(
         siweAuthActionTypes,
