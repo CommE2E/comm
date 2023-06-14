@@ -8,7 +8,7 @@ import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, UIManager, StyleSheet, Alert } from 'react-native';
+import { Platform, UIManager, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import {
@@ -18,17 +18,13 @@ import {
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/react.js';
 
-import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
-import {
-  selectFromGallery,
-  useUploadSelectedMedia,
-} from './avatars/avatar-hooks.js';
 import { EditThreadAvatarProvider } from './avatars/edit-thread-avatar-provider.react.js';
+import NativeEditUserAvatarProvider from './avatars/native-edit-user-avatar-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
@@ -75,14 +71,6 @@ const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
 SplashScreen.preventAutoHideAsync().catch(console.log);
-
-const displayAvatarUpdateFailureAlert = () =>
-  Alert.alert(
-    'Couldn’t save avatar',
-    'Please try again later',
-    [{ text: 'OK' }],
-    { cancelable: true },
-  );
 
 function Root() {
   const navStateRef = React.useRef();
@@ -276,11 +264,7 @@ function Root() {
                   <ActionSheetProvider>
                     <ENSCacheProvider provider={provider}>
                       <MediaCacheProvider persistence={filesystemMediaCache}>
-                        <EditUserAvatarProvider
-                          displayFailureAlert={displayAvatarUpdateFailureAlert}
-                          selectFromGallery={selectFromGallery}
-                          useUploadSelectedMedia={useUploadSelectedMedia}
-                        >
+                        <NativeEditUserAvatarProvider>
                           <EditThreadAvatarProvider>
                             <MarkdownContextProvider>
                               <ChatContextProvider>
@@ -306,7 +290,7 @@ function Root() {
                               </ChatContextProvider>
                             </MarkdownContextProvider>
                           </EditThreadAvatarProvider>
-                        </EditUserAvatarProvider>
+                        </NativeEditUserAvatarProvider>
                       </MediaCacheProvider>
                     </ENSCacheProvider>
                   </ActionSheetProvider>
