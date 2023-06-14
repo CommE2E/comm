@@ -22,6 +22,10 @@ type RustNativeBindingAPI = {
     signedIdentityKeysBlob: SignedIdentityKeysBlob,
   ) => Promise<boolean>,
   +addReservedUsername: (username: string, signature: string) => Promise<void>,
+  +removeReservedUsername: (
+    username: string,
+    signature: string,
+  ) => Promise<void>,
   +TunnelbrokerClient: Class<TunnelbrokerClientClass>,
 };
 
