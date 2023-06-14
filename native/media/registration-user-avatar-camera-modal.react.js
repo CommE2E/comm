@@ -3,8 +3,9 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
+
 import type { RegistrationNavigationProp } from '../account/registration/registration-navigator.react.js';
-import { EditUserAvatarContext } from '../avatars/edit-user-avatar-provider.react.js';
 import CameraModal from '../media/camera-modal.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 
