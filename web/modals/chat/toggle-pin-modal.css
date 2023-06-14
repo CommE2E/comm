@@ -28,3 +28,7 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+.messageContainer {
+  margin: 24px;
+}
