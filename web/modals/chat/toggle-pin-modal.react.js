@@ -102,11 +102,13 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   return (
     <Modal name={modalInfo.name} onClose={popModal} size="large">
       <div className={css.confirmationText}>{modalInfo.confirmationText}</div>
-      <MessageResult
-        item={modifiedItem}
-        threadInfo={threadInfo}
-        scrollable={true}
-      />
+      <div className={css.messageContainer}>
+        <MessageResult
+          item={modifiedItem}
+          threadInfo={threadInfo}
+          scrollable={true}
+        />
+      </div>
       <div className={css.buttonContainer}>
         <Button
           variant="filled"
