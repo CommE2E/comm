@@ -3,8 +3,9 @@
 import * as React from 'react';
 import { Alert } from 'react-native';
 
+import { BaseEditThreadAvatarProvider } from 'lib/components/base-edit-thread-avatar-provider.react.js';
+
 import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
-import { EditThreadAvatarProvider } from './edit-thread-avatar-provider.react.js';
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 
@@ -29,14 +30,14 @@ function NativeEditThreadAvatarProvider(props: Props): React.Node {
   );
 
   return (
-    <EditThreadAvatarProvider
+    <BaseEditThreadAvatarProvider
       displayFailureAlert={displayAvatarUpdateFailureAlert}
       selectFromGallery={selectFromGallery}
       useUploadSelectedMedia={useUploadSelectedMedia}
       activeThreadID={activeThreadID}
     >
       {children}
-    </EditThreadAvatarProvider>
+    </BaseEditThreadAvatarProvider>
   );
 }
 
