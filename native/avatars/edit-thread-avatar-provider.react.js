@@ -22,8 +22,6 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import { activeThreadSelector } from '../navigation/nav-selectors.js';
-import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 export type EditThreadAvatarContextType = {
@@ -48,6 +46,7 @@ type Props = {
   +useUploadSelectedMedia: (
     setProcessingOrUploadInProgress?: (inProgress: boolean) => mixed,
   ) => (selection: NativeMediaSelection) => Promise<?ImageAvatarDBContent>,
+  +activeThreadID: string,
   +children: React.Node,
 };
 function EditThreadAvatarProvider(props: Props): React.Node {
@@ -55,14 +54,9 @@ function EditThreadAvatarProvider(props: Props): React.Node {
     displayFailureAlert,
     selectFromGallery,
     useUploadSelectedMedia,
+    activeThreadID,
     children,
   } = props;
-
-  const navContext = React.useContext(NavContext);
-  const activeThreadID = React.useMemo(
-    () => activeThreadSelector(navContext) ?? '',
-    [navContext],
-  );
 
   const updateThreadAvatarLoadingStatus: LoadingStatus = useSelector(
     createLoadingStatusSelector(
