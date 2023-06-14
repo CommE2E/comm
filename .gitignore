@@ -9,6 +9,7 @@ lib/node_modules
 
 web/node_modules
 web/dist
+web/database/_generated/comm-query-executor.js.bak
 
 keyserver/dist
 keyserver/node_modules
