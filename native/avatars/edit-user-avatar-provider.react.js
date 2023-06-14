@@ -7,15 +7,20 @@ import {
   updateUserAvatarActionTypes,
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
+import type {
+  ImageAvatarDBContent,
+  UpdateUserAvatarRequest,
+} from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { NativeMediaSelection } from 'lib/types/media-types.js';
+import type {
+  MediaLibrarySelection,
+  NativeMediaSelection,
+} from 'lib/types/media-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 export type UserAvatarSelection =
@@ -47,10 +52,19 @@ const updateUserAvatarLoadingStatusSelector = createLoadingStatusSelector(
 
 type Props = {
   +displayFailureAlert: () => mixed,
+  +selectFromGallery: () => Promise<?MediaLibrarySelection>,
+  +useUploadSelectedMedia: (
+    setProcessingOrUploadInProgress?: (inProgress: boolean) => mixed,
+  ) => (selection: NativeMediaSelection) => Promise<?ImageAvatarDBContent>,
   +children: React.Node,
 };
 function EditUserAvatarProvider(props: Props): React.Node {
-  const { displayFailureAlert, children } = props;
+  const {
+    displayFailureAlert,
+    selectFromGallery,
+    useUploadSelectedMedia,
+    children,
+  } = props;
 
   const registrationModeRef =
     React.useRef<RegistrationMode>(registrationModeOff);
@@ -114,7 +128,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       return;
     }
     await updateImageUserAvatar(selection);
-  }, [updateImageUserAvatar]);
+  }, [selectFromGallery, updateImageUserAvatar]);
 
   const setUserAvatar = React.useCallback(
     async (request: UpdateUserAvatarRequest) => {
