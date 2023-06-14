@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import {
   changeThreadSettings,
@@ -41,19 +40,12 @@ export type EditThreadAvatarContextType = {
 const EditThreadAvatarContext: React.Context<?EditThreadAvatarContextType> =
   React.createContext<?EditThreadAvatarContextType>();
 
-const displayFailureAlert = () =>
-  Alert.alert(
-    'Couldn’t save avatar',
-    'Please try again later',
-    [{ text: 'OK' }],
-    { cancelable: true },
-  );
-
 type Props = {
+  +displayFailureAlert: () => mixed,
   +children: React.Node,
 };
 function EditThreadAvatarProvider(props: Props): React.Node {
-  const { children } = props;
+  const { displayFailureAlert, children } = props;
 
   const navContext = React.useContext(NavContext);
   const activeThreadID = React.useMemo(
@@ -133,6 +125,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
     [
       changeThreadSettingsCall,
       dispatchActionPromise,
+      displayFailureAlert,
       updateThreadAvatarMediaUploadInProgress,
       uploadSelectedMedia,
     ],
@@ -171,7 +164,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
       });
       await promise;
     },
-    [changeThreadSettingsCall, dispatchActionPromise],
+    [changeThreadSettingsCall, dispatchActionPromise, displayFailureAlert],
   );
 
   const context = React.useMemo(

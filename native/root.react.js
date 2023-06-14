@@ -8,7 +8,7 @@ import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, UIManager, StyleSheet } from 'react-native';
+import { Platform, UIManager, StyleSheet, Alert } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import {
@@ -71,6 +71,14 @@ const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
 SplashScreen.preventAutoHideAsync().catch(console.log);
+
+const displayAvatarUpdateFailureAlert = () =>
+  Alert.alert(
+    'Couldn’t save avatar',
+    'Please try again later',
+    [{ text: 'OK' }],
+    { cancelable: true },
+  );
 
 function Root() {
   const navStateRef = React.useRef();
@@ -265,7 +273,11 @@ function Root() {
                     <ENSCacheProvider provider={provider}>
                       <MediaCacheProvider persistence={filesystemMediaCache}>
                         <NativeEditUserAvatarProvider>
-                          <EditThreadAvatarProvider>
+                          <EditThreadAvatarProvider
+                            displayFailureAlert={
+                              displayAvatarUpdateFailureAlert
+                            }
+                          >
                             <MarkdownContextProvider>
                               <ChatContextProvider>
                                 <MessageSearchProvider>
