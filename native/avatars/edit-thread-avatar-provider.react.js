@@ -7,7 +7,10 @@ import {
   changeThreadSettingsActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
+import type {
+  UpdateUserAvatarRequest,
+  ImageAvatarDBContent,
+} from 'lib/types/avatar-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   MediaLibrarySelection,
@@ -19,7 +22,6 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -42,10 +44,19 @@ const EditThreadAvatarContext: React.Context<?EditThreadAvatarContextType> =
 
 type Props = {
   +displayFailureAlert: () => mixed,
+  +selectFromGallery: () => Promise<?MediaLibrarySelection>,
+  +useUploadSelectedMedia: (
+    setProcessingOrUploadInProgress?: (inProgress: boolean) => mixed,
+  ) => (selection: NativeMediaSelection) => Promise<?ImageAvatarDBContent>,
   +children: React.Node,
 };
 function EditThreadAvatarProvider(props: Props): React.Node {
-  const { displayFailureAlert, children } = props;
+  const {
+    displayFailureAlert,
+    selectFromGallery,
+    useUploadSelectedMedia,
+    children,
+  } = props;
 
   const navContext = React.useContext(NavContext);
   const activeThreadID = React.useMemo(
@@ -139,7 +150,7 @@ function EditThreadAvatarProvider(props: Props): React.Node {
       }
       await updateImageThreadAvatar(selection, threadID);
     },
-    [updateImageThreadAvatar],
+    [selectFromGallery, updateImageThreadAvatar],
   );
 
   const setThreadAvatar = React.useCallback(

@@ -23,6 +23,10 @@ import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js
 import { actionLogger } from 'lib/utils/action-logger.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
+import {
+  selectFromGallery,
+  useUploadSelectedMedia,
+} from './avatars/avatar-hooks.js';
 import { EditThreadAvatarProvider } from './avatars/edit-thread-avatar-provider.react.js';
 import NativeEditUserAvatarProvider from './avatars/native-edit-user-avatar-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
@@ -277,6 +281,8 @@ function Root() {
                             displayFailureAlert={
                               displayAvatarUpdateFailureAlert
                             }
+                            selectFromGallery={selectFromGallery}
+                            useUploadSelectedMedia={useUploadSelectedMedia}
                           >
                             <MarkdownContextProvider>
                               <ChatContextProvider>
