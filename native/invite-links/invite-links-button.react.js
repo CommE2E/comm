@@ -3,7 +3,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
@@ -111,19 +111,23 @@ function InviteLinksButton(props: Props): React.Node {
     );
   }, [actions, activeTheme, insets.bottom, showActionSheetWithOptions]);
 
-  if (!actions) {
-    return null;
+  let button = null;
+  if (actions) {
+    button = (
+      <TouchableOpacity onPress={openActionSheet}>
+        <SWMansionIcon name="menu-vertical" size={22} style={styles.button} />
+      </TouchableOpacity>
+    );
   }
-  return (
-    <TouchableOpacity onPress={openActionSheet}>
-      <SWMansionIcon name="menu-vertical" size={22} style={styles.button} />
-    </TouchableOpacity>
-  );
+  return <View style={styles.container}>{button}</View>;
 }
 
 const unboundStyles = {
   button: {
     color: 'drawerItemLabelLevel0',
+  },
+  container: {
+    width: 22,
   },
 };
 
