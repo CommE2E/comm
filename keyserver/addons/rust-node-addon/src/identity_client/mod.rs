@@ -1,5 +1,6 @@
 pub mod add_reserved_username;
 pub mod register_user;
+pub mod remove_reserved_username;
 pub mod identity_client {
   tonic::include_proto!("identity.client");
 }
@@ -8,6 +9,7 @@ use identity_client::identity_client_service_client::IdentityClientServiceClient
 use identity_client::{
   AddReservedUsernameRequest, DeviceKeyUpload, IdentityKeyInfo,
   RegistrationFinishRequest, RegistrationStartRequest,
+  RemoveReservedUsernameRequest,
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
