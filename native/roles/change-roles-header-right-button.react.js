@@ -3,7 +3,7 @@
 import { useNavigation } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import {
@@ -20,24 +20,27 @@ import { useColors } from '../themes/colors.js';
 
 type Props = {
   +route: NavigationRoute<'ChangeRolesScreen'>,
+  +shouldRoleChangeBeDisabled: boolean,
 };
 
 function ChangeRolesHeaderRightButton(props: Props): React.Node {
   const { threadInfo, memberInfo, role: selectedRole } = props.route.params;
+  const { shouldRoleChangeBeDisabled } = props;
   const { role: initialRole } = memberInfo;
+  invariant(initialRole, 'Expected initial role to be defined');
   invariant(selectedRole, 'Expected selected role to be defined');
   const navigation = useNavigation();
 
   const callChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
   const dispatchActionPromise = useDispatchActionPromise();
 
-  const { purpleLink } = useColors();
+  const { disabledButton, purpleLink } = useColors();
   const textStyle = React.useMemo(
     () => ({
-      color: purpleLink,
+      color: shouldRoleChangeBeDisabled ? disabledButton : purpleLink,
       marginRight: 10,
     }),
-    [purpleLink],
+    [disabledButton, purpleLink, shouldRoleChangeBeDisabled],
   );
 
   const handleSave = React.useCallback(() => {
@@ -62,11 +65,23 @@ function ChangeRolesHeaderRightButton(props: Props): React.Node {
     threadInfo.id,
   ]);
 
-  return (
-    <TouchableOpacity onPress={handleSave}>
-      <Text style={textStyle}>Save</Text>
-    </TouchableOpacity>
-  );
+  const saveButton = React.useMemo(() => {
+    if (shouldRoleChangeBeDisabled) {
+      return (
+        <View>
+          <Text style={textStyle}>Save</Text>
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity onPress={handleSave}>
+        <Text style={textStyle}>Save</Text>
+      </TouchableOpacity>
+    );
+  }, [shouldRoleChangeBeDisabled, textStyle, handleSave]);
+
+  return saveButton;
 }
 
 export default ChangeRolesHeaderRightButton;
