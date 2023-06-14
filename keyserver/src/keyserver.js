@@ -127,6 +127,12 @@ import {
     // and prevent commAppRouter and landingRouter from working correctly. So we
     // make sure that squadCalRouter goes last
 
+    // This endpoint should be handled by the mobile app. If the server
+    // receives this request, it means that the app is not installed and we
+    // should redirect the user to a place from which the app can be
+    // downloaded.
+    server.get('/invite/:secret', inviteResponder);
+
     if (landingBaseRoutePath) {
       const landingRouter = express.Router();
       landingRouter.use('/images', express.static('images'));
@@ -140,12 +146,6 @@ import {
       landingRouter.get('*', landingHandler);
       server.use(landingBaseRoutePath, landingRouter);
     }
-
-    // This endpoint should be handled by the mobile app. If the server
-    // receives this request, it means that the app is not installed and we
-    // should redirect the user to a place from which the app can be
-    // downloaded.
-    server.get('/invite/:secret', inviteResponder);
 
     if (commAppBaseRoutePath) {
       const commAppRouter = express.Router();
