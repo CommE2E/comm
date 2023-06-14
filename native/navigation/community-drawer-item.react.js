@@ -112,7 +112,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
 
 const unboundStyles = {
   container: {
-    paddingRight: 24,
+    paddingRight: 8,
   },
   none: {
     paddingVertical: 2,
@@ -124,7 +124,6 @@ const unboundStyles = {
   },
   middle: {
     backgroundColor: 'drawerOpenCommunityBackground',
-    paddingRight: 24,
   },
   end: {
     backgroundColor: 'drawerOpenCommunityBackground',
@@ -142,6 +141,7 @@ const unboundStyles = {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 24,
   },
   subchannelsButton: {
     marginLeft: 24,
