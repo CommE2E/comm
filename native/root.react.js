@@ -8,7 +8,7 @@ import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, UIManager, StyleSheet, Alert } from 'react-native';
+import { Platform, UIManager, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import {
@@ -23,11 +23,7 @@ import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js
 import { actionLogger } from 'lib/utils/action-logger.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
-import {
-  selectFromGallery,
-  useUploadSelectedMedia,
-} from './avatars/avatar-hooks.js';
-import { EditThreadAvatarProvider } from './avatars/edit-thread-avatar-provider.react.js';
+import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import NativeEditUserAvatarProvider from './avatars/native-edit-user-avatar-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
@@ -75,14 +71,6 @@ const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
 SplashScreen.preventAutoHideAsync().catch(console.log);
-
-const displayAvatarUpdateFailureAlert = () =>
-  Alert.alert(
-    'Couldn’t save avatar',
-    'Please try again later',
-    [{ text: 'OK' }],
-    { cancelable: true },
-  );
 
 function Root() {
   const navStateRef = React.useRef();
@@ -277,13 +265,7 @@ function Root() {
                     <ENSCacheProvider provider={provider}>
                       <MediaCacheProvider persistence={filesystemMediaCache}>
                         <NativeEditUserAvatarProvider>
-                          <EditThreadAvatarProvider
-                            displayFailureAlert={
-                              displayAvatarUpdateFailureAlert
-                            }
-                            selectFromGallery={selectFromGallery}
-                            useUploadSelectedMedia={useUploadSelectedMedia}
-                          >
+                          <NativeEditThreadAvatarProvider>
                             <MarkdownContextProvider>
                               <ChatContextProvider>
                                 <MessageSearchProvider>
@@ -307,7 +289,7 @@ function Root() {
                                 </MessageSearchProvider>
                               </ChatContextProvider>
                             </MarkdownContextProvider>
-                          </EditThreadAvatarProvider>
+                          </NativeEditThreadAvatarProvider>
                         </NativeEditUserAvatarProvider>
                       </MediaCacheProvider>
                     </ENSCacheProvider>
