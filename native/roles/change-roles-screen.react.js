@@ -9,6 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { changeThreadMemberRolesActionTypes } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
+import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
@@ -120,6 +122,62 @@ function ChangeRolesScreen(props: Props): React.Node {
     showActionSheetWithOptions,
   ]);
 
+  const otherUsersButNoOtherAdminsValue = useSelector(
+    otherUsersButNoOtherAdmins(threadInfo.id),
+  );
+
+  const memberIsAdmin = React.useMemo(() => {
+    invariant(memberInfo.role, 'Expected member role to be defined');
+    return roleIsAdminRole(threadInfo.roles[memberInfo.role]);
+  }, [threadInfo.roles, memberInfo.role]);
+
+  const shouldRoleChangeBeDisabled = React.useMemo(
+    () => otherUsersButNoOtherAdminsValue && memberIsAdmin,
+    [otherUsersButNoOtherAdminsValue, memberIsAdmin],
+  );
+
+  const roleSelector = React.useMemo(() => {
+    if (shouldRoleChangeBeDisabled) {
+      return (
+        <View style={styles.roleSelector}>
+          <Text style={styles.disabledCurrentRole}>{selectedRoleName}</Text>
+          <SWMansionIcon
+            name="edit-1"
+            size={20}
+            style={styles.disabledPencilIcon}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity onPress={showActionSheet} style={styles.roleSelector}>
+        <Text style={styles.currentRole}>{selectedRoleName}</Text>
+        <SWMansionIcon name="edit-1" size={20} style={styles.pencilIcon} />
+      </TouchableOpacity>
+    );
+  }, [showActionSheet, styles, selectedRoleName, shouldRoleChangeBeDisabled]);
+
+  const disabledRoleChangeMessage = React.useMemo(() => {
+    if (!shouldRoleChangeBeDisabled) {
+      return null;
+    }
+
+    return (
+      <View style={styles.disabledWarningBackground}>
+        <SWMansionIcon name="info-circle" size={24} style={styles.infoIcon} />
+        <Text style={styles.disabledWarningText}>
+          There must be at least one admin at any given time in a community.
+        </Text>
+      </View>
+    );
+  }, [
+    shouldRoleChangeBeDisabled,
+    styles.disabledWarningBackground,
+    styles.infoIcon,
+    styles.disabledWarningText,
+  ]);
+
   React.useEffect(() => {
     navigation.setOptions({
       // eslint-disable-next-line react/display-name
@@ -133,10 +191,21 @@ function ChangeRolesScreen(props: Props): React.Node {
             />
           );
         }
-        return <ChangeRolesHeaderRightButton route={route} />;
+        return (
+          <ChangeRolesHeaderRightButton
+            route={route}
+            shouldRoleChangeBeDisabled={shouldRoleChangeBeDisabled}
+          />
+        );
       },
     });
-  }, [changeRolesLoadingStatus, navigation, activityIndicatorStyle, route]);
+  }, [
+    changeRolesLoadingStatus,
+    navigation,
+    activityIndicatorStyle,
+    route,
+    shouldRoleChangeBeDisabled,
+  ]);
 
   return (
     <View>
@@ -150,13 +219,8 @@ function ChangeRolesScreen(props: Props): React.Node {
         <UserAvatar userID={memberInfo.id} size="profile" />
         <Text style={styles.memberInfoUsername}>{memberInfo.username}</Text>
       </View>
-      <View>
-        <Text style={styles.roleSelectorLabel}>ROLE</Text>
-        <TouchableOpacity onPress={showActionSheet} style={styles.roleSelector}>
-          <Text style={styles.currentRole}>{selectedRoleName}</Text>
-          <SWMansionIcon name="edit-1" size={20} style={styles.pencilIcon} />
-        </TouchableOpacity>
-      </View>
+      {roleSelector}
+      {disabledRoleChangeMessage}
     </View>
   );
 }
@@ -203,8 +267,37 @@ const unboundStyles = {
     color: 'panelForegroundSecondaryLabel',
     fontSize: 16,
   },
+  disabledCurrentRole: {
+    color: 'disabledButton',
+    fontSize: 16,
+  },
   pencilIcon: {
     color: 'panelInputSecondaryForeground',
+  },
+  disabledPencilIcon: {
+    color: 'disabledButton',
+  },
+  disabledWarningBackground: {
+    backgroundColor: 'disabledButton',
+    padding: 16,
+    display: 'flex',
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '75%',
+    alignSelf: 'center',
+  },
+  disabledWarningText: {
+    color: 'panelForegroundSecondaryLabel',
+    fontSize: 14,
+    marginRight: 8,
+    display: 'flex',
+  },
+  infoIcon: {
+    color: 'panelForegroundSecondaryLabel',
+    marginRight: 8,
+    marginLeft: 8,
+    marginBottom: 12,
   },
 };
 
