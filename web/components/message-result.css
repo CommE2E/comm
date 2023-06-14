@@ -3,7 +3,6 @@
   border: 1px solid var(--pin-message-modal-border-color);
   border-radius: 7px;
   max-height: 400px;
-  margin: 0 32px 16px 32px;
 }
 
 .messageDate {
