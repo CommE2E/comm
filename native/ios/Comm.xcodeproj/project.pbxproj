@@ -191,6 +191,8 @@
 		8E43C32B291E5B4A009378F5 /* TerminateApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TerminateApp.mm; path = Comm/TerminateApp.mm; sourceTree = "<group>"; };
 		8E43C32E291E5B9D009378F5 /* TerminateApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TerminateApp.h; path = ../cpp/CommonCpp/Tools/TerminateApp.h; sourceTree = "<group>"; };
 		8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseManager.cpp; sourceTree = "<group>"; };
+		8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportStoreOperations.h; sourceTree = "<group>"; };
+		8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DraftStoreOperations.h; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageStoreOperations.h; sourceTree = "<group>"; };
@@ -378,6 +380,8 @@
 		71BE843A2636A944002849D2 /* NativeModules */ = {
 			isa = PBXGroup;
 			children = (
+				8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */,
+				8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */,
 				CBED0E2C284E086100CD3863 /* PersistentStorageUtilities */,
 				726E5D722731A4240032361D /* InternalModules */,
 				71BE843C2636A944002849D2 /* CommCoreModule.cpp */,
