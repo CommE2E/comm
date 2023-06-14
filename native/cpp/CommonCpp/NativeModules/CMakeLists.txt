@@ -12,6 +12,8 @@ set(NATIVE_HDRS
   "CommUtilsModule.h"
   "MessageStoreOperations.h"
   "ThreadStoreOperations.h"
+  "ReportStoreOperations.h"
+  "DraftStoreOperations.h"
 )
 
 set(NATIVE_SRCS
