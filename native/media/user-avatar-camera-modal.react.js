@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
+import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 
 import CameraModal from '../media/camera-modal.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';

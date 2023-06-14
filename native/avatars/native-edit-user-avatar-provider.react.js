@@ -1,0 +1,35 @@
+// @flow
+
+import * as React from 'react';
+import { Alert } from 'react-native';
+
+import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
+
+import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
+
+type Props = {
+  +children: React.Node,
+};
+
+const displayAvatarUpdateFailureAlert = () =>
+  Alert.alert(
+    'Couldn’t save avatar',
+    'Please try again later',
+    [{ text: 'OK' }],
+    { cancelable: true },
+  );
+
+function NativeEditUserAvatarProvider(props: Props): React.Node {
+  const { children } = props;
+  return (
+    <BaseEditUserAvatarProvider
+      displayFailureAlert={displayAvatarUpdateFailureAlert}
+      selectFromGallery={selectFromGallery}
+      useUploadSelectedMedia={useUploadSelectedMedia}
+    >
+      {children}
+    </BaseEditUserAvatarProvider>
+  );
+}
+
+export default NativeEditUserAvatarProvider;
