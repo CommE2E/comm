@@ -3,9 +3,9 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import type { PhotoCapture } from 'lib/types/media-types.js';
 
-import { EditThreadAvatarContext } from '../avatars/edit-thread-avatar-provider.react.js';
 import CameraModal from '../media/camera-modal.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
