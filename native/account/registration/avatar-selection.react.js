@@ -4,6 +4,11 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import {
+  EditUserAvatarContext,
+  type UserAvatarSelection,
+} from 'lib/components/edit-user-avatar-provider.react.js';
+
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
@@ -16,10 +21,6 @@ import {
   type AvatarData,
   ensAvatarSelection,
 } from './registration-types.js';
-import {
-  EditUserAvatarContext,
-  type UserAvatarSelection,
-} from '../../avatars/edit-user-avatar-provider.react.js';
 import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
 import { useCurrentLeafRouteName } from '../../navigation/nav-selectors.js';
 import {

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { registerActionTypes, register } from 'lib/actions/user-actions.js';
+import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
   useServerCall,
@@ -20,7 +21,6 @@ import type {
   AvatarData,
 } from './registration-types.js';
 import { useUploadSelectedMedia } from '../../avatars/avatar-hooks.js';
-import { EditUserAvatarContext } from '../../avatars/edit-user-avatar-provider.react.js';
 import { NavContext } from '../../navigation/navigation-context.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';

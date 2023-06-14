@@ -4,12 +4,12 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
+import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
 
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
-import { EditUserAvatarContext } from '../../avatars/edit-user-avatar-provider.react.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';

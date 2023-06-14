@@ -3,9 +3,9 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 
-import { EditUserAvatarContext } from '../avatars/edit-user-avatar-provider.react.js';
 import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { useSelector } from '../redux/redux-utils.js';
