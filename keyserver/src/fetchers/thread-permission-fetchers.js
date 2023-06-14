@@ -1,5 +1,6 @@
 // @flow
 
+import genesis from 'lib/facts/genesis.js';
 import {
   permissionLookup,
   makePermissionsBlob,
@@ -303,8 +304,10 @@ async function validateCandidateMembers(
       ignoreMembers.add(memberID);
       continue;
     }
+    const isParentThreadGenesis = params.parentThreadID === genesis.id;
     if (
-      memberOfContainingThread.get(memberID) === 'no-containing-thread' &&
+      (memberOfContainingThread.get(memberID) === 'no-containing-thread' ||
+        isParentThreadGenesis) &&
       relationshipStatus !== userRelationshipStatus.FRIEND &&
       requireRelationship
     ) {
