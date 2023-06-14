@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import {
   updateUserAvatar,
@@ -46,19 +45,12 @@ const updateUserAvatarLoadingStatusSelector = createLoadingStatusSelector(
   updateUserAvatarActionTypes,
 );
 
-const displayFailureAlert = () =>
-  Alert.alert(
-    'Couldn’t save avatar',
-    'Please try again later',
-    [{ text: 'OK' }],
-    { cancelable: true },
-  );
-
 type Props = {
+  +displayFailureAlert: () => mixed,
   +children: React.Node,
 };
 function EditUserAvatarProvider(props: Props): React.Node {
-  const { children } = props;
+  const { displayFailureAlert, children } = props;
 
   const registrationModeRef =
     React.useRef<RegistrationMode>(registrationModeOff);
@@ -108,7 +100,12 @@ function EditUserAvatarProvider(props: Props): React.Node {
       dispatchActionPromise(updateUserAvatarActionTypes, promise);
       await promise;
     },
-    [uploadSelectedMedia, updateUserAvatarCall, dispatchActionPromise],
+    [
+      uploadSelectedMedia,
+      dispatchActionPromise,
+      updateUserAvatarCall,
+      displayFailureAlert,
+    ],
   );
 
   const selectFromGalleryAndUpdateUserAvatar = React.useCallback(async () => {
@@ -141,7 +138,7 @@ function EditUserAvatarProvider(props: Props): React.Node {
       dispatchActionPromise(updateUserAvatarActionTypes, promise);
       await promise;
     },
-    [updateUserAvatarCall, dispatchActionPromise],
+    [dispatchActionPromise, updateUserAvatarCall, displayFailureAlert],
   );
 
   const setRegistrationMode = React.useCallback((mode: RegistrationMode) => {
