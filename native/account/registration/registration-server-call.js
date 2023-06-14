@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { registerActionTypes, register } from 'lib/actions/user-actions.js';
-import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
+import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
   useServerCall,
