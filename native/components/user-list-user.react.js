@@ -57,13 +57,12 @@ class UserListUser extends React.PureComponent<Props> {
 
   onSelect = () => {
     const { userInfo } = this.props;
-    if (!userInfo.alertText) {
-      const { alertText, alertTitle, notice, disabled, ...accountUserInfo } =
-        userInfo;
+    if (!userInfo.alert) {
+      const { alert, notice, disabled, ...accountUserInfo } = userInfo;
       this.props.onSelect(accountUserInfo);
       return;
     }
-    Alert.alert(userInfo.alertTitle, userInfo.alertText, [{ text: 'OK' }], {
+    Alert.alert(userInfo.alert.title, userInfo.alert.text, [{ text: 'OK' }], {
       cancelable: true,
     });
   };
