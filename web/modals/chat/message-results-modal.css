@@ -9,7 +9,11 @@ hr.separator {
 
 .messageResultsContainer {
   overflow-y: scroll;
-  padding-bottom: 8px;
+  padding: 0 32px 8px 32px;
+}
+
+.messageResultsContainer > * {
+  margin-bottom: 16px;
 }
 
 .loadingIndicator {
