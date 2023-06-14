@@ -111,7 +111,7 @@ function ChatThreadComposer(props: Props): React.Node {
 
     const userItems = userListItemsWithENSNames.map(
       (userSearchResult: UserListItem) => {
-        const { alertTitle, alertText, notice, disabled, ...accountUserInfo } =
+        const { alert, notice, disabled, ...accountUserInfo } =
           userSearchResult;
         return (
           <li key={userSearchResult.id} className={css.searchResultsItem}>
@@ -124,7 +124,9 @@ function ChatThreadComposer(props: Props): React.Node {
                 <UserAvatar size="small" userID={userSearchResult.id} />
                 <div className={css.userName}>{userSearchResult.username}</div>
               </div>
-              <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
+              <div className={css.userInfo}>
+                {userSearchResult.alert?.title}
+              </div>
             </Button>
           </li>
         );
