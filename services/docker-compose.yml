@@ -10,17 +10,12 @@ services:
     build:
       dockerfile: services/tunnelbroker/Dockerfile
       context: ../
-      args:
-        - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
-        - COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
-    image: commapp/tunnelbroker-server:0.2
+    image: commapp/tunnelbroker-server:0.5
     ports:
       - '${COMM_SERVICES_PORT_TUNNELBROKER}:50051'
     volumes:
       - $HOME/.aws/config:/root/.aws/config:ro
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
-      - ./tunnelbroker/tunnelbroker.ini:/root/tunnelbroker/tunnelbroker.ini:ro
-      - ./tunnelbroker/tunnelbroker-sandbox.ini:/root/tunnelbroker/tunnelbroker-sandbox.ini:ro
   # backup
   backup-server:
     depends_on:
