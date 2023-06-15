@@ -20,6 +20,7 @@ import {
   clearThreadsActionType,
   pushNewThreadActionType,
 } from '../navigation/action-types.js';
+import { getRemoveEditMode } from '../navigation/nav-selectors.js';
 import {
   removeScreensFromStack,
   getThreadIDFromRoute,
@@ -128,7 +129,22 @@ function ChatRouter(
         );
         return baseGetStateForAction(clearedState, navigateAction, options);
       } else {
-        return baseGetStateForAction(lastState, action, options);
+        const result = baseGetStateForAction(lastState, action, options);
+        const removeEditMode = getRemoveEditMode(lastState);
+
+        // We prevent navigating if the user is in edit mode. We don't block
+        // navigating back here because it is handled by the `beforeRemove`
+        // listener in the `ChatInputBar` component.
+        if (
+          result !== null &&
+          result?.index &&
+          result.index > lastState.index &&
+          removeEditMode &&
+          removeEditMode(action) === 'ignore_action'
+        ) {
+          return lastState;
+        }
+        return result;
       }
     },
     actionCreators: {
