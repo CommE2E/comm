@@ -17,6 +17,8 @@ function EmojiKeyboard(props: Props): React.Node {
       onEmojiSelected={onEmojiSelected}
       open={emojiKeyboardOpen}
       onClose={onEmojiKeyboardClose}
+      enableSearchBar
+      enableSearchAnimation={false}
     />
   );
 }
