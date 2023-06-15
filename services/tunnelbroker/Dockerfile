@@ -1,39 +1,25 @@
-FROM commapp/services-base:1.3.2
+FROM rust:1.67
 
-ENV PATH=/root/.cargo/bin:$PATH
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && useradd -m /home/comm \
+  && mkdir -p /home/comm/app/tunnelbroker
 
-ARG COMM_TEST_SERVICES
-ARG COMM_SERVICES_SANDBOX
+WORKDIR /home/comm/app/tunnelbroker
 
-ENV COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
-ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
+# Install more recent version of protobuf, must be ran as root
+COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
+RUN ../../scripts/install_protobuf.sh
 
-# Install Curl
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl
+COPY services/tunnelbroker .
 
-# Install Rust
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+COPY shared/protos ../../shared/protos
+COPY shared/tunnelbroker_messages ../../shared/tunnelbroker_messages
 
-# Copying of the installation scripts
-WORKDIR /transferred/services/tunnelbroker/docker
-COPY services/tunnelbroker/docker .
+RUN cargo install --path . && \
+  rm -rf ./*
 
-# Copying of the shared code
-WORKDIR /transferred
-COPY services/lib/src/ services/lib/src/
-COPY shared/ shared/
+USER comm
 
-# Copying of the Tunnelbroker code
-WORKDIR /transferred/services/tunnelbroker
-COPY services/tunnelbroker/ .
-
-# Build Rust by Cargo
-WORKDIR /transferred/services/tunnelbroker
-RUN cargo build --release
-
-CMD if [ "$COMM_TEST_SERVICES" -eq 1 ];\
-  then\
-    cargo test;\
-  else\
-    cargo run;\
-  fi
+CMD ["tunnelbroker"]
