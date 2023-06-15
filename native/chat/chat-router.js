@@ -20,6 +20,7 @@ import {
   clearThreadsActionType,
   pushNewThreadActionType,
 } from '../navigation/action-types.js';
+import { getRemoveEditMode } from '../navigation/nav-selectors.js';
 import {
   removeScreensFromStack,
   getThreadIDFromRoute,
@@ -128,7 +129,18 @@ function ChatRouter(
         );
         return baseGetStateForAction(clearedState, navigateAction, options);
       } else {
-        return baseGetStateForAction(lastState, action, options);
+        const result = baseGetStateForAction(lastState, action, options);
+        const removeEditMode = getRemoveEditMode(lastState);
+        if (
+          result !== null &&
+          result?.index &&
+          result.index > lastState.index &&
+          removeEditMode &&
+          !removeEditMode(action)
+        ) {
+          return lastState;
+        }
+        return result;
       }
     },
     actionCreators: {
