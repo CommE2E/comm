@@ -24,6 +24,15 @@ type DatabaseStatus = $Values<typeof databaseStatuses>;
 
 const isSafari = isDesktopSafari();
 
+function downloadFile(data: Uint8Array, filename: string) {
+  const blob = new Blob([data], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+}
+
 class DatabaseModule {
   worker: SharedWorker;
   workerProxy: WorkerConnectionProxy;
@@ -64,6 +73,14 @@ class DatabaseModule {
         });
         this.status = databaseStatuses.initSuccess;
         console.info('Database initialization success');
+
+        console.log('downloading file');
+        const response = await this.workerProxy.scheduleOnWorker({
+          type: workerRequestMessageTypes.GET_FILE,
+        });
+        if (response?.data) {
+          downloadFile(response?.data, 'comm.sqlite');
+        }
       } catch (error) {
         this.status = databaseStatuses.initError;
         console.error(`Database initialization failure`, error);
