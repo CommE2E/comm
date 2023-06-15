@@ -27,6 +27,7 @@ import {
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
+import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
 import {
   defaultNumberPerThread,
   messageStoreValidator,
@@ -51,6 +52,7 @@ import { navInfoValidator } from 'web/types/nav-types.js';
 import { navInfoFromURL } from 'web/url-utils.js';
 
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
+import { fetchPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import { hasAnyNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
@@ -242,6 +244,7 @@ const initialReduxStateValidator = tShape({
   pushApiPublicKey: t.maybe(t.String),
   _persist: t.Nil,
   commServicesAccessToken: t.Nil,
+  inviteLinksStore: inviteLinksStoreValidator,
 });
 
 async function websiteResponder(
@@ -471,6 +474,21 @@ async function websiteResponder(
     return pushConfig.publicKey;
   })();
 
+  const inviteLinksStorePromise = (async () => {
+    const primaryInviteLinks = await fetchPrimaryInviteLinks(viewer);
+    const links = {};
+    for (const link of primaryInviteLinks) {
+      if (link.primary) {
+        links[link.communityID] = {
+          primaryLink: link,
+        };
+      }
+    }
+    return {
+      links,
+    };
+  })();
+
   const { jsURL, fontsURL, cssInclude, olmFilename, sqljsFilename, opaqueURL } =
     await assetInfoPromise;
 
@@ -565,6 +583,7 @@ async function websiteResponder(
     pushApiPublicKey: pushApiPublicKeyPromise,
     _persist: null,
     commServicesAccessToken: null,
+    inviteLinksStore: inviteLinksStorePromise,
   });
   const validatedInitialReduxState = validateOutput(
     viewer.platformDetails,
