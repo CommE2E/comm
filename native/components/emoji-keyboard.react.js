@@ -3,8 +3,17 @@
 import * as React from 'react';
 import EmojiPicker from 'rn-emoji-keyboard';
 
+export type EmojiType = {
+  +emoji: string,
+  +name: string,
+  +slug: string,
+  +unicode_version: string,
+  +toneEnabled: string,
+  +alreadySelected?: boolean,
+};
+
 type Props = {
-  +onEmojiSelected: (emoji: { emoji: string, ... }) => mixed,
+  +onEmojiSelected: (emoji: EmojiType) => mixed,
   +emojiKeyboardOpen: boolean,
   +onEmojiKeyboardClose: () => mixed,
 };
