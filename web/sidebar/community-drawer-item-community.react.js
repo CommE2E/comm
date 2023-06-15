@@ -13,6 +13,7 @@ import {
   getExpandButton,
 } from './community-drawer-utils.react.js';
 import ThreadAvatar from '../components/thread-avatar.react.js';
+import InviteLinksMenu from '../invite-links/invite-links-menu.react.js';
 
 function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
   const {
@@ -87,6 +88,7 @@ function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
           <ThreadAvatar size="micro" threadInfo={threadInfo} />
           <div className={titleLabel}>{uiName}</div>
         </div>
+        <InviteLinksMenu communityID={threadInfo.id} />
       </a>
       <div className={css.threadListContainer}>{children}</div>
     </div>
