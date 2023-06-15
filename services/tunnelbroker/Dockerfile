@@ -1,39 +1,36 @@
-FROM commapp/services-base:1.3.2
+FROM rust:1.70-bullseye as builder
 
-ENV PATH=/root/.cargo/bin:$PATH
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p /home/root/app/
 
-ARG COMM_TEST_SERVICES
-ARG COMM_SERVICES_SANDBOX
+WORKDIR /home/root/app
 
-ENV COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
-ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
+# Install more recent version of protobuf, must be ran as root
+COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
+RUN ../../scripts/install_protobuf.sh
 
-# Install Curl
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl
+COPY services/tunnelbroker .
 
-# Install Rust
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+COPY shared/protos ../../shared/protos
+COPY shared/tunnelbroker_messages ../../shared/tunnelbroker_messages
 
-# Copying of the installation scripts
-WORKDIR /transferred/services/tunnelbroker/docker
-COPY services/tunnelbroker/docker .
+RUN cargo install --path .
 
-# Copying of the shared code
-WORKDIR /transferred
-COPY services/lib/src/ services/lib/src/
-COPY shared/ shared/
+FROM debian:bullseye-slim as runner
 
-# Copying of the Tunnelbroker code
-WORKDIR /transferred/services/tunnelbroker
-COPY services/tunnelbroker/ .
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && useradd -m comm \
+  && mkdir -p /home/comm/app/tunnelbroker
 
-# Build Rust by Cargo
-WORKDIR /transferred/services/tunnelbroker
-RUN cargo build --release
+WORKDIR /home/comm/app/tunnelbroker
 
-CMD if [ "$COMM_TEST_SERVICES" -eq 1 ];\
-  then\
-    cargo test;\
-  else\
-    cargo run;\
-  fi
+COPY --from=builder /usr/local/cargo/bin/tunnelbroker \
+  /usr/local/bin/tunnelbroker
+
+USER comm
+
+CMD ["tunnelbroker"]
