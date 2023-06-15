@@ -1,18 +1,27 @@
 // @flow
 
 import classNames from 'classnames';
+import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
   getPotentialMemberItems,
   useSearchUsers,
+  notFriendNotice,
 } from 'lib/shared/search-utils.js';
-import { threadIsPending } from 'lib/shared/thread-utils.js';
+import {
+  createPendingThread,
+  threadIsPending,
+  useExistingThreadInfoFinder,
+} from 'lib/shared/thread-utils.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
 import css from './chat-thread-composer.css';
@@ -21,6 +30,7 @@ import Button from '../components/button.react.js';
 import Label from '../components/label.react.js';
 import Search from '../components/search.react.js';
 import type { InputState } from '../input/input-state.js';
+import Alert from '../modals/alert.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -70,17 +80,61 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const userListItemsWithENSNames = useENSNames(userListItems);
 
+  const { pushModal } = useModalContext();
+  const loggedInUserInfo = useLoggedInUserInfo();
+  invariant(loggedInUserInfo, 'loggedInUserInfo should be set');
+
+  const pendingPrivateThread = React.useRef(
+    createPendingThread({
+      viewerID: loggedInUserInfo.id,
+      threadType: threadTypes.PRIVATE,
+      members: [loggedInUserInfo],
+    }),
+  );
+  const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
+    pendingPrivateThread.current,
+  );
+
   const onSelectUserFromSearch = React.useCallback(
-    (user: AccountUserInfo) => {
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          selectedUserList: [...userInfoInputArray, user],
-        },
-      });
+    (userListItem: UserListItem) => {
+      const { alert, notice, disabled, ...user } = userListItem;
       setUsernameInputText('');
+      if (!alert) {
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            selectedUserList: [...userInfoInputArray, user],
+          },
+        });
+      } else if (
+        notice === notFriendNotice &&
+        userInfoInputArray.length === 0
+      ) {
+        const newUserInfoInputArray = [
+          { id: userListItem.id, username: userListItem.username },
+        ];
+        const threadInfo = existingThreadInfoFinderForCreatingThread({
+          searching: true,
+          userInfoInputArray: newUserInfoInputArray,
+        });
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            chatMode: 'view',
+            activeChatThreadID: threadInfo?.id,
+            pendingThread: threadInfo,
+          },
+        });
+      } else {
+        pushModal(<Alert title={alert.title}>{alert.text}</Alert>);
+      }
     },
-    [dispatch, userInfoInputArray],
+    [
+      dispatch,
+      existingThreadInfoFinderForCreatingThread,
+      pushModal,
+      userInfoInputArray,
+    ],
   );
 
   const onRemoveUserFromSelected = React.useCallback(
@@ -111,13 +165,11 @@ function ChatThreadComposer(props: Props): React.Node {
 
     const userItems = userListItemsWithENSNames.map(
       (userSearchResult: UserListItem) => {
-        const { alert, notice, disabled, ...accountUserInfo } =
-          userSearchResult;
         return (
           <li key={userSearchResult.id} className={css.searchResultsItem}>
             <Button
               variant="text"
-              onClick={() => onSelectUserFromSearch(accountUserInfo)}
+              onClick={() => onSelectUserFromSearch(userSearchResult)}
               className={css.searchResultsButton}
             >
               <div className={css.userContainer}>
