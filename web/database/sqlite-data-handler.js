@@ -17,8 +17,6 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
-const isSafari = isDesktopSafari();
-
 async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
   const encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
   if (encryptionKey) {
@@ -69,7 +67,7 @@ function SQLiteDataHandler(): React.Node {
     (async () => {
       if (currentLoggedInUserID) {
         let databaseEncryptionKeyJWK = null;
-        if (isSafari) {
+        if (isDesktopSafari) {
           databaseEncryptionKeyJWK = await getSafariEncryptionKey();
         }
         await databaseModule.initDBForLoggedInUser(

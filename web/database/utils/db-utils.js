@@ -8,6 +8,8 @@ import { isDev } from 'lib/utils/dev-utils.js';
 
 import { DB_SUPPORTED_BROWSERS, DB_SUPPORTED_OS } from './constants.js';
 
+const browser = detectBrowser();
+
 function parseSQLiteQueryResult<T>(result: QueryExecResult): T[] {
   const { columns, values } = result;
   return values.map(rowResult => {
@@ -38,16 +40,13 @@ function isSQLiteSupported(currentLoggedInUserID: ?string): boolean {
     return false;
   }
 
-  const browser = detectBrowser();
   return (
     DB_SUPPORTED_OS.includes(browser.os) &&
     DB_SUPPORTED_BROWSERS.includes(browser.name)
   );
 }
 
-function isDesktopSafari(): boolean {
-  const browser = detectBrowser();
-  return browser.name === 'safari' && browser.os === 'Mac OS';
-}
+const isDesktopSafari: boolean =
+  browser && browser.name === 'safari' && browser.os === 'Mac OS';
 
 export { parseMultiStatementSQLiteResult, isSQLiteSupported, isDesktopSafari };

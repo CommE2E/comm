@@ -22,8 +22,6 @@ const databaseStatuses = Object.freeze({
 
 type DatabaseStatus = $Values<typeof databaseStatuses>;
 
-const isSafari = isDesktopSafari();
-
 class DatabaseModule {
   worker: SharedWorker;
   workerProxy: WorkerConnectionProxy;
@@ -36,7 +34,7 @@ class DatabaseModule {
       : preloadedState.currentUserInfo?.id;
     const isSupported = isSQLiteSupported(currentLoggedInUserID);
 
-    if (!isSupported || isSafari) {
+    if (!isSupported || isDesktopSafari) {
       this.status = databaseStatuses.notSupported;
     } else {
       this.init();
