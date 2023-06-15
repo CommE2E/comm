@@ -6,7 +6,7 @@ import * as React from 'react';
 import css from './menu.css';
 import { useRenderMenu } from '../menu-provider.react.js';
 
-type MenuVariant = 'thread-actions' | 'member-actions';
+type MenuVariant = 'thread-actions' | 'member-actions' | 'community-actions';
 
 type MenuProps = {
   +icon: React.Node,
@@ -29,6 +29,7 @@ function Menu(props: MenuProps): React.Node {
   const menuActionListClasses = classnames(css.menuActionList, {
     [css.menuActionListThreadActions]: variant === 'thread-actions',
     [css.menuActionListMemberActions]: variant === 'member-actions',
+    [css.menuActionListCommunityActions]: variant === 'community-actions',
   });
 
   const menuActionList = React.useMemo(

@@ -32,6 +32,13 @@ div.menuActionListMemberActions {
   right: 5px;
 }
 
+div.menuActionListCommunityActions {
+  font-size: var(--m-font-16);
+  background-color: var(--menu-bg-light);
+  color: var(--menu-color);
+  top: 24px;
+}
+
 button.menuAction {
   color: inherit;
   z-index: 1;
