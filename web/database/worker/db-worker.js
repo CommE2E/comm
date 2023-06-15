@@ -244,6 +244,11 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_PERSIST_STORAGE_ITEM,
       item: getPersistStorageItem(sqliteDb, message.key),
     };
+  } else if (message.type === workerRequestMessageTypes.GET_FILE) {
+    return {
+      type: workerResponseMessageTypes.GET_FILE,
+      data: sqliteDb.export(),
+    };
   }
 
   // write operations
