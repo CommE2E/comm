@@ -14,9 +14,7 @@ function exitEditAlert(onDiscard: () => void): void {
       {
         text: 'Discard edit',
         style: 'destructive',
-        onPress: () => {
-          onDiscard();
-        },
+        onPress: onDiscard,
       },
     ],
   );

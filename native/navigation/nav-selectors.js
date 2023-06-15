@@ -31,6 +31,7 @@ import {
   threadRoutes,
   CommunityDrawerNavigatorRouteName,
 } from './route-names.js';
+import type { RemoveEditMode } from '../chat/message-list-types';
 import { useSelector } from '../redux/redux-utils.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
 import type { GlobalTheme } from '../types/themes.js';
@@ -316,6 +317,24 @@ const drawerSwipeEnabledSelector: (context: ?NavContextType) => boolean =
     },
   );
 
+function getRemoveEditMode(
+  chatRouteState: ?PossiblyStaleNavigationState,
+): ?RemoveEditMode {
+  if (!chatRouteState) {
+    return null;
+  }
+  const messageListRoute =
+    chatRouteState.routes[chatRouteState.routes.length - 1];
+  if (messageListRoute.name !== MessageListRouteName) {
+    return null;
+  }
+  if (!messageListRoute || !messageListRoute.params) {
+    return null;
+  }
+  const removeEditMode: Function = messageListRoute.params.removeEditMode;
+  return removeEditMode;
+}
+
 function useCurrentLeafRouteName(): ?string {
   const navContext = React.useContext(NavContext);
   return React.useMemo(() => {
@@ -342,4 +361,5 @@ export {
   useCalendarQuery,
   drawerSwipeEnabledSelector,
   useCurrentLeafRouteName,
+  getRemoveEditMode,
 };
