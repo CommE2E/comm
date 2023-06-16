@@ -237,4 +237,5 @@
   --change-member-role-modal-generic-text: var(--shades-white-100);
   --change-member-role-modal-disabled-background: var(--shades-black-80);
   --unsaved-changes-modal-text-color: var(--shades-white-60);
+  --modal-secondary-label: var(--shades-black-60);
 }
