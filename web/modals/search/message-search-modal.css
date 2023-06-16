@@ -1,0 +1,14 @@
+.content {
+  overflow-y: scroll;
+  padding: 0 10px 0 10px;
+}
+
+.content > * {
+  margin-bottom: 16px;
+}
+
+.loading {
+  text-align: center;
+  margin-bottom: 8px;
+  margin-top: 24px;
+}
