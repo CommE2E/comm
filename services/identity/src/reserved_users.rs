@@ -74,3 +74,29 @@ pub fn validate_signed_account_ownership_message(
 
   Ok(())
 }
+
+pub fn validate_add_reserved_username_message(
+  keyserver_message: &str,
+  keyserver_signature: &str,
+) -> Result<String, Status> {
+  let deserialized_message = validate_message(
+    keyserver_message,
+    keyserver_signature,
+    b"Add the following username to reserved list",
+  )?;
+
+  Ok(deserialized_message.username)
+}
+
+pub fn validate_remove_reserved_username_message(
+  keyserver_message: &str,
+  keyserver_signature: &str,
+) -> Result<String, Status> {
+  let deserialized_message = validate_message(
+    keyserver_message,
+    keyserver_signature,
+    b"Remove the following username from reserved list",
+  )?;
+
+  Ok(deserialized_message.username)
+}
