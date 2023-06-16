@@ -22,7 +22,7 @@ use crate::{
   database::{DatabaseClient, Error as DBError, KeyPayload},
   id::generate_uuid,
   nonce::generate_nonce_data,
-  reserved_users::validate_signed_keyserver_message,
+  reserved_users::validate_signed_account_ownership_message,
   siwe::parse_and_verify_siwe_message,
   token::{AccessTokenData, AuthType},
 };
@@ -202,7 +202,7 @@ impl IdentityClientService for ClientService {
       .await
       .map_err(handle_db_error)?;
     if username_in_reserved_usernames_table {
-      validate_signed_keyserver_message(
+      validate_signed_account_ownership_message(
         &message.username,
         &message.keyserver_message,
         &message.keyserver_signature,
