@@ -4,8 +4,8 @@ use opaque_ke::{errors::PakeError, keypair::KeyPair};
 use std::{collections::HashSet, env, fmt, fs, io, path};
 
 use crate::constants::{
-  AUTH_TOKEN, LOCALSTACK_ENDPOINT, SECRETS_DIRECTORY, SECRETS_FILE_EXTENSION,
-  SECRETS_FILE_NAME, SECRETS_SETUP_FILE,
+  AUTH_TOKEN, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, SECRETS_DIRECTORY,
+  SECRETS_FILE_EXTENSION, SECRETS_FILE_NAME, SECRETS_SETUP_FILE,
 };
 
 pub static CONFIG: Lazy<Config> =
@@ -26,6 +26,7 @@ pub struct Config {
   pub server_setup: comm_opaque2::ServerSetup<comm_opaque2::Cipher>,
   // Reserved usernames
   pub reserved_usernames: HashSet<String>,
+  pub keyserver_public_key: Option<String>,
 }
 
 impl Config {
@@ -46,12 +47,15 @@ impl Config {
 
     let reserved_usernames = get_reserved_usernames_set()?;
 
+    let keyserver_public_key = env::var(KEYSERVER_PUBLIC_KEY).ok();
+
     Ok(Self {
       server_keypair,
       keyserver_auth_token,
       localstack_endpoint,
       server_setup,
       reserved_usernames,
+      keyserver_public_key,
     })
   }
 }

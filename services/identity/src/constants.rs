@@ -99,6 +99,7 @@ pub const ACCESS_TOKEN_LENGTH: usize = 512;
 // Temporary config
 
 pub const AUTH_TOKEN: &str = "COMM_IDENTITY_SERVICE_AUTH_TOKEN";
+pub const KEYSERVER_PUBLIC_KEY: &str = "KEYSERVER_PUBLIC_KEY";
 
 // Nonce
 
