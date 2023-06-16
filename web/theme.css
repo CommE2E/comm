@@ -226,4 +226,5 @@
   --modal-overlay-background-90: rgba(0, 0, 0, 0.9);
   --modal-overlay-background-80: rgba(0, 0, 0, 0.8);
   --edit-avatar-button: var(--violet-dark-60);
+  --modal-secondary-label: var(--shades-black-60);
 }
