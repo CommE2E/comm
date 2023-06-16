@@ -225,4 +225,5 @@
   --pinned-count-text-color: var(--shades-white-90);
   --modal-overlay-background-90: rgba(0, 0, 0, 0.9);
   --modal-overlay-background-80: rgba(0, 0, 0, 0.8);
+  --edit-avatar-button: var(--violet-dark-60);
 }
