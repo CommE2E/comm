@@ -26,6 +26,11 @@ function ViewInviteLinkModal(props: Props): React.Node {
   const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
   const { popModal } = useModalContext();
 
+  const url = inviteLinkUrl(inviteLink.name);
+  const copyLink = React.useCallback(() => {
+    navigator.clipboard.writeText(url);
+  }, [url]);
+
   return (
     <Modal
       name={`Invite people to ${resolvedThreadInfo.uiName}`}
@@ -38,8 +43,8 @@ function ViewInviteLinkModal(props: Props): React.Node {
         </div>
         <div className={css.sectionHeader}>Public link</div>
         <div className={css.linkContainer}>
-          <div className={css.linkUrl}>{inviteLinkUrl(inviteLink.name)}</div>
-          <Button className={css.linkCopyButton}>
+          <div className={css.linkUrl}>{url}</div>
+          <Button className={css.linkCopyButton} onClick={copyLink}>
             <SWMansionIcon icon="link" size={24} />
             Copy
           </Button>
