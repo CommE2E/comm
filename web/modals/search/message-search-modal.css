@@ -12,3 +12,11 @@
   margin-bottom: 8px;
   margin-top: 24px;
 }
+
+.footer {
+  color: var(--modal-secondary-label);
+  size: 14;
+  font-weight: 400;
+  text-align: center;
+  margin: 20px;
+}

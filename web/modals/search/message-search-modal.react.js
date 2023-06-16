@@ -158,21 +158,37 @@ function MessageSearchModalContent(props: ContentProps): React.Node {
     possiblyLoadMoreMessages();
   }, [clearTooltip, possiblyLoadMoreMessages]);
 
-  const loader = React.useMemo(() => {
-    if (endReached) {
-      return null;
+  const footer = React.useMemo(() => {
+    if (query === '') {
+      return (
+        <div className={css.footer}>
+          {'Your search results will appear here'}
+        </div>
+      );
+    }
+    if (!endReached) {
+      return (
+        <div key="search-loader" className={css.loading}>
+          <LoadingIndicator status="loading" size="medium" color="white" />
+        </div>
+      );
+    }
+    if (modifiedItems.length > 0) {
+      return <div className={css.footer}>{'End of results'} </div>;
     }
     return (
-      <div key="search-loader" className={css.loading}>
-        <LoadingIndicator status="loading" size="medium" color="white" />
+      <div className={css.footer}>
+        {
+          'No results, please try using different keywords to refine your search'
+        }
       </div>
     );
-  }, [endReached]);
+  }, [query, endReached, modifiedItems.length]);
 
   return (
     <div className={css.content} ref={messageContainerRef}>
       {messages}
-      {loader}
+      {footer}
     </div>
   );
 }
