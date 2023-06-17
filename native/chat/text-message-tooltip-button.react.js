@@ -149,6 +149,8 @@ function TextMessageTooltipButton(props: Props): React.Node {
     [sendReaction, dismissTooltip],
   );
 
+  const alreadySelectedEmojis = React.useMemo(() => [], []);
+
   return (
     <MessageListContextProvider threadInfo={threadInfo}>
       <SidebarInputBarHeightMeasurer
@@ -177,6 +179,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
         onEmojiSelected={onEmojiSelected}
         emojiKeyboardOpen={emojiPickerOpen}
         onEmojiKeyboardClose={dismissTooltip}
+        alreadySelectedEmojis={alreadySelectedEmojis}
       />
     </MessageListContextProvider>
   );

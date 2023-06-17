@@ -90,6 +90,11 @@ function EmojiAvatarCreation(props: Props): React.Node {
     );
   }, [saveAvatarCallLoading, styles.loadingContainer]);
 
+  const alreadySelectedEmojis = React.useMemo(
+    () => [pendingEmoji],
+    [pendingEmoji],
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.emojiAvatarCreationContainer}>
@@ -132,6 +137,8 @@ function EmojiAvatarCreation(props: Props): React.Node {
         onEmojiSelected={onEmojiSelected}
         emojiKeyboardOpen={emojiKeyboardOpen}
         onEmojiKeyboardClose={onEmojiKeyboardClose}
+        selectMultipleEmojis={false}
+        alreadySelectedEmojis={alreadySelectedEmojis}
       />
     </View>
   );

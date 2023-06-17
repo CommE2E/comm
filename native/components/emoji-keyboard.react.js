@@ -1,8 +1,12 @@
 // @flow
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import _flatMap from 'lodash/fp/flatMap.js';
+import _flow from 'lodash/fp/flow.js';
+import _keyBy from 'lodash/fp/keyBy.js';
 import * as React from 'react';
 import EmojiPicker, { useRecentPicksPersistence } from 'rn-emoji-keyboard';
+import emojisData from 'rn-emoji-keyboard/src/assets/emojis.json';
 
 const STORAGE_KEY = 'EMOJI_KEYBOARD_RECENT';
 
@@ -20,6 +24,8 @@ const categoryOrder = [
   'search',
 ];
 
+const keyedEmojiData = _flow(_flatMap('data'), _keyBy('emoji'))(emojisData);
+
 export type EmojiSelection = {
   +emoji: string,
   +name: string,
@@ -33,10 +39,32 @@ type Props = {
   +onEmojiSelected: (emoji: EmojiSelection) => mixed,
   +emojiKeyboardOpen: boolean,
   +onEmojiKeyboardClose: () => mixed,
+  +selectMultipleEmojis?: boolean,
+  +alreadySelectedEmojis: $ReadOnlyArray<string>,
 };
 
 function EmojiKeyboard(props: Props): React.Node {
-  const { onEmojiSelected, emojiKeyboardOpen, onEmojiKeyboardClose } = props;
+  const {
+    onEmojiSelected,
+    emojiKeyboardOpen,
+    onEmojiKeyboardClose,
+    selectMultipleEmojis,
+    alreadySelectedEmojis,
+  } = props;
+
+  const [currentlySelected, setCurrentlySelected] = React.useState<
+    $ReadOnlyArray<string>,
+  >(() => alreadySelectedEmojis.map(emoji => keyedEmojiData[emoji].name));
+
+  const handleOnEmojiSelected = React.useCallback(
+    (emoji: EmojiSelection) => {
+      if (!selectMultipleEmojis) {
+        setCurrentlySelected([emoji.name]);
+      }
+      onEmojiSelected(emoji);
+    },
+    [onEmojiSelected, setCurrentlySelected, selectMultipleEmojis],
+  );
 
   const initializationCallback = React.useCallback(async () => {
     const recentlyUsedEmojis = await AsyncStorage.getItem(STORAGE_KEY);
@@ -60,13 +88,14 @@ function EmojiKeyboard(props: Props): React.Node {
 
   return (
     <EmojiPicker
-      onEmojiSelected={onEmojiSelected}
+      onEmojiSelected={handleOnEmojiSelected}
       open={emojiKeyboardOpen}
       onClose={onEmojiKeyboardClose}
       enableSearchBar
       enableSearchAnimation={false}
       enableRecentlyUsed
       categoryOrder={categoryOrder}
+      selectedEmojis={currentlySelected}
     />
   );
 }
