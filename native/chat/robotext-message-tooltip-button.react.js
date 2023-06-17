@@ -135,6 +135,8 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     [sendReaction, dismissTooltip],
   );
 
+  const alreadySelectedEmojis = React.useMemo(() => [], []);
+
   return (
     <>
       <Animated.View style={messageContainerStyle}>
@@ -153,6 +155,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
         onEmojiSelected={onEmojiSelected}
         emojiKeyboardOpen={emojiPickerOpen}
         onEmojiKeyboardClose={dismissTooltip}
+        alreadySelectedEmojis={alreadySelectedEmojis}
       />
     </>
   );
