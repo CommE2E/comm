@@ -44,7 +44,7 @@
     "@fortawesome/free-solid-svg-icons": "5.11.2",
     "@fortawesome/react-fontawesome": "0.1.5",
     "@matrix-org/olm": "3.2.14",
-    "@rainbow-me/rainbowkit": "^0.8.1",
+    "@rainbow-me/rainbowkit": "^0.12.15",
     "basscss": "8.0.2",
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
@@ -88,7 +88,7 @@
     "tinycolor2": "^1.4.1",
     "uuid": "^3.4.0",
     "visibilityjs": "^2.0.2",
-    "wagmi": "^0.8.10"
+    "wagmi": "^0.12.16"
   },
   "jest": {
     "roots": [
