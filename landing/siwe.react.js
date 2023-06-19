@@ -35,6 +35,7 @@ import {
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
+import { useMonitorForWalletConnectModal } from './walletconnect-hooks.js';
 
 const projectId = process.env.COMM_WALLETCONNECT_KEY;
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
@@ -53,6 +54,13 @@ const wagmiClient = createWagmiClient({ connectors, provider });
 
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
+}
+
+function onWalletConnectModalUpdate(update) {
+  postMessageToNativeWebView({
+    type: 'walletconnect_modal_update',
+    ...update,
+  });
 }
 
 async function signInWithEthereum(
@@ -114,41 +122,7 @@ function SIWE(): React.Node {
     prevConnectModalOpen.current = connectModalOpen;
   }, [connectModalOpen, signer]);
 
-  const newModalAppeared = React.useCallback(mutationList => {
-    for (const mutation of mutationList) {
-      for (const addedNode of mutation.addedNodes) {
-        if (
-          addedNode instanceof HTMLElement &&
-          addedNode.id === 'walletconnect-wrapper'
-        ) {
-          postMessageToNativeWebView({
-            type: 'walletconnect_modal_update',
-            state: 'open',
-          });
-        }
-      }
-      for (const addedNode of mutation.removedNodes) {
-        if (
-          addedNode instanceof HTMLElement &&
-          addedNode.id === 'walletconnect-wrapper'
-        ) {
-          postMessageToNativeWebView({
-            type: 'walletconnect_modal_update',
-            state: 'closed',
-          });
-        }
-      }
-    }
-  }, []);
-
-  React.useEffect(() => {
-    const observer = new MutationObserver(newModalAppeared);
-    invariant(document.body, 'document.body should be set');
-    observer.observe(document.body, { childList: true });
-    return () => {
-      observer.disconnect();
-    };
-  }, [newModalAppeared]);
+  useMonitorForWalletConnectModal(onWalletConnectModalUpdate);
 
   if (!hasNonce) {
     return (
