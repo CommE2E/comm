@@ -56,21 +56,6 @@ function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
 }
 
-function onWalletConnectModalUpdate(update) {
-  // Conditional is only here for Flow
-  if (update.state === 'closed') {
-    postMessageToNativeWebView({
-      type: 'walletconnect_modal_update',
-      ...update,
-    });
-  } else {
-    postMessageToNativeWebView({
-      type: 'walletconnect_modal_update',
-      ...update,
-    });
-  }
-}
-
 async function signInWithEthereum(
   address: string,
   signer,
@@ -113,23 +98,45 @@ function SIWE(): React.Node {
     }
   }, [hasNonce, openConnectModal]);
 
+  const [wcModalOpen, setWCModalOpen] = React.useState(false);
+
   const prevConnectModalOpen = React.useRef(false);
   const modalState = useModalState();
   const closeTimeoutRef = React.useRef();
   const { connectModalOpen } = modalState;
   React.useEffect(() => {
-    if (!connectModalOpen && prevConnectModalOpen.current && !signer) {
+    if (
+      !connectModalOpen &&
+      !wcModalOpen &&
+      prevConnectModalOpen.current &&
+      !signer
+    ) {
       closeTimeoutRef.current = setTimeout(
         () => postMessageToNativeWebView({ type: 'siwe_closed' }),
-        50,
+        250,
       );
     } else if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = undefined;
     }
     prevConnectModalOpen.current = connectModalOpen;
-  }, [connectModalOpen, signer]);
+  }, [connectModalOpen, wcModalOpen, signer]);
 
+  const onWalletConnectModalUpdate = React.useCallback(update => {
+    if (update.state === 'closed') {
+      setWCModalOpen(false);
+      postMessageToNativeWebView({
+        type: 'walletconnect_modal_update',
+        ...update,
+      });
+    } else {
+      setWCModalOpen(true);
+      postMessageToNativeWebView({
+        type: 'walletconnect_modal_update',
+        ...update,
+      });
+    }
+  }, []);
   useMonitorForWalletConnectModal(onWalletConnectModalUpdate);
 
   if (!hasNonce) {
