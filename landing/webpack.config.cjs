@@ -53,7 +53,7 @@ const baseProdBrowserConfig = {
 };
 
 const baseNodeServerRenderingConfig = {
-  externals: ['react', 'react-dom', 'react-redux'],
+  externals: ['react', 'react-dom', 'react-redux', 'pino-pretty', 'lokijs'],
   entry: {
     server: ['./landing-ssr.react.js'],
   },
