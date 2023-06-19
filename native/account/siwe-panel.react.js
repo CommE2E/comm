@@ -88,19 +88,24 @@ function SIWEPanel(props: Props): React.Node {
   }, [dispatchActionPromise, getSIWENonceCall]);
 
   const [isLoading, setLoading] = React.useState(true);
-  const [isWalletConnectModalOpen, setWalletConnectModalOpen] =
-    React.useState(false);
+  const [walletConnectModalHeight, setWalletConnectModalHeight] =
+    React.useState(0);
   const insets = useSafeAreaInsets();
   const bottomInset = insets.bottom;
   const snapPoints = React.useMemo(() => {
     if (isLoading) {
       return [1];
-    } else if (isWalletConnectModalOpen) {
-      return [bottomInset + 600];
+    } else if (walletConnectModalHeight) {
+      const baseHeight = bottomInset + walletConnectModalHeight;
+      if (baseHeight < 400) {
+        return [baseHeight + 3];
+      } else {
+        return [baseHeight - 17];
+      }
     } else {
       return [bottomInset + 435, bottomInset + 600];
     }
-  }, [isLoading, isWalletConnectModalOpen, bottomInset]);
+  }, [isLoading, walletConnectModalHeight, bottomInset]);
 
   const bottomSheetRef = React.useRef();
   const snapToIndex = bottomSheetRef.current?.snapToIndex;
@@ -125,7 +130,8 @@ function SIWEPanel(props: Props): React.Node {
         onClosing();
         closeBottomSheet?.();
       } else if (data.type === 'walletconnect_modal_update') {
-        setWalletConnectModalOpen(data.state === 'open');
+        const height = data.state === 'open' ? data.height : 0;
+        setWalletConnectModalHeight(height);
       }
     },
     [onSuccessfulWalletSignature, onClosing, closeBottomSheet],
@@ -153,11 +159,12 @@ function SIWEPanel(props: Props): React.Node {
     setLoading(false);
   }, []);
 
+  const walletConnectModalOpen = walletConnectModalHeight !== 0;
   const backgroundStyle = React.useMemo(
     () => ({
-      backgroundColor: '#242529',
+      backgroundColor: walletConnectModalOpen ? '#3396ff' : '#242529',
     }),
-    [],
+    [walletConnectModalOpen],
   );
 
   const bottomSheetHandleIndicatorStyle = React.useMemo(
