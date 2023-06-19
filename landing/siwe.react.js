@@ -57,10 +57,18 @@ function postMessageToNativeWebView(message: SIWEWebViewMessage) {
 }
 
 function onWalletConnectModalUpdate(update) {
-  postMessageToNativeWebView({
-    type: 'walletconnect_modal_update',
-    ...update,
-  });
+  // Conditional is only here for Flow
+  if (update.state === 'closed') {
+    postMessageToNativeWebView({
+      type: 'walletconnect_modal_update',
+      ...update,
+    });
+  } else {
+    postMessageToNativeWebView({
+      type: 'walletconnect_modal_update',
+      ...update,
+    });
+  }
 }
 
 async function signInWithEthereum(
