@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.facebook.react.bridge.ActivityEventListener;
@@ -15,7 +16,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.google.firebase.messaging.RemoteMessage;
 
 public class CommAndroidNotificationsEventEmitter
     extends ReactContextBaseJavaModule {
@@ -74,7 +74,7 @@ public class CommAndroidNotificationsEventEmitter
   }
 
   private void sendInitialNotificationFromIntentToJS(Intent intent) {
-    RemoteMessage initialNotification = intent.getParcelableExtra("message");
+    Bundle initialNotification = intent.getParcelableExtra("message");
     if (initialNotification == null) {
       return;
     }
@@ -101,7 +101,7 @@ public class CommAndroidNotificationsEventEmitter
       extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-      RemoteMessage message = intent.getParcelableExtra("message");
+      Bundle message = intent.getParcelableExtra("message");
       WritableMap jsMessage =
           CommAndroidNotificationParser.parseRemoteMessageToJSMessage(message);
       if (jsMessage != null) {

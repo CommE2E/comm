@@ -1,8 +1,8 @@
 package app.comm.android.notifications;
 
+import android.os.Bundle;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
-import com.google.firebase.messaging.RemoteMessage;
 import java.util.Set;
 
 public class CommAndroidNotificationParser {
@@ -16,15 +16,12 @@ public class CommAndroidNotificationParser {
       CommNotificationsHandler.MESSAGE_INFOS_KEY,
       CommNotificationsHandler.PREFIX_KEY);
 
-  public static WritableMap
-  parseRemoteMessageToJSMessage(RemoteMessage message) {
-    if (message.getData() == null) {
-      return null;
-    }
+  public static WritableMap parseRemoteMessageToJSMessage(Bundle messageData) {
+
     WritableMap jsMessage = Arguments.createMap();
 
     for (String key : OBLIGATORY_KEYS) {
-      String value = message.getData().get(key);
+      String value = messageData.getString(key);
       if (value == null) {
         return null;
       }
@@ -32,7 +29,7 @@ public class CommAndroidNotificationParser {
     }
 
     for (String key : OPTIONAL_KEYS) {
-      String value = message.getData().get(key);
+      String value = messageData.getString(key);
       if (value == null) {
         continue;
       }
