@@ -23,7 +23,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import { FUTURE_CODE_VERSION } from 'lib/shared/version-utils.js';
+import { NEW_CODE_VERSION } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -790,7 +790,7 @@ async function prepareAndroidNotification(
     isTextNotification &&
     !collapseKey &&
     codeVersion &&
-    codeVersion > FUTURE_CODE_VERSION;
+    codeVersion > NEW_CODE_VERSION;
 
   const notifID = collapseKey ? collapseKey : dbID;
   const { merged, ...rest } = notifTexts;
