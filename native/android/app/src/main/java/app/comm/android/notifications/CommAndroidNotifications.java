@@ -17,7 +17,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,7 +70,7 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void getInitialNotification(Promise promise) {
-    RemoteMessage initialNotification =
+    Bundle initialNotification =
         getCurrentActivity().getIntent().getParcelableExtra("message");
     if (initialNotification == null) {
       promise.resolve(null);

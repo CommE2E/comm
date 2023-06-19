@@ -138,7 +138,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     }
 
     Intent intent = new Intent(MESSAGE_EVENT);
-    intent.putExtra("message", message);
+    intent.putExtra(
+        "message", serializeMessageDataForIntentAttachment(message));
     localBroadcastManager.sendBroadcast(intent);
 
     if (this.isAppInForeground()) {
@@ -222,7 +223,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     Intent intent =
         new Intent(this.getApplicationContext(), MainActivity.class);
     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-    intent.putExtra("message", message);
+    intent.putExtra(
+        "message", serializeMessageDataForIntentAttachment(message));
 
     return PendingIntent.getActivity(
         this.getApplicationContext(),
@@ -254,5 +256,12 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
           message.getData().put(payloadFieldName, payloadFieldValue);
         });
     return message;
+  }
+
+  private Bundle
+  serializeMessageDataForIntentAttachment(RemoteMessage message) {
+    Bundle bundle = new Bundle();
+    message.getData().forEach(bundle::putString);
+    return bundle;
   }
 }
