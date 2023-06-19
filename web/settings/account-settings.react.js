@@ -77,7 +77,7 @@ function AccountSettings(): React.Node {
     );
   }
 
-  const editingAvatarsOnWebEnabled = false;
+  const editingAvatarsOnWebEnabled = true;
   let avatarNode;
   if (editingAvatarsOnWebEnabled) {
     avatarNode = <EditUserAvatar userID={currentUserInfo.id} />;
