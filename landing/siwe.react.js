@@ -36,15 +36,16 @@ import {
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
 
+const projectId = process.env.COMM_WALLETCONNECT_KEY;
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
 const connectors = connectorsForWallets([
   {
     groupName: 'Recommended',
     wallets: [
       injectedWallet({ chains }),
-      rainbowWallet({ chains }),
-      metaMaskWallet({ chains }),
-      walletConnectWallet({ chains }),
+      rainbowWallet({ chains, projectId }),
+      metaMaskWallet({ chains, projectId }),
+      walletConnectWallet({ chains, projectId }),
     ],
   },
 ]);

@@ -37,7 +37,7 @@
     "@fortawesome/react-fontawesome": "0.1.5",
     "@lottiefiles/lottie-interactivity": "^0.1.4",
     "@lottiefiles/lottie-player": "^1.0.3",
-    "@rainbow-me/rainbowkit": "^0.8.1",
+    "@rainbow-me/rainbowkit": "^0.12.15",
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
     "ethers": "^5.7.2",
@@ -50,6 +50,6 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-text-loop": "^2.3.0",
-    "wagmi": "^0.8.10"
+    "wagmi": "^0.12.16"
   }
 }
