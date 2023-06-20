@@ -31,6 +31,7 @@ import { registerConfig } from 'lib/utils/config.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
+import WebEditUserAvatarProvider from './avatars/web-edit-user-avatar-provider.react.js';
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
@@ -213,41 +214,43 @@ class App extends React.PureComponent<Props> {
     });
 
     return (
-      <div className={css.layout}>
-        <DisconnectedBarVisibilityHandler />
-        <DisconnectedBar />
-        <UpdateModalHandler />
-        <header
-          className={headerClasses}
-          onDoubleClick={this.onHeaderDoubleClick}
-        >
-          <div className={css['main-header']}>
-            <h1 className={wordmarkClasses}>
-              <a
-                title="Comm Home"
-                aria-label="Go to Comm Home"
-                onClick={this.onWordmarkClicked}
-                onDoubleClick={this.stopDoubleClickPropagation}
-              >
-                Comm
-              </a>
-            </h1>
-            {navigationArrows}
-            <div className={css['upper-right']}>
-              <LoadingIndicator
-                status={this.props.entriesLoadingStatus}
-                size="medium"
-                loadingClassName={css['page-loading']}
-                errorClassName={css['page-error']}
-              />
+      <WebEditUserAvatarProvider>
+        <div className={css.layout}>
+          <DisconnectedBarVisibilityHandler />
+          <DisconnectedBar />
+          <UpdateModalHandler />
+          <header
+            className={headerClasses}
+            onDoubleClick={this.onHeaderDoubleClick}
+          >
+            <div className={css['main-header']}>
+              <h1 className={wordmarkClasses}>
+                <a
+                  title="Comm Home"
+                  aria-label="Go to Comm Home"
+                  onClick={this.onWordmarkClicked}
+                  onDoubleClick={this.stopDoubleClickPropagation}
+                >
+                  Comm
+                </a>
+              </h1>
+              {navigationArrows}
+              <div className={css['upper-right']}>
+                <LoadingIndicator
+                  status={this.props.entriesLoadingStatus}
+                  size="medium"
+                  loadingClassName={css['page-loading']}
+                  errorClassName={css['page-error']}
+                />
+              </div>
             </div>
+          </header>
+          <InputStateContainer>{mainContent}</InputStateContainer>
+          <div className={css.sidebar}>
+            <CommunityPicker />
           </div>
-        </header>
-        <InputStateContainer>{mainContent}</InputStateContainer>
-        <div className={css.sidebar}>
-          <CommunityPicker />
         </div>
-      </div>
+      </WebEditUserAvatarProvider>
     );
   }
 
