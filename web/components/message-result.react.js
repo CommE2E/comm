@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
@@ -15,10 +16,11 @@ import { useTextMessageRulesFunc } from '../markdown/rules.react.js';
 type MessageResultProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
+  +scrollable: boolean,
 };
 
 function MessageResult(props: MessageResultProps): React.Node {
-  const { item, threadInfo } = props;
+  const { item, threadInfo, scrollable } = props;
 
   const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo);
   const messageListContext = React.useMemo(() => {
@@ -33,8 +35,13 @@ function MessageResult(props: MessageResultProps): React.Node {
     shouldShowUsername ? item.messageInfo.creator : null,
   );
 
+  const messageContainerClassNames = classNames({
+    [css.messageContainer]: true,
+    [css.messageContainerOverflow]: scrollable,
+  });
+
   return (
-    <div className={css.messageContainer}>
+    <div className={messageContainerClassNames}>
       <div>
         <div className={css.creator}>{username}</div>
         <div className={css.messageContent}>
