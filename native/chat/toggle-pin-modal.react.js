@@ -102,6 +102,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         navigation={navigation}
         route={route}
         messageVerticalBounds={null}
+        scrollable={true}
       />
       <View style={styles.buttonsContainer}>
         <Button style={modalInfo.buttonStyle} onPress={onPress}>
