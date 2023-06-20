@@ -29,6 +29,7 @@ type MessageResultProps = {
     | NavigationRoute<'MessageResultsScreen'>
     | NavigationRoute<'MessageSearch'>,
   +messageVerticalBounds: ?VerticalBounds,
+  scrollable: boolean,
 };
 
 function MessageResult(props: MessageResultProps): React.Node {
@@ -41,8 +42,19 @@ function MessageResult(props: MessageResultProps): React.Node {
     [props.item],
   );
 
+  const containerStyle = React.useMemo(() => {
+    if (!props.scrollable) {
+      return styles.container;
+    }
+    return {
+      ...styles.container,
+      overflow: 'scroll',
+      maxHeight: 400,
+    };
+  }, [props.scrollable, styles.container]);
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={containerStyle}>
       <MessageListContextProvider threadInfo={props.threadInfo}>
         <View style={styles.viewContainer}>
           <Message
@@ -67,8 +79,6 @@ const unboundStyles = {
   container: {
     marginTop: 5,
     backgroundColor: 'panelForeground',
-    overflow: 'scroll',
-    maxHeight: 400,
   },
   viewContainer: {
     marginTop: 10,

@@ -161,6 +161,7 @@ function MessageSearch(props: MessageSearchProps): React.Node {
           navigation={props.navigation}
           route={props.route}
           messageVerticalBounds={messageVerticalBounds}
+          scrollable={false}
         />
       );
     },
