@@ -48,6 +48,7 @@
     "react": "18.1.0",
     "react-icomoon": "^2.5.7",
     "react-redux": "^7.1.1",
+    "redux-persist": "^6.0.0",
     "reselect": "^4.0.0",
     "reselect-map": "^1.0.5",
     "simple-markdown": "^0.7.2",
