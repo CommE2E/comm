@@ -608,6 +608,8 @@ async function websiteResponder(
 
 const inviteSecretRegex = /^[a-z0-9]+$/i;
 
+// On native, if this responder is called, it means that the app isn't
+// installed.
 async function inviteResponder(req: $Request, res: $Response): Promise<void> {
   const { secret } = req.params;
   const userAgent = req.get('User-Agent');
@@ -624,8 +626,10 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
     res.end();
     return;
   } else if (detectionResult.os !== 'iOS') {
-    const baseRoutePath = getCommAppURLFacts()?.baseRoutePath;
-    const redirectUrl = `${baseRoutePath ?? '/'}handle/invite/${secret}`;
+    const urlFacts = getCommAppURLFacts();
+    const baseDomain = urlFacts?.baseDomain ?? '';
+    const basePath = urlFacts?.basePath ?? '/';
+    const redirectUrl = `${baseDomain}${basePath}handle/invite/${secret}`;
     res.writeHead(301, {
       Location: redirectUrl,
     });
@@ -780,7 +784,10 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
           <div class="separator"></div>
           <section class="buttons">
             <a class="button" href="${stores.appStoreUrl}">Download Comm</a>
-            <a class="button secondary" href="/invite/${secret}">
+            <a
+              class="button secondary"
+              href="https://comm.app/invite/${secret}"
+            >
               Invite Link
             </a>
           </section>
