@@ -16,6 +16,7 @@ import type {
 import Avatar from './avatar.react.js';
 import css from './emoji-avatar-selection-modal.css';
 import Modal from '../modals/modal.react.js';
+import ColorSelector from '../modals/threads/color-selector.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function EmojiAvatarSelectionModal(): React.Node {
@@ -34,7 +35,6 @@ function EmojiAvatarSelectionModal(): React.Node {
       : defaultUserAvatar.emoji,
   );
 
-  // eslint-disable-next-line no-unused-vars
   const [pendingAvatarColor, setPendingAvatarColor] = React.useState(
     currentUserAvatar.type === 'emoji'
       ? currentUserAvatar.color
@@ -53,13 +53,17 @@ function EmojiAvatarSelectionModal(): React.Node {
   return (
     <Modal
       name="Emoji avatar selection"
-      size="large"
+      size="small"
       onClose={modalContext.popModal}
     >
       <div className={css.modalBody}>
         <div className={css.avatarContainer}>
           <Avatar avatarInfo={pendingEmojiAvatar} size="profile" />
         </div>
+        <ColorSelector
+          currentColor={pendingAvatarColor}
+          onColorSelection={setPendingAvatarColor}
+        />
       </div>
     </Modal>
   );
