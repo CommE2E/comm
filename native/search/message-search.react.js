@@ -178,7 +178,7 @@ function MessageSearch(props: MessageSearchProps): React.Node {
       return <SearchFooter text="End of results" />;
     }
     const text =
-      'No results, please try using different keywords to refine your search';
+      'No results. Please try using different keywords to refine your search';
     return <SearchFooter text={text} />;
   }, [query, endReached, measuredMessages.length]);
 
