@@ -1,0 +1,20 @@
+.editAvatarBadge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 34px;
+  height: 34px;
+  color: var(--fg);
+  background-color: var(--edit-avatar-button);
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  cursor: pointer;
+  transition-duration: 200ms;
+}
+
+.editAvatarBadge:hover {
+  filter: brightness(0.8);
+}
