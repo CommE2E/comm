@@ -9,3 +9,13 @@ div.avatarContainer {
   justify-content: center;
   padding-top: 20px;
 }
+
+div.emojiPickerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div.colorSelectorContainer {
+  margin: 20px 80px;
+}

@@ -1,5 +1,7 @@
 // @flow
 
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -50,20 +52,29 @@ function EmojiAvatarSelectionModal(): React.Node {
     [pendingAvatarColor, pendingAvatarEmoji],
   );
 
+  const onEmojiSelect = React.useCallback(selection => {
+    setPendingAvatarEmoji(selection.native);
+  }, []);
+
   return (
     <Modal
       name="Emoji avatar selection"
-      size="small"
+      size="large"
       onClose={modalContext.popModal}
     >
       <div className={css.modalBody}>
         <div className={css.avatarContainer}>
           <Avatar avatarInfo={pendingEmojiAvatar} size="profile" />
         </div>
-        <ColorSelector
-          currentColor={pendingAvatarColor}
-          onColorSelection={setPendingAvatarColor}
-        />
+        <div className={css.emojiPickerContainer}>
+          <Picker data={data} theme="dark" onEmojiSelect={onEmojiSelect} />
+        </div>
+        <div className={css.colorSelectorContainer}>
+          <ColorSelector
+            currentColor={pendingAvatarColor}
+            onColorSelection={setPendingAvatarColor}
+          />
+        </div>
       </div>
     </Modal>
   );
