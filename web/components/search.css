@@ -5,6 +5,7 @@ div.searchContainer {
   margin: 1rem;
   border-radius: 8px;
   padding: 8px;
+  flex: 1;
 }
 
 div.searchIcon {
