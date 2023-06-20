@@ -122,6 +122,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
         key={item.messageInfo.id}
         item={item}
         threadInfo={threadInfo}
+        scrollable={false}
       />
     ));
     return <>{items}</>;
