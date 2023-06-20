@@ -8,8 +8,8 @@ COPY patches patches/
 COPY package.json yarn.lock postinstall.sh ./
 COPY lib/package.json lib/.flowconfig lib/
 COPY native/package.json native/.flowconfig native/
-COPY native/expo-modules/android-lifecycle/package.json \
-  native/expo-modules/android-lifecycle/
+COPY native/expo-modules/comm-expo-package/package.json \
+  native/expo-modules/comm-expo-package/
 COPY services/electron-update-server/package.json \
   services/electron-update-server/
 
