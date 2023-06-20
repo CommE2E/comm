@@ -1,11 +1,16 @@
 // @flow
 
+import { getStoredState, purgeStoredState } from 'redux-persist';
+import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
+import {
+  createAsyncMigrate,
+  type StorageMigrationFunction,
+} from 'lib/shared/create-async-migrate.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
-import { createAsyncMigrate } from './create-async-migrate.js';
 import type { AppState } from './redux-setup.js';
 import { databaseModule } from '../database/database-module-provider.js';
 import { isSQLiteSupported } from '../database/utils/db-utils.js';
@@ -67,13 +72,36 @@ const persistWhitelist = [
   'lastCommunicatedPlatformDetails',
 ];
 
+const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
+  const isSupported = await databaseModule.isDatabaseSupported();
+  if (!isSupported) {
+    return undefined;
+  }
+
+  const oldStorage = await getStoredState({ storage, key: 'root' });
+  if (!oldStorage) {
+    return undefined;
+  }
+
+  purgeStoredState({ storage, key: 'root' });
+  if (debug) {
+    console.log('redux-persist: migrating state to SQLite storage');
+  }
+
+  return oldStorage;
+};
+
 const persistConfig: PersistConfig = {
   key: 'root',
   storage: commReduxStorageEngine,
   whitelist: isDatabaseSupported
     ? persistWhitelist
     : [...persistWhitelist, 'draftStore'],
-  migrate: (createAsyncMigrate(migrations, { debug: isDev }): any),
+  migrate: (createAsyncMigrate(
+    migrations,
+    { debug: isDev },
+    migrateStorageToSQLite,
+  ): any),
   version: 2,
 };
 
