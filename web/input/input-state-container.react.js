@@ -57,6 +57,7 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   UploadMultimediaResult,
   UploadMediaMetadataRequest,
+  UploadMediaMetadataResult,
   MediaMissionStep,
   MediaMissionFailure,
   MediaMissionResult,
@@ -140,7 +141,7 @@ type Props = {
   ) => Promise<UploadMultimediaResult>,
   +uploadMediaMetadata: (
     input: UploadMediaMetadataRequest,
-  ) => Promise<UploadMultimediaResult>,
+  ) => Promise<UploadMediaMetadataResult>,
   +deleteUpload: (id: string) => Promise<void>,
   +sendMultimediaMessage: (
     threadID: string,

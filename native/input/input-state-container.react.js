@@ -53,6 +53,7 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   Dimensions,
   UploadMultimediaResult,
+  UploadMediaMetadataResult,
   Media,
   NativeMediaSelection,
   MediaMissionResult,
@@ -150,7 +151,7 @@ type Props = {
   ) => Promise<UploadMultimediaResult>,
   +uploadMediaMetadata: (
     input: UploadMediaMetadataRequest,
-  ) => Promise<UploadMultimediaResult>,
+  ) => Promise<UploadMediaMetadataResult>,
   +sendMultimediaMessage: (
     threadID: string,
     localID: string,
@@ -1174,7 +1175,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       +thumbHash: ?string,
     },
     options?: ?CallServerEndpointOptions,
-  ): Promise<void> {
+  ): Promise<UploadMediaMetadataResult> {
     const newHolder = uuid.v4();
     const blobHash = toBase64URL(input.blobHash);
 
