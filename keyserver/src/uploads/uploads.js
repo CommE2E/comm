@@ -9,7 +9,9 @@ import t, { type TInterface } from 'tcomb';
 import {
   type UploadMediaMetadataRequest,
   type UploadMultimediaResult,
+  type UploadMediaMetadataResult,
   uploadMultimediaResultValidator,
+  uploadMediaMetadataResultValidator,
   type UploadDeletionRequest,
   type Dimensions,
 } from 'lib/types/media-types.js';
@@ -126,7 +128,7 @@ const uploadMediaMetadataInputValidator = tShape<UploadMediaMetadataRequest>({
 async function uploadMediaMetadataResponder(
   viewer: Viewer,
   input: mixed,
-): Promise<UploadMultimediaResult> {
+): Promise<UploadMediaMetadataResult> {
   const request = await validateInput(
     viewer,
     uploadMediaMetadataInputValidator,
@@ -159,10 +161,15 @@ async function uploadMediaMetadataResponder(
     thumbHash: request.thumbHash,
   };
 
-  const [result] = await createUploads(viewer, [uploadInfo]);
+  const [creationResult] = await createUploads(viewer, [uploadInfo]);
+  const result: UploadMediaMetadataResult = {
+    ...creationResult,
+    blobHolder,
+    blobHash,
+  };
   return validateOutput(
     viewer.platformDetails,
-    uploadMultimediaResultValidator,
+    uploadMediaMetadataResultValidator,
     result,
   );
 }
