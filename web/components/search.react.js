@@ -12,16 +12,18 @@ type Props = {
   +searchText: string,
   +onChangeText: (searchText: string) => mixed,
   +placeholder?: string,
+  +onClearText?: () => mixed,
 };
 
 function Search(props: Props, ref): React.Node {
-  const { searchText, onChangeText, placeholder, ...rest } = props;
+  const { searchText, onChangeText, placeholder, onClearText, ...rest } = props;
 
   const showClearButton = !!searchText;
 
   const onClear = React.useCallback(() => {
     onChangeText('');
-  }, [onChangeText]);
+    onClearText?.();
+  }, [onChangeText, onClearText]);
 
   const onChange = React.useCallback(
     event => {
