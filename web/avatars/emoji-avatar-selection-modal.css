@@ -1,0 +1,11 @@
+div.modalBody {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+div.avatarContainer {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+}
