@@ -65,7 +65,9 @@
 
         <data
           android:scheme="https"
-          android:host="web.comm.app" />
+          android:host="comm.app"
+          android:pathPrefix="/invite"
+        />
       </intent-filter>
     </activity>
     <activity

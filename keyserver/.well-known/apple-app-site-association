@@ -9,13 +9,13 @@
         "appIDs": [ "H98Y8MH53M.app.comm" ],
         "components": [
           {
-            "/": "*"
+            "/": "/invite/*"
           }
         ]
       },
       {
         "appID": "H98Y8MH53M.app.comm",
-        "paths": [ "*" ]
+        "paths": [ "/invite/*" ]
       }
     ]
   }
