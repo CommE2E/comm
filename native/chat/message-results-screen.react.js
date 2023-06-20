@@ -153,6 +153,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
             navigation={navigation}
             route={route}
             messageVerticalBounds={messageVerticalBounds}
+            scrollable={false}
           />
         );
       }),
