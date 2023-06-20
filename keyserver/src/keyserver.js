@@ -109,6 +109,8 @@ import {
         downloadHandler(uploadDownloadResponder),
       );
 
+      router.get('/invite/:secret', inviteResponder);
+
       // $FlowFixMe express-ws has side effects that can't be typed
       router.ws('/ws', onConnection);
       router.get('/worker/:worker', webWorkerResponder);
@@ -127,15 +129,11 @@ import {
     // and prevent commAppRouter and landingRouter from working correctly. So we
     // make sure that squadCalRouter goes last
 
-    // This endpoint should be handled by the mobile app. If the server
-    // receives this request, it means that the app is not installed and we
-    // should redirect the user to a place from which the app can be
-    // downloaded. It's important to define it before any other router so that
-    // it won't get handled by e.g. `/` rule.
     server.get('/invite/:secret', inviteResponder);
 
     if (landingBaseRoutePath) {
       const landingRouter = express.Router();
+      landingRouter.get('/invite/:secret', inviteResponder);
       landingRouter.use('/images', express.static('images'));
       landingRouter.use('/fonts', express.static('fonts'));
       landingRouter.use(
