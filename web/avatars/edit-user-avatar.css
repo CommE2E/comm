@@ -2,6 +2,9 @@
   position: relative;
   height: 112px;
   width: 112px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .editAvatarBadge {
@@ -23,4 +26,8 @@
 
 .editAvatarBadge:hover {
   filter: brightness(0.8);
+}
+
+.editAvatarLoadingSpinner {
+  position: absolute;
 }
