@@ -76,6 +76,12 @@ function EmojiKeyboard(props: Props): React.Node {
     (emoji: EmojiSelection) => {
       if (!selectMultipleEmojis) {
         setCurrentlySelected([emoji.name]);
+      } else if (emoji.alreadySelected) {
+        setCurrentlySelected(prev =>
+          prev.filter(emojiName => emojiName !== emoji.name),
+        );
+      } else {
+        setCurrentlySelected(prev => [...prev, emoji.name]);
       }
       onEmojiSelected(emoji);
     },
