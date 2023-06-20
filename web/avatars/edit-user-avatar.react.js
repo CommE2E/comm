@@ -30,9 +30,7 @@ function EditUserAvatar(props: Props): React.Node {
         {userAvatarSaveInProgress ? loadingSpinner : undefined}
       </div>
       <UserAvatar userID={userID} size="profile" />
-      <div className={css.editAvatarBadge}>
-        <EditUserAvatarMenu />
-      </div>
+      <EditUserAvatarMenu />
     </div>
   );
 }
