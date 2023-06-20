@@ -6,10 +6,15 @@ import * as React from 'react';
 import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
+import css from './edit-user-avatar-menu.css';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 
-const editIcon = <SWMansionIcon icon="edit-2" size={20} />;
+const editIcon = (
+  <div className={css.editAvatarBadge}>
+    <SWMansionIcon icon="edit-2" size={20} />
+  </div>
+);
 
 function EditUserAvatarMenu(): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
