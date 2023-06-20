@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
-import { createMigrate, createTransform } from 'redux-persist';
+import { createTransform } from 'redux-persist';
 import type { Transform } from 'redux-persist/es/types.js';
 
 import {
@@ -14,6 +14,7 @@ import {
   convertReportsToReplaceReportOps,
 } from 'lib/ops/report-store-ops.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
+import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
 import {
   getContainingThreadID,
@@ -672,7 +673,7 @@ const persistConfig = {
   debug: __DEV__,
   version: 42,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
-  migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
+  migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
 
