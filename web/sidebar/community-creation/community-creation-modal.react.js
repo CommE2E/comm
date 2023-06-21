@@ -193,6 +193,7 @@ function CommunityCreationModal(): React.Node {
               buttonColor={
                 errorMessage ? buttonThemes.danger : buttonThemes.standard
               }
+              disabled={createNewCommunityLoadingStatus === 'loading'}
             >
               <div className={css.createCommunityButtonContent}>
                 {buttonContent}

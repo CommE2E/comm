@@ -20,6 +20,7 @@ import type {
 import Avatar from './avatar.react.js';
 import css from './emoji-avatar-selection-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
+import LoadingIndicator from '../loading-indicator.react.js';
 import Modal from '../modals/modal.react.js';
 import ColorSelector from '../modals/threads/color-selector.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -30,7 +31,7 @@ function EmojiAvatarSelectionModal(): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
 
-  const { setUserAvatar } = editUserAvatarContext;
+  const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const currentUserAvatar: ClientAvatar = getAvatarForUser(currentUserInfo);
@@ -69,6 +70,13 @@ function EmojiAvatarSelectionModal(): React.Node {
     [pendingEmojiAvatar, setUserAvatar],
   );
 
+  let saveButtonContent;
+  if (userAvatarSaveInProgress) {
+    saveButtonContent = <LoadingIndicator status="loading" size="medium" />;
+  } else {
+    saveButtonContent = 'Save Avatar';
+  }
+
   return (
     <Modal
       name="Emoji avatar selection"
@@ -93,8 +101,11 @@ function EmojiAvatarSelectionModal(): React.Node {
             variant="filled"
             buttonColor={buttonThemes.standard}
             onClick={onSaveAvatar}
+            disabled={userAvatarSaveInProgress}
           >
-            Save Avatar
+            <div className={css.saveAvatarButtonContent}>
+              {saveButtonContent}
+            </div>
           </Button>
         </div>
       </div>
