@@ -34,9 +34,8 @@ function EmojiAvatarSelectionModal(): React.Node {
 
   const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
 
-  const [errorMessage, setErrorMessage] = React.useState<?string>();
-  const [updateSuccessful, setUpdateSuccessful] =
-    React.useState<boolean>(false);
+  const [updateAvatarStatus, setUpdateAvatarStatus] =
+    React.useState<?('success' | 'failure')>();
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const currentUserAvatar: ClientAvatar = getAvatarForUser(currentUserInfo);
@@ -67,23 +66,21 @@ function EmojiAvatarSelectionModal(): React.Node {
   );
 
   const onEmojiSelect = React.useCallback(selection => {
-    setErrorMessage();
-    setUpdateSuccessful(false);
+    setUpdateAvatarStatus();
     setPendingAvatarEmoji(selection.native);
   }, []);
 
   const onColorSelection = React.useCallback((hex: string) => {
-    setErrorMessage();
-    setUpdateSuccessful(false);
+    setUpdateAvatarStatus();
     setPendingAvatarColor(hex);
   }, []);
 
   const onSaveAvatar = React.useCallback(async () => {
     try {
       await setUserAvatar(pendingEmojiAvatar);
-      setUpdateSuccessful(true);
+      setUpdateAvatarStatus('success');
     } catch {
-      setErrorMessage('Avatar update failed. Please try again.');
+      setUpdateAvatarStatus('failure');
     }
   }, [pendingEmojiAvatar, setUserAvatar]);
 
@@ -92,7 +89,7 @@ function EmojiAvatarSelectionModal(): React.Node {
   if (userAvatarSaveInProgress) {
     buttonColor = buttonThemes.standard;
     saveButtonContent = <LoadingIndicator status="loading" size="medium" />;
-  } else if (updateSuccessful) {
+  } else if (updateAvatarStatus === 'success') {
     buttonColor = buttonThemes.success;
     saveButtonContent = (
       <>
@@ -100,12 +97,12 @@ function EmojiAvatarSelectionModal(): React.Node {
         {'Avatar update succeeded.'}
       </>
     );
-  } else if (errorMessage) {
+  } else if (updateAvatarStatus === 'failure') {
     buttonColor = buttonThemes.danger;
     saveButtonContent = (
       <>
         <SWMansionIcon icon="warning-circle" size={24} />
-        {errorMessage}
+        {'Avatar update failed. Please try again.'}
       </>
     );
   } else {
