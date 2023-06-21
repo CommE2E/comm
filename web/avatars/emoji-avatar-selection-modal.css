@@ -25,3 +25,10 @@ div.saveButtonContainer {
   display: flex;
   flex-direction: column;
 }
+
+div.saveAvatarButtonContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 24px;
+}
