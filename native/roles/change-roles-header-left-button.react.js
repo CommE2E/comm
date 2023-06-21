@@ -31,7 +31,7 @@ function ChangeRolesHeaderLeftButton(
 
     Alert.alert(
       'Discard changes?',
-      'You have unsaved changes which will be discarded if you navigate away',
+      'You have unsaved changes which will be discarded if you navigate away.',
       [
         { text: 'Leave', onPress },
         { text: 'Stay', style: 'cancel' },
