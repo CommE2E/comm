@@ -6,14 +6,16 @@ import * as React from 'react';
 import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
 
 import css from './avatar.css';
+import LoadingIndicator from '../loading-indicator.react.js';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
   +size: 'micro' | 'small' | 'large' | 'profile',
+  +showSpinner?: boolean,
 };
 
 function Avatar(props: Props): React.Node {
-  const { avatarInfo, size } = props;
+  const { avatarInfo, size, showSpinner } = props;
 
   const containerSizeClassName = classnames({
     [css.imgContainer]: avatarInfo.type === 'image',
@@ -63,7 +65,32 @@ function Avatar(props: Props): React.Node {
     emojiSizeClassName,
   ]);
 
-  return avatar;
+  let loadingIndicatorSize;
+  if (size === 'micro') {
+    loadingIndicatorSize = 'small';
+  } else if (size === 'small') {
+    loadingIndicatorSize = 'small';
+  } else if (size === 'large') {
+    loadingIndicatorSize = 'medium';
+  } else {
+    loadingIndicatorSize = 'large';
+  }
+
+  const loadingIndicator = React.useMemo(
+    () => (
+      <div className={css.editAvatarLoadingSpinner}>
+        <LoadingIndicator status="loading" size={loadingIndicatorSize} />
+      </div>
+    ),
+    [loadingIndicatorSize],
+  );
+
+  return (
+    <div className={css.avatarContainer}>
+      {showSpinner ? loadingIndicator : null}
+      {avatar}
+    </div>
+  );
 }
 
 export default Avatar;

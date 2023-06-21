@@ -118,7 +118,11 @@ function EmojiAvatarSelectionModal(): React.Node {
     >
       <div className={css.modalBody}>
         <div className={css.avatarContainer}>
-          <Avatar avatarInfo={pendingEmojiAvatar} size="profile" />
+          <Avatar
+            avatarInfo={pendingEmojiAvatar}
+            size="profile"
+            showSpinner={userAvatarSaveInProgress}
+          />
         </div>
         <div className={css.emojiPickerContainer}>
           <Picker data={data} theme="dark" onEmojiSelect={onEmojiSelect} />
