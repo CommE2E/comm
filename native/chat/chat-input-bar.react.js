@@ -111,6 +111,8 @@ import {
   activeThreadSelector,
 } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
+import type { OverlayContextType } from '../navigation/overlay-context.js';
 import {
   type NavigationRoute,
   ChatCameraModalRouteName,
@@ -170,6 +172,7 @@ type Props = {
     text: string,
   ) => Promise<SendEditMessageResponse>,
   +navigation: ?ChatNavigationProp<'MessageList'>,
+  +overlayContext: ?OverlayContextType,
 };
 type State = {
   +text: string,
@@ -901,8 +904,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.unblockNavigation();
       navigation.dispatch(action);
     };
+    const onContinueEditing = () => {
+      this.props.overlayContext?.resetScrollBlockingModalStatus();
+    };
     exitEditAlert({
       onDiscard: unblockAndDispatch,
+      onContinueEditing,
     });
     return 'ignore_action';
   };
@@ -1197,6 +1204,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const navContext = React.useContext(NavContext);
   const keyboardState = React.useContext(KeyboardContext);
   const inputState = React.useContext(InputStateContext);
+  const overlayContext = React.useContext(OverlayContext);
 
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
@@ -1276,6 +1284,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       editedMessageInfo={editedMessageInfo}
       editMessage={editMessage}
       navigation={props.navigation}
+      overlayContext={overlayContext}
     />
   );
 }
