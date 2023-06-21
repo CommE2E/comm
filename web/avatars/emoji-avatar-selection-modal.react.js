@@ -35,6 +35,8 @@ function EmojiAvatarSelectionModal(): React.Node {
   const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
 
   const [errorMessage, setErrorMessage] = React.useState<?string>();
+  const [updateSuccessful, setUpdateSuccessful] =
+    React.useState<boolean>(false);
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const currentUserAvatar: ClientAvatar = getAvatarForUser(currentUserInfo);
@@ -66,26 +68,40 @@ function EmojiAvatarSelectionModal(): React.Node {
 
   const onEmojiSelect = React.useCallback(selection => {
     setErrorMessage();
+    setUpdateSuccessful(false);
     setPendingAvatarEmoji(selection.native);
   }, []);
 
   const onColorSelection = React.useCallback((hex: string) => {
     setErrorMessage();
+    setUpdateSuccessful(false);
     setPendingAvatarColor(hex);
   }, []);
 
   const onSaveAvatar = React.useCallback(async () => {
     try {
       await setUserAvatar(pendingEmojiAvatar);
+      setUpdateSuccessful(true);
     } catch {
       setErrorMessage('Avatar update failed. Please try again.');
     }
   }, [pendingEmojiAvatar, setUserAvatar]);
 
   let saveButtonContent;
+  let buttonColor;
   if (userAvatarSaveInProgress) {
+    buttonColor = buttonThemes.standard;
     saveButtonContent = <LoadingIndicator status="loading" size="medium" />;
+  } else if (updateSuccessful) {
+    buttonColor = buttonThemes.success;
+    saveButtonContent = (
+      <>
+        <SWMansionIcon icon="check-circle" size={24} />
+        {'Avatar update succeeded.'}
+      </>
+    );
   } else if (errorMessage) {
+    buttonColor = buttonThemes.danger;
     saveButtonContent = (
       <>
         <SWMansionIcon icon="warning-circle" size={24} />
@@ -93,6 +109,7 @@ function EmojiAvatarSelectionModal(): React.Node {
       </>
     );
   } else {
+    buttonColor = buttonThemes.standard;
     saveButtonContent = 'Save Avatar';
   }
 
@@ -114,9 +131,7 @@ function EmojiAvatarSelectionModal(): React.Node {
         <div className={css.saveButtonContainer}>
           <Button
             variant="filled"
-            buttonColor={
-              errorMessage ? buttonThemes.danger : buttonThemes.standard
-            }
+            buttonColor={buttonColor}
             onClick={onSaveAvatar}
             disabled={userAvatarSaveInProgress}
           >
