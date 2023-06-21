@@ -1,3 +1,14 @@
+.avatarContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.editAvatarLoadingSpinner {
+  position: absolute;
+}
+
 .emojiContainer {
   display: flex;
   align-items: center;
