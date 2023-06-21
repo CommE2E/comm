@@ -8,9 +8,6 @@ import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-prov
 import EditUserAvatarMenu from './edit-user-avatar-menu.react.js';
 import css from './edit-user-avatar.css';
 import UserAvatar from './user-avatar.react.js';
-import LoadingIndicator from '../loading-indicator.react.js';
-
-const loadingSpinner = <LoadingIndicator status="loading" size="large" />;
 
 type Props = {
   +userID: ?string,
@@ -26,10 +23,11 @@ function EditUserAvatar(props: Props): React.Node {
 
   return (
     <div className={css.editUserAvatarContainer}>
-      <div className={css.editAvatarLoadingSpinner}>
-        {userAvatarSaveInProgress ? loadingSpinner : undefined}
-      </div>
-      <UserAvatar userID={userID} size="profile" />
+      <UserAvatar
+        userID={userID}
+        size="profile"
+        showSpinner={userAvatarSaveInProgress}
+      />
       {!userAvatarSaveInProgress ? <EditUserAvatarMenu /> : undefined}
     </div>
   );

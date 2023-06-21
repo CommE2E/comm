@@ -13,10 +13,11 @@ import { useSelector } from '../redux/redux-utils.js';
 type Props = {
   +userID: ?string,
   +size: 'micro' | 'small' | 'large' | 'profile',
+  +showSpinner?: boolean,
 };
 
 function UserAvatar(props: Props): React.Node {
-  const { userID, size } = props;
+  const { userID, size, showSpinner } = props;
 
   const userInfo = useSelector(state =>
     userID ? state.userStore.userInfos[userID] : null,
@@ -25,7 +26,13 @@ function UserAvatar(props: Props): React.Node {
 
   const resolvedUserAvatar = useENSResolvedAvatar(avatarInfo, userInfo);
 
-  return <Avatar size={size} avatarInfo={resolvedUserAvatar} />;
+  return (
+    <Avatar
+      size={size}
+      avatarInfo={resolvedUserAvatar}
+      showSpinner={showSpinner}
+    />
+  );
 }
 
 export default UserAvatar;
