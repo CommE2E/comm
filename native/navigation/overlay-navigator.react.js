@@ -157,6 +157,10 @@ const OverlayNavigator = React.memo<Props>(
     };
     const [scrollBlockingModalStatus, setScrollBlockingModalStatus] =
       React.useState(() => getScrollBlockingModalStatus(scenes));
+
+    const resetScrollBlockingModalStatus = () =>
+      setScrollBlockingModalStatus(getScrollBlockingModalStatus(sceneList));
+
     const sceneDataForNewScene = scene => ({
       ...scene,
       context: {
@@ -164,6 +168,7 @@ const OverlayNavigator = React.memo<Props>(
         visibleOverlays,
         scrollBlockingModalStatus,
         setScrollBlockingModalStatus,
+        resetScrollBlockingModalStatus,
       },
       ordering: {
         ...scene.ordering,
