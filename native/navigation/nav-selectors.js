@@ -317,6 +317,44 @@ const drawerSwipeEnabledSelector: (context: ?NavContextType) => boolean =
     },
   );
 
+function getChatNavState(
+  navigationState: ?PossiblyStaleNavigationState,
+): ?PossiblyStaleNavigationState {
+  if (!navigationState) {
+    return null;
+  }
+  const [firstAppSubroute] = navigationState.routes;
+  if (firstAppSubroute.name !== CommunityDrawerNavigatorRouteName) {
+    return null;
+  }
+
+  const communityDrawerState = getStateFromNavigatorRoute(firstAppSubroute);
+  const [firstCommunityDrawerSubroute] = communityDrawerState.routes;
+  if (firstCommunityDrawerSubroute.name !== TabNavigatorRouteName) {
+    return null;
+  }
+
+  const tabState = getStateFromNavigatorRoute(firstCommunityDrawerSubroute);
+  if (!tabState) {
+    return null;
+  }
+  let chatRoute;
+  for (const route of tabState.routes) {
+    if (route.name === ChatRouteName) {
+      chatRoute = route;
+      break;
+    }
+  }
+  if (!chatRoute || !chatRoute.state) {
+    return null;
+  }
+  const chatRouteState = getStateFromNavigatorRoute(chatRoute);
+  if (chatRouteState.type !== 'stack') {
+    return null;
+  }
+  return chatRouteState;
+}
+
 function getRemoveEditMode(
   chatRouteState: ?PossiblyStaleNavigationState,
 ): ?RemoveEditMode {
@@ -362,4 +400,5 @@ export {
   drawerSwipeEnabledSelector,
   useCurrentLeafRouteName,
   getRemoveEditMode,
+  getChatNavState,
 };
