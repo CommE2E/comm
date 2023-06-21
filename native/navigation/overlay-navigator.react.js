@@ -28,6 +28,7 @@ import OverlayRouter from './overlay-router.js';
 import type { OverlayRouterExtraNavigationHelpers } from './overlay-router.js';
 import { scrollBlockingModals, TabNavigatorRouteName } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
+import { InputStateContext } from '../input/input-state.js';
 
 export type OverlayNavigationHelpers<ParamList: ParamListBase = ParamListBase> =
   {
@@ -155,8 +156,17 @@ const OverlayNavigator = React.memo<Props>(
       }
       return status;
     };
-    const [scrollBlockingModalStatus, setScrollBlockingModalStatus] =
+    const [rawScrollBlockingModalStatus, setScrollBlockingModalStatus] =
       React.useState(() => getScrollBlockingModalStatus(scenes));
+
+    const inputState = React.useContext(InputStateContext);
+    const scrollBlockingModalStatus = React.useMemo(() => {
+      if (inputState?.editState.editedMessage !== null) {
+        return 'closed';
+      }
+      return rawScrollBlockingModalStatus;
+    }, [inputState?.editState, rawScrollBlockingModalStatus]);
+
     const sceneDataForNewScene = scene => ({
       ...scene,
       context: {
