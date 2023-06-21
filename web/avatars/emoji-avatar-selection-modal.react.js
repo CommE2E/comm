@@ -127,8 +127,15 @@ function EmojiAvatarSelectionModal(): React.Node {
         </div>
         <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
           <Tabs.Item id="emoji" header="Emoji">
-            <div className={css.emojiPickerContainer}>
-              <Picker data={data} theme="dark" onEmojiSelect={onEmojiSelect} />
+            <div className={css.tabBody}>
+              <div className={css.emojiPickerContainer}>
+                <Picker
+                  data={data}
+                  theme="dark"
+                  onEmojiSelect={onEmojiSelect}
+                  perLine={12}
+                />
+              </div>
             </div>
           </Tabs.Item>
           <Tabs.Item id="color" header="Color">

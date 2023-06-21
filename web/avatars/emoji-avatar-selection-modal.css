@@ -2,10 +2,23 @@ div.modalContainer {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 594px;
+}
+
+/* https://github.com/missive/emoji-mart/discussions/663 */
+em-emoji-picker {
+  max-height: 300px;
 }
 
 div.modalBody {
   padding: 20px;
+}
+
+div.tabBody {
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 div.avatarContainer {
