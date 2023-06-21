@@ -4,8 +4,7 @@ import * as React from 'react';
 
 import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
 
-const displayAvatarUpdateFailureAlert = () =>
-  alert('Couldn&rsquo;t save avatar. Please try again later.');
+const displayAvatarUpdateFailureAlert = () => null;
 
 // TODO: Implement `selectFromGallery(...)` for `web`.
 const selectFromGallery = async () => null;

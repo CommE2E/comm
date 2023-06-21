@@ -7,6 +7,7 @@ import * as React from 'react';
 
 import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   defaultAnonymousUserEmojiAvatar,
   getAvatarForUser,
@@ -32,6 +33,8 @@ function EmojiAvatarSelectionModal(): React.Node {
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
 
   const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
+
+  const [errorMessage, setErrorMessage] = React.useState<?string>();
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const currentUserAvatar: ClientAvatar = getAvatarForUser(currentUserInfo);
@@ -62,17 +65,33 @@ function EmojiAvatarSelectionModal(): React.Node {
   );
 
   const onEmojiSelect = React.useCallback(selection => {
+    setErrorMessage();
     setPendingAvatarEmoji(selection.native);
   }, []);
 
-  const onSaveAvatar = React.useCallback(
-    () => setUserAvatar(pendingEmojiAvatar),
-    [pendingEmojiAvatar, setUserAvatar],
-  );
+  const onColorSelection = React.useCallback((hex: string) => {
+    setErrorMessage();
+    setPendingAvatarColor(hex);
+  }, []);
+
+  const onSaveAvatar = React.useCallback(async () => {
+    try {
+      await setUserAvatar(pendingEmojiAvatar);
+    } catch {
+      setErrorMessage('Avatar update failed. Please try again.');
+    }
+  }, [pendingEmojiAvatar, setUserAvatar]);
 
   let saveButtonContent;
   if (userAvatarSaveInProgress) {
     saveButtonContent = <LoadingIndicator status="loading" size="medium" />;
+  } else if (errorMessage) {
+    saveButtonContent = (
+      <>
+        <SWMansionIcon icon="warning-circle" size={24} />
+        {errorMessage}
+      </>
+    );
   } else {
     saveButtonContent = 'Save Avatar';
   }
@@ -93,18 +112,21 @@ function EmojiAvatarSelectionModal(): React.Node {
         <div className={css.colorSelectorContainer}>
           <ColorSelector
             currentColor={pendingAvatarColor}
-            onColorSelection={setPendingAvatarColor}
+            onColorSelection={onColorSelection}
           />
         </div>
         <div className={css.saveButtonContainer}>
           <Button
             variant="filled"
-            buttonColor={buttonThemes.standard}
+            buttonColor={
+              errorMessage ? buttonThemes.danger : buttonThemes.standard
+            }
             onClick={onSaveAvatar}
             disabled={userAvatarSaveInProgress}
           >
-            <div className={css.saveAvatarButtonContent}></div>
-            {saveButtonContent}
+            <div className={css.saveAvatarButtonContent}>
+              {saveButtonContent}
+            </div>
           </Button>
         </div>
       </div>
