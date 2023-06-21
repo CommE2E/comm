@@ -163,9 +163,21 @@ class App extends React.PureComponent<Props> {
   render() {
     let content;
     if (this.props.loggedIn) {
-      content = this.renderMainContent();
+      content = (
+        <>
+          <WebEditUserAvatarProvider>
+            {this.renderMainContent()}
+            {this.props.modals}
+          </WebEditUserAvatarProvider>
+        </>
+      );
     } else {
-      content = <Splash />;
+      content = (
+        <>
+          <Splash />
+          {this.props.modals}
+        </>
+      );
     }
     return (
       <DndProvider backend={HTML5Backend}>
@@ -181,7 +193,6 @@ class App extends React.PureComponent<Props> {
                   <PushNotificationsHandler />
                   <InviteLinkHandler />
                   {content}
-                  {this.props.modals}
                 </WagmiENSCacheProvider>
               </WagmiConfig>
             </MenuProvider>
@@ -214,43 +225,41 @@ class App extends React.PureComponent<Props> {
     });
 
     return (
-      <WebEditUserAvatarProvider>
-        <div className={css.layout}>
-          <DisconnectedBarVisibilityHandler />
-          <DisconnectedBar />
-          <UpdateModalHandler />
-          <header
-            className={headerClasses}
-            onDoubleClick={this.onHeaderDoubleClick}
-          >
-            <div className={css['main-header']}>
-              <h1 className={wordmarkClasses}>
-                <a
-                  title="Comm Home"
-                  aria-label="Go to Comm Home"
-                  onClick={this.onWordmarkClicked}
-                  onDoubleClick={this.stopDoubleClickPropagation}
-                >
-                  Comm
-                </a>
-              </h1>
-              {navigationArrows}
-              <div className={css['upper-right']}>
-                <LoadingIndicator
-                  status={this.props.entriesLoadingStatus}
-                  size="medium"
-                  loadingClassName={css['page-loading']}
-                  errorClassName={css['page-error']}
-                />
-              </div>
+      <div className={css.layout}>
+        <DisconnectedBarVisibilityHandler />
+        <DisconnectedBar />
+        <UpdateModalHandler />
+        <header
+          className={headerClasses}
+          onDoubleClick={this.onHeaderDoubleClick}
+        >
+          <div className={css['main-header']}>
+            <h1 className={wordmarkClasses}>
+              <a
+                title="Comm Home"
+                aria-label="Go to Comm Home"
+                onClick={this.onWordmarkClicked}
+                onDoubleClick={this.stopDoubleClickPropagation}
+              >
+                Comm
+              </a>
+            </h1>
+            {navigationArrows}
+            <div className={css['upper-right']}>
+              <LoadingIndicator
+                status={this.props.entriesLoadingStatus}
+                size="medium"
+                loadingClassName={css['page-loading']}
+                errorClassName={css['page-error']}
+              />
             </div>
-          </header>
-          <InputStateContainer>{mainContent}</InputStateContainer>
-          <div className={css.sidebar}>
-            <CommunityPicker />
           </div>
+        </header>
+        <InputStateContainer>{mainContent}</InputStateContainer>
+        <div className={css.sidebar}>
+          <CommunityPicker />
         </div>
-      </WebEditUserAvatarProvider>
+      </div>
     );
   }
 
