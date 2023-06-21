@@ -17,6 +17,7 @@ import {
 } from '@react-navigation/native';
 import { TransitionPresets } from '@react-navigation/stack';
 import invariant from 'invariant';
+import _values from 'lodash/values.js';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, { EasingNode } from 'react-native-reanimated';
@@ -157,6 +158,13 @@ const OverlayNavigator = React.memo<Props>(
     };
     const [scrollBlockingModalStatus, setScrollBlockingModalStatus] =
       React.useState(() => getScrollBlockingModalStatus(scenes));
+
+    const resetScrollBlockingModalStatus = React.useCallback(() => {
+      setScrollBlockingModalStatus(
+        getScrollBlockingModalStatus(_values(prevSceneDataRef.current)),
+      );
+    }, []);
+
     const sceneDataForNewScene = scene => ({
       ...scene,
       context: {
@@ -164,6 +172,7 @@ const OverlayNavigator = React.memo<Props>(
         visibleOverlays,
         scrollBlockingModalStatus,
         setScrollBlockingModalStatus,
+        resetScrollBlockingModalStatus,
       },
       ordering: {
         ...scene.ordering,
