@@ -1,6 +1,13 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .content {
   overflow-y: scroll;
-  padding: 0 10px;
+  border-top: 2px solid var(--border-color);
+  padding: 16px 26px;
 }
 
 .content > * {
@@ -19,4 +26,14 @@
   font-weight: 400;
   text-align: center;
   margin: 20px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  margin: 16px;
+}
+
+.button {
+  margin: 10px 10px 10px 0;
 }
