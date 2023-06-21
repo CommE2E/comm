@@ -228,6 +228,15 @@ function MessageSearchModal(props: Props): React.Node {
     [clearQuery, threadInfo.id],
   );
 
+  const onKeyDown = React.useCallback(
+    event => {
+      if (event.key === 'Enter') {
+        onPressSearch();
+      }
+    },
+    [onPressSearch],
+  );
+
   return (
     <Modal name="Search Message" onClose={popModal} size="large">
       <div className={css.container}>
@@ -237,6 +246,7 @@ function MessageSearchModal(props: Props): React.Node {
             searchText={input}
             placeholder={searchPlaceholder}
             onClearText={clearQueryWrapper}
+            onKeyDown={onKeyDown}
           />
           <Button
             onClick={onPressSearch}
