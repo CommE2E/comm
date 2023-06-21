@@ -2,6 +2,7 @@ div.modalBody {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 20px;
 }
 
 div.avatarContainer {
@@ -17,5 +18,10 @@ div.emojiPickerContainer {
 }
 
 div.colorSelectorContainer {
-  margin: 20px 80px;
+  margin: 20px 60px;
+}
+
+div.saveButtonContainer {
+  display: flex;
+  flex-direction: column;
 }

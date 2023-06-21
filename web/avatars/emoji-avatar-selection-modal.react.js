@@ -2,8 +2,10 @@
 
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import invariant from 'invariant';
 import * as React from 'react';
 
+import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import {
   defaultAnonymousUserEmojiAvatar,
@@ -17,12 +19,18 @@ import type {
 
 import Avatar from './avatar.react.js';
 import css from './emoji-avatar-selection-modal.css';
+import Button, { buttonThemes } from '../components/button.react.js';
 import Modal from '../modals/modal.react.js';
 import ColorSelector from '../modals/threads/color-selector.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function EmojiAvatarSelectionModal(): React.Node {
   const { popModal } = useModalContext();
+
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
+
+  const { setUserAvatar } = editUserAvatarContext;
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const currentUserAvatar: ClientAvatar = getAvatarForUser(currentUserInfo);
@@ -56,6 +64,11 @@ function EmojiAvatarSelectionModal(): React.Node {
     setPendingAvatarEmoji(selection.native);
   }, []);
 
+  const onSaveAvatar = React.useCallback(
+    () => setUserAvatar(pendingEmojiAvatar),
+    [pendingEmojiAvatar, setUserAvatar],
+  );
+
   return (
     <Modal name="Emoji avatar selection" size="large" onClose={popModal}>
       <div className={css.modalBody}>
@@ -70,6 +83,15 @@ function EmojiAvatarSelectionModal(): React.Node {
             currentColor={pendingAvatarColor}
             onColorSelection={setPendingAvatarColor}
           />
+        </div>
+        <div className={css.saveButtonContainer}>
+          <Button
+            variant="filled"
+            buttonColor={buttonThemes.standard}
+            onClick={onSaveAvatar}
+          >
+            Save Avatar
+          </Button>
         </div>
       </div>
     </Modal>
