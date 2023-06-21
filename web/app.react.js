@@ -59,6 +59,7 @@ import PolicyAcknowledgmentHandler from './redux/policy-acknowledgment-handler.j
 import { useSelector } from './redux/redux-utils.js';
 import VisibilityHandler from './redux/visibility-handler.react.js';
 import history from './router-history.js';
+import { MessageSearchStateProvider } from './search/message-search-state-provider.react.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
 import CommunityPicker from './sidebar/community-picker.react.js';
@@ -187,14 +188,16 @@ class App extends React.PureComponent<Props> {
             <MenuProvider>
               <WagmiConfig client={wagmiClient}>
                 <WagmiENSCacheProvider>
-                  <FocusHandler />
-                  <VisibilityHandler />
-                  <DeviceIDUpdater />
-                  <PolicyAcknowledgmentHandler />
-                  <PushNotificationsHandler />
-                  <InviteLinkHandler />
-                  <InviteLinksRefresher />
-                  {content}
+                  <MessageSearchStateProvider>
+                    <FocusHandler />
+                    <VisibilityHandler />
+                    <DeviceIDUpdater />
+                    <PolicyAcknowledgmentHandler />
+                    <PushNotificationsHandler />
+                    <InviteLinkHandler />
+                    <InviteLinksRefresher />
+                    {content}
+                  </MessageSearchStateProvider>
                 </WagmiENSCacheProvider>
               </WagmiConfig>
             </MenuProvider>
