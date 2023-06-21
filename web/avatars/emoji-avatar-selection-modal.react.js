@@ -21,10 +21,13 @@ import type {
 import Avatar from './avatar.react.js';
 import css from './emoji-avatar-selection-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
+import Tabs from '../components/tabs.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Modal from '../modals/modal.react.js';
 import ColorSelector from '../modals/threads/color-selector.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+
+type TabType = 'emoji' | 'color';
 
 function EmojiAvatarSelectionModal(): React.Node {
   const { popModal } = useModalContext();
@@ -110,9 +113,11 @@ function EmojiAvatarSelectionModal(): React.Node {
     saveButtonContent = 'Save Avatar';
   }
 
+  const [currentTabType, setCurrentTabType] = React.useState<TabType>('emoji');
+
   return (
     <Modal name="Emoji avatar selection" size="large" onClose={popModal}>
-      <div className={css.modalBody}>
+      <div className={css.modalContainer}>
         <div className={css.avatarContainer}>
           <Avatar
             avatarInfo={pendingEmojiAvatar}
@@ -120,26 +125,34 @@ function EmojiAvatarSelectionModal(): React.Node {
             showSpinner={userAvatarSaveInProgress}
           />
         </div>
-        <div className={css.emojiPickerContainer}>
-          <Picker data={data} theme="dark" onEmojiSelect={onEmojiSelect} />
-        </div>
-        <div className={css.colorSelectorContainer}>
-          <ColorSelector
-            currentColor={pendingAvatarColor}
-            onColorSelection={onColorSelection}
-          />
-        </div>
-        <div className={css.saveButtonContainer}>
-          <Button
-            variant="filled"
-            buttonColor={buttonColor}
-            onClick={onSaveAvatar}
-            disabled={userAvatarSaveInProgress}
-          >
-            <div className={css.saveAvatarButtonContent}>
-              {saveButtonContent}
+        <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
+          <Tabs.Item id="emoji" header="Emoji">
+            <div className={css.emojiPickerContainer}>
+              <Picker data={data} theme="dark" onEmojiSelect={onEmojiSelect} />
             </div>
-          </Button>
+          </Tabs.Item>
+          <Tabs.Item id="color" header="Color">
+            <div className={css.colorSelectorContainer}>
+              <ColorSelector
+                currentColor={pendingAvatarColor}
+                onColorSelection={onColorSelection}
+              />
+            </div>
+          </Tabs.Item>
+        </Tabs.Container>
+        <div className={css.modalBody}>
+          <div className={css.saveButtonContainer}>
+            <Button
+              variant="filled"
+              buttonColor={buttonColor}
+              onClick={onSaveAvatar}
+              disabled={userAvatarSaveInProgress}
+            >
+              <div className={css.saveAvatarButtonContent}>
+                {saveButtonContent}
+              </div>
+            </Button>
+          </div>
         </div>
       </div>
     </Modal>

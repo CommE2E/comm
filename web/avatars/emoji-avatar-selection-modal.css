@@ -1,7 +1,10 @@
-div.modalBody {
+div.modalContainer {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+div.modalBody {
   padding: 20px;
 }
 
