@@ -15,6 +15,7 @@ import {
   clearOverlayModalsActionType,
   setRouteParamsActionType,
 } from './action-types.js';
+import { getRemoveEditMode, getChatNavState } from './nav-selectors.js';
 import { removeScreensFromStack } from './navigation-utils.js';
 
 type ClearOverlayModalsAction = {
@@ -56,6 +57,8 @@ function OverlayRouter(
       action: OverlayRouterNavigationAction,
       options: RouterConfigOptions,
     ) => {
+      const chatNavState = getChatNavState(lastState);
+      const removeEditMode = getRemoveEditMode(chatNavState);
       if (action.type === clearOverlayModalsActionType) {
         const { keys } = action.payload;
         if (!lastState) {
@@ -81,6 +84,8 @@ function OverlayRouter(
           ...lastState,
           routes: newRoutes,
         };
+      } else if (removeEditMode && removeEditMode(action) === 'ignore_action') {
+        return lastState;
       } else {
         return baseGetStateForAction(lastState, action, options);
       }
