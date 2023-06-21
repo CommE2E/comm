@@ -31,4 +31,5 @@ div.saveAvatarButtonContent {
   justify-content: center;
   align-items: center;
   min-height: 24px;
+  gap: 4px;
 }
