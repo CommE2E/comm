@@ -18,10 +18,13 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './message-search-modal.css';
 import { useTooltipContext } from '../../chat/tooltip-provider.js';
+import Button from '../../components/button.react.js';
 import MessageResult from '../../components/message-result.react.js';
+import Search from '../../components/search.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import SearchModal from '../search-modal.react.js';
+import { useMessageSearchContext } from '../../search/message-search-state-provider.react.js';
+import Modal from '../modal.react.js';
 
 type ContentProps = {
   +query: string,
@@ -202,25 +205,43 @@ function MessageSearchModal(props: Props): React.Node {
   const { threadInfo } = props;
   const { popModal } = useModalContext();
 
-  const renderModalContent = React.useCallback(
-    (searchText: string) => (
-      <MessageSearchModalContent threadInfo={threadInfo} query={searchText} />
-    ),
-    [threadInfo],
+  const { query, setQuery, clearQuery } = useMessageSearchContext();
+
+  const [input, setInput] = React.useState(query);
+
+  const onClearText = React.useCallback(() => clearQuery(), [clearQuery]);
+
+  const onPressSearch = React.useCallback(
+    () => setQuery(input),
+    [setQuery, input],
   );
+
+  const button = React.useMemo(() => {
+    return (
+      <Button onClick={onPressSearch} variant="filled" className={css.button}>
+        Search
+      </Button>
+    );
+  }, [onPressSearch]);
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
   const searchPlaceholder = `Searching in ${uiName}`;
 
   return (
-    <SearchModal
-      searchPlaceholder={searchPlaceholder}
-      name="Search Message"
-      onClose={popModal}
-      size="large"
-    >
-      {renderModalContent}
-    </SearchModal>
+    <Modal name="Search Message" onClose={popModal} size="large">
+      <div className={css.container}>
+        <div className={css.header}>
+          <Search
+            onChangeText={setInput}
+            searchText={input}
+            placeholder={searchPlaceholder}
+            onClearText={onClearText}
+          />
+          {button}
+        </div>
+        <MessageSearchModalContent threadInfo={threadInfo} query={query} />
+      </div>
+    </Modal>
   );
 }
 
