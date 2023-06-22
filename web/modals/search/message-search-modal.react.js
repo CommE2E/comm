@@ -20,16 +20,17 @@ import { useMessageSearchContext } from '../../search/message-search-state-provi
 import Modal from '../modal.react.js';
 
 type ContentProps = {
-  +query: string,
   +threadInfo: ThreadInfo,
 };
 
-function MessageSearchModalContent(props: ContentProps): React.Node {
-  const { query, threadInfo } = props;
+function MessageSearchModal(props: ContentProps): React.Node {
+  const { threadInfo } = props;
 
   const [lastID, setLastID] = React.useState();
   const [searchResults, setSearchResults] = React.useState([]);
   const [endReached, setEndReached] = React.useState(false);
+
+  const { query, setQuery, clearQuery } = useMessageSearchContext();
 
   const appendSearchResults = React.useCallback(
     (newMessages: $ReadOnlyArray<RawMessageInfo>, end: boolean) => {
@@ -127,33 +128,6 @@ function MessageSearchModalContent(props: ContentProps): React.Node {
     );
   }, [query, endReached, modifiedItems.length]);
 
-  return (
-    <div className={css.content} ref={messageContainerRef}>
-      {messages}
-      {footer}
-    </div>
-  );
-}
-
-function oldestMessageID(data: $ReadOnlyArray<ChatMessageItem>) {
-  for (let i = data.length - 1; i >= 0; i--) {
-    if (data[i].itemType === 'message' && data[i].messageInfo.id) {
-      return data[i].messageInfo.id;
-    }
-  }
-  return undefined;
-}
-
-type Props = {
-  +threadInfo: ThreadInfo,
-};
-
-function MessageSearchModal(props: Props): React.Node {
-  const { threadInfo } = props;
-  const { popModal } = useModalContext();
-
-  const { query, setQuery, clearQuery } = useMessageSearchContext();
-
   const [input, setInput] = React.useState(query);
 
   const onPressSearch = React.useCallback(
@@ -169,9 +143,6 @@ function MessageSearchModal(props: Props): React.Node {
     );
   }, [onPressSearch]);
 
-  const { uiName } = useResolvedThreadInfo(threadInfo);
-  const searchPlaceholder = `Searching in ${uiName}`;
-
   const onKeyDown = React.useCallback(
     event => {
       if (event.key === 'Enter') {
@@ -180,6 +151,10 @@ function MessageSearchModal(props: Props): React.Node {
     },
     [onPressSearch],
   );
+
+  const { uiName } = useResolvedThreadInfo(threadInfo);
+  const searchPlaceholder = `Searching in ${uiName}`;
+  const { popModal } = useModalContext();
 
   return (
     <Modal name="Search Message" onClose={popModal} size="large">
@@ -194,10 +169,22 @@ function MessageSearchModal(props: Props): React.Node {
           />
           {button}
         </div>
-        <MessageSearchModalContent threadInfo={threadInfo} query={query} />
+        <div className={css.content} ref={messageContainerRef}>
+          {messages}
+          {footer}
+        </div>{' '}
       </div>
     </Modal>
   );
+}
+
+function oldestMessageID(data: $ReadOnlyArray<ChatMessageItem>) {
+  for (let i = data.length - 1; i >= 0; i--) {
+    if (data[i].itemType === 'message' && data[i].messageInfo.id) {
+      return data[i].messageInfo.id;
+    }
+  }
+  return undefined;
 }
 
 export default MessageSearchModal;
