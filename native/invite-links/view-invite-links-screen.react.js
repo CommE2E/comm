@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+import { inviteLinkUrl } from 'lib/facts/links.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { InviteLink } from 'lib/types/link-types.js';
@@ -40,7 +41,7 @@ function ViewInviteLinksScreen(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   const { modalForegroundLabel } = useColors();
-  const linkUrl = `https://comm.app/invite/${inviteLink?.name ?? ''}`;
+  const linkUrl = inviteLinkUrl(inviteLink?.name ?? '');
   const onPressCopy = React.useCallback(() => {
     Clipboard.setString(linkUrl);
     setTimeout(confirmCopy);
