@@ -13,7 +13,7 @@ type ThumbnailSource =
       +thumbnailURI: string,
     }
   | {
-      +thumbnailHolder: string,
+      +thumbnailBlobURI: string,
       +thumbnailEncryptionKey: string,
     };
 type Props = {
@@ -32,7 +32,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
     elementStyle,
     multimediaClassName,
   } = props;
-  const { thumbnailURI, thumbnailHolder, thumbnailEncryptionKey } =
+  const { thumbnailURI, thumbnailBlobURI, thumbnailEncryptionKey } =
     thumbnailSource;
 
   const [thumbnailImage, setThumbnailImage] = React.useState(null);
@@ -52,11 +52,11 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
       }
 
       invariant(
-        thumbnailHolder && thumbnailEncryptionKey,
+        thumbnailBlobURI && thumbnailEncryptionKey,
         'invalid encrypted thumbnail source',
       );
       const { result } = await decryptMedia(
-        thumbnailHolder,
+        thumbnailBlobURI,
         thumbnailEncryptionKey,
       );
       if (isMounted && result.success) {
@@ -71,7 +71,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
         URL.revokeObjectURL(uriToDispose);
       }
     };
-  }, [thumbnailURI, thumbnailHolder, thumbnailEncryptionKey]);
+  }, [thumbnailURI, thumbnailBlobURI, thumbnailEncryptionKey]);
 
   let videoSource;
   if (uri) {

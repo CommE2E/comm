@@ -250,9 +250,9 @@ class ChatInputBar extends React.PureComponent<Props> {
         mediaSource = {
           ...mediaSource,
           type: mediaType,
-          holder: uri,
+          blobURI: uri,
           encryptionKey,
-          thumbnailHolder: null,
+          thumbnailBlobURI: null,
           thumbnailEncryptionKey: null,
         };
       }

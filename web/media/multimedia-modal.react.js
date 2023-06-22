@@ -27,11 +27,11 @@ type MediaInfo =
     }
   | {
       +type: EncryptedMediaType,
-      +holder: string,
+      +blobURI: string,
       +encryptionKey: string,
       +dimensions: ?Dimensions,
       +thumbHash: ?string,
-      +thumbnailHolder: ?string,
+      +thumbnailBlobURI: ?string,
       +thumbnailEncryptionKey: ?string,
     };
 
@@ -97,9 +97,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       );
       const {
         type,
-        holder,
+        blobURI,
         encryptionKey,
-        thumbnailHolder,
+        thumbnailBlobURI,
         thumbnailEncryptionKey,
       } = media;
       const dimensions = this.state.dimensions ?? media.dimensions;
@@ -112,9 +112,9 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       mediaModalItem = (
         <EncryptedMultimedia
           type={type}
-          holder={holder}
+          blobURI={blobURI}
           encryptionKey={encryptionKey}
-          thumbnailHolder={thumbnailHolder}
+          thumbnailBlobURI={thumbnailBlobURI}
           thumbnailEncryptionKey={thumbnailEncryptionKey}
           placeholderSrc={placeholderImage}
           elementStyle={elementStyle}
