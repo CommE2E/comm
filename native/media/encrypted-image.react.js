@@ -10,7 +10,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import type { ImageStyle } from '../types/styles.js';
 
 type BaseProps = {
-  +holder: string,
+  +blobURI: string,
   +encryptionKey: string,
   +onLoad?: (uri: string) => void,
   +spinnerColor: string,
@@ -24,7 +24,7 @@ type Props = {
 
 function EncryptedImage(props: Props): React.Node {
   const {
-    holder,
+    blobURI,
     encryptionKey,
     onLoad: onLoadProp,
     thumbHash: encryptedThumbHash,
@@ -64,18 +64,18 @@ function EncryptedImage(props: Props): React.Node {
     setSource(null);
 
     const loadDecrypted = async () => {
-      const cached = await mediaCache?.get(holder);
+      const cached = await mediaCache?.get(blobURI);
       if (cached && isMounted) {
         setSource({ uri: cached });
         return;
       }
 
-      const { result } = await decryptMedia(holder, encryptionKey, {
+      const { result } = await decryptMedia(blobURI, encryptionKey, {
         destination: 'data_uri',
       });
       // TODO: decide what to do if decryption fails
       if (result.success && isMounted) {
-        mediaCache?.set(holder, result.uri);
+        mediaCache?.set(blobURI, result.uri);
         setSource({ uri: result.uri });
       }
     };
@@ -85,11 +85,11 @@ function EncryptedImage(props: Props): React.Node {
     return () => {
       isMounted = false;
     };
-  }, [attempt, holder, encryptionKey, mediaCache]);
+  }, [attempt, blobURI, encryptionKey, mediaCache]);
 
   const onLoad = React.useCallback(() => {
-    onLoadProp && onLoadProp(holder);
-  }, [holder, onLoadProp]);
+    onLoadProp && onLoadProp(blobURI);
+  }, [blobURI, onLoadProp]);
 
   const { style, spinnerColor, invisibleLoad } = props;
 
