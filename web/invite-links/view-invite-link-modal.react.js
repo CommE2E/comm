@@ -1,5 +1,6 @@
 // @flow
 
+import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -18,6 +19,7 @@ type Props = {
   +inviteLink: InviteLink,
 };
 
+const copiedMessageDurationMs = 2000;
 function ViewInviteLinkModal(props: Props): React.Node {
   const { inviteLink } = props;
   const threadInfo = useSelector(
@@ -27,9 +29,25 @@ function ViewInviteLinkModal(props: Props): React.Node {
   const { popModal } = useModalContext();
 
   const url = inviteLinkUrl(inviteLink.name);
-  const copyLink = React.useCallback(() => {
-    navigator.clipboard.writeText(url);
-  }, [url]);
+  const [copied, setCopied] = React.useState(false);
+  const resetStatusAfterTimeout = React.useRef(
+    _debounce(() => setCopied(false), copiedMessageDurationMs),
+  );
+  const onSuccess = React.useCallback(() => {
+    setCopied(true);
+    resetStatusAfterTimeout.current();
+  }, []);
+  React.useEffect(() => resetStatusAfterTimeout.current.cancel, []);
+
+  const copyLink = React.useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      onSuccess();
+    } catch (e) {
+      setCopied(false);
+    }
+  }, [onSuccess, url]);
+  const buttonText = copied ? 'Copied!' : 'Copy';
 
   return (
     <Modal
@@ -46,7 +64,7 @@ function ViewInviteLinkModal(props: Props): React.Node {
           <div className={css.linkUrl}>{url}</div>
           <Button className={css.linkCopyButton} onClick={copyLink}>
             <SWMansionIcon icon="link" size={24} />
-            Copy
+            {buttonText}
           </Button>
         </div>
       </div>
