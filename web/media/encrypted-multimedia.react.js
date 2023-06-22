@@ -14,10 +14,10 @@ import css from './media.css';
 import LoadingIndicator from '../loading-indicator.react.js';
 
 type Props = {
-  +holder: string,
+  +blobURI: string,
   +encryptionKey: string,
   +type: EncryptedMediaType,
-  +thumbnailHolder?: ?string,
+  +thumbnailBlobURI?: ?string,
   +thumbnailEncryptionKey?: ?string,
   +placeholderSrc?: ?string,
   +multimediaClassName?: string,
@@ -26,7 +26,7 @@ type Props = {
 
 function EncryptedMultimedia(props: Props): React.Node {
   const {
-    holder,
+    blobURI,
     encryptionKey,
     placeholderSrc,
     elementStyle,
@@ -42,7 +42,7 @@ function EncryptedMultimedia(props: Props): React.Node {
     setSource(null);
 
     const loadDecrypted = async () => {
-      const { result } = await decryptMedia(holder, encryptionKey);
+      const { result } = await decryptMedia(blobURI, encryptionKey);
       if (!isMounted) {
         return;
       }
@@ -64,7 +64,7 @@ function EncryptedMultimedia(props: Props): React.Node {
         URL.revokeObjectURL(uriToDispose);
       }
     };
-  }, [holder, encryptionKey]);
+  }, [blobURI, encryptionKey]);
 
   // we need to update the video source when the source changes
   // because re-rendering the <source> element wouldn't reload parent <video>
@@ -97,15 +97,15 @@ function EncryptedMultimedia(props: Props): React.Node {
     mediaNode = (
       <img
         src={source?.uri ?? placeholderSrc}
-        key={holder}
+        key={blobURI}
         className={multimediaClassName}
         style={elementStyle}
       />
     );
   } else {
-    const { thumbnailHolder, thumbnailEncryptionKey } = props;
+    const { thumbnailBlobURI, thumbnailEncryptionKey } = props;
     invariant(
-      thumbnailHolder && thumbnailEncryptionKey,
+      thumbnailBlobURI && thumbnailEncryptionKey,
       'Thumbnail missing for encrypted video',
     );
 
@@ -113,8 +113,8 @@ function EncryptedMultimedia(props: Props): React.Node {
       <LoadableVideo
         uri={null}
         ref={videoRef}
-        key={holder}
-        thumbnailSource={{ thumbnailHolder, thumbnailEncryptionKey }}
+        key={blobURI}
+        thumbnailSource={{ thumbnailBlobURI, thumbnailEncryptionKey }}
         elementStyle={elementStyle}
         thumbHashDataURL={placeholderSrc}
         multimediaClassName={multimediaClassName}

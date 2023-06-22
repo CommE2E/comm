@@ -132,13 +132,13 @@ type DecryptionFailure =
     };
 
 /**
- * Fetches the encrypted media for given {@link holder}, decrypts it,
+ * Fetches the encrypted media for given {@link blobURI}, decrypts it,
  * and stores it in a blob. Returns the object URL of the blob.
  *
  * The returned object URL should be revoked when the media is no longer needed.
  */
 async function decryptMedia(
-  holder: string,
+  blobURI: string,
   encryptionKey: string,
 ): Promise<{
   steps: $ReadOnlyArray<DecryptFileStep>,
@@ -151,7 +151,7 @@ async function decryptMedia(
   // Step 1 - Fetch the encrypted media and convert it to a Uint8Array
   let data;
   const fetchStartTime = Date.now();
-  const url = fetchableMediaURI(holder);
+  const url = fetchableMediaURI(blobURI);
   try {
     const response = await fetch(url);
     if (!response.ok) {

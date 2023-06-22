@@ -16,7 +16,7 @@ type MediaSource =
     }
   | {
       +kind: 'encrypted',
-      +holder: string,
+      +blobURI: string,
       +encryptionKey: string,
       +thumbHash: ?string,
     };
@@ -45,12 +45,12 @@ function MediaGalleryItem(props: Props) {
     const uri = fetchableMediaURI(imageSource.uri);
     image = <img src={uri} className={imageCSSClass} style={imageStyle} />;
   } else if (imageSource.kind === 'encrypted') {
-    const { holder } = imageSource;
+    const { blobURI } = imageSource;
     invariant(encryptionKey, 'encryptionKey undefined for encrypted image');
     image = (
       <EncryptedMultimedia
         type="encrypted_photo"
-        holder={holder}
+        blobURI={blobURI}
         encryptionKey={encryptionKey}
         placeholderSrc={placeholderImage}
         multimediaClassName={imageCSSClass}
