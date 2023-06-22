@@ -9,6 +9,7 @@ import {
   disableInviteLink as callDisableInviteLink,
   disableInviteLinkLinkActionTypes,
 } from 'lib/actions/link-actions.js';
+import { inviteLinkUrl } from 'lib/facts/links.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
@@ -147,7 +148,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
       <Text style={styles.sectionTitle}>INVITE URL</Text>
       <View style={styles.section}>
         <View style={styles.inviteLink}>
-          <Text style={styles.inviteLinkPrefix}>https://comm.app/invite/</Text>
+          <Text style={styles.inviteLinkPrefix}>{inviteLinkUrl('')}</Text>
           <TextInput
             style={styles.input}
             value={name}
