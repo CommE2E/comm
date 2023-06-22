@@ -20,7 +20,7 @@ type Source =
     }
   | {
       +kind: 'encrypted',
-      +holder: string,
+      +blobURI: string,
       +encryptionKey: string,
       +thumbHash?: ?string,
     };
@@ -119,13 +119,13 @@ class Multimedia extends React.PureComponent<Props, State> {
       return (
         <EncryptedImage
           thumbHash={source.thumbHash}
-          holder={source.holder}
+          blobURI={source.blobURI}
           encryptionKey={source.encryptionKey}
           onLoad={onLoadProp}
           spinnerColor={this.props.spinnerColor}
           style={styles.image}
           invisibleLoad={invisibleLoad}
-          key={source.holder}
+          key={source.blobURI}
         />
       );
     }
@@ -184,14 +184,14 @@ class Multimedia extends React.PureComponent<Props, State> {
     } else if (mediaInfo.type === 'encrypted_photo') {
       return {
         kind: 'encrypted',
-        holder: mediaInfo.holder,
+        blobURI: mediaInfo.holder,
         encryptionKey: mediaInfo.encryptionKey,
         thumbHash: mediaInfo.thumbHash,
       };
     } else if (mediaInfo.type === 'encrypted_video') {
       return {
         kind: 'encrypted',
-        holder: mediaInfo.thumbnailHolder,
+        blobURI: mediaInfo.thumbnailHolder,
         encryptionKey: mediaInfo.thumbnailEncryptionKey,
         thumbHash: mediaInfo.thumbnailThumbHash,
       };
