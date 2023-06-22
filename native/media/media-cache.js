@@ -17,10 +17,10 @@ import { temporaryDirectoryPath } from './file-utils.js';
 
 const cacheDirectory = `${temporaryDirectoryPath}media-cache`;
 
-function basenameFromHolder(holder: string) {
-  // if holder is a file URI or path, use the last segment of the path
-  const holderBase = holder.split('/').pop();
-  return filenameWithoutExtension(holderBase);
+function basenameFromBlobURI(blobURI: string) {
+  // if blobURI is a file URI or path, use the last segment of the path
+  const filename = blobURI.split('/').pop();
+  return filenameWithoutExtension(filename);
 }
 
 async function ensureCacheDirectory() {
@@ -40,19 +40,19 @@ async function getCacheSize() {
   return files.reduce((total, file) => total + file.size, 0);
 }
 
-async function hasURI(uri: string): Promise<boolean> {
-  const path = pathFromURI(uri);
+async function hasURI(mediaURI: string): Promise<boolean> {
+  const path = pathFromURI(mediaURI);
   if (!path) {
     return false;
   }
   return await fs.exists(path);
 }
 
-async function getCachedFile(holder: string) {
+async function getCachedFile(blobURI: string) {
   const cachedFiles = await listCachedFiles();
-  const baseHolder = basenameFromHolder(holder);
+  const basename = basenameFromBlobURI(blobURI);
   const cachedFile = cachedFiles.find(file =>
-    filenameWithoutExtension(file).startsWith(baseHolder),
+    filenameWithoutExtension(file).startsWith(basename),
   );
   if (cachedFile) {
     return `file://${cacheDirectory}/${cachedFile}`;
@@ -70,28 +70,28 @@ async function clearCache() {
 }
 
 const dataURLRegex = /^data:([^;]+);base64,([a-zA-Z0-9+/]+={0,2})$/;
-async function saveFile(holder: string, uri: string): Promise<string> {
+async function saveFile(blobURI: string, mediaURI: string): Promise<string> {
   await ensureCacheDirectory();
   let filePath;
-  const baseHolder = basenameFromHolder(holder);
-  const isDataURI = uri.startsWith('data:');
+  const basename = basenameFromBlobURI(blobURI);
+  const isDataURI = mediaURI.startsWith('data:');
   if (isDataURI) {
-    const [, mime, data] = uri.match(dataURLRegex) ?? [];
+    const [, mime, data] = mediaURI.match(dataURLRegex) ?? [];
     invariant(mime, 'malformed data-URI: missing MIME type');
     invariant(data, 'malformed data-URI: invalid data');
-    const filename = readableFilename(baseHolder, mime) ?? baseHolder;
+    const filename = readableFilename(basename, mime) ?? basename;
     filePath = `${cacheDirectory}/${filename}`;
 
     await fs.writeFile(filePath, data, 'base64');
   } else {
-    const uriFilename = filenameFromPathOrURI(uri);
+    const uriFilename = filenameFromPathOrURI(mediaURI);
     invariant(uriFilename, 'malformed URI: missing filename');
     const extension = extensionFromFilename(uriFilename);
     const filename = extension
-      ? replaceExtension(baseHolder, extension)
-      : baseHolder;
+      ? replaceExtension(basename, extension)
+      : basename;
     filePath = `${cacheDirectory}/${filename}`;
-    await fs.copyFile(uri, filePath);
+    await fs.copyFile(mediaURI, filePath);
   }
   return `file://${filePath}`;
 }
