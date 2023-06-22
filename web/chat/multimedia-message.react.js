@@ -47,17 +47,17 @@ class MultimediaMessage extends React.PureComponent<Props> {
       } else {
         const {
           type,
-          holder,
+          holder: blobURI,
           encryptionKey,
-          thumbnailHolder,
+          thumbnailHolder: thumbnailBlobURI,
           thumbnailEncryptionKey,
           dimensions,
         } = singleMedia;
         mediaSource = {
           type,
-          holder,
+          blobURI,
           encryptionKey,
-          thumbnailHolder,
+          thumbnailBlobURI,
           thumbnailEncryptionKey,
           dimensions,
           thumbHash,

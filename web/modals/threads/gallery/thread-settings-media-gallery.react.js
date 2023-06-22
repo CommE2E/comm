@@ -64,17 +64,17 @@ function ThreadSettingsMediaGalleryModal(
         };
       } else {
         const {
-          holder,
+          holder: blobURI,
           encryptionKey,
-          thumbnailHolder,
+          thumbnailHolder: thumbnailBlobURI,
           thumbnailEncryptionKey,
         } = media;
         mediaInfo = {
           ...mediaInfo,
           type: media.type,
-          holder,
+          blobURI,
           encryptionKey,
-          thumbnailHolder,
+          thumbnailBlobURI,
           thumbnailEncryptionKey,
         };
       }
@@ -114,14 +114,14 @@ function ThreadSettingsMediaGalleryModal(
       } else if (media.type === 'encrypted_photo') {
         imageSource = {
           kind: 'encrypted',
-          holder: media.holder,
+          blobURI: media.holder,
           encryptionKey: media.encryptionKey,
           thumbHash: media.thumbHash,
         };
       } else {
         imageSource = {
           kind: 'encrypted',
-          holder: media.thumbnailHolder,
+          blobURI: media.thumbnailHolder,
           encryptionKey: media.thumbnailEncryptionKey,
           thumbHash: media.thumbnailThumbHash,
         };

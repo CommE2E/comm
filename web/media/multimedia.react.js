@@ -40,11 +40,11 @@ type MediaSource =
     }
   | {
       +type: EncryptedMediaType,
-      +holder: string,
+      +blobURI: string,
       +encryptionKey: string,
       +dimensions: ?Dimensions,
       +thumbHash: ?string,
-      +thumbnailHolder: ?string,
+      +thumbnailBlobURI: ?string,
       +thumbnailEncryptionKey: ?string,
     };
 
@@ -184,14 +184,14 @@ function Multimedia(props: Props): React.Node {
     mediaSource.type === 'encrypted_photo' ||
     mediaSource.type === 'encrypted_video'
   ) {
-    const { type, holder, thumbnailHolder } = mediaSource;
+    const { type, blobURI, thumbnailBlobURI } = mediaSource;
     invariant(encryptionKey, 'encryptionKey undefined for encrypted media');
     mediaElement = (
       <EncryptedMultimedia
         type={type}
-        holder={holder}
+        blobURI={blobURI}
         encryptionKey={encryptionKey}
-        thumbnailHolder={thumbnailHolder}
+        thumbnailBlobURI={thumbnailBlobURI}
         thumbnailEncryptionKey={thumbnailEncryptionKey}
         elementStyle={elementStyle}
         placeholderSrc={placeholderImage}
