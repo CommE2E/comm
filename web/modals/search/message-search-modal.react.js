@@ -26,34 +26,95 @@ type ContentProps = {
 function MessageSearchModal(props: ContentProps): React.Node {
   const { threadInfo } = props;
 
-  const [lastID, setLastID] = React.useState();
-  const [searchResults, setSearchResults] = React.useState([]);
-  const [endReached, setEndReached] = React.useState(false);
+  const {
+    getQuery,
+    setQuery,
+    clearQuery,
+    searchResults,
+    appendSearchResult,
+    endReached,
+    setEndReached,
+  } = useMessageSearchContext();
 
-  const { query, setQuery, clearQuery } = useMessageSearchContext();
+  const loading = React.useRef(false);
 
-  const appendSearchResults = React.useCallback(
+  const appendResults = React.useCallback(
     (newMessages: $ReadOnlyArray<RawMessageInfo>, end: boolean) => {
-      setSearchResults(oldMessages => [...oldMessages, ...newMessages]);
-      setEndReached(end);
+      appendSearchResult(newMessages);
+      if (end) {
+        setEndReached();
+      }
+      loading.current = false;
     },
-    [],
+    [appendSearchResult, setEndReached],
   );
-
-  React.useEffect(() => {
-    setSearchResults([]);
-    setLastID(undefined);
-    setEndReached(false);
-  }, [query]);
 
   const searchMessages = useSearchMessages();
 
-  React.useEffect(
-    () => searchMessages(query, threadInfo.id, appendSearchResults, lastID),
-    [appendSearchResults, lastID, query, searchMessages, threadInfo.id],
+  const [input, setInput] = React.useState(getQuery());
+
+  const onPressSearch = React.useCallback(() => {
+    setQuery(input);
+    loading.current = true;
+    searchMessages(getQuery(), threadInfo.id, appendResults, undefined);
+  }, [setQuery, input, searchMessages, getQuery, threadInfo.id, appendResults]);
+
+  const button = React.useMemo(() => {
+    return (
+      <Button onClick={onPressSearch} variant="filled" className={css.button}>
+        Search
+      </Button>
+    );
+  }, [onPressSearch]);
+
+  const onKeyDown = React.useCallback(
+    event => {
+      if (event.key === 'Enter') {
+        onPressSearch();
+      }
+    },
+    [onPressSearch],
   );
 
   const modifiedItems = useParseSearchResults(threadInfo, searchResults);
+
+  const { clearTooltip } = useTooltipContext();
+
+  const messageContainer = React.useRef(null);
+  const messageContainerRef = (msgContainer: ?HTMLDivElement) => {
+    messageContainer.current = msgContainer;
+  };
+
+  const possiblyLoadMoreMessages = React.useCallback(() => {
+    if (!messageContainer.current) {
+      return;
+    }
+
+    const loaderTopOffset = 32;
+    const { scrollTop, scrollHeight, clientHeight } = messageContainer.current;
+    if (
+      endReached ||
+      loading.current ||
+      Math.abs(scrollTop) + clientHeight + loaderTopOffset < scrollHeight
+    ) {
+      return;
+    }
+    loading.current = true;
+    const lastID = modifiedItems ? oldestMessageID(modifiedItems) : undefined;
+    searchMessages(getQuery(), threadInfo.id, appendResults, lastID);
+  }, [
+    appendResults,
+    endReached,
+    getQuery,
+    modifiedItems,
+    searchMessages,
+    threadInfo.id,
+  ]);
+
+  const onScroll = React.useCallback(() => {
+    clearTooltip();
+    possiblyLoadMoreMessages();
+  }, [clearTooltip, possiblyLoadMoreMessages]);
 
   const renderItem = React.useCallback(
     item => (
@@ -72,41 +133,8 @@ function MessageSearchModal(props: ContentProps): React.Node {
     [modifiedItems, renderItem],
   );
 
-  const messageContainer = React.useRef(null);
-
-  const messageContainerRef = (msgContainer: ?HTMLDivElement) => {
-    messageContainer.current = msgContainer;
-    messageContainer.current?.addEventListener('scroll', onScroll);
-  };
-
-  const { clearTooltip } = useTooltipContext();
-
-  const possiblyLoadMoreMessages = React.useCallback(() => {
-    if (!messageContainer.current) {
-      return;
-    }
-
-    const loaderTopOffset = 32;
-    const { scrollTop, scrollHeight, clientHeight } = messageContainer.current;
-    if (
-      endReached ||
-      Math.abs(scrollTop) + clientHeight + loaderTopOffset < scrollHeight
-    ) {
-      return;
-    }
-    setLastID(modifiedItems ? oldestMessageID(modifiedItems) : undefined);
-  }, [endReached, modifiedItems]);
-
-  const onScroll = React.useCallback(() => {
-    if (!messageContainer.current) {
-      return;
-    }
-    clearTooltip();
-    possiblyLoadMoreMessages();
-  }, [clearTooltip, possiblyLoadMoreMessages]);
-
   const footer = React.useMemo(() => {
-    if (query === '') {
+    if (getQuery() === '') {
       return (
         <div className={css.footer}>Your search results will appear here</div>
       );
@@ -126,31 +154,7 @@ function MessageSearchModal(props: ContentProps): React.Node {
         No results. Please try using different keywords to refine your search
       </div>
     );
-  }, [query, endReached, modifiedItems.length]);
-
-  const [input, setInput] = React.useState(query);
-
-  const onPressSearch = React.useCallback(
-    () => setQuery(input),
-    [setQuery, input],
-  );
-
-  const button = React.useMemo(() => {
-    return (
-      <Button onClick={onPressSearch} variant="filled" className={css.button}>
-        Search
-      </Button>
-    );
-  }, [onPressSearch]);
-
-  const onKeyDown = React.useCallback(
-    event => {
-      if (event.key === 'Enter') {
-        onPressSearch();
-      }
-    },
-    [onPressSearch],
-  );
+  }, [getQuery, endReached, modifiedItems.length]);
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
   const searchPlaceholder = `Searching in ${uiName}`;
@@ -169,7 +173,11 @@ function MessageSearchModal(props: ContentProps): React.Node {
           />
           {button}
         </div>
-        <div className={css.content} ref={messageContainerRef}>
+        <div
+          className={css.content}
+          ref={messageContainerRef}
+          onScroll={onScroll}
+        >
           {messages}
           {footer}
         </div>{' '}
