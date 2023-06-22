@@ -3,12 +3,18 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import type { RawMessageInfo } from 'lib/types/message-types.js';
+
 import { useSelector } from '../redux/redux-utils.js';
 
 type MessageSearchState = {
-  +query: string,
+  +getQuery: () => string,
   +setQuery: string => void,
   +clearQuery: () => void,
+  +searchResults: $ReadOnlyArray<RawMessageInfo>,
+  +appendSearchResult: ($ReadOnlyArray<RawMessageInfo>) => void,
+  +endReached: boolean,
+  +setEndReached: () => void,
 };
 
 const MessageSearchContext: React.Context<?MessageSearchState> =
@@ -19,36 +25,91 @@ type Props = {
 };
 
 function MessageSearchStateProvider(props: Props): React.Node {
-  const [queries, setQueries] = React.useState<{
+  const queries = React.useRef<{
     [threadID: string]: string,
   }>({});
+
+  const [results, setResults] = React.useState<{
+    [threadID: string]: $ReadOnlyArray<RawMessageInfo>,
+  }>({});
+
+  const [endsReached, setEndsReached] = React.useState(new Set());
 
   const threadID = useSelector(state => state.navInfo.activeChatThreadID);
 
   invariant(threadID, 'threadID should be set when search messages');
 
-  const setQuery = React.useCallback(
-    (query: string) =>
-      setQueries(prevQueries => ({ ...prevQueries, [threadID]: query })),
+  const setEndReached = React.useCallback(
+    () => setEndsReached(ends => new Set([...ends.values(), threadID])),
     [threadID],
   );
 
-  const clearQuery = React.useCallback(
+  const removeEndReached = React.useCallback(
     () =>
-      setQueries(prevQueries => {
-        const { [threadID]: deleted, ...newState } = prevQueries;
-        return newState;
+      setEndsReached(ends => {
+        const temp = new Set(ends);
+        temp.delete(threadID);
+        return temp;
       }),
+    [threadID],
+  );
+
+  const appendResult = React.useCallback(
+    (result: $ReadOnlyArray<RawMessageInfo>) =>
+      setResults(prevResults => {
+        const prevThreadResults = prevResults[threadID] ?? [];
+        const newThreadResults = [...prevThreadResults, ...result];
+        return { ...prevResults, [threadID]: newThreadResults };
+      }),
+    [threadID],
+  );
+
+  const clearResults = React.useCallback(() => {
+    removeEndReached();
+    setResults(prevResults => {
+      const { [threadID]: deleted, ...newState } = prevResults;
+      return newState;
+    });
+  }, [threadID, removeEndReached]);
+
+  const setQuery = React.useCallback(
+    (query: string) => {
+      clearResults();
+      queries.current = { ...queries.current, [threadID]: query };
+    },
+    [threadID, clearResults],
+  );
+
+  const clearQuery = React.useCallback(() => {
+    clearResults();
+    delete queries.current[threadID];
+  }, [threadID, clearResults]);
+
+  const getQuery = React.useCallback(
+    () => queries.current[threadID] ?? '',
     [threadID],
   );
 
   const state = React.useMemo(
     () => ({
-      query: queries[threadID] ?? '',
+      getQuery,
       setQuery,
       clearQuery,
+      searchResults: results[threadID] ?? [],
+      appendSearchResult: appendResult,
+      endReached: endsReached.has(threadID),
+      setEndReached,
     }),
-    [queries, setQuery, threadID, clearQuery],
+    [
+      getQuery,
+      setQuery,
+      clearQuery,
+      results,
+      threadID,
+      appendResult,
+      endsReached,
+      setEndReached,
+    ],
   );
 
   return (
