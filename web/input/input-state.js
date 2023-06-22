@@ -23,6 +23,7 @@ export type PendingMultimediaUpload = {
   +mediaType: MediaType | EncryptedMediaType,
   +dimensions: ?Dimensions,
   +uri: string,
+  +blobHolder: ?string,
   +blobHash: ?string,
   +encryptionKey: ?string,
   +thumbHash: ?string,

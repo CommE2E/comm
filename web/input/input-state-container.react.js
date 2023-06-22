@@ -90,7 +90,6 @@ import {
 import { toBase64URL } from 'lib/utils/base64.js';
 import {
   makeBlobServiceEndpointURL,
-  holderFromBlobServiceURI,
   isBlobServiceURI,
 } from 'lib/utils/blob-service.js';
 import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
@@ -811,6 +810,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           uri: encryptionResult?.uri ?? uri,
           loop: false,
           uriIsReal: false,
+          blobHolder: null,
           blobHash: encryptionResult?.sha256Hash,
           encryptionKey: encryptionResult?.encryptionKey,
           thumbHash,
@@ -973,6 +973,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             [localID]: {
               ...currentUpload,
               serverID: result.id,
+              blobHolder: result.blobHolder,
               abort: null,
             },
           },
@@ -1077,8 +1078,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       +thumbHash?: string,
     },
     options?: ?CallServerEndpointOptions,
-  ): Promise<void> {
-    const newHolder = uuid.v4();
+  ): Promise<{
+    ...UploadMultimediaResult,
+    +blobHolder: string,
+  }> {
+    const blobHolder = uuid.v4();
     const blobHash = toBase64URL(input.blobHash);
 
     // 1. Assign new holder for blob with given blobHash
@@ -1090,7 +1094,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         {
           method: assignHolderEndpoint.method,
           body: JSON.stringify({
-            holder: newHolder,
+            holder: blobHolder,
             blob_hash: blobHash,
           }),
           headers: {
@@ -1175,16 +1179,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     // 3. Send upload metadata to the keyserver, return response
-    return await this.props.uploadMediaMetadata({
+    const result = await this.props.uploadMediaMetadata({
       ...input.dimensions,
       loop: input.loop ?? false,
-      blobHolder: newHolder,
+      blobHolder,
       blobHash,
       encryptionKey: input.encryptionKey,
       mimeType: input.file.type,
       filename: input.file.name,
       thumbHash: input.thumbHash,
     });
+    return { ...result, blobHolder };
   }
 
   handleAbortCallback(
@@ -1289,8 +1294,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         if (pendingUpload.serverID) {
           this.props.deleteUpload(pendingUpload.serverID);
           if (isBlobServiceURI(pendingUpload.uri)) {
+            invariant(
+              pendingUpload.blobHolder,
+              'blob service upload has no holder',
+            );
             const endpoint = blobService.httpEndpoints.DELETE_BLOB;
-            const holder = holderFromBlobServiceURI(pendingUpload.uri);
+            const holder = pendingUpload.blobHolder;
             fetch(makeBlobServiceEndpointURL(endpoint, { holder }), {
               method: endpoint.method,
             });
