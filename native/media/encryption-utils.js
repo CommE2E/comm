@@ -279,7 +279,7 @@ type DecryptionFailure =
     };
 
 async function decryptMedia(
-  holder: string,
+  blobURI: string,
   encryptionKey: string,
   options: { +destination: 'file' | 'data_uri' },
 ): Promise<{
@@ -294,7 +294,7 @@ async function decryptMedia(
   const fetchStartTime = Date.now();
   let data;
   try {
-    const response = await fetch(getFetchableURI(holder));
+    const response = await fetch(getFetchableURI(blobURI));
     if (!response.ok) {
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
@@ -307,7 +307,7 @@ async function decryptMedia(
   }
   steps.push({
     step: 'fetch_file',
-    file: holder,
+    file: blobURI,
     time: Date.now() - fetchStartTime,
     success,
     exceptionMessage,
@@ -367,9 +367,9 @@ async function decryptMedia(
     };
   }
   if (options.destination === 'file') {
-    // if holder is a URL, then we use the last part of the path as the filename
-    const holderSuffix = holder.substring(holder.lastIndexOf('/') + 1);
-    const filename = readableFilename(holderSuffix, mime) || holderSuffix;
+    // blobURI is a URL, we use the last part of the path as the filename
+    const uriSuffix = blobURI.substring(blobURI.lastIndexOf('/') + 1);
+    const filename = readableFilename(uriSuffix, mime) || uriSuffix;
     const targetPath = `${temporaryDirectoryPath}${Date.now()}-${filename}`;
     try {
       await commUtilsModule.writeBufferToFile(targetPath, decryptedData.buffer);

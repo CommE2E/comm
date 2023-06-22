@@ -79,7 +79,7 @@ type Props = {
 function VideoPlaybackModal(props: Props): React.Node {
   const { mediaInfo } = props.route.params;
 
-  const { uri: videoUri, holder, encryptionKey } = mediaInfo;
+  const { uri: videoUri, holder: blobURI, encryptionKey } = mediaInfo;
   const [videoSource, setVideoSource] = React.useState(
     videoUri ? { uri: videoUri } : undefined,
   );
@@ -88,7 +88,7 @@ function VideoPlaybackModal(props: Props): React.Node {
 
   React.useEffect(() => {
     // skip for unencrypted videos
-    if (!holder || !encryptionKey) {
+    if (!blobURI || !encryptionKey) {
       return undefined;
     }
 
@@ -97,18 +97,18 @@ function VideoPlaybackModal(props: Props): React.Node {
     setVideoSource(undefined);
 
     const loadDecrypted = async () => {
-      const cached = await mediaCache?.get(holder);
+      const cached = await mediaCache?.get(blobURI);
       if (cached && isMounted) {
         setVideoSource({ uri: cached });
         return;
       }
 
-      const { result } = await decryptMedia(holder, encryptionKey, {
+      const { result } = await decryptMedia(blobURI, encryptionKey, {
         destination: 'file',
       });
       if (result.success) {
         const { uri } = result;
-        const cacheSetPromise = mediaCache?.set(holder, uri);
+        const cacheSetPromise = mediaCache?.set(blobURI, uri);
         if (isMounted) {
           uriToDispose = uri;
           setVideoSource({ uri });
@@ -129,7 +129,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         filesystem.unlink(uriToDispose);
       }
     };
-  }, [holder, encryptionKey, mediaCache]);
+  }, [blobURI, encryptionKey, mediaCache]);
 
   const closeButtonX = useValue(-1);
   const closeButtonY = useValue(-1);
