@@ -92,7 +92,7 @@
     "react-native-background-upload": "^6.6.0",
     "react-native-camera": "^3.31.0",
     "react-native-device-info": "^10.3.0",
-    "react-native-ffmpeg": "^0.4.4",
+    "react-native-ffmpeg": "^0.5.2",
     "react-native-figma-squircle": "^0.1.2",
     "react-native-floating-action": "^1.22.0",
     "react-native-fs": "^2.20.0",
