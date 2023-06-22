@@ -114,9 +114,9 @@ function getUploadURL(id: string, secret: string): string {
   return `${baseDomain}${uploadPath}`;
 }
 
-function makeUploadURI(holder: ?string, id: string, secret: string): string {
-  if (holder) {
-    return makeBlobServiceURI(holder);
+function makeUploadURI(blobHash: ?string, id: string, secret: string): string {
+  if (blobHash) {
+    return makeBlobServiceURI(blobHash);
   }
   return getUploadURL(id, secret);
 }
