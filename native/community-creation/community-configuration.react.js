@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -23,7 +23,7 @@ import {
   ThreadSettingsCategoryFooter,
   ThreadSettingsCategoryHeader,
 } from '../chat/settings/thread-settings-category.react.js';
-import CommIcon from '../components/comm-icon.react.js';
+import EnumSettingsOption from '../components/enum-settings-option.react.js';
 import TextInput from '../components/text-input.react.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import {
@@ -113,11 +113,6 @@ function CommunityConfiguration(props: Props): React.Node {
     setAnnouncementSetting(!announcementSetting);
   }, [announcementSetting]);
 
-  let checkBoxFill;
-  if (announcementSetting) {
-    checkBoxFill = <View style={styles.enumCheckBoxFill} />;
-  }
-
   return (
     <RegistrationContainer>
       <RegistrationContentContainer style={styles.containerPaddingOverride}>
@@ -143,25 +138,13 @@ function CommunityConfiguration(props: Props): React.Node {
         </View>
 
         <ThreadSettingsCategoryHeader type="full" title="OPTIONAL SETTINGS" />
-        <View style={styles.enumCell}>
-          <View style={styles.enumIcon}>
-            <CommIcon name="megaphone" size={24} color={colors.purpleButton} />
-          </View>
-          <View style={styles.enumInfoContainer}>
-            <Text style={styles.enumInfoName}>Announcement root</Text>
-            <Text style={styles.enumInfoDescription}>
-              Make it so that only admins can post to the root channel of the
-              community.
-            </Text>
-          </View>
-          <TouchableOpacity
-            onPress={onCheckBoxPress}
-            style={styles.enumCheckBoxContainer}
-            activeOpacity={0.4}
-          >
-            <View style={styles.enumCheckBox}>{checkBoxFill}</View>
-          </TouchableOpacity>
-        </View>
+        <EnumSettingsOption
+          icon="megaphone"
+          name="Announcement root"
+          description="Make it so that only admins can post to the root channel of the community."
+          enumValue={announcementSetting}
+          onEnumValuePress={onCheckBoxPress}
+        />
         <ThreadSettingsCategoryFooter type="full" />
         <RegistrationButtonContainer>
           <RegistrationButton
@@ -215,49 +198,6 @@ const unboundStyles = {
   },
   communityNameNoticeText: {
     color: 'panelForegroundTertiaryLabel',
-  },
-  enumCell: {
-    flexDirection: 'row',
-    height: 96,
-    backgroundColor: 'panelForeground',
-  },
-  enumIcon: {
-    padding: 16,
-  },
-  enumInfoContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    padding: 8,
-  },
-  enumInfoName: {
-    color: 'panelForegroundLabel',
-    fontSize: 18,
-    lineHeight: 24,
-  },
-  enumInfoDescription: {
-    color: 'panelForegroundSecondaryLabel',
-    lineHeight: 18,
-  },
-  enumCheckBoxContainer: {
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  enumCheckBox: {
-    height: 32,
-    width: 32,
-    borderRadius: 3.5,
-    borderWidth: 1,
-    borderColor: 'panelSecondaryForegroundBorder',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  enumCheckBoxFill: {
-    height: 20,
-    width: 20,
-    borderRadius: 2.1875,
-    backgroundColor: 'panelForegroundSecondaryLabel',
   },
   errorMessageContainer: {
     alignItems: 'center',
