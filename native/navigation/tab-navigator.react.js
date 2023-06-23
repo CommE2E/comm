@@ -1,10 +1,21 @@
 // @flow
 
+import { BottomTabView } from '@react-navigation/bottom-tabs';
+import {
+  createNavigatorFactory,
+  useNavigationBuilder,
+} from '@react-navigation/native';
 import type {
+  BottomTabNavigationEventMap,
+  BottomTabOptions,
+  CreateNavigator,
+  TabNavigationState,
+  ParamListBase,
   BottomTabNavigationHelpers,
   BottomTabNavigationProp,
-} from '@react-navigation/bottom-tabs';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+  ExtraBottomTabNavigatorProps,
+  BottomTabNavigatorProps,
+} from '@react-navigation/native';
 import * as React from 'react';
 
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
@@ -21,6 +32,7 @@ import {
   type NavigationRoute,
 } from './route-names.js';
 import { tabBar } from './tab-bar.react.js';
+import TabRouter from './tab-router.js';
 import AppsDirectory from '../apps/apps-directory.react.js';
 import Calendar from '../calendar/calendar.react.js';
 import Chat from '../chat/chat.react.js';
@@ -59,11 +71,66 @@ const appsTabOptions = {
   ),
 };
 
+export type CustomBottomTabNavigationHelpers<
+  ParamList: ParamListBase = ParamListBase,
+> = {
+  ...$Exact<BottomTabNavigationHelpers<ParamList>>,
+  ...
+};
+
 export type TabNavigationProp<
   RouteName: $Keys<TabParamList> = $Keys<TabParamList>,
 > = BottomTabNavigationProp<ScreenParamList, RouteName>;
 
-const Tab = createBottomTabNavigator<
+type TabNavigatorProps = BottomTabNavigatorProps<
+  CustomBottomTabNavigationHelpers<>,
+>;
+
+const TabNavigator = React.memo<TabNavigatorProps>(function TabNavigator({
+  id,
+  initialRouteName,
+  backBehavior,
+  children,
+  screenListeners,
+  screenOptions,
+  defaultScreenOptions,
+  ...rest
+}: TabNavigatorProps) {
+  const { state, descriptors, navigation } = useNavigationBuilder(TabRouter, {
+    id,
+    initialRouteName,
+    backBehavior,
+    children,
+    screenListeners,
+    screenOptions,
+    defaultScreenOptions,
+  });
+
+  return (
+    <BottomTabView
+      {...rest}
+      state={state}
+      navigation={navigation}
+      descriptors={descriptors}
+      tabBar={tabBar}
+    />
+  );
+});
+
+const createTabNavigator: CreateNavigator<
+  TabNavigationState,
+  BottomTabOptions,
+  BottomTabNavigationEventMap,
+  ExtraBottomTabNavigatorProps,
+> = createNavigatorFactory<
+  TabNavigationState,
+  BottomTabOptions,
+  BottomTabNavigationEventMap,
+  BottomTabNavigationHelpers<>,
+  ExtraBottomTabNavigatorProps,
+>(TabNavigator);
+
+const Tab = createTabNavigator<
   ScreenParamList,
   TabParamList,
   BottomTabNavigationHelpers<ScreenParamList>,
@@ -72,7 +139,7 @@ type Props = {
   +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
   +route: NavigationRoute<'TabNavigator'>,
 };
-function TabNavigator(props: Props): React.Node {
+function TabComponent(props: Props): React.Node {
   const colors = useColors();
   const chatBadge = useSelector(unreadCount);
   const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
@@ -132,7 +199,6 @@ function TabNavigator(props: Props): React.Node {
   return (
     <Tab.Navigator
       initialRouteName={ChatRouteName}
-      tabBar={tabBar}
       backBehavior="none"
       screenOptions={tabBarScreenOptions}
     >
@@ -162,4 +228,4 @@ const styles = {
   },
 };
 
-export default TabNavigator;
+export default TabComponent;
