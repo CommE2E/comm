@@ -8,6 +8,8 @@ import * as React from 'react';
 import EmojiPicker, { useRecentPicksPersistence } from 'rn-emoji-keyboard';
 import emojisData from 'rn-emoji-keyboard/src/assets/emojis.json';
 
+import { useColors } from '../themes/colors.js';
+
 const STORAGE_KEY = 'EMOJI_KEYBOARD_RECENT';
 
 const categoryOrder = [
@@ -90,6 +92,42 @@ function EmojiKeyboard(props: Props): React.Node {
 
   useRecentPicksPersistence(useRecentPicksPersistenceArgs);
 
+  const colors = useColors();
+
+  const theme = React.useMemo(
+    () => ({
+      knob: colors.emojiKeyboardKnob,
+      container: colors.modalForeground,
+      header: colors.modalBackgroundLabel,
+      category: {
+        icon: colors.emojiKeyboardCategoryIcon,
+        iconActive: colors.panelForegroundLabel,
+        container: colors.panelInputBackground,
+        containerActive: colors.emojiKeyboardcontainerActive,
+      },
+      search: {
+        text: colors.panelForegroundLabel,
+        placeholder: colors.panelInputSecondaryForeground,
+        icon: colors.panelInputSecondaryForeground,
+        background: colors.panelInputBackground,
+      },
+      emoji: {
+        selected: colors.panelSecondaryForegroundBorder,
+      },
+    }),
+    [
+      colors.emojiKeyboardCategoryIcon,
+      colors.emojiKeyboardKnob,
+      colors.emojiKeyboardcontainerActive,
+      colors.modalBackgroundLabel,
+      colors.modalForeground,
+      colors.panelForegroundLabel,
+      colors.panelInputBackground,
+      colors.panelInputSecondaryForeground,
+      colors.panelSecondaryForegroundBorder,
+    ],
+  );
+
   return (
     <EmojiPicker
       onEmojiSelected={handleOnEmojiSelected}
@@ -100,6 +138,7 @@ function EmojiKeyboard(props: Props): React.Node {
       enableRecentlyUsed
       categoryOrder={categoryOrder}
       selectedEmojis={currentlySelected}
+      theme={theme}
       styles={emojiKeyboardStyles}
     />
   );
