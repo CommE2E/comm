@@ -4,6 +4,7 @@ import * as React from 'react';
 import { ChevronRight } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -11,8 +12,10 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
+import Button from '../components/button.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import MessageResultsModal from '../modals/chat/message-results-modal.react.js';
+import MessageSearchModal from '../modals/search/message-search-modal.react.js';
 
 type ThreadTopBarProps = {
   +threadInfo: ThreadInfo,
@@ -63,6 +66,25 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
     );
   }, [bannerText, pushThreadPinsModal]);
 
+  const onClickSearch = React.useCallback(
+    () =>
+      pushModal(
+        <InputStateContext.Provider value={inputState}>
+          <MessageSearchModal threadInfo={threadInfo} />
+        </InputStateContext.Provider>,
+      ),
+    [inputState, pushModal, threadInfo],
+  );
+
+  const searchButton = React.useMemo(
+    () => (
+      <Button className={css.button} onClick={onClickSearch}>
+        <SWMansionIcon size={24} icon="search" className={css.searchButton} />
+      </Button>
+    ),
+    [onClickSearch],
+  );
+
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
   return (
@@ -72,7 +94,10 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
           <ThreadAvatar size="small" threadInfo={threadInfo} />
           <div className={css.threadTitle}>{uiName}</div>
         </div>
-        {threadMenu}
+        <div className={css.buttons}>
+          {searchButton}
+          {threadMenu}
+        </div>
       </div>
       {pinnedCountBanner}
     </>
