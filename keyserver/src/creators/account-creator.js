@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import ashoat from 'lib/facts/ashoat.js';
@@ -16,6 +17,7 @@ import type {
   RegisterResponse,
   RegisterRequest,
 } from 'lib/types/account-types.js';
+import type { ReservedUsernameMessage } from 'lib/types/crypto-types';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   PlatformDetails,
@@ -46,9 +48,11 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers.js';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
 import { createNewUserCookie, setNewSession } from '../session/cookies.js';
 import { createScriptViewer } from '../session/scripts.js';
 import type { Viewer } from '../session/viewer.js';
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 
@@ -208,6 +212,23 @@ async function createAccount(
     ...privateThreadResult.newMessageInfos,
     ...messageInfos,
   ];
+
+  const issuedAt = new Date().toISOString();
+  const reservedUsernameMessage: ReservedUsernameMessage = {
+    statement: 'Add the following username to reserved list',
+    username: request.username,
+    issuedAt,
+  };
+  const stringifiedMessage = JSON.stringify(reservedUsernameMessage);
+
+  handleAsyncPromise(
+    (async () => {
+      const rustAPI = await getRustAPI();
+      const accountInfo = await fetchOlmAccount('content');
+      const signature = accountInfo.account.sign(stringifiedMessage);
+      await rustAPI.addReservedUsername(stringifiedMessage, signature);
+    })(),
+  );
 
   return {
     id,
