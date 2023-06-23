@@ -4,7 +4,10 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
 import { localIDPrefix } from 'lib/shared/message-utils.js';
-import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
+import {
+  getViewerAlreadySelectedMessageReactions,
+  useCanCreateReactionFromMessage,
+} from 'lib/shared/reaction-utils.js';
 
 import { TooltipInlineEngagement } from './inline-engagement.react.js';
 import { InnerTextMessage } from './inner-text-message.react.js';
@@ -149,7 +152,10 @@ function TextMessageTooltipButton(props: Props): React.Node {
     [sendReaction, dismissTooltip],
   );
 
-  const alreadySelectedEmojis = React.useMemo(() => [], []);
+  const alreadySelectedEmojis = React.useMemo(
+    () => getViewerAlreadySelectedMessageReactions(item.reactions),
+    [item.reactions],
+  );
 
   return (
     <MessageListContextProvider threadInfo={threadInfo}>
