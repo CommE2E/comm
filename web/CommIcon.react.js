@@ -17,9 +17,14 @@ export type CommIcons =
   | 'copy-filled'
   | 'emote-smile-filled'
   | 'pin'
+  | 'pin-outline'
   | 'unpin'
+  | 'unpin-outline'
   | 'pin-mirror'
-  | 'edit-filled';
+  | 'edit-filled'
+  | 'ethereum-outline'
+  | 'link_plus-outline'
+  | 'user-filled';
 
 type CommIconProps = {
   +icon: CommIcons,
