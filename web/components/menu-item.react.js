@@ -10,25 +10,36 @@ import SWMansionIcon, {
 import Button from './button.react.js';
 import css from './menu.css';
 
-type MenuItemProps = {
+type MenuItemPropsBase = {
   +onClick?: () => mixed,
-  +icon: Icon,
   +text: string,
   +dangerous?: boolean,
 };
+type MenuItemProps =
+  | {
+      ...MenuItemPropsBase,
+      +icon: Icon,
+    }
+  | {
+      ...MenuItemPropsBase,
+      +iconComponent: React.Node,
+    };
 
 function MenuItem(props: MenuItemProps): React.Node {
-  const { onClick, icon, text, dangerous } = props;
+  const { onClick, icon, iconComponent, text, dangerous } = props;
 
   const itemClasses = classNames(css.menuAction, {
     [css.menuActionDangerous]: dangerous,
   });
 
+  let menuItemIcon = iconComponent;
+  if (icon) {
+    menuItemIcon = <SWMansionIcon size="100%" icon={icon} />;
+  }
+
   return (
     <Button className={itemClasses} onClick={onClick}>
-      <div className={css.menuActionIcon}>
-        <SWMansionIcon size="100%" icon={icon} />
-      </div>
+      <div className={css.menuActionIcon}>{menuItemIcon}</div>
       <div>{text}</div>
     </Button>
   );
