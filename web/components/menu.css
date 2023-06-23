@@ -12,6 +12,7 @@ div.menuActionList {
   flex-direction: column;
   background-color: var(--menu-bg);
   color: var(--menu-color);
+  stroke: var(--menu-color);
   border-radius: 4px;
   padding: 4px 0;
   line-height: var(--line-height-text);
@@ -28,6 +29,7 @@ div.menuActionListMemberActions {
   font-size: var(--xs-font-12);
   background-color: var(--menu-bg-light);
   color: var(--menu-color-light);
+  stroke: var(--menu-color-light);
   top: 0;
   right: 5px;
 }
@@ -36,6 +38,7 @@ div.menuActionListCommunityActions {
   font-size: var(--m-font-16);
   background-color: var(--menu-bg-light);
   color: var(--menu-color);
+  stroke: var(--menu-color);
   top: 24px;
 }
 
@@ -50,6 +53,7 @@ button.menuAction {
 
 button.menuAction:hover {
   color: var(--menu-color-hover);
+  stroke: var(--menu-color-hover);
 }
 
 div.menuActionIcon {
@@ -67,9 +71,11 @@ div.menuActionListMemberActions div.menuActionIcon {
 
 button.menuActionDangerous {
   color: var(--menu-color-dangerous);
+  stroke: var(--menu-color-dangerous);
 }
 button.menuActionDangerous:hover {
   color: var(--menu-color-dangerous-hover);
+  stroke: var(--menu-color-dangerous-hover);
 }
 
 hr.separator {
