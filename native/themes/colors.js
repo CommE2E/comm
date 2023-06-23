@@ -141,6 +141,9 @@ const light = Object.freeze({
   secondaryButtonBorder: designSystemColors.shadesWhite100,
   inviteLinkLinkColor: designSystemColors.shadesBlack100,
   inviteLinkButtonBackground: designSystemColors.shadesWhite60,
+  emojiKeyboardKnob: designSystemColors.shadesWhite90,
+  emojiKeyboardCategoryIcon: designSystemColors.shadesBlack70,
+  emojiKeyboardContainerActive: designSystemColors.shadesWhite90,
 });
 export type Colors = $Exact<typeof light>;
 
@@ -238,6 +241,9 @@ const dark: Colors = Object.freeze({
   secondaryButtonBorder: designSystemColors.shadesWhite100,
   inviteLinkLinkColor: designSystemColors.shadesWhite80,
   inviteLinkButtonBackground: designSystemColors.shadesBlack80,
+  emojiKeyboardKnob: designSystemColors.shadesWhite100,
+  emojiKeyboardCategoryIcon: designSystemColors.shadesWhite70,
+  emojiKeyboardContainerActive: designSystemColors.shadesBlack60,
 });
 const colors = { light, dark };
 
