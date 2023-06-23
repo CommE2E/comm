@@ -111,7 +111,7 @@
   --disconnected-bar-connecting-color: var(--shades-black-100);
   --permission-color: var(--shades-white-60);
   --thread-top-bar-color: var(--shades-white-100);
-  --thread-top-bar-menu-color: var(--shades-white-70);
+  --thread-top-bar-search-button-color: var(--shades-black-60);
   --thread-ancestor-keyserver-border: var(--shades-black-70);
   --thread-ancestor-color: var(--shades-white-100);
   --thread-ancestor-separator-color: var(--shades-white-60);
