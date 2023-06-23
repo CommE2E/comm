@@ -16,7 +16,7 @@ pub async fn add_reserved_username(
   identity_client
     .add_reserved_username(add_reserved_username_request)
     .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?
+    .map_err(|e| Error::new(Status::GenericFailure, e.to_string()))?
     .into_inner();
 
   Ok(())

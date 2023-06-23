@@ -16,7 +16,7 @@ pub async fn remove_reserved_username(
   identity_client
     .remove_reserved_username(remove_reserved_username_request)
     .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?
+    .map_err(|e| Error::new(Status::GenericFailure, e.to_string()))?
     .into_inner();
 
   Ok(())
