@@ -100,8 +100,18 @@ function EmojiKeyboard(props: Props): React.Node {
       enableRecentlyUsed
       categoryOrder={categoryOrder}
       selectedEmojis={currentlySelected}
+      styles={emojiKeyboardStyles}
     />
   );
 }
+
+const emojiKeyboardStyles = {
+  searchBar: {
+    container: {
+      borderWidth: 0,
+      borderRadius: 8,
+    },
+  },
+};
 
 export default EmojiKeyboard;
