@@ -317,7 +317,7 @@ const drawerSwipeEnabledSelector: (context: ?NavContextType) => boolean =
     },
   );
 
-const getChatNavState: (
+const getTabNavState: (
   navigationState: ?PossiblyStaleNavigationState,
 ) => ?PossiblyStaleNavigationState = (
   navigationState: ?PossiblyStaleNavigationState,
@@ -337,6 +337,14 @@ const getChatNavState: (
   }
 
   const tabState = getStateFromNavigatorRoute(firstCommunityDrawerSubroute);
+  return tabState;
+};
+
+const getChatNavStateFromTabNavState: (
+  tabState: ?PossiblyStaleNavigationState,
+) => ?PossiblyStaleNavigationState = (
+  tabState: ?PossiblyStaleNavigationState,
+) => {
   if (!tabState) {
     return null;
   }
@@ -402,5 +410,6 @@ export {
   drawerSwipeEnabledSelector,
   useCurrentLeafRouteName,
   getRemoveEditMode,
-  getChatNavState,
+  getTabNavState,
+  getChatNavStateFromTabNavState,
 };
