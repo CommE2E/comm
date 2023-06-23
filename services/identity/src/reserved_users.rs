@@ -1,5 +1,4 @@
-use std::str::FromStr;
-
+use base64::{engine::general_purpose, Engine as _};
 use chrono::{DateTime, Utc};
 use constant_time_eq::constant_time_eq;
 use ed25519_dalek::{PublicKey, Signature, Verifier};
@@ -9,6 +8,7 @@ use tonic::Status;
 use crate::config::CONFIG;
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct ReservedUsernameMessage {
   statement: String,
   username: String,
@@ -38,7 +38,11 @@ fn validate_message(
     return Err(Status::invalid_argument("message invalid"));
   }
 
-  let signature = Signature::from_str(keyserver_signature)
+  let signature_bytes = general_purpose::STANDARD_NO_PAD
+    .decode(keyserver_signature)
+    .map_err(|_| Status::invalid_argument("signature invalid"))?;
+
+  let signature = Signature::from_bytes(&signature_bytes)
     .map_err(|_| Status::invalid_argument("signature invalid"))?;
 
   let public_key_string = CONFIG
@@ -46,9 +50,12 @@ fn validate_message(
     .clone()
     .ok_or(Status::failed_precondition("missing key"))?;
 
-  let public_key: PublicKey =
-    PublicKey::from_bytes(public_key_string.as_bytes())
-      .map_err(|_| Status::failed_precondition("malformed key"))?;
+  let public_key_bytes = general_purpose::STANDARD_NO_PAD
+    .decode(public_key_string)
+    .map_err(|_| Status::failed_precondition("malformed key"))?;
+
+  let public_key: PublicKey = PublicKey::from_bytes(&public_key_bytes)
+    .map_err(|_| Status::failed_precondition("malformed key"))?;
 
   public_key
     .verify(keyserver_message.as_bytes(), &signature)
