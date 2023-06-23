@@ -7,6 +7,7 @@ type SVGProps = {
   viewBox: string,
   preserveAspectRatio?: string,
   children?: React.Node,
+  fill?: string,
 };
 
 function SVG(props: SVGProps): React.Node {
@@ -93,6 +94,28 @@ export function MagnifyingGlass(props: { className?: string }): React.Node {
         }
       />
       <path d="M0 0h24v24H0z" fill="none" />
+    </SVG>
+  );
+}
+
+export function AddLink(props: { className?: string }): React.Node {
+  return (
+    <SVG className={props.className} viewBox="0 0 24 24" fill="none">
+      <path
+        d={
+          'M16.9488 12.7106L18.363 11.2964C19.9251 9.73433 19.9251 7.20167 ' +
+          '18.363 5.63957C16.8009 4.07747 14.2682 4.07747 12.7061 ' +
+          '5.63957L11.2919 7.05378M9.1706 14.832L14.8275 9.1751M7.04928 ' +
+          '11.2964L5.63507 12.7106C4.07297 14.2727 4.07297 16.8054 5.63507 ' +
+          '18.3675C7.19717 19.9296 9.72983 19.9296 11.2919 18.3675L12.7061 ' +
+          '16.9533'
+        }
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M19.5 15V21" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M22.5 18H16.5" strokeWidth="1.5" strokeLinecap="round" />
     </SVG>
   );
 }

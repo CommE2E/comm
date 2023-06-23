@@ -5,13 +5,17 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { InviteLink } from 'lib/types/link-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import css from './invite-links-menu.css';
 import ViewInviteLinkModal from './view-invite-link-modal.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { AddLink } from '../vectors.react.js';
 
 type Props = {
   +communityID: string,
@@ -24,6 +28,14 @@ function InviteLinksMenu(props: Props): React.Node {
   ];
   const { pushModal } = useModalContext();
 
+  const community = useSelector(
+    state => threadInfoSelector(state)[communityID],
+  );
+  const canManageLinks = threadHasPermission(
+    community,
+    threadPermissions.MANAGE_INVITE_LINKS,
+  );
+
   const openViewInviteLinkModal = React.useCallback(() => {
     if (!inviteLink) {
       return;
@@ -31,19 +43,58 @@ function InviteLinksMenu(props: Props): React.Node {
     pushModal(<ViewInviteLinkModal inviteLink={inviteLink} />);
   }, [inviteLink, pushModal]);
 
-  if (!inviteLink) {
-    return null;
-  }
+  const items = React.useMemo(() => {
+    const itemSpecs = [];
+
+    if (canManageLinks) {
+      itemSpecs.push({
+        text: 'Manage invite links',
+        iconComponent: <AddLink />,
+        onClick: () => {},
+      });
+    }
+
+    if (inviteLink) {
+      itemSpecs.push({
+        text: 'Invite link',
+        icon: 'link',
+        onClick: openViewInviteLinkModal,
+      });
+    }
+
+    return itemSpecs;
+  }, [canManageLinks, inviteLink, openViewInviteLinkModal]);
+
+  const menuItems = React.useMemo(
+    () =>
+      items.map(item => {
+        if (item.icon) {
+          return (
+            <MenuItem
+              key={item.text}
+              text={item.text}
+              icon={item.icon}
+              onClick={item.onClick}
+            />
+          );
+        }
+        return (
+          <MenuItem
+            key={item.text}
+            text={item.text}
+            iconComponent={item.iconComponent}
+            onClick={item.onClick}
+          />
+        );
+      }),
+    [items],
+  );
 
   const icon = <SWMansionIcon icon="menu-vertical" size={24} />;
   return (
     <div className={css.container}>
       <Menu icon={icon} variant="community-actions">
-        <MenuItem
-          text="Invite Link"
-          icon="link"
-          onClick={openViewInviteLinkModal}
-        />
+        {menuItems}
       </Menu>
     </div>
   );
