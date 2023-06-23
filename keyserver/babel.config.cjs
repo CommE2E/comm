@@ -7,6 +7,12 @@ module.exports = {
     '@babel/plugin-proposal-optional-chaining',
     '@babel/plugin-proposal-nullish-coalescing-operator',
     ['@babel/plugin-transform-runtime', { useESModules: true }],
+    [
+      'babel-plugin-transform-import-meta',
+      {
+        replaceWith: '({ url: __filename })',
+      },
+    ],
   ],
 
   env: {
