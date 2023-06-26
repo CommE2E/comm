@@ -11,6 +11,7 @@ import css from './edit-user-avatar-menu.css';
 import EmojiAvatarSelectionModal from './emoji-avatar-selection-modal.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
+import { allowedMimeTypeString } from '../media/file-utils.js';
 
 const editIcon = (
   <div className={css.editAvatarBadge}>
@@ -47,10 +48,30 @@ function EditUserAvatarMenu(): React.Node {
     ),
     [openEmojiSelectionModal],
   );
-  const imageMenuItem = React.useMemo(
-    () => <MenuItem key="image" text="Select image" icon="image-1" />,
+
+  const imageInputRef = React.useRef();
+  const onImageMenuItemClicked = React.useCallback(
+    () => imageInputRef.current?.click(),
     [],
   );
+
+  const onImageSelected = React.useCallback(
+    event => console.log(event.target.files),
+    [],
+  );
+
+  const imageMenuItem = React.useMemo(
+    () => (
+      <MenuItem
+        key="image"
+        text="Select image"
+        icon="image-1"
+        onClick={onImageMenuItemClicked}
+      />
+    ),
+    [onImageMenuItemClicked],
+  );
+
   const removeMenuItem = React.useMemo(
     () => (
       <MenuItem
@@ -68,7 +89,17 @@ function EditUserAvatarMenu(): React.Node {
     [emojiMenuItem, imageMenuItem, removeMenuItem],
   );
 
-  return <Menu icon={editIcon}>{menuItems}</Menu>;
+  return (
+    <div>
+      <input
+        type="file"
+        onChange={onImageSelected}
+        ref={imageInputRef}
+        accept={allowedMimeTypeString}
+      />
+      <Menu icon={editIcon}>{menuItems}</Menu>
+    </div>
+  );
 }
 
 export default EditUserAvatarMenu;
