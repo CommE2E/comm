@@ -4,8 +4,6 @@ import * as React from 'react';
 
 import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
 
-const displayAvatarUpdateFailureAlert = () => null;
-
 // TODO: Implement `selectFromGallery(...)` for `web`.
 const selectFromGallery = async () => null;
 
@@ -19,7 +17,6 @@ function WebEditUserAvatarProvider(props: Props): React.Node {
   const { children } = props;
   return (
     <BaseEditUserAvatarProvider
-      displayFailureAlert={displayAvatarUpdateFailureAlert}
       selectFromGallery={selectFromGallery}
       useUploadSelectedMedia={useUploadSelectedMedia}
     >
