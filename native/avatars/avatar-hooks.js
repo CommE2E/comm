@@ -2,6 +2,7 @@
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as ImagePicker from 'expo-image-picker';
+import invariant from 'invariant';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import Alert from 'react-native/Libraries/Alert/Alert.js';
@@ -9,6 +10,7 @@ import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
+import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
@@ -181,6 +183,23 @@ function useUploadSelectedMedia(
   );
 }
 
+function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'updateImageUserAvatar must be defined');
+  const { updateImageUserAvatar } = editUserAvatarContext;
+
+  const selectFromGalleryAndUpdateUserAvatar =
+    React.useCallback(async (): Promise<void> => {
+      const selection = await selectFromGallery();
+      if (!selection) {
+        return;
+      }
+      await updateImageUserAvatar(selection);
+    }, [updateImageUserAvatar]);
+
+  return selectFromGalleryAndUpdateUserAvatar;
+}
+
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
@@ -310,4 +329,5 @@ export {
   useUploadProcessedMedia,
   useProcessSelectedMedia,
   useShowAvatarActionSheet,
+  useSelectFromGalleryAndUpdateUserAvatar,
 };
