@@ -11,13 +11,21 @@ type ColorSelectorButtonProps = {
   +color: string,
   +currentColor: string,
   +onColorSelection: (hex: string) => void,
+  +size?: 'small' | 'large',
 };
 function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
-  const { color, currentColor, onColorSelection } = props;
+  const { color, currentColor, onColorSelection, size } = props;
 
   const active = tinycolor.equals(color, currentColor);
-  const containerClassName = classNames(css.container, {
+  const containerClassName = classNames({
+    [css.container]: true,
+    [css.containerLarge]: size === 'large',
     [css.active]: active,
+  });
+
+  const colorSplotchClassName = classNames({
+    [css.colorSplotch]: true,
+    [css.colorSplotchLarge]: size === 'large',
   });
 
   const colorSplotchStyle = React.useMemo(
@@ -33,7 +41,7 @@ function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
 
   return (
     <Button onClick={onColorSplotchClicked} className={containerClassName}>
-      <div className={css.colorSplotch} style={colorSplotchStyle} />
+      <div className={colorSplotchClassName} style={colorSplotchStyle} />
     </Button>
   );
 }
