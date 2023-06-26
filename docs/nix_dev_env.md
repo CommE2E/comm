@@ -127,6 +127,11 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
     - [Committing a diff](./nix_shared_workflows.md#committing-a-diff)
   - [Final notes](./nix_shared_workflows.md#final-notes)
 
+## Production workflows
+
+- [Services deployment](./nix_services_deployment.md)
+  - [Tunnelbroker](./nix_services_deployment.md#tunnelbroker)
+
 ## Using alternate shells with Nix
 
 Alternate shells such as zsh or fish can also be used with Nix. To use an alternate shell, run:
