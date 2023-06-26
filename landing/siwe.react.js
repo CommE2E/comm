@@ -37,7 +37,7 @@ import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
 import { useMonitorForWalletConnectModal } from './walletconnect-hooks.js';
 
-const projectId = process.env.COMM_WALLETCONNECT_KEY;
+const projectId = 'fdb51537c1ed7a73d64b4ae5db229939';
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
 const connectors = connectorsForWallets([
   {
