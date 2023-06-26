@@ -113,6 +113,10 @@ function CommunityConfiguration(props: Props): React.Node {
     setAnnouncementSetting(!announcementSetting);
   }, [announcementSetting]);
 
+  const enumSettingsOptionDescription =
+    'Make it so only admins can post to ' +
+    'the root channel of the community.';
+
   return (
     <RegistrationContainer>
       <RegistrationContentContainer style={styles.containerPaddingOverride}>
@@ -141,7 +145,7 @@ function CommunityConfiguration(props: Props): React.Node {
         <EnumSettingsOption
           icon="megaphone"
           name="Announcement root"
-          description="Make it so that only admins can post to the root channel of the community."
+          description={enumSettingsOptionDescription}
           enumValue={announcementSetting}
           onEnumValuePress={onCheckBoxPress}
         />

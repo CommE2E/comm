@@ -20,7 +20,7 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
   const { icon, name, description, enumValue, onEnumValuePress } = props;
 
   const enumIcon = React.useMemo(() => {
-    if (icon) {
+    if (!icon) {
       return null;
     }
 
