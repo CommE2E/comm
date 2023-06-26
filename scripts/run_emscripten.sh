@@ -3,8 +3,6 @@
 # This should also download sqlite-engine, I've done it manually for now
 
 
-# EMCC_FLAGS="-O0 -g4 --source-map-base ./ --source-map-root ./ -s ASSERTIONS=2 -s SAFE_HEAP=1 -s STACK_OVERFLOW_CHECK=1 -s DISABLE_EXCEPTION_CATCHING=0"
-
 SHARED_FLAGS="-s WASM=1 -s MODULARIZE=1 -s EXCEPTION_CATCHING_ALLOWED=[..] -s NO_DISABLE_EXCEPTION_CATCHING -s WASM_ASYNC_COMPILATION=0 -s EXPORT_ES6=1"
 
 
