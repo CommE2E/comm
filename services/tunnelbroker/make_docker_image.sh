@@ -16,4 +16,4 @@ cp -r "${SCRIPT_DIR}/../../shared/tunnelbroker_messages" \
 cp -r "${SCRIPT_DIR}"/{Cargo.toml,Cargo.lock,build.rs,src} \
   "$BUILD_DIR"/services/tunnelbroker/
 
-docker build -f "${SCRIPT_DIR}/Dockerfile" "$BUILD_DIR"
+docker build "$@" -f "${SCRIPT_DIR}/Dockerfile" "$BUILD_DIR"
