@@ -9,3 +9,7 @@ div.container {
   width: 100%;
   padding: 6px 0;
 }
+
+div.containerLarge {
+  row-gap: 36px;
+}

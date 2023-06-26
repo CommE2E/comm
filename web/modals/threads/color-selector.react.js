@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { selectedThreadColors } from 'lib/shared/color-utils.js';
@@ -10,9 +11,10 @@ import css from './color-selector.css';
 type ColorSelectorProps = {
   +currentColor: string,
   +onColorSelection: (hex: string) => void,
+  +size?: 'small' | 'large',
 };
 function ColorSelector(props: ColorSelectorProps): React.Node {
-  const { currentColor, onColorSelection } = props;
+  const { currentColor, onColorSelection, size } = props;
 
   const colorSelectorButtons = React.useMemo(
     () =>
@@ -22,12 +24,18 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
           color={color}
           currentColor={currentColor}
           onColorSelection={onColorSelection}
+          size={size}
         />
       )),
-    [currentColor, onColorSelection],
+    [currentColor, onColorSelection, size],
   );
 
-  return <div className={css.container}>{colorSelectorButtons}</div>;
+  const containerClassName = classNames({
+    [css.container]: true,
+    [css.containerLarge]: size === 'large',
+  });
+
+  return <div className={containerClassName}>{colorSelectorButtons}</div>;
 }
 
 export default ColorSelector;

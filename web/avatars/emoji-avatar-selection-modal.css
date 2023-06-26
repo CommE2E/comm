@@ -15,6 +15,7 @@ div.modalBody {
 }
 
 div.tabBody {
+  height: 300px;
   padding-top: 20px;
   display: flex;
   justify-content: center;
@@ -31,10 +32,6 @@ div.emojiPickerContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-div.colorSelectorContainer {
-  margin: 20px 60px;
 }
 
 div.saveButtonContainer {
