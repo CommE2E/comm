@@ -1,8 +1,4 @@
-use crate::constants::{
-  SECRETS_FILE_EXTENSION, SECRETS_FILE_NAME, SECRETS_SETUP_FILE,
-};
-use comm_opaque::Cipher;
-use opaque_ke::{ciphersuite::CipherSuite, rand::rngs::OsRng};
+use crate::constants::SECRETS_SETUP_FILE;
 use std::{fs, io, path};
 
 pub fn generate_and_persist_keypair(dir: &str) -> Result<(), io::Error> {
@@ -11,19 +7,6 @@ pub fn generate_and_persist_keypair(dir: &str) -> Result<(), io::Error> {
   if !secrets_dir.exists() {
     println!("Creating secrets directory {:?}", secrets_dir);
     fs::create_dir(&secrets_dir)?;
-  }
-
-  // Opaque_ke 1.2.0 setup
-  let mut rng = OsRng;
-  let server_kp = Cipher::generate_random_keypair(&mut rng);
-  let mut path = secrets_dir.clone();
-  path.push(SECRETS_FILE_NAME);
-  path.set_extension(SECRETS_FILE_EXTENSION);
-  if !path.exists() {
-    println!("Writing secret key to {:?}", path);
-    fs::write(&path, server_kp.private().to_arr())?;
-  } else {
-    println!("{:?} already exists, skipping", path);
   }
 
   // Opaque 2.0 setup

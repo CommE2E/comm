@@ -663,23 +663,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "comm-opaque"
-version = "0.1.0"
-dependencies = [
- "argon2",
- "curve25519-dalek 3.2.0",
- "digest 0.9.0",
- "opaque-ke 1.2.0",
- "sha2 0.9.9",
-]
-
-[[package]]
 name = "comm-opaque2"
 version = "0.2.0"
 dependencies = [
  "argon2",
  "log",
- "opaque-ke 2.0.0",
+ "opaque-ke",
  "rand 0.8.5",
  "tonic",
  "wasm-bindgen",
@@ -699,12 +688,6 @@ name = "const-oid"
 version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "520fbf3c07483f94e3e3ca9d0cfd913d7718ef2483d2cfd91c0d9e91474ab913"
-
-[[package]]
-name = "constant_time_eq"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc"
 
 [[package]]
 name = "constant_time_eq"
@@ -1222,10 +1205,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c85e1d9ab2eadba7e5040d4e09cbd6d072b76a557ad64e797c2cb9d4da21d7e4"
 dependencies = [
  "cfg-if",
- "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -1316,16 +1297,6 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
-
-[[package]]
-name = "hkdf"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01706d578d5c281058480e673ae4086a9f4710d8df1ad80a5b03e39ece5f886b"
-dependencies = [
- "digest 0.9.0",
- "hmac 0.11.0",
-]
 
 [[package]]
 name = "hkdf"
@@ -1477,27 +1448,21 @@ dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
  "base64",
- "bytes",
  "chrono",
  "clap",
- "comm-opaque",
  "comm-opaque2",
- "constant_time_eq 0.2.5",
- "curve25519-dalek 3.2.0",
+ "constant_time_eq",
  "derive_more",
  "ed25519-dalek",
- "futures-core",
  "hex",
  "moka",
  "once_cell",
- "opaque-ke 1.2.0",
  "prost",
  "rand 0.8.5",
  "serde",
  "serde_json",
  "siwe",
  "tokio",
- "tokio-stream",
  "tonic",
  "tonic-build",
  "tonic-web",
@@ -1785,25 +1750,6 @@ checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 
 [[package]]
 name = "opaque-ke"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f25e5f1be61b7a94f388368a24739318fe4edd2b841d20d7077a422a5391e22f"
-dependencies = [
- "constant_time_eq 0.1.5",
- "curve25519-dalek 3.2.0",
- "digest 0.9.0",
- "displaydoc",
- "generic-array",
- "getrandom 0.2.9",
- "hkdf 0.11.0",
- "hmac 0.11.0",
- "rand 0.8.5",
- "subtle",
- "zeroize",
-]
-
-[[package]]
-name = "opaque-ke"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76d410412d23781909d90c3900c5783e830586765f2277bccc78167da8af81a5"
@@ -1815,7 +1761,7 @@ dependencies = [
  "displaydoc",
  "elliptic-curve 0.12.3",
  "generic-array",
- "hkdf 0.12.3",
+ "hkdf",
  "hmac 0.12.1",
  "rand 0.8.5",
  "serde",
