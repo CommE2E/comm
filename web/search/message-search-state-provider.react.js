@@ -114,13 +114,20 @@ function MessageSearchStateProvider(props: Props): React.Node {
   const searchMessagesCall = useSearchMessages();
 
   const loading = React.useRef(false);
+  const queryIDref = React.useRef(0);
 
   const appendResults = React.useCallback(
     (
       newMessages: $ReadOnlyArray<RawMessageInfo>,
       end: boolean,
       threadID: string,
+      queryID?: number,
     ) => {
+      if (queryID !== queryIDref.current) {
+        loading.current = false;
+        return;
+      }
+
       appendResult(newMessages, threadID);
       if (end) {
         setEndReached(threadID);
@@ -135,12 +142,14 @@ function MessageSearchStateProvider(props: Props): React.Node {
       if (loading.current || endsReached.current.has(threadID)) {
         return;
       }
+      queryIDref.current += 1;
       loading.current = true;
       searchMessagesCall(
         queries.current[threadID],
         threadID,
         appendResults,
         lastIDs.current[threadID],
+        queryIDref.current,
       );
     },
     [appendResults, endsReached, searchMessagesCall],
