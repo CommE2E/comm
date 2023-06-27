@@ -7,3 +7,5 @@ The React Dev Tools Chrome extension lets you inspect the React component tree f
 ## Redux Dev Tools Chrome extension
 
 The Redux Dev Tools Chrome extension lets you watch for Redux actions and inspect the Redux store state for web applications in Chrome. To install it, navigate [here](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd) on Chrome.
+
+Make sure to restart Chrome after installing the extension!
