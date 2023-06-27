@@ -6,8 +6,9 @@ import type { PolicyType } from 'lib/facts/policies.js';
 import {
   hasMinCodeVersion,
   FUTURE_CODE_VERSION,
+  NEXT_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
-import { type PlatformDetails, isWebPlatform } from 'lib/types/device-types.js';
+import { type PlatformDetails } from 'lib/types/device-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
   tCookie,
@@ -39,8 +40,8 @@ async function validateInput<T>(
   if (
     hasMinCodeVersion(viewer.platformDetails, {
       native: FUTURE_CODE_VERSION,
+      web: NEXT_CODE_VERSION,
     }) &&
-    !isWebPlatform(viewer.platformDetails?.platform) &&
     convertToNewIDSchema
   ) {
     try {
@@ -61,6 +62,7 @@ function validateOutput<T>(
   platformDetails: ?PlatformDetails,
   outputValidator: TType<T>,
   data: T,
+  alwaysConvertSchema?: boolean,
 ): T {
   if (!outputValidator.is(data)) {
     console.trace(
@@ -71,9 +73,12 @@ function validateOutput<T>(
   }
 
   if (
-    hasMinCodeVersion(platformDetails, { native: FUTURE_CODE_VERSION }) &&
-    !isWebPlatform(platformDetails?.platform) &&
-    convertToNewIDSchema
+    (hasMinCodeVersion(platformDetails, {
+      native: FUTURE_CODE_VERSION,
+      web: NEXT_CODE_VERSION,
+    }) &&
+      convertToNewIDSchema) ||
+    alwaysConvertSchema
   ) {
     return convertServerIDsToClientIDs(
       keyserverPrefixID,
