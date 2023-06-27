@@ -1,13 +1,11 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { registerActionTypes, register } from 'lib/actions/user-actions.js';
-import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
   useServerCall,
@@ -20,7 +18,10 @@ import type {
   UsernameAccountSelection,
   AvatarData,
 } from './registration-types.js';
-import { useUploadSelectedMedia } from '../../avatars/avatar-hooks.js';
+import {
+  useNativeSetUserAvatar,
+  useUploadSelectedMedia,
+} from '../../avatars/avatar-hooks.js';
 import { NavContext } from '../../navigation/navigation-context.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
@@ -174,10 +175,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   // STEP 2: SETTING AVATAR
 
   const uploadSelectedMedia = useUploadSelectedMedia();
-
-  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
-  invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
-  const { setUserAvatar } = editUserAvatarContext;
+  const nativeSetUserAvatar = useNativeSetUserAvatar();
 
   const hasCurrentUserInfo = useSelector(
     state => !!state.currentUserInfo && !state.currentUserInfo.anonymous,
@@ -209,7 +207,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             return;
           }
         }
-        await setUserAvatar(updateUserAvatarRequest);
+        await nativeSetUserAvatar(updateUserAvatarRequest);
       } finally {
         dispatch({
           type: setDataLoadedActionType,
@@ -226,7 +224,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     currentStep,
     hasCurrentUserInfo,
     uploadSelectedMedia,
-    setUserAvatar,
+    nativeSetUserAvatar,
     dispatch,
   ]);
 
