@@ -64,6 +64,7 @@ const persistWhitelist = [
   'cryptoStore',
   'notifPermissionAlertInfo',
   'commServicesAccessToken',
+  'lastCommunicatedPlatformDetails',
 ];
 
 const persistConfig: PersistConfig = {

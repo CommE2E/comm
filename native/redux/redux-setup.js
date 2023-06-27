@@ -122,6 +122,7 @@ const defaultState = ({
   inviteLinksStore: {
     links: {},
   },
+  lastCommunicatedPlatformDetails: {},
 }: AppState);
 
 function reducer(state: AppState = defaultState, action: Action) {

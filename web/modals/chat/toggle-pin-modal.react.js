@@ -10,6 +10,7 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
+import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -80,10 +81,13 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
         messageID: messageInfo.id,
         action: modalInfo.action,
       });
-      return {
+      return ({
         newMessageInfos: result.newMessageInfos,
         threadID: result.threadID,
-      };
+      }: {
+        +newMessageInfos: $ReadOnlyArray<RawMessageInfo>,
+        +threadID: string,
+      });
     };
 
     dispatchActionPromise(
