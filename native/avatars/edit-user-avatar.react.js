@@ -11,6 +11,7 @@ import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
 
 import {
+  useNativeSetUserAvatar,
   useSelectFromGalleryAndUpdateUserAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
@@ -35,11 +36,10 @@ type Props =
 function EditUserAvatar(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
-  const {
-    userAvatarSaveInProgress,
-    setUserAvatar,
-    getRegistrationModeEnabled,
-  } = editUserAvatarContext;
+  const { userAvatarSaveInProgress, getRegistrationModeEnabled } =
+    editUserAvatarContext;
+
+  const nativeSetUserAvatar = useNativeSetUserAvatar();
 
   const selectFromGalleryAndUpdateUserAvatar =
     useSelectFromGalleryAndUpdateUserAvatar();
@@ -78,12 +78,12 @@ function EditUserAvatar(props: Props): React.Node {
   }, [navigate, getRegistrationModeEnabled]);
 
   const setENSUserAvatar = React.useCallback(() => {
-    setUserAvatar({ type: 'ens' });
-  }, [setUserAvatar]);
+    nativeSetUserAvatar({ type: 'ens' });
+  }, [nativeSetUserAvatar]);
 
   const removeUserAvatar = React.useCallback(() => {
-    setUserAvatar({ type: 'remove' });
-  }, [setUserAvatar]);
+    nativeSetUserAvatar({ type: 'remove' });
+  }, [nativeSetUserAvatar]);
 
   const hasCurrentAvatar = !!userInfo?.avatar;
   const actionSheetConfig = React.useMemo(() => {
