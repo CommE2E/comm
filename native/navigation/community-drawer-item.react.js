@@ -9,8 +9,8 @@ import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
+import CommunityActionsButton from '../components/community-actions-button.react.js';
 import { SingleLine } from '../components/single-line.react.js';
-import InviteLinksButton from '../invite-links/invite-links-button.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { CommunityDrawerItemDataFlattened } from '../utils/drawer-utils.react.js';
 
@@ -90,7 +90,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           </View>
           <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>
-        <InviteLinksButton community={threadInfo} />
+        <CommunityActionsButton community={threadInfo} />
       </View>
       {subchannelsButton}
     </View>
