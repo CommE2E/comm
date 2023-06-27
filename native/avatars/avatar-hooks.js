@@ -33,6 +33,15 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
+function displayAvatarUpdateFailureAlert(): void {
+  Alert.alert(
+    'Couldn’t save avatar',
+    'Please try again later',
+    [{ text: 'OK' }],
+    { cancelable: true },
+  );
+}
+
 function useUploadProcessedMedia(): MediaResult => Promise<UploadMultimediaResult> {
   const callUploadMultimedia = useServerCall(uploadMultimedia);
   const uploadProcessedMultimedia: MediaResult => Promise<UploadMultimediaResult> =
@@ -183,6 +192,27 @@ function useUploadSelectedMedia(
   );
 }
 
+function useNativeUpdateUserImageAvatar(): (
+  selection: NativeMediaSelection,
+) => Promise<void> {
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'editUserAvatarContext must be defined');
+  const { updateImageUserAvatar } = editUserAvatarContext;
+
+  const nativeUpdateUserImageAvatar = React.useCallback(
+    async (selection: NativeMediaSelection) => {
+      try {
+        await updateImageUserAvatar(selection);
+      } catch {
+        displayAvatarUpdateFailureAlert();
+      }
+    },
+    [updateImageUserAvatar],
+  );
+
+  return nativeUpdateUserImageAvatar;
+}
+
 function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'updateImageUserAvatar must be defined');
@@ -324,10 +354,12 @@ const unboundStyles = {
 };
 
 export {
+  displayAvatarUpdateFailureAlert,
   selectFromGallery,
   useUploadSelectedMedia,
   useUploadProcessedMedia,
   useProcessSelectedMedia,
   useShowAvatarActionSheet,
   useSelectFromGalleryAndUpdateUserAvatar,
+  useNativeUpdateUserImageAvatar,
 };
