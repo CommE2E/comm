@@ -232,6 +232,7 @@
   --dropdown-option-bg: var(--shades-black-80);
   --dropdown-option-hover-bg: var(--shades-black-70);
   --dropdown-selected-option-check-color: var(--violet-dark-100);
+  --dropdown-chevron-color: var(--shades-white-100);
   --dropdown-disabled-color: var(--shades-black-60);
   --change-member-role-modal-description-text: var(--shades-white-60);
   --change-member-role-modal-generic-text: var(--shades-white-100);
