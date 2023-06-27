@@ -12,7 +12,6 @@ use aws_sdk_dynamodb::output::{
 use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use chrono::{DateTime, Utc};
-use opaque_ke::errors::ProtocolError;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
@@ -786,8 +785,6 @@ pub enum DBItemAttributeError {
   IncorrectType,
   #[display(...)]
   InvalidTimestamp(chrono::ParseError),
-  #[display(...)]
-  Pake(ProtocolError),
 }
 
 type AttributeName = String;

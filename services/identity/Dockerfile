@@ -20,7 +20,6 @@ WORKDIR /home/comm/app/identity
 RUN cargo init --bin
 
 COPY services/identity/Cargo.toml services/identity/Cargo.lock ./
-COPY shared/comm-opaque ../../shared/comm-opaque
 COPY shared/comm-opaque2 ../../shared/comm-opaque2
 
 # Cache build dependencies in a new layer
