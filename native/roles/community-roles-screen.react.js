@@ -11,6 +11,7 @@ import RolePanelEntry from './role-panel-entry.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
 import Button from '../components/button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { CreateRolesScreenRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 export type CommunityRolesScreenParams = {
@@ -44,7 +45,14 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
     return rolePanelEntries;
   }, [roleNamesToMembers]);
 
-  const navigateToCreateRole = React.useCallback(() => {}, []);
+  const navigateToCreateRole = React.useCallback(
+    () =>
+      props.navigation.navigate(CreateRolesScreenRouteName, {
+        threadInfo,
+        action: 'create_role',
+      }),
+    [threadInfo, props.navigation],
+  );
 
   return (
     <View>
