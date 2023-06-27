@@ -1,19 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
 
-import { useUploadSelectedMedia } from './avatar-hooks.js';
-
-const displayAvatarUpdateFailureAlert = () =>
-  Alert.alert(
-    'Couldn’t save avatar',
-    'Please try again later',
-    [{ text: 'OK' }],
-    { cancelable: true },
-  );
+import {
+  useUploadSelectedMedia,
+  displayAvatarUpdateFailureAlert,
+} from './avatar-hooks.js';
 
 type Props = {
   +children: React.Node,
