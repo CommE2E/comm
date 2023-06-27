@@ -5,7 +5,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use aws_config::SdkConfig;
-use aws_sdk_dynamodb::model::AttributeValue;
+use aws_sdk_dynamodb::model::{AttributeValue, PutRequest, WriteRequest};
 use aws_sdk_dynamodb::output::{
   DeleteItemOutput, GetItemOutput, PutItemOutput, QueryOutput,
 };
@@ -666,22 +666,58 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
-  pub async fn add_username_to_reserved_usernames_table(
+  pub async fn add_usernames_to_reserved_usernames_table(
     &self,
-    username: String,
-  ) -> Result<PutItemOutput, Error> {
-    let item = HashMap::from([(
-      RESERVED_USERNAMES_TABLE_PARTITION_KEY.to_string(),
-      AttributeValue::S(username),
-    )]);
-    self
-      .client
-      .put_item()
-      .table_name(RESERVED_USERNAMES_TABLE)
-      .set_item(Some(item))
-      .send()
-      .await
-      .map_err(|e| Error::AwsSdk(e.into()))
+    usernames: Vec<String>,
+  ) -> Result<(), Error> {
+    let mut write_requests = vec![];
+
+    for username in usernames {
+      let item: HashMap<String, AttributeValue> = vec![(
+        RESERVED_USERNAMES_TABLE_PARTITION_KEY.to_string(),
+        AttributeValue::S(username),
+      )]
+      .into_iter()
+      .collect();
+
+      let write_request = WriteRequest::builder()
+        .put_request(PutRequest::builder().set_item(Some(item)).build())
+        .build();
+
+      write_requests.push(write_request);
+    }
+
+    loop {
+      let output = self
+        .client
+        .batch_write_item()
+        .request_items(RESERVED_USERNAMES_TABLE, write_requests)
+        .send()
+        .await
+        .map_err(|e| Error::AwsSdk(e.into()))?;
+
+      let unprocessed_items_map = match output.unprocessed_items() {
+        Some(map) => map,
+        None => break,
+      };
+
+      let unprocessed_requests =
+        match unprocessed_items_map.get(RESERVED_USERNAMES_TABLE) {
+          Some(requests) => requests,
+          None => break,
+        };
+
+      info!(
+        "{} unprocessed items, retrying...",
+        unprocessed_requests.len()
+      );
+
+      write_requests = unprocessed_requests.to_vec();
+    }
+
+    info!("Batch write item to reserved usernames table succeeded");
+
+    Ok(())
   }
 
   pub async fn delete_username_from_reserved_usernames_table(
