@@ -23,7 +23,6 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -787,10 +786,7 @@ async function prepareAndroidNotification(
   );
 
   const shouldBeEncrypted =
-    isTextNotification &&
-    !collapseKey &&
-    codeVersion &&
-    codeVersion > NEXT_CODE_VERSION;
+    isTextNotification && !collapseKey && codeVersion && codeVersion > 228;
 
   const notifID = collapseKey ? collapseKey : dbID;
   const { merged, ...rest } = notifTexts;
