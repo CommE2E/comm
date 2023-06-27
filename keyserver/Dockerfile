@@ -133,7 +133,6 @@ COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
   keyserver/addons/rust-node-addon/
 
 # Copy in local dependencies of rust-node-addon
-COPY --chown=comm shared/comm-opaque shared/comm-opaque/
 COPY --chown=comm shared/comm-opaque2 shared/comm-opaque2/
 
 # Copy protobuf files as a dependency for the shared client libraries
