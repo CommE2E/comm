@@ -1,12 +1,25 @@
 // @flow
 
 import type {
+  ClientDBMessageStoreOperation,
+  RawMessageInfo,
+  ClientDBMessageInfo,
+  ClientDBThreadMessageInfo,
+} from 'lib/types/message-types.js';
+import type {
   ClientDBThreadInfo,
   ClientDBThreadStoreOperation,
   RawThreadInfo,
   ThreadStoreThreadInfos,
 } from 'lib/types/thread-types.js';
-import { values } from 'lib/utils/objects.js';
+import {
+  translateClientDBMessageInfoToRawMessageInfo,
+  translateRawMessageInfoToClientDBMessageInfo,
+  translateClientDBThreadMessageInfos,
+  translateThreadMessageInfoToClientDBThreadMessageInfo,
+  type TranslatedThreadMessageInfos,
+} from 'lib/utils/message-ops-utils.js';
+import { values, entries } from 'lib/utils/objects.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -19,46 +32,15 @@ function updateClientDBThreadStoreThreadInfos(
   state: AppState,
   migrationFunc: ThreadStoreThreadInfos => ThreadStoreThreadInfos,
 ): AppState {
-  // 1. Get threads from SQLite `threads` table.
+  // Get threads from SQLite `threads` table.
   const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
 
-  // 2. Translate `ClientDBThreadInfo`s to `RawThreadInfo`s.
-  const rawThreadInfos = clientDBThreadInfos.map(
-    convertClientDBThreadInfoToRawThreadInfo,
+  const operations = createUpdateDBOpsForThreadStoreThreadInfos(
+    clientDBThreadInfos,
+    migrationFunc,
   );
 
-  // 3. Convert `rawThreadInfo`s to a map of `threadID` => `threadInfo`.
-  const threadIDToThreadInfo = rawThreadInfos.reduce((acc, threadInfo) => {
-    acc[threadInfo.id] = threadInfo;
-    return acc;
-  }, {});
-
-  // 4. Apply `migrationFunc` to `threadInfo`s.
-  const updatedThreadIDToThreadInfo: ThreadStoreThreadInfos =
-    migrationFunc(threadIDToThreadInfo);
-
-  // 5. Convert the updated `threadInfo`s back into an array.
-  const updatedRawThreadInfos: $ReadOnlyArray<RawThreadInfo> = values(
-    updatedThreadIDToThreadInfo,
-  );
-
-  // 6. Translate `RawThreadInfo`s to `ClientDBThreadInfo`s.
-  const convertedClientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo> =
-    updatedRawThreadInfos.map(convertRawThreadInfoToClientDBThreadInfo);
-
-  // 7. Construct `ClientDBThreadStoreOperation`s to clear SQLite `threads`
-  //    table and repopulate with `ClientDBThreadInfo`s.
-  const operations: $ReadOnlyArray<ClientDBThreadStoreOperation> = [
-    {
-      type: 'remove_all',
-    },
-    ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
-      type: 'replace',
-      payload: thread,
-    })),
-  ];
-
-  // 8. Try processing `ClientDBThreadStoreOperation`s and log out if
+  // Try processing `ClientDBThreadStoreOperation`s and log out if
   //    `processThreadStoreOperationsSync(...)` throws an exception.
   try {
     commCoreModule.processThreadStoreOperationsSync(operations);
@@ -70,4 +52,103 @@ function updateClientDBThreadStoreThreadInfos(
   return state;
 }
 
-export { updateClientDBThreadStoreThreadInfos };
+function createUpdateDBOpsForThreadStoreThreadInfos(
+  clientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo>,
+  migrationFunc: ThreadStoreThreadInfos => ThreadStoreThreadInfos,
+): $ReadOnlyArray<ClientDBThreadStoreOperation> {
+  // Translate `ClientDBThreadInfo`s to `RawThreadInfo`s.
+  const rawThreadInfos = clientDBThreadInfos.map(
+    convertClientDBThreadInfoToRawThreadInfo,
+  );
+
+  // Convert `rawThreadInfo`s to a map of `threadID` => `threadInfo`.
+  const threadIDToThreadInfo = rawThreadInfos.reduce((acc, threadInfo) => {
+    acc[threadInfo.id] = threadInfo;
+    return acc;
+  }, {});
+
+  // Apply `migrationFunc` to `threadInfo`s.
+  const updatedThreadIDToThreadInfo: ThreadStoreThreadInfos =
+    migrationFunc(threadIDToThreadInfo);
+
+  // Convert the updated `threadInfo`s back into an array.
+  const updatedRawThreadInfos: $ReadOnlyArray<RawThreadInfo> = values(
+    updatedThreadIDToThreadInfo,
+  );
+
+  // Translate `RawThreadInfo`s to `ClientDBThreadInfo`s.
+  const convertedClientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo> =
+    updatedRawThreadInfos.map(convertRawThreadInfoToClientDBThreadInfo);
+
+  // Construct `ClientDBThreadStoreOperation`s to clear SQLite `threads`
+  //    table and repopulate with `ClientDBThreadInfo`s.
+  return [
+    {
+      type: 'remove_all',
+    },
+    ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
+      type: 'replace',
+      payload: thread,
+    })),
+  ];
+}
+
+function createUpdateDBOpsForMessageStoreMessages(
+  clientDBMessageInfos: $ReadOnlyArray<ClientDBMessageInfo>,
+  migrationFunc: (
+    $ReadOnlyArray<RawMessageInfo>,
+  ) => $ReadOnlyArray<RawMessageInfo>,
+): $ReadOnlyArray<ClientDBMessageStoreOperation> {
+  const rawMessageInfos = clientDBMessageInfos.map(
+    translateClientDBMessageInfoToRawMessageInfo,
+  );
+
+  const convertedRawMessageInfos = migrationFunc(rawMessageInfos);
+
+  const replaceMessagesOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+    convertedRawMessageInfos.map(messageInfo => ({
+      type: 'replace',
+      payload: translateRawMessageInfoToClientDBMessageInfo(messageInfo),
+    }));
+
+  return [
+    {
+      type: 'remove_all',
+    },
+    ...replaceMessagesOperations,
+  ];
+}
+
+function createUpdateDBOpsForMessageStoreThreads(
+  messageStoreThreads: $ReadOnlyArray<ClientDBThreadMessageInfo>,
+  migrationFunc: TranslatedThreadMessageInfos => TranslatedThreadMessageInfos,
+): $ReadOnlyArray<ClientDBMessageStoreOperation> {
+  const translatedMessageStoreThreads =
+    translateClientDBThreadMessageInfos(messageStoreThreads);
+
+  const convertedTranslatedMessageStoreThreads = migrationFunc(
+    translatedMessageStoreThreads,
+  );
+
+  return [
+    {
+      type: 'remove_all_threads',
+    },
+    {
+      type: 'replace_threads',
+      payload: {
+        threads: entries(convertedTranslatedMessageStoreThreads).map(
+          ([id, thread]) =>
+            translateThreadMessageInfoToClientDBThreadMessageInfo(id, thread),
+        ),
+      },
+    },
+  ];
+}
+
+export {
+  updateClientDBThreadStoreThreadInfos,
+  createUpdateDBOpsForThreadStoreThreadInfos,
+  createUpdateDBOpsForMessageStoreMessages,
+  createUpdateDBOpsForMessageStoreThreads,
+};
