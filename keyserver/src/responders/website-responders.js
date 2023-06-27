@@ -594,6 +594,7 @@ async function websiteResponder(
     viewer.platformDetails,
     initialReduxStateValidator,
     initialReduxState,
+    false,
   );
   const jsonStream = streamJSON(res, validatedInitialReduxState);
 
