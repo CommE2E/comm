@@ -1,0 +1,27 @@
+.container {
+  font-size: var(--m-font-16);
+  padding: 24px 32px;
+}
+
+.sectionHeaderRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionHeaderText {
+  color: var(--fg);
+  margin-bottom: 16px;
+}
+
+.description {
+  font-size: var(--s-font-14);
+  color: var(--fg);
+  margin-top: 8px;
+}
+
+.inlineButton {
+  display: inline;
+  font-size: var(--s-font-14);
+}
