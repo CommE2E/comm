@@ -139,10 +139,11 @@ function EmojiAvatarSelectionModal(): React.Node {
             </div>
           </Tabs.Item>
           <Tabs.Item id="color" header="Color">
-            <div className={css.colorSelectorContainer}>
+            <div className={css.tabBody}>
               <ColorSelector
                 currentColor={pendingAvatarColor}
                 onColorSelection={onColorSelection}
+                size="large"
               />
             </div>
           </Tabs.Item>
