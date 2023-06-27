@@ -10,11 +10,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CommunityRolesHeaderLeftButton from './community-roles-header-left-button.react.js';
 import CommunityRolesScreen from './community-roles-screen.react.js';
+import CreateRolesScreen from './create-roles-screen.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   type ScreenParamList,
   type RolesParamList,
   CommunityRolesScreenRouteName,
+  CreateRolesScreenRouteName,
 } from '../navigation/route-names.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
@@ -35,6 +37,10 @@ const communityRolesScreenOptions = {
   headerLeft: headerLeftProps => (
     <CommunityRolesHeaderLeftButton {...headerLeftProps} />
   ),
+};
+
+const createRolesScreenOptions = {
+  headerTitle: 'Create role',
 };
 
 type RolesNavigatorProps = {
@@ -68,6 +74,11 @@ function RolesNavigator(props: RolesNavigatorProps): React.Node {
           name={CommunityRolesScreenRouteName}
           component={CommunityRolesScreen}
           options={communityRolesScreenOptions}
+        />
+        <RolesStack.Screen
+          name={CreateRolesScreenRouteName}
+          component={CreateRolesScreen}
+          options={createRolesScreenOptions}
         />
       </RolesStack.Navigator>
     </SafeAreaView>
