@@ -34,6 +34,11 @@ function Dropdown(props: DropdownProps): React.Node {
     [css.dropdownDisabled]: !!disabled,
   });
 
+  const dropdownIconClassNames = classNames({
+    [css.dropdownIcon]: true,
+    [css.dropdownDisabled]: !!disabled,
+  });
+
   const toggleMenu = React.useCallback(() => {
     if (disabled) {
       return;
@@ -89,10 +94,9 @@ function Dropdown(props: DropdownProps): React.Node {
       <div className={css.dropdownContainer} onClick={toggleMenu}>
         <div className={dropdownMenuClassNames}>
           <p className={dropdownTextClassNames}>{activeDisplayedOption}</p>
-          <div className={css.dropdownIcon}>
+          <div className={dropdownIconClassNames}>
             <SWMansionIcon
               icon={isOpen ? 'chevron-up' : 'chevron-down'}
-              color={disabled ? 'gray' : 'white'}
               size={18}
             />
           </div>
