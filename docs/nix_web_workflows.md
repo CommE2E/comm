@@ -76,6 +76,8 @@ You can access the React Developer Tools through the Chrome extension by opening
 
 You can access the Redux Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Redux” tab. This should work in both our development environment and in production, although in production you won’t be able to see Redux actions from before you opened up the Redux dev tools.
 
+Chrome should be restarted after installing the extensions, as extensions can not be accessed until the browser is restarted.
+
 ### Debugging JavaScript
 
 You can just use your browser of choice’s dev tools.
