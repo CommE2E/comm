@@ -44,6 +44,7 @@ import type { CustomServerModalParams } from '../profile/custom-server-modal.rea
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
 import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react.js';
 import type { CommunityRolesScreenParams } from '../roles/community-roles-screen.react.js';
+import type { CreateRolesScreenParams } from '../roles/create-roles-screen.react.js';
 import type { MessageSearchParams } from '../search/message-search.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
@@ -125,6 +126,7 @@ export const RegistrationUserAvatarCameraModalRouteName =
 export const RegistrationTermsRouteName = 'RegistrationTerms';
 export const RolesNavigatorRouteName = 'RolesNavigator';
 export const CommunityRolesScreenRouteName = 'CommunityRolesScreen';
+export const CreateRolesScreenRouteName = 'CreateRolesScreen';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -242,6 +244,7 @@ export type CommunityCreationParamList = {
 
 export type RolesParamList = {
   +CommunityRolesScreen: CommunityRolesScreenParams,
+  +CreateRolesScreen: CreateRolesScreenParams,
 };
 
 export type ScreenParamList = {
