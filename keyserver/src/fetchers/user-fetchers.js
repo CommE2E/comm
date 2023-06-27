@@ -374,6 +374,12 @@ async function fetchUsername(id: string): Promise<?string> {
   return row.username;
 }
 
+async function fetchAllUsernames(): Promise<string[]> {
+  const query = SQL`SELECT username FROM users`;
+  const [result] = await dbQuery(query);
+  return result.map(row => row.username);
+}
+
 async function fetchKeyserverAdminID(): Promise<?string> {
   const changeRoleExtractString = `$.${threadPermissions.CHANGE_ROLE}`;
   const query = SQL`
@@ -415,6 +421,7 @@ export {
   fetchCurrentUserInfo,
   fetchAllUserIDs,
   fetchUsername,
+  fetchAllUsernames,
   fetchKnownUserInfos,
   fetchKeyserverAdminID,
   fetchUserIDForEthereumAddress,
