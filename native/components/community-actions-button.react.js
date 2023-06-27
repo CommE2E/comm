@@ -11,7 +11,7 @@ import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import SWMansionIcon from '../components/swmansion-icon.react.js';
+import SWMansionIcon from './swmansion-icon.react.js';
 import {
   InviteLinkNavigatorRouteName,
   ManagePublicLinkRouteName,
@@ -24,7 +24,7 @@ type Props = {
   +community: ThreadInfo,
 };
 
-function InviteLinksButton(props: Props): React.Node {
+function CommunityActionsButton(props: Props): React.Node {
   const { community } = props;
   const inviteLink = useSelector(primaryInviteLinksSelector)[community.id];
 
@@ -131,4 +131,4 @@ const unboundStyles = {
   },
 };
 
-export default InviteLinksButton;
+export default CommunityActionsButton;
