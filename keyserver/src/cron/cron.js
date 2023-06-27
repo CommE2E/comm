@@ -3,6 +3,7 @@
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
+import { addReservedUsernames } from './add-reserved-usernames.js';
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
@@ -92,7 +93,20 @@ if (cluster.isMaster) {
       }
     },
   );
-
+  schedule.scheduleJob(
+    '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
+    async () => {
+      try {
+        await addReservedUsernames();
+      } catch (e) {
+        console.warn(
+          'encountered error while trying to add reserved usernames to ' +
+            'identity service',
+          e,
+        );
+      }
+    },
+  );
   schedule.scheduleJob(
     '0 0 * * *', // every day at midnight in the keyserver's timezone
     async () => {
