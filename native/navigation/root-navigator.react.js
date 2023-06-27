@@ -43,6 +43,7 @@ import {
   InviteLinkModalRouteName,
   InviteLinkNavigatorRouteName,
   CommunityCreationRouteName,
+  RolesNavigatorRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
@@ -58,6 +59,7 @@ import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
 import CommunityCreationNavigator from '../community-creation/community-creation-navigator.react.js';
 import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.js';
 import CustomServerModal from '../profile/custom-server-modal.react.js';
+import RolesNavigator from '../roles/roles-navigator.react.js';
 
 enableScreens();
 
@@ -268,6 +270,7 @@ function RootComponent(): React.Node {
         component={MessageReactionsModal}
         options={modalOverlayScreenOptions}
       />
+      <Root.Screen name={RolesNavigatorRouteName} component={RolesNavigator} />
     </Root.Navigator>
   );
 }
