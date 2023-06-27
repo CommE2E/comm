@@ -1,12 +1,25 @@
 // @flow
 
 import type {
+  ClientDBMessageStoreOperation,
+  RawMessageInfo,
+} from 'lib/types/message-types.js';
+import type {
   ClientDBThreadInfo,
   ClientDBThreadStoreOperation,
   RawThreadInfo,
   ThreadStoreThreadInfos,
 } from 'lib/types/thread-types.js';
-import { values } from 'lib/utils/objects.js';
+import {
+  translateClientDBMessageInfoToRawMessageInfo,
+  translateRawMessageInfoToClientDBMessageInfo,
+} from 'lib/utils/message-ops-utils.js';
+import {
+  translateClientDBThreadMessageInfos,
+  translateThreadMessageInfoToClientDBThreadMessageInfo,
+  type TranslatedThreadMessageInfos,
+} from 'lib/utils/message-ops-utils.js';
+import { values, entries } from 'lib/utils/objects.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -70,4 +83,83 @@ function updateClientDBThreadStoreThreadInfos(
   return state;
 }
 
-export { updateClientDBThreadStoreThreadInfos };
+function updateClientDBMessageStoreMessages(
+  state: AppState,
+  migrationFunc: (
+    $ReadOnlyArray<RawMessageInfo>,
+  ) => $ReadOnlyArray<RawMessageInfo>,
+): AppState {
+  const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+
+  const rawMessageInfos = clientDBMessageInfos.map(
+    translateClientDBMessageInfoToRawMessageInfo,
+  );
+
+  const convertedRawMessageInfos = migrationFunc(rawMessageInfos);
+
+  const replaceMessagesOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+    convertedRawMessageInfos.map(messageInfo => ({
+      type: 'replace',
+      payload: translateRawMessageInfoToClientDBMessageInfo(messageInfo),
+    }));
+
+  const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
+    {
+      type: 'remove_all',
+    },
+    ...replaceMessagesOperations,
+  ];
+
+  try {
+    commCoreModule.processMessageStoreOperationsSync(operations);
+  } catch (exception) {
+    console.log(exception);
+    return { ...state, cookie: null };
+  }
+
+  return state;
+}
+
+async function updateClientDBMessageStoreThreads(
+  state: AppState,
+  migrationFunc: TranslatedThreadMessageInfos => TranslatedThreadMessageInfos,
+): Promise<AppState> {
+  const { messageStoreThreads } = await commCoreModule.getClientDBStore();
+
+  const translatedMessageStoreThreads =
+    translateClientDBThreadMessageInfos(messageStoreThreads);
+
+  const convertedTranslatedMessageStoreThreads = migrationFunc(
+    translatedMessageStoreThreads,
+  );
+
+  const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
+    {
+      type: 'remove_all_threads',
+    },
+    {
+      type: 'replace_threads',
+      payload: {
+        threads: entries(convertedTranslatedMessageStoreThreads).map(
+          ([id, thread]) =>
+            translateThreadMessageInfoToClientDBThreadMessageInfo(id, thread),
+        ),
+      },
+    },
+  ];
+
+  try {
+    commCoreModule.processMessageStoreOperationsSync(operations);
+  } catch (exception) {
+    console.log(exception);
+    return { ...state, cookie: null };
+  }
+
+  return state;
+}
+
+export {
+  updateClientDBThreadStoreThreadInfos,
+  updateClientDBMessageStoreMessages,
+  updateClientDBMessageStoreThreads,
+};
