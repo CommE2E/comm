@@ -4,6 +4,12 @@
   border-radius: 24px;
 }
 
+.containerLarge {
+  height: 80px;
+  width: 80px;
+  border-radius: 40px;
+}
+
 .active,
 .container:hover {
   background-color: var(--color-selector-active-bg);
@@ -14,4 +20,10 @@ div.colorSplotch {
   width: 32px;
   border-radius: 16px;
   cursor: pointer;
+}
+
+div.colorSplotchLarge {
+  height: 60px;
+  width: 60px;
+  border-radius: 30px;
 }
