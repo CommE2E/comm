@@ -21,7 +21,7 @@ type RustNativeBindingAPI = {
     password: string,
     signedIdentityKeysBlob: SignedIdentityKeysBlob,
   ) => Promise<boolean>,
-  +addReservedUsername: (message: string, signature: string) => Promise<void>,
+  +addReservedUsernames: (message: string, signature: string) => Promise<void>,
   +removeReservedUsername: (
     message: string,
     signature: string,

@@ -10,11 +10,11 @@ pub async fn add_reserved_username(
   let channel = get_identity_service_channel().await?;
   let mut identity_client = IdentityClientServiceClient::new(channel);
 
-  let add_reserved_username_request =
-    AddReservedUsernameRequest { message, signature };
+  let add_reserved_usernames_request =
+    AddReservedUsernamesRequest { message, signature };
 
   identity_client
-    .add_reserved_username(add_reserved_username_request)
+    .add_reserved_usernames(add_reserved_usernames_request)
     .await
     .map_err(|e| Error::new(Status::GenericFailure, e.to_string()))?
     .into_inner();
