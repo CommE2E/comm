@@ -71,7 +71,7 @@ service IdentityClientService {
 
   // Called by Ashoat's keyserver to add usernames to the Identity service's
   // reserved list
-  rpc AddReservedUsername(AddReservedUsernameRequest) returns (Empty) {}
+  rpc AddReservedUsernames(AddReservedUsernamesRequest) returns (Empty) {}
   // Called by Ashoat's keyserver to remove usernames from the Identity
   // service's reserved list
   rpc RemoveReservedUsername(RemoveReservedUsernameRequest) returns (Empty) {}
@@ -340,9 +340,9 @@ message VerifyUserAccessTokenResponse {
   bool tokenValid = 1;
 }
 
-// AddReservedUsername
+// AddReservedUsernames
 
-message AddReservedUsernameRequest {
+message AddReservedUsernamesRequest {
   // Message from Ashoat's keyserver containing the username to be added
   string message = 1;
   // Above message signed with Ashoat's keyserver's signing ed25519 key
