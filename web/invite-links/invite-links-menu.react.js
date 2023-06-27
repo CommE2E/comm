@@ -11,6 +11,7 @@ import type { InviteLink } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import css from './invite-links-menu.css';
+import ManageInviteLinksModal from './manage-invite-links-modal.react.js';
 import ViewInviteLinkModal from './view-invite-link-modal.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
@@ -43,6 +44,10 @@ function InviteLinksMenu(props: Props): React.Node {
     pushModal(<ViewInviteLinkModal inviteLink={inviteLink} />);
   }, [inviteLink, pushModal]);
 
+  const openManageInviteLinksModal = React.useCallback(() => {
+    pushModal(<ManageInviteLinksModal communityID={communityID} />);
+  }, [communityID, pushModal]);
+
   const items = React.useMemo(() => {
     const itemSpecs = [];
 
@@ -50,7 +55,7 @@ function InviteLinksMenu(props: Props): React.Node {
       itemSpecs.push({
         text: 'Manage invite links',
         iconComponent: <AddLink />,
-        onClick: () => {},
+        onClick: openManageInviteLinksModal,
       });
     }
 
@@ -63,7 +68,12 @@ function InviteLinksMenu(props: Props): React.Node {
     }
 
     return itemSpecs;
-  }, [canManageLinks, inviteLink, openViewInviteLinkModal]);
+  }, [
+    canManageLinks,
+    inviteLink,
+    openManageInviteLinksModal,
+    openViewInviteLinkModal,
+  ]);
 
   const menuItems = React.useMemo(
     () =>
