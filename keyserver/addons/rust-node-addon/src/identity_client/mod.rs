@@ -1,13 +1,14 @@
 pub mod add_reserved_usernames;
+pub mod login;
 pub mod register_user;
-pub mod remove_reserved_username;
+pub mod remove_reserved_usernames;
 pub mod identity_client {
   tonic::include_proto!("identity.client");
 }
 
 use identity_client::identity_client_service_client::IdentityClientServiceClient;
 use identity_client::{
-  AddReservedUsernamesRequest, DeviceKeyUpload, IdentityKeyInfo,
+  AddReservedUsernamesRequest, DeviceKeyUpload, IdentityKeyInfo, PreKey,
   RegistrationFinishRequest, RegistrationStartRequest,
   RemoveReservedUsernameRequest,
 };
@@ -15,7 +16,7 @@ use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
 use std::env::var;
-use tonic::{metadata::MetadataValue, transport::Channel, Request};
+use tonic::{transport::Channel, Request};
 use tracing::instrument;
 
 lazy_static! {
@@ -61,4 +62,10 @@ async fn get_identity_service_channel() -> Result<Channel> {
 pub struct SignedIdentityKeysBlob {
   pub payload: String,
   pub signature: String,
+}
+
+#[napi(object)]
+pub struct UserLoginInfo {
+  pub user_id: String,
+  pub access_token: String,
 }
