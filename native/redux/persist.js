@@ -8,6 +8,13 @@ import { createTransform } from 'redux-persist';
 import type { Transform } from 'redux-persist/es/types.js';
 
 import {
+  convertEntryStoreToNewIDSchema,
+  convertInviteLinksStoreToNewIDSchema,
+  convertMessageStoreToNewIDSchema,
+  convertRawMessageInfoToNewIDSchema,
+  convertRawThreadInfoToNewIDSchema,
+} from 'lib/_generated/migration-utils.js';
+import {
   type ReportStoreOperation,
   type ClientDBReportStoreOperation,
   convertReportStoreOperationToClientDBReportStoreOperation,
@@ -46,6 +53,12 @@ import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
+import {
+  generateIDSchemaMigrationOpsForDrafts,
+  convertCalendarFiltersToNewIDSchema,
+  convertConnectionInfoToNewIDSchema,
+} from 'lib/utils/migration-utils.js';
+import { entries } from 'lib/utils/objects.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
@@ -54,7 +67,11 @@ import {
 } from 'lib/utils/thread-ops-utils.js';
 import { getUUID } from 'lib/utils/uuid.js';
 
-import { updateClientDBThreadStoreThreadInfos } from './client-db-utils.js';
+import {
+  updateClientDBMessageStoreMessages,
+  updateClientDBMessageStoreThreads,
+  updateClientDBThreadStoreThreadInfos,
+} from './client-db-utils.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import type { AppState } from './state-types.js';
@@ -577,6 +594,65 @@ const migrations = {
     }
     return state;
   },
+  [43]: async (state: AppState) => {
+    state = await updateClientDBMessageStoreThreads(
+      state,
+      translatedThreadMessageInfos =>
+        Object.fromEntries(
+          entries(translatedThreadMessageInfos).map(
+            ([id, translatedThreadMessageInfo]) => [
+              '256|' + id,
+              translatedThreadMessageInfo,
+            ],
+          ),
+        ),
+    );
+    if (state.cookie === null) {
+      return state;
+    }
+    state = updateClientDBThreadStoreThreadInfos(
+      state,
+      threadStoreThreadInfos =>
+        Object.fromEntries(
+          entries(threadStoreThreadInfos).map(([id, threadInfo]) => [
+            '256|' + id,
+            convertRawThreadInfoToNewIDSchema(threadInfo),
+          ]),
+        ),
+    );
+    if (state.cookie === null) {
+      return state;
+    }
+    state = updateClientDBMessageStoreMessages(state, messageInfos =>
+      messageInfos.map(convertRawMessageInfoToNewIDSchema),
+    );
+    if (state.cookie === null) {
+      return state;
+    }
+
+    const { drafts } = await commCoreModule.getClientDBStore();
+    const draftOperations = generateIDSchemaMigrationOpsForDrafts(drafts);
+    try {
+      commCoreModule.processDraftStoreOperations(draftOperations);
+    } catch (exception) {
+      console.log(exception);
+      return { ...state, cookie: null };
+    }
+
+    return {
+      ...state,
+      entryStore: convertEntryStoreToNewIDSchema(state.entryStore),
+      messageStore: convertMessageStoreToNewIDSchema(state.messageStore),
+      calendarFilters: convertCalendarFiltersToNewIDSchema(
+        state.calendarFilters,
+      ),
+      connection: convertConnectionInfoToNewIDSchema(state.connection),
+      watchedThreadIDs: state.watchedThreadIDs.map(id => '256|' + id),
+      inviteLinksStore: convertInviteLinksStoreToNewIDSchema(
+        state.inviteLinksStore,
+      ),
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -671,7 +747,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 42,
+  version: 43,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

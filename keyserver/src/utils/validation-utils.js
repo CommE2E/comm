@@ -5,7 +5,6 @@ import type { TType } from 'tcomb';
 import type { PolicyType } from 'lib/facts/policies.js';
 import {
   hasMinCodeVersion,
-  FUTURE_CODE_VERSION,
   NEXT_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
 import { type PlatformDetails } from 'lib/types/device-types.js';
@@ -39,7 +38,7 @@ async function validateInput<T>(
 
   if (
     hasMinCodeVersion(viewer.platformDetails, {
-      native: FUTURE_CODE_VERSION,
+      native: NEXT_CODE_VERSION,
       web: NEXT_CODE_VERSION,
     }) &&
     convertToNewIDSchema
@@ -74,7 +73,7 @@ function validateOutput<T>(
 
   if (
     (hasMinCodeVersion(platformDetails, {
-      native: FUTURE_CODE_VERSION,
+      native: NEXT_CODE_VERSION,
       web: NEXT_CODE_VERSION,
     }) &&
       convertToNewIDSchema) ||
