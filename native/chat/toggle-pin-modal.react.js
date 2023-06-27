@@ -8,6 +8,7 @@ import {
   toggleMessagePin,
   toggleMessagePinActionTypes,
 } from 'lib/actions/thread-actions.js';
+import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -71,10 +72,10 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
       messageID: messageInfo.id,
       action: modalInfo.action,
     });
-    return {
+    return ({
       newMessageInfos: result.newMessageInfos,
       threadID: result.threadID,
-    };
+    }: { +newMessageInfos: $ReadOnlyArray<RawMessageInfo>, +threadID: string });
   }, [callToggleMessagePin, messageInfo.id, modalInfo.action]);
 
   const onPress = React.useCallback(() => {
