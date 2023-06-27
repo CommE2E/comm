@@ -59,6 +59,10 @@ async function checkIfInviteLinkIsValid(
 async function fetchPrimaryInviteLinks(
   viewer: Viewer,
 ): Promise<$ReadOnlyArray<InviteLink>> {
+  if (!viewer.loggedIn) {
+    return [];
+  }
+
   const query = SQL`
     SELECT i.name, i.role, i.community, i.expiration_time AS expirationTime, 
       i.limit_of_uses AS limitOfUses, i.number_of_uses AS numberOfUses, 
