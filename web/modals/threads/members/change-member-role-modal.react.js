@@ -54,7 +54,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
 
   const [selectedRole, setSelectedRole] = React.useState(initialSelectedRole);
 
-  const onBackClick = React.useCallback(() => {
+  const onCloseModal = React.useCallback(() => {
     if (selectedRole === initialSelectedRole) {
       popModal();
       return;
@@ -118,7 +118,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   ]);
 
   return (
-    <Modal name="Change Role" onClose={popModal} size="large">
+    <Modal name="Change Role" onClose={onCloseModal} size="large">
       <div className={css.roleModalDescription}>
         Members can only be assigned to one role at a time. Changing a
         member&rsquo;s role will replace their previously assigned role.
@@ -142,7 +142,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
         <Button
           variant="outline"
           className={css.roleModalBackButton}
-          onClick={onBackClick}
+          onClick={onCloseModal}
         >
           Back
         </Button>
