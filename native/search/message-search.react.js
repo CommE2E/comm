@@ -47,7 +47,14 @@ function MessageSearch(props: MessageSearchProps): React.Node {
   const [endReached, setEndReached] = React.useState(false);
 
   const appendSearchResults = React.useCallback(
-    (newMessages: $ReadOnlyArray<RawMessageInfo>, end: boolean) => {
+    (
+      newMessages: $ReadOnlyArray<RawMessageInfo>,
+      end: boolean,
+      queryID: number,
+    ) => {
+      if (queryID !== queryIDRef.current) {
+        return;
+      }
       setSearchResults(oldMessages => [...oldMessages, ...newMessages]);
       setEndReached(end);
     },
@@ -56,16 +63,24 @@ function MessageSearch(props: MessageSearchProps): React.Node {
 
   const searchMessages = useSearchMessages();
 
+  const queryIDRef = React.useRef(0);
+
   React.useEffect(() => {
     setSearchResults([]);
     setLastID(undefined);
     setEndReached(false);
   }, [query, searchMessages]);
 
-  React.useEffect(
-    () => searchMessages(query, threadInfo.id, appendSearchResults, lastID),
-    [appendSearchResults, lastID, query, searchMessages, threadInfo.id],
-  );
+  React.useEffect(() => {
+    queryIDRef.current += 1;
+    searchMessages(
+      query,
+      threadInfo.id,
+      appendSearchResults,
+      queryIDRef.current,
+      lastID,
+    );
+  }, [appendSearchResults, lastID, query, searchMessages, threadInfo.id]);
 
   const userInfos = useSelector(state => state.userStore.userInfos);
 
