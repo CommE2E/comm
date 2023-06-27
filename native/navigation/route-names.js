@@ -122,6 +122,7 @@ export const EmojiAvatarSelectionRouteName = 'EmojiAvatarSelection';
 export const RegistrationUserAvatarCameraModalRouteName =
   'RegistrationUserAvatarCameraModal';
 export const RegistrationTermsRouteName = 'RegistrationTerms';
+export const RolesNavigatorRouteName = 'RolesNavigator';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -140,6 +141,7 @@ export type RootParamList = {
   +CommunityCreation: void,
   +InviteLinkModal: InviteLinkModalParams,
   +InviteLinkNavigator: void,
+  +RolesNavigator: void,
 };
 
 export type MessageTooltipRouteNames =
@@ -236,6 +238,8 @@ export type CommunityCreationParamList = {
   +CommunityCreationMembers: CommunityCreationMembersScreenParams,
 };
 
+export type RolesParamList = {};
+
 export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
@@ -247,6 +251,7 @@ export type ScreenParamList = {
   ...RegistrationParamList,
   ...InviteLinkParamList,
   ...CommunityCreationParamList,
+  ...RolesParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
