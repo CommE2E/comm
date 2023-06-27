@@ -16,7 +16,6 @@ native
 !native/package.json
 !native/.flowconfig
 !native/ios/Podfile
-!native/cpp/CommonCpp/grpc
 !native/expo-modules/comm-expo-package/package.json
 
 web/node_modules
@@ -38,7 +37,3 @@ services/blob/Dockerfile
 services/electron-update-server/node_modules
 
 native/cpp/**/build
-services/*/build
-services/build
-services/lib/src/build
-shared/protos/build
