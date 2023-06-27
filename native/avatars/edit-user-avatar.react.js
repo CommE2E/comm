@@ -10,7 +10,10 @@ import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
 
-import { useShowAvatarActionSheet } from './avatar-hooks.js';
+import {
+  useSelectFromGalleryAndUpdateUserAvatar,
+  useShowAvatarActionSheet,
+} from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import UserAvatar from './user-avatar.react.js';
 import {
@@ -34,10 +37,12 @@ function EditUserAvatar(props: Props): React.Node {
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
   const {
     userAvatarSaveInProgress,
-    selectFromGalleryAndUpdateUserAvatar,
     setUserAvatar,
     getRegistrationModeEnabled,
   } = editUserAvatarContext;
+
+  const selectFromGalleryAndUpdateUserAvatar =
+    useSelectFromGalleryAndUpdateUserAvatar();
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const userInfoProp = props.userInfo;

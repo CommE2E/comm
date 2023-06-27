@@ -5,7 +5,7 @@ import { Alert } from 'react-native';
 
 import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
 
-import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
+import { useUploadSelectedMedia } from './avatar-hooks.js';
 
 const displayAvatarUpdateFailureAlert = () =>
   Alert.alert(
@@ -23,7 +23,6 @@ function NativeEditUserAvatarProvider(props: Props): React.Node {
   return (
     <BaseEditUserAvatarProvider
       displayFailureAlert={displayAvatarUpdateFailureAlert}
-      selectFromGallery={selectFromGallery}
       useUploadSelectedMedia={useUploadSelectedMedia}
     >
       {children}
