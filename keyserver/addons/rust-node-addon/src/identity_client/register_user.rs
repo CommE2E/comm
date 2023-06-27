@@ -6,20 +6,16 @@ pub async fn register_user(
   username: String,
   password: String,
   signed_identity_keys_blob: SignedIdentityKeysBlob,
-) -> Result<bool> {
+  content_prekey: String,
+  content_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
+) -> Result<UserLoginInfo> {
   // Set up the gRPC client that will be used to talk to the Identity service
   let channel = get_identity_service_channel().await?;
-  let token: MetadataValue<_> = IDENTITY_SERVICE_CONFIG
-    .identity_auth_token
-    .parse()
-    .map_err(|_| Error::from_status(Status::GenericFailure))?;
-  let mut identity_client = IdentityClientServiceClient::with_interceptor(
-    channel,
-    |mut req: Request<()>| {
-      req.metadata_mut().insert("authorization", token.clone());
-      Ok(req)
-    },
-  );
+  let mut identity_client = IdentityClientServiceClient::new(channel);
 
   // Start OPAQUE registration and send initial registration request
   let mut opaque_registration = comm_opaque2::client::Registration::new();
@@ -32,16 +28,16 @@ pub async fn register_user(
       payload_signature: signed_identity_keys_blob.signature,
       social_proof: None,
     }),
-    content_upload: Some(identity_client::PreKey {
-      pre_key: String::new(),
-      pre_key_signature: String::new(),
+    content_upload: Some(PreKey {
+      pre_key: content_prekey,
+      pre_key_signature: content_prekey_signature,
     }),
-    notif_upload: Some(identity_client::PreKey {
-      pre_key: String::new(),
-      pre_key_signature: String::new(),
+    notif_upload: Some(PreKey {
+      pre_key: notif_prekey,
+      pre_key_signature: notif_prekey_signature,
     }),
-    onetime_content_prekeys: Vec::new(),
-    onetime_notif_prekeys: Vec::new(),
+    onetime_content_prekeys: content_one_time_keys,
+    onetime_notif_prekeys: notif_one_time_keys,
   };
   let registration_start_request = Request::new(RegistrationStartRequest {
     opaque_registration_request,
@@ -68,12 +64,16 @@ pub async fn register_user(
     opaque_registration_upload,
   });
 
-  identity_client
+  let registration_response = identity_client
     .register_password_user_finish(registration_finish_request)
     .await
     .map_err(|_| Error::from_status(Status::GenericFailure))?
     .into_inner();
 
-  // Keyserver doesn't need the access token, so we just return a bool
-  Ok(true)
+  let user_info = UserLoginInfo {
+    user_id: registration_response.user_id.clone(),
+    access_token: registration_response.access_token.clone(),
+  };
+
+  Ok(user_info)
 }
