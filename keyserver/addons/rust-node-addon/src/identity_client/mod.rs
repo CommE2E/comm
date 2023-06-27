@@ -1,4 +1,4 @@
-pub mod add_reserved_username;
+pub mod add_reserved_usernames;
 pub mod register_user;
 pub mod remove_reserved_username;
 pub mod identity_client {
@@ -7,7 +7,7 @@ pub mod identity_client {
 
 use identity_client::identity_client_service_client::IdentityClientServiceClient;
 use identity_client::{
-  AddReservedUsernameRequest, DeviceKeyUpload, IdentityKeyInfo,
+  AddReservedUsernamesRequest, DeviceKeyUpload, IdentityKeyInfo,
   RegistrationFinishRequest, RegistrationStartRequest,
   RemoveReservedUsernameRequest,
 };

@@ -6,14 +6,16 @@ use std::str::FromStr;
 
 use crate::{
   client_service::client_proto::{
-    DeleteUserRequest, Empty, GenerateNonceResponse, InboundKeysForUserRequest,
+    AddReservedUsernamesRequest, DeleteUserRequest, Empty,
+    GenerateNonceResponse, InboundKeysForUserRequest,
     InboundKeysForUserResponse, OpaqueLoginFinishRequest,
     OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
     OpaqueLoginStartResponse, OutboundKeysForUserRequest,
     OutboundKeysForUserResponse, OutboundKeyserverResponse,
     RefreshUserPreKeysRequest, RegistrationFinishRequest,
     RegistrationFinishResponse, RegistrationStartRequest,
-    RegistrationStartResponse, UpdateUserPasswordFinishRequest,
+    RegistrationStartResponse, RemoveReservedUsernameRequest,
+    ReservedRegistrationStartRequest, UpdateUserPasswordFinishRequest,
     UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
     UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
     VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
@@ -23,7 +25,7 @@ use crate::{
   id::generate_uuid,
   nonce::generate_nonce_data,
   reserved_users::{
-    validate_add_reserved_username_message,
+    validate_add_reserved_usernames_message,
     validate_remove_reserved_username_message,
     validate_signed_account_ownership_message,
   },
@@ -40,11 +42,6 @@ use moka::future::Cache;
 use rand::rngs::OsRng;
 use tonic::Response;
 use tracing::{debug, error};
-
-use self::client_proto::{
-  AddReservedUsernameRequest, RemoveReservedUsernameRequest,
-  ReservedRegistrationStartRequest,
-};
 
 #[derive(Clone)]
 pub enum WorkflowInProgress {
@@ -819,20 +816,33 @@ impl IdentityClientService for ClientService {
     Ok(response)
   }
 
-  async fn add_reserved_username(
+  async fn add_reserved_usernames(
     &self,
-    request: tonic::Request<AddReservedUsernameRequest>,
+    request: tonic::Request<AddReservedUsernamesRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let message = request.into_inner();
 
-    let username = validate_add_reserved_username_message(
+    let usernames = validate_add_reserved_usernames_message(
       &message.message,
       &message.signature,
     )?;
 
+    let mut filtered_usernames = Vec::new();
+
+    for username in usernames {
+      if !self
+        .client
+        .username_taken(username.clone())
+        .await
+        .map_err(handle_db_error)?
+      {
+        filtered_usernames.push(username);
+      }
+    }
+
     self
       .client
-      .add_username_to_reserved_usernames_table(username)
+      .add_usernames_to_reserved_usernames_table(filtered_usernames)
       .await
       .map_err(handle_db_error)?;
 

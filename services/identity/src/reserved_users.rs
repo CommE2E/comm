@@ -9,22 +9,25 @@ use crate::config::CONFIG;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct ReservedUsernameMessage {
+struct Message<T> {
   statement: String,
-  username: String,
+  payload: T,
   issued_at: String,
 }
 
-fn validate_message(
+fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
   keyserver_message: &str,
   keyserver_signature: &str,
-  statement: &[u8],
-) -> Result<ReservedUsernameMessage, Status> {
-  let deserialized_message: ReservedUsernameMessage =
+  expected_statement: &[u8],
+) -> Result<Message<T>, Status> {
+  let deserialized_message: Message<T> =
     serde_json::from_str(keyserver_message)
       .map_err(|_| Status::invalid_argument("message format invalid"))?;
 
-  if !constant_time_eq(deserialized_message.statement.as_bytes(), statement) {
+  if !constant_time_eq(
+    deserialized_message.statement.as_bytes(),
+    expected_statement,
+  ) {
     return Err(Status::invalid_argument("message invalid"));
   }
 
@@ -69,41 +72,41 @@ pub fn validate_signed_account_ownership_message(
   keyserver_message: &str,
   keyserver_signature: &str,
 ) -> Result<(), Status> {
-  let deserialized_message = validate_message(
+  let deserialized_message = validate_and_decode_message::<String>(
     keyserver_message,
     keyserver_signature,
     b"This user is the owner of the following username",
   )?;
 
-  if deserialized_message.username != username {
+  if deserialized_message.payload != username {
     return Err(Status::invalid_argument("message invalid"));
   }
 
   Ok(())
 }
 
-pub fn validate_add_reserved_username_message(
+pub fn validate_add_reserved_usernames_message(
   keyserver_message: &str,
   keyserver_signature: &str,
-) -> Result<String, Status> {
-  let deserialized_message = validate_message(
+) -> Result<Vec<String>, Status> {
+  let deserialized_message = validate_and_decode_message::<Vec<String>>(
     keyserver_message,
     keyserver_signature,
-    b"Add the following username to reserved list",
+    b"Add the following usernames to reserved list",
   )?;
 
-  Ok(deserialized_message.username)
+  Ok(deserialized_message.payload)
 }
 
 pub fn validate_remove_reserved_username_message(
   keyserver_message: &str,
   keyserver_signature: &str,
 ) -> Result<String, Status> {
-  let deserialized_message = validate_message(
+  let deserialized_message = validate_and_decode_message::<String>(
     keyserver_message,
     keyserver_signature,
     b"Remove the following username from reserved list",
   )?;
 
-  Ok(deserialized_message.username)
+  Ok(deserialized_message.payload)
 }
