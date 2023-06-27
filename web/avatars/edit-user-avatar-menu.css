@@ -18,3 +18,7 @@
 .editAvatarBadge:hover {
   filter: brightness(0.8);
 }
+
+input[type='file'] {
+  display: none;
+}
