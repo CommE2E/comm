@@ -78,6 +78,17 @@ function CommunityActionsButton(props: Props): React.Node {
       });
     }
 
+    const canChangeRoles = threadHasPermission(
+      community,
+      threadPermissions.CHANGE_ROLE,
+    );
+    if (canChangeRoles) {
+      result.push({
+        label: 'Manage roles',
+        action: () => {},
+      });
+    }
+
     if (result.length > 0) {
       return result;
     }
