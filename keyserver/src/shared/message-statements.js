@@ -6,4 +6,11 @@ const addReservedUsernamesStatement =
 const removeReservedUsernameStatement =
   'Remove the following username from reserved list';
 
-export { addReservedUsernamesStatement, removeReservedUsernameStatement };
+const accountOwnershipStatement =
+  'This user is the owner of the following username';
+
+export {
+  addReservedUsernamesStatement,
+  removeReservedUsernameStatement,
+  accountOwnershipStatement,
+};

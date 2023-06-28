@@ -35,6 +35,8 @@ import {
   type UpdateUserAvatarResponse,
 } from 'lib/types/avatar-types.js';
 import type {
+  ReservedUsernameMessage,
+  AccountOwnershipResponse,
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
@@ -113,6 +115,7 @@ import {
   fetchKnownUserInfos,
   fetchLoggedInUserInfo,
   fetchUserIDForEthereumAddress,
+  fetchUsername,
 } from '../fetchers/user-fetchers.js';
 import {
   createNewAnonymousCookie,
@@ -121,6 +124,7 @@ import {
 } from '../session/cookies.js';
 import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
+import { accountOwnershipStatement } from '../shared/message-statements.js';
 import {
   accountUpdater,
   checkAndSendVerificationEmail,
@@ -129,6 +133,7 @@ import {
   updateUserSettings,
   updateUserAvatar,
 } from '../updaters/account-updaters.js';
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
@@ -813,6 +818,41 @@ async function updateUserAvatarResponder(
   );
 }
 
+export const accountOwnershipResponseValidator: TInterface<AccountOwnershipResponse> =
+  tShape<AccountOwnershipResponse>({
+    message: t.String,
+    signature: t.String,
+  });
+
+async function accountOwnershipResponder(
+  viewer: Viewer,
+): Promise<AccountOwnershipResponse> {
+  const promises = {};
+  promises.username = fetchUsername(viewer.userID);
+  promises.accountInfo = fetchOlmAccount('content');
+  const { username, accountInfo } = await promiseAll(promises);
+
+  if (!username) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  const issuedAt = new Date().toISOString();
+  const reservedUsernameMessage: ReservedUsernameMessage<string> = {
+    statement: accountOwnershipStatement,
+    payload: username,
+    issuedAt,
+  };
+  const message = JSON.stringify(reservedUsernameMessage);
+  const signature = accountInfo.account.sign(message);
+  const response = { message, signature };
+
+  return validateOutput(
+    viewer.platformDetails,
+    accountOwnershipResponseValidator,
+    response,
+  );
+}
+
 export {
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
@@ -827,4 +867,5 @@ export {
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
   updateUserAvatarResponder,
+  accountOwnershipResponder,
 };
