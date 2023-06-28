@@ -23,6 +23,7 @@ import type {
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
   PolicyAcknowledgmentRequest,
+  ClaimUsernameResponse,
 } from 'lib/types/account-types.js';
 import {
   userSettingsTypes,
@@ -36,6 +37,7 @@ import {
   type UpdateUserAvatarRequest,
 } from 'lib/types/avatar-types.js';
 import type {
+  ReservedUsernameMessage,
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
@@ -113,6 +115,7 @@ import {
   fetchKnownUserInfos,
   fetchLoggedInUserInfo,
   fetchUserIDForEthereumAddress,
+  fetchUsername,
 } from '../fetchers/user-fetchers.js';
 import {
   createNewAnonymousCookie,
@@ -129,6 +132,7 @@ import {
   updateUserSettings,
   updateUserAvatar,
 } from '../updaters/account-updaters.js';
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
@@ -730,6 +734,36 @@ async function updateUserAvatarResponder(
   return await updateUserAvatar(viewer, request);
 }
 
+export const claimUsernameResponseValidator: TInterface<ClaimUsernameResponse> =
+  tShape<ClaimUsernameResponse>({
+    message: t.String,
+    signature: t.String,
+  });
+
+async function claimUsernameResponder(
+  viewer: Viewer,
+): Promise<ClaimUsernameResponse> {
+  const [username, accountInfo] = await Promise.all([
+    fetchUsername(viewer.userID),
+    fetchOlmAccount('content'),
+  ]);
+
+  if (!username) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  const issuedAt = new Date().toISOString();
+  const reservedUsernameMessage: ReservedUsernameMessage = {
+    statement: 'This user is the owner of the following username',
+    payload: username,
+    issuedAt,
+  };
+  const message = JSON.stringify(reservedUsernameMessage);
+  const signature = accountInfo.account.sign(message);
+
+  return { message, signature };
+}
+
 export {
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
@@ -744,4 +778,5 @@ export {
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
   updateUserAvatarResponder,
+  claimUsernameResponder,
 };
