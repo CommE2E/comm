@@ -200,7 +200,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
         style={emojiKeyboardPositionStyle}
         className={css.emojiKeyboard}
       >
-        <Picker data={data} onEmojiSelect={onEmojiSelect} />
+        <Picker data={data} theme="dark" onEmojiSelect={onEmojiSelect} />
       </div>
     );
   }, [emojiKeyboardPositionStyle, onEmojiSelect, shouldRenderEmojiKeyboard]);
