@@ -55,6 +55,10 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogOut = useServerCall(logOut);
 
+    const lastCommunicatedPlatformDetails = useSelector(
+      state => state.lastCommunicatedPlatformDetails[urlPrefix],
+    );
+
     return (
       <Socket
         {...props}
@@ -74,6 +78,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         logOut={callLogOut}
+        lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
       />
     );
   });
