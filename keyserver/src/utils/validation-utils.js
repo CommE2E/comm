@@ -16,7 +16,6 @@ import {
   tPlatform,
   tPlatformDetails,
   assertWithValidator,
-  convertToNewIDSchema,
   keyserverPrefixID,
   convertClientIDsToServerIDs,
   convertObject,
@@ -41,8 +40,7 @@ async function validateInput<T>(
     hasMinCodeVersion(viewer.platformDetails, {
       native: NEXT_NATIVE_CODE_VERSION,
       web: NEXT_WEB_CODE_VERSION,
-    }) &&
-    convertToNewIDSchema
+    })
   ) {
     try {
       return convertClientIDsToServerIDs(
@@ -73,11 +71,10 @@ function validateOutput<T>(
   }
 
   if (
-    (hasMinCodeVersion(platformDetails, {
+    hasMinCodeVersion(platformDetails, {
       native: NEXT_NATIVE_CODE_VERSION,
       web: NEXT_WEB_CODE_VERSION,
-    }) &&
-      convertToNewIDSchema) ||
+    }) ||
     alwaysConvertSchema
   ) {
     return convertServerIDsToClientIDs(
