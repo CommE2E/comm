@@ -23,11 +23,11 @@ function EditUserAvatarMenu(): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
 
-  const { setUserAvatar } = editUserAvatarContext;
+  const { baseSetUserAvatar } = editUserAvatarContext;
 
   const removeUserAvatar = React.useCallback(
-    () => setUserAvatar({ type: 'remove' }),
-    [setUserAvatar],
+    () => baseSetUserAvatar({ type: 'remove' }),
+    [baseSetUserAvatar],
   );
 
   const { pushModal } = useModalContext();
