@@ -15,6 +15,7 @@ import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
 } from 'lib/actions/entry-actions.js';
+import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import {
   ModalProvider,
   useModalContext,
@@ -31,7 +32,6 @@ import { registerConfig } from 'lib/utils/config.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
-import WebEditUserAvatarProvider from './avatars/web-edit-user-avatar-provider.react.js';
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
@@ -167,10 +167,10 @@ class App extends React.PureComponent<Props> {
     if (this.props.loggedIn) {
       content = (
         <>
-          <WebEditUserAvatarProvider>
+          <BaseEditUserAvatarProvider>
             {this.renderMainContent()}
             {this.props.modals}
-          </WebEditUserAvatarProvider>
+          </BaseEditUserAvatarProvider>
         </>
       );
     } else {
