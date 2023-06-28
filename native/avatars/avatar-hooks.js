@@ -244,7 +244,7 @@ function useNativeUpdateUserImageAvatar(): (
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext must be defined');
   const {
-    updateImageUserAvatar,
+    baseUpdateImageUserAvatar,
     getRegistrationModeEnabled,
     getRegistrationModeSuccessCallback,
     setUserAvatarMediaUploadInProgress,
@@ -276,7 +276,7 @@ function useNativeUpdateUserImageAvatar(): (
       }
 
       try {
-        await updateImageUserAvatar(imageAvatarUpdateRequest);
+        await baseUpdateImageUserAvatar(imageAvatarUpdateRequest);
       } catch {
         displayAvatarUpdateFailureAlert();
       }
@@ -284,7 +284,7 @@ function useNativeUpdateUserImageAvatar(): (
     [
       getRegistrationModeEnabled,
       getRegistrationModeSuccessCallback,
-      updateImageUserAvatar,
+      baseUpdateImageUserAvatar,
       uploadSelectedMedia,
     ],
   );
