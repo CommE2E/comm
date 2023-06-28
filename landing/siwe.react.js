@@ -37,19 +37,22 @@ import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
 import { useMonitorForWalletConnectModal } from './walletconnect-hooks.js';
 
-const projectId = process.env.COMM_WALLETCONNECT_KEY;
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
+
+const wallets = [injectedWallet({ chains })];
+const projectId = process.env.COMM_WALLETCONNECT_KEY;
+if (projectId) {
+  wallets.push(
+    rainbowWallet({ chains, projectId }),
+    metaMaskWallet({ chains, projectId }),
+    walletConnectWallet({ chains, projectId }),
+  );
+}
+
 const connectors = connectorsForWallets([
-  {
-    groupName: 'Recommended',
-    wallets: [
-      injectedWallet({ chains }),
-      rainbowWallet({ chains, projectId }),
-      metaMaskWallet({ chains, projectId }),
-      walletConnectWallet({ chains, projectId }),
-    ],
-  },
+  { groupName: 'Recommended', wallets },
 ]);
+
 const wagmiClient = createWagmiClient({ connectors, provider });
 
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
