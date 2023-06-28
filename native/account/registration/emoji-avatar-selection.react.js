@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
+import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
 
 import RegistrationContainer from './registration-container.react.js';
