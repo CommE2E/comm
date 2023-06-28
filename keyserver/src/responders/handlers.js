@@ -3,6 +3,10 @@
 import type { $Response, $Request } from 'express';
 
 import { ServerError } from 'lib/utils/errors.js';
+import {
+  assertWithValidator,
+  tPlatformDetails,
+} from 'lib/utils/validation-utils.js';
 
 import { getMessageForException } from './utils.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
@@ -13,6 +17,7 @@ import {
   fetchViewerForHomeRequest,
   addCookieToHomeResponse,
   createNewAnonymousCookie,
+  setCookiePlatformDetails,
 } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
 import {
@@ -44,8 +49,17 @@ function jsonHandler(
       if (!req.body || typeof req.body !== 'object') {
         throw new ServerError('invalid_parameters');
       }
-      const { input } = req.body;
+      const { input, platformDetails } = req.body;
       viewer = await fetchViewerForJSONRequest(req);
+      if (platformDetails) {
+        if (!tPlatformDetails.is(platformDetails)) {
+          throw new ServerError('invalid_platform_details');
+        }
+        await setCookiePlatformDetails(
+          viewer,
+          assertWithValidator(platformDetails, tPlatformDetails),
+        );
+      }
       await policiesValidator(viewer, responder.requiredPolicies);
       const responderResult = await responder.responder(viewer, input);
       if (res.headersSent) {
