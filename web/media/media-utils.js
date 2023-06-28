@@ -1,5 +1,6 @@
 // @flow
 
+import { detect as detectBrowser } from 'detect-browser';
 import * as React from 'react';
 import { thumbHashToDataURL } from 'thumbhash';
 
@@ -96,10 +97,12 @@ type ProcessFileSuccess = {
   uri: string,
   dimensions: ?Dimensions,
 };
-async function processFile(
-  file: File,
-  exifRotate: boolean,
-): Promise<{
+
+const browser = detectBrowser();
+const exifRotate =
+  !browser || (browser.name !== 'safari' && browser.name !== 'chrome');
+
+async function processFile(file: File): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessFileSuccess,
 }> {
@@ -194,23 +197,20 @@ async function processFile(
   return { steps, result: { success: true, uri, dimensions } };
 }
 
-type FileValidationSuccess = {
+export type FileValidationSuccess = {
   success: true,
   file: File,
   mediaType: MediaType,
   uri: string,
   dimensions: ?Dimensions,
 };
-async function validateFile(
-  file: File,
-  exifRotate: boolean,
-): Promise<{
+async function validateFile(file: File): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FileValidationSuccess,
 }> {
   const [probeResponse, processResponse] = await Promise.all([
     probeFile(file),
-    processFile(file, exifRotate),
+    processFile(file),
   ]);
   const { steps: probeSteps, result: probeResult } = probeResponse;
   const { steps: processSteps, result: processResult } = processResponse;
