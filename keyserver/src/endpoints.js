@@ -178,6 +178,8 @@ import {
   updatePasswordRequestInputValidator,
   updateUserAvatarResponderValidator,
   updateUserSettingsInputValidator,
+  claimUsernameResponder,
+  claimUsernameResponseValidator,
 } from './responders/user-responders.js';
 import {
   codeVerificationResponder,
@@ -531,6 +533,12 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
     siweAuthResponder,
     siweAuthRequestInputValidator,
     logInResponseValidator,
+    [],
+  ),
+  claim_username: createJSONResponder(
+    claimUsernameResponder,
+    ignoredArgumentValidator,
+    claimUsernameResponseValidator,
     [],
   ),
   update_user_avatar: createJSONResponder(
