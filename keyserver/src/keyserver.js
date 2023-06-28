@@ -134,6 +134,17 @@ import {
     if (landingBaseRoutePath) {
       const landingRouter = express.Router();
       landingRouter.get('/invite/:secret', inviteResponder);
+      landingRouter.use(
+        '/.well-known',
+        express.static(
+          '.well-known',
+          // Necessary for apple-app-site-association file
+          {
+            setHeaders: res =>
+              res.setHeader('Content-Type', 'application/json'),
+          },
+        ),
+      );
       landingRouter.use('/images', express.static('images'));
       landingRouter.use('/fonts', express.static('fonts'));
       landingRouter.use(
