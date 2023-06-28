@@ -243,17 +243,39 @@ function useNativeUpdateUserImageAvatar(): (
 ) => Promise<void> {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext must be defined');
-  const { updateImageUserAvatar } = editUserAvatarContext;
+  const {
+    updateImageUserAvatar,
+    getRegistrationModeEnabled,
+    getRegistrationModeSuccessCallback,
+  } = editUserAvatarContext;
 
   const nativeUpdateUserImageAvatar = React.useCallback(
     async (selection: NativeMediaSelection) => {
+      const registrationModeEnabled = getRegistrationModeEnabled();
+      if (registrationModeEnabled) {
+        const successCallback = getRegistrationModeSuccessCallback();
+        invariant(
+          successCallback,
+          'successCallback must be defined if registrationModeEnabled is true',
+        );
+        successCallback({
+          needsUpload: true,
+          mediaSelection: selection,
+        });
+        return;
+      }
+
       try {
         await updateImageUserAvatar(selection);
       } catch {
         displayAvatarUpdateFailureAlert();
       }
     },
-    [updateImageUserAvatar],
+    [
+      getRegistrationModeEnabled,
+      getRegistrationModeSuccessCallback,
+      updateImageUserAvatar,
+    ],
   );
 
   return nativeUpdateUserImageAvatar;
