@@ -90,6 +90,10 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       return activeMessageListSelector(navContext);
     }, [active, navContext]);
 
+    const lastCommunicatedPlatformDetails = useSelector(
+      state => state.lastCommunicatedPlatformDetails[urlPrefix],
+    );
+
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogOut = useServerCall(logOut);
@@ -150,6 +154,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         getInitialNotificationsEncryptedMessage={
           getInitialNotificationsEncryptedMessage
         }
+        lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
       />
     );
   });
