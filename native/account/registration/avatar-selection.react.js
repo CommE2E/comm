@@ -7,7 +7,7 @@ import { Text, View } from 'react-native';
 import {
   EditUserAvatarContext,
   type UserAvatarSelection,
-} from 'lib/components/base-edit-user-avatar-provider.react.js';
+} from 'lib/components/edit-user-avatar-provider.react.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
