@@ -6,6 +6,10 @@ import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
+import {
+  encryptedMediaBlobURI,
+  encryptedVideoThumbnailBlobURI,
+} from 'lib/media/media-utils.js';
 import type { MediaInfo, AvatarMediaInfo } from 'lib/types/media-types.js';
 
 import EncryptedImage from './encrypted-image.react.js';
@@ -182,16 +186,20 @@ class Multimedia extends React.PureComponent<Props, State> {
         thumbHash: mediaInfo.thumbnailThumbHash,
       };
     } else if (mediaInfo.type === 'encrypted_photo') {
+      // destructuring needed for Flow
+      const { index, ...media } = mediaInfo;
       return {
         kind: 'encrypted',
-        blobURI: mediaInfo.holder,
+        blobURI: encryptedMediaBlobURI(media),
         encryptionKey: mediaInfo.encryptionKey,
         thumbHash: mediaInfo.thumbHash,
       };
     } else if (mediaInfo.type === 'encrypted_video') {
+      // destructuring needed for Flow
+      const { index, ...media } = mediaInfo;
       return {
         kind: 'encrypted',
-        blobURI: mediaInfo.thumbnailHolder,
+        blobURI: encryptedVideoThumbnailBlobURI(media),
         encryptionKey: mediaInfo.thumbnailEncryptionKey,
         thumbHash: mediaInfo.thumbnailThumbHash,
       };
