@@ -12,11 +12,12 @@ import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
 import { updateThread } from '../updaters/thread-updaters.js';
+import { ensureUserCredentials } from '../user/checks.js';
 import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 
-const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
+const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
   [
     0,
     async () => {
@@ -465,6 +466,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
         );
       }
     },
+  ],
+  [39, ensureUserCredentials],
+  [
+    40,
+    // Tokens from identity service are 512 characters long
+    () =>
+      dbQuery(
+        SQL`
+        ALTER TABLE metadata
+        MODIFY COLUMN data VARCHAR(1023);
+      `,
+      ),
   ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
