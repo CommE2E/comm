@@ -29,7 +29,7 @@ const scrollbarCSS = fs.promises.readFile(
   'utf8',
 );
 
-const setApplicationMenu = () => {
+const setApplicationMenu = (mainWindow: BrowserWindow) => {
   let mainMenu = [];
   if (isMac) {
     mainMenu = [
@@ -62,6 +62,14 @@ const setApplicationMenu = () => {
       { role: 'toggleDevTools' },
     ],
   };
+  if (isDev) {
+    viewMenu.submenu.push({
+      label: 'Toggle Shared Worker Developer Tools',
+      click: () => {
+        mainWindow.webContents.inspectSharedWorker();
+      },
+    });
+  }
   const windowMenu = {
     label: 'Window',
     submenu: [
@@ -216,6 +224,8 @@ const show = (urlPath?: string) => {
   const error = createErrorWindow();
   const main = createMainWindow(urlPath);
 
+  setApplicationMenu(main);
+
   let loadedSuccessfully = true;
   main.webContents.on('did-fail-load', () => {
     loadedSuccessfully = false;
@@ -258,7 +268,6 @@ const run = () => {
   if (process.platform === 'win32') {
     app.setAppUserModelId('Comm');
   }
-  setApplicationMenu();
 
   (async () => {
     await app.whenReady();
