@@ -6,18 +6,14 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 
-import CopyInviteLinkButton from './copy-invite-link-button.react.js';
-import css from './manage-invite-links-modal.css';
-import Button from '../components/button.react.js';
+import EmptyLinkContent from './manage/empty-link-content.react.js';
+import ExistingLinkContent from './manage/existing-link-content.react.js';
+import css from './manage/manage-invite-links-modal.css';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +communityID: string,
-};
-
-const buttonColor = {
-  color: 'var(--purple-link)',
 };
 
 function ManageInviteLinksModal(props: Props): React.Node {
@@ -27,41 +23,16 @@ function ManageInviteLinksModal(props: Props): React.Node {
   ];
   const { popModal } = useModalContext();
 
-  let enableLinkButton = null;
-  let publicLinkSection = null;
+  let content;
   if (inviteLink) {
-    publicLinkSection = (
-      <div>
-        <CopyInviteLinkButton inviteLink={inviteLink} />
-        <div className={css.description}>
-          {'Public links allow unlimited uses and never expire. '}
-          <Button
-            variant="text"
-            buttonColor={buttonColor}
-            className={css.inlineButton}
-          >
-            Edit public link
-          </Button>
-        </div>
-      </div>
-    );
+    content = <ExistingLinkContent inviteLink={inviteLink} />;
   } else {
-    enableLinkButton = (
-      <Button variant="text" buttonColor={buttonColor}>
-        Enable
-      </Button>
-    );
+    content = <EmptyLinkContent />;
   }
 
   return (
     <Modal name="Manage invite links" onClose={popModal} size="large">
-      <div className={css.container}>
-        <div className={css.sectionHeaderRow}>
-          <div className={css.sectionHeaderText}>Public link</div>
-          {enableLinkButton}
-        </div>
-        {publicLinkSection}
-      </div>
+      <div className={css.container}>{content}</div>
     </Modal>
   );
 }
