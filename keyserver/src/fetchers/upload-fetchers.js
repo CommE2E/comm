@@ -139,7 +139,7 @@ function imagesFromRow(row: Object): Image | EncryptedImage {
   return {
     id,
     type: 'encrypted_photo',
-    holder: uri,
+    blobURI: uri,
     dimensions,
     thumbHash,
     encryptionKey: uploadExtra.encryptionKey,
@@ -223,7 +223,7 @@ async function fetchMediaForThread(
         return {
           type: 'encrypted_photo',
           id: uploadID.toString(),
-          holder: uri,
+          blobURI: uri,
           encryptionKey,
           dimensions,
           thumbHash,
@@ -254,11 +254,11 @@ async function fetchMediaForThread(
       return {
         type: 'encrypted_video',
         id: uploadID.toString(),
-        holder: uri,
+        blobURI: uri,
         encryptionKey,
         dimensions,
         thumbnailID,
-        thumbnailHolder: thumbnailURI,
+        thumbnailBlobURI: thumbnailURI,
         thumbnailEncryptionKey,
         thumbnailThumbHash,
       };
@@ -334,7 +334,7 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
         media.push({
           type: 'encrypted_photo',
           id: primaryUploadID,
-          holder: primaryUploadURI,
+          blobURI: primaryUploadURI,
           encryptionKey,
           dimensions,
           thumbHash,
@@ -367,11 +367,11 @@ function constructMediaFromMediaMessageContentsAndUploadRows(
       const video = {
         type: 'encrypted_video',
         id: primaryUploadID,
-        holder: primaryUploadURI,
+        blobURI: primaryUploadURI,
         encryptionKey,
         dimensions,
         thumbnailID: thumbnailUploadID,
-        thumbnailHolder: thumbnailUploadURI,
+        thumbnailBlobURI: thumbnailUploadURI,
         thumbnailEncryptionKey: thumbnailUploadExtra.encryptionKey,
         thumbnailThumbHash,
       };
