@@ -7,6 +7,7 @@ set(DBM_HDRS
   "DatabaseManager.h"
   "DatabaseQueryExecutor.h"
   "SQLiteQueryExecutor.h"
+  "CommQueryExecutor.h"
   "entities/Draft.h"
   "entities/Media.h"
   "entities/Message.h"
@@ -18,6 +19,7 @@ set(DBM_HDRS
 
 set(DBM_SRCS
   "SQLiteQueryExecutor.cpp"
+  "CommQueryExecutor.cpp"
 )
 
 add_library(comm-databasemanagers
