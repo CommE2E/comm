@@ -46,10 +46,6 @@ function ChangeRolesScreen(props: Props): React.Node {
   const changeRolesLoadingStatus: LoadingStatus = useSelector(
     changeRolesLoadingStatusSelector,
   );
-  const activityIndicatorStyle = React.useMemo(
-    () => ({ paddingRight: 15 }),
-    [],
-  );
 
   const styles = useStyles(unboundStyles);
 
@@ -187,7 +183,7 @@ function ChangeRolesScreen(props: Props): React.Node {
             <ActivityIndicator
               size="small"
               color="white"
-              style={activityIndicatorStyle}
+              style={styles.activityIndicator}
             />
           );
         }
@@ -202,7 +198,7 @@ function ChangeRolesScreen(props: Props): React.Node {
   }, [
     changeRolesLoadingStatus,
     navigation,
-    activityIndicatorStyle,
+    styles.activityIndicator,
     route,
     shouldRoleChangeBeDisabled,
   ]);
@@ -298,6 +294,9 @@ const unboundStyles = {
     marginRight: 8,
     marginLeft: 8,
     marginBottom: 12,
+  },
+  activityIndicator: {
+    paddingRight: 15,
   },
 };
 

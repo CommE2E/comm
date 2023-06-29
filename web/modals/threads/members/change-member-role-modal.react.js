@@ -73,18 +73,12 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
     }
 
     return (
-      <>
-        <div className={css.roleModalDisabled}>
-          <SWMansionIcon
-            icon="info-circle"
-            size={36}
-            className={css.infoIcon}
-          />
-          <div className={css.infoText}>
-            There must be at least one admin at any given time in a community.
-          </div>
+      <div className={css.roleModalDisabled}>
+        <SWMansionIcon icon="info-circle" size={36} className={css.infoIcon} />
+        <div className={css.infoText}>
+          There must be at least one admin at any given time in a community.
         </div>
-      </>
+      </div>
     );
   }, [initialSelectedRole, otherUsersButNoOtherAdminsValue, threadInfo.roles]);
 
@@ -94,13 +88,8 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
       return;
     }
 
-    const createChangeThreadMemberRolesPromise = () => {
-      return callChangeThreadMemberRoles(
-        threadInfo.id,
-        [memberInfo.id],
-        selectedRole,
-      );
-    };
+    const createChangeThreadMemberRolesPromise = () =>
+      callChangeThreadMemberRoles(threadInfo.id, [memberInfo.id], selectedRole);
 
     dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
