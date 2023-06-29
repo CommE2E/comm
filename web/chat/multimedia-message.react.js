@@ -3,6 +3,10 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import {
+  encryptedMediaBlobURI,
+  encryptedVideoThumbnailBlobURI,
+} from 'lib/media/media-utils.js';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
@@ -45,14 +49,13 @@ class MultimediaMessage extends React.PureComponent<Props> {
         const { type, uri, thumbnailURI, dimensions } = singleMedia;
         mediaSource = { type, uri, thumbHash, thumbnailURI, dimensions };
       } else {
-        const {
-          type,
-          holder: blobURI,
-          encryptionKey,
-          thumbnailHolder: thumbnailBlobURI,
-          thumbnailEncryptionKey,
-          dimensions,
-        } = singleMedia;
+        const { type, encryptionKey, thumbnailEncryptionKey, dimensions } =
+          singleMedia;
+        const blobURI = encryptedMediaBlobURI(singleMedia);
+        const thumbnailBlobURI =
+          singleMedia.type === 'encrypted_video'
+            ? encryptedVideoThumbnailBlobURI(singleMedia)
+            : null;
         mediaSource = {
           type,
           blobURI,
