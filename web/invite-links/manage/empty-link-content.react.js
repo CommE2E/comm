@@ -9,11 +9,16 @@ const buttonColor = {
   color: 'var(--purple-link)',
 };
 
-function EmptyLinkContent(): React.Node {
+type Props = {
+  +enterEditMode: () => mixed,
+};
+
+function EmptyLinkContent(props: Props): React.Node {
+  const { enterEditMode } = props;
   return (
     <div className={css.sectionHeaderRow}>
       <div className={css.sectionHeaderText}>Public link</div>
-      <Button variant="text" buttonColor={buttonColor}>
+      <Button variant="text" buttonColor={buttonColor} onClick={enterEditMode}>
         Enable
       </Button>
     </div>
