@@ -29,6 +29,7 @@ const scrollbarCSS = fs.promises.readFile(
   'utf8',
 );
 
+let mainWindow = null;
 const setApplicationMenu = () => {
   let mainMenu = [];
   if (isMac) {
@@ -60,6 +61,14 @@ const setApplicationMenu = () => {
       { type: 'separator' },
       { role: 'togglefullscreen' },
       { role: 'toggleDevTools' },
+      {
+        label: 'Toggle Shared Worker Developer Tools',
+        click: () => {
+          if (mainWindow) {
+            mainWindow.webContents.inspectSharedWorker();
+          }
+        },
+      },
     ],
   };
   const windowMenu = {
@@ -87,7 +96,6 @@ const setApplicationMenu = () => {
   Menu.setApplicationMenu(menu);
 };
 
-let mainWindow = null;
 const createMainWindow = (urlPath?: string) => {
   const win = new BrowserWindow({
     show: false,
