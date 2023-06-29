@@ -240,6 +240,7 @@ declare module 'electron' {
   };
 
   declare export type MenuItemConstructorOptions = {
+    click?: () => void,
     label?: string,
     submenu?: $ReadOnlyArray<MenuItemConstructorOptions>,
     type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio',
@@ -439,6 +440,7 @@ declare module 'electron' {
       event: T,
       listener: $ElementType<WebContentsEvents, T>,
     ): void;
+    inspectSharedWorker(): void;
   }
   declare type WebContentsEvents = {
     'did-finish-load': () => void,
