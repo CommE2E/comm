@@ -15,7 +15,18 @@ export type AndroidNotification = {
   },
 };
 
+export type AndroidNotificationRescind = {
+  +data: {
+    +[string]: string,
+  },
+};
+
 export type TargetedAndroidNotification = {
-  +notification: AndroidNotification,
+  +notification: AndroidNotification | AndroidNotificationRescind,
+  +deviceToken: string,
+};
+
+export type NotificationTargetDevice = {
+  +cookieID: string,
   +deviceToken: string,
 };
