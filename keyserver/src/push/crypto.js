@@ -3,7 +3,10 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
-import type { AndroidNotification } from './types.js';
+import type {
+  AndroidNotification,
+  AndroidNotificationRescind,
+} from './types.js';
 import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
 
 async function encryptIOSNotification(
@@ -66,16 +69,15 @@ async function encryptIOSNotification(
   return encryptedNotification;
 }
 
-async function encryptAndroidNotification(
+async function encryptAndroidNotificationPayload<T>(
   cookieID: string,
-  notification: AndroidNotification,
-): Promise<AndroidNotification> {
-  const { id, badgeOnly, ...unencryptedPayload } = notification.data;
-  const encryptedNotification = { data: { id, badgeOnly } };
-
-  let encryptedSerializedPayload;
+  unencryptedPayload: T,
+): Promise<T | { +encryptedPayload: string }> {
   try {
     const unencryptedSerializedPayload = JSON.stringify(unencryptedPayload);
+    if (!unencryptedSerializedPayload) {
+      return unencryptedPayload;
+    }
     const { serializedPayload } = await encryptAndUpdateOlmSession(
       cookieID,
       'notifications',
@@ -83,29 +85,51 @@ async function encryptAndroidNotification(
         serializedPayload: unencryptedSerializedPayload,
       },
     );
-    encryptedSerializedPayload = serializedPayload;
+    return { encryptedPayload: serializedPayload.body };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
-
-    encryptedNotification.data = {
-      ...unencryptedPayload,
-      ...encryptedNotification.data,
+    return {
       encryptionFailed: '1',
+      ...unencryptedPayload,
     };
-    return encryptedNotification;
   }
+}
 
-  encryptedNotification.data = {
-    ...encryptedNotification.data,
-    encryptedPayload: encryptedSerializedPayload.body,
+async function encryptAndroidNotification(
+  cookieID: string,
+  notification: AndroidNotification,
+): Promise<AndroidNotification> {
+  const { id, badgeOnly, ...unencryptedPayload } = notification.data;
+  const encryptedSerializedPayload = await encryptAndroidNotificationPayload(
+    cookieID,
+    unencryptedPayload,
+  );
+  return {
+    data: {
+      id,
+      badgeOnly,
+      ...encryptedSerializedPayload,
+    },
   };
-  return encryptedNotification;
+}
+
+async function encryptAndroidNotificationRescind(
+  cookieID: string,
+  notification: AndroidNotificationRescind,
+): Promise<AndroidNotificationRescind> {
+  const encryptedPayload = await encryptAndroidNotificationPayload(
+    cookieID,
+    notification.data,
+  );
+  return {
+    data: encryptedPayload,
+  };
 }
 
 function prepareEncryptedIOSNotifications(
   cookieIDs: $ReadOnlyArray<string>,
   notification: apn.Notification,
-): Promise<Array<apn.Notification>> {
+): Promise<$ReadOnlyArray<apn.Notification>> {
   const notificationPromises = cookieIDs.map(cookieID =>
     encryptIOSNotification(cookieID, notification),
   );
@@ -115,9 +139,19 @@ function prepareEncryptedIOSNotifications(
 function prepareEncryptedAndroidNotifications(
   cookieIDs: $ReadOnlyArray<string>,
   notification: AndroidNotification,
-): Promise<Array<AndroidNotification>> {
+): Promise<$ReadOnlyArray<AndroidNotification>> {
   const notificationPromises = cookieIDs.map(cookieID =>
     encryptAndroidNotification(cookieID, notification),
+  );
+  return Promise.all(notificationPromises);
+}
+
+function prepareEncryptedAndroidNotificationRescinds(
+  cookieIDs: $ReadOnlyArray<string>,
+  notification: AndroidNotificationRescind,
+): Promise<$ReadOnlyArray<AndroidNotificationRescind>> {
+  const notificationPromises = cookieIDs.map(cookieID =>
+    encryptAndroidNotificationRescind(cookieID, notification),
   );
   return Promise.all(notificationPromises);
 }
@@ -125,4 +159,5 @@ function prepareEncryptedAndroidNotifications(
 export {
   prepareEncryptedIOSNotifications,
   prepareEncryptedAndroidNotifications,
+  prepareEncryptedAndroidNotificationRescinds,
 };
