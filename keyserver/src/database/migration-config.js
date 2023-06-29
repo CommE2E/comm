@@ -466,8 +466,49 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       }
     },
   ],
+  [
+    39,
+    async () => {
+      await ensureUserCredentials();
+    },
+  ],
+  [
+    40,
+    async () => {
+      // Tokens from identity service are 512 characters long
+      await dbQuery(
+        SQL`
+          ALTER TABLE metadata
+          MODIFY COLUMN data VARCHAR(1023);
+        `,
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
+
+async function ensureUserCredentials() {
+  try {
+    const fileHandle = await fs.promises.open(
+      'secrets/user_credentials.json',
+      'r',
+    );
+    const contents = await fileHandle.readFile('utf8');
+    JSON.parse(contents);
+  } catch (e) {
+    console.log(
+      'Please add the following to keyserver/secrets/user_credentials.json:\n' +
+        '{\n' +
+        '  "username": <user>,\n' +
+        '  "password": <pass>,\n' +
+        '}\n',
+    );
+
+    // Since we don't want to apply the migration until there are credentials;
+    // throw the error and force keyserver to be configured next restart
+    throw e;
+  }
+}
 
 async function writeJSONToFile(data: any, filePath: string): Promise<void> {
   console.warn(`updating ${filePath} to ${JSON.stringify(data)}`);
