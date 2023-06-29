@@ -25,3 +25,40 @@
   display: inline;
   font-size: var(--s-font-14);
 }
+
+.editLinkContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  color: var(--modal-fg);
+  font-size: var(--s-font-14);
+}
+
+.editLinkDescription {
+  font-weight: var(--semi-bold);
+  color: var(--modal-fg);
+}
+
+.separator {
+  border-color: var(--border-color);
+  margin: 0;
+}
+
+.linkSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.linkRow {
+  display: flex;
+  font-size: var(--m-font-16);
+  align-items: center;
+  gap: 8px;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

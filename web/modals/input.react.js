@@ -18,7 +18,7 @@ export type BaseInputProps = {
 export type InputProps = {
   ...BaseInputProps,
   +type: string,
-  +placeholder: string,
+  +placeholder?: string,
   +maxLength?: number,
 };
 
