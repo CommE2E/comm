@@ -9,8 +9,12 @@ use crate::validate_identifier;
 use super::{handle_db_error, AppContext};
 use actix_web::error::{
   ErrorBadRequest, ErrorConflict, ErrorInternalServerError, ErrorNotFound,
+  ErrorRangeNotSatisfiable,
 };
-use actix_web::{web, Error as HttpError, HttpResponse};
+use actix_web::{
+  http::header::{ByteRangeSpec, Range},
+  web, Error as HttpError, HttpResponse,
+};
 use anyhow::Result;
 use async_stream::{try_stream, AsyncStream};
 use serde::{Deserialize, Serialize};
@@ -26,6 +30,7 @@ use tracing_futures::Instrument;
 pub async fn get_blob_handler(
   ctx: web::Data<AppContext>,
   params: web::Path<String>,
+  range_header: Option<web::Header<Range>>,
 ) -> actix_web::Result<HttpResponse> {
   info!("Get blob request");
   let blob_hash = params.into_inner();
@@ -57,24 +62,81 @@ pub async fn get_blob_handler(
 
   let s3 = ctx.s3.clone();
 
-  let stream: AsyncStream<Result<web::Bytes, HttpError>, _> = try_stream! {
-    let mut offset: u64 = 0;
-    while offset < file_size {
-      let next_size = std::cmp::min(chunk_size, file_size - offset);
-      let range = offset..(offset + next_size);
-      trace!(?range, "Getting {} bytes of data", next_size);
+  // Parse range header
+  let (range_start, range_end): (u64, u64) = match range_header.to_owned() {
+    Some(range_header) => match range_header.into_inner() {
+      Range::Bytes(ranges) => {
+        if ranges.len() > 1 {
+          return Err(ErrorBadRequest("Multiple ranges not supported"));
+        }
 
-      let data = s3.get_object_bytes(&s3_path, range).await.map_err(handle_s3_error)?;
-      yield web::Bytes::from(data);
+        match ranges[0] {
+          ByteRangeSpec::FromTo(start, end) => {
+            if end >= file_size || start > end {
+              return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
+            }
 
-      offset += chunk_size;
-    }
+            (start, end)
+          }
+          ByteRangeSpec::From(start) => {
+            if start >= file_size {
+              return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
+            }
+
+            (start, file_size - 1)
+          }
+          ByteRangeSpec::Last(length) => {
+            if length >= file_size {
+              return Err(ErrorRangeNotSatisfiable("Range not satisfiable"));
+            }
+
+            (file_size - length, file_size - 1)
+          }
+        }
+      }
+      Range::Unregistered(..) => {
+        return Err(ErrorBadRequest("Use ranges registered at IANA"));
+      }
+    },
+
+    None => (0, file_size - 1),
   };
+
+  let content_range =
+    format!("bytes {}-{}/{}", range_start, range_end, file_size);
+  let content_length = (range_end - range_start + 1).to_string();
+
+  let stream: AsyncStream<Result<web::Bytes, HttpError>, _> = try_stream! {
+      debug!(?range_start, ?range_end, "Getting range of data");
+      let mut offset: u64 = range_start;
+
+      while offset < range_end {
+        let next_size = std::cmp::min(chunk_size, range_end - offset + 1);
+        let range = offset..(offset + next_size);
+        trace!(?range, "Getting {} bytes of data", next_size);
+
+        let data = s3.get_object_bytes(&s3_path, range).await.map_err(handle_s3_error)?;
+        yield web::Bytes::from(data);
+
+        offset += chunk_size;
+      }
+
+  };
+
+  if range_header.is_some() {
+    return Ok(
+      HttpResponse::PartialContent()
+        .content_type("application/octet-stream")
+        .append_header(("Content-Length", content_length))
+        .append_header(("Content-Range", content_range))
+        .streaming(Box::pin(stream.in_current_span())),
+    );
+  }
 
   Ok(
     HttpResponse::Ok()
       .content_type("application/octet-stream")
-      .append_header(("Content-Length", file_size.to_string()))
+      .append_header(("Content-Length", content_length))
       .streaming(Box::pin(stream.in_current_span())),
   )
 }
