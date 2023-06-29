@@ -3,15 +3,34 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
+import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import {
+  prepareEncryptedAndroidNotificationRescinds,
+  prepareEncryptedIOSNotifications,
+} from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
+import type {
+  NotificationTargetDevice,
+  TargetedAndroidNotification,
+  TargetedAPNsNotification,
+} from './types.js';
 import { apnPush, fcmPush } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
+
+type ParsedDelivery = {
+  +platform: 'ios' | 'android',
+  +codeVersion: ?number,
+  +notificationID: string,
+  +deviceTokens: $ReadOnlyArray<string>,
+};
+
+type ParsedDeliveries = { +[id: string]: $ReadOnlyArray<ParsedDelivery> };
 
 async function rescindPushNotifs(
   notifCondition: SQLStatementType,
@@ -37,85 +56,101 @@ async function rescindPushNotifs(
   fetchQuery.append(SQL` GROUP BY n.id, m.user`);
   const [fetchResult] = await dbQuery(fetchQuery);
 
-  const deliveryPromises = {};
-  const notifInfo = {};
-  const rescindedIDs = [];
+  const allDeviceTokens = [];
+  const parsedDeliveries: ParsedDeliveries = {};
+
   for (const row of fetchResult) {
     const rawDelivery = JSON.parse(row.delivery);
     const deliveries = Array.isArray(rawDelivery) ? rawDelivery : [rawDelivery];
     const id = row.id.toString();
+
+    const rowParsedDeliveries = [];
+
+    for (const delivery of deliveries) {
+      if (delivery.iosID || delivery.deviceType === 'ios') {
+        const deviceTokens = delivery.iosDeviceTokens ?? delivery.deviceTokens;
+        rowParsedDeliveries.push({
+          notificationID: delivery.iosID,
+          codeVersion: delivery.codeVersion,
+          platform: 'ios',
+          deviceTokens,
+        });
+        allDeviceTokens.push(...deviceTokens);
+      } else if (delivery.androidID || delivery.deviceType === 'android') {
+        const deviceTokens =
+          delivery.androidDeviceTokens ?? delivery.deviceTokens;
+        rowParsedDeliveries.push({
+          notificationID: row.collapse_key ? row.collapse_key : id,
+          codeVersion: delivery.codeVersion,
+          platform: 'android',
+          deviceTokens,
+        });
+        allDeviceTokens.push(...deviceTokens);
+      }
+    }
+    parsedDeliveries[id] = rowParsedDeliveries;
+  }
+  const deviceTokenToCookieID = await getDeviceTokenToCookieID(allDeviceTokens);
+
+  const deliveryPromises = {};
+  const notifInfo = {};
+  const rescindedIDs = [];
+
+  for (const row of fetchResult) {
+    const id = row.id.toString();
     const threadID = row.thread.toString();
+
     notifInfo[id] = {
       userID: row.user.toString(),
       threadID,
       messageID: row.message.toString(),
     };
-    for (const delivery of deliveries) {
-      if (delivery.iosID && delivery.iosDeviceTokens) {
-        // Old iOS
-        const notification = prepareIOSNotification(
-          delivery.iosID,
-          row.unread_count,
-          threadID,
-        );
-        const targetedNotifications = delivery.iosDeviceTokens.map(
-          deviceToken => ({ deviceToken, notification }),
-        );
-        deliveryPromises[id] = apnPush({
-          targetedNotifications,
-          platformDetails: { platform: 'ios' },
-        });
-      } else if (delivery.androidID) {
-        // Old Android
-        const notification = prepareAndroidNotification(
-          row.collapse_key ? row.collapse_key : id,
-          row.unread_count,
-          threadID,
-        );
-        deliveryPromises[id] = fcmPush({
-          targetedNotifications: delivery.androidDeviceTokens.map(
-            deviceToken => ({
-              deviceToken,
-              notification,
-            }),
-          ),
-          codeVersion: null,
-        });
-      } else if (delivery.deviceType === 'ios') {
-        // New iOS
-        const { iosID, deviceTokens, codeVersion } = delivery;
-        const notification = prepareIOSNotification(
-          iosID,
-          row.unread_count,
-          threadID,
-          codeVersion,
-        );
-        const targetedNotifications = deviceTokens.map(deviceToken => ({
+
+    for (const delivery of parsedDeliveries[id]) {
+      if (delivery.platform === 'ios') {
+        const devices = delivery.deviceTokens.map(deviceToken => ({
           deviceToken,
-          notification,
+          cookieID: deviceTokenToCookieID[deviceToken],
         }));
-        deliveryPromises[id] = apnPush({
-          targetedNotifications,
-          platformDetails: { platform: 'ios', codeVersion },
-        });
-      } else if (delivery.deviceType === 'android') {
-        // New Android
-        const { deviceTokens, codeVersion } = delivery;
-        const notification = prepareAndroidNotification(
-          row.collapse_key ? row.collapse_key : id,
-          row.unread_count,
-          threadID,
-        );
-        deliveryPromises[id] = fcmPush({
-          targetedNotifications: deviceTokens.map(deviceToken => ({
-            deviceToken,
-            notification,
-          })),
-          codeVersion,
-        });
+        const deliveryPromise = (async () => {
+          const targetedNotifications = await prepareIOSNotification(
+            delivery.notificationID,
+            row.unread_count,
+            threadID,
+            delivery.codeVersion,
+            devices,
+          );
+          return await apnPush({
+            targetedNotifications,
+            platformDetails: {
+              platform: 'ios',
+              codeVersion: delivery.codeVersion,
+            },
+          });
+        })();
+        deliveryPromises[id] = deliveryPromise;
+      } else if (delivery.platform === 'android') {
+        const devices = delivery.deviceTokens.map(deviceToken => ({
+          deviceToken,
+          cookieID: deviceTokenToCookieID[deviceToken],
+        }));
+        const deliveryPromise = (async () => {
+          const targetedNotifications = await prepareAndroidNotification(
+            delivery.notificationID,
+            row.unread_count,
+            threadID,
+            delivery.codeVersion,
+            devices,
+          );
+          return await fcmPush({
+            targetedNotifications,
+            codeVersion: delivery.codeVersion,
+          });
+        })();
+        deliveryPromises[id] = deliveryPromise;
       }
     }
-    rescindedIDs.push(row.id);
+    rescindedIDs.push(id);
   }
 
   const numRescinds = Object.keys(deliveryPromises).length;
@@ -165,18 +200,64 @@ async function rescindPushNotifs(
   }
 }
 
-function prepareIOSNotification(
+async function getDeviceTokenToCookieID(
+  deviceTokens,
+): Promise<{ +[string]: string }> {
+  if (deviceTokens.length === 0) {
+    return {};
+  }
+  const deviceTokenToCookieID = {};
+  const fetchCookiesQuery = SQL`
+    SELECT id, device_token FROM cookies 
+    WHERE device_token IN (${deviceTokens})
+  `;
+  const [fetchResult] = await dbQuery(fetchCookiesQuery);
+  for (const row of fetchResult) {
+    deviceTokenToCookieID[row.device_token.toString()] = row.id.toString();
+  }
+  return deviceTokenToCookieID;
+}
+
+async function conditionallyEncryptNotification<T>(
+  notification: T,
+  codeVersion: ?number,
+  devices: $ReadOnlyArray<NotificationTargetDevice>,
+  encryptCallback: (
+    cookieIDs: $ReadOnlyArray<string>,
+    notification: T,
+  ) => Promise<$ReadOnlyArray<T>>,
+): Promise<$ReadOnlyArray<{ +deviceToken: string, +notification: T }>> {
+  const shouldBeEncrypted = codeVersion && codeVersion > NEXT_CODE_VERSION;
+  if (!shouldBeEncrypted) {
+    return devices.map(({ deviceToken }) => ({
+      notification,
+      deviceToken,
+    }));
+  }
+  const notificationPromises = devices.map(({ cookieID, deviceToken }) =>
+    (async () => {
+      const [encryptedNotif] = await encryptCallback([cookieID], notification);
+      return {
+        notification: encryptedNotif,
+        deviceToken,
+      };
+    })(),
+  );
+  return await Promise.all(notificationPromises);
+}
+
+async function prepareIOSNotification(
   iosID: string,
   unreadCount: number,
   threadID: string,
   codeVersion: ?number,
-): apn.Notification {
+  devices: $ReadOnlyArray<NotificationTargetDevice>,
+): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
   const notification = new apn.Notification();
   notification.topic = getAPNsNotificationTopic({
     platform: 'ios',
     codeVersion: codeVersion ?? undefined,
   });
-
   // It was agreed to temporarily make even releases staff-only. This way
   // we will be able to prevent shipping NSE functionality to public iOS
   // users until it is thoroughly tested among staff members.
@@ -203,15 +284,22 @@ function prepareIOSNotification(
             notificationId: iosID,
           },
         };
-  return notification;
+  return await conditionallyEncryptNotification(
+    notification,
+    codeVersion,
+    devices,
+    prepareEncryptedIOSNotifications,
+  );
 }
 
-function prepareAndroidNotification(
+async function prepareAndroidNotification(
   notifID: string,
   unreadCount: number,
   threadID: string,
-): Object {
-  return {
+  codeVersion: ?number,
+  devices: $ReadOnlyArray<NotificationTargetDevice>,
+): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
+  const notification = {
     data: {
       badge: unreadCount.toString(),
       rescind: 'true',
@@ -220,6 +308,12 @@ function prepareAndroidNotification(
       threadID,
     },
   };
+  return conditionallyEncryptNotification(
+    notification,
+    codeVersion,
+    devices,
+    prepareEncryptedAndroidNotificationRescinds,
+  );
 }
 
 export { rescindPushNotifs };
