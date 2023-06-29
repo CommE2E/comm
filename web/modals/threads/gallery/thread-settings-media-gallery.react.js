@@ -4,6 +4,10 @@ import * as React from 'react';
 
 import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import {
+  encryptedMediaBlobURI,
+  encryptedVideoThumbnailBlobURI,
+} from 'lib/media/media-utils.js';
 import type { Media } from 'lib/types/media-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
@@ -63,16 +67,15 @@ function ThreadSettingsMediaGalleryModal(
           thumbnailURI,
         };
       } else {
-        const {
-          holder: blobURI,
-          encryptionKey,
-          thumbnailHolder: thumbnailBlobURI,
-          thumbnailEncryptionKey,
-        } = media;
+        const { encryptionKey, thumbnailEncryptionKey } = media;
+        const thumbnailBlobURI =
+          media.type === 'encrypted_video'
+            ? encryptedVideoThumbnailBlobURI(media)
+            : null;
         mediaInfo = {
           ...mediaInfo,
           type: media.type,
-          blobURI,
+          blobURI: encryptedMediaBlobURI(media),
           encryptionKey,
           thumbnailBlobURI,
           thumbnailEncryptionKey,
@@ -114,14 +117,14 @@ function ThreadSettingsMediaGalleryModal(
       } else if (media.type === 'encrypted_photo') {
         imageSource = {
           kind: 'encrypted',
-          blobURI: media.holder,
+          blobURI: encryptedMediaBlobURI(media),
           encryptionKey: media.encryptionKey,
           thumbHash: media.thumbHash,
         };
       } else {
         imageSource = {
           kind: 'encrypted',
-          blobURI: media.thumbnailHolder,
+          blobURI: encryptedVideoThumbnailBlobURI(media),
           encryptionKey: media.thumbnailEncryptionKey,
           thumbHash: media.thumbnailThumbHash,
         };
