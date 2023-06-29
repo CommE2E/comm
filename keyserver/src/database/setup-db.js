@@ -16,8 +16,10 @@ import {
   createOlmAccounts,
 } from '../database/migration-config.js';
 import { createScriptViewer } from '../session/scripts.js';
+import { ensureUserCredentials } from '../user/checks.js';
 
 async function setupDB() {
+  await ensureUserCredentials();
   await createTables();
   await createUsers();
   await createThreads();
@@ -232,7 +234,7 @@ async function createTables() {
 
       CREATE TABLE metadata (
         name varchar(255) NOT NULL,
-        data varchar(255)
+        data varchar(1023)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       
       CREATE TABLE policy_acknowledgments (
