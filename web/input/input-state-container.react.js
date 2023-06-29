@@ -348,7 +348,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           );
           return {
             id: serverID ? serverID : localID,
-            holder: uri,
+            blobURI: uri,
             type: 'encrypted_photo',
             encryptionKey,
             dimensions: shimmedDimensions,
@@ -1016,7 +1016,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         mediaUpdate = {
           ...mediaUpdate,
           type: outputMediaType,
-          holder: uri,
+          blobURI: uri,
           encryptionKey,
         };
       }
