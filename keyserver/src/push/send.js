@@ -48,6 +48,7 @@ import {
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
 import type {
+  NotificationTargetDevice,
   TargetedAPNsNotification,
   TargetedAndroidNotification,
 } from './types.js';
@@ -80,10 +81,7 @@ type Device = {
   +cookieID: string,
   +codeVersion: ?number,
 };
-type NotificationTargetDevice = {
-  +cookieID: string,
-  +deviceToken: string,
-};
+
 type PushUserInfo = {
   +devices: Device[],
   // messageInfos and messageDatas have the same key
