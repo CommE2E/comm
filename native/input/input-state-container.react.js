@@ -974,7 +974,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         processedMedia.mediaType === 'encrypted_video'
           ? {
               type: processedMedia.mediaType,
-              holder: uri,
+              blobURI: uri,
               encryptionKey,
             }
           : {
@@ -1008,7 +1008,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             mediaUpdate: {
               ...updateMediaPayload.mediaUpdate,
               thumbnailID,
-              thumbnailHolder: thumbnailURI,
+              thumbnailBlobURI: thumbnailURI,
               thumbnailEncryptionKey,
               thumbnailThumbHash,
             },
