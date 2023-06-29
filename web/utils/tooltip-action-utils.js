@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useResettingState } from 'lib/hooks/useResettingState.js';
+import { useResettingState } from 'lib/hooks/use-resetting-state.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';

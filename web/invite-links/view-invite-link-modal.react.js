@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { inviteLinkUrl } from 'lib/facts/links.js';
-import { useResettingState } from 'lib/hooks/useResettingState.js';
+import { useResettingState } from 'lib/hooks/use-resetting-state.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
