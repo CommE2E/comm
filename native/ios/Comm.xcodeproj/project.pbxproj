@@ -48,6 +48,7 @@
 		8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BC9568429FC49B00060AE4A /* JSIRust.cpp */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
+		8ED8B5342A4DD4EB00D3DA26 /* CommQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
 		CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */; };
@@ -192,6 +193,8 @@
 		8E43C32B291E5B4A009378F5 /* TerminateApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TerminateApp.mm; path = Comm/TerminateApp.mm; sourceTree = "<group>"; };
 		8E43C32E291E5B9D009378F5 /* TerminateApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TerminateApp.h; path = ../cpp/CommonCpp/Tools/TerminateApp.h; sourceTree = "<group>"; };
 		8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseManager.cpp; sourceTree = "<group>"; };
+		8ED8B5322A4DCCE300D3DA26 /* CommQueryExecutor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommQueryExecutor.h; sourceTree = "<group>"; };
+		8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommQueryExecutor.cpp; sourceTree = "<group>"; };
 		8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportStoreOperations.h; sourceTree = "<group>"; };
 		8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DraftStoreOperations.h; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
@@ -404,6 +407,8 @@
 		71BE843F2636A944002849D2 /* DatabaseManagers */ = {
 			isa = PBXGroup;
 			children = (
+				8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */,
+				8ED8B5322A4DCCE300D3DA26 /* CommQueryExecutor.h */,
 				8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */,
 				71BE84402636A944002849D2 /* DatabaseQueryExecutor.h */,
 				71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */,
@@ -989,6 +994,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8ED8B5342A4DD4EB00D3DA26 /* CommQueryExecutor.cpp in Sources */,
 				CB2689002A2DF58000EC7300 /* CommConstants.cpp in Sources */,
 				CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */,
 				CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */,
