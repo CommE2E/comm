@@ -78,12 +78,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
   @Override
   public void onMessageReceived(RemoteMessage message) {
-    String rescind = message.getData().get(RESCIND_KEY);
-    if ("true".equals(rescind) &&
-        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-      handleNotificationRescind(message);
-    }
-
+    Log.w("COMM", "Received notification");
     if (message.getData().get(ENCRYPTED_PAYLOAD_KEY) != null) {
       try {
         message = this.decryptRemoteMessage(message);
@@ -101,6 +96,16 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       Log.w(
           "COMM",
           "Received unencrypted notification for client with existing olm session for notifications");
+    }
+
+    String rescind = message.getData().get(RESCIND_KEY);
+    Log.w("COMM", "Received rescind with rescind: " + rescind);
+    if ("true".equals(rescind) &&
+        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+      Log.w(
+          "COMM",
+          "Received rescind with id: " + message.getData().get(RESCIND_ID_KEY));
+      handleNotificationRescind(message);
     }
 
     String badge = message.getData().get(BADGE_KEY);
