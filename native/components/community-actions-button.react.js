@@ -16,6 +16,8 @@ import {
   InviteLinkNavigatorRouteName,
   ManagePublicLinkRouteName,
   ViewInviteLinksRouteName,
+  RolesNavigatorRouteName,
+  CommunityRolesScreenRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
@@ -45,6 +47,14 @@ function CommunityActionsButton(props: Props): React.Node {
       screen: ManagePublicLinkRouteName,
       params: {
         community,
+      },
+    });
+  }, [community, navigate]);
+  const navigateToCommunityRolesScreen = React.useCallback(() => {
+    navigate<'RolesNavigator'>(RolesNavigatorRouteName, {
+      screen: CommunityRolesScreenRouteName,
+      params: {
+        threadInfo: community,
       },
     });
   }, [community, navigate]);
@@ -85,7 +95,7 @@ function CommunityActionsButton(props: Props): React.Node {
     if (canChangeRoles) {
       result.push({
         label: 'Manage roles',
-        action: () => {},
+        action: navigateToCommunityRolesScreen,
       });
     }
 
@@ -98,6 +108,7 @@ function CommunityActionsButton(props: Props): React.Node {
     inviteLink,
     navigateToInviteLinksView,
     navigateToManagePublicLinkView,
+    navigateToCommunityRolesScreen,
   ]);
 
   const openActionSheet = React.useCallback(() => {
