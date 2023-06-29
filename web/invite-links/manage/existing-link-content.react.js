@@ -14,9 +14,10 @@ const buttonColor = {
 
 type Props = {
   +inviteLink: InviteLink,
+  +enterEditMode: () => mixed,
 };
 function ExistingLinkContent(props: Props): React.Node {
-  const { inviteLink } = props;
+  const { inviteLink, enterEditMode } = props;
   return (
     <>
       <div className={css.sectionHeaderRow}>
@@ -30,6 +31,7 @@ function ExistingLinkContent(props: Props): React.Node {
             variant="text"
             buttonColor={buttonColor}
             className={css.inlineButton}
+            onClick={enterEditMode}
           >
             Edit public link
           </Button>
