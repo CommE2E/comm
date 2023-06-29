@@ -8,10 +8,13 @@ import {
 import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import CommunityRolesHeaderLeftButton from './community-roles-header-left-button.react.js';
+import CommunityRolesScreen from './community-roles-screen.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   type ScreenParamList,
   type RolesParamList,
+  CommunityRolesScreenRouteName,
 } from '../navigation/route-names.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
@@ -25,6 +28,14 @@ const RolesStack = createStackNavigator<
   RolesParamList,
   StackNavigationHelpers<ScreenParamList>,
 >();
+
+const communityRolesScreenOptions = {
+  headerTitle: 'Create role',
+  // eslint-disable-next-line react/display-name
+  headerLeft: headerLeftProps => (
+    <CommunityRolesHeaderLeftButton {...headerLeftProps} />
+  ),
+};
 
 type RolesNavigatorProps = {
   +navigation: RootNavigationProp<'RolesNavigator'>,
@@ -52,9 +63,13 @@ function RolesNavigator(props: RolesNavigatorProps): React.Node {
 
   return (
     <SafeAreaView style={styles.container} edges={safeAreaEdges}>
-      <RolesStack.Navigator
-        screenOptions={rolesScreenOptions}
-      ></RolesStack.Navigator>
+      <RolesStack.Navigator screenOptions={rolesScreenOptions}>
+        <RolesStack.Screen
+          name={CommunityRolesScreenRouteName}
+          component={CommunityRolesScreen}
+          options={communityRolesScreenOptions}
+        />
+      </RolesStack.Navigator>
     </SafeAreaView>
   );
 }
