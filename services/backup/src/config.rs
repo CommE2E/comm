@@ -1,11 +1,10 @@
-use aws_sdk_dynamodb::Region;
 use clap::{builder::FalseyValueParser, Parser};
 use once_cell::sync::Lazy;
 use tracing::info;
 
 use crate::constants::{
-  AWS_REGION, DEFAULT_BLOB_SERVICE_URL, DEFAULT_GRPC_SERVER_PORT,
-  DEFAULT_LOCALSTACK_URL, SANDBOX_ENV_VAR,
+  DEFAULT_BLOB_SERVICE_URL, DEFAULT_GRPC_SERVER_PORT, DEFAULT_LOCALSTACK_URL,
+  SANDBOX_ENV_VAR,
 };
 
 #[derive(Parser)]
@@ -41,8 +40,7 @@ pub(super) fn parse_cmdline_args() {
 
 /// Provides region/credentials configuration for AWS SDKs
 pub async fn load_aws_config() -> aws_types::SdkConfig {
-  let mut config_builder =
-    aws_config::from_env().region(Region::new(AWS_REGION));
+  let mut config_builder = aws_config::from_env();
 
   if CONFIG.is_sandbox {
     info!(

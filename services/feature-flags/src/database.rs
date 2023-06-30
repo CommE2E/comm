@@ -4,7 +4,7 @@ use crate::constants::{
   FEATURE_FLAGS_STAFF_FIELD, FEATURE_FLAGS_TABLE_NAME, PLATFORM_ANDROID,
   PLATFORM_IOS,
 };
-use aws_sdk_dynamodb::model::{AttributeValue, Select};
+use aws_sdk_dynamodb::types::{AttributeValue, Select};
 use comm_services_lib::database::{self, DBItemError, Error};
 use std::collections::HashMap;
 use std::sync::Arc;
