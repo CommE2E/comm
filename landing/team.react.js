@@ -78,6 +78,12 @@ function Team(): React.Node {
             twitterHandle="ted__chang"
             imageURL={`${assetsCacheURLPrefix}/ted.jpg`}
           />
+          <TeamProfile
+            name="Rohan Khanderia"
+            role="Software Engineer"
+            imageURL={`${assetsCacheURLPrefix}/rohan.jpg`}
+            githubHandle="RohanK6"
+          />
         </div>
       </section>
 
@@ -124,6 +130,12 @@ function Team(): React.Node {
           name="Aleksandra Grzęda"
           role="Project Manager"
           imageURL={`${assetsCacheURLPrefix}/aleksandra.jpg`}
+        />
+        <TeamProfile
+          name="Patryk Klatka"
+          role="Software Engineer"
+          imageURL={`${assetsCacheURLPrefix}/patryk.jpg`}
+          githubHandle="pklatka"
         />
       </section>
     </div>
