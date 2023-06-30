@@ -7,6 +7,7 @@ import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 
+import DisableLinkModal from './manage/disable-link-modal.react.js';
 import EditLinkModal from './manage/edit-link-modal.react.js';
 import EmptyLinkContent from './manage/empty-link-content.react.js';
 import ExistingLinkContent from './manage/existing-link-content.react.js';
@@ -31,13 +32,28 @@ function ManageInviteLinksModal(props: Props): React.Node {
   const [modalStage, setModalStage] = React.useState('view');
   const enterEditMode = React.useCallback(() => setModalStage('edit'), []);
   const enterViewMode = React.useCallback(() => setModalStage('view'), []);
+  const enterDisableMode = React.useCallback(
+    () => setModalStage('disable'),
+    [],
+  );
 
   if (modalStage === 'edit') {
     return (
       <EditLinkModal
         inviteLink={inviteLink}
         enterViewMode={enterViewMode}
+        enterDisableMode={enterDisableMode}
         community={community}
+      />
+    );
+  }
+
+  if (modalStage === 'disable' && inviteLink) {
+    return (
+      <DisableLinkModal
+        inviteLink={inviteLink}
+        enterEditMode={enterEditMode}
+        enterViewMode={enterViewMode}
       />
     );
   }

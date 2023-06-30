@@ -81,3 +81,17 @@
   font-size: var(--s-font-14);
   color: var(--error-primary);
 }
+
+.disableLinkRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--s-font-14);
+}
+
+.disableLinkButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

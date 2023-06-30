@@ -9,6 +9,7 @@ export type ButtonVariant = 'plain' | 'filled' | 'outline' | 'text';
 export type ButtonColor = {
   +backgroundColor?: string,
   +color?: string,
+  +borderColor?: string,
 };
 
 export const buttonThemes: { [string]: ButtonColor } = {
