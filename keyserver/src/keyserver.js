@@ -30,6 +30,7 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads.js';
+import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import {
   prefetchAllURLFacts,
@@ -58,6 +59,14 @@ import {
       // in https://github.com/remy/nodemon/issues/751
       process.exit(2);
     }
+
+    // Allow login to be optional until staging environment is available
+    try {
+      await verifyUserLoggedIn();
+    } catch (e) {
+      console.warn('failed_identity_login');
+    }
+
     const cpuCount = os.cpus().length;
     for (let i = 0; i < cpuCount; i++) {
       cluster.fork();
