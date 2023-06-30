@@ -94,6 +94,8 @@ impl IdentityClientService for ClientService {
     request: tonic::Request<RegistrationStartRequest>,
   ) -> Result<tonic::Response<RegistrationStartResponse>, tonic::Status> {
     let message = request.into_inner();
+    debug!("Received registration request for: {}", message.username);
+
     let username_taken = self
       .client
       .username_taken(message.username.clone())
@@ -413,6 +415,7 @@ impl IdentityClientService for ClientService {
   ) -> Result<tonic::Response<OpaqueLoginStartResponse>, tonic::Status> {
     let message = request.into_inner();
 
+    debug!("Attempting to login user: {:?}", &message.username);
     let user_id_and_password_file = self
       .client
       .get_user_id_and_password_file_from_username(&message.username)
