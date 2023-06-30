@@ -19,6 +19,7 @@ import {
   type WorkerRequestProxyMessage,
   workerWriteRequests,
 } from '../../types/worker-types.js';
+import Module from '../_generated/comm-query-executor.js';
 import { migrate, setupSQLiteDB } from '../queries/db-queries.js';
 import {
   getAllDrafts,
@@ -59,11 +60,30 @@ let encryptionKey: ?CryptoKey = null;
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
 
+const defaultCommQueryExecutorFilename = 'comm_query_executor.wasm';
+
 async function initDatabase(
   sqljsFilePath: string,
   sqljsFilename: ?string,
+  commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
+  const dbModule = Module({
+    locateFile: function () {
+      if (commQueryExecutorFilename) {
+        return `${sqljsFilePath}/${commQueryExecutorFilename}`;
+      }
+      return `${sqljsFilePath}/${defaultCommQueryExecutorFilename}`;
+    },
+  });
+
+  try {
+    const result = dbModule.CommQueryExecutor.testDBOperation();
+    console.log(result);
+  } catch (e) {
+    console.error(e);
+  }
+
   if (encryptionKeyJWK) {
     encryptionKey = await importJWKKey(encryptionKeyJWK);
   } else {
@@ -210,6 +230,7 @@ async function processAppRequest(
     await initDatabase(
       message.sqljsFilePath,
       message.sqljsFilename,
+      message.commQueryExecutorFilename,
       message.encryptionKey,
     );
     return undefined;

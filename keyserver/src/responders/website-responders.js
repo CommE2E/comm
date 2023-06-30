@@ -94,6 +94,7 @@ type AssetInfo = {
   +cssInclude: string,
   +olmFilename: string,
   +sqljsFilename: string,
+  +commQueryExecutorFilename: string,
   +opaqueURL: string,
 };
 let assetInfo: ?AssetInfo = null;
@@ -109,6 +110,7 @@ async function getAssetInfo() {
       cssInclude: '',
       olmFilename: '',
       sqljsFilename: '',
+      commQueryExecutorFilename: '',
       opaqueURL: 'http://localhost:8080/opaque-ke.wasm',
     };
     return assetInfo;
@@ -133,6 +135,7 @@ async function getAssetInfo() {
       `,
       olmFilename: manifest['olm.wasm'],
       sqljsFilename: webworkersManifest['sql-wasm.wasm'],
+      commQueryExecutorFilename: webworkersManifest['comm_query_executor.wasm'],
       opaqueURL: `compiled/${manifest['comm_opaque2_wasm_bg.wasm']}`,
     };
     return assetInfo;
@@ -493,8 +496,15 @@ async function websiteResponder(
     };
   })();
 
-  const { jsURL, fontsURL, cssInclude, olmFilename, sqljsFilename, opaqueURL } =
-    await assetInfoPromise;
+  const {
+    jsURL,
+    fontsURL,
+    cssInclude,
+    olmFilename,
+    sqljsFilename,
+    opaqueURL,
+    commQueryExecutorFilename,
+  } = await assetInfoPromise;
 
   // prettier-ignore
   res.write(html`
@@ -603,6 +613,7 @@ async function websiteResponder(
           var baseURL = "${baseURL}";
           var olmFilename = "${olmFilename}";
           var sqljsFilename = "${sqljsFilename}";
+          var commQueryExecutorFilename = "${commQueryExecutorFilename}";
           var opaqueURL = "${opaqueURL}";
         </script>
         <script src="${jsURL}"></script>

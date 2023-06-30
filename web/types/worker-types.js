@@ -36,6 +36,7 @@ export type InitWorkerRequestMessage = {
   +type: 1,
   +sqljsFilePath: string,
   +sqljsFilename: ?string,
+  +commQueryExecutorFilename: ?string,
   +encryptionKey?: ?SubtleCrypto$JsonWebKey,
 };
 
