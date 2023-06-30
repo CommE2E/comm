@@ -6,6 +6,7 @@ import { Platform, Alert, LogBox } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 import { useDispatch } from 'react-redux';
 
+import { convertRawMessageInfoToNewIDSchema } from 'lib/_generated/migration-utils.js';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
@@ -32,8 +33,10 @@ import {
   shouldSkipPushPermissionAlert,
 } from 'lib/utils/push-alerts.js';
 import sleep from 'lib/utils/sleep.js';
+import { keyserverPrefixID } from 'lib/utils/validation-utils.js';
 
 import {
+  parseAndroidMessage,
   androidNotificationChannelID,
   handleAndroidMessage,
   getCommAndroidNotificationsEventEmitter,
@@ -153,7 +156,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         commIOSNotificationsEventEmitter.addListener(
           CommIOSNotifications.getConstants()
             .NOTIFICATION_RECEIVED_BACKGROUND_EVENT,
-          backgroundData => this.saveMessageInfos(backgroundData?.messageInfos),
+          this.iosBackgroundNotificationReceived,
         ),
       );
     } else if (Platform.OS === 'android') {
@@ -476,12 +479,10 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  saveMessageInfos(messageInfosString: ?string) {
-    if (!messageInfosString) {
+  saveMessageInfos(rawMessageInfos: ?$ReadOnlyArray<RawMessageInfo>) {
+    if (!rawMessageInfos) {
       return;
     }
-    const rawMessageInfos: $ReadOnlyArray<RawMessageInfo> =
-      JSON.parse(messageInfosString);
     const { updatesCurrentAsOf } = this.props;
     this.props.dispatch({
       type: saveMessagesActionType,
@@ -529,6 +530,19 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   };
 
+  iosBackgroundNotificationReceived = backgroundData => {
+    if (!backgroundData?.messageInfos) {
+      return;
+    }
+    let rawMessageInfos: $ReadOnlyArray<RawMessageInfo> = JSON.parse(
+      backgroundData.messageInfos,
+    );
+    if (rawMessageInfos[0]?.id?.indexOf('|') === -1) {
+      rawMessageInfos = rawMessageInfos.map(convertRawMessageInfoToNewIDSchema);
+    }
+    this.saveMessageInfos(rawMessageInfos);
+  };
+
   onPushNotifBootsApp() {
     if (
       this.props.rootContext &&
@@ -573,18 +587,22 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   androidNotificationOpened = async (threadID: string) => {
+    if (threadID.indexOf('|') === -1) {
+      threadID = `${keyserverPrefixID}|${threadID}`;
+    }
     this.onPushNotifBootsApp();
     this.onPressNotificationForThread(threadID, true);
   };
 
   androidMessageReceived = async (message: AndroidMessage) => {
+    const parsedMessage = parseAndroidMessage(message);
     this.onPushNotifBootsApp();
 
-    const { messageInfos } = message;
+    const { messageInfos } = parsedMessage;
     this.saveMessageInfos(messageInfos);
 
     handleAndroidMessage(
-      message,
+      parsedMessage,
       this.props.updatesCurrentAsOf,
       this.handleAndroidNotificationIfActive,
     );

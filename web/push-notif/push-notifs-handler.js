@@ -17,6 +17,7 @@ import {
   shouldSkipPushPermissionAlert,
   recordNotifPermissionAlertActionType,
 } from 'lib/utils/push-alerts.js';
+import { keyserverPrefixID } from 'lib/utils/validation-utils.js';
 
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
@@ -43,6 +44,10 @@ function useCreateDesktopPushSubscription() {
   React.useEffect(
     () =>
       electron?.onNotificationClicked?.(({ threadID }) => {
+        if (threadID.indexOf('|') === -1) {
+          threadID = `${keyserverPrefixID}|${threadID}`;
+        }
+
         const payload = {
           chatMode: 'view',
           activeChatThreadID: threadID,
