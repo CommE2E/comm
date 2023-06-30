@@ -20,7 +20,8 @@ mod token;
 use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
 use keygen::generate_and_persist_keypair;
-use tracing::info;
+use tracing::{self, info, Level};
+use tracing_subscriber::EnvFilter;
 
 use client_service::{ClientService, IdentityClientServiceServer};
 
@@ -48,7 +49,13 @@ enum Commands {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-  let subscriber = FmtSubscriber::new();
+  let filter = EnvFilter::builder()
+    .with_default_directive(Level::INFO.into())
+    .with_env_var(EnvFilter::DEFAULT_ENV)
+    .from_env_lossy();
+
+  let subscriber = tracing_subscriber::fmt().with_env_filter(filter).finish();
+
   tracing::subscriber::set_global_default(subscriber)?;
   let cli = Cli::parse();
   match &cli.command {
