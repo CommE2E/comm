@@ -8,7 +8,6 @@ module.exports = {
     '@babel/plugin-proposal-nullish-coalescing-operator',
     ['@babel/plugin-transform-runtime', { useESModules: true }],
   ],
-
   env: {
     test: {
       presets: [
@@ -18,6 +17,14 @@ module.exports = {
             targets: {
               node: 'current',
             },
+          },
+        ],
+      ],
+      plugins: [
+        [
+          'babel-plugin-transform-import-meta',
+          {
+            replaceWith: '({ url: __filename })',
           },
         ],
       ],
