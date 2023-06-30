@@ -17,11 +17,16 @@ import Modal from '../../modals/modal.react.js';
 type Props = {
   +inviteLink: ?InviteLink,
   +enterViewMode: () => mixed,
+  +enterDisableMode: () => mixed,
   +community: ThreadInfo,
 };
 
+const disableButtonColor = {
+  color: 'var(--error-primary)',
+  borderColor: 'var(--error-primary)',
+};
 function EditLinkModal(props: Props): React.Node {
-  const { inviteLink, enterViewMode, community } = props;
+  const { inviteLink, enterViewMode, enterDisableMode, community } = props;
   const { popModal } = useModalContext();
 
   const { error, isLoading, name, setName, createOrUpdateInviteLink } =
@@ -36,6 +41,25 @@ function EditLinkModal(props: Props): React.Node {
   let errorComponent = null;
   if (error) {
     errorComponent = <div className={css.errorContainer}>{error}</div>;
+  }
+
+  let disableLinkComponent = null;
+  if (inviteLink) {
+    disableLinkComponent = (
+      <>
+        <hr className={css.separator} />
+        <div className={css.disableLinkRow}>
+          <div>You may also disable the community public link</div>
+          <Button
+            variant="outline"
+            buttonColor={disableButtonColor}
+            onClick={enterDisableMode}
+          >
+            Disable
+          </Button>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -75,6 +99,7 @@ function EditLinkModal(props: Props): React.Node {
             </Button>
           </div>
         </div>
+        {disableLinkComponent}
       </div>
     </Modal>
   );
