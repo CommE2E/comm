@@ -68,4 +68,16 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  margin-top: 16px;
+}
+
+.buttonRowWithError {
+  margin-top: 8px;
+}
+
+.errorContainer {
+  display: flex;
+  justify-content: center;
+  font-size: var(--s-font-14);
+  color: var(--error-primary);
 }
