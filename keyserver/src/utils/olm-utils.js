@@ -77,7 +77,7 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
-async function validateAccountPrekey(account: OlmAccount): Promise<void> {
+function validateAccountPrekey(account: OlmAccount) {
   const currentDate = new Date();
   const lastPrekeyPublishDate = new Date(account.last_prekey_publish_time());
 
