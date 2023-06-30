@@ -7,8 +7,9 @@ import css from './button.css';
 
 export type ButtonVariant = 'plain' | 'filled' | 'outline' | 'text';
 export type ButtonColor = {
-  +backgroundColor?: string,
-  +color?: string,
+  +'backgroundColor'?: string,
+  +'color'?: string,
+  +'border-color'?: string,
 };
 
 export const buttonThemes: { [string]: ButtonColor } = {
