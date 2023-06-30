@@ -2,6 +2,7 @@ use super::*;
 
 use comm_opaque2::client::Login;
 use identity_client::{OpaqueLoginFinishRequest, OpaqueLoginStartRequest};
+use tracing::debug;
 
 #[napi]
 #[instrument(skip_all)]
@@ -16,6 +17,8 @@ pub async fn login_user(
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
 ) -> Result<UserLoginInfo> {
+  debug!("Attempting to login user: {}", username);
+
   // Set up the gRPC client that will be used to talk to the Identity service
   let channel = get_identity_service_channel().await?;
   let mut identity_client = IdentityClientServiceClient::new(channel);
@@ -51,7 +54,7 @@ pub async fn login_user(
   let login_start_response = identity_client
     .login_password_user_start(login_start_request)
     .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?
+    .map_err(handle_grpc_error)?
     .into_inner();
 
   let opaque_login_upload = client_login
@@ -65,7 +68,7 @@ pub async fn login_user(
   let login_finish_response = identity_client
     .login_password_user_finish(login_finish_request)
     .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?
+    .map_err(handle_grpc_error)?
     .into_inner();
 
   let user_info = UserLoginInfo {
