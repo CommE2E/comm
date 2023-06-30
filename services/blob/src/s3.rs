@@ -1,7 +1,7 @@
 use aws_sdk_s3::{
-  model::{CompletedMultipartUpload, CompletedPart},
-  output::CreateMultipartUploadOutput,
-  types::ByteStream,
+  operation::create_multipart_upload::CreateMultipartUploadOutput,
+  primitives::ByteStream,
+  types::{CompletedMultipartUpload, CompletedPart},
   Error as S3Error,
 };
 use std::{
@@ -113,7 +113,7 @@ impl S3Client {
   pub async fn get_object_metadata(
     &self,
     s3_path: &S3Path,
-  ) -> S3Result<aws_sdk_s3::output::HeadObjectOutput> {
+  ) -> S3Result<aws_sdk_s3::operation::head_object::HeadObjectOutput> {
     let response = self
       .client
       .head_object()

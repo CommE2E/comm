@@ -1,4 +1,6 @@
-use aws_sdk_dynamodb::{model::AttributeValue, output::GetItemOutput};
+use aws_sdk_dynamodb::{
+  operation::get_item::GetItemOutput, types::AttributeValue,
+};
 use chrono::{DateTime, Utc};
 use comm_services_lib::database::{self, DBItemError, Error};
 use std::{collections::HashMap, sync::Arc};

@@ -7,8 +7,8 @@ license = "BSD-3-Clause"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-aws-config = "0.54.0"
-aws-sdk-dynamodb = "0.24.0"
-aws-types = "0.54.0"
+aws-config = "0.55"
+aws-sdk-dynamodb = "0.27"
+aws-types = "0.55"
 chrono = "0.4"
 derive_more = "0.99"

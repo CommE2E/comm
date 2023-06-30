@@ -1,5 +1,6 @@
 use aws_sdk_dynamodb::{
-  model::AttributeValue, output::GetItemOutput, Error as DynamoDBError,
+  operation::get_item::GetItemOutput, types::AttributeValue,
+  Error as DynamoDBError,
 };
 use chrono::{DateTime, Utc};
 use comm_services_lib::database::{self, DBItemError};
