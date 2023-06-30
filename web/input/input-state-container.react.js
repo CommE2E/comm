@@ -91,6 +91,7 @@ import { toBase64URL } from 'lib/utils/base64.js';
 import {
   makeBlobServiceEndpointURL,
   isBlobServiceURI,
+  blobHashFromBlobServiceURI,
 } from 'lib/utils/blob-service.js';
 import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 import { getConfig } from 'lib/utils/config.js';
@@ -1300,8 +1301,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             );
             const endpoint = blobService.httpEndpoints.DELETE_BLOB;
             const holder = pendingUpload.blobHolder;
-            fetch(makeBlobServiceEndpointURL(endpoint, { holder }), {
+            const blobHash = blobHashFromBlobServiceURI(pendingUpload.uri);
+            fetch(makeBlobServiceEndpointURL(endpoint), {
               method: endpoint.method,
+              body: JSON.stringify({
+                holder,
+                blob_hash: blobHash,
+              }),
+              headers: {
+                'content-type': 'application/json',
+              },
             });
           }
         }
