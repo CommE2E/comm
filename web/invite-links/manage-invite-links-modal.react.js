@@ -36,7 +36,11 @@ function ManageInviteLinksModal(props: Props): React.Node {
 
   if (modalStage === 'edit') {
     return (
-      <EditLinkModal inviteLink={inviteLink} enterViewMode={enterViewMode} />
+      <EditLinkModal
+        inviteLink={inviteLink}
+        enterViewMode={enterViewMode}
+        community={community}
+      />
     );
   }
 
