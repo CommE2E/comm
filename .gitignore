@@ -9,6 +9,7 @@ lib/node_modules
 
 web/node_modules
 web/dist
+web/database/sqlite
 
 keyserver/dist
 keyserver/node_modules
