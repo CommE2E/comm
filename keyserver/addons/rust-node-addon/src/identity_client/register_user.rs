@@ -1,5 +1,7 @@
 use super::*;
 
+use tracing::{debug, warn};
+
 #[napi]
 #[instrument(skip_all)]
 pub async fn register_user(
@@ -13,6 +15,8 @@ pub async fn register_user(
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
 ) -> Result<UserLoginInfo> {
+  debug!("Attempting to register user: {}", username);
+
   // Set up the gRPC client that will be used to talk to the Identity service
   let channel = get_identity_service_channel().await?;
   let mut identity_client = IdentityClientServiceClient::new(channel);
@@ -49,8 +53,9 @@ pub async fn register_user(
   let registration_start_response = identity_client
     .register_password_user_start(registration_start_request)
     .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?
+    .map_err(handle_grpc_error)?
     .into_inner();
+  debug!("Received registration start response");
 
   let opaque_registration_upload = opaque_registration
     .finish(
@@ -67,7 +72,7 @@ pub async fn register_user(
   let registration_response = identity_client
     .register_password_user_finish(registration_finish_request)
     .await
-    .map_err(|_| Error::from_status(Status::GenericFailure))?
+    .map_err(handle_grpc_error)?
     .into_inner();
 
   let user_info = UserLoginInfo {
