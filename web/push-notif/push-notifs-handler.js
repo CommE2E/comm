@@ -13,6 +13,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
+import { convertNotificationThreadIDToNewIDSchema } from 'lib/utils/migration-utils.js';
 import {
   shouldSkipPushPermissionAlert,
   recordNotifPermissionAlertActionType,
@@ -43,9 +44,12 @@ function useCreateDesktopPushSubscription() {
   React.useEffect(
     () =>
       electron?.onNotificationClicked?.(({ threadID }) => {
+        const convertedThreadID =
+          convertNotificationThreadIDToNewIDSchema(threadID);
+
         const payload = {
           chatMode: 'view',
-          activeChatThreadID: threadID,
+          activeChatThreadID: convertedThreadID,
           tab: 'chat',
         };
 
