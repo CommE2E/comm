@@ -312,18 +312,21 @@ pub async fn upload_blob_handler(
   Ok(HttpResponse::NoContent().finish())
 }
 
-#[instrument(
-  name = "delete_blob",
-  skip_all,
-  fields(holder = %params.as_ref().as_str()))
-]
-pub async fn delete_blob_handler(
+#[derive(Deserialize, Debug)]
+pub struct RemoveHolderPayload {
+  holder: String,
+  blob_hash: String,
+}
+
+#[instrument(name = "remove_holder", skip(ctx))]
+pub async fn remove_holder_handler(
   ctx: web::Data<AppContext>,
-  params: web::Path<String>,
+  payload: web::Json<RemoveHolderPayload>,
 ) -> actix_web::Result<HttpResponse> {
-  info!("Delete blob request");
-  let holder = params.into_inner();
+  info!("Remove holder request");
+  let RemoveHolderPayload { holder, blob_hash } = payload.into_inner();
   validate_identifier!(holder);
+  validate_identifier!(blob_hash);
 
   let reverse_index_item = ctx
     .db

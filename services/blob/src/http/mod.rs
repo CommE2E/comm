@@ -54,13 +54,13 @@ pub async fn run_http_server(
       .app_data(web::Data::new(ctx))
       .service(
         web::resource("/blob/{holder}")
-          .route(web::get().to(handlers::blob::get_blob_handler))
-          .route(web::delete().to(handlers::blob::delete_blob_handler)),
+          .route(web::get().to(handlers::blob::get_blob_handler)),
       )
       .service(
         web::resource("/blob")
           .route(web::put().to(handlers::blob::upload_blob_handler))
-          .route(web::post().to(handlers::blob::assign_holder_handler)),
+          .route(web::post().to(handlers::blob::assign_holder_handler))
+          .route(web::delete().to(handlers::blob::remove_holder_handler)),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
