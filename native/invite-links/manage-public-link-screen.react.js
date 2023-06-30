@@ -3,20 +3,10 @@
 import * as React from 'react';
 import { Text, View, Alert } from 'react-native';
 
-import {
-  createOrUpdatePublicLink,
-  createOrUpdatePublicLinkActionTypes,
-  disableInviteLink as callDisableInviteLink,
-  disableInviteLinkLinkActionTypes,
-} from 'lib/actions/link-actions.js';
 import { inviteLinkUrl } from 'lib/facts/links.js';
+import { useInviteLinksActions } from 'lib/hooks/invite-links.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
 
 import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
@@ -37,34 +27,14 @@ type Props = {
 function ManagePublicLinkScreen(props: Props): React.Node {
   const { community } = props.route.params;
   const inviteLink = useSelector(primaryInviteLinksSelector)[community.id];
-  const [name, setName] = React.useState(
-    inviteLink?.name ?? Math.random().toString(36).slice(-9),
-  );
-  const [error, setError] = React.useState(null);
-
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callCreateOrUpdatePublicLink = useServerCall(createOrUpdatePublicLink);
-  const createCreateOrUpdateActionPromise = React.useCallback(async () => {
-    setError(null);
-    try {
-      return await callCreateOrUpdatePublicLink({
-        name,
-        communityID: community.id,
-      });
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [callCreateOrUpdatePublicLink, community.id, name]);
-  const createInviteLink = React.useCallback(() => {
-    dispatchActionPromise(
-      createOrUpdatePublicLinkActionTypes,
-      createCreateOrUpdateActionPromise(),
-    );
-  }, [createCreateOrUpdateActionPromise, dispatchActionPromise]);
-  const createOrUpdatePublicLinkStatus = useSelector(
-    createOrUpdatePublicLinkStatusSelector,
-  );
+  const {
+    error,
+    isLoading,
+    name,
+    setName,
+    createOrUpdateInviteLink,
+    disableInviteLink,
+  } = useInviteLinksActions(community.id, inviteLink);
 
   const styles = useStyles(unboundStyles);
 
@@ -72,31 +42,6 @@ function ManagePublicLinkScreen(props: Props): React.Node {
   if (error) {
     errorComponent = <Text style={styles.error}>{error}</Text>;
   }
-
-  const disableInviteLinkServerCall = useServerCall(callDisableInviteLink);
-  const createDisableLinkActionPromise = React.useCallback(async () => {
-    setError(null);
-    try {
-      return await disableInviteLinkServerCall({
-        name,
-        communityID: community.id,
-      });
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [disableInviteLinkServerCall, community.id, name]);
-  const disableInviteLink = React.useCallback(() => {
-    dispatchActionPromise(
-      disableInviteLinkLinkActionTypes,
-      createDisableLinkActionPromise(),
-    );
-  }, [createDisableLinkActionPromise, dispatchActionPromise]);
-  const disableInviteLinkStatus = useSelector(disableInviteLinkStatusSelector);
-
-  const isLoading =
-    createOrUpdatePublicLinkStatus === 'loading' ||
-    disableInviteLinkStatus === 'loading';
 
   const onDisableButtonClick = React.useCallback(() => {
     Alert.alert(
@@ -162,7 +107,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
         {errorComponent}
         <Button
           style={[styles.button, styles.buttonPrimary]}
-          onPress={createInviteLink}
+          onPress={createOrUpdateInviteLink}
           disabled={isLoading}
         >
           <Text style={styles.buttonText}>Save & enable public link</Text>
@@ -172,13 +117,6 @@ function ManagePublicLinkScreen(props: Props): React.Node {
     </View>
   );
 }
-
-const createOrUpdatePublicLinkStatusSelector = createLoadingStatusSelector(
-  createOrUpdatePublicLinkActionTypes,
-);
-const disableInviteLinkStatusSelector = createLoadingStatusSelector(
-  disableInviteLinkLinkActionTypes,
-);
 
 const unboundStyles = {
   sectionTitle: {
