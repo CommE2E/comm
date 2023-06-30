@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 
 import EditLinkModal from './manage/edit-link-modal.react.js';
@@ -22,6 +23,9 @@ function ManageInviteLinksModal(props: Props): React.Node {
   const inviteLink: ?InviteLink = useSelector(primaryInviteLinksSelector)[
     communityID
   ];
+  const community = useSelector(
+    state => threadInfoSelector(state)[communityID],
+  );
   const { popModal } = useModalContext();
 
   const [modalStage, setModalStage] = React.useState('view');
@@ -30,7 +34,11 @@ function ManageInviteLinksModal(props: Props): React.Node {
 
   if (modalStage === 'edit') {
     return (
-      <EditLinkModal inviteLink={inviteLink} enterViewMode={enterViewMode} />
+      <EditLinkModal
+        inviteLink={inviteLink}
+        enterViewMode={enterViewMode}
+        community={community}
+      />
     );
   }
 
