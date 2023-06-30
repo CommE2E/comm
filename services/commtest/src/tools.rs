@@ -21,6 +21,10 @@ pub enum Error {
   Tonic(tonic::transport::Error),
   #[display(...)]
   TonicStatus(tonic::Status),
+  #[display(...)]
+  Reqwest(reqwest::Error),
+  #[display(fmt = "HTTP status: {:?}.", _0)]
+  HttpStatus(#[error(ignore)] reqwest::StatusCode),
 }
 
 pub fn obtain_number_of_threads() -> usize {

@@ -11,8 +11,7 @@ use std::env;
 async fn blob_integration_test() -> Result<(), Error> {
   let port = env::var("COMM_SERVICES_PORT_BLOB")
     .expect("port env var expected but not received");
-  let mut client =
-    BlobServiceClient::connect(format!("http://localhost:{}", port)).await?;
+  let client = BlobServiceClient::new(format!("http://localhost:{}", port));
 
   let blob_data = vec![
     BlobData {
@@ -45,12 +44,12 @@ async fn blob_integration_test() -> Result<(), Error> {
   ];
 
   for item in &blob_data {
-    let data_exists: bool = put::run(&mut client, &item).await?;
+    let data_exists: bool = put::run(&client, &item).await?;
     assert!(!data_exists, "test data should not exist");
   }
 
   for (i, blob_item) in blob_data.iter().enumerate() {
-    let received_sizes = get::run(&mut client, &blob_item).await?;
+    let received_sizes = get::run(&client, &blob_item).await?;
     let expected_data_size = blob_item.chunks_sizes.iter().sum::<usize>();
     let received_data_size = received_sizes.iter().sum::<usize>();
     assert_eq!(
@@ -61,9 +60,9 @@ async fn blob_integration_test() -> Result<(), Error> {
   }
 
   for item in &blob_data {
-    remove::run(&mut client, &item).await?;
+    remove::run(&client, &item).await?;
     assert!(
-      get::run(&mut client, &item).await.is_err(),
+      get::run(&client, &item).await.is_err(),
       "item should no longer be available"
     );
   }

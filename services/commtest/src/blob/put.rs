@@ -1,43 +1,64 @@
-use crate::blob::blob_utils::{
-  proto::put_request::Data::*, proto::PutRequest, BlobData, BlobServiceClient,
-};
-use crate::tools::{generate_stable_nbytes, Error};
-use tonic::Request;
+use std::collections::HashMap;
 
+use crate::blob::blob_utils::{BlobData, BlobServiceClient};
+use crate::tools::{generate_stable_nbytes, Error};
+
+#[derive(serde::Deserialize)]
+struct AssignHolderResponse {
+  data_exists: bool,
+}
 pub async fn run(
-  client: &mut BlobServiceClient<tonic::transport::Channel>,
+  client: &BlobServiceClient,
   blob_data: &BlobData,
 ) -> Result<bool, Error> {
-  let cloned_holder = blob_data.holder.clone();
-  let cloned_hash = blob_data.hash.clone();
-  let cloned_chunks_sizes = blob_data.chunks_sizes.clone();
-  println!("[{}] put", cloned_holder);
+  let holder = blob_data.holder.clone();
+  let blob_hash = blob_data.hash.clone();
+  println!("[{}] put holder: {}", &blob_hash, &holder);
 
-  let outbound = async_stream::stream! {
-    println!("[{}] - sending holder", cloned_holder);
-    let request = PutRequest {
-      data: Some(Holder(cloned_holder.to_string())),
-    };
-    yield request;
-    println!("[{}] - sending hash", cloned_holder);
-    let request = PutRequest {
-      data: Some(BlobHash(cloned_hash.to_string())),
-    };
-    yield request;
-    for chunk_size in cloned_chunks_sizes {
-      println!("[{}] - sending data chunk {}", cloned_holder, chunk_size);
-      let request = PutRequest {
-        data: Some(DataChunk(generate_stable_nbytes(chunk_size, None))),
-      };
-      yield request;
-    }
-  };
+  // 1. Assign holder
+  let assign_holder_payload =
+    HashMap::from([("holder", &holder), ("blob_hash", &blob_hash)]);
+  let assign_holder_response = client
+    .http_client
+    .post(format!("{}/blob", client.blob_service_url))
+    .json(&assign_holder_payload)
+    .send()
+    .await?;
 
-  let mut data_exists: bool = false;
-  let response = client.put(Request::new(outbound)).await?;
-  let mut inbound = response.into_inner();
-  while let Some(response) = inbound.message().await? {
-    data_exists = data_exists || response.data_exists;
+  let AssignHolderResponse { data_exists } =
+    assign_holder_response.json::<_>().await?;
+
+  if data_exists {
+    return Ok(data_exists);
   }
+
+  // 2. Upload blob
+  let form =
+    reqwest::multipart::Form::new().text("blob_hash", blob_hash.clone());
+  let parts = blob_data
+    .chunks_sizes
+    .iter()
+    .fold(form, |form, chunk_size| {
+      println!("[{}] - adding data chunk {}", &blob_hash, chunk_size);
+      form.part(
+        "blob_data",
+        reqwest::multipart::Part::bytes(generate_stable_nbytes(
+          *chunk_size,
+          None,
+        )),
+      )
+    });
+
+  let response = client
+    .http_client
+    .put(format!("{}/blob", client.blob_service_url))
+    .multipart(parts)
+    .send()
+    .await?;
+
+  if !response.status().is_success() {
+    return Err(Error::HttpStatus(response.status()));
+  }
+
   Ok(data_exists)
 }
