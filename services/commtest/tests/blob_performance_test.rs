@@ -10,9 +10,12 @@ use tokio::runtime::Runtime;
 #[tokio::test]
 async fn blob_performance_test() -> Result<(), Error> {
   let port = env::var("COMM_SERVICES_PORT_BLOB")
-    .expect("port env var expected but not received");
-  let client =
-    BlobServiceClient::connect(format!("http://localhost:{}", port)).await?;
+    .expect("port env var expected but not received")
+    .parse()
+    .expect("port env var should be a number");
+  let mut url = reqwest::Url::parse("http://localhost")?;
+  url.set_port(Some(port)).expect("failed to set port");
+  let client = BlobServiceClient::new(url);
 
   let number_of_threads = obtain_number_of_threads();
 
@@ -44,10 +47,10 @@ async fn blob_performance_test() -> Result<(), Error> {
       let mut handlers = vec![];
       for item in &blob_data {
         let item_cloned = item.clone();
-        let mut client_cloned = client.clone();
+        let client_cloned = client.clone();
         handlers.push(tokio::spawn(async move {
           let data_exists: bool =
-            put::run(&mut client_cloned, &item_cloned).await.unwrap();
+            put::run(&client_cloned, &item_cloned).await.unwrap();
           assert!(!data_exists, "test data should not exist");
         }));
       }
@@ -64,10 +67,10 @@ async fn blob_performance_test() -> Result<(), Error> {
 
       for (i, item) in blob_data.iter().enumerate() {
         let item_cloned = item.clone();
-        let mut client_cloned = client.clone();
+        let client_cloned = client.clone();
         handlers.push(tokio::spawn(async move {
           let received_sizes =
-            get::run(&mut client_cloned, &item_cloned).await.unwrap();
+            get::run(&client_cloned, &item_cloned).await.unwrap();
           let expected_data_size =
             item_cloned.chunks_sizes.iter().sum::<usize>();
           let received_data_size = received_sizes.iter().sum::<usize>();
@@ -91,11 +94,11 @@ async fn blob_performance_test() -> Result<(), Error> {
 
       for item in &blob_data {
         let item_cloned = item.clone();
-        let mut client_cloned = client.clone();
+        let client_cloned = client.clone();
         handlers.push(tokio::spawn(async move {
-          remove::run(&mut client_cloned, &item_cloned).await.unwrap();
+          remove::run(&client_cloned, &item_cloned).await.unwrap();
           assert!(
-            get::run(&mut client_cloned, &item_cloned).await.is_err(),
+            get::run(&client_cloned, &item_cloned).await.is_err(),
             "item should no longer be available"
           );
         }));

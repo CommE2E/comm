@@ -1,8 +1,17 @@
-pub mod proto {
-  tonic::include_proto!("blob");
+#[derive(Clone)]
+pub struct BlobServiceClient {
+  pub(super) http_client: reqwest::Client,
+  pub(super) blob_service_url: reqwest::Url,
 }
 
-pub use proto::blob_service_client::BlobServiceClient;
+impl BlobServiceClient {
+  pub fn new(blob_service_url: reqwest::Url) -> Self {
+    Self {
+      http_client: reqwest::Client::new(),
+      blob_service_url,
+    }
+  }
+}
 
 #[derive(Clone)]
 pub struct BlobData {

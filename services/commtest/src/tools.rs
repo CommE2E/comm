@@ -2,6 +2,7 @@ use hex::ToHex;
 use num_cpus;
 use sha2::{Digest, Sha512};
 use std::env;
+use url::ParseError;
 
 pub fn generate_stable_nbytes(
   number_of_bytes: usize,
@@ -21,6 +22,12 @@ pub enum Error {
   Tonic(tonic::transport::Error),
   #[display(...)]
   TonicStatus(tonic::Status),
+  #[display(...)]
+  Reqwest(reqwest::Error),
+  #[display(fmt = "HTTP status: {:?}.", _0)]
+  HttpStatus(#[error(ignore)] reqwest::StatusCode),
+  #[display(...)]
+  ParseError(ParseError),
 }
 
 pub fn obtain_number_of_threads() -> usize {

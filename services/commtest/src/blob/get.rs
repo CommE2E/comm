@@ -1,23 +1,21 @@
-use crate::blob::blob_utils::{proto::GetRequest, BlobData, BlobServiceClient};
+use crate::blob::blob_utils::{BlobData, BlobServiceClient};
 use crate::tools::Error;
-use tonic::Request;
 
 pub async fn run(
-  client: &mut BlobServiceClient<tonic::transport::Channel>,
+  client: &BlobServiceClient,
   blob_data: &BlobData,
 ) -> Result<Vec<usize>, Error> {
-  let cloned_holder = blob_data.holder.clone();
-  println!("[{}] get", cloned_holder);
+  println!("[{}] get", blob_data.hash);
 
-  let response = client
-    .get(Request::new(GetRequest {
-      holder: cloned_holder,
-    }))
-    .await?;
-  let mut inbound = response.into_inner();
-  let mut sizes: Vec<usize> = Vec::new();
-  while let Some(response) = inbound.message().await? {
-    sizes.push(response.data_chunk.len());
+  let path = format!("/blob/{}", blob_data.hash);
+  let url = client.blob_service_url.join(&path)?;
+  let response = client.http_client.get(url).send().await?;
+
+  if !response.status().is_success() {
+    return Err(Error::HttpStatus(response.status()));
   }
+
+  let bytes = response.bytes().await?;
+  let sizes = vec![bytes.len()];
   Ok(sizes)
 }
