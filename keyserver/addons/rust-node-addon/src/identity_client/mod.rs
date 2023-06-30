@@ -44,7 +44,6 @@ lazy_static! {
 #[serde(rename_all = "camelCase")]
 struct IdentityServiceConfig {
   identity_socket_addr: String,
-  identity_auth_token: String,
 }
 
 impl Default for IdentityServiceConfig {
@@ -52,7 +51,6 @@ impl Default for IdentityServiceConfig {
     info!("Using default identity configuration");
     Self {
       identity_socket_addr: "https://[::1]:50054".to_string(),
-      identity_auth_token: "test".to_string(),
     }
   }
 }
