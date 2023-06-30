@@ -1,6 +1,7 @@
 // @flow
 
 import type { WebNotification } from 'lib/types/notif-types.js';
+import { convertNotificationThreadIDToNewIDSchema } from 'lib/utils/migration-utils.js';
 
 declare class PushMessageData {
   json(): Object;
@@ -54,19 +55,22 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
       const selectedClient =
         clientList.find(client => client.focused) ?? clientList[0];
 
+      const threadID = convertNotificationThreadIDToNewIDSchema(
+        event.notification.data.threadID,
+      );
+
       if (selectedClient) {
         if (!selectedClient.focused) {
           await selectedClient.focus();
         }
         selectedClient.postMessage({
-          targetThreadID: event.notification.data.threadID,
+          targetThreadID: threadID,
         });
       } else {
         const url =
           (process.env.NODE_ENV === 'production'
             ? 'https://web.comm.app'
-            : 'http://localhost:3000/comm') +
-          `/chat/thread/${event.notification.data.threadID}/`;
+            : 'http://localhost:3000/comm') + `/chat/thread/${threadID}/`;
         clients.openWindow(url);
       }
     })(),
