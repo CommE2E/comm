@@ -11,6 +11,7 @@ import {
 } from '../types/worker-types.js';
 
 declare var sqljsFilename: string;
+declare var commQueryExecutorFilename: string;
 declare var preloadedState: AppState;
 
 const databaseStatuses = Object.freeze({
@@ -59,6 +60,7 @@ class DatabaseModule {
           sqljsFilePath: `${origin}${SQLJS_FILE_PATH}`,
           sqljsFilename,
           encryptionKey,
+          commQueryExecutorFilename,
         });
         this.status = databaseStatuses.initSuccess;
         console.info('Database initialization success');
