@@ -13,7 +13,7 @@ const olmAccountUpdateRetryDelay = 200;
 
 async function fetchCallUpdateOlmAccount<T>(
   olmAccountType: 'content' | 'notifications',
-  callback: (account: OlmAccount, picklingKey: string) => Promise<T>,
+  callback: (account: OlmAccount, picklingKey: string) => Promise<T> | T,
 ): Promise<T> {
   const isContent = olmAccountType === 'content';
   let retriesLeft = maxOlmAccountUpdateRetriesCount;
