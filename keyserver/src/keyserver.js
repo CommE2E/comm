@@ -30,6 +30,7 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads.js';
+import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import {
   prefetchAllURLFacts,
@@ -63,6 +64,13 @@ import {
       cluster.fork();
     }
     cluster.on('exit', () => cluster.fork());
+
+    // Allow login to be optional until staging environment is available
+    try {
+      await verifyUserLoggedIn();
+    } catch (e) {
+      console.log('Failed to log into identity service');
+    }
   } else {
     const server = express();
     expressWs(server);
