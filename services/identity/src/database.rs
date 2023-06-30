@@ -15,7 +15,9 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
-use crate::client_service::{FlattenedDeviceKeyUpload, UserRegistrationInfo};
+use crate::client_service::{
+  handle_db_error, FlattenedDeviceKeyUpload, UserRegistrationInfo,
+};
 use crate::config::CONFIG;
 use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
@@ -523,7 +525,21 @@ impl DatabaseClient {
           );
         }
         let first_item = items[0].clone();
-        Ok(Some(first_item))
+        let user_id = first_item
+          .get(USERS_TABLE_PARTITION_KEY)
+          .ok_or(DBItemError {
+            attribute_name: USERS_TABLE_PARTITION_KEY,
+            attribute_value: None,
+            attribute_error: DBItemAttributeError::Missing,
+          })?
+          .as_s()
+          .map_err(|_| DBItemError {
+            attribute_name: USERS_TABLE_PARTITION_KEY,
+            attribute_value: first_item.get(USERS_TABLE_PARTITION_KEY).cloned(),
+            attribute_error: DBItemAttributeError::IncorrectType,
+          })?;
+        let result = self.get_item_from_users_table(user_id).await?;
+        Ok(result.item)
       }
       Ok(_) => {
         info!(
