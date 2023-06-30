@@ -3,7 +3,7 @@
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 
 type UserLoginResponse = {
-  +userID: string,
+  +userId: string,
   +accessToken: string,
 };
 
