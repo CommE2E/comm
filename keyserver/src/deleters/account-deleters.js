@@ -1,11 +1,13 @@
 // @flow
 
+import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import type {
   LogOutResponse,
   DeleteAccountRequest,
 } from 'lib/types/account-types.js';
+import type { ReservedUsernameMessage } from 'lib/types/crypto-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -14,11 +16,15 @@ import { promiseAll } from 'lib/utils/promises.js';
 
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
+import {
+  fetchKnownUserInfos,
+  fetchUsername,
+} from '../fetchers/user-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import { createNewAnonymousCookie } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 
 async function deleteAccount(
   viewer: Viewer,
@@ -99,7 +105,27 @@ async function deleteAccount(
       deviceToken: viewer.deviceToken,
     });
   }
-  const { anonymousViewerData } = await promiseAll(promises);
+  promises.username = fetchUsername(deletedUserID);
+  const { anonymousViewerData, username } = await promiseAll(promises);
+  if (username) {
+    const issuedAt = new Date().toISOString();
+    const reservedUsernameMessage: ReservedUsernameMessage = {
+      statement: 'Remove the following username from reserved list',
+      payload: username,
+      issuedAt,
+    };
+    const message = JSON.stringify(reservedUsernameMessage);
+
+    handleAsyncPromise(
+      (async () => {
+        const rustAPI = await getRustAPI();
+        const accountInfo = await fetchOlmAccount('content');
+        const signature = accountInfo.account.sign(message);
+        await rustAPI.removeReservedUsername(message, signature);
+      })(),
+    );
+  }
+
   if (anonymousViewerData) {
     viewer.setNewCookie(anonymousViewerData);
   }
