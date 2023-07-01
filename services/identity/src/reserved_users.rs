@@ -7,6 +7,8 @@ use tonic::Status;
 
 use crate::config::CONFIG;
 
+// This type should not be changed without making equivalent changes to
+// `ReservedUsernameMessage` in lib/types/crypto-types.js
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Message<T> {
