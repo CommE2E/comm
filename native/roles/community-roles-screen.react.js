@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { getRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -12,6 +13,7 @@ import type { RolesNavigationProp } from './roles-navigator.react.js';
 import Button from '../components/button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { CreateRolesScreenRouteName } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type CommunityRolesScreenParams = {
@@ -25,6 +27,24 @@ type CommunityRolesScreenProps = {
 
 function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
   const { threadInfo } = props.route.params;
+
+  // This route is either accessed from the CommunityDrawer via the
+  // CommunityActionsButton, or from navigating back after a successful
+  // role creation in CreateRolesScreen. In the second case, we want to
+  // manually pull in the threadInfo from the redux store, since the threadInfo
+  // passed into the route params will not be updated automatically.
+  const threadID = threadInfo.id;
+  const reduxThreadInfo: ?ThreadInfo = useSelector(
+    state => threadInfoSelector(state)[threadID],
+  );
+
+  const { setParams } = props.navigation;
+  React.useEffect(() => {
+    if (reduxThreadInfo) {
+      setParams({ threadInfo: reduxThreadInfo });
+    }
+  }, [reduxThreadInfo, setParams]);
+
   const styles = useStyles(unboundStyles);
 
   const roleNamesToMembers = React.useMemo(
