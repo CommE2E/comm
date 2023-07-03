@@ -31,12 +31,8 @@ const initializationCallback = async () => {
   return JSON.parse(recentlyUsedEmojis ?? '[]');
 };
 
-const onStateChangeCallback = async nextRecentlyUsedEmojis => {
-  await AsyncStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(nextRecentlyUsedEmojis),
-  );
-};
+const onStateChangeCallback = nextRecentlyUsedEmojis =>
+  AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextRecentlyUsedEmojis));
 
 const useRecentPicksPersistenceArgs = {
   initialization: initializationCallback,
