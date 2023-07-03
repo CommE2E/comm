@@ -9,12 +9,16 @@ import type { ThreadType } from 'lib/types/thread-types-enum.js';
 import type {
   RoleInfo,
   RoleModificationRequest,
+  RoleModificationResult,
 } from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 
 import createIDs from './id-creator.js';
+import { createUpdates } from './update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 
@@ -73,7 +77,7 @@ async function createInitialRolesForNewThread(
 async function modifyRole(
   viewer: Viewer,
   request: RoleModificationRequest,
-): Promise<void> {
+): Promise<RoleModificationResult> {
   const hasPermission = await checkThreadPermission(
     viewer,
     request.community,
@@ -109,7 +113,33 @@ async function modifyRole(
     `;
   }
 
-  await dbQuery(query);
+  const { threadInfos } = await fetchThreadInfos(
+    viewer,
+    SQL`t.id = ${community}`,
+  );
+  const threadInfo = threadInfos[community];
+
+  const updateDatas = [];
+  for (const memberInfo of threadInfo.members) {
+    updateDatas.push({
+      type: updateTypes.UPDATE_THREAD,
+      userID: memberInfo.id,
+      time,
+      threadID: community,
+    });
+  }
+
+  const [{ viewerUpdates }] = await Promise.all([
+    createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
+    dbQuery(query),
+  ]);
+
+  return {
+    threadInfo,
+    updatesResult: {
+      newUpdates: viewerUpdates,
+    },
+  };
 }
 
 export { createInitialRolesForNewThread, modifyRole };
