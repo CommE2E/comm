@@ -2,7 +2,13 @@
 
 import Alert from 'react-native/Libraries/Alert/Alert.js';
 
-function exitEditAlert(onDiscard: () => void): void {
+type ExitAlertOptions = {
+  onDiscard: () => void,
+  onContinueEditing?: () => void,
+};
+
+function exitEditAlert(options: ExitAlertOptions): void {
+  const { onDiscard, onContinueEditing } = options;
   Alert.alert(
     'Discard changes?',
     'You have unsaved changes which will be discarded if you navigate away.',
@@ -10,6 +16,7 @@ function exitEditAlert(onDiscard: () => void): void {
       {
         text: 'Continue editing',
         style: 'cancel',
+        onPress: onContinueEditing,
       },
       {
         text: 'Discard edit',
