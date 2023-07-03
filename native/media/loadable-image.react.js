@@ -1,10 +1,12 @@
 // @flow
 
+import Icon from '@expo/vector-icons/Feather.js';
 import { Image } from 'expo-image';
 import * as React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 
+import { useStyles } from '../themes/colors.js';
 import type { ImageStyle } from '../types/styles.js';
 
 type Props = {
@@ -17,17 +19,24 @@ type Props = {
 };
 function LoadableImage(props: Props): React.Node {
   const { source, placeholder, onLoad: onLoadProp } = props;
+  const styles = useStyles(unboundStyles);
 
   const [loaded, setLoaded] = React.useState(false);
+  const [error, setError] = React.useState(false);
+
+  const onError = React.useCallback(() => {
+    setError(true);
+  }, []);
 
   const onLoad = React.useCallback(() => {
+    setError(false);
     setLoaded(true);
     onLoadProp && onLoadProp();
   }, [onLoadProp]);
 
   const invisibleStyle = React.useMemo(
     () => [props.style, styles.invisible],
-    [props.style],
+    [props.style, styles.invisible],
   );
 
   if (!loaded && props.invisibleLoad) {
@@ -36,16 +45,25 @@ function LoadableImage(props: Props): React.Node {
         source={source}
         placeholder={placeholder}
         onLoad={onLoad}
+        onError={onError}
         style={invisibleStyle}
       />
     );
   }
 
-  let spinner;
+  let statusIndicator;
   if (!loaded) {
-    spinner = (
-      <View style={styles.spinnerContainer}>
+    statusIndicator = (
+      <View style={styles.statusIndicatorContainer}>
         <ActivityIndicator color={props.spinnerColor} size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    statusIndicator = (
+      <View style={styles.statusIndicatorContainer}>
+        <Icon name="alert-circle" style={styles.errorIndicator} size={42} />
       </View>
     );
   }
@@ -56,21 +74,28 @@ function LoadableImage(props: Props): React.Node {
         source={source}
         placeholder={placeholder}
         onLoad={onLoad}
+        onError={onError}
         style={props.style}
       />
-      {spinner}
+      {statusIndicator}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const unboundStyles = {
   container: {
     flex: 1,
+  },
+  errorIndicator: {
+    color: 'whiteText',
+    backgroundColor: 'vibrantRedButton',
+    borderRadius: 21,
+    overflow: 'hidden',
   },
   invisible: {
     opacity: 0,
   },
-  spinnerContainer: {
+  statusIndicatorContainer: {
     alignItems: 'center',
     bottom: 0,
     justifyContent: 'center',
@@ -79,6 +104,6 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
   },
-});
+};
 
 export default LoadableImage;
