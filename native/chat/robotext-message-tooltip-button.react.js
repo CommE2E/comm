@@ -5,7 +5,7 @@ import Animated from 'react-native-reanimated';
 
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 import {
-  getViewerAlreadySelectedMessageReactions,
+  useGetViewerAlreadySelectedMessageReactions,
   useCanCreateReactionFromMessage,
 } from 'lib/shared/reaction-utils.js';
 
@@ -138,10 +138,8 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     [sendReaction, dismissTooltip],
   );
 
-  const alreadySelectedEmojis = React.useMemo(
-    () => getViewerAlreadySelectedMessageReactions(item.reactions),
-    [item.reactions],
-  );
+  const alreadySelectedEmojis =
+    useGetViewerAlreadySelectedMessageReactions(reactions);
 
   return (
     <>
