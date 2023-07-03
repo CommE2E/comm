@@ -901,7 +901,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.unblockNavigation();
       navigation.dispatch(action);
     };
-    exitEditAlert(unblockAndDispatch);
+    exitEditAlert({
+      onDiscard: unblockAndDispatch,
+    });
     return 'ignore_action';
   };
 
@@ -946,7 +948,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.exitEditMode();
       return;
     }
-    exitEditAlert(this.exitEditMode);
+    exitEditAlert({
+      onDiscard: this.exitEditMode,
+    });
   };
 
   scrollToEditedMessage = () => {
@@ -1001,7 +1005,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       saveExit();
       return;
     }
-    exitEditAlert(saveExit);
+    exitEditAlert({
+      onDiscard: saveExit,
+    });
   };
 
   onPressJoin = () => {
