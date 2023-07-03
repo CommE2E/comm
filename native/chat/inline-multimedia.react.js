@@ -3,7 +3,7 @@
 import Icon from '@expo/vector-icons/Feather.js';
 import IonIcon from '@expo/vector-icons/Ionicons.js';
 import * as React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import * as Progress from 'react-native-progress';
 import tinycolor from 'tinycolor2';
 
@@ -13,6 +13,7 @@ import type { MediaInfo } from 'lib/types/media-types.js';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
 import type { PendingMultimediaUpload } from '../input/input-state.js';
 import Multimedia from '../media/multimedia.react.js';
+import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +mediaInfo: MediaInfo,
@@ -23,6 +24,7 @@ type Props = {
 };
 function InlineMultimedia(props: Props): React.Node {
   const { mediaInfo, pendingUpload, postInProgress } = props;
+  const styles = useStyles(unboundStyles);
 
   let failed = isLocalUploadID(mediaInfo.id) && !postInProgress;
   let progressPercent = 1;
@@ -35,7 +37,12 @@ function InlineMultimedia(props: Props): React.Node {
   if (failed) {
     progressIndicator = (
       <View style={styles.centerContainer}>
-        <Icon name="alert-circle" style={styles.uploadError} size={64} />
+        <Icon
+          name="alert-circle"
+          style={styles.uploadError}
+          size={42}
+          color="white"
+        />
       </View>
     );
   } else if (progressPercent !== 1) {
@@ -100,7 +107,7 @@ function InlineMultimedia(props: Props): React.Node {
   );
 }
 
-const styles = StyleSheet.create({
+const unboundStyles = {
   centerContainer: {
     alignItems: 'center',
     bottom: 0,
@@ -139,11 +146,10 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
   },
   uploadError: {
-    color: 'white',
-    textShadowColor: '#000',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
+    backgroundColor: 'vibrantRedButton',
+    borderRadius: 21,
+    overflow: 'hidden',
   },
-});
+};
 
 export default InlineMultimedia;
