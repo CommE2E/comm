@@ -291,4 +291,5 @@ export const threadRoutes = [
   MessageResultsScreenRouteName,
   MessageSearchRouteName,
   EmojiThreadAvatarCreationRouteName,
+  CommunityRolesScreenRouteName,
 ];
