@@ -28,6 +28,7 @@ import {
   type ToggleMessagePinRequest,
   type ToggleMessagePinResult,
   type RoleModificationRequest,
+  type RoleModificationResult,
   rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { serverUpdateInfoValidator } from 'lib/types/update-types.js';
@@ -364,16 +365,29 @@ const roleModificationRequestInputValidator = tShape<RoleModificationRequest>({
   action: t.enums.of(['create_role', 'edit_role']),
 });
 
+export const roleModificationResultValidator: TInterface<RoleModificationResult> =
+  tShape<RoleModificationResult>({
+    threadInfo: t.maybe(rawThreadInfoValidator),
+    updatesResult: tShape({
+      newUpdates: t.list(serverUpdateInfoValidator),
+    }),
+  });
+
 async function roleModificationResponder(
   viewer: Viewer,
   input: mixed,
-): Promise<void> {
+): Promise<RoleModificationResult> {
   const request = await validateInput(
     viewer,
     roleModificationRequestInputValidator,
     input,
   );
-  await modifyRole(viewer, request);
+  const response = await modifyRole(viewer, request);
+  return validateOutput(
+    viewer.platformDetails,
+    roleModificationResultValidator,
+    response,
+  );
 }
 
 export {
