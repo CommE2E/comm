@@ -83,7 +83,9 @@ function TooltipMenu(
     };
     const { editedMessage, isEditedMessageChanged } = inputState.editState;
     if (isEditedMessageChanged && editedMessage) {
-      exitEditAlert(enterEditMode);
+      exitEditAlert({
+        onDiscard: enterEditMode,
+      });
     } else {
       enterEditMode();
     }
