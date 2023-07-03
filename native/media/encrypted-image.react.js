@@ -73,10 +73,15 @@ function EncryptedImage(props: Props): React.Node {
       const { result } = await decryptMedia(blobURI, encryptionKey, {
         destination: 'data_uri',
       });
-      // TODO: decide what to do if decryption fails
-      if (result.success && isMounted) {
-        mediaCache?.set(blobURI, result.uri);
-        setSource({ uri: result.uri });
+
+      if (isMounted) {
+        if (result.success) {
+          mediaCache?.set(blobURI, result.uri);
+          setSource({ uri: result.uri });
+        } else {
+          // Setting an invalid uri will cause the Image to run onError
+          setSource({ uri: 'data:,' });
+        }
       }
     };
 
