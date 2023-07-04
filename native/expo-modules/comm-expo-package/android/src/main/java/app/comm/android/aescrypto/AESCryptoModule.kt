@@ -109,6 +109,38 @@ class AESCryptoModule : Module() {
 
 // region RN-agnostic implementations
 
+class AESCryptoModuleCompat {
+  private val secureRandom by lazy { SecureRandom() }
+
+  public fun generateKey(): ByteArray {
+   return KeyGenerator.getInstance(ALGORITHM_AES).apply {
+      init(KEY_SIZE * 8, secureRandom)
+    }.generateKey().encoded
+  }
+
+  public fun encrypt(
+    rawKey: ByteArray,
+    plaintext: ByteArray,
+  ): ByteArray {
+    val secretKey = rawKey.toSecretKey()
+    val (iv, ciphertextWithTag) = encryptAES(plaintext, secretKey)
+    return iv + ciphertextWithTag
+  }
+
+  public fun decrypt(
+    rawKey: ByteArray,
+    sealedData: ByteArray
+  ): ByteArray {
+    if(sealedData.size <= IV_LENGTH + TAG_LENGTH) {
+      throw InvalidDataLengthException()
+    }
+    val secretKey = rawKey.toSecretKey()
+    val iv = sealedData.copyOfRange(0, IV_LENGTH)
+    val ciphertextWithTag = sealedData.copyOfRange(IV_LENGTH, sealedData.size)
+    return decryptAES(ciphertextWithTag, secretKey, iv)
+  }
+}
+
 /**
  * Encrypts given [plaintext] with given [key] using AES-256 GCM algorithm
  *
