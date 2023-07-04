@@ -6,6 +6,7 @@ import schedule from 'node-schedule';
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
+import { updateIdentityReservedUsernames } from './update-identity-reserved-usernames.js';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
 import { deleteExpiredCookies } from '../deleters/cookie-deleters.js';
 import { deleteOrphanedDays } from '../deleters/day-deleters.js';
@@ -92,7 +93,20 @@ if (cluster.isMaster) {
       }
     },
   );
-
+  schedule.scheduleJob(
+    '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
+    async () => {
+      try {
+        await updateIdentityReservedUsernames();
+      } catch (e) {
+        console.warn(
+          'encountered error while trying to update reserved usernames on ' +
+            'identity service',
+          e,
+        );
+      }
+    },
+  );
   schedule.scheduleJob(
     '0 0 * * *', // every day at midnight in the keyserver's timezone
     async () => {
