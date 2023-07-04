@@ -46,9 +46,9 @@ function ManagePublicLinkScreen(props: Props): React.Node {
   const onDisableButtonClick = React.useCallback(() => {
     Alert.alert(
       'Disable public link',
-      'Are you sure you want to disable your public link? Members who have your community’s public link but have not joined will not able to with the disabled link. \n' +
+      'Are you sure you want to disable your public link?\n' +
         '\n' +
-        'Other communities may also claim your previous public link url.',
+        'Other communities will be able to claim the same URL.',
       [
         {
           text: 'Confirm disable',
@@ -83,11 +83,10 @@ function ManagePublicLinkScreen(props: Props): React.Node {
     <View>
       <View style={styles.section}>
         <Text style={styles.sectionText}>
-          Let your community be more accessible with your own unique public
-          link. By enabling a public link, you are allowing anyone who has your
-          link to join your community.{'\n\n'}
-          Editing your community’s public link allows other communities to claim
-          your previous URL.
+          Invite links make it easy for your friends to join your community.
+          Anybody who knows your community’s invite link will be able to join
+          it.{'\n\n'}Note that if you change your public link’s URL, other
+          communities will be able to claim the old URL.
         </Text>
       </View>
       <Text style={styles.sectionTitle}>INVITE URL</Text>
