@@ -10,7 +10,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ManagePublicLinkScreen from './manage-public-link-screen.react.js';
 import ViewInviteLinksHeaderLeftButton from './view-invite-links-header-left-button.react.js';
-import ViewInviteLinksHeaderTitle from './view-invite-links-header-title.react.js';
 import ViewInviteLinksScreen from './view-invite-links-screen.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
 import { defaultStackScreenOptions } from '../navigation/options.js';
@@ -35,18 +34,15 @@ const InviteLinksStack = createStackNavigator<
   StackNavigationHelpers<ScreenParamList>,
 >();
 
-const viewInviteLinksOptions = ({ route }) => ({
-  // eslint-disable-next-line react/display-name
-  headerTitle: props => (
-    <ViewInviteLinksHeaderTitle community={route.params.community} {...props} />
-  ),
+const viewInviteLinksOptions = {
+  headerTitle: 'Invite link',
   headerLeft: ViewInviteLinksHeaderLeftButton,
   headerBackImage: () => null,
   headerBackTitleStyle: { marginLeft: 20 },
-});
+};
 
 const managePublicLinkOptions = {
-  headerTitle: 'Public Link',
+  headerTitle: 'Public link',
   headerBackTitleVisible: false,
   headerLeft: HeaderBackButton,
 };
