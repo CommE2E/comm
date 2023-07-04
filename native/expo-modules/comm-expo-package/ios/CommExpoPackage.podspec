@@ -19,9 +19,18 @@ Pod::Spec.new do |s|
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
+    'USE_HEADERMAP' => 'YES',
     'DEFINES_MODULE' => 'YES',
     'SWIFT_COMPILATION_MODE' => 'wholemodule'
   }
   
+  user_header_search_paths = [
+    '"${PODS_CONFIGURATION_BUILD_DIR}/CommExpoPackage/Swift Compatibility Header"',
+  ]
+  s.user_target_xcconfig = {
+    "HEADER_SEARCH_PATHS" => user_header_search_paths,
+  }
+
   s.source_files = "**/*.{h,m,swift}"
+  s.public_header_files = '**/*.h'
 end
