@@ -89,7 +89,7 @@ function AcceptInviteModal(props: Props): React.Node {
             disabled={joinThreadLoadingStatus === 'loading'}
             onClick={joinCommunity}
           >
-            Accept Invite
+            Accept invite
           </Button>
           <Button variant="outline" onClick={popModal}>
             Cancel
@@ -103,8 +103,8 @@ function AcceptInviteModal(props: Props): React.Node {
         <div className={css.group}>
           <div className={css.heading}>Invite invalid</div>
           <div className={css.text}>
-            This invite link may be expired, please try again with another
-            invite link
+            This invite link may be expired. Please try again with another
+            invite link.
           </div>
         </div>
         <hr />
