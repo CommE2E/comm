@@ -66,14 +66,14 @@ function InviteLinksButton(props: Props): React.Node {
     );
     if (canManageLinks) {
       result.push({
-        label: 'Manage Invite Links',
+        label: 'Manage invite links',
         action: navigateToManagePublicLinkView,
       });
     }
 
     if (inviteLink) {
       result.push({
-        label: 'Invite Link',
+        label: 'Invite link',
         action: navigateToInviteLinksView,
       });
     }

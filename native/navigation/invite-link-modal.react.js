@@ -59,7 +59,7 @@ function InviteLinkModal(props: Props): React.Node {
       <>
         <Text style={styles.invalidInviteTitle}>Invite invalid</Text>
         <Text style={styles.invalidInviteExplanation}>
-          This invite link may be expired, please try again with another invite
+          This invite link may be expired. Please try again with another invite
           link
         </Text>
       </>
@@ -128,7 +128,7 @@ function InviteLinkModal(props: Props): React.Node {
             style={styles.activityIndicatorStyle}
           />
         ) : (
-          <Text style={styles.buttonText}>Accept Invite</Text>
+          <Text style={styles.buttonText}>Accept invite</Text>
         );
       return (
         <>

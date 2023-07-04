@@ -79,7 +79,8 @@ function ViewInviteLinksScreen(props: Props): React.Node {
     } else {
       description = (
         <Text style={styles.details}>
-          Use this public link to invite your friends into the community!
+          Share this invite link with your friends to help them join your
+          community!
         </Text>
       );
     }
