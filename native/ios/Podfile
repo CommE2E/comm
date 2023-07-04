@@ -54,6 +54,7 @@ target 'NotificationService' do
   common_comm_target_pods
   pod 'OLMKit', :path => "../node_modules/olm"
   pod 'RCT-Folly', :podspec => "../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
+  pod 'CommExpoPackage', :path => "../expo-modules/comm-expo-package/ios"
 
   react_native_config
 end
