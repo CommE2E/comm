@@ -153,7 +153,7 @@ function CommunityConfiguration(props: Props): React.Node {
         <RegistrationButtonContainer>
           <RegistrationButton
             onPress={createNewCommunity}
-            label="Create Community"
+            label="Create community"
             variant={
               createNewCommunityLoadingStatus === 'loading'
                 ? 'loading'
