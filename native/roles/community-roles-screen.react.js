@@ -53,6 +53,8 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
       props.navigation.navigate(CreateRolesScreenRouteName, {
         threadInfo,
         action: 'create_role',
+        roleName: 'New role',
+        rolePermissions: [],
       }),
     [threadInfo, props.navigation],
   );
