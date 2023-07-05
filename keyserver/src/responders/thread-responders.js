@@ -26,6 +26,7 @@ import {
   type ThreadFetchMediaRequest,
   type ToggleMessagePinRequest,
   type ToggleMessagePinResult,
+  type RoleModificationRequest,
   rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { serverUpdateInfoValidator } from 'lib/types/update-types.js';
@@ -44,6 +45,7 @@ import {
   entryQueryInputValidator,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
+import { modifyRole } from '../creators/role-creator.js';
 import { createThread } from '../creators/thread-creator.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
 import { fetchMediaForThread } from '../fetchers/upload-fetchers.js';
@@ -354,6 +356,25 @@ async function toggleMessagePinResponder(
   );
 }
 
+const roleModificationRequestInputValidator = tShape<RoleModificationRequest>({
+  community: tID,
+  name: t.String,
+  permissions: t.list(t.String),
+  action: t.enums.of(['create_role', 'edit_role']),
+});
+
+async function roleModificationResponder(
+  viewer: Viewer,
+  input: mixed,
+): Promise<void> {
+  const request = await validateInput(
+    viewer,
+    roleModificationRequestInputValidator,
+    input,
+  );
+  await modifyRole(viewer, request);
+}
+
 export {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -365,4 +386,5 @@ export {
   threadFetchMediaResponder,
   newThreadRequestInputValidator,
   toggleMessagePinResponder,
+  roleModificationResponder,
 };
