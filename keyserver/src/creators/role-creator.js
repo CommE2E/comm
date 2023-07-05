@@ -1,11 +1,23 @@
 // @flow
 
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
+import {
+  universalCommunityPermissions,
+  userSurfacedPermissionsSet,
+  configurableCommunityPermissions,
+  threadPermissions,
+} from 'lib/types/thread-permission-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
-import type { RoleInfo } from 'lib/types/thread-types.js';
+import type {
+  RoleInfo,
+  RoleModificationRequest,
+} from 'lib/types/thread-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
 import createIDs from './id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
 
 type InitialRoles = {
   +default: RoleInfo,
@@ -59,4 +71,55 @@ async function createInitialRolesForNewThread(
   };
 }
 
-export { createInitialRolesForNewThread };
+async function modifyRole(
+  viewer: Viewer,
+  request: RoleModificationRequest,
+): Promise<void> {
+  const hasPermission = await checkThreadPermission(
+    viewer,
+    request.community,
+    threadPermissions.CHANGE_ROLE,
+  );
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  const { community, name, permissions, action } = request;
+
+  for (const permission of permissions) {
+    if (!userSurfacedPermissionsSet.has(permission)) {
+      throw new ServerError('invalid_parameters');
+    }
+  }
+
+  const [id] = await createIDs('roles', 1);
+  const time = Date.now();
+
+  const configuredPermissions = permissions
+    .map(permission => [...configurableCommunityPermissions[permission]])
+    .flat();
+
+  const rolePermissions = [
+    ...universalCommunityPermissions,
+    ...configuredPermissions,
+  ];
+  const permissionsBlob = JSON.stringify(
+    Object.fromEntries(rolePermissions.map(permission => [permission, true])),
+  );
+
+  const row = [id, community, name, permissionsBlob, time];
+
+  let query = SQL``;
+  if (action === 'create_role') {
+    query = SQL`
+      INSERT INTO roles (id, thread, name, permissions, creation_time)
+      VALUES (${row})
+    `;
+  } else if (action === 'edit_role') {
+    throw new ServerError("unimplemented: can't edit roles yet");
+  }
+
+  await dbQuery(query);
+}
+
+export { createInitialRolesForNewThread, modifyRole };
