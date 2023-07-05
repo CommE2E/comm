@@ -1,7 +1,7 @@
 use crate::constants::{
   BLOB_DOWNLOAD_CHUNK_SIZE, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
 };
-use crate::database::{BlobItem, ReverseIndexItem};
+use crate::database::old::{BlobItem, ReverseIndexItem};
 use crate::http::context::handle_s3_error;
 use crate::tools::MemOps;
 use crate::validate_identifier;

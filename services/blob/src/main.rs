@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
   config::parse_cmdline_args()?;
 
   let aws_config = config::load_aws_config().await;
-  let db = database::DatabaseClient::new(&aws_config);
+  let db = database::old::DatabaseClient::new(&aws_config);
   let s3 = s3::S3Client::new(&aws_config);
 
   tokio::select! {

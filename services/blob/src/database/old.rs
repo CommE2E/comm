@@ -1,14 +1,9 @@
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput, types::AttributeValue,
-  Error as DynamoDBError,
 };
 use chrono::{DateTime, Utc};
-use comm_services_lib::database::{self, DBItemError};
-use std::{
-  collections::HashMap,
-  fmt::{Display, Formatter},
-  sync::Arc,
-};
+use comm_services_lib::database;
+use std::{collections::HashMap, sync::Arc};
 use tracing::error;
 
 use crate::{
@@ -19,8 +14,10 @@ use crate::{
     BLOB_S3_BUCKET_NAME, BLOB_TABLE_BLOB_HASH_FIELD, BLOB_TABLE_CREATED_FIELD,
     BLOB_TABLE_NAME, BLOB_TABLE_S3_PATH_FIELD,
   },
-  s3::{S3Path, S3PathError},
+  s3::S3Path,
 };
+
+use super::errors::{BlobDBError, Error};
 
 #[derive(Clone, Debug)]
 pub struct BlobItem {
@@ -306,34 +303,3 @@ impl DatabaseClient {
     Ok(())
   }
 }
-
-#[derive(
-  Debug, derive_more::Display, derive_more::From, derive_more::Error,
-)]
-pub enum Error {
-  #[display(...)]
-  AwsSdk(DynamoDBError),
-  #[display(...)]
-  Attribute(DBItemError),
-  #[display(...)]
-  Blob(BlobDBError),
-}
-
-#[derive(Debug)]
-pub enum BlobDBError {
-  HolderAlreadyExists(String),
-  InvalidS3Path(S3PathError),
-}
-
-impl Display for BlobDBError {
-  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
-    match self {
-      BlobDBError::HolderAlreadyExists(holder) => {
-        write!(f, "Item for given holder [{}] already exists", holder)
-      }
-      BlobDBError::InvalidS3Path(err) => err.fmt(f),
-    }
-  }
-}
-
-impl std::error::Error for BlobDBError {}
