@@ -1,5 +1,5 @@
-use crate::database::ReverseIndexItem;
-use crate::database::{BlobItem, DatabaseClient, Error as DBError};
+use crate::database::errors::Error as DBError;
+use crate::database::old::{BlobItem, DatabaseClient, ReverseIndexItem};
 use crate::s3::{Error as S3Error, S3Client, S3Path};
 use actix_web::error::{
   ErrorBadRequest, ErrorInternalServerError, ErrorNotFound,
