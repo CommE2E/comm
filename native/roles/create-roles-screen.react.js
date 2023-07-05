@@ -10,6 +10,7 @@ import {
 } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import CreateRolesHeaderRightButton from './create-roles-header-right-button.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
 import EnumSettingsOption from '../components/enum-settings-option.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -20,6 +21,8 @@ import { useStyles } from '../themes/colors.js';
 export type CreateRolesScreenParams = {
   +threadInfo: ThreadInfo,
   +action: 'create_role' | 'edit_role',
+  +roleName: string,
+  +rolePermissions: UserSurfacedPermission[],
 };
 
 type CreateRolesScreenProps = {
@@ -28,14 +31,18 @@ type CreateRolesScreenProps = {
 };
 
 function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
-  // eslint-disable-next-line no-unused-vars
-  const { threadInfo, action } = props.route.params;
+  const {
+    threadInfo,
+    action,
+    roleName: defaultRoleName,
+    rolePermissions: defaultRolePermissions,
+  } = props.route.params;
 
   const [customRoleName, setCustomRoleName] =
-    React.useState<string>('New Role');
+    React.useState<string>(defaultRoleName);
   const [selectedPermissions, setSelectedPermissions] = React.useState<
     UserSurfacedPermission[],
-  >([]);
+  >(defaultRolePermissions);
 
   const styles = useStyles(unboundStyles);
 
@@ -88,6 +95,21 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
     [isUserSurfacedPermissionSelected],
   );
 
+  React.useEffect(() => {
+    props.navigation.setParams({
+      threadInfo,
+      action,
+      roleName: customRoleName,
+      rolePermissions: selectedPermissions,
+    });
+  }, [
+    props.navigation,
+    threadInfo,
+    action,
+    customRoleName,
+    selectedPermissions,
+  ]);
+
   const permissionsList = React.useMemo(
     () =>
       [...userSurfacedPermissionOptions].map(permission => (
@@ -105,6 +127,13 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
   const onChangeRoleNameInput = React.useCallback((roleName: string) => {
     setCustomRoleName(roleName);
   }, []);
+
+  React.useEffect(() => {
+    props.navigation.setOptions({
+      // eslint-disable-next-line react/display-name
+      headerRight: () => <CreateRolesHeaderRightButton route={props.route} />,
+    });
+  }, [props.navigation, props.route]);
 
   return (
     <View>
