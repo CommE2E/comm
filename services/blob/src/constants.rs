@@ -29,6 +29,28 @@ pub const GRPC_METADATA_SIZE_PER_MESSAGE: u64 = 5;
 pub const BLOB_DOWNLOAD_CHUNK_SIZE: u64 = 5 * 1024 * 1024;
 
 // DynamoDB constants
+pub mod db {
+  /// Reserved holder value that indicates the row is a blob item
+  pub const BLOB_ITEM_ROW_HOLDER_VALUE: &str = "_";
+
+  pub const BLOB_TABLE_NAME: &str = "blob-service-blobs";
+  pub const BLOB_PARTITION_KEY: &str = ATTR_BLOB_HASH;
+  pub const BLOB_SORT_KEY: &str = ATTR_HOLDER;
+
+  pub const UNCHECKED_INDEX_NAME: &str = "unchecked-index";
+  pub const UNCHECKED_INDEX_PARTITION_KEY: &str = ATTR_UNCHECKED;
+  pub const UNCHECKED_INDEX_SORT_KEY: &str = ATTR_LAST_MODIFIED;
+
+  /// attribute names
+  pub const ATTR_BLOB_HASH: &str = "blob_hash";
+  pub const ATTR_HOLDER: &str = "holder";
+  pub const ATTR_CREATED_AT: &str = "created_at";
+  pub const ATTR_LAST_MODIFIED: &str = "last_modified";
+  pub const ATTR_S3_PATH: &str = "s3_path";
+  pub const ATTR_UNCHECKED: &str = "unchecked";
+}
+
+// old DynamoDB constants
 
 pub const BLOB_TABLE_NAME: &str = "blob-service-blob";
 pub const BLOB_TABLE_BLOB_HASH_FIELD: &str = "blobHash";

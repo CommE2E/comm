@@ -86,6 +86,42 @@ resource "aws_dynamodb_table" "blob-service-reverse-index" {
   }
 }
 
+resource "aws_dynamodb_table" "blob-service-blobs" {
+  name      = "blob-service-blobs"
+  hash_key  = "blob_hash"
+  range_key = "holder"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "blob_hash"
+    type = "S"
+  }
+
+  attribute {
+    name = "holder"
+    type = "S"
+  }
+
+  attribute {
+    name = "last_modified"
+    type = "N"
+  }
+
+  attribute {
+    name = "unchecked"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name      = "unchecked-index"
+    hash_key  = "unchecked"
+    range_key = "last_modified"
+
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["blob_hash", "holder"]
+  }
+}
+
 resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
   name           = "tunnelbroker-undelivered-messages"
   hash_key       = "deviceID"
