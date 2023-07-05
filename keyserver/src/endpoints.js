@@ -59,6 +59,7 @@ import {
   threadFetchMediaResponder,
   threadJoinResponder,
   toggleMessagePinResponder,
+  roleModificationResponder,
 } from './responders/thread-responders.js';
 import {
   userSubscriptionUpdateResponder,
@@ -202,6 +203,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   log_out: {
     responder: logOutResponder,
     requiredPolicies: [],
+  },
+  modify_community_role: {
+    responder: roleModificationResponder,
+    requiredPolicies: baseLegalPolicies,
   },
   policy_acknowledgment: {
     responder: policyAcknowledgmentResponder,
