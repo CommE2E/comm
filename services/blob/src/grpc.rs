@@ -13,7 +13,8 @@ use crate::{
     GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
     MPSC_CHANNEL_BUFFER_CAPACITY, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
   },
-  database::{BlobItem, DatabaseClient, Error as DBError, ReverseIndexItem},
+  database::errors::Error as DBError,
+  database::old::{BlobItem, DatabaseClient, ReverseIndexItem},
   s3::{MultiPartUploadSession, S3Client, S3Path},
   tools::MemOps,
 };

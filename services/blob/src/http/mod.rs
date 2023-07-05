@@ -1,5 +1,5 @@
 use crate::config::CONFIG;
-use crate::database::DatabaseClient;
+use crate::database::old::DatabaseClient;
 use crate::s3::S3Client;
 
 use actix_cors::Cors;
