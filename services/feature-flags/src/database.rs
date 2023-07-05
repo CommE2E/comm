@@ -52,7 +52,7 @@ fn parse_feature_config(
   let mut config = HashMap::new();
   for (code_version_string, code_version_config) in config_map {
     let code_version: i32 =
-      database::parse_number("code_version", code_version_string.as_str())?;
+      database::parse_integer("code_version", code_version_string.as_str())?;
     let version_config =
       parse_code_version_specific_feature_config(Some(code_version_config))?;
     config.insert(code_version, version_config);
