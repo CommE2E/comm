@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "identity_client.proto";
+
+package identity.authenticated;
+
+// RPCs from a client (iOS, Android, or web) to identity service
+//
+// This service will assert authenticity of a device by verifying the access
+// token through an interceptor, thus avoiding the need to explicitly pass
+// the credentials on every request
+service IdentityClientService {
+
+  // Rotate a devices preKey and preKey signature
+  // Rotated for deniability of older messages
+  rpc RefreshUserPreKeys(RefreshUserPreKeysRequest)
+    returns (identity.client.Empty) {}
+}
+
+// Helper types
+
+// RefreshUserPreKeys
+
+message RefreshUserPreKeysRequest {
+  identity.client.PreKey newContentPreKeys = 1;
+  identity.client.PreKey newNotifPreKeys = 2;
+}
