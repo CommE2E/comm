@@ -95,6 +95,9 @@ const light = Object.freeze({
   modalIosHighlightUnderlay: '#CCCCCCDD',
   modalSubtext: designSystemColors.shadesWhite60,
   modalSubtextLabel: designSystemColors.shadesBlack70,
+  modalInputBackground: designSystemColors.shadesWhite60,
+  modalInputForeground: designSystemColors.shadesWhite90,
+  modalKnob: designSystemColors.shadesWhite90,
   navigationCard: designSystemColors.shadesWhite100,
   navigationChevron: designSystemColors.shadesWhite60,
   panelBackground: designSystemColors.shadesWhite90,
@@ -141,9 +144,6 @@ const light = Object.freeze({
   secondaryButtonBorder: designSystemColors.shadesWhite100,
   inviteLinkLinkColor: designSystemColors.shadesBlack100,
   inviteLinkButtonBackground: designSystemColors.shadesWhite60,
-  emojiKeyboardKnob: designSystemColors.shadesWhite90,
-  emojiKeyboardCategoryIcon: designSystemColors.shadesBlack70,
-  emojiKeyboardContainerActive: designSystemColors.shadesWhite90,
 });
 export type Colors = $Exact<typeof light>;
 
@@ -192,6 +192,9 @@ const dark: Colors = Object.freeze({
   modalIosHighlightUnderlay: '#AAAAAA88',
   modalSubtext: designSystemColors.shadesBlack80,
   modalSubtextLabel: '#AAAAAA',
+  modalInputBackground: designSystemColors.shadesBlack80,
+  modalInputForeground: designSystemColors.shadesBlack60,
+  modalKnob: designSystemColors.shadesWhite90,
   navigationCard: '#2A2A2A',
   navigationChevron: designSystemColors.shadesBlack70,
   panelBackground: designSystemColors.shadesBlack100,
@@ -241,9 +244,6 @@ const dark: Colors = Object.freeze({
   secondaryButtonBorder: designSystemColors.shadesWhite100,
   inviteLinkLinkColor: designSystemColors.shadesWhite80,
   inviteLinkButtonBackground: designSystemColors.shadesBlack80,
-  emojiKeyboardKnob: designSystemColors.shadesWhite100,
-  emojiKeyboardCategoryIcon: designSystemColors.shadesWhite70,
-  emojiKeyboardContainerActive: designSystemColors.shadesBlack60,
 });
 const colors = { light, dark };
 
