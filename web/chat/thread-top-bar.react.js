@@ -90,7 +90,7 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
             <SWMansionIcon
               size={24}
               icon="search"
-              className={css.searchButton}
+              className={css.searchButtonIcon}
             />
           </Button>
           {threadMenu}

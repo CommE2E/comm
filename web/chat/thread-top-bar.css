@@ -49,12 +49,12 @@ a.pinnedCountText:hover {
   vertical-align: middle;
 }
 
-.searchButton {
+.searchButtonIcon {
   color: var(--thread-top-bar-search-button-color);
-  margin-right: 30px;
 }
 
 .buttons {
   flex-direction: row;
   display: flex;
+  gap: 30px;
 }
