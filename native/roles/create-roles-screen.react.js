@@ -1,9 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   userSurfacedPermissions,
   userSurfacedPermissionOptions,
@@ -19,6 +22,7 @@ import EnumSettingsOption from '../components/enum-settings-option.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import TextInput from '../components/text-input.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type CreateRolesScreenParams = {
@@ -33,6 +37,10 @@ type CreateRolesScreenProps = {
   +route: NavigationRoute<'CreateRolesScreen'>,
 };
 
+const createRolesLoadingStatusSelector = createLoadingStatusSelector(
+  modifyCommunityRoleActionTypes,
+);
+
 function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
   const {
     threadInfo,
@@ -40,6 +48,10 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
     roleName: defaultRoleName,
     rolePermissions: defaultRolePermissions,
   } = props.route.params;
+
+  const createRolesLoadingStatus: LoadingStatus = useSelector(
+    createRolesLoadingStatusSelector,
+  );
 
   const [customRoleName, setCustomRoleName] =
     React.useState<string>(defaultRoleName);
@@ -147,9 +159,26 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
     () =>
       props.navigation.setOptions({
         // eslint-disable-next-line react/display-name
-        headerRight: () => <CreateRolesHeaderRightButton route={props.route} />,
+        headerRight: () => {
+          if (createRolesLoadingStatus === 'loading') {
+            return (
+              <ActivityIndicator
+                size="small"
+                color="white"
+                style={styles.activityIndicator}
+              />
+            );
+          }
+
+          return <CreateRolesHeaderRightButton route={props.route} />;
+        },
       }),
-    [props.navigation, props.route],
+    [
+      createRolesLoadingStatus,
+      props.navigation,
+      styles.activityIndicator,
+      props.route,
+    ],
   );
 
   return (
@@ -228,6 +257,9 @@ const unboundStyles = {
   permissionsListContainer: {
     backgroundColor: 'panelForeground',
     marginTop: 10,
+  },
+  activityIndicator: {
+    paddingRight: 15,
   },
 };
 
