@@ -92,35 +92,35 @@ function EmojiKeyboard(props: Props): React.Node {
 
   const theme = React.useMemo(
     () => ({
-      knob: colors.emojiKeyboardKnob,
+      knob: colors.modalKnob,
       container: colors.modalForeground,
       header: colors.modalBackgroundLabel,
       category: {
-        icon: colors.emojiKeyboardCategoryIcon,
-        iconActive: colors.panelForegroundLabel,
-        container: colors.panelInputBackground,
-        containerActive: colors.emojiKeyboardContainerActive,
+        icon: colors.modalButtonLabel,
+        iconActive: colors.modalButtonLabel,
+        container: colors.modalSubtext,
+        containerActive: colors.modalBackgroundSecondaryLabel,
       },
       search: {
-        text: colors.panelForegroundLabel,
-        placeholder: colors.panelInputSecondaryForeground,
-        icon: colors.panelInputSecondaryForeground,
-        background: colors.panelInputBackground,
+        text: colors.modalForegroundLabel,
+        placeholder: colors.modalForegroundSecondaryLabel,
+        icon: colors.modalForegroundSecondaryLabel,
+        background: colors.modalSubtext,
       },
       emoji: {
-        selected: colors.panelSecondaryForegroundBorder,
+        selected: colors.modalButton,
       },
     }),
     [
-      colors.emojiKeyboardCategoryIcon,
-      colors.emojiKeyboardKnob,
-      colors.emojiKeyboardContainerActive,
-      colors.modalBackgroundLabel,
+      colors.modalKnob,
       colors.modalForeground,
-      colors.panelForegroundLabel,
-      colors.panelInputBackground,
-      colors.panelInputSecondaryForeground,
-      colors.panelSecondaryForegroundBorder,
+      colors.modalBackgroundLabel,
+      colors.modalButtonLabel,
+      colors.modalSubtext,
+      colors.modalBackgroundSecondaryLabel,
+      colors.modalForegroundLabel,
+      colors.modalForegroundSecondaryLabel,
+      colors.modalButton,
     ],
   );
 
