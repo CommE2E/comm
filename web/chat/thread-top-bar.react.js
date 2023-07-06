@@ -86,11 +86,14 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
           <div className={css.threadTitle}>{uiName}</div>
         </div>
         <div className={css.buttons}>
-          <Button className={css.button} onClick={onClickSearch}>
+          <Button
+            className={[css.button, css.searchButton]}
+            onClick={onClickSearch}
+          >
             <SWMansionIcon
               size={24}
               icon="search"
-              className={css.searchButton}
+              className={css.searchButtonIcon}
             />
           </Button>
           {threadMenu}

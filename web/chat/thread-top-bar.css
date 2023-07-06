@@ -50,8 +50,11 @@ a.pinnedCountText:hover {
 }
 
 .searchButton {
-  color: var(--thread-top-bar-search-button-color);
   margin-right: 30px;
+}
+
+.searchButtonIcon {
+  color: var(--thread-top-bar-search-button-color);
 }
 
 .buttons {
