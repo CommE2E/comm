@@ -339,7 +339,8 @@ async function createTables() {
 
       ALTER TABLE roles
         ADD PRIMARY KEY (id),
-        ADD KEY thread (thread);
+        ADD KEY thread (thread),
+        ADD UNIQUE KEY thread_name (thread, name);
 
       ALTER TABLE sessions
         ADD PRIMARY KEY (id),
