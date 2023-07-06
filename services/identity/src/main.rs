@@ -4,12 +4,14 @@ use clap::{Parser, Subcommand};
 use database::DatabaseClient;
 use moka::future::Cache;
 use tonic::transport::Server;
+use tonic::{Request, Status};
 use tracing_subscriber::FmtSubscriber;
 
 mod client_service;
 mod config;
 pub mod constants;
 mod database;
+mod grpc_services;
 mod id;
 mod keygen;
 mod nonce;
@@ -20,10 +22,12 @@ mod token;
 use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
 use keygen::generate_and_persist_keypair;
-use tracing::{self, info, Level};
+use tracing::{self, debug, info, Level};
 use tracing_subscriber::EnvFilter;
 
 use client_service::{ClientService, IdentityClientServiceServer};
+use grpc_services::authenticated::auth_proto::identity_client_service_server::{IdentityClientServiceServer as AuthServer, IdentityClientService as AuthService};
+use grpc_services::authenticated::AuthenticatedService;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -71,8 +75,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .time_to_live(Duration::from_secs(10))
         .build();
       let client_service = IdentityClientServiceServer::new(
-        ClientService::new(database_client, workflow_cache),
+        ClientService::new(database_client.clone(), workflow_cache),
       );
+      let auth_service = AuthenticatedService::new(database_client.clone());
+      AuthServer::with_interceptor(auth_service, |mut req| {
+        grpc_services::authenticated::auth_intercept(req, &database_client)
+      });
+
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
         .accept_http1(true)
