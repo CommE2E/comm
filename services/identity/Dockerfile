@@ -13,10 +13,16 @@ RUN ../../scripts/install_protobuf.sh
 
 RUN mkdir -p /home/comm/app/identity
 WORKDIR /home/comm/app/identity
+RUN cargo init --bin
+
+COPY services/identity/Cargo.toml services/identity/Cargo.lock ./
+COPY shared/ ../../shared/
+
+# Cache build dependencies in a new layer
+RUN cargo build --release
+RUN rm src/*.rs
 
 COPY services/identity .
-COPY shared/protos/identity_client.proto ../../shared/protos/
-COPY shared/comm-opaque2 ../../shared/comm-opaque2
 
 RUN cargo install --locked --path .
 

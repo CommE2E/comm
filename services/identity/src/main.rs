@@ -9,6 +9,7 @@ mod client_service;
 mod config;
 pub mod constants;
 mod database;
+mod grpc_services;
 mod id;
 mod keygen;
 mod nonce;
@@ -23,6 +24,8 @@ use tracing::{self, info, Level};
 use tracing_subscriber::EnvFilter;
 
 use client_service::{ClientService, IdentityClientServiceServer};
+use grpc_services::authenticated::auth_proto::identity_client_service_server::IdentityClientServiceServer as AuthServer;
+use grpc_services::authenticated::AuthenticatedService;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -70,12 +73,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .time_to_live(Duration::from_secs(10))
         .build();
       let client_service = IdentityClientServiceServer::new(
-        ClientService::new(database_client, workflow_cache),
+        ClientService::new(database_client.clone(), workflow_cache),
       );
+      let raw_auth_service = AuthenticatedService::new(database_client.clone());
+      let auth_service =
+        AuthServer::with_interceptor(raw_auth_service, move |mut req| {
+          grpc_services::authenticated::auth_intercept(req, &database_client)
+        });
+
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
         .accept_http1(true)
         .add_service(tonic_web::enable(client_service))
+        .add_service(auth_service)
         .serve(addr)
         .await?;
     }
