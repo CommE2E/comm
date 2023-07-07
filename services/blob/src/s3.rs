@@ -8,7 +8,7 @@ use std::{
   ops::{Bound, RangeBounds},
   sync::Arc,
 };
-use tracing::error;
+use tracing::{debug, error, trace};
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -82,6 +82,19 @@ impl S3Path {
   /// Retrieves full S3 path string in the following format: `[bucket_name]/[object_name]`
   pub fn to_full_path(&self) -> String {
     format!("{}/{}", self.bucket_name, self.object_name)
+  }
+}
+
+impl From<&S3Path> for String {
+  fn from(s3_path: &S3Path) -> Self {
+    s3_path.to_full_path()
+  }
+}
+
+impl TryFrom<&str> for S3Path {
+  type Error = S3PathError;
+  fn try_from(full_path: &str) -> Result<Self, Self::Error> {
+    Self::from_full_path(full_path)
   }
 }
 
@@ -220,6 +233,7 @@ impl MultiPartUploadSession {
       error!("Upload ID expected to be present");
       Error::MissingUploadID
     })?;
+    debug!("Started multipart upload session with ID: {}", upload_id);
 
     Ok(MultiPartUploadSession {
       client: client.clone(),
@@ -253,6 +267,12 @@ impl MultiPartUploadSession {
       .e_tag(upload_result.e_tag.unwrap_or_default())
       .part_number(part_number)
       .build();
+    trace!(
+      upload_id = self.upload_id,
+      e_tag = completed_part.e_tag.as_deref().unwrap_or("N/A"),
+      "Uploaded part {}.",
+      part_number
+    );
     self.upload_parts.push(completed_part);
     Ok(())
   }
@@ -281,6 +301,7 @@ impl MultiPartUploadSession {
         Error::AwsSdk(e.into())
       })?;
 
+    debug!(upload_id = self.upload_id, "Multipart upload complete");
     Ok(())
   }
 }
