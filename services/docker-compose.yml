@@ -50,6 +50,7 @@ services:
       - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
   # identity
   identity-server:
+    platform: linux/amd64
     depends_on:
       - localstack
     build:
