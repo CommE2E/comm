@@ -1,5 +1,8 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
+use comm_services_lib::database::{
+  parse_string_attribute, parse_timestamp_attribute, DBItemError, Value,
+};
 use derive_more::Constructor;
 use std::collections::HashMap;
 
@@ -28,9 +31,16 @@ pub enum DBRow {
 impl TryFrom<RawAttributes> for DBRow {
   type Error = DBError;
 
-  #[allow(unused)]
   fn try_from(attributes: RawAttributes) -> Result<Self, Self::Error> {
-    todo!()
+    let holder = parse_string_attribute(
+      ATTR_HOLDER,
+      attributes.get(ATTR_HOLDER).cloned(),
+    )?;
+    let row = match holder.as_str() {
+      BLOB_ITEM_ROW_HOLDER_VALUE => DBRow::BlobItem(attributes.try_into()?),
+      _ => DBRow::HolderAssignment(attributes.try_into()?),
+    };
+    Ok(row)
   }
 }
 
@@ -71,9 +81,31 @@ pub struct BlobItemRow {
 impl TryFrom<RawAttributes> for BlobItemRow {
   type Error = DBError;
 
-  #[allow(unused)]
   fn try_from(mut attributes: RawAttributes) -> Result<Self, Self::Error> {
-    todo!()
+    let blob_hash = parse_string_attribute(
+      ATTR_BLOB_HASH,
+      attributes.remove(ATTR_BLOB_HASH),
+    )?;
+    let s3_path =
+      parse_string_attribute(ATTR_S3_PATH, attributes.remove(ATTR_S3_PATH))?;
+    let created_at = parse_timestamp_attribute(
+      ATTR_CREATED_AT,
+      attributes.remove(ATTR_CREATED_AT),
+    )?;
+    let last_modified = parse_timestamp_attribute(
+      ATTR_LAST_MODIFIED,
+      attributes.remove(ATTR_LAST_MODIFIED),
+    )?;
+    let unchecked = is_raw_row_unchecked(&attributes, UncheckedKind::Blob)?;
+    let s3_path = S3Path::from_full_path(&s3_path).map_err(DBError::from)?;
+
+    Ok(BlobItemRow {
+      blob_hash,
+      s3_path,
+      unchecked,
+      created_at,
+      last_modified,
+    })
   }
 }
 
@@ -93,9 +125,29 @@ pub struct HolderAssignmentRow {
 impl TryFrom<RawAttributes> for HolderAssignmentRow {
   type Error = DBError;
 
-  #[allow(unused)]
   fn try_from(mut attributes: RawAttributes) -> Result<Self, Self::Error> {
-    todo!()
+    let holder =
+      parse_string_attribute(ATTR_HOLDER, attributes.remove(ATTR_HOLDER))?;
+    let blob_hash = parse_string_attribute(
+      ATTR_BLOB_HASH,
+      attributes.remove(ATTR_BLOB_HASH),
+    )?;
+    let created_at = parse_timestamp_attribute(
+      ATTR_CREATED_AT,
+      attributes.remove(ATTR_CREATED_AT),
+    )?;
+    let last_modified = parse_timestamp_attribute(
+      ATTR_LAST_MODIFIED,
+      attributes.remove(ATTR_LAST_MODIFIED),
+    )?;
+    let unchecked = is_raw_row_unchecked(&attributes, UncheckedKind::Holder)?;
+    Ok(HolderAssignmentRow {
+      blob_hash,
+      holder,
+      unchecked,
+      created_at,
+      last_modified,
+    })
   }
 }
 
@@ -124,9 +176,14 @@ impl PrimaryKey {
 impl TryFrom<RawAttributes> for PrimaryKey {
   type Error = DBError;
 
-  #[allow(unused)]
   fn try_from(mut attributes: RawAttributes) -> Result<Self, Self::Error> {
-    todo!()
+    let blob_hash = parse_string_attribute(
+      ATTR_BLOB_HASH,
+      attributes.remove(ATTR_BLOB_HASH),
+    )?;
+    let holder =
+      parse_string_attribute(ATTR_HOLDER, attributes.remove(ATTR_HOLDER))?;
+    Ok(PrimaryKey { blob_hash, holder })
   }
 }
 
@@ -134,7 +191,13 @@ impl TryFrom<RawAttributes> for PrimaryKey {
 // ddb.get_item().set_key(Some(partition_key.into()))
 impl Into<RawAttributes> for PrimaryKey {
   fn into(self) -> RawAttributes {
-    todo!()
+    HashMap::from([
+      (
+        ATTR_BLOB_HASH.to_string(),
+        AttributeValue::S(self.blob_hash),
+      ),
+      (ATTR_HOLDER.to_string(), AttributeValue::S(self.holder)),
+    ])
   }
 }
 
@@ -157,4 +220,25 @@ impl Into<AttributeValue> for UncheckedKind {
   fn into(self) -> AttributeValue {
     AttributeValue::S(self.str_value().to_string())
   }
+}
+
+fn is_raw_row_unchecked(
+  row: &RawAttributes,
+  kind: UncheckedKind,
+) -> DBResult<bool> {
+  let Some(AttributeValue::S(value)) = row.get(ATTR_UNCHECKED) else {
+    // The unchecked attribute not exists
+    return Ok(false);
+  };
+
+  if value != kind.str_value() {
+    // The unchecked attribute exists but has an incorrect value
+    return Err(DBError::Attribute(DBItemError::new(
+      ATTR_UNCHECKED,
+      Value::String(value.to_string()),
+      comm_services_lib::database::DBItemAttributeError::IncorrectType,
+    )));
+  }
+
+  Ok(true)
 }
