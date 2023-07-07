@@ -64,16 +64,19 @@ function ManagePublicLinkScreen(props: Props): React.Node {
       },
     );
   }, [disableInviteLink]);
-  let disablePublicLinkButton = null;
+  let disablePublicLinkSection = null;
   if (inviteLink) {
-    disablePublicLinkButton = (
-      <View style={styles.destructiveButtonContainer}>
+    disablePublicLinkSection = (
+      <View style={[styles.section, styles.disableLinkSection]}>
+        <Text style={styles.sectionText}>
+          You may also disable the community public link.
+        </Text>
         <Button
           style={[styles.button, styles.destructiveButton]}
           onPress={onDisableButtonClick}
           disabled={isLoading}
         >
-          <Text style={styles.destructiveButtonText}>Disable public link</Text>
+          <Text style={styles.destructiveButtonText}>Disable</Text>
         </Button>
       </View>
     );
@@ -82,11 +85,14 @@ function ManagePublicLinkScreen(props: Props): React.Node {
   return (
     <View>
       <View style={styles.section}>
-        <Text style={styles.sectionText}>
+        <Text style={[styles.sectionText, styles.withMargin]}>
           Invite links make it easy for your friends to join your community.
           Anybody who knows your community’s invite link will be able to join
-          it.{'\n\n'}Note that if you change your public link’s URL, other
-          communities will be able to claim the old URL.
+          it.
+        </Text>
+        <Text style={styles.sectionText}>
+          Note that if you change your public link’s URL, other communities will
+          be able to claim the old URL.
         </Text>
       </View>
       <Text style={styles.sectionTitle}>INVITE URL</Text>
@@ -112,7 +118,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
           <Text style={styles.buttonText}>Save & enable public link</Text>
         </Button>
       </View>
-      {disablePublicLinkButton}
+      {disablePublicLinkSection}
     </View>
   );
 }
@@ -125,7 +131,6 @@ const unboundStyles = {
     color: 'modalBackgroundLabel',
     paddingHorizontal: 16,
     paddingBottom: 4,
-    marginTop: 24,
   },
   section: {
     borderBottomColor: 'modalSeparator',
@@ -134,12 +139,19 @@ const unboundStyles = {
     borderTopWidth: 1,
     backgroundColor: 'modalForeground',
     padding: 16,
+    marginBottom: 24,
+  },
+  disableLinkSection: {
+    marginTop: 16,
   },
   sectionText: {
     fontSize: 14,
     fontWeight: '400',
     lineHeight: 22,
     color: 'modalBackgroundLabel',
+  },
+  withMargin: {
+    marginBottom: 12,
   },
   inviteLink: {
     flexDirection: 'row',
@@ -170,9 +182,6 @@ const unboundStyles = {
   },
   buttonPrimary: {
     backgroundColor: 'purpleButton',
-  },
-  destructiveButtonContainer: {
-    margin: 16,
   },
   destructiveButton: {
     borderWidth: 1,
