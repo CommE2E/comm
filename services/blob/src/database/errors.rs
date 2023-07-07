@@ -14,6 +14,7 @@ pub enum Error {
   #[display(...)]
   Attribute(DBItemError),
   #[display(...)]
+  #[from(ignore)]
   Blob(BlobDBError),
   #[display(...)]
   ItemAlreadyExists,
@@ -37,3 +38,9 @@ impl Display for BlobDBError {
 }
 
 impl std::error::Error for BlobDBError {}
+
+impl From<S3PathError> for Error {
+  fn from(err: S3PathError) -> Self {
+    Error::Blob(BlobDBError::InvalidS3Path(err))
+  }
+}
