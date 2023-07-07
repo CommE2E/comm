@@ -62,7 +62,7 @@ function EmojiKeyboard(props: Props): React.Node {
     onEmojiSelected,
     emojiKeyboardOpen,
     onEmojiKeyboardClose,
-    selectMultipleEmojis,
+    selectMultipleEmojis = false,
     alreadySelectedEmojis,
   } = props;
 
