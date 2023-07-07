@@ -68,7 +68,7 @@ function EmojiKeyboard(props: Props): React.Node {
 
   const [currentlySelected, setCurrentlySelected] = React.useState<
     $ReadOnlyArray<string>,
-  >(() => alreadySelectedEmojis.map(emoji => keyedEmojiData[emoji].name));
+  >(() => alreadySelectedEmojis.map(emoji => keyedEmojiData[emoji]?.name));
 
   const handleOnEmojiSelected = React.useCallback(
     (emoji: EmojiSelection) => {
