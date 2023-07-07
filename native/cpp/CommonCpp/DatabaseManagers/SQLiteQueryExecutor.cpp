@@ -930,7 +930,13 @@ auto &SQLiteQueryExecutor::getStorage() {
       make_table(
           "reports",
           make_column("id", &Report::id, unique(), primary_key()),
-          make_column("report", &Report::report)));
+          make_column("report", &Report::report)),
+      make_table(
+          "persist_storage",
+          make_column("key", &PersistItem::key, unique(), primary_key()),
+          make_column("item", &PersistItem::item))
+
+  );
   storage.on_open = on_database_open;
   return storage;
 }
@@ -1172,6 +1178,26 @@ void SQLiteQueryExecutor::removeReports(
 
 std::vector<Report> SQLiteQueryExecutor::getAllReports() const {
   return SQLiteQueryExecutor::getStorage().get_all<Report>();
+}
+
+void SQLiteQueryExecutor::setPersistStorageItem(
+    std::string key,
+    std::string item) const {
+  PersistItem entry{
+      key,
+      item,
+  };
+  SQLiteQueryExecutor::getStorage().replace(entry);
+}
+
+void SQLiteQueryExecutor::removePersistStorageItem(std::string key) const {
+  SQLiteQueryExecutor::getStorage().remove<PersistItem>(key);
+}
+
+std::string SQLiteQueryExecutor::getPersistStorageItem(std::string key) const {
+  std::unique_ptr<PersistItem> entry =
+      SQLiteQueryExecutor::getStorage().get_pointer<PersistItem>(key);
+  return (entry == nullptr) ? "" : entry->item;
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
