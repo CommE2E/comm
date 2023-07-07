@@ -7,12 +7,12 @@ import {
 
 import { endScript } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { recalculateAllThreadPermissions } from '../updaters/thread-permission-updaters.js';
+import { DEPRECATED_recalculateAllThreadPermissions } from '../updaters/thread-permission-updaters.js';
 
 async function main() {
   try {
     await createSidebarPermissions();
-    await recalculateAllThreadPermissions();
+    await DEPRECATED_recalculateAllThreadPermissions();
   } catch (e) {
     console.warn(e);
   } finally {
