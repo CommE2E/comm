@@ -31,40 +31,48 @@ import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
-  +threadInfo: ?ThreadInfo,
+  +sidebarThreadInfo: ?ThreadInfo,
   +reactions?: ReactionInfo,
   +disabled?: boolean,
   +positioning?: 'left' | 'right',
   +label?: ?string,
 };
 function InlineEngagement(props: Props): React.Node {
-  const { disabled = false, reactions, threadInfo, positioning, label } = props;
-  const repliesText = useInlineEngagementText(threadInfo);
+  const {
+    disabled = false,
+    reactions,
+    sidebarThreadInfo,
+    positioning,
+    label,
+  } = props;
+  const repliesText = useInlineEngagementText(sidebarThreadInfo);
 
   const navigateToThread = useNavigateToThread();
   const { navigate } = useNavigation();
 
   const styles = useStyles(unboundStyles);
 
-  const unreadStyle = threadInfo?.currentUser.unread ? styles.unread : null;
+  const unreadStyle = sidebarThreadInfo?.currentUser.unread
+    ? styles.unread
+    : null;
   const repliesStyles = React.useMemo(
     () => [styles.repliesText, unreadStyle],
     [styles.repliesText, unreadStyle],
   );
 
-  const onPressThread = React.useCallback(() => {
-    if (threadInfo && !disabled) {
-      navigateToThread({ threadInfo });
+  const onPressSidebar = React.useCallback(() => {
+    if (sidebarThreadInfo && !disabled) {
+      navigateToThread({ threadInfo: sidebarThreadInfo });
     }
-  }, [disabled, navigateToThread, threadInfo]);
+  }, [disabled, navigateToThread, sidebarThreadInfo]);
 
   const sidebarItem = React.useMemo(() => {
-    if (!threadInfo) {
+    if (!sidebarThreadInfo) {
       return null;
     }
     return (
       <GestureTouchableOpacity
-        onPress={onPressThread}
+        onPress={onPressSidebar}
         activeOpacity={0.7}
         style={styles.sidebar}
       >
@@ -73,8 +81,8 @@ function InlineEngagement(props: Props): React.Node {
       </GestureTouchableOpacity>
     );
   }, [
-    threadInfo,
-    onPressThread,
+    sidebarThreadInfo,
+    onPressSidebar,
     styles.sidebar,
     styles.icon,
     repliesStyles,
@@ -172,6 +180,24 @@ function InlineEngagement(props: Props): React.Node {
 }
 
 const unboundStyles = {
+  inlineEngagement: {
+    flexDirection: 'row',
+    marginBottom: inlineEngagementStyle.marginBottom,
+    marginTop: inlineEngagementStyle.marginTop,
+    alignItems: 'center',
+    marginLeft: avatarOffset,
+  },
+  leftInlineEngagement: {
+    justifyContent: 'flex-start',
+    position: 'relative',
+    top: inlineEngagementLeftStyle.topOffset,
+  },
+  rightInlineEngagement: {
+    alignSelf: 'flex-end',
+    position: 'relative',
+    right: inlineEngagementRightStyle.marginRight,
+    top: inlineEngagementRightStyle.topOffset,
+  },
   container: {
     flexDirection: 'row',
     height: inlineEngagementStyle.height,
@@ -181,31 +207,9 @@ const unboundStyles = {
     alignItems: 'center',
     padding: 8,
   },
-  unread: {
-    color: 'listForegroundLabel',
-    fontWeight: 'bold',
-  },
-  rightInlineEngagement: {
-    alignSelf: 'flex-end',
-    position: 'relative',
-    right: inlineEngagementRightStyle.marginRight,
-    top: inlineEngagementRightStyle.topOffset,
-  },
-  leftInlineEngagement: {
-    justifyContent: 'flex-start',
-    position: 'relative',
-    top: inlineEngagementLeftStyle.topOffset,
-  },
   sidebar: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  inlineEngagement: {
-    flexDirection: 'row',
-    marginBottom: inlineEngagementStyle.marginBottom,
-    marginTop: inlineEngagementStyle.marginTop,
-    alignItems: 'center',
-    marginLeft: avatarOffset,
   },
   icon: {
     color: 'inlineEngagementLabel',
@@ -216,6 +220,15 @@ const unboundStyles = {
     fontSize: 14,
     lineHeight: 22,
   },
+  unread: {
+    color: 'listForegroundLabel',
+    fontWeight: 'bold',
+  },
+  reactionsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   reaction: {
     color: 'inlineEngagementLabel',
     fontSize: 14,
@@ -223,11 +236,6 @@ const unboundStyles = {
   },
   reactionMarginLeft: {
     marginLeft: 12,
-  },
-  reactionsContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   messageLabel: {
     color: 'messageLabel',
@@ -330,7 +338,10 @@ function TooltipInlineEngagement(
   return (
     <Animated.View style={inlineEngagementContainer}>
       <Animated.View style={inlineEngagementStyles}>
-        <InlineEngagement threadInfo={item.threadCreatedFromMessage} disabled />
+        <InlineEngagement
+          sidebarThreadInfo={item.threadCreatedFromMessage}
+          disabled
+        />
       </Animated.View>
     </Animated.View>
   );

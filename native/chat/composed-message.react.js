@@ -199,7 +199,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       const positioning = isViewer ? 'right' : 'left';
       inlineEngagement = (
         <InlineEngagement
-          threadInfo={item.threadCreatedFromMessage}
+          sidebarThreadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
           positioning={positioning}
           label={label}
