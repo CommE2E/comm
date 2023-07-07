@@ -1216,7 +1216,8 @@ async function rescindPushNotifsForMemberDeletion(
   }
 }
 
-async function recalculateAllThreadPermissions() {
+// Deprecated - use updateRolesAndPermissionsForAllThreads instead
+async function DEPRECATED_recalculateAllThreadPermissions() {
   const getAllThreads = SQL`SELECT id FROM threads`;
   const [result] = await dbQuery(getAllThreads);
 
@@ -1286,6 +1287,6 @@ export {
   getChangesetCommitResultForExistingThread,
   saveMemberships,
   commitMembershipChangeset,
-  recalculateAllThreadPermissions,
+  DEPRECATED_recalculateAllThreadPermissions,
   updateRolesAndPermissionsForAllThreads,
 };
