@@ -63,6 +63,9 @@ public:
   void removeReports(const std::vector<std::string> &ids) const override;
   void removeAllReports() const override;
   std::vector<Report> getAllReports() const override;
+  void setPersistStorageItem(std::string key, std::string item) const override;
+  void removePersistStorageItem(std::string key) const override;
+  std::string getPersistStorageItem(std::string key) const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
