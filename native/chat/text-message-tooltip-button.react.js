@@ -184,6 +184,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
         emojiKeyboardOpen={emojiPickerOpen}
         onEmojiKeyboardClose={dismissTooltip}
         alreadySelectedEmojis={alreadySelectedEmojis}
+        selectMultipleEmojis
       />
     </MessageListContextProvider>
   );
