@@ -66,7 +66,7 @@ function RobotextMessage(props: Props): React.Node {
     inlineEngagement = (
       <View style={styles.sidebar}>
         <InlineEngagement
-          threadInfo={item.threadCreatedFromMessage}
+          sidebarInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
         />
       </View>
