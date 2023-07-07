@@ -308,6 +308,31 @@ async function serverThreadInfoFromMessageInfo(
   return threads.threadInfos[threadID];
 }
 
+async function fetchContainedThreadIDs(
+  parentThreadId: string,
+  condition?: SQLStatementType,
+): Promise<Array<string>> {
+  try {
+    const whereClause = condition ? SQL`WHERE `.append(condition) : '';
+    const query = SQL`
+      WITH RECURSIVE thread_tree AS (
+        SELECT id, containing_thread_id
+        FROM threads
+        WHERE id = ${parentThreadId}
+        UNION ALL
+        SELECT t.id, t.containing_thread_id
+        FROM threads t
+        JOIN thread_tree tt ON t.containing_thread_id = tt.id
+      )
+      SELECT id FROM thread_tree
+    `.append(whereClause);
+    const [result] = await dbQuery(query);
+    return result.map(row => row.id.toString());
+  } catch (e) {
+    throw new ServerError('internal_error');
+  }
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
@@ -318,4 +343,5 @@ export {
   personalThreadQuery,
   fetchPersonalThreadID,
   serverThreadInfoFromMessageInfo,
+  fetchContainedThreadIDs,
 };
