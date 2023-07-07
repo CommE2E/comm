@@ -7,6 +7,7 @@
 #include "entities/MessageStoreThread.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
+#include "entities/PersistItem.h"
 #include "entities/Report.h"
 #include "entities/Thread.h"
 
@@ -66,6 +67,10 @@ public:
   virtual void removeReports(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllReports() const = 0;
   virtual std::vector<Report> getAllReports() const = 0;
+  virtual void
+  setPersistStorageItem(std::string key, std::string item) const = 0;
+  virtual void removePersistStorageItem(std::string key) const = 0;
+  virtual std::string getPersistStorageItem(std::string key) const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
