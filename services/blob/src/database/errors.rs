@@ -24,6 +24,7 @@ pub enum Error {
 pub enum BlobDBError {
   HolderAlreadyExists(String),
   InvalidS3Path(S3PathError),
+  InvalidInput(String),
 }
 
 impl Display for BlobDBError {
@@ -33,6 +34,9 @@ impl Display for BlobDBError {
         write!(f, "Item for given holder [{}] already exists", holder)
       }
       BlobDBError::InvalidS3Path(err) => err.fmt(f),
+      BlobDBError::InvalidInput(value) => {
+        write!(f, "Invalid input value [{}]", value)
+      }
     }
   }
 }
