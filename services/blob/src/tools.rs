@@ -1,5 +1,6 @@
+use std::{env, error::Error as StdError};
+
 use crate::constants;
-use std::env;
 
 fn is_env_flag_set(env_var_name: &str) -> bool {
   let flag_value = env::var(env_var_name).unwrap_or_default().to_lowercase();
@@ -11,6 +12,7 @@ pub fn is_sandbox_env() -> bool {
   return is_env_flag_set(constants::SANDBOX_ENV_VAR);
 }
 
+pub type BoxedError = Box<dyn StdError>;
 pub trait MemOps {
   fn take_out(&mut self) -> Self;
 }
