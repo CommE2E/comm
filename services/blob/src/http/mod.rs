@@ -1,6 +1,6 @@
-use crate::config::CONFIG;
 use crate::database::old::DatabaseClient;
 use crate::s3::S3Client;
+use crate::{config::CONFIG, service::BlobService};
 
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
@@ -37,6 +37,7 @@ fn cors_config() -> Cors {
 pub async fn run_http_server(
   db_client: DatabaseClient,
   s3_client: S3Client,
+  blob_service: BlobService,
 ) -> Result<()> {
   info!(
     "Starting HTTP server listening at port {}",
@@ -52,6 +53,7 @@ pub async fn run_http_server(
       .wrap(tracing_actix_web::TracingLogger::default())
       .wrap(cors_config())
       .app_data(web::Data::new(ctx))
+      .app_data(web::Data::new(blob_service.to_owned()))
       .service(
         web::resource("/blob/{holder}")
           .route(web::get().to(handlers::blob::get_blob_handler)),
