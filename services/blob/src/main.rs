@@ -4,6 +4,7 @@ pub mod database;
 pub mod grpc;
 pub mod http;
 pub mod s3;
+pub mod service;
 pub mod tools;
 
 use anyhow::Result;
