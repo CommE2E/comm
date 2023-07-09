@@ -10,6 +10,8 @@ pub mod tools;
 use anyhow::Result;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
+use crate::service::BlobServiceConfig;
+
 fn configure_logging() -> Result<()> {
   let filter = EnvFilter::builder()
     .with_default_directive(LevelFilter::INFO.into())
@@ -30,8 +32,18 @@ async fn main() -> Result<()> {
   let db = database::old::DatabaseClient::new(&aws_config);
   let s3 = s3::S3Client::new(&aws_config);
 
+  let new_db = database::DatabaseClient::new(&aws_config);
+  let service = service::BlobService::new(
+    new_db,
+    s3.clone(),
+    BlobServiceConfig {
+      instant_delete_orphaned_blobs: true,
+      ..Default::default()
+    },
+  );
+
   tokio::select! {
-    http_result = crate::http::run_http_server(db.clone(), s3.clone()) => http_result,
+    http_result = crate::http::run_http_server(db.clone(), s3.clone(), service) => http_result,
     grpc_result = crate::grpc::run_grpc_server(db, s3) => grpc_result,
   }
 }
