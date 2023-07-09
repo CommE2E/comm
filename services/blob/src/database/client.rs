@@ -1,12 +1,6 @@
-// TODO: Remove this when possible
-#![allow(unused)]
-
 use aws_sdk_dynamodb::{
   operation::put_item::PutItemOutput,
-  types::{
-    AttributeValue, Delete, DeleteRequest, KeysAndAttributes, PutRequest,
-    TransactWriteItem, Update, WriteRequest,
-  },
+  types::{AttributeValue, Delete, TransactWriteItem, Update},
   Error as DynamoDBError,
 };
 use chrono::Utc;

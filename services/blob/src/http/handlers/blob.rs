@@ -1,16 +1,10 @@
-#![allow(unused)]
-
-use crate::constants::S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE;
-use crate::database::old::{BlobItem, ReverseIndexItem};
-use crate::http::context::{handle_blob_service_error, handle_s3_error};
+use crate::http::errors::handle_blob_service_error;
 use crate::service::BlobService;
 use crate::tools::BoxedError;
 use crate::validate_identifier;
 
-use super::{handle_db_error, AppContext};
 use actix_web::error::{
-  ErrorBadRequest, ErrorConflict, ErrorInternalServerError, ErrorNotFound,
-  ErrorRangeNotSatisfiable,
+  ErrorBadRequest, ErrorInternalServerError, ErrorRangeNotSatisfiable,
 };
 use actix_web::{
   http::header::{ByteRangeSpec, Range},

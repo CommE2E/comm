@@ -43,7 +43,7 @@ async fn main() -> Result<()> {
   );
 
   tokio::select! {
-    http_result = crate::http::run_http_server(db.clone(), s3.clone(), service) => http_result,
+    http_result = crate::http::run_http_server(service) => http_result,
     grpc_result = crate::grpc::run_grpc_server(db, s3) => grpc_result,
   }
 }

@@ -1,5 +1,3 @@
-use crate::database::old::DatabaseClient;
-use crate::s3::S3Client;
 use crate::{config::CONFIG, service::BlobService};
 
 use actix_cors::Cors;
@@ -7,15 +5,11 @@ use actix_web::{web, App, HttpServer};
 use anyhow::Result;
 use tracing::info;
 
-mod context;
-use context::AppContext;
+mod errors;
 mod utils;
 
 mod handlers {
   pub(super) mod blob;
-
-  // convenience exports to be used in handlers
-  use super::context::{handle_db_error, AppContext};
 }
 
 fn cors_config() -> Cors {
@@ -34,25 +28,15 @@ fn cors_config() -> Cors {
     .expose_any_header()
 }
 
-pub async fn run_http_server(
-  db_client: DatabaseClient,
-  s3_client: S3Client,
-  blob_service: BlobService,
-) -> Result<()> {
+pub async fn run_http_server(blob_service: BlobService) -> Result<()> {
   info!(
     "Starting HTTP server listening at port {}",
     CONFIG.http_port
   );
   HttpServer::new(move || {
-    // context that is passed to every handler
-    let ctx = AppContext {
-      db: db_client.to_owned(),
-      s3: s3_client.to_owned(),
-    };
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
       .wrap(cors_config())
-      .app_data(web::Data::new(ctx))
       .app_data(web::Data::new(blob_service.to_owned()))
       .service(
         web::resource("/blob/{holder}")
