@@ -9,8 +9,8 @@ import Animated, {
   interpolateNode,
 } from 'react-native-reanimated';
 
-import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
 import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -45,7 +45,7 @@ function InlineEngagement(props: Props): React.Node {
     positioning,
     label,
   } = props;
-  const repliesText = useInlineEngagementText(sidebarInfo);
+  const repliesText = getInlineEngagementSidebarText(sidebarInfo);
 
   const navigateToThread = useNavigateToThread();
   const { navigate } = useNavigation();
