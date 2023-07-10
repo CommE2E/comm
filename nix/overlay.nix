@@ -83,8 +83,21 @@ prev:
 
   rabbitmq-up = prev.callPackage ./rabbitmq-up-mac.nix { };
 
+  nodejs-18_x = prev.nodejs-18_x.overrideAttrs (oldAttrs: rec {
+    version = "18.16.1";
+    name = "nodejs-${version}";
+
+    # Avoid trying to apply patches that have already landed since 18.12
+    patches = [ ];
+
+    src = prev.fetchurl {
+      url = "https://nodejs.org/dist/v${version}/node-v${version}.tar.xz";
+      sha256 = "sha256-6EBPjI2J/f336Vu7xgZr0OVxrLpY9USSWZthX77v4nI=";
+    };
+  });
+
   # Ensure that yarn is using the pinned version
   yarn = prev.yarn.override (_: {
-    nodejs = final.nodejs-16_x-openssl_1_1;
+    nodejs = final.nodejs-18_x;
   });
 }

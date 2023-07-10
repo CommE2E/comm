@@ -26,7 +26,7 @@
 , localstack
 , mariadb
 , mariadb-up
-, nodejs-16_x-openssl_1_1
+, nodejs-18_x
 , olm
 , openjdk11
 , openssl
@@ -61,7 +61,7 @@ mkShell {
 
     # node development
     mariadb
-    nodejs-16_x-openssl_1_1
+    nodejs-18_x
     yarn
     python3
     redis
