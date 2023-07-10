@@ -72,8 +72,37 @@ pub fn auth_intercept(
 impl IdentityClientService for AuthenticatedService {
   async fn refresh_user_pre_keys(
     &self,
-    _request: Request<RefreshUserPreKeysRequest>,
+    request: Request<RefreshUserPreKeysRequest>,
   ) -> Result<Response<Empty>, Status> {
-    unimplemented!();
+    let user_id = get_value(&request, "user_id")
+      .ok_or(Status::unauthenticated("Missing user_id field"))?;
+    let device_id = get_value(&request, "device_id")
+      .ok_or(Status::unauthenticated("Missing device_id field"))?;
+    let message = request.into_inner();
+
+    debug!("Refreshing prekeys for user: {}", user_id);
+
+    let content_keys = message
+      .new_content_pre_keys
+      .ok_or(Status::invalid_argument("Missing content keys"))?;
+    let notif_keys = message
+      .new_notif_pre_keys
+      .ok_or(Status::invalid_argument("Missing notification keys"))?;
+
+    self
+      .db_client
+      .set_prekey(
+        user_id,
+        device_id,
+        content_keys.pre_key,
+        content_keys.pre_key_signature,
+        notif_keys.pre_key,
+        notif_keys.pre_key_signature,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Response::new(Empty {});
+    Ok(response)
   }
 }
