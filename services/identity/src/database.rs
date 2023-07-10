@@ -218,6 +218,53 @@ impl DatabaseClient {
       )
       .await
   }
+  pub async fn set_prekey(
+    &self,
+    user_id: String,
+    device_id: String,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+  ) -> Result<(), Error> {
+    let notif_prekey_av = AttributeValue::S(notif_prekey);
+    let notif_prekey_signature_av = AttributeValue::S(notif_prekey_signature);
+    let content_prekey_av = AttributeValue::S(content_prekey);
+    let content_prekey_signature_av =
+      AttributeValue::S(content_prekey_signature);
+
+    let update_expression =
+      format!("SET {0}.#{1}.{2} = :n, {0}.#{1}.{3} = :p, {0}.#{1}.{4} = :c, {0}.#{1}.{5} = :d",
+        USERS_TABLE_DEVICES_ATTRIBUTE,
+        "deviceID",
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
+        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
+        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+      );
+    let expression_attribute_names =
+      HashMap::from([(format!("#{}", "deviceID"), device_id)]);
+    let expression_attribute_values = HashMap::from([
+      (":n".to_string(), notif_prekey_av),
+      (":p".to_string(), notif_prekey_signature_av),
+      (":c".to_string(), content_prekey_av),
+      (":d".to_string(), content_prekey_signature_av),
+    ]);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .set_expression_attribute_names(Some(expression_attribute_names))
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
 
   pub async fn append_one_time_prekeys(
     &self,
