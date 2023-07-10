@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
 import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -23,7 +23,7 @@ type Props = {
 function InlineEngagement(props: Props): React.Node {
   const { threadInfo, reactions, positioning, label } = props;
   const { pushModal, popModal } = useModalContext();
-  const repliesText = useInlineEngagementText(threadInfo);
+  const repliesText = getInlineEngagementSidebarText(threadInfo);
 
   const containerClasses = classNames([
     css.inlineEngagementContainer,
