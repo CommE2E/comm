@@ -37,6 +37,7 @@
 	<array>
 		<string>rainbow</string>
 		<string>org-appextension-feature-password-management</string>
+		<string>https</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
