@@ -35,6 +35,15 @@ type RustNativeBindingAPI = {
     message: string,
     signature: string,
   ) => Promise<void>,
+  +publish_prekeys: (
+    user_id: string,
+    device_id: string,
+    access_token: string,
+    content_prekey: string,
+    content_prekey_signature: string,
+    notif_prekey: string,
+    notif_prekey_signature: string,
+  ) => Promise<boolean>,
 };
 
 export type { RustNativeBindingAPI };

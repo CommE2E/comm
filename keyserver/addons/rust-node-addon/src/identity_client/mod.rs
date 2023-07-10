@@ -1,5 +1,6 @@
 pub mod add_reserved_usernames;
 pub mod login;
+pub mod prekey;
 pub mod register_user;
 pub mod remove_reserved_usernames;
 pub mod identity_client {
