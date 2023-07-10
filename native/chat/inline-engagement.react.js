@@ -9,8 +9,8 @@ import Animated, {
   interpolateNode,
 } from 'react-native-reanimated';
 
-import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 import { useViewerAlreadySelectedMessageReactions } from 'lib/shared/reaction-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
@@ -90,7 +90,7 @@ function InlineEngagement(props: Props): React.Node {
     }
   }, [disabled, navigateToThread, sidebarInfo]);
 
-  const repliesText = useInlineEngagementText(sidebarInfo);
+  const repliesText = getInlineEngagementSidebarText(sidebarInfo);
 
   const sidebarStyle = React.useMemo(() => {
     const stylesResult = [styles.sidebar];
