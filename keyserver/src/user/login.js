@@ -1,7 +1,6 @@
 // @flow
 
 import type { Account as OlmAccount } from '@commapp/olm';
-import type { QueryResults } from 'mysql';
 import { getRustAPI } from 'rust-node-addon';
 
 import type { OLMOneTimeKeys } from 'lib/types/crypto-types';
@@ -9,16 +8,16 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 
-import { SQL, dbQuery } from '../database/database.js';
+import {
+  saveIdentityInfo,
+  fetchIdentityInfo,
+  type IdentityInfo,
+} from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { validateAccountPrekey } from '../utils/olm-utils.js';
 
 type UserCredentials = { +username: string, +password: string };
-type IdentityInfo = { +userId: string, +accessToken: string };
-
-const userIDMetadataKey = 'user_id';
-const accessTokenMetadataKey = 'access_token';
 
 export type AccountKeysSet = {
   +identityKeys: string,
@@ -58,30 +57,6 @@ function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
 function markKeysAsPublished(account: OlmAccount) {
   account.mark_prekey_as_published();
   account.mark_keys_as_published();
-}
-
-async function fetchIdentityInfo(): Promise<?IdentityInfo> {
-  const versionQuery = SQL`
-    SELECT data
-    FROM metadata
-    WHERE name IN (${userIDMetadataKey}, ${accessTokenMetadataKey})
-  `;
-
-  const [[userId, accessToken]] = await dbQuery(versionQuery);
-  if (!userId || !accessToken) {
-    return null;
-  }
-  return { userId, accessToken };
-}
-
-function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
-  const updateQuery = SQL`
-    REPLACE INTO metadata (name, data)
-    VALUES (${userIDMetadataKey}, ${userInfo.userId}),
-      (${accessTokenMetadataKey}, ${userInfo.accessToken})
-  `;
-
-  return dbQuery(updateQuery);
 }
 
 async function verifyUserLoggedIn(): Promise<IdentityInfo> {
