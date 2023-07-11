@@ -77,24 +77,37 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
-async function validateAccountPrekey(account: OlmAccount): Promise<void> {
+function shouldRotatePrekey(account: OlmAccount): boolean {
   const currentDate = new Date();
   const lastPrekeyPublishDate = new Date(account.last_prekey_publish_time());
-
   const prekeyPublished = !account.unpublished_prekey();
-  if (
+
+  const shouldRotate =
     prekeyPublished &&
-    currentDate - lastPrekeyPublishDate > maxPublishedPrekeyAge
-  ) {
+    currentDate - lastPrekeyPublishDate > maxPublishedPrekeyAge;
+
+  return shouldRotate;
+}
+
+function shouldForgetPrekey(account: OlmAccount): boolean {
+  const currentDate = new Date();
+  const lastPrekeyPublishDate = new Date(account.last_prekey_publish_time());
+  const prekeyPublished = !account.unpublished_prekey();
+
+  const shouldForget =
+    prekeyPublished && currentDate - lastPrekeyPublishDate >= maxOldPrekeyAge;
+
+  return shouldForget;
+}
+
+async function validateAccountPrekey(account: OlmAccount): Promise<void> {
+  if (shouldRotatePrekey(account)) {
     // If there is no prekey or the current prekey is older than month
     // we need to generate new one.
     account.generate_prekey();
   }
 
-  if (
-    prekeyPublished &&
-    currentDate - lastPrekeyPublishDate >= maxOldPrekeyAge
-  ) {
+  if (shouldForgetPrekey(account)) {
     account.forget_old_prekey();
   }
 }
