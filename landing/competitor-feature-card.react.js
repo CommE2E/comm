@@ -40,6 +40,7 @@ function CompetitorFeatureCard(props: Props): React.Node {
         comingSoon={comingSoon}
         competitorDescription={competitorDescription}
         commDescription={commDescription}
+        descriptionTextClassName={css.descriptionText}
       />
       <p className={readMoreClassName}>Read more</p>
     </a>
