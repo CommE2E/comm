@@ -6,9 +6,13 @@ import type {
   Utility as OlmUtility,
   Session as OlmSession,
 } from '@commapp/olm';
+import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
 
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
+import { values } from 'lib/utils/objects.js';
+
+import { fetchIdentityInfo } from '../user/identity.js';
 
 type PickledOlmAccount = {
   +picklingKey: string,
@@ -100,6 +104,70 @@ function shouldForgetPrekey(account: OlmAccount): boolean {
   return shouldForget;
 }
 
+async function revalidateAccountPrekeys(
+  content_account: OlmAccount,
+  notif_account: OlmAccount,
+): Promise<void> {
+  // Since keys are rotated synchronously, only check validity of one
+  if (shouldRotatePrekey(content_account)) {
+    await publishNewPrekeys(content_account, notif_account);
+  }
+  if (shouldForgetPrekey(content_account)) {
+    content_account.forget_old_prekey();
+    notif_account.forget_old_prekey();
+  }
+}
+
+async function publishNewPrekeys(
+  content_account: OlmAccount,
+  notif_account: OlmAccount,
+): Promise<void> {
+  const rustAPIPromise = getRustAPI();
+  const fetchIdentityInfoPromise = fetchIdentityInfo();
+
+  content_account.generate_prekey();
+  notif_account.generate_prekey();
+  const device_id = JSON.parse(content_account.identity_keys()).curve25519;
+
+  const content_prekeyMap = JSON.parse(content_account.prekey()).curve25519;
+  const [content_prekey] = values(content_prekeyMap);
+  const content_prekeySignature = content_account.prekey_signature();
+
+  const notif_prekeyMap = JSON.parse(notif_account.prekey()).curve25519;
+  const [notif_prekey] = values(notif_prekeyMap);
+  const notif_prekeySignature = notif_account.prekey_signature();
+
+  if (!content_prekeySignature || !notif_prekeySignature) {
+    console.log('Warning: Unable to create valid signature for a prekey');
+    return;
+  }
+
+  const [rustAPI, identityInfo] = await Promise.all([
+    rustAPIPromise,
+    fetchIdentityInfoPromise,
+  ]);
+
+  if (!identityInfo) {
+    console.log(
+      'Warning: Attempted to refresh prekeys before registering with identity service',
+    );
+    return;
+  }
+
+  await rustAPI.publish_prekeys(
+    identityInfo.userId,
+    device_id,
+    identityInfo.accessToken,
+    content_prekey,
+    content_prekeySignature,
+    notif_prekey,
+    notif_prekeySignature,
+  );
+
+  content_account.mark_prekey_as_published();
+  notif_account.mark_prekey_as_published();
+}
+
 async function validateAccountPrekey(account: OlmAccount): Promise<void> {
   if (shouldRotatePrekey(account)) {
     // If there is no prekey or the current prekey is older than month
@@ -119,4 +187,6 @@ export {
   unpickleOlmAccount,
   unpickleOlmSession,
   validateAccountPrekey,
+  revalidateAccountPrekeys,
+  publishNewPrekeys,
 };
