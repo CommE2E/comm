@@ -96,7 +96,8 @@ emcc -lembind \
   "${EMCC_FLAGS[@]}" \
   "${CFLAGS[@]}" \
   "${INPUT_FILES[@]}" \
-  -o "${OUTPUT_FILE}"
+  -o "${OUTPUT_FILE}" \
+  -std=c++17
 
 sed -i.bak -e '1i\/\/ \@generated' "${OUTPUT_FILE}"
 
