@@ -678,7 +678,7 @@ void validate_encryption() {
 typedef bool ShouldBeInTransaction;
 typedef std::function<bool(sqlite3 *)> MigrateFunction;
 typedef std::pair<MigrateFunction, ShouldBeInTransaction> SQLiteMigration;
-std::vector<std::pair<uint, SQLiteMigration>> migrations{
+std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
      {4, {create_persist_account_table, true}},
