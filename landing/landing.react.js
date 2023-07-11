@@ -49,6 +49,19 @@ function LandingSite(): React.Node {
     [modalContext.modals],
   );
 
+  const isModalOpen = modals.length > 0;
+  React.useEffect(() => {
+    const { body } = document;
+    if (!body || !isModalOpen) {
+      return undefined;
+    }
+
+    body.style.overflow = 'hidden';
+    return () => {
+      body.style.overflow = 'auto';
+    };
+  }, [isModalOpen]);
+
   const [showMobileNav, setShowMobileNav] = React.useState<boolean>(false);
 
   const handleResize = React.useCallback(() => {
