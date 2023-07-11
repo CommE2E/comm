@@ -17,6 +17,7 @@ type Props = {
   +comingSoon: boolean,
   +competitorDescription: string,
   +commDescription: string,
+  +descriptionTextClassName?: string,
 };
 
 function CompetitorFeature(props: Props): React.Node {
@@ -26,6 +27,7 @@ function CompetitorFeature(props: Props): React.Node {
     comingSoon,
     competitorDescription,
     commDescription,
+    descriptionTextClassName = '',
   } = props;
 
   const headingClassName = classNames([typography.heading3, css.headingText]);
@@ -36,6 +38,7 @@ function CompetitorFeature(props: Props): React.Node {
   const descriptionClassName = classNames([
     typography.paragraph1,
     css.descriptionText,
+    descriptionTextClassName,
   ]);
 
   let comingSoonBadge;
