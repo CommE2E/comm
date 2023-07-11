@@ -24,9 +24,12 @@ import {
 import ChangeMemberRoleModal from './change-member-role-modal.react.js';
 import css from './members-modal.css';
 import UserAvatar from '../../../avatars/user-avatar.react.js';
+import CommIcon from '../../../CommIcon.react.js';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
+
+const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
 type Props = {
   +memberInfo: RelativeMemberInfo,
@@ -81,7 +84,7 @@ function ThreadMember(props: Props): React.Node {
             <MenuItem
               key="change_role"
               text="Change Role"
-              icon="plus-circle"
+              iconComponent={commIconComponent}
               onClick={onClickChangeRole}
             />
           );
