@@ -67,7 +67,7 @@ public:
   void commitTransaction() const override;
   void rollbackTransaction() const override;
   std::vector<OlmPersistSession> getOlmPersistSessionsData() const override;
-  folly::Optional<std::string> getOlmPersistAccountData() const override;
+  std::optional<std::string> getOlmPersistAccountData() const override;
   void storeOlmPersistData(crypto::Persist persist) const override;
   void setNotifyToken(std::string token) const override;
   void clearNotifyToken() const override;
