@@ -1,7 +1,7 @@
 .modalContainer {
   background-color: var(--comparison-cards);
   border-radius: 8px;
-  padding: 24px 32px;
+  padding: 32px;
   width: 624px;
   max-width: 90vw;
   max-height: 90vh;

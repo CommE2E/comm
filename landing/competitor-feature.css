@@ -11,6 +11,9 @@
   margin-bottom: 16px;
   flex-wrap: wrap;
   row-gap: 8px;
+  /* We use 34px to match the coming soon badge's height and this
+  keep everything aligned */
+  min-height: 34px;
 }
 
 .headingText {
@@ -42,7 +45,6 @@ hr {
 
 .descriptionText {
   color: var(--white-80);
-  min-height: 80px;
   margin-top: 8px;
 }
 
