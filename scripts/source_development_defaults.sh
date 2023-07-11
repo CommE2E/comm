@@ -43,8 +43,10 @@ export TMP=/tmp/app.comm
 export TEMP="$TMP"
 export TMPDIR="$TMP"
 export TEMPDIR="$TMP"
+export EM_CACHE="$TMP/em_cache"
 
-mkdir -p "$TMP"
+mkdir -p "$EM_CACHE"
+
 
 # For cargo + rustup applications, ensure cargo user bin directory is on path
 if [[ ! "$PATH" =~ \.cargo/bin ]]; then
