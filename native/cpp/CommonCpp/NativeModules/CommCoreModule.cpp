@@ -938,11 +938,12 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
           crypto::Persist persist;
           std::string error;
           try {
-            folly::Optional<std::string> accountData =
+            std::optional<std::string> accountData =
                 DatabaseManager::getQueryExecutor().getOlmPersistAccountData();
-            if (accountData.hasValue()) {
-              persist.account =
-                  crypto::OlmBuffer(accountData->begin(), accountData->end());
+            if (accountData.has_value()) {
+              auto accountDataValue = accountData.value();
+              persist.account = crypto::OlmBuffer(
+                  accountDataValue.begin(), accountDataValue.end());
               // handle sessions data
               std::vector<OlmPersistSession> sessionsData =
                   DatabaseManager::getQueryExecutor()
