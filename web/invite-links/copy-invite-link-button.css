@@ -11,6 +11,8 @@
 .linkUrl {
   font-size: var(--m-font-16);
   color: var(--label-default-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .linkCopyButton {
