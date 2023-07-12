@@ -801,11 +801,7 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
           <div class="separator"></div>
           <section class="buttons">
             <a class="button" href="${stores.appStoreUrl}">Download Comm</a>
-            <a
-              class="button secondary"
-              href="${inviteLinkUrl(secret)}"
-              target="_blank"
-            >
+            <a class="button secondary" href="${inviteLinkUrl(secret)}">
               Invite Link
             </a>
           </section>
