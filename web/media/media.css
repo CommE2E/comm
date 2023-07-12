@@ -20,7 +20,13 @@ span.multimedia > .multimediaImage > video {
   /* in multimedia.react.js */
   max-height: 200px;
   max-width: 100%;
+  border-radius: 16px;
 }
+
+span.multimedia > .multimediaImage > img:not([src]) {
+  visibility: hidden;
+}
+
 span.multimedia > .multimediaImage svg.removeUpload {
   display: none;
   position: absolute;

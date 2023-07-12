@@ -21,7 +21,7 @@ type Props = {
   +thumbnailEncryptionKey?: ?string,
   +placeholderSrc?: ?string,
   +multimediaClassName?: string,
-  +elementStyle?: ?Shape<CSSStyleDeclaration>,
+  +elementStyle?: ?Shape<{ ...CSSStyleDeclaration, aspectRatio: string }>,
 };
 
 function EncryptedMultimedia(props: Props): React.Node {

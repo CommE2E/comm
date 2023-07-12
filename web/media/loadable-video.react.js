@@ -20,7 +20,7 @@ type Props = {
   +uri: ?string,
   +thumbnailSource: ThumbnailSource,
   +thumbHashDataURL?: ?string,
-  +elementStyle?: ?Shape<CSSStyleDeclaration>,
+  +elementStyle?: ?Shape<{ ...CSSStyleDeclaration, aspectRatio: string }>,
   +multimediaClassName?: string,
 };
 
