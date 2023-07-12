@@ -159,7 +159,8 @@ function Multimedia(props: Props): React.Node {
         : undefined,
       width: `${calculatedWidth}px`,
       // height is limited by the max-height style in media.css
-      height: `${height}px`,
+      // height: `${height}px`,
+      borderRadius: '16px',
     };
   }, [dimensions, placeholderImage]);
 
