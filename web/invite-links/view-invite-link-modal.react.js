@@ -18,7 +18,7 @@ function ViewInviteLinkModal(props: Props): React.Node {
   const { popModal } = useModalContext();
 
   return (
-    <Modal name="Invite link" onClose={popModal} size="fit-content">
+    <Modal name="Invite link" onClose={popModal} size="large">
       <div className={css.container}>
         <div className={css.description}>
           Share this invite link to help your friends join your community!
