@@ -17,6 +17,7 @@ const sitesObj = Object.freeze({
   a: 'landing',
   b: 'commapp',
   c: 'squadcal',
+  d: 'invite',
 });
 export type Site = $Values<typeof sitesObj>;
 const sites: $ReadOnlyArray<Site> = values(sitesObj);
@@ -52,6 +53,10 @@ function getSquadCalURLFacts(): ?AppURLFacts {
 
 function getCommAppURLFacts(): ?AppURLFacts {
   return cachedURLFacts.get('commapp');
+}
+
+function getInviteURLFacts(): ?AppURLFacts {
+  return cachedURLFacts.get('invite');
 }
 
 function getAndAssertCommAppURLFacts(): AppURLFacts {
@@ -92,4 +97,5 @@ export {
   getLandingURLFacts,
   getAndAssertLandingURLFacts,
   getAppURLFactsFromRequestURL,
+  getInviteURLFacts,
 };

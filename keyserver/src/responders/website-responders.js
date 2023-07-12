@@ -69,6 +69,7 @@ import { streamJSON, waitForStream } from '../utils/json-stream.js';
 import {
   getAppURLFactsFromRequestURL,
   getCommAppURLFacts,
+  getInviteURLFacts,
 } from '../utils/urls.js';
 import { validateOutput } from '../utils/validation-utils.js';
 
@@ -616,7 +617,7 @@ const inviteSecretRegex = /^[a-z0-9]+$/i;
 
 // On native, if this responder is called, it means that the app isn't
 // installed.
-async function inviteResponder(req: $Request, res: $Response): Promise<void> {
+function inviteResponder(req: $Request, res: $Response) {
   const { secret } = req.params;
   const userAgent = req.get('User-Agent');
   const detectionResult = detectBrowser(userAgent);
@@ -642,6 +643,30 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
     res.end();
     return;
   }
+  const urlFacts = getInviteURLFacts();
+  if (!urlFacts) {
+    // We're serving an intermediate page on a different domain than the app.
+    // We have to do that because if a page and a link on it are in the same
+    // domain, clicking a link doesn't open the app. Configuring the
+    // intermediate page requires creating `invite_url.json` file - similar
+    // to `commapp_url.json`.
+    res.write("Invite links aren't configured in this environment.");
+    res.end();
+    return;
+  }
+  const { basePath } = urlFacts;
+  const redirectUrl = `${basePath}invite/${secret}`;
+  res.writeHead(301, {
+    Location: redirectUrl,
+  });
+  res.end();
+}
+
+async function intermediateInvitePageResponder(
+  req: $Request,
+  res: $Response,
+): Promise<void> {
+  const { secret } = req.params;
   const fontsURL = await getFontsURL();
   res.end(html`
     <!DOCTYPE html>
@@ -771,7 +796,6 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
         </style>
       </head>
       <body>
-        <div></div>
         <section class="card">
           <section>
             <div class="logo-container">
@@ -808,4 +832,4 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
   `);
 }
 
-export { websiteResponder, inviteResponder };
+export { websiteResponder, inviteResponder, intermediateInvitePageResponder };
