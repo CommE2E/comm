@@ -12,6 +12,7 @@ import type { InviteLink } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import { SingleLine } from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
@@ -88,7 +89,7 @@ function ViewInviteLinksScreen(props: Props): React.Node {
         <Text style={styles.sectionTitle}>PUBLIC LINK</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.link} onPress={onPressCopy}>
-            <Text style={styles.linkText}>{linkUrl}</Text>
+            <SingleLine style={styles.linkText}>{linkUrl}</SingleLine>
             <View style={styles.button}>
               <SWMansionIcon
                 name="link"
@@ -135,12 +136,14 @@ const unboundStyles = {
     borderRadius: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
   },
   linkText: {
     fontSize: 14,
     fontWeight: '400',
     lineHeight: 22,
     color: 'inviteLinkLinkColor',
+    flex: 1,
   },
   button: {
     flexDirection: 'row',
