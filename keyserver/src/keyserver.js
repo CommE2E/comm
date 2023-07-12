@@ -20,6 +20,7 @@ import {
 import landingHandler from './responders/landing-handler.js';
 import { errorReportDownloadResponder } from './responders/report-responders.js';
 import {
+  intermediateInvitePageResponder,
   inviteResponder,
   websiteResponder,
 } from './responders/website-responders.js';
@@ -36,6 +37,7 @@ import {
   getSquadCalURLFacts,
   getLandingURLFacts,
   getCommAppURLFacts,
+  getInviteURLFacts,
 } from './utils/urls.js';
 
 (async () => {
@@ -44,6 +46,7 @@ import {
   const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
   const landingBaseRoutePath = getLandingURLFacts()?.baseRoutePath;
   const commAppBaseRoutePath = getCommAppURLFacts()?.baseRoutePath;
+  const inviteBaseRoutePath = getInviteURLFacts()?.baseRoutePath;
 
   const compiledFolderOptions =
     process.env.NODE_ENV === 'development'
@@ -130,6 +133,12 @@ import {
     // make sure that squadCalRouter goes last
 
     server.get('/invite/:secret', inviteResponder);
+
+    if (inviteBaseRoutePath) {
+      const router = express.Router();
+      router.get('/invite/:secret', intermediateInvitePageResponder);
+      server.use(inviteBaseRoutePath, router);
+    }
 
     if (landingBaseRoutePath) {
       const landingRouter = express.Router();
