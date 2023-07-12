@@ -75,6 +75,8 @@ fn get_server_setup_from_file<P: AsRef<path::Path>>(
 }
 
 fn get_reserved_usernames_set() -> Result<HashSet<String>, Error> {
+  // All entries in `reserved_usernames.json` must be lowercase and must also be
+  // included in `lib/utils/reserved-users.js`!!
   let contents = include_str!("../reserved_usernames.json");
   let reserved_usernames: Vec<String> = serde_json::from_str(contents)?;
 
