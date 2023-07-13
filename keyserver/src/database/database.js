@@ -13,6 +13,8 @@ import { getScriptContext } from '../scripts/script-context.js';
 
 const SQLStatement: SQLStatementType = SQL.SQLStatement;
 
+const MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE = 1062;
+
 let migrationConnection;
 async function getMigrationConnection() {
   if (migrationConnection) {
@@ -203,4 +205,5 @@ export {
   setConnectionContext,
   dbQuery,
   rawSQL,
+  MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE,
 };
