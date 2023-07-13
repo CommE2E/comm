@@ -3,11 +3,6 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
 
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
-import type { RawMessageInfo } from 'lib/types/message-types.js';
-import {
-  convertNotificationThreadIDToNewIDSchema,
-  convertNotificationMessageInfoToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
 
 type CommAndroidNotificationsConstants = {
   +NOTIFICATIONS_IMPORTANCE_HIGH: number,
@@ -42,28 +37,13 @@ export type AndroidMessage = {
   +messageInfos: ?string,
 };
 
-export type ParsedAndroidMessage = {
-  ...AndroidMessage,
-  +messageInfos: ?$ReadOnlyArray<RawMessageInfo>,
-};
-
-function parseAndroidMessage(message: AndroidMessage): ParsedAndroidMessage {
-  return {
-    ...message,
-    threadID: convertNotificationThreadIDToNewIDSchema(message.threadID),
-    messageInfos: convertNotificationMessageInfoToNewIDSchema(
-      message.messageInfos,
-    ),
-  };
-}
-
 const { CommAndroidNotificationsEventEmitter } = NativeModules;
 const CommAndroidNotifications: CommAndroidNotificationsModuleType =
   NativeModules.CommAndroidNotifications;
 const androidNotificationChannelID = 'default';
 
 function handleAndroidMessage(
-  message: ParsedAndroidMessage,
+  message: AndroidMessage,
   updatesCurrentAsOf: number,
   handleIfActive?: (
     threadID: string,
@@ -92,7 +72,6 @@ function getCommAndroidNotificationsEventEmitter(): NativeEventEmitter<{
 }
 
 export {
-  parseAndroidMessage,
   androidNotificationChannelID,
   handleAndroidMessage,
   getCommAndroidNotificationsEventEmitter,

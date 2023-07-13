@@ -27,10 +27,6 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 import {
-  convertNotificationMessageInfoToNewIDSchema,
-  convertNotificationThreadIDToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
-import {
   type NotifPermissionAlertInfo,
   recordNotifPermissionAlertActionType,
   shouldSkipPushPermissionAlert,
@@ -38,7 +34,6 @@ import {
 import sleep from 'lib/utils/sleep.js';
 
 import {
-  parseAndroidMessage,
   androidNotificationChannelID,
   handleAndroidMessage,
   getCommAndroidNotificationsEventEmitter,
@@ -158,7 +153,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         commIOSNotificationsEventEmitter.addListener(
           CommIOSNotifications.getConstants()
             .NOTIFICATION_RECEIVED_BACKGROUND_EVENT,
-          this.iosBackgroundNotificationReceived,
+          backgroundData => this.saveMessageInfos(backgroundData?.messageInfos),
         ),
       );
     } else if (Platform.OS === 'android') {
@@ -481,10 +476,12 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  saveMessageInfos(rawMessageInfos: ?$ReadOnlyArray<RawMessageInfo>) {
-    if (!rawMessageInfos) {
+  saveMessageInfos(messageInfosString: ?string) {
+    if (!messageInfosString) {
       return;
     }
+    const rawMessageInfos: $ReadOnlyArray<RawMessageInfo> =
+      JSON.parse(messageInfosString);
     const { updatesCurrentAsOf } = this.props;
     this.props.dispatch({
       type: saveMessagesActionType,
@@ -532,18 +529,6 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   };
 
-  iosBackgroundNotificationReceived = backgroundData => {
-    const convertedMessageInfos = convertNotificationMessageInfoToNewIDSchema(
-      backgroundData.messageInfos,
-    );
-
-    if (!convertedMessageInfos) {
-      return;
-    }
-
-    this.saveMessageInfos(convertedMessageInfos);
-  };
-
   onPushNotifBootsApp() {
     if (
       this.props.rootContext &&
@@ -588,21 +573,18 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   androidNotificationOpened = async (threadID: string) => {
-    const convertedThreadID =
-      convertNotificationThreadIDToNewIDSchema(threadID);
     this.onPushNotifBootsApp();
-    this.onPressNotificationForThread(convertedThreadID, true);
+    this.onPressNotificationForThread(threadID, true);
   };
 
   androidMessageReceived = async (message: AndroidMessage) => {
-    const parsedMessage = parseAndroidMessage(message);
     this.onPushNotifBootsApp();
 
-    const { messageInfos } = parsedMessage;
+    const { messageInfos } = message;
     this.saveMessageInfos(messageInfos);
 
     handleAndroidMessage(
-      parsedMessage,
+      message,
       this.props.updatesCurrentAsOf,
       this.handleAndroidNotificationIfActive,
     );

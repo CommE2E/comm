@@ -2,12 +2,6 @@
 
 import { NativeModules } from 'react-native';
 
-import type { RawMessageInfo } from 'lib/types/message-types.js';
-import {
-  convertNotificationThreadIDToNewIDSchema,
-  convertNotificationMessageInfoToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
-
 const { CommIOSNotifications } = NativeModules;
 
 // This is the basic data we receive from Objective-C
@@ -36,32 +30,20 @@ export type CoreIOSNotificationDataWithRequestIdentifier = {
   +identifier: string,
 };
 
-export type ParsedCoreIOSNotificationData = {
-  ...CoreIOSNotificationData,
-  +messageInfos: ?$ReadOnlyArray<RawMessageInfo>,
-};
-
 export class CommIOSNotification {
-  data: ParsedCoreIOSNotificationData;
+  data: CoreIOSNotificationData;
   remoteNotificationCompleteCallbackCalled: boolean;
 
   constructor(notification: CoreIOSNotificationData) {
+    this.data = notification;
     this.remoteNotificationCompleteCallbackCalled = false;
-
-    this.data = {
-      ...notification,
-      threadID: convertNotificationThreadIDToNewIDSchema(notification.threadID),
-      messageInfos: convertNotificationMessageInfoToNewIDSchema(
-        notification.messageInfos,
-      ),
-    };
   }
 
   getMessage(): ?string {
     return this.data.message;
   }
 
-  getData(): ParsedCoreIOSNotificationData {
+  getData(): CoreIOSNotificationData {
     return this.data;
   }
 
