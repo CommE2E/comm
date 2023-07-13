@@ -1,9 +1,8 @@
 resource "aws_dynamodb_table" "backup-service-backup" {
-  name           = "backup-service-backup"
-  hash_key       = "userID"
-  range_key      = "backupID"
-  write_capacity = 10
-  read_capacity  = 10
+  name         = "backup-service-backup"
+  hash_key     = "userID"
+  range_key    = "backupID"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "userID"
@@ -24,19 +23,16 @@ resource "aws_dynamodb_table" "backup-service-backup" {
     name               = "userID-created-index"
     hash_key           = "userID"
     range_key          = "created"
-    write_capacity     = 10
-    read_capacity      = 10
     projection_type    = "INCLUDE"
     non_key_attributes = ["recoveryData"]
   }
 }
 
 resource "aws_dynamodb_table" "backup-service-log" {
-  name           = "backup-service-log"
-  hash_key       = "backupID"
-  range_key      = "logID"
-  write_capacity = 10
-  read_capacity  = 10
+  name         = "backup-service-log"
+  hash_key     = "backupID"
+  range_key    = "logID"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "backupID"
@@ -50,10 +46,9 @@ resource "aws_dynamodb_table" "backup-service-log" {
 }
 
 resource "aws_dynamodb_table" "blob-service-blob" {
-  name           = "blob-service-blob"
-  hash_key       = "blobHash"
-  write_capacity = 10
-  read_capacity  = 10
+  name         = "blob-service-blob"
+  hash_key     = "blobHash"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "blobHash"
@@ -62,10 +57,9 @@ resource "aws_dynamodb_table" "blob-service-blob" {
 }
 
 resource "aws_dynamodb_table" "blob-service-reverse-index" {
-  name           = "blob-service-reverse-index"
-  hash_key       = "holder"
-  write_capacity = 10
-  read_capacity  = 10
+  name         = "blob-service-reverse-index"
+  hash_key     = "holder"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "holder"
@@ -80,16 +74,14 @@ resource "aws_dynamodb_table" "blob-service-reverse-index" {
   global_secondary_index {
     name            = "blobHash-index"
     hash_key        = "blobHash"
-    write_capacity  = 10
-    read_capacity   = 10
     projection_type = "ALL"
   }
 }
 
 resource "aws_dynamodb_table" "blob-service-blobs" {
-  name      = "blob-service-blobs"
-  hash_key  = "blob_hash"
-  range_key = "holder"
+  name         = "blob-service-blobs"
+  hash_key     = "blob_hash"
+  range_key    = "holder"
   billing_mode = "PAY_PER_REQUEST"
 
   attribute {
@@ -113,21 +105,21 @@ resource "aws_dynamodb_table" "blob-service-blobs" {
   }
 
   global_secondary_index {
-    name      = "unchecked-index"
-    hash_key  = "unchecked"
-    range_key = "last_modified"
-
-    projection_type    = "INCLUDE"
-    non_key_attributes = ["blob_hash", "holder"]
+    name            = "unchecked-index"
+    hash_key        = "unchecked"
+    range_key       = "last_modified"
+    projection_type = "KEYS_ONLY"
   }
 }
 
 resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
-  name           = "tunnelbroker-undelivered-messages"
-  hash_key       = "deviceID"
-  range_key      = "createdAt"
-  write_capacity = 10
-  read_capacity  = 10
+  # This table doesnt exist in prod
+  count = var.is_dev ? 1 : 0
+
+  name         = "tunnelbroker-undelivered-messages"
+  hash_key     = "deviceID"
+  range_key    = "createdAt"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "deviceID"
@@ -141,10 +133,9 @@ resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
 }
 
 resource "aws_dynamodb_table" "identity-users" {
-  name           = "identity-users"
-  hash_key       = "userID"
-  write_capacity = 10
-  read_capacity  = 10
+  name         = "identity-users"
+  hash_key     = "userID"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "userID"
@@ -156,34 +147,42 @@ resource "aws_dynamodb_table" "identity-users" {
     type = "S"
   }
 
-  attribute {
-    name = "walletAddress"
-    type = "S"
+  # walletAddress not defined in prod
+  dynamic "attribute" {
+    # Create a dummy list to iterate over if is_dev is true
+    for_each = var.is_dev ? [1] : []
+    content {
+      name = "walletAddress"
+      type = "S"
+    }
   }
 
   global_secondary_index {
     name            = "username-index"
     hash_key        = "username"
-    write_capacity  = 10
-    read_capacity   = 10
     projection_type = "KEYS_ONLY"
   }
 
-  global_secondary_index {
-    name            = "walletAddress-index"
-    hash_key        = "walletAddress"
-    write_capacity  = 10
-    read_capacity   = 10
-    projection_type = "KEYS_ONLY"
+  # walletAddress not defined in prod
+  dynamic "global_secondary_index" {
+    # Create a dummy list to iterate over if is_dev is true
+    for_each = var.is_dev ? [1] : []
+    content {
+      name            = "walletAddress-index"
+      hash_key        = "walletAddress"
+      projection_type = "KEYS_ONLY"
+    }
   }
 }
 
 # Identity users with opaque_ke 2.0 credentials
 resource "aws_dynamodb_table" "identity-users-opaque2" {
-  name           = "identity-users-opaque2"
-  hash_key       = "userID"
-  write_capacity = 10
-  read_capacity  = 10
+  # This table doesnt exist in prod
+  count = var.is_dev ? 1 : 0
+
+  name         = "identity-users-opaque2"
+  hash_key     = "userID"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "userID"
@@ -203,26 +202,21 @@ resource "aws_dynamodb_table" "identity-users-opaque2" {
   global_secondary_index {
     name            = "username-index"
     hash_key        = "username"
-    write_capacity  = 10
-    read_capacity   = 10
     projection_type = "KEYS_ONLY"
   }
 
   global_secondary_index {
     name            = "walletAddress-index"
     hash_key        = "walletAddress"
-    write_capacity  = 10
-    read_capacity   = 10
     projection_type = "KEYS_ONLY"
   }
 }
 
 resource "aws_dynamodb_table" "identity-tokens" {
-  name           = "identity-tokens"
-  hash_key       = "userID"
-  range_key      = "signingPublicKey"
-  write_capacity = 10
-  read_capacity  = 10
+  name         = "identity-tokens"
+  hash_key     = "userID"
+  range_key    = "signingPublicKey"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "userID"
@@ -236,10 +230,12 @@ resource "aws_dynamodb_table" "identity-tokens" {
 }
 
 resource "aws_dynamodb_table" "identity-nonces" {
-  name           = "identity-nonces"
-  hash_key       = "nonce"
-  write_capacity = 10
-  read_capacity  = 10
+  # This table doesnt exist in prod
+  count = var.is_dev ? 1 : 0
+
+  name         = "identity-nonces"
+  hash_key     = "nonce"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "nonce"
@@ -248,10 +244,9 @@ resource "aws_dynamodb_table" "identity-nonces" {
 }
 
 resource "aws_dynamodb_table" "identity-reserved-usernames" {
-  name           = "identity-reserved-usernames"
-  hash_key       = "username"
-  write_capacity = 10
-  read_capacity  = 10
+  name         = "identity-reserved-usernames"
+  hash_key     = "username"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "username"
