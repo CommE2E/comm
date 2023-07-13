@@ -939,6 +939,11 @@ SQLiteQueryExecutor::SQLiteQueryExecutor() {
   SQLiteQueryExecutor::migrate();
 }
 
+SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
+  SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
+  SQLiteQueryExecutor::migrate();
+}
+
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
   std::unique_ptr<Draft> draft =
       SQLiteQueryExecutor::getStorage().get_pointer<Draft>(key);
@@ -1304,3 +1309,49 @@ void SQLiteQueryExecutor::assign_encryption_key() {
 #endif
 
 } // namespace comm
+
+// #ifdef EMSCRIPTEN
+// using namespace emscripten;
+//
+// EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
+//   // vectors
+//   register_vector<Draft>("DraftVector");
+//   register_vector<Report>("ReportVector");
+//   register_vector<std::string>("StringVector");
+//
+//   // data structures
+//   value_object<Draft>("Draft")
+//       .field("key", &Draft::key)
+//       .field("text", &Draft::text);
+//   value_object<Report>("Report")
+//       .field("id", &Report::id)
+//       .field("report", &Report::report);
+//   value_object<PersistItem>("PersistItem")
+//       .field("key", &PersistItem::key)
+//       .field("item", &PersistItem::item);
+//
+//   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
+//       .constructor<>()
+//       .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
+//       .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
+//       .function("moveDraft", &SQLiteQueryExecutor::moveDraft)
+//       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
+//       .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
+//       .function("setMetadata", &SQLiteQueryExecutor::setMetadata)
+//       .function("clearMetadata", &SQLiteQueryExecutor::clearMetadata)
+//       .function("getMetadata", &SQLiteQueryExecutor::getMetadata)
+//       .function("replaceReport", &SQLiteQueryExecutor::replaceReport)
+//       .function("removeReports", &SQLiteQueryExecutor::removeReports)
+//       .function("removeAllReports", &SQLiteQueryExecutor::removeAllReports)
+//       .function("getAllReports", &SQLiteQueryExecutor::getAllReports)
+//       .function(
+//           "setPersistStorageItem",
+//           &SQLiteQueryExecutor::setPersistStorageItem)
+//       .function(
+//           "removePersistStorageItem",
+//           &SQLiteQueryExecutor::removePersistStorageItem)
+//       .function(
+//           "getPersistStorageItem",
+//           &SQLiteQueryExecutor::getPersistStorageItem);
+// }
+// #endif
