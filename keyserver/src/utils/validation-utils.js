@@ -5,7 +5,7 @@ import type { TType } from 'tcomb';
 import type { PolicyType } from 'lib/facts/policies.js';
 import {
   hasMinCodeVersion,
-  hasMinStateVersion,
+  FUTURE_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
 import { type PlatformDetails } from 'lib/types/device-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -15,6 +15,7 @@ import {
   tPlatform,
   tPlatformDetails,
   assertWithValidator,
+  convertToNewIDSchema,
   keyserverPrefixID,
   convertClientIDsToServerIDs,
   convertObject,
@@ -36,10 +37,11 @@ async function validateInput<T>(
   const convertedInput = checkInputValidator(inputValidator, input);
 
   if (
-    hasMinStateVersion(viewer.platformDetails, {
-      native: 43,
-      web: 3,
-    })
+    hasMinCodeVersion(viewer.platformDetails, {
+      native: FUTURE_CODE_VERSION,
+      web: FUTURE_CODE_VERSION,
+    }) &&
+    convertToNewIDSchema
   ) {
     try {
       return convertClientIDsToServerIDs(
@@ -70,11 +72,12 @@ function validateOutput<T>(
   }
 
   if (
-    hasMinStateVersion(platformDetails, {
-      native: 43,
-      web: 3,
+    (hasMinCodeVersion(platformDetails, {
+      native: FUTURE_CODE_VERSION,
+      web: FUTURE_CODE_VERSION,
     }) ||
-    alwaysConvertSchema
+      alwaysConvertSchema) &&
+    convertToNewIDSchema
   ) {
     return convertServerIDsToClientIDs(
       keyserverPrefixID,

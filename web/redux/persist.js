@@ -137,7 +137,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 3,
+  version: 2,
 };
 
 export { persistConfig };
