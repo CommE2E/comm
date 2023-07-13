@@ -8,7 +8,11 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import createIDs from './id-creator.js';
-import { dbQuery, SQL } from '../database/database.js';
+import {
+  dbQuery,
+  MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE,
+  SQL,
+} from '../database/database.js';
 import { fetchPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
@@ -21,7 +25,7 @@ async function createOrUpdatePublicLink(
   request: CreateOrUpdatePublicLinkRequest,
 ): Promise<InviteLink> {
   if (!secretRegex.test(request.name)) {
-    throw new ServerError('invalid_parameters');
+    throw new ServerError('invalid_characters');
   }
 
   const permissionPromise = checkThreadPermission(
@@ -64,7 +68,10 @@ async function createOrUpdatePublicLink(
     `;
     try {
       await dbQuery(query);
-    } catch {
+    } catch (e) {
+      if (e.errno === MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE) {
+        throw new ServerError('already_in_use');
+      }
       throw new ServerError('invalid_parameters');
     }
     return {
@@ -92,17 +99,21 @@ async function createOrUpdatePublicLink(
     )
   `;
   let result = null;
+  const deleteIDs = SQL`
+    DELETE FROM ids
+    WHERE id = ${id}
+  `;
   try {
     result = (await dbQuery(createLinkQuery))[0];
-  } catch {
+  } catch (e) {
+    await dbQuery(deleteIDs);
+    if (e.errno === MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE) {
+      throw new ServerError('already_in_use');
+    }
     throw new ServerError('invalid_parameters');
   }
 
   if (result.affectedRows === 0) {
-    const deleteIDs = SQL`
-      DELETE FROM ids
-      WHERE id = ${id}
-    `;
     await dbQuery(deleteIDs);
     throw new ServerError('invalid_parameters');
   }

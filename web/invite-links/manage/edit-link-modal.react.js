@@ -6,6 +6,10 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { inviteLinkUrl } from 'lib/facts/links.js';
 import { useInviteLinksActions } from 'lib/hooks/invite-links.js';
+import {
+  defaultErrorMessage,
+  inviteLinkErrorMessages,
+} from 'lib/shared/invite-links.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -40,7 +44,11 @@ function EditLinkModal(props: Props): React.Node {
 
   let errorComponent = null;
   if (error) {
-    errorComponent = <div className={css.errorContainer}>{error}</div>;
+    errorComponent = (
+      <div className={css.errorContainer}>
+        {inviteLinkErrorMessages[error] ?? defaultErrorMessage}
+      </div>
+    );
   }
 
   let disableLinkComponent = null;
