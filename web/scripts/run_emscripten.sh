@@ -12,6 +12,7 @@ SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
 NATIVE_CPP_DIR="${SCRIPT_DIR}/../../native/cpp/"
 INPUT_DIR="${NATIVE_CPP_DIR}CommonCpp/DatabaseManagers/"
 SQLITE_DIR="${SCRIPT_DIR}/../database/sqlite/"
+WEB_CPP_DIR="${SCRIPT_DIR}/../cpp/"
 OUTPUT_DIR="${SCRIPT_DIR}/../database/_generated/"
 
 # files
@@ -87,6 +88,7 @@ CFLAGS=(
 
 INPUT_FILES=(
   "${INPUT_DIR}CommQueryExecutor.cpp"
+  "${WEB_CPP_DIR}Logger.cpp"
   "$SQLITE_BITCODE_FILE"
 )
 
