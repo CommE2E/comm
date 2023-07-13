@@ -140,37 +140,28 @@ function InlineEngagement(props: Props): React.Node {
     return <Text style={[styles.messageLabel, labelLeftRight]}>{label}</Text>;
   }, [isLeft, label, styles]);
 
-  const container = React.useMemo(() => {
-    if (!sidebarItem && !reactionList) {
-      return null;
+  const inlineEngagementPositionStyle = React.useMemo(() => {
+    const styleResult = [styles.inlineEngagement];
+    if (!isLeft) {
+      styleResult.push(styles.rightInlineEngagement);
     }
-    return (
-      <View style={styles.container}>
-        {sidebarItem}
-        {reactionList}
-      </View>
-    );
-  }, [reactionList, sidebarItem, styles.container]);
-
-  const inlineEngagementPositionStyle = [styles.inlineEngagement];
-  if (isLeft) {
-    inlineEngagementPositionStyle.push(styles.leftInlineEngagement);
-  } else {
-    inlineEngagementPositionStyle.push(styles.rightInlineEngagement);
-  }
+    return styleResult;
+  }, [isLeft, styles.inlineEngagement, styles.rightInlineEngagement]);
 
   let body;
   if (isLeft) {
     body = (
       <>
         {editedLabel}
-        {container}
+        {sidebarItem}
+        {reactionList}
       </>
     );
   } else {
     body = (
       <>
-        {container}
+        {sidebarItem}
+        {reactionList}
         {editedLabel}
       </>
     );
@@ -184,32 +175,20 @@ const unboundStyles = {
     flexDirection: 'row',
     marginBottom: inlineEngagementStyle.marginBottom,
     marginTop: inlineEngagementStyle.marginTop,
-    alignItems: 'center',
     marginLeft: avatarOffset,
-  },
-  leftInlineEngagement: {
-    justifyContent: 'flex-start',
-    position: 'relative',
     top: inlineEngagementLeftStyle.topOffset,
   },
   rightInlineEngagement: {
     alignSelf: 'flex-end',
-    position: 'relative',
     right: inlineEngagementRightStyle.marginRight,
-    top: inlineEngagementRightStyle.topOffset,
-  },
-  container: {
-    flexDirection: 'row',
-    height: inlineEngagementStyle.height,
-    borderRadius: 16,
-    backgroundColor: 'inlineEngagementBackground',
-    alignSelf: 'baseline',
-    alignItems: 'center',
-    padding: 8,
   },
   sidebar: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'inlineEngagementBackground',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   icon: {
     color: 'inlineEngagementLabel',
@@ -228,6 +207,10 @@ const unboundStyles = {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'inlineEngagementBackground',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   reaction: {
     color: 'inlineEngagementLabel',
