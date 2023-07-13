@@ -12,6 +12,7 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
   logInActionTypes,
+  resetUserStateActionType,
 } from 'lib/actions/user-actions.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
@@ -32,7 +33,6 @@ import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 
 import {
-  resetUserStateActionType,
   updateDimensionsActiveType,
   updateConnectivityActiveType,
   updateThemeInfoActionType,
@@ -228,20 +228,6 @@ function reducer(state: AppState = defaultState, action: Action) {
       ...state,
       customServer: action.payload,
     };
-  } else if (action.type === resetUserStateActionType) {
-    const cookie =
-      state.cookie && state.cookie.startsWith('anonymous=')
-        ? state.cookie
-        : null;
-    const currentUserInfo =
-      state.currentUserInfo && state.currentUserInfo.anonymous
-        ? state.currentUserInfo
-        : null;
-    return {
-      ...state,
-      currentUserInfo,
-      cookie,
-    };
   } else if (action.type === updateDimensionsActiveType) {
     return {
       ...state,
@@ -341,6 +327,16 @@ function reducer(state: AppState = defaultState, action: Action) {
       // call to reducer we ignore the SQLite data since it is not valid
       return state;
     }
+  }
+  if (action.type === resetUserStateActionType) {
+    const cookie =
+      state.cookie && state.cookie.startsWith('anonymous=')
+        ? state.cookie
+        : null;
+    state = {
+      ...state,
+      cookie,
+    };
   }
 
   const baseReducerResult = baseReducer(state, (action: BaseAction));
