@@ -8,14 +8,6 @@ import { createTransform } from 'redux-persist';
 import type { Transform } from 'redux-persist/es/types.js';
 
 import {
-  convertEntryStoreToNewIDSchema,
-  convertInviteLinksStoreToNewIDSchema,
-  convertMessageStoreToNewIDSchema,
-  convertRawMessageInfoToNewIDSchema,
-  convertCalendarFilterToNewIDSchema,
-  convertConnectionInfoToNewIDSchema,
-} from 'lib/_generated/migration-utils.js';
-import {
   type ReportStoreOperation,
   type ClientDBReportStoreOperation,
   convertReportStoreOperationToClientDBReportStoreOperation,
@@ -54,11 +46,6 @@ import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
-import {
-  generateIDSchemaMigrationOpsForDrafts,
-  convertMessageStoreThreadsToNewIDSchema,
-  convertThreadStoreThreadInfosToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
@@ -66,14 +53,8 @@ import {
   convertThreadStoreOperationsToClientDBOperations,
 } from 'lib/utils/thread-ops-utils.js';
 import { getUUID } from 'lib/utils/uuid.js';
-import { keyserverPrefixID } from 'lib/utils/validation-utils.js';
 
-import {
-  updateClientDBThreadStoreThreadInfos,
-  createUpdateDBOpsForThreadStoreThreadInfos,
-  createUpdateDBOpsForMessageStoreMessages,
-  createUpdateDBOpsForMessageStoreThreads,
-} from './client-db-utils.js';
+import { updateClientDBThreadStoreThreadInfos } from './client-db-utils.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import type { AppState } from './state-types.js';
@@ -595,58 +576,6 @@ const migrations = {
       return { ...state, cookie: null };
     }
     return state;
-  },
-  [43]: async (state: AppState) => {
-    const { messages, drafts, threads, messageStoreThreads } =
-      await commCoreModule.getClientDBStore();
-
-    const messageStoreThreadsOperations =
-      createUpdateDBOpsForMessageStoreThreads(
-        messageStoreThreads,
-        convertMessageStoreThreadsToNewIDSchema,
-      );
-
-    const messageStoreMessagesOperations =
-      createUpdateDBOpsForMessageStoreMessages(messages, messageInfos =>
-        messageInfos.map(convertRawMessageInfoToNewIDSchema),
-      );
-
-    const threadOperations = createUpdateDBOpsForThreadStoreThreadInfos(
-      threads,
-      convertThreadStoreThreadInfosToNewIDSchema,
-    );
-
-    const draftOperations = generateIDSchemaMigrationOpsForDrafts(drafts);
-
-    try {
-      await Promise.all([
-        commCoreModule.processMessageStoreOperations([
-          ...messageStoreMessagesOperations,
-          ...messageStoreThreadsOperations,
-        ]),
-        commCoreModule.processThreadStoreOperations(threadOperations),
-        commCoreModule.processDraftStoreOperations(draftOperations),
-      ]);
-    } catch (exception) {
-      console.log(exception);
-      return { ...state, cookie: null };
-    }
-
-    return {
-      ...state,
-      entryStore: convertEntryStoreToNewIDSchema(state.entryStore),
-      messageStore: convertMessageStoreToNewIDSchema(state.messageStore),
-      calendarFilters: state.calendarFilters.map(
-        convertCalendarFilterToNewIDSchema,
-      ),
-      connection: convertConnectionInfoToNewIDSchema(state.connection),
-      watchedThreadIDs: state.watchedThreadIDs.map(
-        id => `${keyserverPrefixID}|${id}`,
-      ),
-      inviteLinksStore: convertInviteLinksStoreToNewIDSchema(
-        state.inviteLinksStore,
-      ),
-    };
   },
 };
 
