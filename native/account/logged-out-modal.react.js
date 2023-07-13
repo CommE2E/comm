@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
 import { resetUserStateActionType } from 'lib/actions/user-actions.js';
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -774,7 +775,7 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       state => !!(state._persist && state._persist.rehydrated && navContext),
     );
     const persistedStateLoaded = usePersistedStateLoaded();
-    const cookie = useSelector(state => state.cookie);
+    const cookie = useSelector(cookieSelector);
     const urlPrefix = useSelector(state => state.urlPrefix);
     const loggedIn = useSelector(isLoggedIn);
     const dimensions = useSelector(derivedDimensionsInfoSelector);

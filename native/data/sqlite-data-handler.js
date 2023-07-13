@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { convertClientDBReportToClientReportCreationRequest } from 'lib/ops/report-store-ops.js';
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   logInActionSources,
@@ -32,7 +33,7 @@ function SQLiteDataHandler(): React.Node {
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated),
   );
-  const cookie = useSelector(state => state.cookie);
+  const cookie = useSelector(cookieSelector);
   const urlPrefix = useSelector(state => state.urlPrefix);
   const staffCanSee = useStaffCanSee();
   const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);

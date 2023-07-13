@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
@@ -14,7 +15,6 @@ import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react.j
 import ThreadScreenTracker from './thread-screen-tracker.react.js';
 import DevTools from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import type { AppState } from '../redux/state-types.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
 
 const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
@@ -61,9 +61,9 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
   const { dispatch } = props;
 
   const hasCurrentUserInfo = useSelector(isLoggedIn);
-  const hasUserCookie = useSelector(
-    (state: AppState) => !!(state.cookie && state.cookie.startsWith('user=')),
-  );
+
+  const cookie = useSelector(cookieSelector);
+  const hasUserCookie = !!(cookie && cookie.startsWith('user='));
 
   const loggedIn = hasCurrentUserInfo && hasUserCookie;
   const navLoggedIn = useIsAppLoggedIn();
