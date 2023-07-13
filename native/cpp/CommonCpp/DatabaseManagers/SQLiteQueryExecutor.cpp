@@ -939,6 +939,11 @@ SQLiteQueryExecutor::SQLiteQueryExecutor() {
   SQLiteQueryExecutor::migrate();
 }
 
+SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
+  SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
+  SQLiteQueryExecutor::migrate();
+}
+
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
   std::unique_ptr<Draft> draft =
       SQLiteQueryExecutor::getStorage().get_pointer<Draft>(key);
