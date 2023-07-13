@@ -6,6 +6,10 @@ import { Text, View, Alert } from 'react-native';
 import { inviteLinkUrl } from 'lib/facts/links.js';
 import { useInviteLinksActions } from 'lib/hooks/invite-links.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
+import {
+  defaultErrorMessage,
+  inviteLinkErrorMessages,
+} from 'lib/shared/invite-links.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from '../components/button.react.js';
@@ -40,7 +44,11 @@ function ManagePublicLinkScreen(props: Props): React.Node {
 
   let errorComponent = null;
   if (error) {
-    errorComponent = <Text style={styles.error}>{error}</Text>;
+    errorComponent = (
+      <Text style={styles.error}>
+        {inviteLinkErrorMessages[error] ?? defaultErrorMessage}
+      </Text>
+    );
   }
 
   const onDisableButtonClick = React.useCallback(() => {

@@ -3,9 +3,11 @@
 import { ServerError } from 'lib/utils/errors.js';
 
 import createIDs from './id-creator.js';
-import { dbQuery, SQL } from '../database/database.js';
-
-const MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE = 1062;
+import {
+  dbQuery,
+  MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE,
+  SQL,
+} from '../database/database.js';
 
 async function fetchOrCreateDayID(
   threadID: string,
