@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import { logOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import {
   useServerCall,
@@ -25,7 +26,7 @@ import {
 
 const WebSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function WebSocket(props) {
-    const cookie = useSelector(state => state.cookie);
+    const cookie = useSelector(cookieSelector);
     const urlPrefix = useSelector(state => state.urlPrefix);
     const connection = useSelector(state => state.connection);
     const active = useSelector(

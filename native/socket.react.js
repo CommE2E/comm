@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
@@ -37,7 +38,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const inputState = React.useContext(InputStateContext);
     const navContext = React.useContext(NavContext);
 
-    const cookie = useSelector(state => state.cookie);
+    const cookie = useSelector(cookieSelector);
     const urlPrefix = useSelector(state => state.urlPrefix);
     const connection = useSelector(state => state.connection);
     const frozen = useSelector(state => state.frozen);

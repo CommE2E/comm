@@ -2,6 +2,7 @@
 
 import { createSelector } from 'reselect';
 
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
@@ -30,14 +31,14 @@ const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
   // be reopened. By including the cookie here, whenever the cookie changes this
   // function will change, which tells the Socket component to restart the
   // connection.
-  (state: AppState) => state.cookie,
+  cookieSelector,
   createOpenSocketFunction,
 );
 
 const sessionIdentificationSelector: (
   state: AppState,
 ) => SessionIdentification = createSelector(
-  (state: AppState) => state.cookie,
+  cookieSelector,
   (cookie: ?string): SessionIdentification => ({ cookie }),
 );
 
