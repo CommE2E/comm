@@ -35,5 +35,6 @@ provider "aws" {
 # Shared resources between local dev environment and remote AWS
 module "shared" {
   source = "../modules/shared"
+  is_dev = true
 }
 
