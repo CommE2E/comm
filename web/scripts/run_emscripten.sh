@@ -88,6 +88,7 @@ CFLAGS=(
 
 INPUT_FILES=(
   "${INPUT_DIR}CommQueryExecutor.cpp"
+  "${INPUT_DIR}SQLiteQueryExecutor.cpp"
   "${WEB_CPP_DIR}Logger.cpp"
   "$SQLITE_BITCODE_FILE"
 )
