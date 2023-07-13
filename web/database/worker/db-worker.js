@@ -19,7 +19,7 @@ import {
   type WorkerRequestProxyMessage,
   workerWriteRequests,
 } from '../../types/worker-types.js';
-import Module from '../_generated/comm-query-executor.js';
+import { getDatabaseModule } from '../db-module.js';
 import { migrate, setupSQLiteDB } from '../queries/db-queries.js';
 import {
   getAllDrafts,
@@ -60,22 +60,13 @@ let encryptionKey: ?CryptoKey = null;
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
 
-const defaultCommQueryExecutorFilename = 'comm_query_executor.wasm';
-
 async function initDatabase(
   sqljsFilePath: string,
   sqljsFilename: ?string,
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
-  const dbModule = Module({
-    locateFile: function () {
-      if (commQueryExecutorFilename) {
-        return `${sqljsFilePath}/${commQueryExecutorFilename}`;
-      }
-      return `${sqljsFilePath}/${defaultCommQueryExecutorFilename}`;
-    },
-  });
+  const dbModule = getDatabaseModule(commQueryExecutorFilename, sqljsFilePath);
 
   try {
     const result = dbModule.CommQueryExecutor.testDBOperation();
