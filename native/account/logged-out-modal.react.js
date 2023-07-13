@@ -17,6 +17,7 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
+import { resetUserStateActionType } from 'lib/actions/user-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -44,7 +45,6 @@ import {
   LoggedOutModalRouteName,
   RegistrationRouteName,
 } from '../navigation/route-names.js';
-import { resetUserStateActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
 import {
