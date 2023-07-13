@@ -28,6 +28,7 @@ import {
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
+import { keyserverStoreValidator } from 'lib/types/keyserver-types.js';
 import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
 import {
   defaultNumberPerThread,
@@ -253,6 +254,7 @@ const initialReduxStateValidator = tShape({
     'default lastCommunicatedPlatformDetails',
     _isEqual({}),
   ),
+  keyserverStore: keyserverStoreValidator,
 });
 
 async function websiteResponder(
@@ -600,6 +602,7 @@ async function websiteResponder(
     commServicesAccessToken: null,
     inviteLinksStore: inviteLinksStorePromise,
     lastCommunicatedPlatformDetails: {},
+    keyserverStore: { keyserverInfos: {} },
   });
   const validatedInitialReduxState = validateOutput(
     viewer.platformDetails,
