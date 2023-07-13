@@ -6,7 +6,7 @@ set -e
 # docker-compose up -d --force-recreate localstack
 docker-compose up -d localstack
 
-pushd terraform
+pushd terraform/dev
 
 ./run.sh
 
