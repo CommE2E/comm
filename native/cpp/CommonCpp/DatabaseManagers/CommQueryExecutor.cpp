@@ -1,4 +1,5 @@
 #include "CommQueryExecutor.h"
+#include "Logger.h"
 #include "sqlite_orm.h"
 
 #include <sqlite3.h>
@@ -21,6 +22,8 @@ struct Test {
 };
 
 std::string CommQueryExecutor::testDBOperation() {
+  Logger::log("Logger works!");
+
   sqlite3 *db;
   sqlite3_open(DB_PATH.c_str(), &db);
 
