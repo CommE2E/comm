@@ -13,9 +13,6 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void migrate();
   static void assign_encryption_key();
   static auto &getStorage();
-  void setMetadata(std::string entry_name, std::string data) const override;
-  void clearMetadata(std::string entry_name) const override;
-  std::string getMetadata(std::string entry_name) const override;
 
   static std::once_flag initialized;
   static int sqlcipherEncryptionKeySize;
@@ -78,6 +75,9 @@ public:
   std::string getCurrentUserID() const override;
   void setDeviceID(std::string deviceID) const override;
   std::string getDeviceID() const override;
+  void setMetadata(std::string entry_name, std::string data) const override;
+  void clearMetadata(std::string entry_name) const override;
+  std::string getMetadata(std::string entry_name) const override;
   static void clearSensitiveData();
 };
 
