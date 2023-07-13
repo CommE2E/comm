@@ -11,19 +11,21 @@ namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void migrate();
-  static void assign_encryption_key();
   static auto &getStorage();
 
   static std::once_flag initialized;
   static int sqlcipherEncryptionKeySize;
   static std::string secureStoreEncryptionKeyID;
 
+#ifndef EMSCRIPTEN
+  static void assign_encryption_key();
+#endif
+
 public:
   static std::string sqliteFilePath;
   static std::string encryptionKey;
 
   SQLiteQueryExecutor();
-  static void initialize(std::string &databasePath);
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
   std::string getDraft(std::string key) const override;
   void updateDraft(std::string key, std::string text) const override;
@@ -78,7 +80,11 @@ public:
   void setMetadata(std::string entry_name, std::string data) const override;
   void clearMetadata(std::string entry_name) const override;
   std::string getMetadata(std::string entry_name) const override;
+
+#ifndef EMSCRIPTEN
   static void clearSensitiveData();
+  static void initialize(std::string &databasePath);
+#endif
 };
 
 } // namespace comm

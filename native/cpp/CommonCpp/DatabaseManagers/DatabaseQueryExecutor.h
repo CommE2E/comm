@@ -11,14 +11,18 @@
 #include "entities/Report.h"
 #include "entities/Thread.h"
 
+#ifndef EMSCRIPTEN
 #include <folly/Optional.h>
-
 #include <jsi/jsi.h>
+#endif
+
 #include <string>
 
 namespace comm {
 
+#ifndef EMSCRIPTEN
 namespace jsi = facebook::jsi;
+#endif
 
 /**
  * if any initialization/cleaning up steps are required for specific

@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
+#ifndef EMSCRIPTEN
 #include "olm/olm.h"
+#endif
 
 // base64-encoded
 #define KEYSIZE 43

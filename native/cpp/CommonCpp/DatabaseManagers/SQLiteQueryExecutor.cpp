@@ -1,5 +1,4 @@
 #include "SQLiteQueryExecutor.h"
-#include "CommSecureStore.h"
 #include "Logger.h"
 #include "sqlite_orm.h"
 
@@ -7,6 +6,10 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+
+#ifndef EMSCRIPTEN
+#include "CommSecureStore.h"
+#endif
 
 #define ACCOUNT_ID 1
 
@@ -850,15 +853,6 @@ void SQLiteQueryExecutor::migrate() {
   sqlite3_close(db);
 }
 
-void SQLiteQueryExecutor::assign_encryption_key() {
-  CommSecureStore commSecureStore{};
-  std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
-      SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
-  commSecureStore.set(
-      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
-  SQLiteQueryExecutor::encryptionKey = encryptionKey;
-}
-
 auto &SQLiteQueryExecutor::getStorage() {
   static auto storage = make_storage(
       SQLiteQueryExecutor::sqliteFilePath,
@@ -939,21 +933,6 @@ auto &SQLiteQueryExecutor::getStorage() {
   );
   storage.on_open = on_database_open;
   return storage;
-}
-
-void SQLiteQueryExecutor::initialize(std::string &databasePath) {
-  std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
-    SQLiteQueryExecutor::sqliteFilePath = databasePath;
-    CommSecureStore commSecureStore{};
-    folly::Optional<std::string> maybeEncryptionKey =
-        commSecureStore.get(SQLiteQueryExecutor::secureStoreEncryptionKeyID);
-
-    if (file_exists(databasePath) && maybeEncryptionKey) {
-      SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
-      return;
-    }
-    SQLiteQueryExecutor::assign_encryption_key();
-  });
 }
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
@@ -1286,6 +1265,7 @@ std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
   return (entry == nullptr) ? "" : entry->data;
 }
 
+#ifndef EMSCRIPTEN
 void SQLiteQueryExecutor::clearSensitiveData() {
   if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
@@ -1297,5 +1277,30 @@ void SQLiteQueryExecutor::clearSensitiveData() {
   SQLiteQueryExecutor::assign_encryption_key();
   SQLiteQueryExecutor::migrate();
 }
+
+void SQLiteQueryExecutor::initialize(std::string &databasePath) {
+  std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
+    SQLiteQueryExecutor::sqliteFilePath = databasePath;
+    CommSecureStore commSecureStore{};
+    folly::Optional<std::string> maybeEncryptionKey =
+        commSecureStore.get(SQLiteQueryExecutor::secureStoreEncryptionKeyID);
+
+    if (file_exists(databasePath) && maybeEncryptionKey) {
+      SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
+      return;
+    }
+    SQLiteQueryExecutor::assign_encryption_key();
+  });
+}
+
+void SQLiteQueryExecutor::assign_encryption_key() {
+  CommSecureStore commSecureStore{};
+  std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+  commSecureStore.set(
+      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+  SQLiteQueryExecutor::encryptionKey = encryptionKey;
+}
+#endif
 
 } // namespace comm
