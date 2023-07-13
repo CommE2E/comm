@@ -55,6 +55,10 @@ const clangPaths = [
     extensions: ['java'],
     excludes: ['generated'],
   },
+  {
+    path: 'web/cpp',
+    extensions: ['cpp', 'h'],
+  },
 ];
 
 function getClangPaths() {

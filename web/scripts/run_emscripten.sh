@@ -12,6 +12,7 @@ SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
 NATIVE_CPP_DIR="${SCRIPT_DIR}/../../native/cpp/"
 INPUT_DIR="${NATIVE_CPP_DIR}CommonCpp/DatabaseManagers/"
 SQLITE_DIR="${SCRIPT_DIR}/../database/sqlite/"
+WEB_CPP_DIR="${SCRIPT_DIR}/../cpp/"
 OUTPUT_DIR="${SCRIPT_DIR}/../database/_generated/"
 
 # files
@@ -87,6 +88,7 @@ CFLAGS=(
 
 INPUT_FILES=(
   "${INPUT_DIR}CommQueryExecutor.cpp"
+  "${WEB_CPP_DIR}Logger.cpp"
   "$SQLITE_BITCODE_FILE"
 )
 
@@ -102,3 +104,4 @@ emcc -lembind \
 sed -i.bak -e '1i\/\/ \@generated' "${OUTPUT_FILE}"
 
 mv -f "${OUTPUT_DIR}${OUTPUT_FILE_NAME}.wasm" "${OUTPUT_DIR}comm_query_executor.wasm"
+rm -f "${OUTPUT_FILE}.bak"
