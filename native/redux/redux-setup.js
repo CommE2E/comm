@@ -123,6 +123,7 @@ const defaultState = ({
     links: {},
   },
   lastCommunicatedPlatformDetails: {},
+  keyserverStore: { keyserverInfos: {} },
 }: AppState);
 
 function reducer(state: AppState = defaultState, action: Action) {
