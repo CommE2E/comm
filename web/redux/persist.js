@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import { getStoredState, purgeStoredState } from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
@@ -10,10 +9,6 @@ import {
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
 import { isDev } from 'lib/utils/dev-utils.js';
-import {
-  generateIDSchemaMigrationOpsForDrafts,
-  convertDraftStoreToNewIDSchema,
-} from 'lib/utils/migration-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
 import type { AppState } from './redux-setup.js';
@@ -65,34 +60,6 @@ const migrations = {
     });
 
     return state;
-  },
-  [3]: async (state: AppState) => {
-    let newState = state;
-    if (state.draftStore) {
-      newState = {
-        ...newState,
-        draftStore: convertDraftStoreToNewIDSchema(state.draftStore),
-      };
-    }
-
-    if (!isDatabaseSupported) {
-      return newState;
-    }
-
-    const stores = await databaseModule.schedule({
-      type: workerRequestMessageTypes.GET_CLIENT_STORE,
-    });
-    invariant(stores?.store, 'Stores should exist');
-    await databaseModule.schedule({
-      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-      storeOperations: {
-        draftStoreOperations: generateIDSchemaMigrationOpsForDrafts(
-          stores.store.drafts,
-        ),
-      },
-    });
-
-    return newState;
   },
 };
 
