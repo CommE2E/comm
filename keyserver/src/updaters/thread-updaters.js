@@ -146,6 +146,7 @@ async function updateRole(
     time: Date.now(),
     userIDs: memberIDs,
     newRole: request.role,
+    roleName: threadInfo.roles[request.role].name,
   };
   const newMessageInfos = await createMessages(viewer, [messageData]);
 
