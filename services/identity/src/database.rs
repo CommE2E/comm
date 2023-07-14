@@ -294,6 +294,33 @@ impl DatabaseClient {
     Ok(())
   }
 
+  pub async fn remove_device_from_users_table(
+    &self,
+    user_id: String,
+    device_id_key: String,
+  ) -> Result<(), Error> {
+    let update_expression =
+      format!("REMOVE {}.{}", USERS_TABLE_DEVICES_ATTRIBUTE, ":deviceID");
+
+    let expression_attribute_values = HashMap::from([(
+      ":deviceID".to_string(),
+      AttributeValue::S(device_id_key),
+    )]);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
+
   pub async fn update_user_password(
     &self,
     user_id: String,
@@ -475,6 +502,30 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  pub async fn delete_access_token_data(
+    &self,
+    user_id: String,
+    device_id_key: String,
+  ) -> Result<(), Error> {
+    self
+      .client
+      .delete_item()
+      .table_name(ACCESS_TOKEN_TABLE)
+      .key(
+        ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
+        AttributeValue::S(user_id),
+      )
+      .key(
+        ACCESS_TOKEN_SORT_KEY.to_string(),
+        AttributeValue::S(device_id_key),
+      )
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
   }
 
   pub async fn username_taken(&self, username: String) -> Result<bool, Error> {
