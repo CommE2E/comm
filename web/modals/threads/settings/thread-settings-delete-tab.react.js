@@ -8,7 +8,12 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import {
+  childThreadInfos,
+  threadInfoSelector,
+} from 'lib/selectors/thread-selectors.js';
 import { type SetState } from 'lib/types/hook-types.js';
+import { threadTypes as ThreadTypesEnum } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
@@ -16,8 +21,10 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import SubmitSection from './submit-section.react.js';
+import ThreadDeleteConfirmationModal from './thread-settings-delete-confirmation-modal.react.js';
 import css from './thread-settings-delete-tab.css';
 import { buttonThemes } from '../../../components/button.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
 
 type ThreadSettingsDeleteTabProps = {
   +threadSettingsOperationInProgress: boolean,
@@ -39,14 +46,41 @@ function ThreadSettingsDeleteTab(
   const modalContext = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
   const callDeleteThread = useServerCall(deleteThread);
+  const childThreads = useSelector(
+    state => childThreadInfos(state)[threadInfo.id],
+  );
+  const currentThreadType = useSelector(
+    state => threadInfoSelector(state)[threadInfo.id]?.type,
+  );
+  const isChannelRoot = React.useMemo(
+    () =>
+      currentThreadType === ThreadTypesEnum.COMMUNITY_ROOT ||
+      currentThreadType === ThreadTypesEnum.COMMUNITY_ANNOUNCEMENT_ROOT,
+    [currentThreadType],
+  );
+  const hasChildThreads = React.useMemo(
+    () => childThreads?.length > 0,
+    [childThreads?.length],
+  );
+  const shouldUseDeleteConfirmationModal = React.useMemo(
+    () => hasChildThreads || isChannelRoot,
+    [hasChildThreads, isChannelRoot],
+  );
 
+  const popThreadDeleteConfirmationModal = React.useCallback(() => {
+    if (shouldUseDeleteConfirmationModal) {
+      modalContext.popModal();
+    }
+  }, [modalContext, shouldUseDeleteConfirmationModal]);
   const deleteThreadAction = React.useCallback(async () => {
     try {
       setErrorMessage('');
       const response = await callDeleteThread(threadInfo.id);
+      popThreadDeleteConfirmationModal();
       modalContext.popModal();
       return response;
     } catch (e) {
+      popThreadDeleteConfirmationModal();
       setErrorMessage(
         e.message === 'invalid_credentials'
           ? 'permission not granted'
@@ -54,14 +88,38 @@ function ThreadSettingsDeleteTab(
       );
       throw e;
     }
-  }, [callDeleteThread, modalContext, setErrorMessage, threadInfo.id]);
+  }, [
+    callDeleteThread,
+    modalContext,
+    popThreadDeleteConfirmationModal,
+    setErrorMessage,
+    threadInfo.id,
+  ]);
+
+  const dispatchDeleteThreadAction = React.useCallback(() => {
+    dispatchActionPromise(deleteThreadActionTypes, deleteThreadAction());
+  }, [dispatchActionPromise, deleteThreadAction]);
 
   const onDelete = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
-      dispatchActionPromise(deleteThreadActionTypes, deleteThreadAction());
+      if (shouldUseDeleteConfirmationModal) {
+        modalContext.pushModal(
+          <ThreadDeleteConfirmationModal
+            isChannelRoot={isChannelRoot}
+            onConfirmation={dispatchDeleteThreadAction}
+          />,
+        );
+      } else {
+        dispatchDeleteThreadAction();
+      }
     },
-    [deleteThreadAction, dispatchActionPromise],
+    [
+      dispatchDeleteThreadAction,
+      isChannelRoot,
+      modalContext,
+      shouldUseDeleteConfirmationModal,
+    ],
   );
 
   return (
