@@ -10,7 +10,7 @@ use crate::{
   client_service::client_proto::{
     AddReservedUsernamesRequest, DeleteUserRequest, Empty,
     GenerateNonceResponse, InboundKeysForUserRequest,
-    InboundKeysForUserResponse, OpaqueLoginFinishRequest,
+    InboundKeysForUserResponse, LogoutRequest, OpaqueLoginFinishRequest,
     OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
     OpaqueLoginStartResponse, OutboundKeysForUserRequest,
     OutboundKeysForUserResponse, RefreshUserPreKeysRequest,
@@ -39,7 +39,6 @@ pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
 };
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
-use constant_time_eq::constant_time_eq;
 use moka::future::Cache;
 use rand::rngs::OsRng;
 use tonic::Response;
@@ -346,48 +345,43 @@ impl IdentityClientService for ClientService {
   {
     let message = request.into_inner();
 
-    let access_token = self
+    let token_is_valid = self
       .client
-      .get_access_token_data(message.user_id.clone(), message.device_id_key)
+      .verify_access_token(
+        message.user_id.clone(),
+        message.device_id_key,
+        message.access_token,
+      )
       .await
       .map_err(handle_db_error)?;
 
-    if let Some(token) = access_token {
-      if !token.is_valid()
-        || !constant_time_eq(
-          token.access_token.as_bytes(),
-          message.access_token.as_bytes(),
-        )
-      {
-        return Err(tonic::Status::permission_denied("bad token"));
-      }
-
-      let server_registration = comm_opaque2::server::Registration::new();
-      let server_message = server_registration
-        .start(
-          &CONFIG.server_setup,
-          &message.opaque_registration_request,
-          message.user_id.as_bytes(),
-        )
-        .map_err(protocol_error_to_grpc_status)?;
-
-      let update_state = UpdateState {
-        user_id: message.user_id,
-      };
-      let session_id = generate_uuid();
-      self
-        .cache
-        .insert(session_id.clone(), WorkflowInProgress::Update(update_state))
-        .await;
-
-      let response = UpdateUserPasswordStartResponse {
-        session_id,
-        opaque_registration_response: server_message,
-      };
-      Ok(Response::new(response))
-    } else {
-      Err(tonic::Status::permission_denied("bad token"))
+    if !token_is_valid {
+      return Err(tonic::Status::permission_denied("bad token"));
     }
+
+    let server_registration = comm_opaque2::server::Registration::new();
+    let server_message = server_registration
+      .start(
+        &CONFIG.server_setup,
+        &message.opaque_registration_request,
+        message.user_id.as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
+
+    let update_state = UpdateState {
+      user_id: message.user_id,
+    };
+    let session_id = generate_uuid();
+    self
+      .cache
+      .insert(session_id.clone(), WorkflowInProgress::Update(update_state))
+      .await;
+
+    let response = UpdateUserPasswordStartResponse {
+      session_id,
+      opaque_registration_response: server_message,
+    };
+    Ok(Response::new(response))
   }
 
   async fn update_user_password_finish(
@@ -696,40 +690,75 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  async fn log_out_user(
+    &self,
+    request: tonic::Request<LogoutRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let message = request.into_inner();
+
+    let token_is_valid = self
+      .client
+      .verify_access_token(
+        message.user_id.clone(),
+        message.device_id_key.clone(),
+        message.access_token,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    if !token_is_valid {
+      return Err(tonic::Status::permission_denied("bad token"));
+    }
+
+    self
+      .client
+      .remove_device_from_users_table(
+        message.user_id.clone(),
+        message.device_id_key.clone(),
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    self
+      .client
+      .delete_access_token_data(message.user_id, message.device_id_key)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+
+    Ok(Response::new(response))
+  }
+
   async fn delete_user(
     &self,
     request: tonic::Request<DeleteUserRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let message = request.into_inner();
 
-    let access_token = self
+    let token_is_valid = self
       .client
-      .get_access_token_data(message.user_id.clone(), message.device_id_key)
+      .verify_access_token(
+        message.user_id.clone(),
+        message.device_id_key,
+        message.access_token,
+      )
       .await
       .map_err(handle_db_error)?;
 
-    if let Some(token) = access_token {
-      if !token.is_valid()
-        || !constant_time_eq(
-          token.access_token.as_bytes(),
-          message.access_token.as_bytes(),
-        )
-      {
-        return Err(tonic::Status::permission_denied("bad token"));
-      }
-
-      self
-        .client
-        .delete_user(message.user_id)
-        .await
-        .map_err(handle_db_error)?;
-
-      let response = Empty {};
-
-      Ok(Response::new(response))
-    } else {
-      Err(tonic::Status::permission_denied("bad token"))
+    if !token_is_valid {
+      return Err(tonic::Status::permission_denied("bad token"));
     }
+
+    self
+      .client
+      .delete_user(message.user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+
+    Ok(Response::new(response))
   }
 
   async fn generate_nonce(
