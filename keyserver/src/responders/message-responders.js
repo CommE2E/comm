@@ -481,8 +481,8 @@ async function fetchPinnedMessagesResponder(
 
 const searchMessagesResponderInputValidator = tShape({
   query: t.String,
-  threadID: t.String,
-  cursor: t.maybe(t.String),
+  threadID: tID,
+  cursor: t.maybe(tID),
 });
 
 const searchMessagesResponseValidator: TInterface<SearchMessagesResponse> =
