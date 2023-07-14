@@ -126,10 +126,13 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       <div
         className={css.multimediaModalOverlay}
         onClick={this.onBackgroundClick}
-        tabIndex={0}
-        onKeyDown={this.onKeyDown}
       >
-        <div ref={this.overlayRef} className={css.mediaContainer}>
+        <div
+          ref={this.overlayRef}
+          className={css.mediaContainer}
+          tabIndex={0}
+          onKeyDown={this.onKeyDown}
+        >
           {mediaModalItem}
         </div>
         <XCircleIcon
