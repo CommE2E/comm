@@ -8,7 +8,7 @@ use crate::{
   client_service::client_proto::{
     AddReservedUsernamesRequest, DeleteUserRequest, Empty,
     GenerateNonceResponse, InboundKeysForUserRequest,
-    InboundKeysForUserResponse, OpaqueLoginFinishRequest,
+    InboundKeysForUserResponse, LogoutRequest, OpaqueLoginFinishRequest,
     OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
     OpaqueLoginStartResponse, OutboundKeysForUserRequest,
     OutboundKeysForUserResponse, OutboundKeyserverResponse,
@@ -678,6 +678,54 @@ impl IdentityClientService for ClientService {
       access_token,
     };
     Ok(Response::new(response))
+  }
+
+  async fn log_out_user(
+    &self,
+    request: tonic::Request<LogoutRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let message = request.into_inner();
+
+    let access_token = self
+      .client
+      .get_access_token_data(
+        message.user_id.clone(),
+        message.device_id_key.clone(),
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    if let Some(token) = access_token {
+      if !token.is_valid()
+        || !constant_time_eq(
+          token.access_token.as_bytes(),
+          message.access_token.as_bytes(),
+        )
+      {
+        return Err(tonic::Status::permission_denied("bad token"));
+      }
+
+      self
+        .client
+        .remove_device_from_users_table(
+          message.user_id.clone(),
+          message.device_id_key.clone(),
+        )
+        .await
+        .map_err(handle_db_error)?;
+
+      self
+        .client
+        .delete_access_token_data(message.user_id, message.device_id_key)
+        .await
+        .map_err(handle_db_error)?;
+
+      let response = Empty {};
+
+      Ok(Response::new(response))
+    } else {
+      Err(tonic::Status::permission_denied("bad token"))
+    }
   }
 
   async fn delete_user(
