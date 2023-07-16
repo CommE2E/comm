@@ -395,10 +395,13 @@ async function createThread(
   }
 
   const changeset = { membershipRows, relationshipChangeset };
-  const { threadInfos, viewerUpdates, userInfos } =
-    await commitMembershipChangeset(viewer, changeset, {
+  const { viewerUpdates, userInfos } = await commitMembershipChangeset(
+    viewer,
+    changeset,
+    {
       updatesForCurrentSession,
-    });
+    },
+  );
 
   const initialMemberAndCreatorIDs = initialMemberIDs
     ? [...initialMemberIDs, viewer.userID]
@@ -482,19 +485,8 @@ async function createThread(
     updatesForCurrentSession,
   );
 
-  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
-    return {
-      newThreadID: id,
-      updatesResult: {
-        newUpdates: viewerUpdates,
-      },
-      userInfos,
-      newMessageInfos,
-    };
-  }
-
   return {
-    newThreadInfo: threadInfos[id],
+    newThreadID: id,
     updatesResult: {
       newUpdates: viewerUpdates,
     },

@@ -234,9 +234,8 @@ export const newThreadResponseValidator: TInterface<NewThreadResponse> =
       newUpdates: t.list(serverUpdateInfoValidator),
     }),
     newMessageInfos: t.list(rawMessageInfoValidator),
-    newThreadInfo: t.maybe(rawThreadInfoValidator),
     userInfos: userInfosValidator,
-    newThreadID: t.maybe(tID),
+    newThreadID: tID,
   });
 
 async function threadCreationResponder(
