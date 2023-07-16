@@ -308,10 +308,9 @@ async function createTables() {
         ADD PRIMARY KEY (id);
 
       ALTER TABLE memberships
-        ADD UNIQUE KEY thread_user (thread,user) USING BTREE,
-        ADD KEY role (role) USING BTREE;
-
-      ALTER TABLE memberships ADD INDEX user (user);
+        ADD UNIQUE KEY thread_user (thread, user) USING BTREE,
+        ADD KEY role (role) USING BTREE,
+        ADD KEY user_role_thread (user, role, thread);
 
       ALTER TABLE messages
         ADD PRIMARY KEY (id),
