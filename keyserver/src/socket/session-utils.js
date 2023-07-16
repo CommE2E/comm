@@ -41,7 +41,6 @@ import {
 import { createOlmSession } from '../creators/olm-session-creator.js';
 import { saveOneTimeKeys } from '../creators/one-time-keys-creator.js';
 import createReport from '../creators/report-creator.js';
-import { SQL } from '../database/database.js';
 import {
   fetchEntryInfos,
   fetchEntryInfosByID,
@@ -424,7 +423,7 @@ async function checkState(
     fetchAllEntries = false,
     fetchAllUserInfos = false,
     fetchUserInfo = false;
-  const threadIDsToFetch = [],
+  const threadIDsToFetch = new Set(),
     entryIDsToFetch = [],
     userIDsToFetch = [];
   for (const key of invalidKeys) {
@@ -438,7 +437,7 @@ async function checkState(
       fetchUserInfo = true;
     } else if (key.startsWith('threadInfo|')) {
       const [, threadID] = key.split('|');
-      threadIDsToFetch.push(threadID);
+      threadIDsToFetch.add(threadID);
     } else if (key.startsWith('entryInfo|')) {
       const [, entryID] = key.split('|');
       entryIDsToFetch.push(entryID);
@@ -451,11 +450,10 @@ async function checkState(
   const fetchPromises = {};
   if (fetchAllThreads) {
     fetchPromises.threadsResult = fetchThreadInfos(viewer);
-  } else if (threadIDsToFetch.length > 0) {
-    fetchPromises.threadsResult = fetchThreadInfos(
-      viewer,
-      SQL`t.id IN (${threadIDsToFetch})`,
-    );
+  } else if (threadIDsToFetch.size > 0) {
+    fetchPromises.threadsResult = fetchThreadInfos(viewer, {
+      threadIDs: threadIDsToFetch,
+    });
   }
   if (fetchAllEntries) {
     fetchPromises.entriesResult = fetchEntryInfos(viewer, [calendarQuery]);

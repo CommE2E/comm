@@ -30,9 +30,9 @@ async function createOrUpdatePublicLink(
     threadPermissions.MANAGE_INVITE_LINKS,
   );
   const existingPrimaryLinksPromise = fetchPrimaryInviteLinks(viewer);
-  const fetchThreadInfoPromise = fetchServerThreadInfos(
-    SQL`t.id = ${request.communityID}`,
-  );
+  const fetchThreadInfoPromise = fetchServerThreadInfos({
+    threadID: request.communityID,
+  });
   const [hasPermission, existingPrimaryLinks, { threadInfos }] =
     await Promise.all([
       permissionPromise,

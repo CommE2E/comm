@@ -19,18 +19,53 @@ import {
 import { ServerError } from 'lib/utils/errors.js';
 
 import { getUploadURL } from './upload-fetchers.js';
-import { dbQuery, SQL } from '../database/database.js';
+import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
 import type { Viewer } from '../session/viewer.js';
+
+type FetchThreadInfosFilter = $Shape<{
+  +threadID: string,
+  +threadIDs: $ReadOnlySet<string>,
+  +parentThreadID: string,
+  +sourceMessageID: string,
+}>;
+function constructWhereClause(
+  filter: FetchThreadInfosFilter,
+): SQLStatementType {
+  const conditions = [];
+
+  if (filter.threadID) {
+    conditions.push(SQL`t.id = ${filter.threadID}`);
+  }
+
+  if (filter.threadIDs) {
+    conditions.push(SQL`t.id IN (${[...filter.threadIDs]})`);
+  }
+
+  if (filter.parentThreadID) {
+    conditions.push(SQL`t.parent_thread_id = ${filter.parentThreadID}`);
+  }
+
+  if (filter.sourceMessageID) {
+    conditions.push(SQL`t.source_message = ${filter.sourceMessageID}`);
+  }
+
+  if (conditions.length === 0) {
+    return SQL``;
+  }
+
+  const clause = mergeAndConditions(conditions);
+  return SQL`WHERE `.append(clause);
+}
 
 type FetchServerThreadInfosResult = {
   +threadInfos: { +[id: string]: ServerThreadInfo },
 };
 
 async function fetchServerThreadInfos(
-  condition?: SQLStatementType,
+  filter?: FetchThreadInfosFilter,
 ): Promise<FetchServerThreadInfosResult> {
-  const whereClause = condition ? SQL`WHERE `.append(condition) : '';
+  const whereClause = filter ? constructWhereClause(filter) : '';
 
   const rolesQuery = SQL`
     SELECT t.id, t.default_role, r.id AS role, r.name, r.permissions
@@ -156,9 +191,9 @@ export type FetchThreadInfosResult = {
 
 async function fetchThreadInfos(
   viewer: Viewer,
-  condition?: SQLStatementType,
+  filter?: FetchThreadInfosFilter,
 ): Promise<FetchThreadInfosResult> {
-  const serverResult = await fetchServerThreadInfos(condition);
+  const serverResult = await fetchServerThreadInfos(filter);
   return rawThreadInfosFromServerThreadInfos(viewer, serverResult);
 }
 
@@ -230,9 +265,9 @@ async function determineThreadAncestry(
   if (!parentThreadID) {
     return { containingThreadID: null, community: null, depth: 0 };
   }
-  const parentThreadInfos = await fetchServerThreadInfos(
-    SQL`t.id = ${parentThreadID}`,
-  );
+  const parentThreadInfos = await fetchServerThreadInfos({
+    threadID: parentThreadID,
+  });
   const parentThreadInfo = parentThreadInfos.threadInfos[parentThreadID];
   if (!parentThreadInfo) {
     throw new ServerError('invalid_parameters');
@@ -276,7 +311,7 @@ async function serverThreadInfoFromMessageInfo(
   message: RawMessageInfo | MessageInfo,
 ): Promise<?ServerThreadInfo> {
   const threadID = message.threadID;
-  const threads = await fetchServerThreadInfos(SQL`t.id = ${threadID}`);
+  const threads = await fetchServerThreadInfos({ threadID });
   return threads.threadInfos[threadID];
 }
 

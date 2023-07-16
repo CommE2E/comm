@@ -268,7 +268,7 @@ async function updateRepliesCount(
 
   if (updatedThreads.length > 0) {
     const [{ threadInfos: serverThreadInfos }] = await Promise.all([
-      fetchServerThreadInfos(SQL`t.id IN (${updatedThreads})`),
+      fetchServerThreadInfos({ threadIDs: new Set(updatedThreads) }),
       dbQuery(updateThreads),
       dbQuery(updateMemberships),
     ]);
