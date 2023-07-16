@@ -405,7 +405,7 @@ function useMessageTooltip({
       setTooltipMessagePosition(messagePosition);
 
       const tooltipResult = createTooltip({
-        tooltipMessagePosition,
+        tooltipMessagePosition: messagePosition,
         tooltipSize,
         availablePositions,
         containsInlineEngagement,
@@ -437,7 +437,6 @@ function useMessageTooltip({
       renderTooltip,
       threadInfo,
       tooltipActions,
-      tooltipMessagePosition,
       tooltipSize,
     ],
   );
