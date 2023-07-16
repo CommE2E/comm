@@ -162,34 +162,11 @@ async function fetchThreadInfos(
   return rawThreadInfosFromServerThreadInfos(viewer, serverResult);
 }
 
-const shimCommunityRoot = {
-  [threadTypes.COMMUNITY_ROOT]: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-  [threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT]:
-    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-  [threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD]:
-    threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-  [threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD]:
-    threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-  [threadTypes.GENESIS]: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-};
-
 function rawThreadInfosFromServerThreadInfos(
   viewer: Viewer,
   serverResult: FetchServerThreadInfosResult,
 ): FetchThreadInfosResult {
   const viewerID = viewer.id;
-  const codeVersionBelow70 = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 70,
-  });
-  const codeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 87,
-  });
-  const codeVersionBelow102 = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 102,
-  });
-  const codeVersionBelow104 = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 104,
-  });
   const codeVersionBelow209 = !hasMinCodeVersion(viewer.platformDetails, {
     native: 209,
   });
@@ -207,11 +184,6 @@ function rawThreadInfosFromServerThreadInfos(
       serverThreadInfo,
       viewerID,
       {
-        includeVisibilityRules: codeVersionBelow70,
-        filterMemberList: codeVersionBelow70,
-        shimThreadTypes: codeVersionBelow87 ? shimCommunityRoot : null,
-        hideThreadStructure: codeVersionBelow102,
-        filterDetailedThreadEditPermissions: codeVersionBelow104,
         filterThreadEditAvatarPermission: codeVersionBelow213,
         excludePinInfo: codeVersionBelow209,
         filterManageInviteLinksPermission: codeVersionBelow221,
