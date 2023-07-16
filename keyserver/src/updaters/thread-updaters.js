@@ -10,7 +10,6 @@ import {
   getThreadTypeParentRequirement,
   validChatNameRegex,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -138,10 +137,7 @@ async function updateRole(
   }
 
   const changeset = await changeRole(request.threadID, memberIDs, request.role);
-  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
-    viewer,
-    changeset,
-  );
+  const { viewerUpdates } = await commitMembershipChangeset(viewer, changeset);
 
   const messageData = {
     type: messageTypes.CHANGE_ROLE,
@@ -153,18 +149,7 @@ async function updateRole(
   };
   const newMessageInfos = await createMessages(viewer, [messageData]);
 
-  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
-    return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
-  }
-
-  return {
-    threadInfo: threadInfos[request.threadID],
-    threadInfos,
-    updatesResult: {
-      newUpdates: viewerUpdates,
-    },
-    newMessageInfos,
-  };
+  return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
 }
 
 async function removeMembers(
@@ -224,10 +209,7 @@ async function removeMembers(
   }
 
   const changeset = await changeRole(request.threadID, actualMemberIDs, 0);
-  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
-    viewer,
-    changeset,
-  );
+  const { viewerUpdates } = await commitMembershipChangeset(viewer, changeset);
 
   const newMessageInfos = await (async () => {
     if (actualMemberIDs.length === 0) {
@@ -243,18 +225,7 @@ async function removeMembers(
     return await createMessages(viewer, [messageData]);
   })();
 
-  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
-    return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
-  }
-
-  return {
-    threadInfo: threadInfos[request.threadID],
-    threadInfos,
-    updatesResult: {
-      newUpdates: viewerUpdates,
-    },
-    newMessageInfos,
-  };
+  return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
 }
 
 async function leaveThread(
@@ -752,18 +723,14 @@ async function updateThread(
   }
 
   const changeset = { membershipRows, relationshipChangeset };
-  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
-    viewer,
-    changeset,
-    {
-      // This forces an update for this thread,
-      // regardless of whether any membership rows are changed
-      changedThreadIDs:
-        Object.keys(sqlUpdate).length > 0
-          ? new Set([request.threadID])
-          : new Set(),
-    },
-  );
+  const { viewerUpdates } = await commitMembershipChangeset(viewer, changeset, {
+    // This forces an update for this thread,
+    // regardless of whether any membership rows are changed
+    changedThreadIDs:
+      Object.keys(sqlUpdate).length > 0
+        ? new Set([request.threadID])
+        : new Set(),
+  });
 
   let newMessageInfos = [];
   if (!silenceMessages) {
@@ -792,18 +759,7 @@ async function updateThread(
     newMessageInfos = await createMessages(viewer, messageDatas);
   }
 
-  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
-    return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
-  }
-
-  return {
-    threadInfo: threadInfos[request.threadID],
-    threadInfos,
-    updatesResult: {
-      newUpdates: viewerUpdates,
-    },
-    newMessageInfos,
-  };
+  return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
 }
 
 async function joinThread(

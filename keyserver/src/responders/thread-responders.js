@@ -25,7 +25,6 @@ import {
   type ThreadFetchMediaRequest,
   type ToggleMessagePinRequest,
   type ToggleMessagePinResult,
-  rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { serverUpdateInfoValidator } from 'lib/types/update-types.js';
 import { userInfosValidator } from 'lib/types/user-types.js';
@@ -102,8 +101,6 @@ export const roleChangeRequestInputValidator: TInterface<RoleChangeRequest> =
 export const changeThreadSettingsResultValidator: TInterface<ChangeThreadSettingsResult> =
   tShape<ChangeThreadSettingsResult>({
     newMessageInfos: t.list(rawMessageInfoValidator),
-    threadInfo: t.maybe(rawThreadInfoValidator),
-    threadInfos: t.maybe(t.dict(tID, rawThreadInfoValidator)),
     updatesResult: tShape({
       newUpdates: t.list(serverUpdateInfoValidator),
     }),
