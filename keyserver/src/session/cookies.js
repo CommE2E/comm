@@ -6,7 +6,6 @@ import invariant from 'invariant';
 import bcrypt from 'twin-bcrypt';
 import url from 'url';
 
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isWebPlatform } from 'lib/types/device-types.js';
@@ -35,7 +34,6 @@ import { dbQuery, SQL } from '../database/database.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import { clearDeviceToken } from '../updaters/device-token-updaters.js';
-import { updateThreadMembers } from '../updaters/thread-updaters.js';
 import { assertSecureRequest } from '../utils/security-utils.js';
 import {
   type AppURLFacts,
@@ -862,13 +860,6 @@ async function setCookiePlatformDetails(
   viewer: Viewer,
   platformDetails: PlatformDetails,
 ): Promise<void> {
-  if (
-    hasMinCodeVersion(platformDetails, { native: 70 }) &&
-    !hasMinCodeVersion(viewer.platformDetails, { native: 70 })
-  ) {
-    await updateThreadMembers(viewer);
-  }
-
   viewer.setPlatformDetails(platformDetails);
   const { platform, ...versions } = platformDetails;
   const versionsString =

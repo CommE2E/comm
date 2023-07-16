@@ -948,27 +948,6 @@ async function joinThread(
   return response;
 }
 
-async function updateThreadMembers(viewer: Viewer) {
-  const { threadInfos } = await fetchThreadInfos(
-    viewer,
-    SQL`t.parent_thread_id IS NOT NULL `,
-  );
-
-  const updateDatas = [];
-  const time = Date.now();
-  for (const threadID in threadInfos) {
-    updateDatas.push({
-      type: updateTypes.UPDATE_THREAD,
-      userID: viewer.id,
-      time,
-      threadID: threadID,
-      targetSession: viewer.session,
-    });
-  }
-
-  await createUpdates(updateDatas);
-}
-
 async function toggleMessagePinForThread(
   viewer: Viewer,
   request: ToggleMessagePinRequest,
@@ -1058,6 +1037,5 @@ export {
   leaveThread,
   updateThread,
   joinThread,
-  updateThreadMembers,
   toggleMessagePinForThread,
 };
