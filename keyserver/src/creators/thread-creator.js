@@ -10,7 +10,6 @@ import {
   generateRandomColor,
 } from 'lib/shared/color-utils.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -283,17 +282,14 @@ async function createThread(
       invariant(existingThreadResult.length > 0, 'thread should exist');
       const existingThreadID = existingThreadResult[0].id.toString();
 
-      let calendarQuery;
-      if (hasMinCodeVersion(viewer.platformDetails, { native: 87 })) {
-        invariant(request.calendarQuery, 'calendar query should exist');
-        calendarQuery = {
-          ...request.calendarQuery,
-          filters: [
-            ...request.calendarQuery.filters,
-            { type: 'threads', threadIDs: [existingThreadID] },
-          ],
-        };
-      }
+      invariant(request.calendarQuery, 'calendar query should exist');
+      const calendarQuery = {
+        ...request.calendarQuery,
+        filters: [
+          ...request.calendarQuery.filters,
+          { type: 'threads', threadIDs: [existingThreadID] },
+        ],
+      };
 
       let joinUpdateInfos = [];
       let userInfos: UserInfos = {};
