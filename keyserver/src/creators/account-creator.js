@@ -7,11 +7,7 @@ import ashoat from 'lib/facts/ashoat.js';
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
-import {
-  validUsernameRegex,
-  oldValidUsernameRegex,
-} from 'lib/shared/account-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import type {
   RegisterResponse,
   RegisterRequest,
@@ -74,12 +70,7 @@ async function createAccount(
   if (request.password.trim() === '') {
     throw new ServerError('empty_password');
   }
-  const usernameRegex = hasMinCodeVersion(viewer.platformDetails, {
-    native: 69,
-  })
-    ? validUsernameRegex
-    : oldValidUsernameRegex;
-  if (request.username.search(usernameRegex) === -1) {
+  if (request.username.search(validUsernameRegex) === -1) {
     throw new ServerError('invalid_username');
   }
 
@@ -103,11 +94,7 @@ async function createAccount(
     reservedUsernamesSet.has(request.username.toLowerCase()) ||
     isValidEthereumAddress(request.username.toLowerCase())
   ) {
-    if (hasMinCodeVersion(viewer.platformDetails, { native: 120 })) {
-      throw new ServerError('username_reserved');
-    } else {
-      throw new ServerError('username_taken');
-    }
+    throw new ServerError('username_reserved');
   }
   if (usernameResult[0].count !== 0) {
     throw new ServerError('username_taken');
