@@ -16,7 +16,7 @@ import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 
-const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
+const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
   [
     0,
     async () => {
@@ -465,6 +465,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
         );
       }
     },
+  ],
+  [
+    39,
+    () =>
+      dbQuery(
+        SQL`
+        ALTER TABLE memberships
+          DROP INDEX user,
+          ADD KEY user_role_thread (user, role, thread)
+      `,
+      ),
   ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
