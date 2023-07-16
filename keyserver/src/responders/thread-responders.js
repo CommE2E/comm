@@ -3,7 +3,6 @@
 import t from 'tcomb';
 import type { TInterface, TUnion } from 'tcomb';
 
-import { rawEntryInfoValidator } from 'lib/types/entry-types.js';
 import { mediaValidator } from 'lib/types/media-types.js';
 import {
   rawMessageInfoValidator,
@@ -268,14 +267,12 @@ const joinThreadRequestInputValidator = tShape<ServerThreadJoinRequest>({
 
 export const threadJoinResultValidator: TInterface<ThreadJoinResult> =
   tShape<ThreadJoinResult>({
-    threadInfos: t.maybe(t.dict(tID, rawThreadInfoValidator)),
     updatesResult: tShape({
       newUpdates: t.list(serverUpdateInfoValidator),
     }),
     rawMessageInfos: t.list(rawMessageInfoValidator),
     truncationStatuses: messageTruncationStatusesValidator,
     userInfos: userInfosValidator,
-    rawEntryInfos: t.maybe(t.list(rawEntryInfoValidator)),
   });
 
 async function threadJoinResponder(
