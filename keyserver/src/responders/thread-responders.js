@@ -64,7 +64,6 @@ const threadDeletionRequestInputValidator = tShape<ThreadDeletionRequest>({
 
 export const leaveThreadResultValidator: TInterface<LeaveThreadResult> =
   tShape<LeaveThreadResult>({
-    threadInfos: t.maybe(t.dict(tID, rawThreadInfoValidator)),
     updatesResult: tShape({
       newUpdates: t.list(serverUpdateInfoValidator),
     }),

@@ -1,7 +1,6 @@
 // @flow
 
 import { permissionLookup } from 'lib/permissions/thread-permissions.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadDeletionRequest,
@@ -13,7 +12,6 @@ import { ServerError } from 'lib/utils/errors.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import {
-  fetchThreadInfos,
   fetchServerThreadInfos,
   fetchContainedThreadIDs,
 } from '../fetchers/thread-fetchers.js';
@@ -36,16 +34,10 @@ async function deleteThread(
   if (!permissionsBlob) {
     // This should only occur if the first request goes through but the client
     // never receives the response
-    const [{ updateInfos }, fetchThreadInfoResult] = await Promise.all([
-      fetchUpdateInfoForThreadDeletion(viewer, threadID),
-      hasMinCodeVersion(viewer.platformDetails, { native: 62 })
-        ? undefined
-        : fetchThreadInfos(viewer),
-    ]);
-    if (fetchThreadInfoResult) {
-      const { threadInfos } = fetchThreadInfoResult;
-      return { threadInfos, updatesResult: { newUpdates: updateInfos } };
-    }
+    const { updateInfos } = await fetchUpdateInfoForThreadDeletion(
+      viewer,
+      threadID,
+    );
     return { updatesResult: { newUpdates: updateInfos } };
   }
 
@@ -110,17 +102,7 @@ async function deleteThread(
     dbQuery(query),
   ]);
 
-  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
-    return { updatesResult: { newUpdates: viewerUpdates } };
-  }
-
-  const { threadInfos } = await fetchThreadInfos(viewer);
-  return {
-    threadInfos,
-    updatesResult: {
-      newUpdates: viewerUpdates,
-    },
-  };
+  return { updatesResult: { newUpdates: viewerUpdates } };
 }
 
 async function deleteInaccessibleThreads(): Promise<void> {
