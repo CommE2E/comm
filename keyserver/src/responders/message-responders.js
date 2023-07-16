@@ -43,7 +43,6 @@ import {
 } from 'lib/utils/validation-utils.js';
 
 import createMessages from '../creators/message-creator.js';
-import { SQL } from '../database/database.js';
 import {
   fetchMessageInfos,
   fetchMessageInfoForLocalID,
@@ -303,7 +302,7 @@ async function reactionMessageCreationResponder(
 
   const [serverThreadInfos, hasPermission, targetMessageUserInfos] =
     await Promise.all([
-      fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+      fetchServerThreadInfos({ threadID }),
       checkThreadPermission(
         viewer,
         threadID,
@@ -393,11 +392,12 @@ async function editMessageCreationResponder(
 
   const [serverThreadInfos, hasPermission, rawSidebarThreadInfos] =
     await Promise.all([
-      fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+      fetchServerThreadInfos({ threadID }),
       checkThreadPermission(viewer, threadID, threadPermissions.EDIT_MESSAGE),
-      fetchServerThreadInfos(
-        SQL`t.parent_thread_id = ${threadID} AND t.source_message = ${targetMessageID}`,
-      ),
+      fetchServerThreadInfos({
+        parentThreadID: threadID,
+        sourceMessageID: targetMessageID,
+      }),
     ]);
 
   const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];

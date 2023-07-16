@@ -21,10 +21,9 @@ async function userSubscriptionUpdater(
     throw new ServerError('not_logged_in');
   }
 
-  const { threadInfos } = await fetchThreadInfos(
-    viewer,
-    SQL`t.id = ${update.threadID}`,
-  );
+  const { threadInfos } = await fetchThreadInfos(viewer, {
+    threadID: update.threadID,
+  });
   const threadInfo = threadInfos[update.threadID];
   if (!viewerIsMember(threadInfo)) {
     throw new ServerError('not_member');

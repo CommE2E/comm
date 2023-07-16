@@ -77,7 +77,7 @@ async function updateRole(
       request.threadID,
       threadPermissions.CHANGE_ROLE,
     ),
-    fetchThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
+    fetchThreadInfos(viewer, { threadID: request.threadID }),
   ]);
   if (memberIDs.length === 0) {
     throw new ServerError('invalid_parameters');
@@ -237,7 +237,7 @@ async function leaveThread(
   }
 
   const [fetchThreadResult, hasPermission] = await Promise.all([
-    fetchThreadInfos(viewer, SQL`t.id = ${request.threadID}`),
+    fetchThreadInfos(viewer, { threadID: request.threadID }),
     checkThreadPermission(
       viewer,
       request.threadID,
@@ -376,9 +376,9 @@ async function updateThread(
     throw new ServerError('invalid_parameters');
   }
 
-  validationPromises.serverThreadInfos = fetchServerThreadInfos(
-    SQL`t.id = ${request.threadID}`,
-  );
+  validationPromises.serverThreadInfos = fetchServerThreadInfos({
+    threadID: request.threadID,
+  });
 
   validationPromises.hasNecessaryPermissions = (async () => {
     if (ignorePermissions) {
@@ -895,7 +895,7 @@ async function toggleMessagePinForThread(
   }
 
   const [{ threadInfos: serverThreadInfos }] = await Promise.all([
-    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
+    fetchServerThreadInfos({ threadID }),
     dbQuery(togglePinQuery),
     dbQuery(updateThreadQuery),
   ]);

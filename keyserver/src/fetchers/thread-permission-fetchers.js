@@ -153,7 +153,7 @@ async function checkThreadsFrozen(
   }
 
   const [{ threadInfos }, userInfos] = await Promise.all([
-    fetchThreadInfos(viewer, SQL`t.id IN (${[...threadIDs]})`),
+    fetchThreadInfos(viewer, { threadIDs: new Set(threadIDs) }),
     fetchKnownUserInfos(viewer),
   ]);
 
