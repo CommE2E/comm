@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
@@ -175,16 +174,8 @@ async function createAccount(
       { forceAddMembers: true },
     ),
   ]);
-  const ashoatThreadID = ashoatThreadResult.newThreadInfo
-    ? ashoatThreadResult.newThreadInfo.id
-    : ashoatThreadResult.newThreadID;
-  const privateThreadID = privateThreadResult.newThreadInfo
-    ? privateThreadResult.newThreadInfo.id
-    : privateThreadResult.newThreadID;
-  invariant(
-    ashoatThreadID && privateThreadID,
-    'createThread should return either newThreadInfo or newThreadID',
-  );
+  const ashoatThreadID = ashoatThreadResult.newThreadID;
+  const privateThreadID = privateThreadResult.newThreadID;
 
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({
@@ -308,16 +299,8 @@ async function processSIWEAccountCreation(
       { forceAddMembers: true },
     ),
   ]);
-  const ashoatThreadID = ashoatThreadResult.newThreadInfo
-    ? ashoatThreadResult.newThreadInfo.id
-    : ashoatThreadResult.newThreadID;
-  const privateThreadID = privateThreadResult.newThreadInfo
-    ? privateThreadResult.newThreadInfo.id
-    : privateThreadResult.newThreadID;
-  invariant(
-    ashoatThreadID && privateThreadID,
-    'createThread should return either newThreadInfo or newThreadID',
-  );
+  const ashoatThreadID = ashoatThreadResult.newThreadID;
+  const privateThreadID = privateThreadResult.newThreadID;
 
   let messageTime = Date.now();
   const ashoatMessageDatas = ashoatMessages.map(message => ({
