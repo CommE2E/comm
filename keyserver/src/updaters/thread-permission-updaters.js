@@ -36,7 +36,6 @@ import { dbQuery, SQL } from '../database/database.js';
 import {
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
-  type FetchThreadInfosResult,
 } from '../fetchers/thread-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
 import { createScriptViewer } from '../session/scripts.js';
@@ -975,7 +974,6 @@ const emptyCommitMembershipChangesetConfig = Object.freeze({});
 // only needs to be specified if a JOIN_THREAD update will be generated for the
 // viewer, in which case it's necessary for knowing the set of entries to fetch.
 type ChangesetCommitResult = {
-  ...FetchThreadInfosResult,
   ...CreateUpdatesResult,
 };
 async function commitMembershipChangeset(
@@ -1054,10 +1052,9 @@ async function commitMembershipChangeset(
     rescindPushNotifsForMemberDeletion(toRescindPushNotifs),
   ]);
 
-  // We fetch all threads here because old clients still expect the full list of
-  // threads on most thread operations. Once verifyClientSupported gates on
-  // codeVersion 62, we can add a WHERE clause on changedThreadIDs here
-  const serverThreadInfoFetchResult = await fetchServerThreadInfos();
+  const serverThreadInfoFetchResult = await fetchServerThreadInfos(
+    SQL`t.id IN (${[...changedThreadIDs]})`,
+  );
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();
@@ -1117,7 +1114,6 @@ async function commitMembershipChangeset(
   });
 
   return {
-    ...threadInfoFetchResult,
     userInfos,
     viewerUpdates,
   };
