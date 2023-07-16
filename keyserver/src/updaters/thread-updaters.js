@@ -13,7 +13,6 @@ import {
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
@@ -43,12 +42,8 @@ import {
 import createMessages from '../creators/message-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
 import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
-import {
-  fetchMessageInfos,
-  fetchMessageInfoByID,
-} from '../fetchers/message-fetchers.js';
+import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
@@ -855,14 +850,6 @@ async function joinThread(
     throw new ServerError('invalid_parameters');
   }
 
-  // TODO: determine code version
-  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 87,
-  });
-  const hasCodeVersionBelow62 = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 62,
-  });
-
   const { calendarQuery } = request;
   if (isMember) {
     const response: ThreadJoinResult = {
@@ -873,12 +860,6 @@ async function joinThread(
         newUpdates: [],
       },
     };
-    if (calendarQuery && hasCodeVersionBelow87) {
-      response.rawEntryInfos = [];
-    }
-    if (hasCodeVersionBelow62) {
-      response.threadInfos = {};
-    }
     return response;
   }
 
@@ -911,41 +892,14 @@ async function joinThread(
   };
   const newMessages = await createMessages(viewer, [messageData]);
 
-  const messageSelectionCriteria = {
-    threadCursors: { [request.threadID]: false },
-  };
-
-  if (!hasCodeVersionBelow87) {
-    return {
-      rawMessageInfos: newMessages,
-      truncationStatuses: {},
-      userInfos: membershipResult.userInfos,
-      updatesResult: {
-        newUpdates: membershipResult.viewerUpdates,
-      },
-    };
-  }
-
-  const [fetchMessagesResult, fetchEntriesResult] = await Promise.all([
-    fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
-    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
-  ]);
-  const rawEntryInfos = fetchEntriesResult && fetchEntriesResult.rawEntryInfos;
-  const response: ThreadJoinResult = {
-    rawMessageInfos: fetchMessagesResult.rawMessageInfos,
-    truncationStatuses: fetchMessagesResult.truncationStatuses,
+  return {
+    rawMessageInfos: newMessages,
+    truncationStatuses: {},
     userInfos: membershipResult.userInfos,
     updatesResult: {
       newUpdates: membershipResult.viewerUpdates,
     },
   };
-  if (hasCodeVersionBelow62) {
-    response.threadInfos = membershipResult.threadInfos;
-  }
-  if (rawEntryInfos) {
-    response.rawEntryInfos = rawEntryInfos;
-  }
-  return response;
 }
 
 async function toggleMessagePinForThread(
