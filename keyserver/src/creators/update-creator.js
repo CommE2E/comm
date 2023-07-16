@@ -440,10 +440,9 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   const promises = {};
 
   if (!viewerInfo.threadInfos && threadIDsNeedingFetch.size > 0) {
-    promises.threadResult = fetchThreadInfos(
-      viewer,
-      SQL`t.id IN (${[...threadIDsNeedingFetch]})`,
-    );
+    promises.threadResult = fetchThreadInfos(viewer, {
+      threadIDs: threadIDsNeedingFetch,
+    });
   }
 
   let calendarQuery: ?CalendarQuery = viewerInfo.calendarQuery

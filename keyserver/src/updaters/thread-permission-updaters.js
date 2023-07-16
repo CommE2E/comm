@@ -1052,9 +1052,9 @@ async function commitMembershipChangeset(
     rescindPushNotifsForMemberDeletion(toRescindPushNotifs),
   ]);
 
-  const serverThreadInfoFetchResult = await fetchServerThreadInfos(
-    SQL`t.id IN (${[...changedThreadIDs]})`,
-  );
+  const serverThreadInfoFetchResult = await fetchServerThreadInfos({
+    threadIDs: changedThreadIDs,
+  });
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();

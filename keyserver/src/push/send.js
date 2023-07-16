@@ -495,9 +495,7 @@ async function fetchInfos(pushInfo: PushInfo) {
 
   const promises = {};
   // These threadInfos won't have currentUser set
-  promises.threadResult = fetchServerThreadInfos(
-    SQL`t.id IN (${[...threadIDs]})`,
-  );
+  promises.threadResult = fetchServerThreadInfos({ threadIDs });
   if (threadWithChangedNamesToMessages.size > 0) {
     const typesThatAffectName = [
       messageTypes.CHANGE_SETTINGS,
