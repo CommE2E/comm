@@ -277,17 +277,8 @@ async function leaveThread(
   const threadInfo = fetchThreadResult.threadInfos[request.threadID];
 
   if (!viewerIsMember(threadInfo)) {
-    if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
-      return {
-        updatesResult: { newUpdates: [] },
-      };
-    }
-    const { threadInfos } = await fetchThreadInfos(viewer);
     return {
-      threadInfos,
-      updatesResult: {
-        newUpdates: [],
-      },
+      updatesResult: { newUpdates: [] },
     };
   }
 
@@ -316,10 +307,7 @@ async function leaveThread(
   }
 
   const changeset = await changeRole(request.threadID, [viewerID], 0);
-  const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
-    viewer,
-    changeset,
-  );
+  const { viewerUpdates } = await commitMembershipChangeset(viewer, changeset);
 
   const messageData = {
     type: messageTypes.LEAVE_THREAD,
@@ -329,16 +317,7 @@ async function leaveThread(
   };
   await createMessages(viewer, [messageData]);
 
-  if (hasMinCodeVersion(viewer.platformDetails, { native: 62 })) {
-    return { updatesResult: { newUpdates: viewerUpdates } };
-  }
-
-  return {
-    threadInfos,
-    updatesResult: {
-      newUpdates: viewerUpdates,
-    },
-  };
+  return { updatesResult: { newUpdates: viewerUpdates } };
 }
 
 type UpdateThreadOptions = Shape<{
