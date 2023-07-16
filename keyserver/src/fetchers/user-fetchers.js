@@ -2,7 +2,10 @@
 
 import invariant from 'invariant';
 
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  FUTURE_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import {
   undirectedStatus,
@@ -310,26 +313,12 @@ async function fetchLoggedInUserInfo(
   ]);
 
   const [userRow] = userResult;
-
-  const stillExpectsEmailFields = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 87,
-  });
-
   if (!userRow) {
     throw new ServerError('unknown_error');
   }
 
   const id = userRow.id.toString();
   const { username, upload_id, upload_secret } = userRow;
-
-  if (stillExpectsEmailFields) {
-    return {
-      id,
-      username,
-      email: 'removed from DB',
-      emailVerified: true,
-    };
-  }
 
   let loggedInUserInfo: LoggedInUserInfo = {
     id,
@@ -360,7 +349,7 @@ async function fetchLoggedInUserInfo(
   }
 
   const featureGateSettings = !hasMinCodeVersion(viewer.platformDetails, {
-    native: 1000,
+    native: FUTURE_CODE_VERSION,
   });
 
   if (featureGateSettings) {
