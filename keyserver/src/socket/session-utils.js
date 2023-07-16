@@ -5,12 +5,9 @@ import t from 'tcomb';
 import type { TUnion } from 'tcomb';
 
 import {
-  usersInRawEntryInfos,
   serverEntryInfo,
   serverEntryInfosObject,
 } from 'lib/shared/entry-utils.js';
-import { usersInThreadInfo } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { UpdateActivityResult } from 'lib/types/activity-types.js';
 import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isDeviceType } from 'lib/types/device-types.js';
@@ -54,7 +51,6 @@ import { checkIfSessionHasEnoughOneTimeKeys } from '../fetchers/key-fetchers.js'
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchCurrentUserInfo,
-  fetchUserInfos,
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers.js';
 import { activityUpdatesInputValidator } from '../responders/activity-responders.js';
@@ -397,10 +393,6 @@ async function checkState(
   status: StateCheckStatus,
   calendarQuery: CalendarQuery,
 ): Promise<StateCheckResult> {
-  const shouldCheckUserInfos = hasMinCodeVersion(viewer.platformDetails, {
-    native: 59,
-  });
-
   if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };
   } else if (status.status === 'state_check') {
@@ -408,25 +400,17 @@ async function checkState(
       threadsResult: fetchThreadInfos(viewer),
       entriesResult: fetchEntryInfos(viewer, [calendarQuery]),
       currentUserInfo: fetchCurrentUserInfo(viewer),
-      userInfosResult: undefined,
+      userInfosResult: fetchKnownUserInfos(viewer),
     };
-    if (shouldCheckUserInfos) {
-      promises.userInfosResult = fetchKnownUserInfos(viewer);
-    }
     const fetchedData = await promiseAll(promises);
-    let hashesToCheck = {
+    const hashesToCheck = {
       threadInfos: hash(fetchedData.threadsResult.threadInfos),
       entryInfos: hash(
         serverEntryInfosObject(fetchedData.entriesResult.rawEntryInfos),
       ),
       currentUserInfo: hash(fetchedData.currentUserInfo),
+      userInfos: hash(fetchedData.userInfosResult),
     };
-    if (shouldCheckUserInfos) {
-      hashesToCheck = {
-        ...hashesToCheck,
-        userInfos: hash(fetchedData.userInfosResult),
-      };
-    }
     const checkStateRequest = {
       type: serverRequestTypes.CHECK_STATE,
       hashesToCheck,
@@ -578,36 +562,6 @@ async function checkState(
     }
   }
 
-  if (!shouldCheckUserInfos) {
-    const userIDs = new Set();
-    if (stateChanges.rawThreadInfos) {
-      for (const threadInfo of stateChanges.rawThreadInfos) {
-        for (const userID of usersInThreadInfo(threadInfo)) {
-          userIDs.add(userID);
-        }
-      }
-    }
-    if (stateChanges.rawEntryInfos) {
-      for (const userID of usersInRawEntryInfos(stateChanges.rawEntryInfos)) {
-        userIDs.add(userID);
-      }
-    }
-
-    const userInfos = [];
-    if (userIDs.size > 0) {
-      const fetchedUserInfos = await fetchUserInfos([...userIDs]);
-      for (const userID in fetchedUserInfos) {
-        const userInfo = fetchedUserInfos[userID];
-        if (userInfo && userInfo.username) {
-          const { id, username } = userInfo;
-          userInfos.push({ id, username });
-        }
-      }
-    }
-    if (userInfos.length > 0) {
-      stateChanges.userInfos = userInfos;
-    }
-  }
   const checkStateRequest = {
     type: serverRequestTypes.CHECK_STATE,
     hashesToCheck,
