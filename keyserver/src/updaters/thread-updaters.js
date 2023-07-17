@@ -62,10 +62,16 @@ import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
+type UpdateRoleOptions = {
+  +silenceNewMessages?: boolean,
+};
 async function updateRole(
   viewer: Viewer,
   request: RoleChangeRequest,
+  options?: UpdateRoleOptions,
 ): Promise<ChangeThreadSettingsResult> {
+  const silenceNewMessages = options?.silenceNewMessages;
+
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -148,7 +154,10 @@ async function updateRole(
     newRole: request.role,
     roleName: threadInfo.roles[request.role].name,
   };
-  const newMessageInfos = await createMessages(viewer, [messageData]);
+  let newMessageInfos = [];
+  if (!silenceNewMessages) {
+    newMessageInfos = await createMessages(viewer, [messageData]);
+  }
 
   return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
 }
