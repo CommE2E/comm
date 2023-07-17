@@ -12,7 +12,6 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
   logInActionTypes,
-  resetUserStateActionType,
 } from 'lib/actions/user-actions.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
@@ -91,7 +90,6 @@ const defaultState = ({
   updatesCurrentAsOf: 0,
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
-  cookie: null,
   deviceToken: null,
   dataLoaded: false,
   urlPrefix: defaultURLPrefix,
@@ -298,10 +296,6 @@ function reducer(state: AppState = defaultState, action: Action) {
 
   if (action.type === setNewSessionActionType) {
     sessionInvalidationAlert(action.payload);
-    state = {
-      ...state,
-      cookie: action.payload.sessionChange.cookie,
-    };
   }
   if (action.type === setStoreLoadedActionType) {
     return {
@@ -328,16 +322,6 @@ function reducer(state: AppState = defaultState, action: Action) {
       // call to reducer we ignore the SQLite data since it is not valid
       return state;
     }
-  }
-  if (action.type === resetUserStateActionType) {
-    const cookie =
-      state.cookie && state.cookie.startsWith('anonymous=')
-        ? state.cookie
-        : null;
-    state = {
-      ...state,
-      cookie,
-    };
   }
 
   const baseReducerResult = baseReducer(state, (action: BaseAction));
