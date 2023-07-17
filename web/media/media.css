@@ -21,6 +21,10 @@ span.multimedia > .multimediaImage > video {
   max-height: 200px;
   max-width: 100%;
 }
+/* Prevent borders around images without src attribute */
+span.multimedia > .multimediaImage > img:not([src]) {
+  visibility: hidden;
+}
 span.multimedia > .multimediaImage svg.removeUpload {
   display: none;
   position: absolute;
