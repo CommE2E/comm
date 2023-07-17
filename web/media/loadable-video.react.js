@@ -7,6 +7,7 @@ import type { Shape } from 'lib/types/core.js';
 
 import { decryptMedia } from './encryption-utils.js';
 import { preloadImage } from './media-utils.js';
+import type { CSSStyle } from '../types/styles';
 
 type ThumbnailSource =
   | {
@@ -20,7 +21,7 @@ type Props = {
   +uri: ?string,
   +thumbnailSource: ThumbnailSource,
   +thumbHashDataURL?: ?string,
-  +elementStyle?: ?Shape<CSSStyleDeclaration>,
+  +elementStyle?: ?Shape<CSSStyle>,
   +multimediaClassName?: string,
 };
 

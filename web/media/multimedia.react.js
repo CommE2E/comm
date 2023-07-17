@@ -158,8 +158,7 @@ function Multimedia(props: Props): React.Node {
         ? `center / cover url(${placeholderImage})`
         : undefined,
       width: `${calculatedWidth}px`,
-      // height is limited by the max-height style in media.css
-      height: `${height}px`,
+      aspectRatio: `${width} / ${height}`,
     };
   }, [dimensions, placeholderImage]);
 
