@@ -5,7 +5,10 @@ import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { getRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
+import {
+  getRoleMemberCountsForCommunity,
+  getRoleUserSurfacedPermissions,
+} from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import RolePanelEntry from './role-panel-entry.react.js';
@@ -52,6 +55,11 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
     [threadInfo],
   );
 
+  const roleNamesToUserSurfacedPermissions = React.useMemo(
+    () => getRoleUserSurfacedPermissions(threadInfo),
+    [threadInfo],
+  );
+
   const rolePanelList = React.useMemo(() => {
     const rolePanelEntries = [];
 
@@ -59,14 +67,22 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
       rolePanelEntries.push(
         <RolePanelEntry
           key={roleName}
+          navigation={props.navigation}
+          threadInfo={threadInfo}
           roleName={roleName}
+          rolePermissions={roleNamesToUserSurfacedPermissions[roleName]}
           memberCount={roleNamesToMembers[roleName]}
         />,
       );
     });
 
     return rolePanelEntries;
-  }, [roleNamesToMembers]);
+  }, [
+    roleNamesToMembers,
+    props.navigation,
+    threadInfo,
+    roleNamesToUserSurfacedPermissions,
+  ]);
 
   const navigateToCreateRole = React.useCallback(
     () =>
