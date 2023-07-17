@@ -93,7 +93,7 @@ async function modifyRole(
     throw new ServerError('invalid_credentials');
   }
 
-  const { community, name, permissions, action } = request;
+  const { community, existingRoleID, name, permissions, action } = request;
 
   for (const permission of permissions) {
     if (!userSurfacedPermissionsSet.has(permission)) {
@@ -141,7 +141,11 @@ async function modifyRole(
       VALUES (${row})
     `;
   } else if (action === 'edit_role') {
-    throw new ServerError("unimplemented: can't edit roles yet");
+    query = SQL`
+      UPDATE roles
+      SET name = ${name}, permissions = ${permissionsBlob}
+      WHERE id = ${existingRoleID}
+    `;
   }
 
   await dbQuery(query);
