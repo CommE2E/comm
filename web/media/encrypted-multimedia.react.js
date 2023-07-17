@@ -12,6 +12,7 @@ import { decryptMedia } from './encryption-utils.js';
 import LoadableVideo from './loadable-video.react.js';
 import css from './media.css';
 import LoadingIndicator from '../loading-indicator.react.js';
+import type { CSSStyle } from '../types/styles';
 
 type Props = {
   +blobURI: string,
@@ -21,7 +22,7 @@ type Props = {
   +thumbnailEncryptionKey?: ?string,
   +placeholderSrc?: ?string,
   +multimediaClassName?: string,
-  +elementStyle?: ?Shape<CSSStyleDeclaration>,
+  +elementStyle?: ?Shape<CSSStyle>,
 };
 
 function EncryptedMultimedia(props: Props): React.Node {
