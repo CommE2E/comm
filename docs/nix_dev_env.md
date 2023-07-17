@@ -25,7 +25,11 @@ Some workflows require additional steps after the Nix installation. These steps 
 
 # Requirements
 
-To set up a dev environment using Nix, you will need a macOS or Linux machine.
+To set up a dev environment using Nix, you will need a macOS or Linux machine. If you are using a Mac computer with Apple silicon, you will need to install Rosetta 2. You can do this by running:
+
+```
+softwareupdate --install-rosetta
+```
 
 # Prerequisites
 
