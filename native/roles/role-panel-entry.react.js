@@ -1,10 +1,15 @@
 // @flow
 
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { values } from 'lib/utils/objects.js';
 
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type RolePanelEntryProps = {
@@ -29,6 +34,62 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
     );
   }, [roleName, styles.rolePanelEmptyMenuButton, styles.rolePanelMenuButton]);
 
+  const optionsMap = React.useMemo(() => {
+    const optionsToIcons = {};
+
+    optionsToIcons['Edit role'] = (
+      <SWMansionIcon key="edit-1" name="edit-1" size={20} />
+    );
+
+    if (Platform.OS === 'ios') {
+      optionsToIcons['Cancel'] = null;
+    }
+
+    return optionsToIcons;
+  }, []);
+
+  const onOptionSelected = React.useCallback(
+    (index: ?number) => {
+      if (
+        index === undefined ||
+        index === null ||
+        index === Object.keys(optionsMap).length
+      ) {
+        return;
+      }
+    },
+    [optionsMap],
+  );
+
+  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+  const { showActionSheetWithOptions } = useActionSheet();
+  const insets = useSafeAreaInsets();
+
+  const showActionSheet = React.useCallback(() => {
+    const cancelButtonIndex =
+      Platform.OS === 'ios' ? Object.keys(optionsMap).length - 1 : -1;
+    const containerStyle = {
+      paddingBottom: insets.bottom,
+    };
+
+    showActionSheetWithOptions(
+      {
+        options: Object.keys(optionsMap),
+        cancelButtonIndex,
+        containerStyle,
+        userInterfaceStyle: activeTheme ?? 'dark',
+        icons: values(optionsMap),
+      },
+      onOptionSelected,
+    );
+  }, [
+    optionsMap,
+    onOptionSelected,
+    insets.bottom,
+    activeTheme,
+    showActionSheetWithOptions,
+  ]);
+
   return (
     <View style={styles.rolePanelEntry}>
       <Text style={styles.rolePanelNameEntry}>{roleName}</Text>
@@ -38,7 +99,9 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
           <CommIcon name="user-filled" size={14} />
         </Text>
       </View>
-      <TouchableOpacity>{menuButton}</TouchableOpacity>
+      <TouchableOpacity onPress={showActionSheet}>
+        {menuButton}
+      </TouchableOpacity>
     </View>
   );
 }
