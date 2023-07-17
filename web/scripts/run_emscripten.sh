@@ -87,6 +87,7 @@ CFLAGS=(
 )
 
 INPUT_FILES=(
+  "${WEB_CPP_DIR}SQLiteQueryExecutorBindings.cpp"
   "${INPUT_DIR}CommQueryExecutor.cpp"
   "${INPUT_DIR}SQLiteQueryExecutor.cpp"
   "${WEB_CPP_DIR}Logger.cpp"
