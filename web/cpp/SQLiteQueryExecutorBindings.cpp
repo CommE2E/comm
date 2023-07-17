@@ -1,5 +1,45 @@
+#include "../../native/cpp/CommonCpp/DatabaseManagers/SQLiteQueryExecutor.cpp"
 #include <emscripten/bind.h>
 #include <vector>
+
+namespace comm {
+
+using namespace emscripten;
+
+EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
+  value_object<Draft>("Draft")
+      .field("key", &Draft::key)
+      .field("text", &Draft::text);
+  value_object<Report>("Report")
+      .field("id", &Report::id)
+      .field("report", &Report::report);
+  value_object<PersistItem>("PersistItem")
+      .field("key", &PersistItem::key)
+      .field("item", &PersistItem::item);
+
+  class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
+      .constructor<std::string>()
+      .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
+      .function("moveDraft", &SQLiteQueryExecutor::moveDraft)
+      .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
+      .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
+      .function("setMetadata", &SQLiteQueryExecutor::setMetadata)
+      .function("clearMetadata", &SQLiteQueryExecutor::clearMetadata)
+      .function("getMetadata", &SQLiteQueryExecutor::getMetadata)
+      .function("replaceReport", &SQLiteQueryExecutor::replaceReport)
+      .function("removeReports", &SQLiteQueryExecutor::removeReports)
+      .function("removeAllReports", &SQLiteQueryExecutor::removeAllReports)
+      .function("getAllReports", &SQLiteQueryExecutor::getAllReports)
+      .function(
+          "setPersistStorageItem", &SQLiteQueryExecutor::setPersistStorageItem)
+      .function(
+          "removePersistStorageItem",
+          &SQLiteQueryExecutor::removePersistStorageItem)
+      .function(
+          "getPersistStorageItem", &SQLiteQueryExecutor::getPersistStorageItem);
+}
+
+} // namespace comm
 
 namespace emscripten {
 namespace internal {

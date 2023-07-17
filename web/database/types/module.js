@@ -2,6 +2,7 @@
 
 import type { CommQueryExecutorType } from './comm-query-creator.js';
 import type { FS } from './file-system.js';
+import type { SQLiteQueryExecutor } from './sqlite-query-executor.js';
 
 interface WebAssembly$Module {}
 
@@ -66,5 +67,6 @@ declare export class EmscriptenModule {
 
   FS: FS;
 
+  SQLiteQueryExecutor: SQLiteQueryExecutor;
   CommQueryExecutor: CommQueryExecutorType;
 }
