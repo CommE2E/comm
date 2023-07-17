@@ -2,5 +2,8 @@
   "env": {
     "node": true,
     "jest": true
+  },
+  "engines": {
+    "node": ">=18.12.1"
   }
 }
