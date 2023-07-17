@@ -648,6 +648,14 @@ const migrations = {
       ),
     };
   },
+  [44]: async state => {
+    const { cookie, ...rest } = state;
+
+    return {
+      ...rest,
+      keyserverStore: { keyserverInfos: { [keyserverPrefixID]: cookie } },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`

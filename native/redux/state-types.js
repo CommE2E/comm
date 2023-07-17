@@ -38,7 +38,6 @@ export type AppState = {
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  cookie: ?string,
   deviceToken: ?string,
   dataLoaded: boolean,
   urlPrefix: string,

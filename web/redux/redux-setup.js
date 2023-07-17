@@ -82,7 +82,6 @@ export type AppState = {
   communityPickerStore: CommunityPickerStore,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
-  cookie?: void,
   deviceToken: ?string,
   baseHref: string,
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
