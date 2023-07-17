@@ -128,7 +128,7 @@ function MessageSearchModal(props: ContentProps): React.Node {
   );
 
   return (
-    <Modal name="Search Message" onClose={popModal} size="large">
+    <Modal name="Search messages" onClose={popModal} size="large">
       <div className={css.container}>
         <div className={css.header}>
           <Search
