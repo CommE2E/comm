@@ -46,7 +46,15 @@ function updateClientDBThreadStoreThreadInfos(
     commCoreModule.processThreadStoreOperationsSync(operations);
   } catch (exception) {
     console.log(exception);
-    return { ...state, cookie: null };
+    const keyserverInfos = { ...state.keyserverStore.keyserverInfos };
+    for (const key in keyserverInfos) {
+      keyserverInfos[key] = { ...keyserverInfos[key], cookie: null };
+    }
+    const keyserverStore = { ...state.keyserverStore, keyserverInfos };
+    return {
+      ...state,
+      keyserverStore,
+    };
   }
 
   return state;

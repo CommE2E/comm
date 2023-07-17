@@ -94,6 +94,14 @@ const migrations = {
 
     return newState;
   },
+  [4]: async state => {
+    const { cookie, ...rest } = state;
+
+    return {
+      ...rest,
+      keyserverStore: { keyserverInfos: {} },
+    };
+  },
 };
 
 const persistWhitelist = [
