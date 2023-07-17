@@ -9,12 +9,15 @@ import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
   getRoleForPermissions,
+  permissionLookup,
 } from 'lib/permissions/thread-permissions.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import type {
   ThreadPermissionsBlob,
   ThreadRolePermissionsBlob,
 } from 'lib/types/thread-permission-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadType,
   assertThreadType,
@@ -55,6 +58,7 @@ export type MembershipRowToSave = {
   // null role represents by "0"
   +role: string,
   +oldRole: string,
+  +latestMessage?: string,
   +unread?: boolean,
 };
 type MembershipRowToDelete = {
@@ -189,7 +193,7 @@ async function changeRole(
     relationshipChangeset.setAllRelationshipsExist(parentMemberIDs);
   }
 
-  const membershipRows = [];
+  let membershipRows = [];
   const toUpdateDescendants = new Map();
   for (const userID of userIDs) {
     const existingMembership = existingMembershipInfo.get(userID);
@@ -296,20 +300,60 @@ async function changeRole(
     }
   }
 
+  let descendantMembershipRows = [];
   if (toUpdateDescendants.size > 0) {
     const {
-      membershipRows: descendantMembershipRows,
+      membershipRows: updatedDescendantMembershipRows,
       relationshipChangeset: descendantRelationshipChangeset,
     } = await updateDescendantPermissions({
       threadID,
       depth,
       changesByUser: toUpdateDescendants,
     });
-    pushAll(membershipRows, descendantMembershipRows);
+    descendantMembershipRows = updatedDescendantMembershipRows;
     relationshipChangeset.addAll(descendantRelationshipChangeset);
   }
 
-  return { membershipRows, relationshipChangeset };
+  const userThreadPairs = membershipRows
+    .filter(row => row.intent === 'join' && row.operation === 'save')
+    .map(row => [row.userID, row.threadID]);
+
+  // For the latest message we also need to handle visible descendants that
+  // might not have the membership rows right now, but will be added after
+  // this function returns
+  const visibleDescendantThreadsByUser = new Map();
+  for (const row of descendantMembershipRows) {
+    if (
+      row.operation === 'save' &&
+      permissionLookup(row.permissions, threadPermissions.VISIBLE)
+    ) {
+      visibleDescendantThreadsByUser.set(row.userID, [
+        row.threadID,
+        ...(visibleDescendantThreadsByUser.get(row.userID) ?? []),
+      ]);
+    }
+  }
+
+  const latestMessages = await getLatestMessages(
+    userThreadPairs,
+    visibleDescendantThreadsByUser,
+  );
+
+  membershipRows = membershipRows.map(row => {
+    if (row.intent !== 'join' || row.operation !== 'save') {
+      return row;
+    }
+
+    return {
+      ...row,
+      latestMessage: latestMessages.get(row.userID)?.get(row.threadID),
+    };
+  });
+
+  return {
+    membershipRows: [...membershipRows, ...descendantMembershipRows],
+    relationshipChangeset,
+  };
 }
 
 type RoleThreadResult = {
@@ -895,8 +939,8 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
         : null,
-      rowToSave.unread ? 1 : 0,
-      0,
+      rowToSave.latestMessage ?? 1,
+      rowToSave.unread ? 0 : rowToSave.latestMessage ?? 1,
     ]);
   }
 
@@ -1211,6 +1255,95 @@ async function rescindPushNotifsForMemberDeletion(
       ),
     );
   }
+}
+
+async function getLatestMessages(
+  userThreadPairs: $ReadOnlyArray<[string, string]>,
+  additionalVisibleDescendantThreadsByUser: Map<string, Array<string>>,
+): Promise<Map<string, Map<string, string>>> {
+  if (userThreadPairs.length === 0) {
+    return new Map();
+  }
+
+  const allThreads = new Set([...userThreadPairs].map(([, thread]) => thread));
+
+  const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+
+  // When user != NULL the query returns oldest message of type
+  // CREATE_SUB_THREAD for each user
+  // When user == NULL the query returns oldest message
+  // that isn't of type CREATE_SUB_THREAD (the same for all users)
+  // After combining both of these we can get the oldest message for each user
+  const latestMessageQuery = SQL`
+  SELECT mm.user, m.thread, MAX(m.id) as latest_message
+  FROM messages m
+  LEFT JOIN memberships mm ON mm.thread = m.content AND m.type = ${messageTypes.CREATE_SUB_THREAD}
+  WHERE mm.user IS NULL OR
+      JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE `;
+
+  if (additionalVisibleDescendantThreadsByUser.size > 0) {
+    latestMessageQuery.append(SQL`OR mm.thread IN (CASE `);
+    for (const [
+      userID,
+      threadIDs,
+    ] of additionalVisibleDescendantThreadsByUser) {
+      latestMessageQuery.append(
+        SQL`WHEN mm.user = ${userID} THEN CONCAT(${threadIDs}) ELSE `,
+      );
+    }
+    latestMessageQuery.append(SQL`NULL END)`);
+  }
+
+  latestMessageQuery.append(SQL`
+  GROUP BY m.thread, mm.user
+  HAVING (mm.user, m.thread) IN (${userThreadPairs}) OR
+      (m.thread in (${[...allThreads]}) AND mm.user IS NULL);`);
+
+  const [results] = await dbQuery(latestMessageQuery);
+
+  const latestMessagesPerUser: Map<string, Map<string, string>> = new Map();
+  const latestNonSubthreadMessagePerThread: Map<string, string> = new Map();
+
+  for (const { user, thread, latest_message } of results) {
+    if (user) {
+      const latestMessages = latestMessagesPerUser.get(user.toString());
+      if (latestMessages) {
+        latestMessages.set(thread.toString(), latest_message.toString());
+      } else {
+        latestMessagesPerUser.set(
+          user.toString(),
+          new Map([[thread.toString(), latest_message.toString()]]),
+        );
+      }
+    } else {
+      latestNonSubthreadMessagePerThread.set(
+        thread.toString(),
+        latest_message.toString(),
+      );
+    }
+  }
+
+  for (const [user, thread] of userThreadPairs) {
+    if (!latestMessagesPerUser.get(user)) {
+      latestMessagesPerUser.set(user, new Map());
+    }
+
+    const latestSubthreadMessage = latestMessagesPerUser.get(user)?.get(thread);
+    const latestNonSubthreadMessage =
+      latestNonSubthreadMessagePerThread.get(thread);
+
+    latestMessagesPerUser
+      .get(user)
+      ?.set(
+        thread,
+        Math.max(
+          Number(latestSubthreadMessage ?? '1'),
+          Number(latestNonSubthreadMessage ?? '1'),
+        ).toString(),
+      );
+  }
+
+  return latestMessagesPerUser;
 }
 
 // Deprecated - use updateRolesAndPermissionsForAllThreads instead
