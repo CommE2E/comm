@@ -61,7 +61,6 @@ function unshimClientDB(
     const keyserverStore = { ...state.keyserverStore, keyserverInfos };
     return {
       ...state,
-      cookie: null,
       keyserverStore,
     };
   }
