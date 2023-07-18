@@ -1,74 +1,58 @@
 // @flow
 
-import initSqlJs from 'sql.js';
-
-import { setupSQLiteDB } from './db-queries.js';
-import {
-  getPersistStorageItem,
-  removePersistStorageItem,
-  setPersistStorageItem,
-} from './storage-engine-queries.js';
+import { getDatabaseModule } from '../db-module.js';
 
 const TEST_KEY = 'redux-persist';
 const TEST_ITEM = '[[{}]]';
 
 describe('redux-persist storage engine queries', () => {
-  let db;
+  let queryExecutor;
 
   beforeAll(async () => {
-    const SQL = await initSqlJs();
-    db = new SQL.Database();
+    const module = getDatabaseModule();
+    queryExecutor = new module.SQLiteQueryExecutor('test.sqlite');
   });
 
   beforeEach(() => {
-    setupSQLiteDB(db);
-    const query = `
-      INSERT INTO persist_storage (key, item)
-      VALUES ($key, $item)
-    `;
-    const values = {
-      $key: TEST_KEY,
-      $item: TEST_ITEM,
-    };
-    db.exec(query, values);
+    queryExecutor.setPersistStorageItem(TEST_KEY, TEST_ITEM);
   });
 
   afterEach(() => {
-    db.exec(`DELETE FROM persist_storage`);
+    queryExecutor.removePersistStorageItem(TEST_KEY);
   });
 
   it('should return the item of an existing key', () => {
-    expect(getPersistStorageItem(db, TEST_KEY)).toBe(TEST_ITEM);
+    expect(queryExecutor.getPersistStorageItem(TEST_KEY)).toBe(TEST_ITEM);
   });
 
   it('should return empty string for a non-existing key', () => {
     const nonExistingKey = 'non_existing_key';
-    expect(getPersistStorageItem(db, nonExistingKey)).toBe('');
+    expect(queryExecutor.getPersistStorageItem(nonExistingKey)).toBe('');
   });
 
   it('should set the item of an existing key', () => {
     const newItem = '[[{a:2]]';
-    setPersistStorageItem(db, TEST_KEY, newItem);
-    expect(getPersistStorageItem(db, TEST_KEY)).toBe(newItem);
+    queryExecutor.setPersistStorageItem(TEST_KEY, newItem);
+    expect(queryExecutor.getPersistStorageItem(TEST_KEY)).toBe(newItem);
   });
 
   it('should set the item of a non-existing key', () => {
     const newEntry = 'testEntry';
     const newData = 'testData';
-    setPersistStorageItem(db, newEntry, newData);
-    expect(getPersistStorageItem(db, newEntry)).toBe(newData);
-    expect(getPersistStorageItem(db, TEST_KEY)).toBe(TEST_ITEM);
+    queryExecutor.setPersistStorageItem(newEntry, newData);
+    expect(queryExecutor.getPersistStorageItem(newEntry)).toBe(newData);
+    expect(queryExecutor.getPersistStorageItem(TEST_KEY)).toBe(TEST_ITEM);
   });
 
   it('should remove an existing key', () => {
-    removePersistStorageItem(db, TEST_KEY);
-    expect(getPersistStorageItem(db, TEST_KEY)).toBe('');
+    queryExecutor.removePersistStorageItem(TEST_KEY);
+    expect(queryExecutor.getPersistStorageItem(TEST_KEY)).toBe('');
   });
 
   it('should do nothing when removing a non-existing key', () => {
     const nonExistingName = 'non_existing_name';
-    removePersistStorageItem(db, nonExistingName);
-    expect(getPersistStorageItem(db, nonExistingName)).toBe('');
-    expect(getPersistStorageItem(db, TEST_KEY)).toBe(TEST_ITEM);
+    queryExecutor.removePersistStorageItem(nonExistingName);
+    expect(queryExecutor.getPersistStorageItem(nonExistingName)).toBe('');
+    expect(queryExecutor.getPersistStorageItem(TEST_KEY)).toBe(TEST_ITEM);
   });
 });
