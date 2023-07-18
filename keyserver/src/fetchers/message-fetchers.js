@@ -386,7 +386,7 @@ async function fetchMessageInfos(
     }
   }
 
-  const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
+  const shimmedRawMessageInfos = await shimUnsupportedRawMessageInfos(
     rawMessageInfos,
     viewer.platformDetails,
   );
@@ -565,7 +565,7 @@ async function fetchMessageInfosSince(
     }
   }
 
-  const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
+  const shimmedRawMessageInfos = await shimUnsupportedRawMessageInfos(
     rawMessageInfos,
     viewer.platformDetails,
   );
@@ -576,16 +576,16 @@ async function fetchMessageInfosSince(
   };
 }
 
-function getMessageFetchResultFromRedisMessages(
+async function getMessageFetchResultFromRedisMessages(
   viewer: Viewer,
   rawMessageInfos: $ReadOnlyArray<RawMessageInfo>,
-): FetchMessageInfosResult {
+): Promise<FetchMessageInfosResult> {
   const truncationStatuses = {};
   for (const rawMessageInfo of rawMessageInfos) {
     truncationStatuses[rawMessageInfo.threadID] =
       messageTruncationStatus.UNCHANGED;
   }
-  const shimmedRawMessageInfos = shimUnsupportedRawMessageInfos(
+  const shimmedRawMessageInfos = await shimUnsupportedRawMessageInfos(
     rawMessageInfos,
     viewer.platformDetails,
   );
@@ -701,7 +701,7 @@ async function fetchPinnedMessageInfos(
   const pinnedAndRelatedMessages =
     await rawMessageInfoForRowsAndRelatedMessages(messageRows, viewer);
 
-  const shimmedPinnedRawMessageInfos = shimUnsupportedRawMessageInfos(
+  const shimmedPinnedRawMessageInfos = await shimUnsupportedRawMessageInfos(
     pinnedAndRelatedMessages,
     viewer.platformDetails,
   );
@@ -965,7 +965,7 @@ async function searchMessagesInSingleChat(
   );
 
   return {
-    messages: shimUnsupportedRawMessageInfos(
+    messages: await shimUnsupportedRawMessageInfos(
       rawMessageInfos,
       viewer?.platformDetails,
     ),
