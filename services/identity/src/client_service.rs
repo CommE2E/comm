@@ -4,6 +4,7 @@ pub mod client_proto {
 
 use std::str::FromStr;
 
+use crate::error::Error as DBError;
 use crate::{
   client_service::client_proto::{
     AddReservedUsernamesRequest, DeleteUserRequest, Empty,
@@ -21,7 +22,7 @@ use crate::{
     WalletLoginRequest, WalletLoginResponse,
   },
   config::CONFIG,
-  database::{DatabaseClient, Error as DBError, KeyPayload},
+  database::{DatabaseClient, KeyPayload},
   id::generate_uuid,
   nonce::generate_nonce_data,
   reserved_users::{
