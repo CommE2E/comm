@@ -7,7 +7,7 @@ import { isStaff } from 'lib/shared/staff-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 
 import { DB_SUPPORTED_BROWSERS, DB_SUPPORTED_OS } from './constants.js';
-import { type EmscriptenModule } from '../types/module.js';
+import type { EmscriptenModule } from '../types/module.js';
 import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
 const browser = detectBrowser();
@@ -43,6 +43,25 @@ function parseMultiStatementSQLiteResult<T: Object>(
   );
 }
 
+function importDatabaseContent(
+  content: Uint8Array,
+  dbModule: EmscriptenModule,
+  path: string,
+) {
+  const stream = dbModule.FS.open(path, 'w+');
+  dbModule.FS.write(stream, content, 0, content.length, 0);
+  dbModule.FS.close(stream);
+}
+
+function exportDatabaseContent(
+  dbModule: EmscriptenModule,
+  path: string,
+): Uint8Array {
+  return dbModule.FS.readFile(path, {
+    encoding: 'binary',
+  });
+}
+
 function isSQLiteSupported(currentLoggedInUserID: ?string): boolean {
   if (!currentLoggedInUserID) {
     return false;
@@ -64,5 +83,7 @@ export {
   parseMultiStatementSQLiteResult,
   isSQLiteSupported,
   isDesktopSafari,
+  importDatabaseContent,
+  exportDatabaseContent,
   clearSensitiveData,
 };
