@@ -43,3 +43,8 @@ hr {
   height: 80px;
   margin-top: 8px;
 }
+
+.descriptionTextMutli {
+  color: var(--white-80);
+  margin-top: 16px;
+}
