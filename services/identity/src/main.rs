@@ -9,6 +9,7 @@ mod client_service;
 mod config;
 pub mod constants;
 mod database;
+pub mod error;
 mod grpc_services;
 mod id;
 mod keygen;
