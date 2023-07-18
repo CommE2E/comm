@@ -1,7 +1,6 @@
 // @flow
 
 import localforage from 'localforage';
-import initSqlJs, { type SqliteDatabase } from 'sql.js';
 
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type {
@@ -20,31 +19,19 @@ import {
   workerWriteRequests,
 } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
-import { migrate, setupSQLiteDB } from '../queries/db-queries.js';
+import { type EmscriptenModule } from '../types/module.js';
+import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import {
-  getAllDrafts,
-  moveDraft,
-  removeAllDrafts,
-  updateDraft,
-} from '../queries/draft-queries.js';
-import { getMetadata, setMetadata } from '../queries/metadata-queries.js';
-import {
-  getAllReports,
-  removeAllReports,
-  removeReports,
-  updateReport,
-} from '../queries/report-queries.js';
-import {
-  getPersistStorageItem,
-  removePersistStorageItem,
-  setPersistStorageItem,
-} from '../queries/storage-engine-queries.js';
-import {
+  COMM_SQLITE_DATABASE_PATH,
   CURRENT_USER_ID_KEY,
   localforageConfig,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
 } from '../utils/constants.js';
+import {
+  exportDatabaseContent,
+  importDatabaseContent,
+} from '../utils/db-utils.js';
 import {
   decryptDatabaseFile,
   encryptDatabaseFile,
@@ -54,8 +41,10 @@ import {
 
 localforage.config(localforageConfig);
 
-let sqliteDb: ?SqliteDatabase = null;
 let encryptionKey: ?CryptoKey = null;
+
+let sqliteQueryExecutor: ?SQLiteQueryExecutor = null;
+let dbModule: ?EmscriptenModule = null;
 
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
@@ -66,7 +55,7 @@ async function initDatabase(
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
-  const dbModule = getDatabaseModule(commQueryExecutorFilename, sqljsFilePath);
+  dbModule = getDatabaseModule(commQueryExecutorFilename, sqljsFilePath);
 
   try {
     const result = dbModule.CommQueryExecutor.testDBOperation();
@@ -97,44 +86,35 @@ async function initDatabase(
     await localforage.removeItem(SQLITE_CONTENT);
   }
 
-  const locateFile = defaultFilename => {
-    if (sqljsFilename) {
-      return `${sqljsFilePath}/${sqljsFilename}`;
-    }
-    return `${sqljsFilePath}/${defaultFilename}`;
-  };
-  const SQL = await initSqlJs({
-    locateFile,
-  });
-
   if (dbContent) {
-    sqliteDb = new SQL.Database(dbContent);
+    importDatabaseContent(dbContent, dbModule, COMM_SQLITE_DATABASE_PATH);
+
     console.info(
       'Database exists and is properly encrypted, using persisted data',
     );
-    migrate(sqliteDb);
   } else {
-    sqliteDb = new SQL.Database();
-    setupSQLiteDB(sqliteDb);
     console.info('Creating fresh database');
   }
+  sqliteQueryExecutor = new dbModule.SQLiteQueryExecutor(
+    COMM_SQLITE_DATABASE_PATH,
+  );
 }
 
 function processDraftStoreOperations(
   operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
 ) {
-  if (!sqliteDb) {
+  if (!sqliteQueryExecutor) {
     throw new Error('Database not initialized');
   }
   for (const operation: DraftStoreOperation of operations) {
     if (operation.type === 'remove_all') {
-      removeAllDrafts(sqliteDb);
+      sqliteQueryExecutor.removeAllDrafts();
     } else if (operation.type === 'update') {
       const { key, text } = operation.payload;
-      updateDraft(sqliteDb, key, text);
+      sqliteQueryExecutor.updateDraft(key, text);
     } else if (operation.type === 'move') {
       const { oldKey, newKey } = operation.payload;
-      moveDraft(sqliteDb, oldKey, newKey);
+      sqliteQueryExecutor.moveDraft(oldKey, newKey);
     } else {
       throw new Error('Unsupported draft operation');
     }
@@ -144,18 +124,18 @@ function processDraftStoreOperations(
 function processReportStoreOperations(
   operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
 ) {
-  if (!sqliteDb) {
+  if (!sqliteQueryExecutor) {
     throw new Error('Database not initialized');
   }
   for (const operation: ClientDBReportStoreOperation of operations) {
     if (operation.type === 'remove_all_reports') {
-      removeAllReports(sqliteDb);
+      sqliteQueryExecutor.removeAllReports();
     } else if (operation.type === 'remove_reports') {
       const { ids } = operation.payload;
-      removeReports(sqliteDb, ids);
+      sqliteQueryExecutor.removeReports(ids);
     } else if (operation.type === 'replace_report') {
       const { id, report } = operation.payload;
-      updateReport(sqliteDb, id, report);
+      sqliteQueryExecutor.replaceReport({ id, report });
     } else {
       throw new Error('Unsupported report operation');
     }
@@ -163,21 +143,21 @@ function processReportStoreOperations(
 }
 
 function getClientStore(): ClientDBStore {
-  if (!sqliteDb) {
+  if (!sqliteQueryExecutor) {
     throw new Error('Database not initialized');
   }
   return {
-    drafts: getAllDrafts(sqliteDb),
+    drafts: sqliteQueryExecutor.getAllDrafts(),
     messages: [],
     threads: [],
     messageStoreThreads: [],
-    reports: getAllReports(sqliteDb),
+    reports: sqliteQueryExecutor.getAllReports(),
   };
 }
 
 async function persist() {
   persistInProgress = true;
-  if (!sqliteDb) {
+  if (!sqliteQueryExecutor || !dbModule) {
     persistInProgress = false;
     throw new Error('Database not initialized');
   }
@@ -188,7 +168,7 @@ async function persist() {
 
   while (persistNeeded) {
     persistNeeded = false;
-    const dbData = sqliteDb.export();
+    const dbData = exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH);
     if (!encryptionKey) {
       persistInProgress = false;
       throw new Error('Encryption key is missing');
@@ -227,14 +207,11 @@ async function processAppRequest(
     return undefined;
   } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
     encryptionKey = null;
-    if (sqliteDb) {
-      sqliteDb.close();
-    }
     await localforage.clear();
     return undefined;
   }
 
-  if (!sqliteDb) {
+  if (!sqliteQueryExecutor) {
     throw new Error('Database not initialized');
   }
 
@@ -247,14 +224,14 @@ async function processAppRequest(
   } else if (message.type === workerRequestMessageTypes.GET_CURRENT_USER_ID) {
     return {
       type: workerResponseMessageTypes.GET_CURRENT_USER_ID,
-      userID: getMetadata(sqliteDb, CURRENT_USER_ID_KEY),
+      userID: sqliteQueryExecutor.getMetadata(CURRENT_USER_ID_KEY),
     };
   } else if (
     message.type === workerRequestMessageTypes.GET_PERSIST_STORAGE_ITEM
   ) {
     return {
       type: workerResponseMessageTypes.GET_PERSIST_STORAGE_ITEM,
-      item: getPersistStorageItem(sqliteDb, message.key),
+      item: sqliteQueryExecutor.getPersistStorageItem(message.key) ?? '',
     };
   }
 
@@ -273,15 +250,15 @@ async function processAppRequest(
       processReportStoreOperations(reportStoreOperations);
     }
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
-    setMetadata(sqliteDb, CURRENT_USER_ID_KEY, message.userID);
+    sqliteQueryExecutor.setMetadata(CURRENT_USER_ID_KEY, message.userID);
   } else if (
     message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
   ) {
-    setPersistStorageItem(sqliteDb, message.key, message.item);
+    sqliteQueryExecutor.setPersistStorageItem(message.key, message.item);
   } else if (
     message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
   ) {
-    removePersistStorageItem(sqliteDb, message.key);
+    sqliteQueryExecutor.removePersistStorageItem(message.key);
   }
 
   persistNeeded = true;
