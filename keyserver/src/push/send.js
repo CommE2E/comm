@@ -208,11 +208,12 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       if (iosVersionsToTokens) {
         for (const [codeVersion, devices] of iosVersionsToTokens) {
           const platformDetails = { platform: 'ios', codeVersion };
-          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
-            newRawMessageInfos,
-            platformDetails,
-          );
           const deliveryPromise = (async () => {
+            const shimmedNewRawMessageInfos =
+              await shimUnsupportedRawMessageInfos(
+                newRawMessageInfos,
+                platformDetails,
+              );
             const targetedNotifications = await prepareAPNsNotification(
               {
                 notifTexts,
@@ -237,11 +238,12 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       if (androidVersionsToTokens) {
         for (const [codeVersion, devices] of androidVersionsToTokens) {
           const platformDetails = { platform: 'android', codeVersion };
-          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
-            newRawMessageInfos,
-            platformDetails,
-          );
           const deliveryPromise = (async () => {
+            const shimmedNewRawMessageInfos =
+              await shimUnsupportedRawMessageInfos(
+                newRawMessageInfos,
+                platformDetails,
+              );
             const targetedNotifications = await prepareAndroidNotification(
               {
                 notifTexts,
@@ -287,11 +289,12 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       if (macosVersionsToTokens) {
         for (const [codeVersion, devices] of macosVersionsToTokens) {
           const platformDetails = { platform: 'macos', codeVersion };
-          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
-            newRawMessageInfos,
-            platformDetails,
-          );
           const deliveryPromise = (async () => {
+            const shimmedNewRawMessageInfos =
+              await shimUnsupportedRawMessageInfos(
+                newRawMessageInfos,
+                platformDetails,
+              );
             const targetedNotifications = await prepareAPNsNotification(
               {
                 notifTexts,
