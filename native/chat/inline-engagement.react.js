@@ -11,7 +11,6 @@ import Animated, {
 
 import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
-import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
@@ -19,7 +18,6 @@ import {
   inlineEngagementStyle,
   inlineEngagementCenterStyle,
   inlineEngagementRightStyle,
-  inlineEngagementLeftStyle,
   composedMessageStyle,
   avatarOffset,
 } from './chat-constants.js';
@@ -34,7 +32,7 @@ type Props = {
   +sidebarInfo: ?ThreadInfo,
   +reactions?: ReactionInfo,
   +disabled?: boolean,
-  +positioning?: 'left' | 'right',
+  +positioning?: 'left' | 'right' | 'center',
   +label?: ?string,
 };
 function InlineEngagement(props: Props): React.Node {
@@ -45,12 +43,31 @@ function InlineEngagement(props: Props): React.Node {
     positioning,
     label,
   } = props;
-  const repliesText = useInlineEngagementText(sidebarInfo);
+
+  const isLeft = positioning === 'left';
+  const isRight = positioning === 'right';
+  const isCenter = positioning === 'center';
 
   const navigateToThread = useNavigateToThread();
   const { navigate } = useNavigation();
 
   const styles = useStyles(unboundStyles);
+
+  const editedLabel = React.useMemo(() => {
+    if (!label) {
+      return null;
+    }
+
+    const labelLeftRight = isLeft
+      ? styles.messageLabelLeft
+      : styles.messageLabelRight;
+
+    return (
+      <View>
+        <Text style={[styles.messageLabel, labelLeftRight]}>{label}</Text>
+      </View>
+    );
+  }, [isLeft, label, styles]);
 
   const unreadStyle = sidebarInfo?.currentUser.unread ? styles.unread : null;
   const repliesStyles = React.useMemo(
@@ -63,6 +80,8 @@ function InlineEngagement(props: Props): React.Node {
       navigateToThread({ threadInfo: sidebarInfo });
     }
   }, [disabled, navigateToThread, sidebarInfo]);
+
+  const repliesText = useInlineEngagementText(sidebarInfo);
 
   const sidebarItem = React.useMemo(() => {
     if (!sidebarInfo) {
@@ -94,91 +113,65 @@ function InlineEngagement(props: Props): React.Node {
     });
   }, [navigate, reactions]);
 
-  const marginLeft = React.useMemo(
-    () => (sidebarItem ? styles.reactionMarginLeft : null),
-    [sidebarItem, styles.reactionMarginLeft],
-  );
-
   const reactionList = React.useMemo(() => {
     if (!reactions || Object.keys(reactions).length === 0) {
       return null;
     }
 
-    const reactionText = stringForReactionList(reactions);
-    const reactionItems = <Text style={styles.reaction}>{reactionText}</Text>;
-
-    return (
-      <GestureTouchableOpacity
-        style={[styles.reactionsContainer, marginLeft]}
-        onPress={onPressReactions}
-        activeOpacity={0.7}
-      >
-        {reactionItems}
-      </GestureTouchableOpacity>
-    );
-  }, [
-    marginLeft,
-    onPressReactions,
-    reactions,
-    styles.reaction,
-    styles.reactionsContainer,
-  ]);
-
-  const isLeft = positioning === 'left';
-
-  const editedLabel = React.useMemo(() => {
-    if (!label) {
-      return null;
-    }
-
-    const labelLeftRight = isLeft
-      ? styles.messageLabelLeft
-      : styles.messageLabelRight;
-
-    return <Text style={[styles.messageLabel, labelLeftRight]}>{label}</Text>;
-  }, [isLeft, label, styles]);
+    return Object.keys(reactions).map(reaction => {
+      const numOfReacts = reactions[reaction].users.length;
+      return (
+        <GestureTouchableOpacity
+          style={styles.reactionsContainer}
+          onPress={onPressReactions}
+          activeOpacity={0.7}
+          key={reaction}
+        >
+          <Text style={styles.reaction}>{`${reaction} ${numOfReacts}`}</Text>
+        </GestureTouchableOpacity>
+      );
+    });
+  }, [onPressReactions, reactions, styles.reaction, styles.reactionsContainer]);
 
   const inlineEngagementPositionStyle = React.useMemo(() => {
     const styleResult = [styles.inlineEngagement];
-    if (!isLeft) {
+    if (isRight) {
       styleResult.push(styles.rightInlineEngagement);
+    } else if (isCenter) {
+      styleResult.push(styles.centerInlineEngagement);
     }
     return styleResult;
-  }, [isLeft, styles.inlineEngagement, styles.rightInlineEngagement]);
+  }, [
+    isCenter,
+    isRight,
+    styles.centerInlineEngagement,
+    styles.inlineEngagement,
+    styles.rightInlineEngagement,
+  ]);
 
-  let body;
-  if (isLeft) {
-    body = (
-      <>
-        {editedLabel}
-        {sidebarItem}
-        {reactionList}
-      </>
-    );
-  } else {
-    body = (
-      <>
-        {sidebarItem}
-        {reactionList}
-        {editedLabel}
-      </>
-    );
-  }
-
-  return <View style={inlineEngagementPositionStyle}>{body}</View>;
+  return (
+    <View style={inlineEngagementPositionStyle}>
+      {editedLabel}
+      {sidebarItem}
+      {reactionList}
+    </View>
+  );
 }
 
 const unboundStyles = {
   inlineEngagement: {
     flexDirection: 'row',
     marginBottom: inlineEngagementStyle.marginBottom,
-    marginTop: inlineEngagementStyle.marginTop,
     marginLeft: avatarOffset,
-    top: inlineEngagementLeftStyle.topOffset,
+    flexWrap: 'wrap',
+    top: inlineEngagementStyle.topOffset,
+  },
+  centerInlineEngagement: {
+    right: inlineEngagementCenterStyle.marginRight,
   },
   rightInlineEngagement: {
-    alignSelf: 'flex-end',
-    right: inlineEngagementRightStyle.marginRight,
+    flexDirection: 'row-reverse',
+    marginLeft: inlineEngagementRightStyle.marginLeft,
   },
   sidebar: {
     flexDirection: 'row',
@@ -187,6 +180,7 @@ const unboundStyles = {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
+    marginTop: inlineEngagementStyle.marginTop,
   },
   icon: {
     color: 'inlineEngagementLabel',
@@ -209,14 +203,12 @@ const unboundStyles = {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
+    marginTop: inlineEngagementStyle.marginTop,
   },
   reaction: {
     color: 'inlineEngagementLabel',
     fontSize: 14,
     lineHeight: 22,
-  },
-  reactionMarginLeft: {
-    marginLeft: 12,
   },
   messageLabel: {
     color: 'messageLabel',
@@ -224,6 +216,7 @@ const unboundStyles = {
     fontSize: 13,
     top: inlineEngagementLabelStyle.topOffset,
     height: inlineEngagementLabelStyle.height,
+    marginTop: inlineEngagementStyle.marginTop,
   },
   messageLabelLeft: {
     marginLeft: 9,
@@ -269,19 +262,16 @@ function TooltipInlineEngagement(
     if (positioning === 'left') {
       return {
         position: 'absolute',
-        top:
-          inlineEngagementStyle.marginTop + inlineEngagementLeftStyle.topOffset,
+        top: inlineEngagementStyle.marginTop + inlineEngagementStyle.topOffset,
         left: composedMessageStyle.marginLeft,
       };
     } else if (positioning === 'right') {
       return {
         position: 'absolute',
         right:
-          inlineEngagementRightStyle.marginRight +
+          inlineEngagementRightStyle.marginLeft +
           composedMessageStyle.marginRight,
-        top:
-          inlineEngagementStyle.marginTop +
-          inlineEngagementRightStyle.topOffset,
+        top: inlineEngagementStyle.marginTop + inlineEngagementStyle.topOffset,
       };
     } else if (positioning === 'center') {
       return {
