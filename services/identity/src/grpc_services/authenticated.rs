@@ -68,16 +68,24 @@ pub fn auth_intercept(
   Ok(req)
 }
 
+pub fn get_user_and_device_id<T>(
+  request: &Request<T>,
+) -> Result<(String, String), Status> {
+  let user_id = get_value(&request, "user_id")
+    .ok_or(Status::unauthenticated("Missing user_id field"))?;
+  let device_id = get_value(&request, "device_id")
+    .ok_or(Status::unauthenticated("Missing device_id field"))?;
+
+  return Ok((user_id, device_id));
+}
+
 #[tonic::async_trait]
 impl IdentityClientService for AuthenticatedService {
   async fn refresh_user_pre_keys(
     &self,
     request: Request<RefreshUserPreKeysRequest>,
   ) -> Result<Response<Empty>, Status> {
-    let user_id = get_value(&request, "user_id")
-      .ok_or(Status::unauthenticated("Missing user_id field"))?;
-    let device_id = get_value(&request, "device_id")
-      .ok_or(Status::unauthenticated("Missing device_id field"))?;
+    let (user_id, device_id) = get_user_and_device_id(&request)?;
     let message = request.into_inner();
 
     debug!("Refreshing prekeys for user: {}", user_id);
