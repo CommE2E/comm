@@ -16,6 +16,8 @@ use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
 use std::env::var;
+use std::path::Path;
+use tonic::transport::{Certificate, ClientTlsConfig};
 use tonic::{transport::Channel, Request};
 use tracing::{self, info, instrument, warn, Level};
 use tracing_subscriber::EnvFilter;
@@ -40,6 +42,23 @@ lazy_static! {
   };
 }
 
+const CERT_PATHS: &'static [&'static str] = &[
+  // MacOS and newer Ubuntu
+  "/etc/ssl/cert.pem",
+  // Common CA cert paths
+  "/etc/ssl/certs/ca-bundle.crt",
+  "/etc/ssl/certs/ca-certificates.crt",
+];
+
+pub fn get_ca_cert_contents() -> Option<String> {
+  CERT_PATHS
+    .iter()
+    .map(Path::new)
+    .filter(|p| p.exists())
+    .filter_map(|f| std::fs::read_to_string(f).ok())
+    .next()
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct IdentityServiceConfig {
@@ -50,22 +69,39 @@ impl Default for IdentityServiceConfig {
   fn default() -> Self {
     info!("Using default identity configuration");
     Self {
-      identity_socket_addr: "https://[::1]:50054".to_string(),
+      identity_socket_addr: "http://[::1]:50054".to_string(),
     }
   }
 }
 
 async fn get_identity_service_channel() -> Result<Channel> {
+  let ca_cert = get_ca_cert_contents().expect("Unable to get CA bundle");
+
   info!("Connecting to identity service");
-  Channel::from_static(&IDENTITY_SERVICE_CONFIG.identity_socket_addr)
-    .connect()
-    .await
-    .map_err(|_| {
-      Error::new(
-        Status::GenericFailure,
-        "Unable to connect to identity service".to_string(),
+
+  let mut channel =
+    Channel::from_static(&IDENTITY_SERVICE_CONFIG.identity_socket_addr);
+
+  // tls_config will fail if the underlying URI is only http://
+  if IDENTITY_SERVICE_CONFIG
+    .identity_socket_addr
+    .starts_with("https:")
+  {
+    channel = channel
+      .tls_config(
+        ClientTlsConfig::new().ca_certificate(Certificate::from_pem(&ca_cert)),
       )
-    })
+      .map_err(|_| {
+        Error::new(Status::GenericFailure, "TLS configure failed")
+      })?;
+  }
+
+  channel.connect().await.map_err(|_| {
+    Error::new(
+      Status::GenericFailure,
+      "Unable to connect to identity service".to_string(),
+    )
+  })
 }
 
 #[napi(object)]
