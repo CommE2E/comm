@@ -140,14 +140,6 @@ const devWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
-        from: 'node_modules/sql.js/dist/sql-wasm.wasm',
-        to: path.join(__dirname, 'dist', 'webworkers'),
-      },
-    ],
-  }),
-  new CopyPlugin({
-    patterns: [
-      {
         from: 'database/_generated/comm_query_executor.wasm',
         to: path.join(__dirname, 'dist', 'webworkers'),
       },
@@ -156,19 +148,6 @@ const devWebWorkersPlugins = [
 ];
 
 const prodWebWorkersPlugins = [
-  new CopyPlugin({
-    patterns: [
-      {
-        from: 'node_modules/sql.js/dist/sql-wasm.wasm',
-        to: path.join(
-          __dirname,
-          'dist',
-          'webworkers',
-          'sql-wasm.[contenthash:12].wasm',
-        ),
-      },
-    ],
-  }),
   new CopyPlugin({
     patterns: [
       {
