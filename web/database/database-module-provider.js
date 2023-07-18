@@ -10,7 +10,6 @@ import {
   type WorkerResponseMessage,
 } from '../types/worker-types.js';
 
-declare var sqljsFilename: string;
 declare var commQueryExecutorFilename: string;
 declare var preloadedState: AppState;
 
@@ -58,7 +57,6 @@ class DatabaseModule {
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
           sqljsFilePath: `${origin}${SQLJS_FILE_PATH}`,
-          sqljsFilename,
           encryptionKey,
           commQueryExecutorFilename,
         });

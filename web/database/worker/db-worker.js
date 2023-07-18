@@ -52,7 +52,6 @@ let persistInProgress: boolean = false;
 
 async function initDatabase(
   sqljsFilePath: string,
-  sqljsFilename: ?string,
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
@@ -203,7 +202,6 @@ async function processAppRequest(
   if (message.type === workerRequestMessageTypes.INIT) {
     await initDatabase(
       message.sqljsFilePath,
-      message.sqljsFilename,
       message.commQueryExecutorFilename,
       message.encryptionKey,
     );
