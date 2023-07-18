@@ -34,7 +34,7 @@ export type PingWorkerRequestMessage = {
 
 export type InitWorkerRequestMessage = {
   +type: 1,
-  +sqljsFilePath: string,
+  +databaseModuleFilePath: string,
   +commQueryExecutorFilename: ?string,
   +encryptionKey?: ?SubtleCrypto$JsonWebKey,
 };
