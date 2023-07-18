@@ -11,8 +11,8 @@ pub mod auth_proto {
   tonic::include_proto!("identity.authenticated");
 }
 use auth_proto::{
-  identity_client_service_server::IdentityClientService,
-  RefreshUserPreKeysRequest,
+  identity_client_service_server::IdentityClientService, KeyserverKeysResponse,
+  OutboundKeysForUserRequest, RefreshUserPreKeysRequest,
 };
 use client::Empty;
 use tracing::debug;
@@ -104,5 +104,12 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Response::new(Empty {});
     Ok(response)
+  }
+
+  async fn get_keyserver_keys(
+    &self,
+    _request: Request<OutboundKeysForUserRequest>,
+  ) -> Result<Response<KeyserverKeysResponse>, Status> {
+    unimplemented!();
   }
 }

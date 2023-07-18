@@ -51,10 +51,6 @@ service IdentityClientService {
   // device, but will not contain one-time keys.
   rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
     (InboundKeysForUserResponse) {}
-  // Called by clients to get required keys for opening a connection
-  // to a user's keyserver
-  rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
-    (OutboundKeyserverResponse) {}
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest) returns (Empty) {}
   // Rotate a devices preKey and preKey signature
@@ -299,14 +295,6 @@ message InboundKeysForUserRequest {
 message InboundKeysForUserResponse {
   // Map is keyed on devices' public ed25519 key used for signing
   map<string, InboundKeyInfo> devices = 1;
-}
-
-// GetKeyserverKeys
-
-// If a user owns a keyserver, return the information needed to initiate a
-// connection.
-message OutboundKeyserverResponse {
-  optional OutboundKeyInfo keyserverInfo = 1;
 }
 
 // UploadOneTimeKeys
