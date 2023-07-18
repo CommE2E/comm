@@ -107,7 +107,7 @@ async function createMessages(
     }
   }
   if (newMessageDatas.length === 0) {
-    return shimUnsupportedRawMessageInfos(
+    return await shimUnsupportedRawMessageInfos(
       existingMessageInfos,
       viewer.platformDetails,
     );
@@ -213,7 +213,7 @@ async function createMessages(
     return [];
   }
 
-  return shimUnsupportedRawMessageInfos(
+  return await shimUnsupportedRawMessageInfos(
     returnMessageInfos,
     viewer.platformDetails,
   );
