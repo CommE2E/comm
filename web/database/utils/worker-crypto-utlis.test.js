@@ -1,7 +1,6 @@
 // @flow
 
-import initSqlJs, { type SqliteDatabase } from 'sql.js';
-
+import { exportDatabaseContent, importDatabaseContent } from './db-utils.js';
 import {
   decryptDatabaseFile,
   encryptDatabaseFile,
@@ -9,54 +8,44 @@ import {
   generateDatabaseCryptoKey,
   importJWKKey,
 } from './worker-crypto-utils.js';
-import { getSQLiteDBVersion } from '../queries/db-queries.js';
+import { getDatabaseModule } from '../db-module.js';
 
-const TEST_DB_VERSION = 5;
 const TAG_LENGTH = 16;
 const IV_LENGTH = 12;
 
-// calling export on empty schema will return empty buffer
-function setUpMockDb(database: SqliteDatabase) {
-  database.exec(`
-     CREATE TABLE test_table (
-       key TEXT UNIQUE PRIMARY KEY NOT NULL,
-       value TEXT NOT NULL
-     );
-  `);
-  database.exec(`
-    INSERT INTO test_table VALUES ("key_1", "value 1");
-  `);
-  database.exec(`PRAGMA user_version=${TEST_DB_VERSION};`);
-}
+const FILE_PATH = 'test.sqlite';
+const TEST_KEY = 'key';
+const TEST_VAL = 'val';
 
 describe('database encryption utils', () => {
-  let database;
+  let sqliteQueryExecutor;
+  let dbModule;
   let cryptoKey;
 
   beforeAll(async () => {
-    const SQL = await initSqlJs();
-    database = new SQL.Database();
-    setUpMockDb(database);
+    dbModule = getDatabaseModule();
+    sqliteQueryExecutor = new dbModule.SQLiteQueryExecutor('test.sqlite');
+    sqliteQueryExecutor.setMetadata(TEST_KEY, TEST_VAL);
 
     cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
   });
 
   it('should encrypt database content', async () => {
-    const dbContent: Uint8Array = database.export();
+    const dbContent: Uint8Array = exportDatabaseContent(dbModule, FILE_PATH);
     const { ciphertext, iv } = await encryptDatabaseFile(dbContent, cryptoKey);
     expect(iv.byteLength).toBe(IV_LENGTH);
     expect(ciphertext.length).toBe(dbContent.length + TAG_LENGTH);
   });
 
   it('is decryptable', async () => {
-    const dbContent: Uint8Array = database.export();
+    const dbContent: Uint8Array = exportDatabaseContent(dbModule, FILE_PATH);
     const encryptedData = await encryptDatabaseFile(dbContent, cryptoKey);
     const decrypted = await decryptDatabaseFile(encryptedData, cryptoKey);
     expect(decrypted).toEqual(dbContent);
   });
 
   it('should fail with wrong key', async () => {
-    const dbContent: Uint8Array = database.export();
+    const dbContent: Uint8Array = exportDatabaseContent(dbModule, FILE_PATH);
     const encryptedData = await encryptDatabaseFile(dbContent, cryptoKey);
 
     const newCryptoKey = await generateDatabaseCryptoKey({
@@ -66,7 +55,7 @@ describe('database encryption utils', () => {
   });
 
   it('should fail with wrong content', async () => {
-    const dbContent: Uint8Array = database.export();
+    const dbContent: Uint8Array = exportDatabaseContent(dbModule, FILE_PATH);
     const encryptedData = await encryptDatabaseFile(dbContent, cryptoKey);
     const randomizedEncryptedData = {
       ...encryptedData,
@@ -78,19 +67,23 @@ describe('database encryption utils', () => {
   });
 
   it('should create database with decrypted content', async () => {
-    const dbContent: Uint8Array = database.export();
+    const dbContent: Uint8Array = exportDatabaseContent(dbModule, FILE_PATH);
     const encryptedData = await encryptDatabaseFile(dbContent, cryptoKey);
     const decrypted = await decryptDatabaseFile(encryptedData, cryptoKey);
 
-    const SQL = await initSqlJs();
-    const newDatabase = new SQL.Database(decrypted);
-    expect(getSQLiteDBVersion(newDatabase)).toBe(TEST_DB_VERSION);
+    importDatabaseContent(decrypted, dbModule, 'new-file.sqlite');
+
+    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite');
+
+    expect(executor.getMetadata(TEST_KEY)).toBe(TEST_VAL);
   });
 
   it('should export and import key in JWK format', async () => {
     // creating new key
     const key = await generateDatabaseCryptoKey({ extractable: true });
-    const dbContent: Uint8Array = database.export();
+    const dbContent: Uint8Array = dbModule.FS.readFile(FILE_PATH, {
+      encoding: 'binary',
+    });
     const encryptedData = await encryptDatabaseFile(dbContent, key);
 
     // exporting and importing key
@@ -100,8 +93,10 @@ describe('database encryption utils', () => {
     // decrypt using re-created on import key
     const decrypted = await decryptDatabaseFile(encryptedData, importedKey);
 
-    const SQL = await initSqlJs();
-    const newDatabase = new SQL.Database(decrypted);
-    expect(getSQLiteDBVersion(newDatabase)).toBe(TEST_DB_VERSION);
+    importDatabaseContent(decrypted, dbModule, 'new-file.sqlite');
+
+    const executor = new dbModule.SQLiteQueryExecutor('new-file.sqlite');
+
+    expect(executor.getMetadata(TEST_KEY)).toBe(TEST_VAL);
   });
 });
