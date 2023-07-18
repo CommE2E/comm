@@ -1,52 +1,46 @@
 // @flow
 
-import initSqlJs from 'sql.js';
+import { getDatabaseModule } from '../db-module.js';
+import { clearSensitiveData } from '../utils/db-utils.js';
 
-import { setupSQLiteDB } from './db-queries.js';
-import {
-  getAllDrafts,
-  moveDraft,
-  removeAllDrafts,
-  updateDraft,
-} from './draft-queries.js';
+const FILE_PATH = 'test.sqlite';
 
 describe('Draft Store queries', () => {
-  let db;
+  let queryExecutor;
+  let dbModule;
 
   beforeAll(async () => {
-    const SQL = await initSqlJs();
-    db = new SQL.Database();
+    dbModule = getDatabaseModule();
   });
 
   beforeEach(() => {
-    setupSQLiteDB(db);
-    db.exec(`
-      INSERT INTO drafts VALUES ("thread_a", "draft a");
-      INSERT INTO drafts VALUES ("thread_b", "draft b");
-    `);
+    queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    queryExecutor.updateDraft('thread_a', 'draft a');
+    queryExecutor.updateDraft('thread_b', 'draft b');
   });
 
   afterEach(() => {
-    db.exec(`DELETE FROM drafts`);
+    clearSensitiveData(dbModule, FILE_PATH, queryExecutor);
   });
 
   it('should return all drafts', () => {
-    const drafts = getAllDrafts(db);
+    const drafts = queryExecutor.getAllDrafts();
     expect(drafts.length).toBe(2);
   });
 
   it('should remove all drafts', () => {
-    removeAllDrafts(db);
-    const drafts = getAllDrafts(db);
+    queryExecutor.removeAllDrafts();
+    const drafts = queryExecutor.getAllDrafts();
+    console.log(drafts);
     expect(drafts.length).toBe(0);
   });
 
   it('should update draft text', () => {
     const key = 'thread_b';
     const text = 'updated message';
-    updateDraft(db, key, text);
+    queryExecutor.updateDraft(key, text);
 
-    const drafts = getAllDrafts(db);
+    const drafts = queryExecutor.getAllDrafts();
     expect(drafts.length).toBe(2);
 
     const draft = drafts.find(d => d.key === key);
@@ -56,9 +50,9 @@ describe('Draft Store queries', () => {
   it('should insert not existing draft', () => {
     const key = 'new_key';
     const text = 'some message';
-    updateDraft(db, key, text);
+    queryExecutor.updateDraft(key, text);
 
-    const drafts = getAllDrafts(db);
+    const drafts = queryExecutor.getAllDrafts();
     expect(drafts.length).toBe(3);
 
     const draft = drafts.find(d => d.key === key);
@@ -69,9 +63,9 @@ describe('Draft Store queries', () => {
     const newKey = 'new_key';
     const oldKey = 'thread_a';
     const draftText = 'draft a';
-    moveDraft(db, oldKey, newKey);
+    queryExecutor.moveDraft(oldKey, newKey);
 
-    const drafts = getAllDrafts(db);
+    const drafts = queryExecutor.getAllDrafts();
     expect(drafts.length).toBe(2);
 
     const oldKeyDraft = drafts.find(d => d.key === oldKey);
@@ -84,9 +78,9 @@ describe('Draft Store queries', () => {
   it('should not change anything if oldKey not exists', () => {
     const newKey = 'new_key';
     const oldKey = 'missing_key';
-    moveDraft(db, oldKey, newKey);
+    queryExecutor.moveDraft(oldKey, newKey);
 
-    const drafts = getAllDrafts(db);
+    const drafts = queryExecutor.getAllDrafts();
     expect(drafts.length).toBe(2);
 
     const oldKeyDraft = drafts.find(d => d.key === oldKey);
@@ -100,9 +94,9 @@ describe('Draft Store queries', () => {
     const newKey = 'thread_b';
     const oldKey = 'thread_a';
     const draftText = 'draft a';
-    moveDraft(db, oldKey, newKey);
+    queryExecutor.moveDraft(oldKey, newKey);
 
-    const drafts = getAllDrafts(db);
+    const drafts = queryExecutor.getAllDrafts();
     expect(drafts.length).toBe(1);
 
     const oldKeyDraft = drafts.find(d => d.key === oldKey);
