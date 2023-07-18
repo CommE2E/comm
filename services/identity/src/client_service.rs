@@ -11,14 +11,14 @@ use crate::{
     InboundKeysForUserResponse, OpaqueLoginFinishRequest,
     OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
     OpaqueLoginStartResponse, OutboundKeysForUserRequest,
-    OutboundKeysForUserResponse, OutboundKeyserverResponse,
-    RefreshUserPreKeysRequest, RegistrationFinishRequest,
-    RegistrationFinishResponse, RegistrationStartRequest,
-    RegistrationStartResponse, RemoveReservedUsernameRequest,
-    ReservedRegistrationStartRequest, UpdateUserPasswordFinishRequest,
-    UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-    UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
-    VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+    OutboundKeysForUserResponse, RefreshUserPreKeysRequest,
+    RegistrationFinishRequest, RegistrationFinishResponse,
+    RegistrationStartRequest, RegistrationStartResponse,
+    RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
+    UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+    UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+    VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
+    WalletLoginRequest, WalletLoginResponse,
   },
   config::CONFIG,
   database::{DatabaseClient, Error as DBError, KeyPayload},
@@ -744,13 +744,6 @@ impl IdentityClientService for ClientService {
     &self,
     _request: tonic::Request<InboundKeysForUserRequest>,
   ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
-    unimplemented!();
-  }
-
-  async fn get_keyserver_keys(
-    &self,
-    _request: tonic::Request<OutboundKeysForUserRequest>,
-  ) -> Result<tonic::Response<OutboundKeyserverResponse>, tonic::Status> {
     unimplemented!();
   }
 

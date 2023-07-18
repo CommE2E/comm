@@ -15,6 +15,11 @@ service IdentityClientService {
   // Rotated for deniability of older messages
   rpc RefreshUserPreKeys(RefreshUserPreKeysRequest)
     returns (identity.client.Empty) {}
+
+  // Called by clients to get required keys for opening a connection
+  // to a user's keyserver
+  rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
+    (KeyserverKeysResponse) {}
 }
 
 // Helper types
@@ -25,3 +30,25 @@ message RefreshUserPreKeysRequest {
   identity.client.PreKey newContentPreKeys = 1;
   identity.client.PreKey newNotifPreKeys = 2;
 }
+
+// Information needed when establishing communication to someone else's device
+message OutboundKeyInfo {
+  identity.client.IdentityKeyInfo identityInfo = 1;
+  identity.client.PreKey contentPrekey = 2;
+  identity.client.PreKey notifPrekey = 3;
+  optional string onetimeContentPrekey = 4;
+  optional string onetimeNotifPrekey = 5;
+}
+
+message KeyserverKeysResponse {
+  optional OutboundKeyInfo keyserverInfo = 1;
+}
+
+// Information needed by a device to establish communcation when responding
+// to a request.
+// The device receiving a request only needs the content key and prekey.
+message OutboundKeysForUserRequest {
+  string userID = 1;
+}
+
+
