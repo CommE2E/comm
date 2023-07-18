@@ -39,7 +39,7 @@
     "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/plugin-base": "^6.0.4",
-    "electron": "^22.0.0",
+    "electron": "^25.3.0",
     "flow-bin": "^0.182.0",
     "flow-typed": "^3.2.1",
     "lib": "0.0.1",
