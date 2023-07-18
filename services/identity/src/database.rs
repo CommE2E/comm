@@ -4,13 +4,13 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 use std::sync::Arc;
 
+use crate::error::{DBItemAttributeError, DBItemError, Error};
 use aws_config::SdkConfig;
 use aws_sdk_dynamodb::model::{AttributeValue, PutRequest, WriteRequest};
 use aws_sdk_dynamodb::output::{
   DeleteItemOutput, GetItemOutput, PutItemOutput, QueryOutput,
 };
-use aws_sdk_dynamodb::types::Blob;
-use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
+use aws_sdk_dynamodb::{types::Blob, Client};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
@@ -842,53 +842,6 @@ impl DatabaseClient {
       Err(e) => Err(Error::AwsSdk(e.into())),
     }
   }
-}
-
-#[derive(
-  Debug, derive_more::Display, derive_more::From, derive_more::Error,
-)]
-pub enum Error {
-  #[display(...)]
-  AwsSdk(DynamoDBError),
-  #[display(...)]
-  Attribute(DBItemError),
-}
-
-#[derive(Debug, derive_more::Error, derive_more::Constructor)]
-pub struct DBItemError {
-  attribute_name: &'static str,
-  attribute_value: Option<AttributeValue>,
-  attribute_error: DBItemAttributeError,
-}
-
-impl Display for DBItemError {
-  fn fmt(&self, f: &mut Formatter) -> FmtResult {
-    match &self.attribute_error {
-      DBItemAttributeError::Missing => {
-        write!(f, "Attribute {} is missing", self.attribute_name)
-      }
-      DBItemAttributeError::IncorrectType => write!(
-        f,
-        "Value for attribute {} has incorrect type: {:?}",
-        self.attribute_name, self.attribute_value
-      ),
-      error => write!(
-        f,
-        "Error regarding attribute {} with value {:?}: {}",
-        self.attribute_name, self.attribute_value, error
-      ),
-    }
-  }
-}
-
-#[derive(Debug, derive_more::Display, derive_more::Error)]
-pub enum DBItemAttributeError {
-  #[display(...)]
-  Missing,
-  #[display(...)]
-  IncorrectType,
-  #[display(...)]
-  InvalidTimestamp(chrono::ParseError),
 }
 
 type AttributeName = String;
