@@ -68,6 +68,7 @@ function RobotextMessage(props: Props): React.Node {
         <InlineEngagement
           sidebarThreadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
+          positioning="center"
         />
       </View>
     );
