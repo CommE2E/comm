@@ -22,6 +22,7 @@ span.multimedia > .multimediaImage > video {
   max-width: 100%;
   min-height: inherit;
   object-fit: cover;
+  display: inherit;
 }
 /* Prevent borders around images without src attribute */
 span.multimedia > .multimediaImage > img:not([src]) {
