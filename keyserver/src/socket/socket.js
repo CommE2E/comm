@@ -720,7 +720,7 @@ class Socket {
       const { viewer } = this;
       invariant(viewer, 'should be set');
       const rawMessageInfos = message.messages;
-      const messageFetchResult = getMessageFetchResultFromRedisMessages(
+      const messageFetchResult = await getMessageFetchResultFromRedisMessages(
         viewer,
         rawMessageInfos,
       );
