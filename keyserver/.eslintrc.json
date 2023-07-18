@@ -2,5 +2,8 @@
   "env": {
     "node": true,
     "jest": true
+  },
+  "globals": {
+    "Blob": false
   }
 }
