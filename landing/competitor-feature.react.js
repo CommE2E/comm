@@ -11,12 +11,35 @@ import css from './competitor-feature.css';
 import CompetitorLogo from './competitor-logo.react.js';
 import typography from './typography.css';
 
+function useDescriptionContent(
+  description: string | $ReadOnlyArray<string>,
+  descriptionClassName,
+  descriptionMultiClassName,
+) {
+  return React.useMemo(() => {
+    if (typeof description === 'string') {
+      return <p className={descriptionClassName}>{description}</p>;
+    }
+    const paragraphs = description.map((paragraph, index) => {
+      const className =
+        index > 0 ? descriptionMultiClassName : descriptionClassName;
+
+      return (
+        <p className={className} key={paragraph}>
+          {paragraph}
+        </p>
+      );
+    });
+    return <>{paragraphs}</>;
+  }, [description, descriptionClassName, descriptionMultiClassName]);
+}
+
 type Props = {
   +competitorID: Competitors,
   +title: string,
   +comingSoon: boolean,
-  +competitorDescription: string,
-  +commDescription: string,
+  +competitorDescription: string | $ReadOnlyArray<string>,
+  +commDescription: string | $ReadOnlyArray<string>,
 };
 
 function CompetitorFeature(props: Props): React.Node {
@@ -37,6 +60,10 @@ function CompetitorFeature(props: Props): React.Node {
     typography.paragraph1,
     css.descriptionText,
   ]);
+  const descriptionMultiClassName = classNames([
+    typography.paragraph1,
+    css.descriptionTextMutli,
+  ]);
 
   let comingSoonBadge;
   if (comingSoon) {
@@ -52,6 +79,17 @@ function CompetitorFeature(props: Props): React.Node {
     );
   }
 
+  const competitorInfo = useDescriptionContent(
+    competitorDescription,
+    descriptionClassName,
+    descriptionMultiClassName,
+  );
+  const commInfo = useDescriptionContent(
+    commDescription,
+    descriptionClassName,
+    descriptionMultiClassName,
+  );
+
   return (
     <div className={css.container}>
       <div className={css.headingContainer}>
@@ -59,10 +97,10 @@ function CompetitorFeature(props: Props): React.Node {
         {comingSoonBadge}
       </div>
       <CompetitorLogo name={competitorID} size={30} />
-      <p className={descriptionClassName}>{competitorDescription}</p>
+      {competitorInfo}
       <hr />
       <CommLogo size={30} />
-      <p className={descriptionClassName}>{commDescription}</p>
+      {commInfo}
     </div>
   );
 }
