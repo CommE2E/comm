@@ -51,11 +51,14 @@ let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
 
 async function initDatabase(
-  sqljsFilePath: string,
+  databaseModuleFilePath: string,
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
-  dbModule = getDatabaseModule(commQueryExecutorFilename, sqljsFilePath);
+  dbModule = getDatabaseModule(
+    commQueryExecutorFilename,
+    databaseModuleFilePath,
+  );
 
   try {
     const result = dbModule.CommQueryExecutor.testDBOperation();
@@ -201,7 +204,7 @@ async function processAppRequest(
   // database operations
   if (message.type === workerRequestMessageTypes.INIT) {
     await initDatabase(
-      message.sqljsFilePath,
+      message.databaseModuleFilePath,
       message.commQueryExecutorFilename,
       message.encryptionKey,
     );

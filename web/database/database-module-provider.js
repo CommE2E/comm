@@ -1,6 +1,9 @@
 // @flow
 
-import { DATABASE_WORKER_PATH, SQLJS_FILE_PATH } from './utils/constants.js';
+import {
+  DATABASE_WORKER_PATH,
+  DATABASE_MODULE_FILE_PATH,
+} from './utils/constants.js';
 import { isDesktopSafari, isSQLiteSupported } from './utils/db-utils.js';
 import WorkerConnectionProxy from './utils/WorkerConnectionProxy.js';
 import type { AppState } from '../redux/redux-setup.js';
@@ -56,7 +59,7 @@ class DatabaseModule {
       try {
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
-          sqljsFilePath: `${origin}${SQLJS_FILE_PATH}`,
+          databaseModuleFilePath: `${origin}${DATABASE_MODULE_FILE_PATH}`,
           encryptionKey,
           commQueryExecutorFilename,
         });
