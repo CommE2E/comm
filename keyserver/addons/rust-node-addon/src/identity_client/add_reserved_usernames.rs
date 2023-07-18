@@ -2,7 +2,7 @@ use super::*;
 
 #[napi]
 #[instrument(skip_all)]
-pub async fn add_reserved_username(
+pub async fn add_reserved_usernames(
   message: String,
   signature: String,
 ) -> Result<()> {
