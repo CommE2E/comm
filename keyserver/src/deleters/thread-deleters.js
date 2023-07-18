@@ -54,7 +54,7 @@ async function deleteThread(
   const threadIDs = await fetchContainedThreadIDs(threadID);
 
   const [{ threadInfos: serverThreadInfos }] = await Promise.all([
-    fetchServerThreadInfos({ threadIDs: new Set(threadID) }),
+    fetchServerThreadInfos({ threadIDs: new Set(threadIDs) }),
     rescindPushNotifs(
       SQL`n.thread IN (${threadIDs})`,
       SQL`IF(m.thread IN (${threadIDs}), NULL, m.thread)`,
