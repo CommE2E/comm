@@ -8,7 +8,7 @@ export const SQLITE_ENCRYPTION_KEY = 'encryptionKey';
 export const CURRENT_USER_ID_KEY = 'current_user_id';
 
 export const DATABASE_WORKER_PATH = '/worker/database';
-export const SQLJS_FILE_PATH = '/compiled/webworkers';
+export const DATABASE_MODULE_FILE_PATH = '/compiled/webworkers';
 
 export const DEFAULT_COMM_QUERY_EXECUTOR_FILENAME = 'comm_query_executor.wasm';
 
