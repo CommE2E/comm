@@ -580,13 +580,13 @@ impl DatabaseClient {
         let user_id = first_item
           .get(USERS_TABLE_PARTITION_KEY)
           .ok_or(DBItemError {
-            attribute_name: USERS_TABLE_PARTITION_KEY,
+            attribute_name: USERS_TABLE_PARTITION_KEY.to_string(),
             attribute_value: None,
             attribute_error: DBItemAttributeError::Missing,
           })?
           .as_s()
           .map_err(|_| DBItemError {
-            attribute_name: USERS_TABLE_PARTITION_KEY,
+            attribute_name: USERS_TABLE_PARTITION_KEY.to_string(),
             attribute_value: first_item.get(USERS_TABLE_PARTITION_KEY).cloned(),
             attribute_error: DBItemAttributeError::IncorrectType,
           })?;
@@ -867,14 +867,14 @@ fn parse_created_attribute(
   if let Some(AttributeValue::S(created)) = &attribute {
     created.parse().map_err(|e| {
       DBItemError::new(
-        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
+        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
         attribute,
         DBItemAttributeError::InvalidTimestamp(e),
       )
     })
   } else {
     Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
+      ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::Missing,
     ))
@@ -889,14 +889,14 @@ fn parse_auth_type_attribute(
       "password" => Ok(AuthType::Password),
       "wallet" => Ok(AuthType::Wallet),
       _ => Err(DBItemError::new(
-        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE,
+        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
         attribute,
         DBItemAttributeError::IncorrectType,
       )),
     }
   } else {
     Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE,
+      ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::Missing,
     ))
@@ -909,12 +909,12 @@ fn parse_valid_attribute(
   match attribute {
     Some(AttributeValue::Bool(valid)) => Ok(valid),
     Some(_) => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE,
+      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE,
+      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::Missing,
     )),
@@ -927,12 +927,12 @@ fn parse_token_attribute(
   match attribute {
     Some(AttributeValue::S(token)) => Ok(token),
     Some(_) => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
+      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
+      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::Missing,
     )),
@@ -947,12 +947,12 @@ fn parse_registration_data_attribute(
       Ok(server_registration_bytes.into_inner())
     }
     Some(_) => Err(DBItemError::new(
-      USERS_TABLE_REGISTRATION_ATTRIBUTE,
+      USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      USERS_TABLE_REGISTRATION_ATTRIBUTE,
+      USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
       attribute,
       DBItemAttributeError::Missing,
     )),
@@ -966,12 +966,12 @@ fn parse_map_attribute(
   match attribute_value {
     Some(AttributeValue::M(map)) => Ok(map),
     Some(_) => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.to_string(),
       attribute_value,
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.to_string(),
       attribute_value,
       DBItemAttributeError::Missing,
     )),
@@ -985,12 +985,12 @@ fn parse_string_attribute(
   match attribute_value {
     Some(AttributeValue::S(value)) => Ok(value),
     Some(_) => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.to_string(),
       attribute_value,
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.to_string(),
       attribute_value,
       DBItemAttributeError::Missing,
     )),
