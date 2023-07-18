@@ -1,5 +1,7 @@
 // @flow
 
+import Filter from 'bad-words';
+
 import type {
   CreateOrUpdatePublicLinkRequest,
   InviteLink,
@@ -19,6 +21,7 @@ import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js
 import { Viewer } from '../session/viewer.js';
 
 const secretRegex = /^[a-zA-Z0-9]+$/;
+const badWordsFilter = new Filter();
 
 async function createOrUpdatePublicLink(
   viewer: Viewer,
@@ -26,6 +29,9 @@ async function createOrUpdatePublicLink(
 ): Promise<InviteLink> {
   if (!secretRegex.test(request.name)) {
     throw new ServerError('invalid_characters');
+  }
+  if (badWordsFilter.isProfane(request.name)) {
+    throw new ServerError('offensive_words');
   }
 
   const permissionPromise = checkThreadPermission(
