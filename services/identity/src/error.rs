@@ -15,7 +15,7 @@ pub enum Error {
 
 #[derive(Debug, derive_more::Error, derive_more::Constructor)]
 pub struct DBItemError {
-  pub attribute_name: &'static str,
+  pub attribute_name: String,
   pub attribute_value: Option<AttributeValue>,
   pub attribute_error: DBItemAttributeError,
 }
