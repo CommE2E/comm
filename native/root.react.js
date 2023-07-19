@@ -26,6 +26,7 @@ import { RegistrationContextProvider } from './account/registration/registration
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import NativeEditUserAvatarProvider from './avatars/native-edit-user-avatar-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
+import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
@@ -260,41 +261,43 @@ function Root() {
           <NavContext.Provider value={navContext}>
             <RootContext.Provider value={rootContext}>
               <InputStateContainer>
-                <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                  <ActionSheetProvider>
-                    <ENSCacheProvider provider={provider}>
-                      <MediaCacheProvider persistence={filesystemMediaCache}>
-                        <NativeEditUserAvatarProvider>
-                          <NativeEditThreadAvatarProvider>
-                            <MarkdownContextProvider>
-                              <ChatContextProvider>
-                                <MessageSearchProvider>
-                                  <RegistrationContextProvider>
-                                    <SQLiteDataHandler />
-                                    <ConnectedStatusBar />
-                                    <ReduxPersistGate
-                                      persistor={getPersistor()}
-                                    >
-                                      {gated}
-                                    </ReduxPersistGate>
-                                    <PersistedStateGate>
-                                      <Socket
-                                        detectUnsupervisedBackgroundRef={
-                                          detectUnsupervisedBackgroundRef
-                                        }
-                                      />
-                                    </PersistedStateGate>
-                                    {navigation}
-                                  </RegistrationContextProvider>
-                                </MessageSearchProvider>
-                              </ChatContextProvider>
-                            </MarkdownContextProvider>
-                          </NativeEditThreadAvatarProvider>
-                        </NativeEditUserAvatarProvider>
-                      </MediaCacheProvider>
-                    </ENSCacheProvider>
-                  </ActionSheetProvider>
-                </SafeAreaProvider>
+                <MessageEditingContextProvider>
+                  <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                    <ActionSheetProvider>
+                      <ENSCacheProvider provider={provider}>
+                        <MediaCacheProvider persistence={filesystemMediaCache}>
+                          <NativeEditUserAvatarProvider>
+                            <NativeEditThreadAvatarProvider>
+                              <MarkdownContextProvider>
+                                <ChatContextProvider>
+                                  <MessageSearchProvider>
+                                    <RegistrationContextProvider>
+                                      <SQLiteDataHandler />
+                                      <ConnectedStatusBar />
+                                      <ReduxPersistGate
+                                        persistor={getPersistor()}
+                                      >
+                                        {gated}
+                                      </ReduxPersistGate>
+                                      <PersistedStateGate>
+                                        <Socket
+                                          detectUnsupervisedBackgroundRef={
+                                            detectUnsupervisedBackgroundRef
+                                          }
+                                        />
+                                      </PersistedStateGate>
+                                      {navigation}
+                                    </RegistrationContextProvider>
+                                  </MessageSearchProvider>
+                                </ChatContextProvider>
+                              </MarkdownContextProvider>
+                            </NativeEditThreadAvatarProvider>
+                          </NativeEditUserAvatarProvider>
+                        </MediaCacheProvider>
+                      </ENSCacheProvider>
+                    </ActionSheetProvider>
+                  </SafeAreaProvider>
+                </MessageEditingContextProvider>
               </InputStateContainer>
             </RootContext.Provider>
           </NavContext.Provider>
