@@ -83,6 +83,18 @@ function InlineEngagement(props: Props): React.Node {
 
   const repliesText = useInlineEngagementText(sidebarInfo);
 
+  const sidebarMargin = React.useMemo(() => {
+    if (!reactions || Object.keys(reactions).length === 0) {
+      return null;
+    }
+
+    if (isRight) {
+      return styles.sidebarMarginLeft;
+    } else {
+      return styles.sidebarMarginRight;
+    }
+  }, [isRight, reactions, styles.sidebarMarginLeft, styles.sidebarMarginRight]);
+
   const sidebarItem = React.useMemo(() => {
     if (!sidebarInfo) {
       return null;
@@ -91,7 +103,7 @@ function InlineEngagement(props: Props): React.Node {
       <GestureTouchableOpacity
         onPress={onPressSidebar}
         activeOpacity={0.7}
-        style={styles.sidebar}
+        style={[styles.sidebar, sidebarMargin]}
       >
         <CommIcon style={styles.icon} size={14} name="sidebar-filled" />
         <Text style={repliesStyles}>{repliesText}</Text>
@@ -102,6 +114,7 @@ function InlineEngagement(props: Props): React.Node {
     onPressSidebar,
     styles.sidebar,
     styles.icon,
+    sidebarMargin,
     repliesStyles,
     repliesText,
   ]);
@@ -113,6 +126,17 @@ function InlineEngagement(props: Props): React.Node {
     });
   }, [navigate, reactions]);
 
+  const reactionsMargin = React.useMemo(() => {
+    if (isRight) {
+      return styles.reactionsContainerMarginLeft;
+    }
+    return styles.reactionsContainerMarginRight;
+  }, [
+    isRight,
+    styles.reactionsContainerMarginLeft,
+    styles.reactionsContainerMarginRight,
+  ]);
+
   const reactionList = React.useMemo(() => {
     if (!reactions || Object.keys(reactions).length === 0) {
       return null;
@@ -122,7 +146,7 @@ function InlineEngagement(props: Props): React.Node {
       const numOfReacts = reactions[reaction].users.length;
       return (
         <GestureTouchableOpacity
-          style={styles.reactionsContainer}
+          style={[styles.reactionsContainer, reactionsMargin]}
           onPress={onPressReactions}
           activeOpacity={0.7}
           key={reaction}
@@ -131,7 +155,13 @@ function InlineEngagement(props: Props): React.Node {
         </GestureTouchableOpacity>
       );
     });
-  }, [onPressReactions, reactions, styles.reaction, styles.reactionsContainer]);
+  }, [
+    onPressReactions,
+    reactions,
+    reactionsMargin,
+    styles.reaction,
+    styles.reactionsContainer,
+  ]);
 
   const inlineEngagementPositionStyle = React.useMemo(() => {
     const styleResult = [styles.inlineEngagement];
@@ -182,6 +212,12 @@ const unboundStyles = {
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
   },
+  sidebarMarginLeft: {
+    marginLeft: 4,
+  },
+  sidebarMarginRight: {
+    marginRight: 4,
+  },
   icon: {
     color: 'inlineEngagementLabel',
     marginRight: 4,
@@ -204,6 +240,12 @@ const unboundStyles = {
     paddingVertical: 4,
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  reactionsContainerMarginLeft: {
+    marginLeft: 4,
+  },
+  reactionsContainerMarginRight: {
+    marginRight: 4,
   },
   reaction: {
     color: 'inlineEngagementLabel',
