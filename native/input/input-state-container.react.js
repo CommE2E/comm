@@ -65,7 +65,6 @@ import {
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
-  type MessageInfo,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type {
@@ -106,7 +105,6 @@ import {
 
 import {
   type EditInputBarMessageParameters,
-  type EditState,
   InputStateContext,
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
@@ -168,15 +166,10 @@ type Props = {
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
-  +editState: EditState,
 };
 class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
-    editState: {
-      editedMessage: null,
-      isEditedMessageChanged: false,
-    },
   };
   sendCallbacks: Array<() => void> = [];
   activeURIs = new Map();
@@ -407,8 +400,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   inputStateSelector = createSelector(
     (state: State) => state.pendingUploads,
-    (state: State) => state.editState,
-    (pendingUploads: PendingMultimediaUploads, editState: EditState) => ({
+    (pendingUploads: PendingMultimediaUploads) => ({
       pendingUploads,
       sendTextMessage: this.sendTextMessage,
       sendMultimediaMessage: this.sendMultimediaMessage,
@@ -422,9 +414,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadInProgress: this.uploadInProgress,
       reportURIDisplayed: this.reportURIDisplayed,
       setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
-      editState,
-      setEditedMessage: this.setEditedMessage,
-      setEditedMessageChanged: this.setEditedMessageChanged,
       scrollToMessage: this.scrollToMessage,
       addScrollToMessageListener: this.addScrollToMessageListener,
       removeScrollToMessageListener: this.removeScrollToMessageListener,
@@ -1425,21 +1414,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     callbackEditInputBar: (params: EditInputBarMessageParameters) => void,
   ) => {
     this.editInputBarCallbacks.push(callbackEditInputBar);
-  };
-
-  setEditedMessage = (editedMessage: ?MessageInfo, callback?: () => void) => {
-    this.setState(
-      {
-        editState: { editedMessage, isEditedMessageChanged: false },
-      },
-      callback,
-    );
-  };
-
-  setEditedMessageChanged = (isEditedMessageChanged: boolean) => {
-    this.setState(prevState => ({
-      editState: { ...prevState.editState, isEditedMessageChanged },
-    }));
   };
 
   removeEditInputMessageListener = (
