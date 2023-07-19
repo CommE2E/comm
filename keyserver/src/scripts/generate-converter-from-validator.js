@@ -8,7 +8,7 @@ import {
 } from 'lib/types/media-types.js';
 import { threadPermissionInfoValidator } from 'lib/types/thread-permission-types.js';
 import { rawThreadInfoValidator } from 'lib/types/thread-types.js';
-import { keyserverPrefixID, tID } from 'lib/utils/validation-utils.js';
+import { ashoatKeyserverID, tID } from 'lib/utils/validation-utils.js';
 
 import { main } from './utils.js';
 
@@ -217,7 +217,7 @@ const validator = rawThreadInfoValidator;
 const typeName = 'RawThreadInfo';
 const validatorToBeConverted = tID;
 const conversionExpressionString = inputName =>
-  `'${keyserverPrefixID}|' + ${inputName}`;
+  `'${ashoatKeyserverID}|' + ${inputName}`;
 main([
   async () => {
     console.log(
