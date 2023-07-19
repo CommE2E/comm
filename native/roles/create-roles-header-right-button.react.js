@@ -12,16 +12,19 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { values } from 'lib/utils/objects.js';
 
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +route: NavigationRoute<'CreateRolesScreen'>,
+  +setRoleCreationFailed: boolean => void,
 };
 
 function CreateRolesHeaderRightButton(props: Props): React.Node {
   const { threadInfo, action, roleName, rolePermissions } = props.route.params;
+  const { setRoleCreationFailed } = props;
   const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
 
@@ -29,6 +32,12 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
 
   const onPressCreate = React.useCallback(() => {
+    const threadRoleNames = values(threadInfo.roles).map(role => role.name);
+    if (threadRoleNames.includes(roleName)) {
+      setRoleCreationFailed(true);
+      return;
+    }
+
     dispatchActionPromise(
       modifyCommunityRoleActionTypes,
       callModifyCommunityRole({
@@ -48,6 +57,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
     roleName,
     rolePermissions,
     navigation,
+    setRoleCreationFailed,
   ]);
 
   const shouldHeaderRightBeDisabled = roleName.length === 0;
