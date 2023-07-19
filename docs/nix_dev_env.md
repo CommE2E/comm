@@ -136,6 +136,7 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
 ## Production workflows
 
 - [Services deployment](./nix_services_deployment.md)
+  - [Keyserver](./nix_services_deployment.md#keyserver)
   - [Tunnelbroker](./nix_services_deployment.md#tunnelbroker)
 
 ## Using alternate shells with Nix
