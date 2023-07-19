@@ -20,7 +20,8 @@
     "clean-build": "rm -rf out/"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.1"
+    "@babel/runtime": "^7.20.1",
+    "electron-context-menu": "^3.6.1"
   },
   "optionalDependencies": {
     "@commapp/windowspush": "file:addons/windows-pushnotifications"
