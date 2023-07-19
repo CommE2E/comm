@@ -11,6 +11,8 @@ import Animated, {
 
 import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { localIDPrefix } from 'lib/shared/message-utils.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
@@ -22,13 +24,17 @@ import {
   avatarOffset,
 } from './chat-constants.js';
 import { useNavigateToThread } from './message-list-types.js';
+import { useSendReaction } from './reaction-message-utils.js';
 import CommIcon from '../components/comm-icon.react.js';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
 import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
+  +messageInfo: MessageInfo,
+  +threadInfo: ThreadInfo,
   +sidebarInfo: ?ThreadInfo,
   +reactions: ReactionInfo,
   +disabled?: boolean,
@@ -37,6 +43,8 @@ type Props = {
 };
 function InlineEngagement(props: Props): React.Node {
   const {
+    messageInfo,
+    threadInfo,
     sidebarInfo,
     reactions,
     disabled = false,
@@ -128,7 +136,22 @@ function InlineEngagement(props: Props): React.Node {
     repliesText,
   ]);
 
-  const onPressReactions = React.useCallback(() => {
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const localID = `${localIDPrefix}${nextLocalID}`;
+
+  const sendReaction = useSendReaction(
+    messageInfo.id,
+    localID,
+    threadInfo.id,
+    reactions,
+  );
+
+  const onPressReaction = React.useCallback(
+    (reaction: string) => sendReaction(reaction),
+    [sendReaction],
+  );
+
+  const onLongPressReaction = React.useCallback(() => {
     navigate<'MessageReactionsModal'>({
       name: MessageReactionsModalRouteName,
       params: { reactions },
@@ -162,7 +185,8 @@ function InlineEngagement(props: Props): React.Node {
       return (
         <GestureTouchableOpacity
           style={reactionStyle}
-          onPress={onPressReactions}
+          onPress={() => onPressReaction(reaction)}
+          onLongPress={onLongPressReaction}
           activeOpacity={0.7}
           key={reaction}
         >
@@ -170,7 +194,13 @@ function InlineEngagement(props: Props): React.Node {
         </GestureTouchableOpacity>
       );
     });
-  }, [onPressReactions, reactionStyle, reactions, styles.reaction]);
+  }, [
+    onLongPressReaction,
+    onPressReaction,
+    reactionStyle,
+    reactions,
+    styles.reaction,
+  ]);
 
   const inlineEngagementPositionStyle = React.useMemo(() => {
     const styleResult = [styles.inlineEngagement];
@@ -363,6 +393,8 @@ function TooltipInlineEngagement(
     <Animated.View style={inlineEngagementContainer}>
       <Animated.View style={inlineEngagementStyles}>
         <InlineEngagement
+          messageInfo={item.messageInfo}
+          threadInfo={item.threadInfo}
           sidebarInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
           disabled
