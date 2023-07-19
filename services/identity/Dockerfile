@@ -1,39 +1,36 @@
-FROM rust:1.67
+FROM rust:1.67 as builder
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p /home/root/app/
+
+WORKDIR /home/root/app
 
 # Install more recent version of protobuf, must be ran as root
 COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
 RUN ../../scripts/install_protobuf.sh
 
-# Create a new user comm and use it to run subsequent commands
-RUN useradd -m comm
-USER comm
-
-# The build.rs script depends on rustfmt
-RUN rustup component add rustfmt
-
 RUN mkdir -p /home/comm/app/identity
 WORKDIR /home/comm/app/identity
-RUN cargo init --bin
-
-COPY services/identity/Cargo.toml services/identity/Cargo.lock ./
-COPY shared/comm-opaque2 ../../shared/comm-opaque2
-
-# Cache build dependencies in a new layer
-RUN cargo build --release
-RUN rm src/*.rs
 
 COPY services/identity .
 COPY shared/protos/identity_client.proto ../../shared/protos/
+COPY shared/comm-opaque2 ../../shared/comm-opaque2
 
-# Remove the previously-built binary so that only the application itself is
-# rebuilt
-RUN rm ./target/release/deps/identity*
+RUN cargo install --path .
 
-RUN cargo build --release
-RUN target/release/identity keygen
+FROM debian:bullseye-slim
 
-CMD ["./target/release/identity", "server"]
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && useradd -m comm \
+  && mkdir -p /home/comm/app/identity
+
+WORKDIR /home/comm/app/identity
+
+COPY --from=builder /usr/local/cargo/bin/identity \
+  /usr/local/bin/identity
+
+CMD ["identity", "server"]
