@@ -12,7 +12,9 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { values } from 'lib/utils/objects.js';
 
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors.js';
 
@@ -29,6 +31,14 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
 
   const onPressCreate = React.useCallback(() => {
+    const threadRoleNames = values(threadInfo.roles).map(role => role.name);
+    if (threadRoleNames.includes(roleName)) {
+      displayActionResultModal(
+        'There is already a role with this name in the community',
+      );
+      return;
+    }
+
     dispatchActionPromise(
       modifyCommunityRoleActionTypes,
       callModifyCommunityRole({
