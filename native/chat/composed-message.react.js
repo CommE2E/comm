@@ -23,6 +23,7 @@ import {
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { FailedSend } from './failed-send.react.js';
 import { InlineEngagement } from './inline-engagement.react.js';
+import { MessageEditingContext } from './message-editing-context.react.js';
 import { MessageHeader } from './message-header.react.js';
 import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
@@ -298,15 +299,18 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> =
     const navigateToSidebar = useNavigateToSidebar(props.item);
     const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
     const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
+
+    const messageEditingContext = React.useContext(MessageEditingContext);
     const progress = useDerivedValue(() => {
       const isThisThread =
-        inputState?.editState.editedMessage?.threadID ===
+        messageEditingContext?.editState.editedMessage?.threadID ===
         props.item.threadInfo.id;
       const isHighlighted =
-        inputState?.editState.editedMessage?.id === props.item.messageInfo.id &&
-        isThisThread;
+        messageEditingContext?.editState.editedMessage?.id ===
+          props.item.messageInfo.id && isThisThread;
       return withTiming(isHighlighted ? 1 : 0);
     });
+
     const editedMessageStyle = useAnimatedStyle(() => {
       const backgroundColor = interpolateColor(
         progress.value,
