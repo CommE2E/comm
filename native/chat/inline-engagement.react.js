@@ -30,16 +30,16 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
   +sidebarThreadInfo: ?ThreadInfo,
-  +reactions?: ReactionInfo,
+  +reactions: ReactionInfo,
   +disabled?: boolean,
   +positioning?: 'left' | 'right' | 'center',
   +label?: ?string,
 };
 function InlineEngagement(props: Props): React.Node {
   const {
-    disabled = false,
-    reactions,
     sidebarThreadInfo,
+    reactions,
+    disabled = false,
     positioning,
     label,
   } = props;
@@ -88,7 +88,7 @@ function InlineEngagement(props: Props): React.Node {
   const sidebarStyle = React.useMemo(() => {
     const stylesResult = [styles.sidebar];
 
-    if (!reactions || Object.keys(reactions).length === 0) {
+    if (Object.keys(reactions).length === 0) {
       return stylesResult;
     }
 
@@ -155,7 +155,7 @@ function InlineEngagement(props: Props): React.Node {
   ]);
 
   const reactionList = React.useMemo(() => {
-    if (!reactions || Object.keys(reactions).length === 0) {
+    if (Object.keys(reactions).length === 0) {
       return null;
     }
 
@@ -366,6 +366,7 @@ function TooltipInlineEngagement(
       <Animated.View style={inlineEngagementStyles}>
         <InlineEngagement
           sidebarThreadInfo={item.threadCreatedFromMessage}
+          reactions={item.reactions}
           disabled
         />
       </Animated.View>
