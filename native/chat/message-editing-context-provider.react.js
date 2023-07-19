@@ -44,10 +44,15 @@ function MessageEditingContextProvider(props: Props): React.Node {
 
   const setEditedMessageChanged = React.useCallback(
     (isEditedMessageChanged: boolean) => {
-      setEditState(prevEditState => ({
-        ...prevEditState,
-        isEditedMessageChanged,
-      }));
+      setEditState(prevEditState => {
+        if (prevEditState.isEditedMessageChanged === isEditedMessageChanged) {
+          return prevEditState;
+        }
+        return {
+          ...prevEditState,
+          isEditedMessageChanged,
+        };
+      });
     },
     [],
   );
