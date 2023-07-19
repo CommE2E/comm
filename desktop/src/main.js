@@ -10,6 +10,7 @@ import {
   autoUpdater,
   // eslint-disable-next-line import/extensions
 } from 'electron/main';
+import contextMenu from 'electron-context-menu';
 import fs from 'fs';
 import path from 'path';
 
@@ -263,6 +264,7 @@ const show = (urlPath?: string) => {
 
 const run = () => {
   app.setName('Comm');
+  contextMenu();
   if (process.platform === 'win32') {
     app.setAppUserModelId('Comm');
   }
