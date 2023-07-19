@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import { useDisplayDeleteRoleAlert } from './role-utils.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -38,6 +39,18 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
   );
   invariant(existingRoleID, 'Role ID must exist for an existing role');
 
+  const defaultRoleID = Object.keys(threadInfo.roles).find(
+    roleID => threadInfo.roles[roleID].isDefault,
+  );
+  invariant(defaultRoleID, 'Default role ID must exist');
+
+  const displayDeleteRoleAlert = useDisplayDeleteRoleAlert(
+    threadInfo,
+    existingRoleID,
+    defaultRoleID,
+    memberCount,
+  );
+
   const menuButton = React.useMemo(() => {
     if (roleName === 'Admins') {
       return <View style={styles.rolePanelEmptyMenuButton} />;
@@ -54,12 +67,18 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
   const options = React.useMemo(() => {
     const availableOptions = ['Edit role'];
 
+    // Since the `Members` role is able to be renamed, we need to check if the
+    // default role ID is the same as the existing role ID.
+    if (defaultRoleID !== existingRoleID) {
+      availableOptions.push('Delete role');
+    }
+
     if (Platform.OS === 'ios') {
       availableOptions.push('Cancel');
     }
 
     return availableOptions;
-  }, []);
+  }, [defaultRoleID, existingRoleID]);
 
   const onOptionSelected = React.useCallback(
     (index: ?number) => {
@@ -77,6 +96,8 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
           roleName,
           rolePermissions,
         });
+      } else if (selectedOption === 'Delete role') {
+        displayDeleteRoleAlert();
       }
     },
     [
@@ -86,6 +107,7 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
       roleName,
       rolePermissions,
       threadInfo,
+      displayDeleteRoleAlert,
     ],
   );
 
