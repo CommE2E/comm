@@ -15,6 +15,7 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ChatNavigationProp } from './chat.react.js';
 import ComposedMessage from './composed-message.react.js';
 import { InnerTextMessage } from './inner-text-message.react.js';
+import { MessageEditingContext } from './message-editing-context.react.js';
 import {
   MessagePressResponderContext,
   type MessagePressResponderContextType,
@@ -22,7 +23,6 @@ import {
 import textMessageSendFailed from './text-message-send-failed.js';
 import { getMessageTooltipKey } from './utils.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
-import { InputStateContext } from '../input/input-state.js';
 import { MarkdownContext } from '../markdown/markdown-context.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import {
@@ -249,7 +249,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
     const markdownContext = React.useContext(MarkdownContext);
-    const inputContext = React.useContext(InputStateContext);
     invariant(markdownContext, 'markdownContext should be set');
 
     const { linkModalActive, clearMarkdownContextData } = markdownContext;
@@ -266,8 +265,9 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       props.item.messageInfo,
     );
 
-    const isThisMessageEdited =
-      inputContext?.editState.editedMessage?.id === props.item.messageInfo.id;
+    const messageEditingContext = React.useContext(MessageEditingContext);
+    const editMessageID = messageEditingContext?.editState.editedMessage?.id;
+    const isThisMessageEdited = editMessageID === props.item.messageInfo.id;
 
     const canEditMessage =
       useCanEditMessage(props.item.threadInfo, props.item.messageInfo) &&

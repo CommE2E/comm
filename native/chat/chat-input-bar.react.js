@@ -84,6 +84,10 @@ import {
 
 import { ChatContext } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react.js';
+import {
+  MessageEditingContext,
+  type MessageEditingContextType,
+} from './message-editing-context.react.js';
 import type { RemoveEditMode } from './message-list-types.js';
 import TypeaheadTooltip from './typeahead-tooltip.react.js';
 import Button from '../components/button.react.js';
@@ -173,6 +177,7 @@ type Props = {
   ) => Promise<SendEditMessageResponse>,
   +navigation: ?ChatNavigationProp<'MessageList'>,
   +overlayContext: ?OverlayContextType,
+  +messageEditingContext: ?MessageEditingContextType,
 };
 type State = {
   +text: string,
@@ -766,7 +771,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
     this.setState({ text, textEdited: true });
-    this.props.inputState?.setEditedMessageChanged(this.isMessageEdited(text));
+    this.props.messageEditingContext?.setEditedMessageChanged(
+      this.isMessageEdited(text),
+    );
     if (this.isEditMode()) {
       return;
     }
@@ -870,7 +877,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   isEditMode = () => {
-    const editState = this.props.inputState?.editState;
+    const editState = this.props.messageEditingContext?.editState;
     const isThisThread =
       editState?.editedMessage?.threadID === this.props.threadInfo.id;
     return editState && editState.editedMessage !== null && isThisThread;
@@ -946,7 +953,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   getEditedMessage = () => {
-    const editState = this.props.inputState?.editState;
+    const editState = this.props.messageEditingContext?.editState;
     return editState?.editedMessage;
   };
 
@@ -970,7 +977,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   exitEditMode = () => {
-    this.props.inputState?.setEditedMessage(null, () => {
+    this.props.messageEditingContext?.setEditedMessage(null, () => {
       this.unblockNavigation();
       this.updateText(this.props.draft);
       this.focusAndUpdateButtonsVisibility();
@@ -999,7 +1006,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const { action } = e.data;
     e.preventDefault();
     const saveExit = () => {
-      this.props.inputState?.setEditedMessage(null, () => {
+      this.props.messageEditingContext?.setEditedMessage(null, () => {
         this.setState({ isExitingDuringEditMode: true }, () => {
           if (!this.props.navigation) {
             return;
@@ -1251,7 +1258,9 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     parentThreadInfo,
   );
 
-  const editedMessageInfo = inputState?.editState.editedMessage;
+  const messageEditingContext = React.useContext(MessageEditingContext);
+
+  const editedMessageInfo = messageEditingContext?.editState.editedMessage;
   const editedMessagePreview = useMessagePreview(
     editedMessageInfo,
     props.threadInfo,
@@ -1285,6 +1294,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       editMessage={editMessage}
       navigation={props.navigation}
       overlayContext={overlayContext}
+      messageEditingContext={messageEditingContext}
     />
   );
 }

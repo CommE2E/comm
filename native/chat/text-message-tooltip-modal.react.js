@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils.js';
 
+import { MessageEditingContext } from './message-editing-context.react.js';
 import { useNavigateToThread } from './message-list-types.js';
 import { useOnPressReport } from './message-report-utils.js';
 import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
@@ -66,11 +67,14 @@ function TooltipMenu(
     [],
   );
 
+  const messageEditingContext = React.useContext(MessageEditingContext);
+
   const { messageInfo } = route.params.item;
   const onPressEdit = React.useCallback(() => {
     invariant(
-      inputState,
-      'inputState should be set in TextMessageTooltipModal.onPressEdit',
+      inputState && messageEditingContext,
+      'inputState and messageEditingContext should be set in ' +
+        'TextMessageTooltipModal.onPressEdit',
     );
     const updateInputBar = () => {
       inputState.editInputMessage({
@@ -79,9 +83,10 @@ function TooltipMenu(
       });
     };
     const enterEditMode = () => {
-      inputState.setEditedMessage(messageInfo, updateInputBar);
+      messageEditingContext.setEditedMessage(messageInfo, updateInputBar);
     };
-    const { editedMessage, isEditedMessageChanged } = inputState.editState;
+    const { editedMessage, isEditedMessageChanged } =
+      messageEditingContext.editState;
     if (isEditedMessageChanged && editedMessage) {
       exitEditAlert({
         onDiscard: enterEditMode,
@@ -89,7 +94,7 @@ function TooltipMenu(
     } else {
       enterEditMode();
     }
-  }, [inputState, messageInfo, text]);
+  }, [inputState, messageEditingContext, messageInfo, text]);
   const renderEditIcon = React.useCallback(
     style => <SWMansionIcon name="edit-1" style={style} size={16} />,
     [],
