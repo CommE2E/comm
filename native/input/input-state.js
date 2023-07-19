@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import type { NativeMediaSelection } from 'lib/types/media-types.js';
-import type { MessageInfo } from 'lib/types/message-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -21,11 +20,6 @@ export type MessagePendingUploads = {
 
 export type PendingMultimediaUploads = {
   [localMessageID: string]: MessagePendingUploads,
-};
-
-export type EditState = {
-  +editedMessage: ?MessageInfo,
-  +isEditedMessageChanged: boolean,
 };
 
 export type EditInputBarMessageParameters = {
@@ -65,12 +59,6 @@ export type InputState = {
     threadID: string,
     pendingThreadUpdateHandler: ?(ThreadInfo) => mixed,
   ) => void,
-  +editState: EditState,
-  +setEditedMessage: (
-    editedMessage: ?MessageInfo,
-    callback?: () => void,
-  ) => void,
-  +setEditedMessageChanged: (isEditedMessageChanged: boolean) => void,
   +scrollToMessage: (messageKey: string) => void,
   +addScrollToMessageListener: ((messageKey: string) => void) => void,
   +removeScrollToMessageListener: ((messageKey: string) => void) => void,
