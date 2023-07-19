@@ -15,7 +15,7 @@ import {
   tPlatform,
   tPlatformDetails,
   assertWithValidator,
-  keyserverPrefixID,
+  ashoatKeyserverID,
   convertClientIDsToServerIDs,
   convertObject,
   convertServerIDsToClientIDs,
@@ -43,7 +43,7 @@ async function validateInput<T>(
   ) {
     try {
       return convertClientIDsToServerIDs(
-        keyserverPrefixID,
+        ashoatKeyserverID,
         inputValidator,
         convertedInput,
       );
@@ -77,7 +77,7 @@ function validateOutput<T>(
     alwaysConvertSchema
   ) {
     return convertServerIDsToClientIDs(
-      keyserverPrefixID,
+      ashoatKeyserverID,
       outputValidator,
       data,
     );

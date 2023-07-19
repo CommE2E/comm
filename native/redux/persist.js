@@ -66,7 +66,7 @@ import {
   convertThreadStoreOperationsToClientDBOperations,
 } from 'lib/utils/thread-ops-utils.js';
 import { getUUID } from 'lib/utils/uuid.js';
-import { keyserverPrefixID } from 'lib/utils/validation-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateClientDBThreadStoreThreadInfos,
@@ -641,7 +641,7 @@ const migrations = {
       ),
       connection: convertConnectionInfoToNewIDSchema(state.connection),
       watchedThreadIDs: state.watchedThreadIDs.map(
-        id => `${keyserverPrefixID}|${id}`,
+        id => `${ashoatKeyserverID}|${id}`,
       ),
       inviteLinksStore: convertInviteLinksStoreToNewIDSchema(
         state.inviteLinksStore,
