@@ -59,7 +59,18 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
     $ReadOnlyArray<UserSurfacedPermission>,
   >(defaultRolePermissions);
 
+  const [roleCreationFailed, setRoleCreationFailed] =
+    React.useState<boolean>(false);
+
   const styles = useStyles(unboundStyles);
+
+  const errorStyles = React.useMemo(
+    () =>
+      roleCreationFailed
+        ? [styles.errorContainer, styles.errorContainerVisible]
+        : styles.errorContainer,
+    [roleCreationFailed, styles.errorContainer, styles.errorContainerVisible],
+  );
 
   const onClearPermissions = React.useCallback(() => {
     setSelectedPermissions([]);
@@ -152,6 +163,7 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
   );
 
   const onChangeRoleNameInput = React.useCallback((roleName: string) => {
+    setRoleCreationFailed(false);
     setCustomRoleName(roleName);
   }, []);
 
@@ -170,7 +182,12 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
             );
           }
 
-          return <CreateRolesHeaderRightButton route={props.route} />;
+          return (
+            <CreateRolesHeaderRightButton
+              route={props.route}
+              setRoleCreationFailed={setRoleCreationFailed}
+            />
+          );
         },
       }),
     [
@@ -193,6 +210,11 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
             editable={true}
           />
           <SWMansionIcon name="edit-1" size={20} style={styles.pencilIcon} />
+        </View>
+        <View style={errorStyles}>
+          <Text style={styles.errorText}>
+            There is already a role with this name in the community
+          </Text>
         </View>
       </View>
       <View style={styles.permissionsContainer}>
@@ -230,6 +252,18 @@ const unboundStyles = {
   },
   pencilIcon: {
     color: 'panelInputSecondaryForeground',
+  },
+  errorContainer: {
+    marginTop: 10,
+    alignItems: 'center',
+    opacity: 0,
+  },
+  errorContainerVisible: {
+    opacity: 1,
+  },
+  errorText: {
+    color: 'redText',
+    fontSize: 14,
   },
   permissionsContainer: {
     marginTop: 20,
