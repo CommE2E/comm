@@ -194,14 +194,10 @@ async function changeRole(
   for (const userID of userIDs) {
     const existingMembership = existingMembershipInfo.get(userID);
     const oldRole = existingMembership?.oldRole ?? '-1';
-    const oldPermissions = existingMembership?.oldPermissions ?? null;
     const oldPermissionsForChildren =
       existingMembership?.oldPermissionsForChildren ?? null;
 
-    if (existingMembership && oldRole === intendedRole) {
-      // If the old role is the same as the new one, we have nothing to update
-      continue;
-    } else if (Number(oldRole) > 0 && role === null) {
+    if (Number(oldRole) > 0 && role === null) {
       // In the case where we're just trying to add somebody to a thread, if
       // they already have a role with a nonzero role then we don't need to do
       // anything
@@ -247,15 +243,6 @@ async function changeRole(
           'probably because KNOW_OF permission was unexpectedly present or ' +
           'missing',
       );
-    }
-    if (
-      existingMembership &&
-      _isEqual(permissions)(oldPermissions) &&
-      oldRole === newRole
-    ) {
-      // This thread and all of its descendants need no updates for this user,
-      // since the corresponding memberships row is unchanged by this operation
-      continue;
     }
 
     if (permissions) {
