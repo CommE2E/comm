@@ -292,7 +292,7 @@ export const registerResponseValidator: TInterface<RegisterResponse> =
       loggedInUserInfoValidator,
     ]),
     cookieChange: tShape({
-      threadInfos: t.dict(t.String, rawThreadInfoValidator),
+      threadInfos: t.dict(tID, rawThreadInfoValidator),
       userInfos: t.list(userInfoValidator),
     }),
   });
