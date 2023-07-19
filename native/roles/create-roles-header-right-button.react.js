@@ -50,14 +50,35 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
     navigation,
   ]);
 
-  return (
-    <TouchableOpacity onPress={onPressCreate}>
-      <Text style={styles.createButton}>Create</Text>
-    </TouchableOpacity>
-  );
+  const shouldHeaderRightBeDisabled = roleName.length === 0;
+  const createButton = React.useMemo(() => {
+    const textStyle = shouldHeaderRightBeDisabled
+      ? styles.createButtonDisabled
+      : styles.createButton;
+
+    return (
+      <TouchableOpacity
+        onPress={onPressCreate}
+        disabled={shouldHeaderRightBeDisabled}
+      >
+        <Text style={textStyle}>Create</Text>
+      </TouchableOpacity>
+    );
+  }, [
+    shouldHeaderRightBeDisabled,
+    styles.createButtonDisabled,
+    styles.createButton,
+    onPressCreate,
+  ]);
+
+  return createButton;
 }
 
 const unboundStyles = {
+  createButtonDisabled: {
+    color: 'disabledButton',
+    marginRight: 10,
+  },
   createButton: {
     color: 'purpleLink',
     marginRight: 10,
