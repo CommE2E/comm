@@ -37,6 +37,7 @@ import ComposeSubchannel from './compose-subchannel.react.js';
 import ComposeThreadButton from './compose-thread-button.react.js';
 import FullScreenThreadMediaGallery from './fullscreen-thread-media-gallery.react.js';
 import HomeChatThreadList from './home-chat-thread-list.react.js';
+import { MessageEditingContext } from './message-editing-context.react.js';
 import MessageListContainer from './message-list-container.react.js';
 import MessageListHeaderTitle from './message-list-header-title.react.js';
 import MessageResultsScreen from './message-results-screen.react.js';
@@ -341,6 +342,10 @@ export default function ChatComponent(props: Props): React.Node {
     [props.navigation],
   );
 
+  const messageEditingContext = React.useContext(MessageEditingContext);
+  const editState = messageEditingContext?.editState;
+  const editMode = !!(editState && editState.editedMessage !== null);
+
   const { width: screenWidth } = useWindowDimensions();
   const screenOptions = React.useMemo(
     () => ({
@@ -352,9 +357,9 @@ export default function ChatComponent(props: Props): React.Node {
         borderBottomWidth: 1,
       },
       gestureEnabled: true,
-      gestureResponseDistance: screenWidth,
+      gestureResponseDistance: editMode ? 0 : screenWidth,
     }),
-    [colors.tabBarBackground, headerLeftButton, screenWidth],
+    [colors.tabBarBackground, headerLeftButton, screenWidth, editMode],
   );
 
   const chatThreadListOptions = React.useCallback(
