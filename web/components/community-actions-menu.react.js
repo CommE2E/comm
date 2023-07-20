@@ -16,6 +16,7 @@ import Menu from '../components/menu.react.js';
 import ManageInviteLinksModal from '../invite-links/manage-invite-links-modal.react.js';
 import ViewInviteLinkModal from '../invite-links/view-invite-link-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import CommunityRolesModal from '../roles/community-roles-modal.react.js';
 import { AddLink } from '../vectors.react.js';
 
 type Props = {
@@ -52,7 +53,10 @@ function CommunityActionsMenu(props: Props): React.Node {
     pushModal(<ManageInviteLinksModal communityID={communityID} />);
   }, [communityID, pushModal]);
 
-  const openCommunityRolesModal = React.useCallback(() => {}, []);
+  const openCommunityRolesModal = React.useCallback(
+    () => pushModal(<CommunityRolesModal communityID={communityID} />),
+    [communityID, pushModal],
+  );
 
   const items = React.useMemo(() => {
     const itemSpecs = [];
