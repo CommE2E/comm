@@ -1,5 +1,39 @@
 # Services Deployment
 
+## Identity Service
+
+Deploying the Identity service requires generating OPAQUE secrets, building the Docker image, and deploying the container.
+
+### Building the Docker image
+
+The Docker image can be built with the following command:
+
+```bash
+docker build -f services/identity -t commapp/identity-server:<tag> .
+```
+
+### Generating OPAQUE secrets
+
+OPAQUE is an implementation of a PAKE (Passwor-Authenticated Key Exchange) protocol. This allows for authentication of a user without requiring the password credentials to be stored on the server. To generate the server credentials:
+
+```
+docker run -v comm-identity-secrets:/home/comm/app/identity/secrets identity keygen
+```
+
+**NOTE:** This OPAQUE keypair is used to encrypt the password credentials of all users. The contents of this file should be persisted in a safe manner beyond a Docker volume.
+
+### Running the Identity service
+
+To run the service:
+
+```
+docker run -d \
+  -e KEYSERVER_PUBLIC_KEY=<public key> \
+  -p 50054:50054 \
+  -v comm-identity-secrets:/home/comm/app/identity/secrets \
+  commapp/identity-server:<tag>
+```
+
 ## Tunnelbroker
 
 Deploying Tunnelbroker consists of building its Docker image and deploying that image as a Docker container.
