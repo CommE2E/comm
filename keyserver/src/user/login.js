@@ -172,6 +172,7 @@ async function registerOrLogin(): Promise<IdentityInfo> {
     ]);
     return identity_info;
   } catch (e) {
+    console.warn('Failed to login user: ' + getMessageForException(e));
     try {
       const identity_info = await rustAPI.registerUser(
         userInfo.username,
