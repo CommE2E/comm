@@ -27,7 +27,7 @@ pub async fn login_user(
   let mut client_login = Login::new();
   let opaque_login_request = client_login
     .start(&password)
-    .map_err(|_| Error::from_status(Status::GenericFailure))?;
+    .map_err(|_| Error::from_reason("Failed to create opaque login request"))?;
 
   let login_start_request = OpaqueLoginStartRequest {
     opaque_login_request,
@@ -51,26 +51,30 @@ pub async fn login_user(
     }),
   };
 
+  debug!("Starting login to identity service");
   let login_start_response = identity_client
     .login_password_user_start(login_start_request)
     .await
     .map_err(handle_grpc_error)?
     .into_inner();
 
+  debug!("Received login response from identity service");
   let opaque_login_upload = client_login
     .finish(&login_start_response.opaque_login_response)
-    .map_err(|_| Error::from_status(Status::GenericFailure))?;
+    .map_err(|_| Error::from_reason("Failed to finish opaque login request"))?;
   let login_finish_request = OpaqueLoginFinishRequest {
     session_id: login_start_response.session_id,
     opaque_login_upload,
   };
 
+  debug!("Attempting to finalize opaque login exchange with identity service");
   let login_finish_response = identity_client
     .login_password_user_finish(login_finish_request)
     .await
     .map_err(handle_grpc_error)?
     .into_inner();
 
+  debug!("Finished login with identity service");
   let user_info = UserLoginInfo {
     user_id: login_finish_response.user_id,
     access_token: login_finish_response.access_token,
