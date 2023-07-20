@@ -10,11 +10,11 @@ import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
-import css from './invite-links-menu.css';
-import ManageInviteLinksModal from './manage-invite-links-modal.react.js';
-import ViewInviteLinkModal from './view-invite-link-modal.react.js';
+import css from './community-actions-menu.css';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
+import ManageInviteLinksModal from '../invite-links/manage-invite-links-modal.react.js';
+import ViewInviteLinkModal from '../invite-links/view-invite-link-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { AddLink } from '../vectors.react.js';
 
@@ -22,7 +22,7 @@ type Props = {
   +communityID: string,
 };
 
-function InviteLinksMenu(props: Props): React.Node {
+function CommunityActionsMenu(props: Props): React.Node {
   const { communityID } = props;
   const inviteLink: ?InviteLink = useSelector(primaryInviteLinksSelector)[
     communityID
@@ -110,4 +110,4 @@ function InviteLinksMenu(props: Props): React.Node {
   );
 }
 
-export default InviteLinksMenu;
+export default CommunityActionsMenu;
