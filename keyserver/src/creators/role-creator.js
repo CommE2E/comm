@@ -114,6 +114,8 @@ async function modifyRole(
     ...configuredPermissions,
   ];
 
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
   // For communities of the type `COMMUNITY_ANNOUNCEMENT_ROOT`, the ability for
   // the role to be voiced needs to be configured (i.e. the parameters should
   // include the user-facing permission VOICED_IN_ANNOUNCEMENT_CHANNELS). This
