@@ -1,0 +1,52 @@
+.modalDescription {
+  color: var(--modal-fg);
+  padding: 16px 32px 0 32px;
+  font-size: var(--m-font-16);
+}
+
+.rolePanelTitleContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 32px 32px 16px 32px;
+}
+
+.rolePanelTitle {
+  color: var(--community-roles-text-color);
+  font-size: var(--l-font-18);
+}
+
+.rolePanelTitle:last-of-type {
+  margin-right: 32px;
+}
+
+.separator {
+  border: 0;
+  margin: 0 32px 8px 32px;
+  width: 85%;
+  align-self: center;
+  height: 2px;
+  border: none;
+  border-top: var(--modal-separator) solid 1px;
+}
+
+.rolePanelList {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 400px;
+  margin: 0 32px 16px 24px;
+}
+
+.createRoleButtonContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+
+.createRoleButton {
+  margin: 0 32px 0 32px;
+}
