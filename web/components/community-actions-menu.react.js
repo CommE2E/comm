@@ -36,6 +36,10 @@ function CommunityActionsMenu(props: Props): React.Node {
     community,
     threadPermissions.MANAGE_INVITE_LINKS,
   );
+  const canChangeRoles = threadHasPermission(
+    community,
+    threadPermissions.CHANGE_ROLE,
+  );
 
   const openViewInviteLinkModal = React.useCallback(() => {
     if (!inviteLink) {
@@ -47,6 +51,8 @@ function CommunityActionsMenu(props: Props): React.Node {
   const openManageInviteLinksModal = React.useCallback(() => {
     pushModal(<ManageInviteLinksModal communityID={communityID} />);
   }, [communityID, pushModal]);
+
+  const openCommunityRolesModal = React.useCallback(() => {}, []);
 
   const items = React.useMemo(() => {
     const itemSpecs = [];
@@ -67,12 +73,22 @@ function CommunityActionsMenu(props: Props): React.Node {
       });
     }
 
+    if (canChangeRoles) {
+      itemSpecs.push({
+        text: 'Roles',
+        icon: 'user-info',
+        onClick: openCommunityRolesModal,
+      });
+    }
+
     return itemSpecs;
   }, [
     canManageLinks,
     inviteLink,
     openManageInviteLinksModal,
     openViewInviteLinkModal,
+    canChangeRoles,
+    openCommunityRolesModal,
   ]);
 
   const menuItems = React.useMemo(
