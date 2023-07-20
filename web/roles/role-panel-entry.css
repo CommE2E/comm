@@ -1,0 +1,24 @@
+.rolePanelEntry {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  color: var(--community-roles-text-color);
+  font-weight: 500;
+}
+
+.rolePanelNameEntry {
+  font-size: var(--s-font-14);
+}
+
+.rolePanelCountEntryContainer {
+  margin-right: 40px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.rolePanelCountEntry {
+  font-size: var(--s-font-14);
+  margin-right: 2px;
+}
