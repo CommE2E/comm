@@ -3,9 +3,17 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import {
+  modifyCommunityRole,
+  modifyCommunityRoleActionTypes,
+} from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { type UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils.js';
 
 import css from './create-roles-modal.css';
 import {
@@ -20,13 +28,18 @@ import Modal from '../modals/modal.react.js';
 type CreateRolesModalProps = {
   +threadInfo: ThreadInfo,
   +action: 'create_role' | 'edit_role',
+  +existingRoleID?: string,
   +roleName: string,
   +rolePermissions: $ReadOnlyArray<UserSurfacedPermission>,
 };
 
 function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   const { popModal } = useModalContext();
-  const { threadInfo, roleName, rolePermissions } = props;
+  const { threadInfo, action, existingRoleID, roleName, rolePermissions } =
+    props;
+
+  const callModifyCommunityRole = useServerCall(modifyCommunityRole);
+  const dispatchActionPromise = useDispatchActionPromise();
 
   const [pendingRoleName, setPendingRoleName] =
     React.useState<string>(roleName);
@@ -100,6 +113,32 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
     ],
   );
 
+  const onClickCreateRole = React.useCallback(() => {
+    // TODO: Error handling in a later diff
+
+    dispatchActionPromise(
+      modifyCommunityRoleActionTypes,
+      callModifyCommunityRole({
+        community: threadInfo.id,
+        existingRoleID,
+        action,
+        name: pendingRoleName,
+        permissions: pendingRolePermissions,
+      }),
+    );
+
+    popModal();
+  }, [
+    callModifyCommunityRole,
+    dispatchActionPromise,
+    threadInfo,
+    action,
+    existingRoleID,
+    pendingRoleName,
+    pendingRolePermissions,
+    popModal,
+  ]);
+
   return (
     <Modal name="Create Role" onClose={onCloseModal} size="large">
       <form method="POST" className={css.formContainer}>
@@ -136,7 +175,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
           variant="filled"
           className={css.createRoleButton}
           buttonColor={buttonThemes.standard}
-          onClick={null}
+          onClick={onClickCreateRole}
         >
           Create
         </Button>
