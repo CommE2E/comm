@@ -72,7 +72,7 @@ module.exports = {
     const paths = new Set(files.map(findRustProjectPath).filter(Boolean));
     return `yarn rust-pre-commit ${Array.from(paths).join(' ')}`;
   },
-  'services/terraform/*.tf': function checkTerraform(files) {
+  'services/terraform/**/*.tf': function checkTerraform(files) {
     return 'yarn terraform-pre-commit';
   },
 };
