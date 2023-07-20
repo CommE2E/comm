@@ -8,6 +8,7 @@ import { useRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './community-roles-modal.css';
+import CreateRolesModal from './create-roles-modal.react.js';
 import RolePanelEntry from './role-panel-entry.react.js';
 import Button, { buttonThemes } from '../components/button.react.js';
 import Modal from '../modals/modal.react.js';
@@ -18,7 +19,7 @@ type CommunityRolesModalProps = {
 };
 
 function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
-  const { popModal } = useModalContext();
+  const { popModal, pushModal } = useModalContext();
   const { threadInfo } = props;
 
   const [updatedThreadInfo, setUpdatedThreadInfo] =
@@ -53,7 +54,20 @@ function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
     return rolePanelEntries;
   }, [roleNamesToMembers]);
 
-  const onClickCreateRole = React.useCallback(() => {}, []);
+  const rolePermissionsForNewRole = React.useMemo(() => [], []);
+
+  const onClickCreateRole = React.useCallback(
+    () =>
+      pushModal(
+        <CreateRolesModal
+          threadInfo={updatedThreadInfo}
+          action="create_role"
+          roleName="New Role"
+          rolePermissions={rolePermissionsForNewRole}
+        />,
+      ),
+    [pushModal, updatedThreadInfo, rolePermissionsForNewRole],
+  );
 
   return (
     <Modal name="Roles" onClose={popModal} size="large">
