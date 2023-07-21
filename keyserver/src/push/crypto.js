@@ -37,13 +37,11 @@ async function encryptIOSNotification(
   let encryptedSerializedPayload;
   try {
     const unencryptedSerializedPayload = JSON.stringify(unencryptedPayload);
-    const { serializedPayload } = await encryptAndUpdateOlmSession(
-      cookieID,
-      'notifications',
-      {
-        serializedPayload: unencryptedSerializedPayload,
-      },
-    );
+    const {
+      encryptedMessages: { serializedPayload },
+    } = await encryptAndUpdateOlmSession(cookieID, 'notifications', {
+      serializedPayload: unencryptedSerializedPayload,
+    });
     encryptedSerializedPayload = serializedPayload;
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
@@ -78,13 +76,11 @@ async function encryptAndroidNotificationPayload<T>(
     if (!unencryptedSerializedPayload) {
       return unencryptedPayload;
     }
-    const { serializedPayload } = await encryptAndUpdateOlmSession(
-      cookieID,
-      'notifications',
-      {
-        serializedPayload: unencryptedSerializedPayload,
-      },
-    );
+    const {
+      encryptedMessages: { serializedPayload },
+    } = await encryptAndUpdateOlmSession(cookieID, 'notifications', {
+      serializedPayload: unencryptedSerializedPayload,
+    });
     return { encryptedPayload: serializedPayload.body };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
