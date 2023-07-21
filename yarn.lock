@@ -20920,10 +20920,10 @@ rimraf@~2.6.2:
   dependencies:
     glob "^7.1.3"
 
-rn-emoji-keyboard@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/rn-emoji-keyboard/-/rn-emoji-keyboard-1.2.0.tgz#a8fe18230624855b483cdbff139cb1f2ac8d8c6d"
-  integrity sha512-OyfMOxH6Op+SH6fq1bJBl1Wp6ukC/0VbRmnyo2GaQoYkv46g3Xjw3Io9N8j7Mhk60DSSORig+Jjpf+oa8bZOEA==
+rn-emoji-keyboard@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/rn-emoji-keyboard/-/rn-emoji-keyboard-1.5.0.tgz#86307fa0fecab24dbf918811665cc460bcf7e70c"
+  integrity sha512-PnImBZxqpxzsNKHO8crGnpHdwdNh+b3CdT51Irsg3BnFd1ArQQzngqO8wP148JdD3GWZj+uvdn9aWn2KbALoAw==
 
 rn-host-detect@1.2.0, rn-host-detect@^1.0.1, rn-host-detect@^1.1.5:
   version "1.2.0"
