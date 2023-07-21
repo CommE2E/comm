@@ -60,6 +60,7 @@ import {
   threadJoinResponder,
   toggleMessagePinResponder,
   roleModificationResponder,
+  roleDeletionResponder,
 } from './responders/thread-responders.js';
 import {
   userSubscriptionUpdateResponder,
@@ -142,6 +143,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   delete_entry: {
     responder: entryDeletionResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  delete_community_role: {
+    responder: roleDeletionResponder,
     requiredPolicies: baseLegalPolicies,
   },
   delete_thread: {
