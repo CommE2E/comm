@@ -23,6 +23,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
+import { FUTURE_CODE_VERSION } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -54,6 +55,7 @@ import type {
 } from './types.js';
 import {
   apnPush,
+  blobServiceUpload,
   fcmPush,
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
@@ -875,10 +877,45 @@ async function prepareAndroidNotification(
     );
   }
 
-  const notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
-    devicesWithExcessiveSize,
-    notification,
-  );
+  const canQueryBlobService = codeVersion && codeVersion >= FUTURE_CODE_VERSION;
+  let blobHash, encryptionKey, blobUploadError;
+  if (canQueryBlobService) {
+    ({
+      blobHash: blobHash,
+      encryptionKey: encryptionKey,
+      blobUploadError: blobUploadError,
+    } = await blobServiceUpload(JSON.stringify(copyWithMessageInfos.data)));
+  }
+
+  if (blobUploadError) {
+    console.warn(
+      `Failed to upload payload of notification: ${notifID} ` +
+        `due to error: ${blobUploadError}`,
+    );
+  }
+
+  let notifsWithoutMessageInfos;
+  if (!blobHash || !encryptionKey) {
+    notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
+      devicesWithExcessiveSize,
+      notification,
+    );
+  } else {
+    notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
+      devicesWithExcessiveSize,
+      {
+        data: {
+          id: notifID,
+          badge: unreadCount.toString(),
+          badgeOnly: badgeOnly ? '1' : '0',
+          threadID,
+          blobHash,
+          encryptionKey,
+          ...rest,
+        },
+      },
+    );
+  }
 
   const targetedNotifsWithMessageInfos = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
