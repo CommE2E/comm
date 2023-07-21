@@ -183,10 +183,16 @@ function InlineEngagement(props: Props): React.Node {
     }
 
     return Object.keys(reactions).map(reaction => {
-      const numOfReacts = reactions[reaction].users.length;
+      const reactionInfo = reactions[reaction];
+      const numOfReacts = reactionInfo.users.length;
+
+      const style = reactionInfo.viewerReacted
+        ? [...reactionStyle, styles.reactionsContainerSelected]
+        : reactionStyle;
+
       return (
         <GestureTouchableOpacity
-          style={reactionStyle}
+          style={style}
           onPress={() => onPressReaction(reaction)}
           onLongPress={onLongPressReaction}
           activeOpacity={0.7}
@@ -202,6 +208,7 @@ function InlineEngagement(props: Props): React.Node {
     reactionStyle,
     reactions,
     styles.reaction,
+    styles.reactionsContainerSelected,
   ]);
 
   const inlineEngagementPositionStyle = React.useMemo(() => {
@@ -283,6 +290,12 @@ const unboundStyles = {
     paddingVertical: 4,
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  reactionsContainerSelected: {
+    borderWidth: 1,
+    borderColor: 'inlineEngagementLabel',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
   },
   reactionsContainerMarginLeft: {
     marginLeft: 4,
