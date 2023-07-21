@@ -5,6 +5,7 @@ import invariant from 'invariant';
 
 import type {
   AndroidNotification,
+  AndroidNotificationPayload,
   AndroidNotificationRescind,
 } from './types.js';
 import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
@@ -70,23 +71,54 @@ async function encryptIOSNotification(
 async function encryptAndroidNotificationPayload<T>(
   cookieID: string,
   unencryptedPayload: T,
-): Promise<T | { +encryptedPayload: string }> {
+  payloadSizeValidator?: (T | { +encryptedPayload: string }) => boolean,
+): Promise<{
+  +resultPayload: T | { +encryptedPayload: string },
+  +payloadSizeViolated: boolean,
+}> {
   try {
     const unencryptedSerializedPayload = JSON.stringify(unencryptedPayload);
     if (!unencryptedSerializedPayload) {
-      return unencryptedPayload;
+      return {
+        resultPayload: unencryptedPayload,
+        payloadSizeViolated: payloadSizeValidator
+          ? payloadSizeValidator(unencryptedPayload)
+          : false,
+      };
     }
+
+    let dbPersistCondition;
+    if (payloadSizeValidator) {
+      dbPersistCondition = ({ serializedPayload }) =>
+        payloadSizeValidator({ encryptedPayload: serializedPayload.body });
+    }
+
     const {
       encryptedMessages: { serializedPayload },
-    } = await encryptAndUpdateOlmSession(cookieID, 'notifications', {
-      serializedPayload: unencryptedSerializedPayload,
-    });
-    return { encryptedPayload: serializedPayload.body };
+      dbPersistConditionViolated,
+    } = await encryptAndUpdateOlmSession(
+      cookieID,
+      'notifications',
+      {
+        serializedPayload: unencryptedSerializedPayload,
+      },
+      dbPersistCondition,
+    );
+    return {
+      resultPayload: { encryptedPayload: serializedPayload.body },
+      payloadSizeViolated: !!dbPersistConditionViolated,
+    };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
-    return {
+    const resultPayload = {
       encryptionFailed: '1',
       ...unencryptedPayload,
+    };
+    return {
+      resultPayload,
+      payloadSizeViolated: payloadSizeValidator
+        ? payloadSizeValidator(unencryptedPayload)
+        : false,
     };
   }
 }
@@ -94,18 +126,35 @@ async function encryptAndroidNotificationPayload<T>(
 async function encryptAndroidNotification(
   cookieID: string,
   notification: AndroidNotification,
-): Promise<AndroidNotification> {
+  notificationSizeValidator?: AndroidNotification => boolean,
+): Promise<{
+  +notification: AndroidNotification,
+  +payloadSizeViolated: boolean,
+}> {
   const { id, badgeOnly, ...unencryptedPayload } = notification.data;
-  const encryptedSerializedPayload = await encryptAndroidNotificationPayload(
-    cookieID,
-    unencryptedPayload,
-  );
+  let payloadSizeValidator;
+  if (notificationSizeValidator) {
+    payloadSizeValidator = (
+      payload: AndroidNotificationPayload | { +encryptedPayload: string },
+    ) => {
+      return notificationSizeValidator({ data: { id, badgeOnly, ...payload } });
+    };
+  }
+  const { resultPayload, payloadSizeViolated } =
+    await encryptAndroidNotificationPayload(
+      cookieID,
+      unencryptedPayload,
+      payloadSizeValidator,
+    );
   return {
-    data: {
-      id,
-      badgeOnly,
-      ...encryptedSerializedPayload,
+    notification: {
+      data: {
+        id,
+        badgeOnly,
+        ...resultPayload,
+      },
     },
+    payloadSizeViolated,
   };
 }
 
@@ -113,12 +162,15 @@ async function encryptAndroidNotificationRescind(
   cookieID: string,
   notification: AndroidNotificationRescind,
 ): Promise<AndroidNotificationRescind> {
-  const encryptedPayload = await encryptAndroidNotificationPayload(
+  // We don't validate payload size for rescind
+  // since they are expected to be small and
+  // never exceed any FCM limit
+  const { resultPayload } = await encryptAndroidNotificationPayload(
     cookieID,
     notification.data,
   );
   return {
-    data: encryptedPayload,
+    data: resultPayload,
   };
 }
 
@@ -135,9 +187,19 @@ function prepareEncryptedIOSNotifications(
 function prepareEncryptedAndroidNotifications(
   cookieIDs: $ReadOnlyArray<string>,
   notification: AndroidNotification,
-): Promise<$ReadOnlyArray<AndroidNotification>> {
+  notificationSizeValidator?: (notification: AndroidNotification) => boolean,
+): Promise<
+  $ReadOnlyArray<{
+    +notification: AndroidNotification,
+    +payloadSizeViolated: boolean,
+  }>,
+> {
   const notificationPromises = cookieIDs.map(cookieID =>
-    encryptAndroidNotification(cookieID, notification),
+    encryptAndroidNotification(
+      cookieID,
+      notification,
+      notificationSizeValidator,
+    ),
   );
   return Promise.all(notificationPromises);
 }
