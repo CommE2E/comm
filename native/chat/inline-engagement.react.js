@@ -12,6 +12,7 @@ import Animated, {
 import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { localIDPrefix } from 'lib/shared/message-utils.js';
+import { useViewerAlreadySelectedMessageReactions } from 'lib/shared/reaction-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -160,6 +161,9 @@ function InlineEngagement(props: Props): React.Node {
     });
   }, [navigate, reactions]);
 
+  const viewerAlreadySelectedMessageReactions =
+    useViewerAlreadySelectedMessageReactions(reactions);
+
   const reactionStyle = React.useMemo(() => {
     const stylesResult = [styles.reactionsContainer];
 
@@ -184,9 +188,17 @@ function InlineEngagement(props: Props): React.Node {
 
     return Object.keys(reactions).map(reaction => {
       const numOfReacts = reactions[reaction].users.length;
+
+      const viewerReacted =
+        viewerAlreadySelectedMessageReactions.includes(reaction);
+
+      const style = viewerReacted
+        ? [...reactionStyle, styles.reactionsContainerSelected]
+        : reactionStyle;
+
       return (
         <GestureTouchableOpacity
-          style={reactionStyle}
+          style={style}
           onPress={() => onPressReaction(reaction)}
           onLongPress={onLongPressReaction}
           activeOpacity={0.7}
@@ -202,6 +214,8 @@ function InlineEngagement(props: Props): React.Node {
     reactionStyle,
     reactions,
     styles.reaction,
+    styles.reactionsContainerSelected,
+    viewerAlreadySelectedMessageReactions,
   ]);
 
   const inlineEngagementPositionStyle = React.useMemo(() => {
@@ -283,6 +297,12 @@ const unboundStyles = {
     paddingVertical: 4,
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  reactionsContainerSelected: {
+    borderWidth: 1,
+    borderColor: 'inlineEngagementLabel',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
   },
   reactionsContainerMarginLeft: {
     marginLeft: 4,
