@@ -67,7 +67,43 @@ data "aws_iam_policy_document" "assume_role_ecs_ec2" {
   }
 }
 
+# Allows ECS Exec to SSH into service task containers
+resource "aws_iam_policy" "allow_ecs_exec" {
+  name        = "allow-ecs-exec"
+  description = "Adds SSM permissions to enable ECS Exec"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 ### App IAM resources
+
+# Our app role - this is to give access to DynamoDB etc
+# Has trust policy with EC2 and ECS
+# Also allows to SSH into containers
+resource "aws_iam_role" "services_ddb_full_access" {
+  name               = "dynamodb-s3-full-access"
+  description        = "Full RW access to DDB and S3. Allows to SSH into ECS containers"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_ecs_ec2.json
+
+  managed_policy_arns = [
+    aws_iam_policy.allow_ecs_exec.arn,
+    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+  ]
+}
 
 # Feature Flags IAM
 data "aws_dynamodb_table" "feature_flags" {
