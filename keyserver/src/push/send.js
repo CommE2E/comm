@@ -23,6 +23,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
+import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -54,6 +55,7 @@ import type {
 } from './types.js';
 import {
   apnPush,
+  blobServiceUpload,
   fcmPush,
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
@@ -814,44 +816,107 @@ async function prepareAndroidNotification(
     data: { ...notification.data, messageInfos },
   };
 
-  const evaluateAndSelectNotification = (notif, notifWithMessageInfos) => {
-    if (
-      Buffer.byteLength(JSON.stringify(notifWithMessageInfos)) <=
-      fcmMaxNotificationPayloadByteSize
-    ) {
-      return notifWithMessageInfos;
-    }
-    if (
-      Buffer.byteLength(JSON.stringify(notif)) >
-      fcmMaxNotificationPayloadByteSize
-    ) {
-      console.warn(
-        `Android notification ${notifID} exceeds size limit, even with messageInfos omitted`,
-      );
-    }
-    return notif;
-  };
-
   const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
-  if (shouldBeEncrypted) {
-    const cookieIDs = devices.map(({ cookieID }) => cookieID);
-    const [notifications, notificationsWithMessageInfos] = await Promise.all([
-      prepareEncryptedAndroidNotifications(cookieIDs, notification),
-      prepareEncryptedAndroidNotifications(cookieIDs, copyWithMessageInfos),
-    ]);
-    return notificationsWithMessageInfos.map((notif, idx) => ({
-      notification: evaluateAndSelectNotification(notifications[idx], notif),
-      deviceToken: deviceTokens[idx],
+
+  if (!shouldBeEncrypted) {
+    const notificationToSend =
+      Buffer.byteLength(JSON.stringify(copyWithMessageInfos)) <=
+      fcmMaxNotificationPayloadByteSize
+        ? copyWithMessageInfos
+        : notification;
+
+    return deviceTokens.map(deviceToken => ({
+      notification: notificationToSend,
+      deviceToken,
     }));
   }
-  const notificationToSend = evaluateAndSelectNotification(
-    notification,
-    copyWithMessageInfos,
+
+  const cookieIDs = devices.map(({ cookieID }) => cookieID);
+
+  const notificationsSizeValidator = notif => {
+    const serializedNotif = JSON.stringify(notif);
+    return (
+      !serializedNotif ||
+      Buffer.byteLength(serializedNotif) <= fcmMaxNotificationPayloadByteSize
+    );
+  };
+
+  const notificationsWithMessageInfos =
+    await prepareEncryptedAndroidNotifications(
+      cookieIDs,
+      copyWithMessageInfos,
+      notificationsSizeValidator,
+    );
+
+  const cookieIDsWithSizeViolation = notificationsWithMessageInfos
+    .filter(({ payloadSizeViolated }) => payloadSizeViolated)
+    .map((_, idx) => cookieIDs[idx]);
+
+  if (cookieIDsWithSizeViolation.length === 0) {
+    return notificationsWithMessageInfos.map(
+      ({ notification: notif }, idx) => ({
+        notification: notif,
+        deviceToken: deviceTokens[idx],
+      }),
+    );
+  }
+  const canQueryBlobService = codeVersion && codeVersion >= NEXT_CODE_VERSION;
+  let blobHash, encryptionKey, blobUploadError;
+  if (canQueryBlobService) {
+    ({
+      blobHash: blobHash,
+      encryptionKey: encryptionKey,
+      blobUploadError: blobUploadError,
+    } = await blobServiceUpload(JSON.stringify(copyWithMessageInfos.data)));
+  }
+
+  if (blobUploadError) {
+    console.warn(
+      `Failed to upload payload of notification: ${notifID} ` +
+        `due to error: ${blobUploadError}`,
+    );
+  }
+
+  if (!blobHash || !encryptionKey) {
+    const notificationsWithoutMessageInfos =
+      await prepareEncryptedAndroidNotifications(
+        cookieIDsWithSizeViolation,
+        notification,
+      );
+
+    return notificationsWithMessageInfos.map(
+      ({ notification: notif, payloadSizeViolated }, idx) => ({
+        notification: payloadSizeViolated
+          ? notificationsWithoutMessageInfos[idx].notification
+          : notif,
+        deviceToken: deviceTokens[idx],
+      }),
+    );
+  }
+
+  const blobMetadataNotifications = await prepareEncryptedAndroidNotifications(
+    cookieIDsWithSizeViolation,
+    {
+      data: {
+        id: notifID,
+        badge: unreadCount.toString(),
+        badgeOnly: badgeOnly ? '1' : '0',
+        threadID,
+        blobHash,
+        encryptionKey,
+        ...rest,
+      },
+    },
   );
-  return deviceTokens.map(deviceToken => ({
-    notification: notificationToSend,
-    deviceToken,
-  }));
+
+  return notificationsWithMessageInfos.map(
+    ({ notification: notif, payloadSizeViolated }, idx) => ({
+      notification: payloadSizeViolated
+        ? blobMetadataNotifications[idx].notification
+        : notif,
+      deviceToken: deviceTokens[idx],
+    }),
+  );
 }
 
 type WebNotifInputData = {
@@ -1273,9 +1338,10 @@ async function updateBadgeCount(
         const cookieIDs = deviceInfos.map(({ cookieID }) => cookieID);
         let notificationsArray;
         if (codeVersion > 222) {
-          notificationsArray = await prepareEncryptedAndroidNotifications(
-            cookieIDs,
-            notification,
+          const notificationsWithPayloadViolatedInfo =
+            await prepareEncryptedAndroidNotifications(cookieIDs, notification);
+          notificationsArray = notificationsWithPayloadViolatedInfo.map(
+            ({ notification: notif }) => notif,
           );
         } else {
           notificationsArray = cookieIDs.map(() => notification);
