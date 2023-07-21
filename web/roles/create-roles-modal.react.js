@@ -16,6 +16,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { values } from 'lib/utils/objects.js';
 
 import css from './create-roles-modal.css';
 import {
@@ -59,8 +60,12 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   const [pendingRolePermissions, setPendingRolePermissions] =
     React.useState<$ReadOnlyArray<UserSurfacedPermission>>(rolePermissions);
 
+  const [roleCreationFailed, setRoleCreationFailed] =
+    React.useState<boolean>(false);
+
   const onChangeRoleName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
+      setRoleCreationFailed(false);
       setPendingRoleName(event.currentTarget.value);
     },
     [],
@@ -152,8 +157,17 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
     ],
   );
 
+  const errorMessageClassNames = classNames({
+    [css.errorMessage]: true,
+    [css.errorMessageVisible]: roleCreationFailed,
+  });
+
   const onClickCreateRole = React.useCallback(() => {
-    // TODO: Error handling in a later diff
+    const threadRoleNames = values(threadInfo.roles).map(role => role.name);
+    if (threadRoleNames.includes(pendingRoleName) && action === 'create_role') {
+      setRoleCreationFailed(true);
+      return;
+    }
 
     dispatchActionPromise(
       modifyCommunityRoleActionTypes,
@@ -205,6 +219,9 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
             value={pendingRoleName}
             onChange={onChangeRoleName}
           />
+        </div>
+        <div className={errorMessageClassNames}>
+          There is already a role with this name in the community
         </div>
       </form>
       <hr className={css.separator} />
