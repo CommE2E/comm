@@ -16,6 +16,11 @@
   margin: 8px 0 12px 0;
 }
 
+.errorMessage {
+  color: var(--error);
+  align-self: center;
+}
+
 .separator {
   border: 0;
   margin: 16px 32px 8px 32px;
