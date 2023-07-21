@@ -24,6 +24,7 @@ import Button, { buttonThemes } from '../components/button.react.js';
 import EnumSettingsOption from '../components/enum-settings-option.react.js';
 import Input from '../modals/input.react.js';
 import Modal from '../modals/modal.react.js';
+import UnsavedChangesModal from '../modals/unsaved-changes-modal.react.js';
 
 type CreateRolesModalProps = {
   +threadInfo: ThreadInfo,
@@ -34,7 +35,7 @@ type CreateRolesModalProps = {
 };
 
 function CreateRolesModal(props: CreateRolesModalProps): React.Node {
-  const { popModal } = useModalContext();
+  const { pushModal, popModal } = useModalContext();
   const { threadInfo, action, existingRoleID, roleName, rolePermissions } =
     props;
 
@@ -54,8 +55,26 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   );
 
   const onCloseModal = React.useCallback(() => {
-    popModal();
-  }, [popModal]);
+    const arePermissionsEqual =
+      pendingRolePermissions.length === rolePermissions.length &&
+      pendingRolePermissions.every(permission =>
+        rolePermissions.includes(permission),
+      );
+
+    if (pendingRoleName === roleName && arePermissionsEqual) {
+      popModal();
+      return;
+    }
+
+    pushModal(<UnsavedChangesModal />);
+  }, [
+    pendingRoleName,
+    roleName,
+    pendingRolePermissions,
+    rolePermissions,
+    pushModal,
+    popModal,
+  ]);
 
   const clearPermissionsClassNames = classNames({
     [css.clearPermissions]: true,
@@ -167,7 +186,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
           variant="outline"
           className={css.backButton}
           buttonColor={buttonThemes.outline}
-          onClick={null}
+          onClick={onCloseModal}
         >
           Back
         </Button>
