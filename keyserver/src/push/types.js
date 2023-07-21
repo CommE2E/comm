@@ -7,14 +7,14 @@ export type TargetedAPNsNotification = {
   +deviceToken: string,
 };
 
-type AndroidNotificationPayload = {
+export type AndroidNotificationPayload = {
   +badge: string,
   +body?: string,
   +title?: string,
   +prefix?: string,
   +threadID?: string,
-  +messageInfos?: string,
   +encryptionFailed?: '1',
+  ...{ +messageInfos?: string } | { +blobHash: string, +encryptionKey: string },
 };
 
 export type AndroidNotification = {
