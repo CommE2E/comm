@@ -16,9 +16,13 @@ import {
   deleteThread,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import {
+  threadInfoSelector,
+  containedThreadInfos,
+} from 'lib/selectors/thread-selectors.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import type {
   ThreadInfo,
   ResolvedThreadInfo,
@@ -55,6 +59,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +threadInfo: ResolvedThreadInfo,
+  +shouldUseDeleteConfirmationAlert: ?boolean,
   +loadingStatus: LoadingStatus,
   +activeTheme: ?GlobalTheme,
   +colors: Colors,
@@ -69,6 +74,9 @@ type Props = {
 class DeleteThread extends React.PureComponent<Props> {
   mounted = false;
   passwordInput: ?React.ElementRef<typeof BaseTextInput>;
+  deletionTargetText = threadTypeIsCommunityRoot(this.props.threadInfo?.type)
+    ? 'Subchannels and threads'
+    : 'Threads';
 
   componentDidMount() {
     this.mounted = true;
@@ -124,11 +132,27 @@ class DeleteThread extends React.PureComponent<Props> {
     this.passwordInput.focus();
   };
 
-  submitDeletion = () => {
+  dispatchDeleteThreadAction = () => {
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,
       this.deleteThread(),
     );
+  };
+
+  submitDeletion = () => {
+    if (this.props?.shouldUseDeleteConfirmationAlert) {
+      Alert.alert(
+        'Warning',
+        `${this.deletionTargetText} within this community will also be permanently deleted.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Continue', onPress: this.dispatchDeleteThreadAction },
+        ],
+        { cancelable: false },
+      );
+    } else {
+      this.dispatchDeleteThreadAction();
+    }
   };
 
   async deleteThread() {
@@ -230,6 +254,9 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> =
     const reduxThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
+    const reduxContainedThreadInfos = useSelector(
+      state => containedThreadInfos(state)[threadID],
+    );
 
     const { setParams } = props.navigation;
     React.useEffect(() => {
@@ -253,10 +280,14 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> =
     invariant(navContext, 'NavContext should be set in DeleteThread');
     const navDispatch = navContext.dispatch;
 
+    const shouldUseDeleteConfirmationAlert =
+      reduxContainedThreadInfos?.length > 0;
+
     return (
       <DeleteThread
         {...props}
         threadInfo={resolvedThreadInfo}
+        shouldUseDeleteConfirmationAlert={shouldUseDeleteConfirmationAlert}
         loadingStatus={loadingStatus}
         activeTheme={activeTheme}
         colors={colors}
