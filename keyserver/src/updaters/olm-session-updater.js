@@ -12,11 +12,17 @@ import { unpickleOlmSession } from '../utils/olm-utils.js';
 const maxOlmSessionUpdateAttemptTime = 30000;
 const olmSessionUpdateRetryDelay = 50;
 
+type OlmEncryptionResult = {
+  +encryptedMessages: { +[string]: EncryptResult },
+  +dbPersistConditionViolated?: boolean,
+};
+
 async function encryptAndUpdateOlmSession(
   cookieID: string,
   olmSessionType: 'content' | 'notifications',
   messagesToEncrypt: $ReadOnly<{ [string]: string }>,
-): Promise<{ [string]: EncryptResult }> {
+  dbPersistCondition?: ({ +[string]: EncryptResult }) => boolean,
+): Promise<OlmEncryptionResult> {
   const isContent = olmSessionType === 'content';
   const { picklingKey } = await fetchOlmAccount(olmSessionType);
   const olmUpdateAttemptStartTime = Date.now();
@@ -45,6 +51,10 @@ async function encryptAndUpdateOlmSession(
       encryptedMessages[messageName] = session.encrypt(
         messagesToEncrypt[messageName],
       );
+    }
+
+    if (dbPersistCondition && !dbPersistCondition(encryptedMessages)) {
+      return { encryptedMessages, dbPersistConditionViolated: true };
     }
 
     const updatedSession = session.pickle(picklingKey);
@@ -76,7 +86,7 @@ async function encryptAndUpdateOlmSession(
     const [{ versionOnUpdateAttempt }] = selectResult;
 
     if (version === versionOnUpdateAttempt) {
-      return encryptedMessages;
+      return { encryptedMessages };
     }
 
     await sleep(olmSessionUpdateRetryDelay);
