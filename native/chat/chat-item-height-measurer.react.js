@@ -55,6 +55,8 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
     return dummyNodeForRobotextMessageHeightMeasurement(
       item.robotext,
       item.messageInfo.threadID,
+      item.threadCreatedFromMessage,
+      item.reactions,
     );
   }
   invariant(false, 'NodeHeightMeasurer asked for dummy for non-text message');

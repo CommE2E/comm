@@ -33,6 +33,72 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
+type DummyInlineEngagementNodeProps = {
+  ...React.ElementConfig<typeof View>,
+  +editedLabel?: ?string,
+  +sidebarInfo: ?ThreadInfo,
+  +reactions: ReactionInfo,
+};
+function DummyInlineEngagementNode(
+  props: DummyInlineEngagementNodeProps,
+): React.Node {
+  const { editedLabel, sidebarInfo, reactions, ...rest } = props;
+
+  const dummyEditedLabel = React.useMemo(() => {
+    if (!editedLabel) {
+      return null;
+    }
+
+    return (
+      <View>
+        <Text style={unboundStyles.dummmyMessageLabel}>{editedLabel}</Text>
+      </View>
+    );
+  }, [editedLabel]);
+
+  const dummySidebarItem = React.useMemo(() => {
+    if (!sidebarInfo) {
+      return null;
+    }
+
+    const repliesText = getInlineEngagementSidebarText(sidebarInfo);
+    return (
+      <View style={unboundStyles.dummySidebar}>
+        <Text style={unboundStyles.dummyRepliesText}>{repliesText}</Text>
+      </View>
+    );
+  }, [sidebarInfo]);
+
+  const dummyReactionsList = React.useMemo(() => {
+    if (Object.keys(reactions).length === 0) {
+      return null;
+    }
+
+    return Object.keys(reactions).map(reaction => {
+      const numOfReacts = reactions[reaction].users.length;
+      return (
+        <View key={reaction} style={unboundStyles.dummyReactionContainer}>
+          <Text
+            style={unboundStyles.dummyReaction}
+          >{`${reaction} ${numOfReacts}`}</Text>
+        </View>
+      );
+    });
+  }, [reactions]);
+
+  if (!dummyEditedLabel && !dummySidebarItem && !dummyReactionsList) {
+    return null;
+  }
+
+  return (
+    <View {...rest} style={unboundStyles.dummyInlineEngagement}>
+      {dummyEditedLabel}
+      {dummySidebarItem}
+      {dummyReactionsList}
+    </View>
+  );
+}
+
 type Props = {
   +messageInfo: MessageInfo,
   +threadInfo: ThreadInfo,
@@ -249,6 +315,13 @@ const unboundStyles = {
     flexWrap: 'wrap',
     top: inlineEngagementStyle.topOffset,
   },
+  dummyInlineEngagement: {
+    flexDirection: 'row',
+    marginBottom: inlineEngagementStyle.marginBottom,
+    marginLeft: avatarOffset,
+    flexWrap: 'wrap',
+    marginRight: 8,
+  },
   centerInlineEngagement: {
     marginLeft: 20,
     marginRight: 20,
@@ -267,6 +340,15 @@ const unboundStyles = {
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
   },
+  dummySidebar: {
+    flexDirection: 'row',
+    paddingRight: 8,
+    paddingLeft: 26,
+    // 14 (icon) + 4 (marginRight of icon) + 8 (original left padding)
+    paddingVertical: 4,
+    marginTop: inlineEngagementStyle.marginTop,
+    marginRight: 4,
+  },
   sidebarMarginLeft: {
     marginLeft: 4,
   },
@@ -279,6 +361,10 @@ const unboundStyles = {
   },
   repliesText: {
     color: 'inlineEngagementLabel',
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  dummyRepliesText: {
     fontSize: 14,
     lineHeight: 22,
   },
@@ -295,6 +381,12 @@ const unboundStyles = {
     paddingVertical: 4,
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  dummyReactionContainer: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginTop: inlineEngagementStyle.marginTop,
+    marginRight: 4,
   },
   reactionsContainerSelected: {
     borderWidth: 1,
@@ -313,6 +405,10 @@ const unboundStyles = {
     fontSize: 14,
     lineHeight: 22,
   },
+  dummyReaction: {
+    fontSize: 14,
+    lineHeight: 22,
+  },
   messageLabel: {
     color: 'messageLabel',
     paddingHorizontal: 3,
@@ -320,6 +416,14 @@ const unboundStyles = {
     top: inlineEngagementLabelStyle.topOffset,
     height: inlineEngagementLabelStyle.height,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  dummmyMessageLabel: {
+    paddingHorizontal: 3,
+    fontSize: 13,
+    height: inlineEngagementLabelStyle.height,
+    marginTop: inlineEngagementStyle.marginTop,
+    marginLeft: 9,
+    marginRight: 4,
   },
   messageLabelLeft: {
     marginLeft: 9,
@@ -424,4 +528,4 @@ function TooltipInlineEngagement(
   );
 }
 
-export { InlineEngagement, TooltipInlineEngagement };
+export { InlineEngagement, TooltipInlineEngagement, DummyInlineEngagementNode };
