@@ -4,7 +4,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
 
+import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
   entityTextToReact,
   entityTextToRawString,
@@ -12,6 +14,7 @@ import {
   type EntityText,
 } from 'lib/utils/entity-text.js';
 
+import { DummyInlineEngagementNode } from './inline-engagement.react.js';
 import { useNavigateToThread } from './message-list-types.js';
 import Markdown from '../markdown/markdown.react.js';
 import { inlineMarkdownRules } from '../markdown/rules.react.js';
@@ -22,12 +25,20 @@ import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: EntityText,
   threadID: string,
+  sidebarInfo: ?ThreadInfo,
+  reactions: ReactionInfo,
 ): React.Element<typeof View> {
   return (
-    <View style={unboundStyles.robotextContainer}>
-      <Text style={unboundStyles.dummyRobotext}>
-        {entityTextToRawString(robotext, { threadID })}
-      </Text>
+    <View>
+      <View style={unboundStyles.robotextContainer}>
+        <Text style={unboundStyles.dummyRobotext}>
+          {entityTextToRawString(robotext, { threadID })}
+        </Text>
+      </View>
+      <DummyInlineEngagementNode
+        sidebarInfo={sidebarInfo}
+        reactions={reactions}
+      />
     </View>
   );
 }
