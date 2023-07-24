@@ -3,6 +3,10 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import {
+  getInlineEngagementSidebarText,
+  reactionsToRawString,
+} from 'lib/shared/inline-engagement-utils.js';
 import { messageID } from 'lib/shared/message-utils.js';
 import {
   messageTypes,
@@ -29,13 +33,16 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
   if (item.itemType !== 'message') {
     return null;
   }
-  const { messageInfo } = item;
+  const { messageInfo, threadCreatedFromMessage, reactions } = item;
+
   if (messageInfo.type === messageTypes.TEXT) {
     return JSON.stringify({ text: messageInfo.text });
   } else if (item.robotext) {
     const { threadID } = item.messageInfo;
     return JSON.stringify({
       robotext: entityTextToRawString(item.robotext, { threadID }),
+      sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
+      reactions: reactionsToRawString(reactions),
     });
   }
   return null;
