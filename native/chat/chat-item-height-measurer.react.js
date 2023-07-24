@@ -34,10 +34,16 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
   if (item.itemType !== 'message') {
     return null;
   }
-  const { messageInfo, threadCreatedFromMessage, reactions } = item;
+  const { messageInfo, hasBeenEdited, threadCreatedFromMessage, reactions } =
+    item;
 
   if (messageInfo.type === messageTypes.TEXT) {
-    return JSON.stringify({ text: messageInfo.text });
+    return JSON.stringify({
+      text: messageInfo.text,
+      edited: getMessageLabel(hasBeenEdited, messageInfo.threadID),
+      sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
+      reactions: reactionsToRawString(reactions),
+    });
   } else if (item.robotext) {
     const { threadID } = item.messageInfo;
     return JSON.stringify({
