@@ -68,12 +68,18 @@ set(THREAD_OP_SRCS
   ./PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.cpp
 )
 
+set(_data_stores_path ./PersistentStorageUtilities/DataStores)
+set(DATA_STORES_HDRS
+  ${_data_stores_path}/BaseDataStore.h
+)
+
 add_library(comm-modules-persistentstorage
   ${MESSAGE_HDRS}
   ${MESSAGE_SRCS}
   ${MESSAGE_SPEC_HDRS}
   ${THREAD_OP_HDRS}
   ${THREAD_OP_SRCS}
+  ${DATA_STORES_HDRS}
 )
 
 # reference local directory when building, use installation path when installing
