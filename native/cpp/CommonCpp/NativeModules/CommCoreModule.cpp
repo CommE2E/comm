@@ -107,28 +107,6 @@ jsi::Value CommCoreModule::moveDraft(
       });
 }
 
-jsi::Array parseDBDrafts(
-    jsi::Runtime &rt,
-    std::shared_ptr<std::vector<Draft>> draftsVectorPtr) {
-  size_t numDrafts = count_if(
-      draftsVectorPtr->begin(), draftsVectorPtr->end(), [](Draft draft) {
-        return !draft.text.empty();
-      });
-  jsi::Array jsiDrafts = jsi::Array(rt, numDrafts);
-
-  size_t writeIndex = 0;
-  for (Draft draft : *draftsVectorPtr) {
-    if (draft.text.empty()) {
-      continue;
-    }
-    auto jsiDraft = jsi::Object(rt);
-    jsiDraft.setProperty(rt, "key", draft.key);
-    jsiDraft.setProperty(rt, "text", draft.text);
-    jsiDrafts.setValueAtIndex(rt, writeIndex++, jsiDraft);
-  }
-  return jsiDrafts;
-}
-
 jsi::Array parseDBMessages(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<std::pair<Message, std::vector<Media>>>>
@@ -322,12 +300,14 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          messageStoreThreadsVectorPtr,
                                          reportStoreVectorPtr,
                                          error,
-                                         promise]() {
+                                         promise,
+                                         draftStore = this->draftStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            jsi::Array jsiDrafts = parseDBDrafts(innerRt, draftsVectorPtr);
+            jsi::Array jsiDrafts =
+                draftStore.parseDBDataStore(innerRt, draftsVectorPtr);
             jsi::Array jsiMessages =
                 parseDBMessages(innerRt, messagesVectorPtr);
             jsi::Array jsiThreads = parseDBThreads(innerRt, threadsVectorPtr);
@@ -387,80 +367,10 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
   return jsiMessages;
 }
 
-const std::string UPDATE_DRAFT_OPERATION = "update";
-const std::string MOVE_DRAFT_OPERATION = "move";
-const std::string REMOVE_ALL_DRAFTS_OPERATION = "remove_all";
-
-std::vector<std::unique_ptr<DraftStoreOperationBase>>
-createDraftStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
-  std::vector<std::unique_ptr<DraftStoreOperationBase>> draftStoreOps;
-  for (auto idx = 0; idx < operations.size(rt); idx++) {
-    auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
-    auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
-
-    if (op_type == REMOVE_ALL_DRAFTS_OPERATION) {
-      draftStoreOps.push_back(std::make_unique<RemoveAllDraftsOperation>());
-      continue;
-    }
-
-    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
-    if (op_type == UPDATE_DRAFT_OPERATION) {
-      draftStoreOps.push_back(
-          std::make_unique<UpdateDraftOperation>(rt, payload_obj));
-    } else if (op_type == MOVE_DRAFT_OPERATION) {
-      draftStoreOps.push_back(
-          std::make_unique<MoveDraftOperation>(rt, payload_obj));
-    } else {
-      throw std::runtime_error("unsupported operation: " + op_type);
-    }
-  }
-  return draftStoreOps;
-}
-
 jsi::Value CommCoreModule::processDraftStoreOperations(
     jsi::Runtime &rt,
     jsi::Array operations) {
-  std::string createOperationsError;
-  std::shared_ptr<std::vector<std::unique_ptr<DraftStoreOperationBase>>>
-      draftStoreOpsPtr;
-  try {
-    auto draftStoreOps = createDraftStoreOperations(rt, operations);
-    draftStoreOpsPtr =
-        std::make_shared<std::vector<std::unique_ptr<DraftStoreOperationBase>>>(
-            std::move(draftStoreOps));
-  } catch (std::runtime_error &e) {
-    createOperationsError = e.what();
-  }
-
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=]() {
-          std::string error = createOperationsError;
-
-          if (!error.size()) {
-            try {
-              DatabaseManager::getQueryExecutor().beginTransaction();
-              for (const auto &operation : *draftStoreOpsPtr) {
-                operation->execute();
-              }
-              DatabaseManager::getQueryExecutor().commitTransaction();
-            } catch (std::system_error &e) {
-              error = e.what();
-              DatabaseManager::getQueryExecutor().rollbackTransaction();
-            }
-          }
-
-          this->jsInvoker_->invokeAsync([=]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
+  return this->draftStore.processStoreOperations(rt, std::move(operations));
 }
 
 const std::string REKEY_OPERATION = "rekey";
@@ -1216,7 +1126,8 @@ jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
-      cryptoThread(std::make_unique<WorkerThread>("crypto")) {
+      cryptoThread(std::make_unique<WorkerThread>("crypto")),
+      draftStore(jsInvoker) {
   GlobalDBSingleton::instance.enableMultithreading();
 }
 

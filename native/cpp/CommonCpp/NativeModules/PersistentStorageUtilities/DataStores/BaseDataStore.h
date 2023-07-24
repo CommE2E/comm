@@ -13,6 +13,8 @@ namespace comm {
 
 namespace jsi = facebook::jsi;
 
+using OperationType = const std::string;
+
 template <typename Operation, typename Entity> class BaseDataStore {
 private:
   std::shared_ptr<facebook::react::CallInvoker> jsInvoker;
