@@ -6,6 +6,7 @@
 #include "InternalModules/GlobalDBSingleton.h"
 #include "InternalModules/RustPromiseManager.h"
 #include "MessageStoreOperations.h"
+#include "NativeModuleUtils.h"
 #include "ReportStoreOperations.h"
 #include "TerminateApp.h"
 #include "ThreadStoreOperations.h"
@@ -19,33 +20,6 @@
 namespace comm {
 
 using namespace facebook::react;
-
-template <class T>
-T CommCoreModule::runSyncOrThrowJSError(
-    jsi::Runtime &rt,
-    std::function<T()> task) {
-  std::promise<T> promise;
-  GlobalDBSingleton::instance.scheduleOrRunCancellable([&promise, &task]() {
-    try {
-      if constexpr (std::is_void<T>::value) {
-        task();
-        promise.set_value();
-      } else {
-        promise.set_value(task());
-      }
-    } catch (const std::exception &e) {
-      promise.set_exception(std::make_exception_ptr(e));
-    }
-  });
-  // We cannot instantiate JSError on database thread, so
-  // on the main thread we re-throw C++ error, catch it and
-  // transform to informative JSError on the main thread
-  try {
-    return promise.get_future().get();
-  } catch (const std::exception &e) {
-    throw jsi::JSError(rt, e.what());
-  }
-}
 
 jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, jsi::String key) {
   std::string keyStr = key.utf8(rt);
@@ -401,7 +375,7 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
 }
 
 jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
-  auto messagesVector = this->runSyncOrThrowJSError<
+  auto messagesVector = NativeModuleUtils::runSyncOrThrowJSError<
       std::vector<std::pair<Message, std::vector<Media>>>>(rt, []() {
     return DatabaseManager::getQueryExecutor().getAllMessages();
   });
@@ -608,7 +582,7 @@ void CommCoreModule::processMessageStoreOperationsSync(
     throw jsi::JSError(rt, e.what());
   }
 
-  this->runSyncOrThrowJSError<void>(rt, [&messageStoreOps]() {
+  NativeModuleUtils::runSyncOrThrowJSError<void>(rt, [&messageStoreOps]() {
     try {
       DatabaseManager::getQueryExecutor().beginTransaction();
       for (const auto &operation : messageStoreOps) {
@@ -623,8 +597,10 @@ void CommCoreModule::processMessageStoreOperationsSync(
 }
 
 jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
-  auto threadsVector = this->runSyncOrThrowJSError<std::vector<Thread>>(
-      rt, []() { return DatabaseManager::getQueryExecutor().getAllThreads(); });
+  auto threadsVector =
+      NativeModuleUtils::runSyncOrThrowJSError<std::vector<Thread>>(rt, []() {
+        return DatabaseManager::getQueryExecutor().getAllThreads();
+      });
 
   auto threadsVectorPtr =
       std::make_shared<std::vector<Thread>>(std::move(threadsVector));
@@ -804,7 +780,7 @@ void CommCoreModule::processThreadStoreOperationsSync(
     throw jsi::JSError(rt, e.what());
   }
 
-  this->runSyncOrThrowJSError<void>(rt, [&threadStoreOps]() {
+  NativeModuleUtils::runSyncOrThrowJSError<void>(rt, [&threadStoreOps]() {
     try {
       DatabaseManager::getQueryExecutor().beginTransaction();
       for (const auto &operation : threadStoreOps) {
@@ -905,7 +881,7 @@ void CommCoreModule::processReportStoreOperationsSync(
     throw jsi::JSError(rt, e.what());
   }
 
-  this->runSyncOrThrowJSError<void>(rt, [&reportStoreOps]() {
+  NativeModuleUtils::runSyncOrThrowJSError<void>(rt, [&reportStoreOps]() {
     try {
       DatabaseManager::getQueryExecutor().beginTransaction();
       for (const auto &operation : reportStoreOps) {
