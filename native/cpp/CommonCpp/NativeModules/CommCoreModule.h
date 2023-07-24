@@ -5,6 +5,8 @@
 #include "../Tools/WorkerThread.h"
 #include "../_generated/commJSI.h"
 #include "JSIRust.h"
+#include "PersistentStorageUtilities/DataStores/DraftStore.h"
+#include "PersistentStorageUtilities/DataStores/ThreadStore.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 #include <memory>
@@ -22,6 +24,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
   const std::string publicCryptoAccountID = "publicCryptoAccountID";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
+  DraftStore draftStore;
+  ThreadStore threadStore;
 
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value

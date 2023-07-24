@@ -13,6 +13,8 @@ namespace comm {
 
 namespace jsi = facebook::jsi;
 
+using OperationType = const std::string;
+
 template <typename Operation, typename Entity> class BaseDataStore {
 public:
   virtual std::vector<std::unique_ptr<Operation>>

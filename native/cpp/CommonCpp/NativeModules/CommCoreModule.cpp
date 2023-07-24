@@ -107,28 +107,6 @@ jsi::Value CommCoreModule::moveDraft(
       });
 }
 
-jsi::Array parseDBDrafts(
-    jsi::Runtime &rt,
-    std::shared_ptr<std::vector<Draft>> draftsVectorPtr) {
-  size_t numDrafts = count_if(
-      draftsVectorPtr->begin(), draftsVectorPtr->end(), [](Draft draft) {
-        return !draft.text.empty();
-      });
-  jsi::Array jsiDrafts = jsi::Array(rt, numDrafts);
-
-  size_t writeIndex = 0;
-  for (Draft draft : *draftsVectorPtr) {
-    if (draft.text.empty()) {
-      continue;
-    }
-    auto jsiDraft = jsi::Object(rt);
-    jsiDraft.setProperty(rt, "key", draft.key);
-    jsiDraft.setProperty(rt, "text", draft.text);
-    jsiDrafts.setValueAtIndex(rt, writeIndex++, jsiDraft);
-  }
-  return jsiDrafts;
-}
-
 jsi::Array parseDBMessages(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<std::pair<Message, std::vector<Media>>>>
@@ -178,69 +156,6 @@ jsi::Array parseDBMessages(
     jsiMessages.setValueAtIndex(rt, writeIndex++, jsiMessage);
   }
   return jsiMessages;
-}
-
-jsi::Array parseDBThreads(
-    jsi::Runtime &rt,
-    std::shared_ptr<std::vector<Thread>> threadsVectorPtr) {
-  size_t numThreads = threadsVectorPtr->size();
-  jsi::Array jsiThreads = jsi::Array(rt, numThreads);
-  size_t writeIdx = 0;
-  for (const Thread &thread : *threadsVectorPtr) {
-    jsi::Object jsiThread = jsi::Object(rt);
-    jsiThread.setProperty(rt, "id", thread.id);
-    jsiThread.setProperty(rt, "type", thread.type);
-    jsiThread.setProperty(
-        rt,
-        "name",
-        thread.name ? jsi::String::createFromUtf8(rt, *thread.name)
-                    : jsi::Value::null());
-    jsiThread.setProperty(
-        rt,
-        "description",
-        thread.description
-            ? jsi::String::createFromUtf8(rt, *thread.description)
-            : jsi::Value::null());
-    jsiThread.setProperty(rt, "color", thread.color);
-    jsiThread.setProperty(
-        rt, "creationTime", std::to_string(thread.creation_time));
-    jsiThread.setProperty(
-        rt,
-        "parentThreadID",
-        thread.parent_thread_id
-            ? jsi::String::createFromUtf8(rt, *thread.parent_thread_id)
-            : jsi::Value::null());
-    jsiThread.setProperty(
-        rt,
-        "containingThreadID",
-        thread.containing_thread_id
-            ? jsi::String::createFromUtf8(rt, *thread.containing_thread_id)
-            : jsi::Value::null());
-    jsiThread.setProperty(
-        rt,
-        "community",
-        thread.community ? jsi::String::createFromUtf8(rt, *thread.community)
-                         : jsi::Value::null());
-    jsiThread.setProperty(rt, "members", thread.members);
-    jsiThread.setProperty(rt, "roles", thread.roles);
-    jsiThread.setProperty(rt, "currentUser", thread.current_user);
-    jsiThread.setProperty(
-        rt,
-        "sourceMessageID",
-        thread.source_message_id
-            ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
-            : jsi::Value::null());
-    jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
-    jsiThread.setProperty(rt, "pinnedCount", thread.pinned_count);
-
-    if (thread.avatar) {
-      auto avatar = jsi::String::createFromUtf8(rt, *thread.avatar);
-      jsiThread.setProperty(rt, "avatar", avatar);
-    }
-
-    jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
-  }
-  return jsiThreads;
 }
 
 jsi::Array parseDBMessageStoreThreads(
@@ -322,15 +237,19 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          messageStoreThreadsVectorPtr,
                                          reportStoreVectorPtr,
                                          error,
-                                         promise]() {
+                                         promise,
+                                         draftStore = this->draftStore,
+                                         threadStore = this->threadStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            jsi::Array jsiDrafts = parseDBDrafts(innerRt, draftsVectorPtr);
+            jsi::Array jsiDrafts =
+                draftStore.parseDBDataStore(innerRt, draftsVectorPtr);
             jsi::Array jsiMessages =
                 parseDBMessages(innerRt, messagesVectorPtr);
-            jsi::Array jsiThreads = parseDBThreads(innerRt, threadsVectorPtr);
+            jsi::Array jsiThreads =
+                threadStore.parseDBDataStore(innerRt, threadsVectorPtr);
             jsi::Array jsiMessageStoreThreads = parseDBMessageStoreThreads(
                 innerRt, messageStoreThreadsVectorPtr);
             jsi::Array jsiReportStore =
@@ -387,80 +306,11 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
   return jsiMessages;
 }
 
-const std::string UPDATE_DRAFT_OPERATION = "update";
-const std::string MOVE_DRAFT_OPERATION = "move";
-const std::string REMOVE_ALL_DRAFTS_OPERATION = "remove_all";
-
-std::vector<std::unique_ptr<DraftStoreOperationBase>>
-createDraftStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
-  std::vector<std::unique_ptr<DraftStoreOperationBase>> draftStoreOps;
-  for (auto idx = 0; idx < operations.size(rt); idx++) {
-    auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
-    auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
-
-    if (op_type == REMOVE_ALL_DRAFTS_OPERATION) {
-      draftStoreOps.push_back(std::make_unique<RemoveAllDraftsOperation>());
-      continue;
-    }
-
-    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
-    if (op_type == UPDATE_DRAFT_OPERATION) {
-      draftStoreOps.push_back(
-          std::make_unique<UpdateDraftOperation>(rt, payload_obj));
-    } else if (op_type == MOVE_DRAFT_OPERATION) {
-      draftStoreOps.push_back(
-          std::make_unique<MoveDraftOperation>(rt, payload_obj));
-    } else {
-      throw std::runtime_error("unsupported operation: " + op_type);
-    }
-  }
-  return draftStoreOps;
-}
-
 jsi::Value CommCoreModule::processDraftStoreOperations(
     jsi::Runtime &rt,
     jsi::Array operations) {
-  std::string createOperationsError;
-  std::shared_ptr<std::vector<std::unique_ptr<DraftStoreOperationBase>>>
-      draftStoreOpsPtr;
-  try {
-    auto draftStoreOps = createDraftStoreOperations(rt, operations);
-    draftStoreOpsPtr =
-        std::make_shared<std::vector<std::unique_ptr<DraftStoreOperationBase>>>(
-            std::move(draftStoreOps));
-  } catch (std::runtime_error &e) {
-    createOperationsError = e.what();
-  }
-
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=]() {
-          std::string error = createOperationsError;
-
-          if (!error.size()) {
-            try {
-              DatabaseManager::getQueryExecutor().beginTransaction();
-              for (const auto &operation : *draftStoreOpsPtr) {
-                operation->execute();
-              }
-              DatabaseManager::getQueryExecutor().commitTransaction();
-            } catch (std::system_error &e) {
-              error = e.what();
-              DatabaseManager::getQueryExecutor().rollbackTransaction();
-            }
-          }
-
-          this->jsInvoker_->invokeAsync([=]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
+  return this->draftStore.processStoreOperations(
+      rt, std::move(operations), this->jsInvoker_);
 }
 
 const std::string REKEY_OPERATION = "rekey";
@@ -605,194 +455,23 @@ jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
 
   auto threadsVectorPtr =
       std::make_shared<std::vector<Thread>>(std::move(threadsVector));
-  jsi::Array jsiThreads = parseDBThreads(rt, threadsVectorPtr);
+  jsi::Array jsiThreads =
+      this->threadStore.parseDBDataStore(rt, threadsVectorPtr);
 
   return jsiThreads;
-}
-
-std::vector<std::unique_ptr<ThreadStoreOperationBase>>
-createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
-  std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
-
-  for (size_t idx = 0; idx < operations.size(rt); idx++) {
-    jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);
-    std::string opType = op.getProperty(rt, "type").asString(rt).utf8(rt);
-
-    if (opType == REMOVE_OPERATION) {
-      std::vector<std::string> threadIDsToRemove;
-      jsi::Object payloadObj = op.getProperty(rt, "payload").asObject(rt);
-      jsi::Array threadIDs =
-          payloadObj.getProperty(rt, "ids").asObject(rt).asArray(rt);
-      for (int threadIdx = 0; threadIdx < threadIDs.size(rt); threadIdx++) {
-        threadIDsToRemove.push_back(
-            threadIDs.getValueAtIndex(rt, threadIdx).asString(rt).utf8(rt));
-      }
-      threadStoreOps.push_back(std::make_unique<RemoveThreadsOperation>(
-          std::move(threadIDsToRemove)));
-    } else if (opType == REMOVE_ALL_OPERATION) {
-      threadStoreOps.push_back(std::make_unique<RemoveAllThreadsOperation>());
-    } else if (opType == REPLACE_OPERATION) {
-      jsi::Object threadObj = op.getProperty(rt, "payload").asObject(rt);
-      std::string threadID =
-          threadObj.getProperty(rt, "id").asString(rt).utf8(rt);
-      int type = std::lround(threadObj.getProperty(rt, "type").asNumber());
-      jsi::Value maybeName = threadObj.getProperty(rt, "name");
-      std::unique_ptr<std::string> name = maybeName.isString()
-          ? std::make_unique<std::string>(maybeName.asString(rt).utf8(rt))
-          : nullptr;
-
-      jsi::Value maybeDescription = threadObj.getProperty(rt, "description");
-      std::unique_ptr<std::string> description = maybeDescription.isString()
-          ? std::make_unique<std::string>(
-                maybeDescription.asString(rt).utf8(rt))
-          : nullptr;
-
-      std::string color =
-          threadObj.getProperty(rt, "color").asString(rt).utf8(rt);
-      int64_t creationTime = std::stoll(
-          threadObj.getProperty(rt, "creationTime").asString(rt).utf8(rt));
-
-      jsi::Value maybeParentThreadID =
-          threadObj.getProperty(rt, "parentThreadID");
-      std::unique_ptr<std::string> parentThreadID =
-          maybeParentThreadID.isString()
-          ? std::make_unique<std::string>(
-                maybeParentThreadID.asString(rt).utf8(rt))
-          : nullptr;
-
-      jsi::Value maybeContainingThreadID =
-          threadObj.getProperty(rt, "containingThreadID");
-      std::unique_ptr<std::string> containingThreadID =
-          maybeContainingThreadID.isString()
-          ? std::make_unique<std::string>(
-                maybeContainingThreadID.asString(rt).utf8(rt))
-          : nullptr;
-
-      jsi::Value maybeCommunity = threadObj.getProperty(rt, "community");
-      std::unique_ptr<std::string> community = maybeCommunity.isString()
-          ? std::make_unique<std::string>(maybeCommunity.asString(rt).utf8(rt))
-          : nullptr;
-
-      std::string members =
-          threadObj.getProperty(rt, "members").asString(rt).utf8(rt);
-      std::string roles =
-          threadObj.getProperty(rt, "roles").asString(rt).utf8(rt);
-      std::string currentUser =
-          threadObj.getProperty(rt, "currentUser").asString(rt).utf8(rt);
-
-      jsi::Value maybeSourceMessageID =
-          threadObj.getProperty(rt, "sourceMessageID");
-      std::unique_ptr<std::string> sourceMessageID =
-          maybeSourceMessageID.isString()
-          ? std::make_unique<std::string>(
-                maybeSourceMessageID.asString(rt).utf8(rt))
-          : nullptr;
-
-      int repliesCount =
-          std::lround(threadObj.getProperty(rt, "repliesCount").asNumber());
-
-      jsi::Value maybeAvatar = threadObj.getProperty(rt, "avatar");
-      std::unique_ptr<std::string> avatar = maybeAvatar.isString()
-          ? std::make_unique<std::string>(maybeAvatar.asString(rt).utf8(rt))
-          : nullptr;
-
-      jsi::Value maybePinnedCount = threadObj.getProperty(rt, "pinnedCount");
-      int pinnedCount = maybePinnedCount.isNumber()
-          ? std::lround(maybePinnedCount.asNumber())
-          : 0;
-      Thread thread{
-          threadID,
-          type,
-          std::move(name),
-          std::move(description),
-          color,
-          creationTime,
-          std::move(parentThreadID),
-          std::move(containingThreadID),
-          std::move(community),
-          members,
-          roles,
-          currentUser,
-          std::move(sourceMessageID),
-          repliesCount,
-          std::move(avatar),
-          pinnedCount};
-
-      threadStoreOps.push_back(
-          std::make_unique<ReplaceThreadOperation>(std::move(thread)));
-    } else {
-      throw std::runtime_error("unsupported operation: " + opType);
-    }
-  };
-  return threadStoreOps;
 }
 
 jsi::Value CommCoreModule::processThreadStoreOperations(
     jsi::Runtime &rt,
     jsi::Array operations) {
-  std::string operationsError;
-  std::shared_ptr<std::vector<std::unique_ptr<ThreadStoreOperationBase>>>
-      threadStoreOpsPtr;
-  try {
-    auto threadStoreOps = createThreadStoreOperations(rt, operations);
-    threadStoreOpsPtr = std::make_shared<
-        std::vector<std::unique_ptr<ThreadStoreOperationBase>>>(
-        std::move(threadStoreOps));
-  } catch (std::runtime_error &e) {
-    operationsError = e.what();
-  }
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=]() {
-          std::string error = operationsError;
-          if (!error.size()) {
-            try {
-              DatabaseManager::getQueryExecutor().beginTransaction();
-              for (const auto &operation : *threadStoreOpsPtr) {
-                operation->execute();
-              }
-              DatabaseManager::getQueryExecutor().commitTransaction();
-            } catch (std::system_error &e) {
-              error = e.what();
-              DatabaseManager::getQueryExecutor().rollbackTransaction();
-            }
-          }
-          this->jsInvoker_->invokeAsync([=]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
+  return this->threadStore.processStoreOperations(
+      rt, std::move(operations), this->jsInvoker_);
 }
 
 void CommCoreModule::processThreadStoreOperationsSync(
     jsi::Runtime &rt,
     jsi::Array operations) {
-  std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
-
-  try {
-    threadStoreOps = createThreadStoreOperations(rt, operations);
-  } catch (const std::exception &e) {
-    throw jsi::JSError(rt, e.what());
-  }
-
-  NativeModuleUtils::runSyncOrThrowJSError<void>(rt, [&threadStoreOps]() {
-    try {
-      DatabaseManager::getQueryExecutor().beginTransaction();
-      for (const auto &operation : threadStoreOps) {
-        operation->execute();
-      }
-      DatabaseManager::getQueryExecutor().commitTransaction();
-    } catch (const std::exception &e) {
-      DatabaseManager::getQueryExecutor().rollbackTransaction();
-      throw e;
-    }
-  });
+  this->threadStore.processStoreOperationsSync(rt, std::move(operations));
 }
 
 const std::string REPLACE_REPORT_OPERATION = "replace_report";
