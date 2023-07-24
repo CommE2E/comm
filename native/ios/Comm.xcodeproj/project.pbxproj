@@ -194,6 +194,7 @@
 		8E43C32E291E5B9D009378F5 /* TerminateApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TerminateApp.h; path = ../cpp/CommonCpp/Tools/TerminateApp.h; sourceTree = "<group>"; };
 		8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseManager.cpp; sourceTree = "<group>"; };
 		8EA59BD22A6E800100EB4F53 /* NativeModuleUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeModuleUtils.h; sourceTree = "<group>"; };
+		8EA59BD32A6E8CB700EB4F53 /* BaseDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseDataStore.h; path = PersistentStorageUtilities/DataStores/BaseDataStore.h; sourceTree = "<group>"; };
 		8ED8B5322A4DCCE300D3DA26 /* CommQueryExecutor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommQueryExecutor.h; sourceTree = "<group>"; };
 		8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommQueryExecutor.cpp; sourceTree = "<group>"; };
 		8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportStoreOperations.h; sourceTree = "<group>"; };
@@ -554,6 +555,14 @@
 			path = ../native_rust_library;
 			sourceTree = "<group>";
 		};
+		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
+			isa = PBXGroup;
+			children = (
+				8EA59BD32A6E8CB700EB4F53 /* BaseDataStore.h */,
+			);
+			name = DataStores;
+			sourceTree = "<group>";
+		};
 		AFF3F1F76178B42122C79BDE /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
@@ -641,6 +650,7 @@
 		CBED0E2C284E086100CD3863 /* PersistentStorageUtilities */ = {
 			isa = PBXGroup;
 			children = (
+				8EA59BD02A6E786200EB4F53 /* DataStores */,
 				CBFE582628858512003B94C9 /* ThreadOperationsUtilities */,
 				CB38F2AC286C6C010010535C /* MessageOperationsUtilities */,
 			);
