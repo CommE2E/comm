@@ -7,8 +7,19 @@ import { isStaff } from 'lib/shared/staff-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 
 import { DB_SUPPORTED_BROWSERS, DB_SUPPORTED_OS } from './constants.js';
+import { type EmscriptenModule } from '../types/module.js';
+import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
 const browser = detectBrowser();
+
+function clearSensitiveData(
+  dbModule: EmscriptenModule,
+  path: string,
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+) {
+  sqliteQueryExecutor.delete();
+  dbModule.FS.unlink(path);
+}
 
 function parseSQLiteQueryResult<T>(result: QueryExecResult): T[] {
   const { columns, values } = result;
@@ -49,4 +60,9 @@ function isSQLiteSupported(currentLoggedInUserID: ?string): boolean {
 const isDesktopSafari: boolean =
   browser && browser.name === 'safari' && browser.os === 'Mac OS';
 
-export { parseMultiStatementSQLiteResult, isSQLiteSupported, isDesktopSafari };
+export {
+  parseMultiStatementSQLiteResult,
+  isSQLiteSupported,
+  isDesktopSafari,
+  clearSensitiveData,
+};
