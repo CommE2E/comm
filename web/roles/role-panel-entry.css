@@ -1,7 +1,5 @@
 .rolePanelEntry {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
   align-items: center;
   padding: 12px;
   color: var(--community-roles-text-color);
@@ -13,9 +11,16 @@
 }
 
 .rolePanelCountEntryContainer {
-  margin-right: 40px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: flex-end;
+  grid-column: 3;
+}
+
+.rolePanelCountAndIcon {
+  display: flex;
+  align-items: center;
+  margin-right: 90px;
 }
 
 .rolePanelCountEntry {
