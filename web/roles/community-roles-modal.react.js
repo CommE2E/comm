@@ -45,6 +45,7 @@ function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
       rolePanelEntries.push(
         <RolePanelEntry
           key={roleName}
+          threadInfo={updatedThreadInfo}
           roleName={roleName}
           memberCount={roleNamesToMembers[roleName]}
         />,
@@ -52,7 +53,7 @@ function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
     });
 
     return rolePanelEntries;
-  }, [roleNamesToMembers]);
+  }, [roleNamesToMembers, updatedThreadInfo]);
 
   const rolePermissionsForNewRole = React.useMemo(() => [], []);
 
