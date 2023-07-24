@@ -14,6 +14,8 @@ import { getScriptContext } from '../scripts/script-context.js';
 const SQLStatement: SQLStatementType = SQL.SQLStatement;
 
 const MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE = 1062;
+const MYSQL_TABLE_DOESNT_EXIST_ERROR_CODE = 1146;
+const MYSQL_DEADLOCK_ERROR_CODE = 1213;
 
 let migrationConnection;
 async function getMigrationConnection() {
@@ -106,8 +108,6 @@ const fakeResult: QueryResults = (() => {
   result.insertId = -1;
   return result;
 })();
-
-const MYSQL_DEADLOCK_ERROR_CODE = 1213;
 
 type ConnectionContext = {
   +migrationsActive?: boolean,
@@ -206,4 +206,5 @@ export {
   dbQuery,
   rawSQL,
   MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE,
+  MYSQL_TABLE_DOESNT_EXIST_ERROR_CODE,
 };
