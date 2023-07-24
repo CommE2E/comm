@@ -8,6 +8,7 @@ import type {
 } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { reservedUsernamesSet } from 'lib/utils/reserved-users.js';
 
 import createIDs from './id-creator.js';
 import {
@@ -32,6 +33,9 @@ async function createOrUpdatePublicLink(
   }
   if (badWordsFilter.isProfane(request.name)) {
     throw new ServerError('offensive_words');
+  }
+  if (reservedUsernamesSet.has(request.name)) {
+    throw new ServerError('link_reserved');
   }
 
   const permissionPromise = checkThreadPermission(
