@@ -4,9 +4,12 @@ import * as React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
+import { DummyInlineEngagementNode } from './inline-engagement.react.js';
 import { useTextMessageMarkdownRules } from './message-list-types.js';
 import {
   allCorners,
@@ -29,8 +32,20 @@ const { Node } = Animated;
 
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,
-): React.Element<typeof DummyTextNode> {
-  return <DummyTextNode>{text}</DummyTextNode>;
+  editedLabel?: ?string,
+  sidebarInfo: ?ThreadInfo,
+  reactions: ReactionInfo,
+): React.Element<typeof View> {
+  return (
+    <View>
+      <DummyTextNode>{text}</DummyTextNode>
+      <DummyInlineEngagementNode
+        editedLabel={editedLabel}
+        sidebarInfo={sidebarInfo}
+        reactions={reactions}
+      />
+    </View>
+  );
 }
 
 type DummyTextNodeProps = {
