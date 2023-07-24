@@ -6,16 +6,11 @@ import Animated from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
-import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import {
-  inlineEngagementLabelStyle,
-  clusterEndHeight,
-  inlineEngagementStyle,
-} from './chat-constants.js';
+import { clusterEndHeight } from './chat-constants.js';
 import { ChatContext, useHeightMeasurer } from './chat-context.js';
 import { failedSendHeight } from './failed-send.react.js';
 import {
@@ -62,8 +57,7 @@ const {
 function textMessageItemHeight(
   item: ChatTextMessageInfoItemWithHeight,
 ): number {
-  const { messageInfo, contentHeight, startsCluster, endsCluster, threadInfo } =
-    item;
+  const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { isViewer } = messageInfo.creator;
   let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
   if (!isViewer && startsCluster) {
@@ -75,18 +69,7 @@ function textMessageItemHeight(
   if (textMessageSendFailed(item)) {
     height += failedSendHeight;
   }
-  const label = getMessageLabel(item.hasBeenEdited, threadInfo.id);
-  if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
-    height +=
-      inlineEngagementStyle.height +
-      inlineEngagementStyle.marginTop +
-      inlineEngagementStyle.marginBottom;
-  } else if (label) {
-    height +=
-      inlineEngagementLabelStyle.height +
-      inlineEngagementStyle.marginTop +
-      inlineEngagementStyle.marginBottom;
-  }
+
   return height;
 }
 

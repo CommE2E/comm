@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import {
   getInlineEngagementSidebarText,
   reactionsToRawString,
@@ -55,9 +56,15 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
     item.itemType === 'message',
     'NodeHeightMeasurer asked for dummy for non-message item',
   );
-  const { messageInfo } = item;
+  const { messageInfo, hasBeenEdited } = item;
   if (messageInfo.type === messageTypes.TEXT) {
-    return dummyNodeForTextMessageHeightMeasurement(messageInfo.text);
+    const label = getMessageLabel(hasBeenEdited, messageInfo.threadID);
+    return dummyNodeForTextMessageHeightMeasurement(
+      messageInfo.text,
+      label,
+      item.threadCreatedFromMessage,
+      item.reactions,
+    );
   } else if (item.robotext) {
     return dummyNodeForRobotextMessageHeightMeasurement(
       item.robotext,
