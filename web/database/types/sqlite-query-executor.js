@@ -23,6 +23,10 @@ declare export class SQLiteQueryExecutor {
   setPersistStorageItem(key: string, item: string): void;
   removePersistStorageItem(key: string): void;
   getPersistStorageItem(key: string): string;
+
+  // method is provided to manually signal that a C++ object
+  // is no longer needed and can be deleted
+  delete(): void;
 }
 
 export type SQLiteQueryExecutorType = typeof SQLiteQueryExecutor;
