@@ -23,8 +23,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   const std::string publicCryptoAccountID = "publicCryptoAccountID";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
 
-  template <class T>
-  T runSyncOrThrowJSError(jsi::Runtime &rt, std::function<T()> task);
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
   updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) override;
