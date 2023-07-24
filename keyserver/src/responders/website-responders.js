@@ -48,7 +48,13 @@ import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import { tBool, tNumber, tShape, tString } from 'lib/utils/validation-utils.js';
+import {
+  tBool,
+  tNumber,
+  tShape,
+  tString,
+  ashoatKeyserverID,
+} from 'lib/utils/validation-utils.js';
 import getTitle from 'web/title/getTitle.js';
 import { navInfoValidator } from 'web/types/nav-types.js';
 import { navInfoFromURL } from 'web/url-utils.js';
@@ -495,6 +501,15 @@ async function websiteResponder(
     };
   })();
 
+  const keyserverStorePromise = (async () => {
+    const sessionID = await sessionIDPromise;
+    return {
+      keyserverInfos: {
+        [ashoatKeyserverID]: { cookie: undefined, sessionID },
+      },
+    };
+  })();
+
   const {
     jsURL,
     fontsURL,
@@ -596,7 +611,7 @@ async function websiteResponder(
     commServicesAccessToken: null,
     inviteLinksStore: inviteLinksStorePromise,
     lastCommunicatedPlatformDetails: {},
-    keyserverStore: { keyserverInfos: {} },
+    keyserverStore: keyserverStorePromise,
   });
   const validatedInitialReduxState = validateOutput(
     viewer.platformDetails,
