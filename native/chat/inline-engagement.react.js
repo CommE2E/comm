@@ -32,6 +32,87 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
+type DummyInlineEngagementNodeProps = {
+  ...React.ElementConfig<typeof View>,
+  +editedLabel?: ?string,
+  +sidebarInfo: ?ThreadInfo,
+  +reactions: ReactionInfo,
+};
+function DummyInlineEngagementNode(
+  props: DummyInlineEngagementNodeProps,
+): React.Node {
+  const { editedLabel, sidebarInfo, reactions, ...rest } = props;
+
+  const dummyEditedLabel = React.useMemo(() => {
+    if (!editedLabel) {
+      return null;
+    }
+
+    return (
+      <View>
+        <Text
+          style={[unboundStyles.messageLabel, unboundStyles.dummyMessageLabel]}
+        >
+          {editedLabel}
+        </Text>
+      </View>
+    );
+  }, [editedLabel]);
+
+  const dummySidebarItem = React.useMemo(() => {
+    if (!sidebarInfo) {
+      return null;
+    }
+
+    const repliesText = getInlineEngagementSidebarText(sidebarInfo);
+    return (
+      <View style={[unboundStyles.sidebar, unboundStyles.dummySidebar]}>
+        <Text style={unboundStyles.repliesText}>{repliesText}</Text>
+      </View>
+    );
+  }, [sidebarInfo]);
+
+  const dummyReactionsList = React.useMemo(() => {
+    if (Object.keys(reactions).length === 0) {
+      return null;
+    }
+
+    return Object.keys(reactions).map(reaction => {
+      const numOfReacts = reactions[reaction].users.length;
+      return (
+        <View
+          key={reaction}
+          style={[
+            unboundStyles.reactionsContainer,
+            unboundStyles.dummyReactionContainer,
+          ]}
+        >
+          <Text
+            style={unboundStyles.reaction}
+          >{`${reaction} ${numOfReacts}`}</Text>
+        </View>
+      );
+    });
+  }, [reactions]);
+
+  const dummyContainerStyle = React.useMemo(
+    () => [unboundStyles.inlineEngagement, unboundStyles.dummyInlineEngagement],
+    [],
+  );
+
+  if (!dummyEditedLabel && !dummySidebarItem && !dummyReactionsList) {
+    return null;
+  }
+
+  return (
+    <View {...rest} style={dummyContainerStyle}>
+      {dummyEditedLabel}
+      {dummySidebarItem}
+      {dummyReactionsList}
+    </View>
+  );
+}
+
 type Props = {
   +messageInfo: MessageInfo,
   +threadInfo: ThreadInfo,
@@ -61,28 +142,41 @@ function InlineEngagement(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
 
+  const editedLabelStyle = React.useMemo(() => {
+    const stylesResult = [styles.messageLabel, styles.messageLabelColor];
+    if (isLeft) {
+      stylesResult.push(styles.messageLabelLeft);
+    } else {
+      stylesResult.push(styles.messageLabelRight);
+    }
+
+    return stylesResult;
+  }, [
+    isLeft,
+    styles.messageLabel,
+    styles.messageLabelColor,
+    styles.messageLabelLeft,
+    styles.messageLabelRight,
+  ]);
+
   const editedLabel = React.useMemo(() => {
     if (!label) {
       return null;
     }
 
-    const labelLeftRight = isLeft
-      ? styles.messageLabelLeft
-      : styles.messageLabelRight;
-
     return (
       <View>
-        <Text style={[styles.messageLabel, labelLeftRight]}>{label}</Text>
+        <Text style={editedLabelStyle}>{label}</Text>
       </View>
     );
-  }, [isLeft, label, styles]);
+  }, [editedLabelStyle, label]);
 
   const unreadStyle = sidebarThreadInfo?.currentUser.unread
     ? styles.unread
     : null;
   const repliesStyles = React.useMemo(
-    () => [styles.repliesText, unreadStyle],
-    [styles.repliesText, unreadStyle],
+    () => [styles.repliesText, styles.repliesTextColor, unreadStyle],
+    [styles.repliesText, styles.repliesTextColor, unreadStyle],
   );
 
   const onPressSidebar = React.useCallback(() => {
@@ -94,7 +188,7 @@ function InlineEngagement(props: Props): React.Node {
   const repliesText = getInlineEngagementSidebarText(sidebarThreadInfo);
 
   const sidebarStyle = React.useMemo(() => {
-    const stylesResult = [styles.sidebar];
+    const stylesResult = [styles.sidebar, styles.sidebarColor];
 
     if (Object.keys(reactions).length === 0) {
       return stylesResult;
@@ -111,6 +205,7 @@ function InlineEngagement(props: Props): React.Node {
     isRight,
     reactions,
     styles.sidebar,
+    styles.sidebarColor,
     styles.sidebarMarginLeft,
     styles.sidebarMarginRight,
   ]);
@@ -161,7 +256,10 @@ function InlineEngagement(props: Props): React.Node {
   }, [navigate, reactions]);
 
   const reactionStyle = React.useMemo(() => {
-    const stylesResult = [styles.reactionsContainer];
+    const stylesResult = [
+      styles.reactionsContainer,
+      styles.reactionsContainerColor,
+    ];
 
     if (isRight) {
       stylesResult.push(styles.reactionsContainerMarginLeft);
@@ -173,6 +271,7 @@ function InlineEngagement(props: Props): React.Node {
   }, [
     isRight,
     styles.reactionsContainer,
+    styles.reactionsContainerColor,
     styles.reactionsContainerMarginLeft,
     styles.reactionsContainerMarginRight,
   ]);
@@ -198,7 +297,9 @@ function InlineEngagement(props: Props): React.Node {
           activeOpacity={0.7}
           key={reaction}
         >
-          <Text style={styles.reaction}>{`${reaction} ${numOfReacts}`}</Text>
+          <Text
+            style={[styles.reaction, styles.reactionColor]}
+          >{`${reaction} ${numOfReacts}`}</Text>
         </GestureTouchableOpacity>
       );
     });
@@ -208,6 +309,7 @@ function InlineEngagement(props: Props): React.Node {
     reactionStyle,
     reactions,
     styles.reaction,
+    styles.reactionColor,
     styles.reactionsContainerSelected,
   ]);
 
@@ -244,6 +346,9 @@ const unboundStyles = {
     flexWrap: 'wrap',
     top: inlineEngagementStyle.topOffset,
   },
+  dummyInlineEngagement: {
+    marginRight: 8,
+  },
   centerInlineEngagement: {
     marginLeft: 20,
     marginRight: 20,
@@ -256,11 +361,19 @@ const unboundStyles = {
   sidebar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'inlineEngagementBackground',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  dummySidebar: {
+    paddingRight: 8,
+    // 14 (icon) + 4 (marginRight of icon) + 8 (original left padding)
+    paddingLeft: 26,
+    marginRight: 4,
+  },
+  sidebarColor: {
+    backgroundColor: 'inlineEngagementBackground',
   },
   sidebarMarginLeft: {
     marginLeft: 4,
@@ -273,9 +386,11 @@ const unboundStyles = {
     marginRight: 4,
   },
   repliesText: {
-    color: 'inlineEngagementLabel',
     fontSize: 14,
     lineHeight: 22,
+  },
+  repliesTextColor: {
+    color: 'inlineEngagementLabel',
   },
   unread: {
     color: 'listForegroundLabel',
@@ -285,11 +400,16 @@ const unboundStyles = {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'inlineEngagementBackground',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  dummyReactionContainer: {
+    marginRight: 4,
+  },
+  reactionsContainerColor: {
+    backgroundColor: 'inlineEngagementBackground',
   },
   reactionsContainerSelected: {
     borderWidth: 1,
@@ -304,17 +424,25 @@ const unboundStyles = {
     marginRight: 4,
   },
   reaction: {
-    color: 'inlineEngagementLabel',
     fontSize: 14,
     lineHeight: 22,
   },
+  reactionColor: {
+    color: 'inlineEngagementLabel',
+  },
   messageLabel: {
-    color: 'messageLabel',
     paddingHorizontal: 3,
     fontSize: 13,
     top: inlineEngagementLabelStyle.topOffset,
     height: inlineEngagementLabelStyle.height,
     marginTop: inlineEngagementStyle.marginTop,
+  },
+  dummyMessageLabel: {
+    marginLeft: 9,
+    marginRight: 4,
+  },
+  messageLabelColor: {
+    color: 'messageLabel',
   },
   messageLabelLeft: {
     marginLeft: 9,
@@ -419,4 +547,4 @@ function TooltipInlineEngagement(
   );
 }
 
-export { InlineEngagement, TooltipInlineEngagement };
+export { InlineEngagement, TooltipInlineEngagement, DummyInlineEngagementNode };
