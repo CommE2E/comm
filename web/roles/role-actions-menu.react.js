@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -8,6 +9,7 @@ import { useRoleUserSurfacedPermissions } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import CreateRolesModal from './create-roles-modal.react.js';
+import DeleteRoleModal from './delete-role-modal.react.js';
 import css from './role-actions-menu.css';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
@@ -26,9 +28,11 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
   const defaultRoleID = Object.keys(threadInfo.roles).find(
     roleID => threadInfo.roles[roleID].isDefault,
   );
+  invariant(defaultRoleID, 'default role should exist');
   const existingRoleID = Object.keys(threadInfo.roles).find(
     roleID => threadInfo.roles[roleID].name === roleName,
   );
+  invariant(existingRoleID, 'existing role should exist');
 
   const isDeletableRole =
     roleName !== 'Admins' && defaultRoleID !== existingRoleID;
@@ -56,7 +60,15 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
       threadInfo,
     ],
   );
-  const openDeleteRoleModal = React.useCallback(() => {}, []);
+  const openDeleteRoleModal = React.useCallback(() => {
+    pushModal(
+      <DeleteRoleModal
+        threadInfo={threadInfo}
+        defaultRoleID={defaultRoleID}
+        roleID={existingRoleID}
+      />,
+    );
+  }, [existingRoleID, pushModal, threadInfo, defaultRoleID]);
 
   const items = React.useMemo(() => {
     const availableOptions = [];

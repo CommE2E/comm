@@ -1,0 +1,20 @@
+.roleDeletionText {
+  color: var(--modal-fg);
+  font-size: var(--m-font-14);
+  padding: 16px 32px;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 16px 32px;
+}
+
+.cancelButton {
+  width: 100px;
+}
+
+.deleteRoleButton {
+  margin-left: 8px;
+}
