@@ -6,7 +6,12 @@ import { isDev } from 'lib/utils/dev-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
-import { dbQuery, SQL, setConnectionContext } from './database.js';
+import {
+  dbQuery,
+  SQL,
+  setConnectionContext,
+  MYSQL_TABLE_DOESNT_EXIST_ERROR_CODE,
+} from './database.js';
 import { fetchDBVersion, updateDBVersion } from './db-version.js';
 import { migrations } from './migration-config.js';
 import { setupDB } from './setup-db.js';
@@ -49,8 +54,6 @@ async function migrate(): Promise<boolean> {
   setConnectionContext({ migrationsActive: false });
   return true;
 }
-
-const MYSQL_TABLE_DOESNT_EXIST_ERROR_CODE = 1146;
 
 async function setUpDBAndReturnVersion(): Promise<number> {
   try {
