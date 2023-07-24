@@ -193,6 +193,7 @@ target_include_directories(
   ../../cpp/CommonCpp/NativeModules
   ../../cpp/CommonCpp/NativeModules/InternalModules
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities
+  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/DataStores
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs

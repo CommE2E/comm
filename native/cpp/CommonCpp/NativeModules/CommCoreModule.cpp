@@ -1,6 +1,7 @@
 #include "CommCoreModule.h"
 #include "../CryptoTools/DeviceID.h"
 #include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
+#include "BaseDataStore.h"
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
