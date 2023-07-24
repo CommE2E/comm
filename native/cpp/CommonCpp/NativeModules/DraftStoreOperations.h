@@ -1,6 +1,12 @@
 #pragma once
 
+#include "DatabaseManager.h"
+#include <jsi/jsi.h>
+
 namespace comm {
+
+namespace jsi = facebook::jsi;
+
 class DraftStoreOperationBase {
 public:
   virtual void execute() = 0;
