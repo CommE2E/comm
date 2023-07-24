@@ -5,18 +5,27 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+
+import type { RolesNavigationProp } from './roles-navigator.react.js';
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { CreateRolesScreenRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type RolePanelEntryProps = {
+  +navigation: RolesNavigationProp<'CommunityRolesScreen'>,
+  +threadInfo: ThreadInfo,
   +roleName: string,
+  +rolePermissions: $ReadOnlyArray<UserSurfacedPermission>,
   +memberCount: number,
 };
 
 function RolePanelEntry(props: RolePanelEntryProps): React.Node {
-  const { roleName, memberCount } = props;
+  const { navigation, threadInfo, roleName, rolePermissions, memberCount } =
+    props;
   const styles = useStyles(unboundStyles);
 
   const options = React.useMemo(() => {
@@ -34,8 +43,19 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
       if (index === undefined || index === null || index === options.length) {
         return;
       }
+
+      const selectedOption = options[index];
+
+      if (selectedOption === 'Edit role') {
+        navigation.navigate(CreateRolesScreenRouteName, {
+          threadInfo,
+          action: 'edit_role',
+          roleName,
+          rolePermissions,
+        });
+      }
     },
-    [options.length],
+    [navigation, options, roleName, rolePermissions, threadInfo],
   );
 
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
