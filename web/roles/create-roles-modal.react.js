@@ -50,6 +50,8 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
 
   const [shouldShowError, setShouldShowError] = React.useState<boolean>(false);
 
+  const createButtonText = action === 'create_role' ? 'Create' : 'Save';
+
   const onChangeRoleName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
       setShouldShowError(false);
@@ -212,7 +214,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
           buttonColor={buttonThemes.standard}
           onClick={onClickCreateRole}
         >
-          Create
+          {createButtonText}
         </Button>
       </div>
     </Modal>
