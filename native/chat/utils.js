@@ -37,7 +37,6 @@ import {
 import type {
   ChatMessageInfoItemWithHeight,
   ChatMessageItemWithHeight,
-  ChatRobotextMessageInfoItemWithHeight,
   ChatTextMessageInfoItemWithHeight,
 } from '../types/chat-types.js';
 import type {
@@ -91,15 +90,6 @@ function textMessageItemHeight(
   return height;
 }
 
-function robotextMessageItemHeight(
-  item: ChatRobotextMessageInfoItemWithHeight,
-): number {
-  if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
-    return item.contentHeight + inlineEngagementStyle.height;
-  }
-  return item.contentHeight;
-}
-
 function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
   let height = 0;
   if (item.messageShapeType === 'text') {
@@ -107,7 +97,7 @@ function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
   } else if (item.messageShapeType === 'multimedia') {
     height += multimediaMessageItemHeight(item);
   } else {
-    height += robotextMessageItemHeight(item);
+    height += item.contentHeight;
   }
   if (item.startsConversation) {
     height += timestampHeight;
