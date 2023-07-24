@@ -131,7 +131,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     let inlineEngagement = null;
-    const label = getMessageLabel(hasBeenEdited, threadInfo);
+    const label = getMessageLabel(hasBeenEdited, threadInfo.id);
     if (
       (this.props.containsInlineEngagement && item.threadCreatedFromMessage) ||
       Object.keys(item.reactions).length > 0 ||

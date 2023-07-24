@@ -75,7 +75,7 @@ function textMessageItemHeight(
   if (textMessageSendFailed(item)) {
     height += failedSendHeight;
   }
-  const label = getMessageLabel(item.hasBeenEdited, threadInfo);
+  const label = getMessageLabel(item.hasBeenEdited, threadInfo.id);
   if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
     height +=
       inlineEngagementStyle.height +
