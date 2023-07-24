@@ -29,6 +29,7 @@ import {
   SQLITE_ENCRYPTION_KEY,
 } from '../utils/constants.js';
 import {
+  clearSensitiveData,
   exportDatabaseContent,
   importDatabaseContent,
 } from '../utils/db-utils.js';
@@ -108,13 +109,13 @@ function processDraftStoreOperations(
   }
   for (const operation: DraftStoreOperation of operations) {
     if (operation.type === 'remove_all') {
-      sqliteQueryExecutor.removeAllDrafts();
+      sqliteQueryExecutor?.removeAllDrafts();
     } else if (operation.type === 'update') {
       const { key, text } = operation.payload;
-      sqliteQueryExecutor.updateDraft(key, text);
+      sqliteQueryExecutor?.updateDraft(key, text);
     } else if (operation.type === 'move') {
       const { oldKey, newKey } = operation.payload;
-      sqliteQueryExecutor.moveDraft(oldKey, newKey);
+      sqliteQueryExecutor?.moveDraft(oldKey, newKey);
     } else {
       throw new Error('Unsupported draft operation');
     }
@@ -129,13 +130,13 @@ function processReportStoreOperations(
   }
   for (const operation: ClientDBReportStoreOperation of operations) {
     if (operation.type === 'remove_all_reports') {
-      sqliteQueryExecutor.removeAllReports();
+      sqliteQueryExecutor?.removeAllReports();
     } else if (operation.type === 'remove_reports') {
       const { ids } = operation.payload;
-      sqliteQueryExecutor.removeReports(ids);
+      sqliteQueryExecutor?.removeReports(ids);
     } else if (operation.type === 'replace_report') {
       const { id, report } = operation.payload;
-      sqliteQueryExecutor.replaceReport({ id, report });
+      sqliteQueryExecutor?.replaceReport({ id, report });
     } else {
       throw new Error('Unsupported report operation');
     }
@@ -146,12 +147,14 @@ function getClientStore(): ClientDBStore {
   if (!sqliteQueryExecutor) {
     throw new Error('Database not initialized');
   }
+  const drafts = sqliteQueryExecutor?.getAllDrafts() ?? [];
+  const reports = sqliteQueryExecutor?.getAllReports() ?? [];
   return {
-    drafts: sqliteQueryExecutor.getAllDrafts(),
+    drafts,
     messages: [],
     threads: [],
     messageStoreThreads: [],
-    reports: sqliteQueryExecutor.getAllReports(),
+    reports,
   };
 }
 
@@ -208,6 +211,14 @@ async function processAppRequest(
   } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
     encryptionKey = null;
     await localforage.clear();
+    if (dbModule && sqliteQueryExecutor) {
+      clearSensitiveData(
+        dbModule,
+        COMM_SQLITE_DATABASE_PATH,
+        sqliteQueryExecutor,
+      );
+    }
+    sqliteQueryExecutor = null;
     return undefined;
   }
 
@@ -250,15 +261,15 @@ async function processAppRequest(
       processReportStoreOperations(reportStoreOperations);
     }
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
-    sqliteQueryExecutor.setMetadata(CURRENT_USER_ID_KEY, message.userID);
+    sqliteQueryExecutor?.setMetadata(CURRENT_USER_ID_KEY, message.userID);
   } else if (
     message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
   ) {
-    sqliteQueryExecutor.setPersistStorageItem(message.key, message.item);
+    sqliteQueryExecutor?.setPersistStorageItem(message.key, message.item);
   } else if (
     message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
   ) {
-    sqliteQueryExecutor.removePersistStorageItem(message.key);
+    sqliteQueryExecutor?.removePersistStorageItem(message.key);
   }
 
   persistNeeded = true;
