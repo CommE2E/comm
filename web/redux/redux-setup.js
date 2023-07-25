@@ -36,6 +36,7 @@ import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateWindowActiveActionType,
@@ -147,9 +148,20 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     ) {
       return oldState;
     }
+
     state = {
       ...state,
       sessionID: action.payload.sessionChange.sessionID,
+      keyserverStore: {
+        ...state.keyserverStore,
+        keyserverInfos: {
+          ...state.keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+            sessionID: action.payload.sessionChange.sessionID,
+          },
+        },
+      },
     };
   } else if (
     (action.type === logOutActionTypes.success &&
