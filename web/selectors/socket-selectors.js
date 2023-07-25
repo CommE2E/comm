@@ -3,6 +3,7 @@
 import olm from '@commapp/olm';
 import { createSelector } from 'reselect';
 
+import { sessionIDSelector } from 'lib/selectors/keyserver-selectors.js';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
@@ -35,7 +36,7 @@ const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
 const sessionIdentificationSelector: (
   state: AppState,
 ) => SessionIdentification = createSelector(
-  (state: AppState) => state.sessionID,
+  sessionIDSelector,
   (sessionID: ?string): SessionIdentification => ({ sessionID }),
 );
 
