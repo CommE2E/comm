@@ -104,6 +104,12 @@ message IdentityKeyInfo {
 // One-time Prekeys are "consumed" after first use, so many need to
 // be provide to avoid exhausting them.
 
+enum DeviceType {
+  Keyserver = 0;
+  Native = 1;
+  Web = 2;
+}
+
 // Bundle of information needed for creating an initial message using X3DH
 message DeviceKeyUpload {
   IdentityKeyInfo deviceKeyInfo = 1;
@@ -111,6 +117,7 @@ message DeviceKeyUpload {
   PreKey notifUpload = 3;
   repeated string onetimeContentPrekeys = 4;
   repeated string onetimeNotifPrekeys = 5;
+  DeviceType deviceType = 6;
 }
 
 // Request for registering a new user
