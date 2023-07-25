@@ -23,6 +23,11 @@ async function createOlmSession(
       callback,
     );
   } catch (e) {
+    console.warn(
+      `failed to create olm session of type: ${olmSessionType}` +
+        `for user with cookie id: ${cookieID}`,
+      e,
+    );
     throw new ServerError('olm_session_creation_failure');
   }
 
