@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
-import { convertClientDBReportToClientReportCreationRequest } from 'lib/ops/report-store-ops.js';
+import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -174,7 +174,7 @@ function SQLiteDataHandler(): React.Node {
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
         const reportsFromDb =
-          convertClientDBReportToClientReportCreationRequest(reports);
+          reportStoreOpsHandlers.translateClientDBData(reports);
 
         dispatch({
           type: setClientDBStoreActionType,
