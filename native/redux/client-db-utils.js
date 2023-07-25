@@ -1,8 +1,8 @@
 // @flow
 
+import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops';
 import type {
-  ClientDBMessageStoreOperation,
   RawMessageInfo,
   ClientDBMessageInfo,
   ClientDBThreadMessageInfo,
