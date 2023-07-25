@@ -15,6 +15,7 @@ import {
   convertCalendarFilterToNewIDSchema,
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
+import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops';
 import {
   type ReportStoreOperation,
   type ClientDBReportStoreOperation,
@@ -39,7 +40,6 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type LocalMessageInfo,
   type MessageStore,
-  type ClientDBMessageStoreOperation,
 } from 'lib/types/message-types.js';
 import type {
   ReportStore,
