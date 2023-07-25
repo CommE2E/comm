@@ -653,7 +653,7 @@ const migrations = {
 
     return {
       ...rest,
-      keyserverStore: { keyserverInfos: { [ashoatKeyserverID]: cookie } },
+      keyserverStore: { keyserverInfos: { [ashoatKeyserverID]: { cookie } } },
     };
   },
 };
