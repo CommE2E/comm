@@ -23,6 +23,7 @@ import {
   convertReportsToReplaceReportOps,
 } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops';
+import { threadStoreOps } from 'lib/ops/thread-store-ops.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
@@ -61,7 +62,6 @@ import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
-  convertThreadStoreOperationsToClientDBOperations,
 } from 'lib/utils/thread-ops-utils.js';
 import { getUUID } from 'lib/utils/uuid.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -398,7 +398,7 @@ const migrations = {
     ];
     try {
       commCoreModule.processThreadStoreOperationsSync(
-        convertThreadStoreOperationsToClientDBOperations(operations),
+        threadStoreOps.convertOpsToClientDBOps(operations),
       );
     } catch (exception) {
       console.log(exception);

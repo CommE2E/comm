@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { convertClientDBReportToClientReportCreationRequest } from 'lib/ops/report-store-ops.js';
+import { threadStoreOps } from 'lib/ops/thread-store-ops.js';
 import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
@@ -15,7 +16,6 @@ import {
 } from 'lib/types/account-types.js';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils.js';
 
 import { filesystemMediaCache } from '../media/media-cache.js';
 import { commCoreModule } from '../native-modules.js';
@@ -171,8 +171,7 @@ function SQLiteDataHandler(): React.Node {
       try {
         const { threads, messages, drafts, messageStoreThreads, reports } =
           await commCoreModule.getClientDBStore();
-        const threadInfosFromDB =
-          convertClientDBThreadInfosToRawThreadInfos(threads);
+        const threadInfosFromDB = threadStoreOps.translateClientDBData(threads);
         const reportsFromDb =
           convertClientDBReportToClientReportCreationRequest(reports);
 

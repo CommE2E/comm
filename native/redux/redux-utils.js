@@ -3,9 +3,9 @@
 import { useSelector as reactReduxUseSelector } from 'react-redux';
 
 import { convertReportStoreOperationToClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
+import { threadStoreOps } from 'lib/ops/thread-store-ops.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
 import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils.js';
-import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
 import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
@@ -28,8 +28,9 @@ async function processDBStoreOperations(
     reportStoreOperations,
   } = storeOperations;
 
-  const convertedThreadStoreOperations =
-    convertThreadStoreOperationsToClientDBOperations(threadStoreOperations);
+  const convertedThreadStoreOperations = threadStoreOps.convertOpsToClientDBOps(
+    threadStoreOperations,
+  );
   const convertedMessageStoreOperations =
     convertMessageStoreOperationsToClientDBOperations(messageStoreOperations);
   const convertedReportStoreOperations =
