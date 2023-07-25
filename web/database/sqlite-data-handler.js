@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
-import { convertClientDBReportToClientReportCreationRequest } from 'lib/ops/report-store-ops.js';
+import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 
 import { databaseModule } from './database-module-provider.js';
 import { SQLITE_ENCRYPTION_KEY } from './utils/constants.js';
@@ -95,7 +95,7 @@ function SQLiteDataHandler(): React.Node {
       if (!data?.store?.drafts && !data?.store?.reports) {
         return;
       }
-      const reports = convertClientDBReportToClientReportCreationRequest(
+      const reports = reportStoreOpsHandlers.translateClientDBData(
         data.store.reports,
       );
       dispatch({

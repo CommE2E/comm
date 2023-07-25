@@ -19,8 +19,8 @@ import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js
 import {
   type ReportStoreOperation,
   type ClientDBReportStoreOperation,
-  convertReportStoreOperationToClientDBReportStoreOperation,
   convertReportsToReplaceReportOps,
+  reportStoreOpsHandlers,
 } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -580,9 +580,7 @@ const migrations = {
       ...convertReportsToReplaceReportOps(state.reportStore.queuedReports),
     ];
     const dbOperations: $ReadOnlyArray<ClientDBReportStoreOperation> =
-      convertReportStoreOperationToClientDBReportStoreOperation(
-        reportStoreOperations,
-      );
+      reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
 
     try {
       commCoreModule.processReportStoreOperationsSync(dbOperations);
