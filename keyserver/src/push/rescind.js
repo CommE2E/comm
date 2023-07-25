@@ -3,6 +3,7 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
+import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
@@ -226,7 +227,7 @@ async function conditionallyEncryptNotification<T>(
     notification: T,
   ) => Promise<$ReadOnlyArray<T>>,
 ): Promise<$ReadOnlyArray<{ +deviceToken: string, +notification: T }>> {
-  const shouldBeEncrypted = codeVersion && codeVersion >= 233;
+  const shouldBeEncrypted = codeVersion && codeVersion > NEXT_CODE_VERSION;
   if (!shouldBeEncrypted) {
     return devices.map(({ deviceToken }) => ({
       notification,
