@@ -7,7 +7,7 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
-import { convertReportStoreOperationToClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
+import { reportStoreOps } from 'lib/ops/report-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -189,9 +189,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
           return;
         }
         const convertedReportStoreOperations =
-          convertReportStoreOperationToClientDBReportStoreOperation(
-            reportStoreOperations,
-          );
+          reportStoreOps.convertOpsToClientDBOps(reportStoreOperations);
         await databaseModule.schedule({
           type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
           storeOperations: {
