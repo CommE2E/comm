@@ -48,4 +48,6 @@ pub enum DBItemAttributeError {
   IncorrectType,
   #[display(...)]
   InvalidTimestamp(chrono::ParseError),
+  #[display(...)]
+  InvalidValue,
 }

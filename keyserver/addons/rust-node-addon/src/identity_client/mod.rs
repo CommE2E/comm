@@ -10,8 +10,8 @@ pub mod identity_client {
 
 use identity_client::identity_client_service_client::IdentityClientServiceClient;
 use identity_client::{
-  AddReservedUsernamesRequest, DeviceKeyUpload, IdentityKeyInfo, PreKey,
-  RegistrationFinishRequest, RegistrationStartRequest,
+  AddReservedUsernamesRequest, DeviceKeyUpload, DeviceType, IdentityKeyInfo,
+  PreKey, RegistrationFinishRequest, RegistrationStartRequest,
   RemoveReservedUsernameRequest,
 };
 use lazy_static::lazy_static;
