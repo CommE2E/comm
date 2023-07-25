@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops';
 import type {
   ClientDBMessageStoreOperation,
   RawMessageInfo,
@@ -8,7 +9,6 @@ import type {
 } from 'lib/types/message-types.js';
 import type {
   ClientDBThreadInfo,
-  ClientDBThreadStoreOperation,
   RawThreadInfo,
   ThreadStoreThreadInfos,
 } from 'lib/types/thread-types.js';
