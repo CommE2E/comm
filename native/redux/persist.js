@@ -21,6 +21,7 @@ import {
   convertReportStoreOperationToClientDBReportStoreOperation,
   convertReportsToReplaceReportOps,
 } from 'lib/ops/report-store-ops.js';
+import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
@@ -45,10 +46,7 @@ import type {
   ClientReportCreationRequest,
 } from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
-import type {
-  ClientDBThreadStoreOperation,
-  ClientDBThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import {
   convertMessageStoreOperationsToClientDBOperations,
   translateClientDBMessageInfoToRawMessageInfo,

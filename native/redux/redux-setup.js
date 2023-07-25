@@ -13,6 +13,7 @@ import {
   deleteAccountActionTypes,
   logInActionTypes,
 } from 'lib/actions/user-actions.js';
+import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
 import {
@@ -26,7 +27,6 @@ import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
-import type { ThreadStoreOperation } from 'lib/types/thread-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
