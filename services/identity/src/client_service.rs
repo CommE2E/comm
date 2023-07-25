@@ -4,6 +4,7 @@ pub mod client_proto {
 
 use std::str::FromStr;
 
+use crate::database::{self, Device};
 use crate::error::Error as DBError;
 use crate::{
   client_service::client_proto::{
@@ -80,6 +81,7 @@ pub struct FlattenedDeviceKeyUpload {
   pub notif_prekey: String,
   pub notif_prekey_signature: String,
   pub notif_onetime_keys: Vec<String>,
+  pub device_type: database::Device,
 }
 
 #[derive(derive_more::Constructor)]
@@ -139,6 +141,7 @@ impl IdentityClientService for ClientService {
             }),
           onetime_content_prekeys,
           onetime_notif_prekeys,
+          device_type,
         }),
     } = message
     {
@@ -160,6 +163,8 @@ impl IdentityClientService for ClientService {
           notif_prekey,
           notif_prekey_signature,
           notif_onetime_keys: onetime_notif_prekeys,
+          device_type: Device::try_from(device_type)
+            .map_err(handle_db_error)?,
         },
       };
       let session_id = generate_uuid();
@@ -238,6 +243,7 @@ impl IdentityClientService for ClientService {
             }),
           onetime_content_prekeys,
           onetime_notif_prekeys,
+          device_type,
         }),
       ..
     } = message
@@ -260,8 +266,11 @@ impl IdentityClientService for ClientService {
           notif_prekey,
           notif_prekey_signature,
           notif_onetime_keys: onetime_notif_prekeys,
+          device_type: Device::try_from(device_type)
+            .map_err(handle_db_error)?,
         },
       };
+
       let session_id = generate_uuid();
       self
         .cache
@@ -470,6 +479,7 @@ impl IdentityClientService for ClientService {
             }),
           onetime_content_prekeys,
           onetime_notif_prekeys,
+          device_type,
         }),
     } = message
     {
@@ -498,6 +508,8 @@ impl IdentityClientService for ClientService {
           notif_prekey,
           notif_prekey_signature,
           notif_onetime_keys: onetime_notif_prekeys,
+          device_type: Device::try_from(device_type)
+            .map_err(handle_db_error)?,
         },
       };
       let session_id = generate_uuid();
@@ -602,6 +614,7 @@ impl IdentityClientService for ClientService {
               }),
             onetime_content_prekeys,
             onetime_notif_prekeys,
+            device_type,
           }),
       } = message
       {
@@ -618,6 +631,8 @@ impl IdentityClientService for ClientService {
             notif_prekey,
             notif_prekey_signature,
             notif_onetime_keys: onetime_notif_prekeys,
+            device_type: Device::try_from(device_type)
+              .map_err(handle_db_error)?,
           },
           social_proof,
         )

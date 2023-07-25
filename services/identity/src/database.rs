@@ -66,16 +66,38 @@ impl FromStr for KeyPayload {
   }
 }
 
+#[derive(Clone, Copy)]
 pub enum Device {
-  Client,
-  Keyserver,
+  // Numeric values should match the protobuf definition
+  Keyserver = 0,
+  Native,
+  Web,
+}
+
+impl TryFrom<i32> for Device {
+  type Error = crate::error::Error;
+
+  fn try_from(value: i32) -> Result<Self, Self::Error> {
+    match value {
+      0 => Ok(Device::Keyserver),
+      1 => Ok(Device::Native),
+      2 => Ok(Device::Web),
+      _ => Err(Error::Attribute(DBItemError {
+        attribute_name: USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME
+          .to_string(),
+        attribute_value: Some(AttributeValue::N(value.to_string())),
+        attribute_error: DBItemAttributeError::InvalidValue,
+      })),
+    }
+  }
 }
 
 impl Display for Device {
   fn fmt(&self, f: &mut Formatter) -> FmtResult {
     match self {
-      Device::Client => write!(f, "client"),
       Device::Keyserver => write!(f, "keyserver"),
+      Device::Native => write!(f, "native"),
+      Device::Web => write!(f, "web"),
     }
   }
 }
@@ -1004,7 +1026,7 @@ fn create_device_info(
   let mut device_info = HashMap::from([
     (
       USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(Device::Client.to_string()),
+      AttributeValue::S(flattened_device_key_upload.device_type.to_string()),
     ),
     (
       USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),

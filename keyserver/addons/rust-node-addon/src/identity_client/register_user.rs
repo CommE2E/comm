@@ -42,6 +42,7 @@ pub async fn register_user(
     }),
     onetime_content_prekeys: content_one_time_keys,
     onetime_notif_prekeys: notif_one_time_keys,
+    device_type: DeviceType::Keyserver.into(),
   };
   let registration_start_request = Request::new(RegistrationStartRequest {
     opaque_registration_request,
