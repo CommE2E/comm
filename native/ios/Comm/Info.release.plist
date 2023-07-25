@@ -24,6 +24,19 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>238</string>
+	<key>CFBundleURLTypes</key>
+  <array>
+  	<dict>
+  		<key>CFBundleTypeRole</key>
+  		<string>Editor</string>
+  		<key>CFBundleURLName</key>
+  		<string>comm</string>
+  		<key>CFBundleURLSchemes</key>
+  		<array>
+  			<string>comm</string>
+  		</array>
+  	</dict>
+  </array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>rainbow</string>
