@@ -14,8 +14,8 @@ import {
   logInActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops';
+import { threadStoreOps } from 'lib/ops/thread-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
-import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
 import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
@@ -430,7 +430,7 @@ function fixUnreadActiveThread(
     },
   ];
 
-  const updatedThreadStore = processThreadStoreOperations(
+  const updatedThreadStore = threadStoreOps.processStoreOperations(
     state.threadStore,
     threadStoreOperations,
   );
