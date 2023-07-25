@@ -2,7 +2,7 @@
 
 import type { Account as OlmAccount } from '@commapp/olm';
 
-import { ServerError } from 'lib/utils/errors.js';
+import { ServerError, getMessageForException } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
@@ -23,6 +23,11 @@ async function createOlmSession(
       callback,
     );
   } catch (e) {
+    console.warn(
+      `Failed to create olm session of type: ${olmSessionType} for user with cookie id: ${cookieID}. Details: ${
+        getMessageForException(e) ?? 'unknown error'
+      }`,
+    );
     throw new ServerError('olm_session_creation_failure');
   }
 
