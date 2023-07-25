@@ -15,7 +15,10 @@ import {
   convertCalendarFilterToNewIDSchema,
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
-import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
+import {
+  type ClientDBMessageStoreOperation,
+  messageStoreOpsHandlers,
+} from 'lib/ops/message-store-ops.js';
 import {
   type ReportStoreOperation,
   type ClientDBReportStoreOperation,
@@ -49,7 +52,6 @@ import type {
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import {
-  convertMessageStoreOperationsToClientDBOperations,
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
 } from 'lib/utils/message-ops-utils.js';
@@ -537,7 +539,7 @@ const migrations = {
     return state;
   },
   [37]: state => {
-    const operations = convertMessageStoreOperationsToClientDBOperations([
+    const operations = messageStoreOpsHandlers.convertOpsToClientDBOps([
       {
         type: 'remove_all_threads',
       },
