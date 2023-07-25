@@ -15,7 +15,7 @@ comm-dev services start
 Make sure your LocalStack resources are up to date:
 
 ```
-cd services/terraform
+cd services/terraform/dev
 ./run.sh
 ```
 
