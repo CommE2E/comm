@@ -1,11 +1,9 @@
 // @flow
 
+import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import { unshimFunc } from 'lib/shared/unshim-utils.js';
 import { type MessageType } from 'lib/types/message-types-enum.js';
-import type {
-  ClientDBMessageStoreOperation,
-  ClientDBMessageInfo,
-} from 'lib/types/message-types.js';
+import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
