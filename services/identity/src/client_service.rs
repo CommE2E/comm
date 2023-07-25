@@ -830,18 +830,11 @@ impl IdentityClientService for ClientService {
       &message.signature,
     )?;
 
-    let mut filtered_usernames = Vec::new();
-
-    for username in usernames {
-      if !self
-        .client
-        .username_taken(username.clone())
-        .await
-        .map_err(handle_db_error)?
-      {
-        filtered_usernames.push(username);
-      }
-    }
+    let filtered_usernames = self
+      .client
+      .filter_out_taken_usernames(usernames)
+      .await
+      .map_err(handle_db_error)?;
 
     self
       .client
