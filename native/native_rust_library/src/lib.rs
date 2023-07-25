@@ -18,7 +18,7 @@ mod identity {
 use crypto_tools::generate_device_id;
 use identity::identity_client_service_client::IdentityClientServiceClient;
 use identity::{
-  DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginFinishRequest,
+  DeviceKeyUpload, DeviceType, IdentityKeyInfo, OpaqueLoginFinishRequest,
   OpaqueLoginStartRequest, PreKey, RegistrationFinishRequest,
   RegistrationStartRequest, WalletLoginRequest,
 };
@@ -231,6 +231,7 @@ async fn register_user_helper(
       }),
       onetime_content_prekeys: password_user_info.content_onetime_keys,
       onetime_notif_prekeys: password_user_info.notif_onetime_keys,
+      device_type: DeviceType::Native.into(),
     }),
   };
 
@@ -321,6 +322,7 @@ async fn login_password_user_helper(
       }),
       onetime_content_prekeys: password_user_info.content_onetime_keys,
       onetime_notif_prekeys: password_user_info.notif_onetime_keys,
+      device_type: DeviceType::Native.into(),
     }),
   };
 
@@ -420,6 +422,7 @@ async fn login_wallet_user_helper(
       }),
       onetime_content_prekeys: wallet_user_info.content_onetime_keys,
       onetime_notif_prekeys: wallet_user_info.notif_onetime_keys,
+      device_type: DeviceType::Native.into(),
     }),
   };
 

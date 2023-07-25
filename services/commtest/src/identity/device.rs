@@ -5,7 +5,8 @@ mod proto {
 }
 use proto::{
   identity_client_service_client::IdentityClientServiceClient, DeviceKeyUpload,
-  IdentityKeyInfo, PreKey, RegistrationFinishRequest, RegistrationStartRequest,
+  DeviceType, IdentityKeyInfo, PreKey, RegistrationFinishRequest,
+  RegistrationStartRequest,
 };
 
 pub struct DeviceInfo {
@@ -50,6 +51,7 @@ pub async fn create_device() -> DeviceInfo {
       }),
       onetime_content_prekeys: Vec::new(),
       onetime_notif_prekeys: Vec::new(),
+      device_type: DeviceType::Keyserver.into(),
     }),
   };
 
