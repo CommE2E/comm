@@ -28,6 +28,8 @@ import {
   type ToggleMessagePinResult,
   type RoleModificationRequest,
   type RoleModificationResult,
+  type RoleDeletionRequest,
+  type RoleDeletionResult,
   rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { serverUpdateInfoValidator } from 'lib/types/update-types.js';
@@ -48,6 +50,7 @@ import {
 } from './entry-responders.js';
 import { modifyRole } from '../creators/role-creator.js';
 import { createThread } from '../creators/thread-creator.js';
+import { deleteRole } from '../deleters/role-deleters.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
 import { fetchMediaForThread } from '../fetchers/upload-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
@@ -393,6 +396,36 @@ async function roleModificationResponder(
   );
 }
 
+const roleDeletionRequestInputValidator = tShape<RoleDeletionRequest>({
+  community: tID,
+  roleID: tID,
+});
+
+export const roleDeletionResultValidator: TInterface<RoleDeletionResult> =
+  tShape<RoleDeletionResult>({
+    threadInfo: t.maybe(rawThreadInfoValidator),
+    updatesResult: tShape({
+      newUpdates: t.list(serverUpdateInfoValidator),
+    }),
+  });
+
+async function roleDeletionResponder(
+  viewer: Viewer,
+  input: mixed,
+): Promise<RoleDeletionResult> {
+  const request = await validateInput(
+    viewer,
+    roleDeletionRequestInputValidator,
+    input,
+  );
+  const response = await deleteRole(viewer, request);
+  return validateOutput(
+    viewer.platformDetails,
+    roleDeletionResultValidator,
+    response,
+  );
+}
+
 export {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -405,4 +438,5 @@ export {
   newThreadRequestInputValidator,
   toggleMessagePinResponder,
   roleModificationResponder,
+  roleDeletionResponder,
 };
