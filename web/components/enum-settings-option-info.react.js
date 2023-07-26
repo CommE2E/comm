@@ -9,8 +9,8 @@ import css from './enum-settings-option-info.css';
 
 type Props = {
   +optionSelected: boolean,
-  +valid: boolean,
-  +styleStatementBasedOnValidity: boolean,
+  +valid?: boolean,
+  +styleStatementBasedOnValidity?: boolean,
   +children: React.Node,
 };
 
