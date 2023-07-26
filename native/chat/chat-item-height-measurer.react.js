@@ -17,6 +17,7 @@ import { entityTextToRawString } from 'lib/utils/entity-text.js';
 
 import type { MeasurementTask } from './chat-context-provider.react.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
+import { dummyNodeForMultimediaMessageHeightMeasurement } from './inner-multimedia-message.react.js';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react.js';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react.js';
 import type { NativeChatMessageItem } from './message-data.react.js';
@@ -51,8 +52,12 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
       sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
       reactions: reactionsToRawString(reactions),
     });
+  } else {
+    return JSON.stringify({
+      sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
+      reactions: reactionsToRawString(reactions),
+    });
   }
-  return null;
 };
 
 // ESLint doesn't recognize that invariant always throws
@@ -78,8 +83,12 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
       item.threadCreatedFromMessage,
       item.reactions,
     );
+  } else {
+    return dummyNodeForMultimediaMessageHeightMeasurement(
+      item.threadCreatedFromMessage,
+      item.reactions,
+    );
   }
-  invariant(false, 'NodeHeightMeasurer asked for dummy for non-text message');
 };
 
 function ChatItemHeightMeasurer(props: Props) {
@@ -100,6 +109,10 @@ function ChatItemHeightMeasurer(props: Props) {
       invariant(
         messageType !== messageTypes.SIDEBAR_SOURCE,
         'Sidebar source messages should be replaced by sourceMessage before being measured',
+      );
+      invariant(
+        height !== null && height !== undefined,
+        'height should be set',
       );
 
       if (
@@ -130,14 +143,11 @@ function ChatItemHeightMeasurer(props: Props) {
           reactions: item.reactions,
           hasBeenEdited: item.hasBeenEdited,
           isPinned: item.isPinned,
+          inlineEngagementHeight: height,
           ...sizes,
         };
       }
 
-      invariant(
-        height !== null && height !== undefined,
-        'height should be set',
-      );
       if (messageInfo.type === messageTypes.TEXT) {
         // Conditional due to Flow...
         const localMessageInfo = item.localMessageInfo

@@ -3,8 +3,11 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 
+import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import type { Corners, Media, MediaInfo } from 'lib/types/media-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import { DummyInlineEngagementNode } from './inline-engagement.react.js';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react.js';
 import {
   getMediaPerRow,
@@ -23,6 +26,20 @@ import type {
 import type { ViewStyle } from '../types/styles.js';
 
 const borderRadius = 16;
+
+function dummyNodeForMultimediaMessageHeightMeasurement(
+  sidebarInfo: ?ThreadInfo,
+  reactions: ReactionInfo,
+): React.Element<typeof View> {
+  return (
+    <View>
+      <DummyInlineEngagementNode
+        sidebarInfo={sidebarInfo}
+        reactions={reactions}
+      />
+    </View>
+  );
+}
 
 type Props = {
   +item: ChatMultimediaMessageInfoItem,
@@ -163,4 +180,5 @@ const styles = StyleSheet.create({
 export {
   InnerMultimediaMessage,
   borderRadius as multimediaMessageBorderRadius,
+  dummyNodeForMultimediaMessageHeightMeasurement,
 };
