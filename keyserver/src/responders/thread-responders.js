@@ -353,6 +353,7 @@ async function toggleMessagePinResponder(
 
 const roleModificationRequestInputValidator = tShape<RoleModificationRequest>({
   community: tID,
+  existingRoleID: t.maybe(tID),
   name: t.String,
   permissions: t.list(userSurfacedPermissionValidator),
   action: t.enums.of(['create_role', 'edit_role']),
