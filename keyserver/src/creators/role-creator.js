@@ -27,6 +27,7 @@ import {
 } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+import { updateRole } from '../updaters/thread-updaters.js';
 
 type InitialRoles = {
   +default: RoleInfo,
@@ -93,7 +94,7 @@ async function modifyRole(
     throw new ServerError('invalid_credentials');
   }
 
-  const { community, name, permissions, action } = request;
+  const { community, existingRoleID, name, permissions, action } = request;
 
   for (const permission of permissions) {
     if (!userSurfacedPermissionsSet.has(permission)) {
@@ -140,11 +141,40 @@ async function modifyRole(
       INSERT INTO roles (id, thread, name, permissions, creation_time)
       VALUES (${row})
     `;
-  } else if (action === 'edit_role') {
-    throw new ServerError("unimplemented: can't edit roles yet");
-  }
 
-  await dbQuery(query);
+    await dbQuery(query);
+  } else if (action === 'edit_role') {
+    query = SQL`
+      UPDATE roles
+      SET name = ${name}, permissions = ${permissionsBlob}
+      WHERE id = ${existingRoleID}
+    `;
+
+    await dbQuery(query);
+
+    // The `updateRole` needs to occur after the role has been updated
+    // in the database because it will want the most up to date role info
+    // (permissions / name)
+    if (!existingRoleID) {
+      throw new ServerError('invalid_parameters');
+    }
+
+    const membersWithRole = threadInfo.members
+      .filter(memberInfo => memberInfo.role === existingRoleID)
+      .map(memberInfo => memberInfo.id);
+
+    if (membersWithRole.length > 0) {
+      await updateRole(
+        viewer,
+        {
+          threadID: community,
+          role: existingRoleID,
+          memberIDs: membersWithRole,
+        },
+        { silenceNewMessages: true },
+      );
+    }
+  }
 
   const fetchServerThreadInfosResult = await fetchServerThreadInfos({
     threadID: community,
