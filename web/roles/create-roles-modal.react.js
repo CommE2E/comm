@@ -27,6 +27,7 @@ import EnumSettingsOption from '../components/enum-settings-option.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import Modal from '../modals/modal.react.js';
+import UnsavedChangesModal from '../modals/unsaved-changes-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const createRolesLoadingStatusSelector = createLoadingStatusSelector(
@@ -42,7 +43,7 @@ type CreateRolesModalProps = {
 };
 
 function CreateRolesModal(props: CreateRolesModalProps): React.Node {
-  const { popModal } = useModalContext();
+  const { pushModal, popModal } = useModalContext();
   const { threadInfo, action, existingRoleID, roleName, rolePermissions } =
     props;
 
@@ -66,8 +67,34 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   );
 
   const onCloseModal = React.useCallback(() => {
-    popModal();
-  }, [popModal]);
+    const pendingSet = new Set(pendingRolePermissions);
+    const roleSet = new Set(rolePermissions);
+
+    let arePermissionsEqual = true;
+    if (pendingSet.size !== roleSet.size) {
+      arePermissionsEqual = false;
+    }
+    for (const permission of pendingSet) {
+      if (!roleSet.has(permission)) {
+        arePermissionsEqual = false;
+        break;
+      }
+    }
+
+    if (pendingRoleName === roleName && arePermissionsEqual) {
+      popModal();
+      return;
+    }
+
+    pushModal(<UnsavedChangesModal />);
+  }, [
+    pendingRoleName,
+    roleName,
+    pendingRolePermissions,
+    rolePermissions,
+    pushModal,
+    popModal,
+  ]);
 
   const clearPermissionsClassNames = classNames({
     [css.clearPermissions]: true,
@@ -196,7 +223,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
           variant="outline"
           className={css.backButton}
           buttonColor={buttonThemes.outline}
-          onClick={null}
+          onClick={onCloseModal}
         >
           Back
         </Button>
