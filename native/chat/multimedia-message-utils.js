@@ -6,7 +6,7 @@ import { messageKey } from 'lib/shared/message-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 import type { MultimediaMessageInfo } from 'lib/types/message-types.js';
 
-import { inlineEngagementStyle, clusterEndHeight } from './chat-constants.js';
+import { clusterEndHeight } from './chat-constants.js';
 import { failedSendHeight } from './failed-send.react.js';
 import { authorNameHeight } from './message-header.react.js';
 import type {
@@ -104,10 +104,19 @@ function multimediaMessageContentSizes(
 function multimediaMessageItemHeight(
   item: ChatMultimediaMessageInfoItem,
 ): number {
-  const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
+  const {
+    messageInfo,
+    contentHeight,
+    startsCluster,
+    endsCluster,
+    inlineEngagementHeight,
+  } = item;
+
   const { creator } = messageInfo;
   const { isViewer } = creator;
-  let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
+
+  // 5 from marginBottom in ComposedMessage
+  let height = 5 + contentHeight;
   if (!isViewer && startsCluster) {
     height += authorNameHeight;
   }
@@ -117,11 +126,8 @@ function multimediaMessageItemHeight(
   if (multimediaMessageSendFailed(item)) {
     height += failedSendHeight;
   }
-  if (item.threadCreatedFromMessage || Object.keys(item.reactions).length > 0) {
-    height +=
-      inlineEngagementStyle.height +
-      inlineEngagementStyle.marginTop +
-      inlineEngagementStyle.marginBottom;
+  if (inlineEngagementHeight) {
+    height += inlineEngagementHeight;
   }
   return height;
 }
