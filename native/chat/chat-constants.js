@@ -6,7 +6,6 @@ export const composedMessageStyle = {
 };
 
 export const inlineEngagementStyle = {
-  height: 38,
   marginTop: 5,
   marginBottom: 3,
   topOffset: -10,

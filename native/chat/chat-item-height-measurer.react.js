@@ -17,6 +17,7 @@ import { entityTextToRawString } from 'lib/utils/entity-text.js';
 
 import type { MeasurementTask } from './chat-context-provider.react.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
+import { dummyNodeForInlineEngagementHeightMeasurement } from './inline-engagement.react.js';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react.js';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react.js';
 import type { NativeChatMessageItem } from './message-data.react.js';
@@ -51,6 +52,13 @@ const heightMeasurerKey = (item: NativeChatMessageItem) => {
       sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
       reactions: reactionsToRawString(reactions),
     });
+  } else if (threadCreatedFromMessage || Object.keys(reactions).length > 0) {
+    // we enter this condition when the item is a multimedia message with an
+    // inline engagement
+    return JSON.stringify({
+      sidebar: getInlineEngagementSidebarText(threadCreatedFromMessage),
+      reactions: reactionsToRawString(reactions),
+    });
   }
   return null;
 };
@@ -62,24 +70,37 @@ const heightMeasurerDummy = (item: NativeChatMessageItem) => {
     item.itemType === 'message',
     'NodeHeightMeasurer asked for dummy for non-message item',
   );
-  const { messageInfo, hasBeenEdited } = item;
+  const { messageInfo, hasBeenEdited, threadCreatedFromMessage, reactions } =
+    item;
+
   if (messageInfo.type === messageTypes.TEXT) {
     const label = getMessageLabel(hasBeenEdited, messageInfo.threadID);
     return dummyNodeForTextMessageHeightMeasurement(
       messageInfo.text,
       label,
-      item.threadCreatedFromMessage,
-      item.reactions,
+      threadCreatedFromMessage,
+      reactions,
     );
   } else if (item.robotext) {
     return dummyNodeForRobotextMessageHeightMeasurement(
       item.robotext,
-      item.messageInfo.threadID,
-      item.threadCreatedFromMessage,
-      item.reactions,
+      messageInfo.threadID,
+      threadCreatedFromMessage,
+      reactions,
+    );
+  } else if (threadCreatedFromMessage || Object.keys(reactions).length > 0) {
+    // we enter this condition when the item is a multimedia message with an
+    // inline engagement
+
+    return dummyNodeForInlineEngagementHeightMeasurement(
+      threadCreatedFromMessage,
+      reactions,
     );
   }
-  invariant(false, 'NodeHeightMeasurer asked for dummy for non-text message');
+  invariant(
+    false,
+    'NodeHeightMeasurer asked for dummy for multimedia message with no inline engagement',
+  );
 };
 
 function ChatItemHeightMeasurer(props: Props) {
@@ -130,6 +151,7 @@ function ChatItemHeightMeasurer(props: Props) {
           reactions: item.reactions,
           hasBeenEdited: item.hasBeenEdited,
           isPinned: item.isPinned,
+          inlineEngagementHeight: height,
           ...sizes,
         };
       }

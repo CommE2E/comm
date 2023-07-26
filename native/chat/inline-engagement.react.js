@@ -33,6 +33,20 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
+function dummyNodeForInlineEngagementHeightMeasurement(
+  sidebarInfo: ?ThreadInfo,
+  reactions: ReactionInfo,
+): React.Element<typeof View> {
+  return (
+    <View>
+      <DummyInlineEngagementNode
+        sidebarInfo={sidebarInfo}
+        reactions={reactions}
+      />
+    </View>
+  );
+}
+
 type DummyInlineEngagementNodeProps = {
   ...React.ElementConfig<typeof View>,
   +editedLabel?: ?string,
@@ -553,4 +567,9 @@ function TooltipInlineEngagement(
   );
 }
 
-export { InlineEngagement, TooltipInlineEngagement, DummyInlineEngagementNode };
+export {
+  InlineEngagement,
+  TooltipInlineEngagement,
+  DummyInlineEngagementNode,
+  dummyNodeForInlineEngagementHeightMeasurement,
+};
