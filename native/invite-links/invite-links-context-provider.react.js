@@ -10,16 +10,32 @@ import {
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import { InviteLinkModalRouteName } from './route-names.js';
+import { InviteLinkModalRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnFirstLaunchEffect } from '../utils/hooks.js';
 
-function InviteLinkHandler(): null {
+type InviteLinksContextType = {
+  +setCurrentLinkUrl: SetState<?string>,
+};
+
+const defaultContext = {
+  setCurrentLinkUrl: () => {},
+};
+
+const InviteLinksContext: React.Context<InviteLinksContextType> =
+  React.createContext<InviteLinksContextType>(defaultContext);
+
+type Props = {
+  +children: React.Node,
+};
+function InviteLinksContextProvider(props: Props): React.Node {
+  const { children } = props;
   const [currentLink, setCurrentLink] = React.useState(null);
 
   React.useEffect(() => {
@@ -93,7 +109,18 @@ function InviteLinkHandler(): null {
     })();
   }, [currentLink, dispatchActionPromise, loggedIn, navigation, validateLink]);
 
-  return null;
+  const contextValue = React.useMemo(
+    () => ({
+      setCurrentLinkUrl: setCurrentLink,
+    }),
+    [],
+  );
+
+  return (
+    <InviteLinksContext.Provider value={contextValue}>
+      {children}
+    </InviteLinksContext.Provider>
+  );
 }
 
 const urlRegex = /invite\/(\S+)$/;
@@ -108,4 +135,4 @@ function parseInstallReferrer(referrer: string) {
   return match?.[1];
 }
 
-export default InviteLinkHandler;
+export { InviteLinksContext, InviteLinksContextProvider };
