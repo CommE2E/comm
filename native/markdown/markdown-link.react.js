@@ -4,6 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, Linking, Alert } from 'react-native';
 
+import { inviteLinkUrl } from 'lib/facts/links.js';
+
 import {
   MarkdownContext,
   type MarkdownContextType,
@@ -11,9 +13,10 @@ import {
 import { MarkdownSpoilerContext } from './markdown-spoiler-context.js';
 import { MessagePressResponderContext } from '../chat/message-press-responder-context.js';
 import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
+import { InviteLinksContext } from '../invite-links/invite-links-context-provider.react.js';
 import { normalizeURL } from '../utils/url-utils.js';
 
-function useDisplayLinkPrompt(
+function useHandleLinkClick(
   inputURL: string,
   markdownContext: MarkdownContextType,
   messageKey: ?string,
@@ -33,7 +36,13 @@ function useDisplayLinkPrompt(
   if (url.length > displayURL.length) {
     displayURL += '…';
   }
+
+  const inviteLinksContext = React.useContext(InviteLinksContext);
   return React.useCallback(() => {
+    if (url.startsWith(inviteLinkUrl(''))) {
+      inviteLinksContext?.setCurrentLink(url);
+      return;
+    }
     messageKey && setLinkModalActive({ [messageKey]: true });
     Alert.alert(
       'External link',
@@ -44,7 +53,15 @@ function useDisplayLinkPrompt(
       ],
       { cancelable: true, onDismiss },
     );
-  }, [setLinkModalActive, messageKey, displayURL, onConfirm, onDismiss]);
+  }, [
+    url,
+    messageKey,
+    setLinkModalActive,
+    displayURL,
+    onDismiss,
+    onConfirm,
+    inviteLinksContext,
+  ]);
 }
 
 type TextProps = React.ElementConfig<typeof Text>;
@@ -76,7 +93,7 @@ function MarkdownLink(props: Props): React.Node {
 
   const onPressMessage = messagePressResponderContext?.onPressMessage;
 
-  const onPressLink = useDisplayLinkPrompt(target, markdownContext, messageKey);
+  const onPressLink = useHandleLinkClick(target, markdownContext, messageKey);
 
   return (
     <Text

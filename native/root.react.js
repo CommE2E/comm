@@ -33,6 +33,7 @@ import ConnectedStatusBar from './connected-status-bar.react.js';
 import { SQLiteDataHandler } from './data/sqlite-data-handler.js';
 import ErrorBoundary from './error-boundary.react.js';
 import InputStateContainer from './input/input-state-container.react.js';
+import { InviteLinksContextProvider } from './invite-links/invite-links-context-provider.react.js';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react.js';
 import MarkdownContextProvider from './markdown/markdown-context-provider.react.js';
 import { filesystemMediaCache } from './media/media-cache.js';
@@ -249,7 +250,9 @@ function Root() {
         theme={theme}
         ref={containerRef}
       >
-        <RootNavigator />
+        <InviteLinksContextProvider>
+          <RootNavigator />
+        </InviteLinksContextProvider>
         <NavigationHandler />
       </NavigationContainer>
     );
