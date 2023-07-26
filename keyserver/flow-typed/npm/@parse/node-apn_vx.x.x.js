@@ -38,7 +38,7 @@ declare module '@parse/node-apn' {
     // be accessed from apn.Notification instance
     aps: {
       +badge: string | number,
-      +alert: string,
+      +alert: string | {+body?: string, ...},
       +'thread-id': string,
       +'mutable-content': boolean,
       +sound: string,
