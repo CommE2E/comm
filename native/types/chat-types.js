@@ -42,6 +42,9 @@ export type ChatTextMessageInfoItemWithHeight = {
   +isPinned: ?boolean,
 };
 
+// We "measure" the contentHeight of a multimedia message using the media
+// dimensions. This means for multimedia messages we only need to actually
+// measure the inline engagement node
 export type MultimediaContentSizes = {
   +imageHeight: number,
   +contentHeight: number,
@@ -62,6 +65,7 @@ export type ChatMultimediaMessageInfoItem = {
   +reactions: ReactionInfo,
   +hasBeenEdited: ?boolean,
   +isPinned: ?boolean,
+  +inlineEngagementHeight: ?number,
 };
 
 export type ChatMessageInfoItemWithHeight =
