@@ -65,6 +65,8 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   const [roleCreationFailed, setRoleCreationFailed] =
     React.useState<?RoleCreationErrorVariant>();
 
+  const createButtonText = action === 'create_role' ? 'Create' : 'Save';
+
   const onChangeRoleName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
       setRoleCreationFailed(null);
@@ -218,8 +220,8 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
       );
     }
 
-    return 'Save';
-  }, [createRolesLoadingStatus]);
+    return createButtonText;
+  }, [createRolesLoadingStatus, createButtonText]);
 
   return (
     <Modal name="Create Role" onClose={onCloseModal} size="large">
