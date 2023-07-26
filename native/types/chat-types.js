@@ -62,6 +62,7 @@ export type ChatMultimediaMessageInfoItem = {
   +reactions: ReactionInfo,
   +hasBeenEdited: ?boolean,
   +isPinned: ?boolean,
+  +inlineEngagementHeight: ?number,
 };
 
 export type ChatMessageInfoItemWithHeight =
