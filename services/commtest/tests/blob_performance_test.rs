@@ -1,6 +1,7 @@
 use bytesize::ByteSize;
 use commtest::blob::{
   blob_utils::{BlobData, BlobServiceClient},
+  constants::NO_RANGE,
   get, put, remove,
 };
 use commtest::tools::{obtain_number_of_threads, Error};
@@ -69,8 +70,9 @@ async fn blob_performance_test() -> Result<(), Error> {
         let item_cloned = item.clone();
         let client_cloned = client.clone();
         handlers.push(tokio::spawn(async move {
-          let received_sizes =
-            get::run(&client_cloned, &item_cloned).await.unwrap();
+          let received_sizes = get::run(&client_cloned, &item_cloned, NO_RANGE)
+            .await
+            .unwrap();
           let expected_data_size =
             item_cloned.chunks_sizes.iter().sum::<usize>();
           let received_data_size = received_sizes.iter().sum::<usize>();
@@ -98,7 +100,9 @@ async fn blob_performance_test() -> Result<(), Error> {
         handlers.push(tokio::spawn(async move {
           remove::run(&client_cloned, &item_cloned).await.unwrap();
           assert!(
-            get::run(&client_cloned, &item_cloned).await.is_err(),
+            get::run(&client_cloned, &item_cloned, NO_RANGE)
+              .await
+              .is_err(),
             "item should no longer be available"
           );
         }));
