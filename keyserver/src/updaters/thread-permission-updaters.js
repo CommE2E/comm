@@ -76,6 +76,7 @@ type Changeset = {
 // -1 role means to set the user as a "ghost" (former member)
 type ChangeRoleOptions = {
   +setNewMembersToUnread?: boolean,
+  +forcePermissionRecalculation?: boolean,
 };
 type ChangeRoleMemberInfo = {
   permissionsFromParent?: ?ThreadPermissionsBlob,
@@ -90,6 +91,7 @@ async function changeRole(
   const intent = role === -1 || role === 0 ? 'leave' : 'join';
   const setNewMembersToUnread =
     options?.setNewMembersToUnread && intent === 'join';
+  const forcePermissionRecalculation = options?.forcePermissionRecalculation;
 
   if (userIDs.length === 0) {
     return {
@@ -197,8 +199,13 @@ async function changeRole(
     const oldPermissions = existingMembership?.oldPermissions ?? null;
     const oldPermissionsForChildren =
       existingMembership?.oldPermissionsForChildren ?? null;
+    const shouldForceRecalculation = !!forcePermissionRecalculation;
 
-    if (existingMembership && oldRole === intendedRole) {
+    if (
+      existingMembership &&
+      oldRole === intendedRole &&
+      !shouldForceRecalculation
+    ) {
       // If the old role is the same as the new one, we have nothing to update
       continue;
     } else if (Number(oldRole) > 0 && role === null) {

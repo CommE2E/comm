@@ -1,6 +1,7 @@
 // @flow
 
 import { useNavigation } from '@react-navigation/native';
+import invariant from 'invariant';
 import * as React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
 
@@ -23,7 +24,8 @@ type Props = {
 };
 
 function CreateRolesHeaderRightButton(props: Props): React.Node {
-  const { threadInfo, action, roleName, rolePermissions } = props.route.params;
+  const { threadInfo, action, existingRoleID, roleName, rolePermissions } =
+    props.route.params;
   const { setRoleCreationFailed } = props;
   const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
@@ -37,19 +39,33 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
   );
 
   const onPressCreate = React.useCallback(() => {
-    if (threadRoleNames.includes(roleName)) {
+    if (threadRoleNames.includes(roleName) && action === 'create_role') {
       setRoleCreationFailed(true);
       return;
     }
 
-    dispatchActionPromise(
-      modifyCommunityRoleActionTypes,
-      callModifyCommunityRole({
+    let callModifyCommunityRoleParams = {};
+    if (action === 'create_role') {
+      callModifyCommunityRoleParams = {
         community: threadInfo.id,
         action,
         name: roleName,
         permissions: [...rolePermissions],
-      }),
+      };
+    } else {
+      invariant(existingRoleID, 'existingRoleID should be set');
+      callModifyCommunityRoleParams = {
+        community: threadInfo.id,
+        action,
+        existingRoleID,
+        name: roleName,
+        permissions: [...rolePermissions],
+      };
+    }
+
+    dispatchActionPromise(
+      modifyCommunityRoleActionTypes,
+      callModifyCommunityRole(callModifyCommunityRoleParams),
     );
 
     navigation.goBack();
@@ -58,6 +74,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
     dispatchActionPromise,
     threadInfo,
     action,
+    existingRoleID,
     roleName,
     rolePermissions,
     navigation,
@@ -65,6 +82,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
     threadRoleNames,
   ]);
 
+  const headerRightText = action === 'create_role' ? 'Create' : 'Save';
   const shouldHeaderRightBeDisabled = roleName.length === 0;
   const createButton = React.useMemo(() => {
     const textStyle = shouldHeaderRightBeDisabled
@@ -76,11 +94,12 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
         onPress={onPressCreate}
         disabled={shouldHeaderRightBeDisabled}
       >
-        <Text style={textStyle}>Create</Text>
+        <Text style={textStyle}>{headerRightText}</Text>
       </TouchableOpacity>
     );
   }, [
     shouldHeaderRightBeDisabled,
+    headerRightText,
     styles.createButtonDisabled,
     styles.createButton,
     onPressCreate,
