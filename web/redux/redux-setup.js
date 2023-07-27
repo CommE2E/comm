@@ -75,7 +75,6 @@ export type AppState = {
   deviceID: ?string,
   currentUserInfo: ?CurrentUserInfo,
   draftStore: DraftStore,
-  sessionID: ?string,
   entryStore: EntryStore,
   threadStore: ThreadStore,
   userStore: UserStore,
@@ -159,7 +158,6 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
 
     state = {
       ...state,
-      sessionID: action.payload.sessionChange.sessionID,
       keyserverStore: { ...state.keyserverStore, keyserverInfos },
     };
   } else if (
