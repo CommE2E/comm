@@ -106,3 +106,7 @@ pub const NONCE_LENGTH: usize = 17;
 // LocalStack
 
 pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
+
+// OPAQUE Server Setup
+
+pub const OPAQUE_SERVER_SETUP: &str = "OPAQUE_SERVER_SETUP";

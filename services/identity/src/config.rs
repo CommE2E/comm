@@ -1,9 +1,11 @@
+use base64::{engine::general_purpose, DecodeError, Engine as _};
 use once_cell::sync::Lazy;
 use std::{collections::HashSet, env, fmt, fs, io, path};
+use tracing::{error, info};
 
 use crate::constants::{
-  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, SECRETS_DIRECTORY,
-  SECRETS_SETUP_FILE,
+  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
+  SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
 };
 
 pub static CONFIG: Lazy<Config> =
@@ -27,10 +29,11 @@ impl Config {
   fn load() -> Result<Self, Error> {
     let localstack_endpoint = env::var(LOCALSTACK_ENDPOINT).ok();
 
-    let mut path = path::PathBuf::new();
-    path.push(SECRETS_DIRECTORY);
-    path.push(SECRETS_SETUP_FILE);
-    let server_setup = get_server_setup_from_file(&path)?;
+    let mut path_buf = path::PathBuf::new();
+    path_buf.push(SECRETS_DIRECTORY);
+    path_buf.push(SECRETS_SETUP_FILE);
+
+    let server_setup = get_server_setup(path_buf.as_path())?;
 
     let reserved_usernames = get_reserved_usernames_set()?;
 
@@ -65,13 +68,36 @@ pub enum Error {
   Env(env::VarError),
   #[display(...)]
   Json(serde_json::Error),
+  #[display(...)]
+  Decode(DecodeError),
 }
 
-fn get_server_setup_from_file<P: AsRef<path::Path>>(
-  path: &P,
+fn get_server_setup(
+  path: &path::Path,
 ) -> Result<comm_opaque2::ServerSetup<comm_opaque2::Cipher>, Error> {
-  let bytes = fs::read(path)?;
-  comm_opaque2::ServerSetup::deserialize(&bytes).map_err(Error::Opaque)
+  let encoded_server_setup = if let Ok(env_setup) =
+    env::var(OPAQUE_SERVER_SETUP)
+  {
+    info!(
+      "Using OPAQUE server setup from env var: {}",
+      OPAQUE_SERVER_SETUP
+    );
+    env_setup
+  } else if let Ok(file_setup) = fs::read_to_string(path) {
+    info!("Using OPAQUE server setup from file: {:?}", path.display());
+    file_setup
+  } else {
+    error!("Unable to locate OPAQUE server setup. Please run `keygen` command and run Identity service again.");
+    return Err(Error::Io(io::Error::new(
+      io::ErrorKind::NotFound,
+      "Missing server credentials",
+    )));
+  };
+
+  let decoded_server_setup =
+    general_purpose::STANDARD_NO_PAD.decode(encoded_server_setup)?;
+  comm_opaque2::ServerSetup::deserialize(&decoded_server_setup)
+    .map_err(Error::Opaque)
 }
 
 fn get_reserved_usernames_set() -> Result<HashSet<String>, Error> {
