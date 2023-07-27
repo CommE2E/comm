@@ -50,7 +50,6 @@ export type AppState = {
   +reportStore: ReportStore,
   +nextLocalID: number,
   +_persist: ?PersistState,
-  +sessionID?: void,
   +dimensions: DimensionsInfo,
   +connectivity: ConnectivityInfo,
   +globalThemeInfo: GlobalThemeInfo,
