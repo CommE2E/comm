@@ -3,10 +3,13 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { useRoleUserSurfacedPermissions } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useRoleDeletableAndEditableStatus } from 'lib/utils/role-utils.js';
 
+import CreateRolesModal from './create-roles-modal.react.js';
 import css from './role-actions-menu.css';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
@@ -20,6 +23,7 @@ type RoleActionsMenuProps = {
 
 function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
   const { threadInfo, roleName } = props;
+  const { pushModal } = useModalContext();
 
   const defaultRoleID = Object.keys(threadInfo.roles).find(
     roleID => threadInfo.roles[roleID].isDefault,
@@ -37,8 +41,28 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
     existingRoleID,
   );
 
-  // TODO: Implement in following diffs
-  const openEditRoleModal = React.useCallback(() => {}, []);
+  const roleNamesToUserSurfacedPermissions =
+    useRoleUserSurfacedPermissions(threadInfo);
+
+  const openEditRoleModal = React.useCallback(
+    () =>
+      pushModal(
+        <CreateRolesModal
+          threadInfo={threadInfo}
+          action="edit_role"
+          existingRoleID={existingRoleID}
+          roleName={roleName}
+          rolePermissions={roleNamesToUserSurfacedPermissions[roleName]}
+        />,
+      ),
+    [
+      existingRoleID,
+      pushModal,
+      roleName,
+      roleNamesToUserSurfacedPermissions,
+      threadInfo,
+    ],
+  );
   const openDeleteRoleModal = React.useCallback(() => {}, []);
 
   const menuItems = React.useMemo(() => {
