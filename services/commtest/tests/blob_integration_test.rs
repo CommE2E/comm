@@ -7,6 +7,45 @@ use commtest::constants;
 use commtest::tools::Error;
 use std::env;
 
+async fn run_blob_integration_test(
+  client: &BlobServiceClient,
+  blob_data: &Vec<BlobData>,
+) -> Result<(), Error> {
+  for (i, item) in blob_data.iter().enumerate() {
+    let data_exists: bool = put::run(&client, &item).await?;
+    if data_exists {
+      Err(Error::AssertError(format!(
+        "test data no. {} should not exist",
+        i
+      )))?;
+    }
+  }
+
+  for (i, blob_item) in blob_data.iter().enumerate() {
+    let received_sizes = get::run(&client, &blob_item).await?;
+    let expected_data_size = blob_item.chunks_sizes.iter().sum::<usize>();
+    let received_data_size: usize = received_sizes.iter().sum::<usize>();
+    if expected_data_size != received_data_size {
+      Err(Error::AssertError(format!(
+        "invalid size of data for index {}, expected {}, got {}",
+        i, expected_data_size, received_data_size
+      )))?;
+    }
+  }
+
+  for (i, item) in blob_data.iter().enumerate() {
+    remove::run(&client, &item).await?;
+    if get::run(&client, &item).await.is_ok() {
+      Err(Error::AssertError(format!(
+        "test data no. {} should no longer be available",
+        i
+      )))?;
+    }
+  }
+
+  Ok(())
+}
+
 #[tokio::test]
 async fn blob_integration_test() -> Result<(), Error> {
   let port = env::var("COMM_SERVICES_PORT_BLOB")
@@ -47,29 +86,19 @@ async fn blob_integration_test() -> Result<(), Error> {
     },
   ];
 
-  for item in &blob_data {
-    let data_exists: bool = put::run(&client, &item).await?;
-    assert!(!data_exists, "test data should not exist");
+  let tests_result = run_blob_integration_test(&client, &blob_data).await;
+  if tests_result.is_err() {
+    // Clean up the data if any test fails
+    for (i, item) in blob_data.iter().enumerate() {
+      if remove::run(&client, &item).await.is_err() {
+        Err(Error::AssertError(format!(
+          "failed to clean test data no. {}",
+          i
+        )))?;
+      }
+    }
   }
-
-  for (i, blob_item) in blob_data.iter().enumerate() {
-    let received_sizes = get::run(&client, &blob_item).await?;
-    let expected_data_size = blob_item.chunks_sizes.iter().sum::<usize>();
-    let received_data_size = received_sizes.iter().sum::<usize>();
-    assert_eq!(
-      expected_data_size, received_data_size,
-      "invalid size of data for index {}, expected {}, got {}",
-      i, expected_data_size, received_data_size
-    );
-  }
-
-  for item in &blob_data {
-    remove::run(&client, &item).await?;
-    assert!(
-      get::run(&client, &item).await.is_err(),
-      "item should no longer be available"
-    );
-  }
+  tests_result?;
 
   Ok(())
 }
