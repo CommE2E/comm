@@ -85,6 +85,24 @@ pub const NONCE_TABLE_CREATED_ATTRIBUTE: &str = "created";
 pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
 pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
 
+// One time keys table, which need to exist in their own table to ensure
+// atomicity of additions and removals
+pub mod content_one_time_keys_table {
+  pub const NAME: &'static str = "identity-content-one-time-keys";
+  pub const PARTITION_KEY: &'static str = "deviceID";
+  pub const DEVICE_ID: &'static str = PARTITION_KEY;
+  pub const SORT_KEY: &'static str = "oneTimeKey";
+  pub const ONE_TIME_KEY: &'static str = SORT_KEY;
+}
+
+pub mod notif_one_time_keys_table {
+  pub const NAME: &'static str = "identity-notif-one-time-keys";
+  pub const PARTITION_KEY: &'static str = "deviceID";
+  pub const DEVICE_ID: &'static str = PARTITION_KEY;
+  pub const SORT_KEY: &'static str = "oneTimeKey";
+  pub const ONE_TIME_KEY: &'static str = SORT_KEY;
+}
+
 // Tokio
 
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
