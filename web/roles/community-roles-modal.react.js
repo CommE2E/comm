@@ -41,11 +41,12 @@ function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
       Object.keys(roleNamesToMembers).map(roleName => (
         <RolePanelEntry
           key={roleName}
+          threadInfo={threadInfo}
           roleName={roleName}
           memberCount={roleNamesToMembers[roleName]}
         />
       )),
-    [roleNamesToMembers],
+    [roleNamesToMembers, threadInfo],
   );
 
   const rolePermissionsForNewRole = React.useMemo(() => new Set(), []);
