@@ -42,6 +42,14 @@ div.menuActionListCommunityActions {
   top: 24px;
 }
 
+div.menuActionListRoleActions {
+  font-size: var(--s-font-14);
+  background-color: var(--menu-bg-light);
+  color: var(--menu-color);
+  stroke: var(--menu-color);
+  margin-top: 20px;
+}
+
 button.menuAction {
   color: inherit;
   z-index: 1;
