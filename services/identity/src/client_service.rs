@@ -791,7 +791,6 @@ impl IdentityClientService for ClientService {
     self
       .client
       .append_one_time_prekeys(
-        message.user_id,
         message.device_id,
         message.content_one_time_pre_keys,
         message.notif_one_time_pre_keys,
