@@ -254,6 +254,23 @@ resource "aws_dynamodb_table" "identity-reserved-usernames" {
   }
 }
 
+resource "aws_dynamodb_table" "identity-onetime-keys" {
+  name           = "identity-onetime-keys"
+  hash_key       = "deviceID"
+  range_key      = "oneTimeKey"
+  billing_mode   = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "deviceID"
+    type = "S"
+  }
+
+  attribute {
+    name = "oneTimeKey"
+    type = "S"
+  }
+}
+
 resource "aws_dynamodb_table" "feature-flags" {
   name         = "feature-flags"
   hash_key     = "platform"
