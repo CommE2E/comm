@@ -1,6 +1,7 @@
 // @flow
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,6 +29,15 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
     props;
   const styles = useStyles(unboundStyles);
 
+  const existingRoleID = React.useMemo(
+    () =>
+      Object.keys(threadInfo.roles).find(
+        roleID => threadInfo.roles[roleID].name === roleName,
+      ),
+    [roleName, threadInfo.roles],
+  );
+  invariant(existingRoleID, 'Role ID must exist for an existing role');
+
   const options = React.useMemo(() => {
     const availableOptions = ['Edit role'];
 
@@ -50,12 +60,20 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
         navigation.navigate(CreateRolesScreenRouteName, {
           threadInfo,
           action: 'edit_role',
+          existingRoleID,
           roleName,
           rolePermissions,
         });
       }
     },
-    [navigation, options, roleName, rolePermissions, threadInfo],
+    [
+      navigation,
+      options,
+      existingRoleID,
+      roleName,
+      rolePermissions,
+      threadInfo,
+    ],
   );
 
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);

@@ -351,12 +351,22 @@ async function toggleMessagePinResponder(
   );
 }
 
-const roleModificationRequestInputValidator = tShape<RoleModificationRequest>({
-  community: tID,
-  name: t.String,
-  permissions: t.list(userSurfacedPermissionValidator),
-  action: t.enums.of(['create_role', 'edit_role']),
-});
+const roleModificationRequestInputValidator: TUnion<RoleModificationRequest> =
+  t.union([
+    tShape({
+      community: tID,
+      name: t.String,
+      permissions: t.list(userSurfacedPermissionValidator),
+      action: t.enums.of(['create_role']),
+    }),
+    tShape({
+      community: tID,
+      existingRoleID: tID,
+      name: t.String,
+      permissions: t.list(userSurfacedPermissionValidator),
+      action: t.enums.of(['edit_role']),
+    }),
+  ]);
 
 export const roleModificationResultValidator: TInterface<RoleModificationResult> =
   tShape<RoleModificationResult>({
