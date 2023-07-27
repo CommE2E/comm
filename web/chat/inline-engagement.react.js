@@ -34,18 +34,6 @@ function InlineEngagement(props: Props): React.Node {
     },
   ]);
 
-  const reactionsExist = reactions && Object.keys(reactions).length > 0;
-
-  const sidebarContainerClasses = classNames({
-    [css.sidebarContainer]: sidebarThreadInfo && !reactionsExist,
-    [css.sidebarSplitContainer]: sidebarThreadInfo && reactionsExist,
-  });
-
-  const reactionsContainerClasses = classNames({
-    [css.reactionsContainer]: reactionsExist && !sidebarThreadInfo,
-    [css.reactionsSplitContainer]: reactionsExist && sidebarThreadInfo,
-  });
-
   const onClickSidebarInner = useOnClickThread(sidebarThreadInfo);
 
   const onClickSidebar = React.useCallback(
@@ -62,12 +50,12 @@ function InlineEngagement(props: Props): React.Node {
     }
 
     return (
-      <a onClick={onClickSidebar} className={sidebarContainerClasses}>
+      <a onClick={onClickSidebar} className={css.sidebarContainer}>
         <CommIcon size={14} icon="sidebar-filled" />
         {repliesText}
       </a>
     );
-  }, [sidebarThreadInfo, repliesText, onClickSidebar, sidebarContainerClasses]);
+  }, [sidebarThreadInfo, repliesText, onClickSidebar]);
 
   const onClickReactions = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
@@ -90,11 +78,11 @@ function InlineEngagement(props: Props): React.Node {
     const reactionText = stringForReactionList(reactions);
 
     return (
-      <a onClick={onClickReactions} className={reactionsContainerClasses}>
+      <a onClick={onClickReactions} className={css.reactionsContainer}>
         {reactionText}
       </a>
     );
-  }, [reactions, onClickReactions, reactionsContainerClasses]);
+  }, [reactions, onClickReactions]);
 
   const isLeft = positioning === 'left';
   const labelClasses = classNames({
