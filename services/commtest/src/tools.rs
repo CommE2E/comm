@@ -28,6 +28,8 @@ pub enum Error {
   HttpStatus(#[error(ignore)] reqwest::StatusCode),
   #[display(...)]
   ParseError(ParseError),
+  #[display(...)]
+  AssertionError(#[error(ignore)] String),
 }
 
 pub fn obtain_number_of_threads() -> usize {
