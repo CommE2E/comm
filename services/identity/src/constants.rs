@@ -88,6 +88,18 @@ pub const NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
 pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
 pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
 
+// One time keys table, which need to exist in their own table to ensure
+// atomicity of additions and removals
+pub mod one_time_keys_table {
+  // The partition_key will contain "notification_${deviceID}" or
+  // "content_${deviceID}" to allow for both key sets to coexist in the same table
+  pub const NAME: &'static str = "identity-one-time-keys";
+  pub const PARTITION_KEY: &'static str = "deviceID";
+  pub const DEVICE_ID: &'static str = PARTITION_KEY;
+  pub const SORT_KEY: &'static str = "oneTimeKey";
+  pub const ONE_TIME_KEY: &'static str = SORT_KEY;
+}
+
 // Tokio
 
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
