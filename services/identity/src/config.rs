@@ -1,9 +1,9 @@
-use base64::{engine::general_purpose, DecodeError, Engine as _};
 use once_cell::sync::Lazy;
-use std::{collections::HashSet, env, fmt, io};
+use std::{collections::HashSet, env, fmt, fs, io, path};
 
 use crate::constants::{
-  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
+  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, SECRETS_DIRECTORY,
+  SECRETS_SETUP_FILE,
 };
 
 pub static CONFIG: Lazy<Config> =
@@ -27,7 +27,10 @@ impl Config {
   fn load() -> Result<Self, Error> {
     let localstack_endpoint = env::var(LOCALSTACK_ENDPOINT).ok();
 
-    let server_setup = get_server_setup()?;
+    let mut path = path::PathBuf::new();
+    path.push(SECRETS_DIRECTORY);
+    path.push(SECRETS_SETUP_FILE);
+    let server_setup = get_server_setup_from_file(&path)?;
 
     let reserved_usernames = get_reserved_usernames_set()?;
 
@@ -62,17 +65,13 @@ pub enum Error {
   Env(env::VarError),
   #[display(...)]
   Json(serde_json::Error),
-  #[display(...)]
-  Decode(DecodeError),
 }
 
-fn get_server_setup(
+fn get_server_setup_from_file<P: AsRef<path::Path>>(
+  path: &P,
 ) -> Result<comm_opaque2::ServerSetup<comm_opaque2::Cipher>, Error> {
-  let encoded_server_setup = env::var(OPAQUE_SERVER_SETUP)?;
-  let decoded_server_setup =
-    general_purpose::STANDARD_NO_PAD.decode(encoded_server_setup)?;
-  comm_opaque2::ServerSetup::deserialize(&decoded_server_setup)
-    .map_err(Error::Opaque)
+  let bytes = fs::read(path)?;
+  comm_opaque2::ServerSetup::deserialize(&bytes).map_err(Error::Opaque)
 }
 
 fn get_reserved_usernames_set() -> Result<HashSet<String>, Error> {

@@ -4,6 +4,7 @@ use clap::{Parser, Subcommand};
 use database::DatabaseClient;
 use moka::future::Cache;
 use tonic::transport::Server;
+use tracing_subscriber::FmtSubscriber;
 
 mod client_service;
 mod config;
