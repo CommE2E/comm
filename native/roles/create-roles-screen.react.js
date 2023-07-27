@@ -26,6 +26,7 @@ import { useStyles } from '../themes/colors.js';
 export type CreateRolesScreenParams = {
   +threadInfo: ThreadInfo,
   +action: 'create_role' | 'edit_role',
+  +existingRoleID?: string,
   +roleName: string,
   +rolePermissions: $ReadOnlySet<UserSurfacedPermission>,
 };
@@ -43,6 +44,7 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
   const {
     threadInfo,
     action,
+    existingRoleID,
     roleName: defaultRoleName,
     rolePermissions: defaultRolePermissions,
   } = props.route.params;
@@ -123,10 +125,18 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
       props.navigation.setParams({
         threadInfo,
         action,
+        existingRoleID,
         roleName: customRoleName,
         rolePermissions: selectedPermissions,
       }),
-    [props.navigation, threadInfo, action, customRoleName, selectedPermissions],
+    [
+      props.navigation,
+      threadInfo,
+      action,
+      existingRoleID,
+      customRoleName,
+      selectedPermissions,
+    ],
   );
 
   const filteredUserSurfacedPermissionOptions =
