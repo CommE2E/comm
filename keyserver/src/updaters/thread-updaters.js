@@ -62,10 +62,18 @@ import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
+type UpdateRoleOptions = {
+  +silenceNewMessages?: boolean,
+  +forcePermissionRecalculation?: boolean,
+};
 async function updateRole(
   viewer: Viewer,
   request: RoleChangeRequest,
+  options?: UpdateRoleOptions,
 ): Promise<ChangeThreadSettingsResult> {
+  const silenceNewMessages = options?.silenceNewMessages;
+  const forcePermissionRecalculation = options?.forcePermissionRecalculation;
+
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
@@ -136,8 +144,29 @@ async function updateRole(
     throw new ServerError('invalid_parameters');
   }
 
-  const changeset = await changeRole(request.threadID, memberIDs, request.role);
-  const { viewerUpdates } = await commitMembershipChangeset(viewer, changeset);
+  const changeset = await changeRole(
+    request.threadID,
+    memberIDs,
+    request.role,
+    {
+      forcePermissionRecalculation,
+    },
+  );
+
+  const shouldForcePermissionRecalculation = !!forcePermissionRecalculation;
+  let commitMembershipChangesetOptions = {};
+
+  if (shouldForcePermissionRecalculation) {
+    commitMembershipChangesetOptions = {
+      changedThreadIDs: new Set([request.threadID]),
+    };
+  }
+
+  const { viewerUpdates } = await commitMembershipChangeset(
+    viewer,
+    changeset,
+    commitMembershipChangesetOptions,
+  );
 
   const messageData = {
     type: messageTypes.CHANGE_ROLE,
@@ -148,7 +177,10 @@ async function updateRole(
     newRole: request.role,
     roleName: threadInfo.roles[request.role].name,
   };
-  const newMessageInfos = await createMessages(viewer, [messageData]);
+  let newMessageInfos = [];
+  if (!silenceNewMessages) {
+    newMessageInfos = await createMessages(viewer, [messageData]);
+  }
 
   return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
 }
