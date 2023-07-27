@@ -23,7 +23,8 @@ type Props = {
 };
 
 function CreateRolesHeaderRightButton(props: Props): React.Node {
-  const { threadInfo, action, roleName, rolePermissions } = props.route.params;
+  const { threadInfo, action, existingRoleID, roleName, rolePermissions } =
+    props.route.params;
   const { setRoleCreationFailed } = props;
   const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
@@ -37,7 +38,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
   );
 
   const onPressCreate = React.useCallback(() => {
-    if (threadRoleNames.includes(roleName)) {
+    if (threadRoleNames.includes(roleName) && action === 'create_role') {
       setRoleCreationFailed(true);
       return;
     }
@@ -46,6 +47,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
       modifyCommunityRoleActionTypes,
       callModifyCommunityRole({
         community: threadInfo.id,
+        existingRoleID,
         action,
         name: roleName,
         permissions: [...rolePermissions],
@@ -58,6 +60,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
     dispatchActionPromise,
     threadInfo,
     action,
+    existingRoleID,
     roleName,
     rolePermissions,
     navigation,
@@ -65,6 +68,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
     threadRoleNames,
   ]);
 
+  const headerRightText = action === 'create_role' ? 'Create' : 'Save';
   const shouldHeaderRightBeDisabled = roleName.length === 0;
   const createButton = React.useMemo(() => {
     const textStyle = shouldHeaderRightBeDisabled
@@ -76,11 +80,12 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
         onPress={onPressCreate}
         disabled={shouldHeaderRightBeDisabled}
       >
-        <Text style={textStyle}>Create</Text>
+        <Text style={textStyle}>{headerRightText}</Text>
       </TouchableOpacity>
     );
   }, [
     shouldHeaderRightBeDisabled,
+    headerRightText,
     styles.createButtonDisabled,
     styles.createButton,
     onPressCreate,
