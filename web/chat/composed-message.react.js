@@ -141,7 +141,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       inlineEngagement = (
         <div className={css.sidebarMarginBottom}>
           <InlineEngagement
-            threadInfo={item.threadCreatedFromMessage}
+            sidebarThreadInfo={item.threadCreatedFromMessage}
             reactions={item.reactions}
             positioning={positioning}
             label={label}
