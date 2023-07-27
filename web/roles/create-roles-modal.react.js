@@ -16,6 +16,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { values } from 'lib/utils/objects.js';
 
 import css from './create-roles-modal.css';
 import {
@@ -42,6 +43,8 @@ type CreateRolesModalProps = {
   +rolePermissions: $ReadOnlyArray<UserSurfacedPermission>,
 };
 
+type RoleCreationErrorVariant = 'already_exists' | 'unknown_error';
+
 function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   const { pushModal, popModal } = useModalContext();
   const { threadInfo, action, existingRoleID, roleName, rolePermissions } =
@@ -59,8 +62,12 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   const [pendingRolePermissions, setPendingRolePermissions] =
     React.useState<$ReadOnlyArray<UserSurfacedPermission>>(rolePermissions);
 
+  const [roleCreationFailed, setRoleCreationFailed] =
+    React.useState<?RoleCreationErrorVariant>();
+
   const onChangeRoleName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
+      setRoleCreationFailed(null);
       setPendingRoleName(event.currentTarget.value);
     },
     [],
@@ -152,21 +159,39 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
     ],
   );
 
+  const errorMessageClassNames = classNames({
+    [css.errorMessage]: true,
+    [css.errorMessageVisible]: !!roleCreationFailed,
+  });
+
+  const threadRoleNames = React.useMemo(
+    () => values(threadInfo.roles).map(role => role.name),
+    [threadInfo],
+  );
+
   const onClickCreateRole = React.useCallback(() => {
-    // TODO: Error handling in a later diff
+    if (threadRoleNames.includes(pendingRoleName) && action === 'create_role') {
+      setRoleCreationFailed('already_exists');
+      return;
+    }
 
     dispatchActionPromise(
       modifyCommunityRoleActionTypes,
       (async () => {
-        const response = await callModifyCommunityRole({
-          community: threadInfo.id,
-          existingRoleID,
-          action,
-          name: pendingRoleName,
-          permissions: pendingRolePermissions,
-        });
-        popModal();
-        return response;
+        try {
+          const response = await callModifyCommunityRole({
+            community: threadInfo.id,
+            existingRoleID,
+            action,
+            name: pendingRoleName,
+            permissions: pendingRolePermissions,
+          });
+          popModal();
+          return response;
+        } catch (e) {
+          setRoleCreationFailed('unknown_error');
+          throw e;
+        }
       })(),
     );
   }, [
@@ -178,7 +203,18 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
     pendingRoleName,
     pendingRolePermissions,
     popModal,
+    threadRoleNames,
   ]);
+
+  const errorMessage = React.useMemo(() => {
+    if (roleCreationFailed === 'already_exists') {
+      return 'There is already a role with this name in the community';
+    } else if (roleCreationFailed === 'unknown_error') {
+      return 'An unknown error occurred. Please try again';
+    } else {
+      return 'An unknown error occurred. Please try again';
+    }
+  }, [roleCreationFailed]);
 
   const saveButtonContent = React.useMemo(() => {
     if (createRolesLoadingStatus === 'loading') {
@@ -201,6 +237,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
             onChange={onChangeRoleName}
           />
         </div>
+        <div className={errorMessageClassNames}>{errorMessage}</div>
       </form>
       <hr className={css.separator} />
       <div className={css.permissionsHeaderContainer}>
