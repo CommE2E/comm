@@ -22,36 +22,21 @@ div.rightContainer {
 }
 
 a.sidebarContainer,
-a.sidebarSplitContainer,
-a.reactionsContainer,
-a.reactionsSplitContainer {
+a.reactionsContainer {
   background: var(--inline-engagement-bg);
   color: var(--inline-engagement-color);
   font-size: var(--s-font-14);
   line-height: var(--line-height-text);
   transition: background 0.2s ease-in-out;
-  padding: 8px;
-  gap: 4px;
-  flex-direction: row;
+  padding: 4px 8px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-}
-
-a.sidebarContainer,
-a.reactionsContainer {
-  border-radius: 16px;
-}
-a.sidebarSplitContainer {
-  border-radius: 16px 0 0 16px;
-}
-a.reactionsSplitContainer {
-  border-radius: 0 16px 16px 0;
+  gap: 4px;
 }
 
 a.sidebarContainer:hover,
-a.sidebarSplitContainer:hover,
-a.reactionsContainer:hover,
-a.reactionsSplitContainer:hover {
+a.reactionsContainer:hover {
   background: var(--inline-engagement-bg-hover);
 }
 
