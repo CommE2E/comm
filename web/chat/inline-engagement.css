@@ -21,8 +21,8 @@ div.rightContainer {
   margin-left: 31px;
 }
 
-a.threadsContainer,
-a.threadsSplitContainer,
+a.sidebarContainer,
+a.sidebarSplitContainer,
 a.reactionsContainer,
 a.reactionsSplitContainer {
   background: var(--inline-engagement-bg);
@@ -37,19 +37,19 @@ a.reactionsSplitContainer {
   align-items: center;
 }
 
-a.threadsContainer,
+a.sidebarContainer,
 a.reactionsContainer {
   border-radius: 16px;
 }
-a.threadsSplitContainer {
+a.sidebarSplitContainer {
   border-radius: 16px 0 0 16px;
 }
 a.reactionsSplitContainer {
   border-radius: 0 16px 16px 0;
 }
 
-a.threadsContainer:hover,
-a.threadsSplitContainer:hover,
+a.sidebarContainer:hover,
+a.sidebarSplitContainer:hover,
 a.reactionsContainer:hover,
 a.reactionsSplitContainer:hover {
   background: var(--inline-engagement-bg-hover);
