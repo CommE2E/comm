@@ -15,15 +15,15 @@ import MessageReactionsModal from '../modals/chat/message-reactions-modal.react.
 import { useOnClickThread } from '../selectors/thread-selectors.js';
 
 type Props = {
-  +threadInfo: ?ThreadInfo,
+  +sidebarThreadInfo: ?ThreadInfo,
   +reactions?: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
   +label?: ?string,
 };
 function InlineEngagement(props: Props): React.Node {
-  const { threadInfo, reactions, positioning, label } = props;
+  const { sidebarThreadInfo, reactions, positioning, label } = props;
   const { pushModal, popModal } = useModalContext();
-  const repliesText = getInlineEngagementSidebarText(threadInfo);
+  const repliesText = getInlineEngagementSidebarText(sidebarThreadInfo);
 
   const containerClasses = classNames([
     css.inlineEngagementContainer,
@@ -36,38 +36,38 @@ function InlineEngagement(props: Props): React.Node {
 
   const reactionsExist = reactions && Object.keys(reactions).length > 0;
 
-  const threadsContainerClasses = classNames({
-    [css.threadsContainer]: threadInfo && !reactionsExist,
-    [css.threadsSplitContainer]: threadInfo && reactionsExist,
+  const sidebarContainerClasses = classNames({
+    [css.sidebarContainer]: sidebarThreadInfo && !reactionsExist,
+    [css.sidebarSplitContainer]: sidebarThreadInfo && reactionsExist,
   });
 
   const reactionsContainerClasses = classNames({
-    [css.reactionsContainer]: reactionsExist && !threadInfo,
-    [css.reactionsSplitContainer]: reactionsExist && threadInfo,
+    [css.reactionsContainer]: reactionsExist && !sidebarThreadInfo,
+    [css.reactionsSplitContainer]: reactionsExist && sidebarThreadInfo,
   });
 
-  const onClickThreadInner = useOnClickThread(threadInfo);
+  const onClickSidebarInner = useOnClickThread(sidebarThreadInfo);
 
-  const onClickThread = React.useCallback(
+  const onClickSidebar = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       popModal();
-      onClickThreadInner(event);
+      onClickSidebarInner(event);
     },
-    [popModal, onClickThreadInner],
+    [popModal, onClickSidebarInner],
   );
 
   const sidebarItem = React.useMemo(() => {
-    if (!threadInfo || !repliesText) {
+    if (!sidebarThreadInfo || !repliesText) {
       return null;
     }
 
     return (
-      <a onClick={onClickThread} className={threadsContainerClasses}>
+      <a onClick={onClickSidebar} className={sidebarContainerClasses}>
         <CommIcon size={14} icon="sidebar-filled" />
         {repliesText}
       </a>
     );
-  }, [threadInfo, repliesText, onClickThread, threadsContainerClasses]);
+  }, [sidebarThreadInfo, repliesText, onClickSidebar, sidebarContainerClasses]);
 
   const onClickReactions = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
@@ -103,7 +103,7 @@ function InlineEngagement(props: Props): React.Node {
     [css.messageLabelRight]: !isLeft,
     [css.onlyMessageLabel]: !sidebarItem && !reactionsList,
   });
-  const messageLabel = React.useMemo(() => {
+  const editedLabel = React.useMemo(() => {
     if (!label) {
       return null;
     }
@@ -118,7 +118,7 @@ function InlineEngagement(props: Props): React.Node {
   if (isLeft) {
     body = (
       <>
-        {messageLabel}
+        {editedLabel}
         {sidebarItem}
         {reactionsList}
       </>
@@ -128,7 +128,7 @@ function InlineEngagement(props: Props): React.Node {
       <>
         {sidebarItem}
         {reactionsList}
-        {messageLabel}
+        {editedLabel}
       </>
     );
   }
