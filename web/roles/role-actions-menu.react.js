@@ -10,6 +10,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useRoleDeletableAndEditableStatus } from 'lib/utils/role-utils.js';
 
 import CreateRolesModal from './create-roles-modal.react.js';
+import DeleteRoleModal from './delete-role-modal.react.js';
 import css from './role-actions-menu.css';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
@@ -63,7 +64,15 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
       threadInfo,
     ],
   );
-  const openDeleteRoleModal = React.useCallback(() => {}, []);
+  const openDeleteRoleModal = React.useCallback(() => {
+    pushModal(
+      <DeleteRoleModal
+        threadInfo={threadInfo}
+        defaultRoleID={defaultRoleID}
+        roleID={existingRoleID}
+      />,
+    );
+  }, [existingRoleID, pushModal, threadInfo, defaultRoleID]);
 
   const menuItems = React.useMemo(() => {
     const availableOptions = [];
