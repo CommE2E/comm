@@ -43,7 +43,7 @@ function RobotextMessage(props: Props): React.Node {
     inlineEngagement = (
       <div className={css.sidebarMarginTop}>
         <InlineEngagement
-          threadInfo={threadCreatedFromMessage}
+          sidebarThreadInfo={threadCreatedFromMessage}
           reactions={reactions}
           positioning="center"
         />
