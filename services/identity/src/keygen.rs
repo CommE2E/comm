@@ -1,4 +1,5 @@
 use crate::constants::SECRETS_SETUP_FILE;
+use base64::{engine::general_purpose, Engine as _};
 use std::{fs, io, path};
 
 pub fn generate_and_persist_keypair(dir: &str) -> Result<(), io::Error> {
@@ -17,7 +18,9 @@ pub fn generate_and_persist_keypair(dir: &str) -> Result<(), io::Error> {
     eprintln!("{:?} already exists, skipping", path);
   } else {
     println!("Writing setup file to {:?}", path);
-    fs::write(&path, server_setup.serialize())?;
+    let encoded_server_setup =
+      general_purpose::STANDARD_NO_PAD.encode(server_setup.serialize());
+    fs::write(&path, encoded_server_setup)?;
   }
 
   Ok(())
