@@ -1052,9 +1052,14 @@ async function commitMembershipChangeset(
     rescindPushNotifsForMemberDeletion(toRescindPushNotifs),
   ]);
 
-  const serverThreadInfoFetchResult = await fetchServerThreadInfos({
-    threadIDs: changedThreadIDs,
-  });
+  const serverThreadInfoFetchResult = await (async () => {
+    if (changedThreadIDs.size === 0) {
+      return { threadInfos: {} };
+    }
+    return await fetchServerThreadInfos({
+      threadIDs: changedThreadIDs,
+    });
+  })();
   const { threadInfos: serverThreadInfos } = serverThreadInfoFetchResult;
 
   const time = Date.now();
@@ -1074,6 +1079,7 @@ async function commitMembershipChangeset(
       });
     }
   }
+
   for (const row of membershipRowMap.values()) {
     const { userID, threadID } = row;
     if (row.operation === 'delete' || row.role === '-1') {
