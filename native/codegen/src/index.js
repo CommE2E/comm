@@ -16,3 +16,7 @@ codeGen('comm', coreModuleSchemaPath, ['cpp', 'h'], outPath);
 // CommUtilsModule
 const utilsModuleSchemaPath = path.resolve('./schema/CommUtilsModuleSchema.js');
 codeGen('utils', utilsModuleSchemaPath, ['cpp', 'h'], outPath);
+
+// CommRustModule
+const rustModuleSchemaPath = path.resolve('./schema/CommRustModuleSchema.js');
+codeGen('rust', rustModuleSchemaPath, ['cpp', 'h'], outPath);
