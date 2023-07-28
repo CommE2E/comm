@@ -15,7 +15,7 @@ import { useOnClickThread } from '../selectors/thread-selectors.js';
 
 type Props = {
   +sidebarThreadInfo: ?ThreadInfo,
-  +reactions?: ReactionInfo,
+  +reactions: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
   +label?: ?string,
 };
@@ -69,9 +69,6 @@ function InlineEngagement(props: Props): React.Node {
   const onClickReaction = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
-      if (!reactions) {
-        return;
-      }
       pushModal(
         <MessageReactionsModal onClose={popModal} reactions={reactions} />,
       );
@@ -80,7 +77,7 @@ function InlineEngagement(props: Props): React.Node {
   );
 
   const reactionsList = React.useMemo(() => {
-    if (!reactions || Object.keys(reactions).length === 0) {
+    if (Object.keys(reactions).length === 0) {
       return null;
     }
 
