@@ -1,7 +1,9 @@
 #import "NotificationService.h"
 #import "Logger.h"
+#import "NSEBlobServiceClient.h"
 #import "NotificationsCryptoModule.h"
 #import "TemporaryMessageStorage.h"
+#import <CommExpoPackage/CommExpoPackageObjCCompat.h>
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
@@ -19,7 +21,8 @@ CFStringRef newMessageInfosDarwinNotification =
 @property(nonatomic, strong) void (^contentHandler)
     (UNNotificationContent *contentToDeliver);
 @property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
-
+@property(class, nonatomic, strong, readonly)
+    AESCryptoModuleObjCCompat *processLocalAESCryptoModule;
 @end
 
 @implementation NotificationService
@@ -28,6 +31,8 @@ CFStringRef newMessageInfosDarwinNotification =
                    withContentHandler:
                        (void (^)(UNNotificationContent *_Nonnull))
                            contentHandler {
+  [NotificationService initializeProcessLocalObjects];
+
   self.contentHandler = contentHandler;
   self.bestAttemptContent = [request.content mutableCopy];
 
@@ -49,10 +54,37 @@ CFStringRef newMessageInfosDarwinNotification =
     comm::Logger::log("NSE: Received erroneously unencrypted notitication.");
   }
 
-  [self persistMessagePayload:self.bestAttemptContent.userInfo];
+  if (self.bestAttemptContent.userInfo[@"blobHash"]) {
+    NSString *blobHash = self.bestAttemptContent.userInfo[@"blobHash"];
+    NSData *encryptionKey = [[NSData alloc]
+        initWithBase64EncodedString:self.bestAttemptContent
+                                        .userInfo[@"encryptionKey"]
+                            options:0];
+    [[NSEBlobServiceClient sharedInstance]
+          getAndConsumeSync:blobHash
+        withSuccessConsumer:^(NSData *data) {
+          @try {
+            NSDictionary *largePayload =
+                [NotificationService aesDecryptAndParse:data
+                                                withKey:encryptionKey];
+            [NotificationService persistMessagePayload:largePayload];
+            [NotificationService sendNewMessageInfosNotification];
+          } @catch (NSException *e) {
+            comm::Logger::log(
+                "NSE: Received exception: " + std::string([e.name UTF8String]) +
+                " with reason: " + std::string([e.reason UTF8String]) +
+                " during large notification payload processing");
+          }
+        }];
+
+    self.contentHandler(self.bestAttemptContent);
+    return;
+  }
+
+  [NotificationService persistMessagePayload:self.bestAttemptContent.userInfo];
   // Message payload persistence is a higher priority task, so it has
   // to happen prior to potential notification center clearing.
-  if ([self isRescind:self.bestAttemptContent.userInfo]) {
+  if ([NotificationService isRescind:self.bestAttemptContent.userInfo]) {
     [self removeNotificationWithIdentifier:self.bestAttemptContent
                                                .userInfo[@"notificationId"]];
     self.contentHandler([[UNNotificationContent alloc] init]);
@@ -67,7 +99,7 @@ CFStringRef newMessageInfosDarwinNotification =
     return;
   }
 
-  [self sendNewMessageInfosNotification];
+  [NotificationService sendNewMessageInfosNotification];
   // TODO modify self.bestAttemptContent here
 
   self.contentHandler(self.bestAttemptContent);
@@ -77,7 +109,7 @@ CFStringRef newMessageInfosDarwinNotification =
   // Called just before the extension will be terminated by the system.
   // Use this as an opportunity to deliver your "best attempt" at modified
   // content, otherwise the original push payload will be used.
-  if ([self isRescind:self.bestAttemptContent.userInfo]) {
+  if ([NotificationService isRescind:self.bestAttemptContent.userInfo]) {
     // If we get to this place it means we were unable to
     // remove relevant notification from notification center in
     // in time given to NSE to process notification.
@@ -126,7 +158,7 @@ CFStringRef newMessageInfosDarwinNotification =
   dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 }
 
-- (void)persistMessagePayload:(NSDictionary *)payload {
++ (void)persistMessagePayload:(NSDictionary *)payload {
   if (payload[messageInfosKey]) {
     TemporaryMessageStorage *temporaryStorage =
         [[TemporaryMessageStorage alloc] init];
@@ -134,7 +166,7 @@ CFStringRef newMessageInfosDarwinNotification =
     return;
   }
 
-  if (![self isRescind:payload]) {
+  if (![NotificationService isRescind:payload]) {
     return;
   }
 
@@ -159,7 +191,7 @@ CFStringRef newMessageInfosDarwinNotification =
   [temporaryRescindsStorage writeMessage:serializedRescindPayload];
 }
 
-- (BOOL)isRescind:(NSDictionary *)payload {
++ (BOOL)isRescind:(NSDictionary *)payload {
   return payload[backgroundNotificationTypeKey] &&
       [payload[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"];
 }
@@ -170,11 +202,11 @@ CFStringRef newMessageInfosDarwinNotification =
   return !payload[@"threadID"];
 }
 
-- (void)sendNewMessageInfosNotification {
++ (void)sendNewMessageInfosNotification {
   CFNotificationCenterPostNotification(
       CFNotificationCenterGetDarwinNotifyCenter(),
       newMessageInfosDarwinNotification,
-      (__bridge const void *)(self),
+      nil,
       nil,
       TRUE);
 }
@@ -258,6 +290,59 @@ CFStringRef newMessageInfosDarwinNotification =
   }
   [mutableUserInfo removeObjectForKey:encryptedPayloadKey];
   self.bestAttemptContent.userInfo = mutableUserInfo;
+}
+
++ (NSDictionary *)aesDecryptAndParse:(NSData *)sealedData
+                             withKey:(NSData *)key {
+  NSError *decryptError = nil;
+  NSInteger destinationLength =
+      [[NotificationService processLocalAESCryptoModule]
+          decryptedLength:sealedData];
+
+  NSMutableData *destination = [NSMutableData dataWithLength:destinationLength];
+  [[NotificationService processLocalAESCryptoModule]
+      decryptWithKey:key
+          sealedData:sealedData
+         destination:destination
+           withError:&decryptError];
+
+  if (decryptError) {
+    comm::Logger::log(
+        "NSE: Notification aes decryption failure. Details: " +
+        std::string([decryptError.localizedDescription UTF8String]));
+    return nil;
+  }
+
+  NSString *decryptedSerializedPayload =
+      [[NSString alloc] initWithData:destination encoding:NSUTF8StringEncoding];
+
+  return [NSJSONSerialization
+      JSONObjectWithData:[decryptedSerializedPayload
+                             dataUsingEncoding:NSUTF8StringEncoding]
+                 options:0
+                   error:nil];
+}
+
+// Process-local initialization code
+// NSE may use different threads and instancess
+// of this class to process notifications, but it
+// usually keeps the same process for extended
+// period of time. Objects that can be initialized
+// once and reused on each notification should be
+// declared in a method below to avoid unnecessary
+// resource usage.
+
+static AESCryptoModuleObjCCompat *_aesCryptoModule = nil;
+
++ (void)initializeProcessLocalObjects {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    _aesCryptoModule = [[AESCryptoModuleObjCCompat alloc] init];
+  });
+}
+
++ (AESCryptoModuleObjCCompat *)processLocalAESCryptoModule {
+  return _aesCryptoModule;
 }
 
 @end
