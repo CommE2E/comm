@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Response, $Request } from 'express';
+import type { TType } from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors.js';
 import {
@@ -24,12 +25,34 @@ import {
   type AppURLFacts,
   getAppURLFactsFromRequestURL,
 } from '../utils/urls.js';
-import { policiesValidator } from '../utils/validation-utils.js';
+import {
+  policiesValidator,
+  validateInput,
+  validateOutput,
+} from '../utils/validation-utils.js';
 
-export type JSONResponder = {
+type InnerJSONResponder = {
   responder: (viewer: Viewer, input: any) => Promise<*>,
   requiredPolicies: $ReadOnlyArray<PolicyType>,
 };
+
+export opaque type JSONResponder: InnerJSONResponder = InnerJSONResponder;
+
+function createJSONResponder<I, O>(
+  responder: (Viewer, input: I) => Promise<O>,
+  inputValidator: TType<I>,
+  outputValidator: TType<O>,
+  requiredPolicies: $ReadOnlyArray<PolicyType>,
+): JSONResponder {
+  return {
+    responder: async (viewer, input) => {
+      const request = await validateInput(viewer, inputValidator, input);
+      const result = await responder(viewer, request);
+      return validateOutput(viewer.platformDetails, outputValidator, result);
+    },
+    requiredPolicies,
+  };
+}
 
 export type DownloadResponder = (
   viewer: Viewer,
@@ -257,6 +280,7 @@ async function handleAsyncPromise(promise: Promise<any>) {
 }
 
 export {
+  createJSONResponder,
   jsonHandler,
   httpGetHandler,
   downloadHandler,

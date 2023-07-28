@@ -62,12 +62,12 @@ import {
   joinThread,
   toggleMessagePinForThread,
 } from '../updaters/thread-updaters.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const threadDeletionRequestInputValidator = tShape<ThreadDeletionRequest>({
-  threadID: tID,
-  accountPassword: t.maybe(tPassword),
-});
+export const threadDeletionRequestInputValidator: TInterface<ThreadDeletionRequest> =
+  tShape<ThreadDeletionRequest>({
+    threadID: tID,
+    accountPassword: t.maybe(tPassword),
+  });
 
 export const leaveThreadResultValidator: TInterface<LeaveThreadResult> =
   tShape<LeaveThreadResult>({
@@ -78,19 +78,9 @@ export const leaveThreadResultValidator: TInterface<LeaveThreadResult> =
 
 async function threadDeletionResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ThreadDeletionRequest,
 ): Promise<LeaveThreadResult> {
-  const request = await validateInput(
-    viewer,
-    threadDeletionRequestInputValidator,
-    input,
-  );
-  const result = await deleteThread(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    leaveThreadResultValidator,
-    result,
-  );
+  return await deleteThread(viewer, request);
 }
 
 export const roleChangeRequestInputValidator: TInterface<RoleChangeRequest> =
@@ -116,93 +106,56 @@ export const changeThreadSettingsResultValidator: TInterface<ChangeThreadSetting
 
 async function roleUpdateResponder(
   viewer: Viewer,
-  input: mixed,
+  request: RoleChangeRequest,
 ): Promise<ChangeThreadSettingsResult> {
-  const request = await validateInput(
-    viewer,
-    roleChangeRequestInputValidator,
-    input,
-  );
-  const result = await updateRole(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    changeThreadSettingsResultValidator,
-    result,
-  );
+  return await updateRole(viewer, request);
 }
 
-const removeMembersRequestInputValidator = tShape<RemoveMembersRequest>({
-  threadID: tID,
-  memberIDs: t.list(t.String),
-});
+export const removeMembersRequestInputValidator: TInterface<RemoveMembersRequest> =
+  tShape<RemoveMembersRequest>({
+    threadID: tID,
+    memberIDs: t.list(t.String),
+  });
 
 async function memberRemovalResponder(
   viewer: Viewer,
-  input: mixed,
+  request: RemoveMembersRequest,
 ): Promise<ChangeThreadSettingsResult> {
-  const request = await validateInput(
-    viewer,
-    removeMembersRequestInputValidator,
-    input,
-  );
-  const result = await removeMembers(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    changeThreadSettingsResultValidator,
-    result,
-  );
+  return await removeMembers(viewer, request);
 }
 
-const leaveThreadRequestInputValidator = tShape<LeaveThreadRequest>({
-  threadID: tID,
-});
+export const leaveThreadRequestInputValidator: TInterface<LeaveThreadRequest> =
+  tShape<LeaveThreadRequest>({
+    threadID: tID,
+  });
 
 async function threadLeaveResponder(
   viewer: Viewer,
-  input: mixed,
+  request: LeaveThreadRequest,
 ): Promise<LeaveThreadResult> {
-  const request = await validateInput(
-    viewer,
-    leaveThreadRequestInputValidator,
-    input,
-  );
-  const result = await leaveThread(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    leaveThreadResultValidator,
-    result,
-  );
+  return await leaveThread(viewer, request);
 }
 
-const updateThreadRequestInputValidator = tShape<UpdateThreadRequest>({
-  threadID: tID,
-  changes: tShape({
-    type: t.maybe(tNumEnum(values(threadTypes))),
-    name: t.maybe(t.String),
-    description: t.maybe(t.String),
-    color: t.maybe(tColor),
-    parentThreadID: t.maybe(tID),
-    newMemberIDs: t.maybe(t.list(t.String)),
-    avatar: t.maybe(updateUserAvatarRequestValidator),
-  }),
-  accountPassword: t.maybe(tPassword),
-});
+export const updateThreadRequestInputValidator: TInterface<UpdateThreadRequest> =
+  tShape<UpdateThreadRequest>({
+    threadID: tID,
+    changes: tShape({
+      type: t.maybe(tNumEnum(values(threadTypes))),
+      name: t.maybe(t.String),
+      description: t.maybe(t.String),
+      color: t.maybe(tColor),
+      parentThreadID: t.maybe(tID),
+      newMemberIDs: t.maybe(t.list(t.String)),
+      avatar: t.maybe(updateUserAvatarRequestValidator),
+    }),
+    accountPassword: t.maybe(tPassword),
+  });
 
 async function threadUpdateResponder(
   viewer: Viewer,
-  input: mixed,
+  request: UpdateThreadRequest,
 ): Promise<ChangeThreadSettingsResult> {
-  const request = await validateInput(
-    viewer,
-    updateThreadRequestInputValidator,
-    input,
-  );
-  const result = await updateThread(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    changeThreadSettingsResultValidator,
-    result,
-  );
+  return await updateThread(viewer, request);
 }
 
 const threadRequestValidationShape = {
@@ -244,29 +197,19 @@ export const newThreadResponseValidator: TInterface<NewThreadResponse> =
 
 async function threadCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ServerNewThreadRequest,
 ): Promise<NewThreadResponse> {
-  const request = await validateInput(
-    viewer,
-    newThreadRequestInputValidator,
-    input,
-  );
-
-  const result = await createThread(viewer, request, {
+  return await createThread(viewer, request, {
     silentlyFailMembers: request.type === threadTypes.SIDEBAR,
   });
-  return validateOutput(
-    viewer.platformDetails,
-    newThreadResponseValidator,
-    result,
-  );
 }
 
-const joinThreadRequestInputValidator = tShape<ServerThreadJoinRequest>({
-  threadID: tID,
-  calendarQuery: t.maybe(entryQueryInputValidator),
-  inviteLinkSecret: t.maybe(t.String),
-});
+export const joinThreadRequestInputValidator: TInterface<ServerThreadJoinRequest> =
+  tShape<ServerThreadJoinRequest>({
+    threadID: tID,
+    calendarQuery: t.maybe(entryQueryInputValidator),
+    inviteLinkSecret: t.maybe(t.String),
+  });
 
 export const threadJoinResultValidator: TInterface<ThreadJoinResult> =
   tShape<ThreadJoinResult>({
@@ -280,56 +223,37 @@ export const threadJoinResultValidator: TInterface<ThreadJoinResult> =
 
 async function threadJoinResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ServerThreadJoinRequest,
 ): Promise<ThreadJoinResult> {
-  const request = await validateInput(
-    viewer,
-    joinThreadRequestInputValidator,
-    input,
-  );
-
   if (request.calendarQuery) {
     await verifyCalendarQueryThreadIDs(request.calendarQuery);
   }
 
-  const result = await joinThread(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    threadJoinResultValidator,
-    result,
-  );
+  return await joinThread(viewer, request);
 }
 
-const threadFetchMediaRequestInputValidator = tShape<ThreadFetchMediaRequest>({
-  threadID: tID,
-  limit: t.Number,
-  offset: t.Number,
-});
+export const threadFetchMediaRequestInputValidator: TInterface<ThreadFetchMediaRequest> =
+  tShape<ThreadFetchMediaRequest>({
+    threadID: tID,
+    limit: t.Number,
+    offset: t.Number,
+  });
 
 export const threadFetchMediaResultValidator: TInterface<ThreadFetchMediaResult> =
   tShape<ThreadFetchMediaResult>({ media: t.list(mediaValidator) });
 
 async function threadFetchMediaResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ThreadFetchMediaRequest,
 ): Promise<ThreadFetchMediaResult> {
-  const request = await validateInput(
-    viewer,
-    threadFetchMediaRequestInputValidator,
-    input,
-  );
-  const result = await fetchMediaForThread(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    threadFetchMediaResultValidator,
-    result,
-  );
+  return await fetchMediaForThread(viewer, request);
 }
 
-const toggleMessagePinRequestInputValidator = tShape<ToggleMessagePinRequest>({
-  messageID: tID,
-  action: t.enums.of(['pin', 'unpin']),
-});
+export const toggleMessagePinRequestInputValidator: TInterface<ToggleMessagePinRequest> =
+  tShape<ToggleMessagePinRequest>({
+    messageID: tID,
+    action: t.enums.of(['pin', 'unpin']),
+  });
 
 export const toggleMessagePinResultValidator: TInterface<ToggleMessagePinResult> =
   tShape<ToggleMessagePinResult>({
@@ -339,22 +263,12 @@ export const toggleMessagePinResultValidator: TInterface<ToggleMessagePinResult>
 
 async function toggleMessagePinResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ToggleMessagePinRequest,
 ): Promise<ToggleMessagePinResult> {
-  const request = await validateInput(
-    viewer,
-    toggleMessagePinRequestInputValidator,
-    input,
-  );
-  const result = await toggleMessagePinForThread(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    toggleMessagePinResultValidator,
-    result,
-  );
+  return await toggleMessagePinForThread(viewer, request);
 }
 
-const roleModificationRequestInputValidator: TUnion<RoleModificationRequest> =
+export const roleModificationRequestInputValidator: TUnion<RoleModificationRequest> =
   t.union([
     tShape({
       community: tID,
@@ -381,25 +295,16 @@ export const roleModificationResultValidator: TInterface<RoleModificationResult>
 
 async function roleModificationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: RoleModificationRequest,
 ): Promise<RoleModificationResult> {
-  const request = await validateInput(
-    viewer,
-    roleModificationRequestInputValidator,
-    input,
-  );
-  const response = await modifyRole(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    roleModificationResultValidator,
-    response,
-  );
+  return await modifyRole(viewer, request);
 }
 
-const roleDeletionRequestInputValidator = tShape<RoleDeletionRequest>({
-  community: tID,
-  roleID: tID,
-});
+export const roleDeletionRequestInputValidator: TInterface<RoleDeletionRequest> =
+  tShape<RoleDeletionRequest>({
+    community: tID,
+    roleID: tID,
+  });
 
 export const roleDeletionResultValidator: TInterface<RoleDeletionResult> =
   tShape<RoleDeletionResult>({
@@ -411,19 +316,9 @@ export const roleDeletionResultValidator: TInterface<RoleDeletionResult> =
 
 async function roleDeletionResponder(
   viewer: Viewer,
-  input: mixed,
+  request: RoleDeletionRequest,
 ): Promise<RoleDeletionResult> {
-  const request = await validateInput(
-    viewer,
-    roleDeletionRequestInputValidator,
-    input,
-  );
-  const response = await deleteRole(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    roleDeletionResultValidator,
-    response,
-  );
+  return await deleteRole(viewer, request);
 }
 
 export {

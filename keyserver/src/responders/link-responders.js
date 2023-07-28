@@ -9,6 +9,7 @@ import {
   type InviteLink,
   inviteLinkValidator,
   type CreateOrUpdatePublicLinkRequest,
+  type DisableInviteLinkRequest,
 } from 'lib/types/link-types.js';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
@@ -19,9 +20,8 @@ import {
   verifyInviteLink,
 } from '../fetchers/link-fetchers.js';
 import { Viewer } from '../session/viewer.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const inviteLinkVerificationRequestInputValidator: TInterface<InviteLinkVerificationRequest> =
+export const inviteLinkVerificationRequestInputValidator: TInterface<InviteLinkVerificationRequest> =
   tShape({
     secret: t.String,
   });
@@ -42,19 +42,9 @@ export const inviteLinkVerificationResponseValidator: TUnion<InviteLinkVerificat
 
 async function inviteLinkVerificationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: InviteLinkVerificationRequest,
 ): Promise<InviteLinkVerificationResponse> {
-  const request = await validateInput(
-    viewer,
-    inviteLinkVerificationRequestInputValidator,
-    input,
-  );
-  const response = await verifyInviteLink(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    inviteLinkVerificationResponseValidator,
-    response,
-  );
+  return await verifyInviteLink(viewer, request);
 }
 
 export const fetchInviteLinksResponseValidator: TInterface<FetchInviteLinksResponse> =
@@ -66,48 +56,34 @@ async function fetchPrimaryInviteLinksResponder(
   viewer: Viewer,
 ): Promise<FetchInviteLinksResponse> {
   const primaryLinks = await fetchPrimaryInviteLinks(viewer);
-  return validateOutput(
-    viewer.platformDetails,
-    fetchInviteLinksResponseValidator,
-    {
-      links: primaryLinks,
-    },
-  );
+  return {
+    links: primaryLinks,
+  };
 }
 
-const createOrUpdatePublicLinkInputValidator: TInterface<CreateOrUpdatePublicLinkRequest> =
-  tShape({
+export const createOrUpdatePublicLinkInputValidator: TInterface<CreateOrUpdatePublicLinkRequest> =
+  tShape<CreateOrUpdatePublicLinkRequest>({
     name: t.String,
     communityID: tID,
   });
 
 async function createOrUpdatePublicLinkResponder(
   viewer: Viewer,
-  input: mixed,
+  request: CreateOrUpdatePublicLinkRequest,
 ): Promise<InviteLink> {
-  const request = await validateInput(
-    viewer,
-    createOrUpdatePublicLinkInputValidator,
-    input,
-  );
-  const response = await createOrUpdatePublicLink(viewer, request);
-  return validateOutput(viewer.platformDetails, inviteLinkValidator, response);
+  return await createOrUpdatePublicLink(viewer, request);
 }
 
-const disableInviteLinkInputValidator = tShape({
-  name: t.String,
-  communityID: tID,
-});
+export const disableInviteLinkInputValidator: TInterface<DisableInviteLinkRequest> =
+  tShape<DisableInviteLinkRequest>({
+    name: t.String,
+    communityID: tID,
+  });
 
 async function disableInviteLinkResponder(
   viewer: Viewer,
-  input: mixed,
+  request: DisableInviteLinkRequest,
 ): Promise<void> {
-  const request = await validateInput(
-    viewer,
-    disableInviteLinkInputValidator,
-    input,
-  );
   await deleteInviteLink(viewer, request);
 }
 

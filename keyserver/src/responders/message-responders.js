@@ -1,7 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import t, { type TInterface } from 'tcomb';
+import t, { type TInterface, type TUnion } from 'tcomb';
 
 import { onlyOneEmojiRegex } from 'lib/shared/emojis.js';
 import {
@@ -63,28 +63,22 @@ import {
   assignImages,
   assignMessageContainerToMedia,
 } from '../updaters/upload-updaters.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const sendTextMessageRequestInputValidator = tShape<SendTextMessageRequest>({
-  threadID: tID,
-  localID: t.maybe(t.String),
-  text: t.String,
-  sidebarCreation: t.maybe(t.Boolean),
-});
+export const sendTextMessageRequestInputValidator: TInterface<SendTextMessageRequest> =
+  tShape<SendTextMessageRequest>({
+    threadID: tID,
+    localID: t.maybe(t.String),
+    text: t.String,
+    sidebarCreation: t.maybe(t.Boolean),
+  });
 
 export const sendMessageResponseValidator: TInterface<SendMessageResponse> =
   tShape<SendMessageResponse>({ newMessageInfo: rawMessageInfoValidator });
 
 async function textMessageCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SendTextMessageRequest,
 ): Promise<SendMessageResponse> {
-  const request = await validateInput(
-    viewer,
-    sendTextMessageRequestInputValidator,
-    input,
-  );
-
   const { threadID, localID, text: rawText, sidebarCreation } = request;
   const text = trimMessage(rawText);
   if (!text) {
@@ -124,20 +118,14 @@ async function textMessageCreationResponder(
   }
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
-  const response = { newMessageInfo: rawMessageInfos[0] };
-  return validateOutput(
-    viewer.platformDetails,
-    sendMessageResponseValidator,
-    response,
-  );
+  return { newMessageInfo: rawMessageInfos[0] };
 }
 
-const fetchMessageInfosRequestInputValidator = tShape<FetchMessageInfosRequest>(
-  {
+export const fetchMessageInfosRequestInputValidator: TInterface<FetchMessageInfosRequest> =
+  tShape<FetchMessageInfosRequest>({
     cursors: t.dict(tID, t.maybe(tID)),
     numberPerThread: t.maybe(t.Number),
-  },
-);
+  });
 
 export const fetchMessageInfosResponseValidator: TInterface<FetchMessageInfosResponse> =
   tShape<FetchMessageInfosResponse>({
@@ -148,29 +136,20 @@ export const fetchMessageInfosResponseValidator: TInterface<FetchMessageInfosRes
 
 async function messageFetchResponder(
   viewer: Viewer,
-  input: mixed,
+  request: FetchMessageInfosRequest,
 ): Promise<FetchMessageInfosResponse> {
-  const request = await validateInput(
-    viewer,
-    fetchMessageInfosRequestInputValidator,
-    input,
-  );
   const response = await fetchMessageInfos(
     viewer,
     { threadCursors: request.cursors },
     request.numberPerThread ? request.numberPerThread : defaultNumberPerThread,
   );
-  return validateOutput(
-    viewer.platformDetails,
-    fetchMessageInfosResponseValidator,
-    {
-      ...response,
-      userInfos: {},
-    },
-  );
+  return {
+    ...response,
+    userInfos: {},
+  };
 }
 
-const sendMultimediaMessageRequestInputValidator =
+export const sendMultimediaMessageRequestInputValidator: TUnion<SendMultimediaMessageRequest> =
   t.union<SendMultimediaMessageRequest>([
     // This option is only used for messageTypes.IMAGES
     tShape({
@@ -188,14 +167,8 @@ const sendMultimediaMessageRequestInputValidator =
   ]);
 async function multimediaMessageCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SendMultimediaMessageRequest,
 ): Promise<SendMessageResponse> {
-  const request = await validateInput(
-    viewer,
-    sendMultimediaMessageRequestInputValidator,
-    input,
-  );
-
   if (
     (request.mediaIDs && request.mediaIDs.length === 0) ||
     (request.mediaMessageContents && request.mediaMessageContents.length === 0)
@@ -262,15 +235,10 @@ async function multimediaMessageCreationResponder(
     );
   }
 
-  const response = { newMessageInfo };
-  return validateOutput(
-    viewer.platformDetails,
-    sendMessageResponseValidator,
-    response,
-  );
+  return { newMessageInfo };
 }
 
-const sendReactionMessageRequestInputValidator =
+export const sendReactionMessageRequestInputValidator: TInterface<SendReactionMessageRequest> =
   tShape<SendReactionMessageRequest>({
     threadID: tID,
     localID: t.maybe(t.String),
@@ -280,14 +248,8 @@ const sendReactionMessageRequestInputValidator =
   });
 async function reactionMessageCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SendReactionMessageRequest,
 ): Promise<SendMessageResponse> {
-  const request = await validateInput(
-    viewer,
-    sendReactionMessageRequestInputValidator,
-    input,
-  );
-
   const { threadID, localID, targetMessageID, reaction, action } = request;
 
   if (!targetMessageID || !reaction) {
@@ -345,18 +307,14 @@ async function reactionMessageCreationResponder(
 
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
-  const response = { newMessageInfo: rawMessageInfos[0] };
-  return validateOutput(
-    viewer.platformDetails,
-    sendMessageResponseValidator,
-    response,
-  );
+  return { newMessageInfo: rawMessageInfos[0] };
 }
 
-const editMessageRequestInputValidator = tShape<SendEditMessageRequest>({
-  targetMessageID: tID,
-  text: t.String,
-});
+export const editMessageRequestInputValidator: TInterface<SendEditMessageRequest> =
+  tShape<SendEditMessageRequest>({
+    targetMessageID: tID,
+    text: t.String,
+  });
 
 export const sendEditMessageResponseValidator: TInterface<SendEditMessageResponse> =
   tShape<SendEditMessageResponse>({
@@ -365,14 +323,8 @@ export const sendEditMessageResponseValidator: TInterface<SendEditMessageRespons
 
 async function editMessageCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SendEditMessageRequest,
 ): Promise<SendEditMessageResponse> {
-  const request = await validateInput(
-    viewer,
-    editMessageRequestInputValidator,
-    input,
-  );
-
   const { targetMessageID, text: rawText } = request;
   const text = trimMessage(rawText);
   if (!targetMessageID || !text) {
@@ -444,15 +396,10 @@ async function editMessageCreationResponder(
 
   const newMessageInfos = await createMessages(viewer, messagesData);
 
-  const response = { newMessageInfos };
-  return validateOutput(
-    viewer.platformDetails,
-    sendEditMessageResponseValidator,
-    response,
-  );
+  return { newMessageInfos };
 }
 
-const fetchPinnedMessagesResponderInputValidator =
+export const fetchPinnedMessagesResponderInputValidator: TInterface<FetchPinnedMessagesRequest> =
   tShape<FetchPinnedMessagesRequest>({
     threadID: tID,
   });
@@ -464,28 +411,19 @@ export const fetchPinnedMessagesResultValidator: TInterface<FetchPinnedMessagesR
 
 async function fetchPinnedMessagesResponder(
   viewer: Viewer,
-  input: mixed,
+  request: FetchPinnedMessagesRequest,
 ): Promise<FetchPinnedMessagesResult> {
-  const request = await validateInput(
-    viewer,
-    fetchPinnedMessagesResponderInputValidator,
-    input,
-  );
-  const response = await fetchPinnedMessageInfos(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    fetchPinnedMessagesResultValidator,
-    response,
-  );
+  return await fetchPinnedMessageInfos(viewer, request);
 }
 
-const searchMessagesResponderInputValidator = tShape({
-  query: t.String,
-  threadID: tID,
-  cursor: t.maybe(tID),
-});
+export const searchMessagesResponderInputValidator: TInterface<SearchMessagesRequest> =
+  tShape<SearchMessagesRequest>({
+    query: t.String,
+    threadID: tID,
+    cursor: t.maybe(tID),
+  });
 
-const searchMessagesResponseValidator: TInterface<SearchMessagesResponse> =
+export const searchMessagesResponseValidator: TInterface<SearchMessagesResponse> =
   tShape<SearchMessagesResponse>({
     messages: t.list(rawMessageInfoValidator),
     endReached: t.Boolean,
@@ -493,24 +431,13 @@ const searchMessagesResponseValidator: TInterface<SearchMessagesResponse> =
 
 async function searchMessagesResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SearchMessagesRequest,
 ): Promise<SearchMessagesResponse> {
-  const request: SearchMessagesRequest = await validateInput(
-    viewer,
-    searchMessagesResponderInputValidator,
-    input,
-  );
-
-  const response = await searchMessagesInSingleChat(
+  return await searchMessagesInSingleChat(
     request.query,
     request.threadID,
     viewer,
     request.cursor,
-  );
-  return validateOutput(
-    viewer.platformDetails,
-    searchMessagesResponseValidator,
-    response,
   );
 }
 
