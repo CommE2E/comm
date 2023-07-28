@@ -5,7 +5,6 @@ import type { Provider as APNProvider } from '@parse/node-apn';
 import fcmAdmin from 'firebase-admin';
 import type { FirebaseApp } from 'firebase-admin';
 import invariant from 'invariant';
-import fetch from 'node-fetch';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types';
