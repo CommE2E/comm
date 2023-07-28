@@ -18,13 +18,13 @@ import {
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/react.js';
 
+import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
-import NativeEditUserAvatarProvider from './avatars/native-edit-user-avatar-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
@@ -269,7 +269,7 @@ function Root() {
                     <ActionSheetProvider>
                       <ENSCacheProvider provider={provider}>
                         <MediaCacheProvider persistence={filesystemMediaCache}>
-                          <NativeEditUserAvatarProvider>
+                          <BaseEditUserAvatarProvider>
                             <NativeEditThreadAvatarProvider>
                               <MarkdownContextProvider>
                                 <ChatContextProvider>
@@ -295,7 +295,7 @@ function Root() {
                                 </ChatContextProvider>
                               </MarkdownContextProvider>
                             </NativeEditThreadAvatarProvider>
-                          </NativeEditUserAvatarProvider>
+                          </BaseEditUserAvatarProvider>
                         </MediaCacheProvider>
                       </ENSCacheProvider>
                     </ActionSheetProvider>
