@@ -201,7 +201,7 @@ function useNativeSetUserAvatar(): (
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext must be defined');
   const {
-    setUserAvatar,
+    baseSetUserAvatar,
     getRegistrationModeEnabled,
     getRegistrationModeSuccessCallback,
   } = editUserAvatarContext;
@@ -223,7 +223,7 @@ function useNativeSetUserAvatar(): (
       }
 
       try {
-        await setUserAvatar(request);
+        await baseSetUserAvatar(request);
       } catch {
         displayAvatarUpdateFailureAlert();
       }
@@ -231,7 +231,7 @@ function useNativeSetUserAvatar(): (
     [
       getRegistrationModeEnabled,
       getRegistrationModeSuccessCallback,
-      setUserAvatar,
+      baseSetUserAvatar,
     ],
   );
 
