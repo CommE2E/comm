@@ -200,17 +200,39 @@ function useNativeSetUserAvatar(): (
 ) => Promise<void> {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext must be defined');
-  const { setUserAvatar } = editUserAvatarContext;
+  const {
+    setUserAvatar,
+    getRegistrationModeEnabled,
+    getRegistrationModeSuccessCallback,
+  } = editUserAvatarContext;
 
   const nativeSetUserAvatar = React.useCallback(
     async (request: UpdateUserAvatarRequest) => {
+      const registrationModeEnabled = getRegistrationModeEnabled();
+      if (registrationModeEnabled) {
+        const successCallback = getRegistrationModeSuccessCallback();
+        invariant(
+          successCallback,
+          'successCallback must be defined if registrationModeEnabled is true',
+        );
+        successCallback({
+          needsUpload: false,
+          updateUserAvatarRequest: request,
+        });
+        return;
+      }
+
       try {
         await setUserAvatar(request);
       } catch {
         displayAvatarUpdateFailureAlert();
       }
     },
-    [setUserAvatar],
+    [
+      getRegistrationModeEnabled,
+      getRegistrationModeSuccessCallback,
+      setUserAvatar,
+    ],
   );
 
   return nativeSetUserAvatar;
