@@ -4,7 +4,6 @@
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
 #include "../_generated/commJSI.h"
-#include "JSIRust.h"
 #include "PersistentStorageUtilities/DataStores/DraftStore.h"
 #include "PersistentStorageUtilities/DataStores/MessageStore.h"
 #include "PersistentStorageUtilities/DataStores/ReportStore.h"
@@ -86,44 +85,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) override;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) override;
-  virtual jsi::Value generateNonce(jsi::Runtime &rt) override;
-  virtual jsi::Value registerUser(
-      jsi::Runtime &rt,
-      jsi::String username,
-      jsi::String password,
-      jsi::String keyPayload,
-      jsi::String keyPayloadSignature,
-      jsi::String contentPrekey,
-      jsi::String contentPrekeySignature,
-      jsi::String notifPrekey,
-      jsi::String notifPrekeySignature,
-      jsi::Array contentOneTimeKeys,
-      jsi::Array notifOneTimeKeys) override;
-  virtual jsi::Value loginPasswordUser(
-      jsi::Runtime &rt,
-      jsi::String username,
-      jsi::String password,
-      jsi::String keyPayload,
-      jsi::String keyPayloadSignature,
-      jsi::String contentPrekey,
-      jsi::String contentPrekeySignature,
-      jsi::String notifPrekey,
-      jsi::String notifPrekeySignature,
-      jsi::Array contentOneTimeKeys,
-      jsi::Array notifOneTimeKeys) override;
-  virtual jsi::Value loginWalletUser(
-      jsi::Runtime &rt,
-      jsi::String siweMessage,
-      jsi::String siweSignature,
-      jsi::String keyPayload,
-      jsi::String keyPayloadSignature,
-      jsi::String contentPrekey,
-      jsi::String contentPrekeySignature,
-      jsi::String notifPrekey,
-      jsi::String notifPrekeySignature,
-      jsi::Array contentOneTimeKeys,
-      jsi::Array notifOneTimeKeys,
-      jsi::String socialProof) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

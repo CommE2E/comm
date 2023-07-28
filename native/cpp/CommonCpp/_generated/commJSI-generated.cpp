@@ -107,18 +107,6 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_reportDBOperatio
   static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->reportDBOperationsFailure(rt);
   return jsi::Value::undefined();
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateNonce(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->generateNonce(rt);
-}
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_registerUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->registerUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt));
-}
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_loginPasswordUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->loginPasswordUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt));
-}
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_loginWalletUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->loginWalletUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt), args[10].asString(rt));
-}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -152,10 +140,6 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["clearSensitiveData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData};
   methodMap_["checkIfDatabaseNeedsDeletion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_checkIfDatabaseNeedsDeletion};
   methodMap_["reportDBOperationsFailure"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_reportDBOperationsFailure};
-  methodMap_["generateNonce"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateNonce};
-  methodMap_["registerUser"] = MethodMetadata {10, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_registerUser};
-  methodMap_["loginPasswordUser"] = MethodMetadata {10, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_loginPasswordUser};
-  methodMap_["loginWalletUser"] = MethodMetadata {11, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_loginWalletUser};
 }
 
 

@@ -79,44 +79,6 @@ export interface Spec extends TurboModule {
   +clearSensitiveData: () => Promise<void>;
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;
-  +generateNonce: () => Promise<string>;
-  +registerUser: (
-    username: string,
-    password: string,
-    keyPayload: string,
-    keyPayloadSignature: string,
-    contentPrekey: string,
-    contentPrekeySignature: string,
-    notifPrekey: string,
-    notifPrekeySignature: string,
-    contentOneTimeKeys: $ReadOnlyArray<string>,
-    notifOneTimeKeys: $ReadOnlyArray<string>,
-  ) => Promise<string>;
-  +loginPasswordUser: (
-    username: string,
-    password: string,
-    keyPayload: string,
-    keyPayloadSignature: string,
-    contentPrekey: string,
-    contentPrekeySignature: string,
-    notifPrekey: string,
-    notifPrekeySignature: string,
-    contentOneTimeKeys: $ReadOnlyArray<string>,
-    notifOneTimeKeys: $ReadOnlyArray<string>,
-  ) => Promise<string>;
-  +loginWalletUser: (
-    siweMessage: string,
-    siweSignature: string,
-    keyPayload: string,
-    keyPayloadSignature: string,
-    contentPrekey: string,
-    contentPrekeySignature: string,
-    notifPrekey: string,
-    notifPrekeySignature: string,
-    contentOneTimeKeys: $ReadOnlyArray<string>,
-    notifOneTimeKeys: $ReadOnlyArray<string>,
-    socialProof: string,
-  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
