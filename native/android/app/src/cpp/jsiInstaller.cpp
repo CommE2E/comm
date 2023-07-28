@@ -8,6 +8,7 @@
 #include <InternalModules/GlobalDBSingletonJNIHelper.h>
 #include <NativeModules/CommConstants.h>
 #include <NativeModules/CommCoreModule.h>
+#include <NativeModules/CommRustModule.h>
 #include <NativeModules/CommUtilsModule.h>
 #include <Notifications/BackgroundDataStorage/NotificationsCryptoModuleJNIHelper.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
@@ -32,6 +33,8 @@ public:
         std::make_shared<comm::CommCoreModule>(jsCallInvoker);
     std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
         std::make_shared<comm::CommUtilsModule>(jsCallInvoker);
+    std::shared_ptr<comm::CommRustModule> rustNativeModule =
+        std::make_shared<comm::CommRustModule>(jsCallInvoker);
     std::shared_ptr<comm::CommConstants> nativeConstants =
         std::make_shared<comm::CommConstants>();
 
@@ -44,6 +47,10 @@ public:
           *rt,
           jsi::PropNameID::forAscii(*rt, "CommUtilsModule"),
           jsi::Object::createFromHostObject(*rt, utilsNativeModule));
+      rt->global().setProperty(
+          *rt,
+          jsi::PropNameID::forAscii(*rt, "CommRustModule"),
+          jsi::Object::createFromHostObject(*rt, rustNativeModule));
       rt->global().setProperty(
           *rt,
           jsi::PropNameID::forAscii(*rt, "CommConstants"),
