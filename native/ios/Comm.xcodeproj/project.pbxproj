@@ -50,6 +50,7 @@
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
 		8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */; };
 		8ED8B5342A4DD4EB00D3DA26 /* CommQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */; };
+		8EF775682A74032C0046A385 /* CommRustModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF775672A74032C0046A385 /* CommRustModule.cpp */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
 		CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */; };
@@ -200,6 +201,8 @@
 		8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommQueryExecutor.cpp; sourceTree = "<group>"; };
 		8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportStoreOperations.h; sourceTree = "<group>"; };
 		8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DraftStoreOperations.h; sourceTree = "<group>"; };
+		8EF775662A74032C0046A385 /* CommRustModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommRustModule.h; sourceTree = "<group>"; };
+		8EF775672A74032C0046A385 /* CommRustModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommRustModule.cpp; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageStoreOperations.h; sourceTree = "<group>"; };
@@ -389,6 +392,8 @@
 		71BE843A2636A944002849D2 /* NativeModules */ = {
 			isa = PBXGroup;
 			children = (
+				8EF775672A74032C0046A385 /* CommRustModule.cpp */,
+				8EF775662A74032C0046A385 /* CommRustModule.h */,
 				8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */,
 				8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */,
 				CB2688FF2A2DF56000EC7300 /* CommConstants.cpp */,
@@ -1005,6 +1010,7 @@
 				CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */,
 				7F0C6E31291C4468002AA2D9 /* ExpoModulesProvider.swift in Sources */,
 				75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */,
+				8EF775682A74032C0046A385 /* CommRustModule.cpp in Sources */,
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
 				8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */,
 				8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */,
