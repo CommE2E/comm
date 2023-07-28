@@ -35,7 +35,7 @@ function EmojiAvatarSelectionModal(): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
 
-  const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
+  const { baseSetUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
 
   const [updateAvatarStatus, setUpdateAvatarStatus] =
     React.useState<?('success' | 'failure')>();
@@ -80,12 +80,12 @@ function EmojiAvatarSelectionModal(): React.Node {
 
   const onSaveAvatar = React.useCallback(async () => {
     try {
-      await setUserAvatar(pendingEmojiAvatar);
+      await baseSetUserAvatar(pendingEmojiAvatar);
       setUpdateAvatarStatus('success');
     } catch {
       setUpdateAvatarStatus('failure');
     }
-  }, [pendingEmojiAvatar, setUserAvatar]);
+  }, [pendingEmojiAvatar, baseSetUserAvatar]);
 
   let saveButtonContent;
   let buttonColor;
