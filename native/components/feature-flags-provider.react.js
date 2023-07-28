@@ -1,5 +1,6 @@
 // @flow
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as React from 'react';
 import { Platform } from 'react-native';
 
@@ -14,16 +15,18 @@ type FeatureFlagsConfiguration = {
 
 type FeatureFlagsContextType = {
   +configuration: FeatureFlagsConfiguration,
-  +loaded: boolean,
+  +loadedFromService: boolean,
 };
 
 const defaultContext = {
   configuration: {},
-  loaded: false,
+  loadedFromService: false,
 };
 
 const FeatureFlagsContext: React.Context<FeatureFlagsContextType> =
   React.createContext<FeatureFlagsContextType>(defaultContext);
+
+const featureFlagsStorageKey = 'FeatureFlags';
 
 type Props = {
   +children: React.Node,
@@ -33,6 +36,31 @@ function FeatureFlagsProvider(props: Props): React.Node {
   const isStaff = useIsCurrentUserStaff();
 
   const [featuresConfig, setFeaturesConfig] = React.useState(defaultContext);
+
+  React.useEffect(() => {
+    (async () => {
+      if (featuresConfig.loadedFromService) {
+        return;
+      }
+
+      const persistedFeaturesConfig = await AsyncStorage.getItem(
+        featureFlagsStorageKey,
+      );
+      if (!persistedFeaturesConfig) {
+        return;
+      }
+
+      setFeaturesConfig(config =>
+        config.loadedFromService
+          ? config
+          : {
+              configuration: JSON.parse(persistedFeaturesConfig),
+              loadedFromService: false,
+            },
+      );
+    })();
+  }, [featuresConfig.loadedFromService]);
+
   React.useEffect(() => {
     (async () => {
       try {
@@ -47,8 +75,12 @@ function FeatureFlagsProvider(props: Props): React.Node {
         }
         setFeaturesConfig({
           configuration,
-          loaded: true,
+          loadedFromService: true,
         });
+        await AsyncStorage.setItem(
+          featureFlagsStorageKey,
+          JSON.stringify(configuration),
+        );
       } catch (e) {
         console.error('Feature flag retrieval failed:', e);
       }
