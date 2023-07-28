@@ -1,6 +1,5 @@
 // @flow
 
-import { detect as detectBrowser } from 'detect-browser';
 import invariant from 'invariant';
 import _groupBy from 'lodash/fp/groupBy.js';
 import _keyBy from 'lodash/fp/keyBy.js';
@@ -114,10 +113,6 @@ import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
-
-const browser = detectBrowser();
-const exifRotate =
-  !browser || (browser.name !== 'safari' && browser.name !== 'chrome');
 
 type BaseProps = {
   +children: React.Node,
@@ -746,7 +741,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let response;
     const validationStart = Date.now();
     try {
-      response = await validateFile(file, exifRotate);
+      response = await validateFile(file);
     } catch (e) {
       return {
         steps,
