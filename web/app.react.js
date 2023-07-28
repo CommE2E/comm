@@ -15,7 +15,7 @@ import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
 } from 'lib/actions/entry-actions.js';
-import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
+import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import {
   ModalProvider,
   useModalContext,
@@ -167,10 +167,10 @@ class App extends React.PureComponent<Props> {
     if (this.props.loggedIn) {
       content = (
         <>
-          <BaseEditUserAvatarProvider>
+          <EditUserAvatarProvider>
             {this.renderMainContent()}
             {this.props.modals}
-          </BaseEditUserAvatarProvider>
+          </EditUserAvatarProvider>
         </>
       );
     } else {

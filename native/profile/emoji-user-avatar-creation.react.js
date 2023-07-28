@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
+import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 
 import { useNativeSetUserAvatar } from '../avatars/avatar-hooks.js';

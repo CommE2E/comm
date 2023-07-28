@@ -10,7 +10,7 @@ import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
-import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
+import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
