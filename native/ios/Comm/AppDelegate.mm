@@ -40,6 +40,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 #import "CommConstants.h"
 #import "CommCoreModule.h"
+#import "CommRustModule.h"
 #import "CommUtilsModule.h"
 #import "GlobalDBSingleton.h"
 #import "Logger.h"
@@ -279,6 +280,8 @@ using Runtime = facebook::jsi::Runtime;
           std::make_shared<comm::CommCoreModule>(bridge.jsCallInvoker);
       std::shared_ptr<comm::CommUtilsModule> utilsNativeModule =
           std::make_shared<comm::CommUtilsModule>(bridge.jsCallInvoker);
+      std::shared_ptr<comm::CommRustModule> rustNativeModule =
+          std::make_shared<comm::CommRustModule>(bridge.jsCallInvoker);
       std::shared_ptr<comm::CommConstants> nativeConstants =
           std::make_shared<comm::CommConstants>();
 
@@ -290,6 +293,10 @@ using Runtime = facebook::jsi::Runtime;
           rt,
           facebook::jsi::PropNameID::forAscii(rt, "CommUtilsModule"),
           facebook::jsi::Object::createFromHostObject(rt, utilsNativeModule));
+      rt.global().setProperty(
+          rt,
+          facebook::jsi::PropNameID::forAscii(rt, "CommRustModule"),
+          facebook::jsi::Object::createFromHostObject(rt, rustNativeModule));
       rt.global().setProperty(
           rt,
           facebook::jsi::PropNameID::forAscii(rt, "CommConstants"),
