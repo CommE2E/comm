@@ -2,6 +2,8 @@ div.inlineEngagementContainer {
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 div.centerContainer {
   justify-content: center;
@@ -14,15 +16,15 @@ div.leftContainer {
   margin-right: 80px;
 }
 div.rightContainer {
-  justify-content: flex-end;
   position: relative;
   top: -10px;
   right: 33px;
   margin-left: 80px;
+  flex-direction: row-reverse;
 }
 
 a.sidebarContainer,
-a.reactionsContainer {
+a.reactionContainer {
   background: var(--inline-engagement-bg);
   color: var(--inline-engagement-color);
   font-size: var(--s-font-14);
@@ -36,7 +38,7 @@ a.reactionsContainer {
 }
 
 a.sidebarContainer:hover,
-a.reactionsContainer:hover {
+a.reactionContainer:hover {
   background: var(--inline-engagement-bg-hover);
 }
 
@@ -64,10 +66,8 @@ div.messageLabel > span {
 
 div.messageLabelLeft {
   margin-left: 8px;
-  margin-right: 4px;
 }
 
 div.messageLabelRight {
   margin-right: 8px;
-  margin-left: 4px;
 }
