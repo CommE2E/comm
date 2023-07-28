@@ -214,9 +214,7 @@ function useNativeUpdateUserImageAvatar(): (
 }
 
 function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
-  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
-  invariant(editUserAvatarContext, 'updateImageUserAvatar must be defined');
-  const { updateImageUserAvatar } = editUserAvatarContext;
+  const nativeUpdateUserImageAvatar = useNativeUpdateUserImageAvatar();
 
   const selectFromGalleryAndUpdateUserAvatar =
     React.useCallback(async (): Promise<void> => {
@@ -224,8 +222,8 @@ function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
       if (!selection) {
         return;
       }
-      await updateImageUserAvatar(selection);
-    }, [updateImageUserAvatar]);
+      await nativeUpdateUserImageAvatar(selection);
+    }, [nativeUpdateUserImageAvatar]);
 
   return selectFromGalleryAndUpdateUserAvatar;
 }
