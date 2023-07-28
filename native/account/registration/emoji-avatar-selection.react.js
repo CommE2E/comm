@@ -10,6 +10,7 @@ import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
+import { useNativeSetUserAvatar } from '../../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
@@ -25,8 +26,9 @@ type Props = {
 function EmojiAvatarSelection(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
+  const { userAvatarSaveInProgress } = editUserAvatarContext;
 
-  const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
+  const nativeSetUserAvatar = useNativeSetUserAvatar();
 
   const { usernameOrEthAddress } = props.route.params;
   const savedEmojiAvatarFunc = React.useCallback(
@@ -38,9 +40,9 @@ function EmojiAvatarSelection(props: Props): React.Node {
   const onSuccess = React.useCallback(
     avatarRequest => {
       goBack();
-      return setUserAvatar(avatarRequest);
+      return nativeSetUserAvatar(avatarRequest);
     },
-    [goBack, setUserAvatar],
+    [goBack, nativeSetUserAvatar],
   );
 
   const styles = useStyles(unboundStyles);

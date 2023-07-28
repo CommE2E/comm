@@ -6,6 +6,7 @@ import * as React from 'react';
 import { EditUserAvatarContext } from 'lib/components/base-edit-user-avatar-provider.react.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 
+import { useNativeSetUserAvatar } from '../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -15,14 +16,17 @@ function EmojiUserAvatarCreation(props: { ... }): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
 
-  const { setUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
+  const { userAvatarSaveInProgress } = editUserAvatarContext;
+
+  const nativeSetUserAvatar = useNativeSetUserAvatar();
+
   const setAvatar = React.useCallback(
     async avatarRequest => {
-      const result = await setUserAvatar(avatarRequest);
+      const result = await nativeSetUserAvatar(avatarRequest);
       displayActionResultModal('Avatar updated!');
       return result;
     },
-    [setUserAvatar],
+    [nativeSetUserAvatar],
   );
 
   const savedEmojiAvatarFunc = useSelector(

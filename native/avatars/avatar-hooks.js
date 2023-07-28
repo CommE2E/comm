@@ -15,7 +15,10 @@ import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
-import type { ImageAvatarDBContent } from 'lib/types/avatar-types.js';
+import type {
+  ImageAvatarDBContent,
+  UpdateUserAvatarRequest,
+} from 'lib/types/avatar-types.js';
 import type {
   NativeMediaSelection,
   MediaLibrarySelection,
@@ -192,6 +195,27 @@ function useUploadSelectedMedia(
   );
 }
 
+function useNativeSetUserAvatar(): (
+  request: UpdateUserAvatarRequest,
+) => Promise<void> {
+  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
+  invariant(editUserAvatarContext, 'editUserAvatarContext must be defined');
+  const { setUserAvatar } = editUserAvatarContext;
+
+  const nativeSetUserAvatar = React.useCallback(
+    async (request: UpdateUserAvatarRequest) => {
+      try {
+        await setUserAvatar(request);
+      } catch {
+        displayAvatarUpdateFailureAlert();
+      }
+    },
+    [setUserAvatar],
+  );
+
+  return nativeSetUserAvatar;
+}
+
 function useNativeUpdateUserImageAvatar(): (
   selection: NativeMediaSelection,
 ) => Promise<void> {
@@ -359,5 +383,6 @@ export {
   useProcessSelectedMedia,
   useShowAvatarActionSheet,
   useSelectFromGalleryAndUpdateUserAvatar,
+  useNativeSetUserAvatar,
   useNativeUpdateUserImageAvatar,
 };
