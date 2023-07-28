@@ -18,7 +18,7 @@ import {
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/react.js';
 
-import { BaseEditUserAvatarProvider } from 'lib/components/base-edit-user-avatar-provider.react.js';
+import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
@@ -269,7 +269,7 @@ function Root() {
                     <ActionSheetProvider>
                       <ENSCacheProvider provider={provider}>
                         <MediaCacheProvider persistence={filesystemMediaCache}>
-                          <BaseEditUserAvatarProvider>
+                          <EditUserAvatarProvider>
                             <NativeEditThreadAvatarProvider>
                               <MarkdownContextProvider>
                                 <ChatContextProvider>
@@ -295,7 +295,7 @@ function Root() {
                                 </ChatContextProvider>
                               </MarkdownContextProvider>
                             </NativeEditThreadAvatarProvider>
-                          </BaseEditUserAvatarProvider>
+                          </EditUserAvatarProvider>
                         </MediaCacheProvider>
                       </ENSCacheProvider>
                     </ActionSheetProvider>
