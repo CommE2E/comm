@@ -48,6 +48,7 @@
 		8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BC9568429FC49B00060AE4A /* JSIRust.cpp */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
+		8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */; };
 		8ED8B5342A4DD4EB00D3DA26 /* CommQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
@@ -193,6 +194,8 @@
 		8E43C32B291E5B4A009378F5 /* TerminateApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TerminateApp.mm; path = Comm/TerminateApp.mm; sourceTree = "<group>"; };
 		8E43C32E291E5B9D009378F5 /* TerminateApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TerminateApp.h; path = ../cpp/CommonCpp/Tools/TerminateApp.h; sourceTree = "<group>"; };
 		8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatabaseManager.cpp; sourceTree = "<group>"; };
+		8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "rustJSI-generated.cpp"; sourceTree = "<group>"; };
+		8EA59BD82A73DAB000EB4F53 /* rustJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rustJSI.h; sourceTree = "<group>"; };
 		8ED8B5322A4DCCE300D3DA26 /* CommQueryExecutor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommQueryExecutor.h; sourceTree = "<group>"; };
 		8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommQueryExecutor.cpp; sourceTree = "<group>"; };
 		8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportStoreOperations.h; sourceTree = "<group>"; };
@@ -468,6 +471,8 @@
 		71F971B4270726C000DDC5BF /* _generated */ = {
 			isa = PBXGroup;
 			children = (
+				8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */,
+				8EA59BD82A73DAB000EB4F53 /* rustJSI.h */,
 				7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */,
 				7FE4D9F3291DFE9300667BF6 /* commJSI.h */,
 				7FBB2A7529E94539002C6493 /* utilsJSI-generated.cpp */,
@@ -1002,6 +1007,7 @@
 				75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */,
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
 				8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */,
+				8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */,
 				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */,
 				CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */,
