@@ -247,7 +247,12 @@ function useNativeUpdateUserImageAvatar(): (
     updateImageUserAvatar,
     getRegistrationModeEnabled,
     getRegistrationModeSuccessCallback,
+    setUserAvatarMediaUploadInProgress,
   } = editUserAvatarContext;
+
+  const uploadSelectedMedia = useUploadSelectedMedia(
+    setUserAvatarMediaUploadInProgress,
+  );
 
   const nativeUpdateUserImageAvatar = React.useCallback(
     async (selection: NativeMediaSelection) => {
@@ -265,8 +270,13 @@ function useNativeUpdateUserImageAvatar(): (
         return;
       }
 
+      const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
+      if (!imageAvatarUpdateRequest) {
+        return;
+      }
+
       try {
-        await updateImageUserAvatar(selection);
+        await updateImageUserAvatar(imageAvatarUpdateRequest);
       } catch {
         displayAvatarUpdateFailureAlert();
       }
@@ -275,6 +285,7 @@ function useNativeUpdateUserImageAvatar(): (
       getRegistrationModeEnabled,
       getRegistrationModeSuccessCallback,
       updateImageUserAvatar,
+      uploadSelectedMedia,
     ],
   );
 
