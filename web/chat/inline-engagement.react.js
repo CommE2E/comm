@@ -25,14 +25,23 @@ function InlineEngagement(props: Props): React.Node {
   const { pushModal, popModal } = useModalContext();
   const repliesText = getInlineEngagementSidebarText(sidebarThreadInfo);
 
-  const containerClasses = classNames([
-    css.inlineEngagementContainer,
-    {
-      [css.leftContainer]: positioning === 'left',
-      [css.centerContainer]: positioning === 'center',
-      [css.rightContainer]: positioning === 'right',
-    },
-  ]);
+  const isLeft = positioning === 'left';
+
+  const labelClasses = classNames({
+    [css.messageLabel]: true,
+    [css.messageLabelLeft]: isLeft,
+    [css.messageLabelRight]: !isLeft,
+  });
+  const editedLabel = React.useMemo(() => {
+    if (!label) {
+      return null;
+    }
+    return (
+      <div className={labelClasses}>
+        <span>{label}</span>
+      </div>
+    );
+  }, [label, labelClasses]);
 
   const onClickSidebarInner = useOnClickThread(sidebarThreadInfo);
 
@@ -84,23 +93,14 @@ function InlineEngagement(props: Props): React.Node {
     );
   }, [reactions, onClickReactions]);
 
-  const isLeft = positioning === 'left';
-  const labelClasses = classNames({
-    [css.messageLabel]: true,
-    [css.messageLabelLeft]: isLeft,
-    [css.messageLabelRight]: !isLeft,
-    [css.onlyMessageLabel]: !sidebarItem && !reactionsList,
-  });
-  const editedLabel = React.useMemo(() => {
-    if (!label) {
-      return null;
-    }
-    return (
-      <div className={labelClasses}>
-        <span>{label}</span>
-      </div>
-    );
-  }, [label, labelClasses]);
+  const containerClasses = classNames([
+    css.inlineEngagementContainer,
+    {
+      [css.leftContainer]: positioning === 'left',
+      [css.centerContainer]: positioning === 'center',
+      [css.rightContainer]: positioning === 'right',
+    },
+  ]);
 
   let body;
   if (isLeft) {
