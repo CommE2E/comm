@@ -11,12 +11,12 @@ import { tShape } from 'lib/utils/validation-utils.js';
 
 import type { Viewer } from '../session/viewer.js';
 import { updateRelationships } from '../updaters/relationship-updaters.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const updateRelationshipInputValidator = tShape<RelationshipRequest>({
-  action: t.enums.of(relationshipActionsList, 'relationship action'),
-  userIDs: t.list(t.String),
-});
+export const updateRelationshipInputValidator: TInterface<RelationshipRequest> =
+  tShape<RelationshipRequest>({
+    action: t.enums.of(relationshipActionsList, 'relationship action'),
+    userIDs: t.list(t.String),
+  });
 
 export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
   tShape<RelationshipErrors>({
@@ -27,19 +27,9 @@ export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
 
 async function updateRelationshipsResponder(
   viewer: Viewer,
-  input: mixed,
+  request: RelationshipRequest,
 ): Promise<RelationshipErrors> {
-  const request = await validateInput(
-    viewer,
-    updateRelationshipInputValidator,
-    input,
-  );
-  const response = await updateRelationships(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    relationshipErrorsValidator,
-    response,
-  );
+  return await updateRelationships(viewer, request);
 }
 
 export { updateRelationshipsResponder };

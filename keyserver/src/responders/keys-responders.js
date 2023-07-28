@@ -1,7 +1,7 @@
 // @flow
 
 import type { Account as OlmAccount } from '@commapp/olm';
-import t, { type TUnion } from 'tcomb';
+import t, { type TUnion, type TInterface } from 'tcomb';
 
 import type {
   OlmSessionInitializationInfo,
@@ -20,16 +20,16 @@ import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { validateAccountPrekey } from '../utils/olm-utils.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 type AccountKeysSet = {
   +identityKeys: string,
   ...OlmSessionInitializationInfo,
 };
 
-const getSessionPublicKeysInputValidator = tShape<GetSessionPublicKeysArgs>({
-  session: t.String,
-});
+export const getSessionPublicKeysInputValidator: TInterface<GetSessionPublicKeysArgs> =
+  tShape<GetSessionPublicKeysArgs>({
+    session: t.String,
+  });
 
 type GetSessionPublicKeysResponse = SessionPublicKeys | null;
 export const getSessionPublicKeysResponseValidator: TUnion<GetSessionPublicKeysResponse> =
@@ -37,22 +37,12 @@ export const getSessionPublicKeysResponseValidator: TUnion<GetSessionPublicKeysR
 
 async function getSessionPublicKeysResponder(
   viewer: Viewer,
-  input: mixed,
+  request: GetSessionPublicKeysArgs,
 ): Promise<GetSessionPublicKeysResponse> {
   if (!viewer.loggedIn) {
     return null;
   }
-  const request = await validateInput(
-    viewer,
-    getSessionPublicKeysInputValidator,
-    input,
-  );
-  const response = await fetchSessionPublicKeys(request.session);
-  return validateOutput(
-    viewer.platformDetails,
-    getSessionPublicKeysResponseValidator,
-    response,
-  );
+  return await fetchSessionPublicKeys(request.session);
 }
 
 async function retrieveAccountKeysSet(

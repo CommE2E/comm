@@ -46,7 +46,6 @@ import {
   compareNewCalendarQuery,
 } from '../updaters/entry-updaters.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 type EntryQueryInput = {
   +startDate: string,
@@ -55,25 +54,26 @@ type EntryQueryInput = {
   +includeDeleted?: ?boolean,
   +filters?: ?$ReadOnlyArray<CalendarFilter>,
 };
-const entryQueryInputValidator: TInterface<EntryQueryInput> = tShape({
-  navID: t.maybe(t.String),
-  startDate: tDate,
-  endDate: tDate,
-  includeDeleted: t.maybe(t.Boolean),
-  filters: t.maybe(
-    t.list(
-      t.union([
-        tShape({
-          type: tString(calendarThreadFilterTypes.NOT_DELETED),
-        }),
-        tShape({
-          type: tString(calendarThreadFilterTypes.THREAD_LIST),
-          threadIDs: t.list(tID),
-        }),
-      ]),
+const entryQueryInputValidator: TInterface<EntryQueryInput> =
+  tShape<EntryQueryInput>({
+    navID: t.maybe(t.String),
+    startDate: tDate,
+    endDate: tDate,
+    includeDeleted: t.maybe(t.Boolean),
+    filters: t.maybe(
+      t.list(
+        t.union([
+          tShape({
+            type: tString(calendarThreadFilterTypes.NOT_DELETED),
+          }),
+          tShape({
+            type: tString(calendarThreadFilterTypes.THREAD_LIST),
+            threadIDs: t.list(tID),
+          }),
+        ]),
+      ),
     ),
-  ),
-});
+  });
 
 const newEntryQueryInputValidator: TInterface<CalendarQuery> = tShape({
   startDate: tDate,
@@ -136,29 +136,20 @@ export const fetchEntryInfosResponseValidator: TInterface<FetchEntryInfosRespons
 
 async function entryFetchResponder(
   viewer: Viewer,
-  input: mixed,
+  inputQuery: EntryQueryInput,
 ): Promise<FetchEntryInfosResponse> {
-  const inputQuery = await validateInput(
-    viewer,
-    entryQueryInputValidator,
-    input,
-  );
   const request = normalizeCalendarQuery(inputQuery);
 
   await verifyCalendarQueryThreadIDs(request);
 
   const response = await fetchEntryInfos(viewer, [request]);
-  return validateOutput(
-    viewer.platformDetails,
-    fetchEntryInfosResponseValidator,
-    {
-      ...response,
-      userInfos: {},
-    },
-  );
+  return {
+    ...response,
+    userInfos: {},
+  };
 }
 
-const entryRevisionHistoryFetchInputValidator =
+export const entryRevisionHistoryFetchInputValidator: TInterface<FetchEntryRevisionInfosRequest> =
   tShape<FetchEntryRevisionInfosRequest>({
     id: tID,
   });
@@ -170,31 +161,22 @@ export const fetchEntryRevisionInfosResultValidator: TInterface<FetchEntryRevisi
 
 async function entryRevisionFetchResponder(
   viewer: Viewer,
-  input: mixed,
+  request: FetchEntryRevisionInfosRequest,
 ): Promise<FetchEntryRevisionInfosResult> {
-  const request = await validateInput(
-    viewer,
-    entryRevisionHistoryFetchInputValidator,
-    input,
-  );
   const entryHistory = await fetchEntryRevisionInfo(viewer, request.id);
-  const response = { result: entryHistory };
-  return validateOutput(
-    viewer.platformDetails,
-    fetchEntryRevisionInfosResultValidator,
-    response,
-  );
+  return { result: entryHistory };
 }
 
-const createEntryRequestInputValidator = tShape<CreateEntryRequest>({
-  text: t.String,
-  sessionID: t.maybe(t.String),
-  timestamp: t.Number,
-  date: tDate,
-  threadID: tID,
-  localID: t.maybe(t.String),
-  calendarQuery: t.maybe(newEntryQueryInputValidator),
-});
+export const createEntryRequestInputValidator: TInterface<CreateEntryRequest> =
+  tShape<CreateEntryRequest>({
+    text: t.String,
+    sessionID: t.maybe(t.String),
+    timestamp: t.Number,
+    date: tDate,
+    threadID: tID,
+    localID: t.maybe(t.String),
+    calendarQuery: t.maybe(newEntryQueryInputValidator),
+  });
 
 export const saveEntryResponseValidator: TInterface<SaveEntryResponse> =
   tShape<SaveEntryResponse>({
@@ -205,54 +187,36 @@ export const saveEntryResponseValidator: TInterface<SaveEntryResponse> =
 
 async function entryCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: CreateEntryRequest,
 ): Promise<SaveEntryResponse> {
-  const request = await validateInput(
-    viewer,
-    createEntryRequestInputValidator,
-    input,
-  );
-  const response = await createEntry(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    saveEntryResponseValidator,
-    response,
-  );
+  return await createEntry(viewer, request);
 }
 
-const saveEntryRequestInputValidator = tShape<SaveEntryRequest>({
-  entryID: tID,
-  text: t.String,
-  prevText: t.String,
-  sessionID: t.maybe(t.String),
-  timestamp: t.Number,
-  calendarQuery: t.maybe(newEntryQueryInputValidator),
-});
+export const saveEntryRequestInputValidator: TInterface<SaveEntryRequest> =
+  tShape<SaveEntryRequest>({
+    entryID: tID,
+    text: t.String,
+    prevText: t.String,
+    sessionID: t.maybe(t.String),
+    timestamp: t.Number,
+    calendarQuery: t.maybe(newEntryQueryInputValidator),
+  });
 
 async function entryUpdateResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SaveEntryRequest,
 ): Promise<SaveEntryResponse> {
-  const request = await validateInput(
-    viewer,
-    saveEntryRequestInputValidator,
-    input,
-  );
-  const response = await updateEntry(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    saveEntryResponseValidator,
-    response,
-  );
+  return await updateEntry(viewer, request);
 }
 
-const deleteEntryRequestInputValidator = tShape<DeleteEntryRequest>({
-  entryID: tID,
-  prevText: t.String,
-  sessionID: t.maybe(t.String),
-  timestamp: t.Number,
-  calendarQuery: t.maybe(newEntryQueryInputValidator),
-});
+export const deleteEntryRequestInputValidator: TInterface<DeleteEntryRequest> =
+  tShape<DeleteEntryRequest>({
+    entryID: tID,
+    prevText: t.String,
+    sessionID: t.maybe(t.String),
+    timestamp: t.Number,
+    calendarQuery: t.maybe(newEntryQueryInputValidator),
+  });
 
 export const deleteEntryResponseValidator: TInterface<DeleteEntryResponse> =
   tShape<DeleteEntryResponse>({
@@ -263,27 +227,18 @@ export const deleteEntryResponseValidator: TInterface<DeleteEntryResponse> =
 
 async function entryDeletionResponder(
   viewer: Viewer,
-  input: mixed,
+  request: DeleteEntryRequest,
 ): Promise<DeleteEntryResponse> {
-  const request = await validateInput(
-    viewer,
-    deleteEntryRequestInputValidator,
-    input,
-  );
-  const response = await deleteEntry(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    deleteEntryResponseValidator,
-    response,
-  );
+  return await deleteEntry(viewer, request);
 }
 
-const restoreEntryRequestInputValidator = tShape<RestoreEntryRequest>({
-  entryID: tID,
-  sessionID: t.maybe(t.String),
-  timestamp: t.Number,
-  calendarQuery: t.maybe(newEntryQueryInputValidator),
-});
+export const restoreEntryRequestInputValidator: TInterface<RestoreEntryRequest> =
+  tShape<RestoreEntryRequest>({
+    entryID: tID,
+    sessionID: t.maybe(t.String),
+    timestamp: t.Number,
+    calendarQuery: t.maybe(newEntryQueryInputValidator),
+  });
 
 export const restoreEntryResponseValidator: TInterface<RestoreEntryResponse> =
   tShape<RestoreEntryResponse>({
@@ -293,19 +248,9 @@ export const restoreEntryResponseValidator: TInterface<RestoreEntryResponse> =
 
 async function entryRestorationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: RestoreEntryRequest,
 ): Promise<RestoreEntryResponse> {
-  const request = await validateInput(
-    viewer,
-    restoreEntryRequestInputValidator,
-    input,
-  );
-  const response = await restoreEntry(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    restoreEntryResponseValidator,
-    response,
-  );
+  return await restoreEntry(viewer, request);
 }
 
 export const deltaEntryInfosResultValidator: TInterface<DeltaEntryInfosResult> =
@@ -317,14 +262,8 @@ export const deltaEntryInfosResultValidator: TInterface<DeltaEntryInfosResult> =
 
 async function calendarQueryUpdateResponder(
   viewer: Viewer,
-  input: mixed,
+  request: CalendarQuery,
 ): Promise<DeltaEntryInfosResult> {
-  const request = await validateInput(
-    viewer,
-    newEntryQueryInputValidator,
-    input,
-  );
-
   await verifyCalendarQueryThreadIDs(request);
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -338,16 +277,12 @@ async function calendarQueryUpdateResponder(
     commitSessionUpdate(viewer, sessionUpdate),
   ]);
 
-  return validateOutput(
-    viewer.platformDetails,
-    deltaEntryInfosResultValidator,
-    {
-      rawEntryInfos: response.rawEntryInfos,
-      deletedEntryIDs: response.deletedEntryIDs,
-      // Old clients expect userInfos object
-      userInfos: [],
-    },
-  );
+  return {
+    rawEntryInfos: response.rawEntryInfos,
+    deletedEntryIDs: response.deletedEntryIDs,
+    // Old clients expect userInfos object
+    userInfos: [],
+  };
 }
 
 export {

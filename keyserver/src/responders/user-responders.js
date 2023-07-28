@@ -3,7 +3,7 @@
 import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { ErrorTypes, SiweMessage } from 'siwe';
-import t, { type TInterface } from 'tcomb';
+import t, { type TInterface, type TUnion } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
 import {
@@ -33,6 +33,7 @@ import {
   type ClientAvatar,
   clientAvatarValidator,
   type UpdateUserAvatarResponse,
+  type UpdateUserAvatarRequest,
 } from 'lib/types/avatar-types.js';
 import type {
   IdentityKeysBlob,
@@ -66,7 +67,6 @@ import {
   oldLoggedInUserInfoValidator,
   userInfoValidator,
 } from 'lib/types/user-types.js';
-import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import {
   identityKeysBlobValidator,
   signedIdentityKeysBlobValidator,
@@ -132,9 +132,8 @@ import {
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const subscriptionUpdateRequestInputValidator =
+export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpdateRequest> =
   tShape<SubscriptionUpdateRequest>({
     threadID: tID,
     updatedFields: tShape({
@@ -150,40 +149,27 @@ export const subscriptionUpdateResponseValidator: TInterface<SubscriptionUpdateR
 
 async function userSubscriptionUpdateResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SubscriptionUpdateRequest,
 ): Promise<SubscriptionUpdateResponse> {
-  const request = await validateInput(
-    viewer,
-    subscriptionUpdateRequestInputValidator,
-    input,
-  );
   const threadSubscription = await userSubscriptionUpdater(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    subscriptionUpdateResponseValidator,
-    {
-      threadSubscription,
-    },
-  );
+  return {
+    threadSubscription,
+  };
 }
 
-const accountUpdateInputValidator = tShape<PasswordUpdate>({
-  updatedFields: tShape({
-    email: t.maybe(tEmail),
-    password: t.maybe(tPassword),
-  }),
-  currentPassword: tPassword,
-});
+export const accountUpdateInputValidator: TInterface<PasswordUpdate> =
+  tShape<PasswordUpdate>({
+    updatedFields: tShape({
+      email: t.maybe(tEmail),
+      password: t.maybe(tPassword),
+    }),
+    currentPassword: tPassword,
+  });
 
 async function passwordUpdateResponder(
   viewer: Viewer,
-  input: mixed,
+  request: PasswordUpdate,
 ): Promise<void> {
-  const request = await validateInput(
-    viewer,
-    accountUpdateInputValidator,
-    input,
-  );
   await accountUpdater(viewer, request);
 }
 
@@ -194,19 +180,15 @@ async function sendVerificationEmailResponder(viewer: Viewer): Promise<void> {
   await checkAndSendVerificationEmail(viewer);
 }
 
-const resetPasswordRequestInputValidator = tShape<ResetPasswordRequest>({
-  usernameOrEmail: t.union([tEmail, tOldValidUsername]),
-});
+export const resetPasswordRequestInputValidator: TInterface<ResetPasswordRequest> =
+  tShape<ResetPasswordRequest>({
+    usernameOrEmail: t.union([tEmail, tOldValidUsername]),
+  });
 
 async function sendPasswordResetEmailResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ResetPasswordRequest,
 ): Promise<void> {
-  const request = await validateInput(
-    viewer,
-    resetPasswordRequestInputValidator,
-    input,
-  );
   await checkAndSendPasswordResetEmail(request);
 }
 
@@ -229,39 +211,26 @@ async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
     ]);
     viewer.setNewCookie(anonymousViewerData);
   }
-  const response = {
+  return {
     currentUserInfo: {
       id: viewer.id,
       anonymous: true,
     },
   };
-  return validateOutput(
-    viewer.platformDetails,
-    logOutResponseValidator,
-    response,
-  );
 }
 
-const deleteAccountRequestInputValidator = tShape<DeleteAccountRequest>({
-  password: t.maybe(tPassword),
-});
+export const deleteAccountRequestInputValidator: TInterface<DeleteAccountRequest> =
+  tShape<DeleteAccountRequest>({
+    password: t.maybe(tPassword),
+  });
 
 async function accountDeletionResponder(
   viewer: Viewer,
-  input: mixed,
+  request: DeleteAccountRequest,
 ): Promise<LogOutResponse> {
-  const request = await validateInput(
-    viewer,
-    deleteAccountRequestInputValidator,
-    input,
-  );
   const result = await deleteAccount(viewer, request);
   invariant(result, 'deleteAccount should return result if handed request');
-  return validateOutput(
-    viewer.platformDetails,
-    logOutResponseValidator,
-    result,
-  );
+  return result;
 }
 
 const deviceTokenUpdateRequestInputValidator = tShape({
@@ -269,19 +238,20 @@ const deviceTokenUpdateRequestInputValidator = tShape({
   deviceToken: t.String,
 });
 
-const registerRequestInputValidator = tShape<RegisterRequest>({
-  username: t.String,
-  email: t.maybe(tEmail),
-  password: tPassword,
-  calendarQuery: t.maybe(newEntryQueryInputValidator),
-  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platformDetails: tPlatformDetails,
-  // We include `primaryIdentityPublicKey` to avoid breaking
-  // old clients, but we no longer do anything with it.
-  primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
-  signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
-  initialNotificationsEncryptedMessage: t.maybe(t.String),
-});
+export const registerRequestInputValidator: TInterface<RegisterRequest> =
+  tShape<RegisterRequest>({
+    username: t.String,
+    email: t.maybe(tEmail),
+    password: tPassword,
+    calendarQuery: t.maybe(newEntryQueryInputValidator),
+    deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+    platformDetails: tPlatformDetails,
+    // We include `primaryIdentityPublicKey` to avoid breaking
+    // old clients, but we no longer do anything with it.
+    primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
+    signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+    initialNotificationsEncryptedMessage: t.maybe(t.String),
+  });
 
 export const registerResponseValidator: TInterface<RegisterResponse> =
   tShape<RegisterResponse>({
@@ -299,13 +269,8 @@ export const registerResponseValidator: TInterface<RegisterResponse> =
 
 async function accountCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: RegisterRequest,
 ): Promise<RegisterResponse> {
-  const request = await validateInput(
-    viewer,
-    registerRequestInputValidator,
-    input,
-  );
   const { signedIdentityKeysBlob } = request;
   if (signedIdentityKeysBlob) {
     const identityKeys: IdentityKeysBlob = JSON.parse(
@@ -326,12 +291,7 @@ async function accountCreationResponder(
       throw new ServerError('invalid_signature');
     }
   }
-  const response = await createAccount(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    registerResponseValidator,
-    response,
-  );
+  return await createAccount(viewer, request);
 }
 
 type ProcessSuccessfulLoginParams = {
@@ -453,21 +413,22 @@ async function processSuccessfulLogin(
   return response;
 }
 
-const logInRequestInputValidator = tShape<LogInRequest>({
-  username: t.maybe(t.String),
-  usernameOrEmail: t.maybe(t.union([tEmail, tOldValidUsername])),
-  password: tPassword,
-  watchedIDs: t.list(tID),
-  calendarQuery: t.maybe(entryQueryInputValidator),
-  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platformDetails: tPlatformDetails,
-  source: t.maybe(t.enums.of(values(logInActionSources))),
-  // We include `primaryIdentityPublicKey` to avoid breaking
-  // old clients, but we no longer do anything with it.
-  primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
-  signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
-  initialNotificationsEncryptedMessage: t.maybe(t.String),
-});
+export const logInRequestInputValidator: TInterface<LogInRequest> =
+  tShape<LogInRequest>({
+    username: t.maybe(t.String),
+    usernameOrEmail: t.maybe(t.union([tEmail, tOldValidUsername])),
+    password: tPassword,
+    watchedIDs: t.list(tID),
+    calendarQuery: t.maybe(entryQueryInputValidator),
+    deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+    platformDetails: tPlatformDetails,
+    source: t.maybe(t.enums.of(values(logInActionSources))),
+    // We include `primaryIdentityPublicKey` to avoid breaking
+    // old clients, but we no longer do anything with it.
+    primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
+    signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+    initialNotificationsEncryptedMessage: t.maybe(t.String),
+  });
 
 export const logInResponseValidator: TInterface<LogInResponse> =
   tShape<LogInResponse>({
@@ -489,14 +450,8 @@ export const logInResponseValidator: TInterface<LogInResponse> =
 
 async function logInResponder(
   viewer: Viewer,
-  input: mixed,
+  request: LogInRequest,
 ): Promise<LogInResponse> {
-  const request = await validateInput(
-    viewer,
-    logInRequestInputValidator,
-    input,
-  );
-
   let identityKeys: ?IdentityKeysBlob;
   const { signedIdentityKeysBlob, initialNotificationsEncryptedMessage } =
     request;
@@ -557,42 +512,32 @@ async function logInResponder(
 
   const id = userRow.id.toString();
 
-  const response = await processSuccessfulLogin({
+  return await processSuccessfulLogin({
     viewer,
-    input,
+    input: request,
     userID: id,
     calendarQuery,
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
   });
-  return validateOutput(
-    viewer.platformDetails,
-    logInResponseValidator,
-    response,
-  );
 }
 
-const siweAuthRequestInputValidator = tShape<SIWEAuthRequest>({
-  signature: t.String,
-  message: t.String,
-  calendarQuery: entryQueryInputValidator,
-  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platformDetails: tPlatformDetails,
-  watchedIDs: t.list(tID),
-  signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
-  initialNotificationsEncryptedMessage: t.maybe(t.String),
-});
+export const siweAuthRequestInputValidator: TInterface<SIWEAuthRequest> =
+  tShape<SIWEAuthRequest>({
+    signature: t.String,
+    message: t.String,
+    calendarQuery: entryQueryInputValidator,
+    deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+    platformDetails: tPlatformDetails,
+    watchedIDs: t.list(tID),
+    signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
+    initialNotificationsEncryptedMessage: t.maybe(t.String),
+  });
 
 async function siweAuthResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SIWEAuthRequest,
 ): Promise<LogInResponse> {
-  const request = await validateInput(
-    viewer,
-    siweAuthRequestInputValidator,
-    input,
-  );
-
   const {
     message,
     signature,
@@ -703,86 +648,62 @@ async function siweAuthResponder(
   }
 
   // 9. Complete login with call to `processSuccessfulLogin(...)`.
-  const response = await processSuccessfulLogin({
+  return await processSuccessfulLogin({
     viewer,
-    input,
+    input: request,
     userID,
     calendarQuery,
     socialProof,
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
   });
-  return validateOutput(
-    viewer.platformDetails,
-    logInResponseValidator,
-    response,
-  );
 }
 
-const updatePasswordRequestInputValidator = tShape<UpdatePasswordRequest>({
-  code: t.String,
-  password: tPassword,
-  watchedIDs: t.list(tID),
-  calendarQuery: t.maybe(entryQueryInputValidator),
-  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
-  platformDetails: tPlatformDetails,
-});
+export const updatePasswordRequestInputValidator: TInterface<UpdatePasswordRequest> =
+  tShape<UpdatePasswordRequest>({
+    code: t.String,
+    password: tPassword,
+    watchedIDs: t.list(tID),
+    calendarQuery: t.maybe(entryQueryInputValidator),
+    deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+    platformDetails: tPlatformDetails,
+  });
 
 async function oldPasswordUpdateResponder(
   viewer: Viewer,
-  input: mixed,
+  request: UpdatePasswordRequest,
 ): Promise<LogInResponse> {
-  const request = await validateInput(
-    viewer,
-    updatePasswordRequestInputValidator,
-    input,
-  );
-
   if (request.calendarQuery) {
     request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
   }
-  const response = await updatePassword(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    logInResponseValidator,
-    response,
-  );
+  return await updatePassword(viewer, request);
 }
 
-const updateUserSettingsInputValidator = tShape<UpdateUserSettingsRequest>({
-  name: t.irreducible(
-    userSettingsTypes.DEFAULT_NOTIFICATIONS,
-    x => x === userSettingsTypes.DEFAULT_NOTIFICATIONS,
-  ),
-  data: t.enums.of(notificationTypeValues),
-});
+export const updateUserSettingsInputValidator: TInterface<UpdateUserSettingsRequest> =
+  tShape<UpdateUserSettingsRequest>({
+    name: t.irreducible(
+      userSettingsTypes.DEFAULT_NOTIFICATIONS,
+      x => x === userSettingsTypes.DEFAULT_NOTIFICATIONS,
+    ),
+    data: t.enums.of(notificationTypeValues),
+  });
 
 async function updateUserSettingsResponder(
   viewer: Viewer,
-  input: mixed,
+  request: UpdateUserSettingsRequest,
 ): Promise<void> {
-  const request = await validateInput(
-    viewer,
-    updateUserSettingsInputValidator,
-    input,
-  );
   await updateUserSettings(viewer, request);
 }
 
-const policyAcknowledgmentRequestInputValidator =
+export const policyAcknowledgmentRequestInputValidator: TInterface<PolicyAcknowledgmentRequest> =
   tShape<PolicyAcknowledgmentRequest>({
     policy: t.maybe(t.enums.of(policies)),
   });
 
 async function policyAcknowledgmentResponder(
   viewer: Viewer,
-  input: mixed,
+  request: PolicyAcknowledgmentRequest,
 ): Promise<void> {
-  const request = await validateInput(
-    viewer,
-    policyAcknowledgmentRequestInputValidator,
-    input,
-  );
   await viewerAcknowledgmentUpdater(viewer, request.policy);
 }
 
@@ -791,26 +712,18 @@ export const updateUserAvatarResponseValidator: TInterface<UpdateUserAvatarRespo
     updates: createUpdatesResultValidator,
   });
 
-const updateUserAvatarResponderValidator = t.union([
+export const updateUserAvatarResponderValidator: TUnion<
+  ?ClientAvatar | UpdateUserAvatarResponse,
+> = t.union([
   t.maybe(clientAvatarValidator),
   updateUserAvatarResponseValidator,
 ]);
 
 async function updateUserAvatarResponder(
   viewer: Viewer,
-  input: mixed,
+  request: UpdateUserAvatarRequest,
 ): Promise<?ClientAvatar | UpdateUserAvatarResponse> {
-  const request = await validateInput(
-    viewer,
-    updateUserAvatarRequestValidator,
-    input,
-  );
-  const result = await updateUserAvatar(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    updateUserAvatarResponderValidator,
-    result,
-  );
+  return await updateUserAvatar(viewer, request);
 }
 
 export {
