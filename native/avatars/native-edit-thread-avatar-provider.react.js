@@ -1,13 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import { BaseEditThreadAvatarProvider } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 
 import { selectFromGallery, useUploadSelectedMedia } from './avatar-hooks.js';
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
+import Alert from '../utils/alert.js';
 
 const displayAvatarUpdateFailureAlert = () =>
   Alert.alert(

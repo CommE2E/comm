@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View, Alert } from 'react-native';
+import { Text, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
@@ -18,6 +18,7 @@ import type { RegistrationNavigationProp } from './registration-navigator.react.
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 import { useSIWEServerCall } from '../siwe-hooks.js';
 
 const siweAuthLoadingStatusSelector =

@@ -11,7 +11,6 @@ import {
   TextInput as BaseTextInput,
   Platform,
   TouchableWithoutFeedback,
-  Alert,
   LayoutAnimation,
   Keyboard,
 } from 'react-native';
@@ -81,6 +80,7 @@ import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors, useStyles } from '../themes/colors.js';
 import type { LayoutEvent } from '../types/react-native.js';
+import Alert from '../utils/alert.js';
 import { waitForInteractions } from '../utils/timers.js';
 
 function hueDistance(firstColor: string, secondColor: string): number {

@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View, Alert } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { inviteLinkUrl } from 'lib/facts/links.js';
 import { useInviteLinksActions } from 'lib/hooks/invite-links.js';
@@ -14,6 +14,7 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 
 export type ManagePublicLinkScreenParams = {
   +community: ThreadInfo,

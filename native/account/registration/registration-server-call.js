@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
@@ -24,6 +24,7 @@ import { useUploadSelectedMedia } from '../../avatars/avatar-hooks.js';
 import { NavContext } from '../../navigation/navigation-context.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
+import Alert from '../../utils/alert.js';
 import { setNativeCredentials } from '../native-credentials.js';
 import { useSIWEServerCall } from '../siwe-hooks.js';
 

@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import Alert from 'react-native/Libraries/Alert/Alert.js';
 
 import {
   sendReactionMessage,
@@ -22,6 +21,7 @@ import type {
   LayoutCoordinates,
   VerticalBounds,
 } from '../types/layout-types.js';
+import Alert from '../utils/alert.js';
 
 function useSendReaction(
   messageID: ?string,

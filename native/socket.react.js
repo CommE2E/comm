@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import Alert from 'react-native/Libraries/Alert/Alert.js';
 import { useDispatch } from 'react-redux';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions.js';
@@ -30,6 +29,7 @@ import {
   nativeGetClientResponsesSelector,
   nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors.js';
+import Alert from './utils/alert.js';
 import { useInitialNotificationsEncryptedMessage } from './utils/crypto-utils.js';
 
 const NativeSocket: React.ComponentType<BaseSocketProps> =

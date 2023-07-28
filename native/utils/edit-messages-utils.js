@@ -1,6 +1,6 @@
 // @flow
 
-import Alert from 'react-native/Libraries/Alert/Alert.js';
+import Alert from './alert.js';
 
 type ExitAlertOptions = {
   onDiscard: () => void,
