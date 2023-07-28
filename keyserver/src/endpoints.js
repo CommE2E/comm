@@ -1,13 +1,28 @@
 // @flow
 
+import t from 'tcomb';
+
 import { baseLegalPolicies } from 'lib/facts/policies.js';
+import {
+  setThreadUnreadStatusResultValidator,
+  updateActivityResultValidator,
+} from 'lib/types/activity-types.js';
 import type { Endpoint } from 'lib/types/endpoints.js';
+import { inviteLinkValidator } from 'lib/types/link-types.js';
+import { uploadMultimediaResultValidator } from 'lib/types/media-types.js';
+import { getOlmSessionInitializationDataResponseValidator } from 'lib/types/request-types.js';
+import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
   updateActivityResponder,
   threadSetUnreadStatusResponder,
+  setThreadUnreadStatusValidator,
+  updateActivityResponderInputValidator,
 } from './responders/activity-responders.js';
-import { deviceTokenUpdateResponder } from './responders/device-responders.js';
+import {
+  deviceTokenUpdateResponder,
+  deviceTokenUpdateRequestInputValidator,
+} from './responders/device-responders.js';
 import {
   entryFetchResponder,
   entryRevisionFetchResponder,
@@ -16,19 +31,44 @@ import {
   entryDeletionResponder,
   entryRestorationResponder,
   calendarQueryUpdateResponder,
+  createEntryRequestInputValidator,
+  saveEntryResponseValidator,
+  deleteEntryRequestInputValidator,
+  deleteEntryResponseValidator,
+  entryQueryInputValidator,
+  entryRevisionHistoryFetchInputValidator,
+  fetchEntryInfosResponseValidator,
+  fetchEntryRevisionInfosResultValidator,
+  deltaEntryInfosResultValidator,
+  newEntryQueryInputValidator,
+  restoreEntryRequestInputValidator,
+  restoreEntryResponseValidator,
+  saveEntryRequestInputValidator,
 } from './responders/entry-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
+import { createJSONResponder } from './responders/handlers.js';
 import {
   getSessionPublicKeysResponder,
   getOlmSessionInitializationDataResponder,
+  getSessionPublicKeysInputValidator,
+  getSessionPublicKeysResponseValidator,
 } from './responders/keys-responders.js';
 import {
   createOrUpdatePublicLinkResponder,
   disableInviteLinkResponder,
   fetchPrimaryInviteLinksResponder,
   inviteLinkVerificationResponder,
+  createOrUpdatePublicLinkInputValidator,
+  disableInviteLinkInputValidator,
+  fetchInviteLinksResponseValidator,
+  inviteLinkVerificationRequestInputValidator,
+  inviteLinkVerificationResponseValidator,
 } from './responders/link-responders.js';
-import { messageReportCreationResponder } from './responders/message-report-responder.js';
+import {
+  messageReportCreationResponder,
+  messageReportCreationRequestInputValidator,
+  messageReportCreationResultValidator,
+} from './responders/message-report-responder.js';
 import {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -37,18 +77,46 @@ import {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
+  sendMessageResponseValidator,
+  sendMultimediaMessageRequestInputValidator,
+  sendReactionMessageRequestInputValidator,
+  editMessageRequestInputValidator,
+  sendEditMessageResponseValidator,
+  sendTextMessageRequestInputValidator,
+  fetchMessageInfosRequestInputValidator,
+  fetchMessageInfosResponseValidator,
+  fetchPinnedMessagesResponderInputValidator,
+  fetchPinnedMessagesResultValidator,
+  searchMessagesResponderInputValidator,
+  searchMessagesResponseValidator,
 } from './responders/message-responders.js';
-import { updateRelationshipsResponder } from './responders/relationship-responders.js';
+import {
+  updateRelationshipsResponder,
+  relationshipErrorsValidator,
+  updateRelationshipInputValidator,
+} from './responders/relationship-responders.js';
 import {
   reportCreationResponder,
   reportMultiCreationResponder,
   errorReportFetchInfosResponder,
+  reportCreationRequestInputValidator,
+  reportCreationResponseValidator,
+  fetchErrorReportInfosRequestInputValidator,
+  fetchErrorReportInfosResponseValidator,
+  reportMultiCreationRequestInputValidator,
 } from './responders/report-responders.js';
 import {
   userSearchResponder,
   exactUserSearchResponder,
+  exactUserSearchRequestInputValidator,
+  exactUserSearchResultValidator,
+  userSearchRequestInputValidator,
+  userSearchResultValidator,
 } from './responders/search-responders.js';
-import { siweNonceResponder } from './responders/siwe-nonce-responders.js';
+import {
+  siweNonceResponder,
+  siweNonceResponseValidator,
+} from './responders/siwe-nonce-responders.js';
 import {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -59,6 +127,21 @@ import {
   threadFetchMediaResponder,
   threadJoinResponder,
   toggleMessagePinResponder,
+  leaveThreadResultValidator,
+  newThreadRequestInputValidator,
+  newThreadResponseValidator,
+  threadDeletionRequestInputValidator,
+  joinThreadRequestInputValidator,
+  leaveThreadRequestInputValidator,
+  threadFetchMediaRequestInputValidator,
+  threadFetchMediaResultValidator,
+  threadJoinResultValidator,
+  changeThreadSettingsResultValidator,
+  removeMembersRequestInputValidator,
+  roleChangeRequestInputValidator,
+  toggleMessagePinRequestInputValidator,
+  toggleMessagePinResultValidator,
+  updateThreadRequestInputValidator,
 } from './responders/thread-responders.js';
 import {
   userSubscriptionUpdateResponder,
@@ -74,247 +157,388 @@ import {
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
   updateUserAvatarResponder,
+  registerRequestInputValidator,
+  registerResponseValidator,
+  deleteAccountRequestInputValidator,
+  logOutResponseValidator,
+  logInRequestInputValidator,
+  logInResponseValidator,
+  policyAcknowledgmentRequestInputValidator,
+  accountUpdateInputValidator,
+  resetPasswordRequestInputValidator,
+  siweAuthRequestInputValidator,
+  subscriptionUpdateRequestInputValidator,
+  subscriptionUpdateResponseValidator,
+  updatePasswordRequestInputValidator,
+  updateUserAvatarResponderValidator,
+  updateUserSettingsInputValidator,
 } from './responders/user-responders.js';
-import { codeVerificationResponder } from './responders/verification-responders.js';
-import { versionResponder } from './responders/version-responders.js';
+import {
+  codeVerificationResponder,
+  codeVerificationRequestInputValidator,
+} from './responders/verification-responders.js';
+import {
+  versionResponder,
+  versionResponseValidator,
+} from './responders/version-responders.js';
 import {
   uploadMediaMetadataResponder,
   uploadDeletionResponder,
+  UploadDeletionRequestInputValidator,
+  uploadMediaMetadataInputValidator,
 } from './uploads/uploads.js';
 
+const ignoredArgumentValidator = t.irreducible('Ignored argument', () => true);
+
 const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
-  create_account: {
-    responder: accountCreationResponder,
-    requiredPolicies: [],
-  },
-  create_entry: {
-    responder: entryCreationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  create_error_report: {
-    responder: reportCreationResponder,
-    requiredPolicies: [],
-  },
-  create_message_report: {
-    responder: messageReportCreationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  create_multimedia_message: {
-    responder: multimediaMessageCreationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  create_or_update_public_link: {
-    responder: createOrUpdatePublicLinkResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  create_reaction_message: {
-    responder: reactionMessageCreationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  disable_invite_link: {
-    responder: disableInviteLinkResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  edit_message: {
-    responder: editMessageCreationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  create_report: {
-    responder: reportCreationResponder,
-    requiredPolicies: [],
-  },
-  create_reports: {
-    responder: reportMultiCreationResponder,
-    requiredPolicies: [],
-  },
-  create_text_message: {
-    responder: textMessageCreationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  create_thread: {
-    responder: threadCreationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  delete_account: {
-    responder: accountDeletionResponder,
-    requiredPolicies: [],
-  },
-  delete_entry: {
-    responder: entryDeletionResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  delete_thread: {
-    responder: threadDeletionResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  delete_upload: {
-    responder: uploadDeletionResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  exact_search_user: {
-    responder: exactUserSearchResponder,
-    requiredPolicies: [],
-  },
-  fetch_entries: {
-    responder: entryFetchResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  fetch_entry_revisions: {
-    responder: entryRevisionFetchResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  fetch_error_report_infos: {
-    responder: errorReportFetchInfosResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  fetch_messages: {
-    responder: messageFetchResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  fetch_pinned_messages: {
-    responder: fetchPinnedMessagesResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  fetch_primary_invite_links: {
-    responder: fetchPrimaryInviteLinksResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  fetch_thread_media: {
-    responder: threadFetchMediaResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  get_session_public_keys: {
-    responder: getSessionPublicKeysResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  join_thread: {
-    responder: threadJoinResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  leave_thread: {
-    responder: threadLeaveResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  log_in: {
-    responder: logInResponder,
-    requiredPolicies: [],
-  },
-  log_out: {
-    responder: logOutResponder,
-    requiredPolicies: [],
-  },
-  policy_acknowledgment: {
-    responder: policyAcknowledgmentResponder,
-    requiredPolicies: [],
-  },
-  remove_members: {
-    responder: memberRemovalResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  restore_entry: {
-    responder: entryRestorationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  search_messages: {
-    responder: searchMessagesResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  search_users: {
-    responder: userSearchResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  send_password_reset_email: {
-    responder: sendPasswordResetEmailResponder,
-    requiredPolicies: [],
-  },
-  send_verification_email: {
-    responder: sendVerificationEmailResponder,
-    requiredPolicies: [],
-  },
-  set_thread_unread_status: {
-    responder: threadSetUnreadStatusResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  toggle_message_pin: {
-    responder: toggleMessagePinResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_account: {
-    responder: passwordUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_activity: {
-    responder: updateActivityResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_calendar_query: {
-    responder: calendarQueryUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_user_settings: {
-    responder: updateUserSettingsResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_device_token: {
-    responder: deviceTokenUpdateResponder,
-    requiredPolicies: [],
-  },
-  update_entry: {
-    responder: entryUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_password: {
-    responder: oldPasswordUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_relationships: {
-    responder: updateRelationshipsResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_role: {
-    responder: roleUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_thread: {
-    responder: threadUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  update_user_subscription: {
-    responder: userSubscriptionUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  verify_code: {
-    responder: codeVerificationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  verify_invite_link: {
-    responder: inviteLinkVerificationResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  siwe_nonce: {
-    responder: siweNonceResponder,
-    requiredPolicies: [],
-  },
-  siwe_auth: {
-    responder: siweAuthResponder,
-    requiredPolicies: [],
-  },
-  update_user_avatar: {
-    responder: updateUserAvatarResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  upload_media_metadata: {
-    responder: uploadMediaMetadataResponder,
-    requiredPolicies: baseLegalPolicies,
-  },
-  get_olm_session_initialization_data: {
-    responder: getOlmSessionInitializationDataResponder,
-    requiredPolicies: [],
-  },
-  version: {
-    responder: versionResponder,
-    requiredPolicies: [],
-  },
+  create_account: createJSONResponder(
+    accountCreationResponder,
+    registerRequestInputValidator,
+    registerResponseValidator,
+    [],
+  ),
+  create_entry: createJSONResponder(
+    entryCreationResponder,
+    createEntryRequestInputValidator,
+    saveEntryResponseValidator,
+    baseLegalPolicies,
+  ),
+  create_error_report: createJSONResponder(
+    reportCreationResponder,
+    reportCreationRequestInputValidator,
+    reportCreationResponseValidator,
+    [],
+  ),
+  create_message_report: createJSONResponder(
+    messageReportCreationResponder,
+    messageReportCreationRequestInputValidator,
+    messageReportCreationResultValidator,
+    baseLegalPolicies,
+  ),
+  create_multimedia_message: createJSONResponder(
+    multimediaMessageCreationResponder,
+    sendMultimediaMessageRequestInputValidator,
+    sendMessageResponseValidator,
+    baseLegalPolicies,
+  ),
+  create_or_update_public_link: createJSONResponder(
+    createOrUpdatePublicLinkResponder,
+    createOrUpdatePublicLinkInputValidator,
+    inviteLinkValidator,
+    baseLegalPolicies,
+  ),
+  create_reaction_message: createJSONResponder(
+    reactionMessageCreationResponder,
+    sendReactionMessageRequestInputValidator,
+    sendMessageResponseValidator,
+    baseLegalPolicies,
+  ),
+  disable_invite_link: createJSONResponder(
+    disableInviteLinkResponder,
+    disableInviteLinkInputValidator,
+    t.Nil,
+    baseLegalPolicies,
+  ),
+  edit_message: createJSONResponder(
+    editMessageCreationResponder,
+    editMessageRequestInputValidator,
+    sendEditMessageResponseValidator,
+    baseLegalPolicies,
+  ),
+  create_report: createJSONResponder(
+    reportCreationResponder,
+    reportCreationRequestInputValidator,
+    reportCreationResponseValidator,
+    [],
+  ),
+  create_reports: createJSONResponder(
+    reportMultiCreationResponder,
+    reportMultiCreationRequestInputValidator,
+    t.Nil,
+    [],
+  ),
+  create_text_message: createJSONResponder(
+    textMessageCreationResponder,
+    sendTextMessageRequestInputValidator,
+    sendMessageResponseValidator,
+    baseLegalPolicies,
+  ),
+  create_thread: createJSONResponder(
+    threadCreationResponder,
+    newThreadRequestInputValidator,
+    newThreadResponseValidator,
+    baseLegalPolicies,
+  ),
+  delete_account: createJSONResponder(
+    accountDeletionResponder,
+    deleteAccountRequestInputValidator,
+    logOutResponseValidator,
+    [],
+  ),
+  delete_entry: createJSONResponder(
+    entryDeletionResponder,
+    deleteEntryRequestInputValidator,
+    deleteEntryResponseValidator,
+    baseLegalPolicies,
+  ),
+  delete_thread: createJSONResponder(
+    threadDeletionResponder,
+    threadDeletionRequestInputValidator,
+    leaveThreadResultValidator,
+    baseLegalPolicies,
+  ),
+  delete_upload: createJSONResponder(
+    uploadDeletionResponder,
+    UploadDeletionRequestInputValidator,
+    t.Nil,
+    baseLegalPolicies,
+  ),
+  exact_search_user: createJSONResponder(
+    exactUserSearchResponder,
+    exactUserSearchRequestInputValidator,
+    exactUserSearchResultValidator,
+    [],
+  ),
+  fetch_entries: createJSONResponder(
+    entryFetchResponder,
+    entryQueryInputValidator,
+    fetchEntryInfosResponseValidator,
+    baseLegalPolicies,
+  ),
+  fetch_entry_revisions: createJSONResponder(
+    entryRevisionFetchResponder,
+    entryRevisionHistoryFetchInputValidator,
+    fetchEntryRevisionInfosResultValidator,
+    baseLegalPolicies,
+  ),
+  fetch_error_report_infos: createJSONResponder(
+    errorReportFetchInfosResponder,
+    fetchErrorReportInfosRequestInputValidator,
+    fetchErrorReportInfosResponseValidator,
+    baseLegalPolicies,
+  ),
+  fetch_messages: createJSONResponder(
+    messageFetchResponder,
+    fetchMessageInfosRequestInputValidator,
+    fetchMessageInfosResponseValidator,
+    baseLegalPolicies,
+  ),
+  fetch_pinned_messages: createJSONResponder(
+    fetchPinnedMessagesResponder,
+    fetchPinnedMessagesResponderInputValidator,
+    fetchPinnedMessagesResultValidator,
+    baseLegalPolicies,
+  ),
+  fetch_primary_invite_links: createJSONResponder(
+    fetchPrimaryInviteLinksResponder,
+    ignoredArgumentValidator,
+    fetchInviteLinksResponseValidator,
+    baseLegalPolicies,
+  ),
+  fetch_thread_media: createJSONResponder(
+    threadFetchMediaResponder,
+    threadFetchMediaRequestInputValidator,
+    threadFetchMediaResultValidator,
+    baseLegalPolicies,
+  ),
+  get_session_public_keys: createJSONResponder(
+    getSessionPublicKeysResponder,
+    getSessionPublicKeysInputValidator,
+    getSessionPublicKeysResponseValidator,
+    baseLegalPolicies,
+  ),
+  join_thread: createJSONResponder(
+    threadJoinResponder,
+    joinThreadRequestInputValidator,
+    threadJoinResultValidator,
+    baseLegalPolicies,
+  ),
+  leave_thread: createJSONResponder(
+    threadLeaveResponder,
+    leaveThreadRequestInputValidator,
+    leaveThreadResultValidator,
+    baseLegalPolicies,
+  ),
+  log_in: createJSONResponder(
+    logInResponder,
+    logInRequestInputValidator,
+    logInResponseValidator,
+    [],
+  ),
+  log_out: createJSONResponder(
+    logOutResponder,
+    ignoredArgumentValidator,
+    logOutResponseValidator,
+    [],
+  ),
+  policy_acknowledgment: createJSONResponder(
+    policyAcknowledgmentResponder,
+    policyAcknowledgmentRequestInputValidator,
+    t.Nil,
+    [],
+  ),
+  remove_members: createJSONResponder(
+    memberRemovalResponder,
+    removeMembersRequestInputValidator,
+    changeThreadSettingsResultValidator,
+    baseLegalPolicies,
+  ),
+  restore_entry: createJSONResponder(
+    entryRestorationResponder,
+    restoreEntryRequestInputValidator,
+    restoreEntryResponseValidator,
+    baseLegalPolicies,
+  ),
+  search_messages: createJSONResponder(
+    searchMessagesResponder,
+    searchMessagesResponderInputValidator,
+    searchMessagesResponseValidator,
+    baseLegalPolicies,
+  ),
+  search_users: createJSONResponder(
+    userSearchResponder,
+    userSearchRequestInputValidator,
+    userSearchResultValidator,
+    baseLegalPolicies,
+  ),
+  send_password_reset_email: createJSONResponder(
+    sendPasswordResetEmailResponder,
+    resetPasswordRequestInputValidator,
+    t.Nil,
+    [],
+  ),
+  send_verification_email: createJSONResponder(
+    sendVerificationEmailResponder,
+    ignoredArgumentValidator,
+    t.Nil,
+    [],
+  ),
+  set_thread_unread_status: createJSONResponder(
+    threadSetUnreadStatusResponder,
+    setThreadUnreadStatusValidator,
+    setThreadUnreadStatusResultValidator,
+    baseLegalPolicies,
+  ),
+  toggle_message_pin: createJSONResponder(
+    toggleMessagePinResponder,
+    toggleMessagePinRequestInputValidator,
+    toggleMessagePinResultValidator,
+    baseLegalPolicies,
+  ),
+  update_account: createJSONResponder(
+    passwordUpdateResponder,
+    accountUpdateInputValidator,
+    t.Nil,
+    baseLegalPolicies,
+  ),
+  update_activity: createJSONResponder(
+    updateActivityResponder,
+    updateActivityResponderInputValidator,
+    updateActivityResultValidator,
+    baseLegalPolicies,
+  ),
+  update_calendar_query: createJSONResponder(
+    calendarQueryUpdateResponder,
+    newEntryQueryInputValidator,
+    deltaEntryInfosResultValidator,
+    baseLegalPolicies,
+  ),
+  update_user_settings: createJSONResponder(
+    updateUserSettingsResponder,
+    updateUserSettingsInputValidator,
+    t.Nil,
+    baseLegalPolicies,
+  ),
+  update_device_token: createJSONResponder(
+    deviceTokenUpdateResponder,
+    deviceTokenUpdateRequestInputValidator,
+    t.Nil,
+    [],
+  ),
+  update_entry: createJSONResponder(
+    entryUpdateResponder,
+    saveEntryRequestInputValidator,
+    saveEntryResponseValidator,
+    baseLegalPolicies,
+  ),
+  update_password: createJSONResponder(
+    oldPasswordUpdateResponder,
+    updatePasswordRequestInputValidator,
+    logInResponseValidator,
+    baseLegalPolicies,
+  ),
+  update_relationships: createJSONResponder(
+    updateRelationshipsResponder,
+    updateRelationshipInputValidator,
+    relationshipErrorsValidator,
+    baseLegalPolicies,
+  ),
+  update_role: createJSONResponder(
+    roleUpdateResponder,
+    roleChangeRequestInputValidator,
+    changeThreadSettingsResultValidator,
+    baseLegalPolicies,
+  ),
+  update_thread: createJSONResponder(
+    threadUpdateResponder,
+    updateThreadRequestInputValidator,
+    changeThreadSettingsResultValidator,
+    baseLegalPolicies,
+  ),
+  update_user_subscription: createJSONResponder(
+    userSubscriptionUpdateResponder,
+    subscriptionUpdateRequestInputValidator,
+    subscriptionUpdateResponseValidator,
+    baseLegalPolicies,
+  ),
+  verify_code: createJSONResponder(
+    codeVerificationResponder,
+    codeVerificationRequestInputValidator,
+    t.Nil,
+    baseLegalPolicies,
+  ),
+  verify_invite_link: createJSONResponder(
+    inviteLinkVerificationResponder,
+    inviteLinkVerificationRequestInputValidator,
+    inviteLinkVerificationResponseValidator,
+    baseLegalPolicies,
+  ),
+  siwe_nonce: createJSONResponder(
+    siweNonceResponder,
+    ignoredArgumentValidator,
+    siweNonceResponseValidator,
+    [],
+  ),
+  siwe_auth: createJSONResponder(
+    siweAuthResponder,
+    siweAuthRequestInputValidator,
+    logInResponseValidator,
+    [],
+  ),
+  update_user_avatar: createJSONResponder(
+    updateUserAvatarResponder,
+    updateUserAvatarRequestValidator,
+    updateUserAvatarResponderValidator,
+    baseLegalPolicies,
+  ),
+  upload_media_metadata: createJSONResponder(
+    uploadMediaMetadataResponder,
+    uploadMediaMetadataInputValidator,
+    uploadMultimediaResultValidator,
+    baseLegalPolicies,
+  ),
+  get_olm_session_initialization_data: createJSONResponder(
+    getOlmSessionInitializationDataResponder,
+    ignoredArgumentValidator,
+    getOlmSessionInitializationDataResponseValidator,
+    [],
+  ),
+  version: createJSONResponder(
+    versionResponder,
+    ignoredArgumentValidator,
+    versionResponseValidator,
+    [],
+  ),
 };
 
 export { jsonEndpoints };

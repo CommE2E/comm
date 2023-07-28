@@ -1,7 +1,6 @@
 // @flow
 
-import t from 'tcomb';
-import type { TList } from 'tcomb';
+import t, { type TInterface, type TList } from 'tcomb';
 
 import {
   type UpdateActivityResult,
@@ -9,8 +8,6 @@ import {
   type SetThreadUnreadStatusRequest,
   type SetThreadUnreadStatusResult,
   type ActivityUpdate,
-  setThreadUnreadStatusResult,
-  updateActivityResultValidator,
 } from 'lib/types/activity-types.js';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
@@ -19,7 +16,6 @@ import {
   activityUpdater,
   setThreadUnreadStatus,
 } from '../updaters/activity-updaters.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const activityUpdatesInputValidator: TList<Array<ActivityUpdate>> = t.list(
   tShape({
@@ -29,44 +25,29 @@ const activityUpdatesInputValidator: TList<Array<ActivityUpdate>> = t.list(
   }),
 );
 
-const inputValidator = tShape<UpdateActivityRequest>({
-  updates: activityUpdatesInputValidator,
-});
+export const updateActivityResponderInputValidator: TInterface<UpdateActivityRequest> =
+  tShape<UpdateActivityRequest>({
+    updates: activityUpdatesInputValidator,
+  });
 
 async function updateActivityResponder(
   viewer: Viewer,
-  input: mixed,
+  request: UpdateActivityRequest,
 ): Promise<UpdateActivityResult> {
-  const request = await validateInput(viewer, inputValidator, input);
-  const result = await activityUpdater(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    updateActivityResultValidator,
-    result,
-  );
+  return await activityUpdater(viewer, request);
 }
 
-const setThreadUnreadStatusValidator = tShape<SetThreadUnreadStatusRequest>({
-  threadID: tID,
-  unread: t.Bool,
-  latestMessage: t.maybe(tID),
-});
+export const setThreadUnreadStatusValidator: TInterface<SetThreadUnreadStatusRequest> =
+  tShape<SetThreadUnreadStatusRequest>({
+    threadID: tID,
+    unread: t.Bool,
+    latestMessage: t.maybe(tID),
+  });
 async function threadSetUnreadStatusResponder(
   viewer: Viewer,
-  input: mixed,
+  request: SetThreadUnreadStatusRequest,
 ): Promise<SetThreadUnreadStatusResult> {
-  const request = await validateInput(
-    viewer,
-    setThreadUnreadStatusValidator,
-    input,
-  );
-
-  const result = await setThreadUnreadStatus(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    setThreadUnreadStatusResult,
-    result,
-  );
+  return await setThreadUnreadStatus(viewer, request);
 }
 
 export {

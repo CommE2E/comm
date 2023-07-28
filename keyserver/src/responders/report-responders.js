@@ -2,7 +2,7 @@
 
 import type { $Response, $Request } from 'express';
 import t from 'tcomb';
-import type { TInterface, TStructProps } from 'tcomb';
+import type { TInterface, TStructProps, TUnion } from 'tcomb';
 
 import {
   type ReportCreationResponse,
@@ -29,7 +29,6 @@ import {
   fetchReduxToolsImport,
 } from '../fetchers/report-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
 const tActionSummary = tShape({
   type: t.String,
@@ -107,44 +106,40 @@ const userInconsistencyReportCreationRequest = tShape({
   ),
 });
 
-const reportCreationRequestInputValidator = t.union<ReportCreationRequest>([
-  tShape({
-    type: t.maybe(
-      t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
-    ),
-    platformDetails: t.maybe(tPlatformDetails),
-    deviceType: t.maybe(tPlatform),
-    codeVersion: t.maybe(t.Number),
-    stateVersion: t.maybe(t.Number),
-    errors: t.list(
-      tShape({
-        errorMessage: t.String,
-        stack: t.maybe(t.String),
-        componentStack: t.maybe(t.String),
-      }),
-    ),
-    preloadedState: t.Object,
-    currentState: t.Object,
-    actions: t.list(t.union([t.Object, t.String])),
-  }),
-  threadInconsistencyReportCreationRequest,
-  entryInconsistencyReportCreationRquest,
-  mediaMissionReportCreationRequest,
-  userInconsistencyReportCreationRequest,
-]);
+export const reportCreationRequestInputValidator: TUnion<ReportCreationRequest> =
+  t.union<ReportCreationRequest>([
+    tShape({
+      type: t.maybe(
+        t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
+      ),
+      platformDetails: t.maybe(tPlatformDetails),
+      deviceType: t.maybe(tPlatform),
+      codeVersion: t.maybe(t.Number),
+      stateVersion: t.maybe(t.Number),
+      errors: t.list(
+        tShape({
+          errorMessage: t.String,
+          stack: t.maybe(t.String),
+          componentStack: t.maybe(t.String),
+        }),
+      ),
+      preloadedState: t.Object,
+      currentState: t.Object,
+      actions: t.list(t.union([t.Object, t.String])),
+    }),
+    threadInconsistencyReportCreationRequest,
+    entryInconsistencyReportCreationRquest,
+    mediaMissionReportCreationRequest,
+    userInconsistencyReportCreationRequest,
+  ]);
 
 export const reportCreationResponseValidator: TInterface<ReportCreationResponse> =
   tShape<ReportCreationResponse>({ id: t.String });
 
 async function reportCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ReportCreationRequest,
 ): Promise<ReportCreationResponse> {
-  let request = await validateInput(
-    viewer,
-    reportCreationRequestInputValidator,
-    input,
-  );
   if (request.type === null || request.type === undefined) {
     request.type = reportTypes.ERROR;
   }
@@ -159,14 +154,10 @@ async function reportCreationResponder(
   if (!response) {
     throw new ServerError('ignored_report');
   }
-  return validateOutput(
-    viewer.platformDetails,
-    reportCreationResponseValidator,
-    response,
-  );
+  return response;
 }
 
-const reportMultiCreationRequestInputValidator =
+export const reportMultiCreationRequestInputValidator: TInterface<ReportMultiCreationRequest> =
   tShape<ReportMultiCreationRequest>({
     reports: t.list(
       t.union([
@@ -200,13 +191,8 @@ type ReportMultiCreationRequest = {
 };
 async function reportMultiCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: ReportMultiCreationRequest,
 ): Promise<void> {
-  const request = await validateInput(
-    viewer,
-    reportMultiCreationRequestInputValidator,
-    input,
-  );
   await Promise.all(
     request.reports.map(reportCreationRequest =>
       createReport(viewer, reportCreationRequest),
@@ -214,7 +200,7 @@ async function reportMultiCreationResponder(
   );
 }
 
-const fetchErrorReportInfosRequestInputValidator =
+export const fetchErrorReportInfosRequestInputValidator: TInterface<FetchErrorReportInfosRequest> =
   tShape<FetchErrorReportInfosRequest>({
     cursor: t.maybe(t.String),
   });
@@ -227,19 +213,9 @@ export const fetchErrorReportInfosResponseValidator: TInterface<FetchErrorReport
 
 async function errorReportFetchInfosResponder(
   viewer: Viewer,
-  input: mixed,
+  request: FetchErrorReportInfosRequest,
 ): Promise<FetchErrorReportInfosResponse> {
-  const request = await validateInput(
-    viewer,
-    fetchErrorReportInfosRequestInputValidator,
-    input,
-  );
-  const response = await fetchErrorReportInfos(viewer, request);
-  return validateOutput(
-    viewer.platformDetails,
-    fetchErrorReportInfosResponseValidator,
-    response,
-  );
+  return await fetchErrorReportInfos(viewer, request);
 }
 
 async function errorReportDownloadResponder(

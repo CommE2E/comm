@@ -27,7 +27,7 @@ import {
 } from '../fetchers/upload-fetchers.js';
 import type { MulterRequest } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
+import { validateOutput } from '../utils/validation-utils.js';
 
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');
@@ -111,28 +111,23 @@ async function multimediaUploadResponder(
   );
 }
 
-const uploadMediaMetadataInputValidator = tShape<UploadMediaMetadataRequest>({
-  filename: t.String,
-  width: t.Number,
-  height: t.Number,
-  blobHolder: t.String,
-  blobHash: t.String,
-  encryptionKey: t.String,
-  mimeType: t.String,
-  loop: t.maybe(t.Boolean),
-  thumbHash: t.maybe(t.String),
-});
+export const uploadMediaMetadataInputValidator: TInterface<UploadMediaMetadataRequest> =
+  tShape<UploadMediaMetadataRequest>({
+    filename: t.String,
+    width: t.Number,
+    height: t.Number,
+    blobHolder: t.String,
+    blobHash: t.String,
+    encryptionKey: t.String,
+    mimeType: t.String,
+    loop: t.maybe(t.Boolean),
+    thumbHash: t.maybe(t.String),
+  });
 
 async function uploadMediaMetadataResponder(
   viewer: Viewer,
-  input: mixed,
+  request: UploadMediaMetadataRequest,
 ): Promise<UploadMultimediaResult> {
-  const request = await validateInput(
-    viewer,
-    uploadMediaMetadataInputValidator,
-    input,
-  );
-
   const mediaType = getMediaType(request.mimeType);
   if (!mediaType) {
     throw new ServerError('invalid_parameters');
@@ -160,11 +155,7 @@ async function uploadMediaMetadataResponder(
   };
 
   const [result] = await createUploads(viewer, [uploadInfo]);
-  return validateOutput(
-    viewer.platformDetails,
-    uploadMultimediaResultValidator,
-    result,
-  );
+  return result;
 }
 
 async function uploadDownloadResponder(
@@ -233,20 +224,14 @@ async function uploadDownloadResponder(
   }
 }
 
-const uploadDeletionRequestInputValidator: TInterface<UploadDeletionRequest> =
+export const UploadDeletionRequestInputValidator: TInterface<UploadDeletionRequest> =
   tShape<UploadDeletionRequest>({
     id: tID,
   });
 async function uploadDeletionResponder(
   viewer: Viewer,
-  input: mixed,
+  { id }: UploadDeletionRequest,
 ): Promise<void> {
-  const { id } = await validateInput(
-    viewer,
-    uploadDeletionRequestInputValidator,
-    input,
-  );
-
   await deleteUpload(viewer, id);
 }
 

@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  setThreadUnreadStatusResult,
+  setThreadUnreadStatusResultValidator,
   updateActivityResultValidator,
 } from 'lib/types/activity-types.js';
 
@@ -430,10 +430,10 @@ describe('activity responder', () => {
 
   it('should validate set thread unread response', () => {
     const response = { resetToUnread: false };
-    expect(setThreadUnreadStatusResult.is(response)).toBe(true);
-    expect(setThreadUnreadStatusResult.is({ ...response, unread: false })).toBe(
-      false,
-    );
+    expect(setThreadUnreadStatusResultValidator.is(response)).toBe(true);
+    expect(
+      setThreadUnreadStatusResultValidator.is({ ...response, unread: false }),
+    ).toBe(false);
   });
 });
 

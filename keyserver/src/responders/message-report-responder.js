@@ -11,9 +11,8 @@ import { tShape, tID } from 'lib/utils/validation-utils.js';
 
 import createMessageReport from '../creators/message-report-creator.js';
 import type { Viewer } from '../session/viewer.js';
-import { validateInput, validateOutput } from '../utils/validation-utils.js';
 
-const messageReportCreationRequestInputValidator =
+export const messageReportCreationRequestInputValidator: TInterface<MessageReportCreationRequest> =
   tShape<MessageReportCreationRequest>({
     messageID: tID,
   });
@@ -23,21 +22,10 @@ export const messageReportCreationResultValidator: TInterface<MessageReportCreat
 
 async function messageReportCreationResponder(
   viewer: Viewer,
-  input: mixed,
+  request: MessageReportCreationRequest,
 ): Promise<MessageReportCreationResult> {
-  const request = await validateInput(
-    viewer,
-    messageReportCreationRequestInputValidator,
-    input,
-  );
-
   const rawMessageInfos = await createMessageReport(viewer, request);
-  const result = { messageInfo: rawMessageInfos[0] };
-  return validateOutput(
-    viewer.platformDetails,
-    messageReportCreationResultValidator,
-    result,
-  );
+  return { messageInfo: rawMessageInfos[0] };
 }
 
 export { messageReportCreationResponder };
