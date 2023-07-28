@@ -1074,6 +1074,7 @@ async function commitMembershipChangeset(
       });
     }
   }
+
   for (const row of membershipRowMap.values()) {
     const { userID, threadID } = row;
     if (row.operation === 'delete' || row.role === '-1') {

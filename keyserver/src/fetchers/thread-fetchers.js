@@ -78,6 +78,10 @@ type FetchServerThreadInfosResult = {
 async function fetchServerThreadInfos(
   filter?: FetchThreadInfosFilter,
 ): Promise<FetchServerThreadInfosResult> {
+  if (filter?.threadIDs?.size === 0) {
+    return { threadInfos: {} };
+  }
+
   let primaryFetchClause;
   if (filter?.accessibleToUserID) {
     primaryFetchClause = SQL`
