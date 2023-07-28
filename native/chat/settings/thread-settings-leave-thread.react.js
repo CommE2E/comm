@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View } from 'react-native';
+import { Text, ActivityIndicator, View } from 'react-native';
 
 import {
   leaveThreadActionTypes,
@@ -28,6 +28,7 @@ import {
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
+import Alert from '../../utils/alert.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

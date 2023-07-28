@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import {
   sendMessageReport,
@@ -14,6 +13,7 @@ import {
 
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
+import Alert from '../utils/alert.js';
 
 const confirmReport = () => displayActionResultModal('reported to admin');
 

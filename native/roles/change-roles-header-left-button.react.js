@@ -3,11 +3,12 @@
 import { HeaderBackButton as BaseHeaderBackButton } from '@react-navigation/elements';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Alert, Text } from 'react-native';
+import { Text } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import type { NavigationRoute } from '../navigation/route-names';
 import { useColors } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 
 type ChangeRolesHeaderLeftButtonProps = {
   +route: NavigationRoute<'ChangeRolesScreen'>,

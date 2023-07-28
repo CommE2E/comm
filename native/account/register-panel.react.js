@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Platform,
   Keyboard,
-  Alert,
   Linking,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -40,6 +39,7 @@ import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
+import Alert from '../utils/alert.js';
 import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import { type StateContainer } from '../utils/state-container.js';
 

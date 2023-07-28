@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Alert, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 import {
   updateRelationshipsActionTypes,
@@ -22,6 +22,7 @@ import {
   type BaseTooltipProps,
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
+import Alert from '../utils/alert.js';
 
 type Action = 'unfriend' | 'unblock';
 

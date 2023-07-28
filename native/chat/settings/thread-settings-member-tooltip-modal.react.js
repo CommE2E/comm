@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
 import { removeMemberFromThread } from 'lib/shared/thread-utils.js';
@@ -22,6 +21,7 @@ import {
   type BaseTooltipProps,
   type TooltipMenuProps,
 } from '../../tooltip/tooltip.react.js';
+import Alert from '../../utils/alert.js';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
   +memberInfo: RelativeMemberInfo,

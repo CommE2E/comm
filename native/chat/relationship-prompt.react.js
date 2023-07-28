@@ -2,7 +2,7 @@
 
 import Icon from '@expo/vector-icons/FontAwesome5.js';
 import * as React from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
@@ -11,6 +11,7 @@ import type { UserInfo } from 'lib/types/user-types.js';
 
 import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 
 type Props = {
   +pendingPersonalThreadUserInfo: ?UserInfo,

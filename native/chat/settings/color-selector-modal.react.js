@@ -2,7 +2,7 @@
 
 import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
-import { TouchableHighlight, Alert } from 'react-native';
+import { TouchableHighlight } from 'react-native';
 
 import {
   changeThreadSettingsActionTypes,
@@ -25,6 +25,7 @@ import type { RootNavigationProp } from '../../navigation/root-navigator.react.j
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 
 export type ColorSelectorModalParams = {
   +presentedFrom: string,
