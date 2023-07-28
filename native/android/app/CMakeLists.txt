@@ -122,6 +122,7 @@ list(APPEND ANDROID_NATIVE_CODE
 list(APPEND GENERATED_NATIVE_CODE
   "../../cpp/CommonCpp/_generated/commJSI-generated.cpp"
   "../../cpp/CommonCpp/_generated/utilsJSI-generated.cpp"
+  "../../cpp/CommonCpp/_generated/rustJSI-generated.cpp"
 )
 set(RUST_NATIVE_CODE "../../native_rust_library/RustCallback.cpp")
 file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
