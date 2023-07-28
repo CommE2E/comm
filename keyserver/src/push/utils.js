@@ -3,8 +3,6 @@
 import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
-import fetch from 'node-fetch';
-import type { Response } from 'node-fetch';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types.js';
@@ -368,7 +366,10 @@ async function wnsSinglePush(token: string, notification: string, url: string) {
       return { error: result };
     }
 
-    return { wnsID: result.headers.get('X-WNS-MSG-ID') };
+    const wnsID = result.headers.get('X-WNS-MSG-ID');
+    invariant(wnsID, 'Missing WNS ID');
+
+    return { wnsID };
   } catch (err) {
     return { error: err };
   }
