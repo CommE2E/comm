@@ -6,7 +6,6 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
-import { stringForReactionList } from 'lib/shared/reaction-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './inline-engagement.css';
@@ -23,7 +22,6 @@ type Props = {
 function InlineEngagement(props: Props): React.Node {
   const { sidebarThreadInfo, reactions, positioning, label } = props;
   const { pushModal, popModal } = useModalContext();
-  const repliesText = getInlineEngagementSidebarText(sidebarThreadInfo);
 
   const isLeft = positioning === 'left';
 
@@ -53,6 +51,8 @@ function InlineEngagement(props: Props): React.Node {
     [popModal, onClickSidebarInner],
   );
 
+  const repliesText = getInlineEngagementSidebarText(sidebarThreadInfo);
+
   const sidebarItem = React.useMemo(() => {
     if (!sidebarThreadInfo || !repliesText) {
       return null;
@@ -66,7 +66,7 @@ function InlineEngagement(props: Props): React.Node {
     );
   }, [sidebarThreadInfo, repliesText, onClickSidebar]);
 
-  const onClickReactions = React.useCallback(
+  const onClickReaction = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
       if (!reactions) {
@@ -84,14 +84,20 @@ function InlineEngagement(props: Props): React.Node {
       return null;
     }
 
-    const reactionText = stringForReactionList(reactions);
+    return Object.keys(reactions).map(reaction => {
+      const numOfReacts = reactions[reaction].users.length;
 
-    return (
-      <a onClick={onClickReactions} className={css.reactionsContainer}>
-        {reactionText}
-      </a>
-    );
-  }, [reactions, onClickReactions]);
+      return (
+        <a
+          onClick={onClickReaction}
+          className={css.reactionContainer}
+          key={reaction}
+        >
+          {`${reaction} ${numOfReacts}`}
+        </a>
+      );
+    });
+  }, [reactions, onClickReaction]);
 
   const containerClasses = classNames([
     css.inlineEngagementContainer,
@@ -102,25 +108,13 @@ function InlineEngagement(props: Props): React.Node {
     },
   ]);
 
-  let body;
-  if (isLeft) {
-    body = (
-      <>
-        {editedLabel}
-        {sidebarItem}
-        {reactionsList}
-      </>
-    );
-  } else {
-    body = (
-      <>
-        {sidebarItem}
-        {reactionsList}
-        {editedLabel}
-      </>
-    );
-  }
-  return <div className={containerClasses}>{body}</div>;
+  return (
+    <div className={containerClasses}>
+      {editedLabel}
+      {sidebarItem}
+      {reactionsList}
+    </div>
+  );
 }
 
 export default InlineEngagement;
