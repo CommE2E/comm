@@ -51,12 +51,15 @@ svg.inlineEngagementIcon {
 div.messageLabel {
   display: flex;
   flex-shrink: 0;
+  /* This is the height of the sidebar/reaction pills */
+  height: 29px;
 }
 
 div.messageLabel > span {
   font-size: 12px;
   padding: 0 3px;
   color: var(--message-label-color);
+  align-self: center;
 }
 
 div.messageLabelLeft {
@@ -67,8 +70,4 @@ div.messageLabelLeft {
 div.messageLabelRight {
   margin-right: 12px;
   margin-left: 4px;
-}
-
-div.onlyMessageLabel {
-  margin-top: 8px;
 }
