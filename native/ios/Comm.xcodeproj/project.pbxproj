@@ -77,6 +77,7 @@
 		CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */; };
 		CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17B295C580500B17035 /* CommIOSNotificationsBridgeQueue.mm */; };
 		CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
+		CB9A156E2A6AC79600ED9D2F /* NSEBlobServiceClient.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB9A156D2A6AC79600ED9D2F /* NSEBlobServiceClient.mm */; };
 		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
@@ -261,6 +262,8 @@
 		CB7EF17C295C580500B17035 /* CommIOSNotificationsBridgeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CommIOSNotificationsBridgeQueue.h; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.h; sourceTree = "<group>"; };
 		CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotifications.mm; path = Comm/CommIOSNotifications/CommIOSNotifications.mm; sourceTree = "<group>"; };
 		CB90951929531663002F2A7F /* CommIOSNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSNotifications.h; path = Comm/CommIOSNotifications/CommIOSNotifications.h; sourceTree = "<group>"; };
+		CB9A156C2A6AC79500ED9D2F /* NSEBlobServiceClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSEBlobServiceClient.h; sourceTree = "<group>"; };
+		CB9A156D2A6AC79600ED9D2F /* NSEBlobServiceClient.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NSEBlobServiceClient.mm; sourceTree = "<group>"; };
 		CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalDBSingleton.h; sourceTree = "<group>"; };
 		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
 		CBFE58272885852B003B94C9 /* ThreadOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadOperations.h; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h; sourceTree = "<group>"; };
@@ -504,6 +507,8 @@
 		724995D227B4103A00323FCE /* NotificationService */ = {
 			isa = PBXGroup;
 			children = (
+				CB9A156C2A6AC79500ED9D2F /* NSEBlobServiceClient.h */,
+				CB9A156D2A6AC79600ED9D2F /* NSEBlobServiceClient.mm */,
 				CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */,
 				724995D327B4103A00323FCE /* NotificationService.h */,
 				724995D427B4103A00323FCE /* NotificationService.mm */,
@@ -1097,6 +1102,7 @@
 				CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */,
 				CB38B48728771CE500171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48528771CB800171182 /* EncryptedFileUtils.mm in Sources */,
+				CB9A156E2A6AC79600ED9D2F /* NSEBlobServiceClient.mm in Sources */,
 				CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */,
 				CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */,
 				CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */,
