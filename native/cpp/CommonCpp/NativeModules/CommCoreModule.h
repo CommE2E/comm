@@ -7,6 +7,7 @@
 #include "JSIRust.h"
 #include "PersistentStorageUtilities/DataStores/DraftStore.h"
 #include "PersistentStorageUtilities/DataStores/MessageStore.h"
+#include "PersistentStorageUtilities/DataStores/ReportStore.h"
 #include "PersistentStorageUtilities/DataStores/ThreadStore.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
@@ -28,6 +29,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   DraftStore draftStore;
   ThreadStore threadStore;
   MessageStore messageStore;
+  ReportStore reportStore;
 
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
