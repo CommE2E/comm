@@ -25,47 +25,10 @@ int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
 std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
     "comm.encryptionKey";
 
-void set_encryption_key(sqlite3 *db) {
-  std::string set_encryption_key_query =
-      "PRAGMA key = \"x'" + SQLiteQueryExecutor::encryptionKey + "'\";";
-
-  char *error_set_key;
-  sqlite3_exec(
-      db, set_encryption_key_query.c_str(), nullptr, nullptr, &error_set_key);
-
-  if (error_set_key) {
-    std::ostringstream error_message;
-    error_message << "Failed to set encryption key: " << error_set_key;
-    throw std::system_error(
-        ECANCELED, std::generic_category(), error_message.str());
-  }
-}
-
-void trace_queries(sqlite3 *db) {
-  int error_code = sqlite3_trace_v2(
-      db,
-      SQLITE_TRACE_PROFILE,
-      [](unsigned, void *, void *preparedStatement, void *) {
-        sqlite3_stmt *statement = (sqlite3_stmt *)preparedStatement;
-        char *sql = sqlite3_expanded_sql(statement);
-        if (sql != nullptr) {
-          std::string sqlStr(sql);
-          // TODO: send logs to backup here
-        }
-        return 0;
-      },
-      NULL);
-  if (error_code != SQLITE_OK) {
-    std::ostringstream error_message;
-    error_message << "Failed to set trace callback, error code: " << error_code;
-    throw std::system_error(
-        ECANCELED, std::generic_category(), error_message.str());
-  }
-}
-
 void on_database_open(sqlite3 *db) {
-  set_encryption_key(db);
-  trace_queries(db);
+  SQLiteRawQueryExecutor::setEncryptionKey(
+      db, SQLiteQueryExecutor::encryptionKey);
+  SQLiteRawQueryExecutor::traceQueries(db);
 }
 
 bool file_exists(const std::string &file_path) {
@@ -96,7 +59,8 @@ bool is_database_queryable(sqlite3 *db, bool use_encryption_key) {
   // According to SQLCipher documentation running some SELECT is the only way to
   // check for key validity
   if (use_encryption_key) {
-    set_encryption_key(db);
+    SQLiteRawQueryExecutor::setEncryptionKey(
+        db, SQLiteQueryExecutor::encryptionKey);
   }
   sqlite3_exec(
       db, "SELECT COUNT(*) FROM sqlite_master;", nullptr, nullptr, &err_msg);

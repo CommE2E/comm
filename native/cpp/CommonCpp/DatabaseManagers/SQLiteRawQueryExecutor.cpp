@@ -657,4 +657,44 @@ void SQLiteRawQueryExecutor::migrate(sqlite3 *db) {
   }
 }
 
+void SQLiteRawQueryExecutor::setEncryptionKey(
+    sqlite3 *db,
+    const std::string &encryptionKey) {
+  std::string set_encryption_key_query =
+      "PRAGMA key = \"x'" + encryptionKey + "'\";";
+
+  char *error_set_key;
+  sqlite3_exec(
+      db, set_encryption_key_query.c_str(), nullptr, nullptr, &error_set_key);
+
+  if (error_set_key) {
+    std::ostringstream error_message;
+    error_message << "Failed to set encryption key: " << error_set_key;
+    throw std::system_error(
+        ECANCELED, std::generic_category(), error_message.str());
+  }
+}
+
+void SQLiteRawQueryExecutor::traceQueries(sqlite3 *db) {
+  int error_code = sqlite3_trace_v2(
+      db,
+      SQLITE_TRACE_PROFILE,
+      [](unsigned, void *, void *preparedStatement, void *) {
+        sqlite3_stmt *statement = (sqlite3_stmt *)preparedStatement;
+        char *sql = sqlite3_expanded_sql(statement);
+        if (sql != nullptr) {
+          std::string sqlStr(sql);
+          // TODO: send logs to backup here
+        }
+        return 0;
+      },
+      NULL);
+  if (error_code != SQLITE_OK) {
+    std::ostringstream error_message;
+    error_message << "Failed to set trace callback, error code: " << error_code;
+    throw std::system_error(
+        ECANCELED, std::generic_category(), error_message.str());
+  }
+}
+
 } // namespace comm
