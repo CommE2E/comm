@@ -107,22 +107,6 @@ jsi::Value CommCoreModule::moveDraft(
       });
 }
 
-jsi::Array parseDBReportStore(
-    jsi::Runtime &rt,
-    std::shared_ptr<std::vector<Report>> reportStoreVectorPtr) {
-  size_t numReports = reportStoreVectorPtr->size();
-  jsi::Array jsiReports = jsi::Array(rt, numReports);
-  size_t writeIdx = 0;
-
-  for (const Report &report : *reportStoreVectorPtr) {
-    jsi::Object jsiReport = jsi::Object(rt);
-    jsiReport.setProperty(rt, "id", report.id);
-    jsiReport.setProperty(rt, "report", report.report);
-    jsiReports.setValueAtIndex(rt, writeIdx++, jsiReport);
-  }
-  return jsiReports;
-}
-
 jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -167,7 +151,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          promise,
                                          draftStore = this->draftStore,
                                          threadStore = this->threadStore,
-                                         messageStore = this->messageStore]() {
+                                         messageStore = this->messageStore,
+                                         reportStore = this->reportStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
@@ -182,7 +167,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 messageStore.parseDBMessageStoreThreads(
                     innerRt, messageStoreThreadsVectorPtr);
             jsi::Array jsiReportStore =
-                parseDBReportStore(innerRt, reportStoreVectorPtr);
+                reportStore.parseDBDataStore(innerRt, reportStoreVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -284,105 +269,17 @@ void CommCoreModule::processThreadStoreOperationsSync(
   this->threadStore.processStoreOperationsSync(rt, std::move(operations));
 }
 
-const std::string REPLACE_REPORT_OPERATION = "replace_report";
-const std::string REMOVE_REPORTS_OPERATION = "remove_reports";
-const std::string REMOVE_ALL_REPORTS_OPERATION = "remove_all_reports";
-
-std::vector<std::unique_ptr<ReportStoreOperationBase>>
-createReportStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
-  std::vector<std::unique_ptr<ReportStoreOperationBase>> reportStoreOps;
-  for (auto idx = 0; idx < operations.size(rt); idx++) {
-    auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
-    auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
-
-    if (op_type == REMOVE_ALL_REPORTS_OPERATION) {
-      reportStoreOps.push_back(std::make_unique<RemoveAllReportsOperation>());
-      continue;
-    }
-
-    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
-    if (op_type == REPLACE_REPORT_OPERATION) {
-      reportStoreOps.push_back(
-          std::make_unique<ReplaceReportOperation>(rt, payload_obj));
-    } else if (op_type == REMOVE_REPORTS_OPERATION) {
-      reportStoreOps.push_back(
-          std::make_unique<RemoveReportsOperation>(rt, payload_obj));
-    } else {
-      throw std::runtime_error{"unsupported operation: " + op_type};
-    }
-  }
-  return reportStoreOps;
-}
-
 jsi::Value CommCoreModule::processReportStoreOperations(
     jsi::Runtime &rt,
     jsi::Array operations) {
-  std::string createOperationsError;
-  std::shared_ptr<std::vector<std::unique_ptr<ReportStoreOperationBase>>>
-      reportStoreOpsPtr;
-  try {
-    auto reportStoreOps = createReportStoreOperations(rt, operations);
-    reportStoreOpsPtr = std::make_shared<
-        std::vector<std::unique_ptr<ReportStoreOperationBase>>>(
-        std::move(reportStoreOps));
-  } catch (std::runtime_error &e) {
-    createOperationsError = e.what();
-  }
-
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=]() {
-          std::string error = createOperationsError;
-
-          if (!error.size()) {
-            try {
-              DatabaseManager::getQueryExecutor().beginTransaction();
-              for (const auto &operation : *reportStoreOpsPtr) {
-                operation->execute();
-              }
-              DatabaseManager::getQueryExecutor().commitTransaction();
-            } catch (std::system_error &e) {
-              error = e.what();
-              DatabaseManager::getQueryExecutor().rollbackTransaction();
-            }
-          }
-
-          this->jsInvoker_->invokeAsync([=]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
+  return this->reportStore.processStoreOperations(
+      rt, std::move(operations), this->jsInvoker_);
 }
 
 void CommCoreModule::processReportStoreOperationsSync(
     jsi::Runtime &rt,
     jsi::Array operations) {
-  std::vector<std::unique_ptr<ReportStoreOperationBase>> reportStoreOps;
-
-  try {
-    reportStoreOps = createReportStoreOperations(rt, operations);
-  } catch (const std::exception &e) {
-    throw jsi::JSError(rt, e.what());
-  }
-
-  NativeModuleUtils::runSyncOrThrowJSError<void>(rt, [&reportStoreOps]() {
-    try {
-      DatabaseManager::getQueryExecutor().beginTransaction();
-      for (const auto &operation : reportStoreOps) {
-        operation->execute();
-      }
-      DatabaseManager::getQueryExecutor().commitTransaction();
-    } catch (const std::exception &e) {
-      DatabaseManager::getQueryExecutor().rollbackTransaction();
-      throw e;
-    }
-  });
+  this->reportStore.processStoreOperationsSync(rt, std::move(operations));
 }
 
 void CommCoreModule::terminate(jsi::Runtime &rt) {
