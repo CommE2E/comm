@@ -73,10 +73,12 @@ set(DATA_STORES_HDRS
   ${_data_stores_path}/BaseDataStore.h
   ${_data_stores_path}/DraftStore.h
   ${_data_stores_path}/ThreadStore.h
+  ${_data_stores_path}/MessageStore.h
 )
 set(DATA_STORES_SRCS
   ${_data_stores_path}/DraftStore.cpp
   ${_data_stores_path}/ThreadStore.cpp
+  ${_data_stores_path}/MessageStore.cpp
 )
 
 add_library(comm-modules-persistentstorage
