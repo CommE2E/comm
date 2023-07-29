@@ -6,6 +6,7 @@
 #include "../_generated/commJSI.h"
 #include "JSIRust.h"
 #include "PersistentStorageUtilities/DataStores/DraftStore.h"
+#include "PersistentStorageUtilities/DataStores/MessageStore.h"
 #include "PersistentStorageUtilities/DataStores/ThreadStore.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
@@ -26,6 +27,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
   DraftStore draftStore;
   ThreadStore threadStore;
+  MessageStore messageStore;
 
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
