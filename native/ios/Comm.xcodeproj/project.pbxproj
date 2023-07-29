@@ -51,6 +51,7 @@
 		8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */; };
 		8ED8B5342A4DD4EB00D3DA26 /* CommQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */; };
 		8EF7756B2A7433630046A385 /* ThreadStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF775692A7433630046A385 /* ThreadStore.cpp */; };
+		8EF7756E2A7513F40046A385 /* MessageStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF7756D2A7513F40046A385 /* MessageStore.cpp */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
 		CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */; };
@@ -205,6 +206,8 @@
 		8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DraftStoreOperations.h; sourceTree = "<group>"; };
 		8EF775692A7433630046A385 /* ThreadStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadStore.cpp; path = PersistentStorageUtilities/DataStores/ThreadStore.cpp; sourceTree = "<group>"; };
 		8EF7756A2A7433630046A385 /* ThreadStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadStore.h; path = PersistentStorageUtilities/DataStores/ThreadStore.h; sourceTree = "<group>"; };
+		8EF7756C2A7513F40046A385 /* MessageStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MessageStore.h; path = PersistentStorageUtilities/DataStores/MessageStore.h; sourceTree = "<group>"; };
+		8EF7756D2A7513F40046A385 /* MessageStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MessageStore.cpp; path = PersistentStorageUtilities/DataStores/MessageStore.cpp; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageStoreOperations.h; sourceTree = "<group>"; };
@@ -564,6 +567,8 @@
 		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
 			isa = PBXGroup;
 			children = (
+				8EF7756D2A7513F40046A385 /* MessageStore.cpp */,
+				8EF7756C2A7513F40046A385 /* MessageStore.h */,
 				8EF775692A7433630046A385 /* ThreadStore.cpp */,
 				8EF7756A2A7433630046A385 /* ThreadStore.h */,
 				8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */,
@@ -1035,6 +1040,7 @@
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
+				8EF7756E2A7513F40046A385 /* MessageStore.cpp in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */,
