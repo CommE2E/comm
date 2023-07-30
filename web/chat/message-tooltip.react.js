@@ -173,20 +173,19 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   const nextLocalID = useSelector(state => state.nextLocalID);
   const localID = `${localIDPrefix}${nextLocalID}`;
 
-  const sendReaction = useSendReaction(messageInfo.id, localID, threadInfo.id);
+  const sendReaction = useSendReaction(
+    messageInfo.id,
+    localID,
+    threadInfo.id,
+    reactions,
+  );
 
   const onEmojiSelect = React.useCallback(
     emoji => {
       const reactionInput = emoji.native;
-
-      const viewerReacted = reactions[reactionInput]
-        ? reactions[reactionInput].viewerReacted
-        : false;
-      const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
-
-      sendReaction(reactionInput, action);
+      sendReaction(reactionInput);
     },
-    [sendReaction, reactions],
+    [sendReaction],
   );
 
   const emojiKeyboard = React.useMemo(() => {
