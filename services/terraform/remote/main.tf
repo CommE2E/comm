@@ -1,3 +1,13 @@
+terraform {
+  backend "s3" {
+    region         = "us-east-2"
+    key            = "terraform.tfstate"
+    bucket         = "commapp-terraform"
+    dynamodb_table = "terraform-lock"
+    encrypt        = true
+  }
+}
+
 provider "sops" {}
 
 data "sops_file" "secrets_json" {
@@ -5,14 +15,20 @@ data "sops_file" "secrets_json" {
 }
 
 locals {
-  secrets = jsondecode(data.sops_file.secrets_json.raw)
+  environment = terraform.workspace
+  secrets     = jsondecode(data.sops_file.secrets_json.raw)
+
+  target_account_id  = lookup(local.secrets.accountIDs, local.environment)
+  terraform_role_arn = "arn:aws:iam::${local.target_account_id}:role/Terraform"
 }
 
 provider "aws" {
   region = "us-east-2"
 
-  shared_config_files      = ["${pathexpand("~/.aws/config")}"]
-  shared_credentials_files = ["${pathexpand("~/.aws/credentials")}"]
+  assume_role {
+    role_arn    = local.terraform_role_arn
+    external_id = "terraform"
+  }
 
   # automatically add these tags to all resources
   default_tags {
