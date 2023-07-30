@@ -39,6 +39,7 @@
 , redis-up
 , rustup
 , shellcheck
+, sops
 , sqlite
 , terraform
 , rustfmt
@@ -55,6 +56,7 @@ mkShell {
     arcanist
     awscli2
     shellcheck
+    sops
     terraform
     emscripten
 
