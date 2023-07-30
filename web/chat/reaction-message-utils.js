@@ -8,6 +8,7 @@ import {
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import {
@@ -28,7 +29,8 @@ function useSendReaction(
   messageID: ?string,
   localID: string,
   threadID: string,
-): (reaction: string, action: 'add_reaction' | 'remove_reaction') => mixed {
+  reactions: ReactionInfo,
+): (reaction: string) => mixed {
   const { pushModal } = useModalContext();
 
   const viewerID = useSelector(
@@ -39,12 +41,17 @@ function useSendReaction(
   const dispatchActionPromise = useDispatchActionPromise();
 
   return React.useCallback(
-    (reaction, action) => {
+    reaction => {
       if (!messageID) {
         return;
       }
 
       invariant(viewerID, 'viewerID should be set');
+
+      const viewerReacted = reactions[reaction]
+        ? reactions[reaction].viewerReacted
+        : false;
+      const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
 
       const reactionMessagePromise = (async () => {
         try {
@@ -97,6 +104,7 @@ function useSendReaction(
     [
       messageID,
       viewerID,
+      reactions,
       threadID,
       localID,
       dispatchActionPromise,
