@@ -46,6 +46,8 @@ resource "aws_iam_role" "ecs_task_execution" {
     "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
     # Let ECS write logs to CloudWatch
     "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
+    # Let ECS tasks access secrets to expose them as env vars
+    "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
   ]
 }
 
