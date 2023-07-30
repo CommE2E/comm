@@ -1,0 +1,6 @@
+creation_rules:
+  # Terraform secrets file.
+  - path_regex: services/terraform/remote/secrets\.json$
+    kms: 'arn:aws:kms:us-east-2:319076408221:key/2e54d528-50a2-489c-a4d7-d50c7c9f8303'
+    # We can potentially re-use this KMS key for other SOPS-encrypted files
+    # by either copying the 'kms' value or modifying the path regex
