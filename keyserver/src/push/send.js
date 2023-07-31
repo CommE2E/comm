@@ -717,8 +717,13 @@ async function prepareAPNsNotification(
   const isTextNotification = newRawMessageInfos.every(
     newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
   );
+
   const shouldBeEncrypted =
-    platformDetails.platform === 'ios' && !collapseKey && isTextNotification;
+    platformDetails.platform === 'ios' &&
+    !collapseKey &&
+    isTextNotification &&
+    platformDetails.codeVersion &&
+    platformDetails.codeVersion > 222;
 
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
@@ -761,40 +766,63 @@ async function prepareAPNsNotification(
     messageInfos,
   };
 
-  const evaluateAndSelectNotifPayload = (notif, notifWithMessageInfos) => {
-    const notifWithMessageInfosCopy = _cloneDeep(notifWithMessageInfos);
-    if (
-      notifWithMessageInfosCopy.length() <= apnMaxNotificationPayloadByteSize
-    ) {
-      return notifWithMessageInfos;
-    }
-    return notif;
-  };
+  const notificationSizeValidator = notif =>
+    notif.length() <= apnMaxNotificationPayloadByteSize;
 
-  const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
-  if (
-    shouldBeEncrypted &&
-    platformDetails.codeVersion &&
-    platformDetails.codeVersion > 222
-  ) {
-    const cookieIDs = devices.map(({ cookieID }) => cookieID);
-    const [notifications, notificationsWithMessageInfos] = await Promise.all([
-      prepareEncryptedIOSNotifications(cookieIDs, notification),
-      prepareEncryptedIOSNotifications(cookieIDs, copyWithMessageInfos),
-    ]);
-    return notificationsWithMessageInfos.map((notif, idx) => ({
-      notification: evaluateAndSelectNotifPayload(notifications[idx], notif),
-      deviceToken: deviceTokens[idx],
+  if (!shouldBeEncrypted) {
+    const notificationToSend = notificationSizeValidator(
+      _cloneDeep(copyWithMessageInfos),
+    )
+      ? copyWithMessageInfos
+      : notification;
+    return devices.map(({ deviceToken }) => ({
+      notification: notificationToSend,
+      deviceToken,
     }));
   }
-  const notificationToSend = evaluateAndSelectNotifPayload(
-    notification,
+
+  const notifsWithMessageInfos = await prepareEncryptedIOSNotifications(
+    devices,
     copyWithMessageInfos,
+    notificationSizeValidator,
   );
-  return deviceTokens.map(deviceToken => ({
-    notification: notificationToSend,
-    deviceToken,
-  }));
+
+  const devicesWithExcessiveSize = notifsWithMessageInfos
+    .filter(({ payloadSizeExceeded }) => payloadSizeExceeded)
+    .map(({ deviceToken, cookieID }) => ({ deviceToken, cookieID }));
+
+  if (devicesWithExcessiveSize.length === 0) {
+    return notifsWithMessageInfos.map(
+      ({ notification: notif, deviceToken }) => ({
+        notification: notif,
+        deviceToken,
+      }),
+    );
+  }
+
+  const notifsWithoutMessageInfos = await prepareEncryptedIOSNotifications(
+    devicesWithExcessiveSize,
+    notification,
+  );
+
+  const targetedNotifsWithMessageInfos = notifsWithMessageInfos
+    .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
+    .map(({ notification: notif, deviceToken }) => ({
+      notification: notif,
+      deviceToken,
+    }));
+
+  const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
+    ({ notification: notif, deviceToken }) => ({
+      notification: notif,
+      deviceToken,
+    }),
+  );
+
+  return [
+    ...targetedNotifsWithMessageInfos,
+    ...targetedNotifsWithoutMessageInfos,
+  ];
 }
 
 type AndroidNotifInputData = {
@@ -862,36 +890,69 @@ async function prepareAndroidNotification(
     data: { ...notification.data, messageInfos },
   };
 
-  const evaluateAndSelectNotification = (notif, notifWithMessageInfos) => {
-    if (
-      Buffer.byteLength(JSON.stringify(notifWithMessageInfos)) <=
+  if (!shouldBeEncrypted) {
+    const notificationToSend =
+      Buffer.byteLength(JSON.stringify(copyWithMessageInfos)) <=
       fcmMaxNotificationPayloadByteSize
-    ) {
-      return notifWithMessageInfos;
-    }
-    return notif;
-  };
+        ? copyWithMessageInfos
+        : notification;
 
-  const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
-  if (shouldBeEncrypted) {
-    const cookieIDs = devices.map(({ cookieID }) => cookieID);
-    const [notifications, notificationsWithMessageInfos] = await Promise.all([
-      prepareEncryptedAndroidNotifications(cookieIDs, notification),
-      prepareEncryptedAndroidNotifications(cookieIDs, copyWithMessageInfos),
-    ]);
-    return notificationsWithMessageInfos.map((notif, idx) => ({
-      notification: evaluateAndSelectNotification(notifications[idx], notif),
-      deviceToken: deviceTokens[idx],
+    return devices.map(({ deviceToken }) => ({
+      notification: notificationToSend,
+      deviceToken,
     }));
   }
-  const notificationToSend = evaluateAndSelectNotification(
-    notification,
+
+  const notificationsSizeValidator = notif => {
+    const serializedNotif = JSON.stringify(notif);
+    return (
+      !serializedNotif ||
+      Buffer.byteLength(serializedNotif) <= fcmMaxNotificationPayloadByteSize
+    );
+  };
+
+  const notifsWithMessageInfos = await prepareEncryptedAndroidNotifications(
+    devices,
     copyWithMessageInfos,
+    notificationsSizeValidator,
   );
-  return deviceTokens.map(deviceToken => ({
-    notification: notificationToSend,
-    deviceToken,
-  }));
+
+  const devicesWithExcessiveSize = notifsWithMessageInfos
+    .filter(({ payloadSizeExceeded }) => payloadSizeExceeded)
+    .map(({ cookieID, deviceToken }) => ({ cookieID, deviceToken }));
+
+  if (devicesWithExcessiveSize.length === 0) {
+    return notifsWithMessageInfos.map(
+      ({ notification: notif, deviceToken }) => ({
+        notification: notif,
+        deviceToken,
+      }),
+    );
+  }
+
+  const notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
+    devicesWithExcessiveSize,
+    notification,
+  );
+
+  const targetedNotifsWithMessageInfos = notifsWithMessageInfos
+    .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
+    .map(({ notification: notif, deviceToken }) => ({
+      notification: notif,
+      deviceToken,
+    }));
+
+  const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
+    ({ notification: notif, deviceToken }) => ({
+      notification: notif,
+      deviceToken,
+    }),
+  );
+
+  return [
+    ...targetedNotifsWithMessageInfos,
+    ...targetedNotifsWithoutMessageInfos,
+  ];
 }
 
 type WebNotifInputData = {
@@ -1288,22 +1349,24 @@ async function updateBadgeCount(
       notification.badge = unreadCount;
       notification.pushType = 'alert';
       const deliveryPromise = (async () => {
-        const cookieIDs = deviceInfos.map(({ cookieID }) => cookieID);
-        let notificationsArray;
+        let targetedNotifications;
         if (codeVersion > 222) {
-          notificationsArray = await prepareEncryptedIOSNotifications(
-            cookieIDs,
+          const notificationsArray = await prepareEncryptedIOSNotifications(
+            deviceInfos,
             notification,
           );
+          targetedNotifications = notificationsArray.map(
+            ({ notification: notif, deviceToken }) => ({
+              notification: notif,
+              deviceToken,
+            }),
+          );
         } else {
-          notificationsArray = cookieIDs.map(() => notification);
-        }
-        const targetedNotifications = deviceInfos.map(
-          ({ deviceToken }, idx) => ({
+          targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
+            notification,
             deviceToken,
-            notification: notificationsArray[idx],
-          }),
-        );
+          }));
+        }
         return await sendAPNsNotification('ios', targetedNotifications, {
           source,
           dbID,
@@ -1327,22 +1390,24 @@ async function updateBadgeCount(
           : { badge: unreadCount.toString(), badgeOnly: '1' };
       const notification = { data: notificationData };
       const deliveryPromise = (async () => {
-        const cookieIDs = deviceInfos.map(({ cookieID }) => cookieID);
-        let notificationsArray;
+        let targetedNotifications;
         if (codeVersion > 222) {
-          notificationsArray = await prepareEncryptedAndroidNotifications(
-            cookieIDs,
+          const notificationsArray = await prepareEncryptedAndroidNotifications(
+            deviceInfos,
             notification,
           );
+          targetedNotifications = notificationsArray.map(
+            ({ notification: notif, deviceToken }) => ({
+              notification: notif,
+              deviceToken,
+            }),
+          );
         } else {
-          notificationsArray = cookieIDs.map(() => notification);
-        }
-        const targetedNotifications = deviceInfos.map(
-          ({ deviceToken }, idx) => ({
+          targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
             deviceToken,
-            notification: notificationsArray[idx],
-          }),
-        );
+            notification,
+          }));
+        }
         return await sendAndroidNotification(targetedNotifications, {
           source,
           dbID,
