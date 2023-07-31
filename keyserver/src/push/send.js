@@ -713,13 +713,6 @@ async function prepareAPNsNotification(
     ) {
       return notifWithMessageInfos;
     }
-    const notifCopy = _cloneDeep(notif);
-    if (notifCopy.length() > apnMaxNotificationPayloadByteSize) {
-      console.warn(
-        `${platformDetails.platform} notification ${uniqueID} ` +
-          `exceeds size limit, even with messageInfos omitted`,
-      );
-    }
     return notif;
   };
 
@@ -820,14 +813,6 @@ async function prepareAndroidNotification(
       fcmMaxNotificationPayloadByteSize
     ) {
       return notifWithMessageInfos;
-    }
-    if (
-      Buffer.byteLength(JSON.stringify(notif)) >
-      fcmMaxNotificationPayloadByteSize
-    ) {
-      console.warn(
-        `Android notification ${notifID} exceeds size limit, even with messageInfos omitted`,
-      );
     }
     return notif;
   };
