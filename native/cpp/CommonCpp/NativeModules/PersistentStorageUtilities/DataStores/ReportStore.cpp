@@ -5,8 +5,6 @@
 
 namespace comm {
 
-using namespace facebook::react;
-
 OperationType ReportStore::REPLACE_REPORT_OPERATION = "replace_report";
 OperationType ReportStore::REMOVE_REPORTS_OPERATION = "remove_reports";
 OperationType ReportStore::REMOVE_ALL_REPORTS_OPERATION = "remove_all_reports";

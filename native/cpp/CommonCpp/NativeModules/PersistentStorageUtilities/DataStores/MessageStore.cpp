@@ -5,8 +5,6 @@
 
 namespace comm {
 
-using namespace facebook::react;
-
 OperationType MessageStore::REKEY_OPERATION = "rekey";
 OperationType MessageStore::REMOVE_OPERATION = "remove";
 OperationType MessageStore::REPLACE_OPERATION = "replace";
