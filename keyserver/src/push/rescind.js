@@ -66,12 +66,16 @@ async function rescindPushNotifs(
     const rowParsedDeliveries = [];
 
     for (const delivery of deliveries) {
-      if (delivery.iosID || delivery.deviceType === 'ios') {
+      if (
+        delivery.iosID ||
+        delivery.deviceType === 'ios' ||
+        delivery.deviceType === 'macos'
+      ) {
         const deviceTokens = delivery.iosDeviceTokens ?? delivery.deviceTokens;
         rowParsedDeliveries.push({
           notificationID: delivery.iosID,
           codeVersion: delivery.codeVersion,
-          platform: 'ios',
+          platform: delivery.deviceType ?? 'ios',
           deviceTokens,
         });
         deviceTokens.forEach(deviceToken => allDeviceTokens.add(deviceToken));
