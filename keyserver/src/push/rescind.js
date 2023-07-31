@@ -258,10 +258,8 @@ async function prepareIOSNotification(
     platform: 'ios',
     codeVersion: codeVersion ?? undefined,
   });
-  // It was agreed to temporarily make even releases staff-only. This way
-  // we will be able to prevent shipping NSE functionality to public iOS
-  // users until it is thoroughly tested among staff members.
-  if (codeVersion && codeVersion > 198 && codeVersion % 2 === 0) {
+
+  if (codeVersion && codeVersion > 198) {
     notification.mutableContent = true;
     notification.pushType = 'alert';
     notification.badge = unreadCount;
