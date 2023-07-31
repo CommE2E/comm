@@ -47,3 +47,6 @@ jobs:
         env:
           ANDROID_SIGNING_PASSWORD: ${{secrets.ANDROID_SIGNING_PASSWORD}}
         run: ./gradlew bundleRelease
+
+      - name: Disk Usage
+        run: df -h

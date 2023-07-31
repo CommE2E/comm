@@ -58,3 +58,6 @@ jobs:
       - name: Upload to Google Play
         working-directory: ./native/android
         run: node upload-aab.js
+
+      - name: Disk Usage
+        run: df -h
