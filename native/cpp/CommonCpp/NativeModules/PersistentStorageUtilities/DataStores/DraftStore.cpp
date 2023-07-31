@@ -5,8 +5,6 @@
 
 namespace comm {
 
-using namespace facebook::react;
-
 OperationType DraftStore::UPDATE_DRAFT_OPERATION = "update";
 OperationType DraftStore::MOVE_DRAFT_OPERATION = "move";
 OperationType DraftStore::REMOVE_ALL_DRAFTS_OPERATION = "remove_all";

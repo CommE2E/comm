@@ -5,8 +5,6 @@
 
 namespace comm {
 
-using namespace facebook::react;
-
 OperationType ThreadStore::REMOVE_OPERATION = "remove";
 OperationType ThreadStore::REMOVE_ALL_OPERATION = "remove_all";
 OperationType ThreadStore::REPLACE_OPERATION = "replace";
