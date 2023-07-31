@@ -2,13 +2,10 @@
 
 import localforage from 'localforage';
 
-import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
-import type {
-  ClientDBDraftStoreOperation,
-  DraftStoreOperation,
-} from 'lib/types/draft-types.js';
-import type { ClientDBStore } from 'lib/types/store-ops-types.js';
-
+import {
+  getClientStore,
+  processDBStoreOperations,
+} from './process-operations.js';
 import {
   type SharedWorkerMessageEvent,
   type WorkerRequestMessage,
@@ -103,63 +100,6 @@ async function initDatabase(
   );
 }
 
-function processDraftStoreOperations(
-  operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
-) {
-  if (!sqliteQueryExecutor) {
-    throw new Error('Database not initialized');
-  }
-  for (const operation: DraftStoreOperation of operations) {
-    if (operation.type === 'remove_all') {
-      sqliteQueryExecutor?.removeAllDrafts();
-    } else if (operation.type === 'update') {
-      const { key, text } = operation.payload;
-      sqliteQueryExecutor?.updateDraft(key, text);
-    } else if (operation.type === 'move') {
-      const { oldKey, newKey } = operation.payload;
-      sqliteQueryExecutor?.moveDraft(oldKey, newKey);
-    } else {
-      throw new Error('Unsupported draft operation');
-    }
-  }
-}
-
-function processReportStoreOperations(
-  operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
-) {
-  if (!sqliteQueryExecutor) {
-    throw new Error('Database not initialized');
-  }
-  for (const operation: ClientDBReportStoreOperation of operations) {
-    if (operation.type === 'remove_all_reports') {
-      sqliteQueryExecutor?.removeAllReports();
-    } else if (operation.type === 'remove_reports') {
-      const { ids } = operation.payload;
-      sqliteQueryExecutor?.removeReports(ids);
-    } else if (operation.type === 'replace_report') {
-      const { id, report } = operation.payload;
-      sqliteQueryExecutor?.replaceReport({ id, report });
-    } else {
-      throw new Error('Unsupported report operation');
-    }
-  }
-}
-
-function getClientStore(): ClientDBStore {
-  if (!sqliteQueryExecutor) {
-    throw new Error('Database not initialized');
-  }
-  const drafts = sqliteQueryExecutor?.getAllDrafts() ?? [];
-  const reports = sqliteQueryExecutor?.getAllReports() ?? [];
-  return {
-    drafts,
-    messages: [],
-    threads: [],
-    messageStoreThreads: [],
-    reports,
-  };
-}
-
 async function persist() {
   persistInProgress = true;
   if (!sqliteQueryExecutor || !dbModule) {
@@ -231,7 +171,7 @@ async function processAppRequest(
   if (message.type === workerRequestMessageTypes.GET_CLIENT_STORE) {
     return {
       type: workerResponseMessageTypes.CLIENT_STORE,
-      store: getClientStore(),
+      store: getClientStore(sqliteQueryExecutor),
     };
   } else if (message.type === workerRequestMessageTypes.GET_CURRENT_USER_ID) {
     return {
@@ -251,26 +191,22 @@ async function processAppRequest(
   if (!workerWriteRequests.includes(message.type)) {
     throw new Error('Request type not supported');
   }
+  if (!sqliteQueryExecutor) {
+    throw new Error('Database not initialized');
+  }
 
   if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
-    const { draftStoreOperations, reportStoreOperations } =
-      message.storeOperations;
-    if (draftStoreOperations) {
-      processDraftStoreOperations(draftStoreOperations);
-    }
-    if (reportStoreOperations) {
-      processReportStoreOperations(reportStoreOperations);
-    }
+    processDBStoreOperations(sqliteQueryExecutor, message.storeOperations);
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
-    sqliteQueryExecutor?.setMetadata(CURRENT_USER_ID_KEY, message.userID);
+    sqliteQueryExecutor.setMetadata(CURRENT_USER_ID_KEY, message.userID);
   } else if (
     message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
   ) {
-    sqliteQueryExecutor?.setPersistStorageItem(message.key, message.item);
+    sqliteQueryExecutor.setPersistStorageItem(message.key, message.item);
   } else if (
     message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
   ) {
-    sqliteQueryExecutor?.removePersistStorageItem(message.key);
+    sqliteQueryExecutor.removePersistStorageItem(message.key);
   }
 
   persistNeeded = true;
