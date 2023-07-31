@@ -4,6 +4,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 use std::sync::Arc;
 
+use crate::ddb_utils::into_onetime_put_requests;
 use crate::error::{DBItemAttributeError, DBItemError, Error};
 use aws_config::SdkConfig;
 use aws_sdk_dynamodb::model::{AttributeValue, PutRequest, WriteRequest};
@@ -25,13 +26,11 @@ use crate::constants::{
   NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
   RESERVED_USERNAMES_TABLE, RESERVED_USERNAMES_TABLE_PARTITION_KEY,
   USERS_TABLE, USERS_TABLE_DEVICES_ATTRIBUTE,
-  USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
@@ -295,42 +294,24 @@ impl DatabaseClient {
 
   pub async fn append_one_time_prekeys(
     &self,
-    user_id: String,
     device_id: String,
-    content_one_time_keys: Vec<String>,
-    notif_one_time_keys: Vec<String>,
+    content_onetime_keys: Vec<String>,
+    notif_onetime_keys: Vec<String>,
   ) -> Result<(), Error> {
-    let notif_keys_av: Vec<AttributeValue> = notif_one_time_keys
-      .into_iter()
-      .map(AttributeValue::S)
-      .collect();
-    let content_keys_av: Vec<AttributeValue> = content_one_time_keys
-      .into_iter()
-      .map(AttributeValue::S)
-      .collect();
+    use crate::constants::{
+      content_one_time_keys_table, notif_one_time_keys_table,
+    };
 
-    let update_expression =
-      format!("SET {0}.#{1}.{2} = list_append({0}.#{1}.{2}, :n), {0}.#{1}.{3} = list_append({0}.#{1}.{3}, :i)",
-        USERS_TABLE_DEVICES_ATTRIBUTE,
-        "deviceID",
-        USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME
-      );
-    let expression_attribute_names =
-      HashMap::from([(format!("#{}", "deviceID"), device_id)]);
-    let expression_attribute_values = HashMap::from([
-      (":n".to_string(), AttributeValue::L(notif_keys_av)),
-      (":i".to_string(), AttributeValue::L(content_keys_av)),
-    ]);
+    let content_otk_requests =
+      into_onetime_put_requests(device_id.clone(), content_onetime_keys);
+    let notif_otk_requests =
+      into_onetime_put_requests(device_id.clone(), notif_onetime_keys);
 
     self
       .client
-      .update_item()
-      .table_name(USERS_TABLE)
-      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .update_expression(update_expression)
-      .set_expression_attribute_names(Some(expression_attribute_names))
-      .set_expression_attribute_values(Some(expression_attribute_values))
+      .batch_write_item()
+      .request_items(content_one_time_keys_table::NAME, content_otk_requests)
+      .request_items(notif_one_time_keys_table::NAME, notif_otk_requests)
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
@@ -344,14 +325,19 @@ impl DatabaseClient {
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     social_proof: Option<String>,
   ) -> Result<(), Error> {
+    // Avoid borrowing from lifetime of flattened_device_key_upload
+    let device_id = flattened_device_key_upload.device_id_key.clone();
+    let content_onetime_keys =
+      flattened_device_key_upload.content_onetime_keys.clone();
+    let notif_onetime_keys =
+      flattened_device_key_upload.notif_onetime_keys.clone();
+
     let device_info =
-      create_device_info(flattened_device_key_upload.clone(), social_proof);
+      create_device_info(flattened_device_key_upload, social_proof);
     let update_expression =
       format!("SET {}.#{} = :v", USERS_TABLE_DEVICES_ATTRIBUTE, "deviceID",);
-    let expression_attribute_names = HashMap::from([(
-      format!("#{}", "deviceID"),
-      flattened_device_key_upload.device_id_key,
-    )]);
+    let expression_attribute_names =
+      HashMap::from([(format!("#{}", "deviceID"), device_id.clone())]);
     let expression_attribute_values =
       HashMap::from([(":v".to_string(), AttributeValue::M(device_info))]);
 
@@ -363,6 +349,26 @@ impl DatabaseClient {
       .update_expression(update_expression)
       .set_expression_attribute_names(Some(expression_attribute_names))
       .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    let content_otk_requests =
+      into_onetime_put_requests(device_id.clone(), content_onetime_keys);
+    let notif_otk_requests =
+      into_onetime_put_requests(device_id.clone(), notif_onetime_keys);
+
+    self
+      .client
+      .batch_write_item()
+      .request_items(
+        crate::constants::content_one_time_keys_table::NAME,
+        content_otk_requests,
+      )
+      .request_items(
+        crate::constants::notif_one_time_keys_table::NAME,
+        notif_otk_requests,
+      )
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
@@ -1043,32 +1049,12 @@ fn create_device_info(
       AttributeValue::S(flattened_device_key_upload.content_prekey_signature),
     ),
     (
-      USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::L(
-        flattened_device_key_upload
-          .content_onetime_keys
-          .into_iter()
-          .map(AttributeValue::S)
-          .collect(),
-      ),
-    ),
-    (
       USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
       AttributeValue::S(flattened_device_key_upload.notif_prekey),
     ),
     (
       USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME.to_string(),
       AttributeValue::S(flattened_device_key_upload.notif_prekey_signature),
-    ),
-    (
-      USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::L(
-        flattened_device_key_upload
-          .notif_onetime_keys
-          .into_iter()
-          .map(AttributeValue::S)
-          .collect(),
-      ),
     ),
   ]);
 
