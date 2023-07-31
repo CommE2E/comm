@@ -17,14 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android
-        run: rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android
-
-      - name: Delete some stuff to free up disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
+      - name: rustup target add aarch64-linux-android arm-linux-androideabi x86_64-linux-android
+        run: rustup target add aarch64-linux-android arm-linux-androideabi x86_64-linux-android
 
       - name: Install Protobuf compiler
         working-directory: ./scripts
