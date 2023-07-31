@@ -241,4 +241,5 @@
   --modal-secondary-label: var(--shades-black-60);
   --community-roles-text-color: var(--shades-white-100);
   --modal-separator: var(--shades-black-80);
+  --create-roles-text-color: var(--shades-white-100);
 }
