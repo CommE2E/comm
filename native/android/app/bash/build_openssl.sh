@@ -23,10 +23,6 @@ case "$ANDROID_ARCH_ABI" in
   TARGET_ARCH="armv7a-linux-androideabi"
   BUILD_ARCH="android-arm"
   ;;
-"x86")
-  TARGET_ARCH="i686-linux-android"
-  BUILD_ARCH="android-x86"
-  ;;
 "x86_64")
   TARGET_ARCH="x86_64-linux-android"
   BUILD_ARCH="android-x86_64"
