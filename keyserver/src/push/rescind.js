@@ -9,7 +9,7 @@ import { promiseAll } from 'lib/utils/promises.js';
 
 import {
   prepareEncryptedAndroidNotificationRescinds,
-  prepareEncryptedIOSNotifications,
+  prepareEncryptedIOSNotificationRescind,
 } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import type {
@@ -226,9 +226,15 @@ async function conditionallyEncryptNotification<T>(
   codeVersion: ?number,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   encryptCallback: (
-    cookieIDs: $ReadOnlyArray<string>,
+    devices: $ReadOnlyArray<NotificationTargetDevice>,
     notification: T,
-  ) => Promise<$ReadOnlyArray<T>>,
+  ) => Promise<
+    $ReadOnlyArray<{
+      +notification: T,
+      +cookieID: string,
+      +deviceToken: string,
+    }>,
+  >,
 ): Promise<$ReadOnlyArray<{ +deviceToken: string, +notification: T }>> {
   const shouldBeEncrypted = codeVersion && codeVersion >= 233;
   if (!shouldBeEncrypted) {
@@ -237,16 +243,11 @@ async function conditionallyEncryptNotification<T>(
       deviceToken,
     }));
   }
-  const notificationPromises = devices.map(({ cookieID, deviceToken }) =>
-    (async () => {
-      const [encryptedNotif] = await encryptCallback([cookieID], notification);
-      return {
-        notification: encryptedNotif,
-        deviceToken,
-      };
-    })(),
-  );
-  return await Promise.all(notificationPromises);
+  const notifications = await encryptCallback(devices, notification);
+  return notifications.map(({ deviceToken, notification: notif }) => ({
+    deviceToken,
+    notification: notif,
+  }));
 }
 
 async function prepareIOSNotification(
@@ -289,7 +290,7 @@ async function prepareIOSNotification(
     notification,
     codeVersion,
     devices,
-    prepareEncryptedIOSNotifications,
+    prepareEncryptedIOSNotificationRescind,
   );
 }
 
