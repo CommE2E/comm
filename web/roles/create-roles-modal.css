@@ -1,0 +1,72 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 32px 0 32px;
+}
+
+.roleNameLabel {
+  color: var(--create-roles-text-color);
+  padding: 4px 0;
+  margin-top: 20px;
+}
+
+.roleNameInput {
+  display: flex;
+  color: var(--fg);
+  margin: 8px 0 12px 0;
+}
+
+.separator {
+  border: 0;
+  margin: 16px 32px 8px 32px;
+  width: 90%;
+  align-self: center;
+  height: 2px;
+  border: none;
+  border-top: var(--modal-separator) solid 1px;
+}
+
+.permissionsHeaderContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 16px 32px 24px 32px;
+}
+
+.permissionsLabel {
+  color: var(--create-roles-text-color);
+}
+
+.clearPermissions {
+  font-size: var(--s-font-14);
+}
+
+.clearPermissionsDisabled {
+  color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.clearPermissionsEnabled {
+  color: var(--purple-link);
+  cursor: pointer;
+}
+
+.permissionsContainer {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 16px 32px;
+}
+
+.backButton {
+  width: 100px;
+}
+
+.createRoleButton {
+  margin-left: 8px;
+}

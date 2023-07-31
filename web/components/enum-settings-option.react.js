@@ -27,8 +27,8 @@ type Props = {
   +iconPosition?: IconPosition,
   +statements: $ReadOnlyArray<{
     +statement: string,
-    +isStatementValid: boolean,
-    +styleStatementBasedOnValidity: boolean,
+    +isStatementValid?: boolean,
+    +styleStatementBasedOnValidity?: boolean,
   }>,
 };
 
