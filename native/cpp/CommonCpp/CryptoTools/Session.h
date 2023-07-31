@@ -5,6 +5,8 @@
 
 #include "Tools.h"
 
+#include "olm/olm.h"
+
 namespace comm {
 namespace crypto {
 
