@@ -860,14 +860,27 @@ async function toggleMessagePinForThread(
 
   const pinnedValue = action === 'pin' ? 1 : 0;
   const pinTimeValue = action === 'pin' ? Date.now() : null;
+  const pinnedCountValue = action === 'pin' ? 1 : -1;
 
-  const togglePinQuery = SQL`
-    UPDATE messages
-    SET pinned   = ${pinnedValue},
-        pin_time = ${pinTimeValue}
-    WHERE id = ${messageID}
-      AND thread = ${threadID}
+  const query = SQL`
+    UPDATE messages AS m, threads AS t
+    SET m.pinned = ${pinnedValue},
+        m.pin_time = ${pinTimeValue},
+        t.pinned_count = t.pinned_count + ${pinnedCountValue}
+    WHERE m.id = ${messageID}
+      AND m.thread = ${threadID}
+      AND t.id = ${threadID}
+      AND m.pinned != ${pinnedValue}
   `;
+
+  const [result] = await dbQuery(query);
+
+  if (result.affectedRows === 0) {
+    return {
+      newMessageInfos: [],
+      threadID,
+    };
+  }
 
   const messageData = {
     type: messageTypes.TOGGLE_PIN,
@@ -878,30 +891,11 @@ async function toggleMessagePinForThread(
     creatorID: viewer.userID,
     time: Date.now(),
   };
-
-  let updateThreadQuery;
-  if (action === 'pin') {
-    updateThreadQuery = SQL`
-      UPDATE threads
-      SET pinned_count = pinned_count + 1
-      WHERE id = ${threadID}
-    `;
-  } else {
-    updateThreadQuery = SQL`
-      UPDATE threads
-      SET pinned_count = pinned_count - 1
-      WHERE id = ${threadID}
-    `;
-  }
-
-  const [{ threadInfos: serverThreadInfos }] = await Promise.all([
-    fetchServerThreadInfos({ threadID }),
-    dbQuery(togglePinQuery),
-    dbQuery(updateThreadQuery),
-  ]);
-
   const newMessageInfos = await createMessages(viewer, [messageData]);
 
+  const { threadInfos: serverThreadInfos } = await fetchServerThreadInfos({
+    threadID,
+  });
   const time = Date.now();
   const updates = [];
   for (const member of serverThreadInfos[threadID].members) {
