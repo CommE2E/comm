@@ -35,8 +35,6 @@ include(FetchContent)
 
 if(CMAKE_ANDROID_ARCH_ABI STREQUAL arm64-v8a)
   set(Rust_CARGO_TARGET aarch64-linux-android)
-elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86)
-  set(Rust_CARGO_TARGET i686-linux-android)
 elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86_64)
   set(Rust_CARGO_TARGET x86_64-linux-android)
 elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL armeabi-v7a)
