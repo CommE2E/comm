@@ -861,6 +861,21 @@ async function toggleMessagePinForThread(
   const pinnedValue = action === 'pin' ? 1 : 0;
   const pinTimeValue = action === 'pin' ? Date.now() : null;
 
+  const messagePinStatusQuery = SQL`
+    SELECT pinned
+    FROM messages
+    WHERE id = ${messageID}
+      AND thread = ${threadID}
+  `;
+  const [[pinnedResult]] = await dbQuery(messagePinStatusQuery);
+  const { pinned: currentPinnedValue } = pinnedResult;
+  if (currentPinnedValue === pinnedValue) {
+    return {
+      newMessageInfos: [],
+      threadID,
+    };
+  }
+
   const togglePinQuery = SQL`
     UPDATE messages
     SET pinned   = ${pinnedValue},
