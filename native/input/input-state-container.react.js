@@ -38,7 +38,7 @@ import {
 } from 'lib/selectors/loading-selectors.js';
 import {
   createMediaMessageInfo,
-  localIDPrefix,
+  useNextLocalID,
   useMessageCreationSideEffectsFunc,
 } from 'lib/shared/message-utils.js';
 import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
@@ -132,7 +132,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +viewerID: ?string,
-  +nextLocalID: number,
+  +nextLocalID: string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
   +ongoingMessageCreation: boolean,
   +hasWiFi: boolean,
@@ -606,7 +606,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadInfo: ThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
-    const localMessageID = `${localIDPrefix}${this.props.nextLocalID}`;
+    const localMessageID = this.props.nextLocalID;
     this.startThreadCreation(threadInfo);
 
     if (threadIsPendingSidebar(threadInfo.id)) {
@@ -1789,7 +1789,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
-    const nextLocalID = useSelector(state => state.nextLocalID);
+    const nextLocalID = useNextLocalID();
     const messageStoreMessages = useSelector(
       state => state.messageStore.messages,
     );

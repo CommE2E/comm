@@ -11,7 +11,7 @@ import Animated, {
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
-import { localIDPrefix } from 'lib/shared/message-utils.js';
+import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -28,7 +28,6 @@ import { useSendReaction } from './reaction-message-utils.js';
 import CommIcon from '../components/comm-icon.react.js';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
 import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
-import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
@@ -247,8 +246,7 @@ function InlineEngagement(props: Props): React.Node {
     repliesText,
   ]);
 
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const localID = `${localIDPrefix}${nextLocalID}`;
+  const localID = useNextLocalID();
 
   const sendReaction = useSendReaction(
     messageInfo.id,
