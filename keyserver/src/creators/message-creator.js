@@ -185,7 +185,7 @@ async function createMessages(
       creation, target_message)
     VALUES ${messageInsertRows}
   `;
-  const messageInsertPromise = dbQuery(messageInsertQuery);
+  await dbQuery(messageInsertQuery);
 
   const postMessageSendPromise = postMessageSend(
     viewer,
@@ -204,7 +204,6 @@ async function createMessages(
   }
 
   await Promise.all([
-    messageInsertPromise,
     updateRepliesCount(threadsToMessageIndices, newMessageDatas),
     viewer.isScriptViewer ? postMessageSendPromise : undefined,
   ]);
