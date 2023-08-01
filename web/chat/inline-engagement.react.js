@@ -100,12 +100,18 @@ function InlineEngagement(props: Props): React.Node {
     }
 
     return Object.keys(reactions).map(reaction => {
-      const numOfReacts = reactions[reaction].users.length;
+      const reactionInfo = reactions[reaction];
+      const numOfReacts = reactionInfo.users.length;
+
+      const reactionClassName = classNames({
+        [css.reactionContainer]: true,
+        [css.reactionContainerSelected]: reactionInfo.viewerReacted,
+      });
 
       return (
         <a
           onClick={event => onClickReaction(event, reaction)}
-          className={css.reactionContainer}
+          className={reactionClassName}
           key={reaction}
         >
           {`${reaction} ${numOfReacts}`}
