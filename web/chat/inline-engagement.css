@@ -42,6 +42,11 @@ a.reactionContainer:hover {
   background: var(--inline-engagement-bg-hover);
 }
 
+a.reactionContainerSelected {
+  border: 1px solid var(--inline-engagement-color);
+  padding: 3px 7px;
+}
+
 div.unread {
   font-weight: bold;
 }
