@@ -37,12 +37,14 @@ type Props = {
 };
 function RobotextMessage(props: Props): React.Node {
   let inlineEngagement;
-  const { item } = props;
+  const { item, threadInfo } = props;
   const { threadCreatedFromMessage, reactions } = item;
   if (threadCreatedFromMessage || Object.keys(reactions).length > 0) {
     inlineEngagement = (
       <div className={css.sidebarMarginTop}>
         <InlineEngagement
+          messageInfo={item.messageInfo}
+          threadInfo={threadInfo}
           sidebarThreadInfo={threadCreatedFromMessage}
           reactions={reactions}
           positioning="center"
@@ -71,7 +73,6 @@ function RobotextMessage(props: Props): React.Node {
     });
   }, [robotextWithENSNames, threadID]);
 
-  const { threadInfo } = props;
   const { onMouseEnter, onMouseLeave } = useMessageTooltip({
     item,
     threadInfo,
