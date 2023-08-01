@@ -803,6 +803,34 @@ async function prepareAPNsNotification(
     );
   }
 
+  const canQueryBlobService =
+    platformDetails.codeVersion &&
+    platformDetails.codeVersion >= FUTURE_CODE_VERSION;
+
+  let blobHash, encryptionKey, blobUploadError;
+  if (canQueryBlobService) {
+    ({
+      blobHash: blobHash,
+      encryptionKey: encryptionKey,
+      blobUploadError: blobUploadError,
+    } = await blobServiceUpload(copyWithMessageInfos.compile()));
+  }
+
+  if (blobUploadError) {
+    console.warn(
+      `Failed to upload payload of notification: ${uniqueID} ` +
+        `due to error: ${blobUploadError}`,
+    );
+  }
+
+  if (blobHash && encryptionKey) {
+    notification.payload = {
+      blobHash,
+      encryptionKey,
+      ...notification.payload,
+    };
+  }
+
   const notifsWithoutMessageInfos = await prepareEncryptedIOSNotifications(
     devicesWithExcessiveSize,
     notification,
