@@ -19,9 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Yarn
-        run: npm install -g yarn
-
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 

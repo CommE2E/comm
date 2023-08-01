@@ -50,9 +50,6 @@ jobs:
         working-directory: ./scripts
         run: sudo ./install_protobuf.sh
 
-      - name: npm install -g yarn
-        run: npm install -g yarn
-
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
