@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
-import { localIDPrefix } from 'lib/shared/message-utils.js';
+import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
@@ -20,7 +20,6 @@ import {
   getEmojiKeyboardPosition,
 } from './reaction-message-utils.js';
 import { useTooltipContext } from './tooltip-provider.js';
-import { useSelector } from '../redux/redux-utils.js';
 import type {
   MessageTooltipAction,
   TooltipSize,
@@ -170,8 +169,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     };
   }, [emojiKeyboardPosition]);
 
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const localID = `${localIDPrefix}${nextLocalID}`;
+  const localID = useNextLocalID();
 
   const sendReaction = useSendReaction(
     messageInfo.id,
