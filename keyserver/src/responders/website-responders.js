@@ -9,7 +9,7 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
-import { inviteLinkURL } from 'lib/facts/links.js';
+import { baseLegalPolicies } from 'lib/facts/policies.js';
 import stores from 'lib/facts/stores.js';
 import getTitle from 'web/title/getTitle.js';
 
@@ -371,7 +371,7 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
           <div class="separator"></div>
           <section class="buttons">
             <a class="button" href="${stores.appStoreUrl}">Download Comm</a>
-            <a class="button secondary" href="${inviteLinkURL(secret)}">
+            <a class="button secondary" href="comm://invite/${secret}">
               Invite Link
             </a>
           </section>
