@@ -6,22 +6,34 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
+import { useNextLocalID } from 'lib/shared/message-utils.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './inline-engagement.css';
+import { useSendReaction } from './reaction-message-utils.js';
 import CommIcon from '../CommIcon.react.js';
-import MessageReactionsModal from '../modals/chat/message-reactions-modal.react.js';
 import { useOnClickThread } from '../selectors/thread-selectors.js';
 
 type Props = {
+  +messageInfo: MessageInfo,
+  +threadInfo: ThreadInfo,
   +sidebarThreadInfo: ?ThreadInfo,
   +reactions: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
   +label?: ?string,
 };
 function InlineEngagement(props: Props): React.Node {
-  const { sidebarThreadInfo, reactions, positioning, label } = props;
-  const { pushModal, popModal } = useModalContext();
+  const {
+    messageInfo,
+    threadInfo,
+    sidebarThreadInfo,
+    reactions,
+    positioning,
+    label,
+  } = props;
+
+  const { popModal } = useModalContext();
 
   const isLeft = positioning === 'left';
 
@@ -66,14 +78,20 @@ function InlineEngagement(props: Props): React.Node {
     );
   }, [sidebarThreadInfo, repliesText, onClickSidebar]);
 
+  const localID = useNextLocalID();
+  const sendReaction = useSendReaction(
+    messageInfo.id,
+    localID,
+    threadInfo.id,
+    reactions,
+  );
+
   const onClickReaction = React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
+    (event: SyntheticEvent<HTMLElement>, reaction: string) => {
       event.preventDefault();
-      pushModal(
-        <MessageReactionsModal onClose={popModal} reactions={reactions} />,
-      );
+      sendReaction(reaction);
     },
-    [popModal, pushModal, reactions],
+    [sendReaction],
   );
 
   const reactionsList = React.useMemo(() => {
@@ -86,7 +104,7 @@ function InlineEngagement(props: Props): React.Node {
 
       return (
         <a
-          onClick={onClickReaction}
+          onClick={event => onClickReaction(event, reaction)}
           className={css.reactionContainer}
           key={reaction}
         >
