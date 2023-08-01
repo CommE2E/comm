@@ -43,7 +43,7 @@ import {
   getMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
 import {
-  localIDPrefix,
+  useNextLocalID,
   trimMessage,
   useMessagePreview,
   messageKey,
@@ -154,7 +154,7 @@ type Props = {
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
-  +nextLocalID: number,
+  +nextLocalID: string,
   +userInfos: UserInfos,
   +colors: Colors,
   +styles: typeof unboundStyles,
@@ -854,7 +854,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
 
-    const localID = `${localIDPrefix}${this.props.nextLocalID}`;
+    const localID = this.props.nextLocalID;
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
     invariant(
@@ -1231,7 +1231,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       navContext,
     }),
   );
-  const nextLocalID = useSelector(state => state.nextLocalID);
+  const nextLocalID = useNextLocalID();
   const userInfos = useSelector(state => state.userStore.userInfos);
 
   const styles = useStyles(unboundStyles);
