@@ -17,7 +17,7 @@ int const blobServiceQueryTimeLimit = 15;
   dispatch_once(&onceToken, ^{
     NSURLSessionConfiguration *config =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    // TODO: put necessary authentication into session config
+
     [config setTimeoutIntervalForRequest:blobServiceQueryTimeLimit];
     NSURLSession *session =
         [NSURLSession sessionWithConfiguration:config
@@ -31,10 +31,30 @@ int const blobServiceQueryTimeLimit = 15;
 
 - (void)getAndConsumeSync:(NSString *)blobHash
       withSuccessConsumer:(void (^)(NSData *))successConsumer {
+  NSError *authTokenError = nil;
+  NSString *authToken = [NSEBlobServiceClient getAuthToken:&authTokenError];
+
+  if (authTokenError) {
+    comm::Logger::log(
+        "NSE: Failed to create NSE blob service auth token. Reason: " +
+        std::string([authTokenError.localizedDescription UTF8String]));
+    return;
+  }
+
   NSString *blobUrlStr = [blobServiceAddress
       stringByAppendingString:[@"/blob/" stringByAppendingString:blobHash]];
   NSURL *blobUrl = [NSURL URLWithString:blobUrlStr];
-  NSURLRequest *blobRequest = [NSURLRequest requestWithURL:blobUrl];
+  NSMutableURLRequest *blobRequest =
+      [NSMutableURLRequest requestWithURL:blobUrl];
+
+  // This is slightly against Apple docs:
+  // https://developer.apple.com/documentation/foundation/nsurlrequest?language=objc#1776617
+  // but apparently there is no other way to
+  // do this and even Apple staff members
+  // advice to set this field manually to
+  // achieve token based authentication:
+  // https://developer.apple.com/forums/thread/89811
+  [blobRequest setValue:authToken forHTTPHeaderField:@"Authorization"];
 
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
   NSURLSessionDataTask *task = [self.sharedBlobServiceSession
@@ -61,6 +81,46 @@ int const blobServiceQueryTimeLimit = 15;
       dispatch_time(
           DISPATCH_TIME_NOW,
           (int64_t)(blobServiceQueryTimeLimit * NSEC_PER_SEC)));
+}
+
++ (NSString *)getAuthToken:(NSError **)error {
+  // Authentication data are retrieved on every request
+  // since they might change while NSE process is running
+  // so we should not rely on caching them in memory.
+
+  // TODO: retrieve those values from CommSecureStore
+  NSString *userID = @"placeholder";
+  NSString *accessToken = @"placeholder";
+  NSString *deviceID = @"placeholder";
+
+  NSDictionary *jsonAuthObject = @{
+    @"userID" : userID,
+    @"accessToken" : accessToken,
+    @"deviceID" : deviceID,
+  };
+
+  NSData *binaryAuthObject = nil;
+  NSError *jsonError = nil;
+
+  @try {
+    binaryAuthObject = [NSJSONSerialization dataWithJSONObject:jsonAuthObject
+                                                       options:0
+                                                         error:&jsonError];
+  } @catch (NSException *e) {
+    *error = [NSError errorWithDomain:@"app.comm"
+                                 code:NSFormattingError
+                             userInfo:@{NSLocalizedDescriptionKey : e.reason}];
+    return nil;
+  }
+
+  if (jsonError) {
+    *error = jsonError;
+    return nil;
+  }
+
+  return [@"Bearer "
+      stringByAppendingString:[binaryAuthObject
+                                  base64EncodedStringWithOptions:0]];
 }
 
 @end
