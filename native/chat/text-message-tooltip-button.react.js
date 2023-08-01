@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
-import { localIDPrefix } from 'lib/shared/message-utils.js';
+import { useNextLocalID } from 'lib/shared/message-utils.js';
 import {
   useViewerAlreadySelectedMessageReactions,
   useCanCreateReactionFromMessage,
@@ -100,8 +100,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
   }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
 
   const { messageInfo, threadInfo, reactions } = item;
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const localID = `${localIDPrefix}${nextLocalID}`;
+  const localID = useNextLocalID();
 
   const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
     threadInfo,
