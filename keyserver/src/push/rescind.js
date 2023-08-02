@@ -23,7 +23,7 @@ import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
 
 type ParsedDelivery = {
-  +platform: 'ios' | 'android',
+  +platform: 'ios' | 'macos' | 'android',
   +codeVersion: ?number,
   +notificationID: string,
   +deviceTokens: $ReadOnlyArray<string>,
