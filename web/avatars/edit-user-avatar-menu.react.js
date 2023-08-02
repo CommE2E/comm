@@ -6,12 +6,16 @@ import * as React from 'react';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { useENSAvatar } from 'lib/hooks/ens-cache.js';
+import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
 import css from './edit-user-avatar-menu.css';
 import EmojiAvatarSelectionModal from './emoji-avatar-selection-modal.react.js';
+import CommIcon from '../CommIcon.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 import { allowedMimeTypeString } from '../media/file-utils.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const editIcon = (
   <div className={css.editAvatarBadge}>
@@ -20,6 +24,13 @@ const editIcon = (
 );
 
 function EditUserAvatarMenu(): React.Node {
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const ethAddress: ?string = React.useMemo(
+    () => getETHAddressForUserInfo(currentUserInfo),
+    [currentUserInfo],
+  );
+  const ensAvatarURI: ?string = useENSAvatar(ethAddress);
+
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
 
@@ -72,6 +83,28 @@ function EditUserAvatarMenu(): React.Node {
     [onImageMenuItemClicked],
   );
 
+  const setENSUserAvatar = React.useCallback(
+    () => baseSetUserAvatar({ type: 'ens' }),
+    [baseSetUserAvatar],
+  );
+
+  const ethereumIcon = React.useMemo(
+    () => <CommIcon icon="ethereum-outline" size={22} />,
+    [],
+  );
+
+  const ensMenuItem = React.useMemo(
+    () => (
+      <MenuItem
+        key="ens"
+        text="Use ENS avatar"
+        onClick={setENSUserAvatar}
+        iconComponent={ethereumIcon}
+      />
+    ),
+    [ethereumIcon, setENSUserAvatar],
+  );
+
   const removeMenuItem = React.useMemo(
     () => (
       <MenuItem
@@ -85,8 +118,11 @@ function EditUserAvatarMenu(): React.Node {
   );
 
   const menuItems = React.useMemo(
-    () => [emojiMenuItem, imageMenuItem, removeMenuItem],
-    [emojiMenuItem, imageMenuItem, removeMenuItem],
+    () =>
+      ensAvatarURI
+        ? [emojiMenuItem, imageMenuItem, ensMenuItem, removeMenuItem]
+        : [emojiMenuItem, imageMenuItem, removeMenuItem],
+    [ensAvatarURI, emojiMenuItem, imageMenuItem, ensMenuItem, removeMenuItem],
   );
 
   return (
