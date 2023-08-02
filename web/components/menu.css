@@ -67,6 +67,7 @@ button.menuAction:hover {
 div.menuActionIcon {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-right: 8px;
   height: 24px;
   width: 24px;
