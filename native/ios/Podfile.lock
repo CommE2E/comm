@@ -6,6 +6,11 @@ PODS:
   - DVAssetLoaderDelegate (0.3.3)
   - EXApplication (5.1.1):
     - ExpoModulesCore
+  - EXBarCodeScanner (12.1.0):
+    - EXImageLoader
+    - ExpoModulesCore
+    - ZXingObjC/OneD
+    - ZXingObjC/PDF417
   - EXConstants (14.0.2):
     - ExpoModulesCore
   - EXFileSystem (15.1.1):
@@ -562,12 +567,18 @@ PODS:
     - OpenSSL-Universal
     - SQLCipher-Amalgamation/common
   - Yoga (1.14.0)
+  - ZXingObjC/Core (3.6.5)
+  - ZXingObjC/OneD (3.6.5):
+    - ZXingObjC/Core
+  - ZXingObjC/PDF417 (3.6.5):
+    - ZXingObjC/Core
 
 DEPENDENCIES:
   - boost (from `../../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - CommExpoPackage (from `../expo-modules/comm-expo-package/ios`)
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXApplication (from `../../node_modules/expo-application/ios`)
+  - EXBarCodeScanner (from `../../node_modules/expo-barcode-scanner/ios`)
   - EXConstants (from `../../node_modules/expo-constants/ios`)
   - EXFileSystem (from `../../node_modules/expo-file-system/ios`)
   - EXFont (from `../../node_modules/expo-font/ios`)
@@ -667,6 +678,7 @@ SPEC REPOS:
     - SDWebImageSVGCoder
     - SDWebImageWebPCoder
     - SPTPersistentCache
+    - ZXingObjC
 
 EXTERNAL SOURCES:
   boost:
@@ -677,6 +689,8 @@ EXTERNAL SOURCES:
     :podspec: "../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   EXApplication:
     :path: "../../node_modules/expo-application/ios"
+  EXBarCodeScanner:
+    :path: "../../node_modules/expo-barcode-scanner/ios"
   EXConstants:
     :path: "../../node_modules/expo-constants/ios"
   EXFileSystem:
@@ -842,6 +856,7 @@ SPEC CHECKSUMS:
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
   EXApplication: d8f53a7eee90a870a75656280e8d4b85726ea903
+  EXBarCodeScanner: cb4deb49e59b6c7ed6bbf38d187802359908d2a8
   EXConstants: 3c86653c422dd77e40d10cbbabb3025003977415
   EXFileSystem: 60602b6eefa6873f97172c684b7537c9760b50d6
   EXFont: 319606bfe48c33b5b5063fb0994afdc496befe80
@@ -935,6 +950,7 @@ SPEC CHECKSUMS:
   SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
   SQLCipher-Amalgamation: cbd36045fe7b458b8a442958a01aefdbc44c20f8
   Yoga: d6133108734e69e8c0becc6ba587294b94829687
+  ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
 PODFILE CHECKSUM: 60ed9de6b14a66c6022cd82cafcb04594edd7eaf
 
