@@ -71,6 +71,7 @@
     "ethers": "^5.7.2",
     "expo": "47.0.14",
     "expo-application": "^5.1.1",
+    "expo-barcode-scanner": "~12.1.0",
     "expo-dev-client": "~2.0.1",
     "expo-font": "~11.0.1",
     "expo-haptics": "~12.0.1",
