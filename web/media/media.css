@@ -20,6 +20,7 @@ span.multimedia > .multimediaImage > video {
   /* in multimedia.react.js */
   max-height: 200px;
   max-width: 100%;
+  display: inherit;
 }
 /* Prevent borders around images without src attribute */
 span.multimedia > .multimediaImage > img:not([src]) {
