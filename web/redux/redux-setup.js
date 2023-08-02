@@ -83,7 +83,6 @@ export type AppState = {
   +urlPrefix: string,
   +windowDimensions: WindowDimensions,
   +deviceToken: ?string,
-  +baseHref: string,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
   +watchedThreadIDs: $ReadOnlyArray<string>,
