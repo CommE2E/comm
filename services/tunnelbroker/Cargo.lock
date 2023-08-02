@@ -2962,7 +2962,6 @@ dependencies = [
  "futures",
  "futures-util",
  "lapin",
- "lazy_static",
  "log",
  "once_cell",
  "openssl",
