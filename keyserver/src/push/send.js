@@ -235,6 +235,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             return await sendAPNsNotification('ios', targetedNotifications, {
               ...notificationInfo,
               codeVersion,
+              stateVersion,
             });
           })();
           deliveryPromises.push(deliveryPromise);
@@ -270,6 +271,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             return await sendAndroidNotification(targetedNotifications, {
               ...notificationInfo,
               codeVersion,
+              stateVersion,
             });
           })();
           deliveryPromises.push(deliveryPromise);
@@ -296,6 +298,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             return await sendWebNotification(notification, deviceTokens, {
               ...notificationInfo,
               codeVersion,
+              stateVersion,
             });
           })();
           deliveryPromises.push(deliveryPromise);
@@ -330,6 +333,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             return await sendAPNsNotification('macos', targetedNotifications, {
               ...notificationInfo,
               codeVersion,
+              stateVersion,
             });
           })();
           deliveryPromises.push(deliveryPromise);
@@ -356,6 +360,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             return await sendWNSNotification(notification, deviceTokens, {
               ...notificationInfo,
               codeVersion,
+              stateVersion,
             });
           })();
           deliveryPromises.push(deliveryPromise);
@@ -963,12 +968,14 @@ type NotificationInfo =
       +messageID: string,
       +collapseKey: ?string,
       +codeVersion: number,
+      +stateVersion: number,
     }
   | {
       +source: 'mark_as_unread' | 'mark_as_read' | 'activity_update',
       +dbID: string,
       +userID: string,
       +codeVersion: number,
+      +stateVersion: number,
     };
 
 type APNsDelivery = {
@@ -977,6 +984,7 @@ type APNsDelivery = {
   iosID: string,
   deviceTokens: $ReadOnlyArray<string>,
   codeVersion: number,
+  stateVersion: number,
   errors?: $ReadOnlyArray<ResponseFailure>,
 };
 type APNsResult = {
@@ -989,7 +997,7 @@ async function sendAPNsNotification(
   targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>,
   notificationInfo: NotificationInfo,
 ): Promise<APNsResult> {
-  const { source, codeVersion } = notificationInfo;
+  const { source, codeVersion, stateVersion } = notificationInfo;
 
   const response = await apnPush({
     targetedNotifications,
@@ -1010,6 +1018,7 @@ async function sendAPNsNotification(
     iosID,
     deviceTokens,
     codeVersion,
+    stateVersion,
   };
   if (response.errors) {
     delivery.errors = response.errors;
@@ -1032,6 +1041,7 @@ type AndroidDelivery = {
   androidIDs: $ReadOnlyArray<string>,
   deviceTokens: $ReadOnlyArray<string>,
   codeVersion: number,
+  stateVersion: number,
   errors?: $ReadOnlyArray<Object>,
 };
 type AndroidResult = {
@@ -1046,7 +1056,7 @@ async function sendAndroidNotification(
   const collapseKey = notificationInfo.collapseKey
     ? notificationInfo.collapseKey
     : null; // for Flow...
-  const { source, codeVersion } = notificationInfo;
+  const { source, codeVersion, stateVersion } = notificationInfo;
   const response = await fcmPush({
     targetedNotifications,
     collapseKey,
@@ -1062,6 +1072,7 @@ async function sendAndroidNotification(
     androidIDs,
     deviceTokens,
     codeVersion,
+    stateVersion,
   };
   if (response.errors) {
     delivery.errors = response.errors;
@@ -1081,6 +1092,7 @@ type WebDelivery = {
   +deviceType: 'web',
   +deviceTokens: $ReadOnlyArray<string>,
   +codeVersion?: number,
+  stateVersion: number,
   +errors?: $ReadOnlyArray<WebPushError>,
 };
 type WebResult = {
@@ -1093,7 +1105,7 @@ async function sendWebNotification(
   deviceTokens: $ReadOnlyArray<string>,
   notificationInfo: NotificationInfo,
 ): Promise<WebResult> {
-  const { source, codeVersion } = notificationInfo;
+  const { source, codeVersion, stateVersion } = notificationInfo;
 
   const response = await webPush({
     notification,
@@ -1106,6 +1118,7 @@ async function sendWebNotification(
     deviceTokens,
     codeVersion,
     errors: response.errors,
+    stateVersion,
   };
   const result: WebResult = {
     info: notificationInfo,
@@ -1121,6 +1134,7 @@ type WNSDelivery = {
   +wnsIDs: $ReadOnlyArray<string>,
   +deviceTokens: $ReadOnlyArray<string>,
   +codeVersion?: number,
+  stateVersion: number,
   +errors?: $ReadOnlyArray<WNSPushError>,
 };
 type WNSResult = {
@@ -1133,7 +1147,7 @@ async function sendWNSNotification(
   deviceTokens: $ReadOnlyArray<string>,
   notificationInfo: NotificationInfo,
 ): Promise<WNSResult> {
-  const { source, codeVersion } = notificationInfo;
+  const { source, codeVersion, stateVersion } = notificationInfo;
 
   const response = await wnsPush({
     notification,
@@ -1148,6 +1162,7 @@ async function sendWNSNotification(
     deviceTokens,
     codeVersion,
     errors: response.errors,
+    stateVersion,
   };
   const result: WNSResult = {
     info: notificationInfo,
@@ -1287,6 +1302,7 @@ async function updateBadgeCount(
           dbID,
           userID,
           codeVersion,
+          stateVersion,
         });
       })();
 
@@ -1297,7 +1313,7 @@ async function updateBadgeCount(
   const androidVersionsToTokens = byPlatform.get('android');
   if (androidVersionsToTokens) {
     for (const [versionKey, deviceInfos] of androidVersionsToTokens) {
-      const [codeVersion] = versionKey.split('|').map(Number);
+      const [codeVersion, stateVersion] = versionKey.split('|').map(Number);
       const notificationData =
         codeVersion < 69
           ? { badge: unreadCount.toString() }
@@ -1325,6 +1341,7 @@ async function updateBadgeCount(
           dbID,
           userID,
           codeVersion,
+          stateVersion,
         });
       })();
       deliveryPromises.push(deliveryPromise);
@@ -1353,6 +1370,7 @@ async function updateBadgeCount(
           dbID,
           userID,
           codeVersion,
+          stateVersion,
         }),
       );
     }

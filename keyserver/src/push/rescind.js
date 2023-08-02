@@ -6,6 +6,7 @@ import invariant from 'invariant';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
+import { tID } from 'lib/utils/validation-utils.js';
 
 import {
   prepareEncryptedAndroidNotificationRescinds,
@@ -21,6 +22,7 @@ import { apnPush, fcmPush } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
+import { validateOutput } from '../utils/validation-utils.js';
 
 type ParsedDelivery = {
   +platform: 'ios' | 'macos' | 'android',
@@ -75,6 +77,7 @@ async function rescindPushNotifs(
         rowParsedDeliveries.push({
           notificationID: delivery.iosID,
           codeVersion: delivery.codeVersion,
+          stateVersion: delivery.stateVersion,
           platform: delivery.deviceType ?? 'ios',
           deviceTokens,
         });
@@ -85,6 +88,7 @@ async function rescindPushNotifs(
         rowParsedDeliveries.push({
           notificationID: row.collapse_key ? row.collapse_key : id,
           codeVersion: delivery.codeVersion,
+          stateVersion: delivery.stateVersion,
           platform: 'android',
           deviceTokens,
         });
@@ -121,6 +125,7 @@ async function rescindPushNotifs(
             row.unread_count,
             threadID,
             delivery.codeVersion,
+            delivery.stateVersion,
             devices,
           );
           return await apnPush({
@@ -143,6 +148,7 @@ async function rescindPushNotifs(
             row.unread_count,
             threadID,
             delivery.codeVersion,
+            delivery.stateVersion,
             devices,
           );
           return await fcmPush({
@@ -254,8 +260,17 @@ async function prepareIOSNotification(
   unreadCount: number,
   threadID: string,
   codeVersion: ?number,
+  stateVersion: ?number,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
+  if (codeVersion && stateVersion) {
+    threadID = validateOutput(
+      { platform: 'ios', codeVersion, stateVersion },
+      tID,
+      threadID,
+    );
+  }
+
   const notification = new apn.Notification();
   notification.topic = getAPNsNotificationTopic({
     platform: 'ios',
@@ -298,8 +313,17 @@ async function prepareAndroidNotification(
   unreadCount: number,
   threadID: string,
   codeVersion: ?number,
+  stateVersion: ?number,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
+  if (codeVersion && stateVersion) {
+    threadID = validateOutput(
+      { platform: 'android', codeVersion, stateVersion },
+      tID,
+      threadID,
+    );
+  }
+
   const notification = {
     data: {
       badge: unreadCount.toString(),
