@@ -40,7 +40,7 @@ import { useMonitorForWalletConnectModal } from './walletconnect-hooks.js';
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
 
 const wallets = [injectedWallet({ chains })];
-const projectId = process.env.COMM_WALLETCONNECT_KEY;
+const projectId = 'fdb51537c1ed7a73d64b4ae5db229939';
 if (projectId) {
   wallets.push(
     rainbowWallet({ chains, projectId }),
