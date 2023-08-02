@@ -196,12 +196,11 @@ const initialReduxStateValidator = tShape({
     'default communityPickerStore',
     _isEqual({ chat: null, calendar: null }),
   ),
-  urlPrefix: tString(''),
+  urlPrefix: t.String,
   windowDimensions: t.irreducible(
     'default windowDimensions',
     _isEqual({ width: 0, height: 0 }),
   ),
-  baseHref: t.String,
   notifPermissionAlertInfo: t.irreducible(
     'default notifPermissionAlertInfo',
     _isEqual(defaultNotifPermissionAlertInfo),
@@ -267,7 +266,7 @@ async function websiteResponder(
   const appURLFacts = getAppURLFactsFromRequestURL(req.originalUrl);
   const { basePath, baseDomain } = appURLFacts;
   const baseURL = basePath.replace(/\/$/, '');
-  const baseHref = baseDomain + baseURL;
+  const urlPrefix = baseDomain + baseURL;
 
   const loadingPromise = getWebpackCompiledRootComponentForSSR();
   const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
@@ -581,10 +580,8 @@ async function websiteResponder(
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
     communityPickerStore: { chat: null, calendar: null },
-    // We can use paths local to the <base href> on web
-    urlPrefix: '',
+    urlPrefix,
     windowDimensions: { width: 0, height: 0 },
-    baseHref,
     notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
     connection: (async () => ({
       ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
