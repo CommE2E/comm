@@ -3,9 +3,15 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
+import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
+import {
+  ashoatKeyserverID,
+  convertServerIDsToClientIDs,
+  tID,
+} from 'lib/utils/validation-utils.js';
 
 import {
   prepareEncryptedAndroidNotificationRescinds,
@@ -256,6 +262,10 @@ async function prepareIOSNotification(
   codeVersion: ?number,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
+  if (codeVersion && codeVersion >= NEXT_CODE_VERSION) {
+    threadID = convertServerIDsToClientIDs(ashoatKeyserverID, tID, threadID);
+  }
+
   const notification = new apn.Notification();
   notification.topic = getAPNsNotificationTopic({
     platform: 'ios',
@@ -300,6 +310,10 @@ async function prepareAndroidNotification(
   codeVersion: ?number,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
+  if (codeVersion && codeVersion >= NEXT_CODE_VERSION) {
+    threadID = convertServerIDsToClientIDs(ashoatKeyserverID, tID, threadID);
+  }
+
   const notification = {
     data: {
       badge: unreadCount.toString(),
