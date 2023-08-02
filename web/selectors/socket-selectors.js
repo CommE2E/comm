@@ -29,7 +29,7 @@ import { initOlm } from '../olm/olm-utils.js';
 import type { AppState } from '../redux/redux-setup.js';
 
 const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
-  (state: AppState) => state.baseHref,
+  (state: AppState) => state.urlPrefix,
   createOpenSocketFunction,
 );
 
