@@ -3,9 +3,11 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
+import type { PlatformDetails } from 'lib/types/device-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
+import { tID } from 'lib/utils/validation-utils.js';
 
 import {
   prepareEncryptedAndroidNotificationRescinds,
@@ -21,6 +23,7 @@ import { apnPush, fcmPush } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
+import { validateOutput } from '../utils/validation-utils.js';
 
 type ParsedDelivery = {
   +platform: 'ios' | 'macos' | 'android',
@@ -75,6 +78,7 @@ async function rescindPushNotifs(
         rowParsedDeliveries.push({
           notificationID: delivery.iosID,
           codeVersion: delivery.codeVersion,
+          stateVersion: delivery.stateVersion,
           platform: delivery.deviceType ?? 'ios',
           deviceTokens,
         });
@@ -85,6 +89,7 @@ async function rescindPushNotifs(
         rowParsedDeliveries.push({
           notificationID: row.collapse_key ? row.collapse_key : id,
           codeVersion: delivery.codeVersion,
+          stateVersion: delivery.stateVersion,
           platform: 'android',
           deviceTokens,
         });
@@ -110,6 +115,20 @@ async function rescindPushNotifs(
     };
 
     for (const delivery of parsedDeliveries[id]) {
+      let platformDetails: PlatformDetails = { platform: delivery.platform };
+      if (delivery.codeVersion) {
+        platformDetails = {
+          ...platformDetails,
+          codeVersion: delivery.codeVersion,
+        };
+      }
+      if (delivery.stateVersion) {
+        platformDetails = {
+          ...platformDetails,
+          stateVersion: delivery.stateVersion,
+        };
+      }
+
       if (delivery.platform === 'ios') {
         const devices = delivery.deviceTokens.map(deviceToken => ({
           deviceToken,
@@ -120,7 +139,7 @@ async function rescindPushNotifs(
             delivery.notificationID,
             row.unread_count,
             threadID,
-            delivery.codeVersion,
+            platformDetails,
             devices,
           );
           return await apnPush({
@@ -142,7 +161,7 @@ async function rescindPushNotifs(
             delivery.notificationID,
             row.unread_count,
             threadID,
-            delivery.codeVersion,
+            platformDetails,
             devices,
           );
           return await fcmPush({
@@ -253,13 +272,16 @@ async function prepareIOSNotification(
   iosID: string,
   unreadCount: number,
   threadID: string,
-  codeVersion: ?number,
+  platformDetails: PlatformDetails,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
+  threadID = validateOutput(platformDetails, tID, threadID);
+  const { codeVersion } = platformDetails;
+
   const notification = new apn.Notification();
   notification.topic = getAPNsNotificationTopic({
     platform: 'ios',
-    codeVersion: codeVersion ?? undefined,
+    codeVersion,
   });
 
   if (codeVersion && codeVersion > 198) {
@@ -297,9 +319,12 @@ async function prepareAndroidNotification(
   notifID: string,
   unreadCount: number,
   threadID: string,
-  codeVersion: ?number,
+  platformDetails: PlatformDetails,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
+  threadID = validateOutput(platformDetails, tID, threadID);
+  const { codeVersion } = platformDetails;
+
   const notification = {
     data: {
       badge: unreadCount.toString(),
