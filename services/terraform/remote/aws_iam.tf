@@ -108,9 +108,6 @@ resource "aws_iam_role" "services_ddb_full_access" {
 }
 
 # Feature Flags IAM
-data "aws_dynamodb_table" "feature_flags" {
-  name = "feature-flags"
-}
 data "aws_iam_policy_document" "read_feature_flags" {
   statement {
     sid    = "FeatureFlagsDDBReadAccess"
@@ -122,7 +119,7 @@ data "aws_iam_policy_document" "read_feature_flags" {
       "dynamodb:Scan",
     ]
     resources = [
-      data.aws_dynamodb_table.feature_flags.arn,
+      module.shared.dynamodb_tables["feature-flags"].arn
     ]
   }
 }
