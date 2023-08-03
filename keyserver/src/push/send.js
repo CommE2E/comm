@@ -75,11 +75,12 @@ import type { Viewer } from '../session/viewer.js';
 import { getENSNames } from '../utils/ens-cache.js';
 import { validateOutput } from '../utils/validation-utils.js';
 
-type Device = {
+export type Device = {
   +platform: Platform,
   +deviceToken: string,
   +cookieID: string,
   +codeVersion: ?number,
+  +stateVersion: ?number,
 };
 
 type PushUserInfo = {
@@ -206,8 +207,14 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
       const iosVersionsToTokens = byPlatform.get('ios');
       if (iosVersionsToTokens) {
-        for (const [codeVersion, devices] of iosVersionsToTokens) {
-          const platformDetails = { platform: 'ios', codeVersion };
+        for (const [versionKey, devices] of iosVersionsToTokens) {
+          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+
+          const platformDetails: PlatformDetails = {
+            platform: 'ios',
+            codeVersion,
+            stateVersion,
+          };
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
             platformDetails,
@@ -235,8 +242,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const androidVersionsToTokens = byPlatform.get('android');
       if (androidVersionsToTokens) {
-        for (const [codeVersion, devices] of androidVersionsToTokens) {
-          const platformDetails = { platform: 'android', codeVersion };
+        for (const [versionKey, devices] of androidVersionsToTokens) {
+          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+          const platformDetails = {
+            platform: 'android',
+            codeVersion,
+            stateVersion,
+          };
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
             platformDetails,
@@ -265,8 +277,14 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const webVersionsToTokens = byPlatform.get('web');
       if (webVersionsToTokens) {
-        for (const [codeVersion, devices] of webVersionsToTokens) {
-          const platformDetails = { platform: 'web', codeVersion };
+        for (const [versionKey, devices] of webVersionsToTokens) {
+          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+          const platformDetails = {
+            platform: 'web',
+            codeVersion,
+            stateVersion,
+          };
+
           const deliveryPromise = (async () => {
             const notification = await prepareWebNotification({
               notifTexts,
@@ -285,8 +303,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const macosVersionsToTokens = byPlatform.get('macos');
       if (macosVersionsToTokens) {
-        for (const [codeVersion, devices] of macosVersionsToTokens) {
-          const platformDetails = { platform: 'macos', codeVersion };
+        for (const [versionKey, devices] of macosVersionsToTokens) {
+          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+          const platformDetails = {
+            platform: 'macos',
+            codeVersion,
+            stateVersion,
+          };
           const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
             newRawMessageInfos,
             platformDetails,
@@ -314,8 +337,14 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       }
       const windowsVersionsToTokens = byPlatform.get('windows');
       if (windowsVersionsToTokens) {
-        for (const [codeVersion, devices] of windowsVersionsToTokens) {
-          const platformDetails = { platform: 'windows', codeVersion };
+        for (const [versionKey, devices] of windowsVersionsToTokens) {
+          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+          const platformDetails = {
+            platform: 'windows',
+            codeVersion,
+            stateVersion,
+          };
+
           const deliveryPromise = (async () => {
             const notification = await prepareWNSNotification({
               notifTexts,
@@ -591,9 +620,24 @@ async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
   return await createIDs('notifications', numIDsNeeded);
 }
 
+type VersionKey = { codeVersion: number, stateVersion: number };
+const versionKeyRegex: RegExp = new RegExp(/^-?\d+\|-?\d+$/);
+function versionKeyToString(versionKey: VersionKey): string {
+  return `${versionKey.codeVersion}|${versionKey.stateVersion}`;
+}
+
+function stringToVersionKey(versionKeyString: string): VersionKey {
+  invariant(
+    versionKeyRegex.test(versionKeyString),
+    'should pass correct version key string',
+  );
+  const [codeVersion, stateVersion] = versionKeyString.split('|').map(Number);
+  return { codeVersion, stateVersion };
+}
+
 function getDevicesByPlatform(
   devices: $ReadOnlyArray<Device>,
-): Map<Platform, Map<number, Array<NotificationTargetDevice>>> {
+): Map<Platform, Map<string, Array<NotificationTargetDevice>>> {
   const byPlatform = new Map();
   for (const device of devices) {
     let innerMap = byPlatform.get(device.platform);
@@ -608,10 +652,16 @@ function getDevicesByPlatform(
       device.platform !== 'macos'
         ? device.codeVersion
         : -1;
-    let innerMostArray = innerMap.get(codeVersion);
+    const stateVersion: number = device.stateVersion ?? -1;
+
+    const versionKey = versionKeyToString({
+      codeVersion,
+      stateVersion,
+    });
+    let innerMostArray = innerMap.get(versionKey);
     if (!innerMostArray) {
       innerMostArray = [];
-      innerMap.set(codeVersion, innerMostArray);
+      innerMap.set(versionKey, innerMostArray);
     }
 
     innerMostArray.push({
@@ -1211,24 +1261,29 @@ async function updateBadgeCount(
     createIDs('notifications', 1),
   ]);
   const unreadCount = unreadCounts[userID];
-
-  const devices = deviceTokenResult.map(row => ({
-    platform: row.platform,
-    cookieID: row.id,
-    deviceToken: row.device_token,
-    codeVersion: JSON.parse(row.versions)?.codeVersion,
-  }));
+  const devices = deviceTokenResult.map(row => {
+    const versions = JSON.parse(row.versions);
+    return {
+      platform: row.platform,
+      cookieID: row.id,
+      deviceToken: row.device_token,
+      codeVersion: versions?.codeVersion,
+      stateVersion: versions?.stateVersion,
+    };
+  });
   const byPlatform = getDevicesByPlatform(devices);
 
   const deliveryPromises = [];
 
   const iosVersionsToTokens = byPlatform.get('ios');
   if (iosVersionsToTokens) {
-    for (const [codeVersion, deviceInfos] of iosVersionsToTokens) {
+    for (const [versionKey, deviceInfos] of iosVersionsToTokens) {
+      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
       const notification = new apn.Notification();
       notification.topic = getAPNsNotificationTopic({
         platform: 'ios',
         codeVersion,
+        stateVersion,
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
@@ -1263,7 +1318,8 @@ async function updateBadgeCount(
 
   const androidVersionsToTokens = byPlatform.get('android');
   if (androidVersionsToTokens) {
-    for (const [codeVersion, deviceInfos] of androidVersionsToTokens) {
+    for (const [versionKey, deviceInfos] of androidVersionsToTokens) {
+      const { codeVersion } = stringToVersionKey(versionKey);
       const notificationData =
         codeVersion < 69
           ? { badge: unreadCount.toString() }
@@ -1299,11 +1355,13 @@ async function updateBadgeCount(
 
   const macosVersionsToTokens = byPlatform.get('macos');
   if (macosVersionsToTokens) {
-    for (const [codeVersion, deviceInfos] of macosVersionsToTokens) {
+    for (const [versionKey, deviceInfos] of macosVersionsToTokens) {
+      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
       const notification = new apn.Notification();
       notification.topic = getAPNsNotificationTopic({
         platform: 'macos',
         codeVersion,
+        stateVersion,
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
