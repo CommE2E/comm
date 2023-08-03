@@ -4,8 +4,9 @@ use std::{collections::HashSet, env, fmt, fs, io, path};
 use tracing::{error, info};
 
 use crate::constants::{
-  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
-  SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
+  DEFAULT_TUNNELBROKER_ENDPOINT, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT,
+  OPAQUE_SERVER_SETUP, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
+  TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 pub static CONFIG: Lazy<Config> =
@@ -23,11 +24,30 @@ pub struct Config {
   // Reserved usernames
   pub reserved_usernames: HashSet<String>,
   pub keyserver_public_key: Option<String>,
+  pub tunnelbroker_endpoint: String,
 }
 
 impl Config {
   fn load() -> Result<Self, Error> {
     let localstack_endpoint = env::var(LOCALSTACK_ENDPOINT).ok();
+    let tunnelbroker_endpoint = match env::var(TUNNELBROKER_GRPC_ENDPOINT) {
+      Ok(val) => {
+        info!("Using tunnelbroker endpoint from env var: {}", val);
+        val
+      }
+      Err(std::env::VarError::NotPresent) => {
+        let val = DEFAULT_TUNNELBROKER_ENDPOINT;
+        info!("Falling back to default tunnelbroker endpoint: {}", val);
+        val.to_string()
+      }
+      Err(e) => {
+        error!(
+          "Failed to read environment variable {}: {:?}",
+          TUNNELBROKER_GRPC_ENDPOINT, e
+        );
+        return Err(Error::Env(e));
+      }
+    };
 
     let mut path_buf = path::PathBuf::new();
     path_buf.push(SECRETS_DIRECTORY);
@@ -44,6 +64,7 @@ impl Config {
       server_setup,
       reserved_usernames,
       keyserver_public_key,
+      tunnelbroker_endpoint,
     })
   }
 }
