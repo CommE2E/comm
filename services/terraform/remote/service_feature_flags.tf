@@ -3,6 +3,7 @@ locals {
   feature_flags_container_name = "feature-flags-server"
   feature_flags_container_port = 50051
   feature_flags_server_image   = "commapp/feature-flags:${local.feature_flags_image_tag}"
+  feature_flags_domain_name    = "feature-flags.${local.root_domain}"
 }
 
 # Task definition - defines container resources, ports,
@@ -191,7 +192,7 @@ resource "aws_lb_listener" "feature_flags_https" {
 
 # SSL Certificate
 data "aws_acm_certificate" "feature_flags" {
-  domain   = "feature-flags.commtechnologies.org"
+  domain   = local.feature_flags_domain_name
   statuses = ["ISSUED"]
 }
 

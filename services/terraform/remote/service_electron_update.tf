@@ -2,6 +2,8 @@ locals {
   electron_update_container_name = "electron-update-server"
   electron_update_container_port = 80
   electron_update_server_image   = "commapp/electron-update-server:1.0"
+
+  electron_update_domain_name = "electron-update.${local.root_domain}"
 }
 
 # Task definition - defines container resources, ports,
@@ -183,7 +185,7 @@ resource "aws_lb_listener" "electron_update_https" {
 
 # SSL Certificate
 data "aws_acm_certificate" "electron_update" {
-  domain   = "electron-update.commtechnologies.org"
+  domain   = local.electron_update_domain_name
   statuses = ["ISSUED"]
 }
 
