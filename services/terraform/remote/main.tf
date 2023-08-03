@@ -43,6 +43,7 @@ provider "aws" {
 
 # Shared resources between local dev environment and remote AWS
 module "shared" {
-  source = "../modules/shared"
+  source             = "../modules/shared"
+  bucket_name_suffix = local.is_staging ? "-staging" : ""
 }
 
