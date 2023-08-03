@@ -7,7 +7,7 @@ use std::sync::Arc;
 use crate::ddb_utils::{
   create_onetime_key_partition_key, into_onetime_put_requests, OlmAccountType,
 };
-use crate::error::{DBItemAttributeError, DBItemError, Error};
+use crate::error::{consume_error, DBItemAttributeError, DBItemError, Error};
 use aws_config::SdkConfig;
 use aws_sdk_dynamodb::model::{AttributeValue, PutRequest, WriteRequest};
 use aws_sdk_dynamodb::output::{
@@ -370,6 +370,7 @@ impl DatabaseClient {
     account_type: OlmAccountType,
   ) -> Result<Option<String>, Error> {
     use crate::constants::one_time_keys_table as otk_table;
+    use crate::constants::ONETIME_KEY_MINIMUM_THRESHOLD;
 
     let query_result = self.get_onetime_keys(device_id, account_type).await?;
     let items = match query_result.items() {
@@ -379,6 +380,13 @@ impl DatabaseClient {
         return Ok(None);
       }
     };
+
+    if items.len() < ONETIME_KEY_MINIMUM_THRESHOLD {
+      debug!("Attempting to request more keys for device: {}", device_id);
+      let result =
+        crate::tunnelbroker::send_refresh_keys_request(device_id).await;
+      consume_error(result);
+    }
 
     // Attempt to delete the onetime keys individually, a successful delete
     // mints the onetime key to the requester
