@@ -7,6 +7,7 @@ locals {
   identity_service_container_grpc_port = 50054
   # Port that is exposed to the public SSL endpoint (appended to domain name)
   identity_service_grpc_public_port = 50054
+  identity_service_domain_name      = "identity.${local.root_domain}"
 
   opaque_server_setup_secret_name = "identity/ServerSetup"
 }
@@ -193,7 +194,7 @@ resource "aws_lb_listener" "identity_service_grpc" {
 
 # SSL Certificate
 data "aws_acm_certificate" "identity_service" {
-  domain   = "identity.commtechnologies.org"
+  domain   = local.identity_service_domain_name
   statuses = ["ISSUED"]
 }
 
