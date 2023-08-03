@@ -5,6 +5,7 @@ locals {
   blob_service_container_http_port = 51001
   blob_service_container_grpc_port = 50051
   blob_service_grpc_public_port    = 50053
+  blob_service_domain_name         = "blob.${local.root_domain}"
 }
 
 resource "aws_ecs_task_definition" "blob_service" {
@@ -234,7 +235,7 @@ resource "aws_lb_listener" "blob_service_grpc" {
 
 # SSL Certificate
 data "aws_acm_certificate" "blob_service" {
-  domain   = "blob.commtechnologies.org"
+  domain   = local.blob_service_domain_name
   statuses = ["ISSUED"]
 }
 
