@@ -30,6 +30,7 @@ import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateDimensionsActiveType,
@@ -87,7 +88,6 @@ const defaultState = ({
     currentAsOf: 0,
   },
   storeLoaded: false,
-  updatesCurrentAsOf: 0,
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
   deviceToken: null,
@@ -121,7 +121,11 @@ const defaultState = ({
     links: {},
   },
   lastCommunicatedPlatformDetails: {},
-  keyserverStore: { keyserverInfos: {} },
+  keyserverStore: {
+    keyserverInfos: {
+      [ashoatKeyserverID]: { updatesCurrentAsOf: 0 },
+    },
+  },
 }: AppState);
 
 function reducer(state: AppState = defaultState, action: Action) {
