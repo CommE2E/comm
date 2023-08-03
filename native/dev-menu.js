@@ -1,11 +1,11 @@
 // @flow
 
 import { registerDevMenuItems } from 'expo-dev-menu';
-import { Alert } from 'react-native';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { filesystemMediaCache } from './media/media-cache.js';
+import Alert from './utils/alert.js';
 import { wipeAndExit } from './utils/crash-utils.js';
 
 // see https://docs.expo.dev/develop/development-builds/development-workflows/#extending-the-dev-menu

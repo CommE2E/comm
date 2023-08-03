@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, Alert, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
 import {
@@ -44,6 +44,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useIndicatorStyle } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import Alert from '../utils/alert.js';
 
 const TagInput = createTagInput<GlobalAccountUserInfo>();
 

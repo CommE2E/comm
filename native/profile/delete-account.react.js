@@ -6,7 +6,6 @@ import {
   Text,
   View,
   TextInput as BaseTextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -33,6 +32,7 @@ import TextInput from '../components/text-input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { GlobalTheme } from '../types/themes.js';
+import Alert from '../utils/alert.js';
 
 type Props = {
   // Redux state

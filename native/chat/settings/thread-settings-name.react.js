@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import {
   Text,
-  Alert,
   ActivityIndicator,
   TextInput as BaseTextInput,
   View,
@@ -35,6 +34,7 @@ import { SingleLine } from '../../components/single-line.react.js';
 import TextInput from '../../components/text-input.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 
 type BaseProps = {
   +threadInfo: ResolvedThreadInfo,

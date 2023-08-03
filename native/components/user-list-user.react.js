@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Platform, Alert } from 'react-native';
+import { Text, Platform } from 'react-native';
 
 import type { UserListItem, AccountUserInfo } from 'lib/types/user-types.js';
 
@@ -10,6 +10,7 @@ import { SingleLine } from './single-line.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { TextStyle } from '../types/styles.js';
+import Alert from '../utils/alert.js';
 
 // eslint-disable-next-line no-unused-vars
 const getUserListItemHeight = (item: UserListItem): number => {

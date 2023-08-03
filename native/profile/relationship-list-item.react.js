@@ -2,13 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import {
-  Alert,
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 
 import {
   updateRelationshipsActionTypes,
@@ -54,6 +48,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import Alert from '../utils/alert.js';
 
 type BaseProps = {
   +userInfo: AccountUserInfo,

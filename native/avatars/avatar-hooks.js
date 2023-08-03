@@ -5,7 +5,6 @@ import * as ImagePicker from 'expo-image-picker';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform } from 'react-native';
-import Alert from 'react-native/Libraries/Alert/Alert.js';
 import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -34,6 +33,7 @@ import type { MediaResult } from '../media/media-utils.js';
 import { processMedia } from '../media/media-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function displayAvatarUpdateFailureAlert(): void {

@@ -1,10 +1,10 @@
 // @flow
-import { Alert } from 'react-native';
 
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 
 import { commConstants } from '../native-modules.js';
+import Alert from '../utils/alert.js';
 
 if (__DEV__) {
   const messageTypesCpp = new Set(commConstants.NATIVE_MESSAGE_TYPES);

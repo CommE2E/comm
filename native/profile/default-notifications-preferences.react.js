@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, Platform, Alert } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
@@ -28,6 +28,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 
 const CheckIcon = () => (
   <SWMansionIcon

@@ -2,7 +2,6 @@
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import { Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 
@@ -21,6 +20,7 @@ import {
 
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
+import Alert from '../utils/alert.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
