@@ -186,7 +186,6 @@ const initialReduxStateValidator = tShape({
     ),
   }),
   messageStore: messageStoreValidator,
-  updatesCurrentAsOf: t.Number,
   loadingStatuses: t.irreducible('default loadingStatuses', _isEqual({})),
   calendarFilters: t.irreducible(
     'defaultCalendarFilters',
@@ -501,10 +500,18 @@ async function websiteResponder(
   })();
 
   const keyserverStorePromise = (async () => {
-    const sessionID = await sessionIDPromise;
+    const { sessionID, updatesCurrentAsOf } = await promiseAll({
+      sessionID: sessionIDPromise,
+      updatesCurrentAsOf: currentAsOfPromise,
+    });
+
     return {
       keyserverInfos: {
-        [ashoatKeyserverID]: { cookie: undefined, sessionID },
+        [ashoatKeyserverID]: {
+          cookie: undefined,
+          sessionID,
+          updatesCurrentAsOf,
+        },
       },
     };
   })();
@@ -576,7 +583,6 @@ async function websiteResponder(
     threadStore: threadStorePromise,
     userStore: userStorePromise,
     messageStore: messageStorePromise,
-    updatesCurrentAsOf: currentAsOfPromise,
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
     communityPickerStore: { chat: null, calendar: null },
