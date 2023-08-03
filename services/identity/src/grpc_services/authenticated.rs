@@ -12,9 +12,9 @@ pub mod auth_proto {
 }
 use auth_proto::{
   identity_client_service_server::IdentityClientService, KeyserverKeysResponse,
-  OutboundKeysForUserRequest, RefreshUserPreKeysRequest,
+  OutboundKeyInfo, OutboundKeysForUserRequest, RefreshUserPreKeysRequest,
 };
-use client::Empty;
+use client::{Empty, IdentityKeyInfo};
 use tracing::debug;
 
 #[derive(derive_more::Constructor)]
@@ -116,8 +116,37 @@ impl IdentityClientService for AuthenticatedService {
 
   async fn get_keyserver_keys(
     &self,
-    _request: Request<OutboundKeysForUserRequest>,
+    request: Request<OutboundKeysForUserRequest>,
   ) -> Result<Response<KeyserverKeysResponse>, Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    let inner_response = self
+      .db_client
+      .get_keyserver_keys_for_user(&message.user_id)
+      .await
+      .map_err(handle_db_error)?
+      .map(|db_keys| OutboundKeyInfo {
+        identity_info: Some(IdentityKeyInfo {
+          payload: db_keys.key_payload,
+          payload_signature: db_keys.key_payload_signature,
+          social_proof: db_keys.social_proof,
+        }),
+        content_prekey: Some(client::PreKey {
+          pre_key: db_keys.content_prekey.prekey,
+          pre_key_signature: db_keys.content_prekey.prekey_signature,
+        }),
+        notif_prekey: Some(client::PreKey {
+          pre_key: db_keys.notif_prekey.prekey,
+          pre_key_signature: db_keys.notif_prekey.prekey_signature,
+        }),
+        onetime_content_prekey: db_keys.content_one_time_key,
+        onetime_notif_prekey: db_keys.notif_one_time_key,
+      });
+
+    let response = Response::new(KeyserverKeysResponse {
+      keyserver_info: inner_response,
+    });
+
+    return Ok(response);
   }
 }
