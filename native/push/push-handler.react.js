@@ -11,6 +11,7 @@ import {
   setDeviceToken,
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
+import { updatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import {
   unreadCount,
   threadInfoSelector,
@@ -641,7 +642,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
       state => state.notifPermissionAlertInfo,
     );
     const connection = useSelector(state => state.connection);
-    const updatesCurrentAsOf = useSelector(state => state.updatesCurrentAsOf);
+    const updatesCurrentAsOf = useSelector(updatesCurrentAsOfSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
     const loggedIn = useSelector(isLoggedIn);
     const navigateToThread = useNavigateToThread();
