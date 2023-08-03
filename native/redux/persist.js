@@ -654,6 +654,23 @@ const migrations = {
       keyserverStore: { keyserverInfos: { [ashoatKeyserverID]: { cookie } } },
     };
   },
+  [45]: async state => {
+    const { updatesCurrentAsOf, keyserverStore, ...rest } = state;
+
+    return {
+      ...rest,
+      keyserverStore: {
+        ...keyserverStore,
+        keyserverInfos: {
+          ...keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+            updatesCurrentAsOf,
+          },
+        },
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -748,7 +765,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 44,
+  version: 45,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

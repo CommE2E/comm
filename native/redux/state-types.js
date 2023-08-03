@@ -35,7 +35,6 @@ export type AppState = {
   +userStore: UserStore,
   +messageStore: MessageStore,
   +storeLoaded: boolean,
-  +updatesCurrentAsOf: number,
   +loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
   +deviceToken: ?string,
