@@ -16,7 +16,9 @@ data "sops_file" "secrets_json" {
 
 locals {
   environment = terraform.workspace
-  secrets     = jsondecode(data.sops_file.secrets_json.raw)
+  is_staging  = local.environment == "staging"
+
+  secrets = jsondecode(data.sops_file.secrets_json.raw)
 
   target_account_id  = lookup(local.secrets.accountIDs, local.environment)
   terraform_role_arn = "arn:aws:iam::${local.target_account_id}:role/Terraform"
