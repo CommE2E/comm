@@ -6,7 +6,6 @@ import {
   Text,
   View,
   TextInput as BaseTextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -16,8 +15,14 @@ import {
   deleteThread,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
+import {
+  threadInfoSelector,
+  containedThreadInfos,
+} from 'lib/selectors/thread-selectors.js';
+import {
+  identifyInvalidatedThreads,
+  getThreadsToDeleteText,
+} from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
   ThreadInfo,
@@ -41,6 +46,7 @@ import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { GlobalTheme } from '../../types/themes.js';
+import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 export type DeleteThreadParams = {
@@ -55,6 +61,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +threadInfo: ResolvedThreadInfo,
+  +shouldUseDeleteConfirmationAlert: boolean,
   +loadingStatus: LoadingStatus,
   +activeTheme: ?GlobalTheme,
   +colors: Colors,
@@ -124,10 +131,28 @@ class DeleteThread extends React.PureComponent<Props> {
     this.passwordInput.focus();
   };
 
-  submitDeletion = () => {
+  dispatchDeleteThreadAction = () => {
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,
       this.deleteThread(),
+    );
+  };
+
+  submitDeletion = () => {
+    if (!this.props.shouldUseDeleteConfirmationAlert) {
+      this.dispatchDeleteThreadAction();
+      return;
+    }
+    Alert.alert(
+      'Warning',
+      `${getThreadsToDeleteText(
+        this.props.threadInfo,
+      )} will also be permanently deleted.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Continue', onPress: this.dispatchDeleteThreadAction },
+      ],
+      { cancelable: false },
     );
   };
 
@@ -230,6 +255,9 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> =
     const reduxThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
+    const reduxContainedThreadInfos = useSelector(
+      state => containedThreadInfos(state)[threadID],
+    );
 
     const { setParams } = props.navigation;
     React.useEffect(() => {
@@ -253,10 +281,14 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> =
     invariant(navContext, 'NavContext should be set in DeleteThread');
     const navDispatch = navContext.dispatch;
 
+    const shouldUseDeleteConfirmationAlert =
+      reduxContainedThreadInfos && reduxContainedThreadInfos.length > 0;
+
     return (
       <DeleteThread
         {...props}
         threadInfo={resolvedThreadInfo}
+        shouldUseDeleteConfirmationAlert={shouldUseDeleteConfirmationAlert}
         loadingStatus={loadingStatus}
         activeTheme={activeTheme}
         colors={colors}
