@@ -52,7 +52,7 @@ jobs:
         working-directory: ./native/android
         env:
           ANDROID_SIGNING_PASSWORD: ${{secrets.ANDROID_SIGNING_PASSWORD}}
-        run: ./gradlew bundleRelease
+        run: ./gradlew bundleRelease "-Dorg.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=6g"
 
       - name: Disk Usage
         run: df -h
