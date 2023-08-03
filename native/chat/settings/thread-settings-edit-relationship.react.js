@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import {
   updateRelationships as serverUpdateRelationships,
@@ -28,6 +28,7 @@ import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
+import Alert from '../../utils/alert.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

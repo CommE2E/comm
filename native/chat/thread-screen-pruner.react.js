@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 
@@ -21,6 +20,7 @@ import {
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { AppState } from '../redux/state-types.js';
+import Alert from '../utils/alert.js';
 
 const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
   function ThreadScreenPruner() {

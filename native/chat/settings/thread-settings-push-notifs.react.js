@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { View, Switch, TouchableOpacity, Platform } from 'react-native';
-import Alert from 'react-native/Libraries/Alert/Alert.js';
 import Linking from 'react-native/Libraries/Linking/Linking.js';
 
 import {
@@ -25,6 +24,7 @@ import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import { CommAndroidNotifications } from '../../push/android.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

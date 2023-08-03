@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 
 import {
   changeThreadSettingsActionTypes,
@@ -31,6 +31,7 @@ import type { RootNavigationProp } from '../../navigation/root-navigator.react.j
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
 
