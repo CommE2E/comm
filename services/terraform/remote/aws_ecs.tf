@@ -36,13 +36,19 @@ data "aws_ami" "al2_x86_ecs" {
 }
 
 # Autoscaling configuration
+resource "aws_iam_instance_profile" "ecs_instance_profile" {
+  # AWS Console creates profiles with the same name as IAM roles.
+  # We do the same here.
+  name = aws_iam_role.ecs_instance_role.name
+  role = aws_iam_role.ecs_instance_role.name
+}
 resource "aws_launch_template" "ecs_services" {
   name_prefix   = "services-ecs-ec2-"
   image_id      = data.aws_ami.al2_x86_ecs.id
   instance_type = "t3.small"
 
   iam_instance_profile {
-    name = aws_iam_role.ecs_instance_role.name
+    name = aws_iam_instance_profile.ecs_instance_profile.name
   }
 
   metadata_options {
@@ -61,6 +67,8 @@ resource "aws_launch_template" "ecs_services" {
     echo ECS_CLUSTER=${aws_ecs_cluster.comm_services.name} >> /etc/ecs/ecs.config;
     EOT
   )
+
+  update_default_version = true
 }
 
 resource "aws_autoscaling_group" "ecs_services" {
