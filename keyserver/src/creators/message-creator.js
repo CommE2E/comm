@@ -39,6 +39,7 @@ import {
 } from '../fetchers/message-fetchers.js';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import type { Device } from '../push/send';
 import { sendPushNotifs, sendRescindNotifs } from '../push/send.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
@@ -47,15 +48,7 @@ import { publisher } from '../socket/redis.js';
 import { creationString } from '../utils/idempotent.js';
 
 type UserThreadInfo = {
-  +devices: Map<
-    string,
-    {
-      +platform: string,
-      +deviceToken: string,
-      +cookieID: string,
-      +codeVersion: ?string,
-    },
-  >,
+  +devices: Map<string, Device>,
   +threadIDs: Set<string>,
   +notFocusedThreadIDs: Set<string>,
   +userNotMemberOfSubthreads: Set<string>,
@@ -391,6 +384,7 @@ async function postMessageSend(
         deviceToken,
         cookieID: cookieID.toString(),
         codeVersion: versions ? versions.codeVersion : null,
+        stateVersion: versions ? versions.stateVersion : null,
       });
     }
     thisUserInfo.threadIDs.add(threadID);
