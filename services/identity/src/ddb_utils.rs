@@ -10,7 +10,7 @@ pub enum OlmAccountType {
 
 // Prefix the one time keys with the olm account variant. This allows for a single
 // DDB table to contain both notification and content keys for a device.
-fn create_one_time_key_partition_key(
+pub fn create_one_time_key_partition_key(
   device_id: &str,
   account_type: OlmAccountType,
 ) -> String {
