@@ -120,3 +120,7 @@ pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
 // OPAQUE Server Setup
 
 pub const OPAQUE_SERVER_SETUP: &str = "OPAQUE_SERVER_SETUP";
+
+// Tunnelbroker
+pub const TUNNELBROKER_GRPC_ENDPOINT: &str = "TUNNELBROKER_GRPC_ENDPOINT";
+pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";
