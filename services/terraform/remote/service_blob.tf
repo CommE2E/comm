@@ -195,9 +195,12 @@ resource "aws_lb_listener" "blob_service_https" {
       }
 
       # Legacy EC2 Target
-      target_group {
-        arn    = data.aws_lb_target_group.blob_service_legacy_ec2.arn
-        weight = 0
+      dynamic "target_group" {
+        for_each = data.aws_lb_target_group.blob_service_legacy_ec2
+        content {
+          arn    = target_group.value["arn"]
+          weight = 0
+        }
       }
     }
   }
@@ -237,7 +240,9 @@ data "aws_acm_certificate" "blob_service" {
 
 # Legacy EC2 instance target
 data "aws_lb_target_group" "blob_service_legacy_ec2" {
-  name = "blob-service-http-tg"
+  # We don't have legacy EC2 services in staging
+  count = local.is_staging ? 0 : 1
+  name  = "blob-service-http-tg"
 }
 
 # Required for Route53 DNS record
