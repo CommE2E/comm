@@ -5,7 +5,7 @@ import _filter from 'lodash/fp/filter.js';
 import _flow from 'lodash/fp/flow.js';
 import _sortBy from 'lodash/fp/sortBy.js';
 import * as React from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text } from 'react-native';
 
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
@@ -35,6 +35,7 @@ import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
 

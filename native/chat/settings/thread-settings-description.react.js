@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import {
   Text,
-  Alert,
   ActivityIndicator,
   TextInput as BaseTextInput,
   View,
@@ -44,6 +43,7 @@ import type {
   LayoutEvent,
   ContentSizeChangeEvent,
 } from '../../types/react-native.js';
+import Alert from '../../utils/alert.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

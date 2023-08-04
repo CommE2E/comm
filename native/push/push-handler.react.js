@@ -2,7 +2,7 @@
 
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
-import { Platform, Alert, LogBox } from 'react-native';
+import { Platform, LogBox } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 import { useDispatch } from 'react-redux';
 
@@ -73,6 +73,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { RootContext, type RootContextType } from '../root-context.js';
 import type { EventSubscription } from '../types/react-native.js';
 import { type GlobalTheme } from '../types/themes.js';
+import Alert from '../utils/alert.js';
 
 LogBox.ignoreLogs([
   // react-native-in-app-message

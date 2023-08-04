@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Alert, ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
@@ -9,6 +9,7 @@ import type { SIWEResult } from 'lib/types/siwe-types.js';
 
 import { useSIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
+import Alert from '../utils/alert.js';
 
 type Props = {
   +goBackToPrompt: () => mixed,

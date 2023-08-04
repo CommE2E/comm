@@ -14,7 +14,6 @@ import {
   TouchableWithoutFeedback,
   NativeAppEventEmitter,
 } from 'react-native';
-import Alert from 'react-native/Libraries/Alert/Alert.js';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, {
   EasingNode,
@@ -126,6 +125,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { LayoutEvent } from '../types/react-native.js';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
+import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
 import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';

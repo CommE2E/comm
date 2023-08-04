@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import {
   deleteCommunityRole,
@@ -13,6 +12,8 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 import { constructRoleDeletionMessagePrompt } from 'lib/utils/role-utils.js';
+
+import Alert from '../utils/alert.js';
 
 function useDisplayDeleteRoleAlert(
   threadInfo: ThreadInfo,

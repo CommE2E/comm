@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, Alert, Platform, ScrollView } from 'react-native';
+import { View, Text, Platform, ScrollView } from 'react-native';
 
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
@@ -38,6 +38,7 @@ import {
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type ProfileRowProps = {
