@@ -4,6 +4,8 @@ import apn from '@parse/node-apn';
 import invariant from 'invariant';
 import _cloneDeep from 'lodash/fp/cloneDeep.js';
 
+import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
+
 import type {
   AndroidNotification,
   AndroidNotificationPayload,
@@ -15,6 +17,7 @@ import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
 async function encryptIOSNotification(
   cookieID: string,
   notification: apn.Notification,
+  codeVersion?: ?number,
   notificationSizeValidator?: apn.Notification => boolean,
 ): Promise<{ +notification: apn.Notification, +payloadSizeExceeded: boolean }> {
   invariant(
@@ -62,6 +65,18 @@ async function encryptIOSNotification(
     );
 
     encryptedNotification.payload.encryptedPayload = serializedPayload.body;
+
+    if (
+      codeVersion &&
+      codeVersion >= NEXT_CODE_VERSION &&
+      codeVersion % 2 === 0
+    ) {
+      encryptedNotification.aps = {
+        alert: { body: 'ENCRYPTED' },
+        ...encryptedNotification.aps,
+      };
+    }
+
     return {
       notification: encryptedNotification,
       payloadSizeExceeded: !!dbPersistConditionViolated,
@@ -200,6 +215,7 @@ async function encryptAndroidNotificationRescind(
 function prepareEncryptedIOSNotifications(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: apn.Notification,
+  codeVersion?: ?number,
   notificationSizeValidator?: apn.Notification => boolean,
 ): Promise<
   $ReadOnlyArray<{
@@ -214,6 +230,7 @@ function prepareEncryptedIOSNotifications(
       const notif = await encryptIOSNotification(
         cookieID,
         notification,
+        codeVersion,
         notificationSizeValidator,
       );
       return { cookieID, deviceToken, ...notif };
@@ -225,6 +242,7 @@ function prepareEncryptedIOSNotifications(
 function prepareEncryptedIOSNotificationRescind(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: apn.Notification,
+  codeVersion?: ?number,
 ): Promise<
   $ReadOnlyArray<{
     +cookieID: string,
@@ -237,6 +255,7 @@ function prepareEncryptedIOSNotificationRescind(
       const { notification: notif } = await encryptIOSNotification(
         cookieID,
         notification,
+        codeVersion,
       );
       return { deviceToken, cookieID, notification: notif };
     },
