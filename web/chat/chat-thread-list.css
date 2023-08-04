@@ -261,7 +261,7 @@ div.emptyItemText {
 div.threadListContainer {
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
   flex: 1;
 }
 
