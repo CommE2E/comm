@@ -3,6 +3,8 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
+import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
+
 import type {
   AndroidNotification,
   AndroidNotificationRescind,
@@ -12,6 +14,7 @@ import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
 async function encryptIOSNotification(
   cookieID: string,
   notification: apn.Notification,
+  codeVersion?: ?number,
 ): Promise<apn.Notification> {
   invariant(
     !notification.collapseId,
@@ -62,6 +65,12 @@ async function encryptIOSNotification(
       encryptionFailed: 1,
     };
     return encryptedNotification;
+  }
+  if (codeVersion && codeVersion >= NEXT_CODE_VERSION) {
+    encryptedNotification.aps = {
+      alert: { body: 'ENCRYPTED' },
+      ...encryptedNotification.aps,
+    };
   }
 
   encryptedNotification.payload.encryptedPayload =
@@ -129,9 +138,10 @@ async function encryptAndroidNotificationRescind(
 function prepareEncryptedIOSNotifications(
   cookieIDs: $ReadOnlyArray<string>,
   notification: apn.Notification,
+  codeVersion?: ?number,
 ): Promise<$ReadOnlyArray<apn.Notification>> {
   const notificationPromises = cookieIDs.map(cookieID =>
-    encryptIOSNotification(cookieID, notification),
+    encryptIOSNotification(cookieID, notification, codeVersion),
   );
   return Promise.all(notificationPromises);
 }
