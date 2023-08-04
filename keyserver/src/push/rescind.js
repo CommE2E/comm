@@ -224,6 +224,7 @@ async function conditionallyEncryptNotification<T>(
   encryptCallback: (
     cookieIDs: $ReadOnlyArray<string>,
     notification: T,
+    codeVersion?: ?number,
   ) => Promise<$ReadOnlyArray<T>>,
 ): Promise<$ReadOnlyArray<{ +deviceToken: string, +notification: T }>> {
   const shouldBeEncrypted = codeVersion && codeVersion >= 233;
@@ -235,7 +236,11 @@ async function conditionallyEncryptNotification<T>(
   }
   const notificationPromises = devices.map(({ cookieID, deviceToken }) =>
     (async () => {
-      const [encryptedNotif] = await encryptCallback([cookieID], notification);
+      const [encryptedNotif] = await encryptCallback(
+        [cookieID],
+        notification,
+        codeVersion,
+      );
       return {
         notification: encryptedNotif,
         deviceToken,
