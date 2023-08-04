@@ -882,31 +882,41 @@ async function toggleMessagePinForThread(
     };
   }
 
-  const messageData = {
-    type: messageTypes.TOGGLE_PIN,
-    threadID,
-    targetMessageID: messageID,
-    action,
-    pinnedContent: getPinnedContentFromMessage(targetMessage),
-    creatorID: viewer.userID,
-    time: Date.now(),
-  };
-  const newMessageInfos = await createMessages(viewer, [messageData]);
-
-  const { threadInfos: serverThreadInfos } = await fetchServerThreadInfos({
-    threadID,
-  });
-  const time = Date.now();
-  const updates = [];
-  for (const member of serverThreadInfos[threadID].members) {
-    updates.push({
-      userID: member.id,
-      time,
+  const createMessagesAsync = async () => {
+    const messageData = {
+      type: messageTypes.TOGGLE_PIN,
       threadID,
-      type: updateTypes.UPDATE_THREAD,
+      targetMessageID: messageID,
+      action,
+      pinnedContent: getPinnedContentFromMessage(targetMessage),
+      creatorID: viewer.userID,
+      time: Date.now(),
+    };
+    const newMessageInfos = await createMessages(viewer, [messageData]);
+    return newMessageInfos;
+  };
+
+  const createUpdatesAsync = async () => {
+    const { threadInfos: serverThreadInfos } = await fetchServerThreadInfos({
+      threadID,
     });
-  }
-  await createUpdates(updates);
+    const time = Date.now();
+    const updates = [];
+    for (const member of serverThreadInfos[threadID].members) {
+      updates.push({
+        userID: member.id,
+        time,
+        threadID,
+        type: updateTypes.UPDATE_THREAD,
+      });
+    }
+    await createUpdates(updates);
+  };
+
+  const [newMessageInfos] = await Promise.all([
+    createMessagesAsync(),
+    createUpdatesAsync(),
+  ]);
 
   return {
     newMessageInfos,
