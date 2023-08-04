@@ -150,6 +150,7 @@ import {
   roleModificationResultValidator,
 } from './responders/thread-responders.js';
 import {
+  identityServiceOlmAuthRequestInputValidator,
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
   sendVerificationEmailResponder,
@@ -178,6 +179,7 @@ import {
   updatePasswordRequestInputValidator,
   updateUserAvatarResponderValidator,
   updateUserSettingsInputValidator,
+  identityServiceOlmAuthResponder,
 } from './responders/user-responders.js';
 import {
   codeVerificationResponder,
@@ -530,6 +532,12 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   siwe_auth: createJSONResponder(
     siweAuthResponder,
     siweAuthRequestInputValidator,
+    logInResponseValidator,
+    [],
+  ),
+  identity_service_olm_auth: createJSONResponder(
+    identityServiceOlmAuthResponder,
+    identityServiceOlmAuthRequestInputValidator,
     logInResponseValidator,
     [],
   ),
