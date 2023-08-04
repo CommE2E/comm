@@ -420,6 +420,16 @@ async function fetchUserIDForEthereumAddress(
   return result.length === 0 ? null : result[0].id.toString();
 }
 
+async function fetchUserIDForUsername(username: string): Promise<?string> {
+  const query = SQL`
+    SELECT id
+    FROM users
+    WHERE LOWER(username) = LOWER(${username})
+  `;
+  const [result] = await dbQuery(query);
+  return result.length === 0 ? null : result[0].id.toString();
+}
+
 export {
   fetchUserInfos,
   fetchLoggedInUserInfo,
@@ -432,4 +442,5 @@ export {
   fetchKnownUserInfos,
   fetchKeyserverAdminID,
   fetchUserIDForEthereumAddress,
+  fetchUserIDForUsername,
 };
