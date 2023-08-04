@@ -27,10 +27,10 @@ import app.comm.android.fbjni.ThreadOperations;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.io.File;
+import java.lang.StringBuilder;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String BADGE_KEY = "badge";
   private static final String BADGE_ONLY_KEY = "badgeOnly";
@@ -180,6 +180,10 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     boolean groupSummaryPresent = false;
     boolean threadGroupPresent = false;
 
+    boolean anotherGroupSummaryPresent = false;
+    StringBuilder groupSummariesDataBuilder =
+        new StringBuilder("Group summaries present for: ");
+
     for (StatusBarNotification notification :
          notificationManager.getActiveNotifications()) {
       String tag = notification.getTag();
@@ -194,11 +198,23 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         groupSummaryPresent = true;
       } else if (isGroupMember) {
         threadGroupPresent = true;
+      } else if (isGroupSummary) {
+        anotherGroupSummaryPresent = true;
+        groupSummariesDataBuilder.append(
+            System.lineSeparator() + notification.getNotification().getGroup());
       }
     }
 
     if (groupSummaryPresent && !threadGroupPresent) {
       notificationManager.cancel(threadID, threadID.hashCode());
+      return;
+    }
+
+    if (anotherGroupSummaryPresent && !threadGroupPresent) {
+      displayErrorMessageNotification(
+          "Group Summary not found for threadID " + threadID,
+          "Group Summary Not Deleted",
+          groupSummariesDataBuilder.toString());
     }
   }
 
@@ -238,6 +254,13 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     String prefix = message.getData().get(PREFIX_KEY);
     String body = message.getData().get(BODY_KEY);
     String threadID = message.getData().get(THREAD_ID_KEY);
+
+    if (body == null) {
+      displayErrorMessageNotification(
+          "Empty notification body for notif id " + id,
+          "Empty notification body",
+          "Notification data: " + message.getData().toString());
+    }
 
     if (prefix != null) {
       body = prefix + " " + body;
@@ -318,5 +341,38 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     Bundle bundle = new Bundle();
     message.getData().forEach(bundle::putString);
     return bundle;
+  }
+
+  private void displayErrorMessageNotification(
+      String errorMessage,
+      String errorTitle,
+      String largeErrorData) {
+
+    NotificationCompat.Builder errorNotificationBuilder =
+        new NotificationCompat.Builder(this.getApplicationContext())
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setChannelId(CHANNEL_ID)
+            .setSmallIcon(R.drawable.notif_icon)
+            .setLargeIcon(displayableNotificationLargeIcon);
+
+    if (errorMessage != null) {
+      errorNotificationBuilder =
+          errorNotificationBuilder.setContentText(errorMessage);
+    }
+
+    if (errorTitle != null) {
+      errorNotificationBuilder =
+          errorNotificationBuilder.setContentTitle(errorTitle);
+    }
+
+    if (largeErrorData != null) {
+      errorNotificationBuilder = errorNotificationBuilder.setStyle(
+          new NotificationCompat.BigTextStyle().bigText(largeErrorData));
+    }
+
+    notificationManager.notify(
+        errorMessage,
+        errorMessage.hashCode(),
+        errorNotificationBuilder.build());
   }
 }
