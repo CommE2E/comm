@@ -247,6 +247,7 @@ async function conditionallyEncryptNotification<T>(
   encryptCallback: (
     devices: $ReadOnlyArray<NotificationTargetDevice>,
     notification: T,
+    codeVersion?: ?number,
   ) => Promise<
     $ReadOnlyArray<{
       +notification: T,
@@ -262,7 +263,11 @@ async function conditionallyEncryptNotification<T>(
       deviceToken,
     }));
   }
-  const notifications = await encryptCallback(devices, notification);
+  const notifications = await encryptCallback(
+    devices,
+    notification,
+    codeVersion,
+  );
   return notifications.map(({ deviceToken, notification: notif }) => ({
     deviceToken,
     notification: notif,

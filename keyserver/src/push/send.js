@@ -784,6 +784,7 @@ async function prepareAPNsNotification(
   const notifsWithMessageInfos = await prepareEncryptedIOSNotifications(
     devices,
     copyWithMessageInfos,
+    platformDetails.codeVersion,
     notificationSizeValidator,
   );
 
@@ -803,6 +804,7 @@ async function prepareAPNsNotification(
   const notifsWithoutMessageInfos = await prepareEncryptedIOSNotifications(
     devicesWithExcessiveSize,
     notification,
+    platformDetails.codeVersion,
   );
 
   const targetedNotifsWithMessageInfos = notifsWithMessageInfos
@@ -1354,6 +1356,7 @@ async function updateBadgeCount(
           const notificationsArray = await prepareEncryptedIOSNotifications(
             deviceInfos,
             notification,
+            codeVersion,
           );
           targetedNotifications = notificationsArray.map(
             ({ notification: notif, deviceToken }) => ({
