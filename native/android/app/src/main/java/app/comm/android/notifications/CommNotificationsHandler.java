@@ -27,6 +27,8 @@ import app.comm.android.fbjni.ThreadOperations;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.io.File;
+import java.lang.StringBuilder;
+import java.util.ArrayList;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +41,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String NOTIF_ID_KEY = "id";
   private static final String ENCRYPTED_PAYLOAD_KEY = "encryptedPayload";
   private static final String ENCRYPTION_FAILED_KEY = "encryptionFailed";
+
+  private static final String GROUP_NOTIF_IDS_KEY = "groupNotifIDs";
 
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
@@ -188,12 +192,16 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       boolean isGroupSummary =
           (notification.getNotification().flags &
            Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY;
+
       if (tag != null && tag.equals(rescindID)) {
         notificationManager.cancel(notification.getTag(), notification.getId());
       } else if (isGroupMember && isGroupSummary) {
         groupSummaryPresent = true;
+        removeNotificationFromGroupSummary(threadID, rescindID, notification);
       } else if (isGroupMember) {
         threadGroupPresent = true;
+      } else if (isGroupSummary) {
+        checkForUnmatchedRescind(threadID, rescindID, notification);
       }
     }
 
@@ -207,9 +215,18 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       NotificationCompat.Builder notificationBuilder,
       String threadID) {
 
+    ArrayList<String> groupNotifIDs =
+        recordNotificationInGroupSummary(threadID, notificationID);
+
+    String notificationSummaryBody = groupNotifIDs.stream().reduce(
+        "Notif IDs: ", (acc, el) -> acc + System.lineSeparator() + el);
+
     notificationBuilder =
         notificationBuilder.setGroup(threadID).setGroupAlertBehavior(
             NotificationCompat.GROUP_ALERT_CHILDREN);
+
+    Bundle data = new Bundle();
+    data.putStringArrayList(GROUP_NOTIF_IDS_KEY, groupNotifIDs);
 
     NotificationCompat.Builder groupSummaryNotificationBuilder =
         new NotificationCompat.Builder(this.getApplicationContext())
@@ -217,9 +234,13 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
             .setSmallIcon(R.drawable.notif_icon)
             .setContentIntent(
                 this.createStartMainActivityAction(threadID, threadID))
+            .setContentTitle("Summary for thread id " + threadID)
+            .setExtras(data)
+            .setStyle(new NotificationCompat.BigTextStyle().bigText(
+                notificationSummaryBody))
             .setGroup(threadID)
             .setGroupSummary(true)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
 
     notificationManager.notify(
@@ -318,5 +339,144 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     Bundle bundle = new Bundle();
     message.getData().forEach(bundle::putString);
     return bundle;
+  }
+
+  private void displayErrorMessageNotification(
+      String errorMessage,
+      String errorTitle,
+      String largeErrorData) {
+
+    NotificationCompat.Builder errorNotificationBuilder =
+        new NotificationCompat.Builder(this.getApplicationContext())
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setChannelId(CHANNEL_ID)
+            .setSmallIcon(R.drawable.notif_icon)
+            .setLargeIcon(displayableNotificationLargeIcon);
+
+    if (errorMessage != null) {
+      errorNotificationBuilder =
+          errorNotificationBuilder.setContentText(errorMessage);
+    }
+
+    if (errorTitle != null) {
+      errorNotificationBuilder =
+          errorNotificationBuilder.setContentTitle(errorTitle);
+    }
+
+    if (largeErrorData != null) {
+      errorNotificationBuilder = errorNotificationBuilder.setStyle(
+          new NotificationCompat.BigTextStyle().bigText(largeErrorData));
+    }
+
+    notificationManager.notify(
+        errorMessage,
+        errorMessage.hashCode(),
+        errorNotificationBuilder.build());
+  }
+
+  private boolean
+  isGroupSummary(StatusBarNotification notification, String threadID) {
+    boolean isAnySummary = (notification.getNotification().flags &
+                            Notification.FLAG_GROUP_SUMMARY) != 0;
+    if (threadID == null) {
+      return isAnySummary;
+    }
+    return isAnySummary &&
+        threadID.equals(notification.getNotification().getGroup());
+  }
+
+  private ArrayList<String>
+  recordNotificationInGroupSummary(String threadID, String notificationID) {
+    ArrayList<String> groupNotifIDs = new ArrayList<>();
+    for (StatusBarNotification notif :
+         notificationManager.getActiveNotifications()) {
+      if (!isGroupSummary(notif, threadID)) {
+        continue;
+      }
+      groupNotifIDs = notif.getNotification().extras.getStringArrayList(
+          GROUP_NOTIF_IDS_KEY);
+      break;
+    }
+    groupNotifIDs.add(notificationID);
+
+    return groupNotifIDs;
+  }
+
+  private void removeNotificationFromGroupSummary(
+      String threadID,
+      String notificationID,
+      StatusBarNotification groupSummaryNotification) {
+    ArrayList<String> groupNotifIDs =
+        groupSummaryNotification.getNotification().extras.getStringArrayList(
+            GROUP_NOTIF_IDS_KEY);
+    if (groupNotifIDs == null) {
+      displayErrorMessageNotification(
+          "Empty summary notif for thread ID " + threadID,
+          "Empty Summary Notif",
+          "Summary notification for thread ID " + threadID +
+              " had empty body when rescinding " + notificationID);
+    }
+
+    int notificationIndex = groupNotifIDs.indexOf(notificationID);
+
+    if (notificationIndex == -1) {
+      displayErrorMessageNotification(
+          "Notif with ID " + notificationID + "not in " + threadID,
+          "Unrecorded Notif",
+          "Rescinded notification with id " + notificationID +
+              " not found in group summary for thread id " + threadID);
+      return;
+    }
+
+    groupNotifIDs.remove(notificationIndex);
+    String notificationSummaryBody = groupNotifIDs.stream().reduce(
+        "Notif IDs: ", (acc, el) -> acc + System.lineSeparator() + el);
+
+    Bundle data = new Bundle();
+    data.putStringArrayList(GROUP_NOTIF_IDS_KEY, groupNotifIDs);
+
+    NotificationCompat.Builder groupSummaryNotificationBuilder =
+        new NotificationCompat.Builder(this.getApplicationContext())
+            .setChannelId(CHANNEL_ID)
+            .setSmallIcon(R.drawable.notif_icon)
+            .setContentIntent(
+                this.createStartMainActivityAction(threadID, threadID))
+            .setContentTitle("Summary for thread id " + threadID)
+            .setExtras(data)
+            .setStyle(new NotificationCompat.BigTextStyle().bigText(
+                notificationSummaryBody))
+            .setGroup(threadID)
+            .setGroupSummary(true)
+            .setAutoCancel(false)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
+
+    notificationManager.notify(
+        threadID, threadID.hashCode(), groupSummaryNotificationBuilder.build());
+  }
+
+  private void checkForUnmatchedRescind(
+      String threadID,
+      String notificationID,
+      StatusBarNotification anySummaryNotification) {
+    ArrayList<String> anyGroupNotifIDs =
+        anySummaryNotification.getNotification().extras.getStringArrayList(
+            GROUP_NOTIF_IDS_KEY);
+    if (anyGroupNotifIDs == null) {
+      return;
+    }
+
+    String groupID = anySummaryNotification.getNotification().getGroup();
+    for (String notifID : anyGroupNotifIDs) {
+      if (!notificationID.equals(notifID)) {
+        continue;
+      }
+
+      displayErrorMessageNotification(
+          "Summary for thread id " + groupID + "has " + notifID,
+          "Rescind Mismatch",
+          "Summary notif for thread id " + groupID + " contains notif id " +
+              notifID + " which was received in rescind with thread id " +
+              threadID);
+    }
   }
 }
