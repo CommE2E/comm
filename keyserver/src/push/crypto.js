@@ -3,8 +3,6 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
-import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
-
 import type {
   AndroidNotification,
   AndroidNotificationRescind,
@@ -66,7 +64,7 @@ async function encryptIOSNotification(
     };
     return encryptedNotification;
   }
-  if (codeVersion && codeVersion >= NEXT_CODE_VERSION) {
+  if (codeVersion && codeVersion >= 239) {
     encryptedNotification.aps = {
       alert: { body: 'ENCRYPTED' },
       ...encryptedNotification.aps,
