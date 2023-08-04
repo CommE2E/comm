@@ -731,8 +731,16 @@ async function prepareAPNsNotification(
   ) {
     const cookieIDs = devices.map(({ cookieID }) => cookieID);
     const [notifications, notificationsWithMessageInfos] = await Promise.all([
-      prepareEncryptedIOSNotifications(cookieIDs, notification),
-      prepareEncryptedIOSNotifications(cookieIDs, copyWithMessageInfos),
+      prepareEncryptedIOSNotifications(
+        cookieIDs,
+        notification,
+        platformDetails.codeVersion,
+      ),
+      prepareEncryptedIOSNotifications(
+        cookieIDs,
+        copyWithMessageInfos,
+        platformDetails.codeVersion,
+      ),
     ]);
     return notificationsWithMessageInfos.map((notif, idx) => ({
       notification: evaluateAndSelectNotifPayload(notifications[idx], notif),
@@ -1239,6 +1247,7 @@ async function updateBadgeCount(
           notificationsArray = await prepareEncryptedIOSNotifications(
             cookieIDs,
             notification,
+            codeVersion,
           );
         } else {
           notificationsArray = cookieIDs.map(() => notification);
