@@ -355,7 +355,7 @@ async function websiteResponder(
         messages: {},
         threads: {},
         local: {},
-        currentAsOf: 0,
+        currentAsOf: { [ashoatKeyserverID]: 0 },
       };
     }
     const { messageStore: freshStore } = freshMessageStore(

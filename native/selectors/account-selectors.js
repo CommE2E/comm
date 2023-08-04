@@ -3,6 +3,7 @@
 import { createSelector } from 'reselect';
 
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
+import { currentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { LogInExtraInfo } from 'lib/types/account-types.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
@@ -43,7 +44,7 @@ const nativeLogInExtraInfoSelector: (
 const noDataAfterPolicyAcknowledgmentSelector: (state: AppState) => boolean =
   createSelector(
     (state: AppState) => state.connectivity,
-    (state: AppState) => state.messageStore.currentAsOf,
+    currentAsOfSelector,
     (state: AppState) => state.userPolicies,
     (
       connectivity: ConnectivityInfo,

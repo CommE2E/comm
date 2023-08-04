@@ -85,7 +85,7 @@ const defaultState = ({
     messages: {},
     threads: {},
     local: {},
-    currentAsOf: 0,
+    currentAsOf: { [ashoatKeyserverID]: 0 },
   },
   storeLoaded: false,
   loadingStatuses: {},

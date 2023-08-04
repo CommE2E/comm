@@ -671,6 +671,17 @@ const migrations = {
       },
     };
   },
+  [46]: async state => {
+    const { currentAsOf } = state.messageStore;
+
+    return {
+      ...state,
+      messageStore: {
+        ...state.messageStore,
+        currentAsOf: { [ashoatKeyserverID]: currentAsOf },
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -692,7 +703,7 @@ type PersistedThreadMessageInfo = {
 };
 type PersistedMessageStore = {
   +local: { +[id: string]: LocalMessageInfo },
-  +currentAsOf: number,
+  +currentAsOf: { +[keyserverID: string]: number },
   +threads: { +[threadID: string]: PersistedThreadMessageInfo },
 };
 
@@ -765,7 +776,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 45,
+  version: 46,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
