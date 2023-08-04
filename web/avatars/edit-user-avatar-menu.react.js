@@ -69,8 +69,11 @@ function EditUserAvatarMenu(): React.Node {
 
   const uploadAvatarMedia = useUploadAvatarMedia();
   const onImageSelected = React.useCallback(
-    event => uploadAvatarMedia(event.target.files[0]),
-    [uploadAvatarMedia],
+    async event => {
+      const uploadResult = await uploadAvatarMedia(event.target.files[0]);
+      baseSetUserAvatar({ type: 'image', uploadID: uploadResult.id });
+    },
+    [baseSetUserAvatar, uploadAvatarMedia],
   );
 
   const imageMenuItem = React.useMemo(
