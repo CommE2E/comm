@@ -9,6 +9,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
+import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-user-avatar-menu.css';
 import EmojiAvatarSelectionModal from './emoji-avatar-selection-modal.react.js';
 import CommIcon from '../CommIcon.react.js';
@@ -66,9 +67,10 @@ function EditUserAvatarMenu(): React.Node {
     [],
   );
 
+  const uploadAvatarMedia = useUploadAvatarMedia();
   const onImageSelected = React.useCallback(
-    event => console.log(event.target.files),
-    [],
+    event => uploadAvatarMedia(event.target.files[0]),
+    [uploadAvatarMedia],
   );
 
   const imageMenuItem = React.useMemo(
