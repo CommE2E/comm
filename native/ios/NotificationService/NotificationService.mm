@@ -58,6 +58,15 @@ CFStringRef newMessageInfosDarwinNotification =
     self.contentHandler([[UNNotificationContent alloc] init]);
     return;
   }
+
+  if ([self isBadgeOnly:self.bestAttemptContent.userInfo]) {
+    UNMutableNotificationContent *badgeOnlyContent =
+        [[UNMutableNotificationContent alloc] init];
+    badgeOnlyContent.badge = self.bestAttemptContent.badge;
+    self.contentHandler(badgeOnlyContent);
+    return;
+  }
+
   [self sendNewMessageInfosNotification];
   // TODO modify self.bestAttemptContent here
 
@@ -153,6 +162,12 @@ CFStringRef newMessageInfosDarwinNotification =
 - (BOOL)isRescind:(NSDictionary *)payload {
   return payload[backgroundNotificationTypeKey] &&
       [payload[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"];
+}
+
+- (BOOL)isBadgeOnly:(NSDictionary *)payload {
+  // TODO: refactor this check by introducing
+  // badgeOnly property in iOS notification payload
+  return !payload[@"threadID"];
 }
 
 - (void)sendNewMessageInfosNotification {
