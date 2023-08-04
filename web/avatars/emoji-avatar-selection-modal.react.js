@@ -46,7 +46,6 @@ function EmojiAvatarSelectionModal(): React.Node {
     ? getDefaultAvatar(currentUserInfo.username)
     : defaultAnonymousUserEmojiAvatar;
 
-  // eslint-disable-next-line no-unused-vars
   const [pendingAvatarEmoji, setPendingAvatarEmoji] = React.useState(
     currentUserAvatar.type === 'emoji'
       ? currentUserAvatar.emoji
