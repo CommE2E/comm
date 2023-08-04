@@ -23,6 +23,7 @@ import type {
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
   PolicyAcknowledgmentRequest,
+  IdentityServiceOlmAuthRequest,
 } from 'lib/types/account-types.js';
 import {
   userSettingsTypes,
@@ -663,6 +664,29 @@ async function siweAuthResponder(
   });
 }
 
+const UserIdentifierValidator = t.refinement(
+  t.Object,
+  x =>
+    ('username' in x && !('walletAddress' in x)) ||
+    ('walletAddress' in x && !('username' in x)),
+);
+
+export const identityServiceOlmAuthRequestInputValidator: TInterface<IdentityServiceOlmAuthRequest> =
+  tShape<IdentityServiceOlmAuthRequest>({
+    identifier: UserIdentifierValidator,
+    signingPublicKey: t.String,
+    calendarQuery: entryQueryInputValidator,
+    deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+    platformDetails: tPlatformDetails,
+    watchedIDs: t.list(tID),
+    initialContentEncryptedMessage: t.String,
+    initialNotificationsEncryptedMessage: t.String,
+  });
+
+async function identityServiceOlmAuthResponder(): Promise<string> {
+  return 'UNIMPLEMENTED';
+}
+
 export const updatePasswordRequestInputValidator: TInterface<UpdatePasswordRequest> =
   tShape<UpdatePasswordRequest>({
     code: t.String,
@@ -744,4 +768,5 @@ export {
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
   updateUserAvatarResponder,
+  identityServiceOlmAuthResponder,
 };
