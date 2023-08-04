@@ -499,6 +499,19 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       `);
     },
   ],
+  [
+    43,
+    () =>
+      dbQuery(SQL`
+      UPDATE threads
+      SET pinned_count = (
+        SELECT COUNT(*) 
+        FROM messages 
+        WHERE messages.thread = threads.id 
+          AND messages.pinned = 1
+      )
+    `),
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
