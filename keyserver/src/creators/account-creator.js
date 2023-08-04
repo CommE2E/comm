@@ -46,6 +46,7 @@ import {
 } from '../fetchers/user-fetchers.js';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
+import { searchForUser } from '../search/users.js';
 import { createNewUserCookie, setNewSession } from '../session/cookies.js';
 import { createScriptViewer } from '../session/scripts.js';
 import type { Viewer } from '../session/viewer.js';
@@ -74,12 +75,7 @@ async function createAccount(
     throw new ServerError('invalid_username');
   }
 
-  const usernameQuery = SQL`
-    SELECT COUNT(id) AS count
-    FROM users
-    WHERE LCASE(username) = LCASE(${request.username})
-  `;
-  const promises = [dbQuery(usernameQuery)];
+  const promises = [searchForUser(request.username)];
   const {
     calendarQuery,
     signedIdentityKeysBlob,
@@ -89,14 +85,14 @@ async function createAccount(
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
 
-  const [[usernameResult]] = await Promise.all(promises);
+  const [existingUser] = await Promise.all(promises);
   if (
     reservedUsernamesSet.has(request.username.toLowerCase()) ||
     isValidEthereumAddress(request.username.toLowerCase())
   ) {
     throw new ServerError('username_reserved');
   }
-  if (usernameResult[0].count !== 0) {
+  if (existingUser) {
     throw new ServerError('username_taken');
   }
 
