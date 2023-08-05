@@ -9,6 +9,7 @@ import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { uploadMultimedia } from 'lib/actions/upload-actions.js';
+import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import {
   extensionFromFilename,
@@ -307,6 +308,27 @@ function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
   return selectFromGalleryAndUpdateUserAvatar;
 }
 
+function useSelectFromGalleryAndUpdateThreadAvatar(): (
+  threadID: string,
+) => Promise<void> {
+  const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
+  invariant(editThreadAvatarContext, 'editThreadAvatarContext must be defined');
+  const { updateImageThreadAvatar } = editThreadAvatarContext;
+
+  const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(
+    async (threadID: string): Promise<void> => {
+      const selection: ?MediaLibrarySelection = await selectFromGallery();
+      if (!selection) {
+        return;
+      }
+      await updateImageThreadAvatar(selection, threadID);
+    },
+    [updateImageThreadAvatar],
+  );
+
+  return selectFromGalleryAndUpdateThreadAvatar;
+}
+
 type ShowAvatarActionSheetOptions = {
   +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
   +onPress?: () => mixed,
@@ -440,4 +462,5 @@ export {
   useSelectFromGalleryAndUpdateUserAvatar,
   useNativeSetUserAvatar,
   useNativeUpdateUserImageAvatar,
+  useSelectFromGalleryAndUpdateThreadAvatar,
 };
