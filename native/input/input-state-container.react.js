@@ -726,6 +726,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { localMediaID } = ids;
     const start = selection.sendTime;
     const steps = [selection];
+    let encryptionSteps = [];
     let serverID;
     let userTime;
     let errorMessage;
@@ -739,6 +740,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       if (reportPromise) {
         const finalSteps = await reportPromise;
         steps.push(...finalSteps);
+        steps.push(...encryptionSteps);
       }
       const totalTime = Date.now() - start;
       userTime = userTime ? userTime : totalTime;
@@ -790,7 +792,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       });
     }
 
-    let encryptionSteps = [];
     if (this.shouldEncryptMedia(threadInfo)) {
       const encryptionStart = Date.now();
       try {
