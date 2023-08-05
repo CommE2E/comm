@@ -1,6 +1,7 @@
 // @flow
 
 import base64 from 'base-64';
+import * as ExpoFileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
@@ -57,14 +58,14 @@ async function fetchFileInfo(
   const { mediaNativeID } = optionalInputs;
   const steps = [];
 
-  let assetInfoPromise, newLocalURI;
+  let assetInfoPromise, assetURI;
   const inputPath = pathFromURI(inputURI);
   if (mediaNativeID && (!inputPath || optionalFields.orientation)) {
     assetInfoPromise = (async () => {
       const { steps: assetInfoSteps, result: assetInfoResult } =
         await fetchAssetInfo(mediaNativeID);
       steps.push(...assetInfoSteps);
-      newLocalURI = assetInfoResult.localURI;
+      assetURI = assetInfoResult.localURI;
       return assetInfoResult;
     })();
   }
@@ -150,11 +151,18 @@ async function fetchFileInfo(
   }
 
   let finalURI = uri;
-  if (newLocalURI && newLocalURI !== uri) {
-    finalURI = newLocalURI;
+  // prefer asset URI, with one exception:
+  // if the target URI is a file in our app local cache dir, we shouldn't
+  // replace it because it was already preprocessed by either our media
+  // processing logic or cropped by expo-image-picker
+  const isFileInCacheDir =
+    uri.includes(temporaryDirectoryPath) ||
+    uri.includes(ExpoFileSystem.cacheDirectory);
+  if (assetURI && assetURI !== uri && !isFileInCacheDir) {
+    finalURI = assetURI;
     console.log(
       'fetchAssetInfo returned localURI ' +
-        `${newLocalURI} when we already had ${uri}`,
+        `${assetURI} when we already had ${uri}`,
     );
   }
 
