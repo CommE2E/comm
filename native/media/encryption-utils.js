@@ -6,6 +6,7 @@ import { uintArrayToHexString, hexToUintArray } from 'lib/media/data-utils.js';
 import {
   replaceExtension,
   fileInfoFromData,
+  filenameFromPathOrURI,
   readableFilename,
   pathFromURI,
 } from 'lib/media/file-utils.js';
@@ -49,9 +50,13 @@ async function encryptFile(uri: string): Promise<{
   let success = true,
     exceptionMessage;
   const steps: EncryptFileMediaMissionStep[] = [];
-  const destinationURI = replaceExtension(uri, 'dat');
-  const destination = pathFromURI(destinationURI);
-  invariant(destination, `uri must be a local file:// path: ${destinationURI}`);
+
+  // prepare destination path for temporary encrypted file
+  const originalFilename = filenameFromPathOrURI(uri);
+  invariant(originalFilename, 'encryptFile: Invalid URI - filename is null');
+  const targetFilename = replaceExtension(originalFilename, 'dat');
+  const destinationPath = `${temporaryDirectoryPath}${targetFilename}`;
+  const destinationURI = `file://${destinationPath}`;
 
   // Step 1. Read the file
   const startOpenFile = Date.now();
@@ -122,14 +127,17 @@ async function encryptFile(uri: string): Promise<{
   // Step 3. Write the encrypted file
   const startWriteFile = Date.now();
   try {
-    await commUtilsModule.writeBufferToFile(destination, encryptedData.buffer);
+    await commUtilsModule.writeBufferToFile(
+      destinationPath,
+      encryptedData.buffer,
+    );
   } catch (e) {
     success = false;
     exceptionMessage = getMessageForException(e);
   }
   steps.push({
     step: 'write_encrypted_file',
-    file: destination,
+    file: destinationPath,
     time: Date.now() - startWriteFile,
     success,
     exceptionMessage,
