@@ -4,7 +4,8 @@ use once_cell::sync::Lazy;
 use tracing::info;
 
 use crate::constants::{
-  DEFAULT_GRPC_PORT, DEFAULT_HTTP_PORT, LOCALSTACK_URL, SANDBOX_ENV_VAR,
+  DEFAULT_GRPC_PORT, DEFAULT_HTTP_PORT, DEFAULT_S3_BUCKET_NAME, LOCALSTACK_URL,
+  S3_BUCKET_ENV_VAR, SANDBOX_ENV_VAR,
 };
 
 #[derive(Parser)]
@@ -25,6 +26,9 @@ pub struct AppConfig {
   /// AWS Localstack service URL, applicable in sandbox mode
   #[arg(long, default_value_t = LOCALSTACK_URL.to_string())]
   pub localstack_url: String,
+  #[arg(env = S3_BUCKET_ENV_VAR)]
+  #[arg(long, default_value_t = DEFAULT_S3_BUCKET_NAME.to_string())]
+  pub s3_bucket_name: String,
 }
 
 /// Stores configuration parsed from command-line arguments
@@ -43,6 +47,10 @@ pub(super) fn parse_cmdline_args() -> Result<()> {
     "gRPC and HTTP ports cannot be the same: {}",
     cfg.grpc_port
   );
+
+  if cfg.s3_bucket_name != DEFAULT_S3_BUCKET_NAME {
+    info!("Using custom S3 bucket: {}", &cfg.s3_bucket_name);
+  }
   Ok(())
 }
 

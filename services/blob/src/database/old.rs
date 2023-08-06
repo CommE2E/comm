@@ -7,12 +7,13 @@ use std::{collections::HashMap, sync::Arc};
 use tracing::error;
 
 use crate::{
+  config::CONFIG,
   constants::{
     BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD,
     BLOB_REVERSE_INDEX_TABLE_HASH_INDEX_NAME,
     BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD, BLOB_REVERSE_INDEX_TABLE_NAME,
-    BLOB_S3_BUCKET_NAME, BLOB_TABLE_BLOB_HASH_FIELD, BLOB_TABLE_CREATED_FIELD,
-    BLOB_TABLE_NAME, BLOB_TABLE_S3_PATH_FIELD,
+    BLOB_TABLE_BLOB_HASH_FIELD, BLOB_TABLE_CREATED_FIELD, BLOB_TABLE_NAME,
+    BLOB_TABLE_S3_PATH_FIELD,
   },
   s3::S3Path,
 };
@@ -32,7 +33,7 @@ impl BlobItem {
     BlobItem {
       blob_hash: hash_str.clone(),
       s3_path: S3Path {
-        bucket_name: BLOB_S3_BUCKET_NAME.to_string(),
+        bucket_name: CONFIG.s3_bucket_name.clone(),
         object_name: hash_str,
       },
       created: Utc::now(),
