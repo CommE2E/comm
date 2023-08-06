@@ -336,9 +336,7 @@ function useNativeUpdateThreadImageAvatar(): (
 function useSelectFromGalleryAndUpdateThreadAvatar(): (
   threadID: string,
 ) => Promise<void> {
-  const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
-  invariant(editThreadAvatarContext, 'editThreadAvatarContext must be defined');
-  const { updateImageThreadAvatar } = editThreadAvatarContext;
+  const nativeUpdateThreadImageAvatar = useNativeUpdateThreadImageAvatar();
 
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(
     async (threadID: string): Promise<void> => {
@@ -346,9 +344,9 @@ function useSelectFromGalleryAndUpdateThreadAvatar(): (
       if (!selection) {
         return;
       }
-      await updateImageThreadAvatar(selection, threadID);
+      await nativeUpdateThreadImageAvatar(selection, threadID);
     },
-    [updateImageThreadAvatar],
+    [nativeUpdateThreadImageAvatar],
   );
 
   return selectFromGalleryAndUpdateThreadAvatar;
