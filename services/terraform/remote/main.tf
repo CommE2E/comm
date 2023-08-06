@@ -41,9 +41,14 @@ provider "aws" {
   }
 }
 
+locals {
+  # S3 bucket names are globally unique so we add a suffix to staging buckets
+  s3_bucket_name_suffix = local.is_staging ? "-staging" : ""
+}
+
 # Shared resources between local dev environment and remote AWS
 module "shared" {
   source             = "../modules/shared"
-  bucket_name_suffix = local.is_staging ? "-staging" : ""
+  bucket_name_suffix = local.s3_bucket_name_suffix
 }
 
