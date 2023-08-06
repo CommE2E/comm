@@ -8,7 +8,10 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useShowAvatarActionSheet } from './avatar-hooks.js';
+import {
+  useSelectFromGalleryAndUpdateThreadAvatar,
+  useShowAvatarActionSheet,
+} from './avatar-hooks.js';
 import EditAvatarBadge from './edit-avatar-badge.react.js';
 import ThreadAvatar from './thread-avatar.react.js';
 import {
@@ -27,11 +30,11 @@ function EditThreadAvatar(props: Props): React.Node {
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
-  const {
-    threadAvatarSaveInProgress,
-    selectFromGalleryAndUpdateThreadAvatar,
-    setThreadAvatar,
-  } = editThreadAvatarContext;
+  const { threadAvatarSaveInProgress, setThreadAvatar } =
+    editThreadAvatarContext;
+
+  const selectFromGalleryAndUpdateThreadAvatar =
+    useSelectFromGalleryAndUpdateThreadAvatar();
 
   const { navigate } = useNavigation();
 
