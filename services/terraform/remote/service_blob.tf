@@ -1,11 +1,12 @@
 locals {
-  blob_service_image_tag           = "0.2.0"
+  blob_service_image_tag           = local.is_staging ? "latest" : "0.2.0"
   blob_service_container_name      = "blob-service-server"
   blob_service_server_image        = "commapp/blob-server:${local.blob_service_image_tag}"
   blob_service_container_http_port = 51001
   blob_service_container_grpc_port = 50051
   blob_service_grpc_public_port    = 50053
   blob_service_domain_name         = "blob.${local.root_domain}"
+  blob_service_s3_bucket           = "commapp-blob${local.s3_bucket_name_suffix}"
 }
 
 resource "aws_ecs_task_definition" "blob_service" {
@@ -33,6 +34,10 @@ resource "aws_ecs_task_definition" "blob_service" {
         {
           name  = "RUST_LOG"
           value = "info"
+        },
+        {
+          name  = "BLOB_S3_BUCKET_NAME",
+          value = local.blob_service_s3_bucket
         }
       ]
       logConfiguration = {
