@@ -6,10 +6,7 @@ use comm_services_lib::database::{
 use derive_more::Constructor;
 use std::collections::HashMap;
 
-use crate::{
-  constants::{db::*, BLOB_S3_BUCKET_NAME},
-  s3::S3Path,
-};
+use crate::{config::CONFIG, constants::db::*, s3::S3Path};
 
 use super::errors::Error as DBError;
 
@@ -58,7 +55,7 @@ impl BlobItemInput {
     BlobItemInput {
       blob_hash: blob_hash.clone(),
       s3_path: S3Path {
-        bucket_name: BLOB_S3_BUCKET_NAME.into(),
+        bucket_name: CONFIG.s3_bucket_name.clone(),
         object_name: blob_hash,
       },
     }
