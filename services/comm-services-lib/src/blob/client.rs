@@ -3,13 +3,14 @@ use futures_core::Stream;
 use futures_util::{StreamExt, TryStreamExt};
 use reqwest::{
   multipart::{Form, Part},
-  Body, Method, RequestBuilder, Url,
+  Body, Method, RequestBuilder,
 };
 use tracing::{debug, error, trace, warn};
 
 // publicly re-export some reqwest types
 pub use reqwest::Error as ReqwestError;
 pub use reqwest::StatusCode;
+pub use reqwest::Url;
 
 use crate::auth::UserIdentity;
 
