@@ -532,6 +532,7 @@ export const siweAuthRequestInputValidator: TInterface<SIWEAuthRequest> =
     watchedIDs: t.list(tID),
     signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
     initialNotificationsEncryptedMessage: t.maybe(t.String),
+    doNotRegister: t.maybe(t.Boolean),
   });
 
 async function siweAuthResponder(
@@ -545,6 +546,7 @@ async function siweAuthResponder(
     platformDetails,
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
+    doNotRegister,
   } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
@@ -633,7 +635,9 @@ async function siweAuthResponder(
   // 8. Create account with call to `processSIWEAccountCreation(...)`
   //    if address does not correspond to an existing user.
   let userID = await fetchUserIDForEthereumAddress(siweMessage.address);
-  if (!userID) {
+  if (!userID && doNotRegister) {
+    throw new ServerError('account_does_not_exist');
+  } else if (!userID) {
     const siweAccountCreationRequest = {
       address: siweMessage.address,
       calendarQuery,
