@@ -47,6 +47,8 @@ type SIWELoginFormProps = {
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
+const siweAuthLoadingStatusSelector =
+  createLoadingStatusSelector(siweAuthActionTypes);
 function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
   const { data: signer } = useSigner();
@@ -55,6 +57,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const getSIWENonceCallLoadingStatus = useSelector(
     getSIWENonceLoadingStatusSelector,
   );
+  const siweAuthLoadingStatus = useSelector(siweAuthLoadingStatusSelector);
   const siweAuthCall = useServerCall(siweAuth);
   const logInExtraInfo = useSelector(webLogInExtraInfoSelector);
 
@@ -153,7 +156,12 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [],
   );
 
-  if (!siweNonce || !primaryIdentityPublicKeys || !signedIdentityKeysBlob) {
+  if (
+    siweAuthLoadingStatus === 'loading' ||
+    !siweNonce ||
+    !primaryIdentityPublicKeys ||
+    !signedIdentityKeysBlob
+  ) {
     return (
       <div className={css.loadingIndicator}>
         <LoadingIndicator status="loading" size="large" />
