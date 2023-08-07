@@ -1,6 +1,7 @@
 use aws_sdk_dynamodb::{model::AttributeValue, Error as DynamoDBError};
 use std::collections::hash_map::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use tracing::error;
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -10,6 +11,10 @@ pub enum Error {
   AwsSdk(DynamoDBError),
   #[display(...)]
   Attribute(DBItemError),
+  #[display(...)]
+  Transport(tonic::transport::Error),
+  #[display(...)]
+  Status(tonic::Status),
   #[display(...)]
   MissingItem,
 }
@@ -139,5 +144,14 @@ impl AttributeValueFromHashMap for HashMap<String, AttributeValue> {
         attribute_error: DBItemAttributeError::Missing,
       })?
       .to_vec(key)
+  }
+}
+
+pub fn consume_error<T>(result: Result<T, Error>) {
+  match result {
+    Ok(_) => return,
+    Err(e) => {
+      error!("{}", e);
+    }
   }
 }
