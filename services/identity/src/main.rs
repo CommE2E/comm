@@ -18,6 +18,7 @@ mod nonce;
 mod reserved_users;
 mod siwe;
 mod token;
+mod tunnelbroker;
 
 use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
