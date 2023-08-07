@@ -130,3 +130,10 @@ pub const OPAQUE_SERVER_SETUP: &str = "OPAQUE_SERVER_SETUP";
 // Tunnelbroker
 pub const TUNNELBROKER_GRPC_ENDPOINT: &str = "TUNNELBROKER_GRPC_ENDPOINT";
 pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";
+
+// X3DH key management
+
+// Threshold for requesting more onetime keys
+pub const ONETIME_KEY_MINIMUM_THRESHOLD: usize = 5;
+// Number of keys to be refreshed when below the threshold
+pub const ONETIME_KEY_REFRESH_NUMBER: u32 = 5;
