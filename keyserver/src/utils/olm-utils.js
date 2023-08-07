@@ -81,6 +81,12 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
+function getOneTimeKeyValues(keyBlob: string): $ReadOnlyArray<string> {
+  const content: OLMOneTimeKeys = JSON.parse(keyBlob);
+  const keys: $ReadOnlyArray<string> = values(content.curve25519);
+  return keys;
+}
+
 function shouldRotatePrekey(account: OlmAccount): boolean {
   const currentDate = new Date();
   const lastPrekeyPublishDate = new Date(account.last_prekey_publish_time());
@@ -184,6 +190,7 @@ export {
   createPickledOlmAccount,
   createPickledOlmSession,
   getOlmUtility,
+  getOneTimeKeyValues,
   unpickleOlmAccount,
   unpickleOlmSession,
   validateAccountPrekey,

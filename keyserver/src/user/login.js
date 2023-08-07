@@ -3,7 +3,6 @@
 import type { Account as OlmAccount } from '@commapp/olm';
 import { getRustAPI } from 'rust-node-addon';
 
-import type { OLMOneTimeKeys } from 'lib/types/crypto-types';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -12,7 +11,10 @@ import { saveIdentityInfo, fetchIdentityInfo } from './identity.js';
 import type { IdentityInfo } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import { validateAccountPrekey } from '../utils/olm-utils.js';
+import {
+  getOneTimeKeyValues,
+  validateAccountPrekey,
+} from '../utils/olm-utils.js';
 
 type UserCredentials = { +username: string, +password: string };
 
@@ -22,12 +24,6 @@ export type AccountKeysSet = {
   +prekeySignature: string,
   +oneTimeKey: $ReadOnlyArray<string>,
 };
-
-function getOneTimeKeyValues(keyBlob: string): $ReadOnlyArray<string> {
-  const content: OLMOneTimeKeys = JSON.parse(keyBlob);
-  const keys: $ReadOnlyArray<string> = values(content.curve25519);
-  return keys;
-}
 
 function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
   const identityKeys = account.identity_keys();
