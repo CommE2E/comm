@@ -10,8 +10,11 @@ import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
 
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
+import type { OLMOneTimeKeys } from 'lib/types/crypto-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 
+import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { fetchIdentityInfo } from '../user/identity.js';
 
 type PickledOlmAccount = {
@@ -174,6 +177,45 @@ async function publishNewPrekeys(
   notifAccount.mark_prekey_as_published();
 }
 
+async function uploadNewOneTimeKeys(numberOfKeys: number) {
+  const rustAPIPromise = getRustAPI();
+  const identityInfoPromise = fetchIdentityInfo();
+
+  const [rustAPI, identityInfo] = await Promise.all([
+    rustAPIPromise,
+    identityInfoPromise,
+  ]);
+
+  if (!identityInfo) {
+    throw new ServerError('missing_identity_info');
+  }
+
+  await fetchCallUpdateOlmAccount('content', (contentAccount: OlmAccount) => {
+    contentAccount.generate_one_time_keys(numberOfKeys);
+    const contentOneTimeKeys = getOneTimeKeyValues(
+      contentAccount.one_time_keys(),
+    );
+    const deviceId = JSON.parse(contentAccount.identity_keys()).curve25519;
+
+    fetchCallUpdateOlmAccount('notifications', (notifAccount: OlmAccount) => {
+      notifAccount.generate_one_time_keys(numberOfKeys);
+      const notifOneTimeKeys = getOneTimeKeyValues(
+        notifAccount.one_time_keys(),
+      );
+      rustAPI.uploadOneTimeKeys(
+        identityInfo.userId,
+        deviceId,
+        identityInfo.accessToken,
+        contentOneTimeKeys,
+        notifOneTimeKeys,
+      );
+
+      notifAccount.mark_keys_as_published();
+      contentAccount.mark_keys_as_published();
+    });
+  });
+}
+
 function validateAccountPrekey(account: OlmAccount) {
   if (shouldRotatePrekey(account)) {
     // If there is no prekey or the current prekey is older than month
@@ -196,4 +238,5 @@ export {
   validateAccountPrekey,
   revalidateAccountPrekeys,
   publishNewPrekeys,
+  uploadNewOneTimeKeys,
 };

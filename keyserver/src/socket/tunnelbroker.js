@@ -2,11 +2,15 @@
 
 import WebSocket from 'ws';
 
-import { type TBKeyserverConnectionInitializationMessage } from 'lib/types/tunnelbroker-messages.js';
+import {
+  type TBKeyserverConnectionInitializationMessage,
+  type TBRefreshKeysRequest,
+} from 'lib/types/tunnelbroker-messages.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
-import type { IdentityInfo } from '../user/identity.js';
+import { type IdentityInfo } from '../user/identity.js';
+import { uploadNewOneTimeKeys } from '../utils/olm-utils.js';
 
 async function createAndMaintainTunnelbrokerWebsocket(
   identityInfo: IdentityInfo,
@@ -19,6 +23,18 @@ async function createAndMaintainTunnelbrokerWebsocket(
     identityInfo.userId,
     identityInfo.accessToken,
   );
+}
+
+async function handleTBMessageEvent(event: MessageEvent) {
+  if (typeof event.data !== 'string') {
+    return;
+  }
+
+  // Currently, there is only one message type which is sent from tunnelbroker
+  const content: string = event.data;
+  const message: TBRefreshKeysRequest = JSON.parse(content);
+
+  await uploadNewOneTimeKeys(message.numberOfKeys);
 }
 
 function openTunnelbrokerConnection(
@@ -52,6 +68,8 @@ function openTunnelbrokerConnection(
     tunnelbrokerSocket.on('error', (error: Error) => {
       console.error('Tunnelbroker socket error: ' + error.message);
     });
+
+    tunnelbrokerSocket.on('message', handleTBMessageEvent);
   } catch (err) {
     console.log('Failed to open connection with tunnelbroker');
   }
