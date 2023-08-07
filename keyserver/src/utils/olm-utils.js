@@ -9,7 +9,10 @@ import type {
 import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
 
-import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
+import {
+  olmEncryptedMessageTypes,
+  type OLMOneTimeKeys,
+} from 'lib/types/crypto-types.js';
 import { values } from 'lib/utils/objects.js';
 
 import { fetchIdentityInfo } from '../user/identity.js';
@@ -79,6 +82,12 @@ function getOlmUtility(): OlmUtility {
   }
   cachedOLMUtility = new olm.Utility();
   return cachedOLMUtility;
+}
+
+function getOneTimeKeyValues(keyBlob: string): $ReadOnlyArray<string> {
+  const content: OLMOneTimeKeys = JSON.parse(keyBlob);
+  const keys: $ReadOnlyArray<string> = values(content.curve25519);
+  return keys;
 }
 
 function shouldRotatePrekey(account: OlmAccount): boolean {
@@ -185,6 +194,7 @@ export {
   createPickledOlmAccount,
   createPickledOlmSession,
   getOlmUtility,
+  getOneTimeKeyValues,
   unpickleOlmAccount,
   unpickleOlmSession,
   validateAccountPrekey,
