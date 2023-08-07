@@ -7,7 +7,7 @@ use std::sync::Arc;
 use crate::ddb_utils::{
   create_one_time_key_partition_key, into_one_time_put_requests, OlmAccountType,
 };
-use crate::error::{DBItemAttributeError, DBItemError, Error};
+use crate::error::{consume_error, DBItemAttributeError, DBItemError, Error};
 use aws_config::SdkConfig;
 use aws_sdk_dynamodb::model::{AttributeValue, PutRequest, WriteRequest};
 use aws_sdk_dynamodb::output::{
@@ -379,22 +379,32 @@ impl DatabaseClient {
     account_type: OlmAccountType,
   ) -> Result<Option<String>, Error> {
     use crate::constants::one_time_keys_table as otk_table;
+    use crate::constants::ONETIME_KEY_MINIMUM_THRESHOLD;
 
     let query_result = self.get_onetime_keys(device_id, account_type).await?;
     let items = query_result.items();
 
     // If no onetime keys exists, return none early
-    if items.is_none() {
+    let Some(item_vec) = items else {
       debug!("Unable to find {:?} onetime-key", account_type);
       return Ok(None);
+    };
+
+    if item_vec.len() < ONETIME_KEY_MINIMUM_THRESHOLD {
+      // Avoid device_id being moved out-of-scope by "move"
+      let device_id = device_id.to_string();
+      tokio::spawn(async move {
+        debug!("Attempting to request more keys for device: {}", &device_id);
+        let result =
+          crate::tunnelbroker::send_refresh_keys_request(&device_id).await;
+        consume_error(result);
+      });
     }
 
     let mut result = None;
-
-    // "items" was checked to be None above, will be safe to unwrap here.
     // Attempt to delete the onetime keys individually, a successful delete
     // mints the onetime key to the requester
-    for item in items.unwrap() {
+    for item in item_vec {
       let pk = item.get_string(otk_table::PARTITION_KEY)?;
       let otk = item.get_string(otk_table::SORT_KEY)?;
 
