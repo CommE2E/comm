@@ -12,6 +12,7 @@ mod database;
 pub mod ddb_utils;
 pub mod error;
 mod grpc_services;
+mod grpc_utils;
 mod id;
 mod keygen;
 mod nonce;
