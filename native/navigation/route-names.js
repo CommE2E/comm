@@ -80,6 +80,7 @@ export const ImageModalRouteName = 'ImageModal';
 export const ImagePasteModalRouteName = 'ImagePasteModal';
 export const InviteLinkModalRouteName = 'InviteLinkModal';
 export const InviteLinkNavigatorRouteName = 'InviteLinkNavigator';
+export const LinkedDevicesRouteName = 'LinkedDevices';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const ManagePublicLinkRouteName = 'ManagePublicLink';
 export const MessageListRouteName = 'MessageList';
@@ -215,6 +216,7 @@ export type ProfileParamList = {
   +DefaultNotifications: void,
   +FriendList: void,
   +BlockList: void,
+  +LinkedDevices: void,
 };
 
 export type CommunityDrawerParamList = { +TabNavigator: void };

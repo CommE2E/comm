@@ -35,6 +35,7 @@ import {
   BlockListRouteName,
   PrivacyPreferencesRouteName,
   DefaultNotificationsPreferencesRouteName,
+  LinkedDevicesRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -120,6 +121,13 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
+    let linkedDevices;
+    if (__DEV__) {
+      linkedDevices = (
+        <ProfileRow content="Linked devices" onPress={this.onPressDevices} />
+      );
+    }
+
     return (
       <View style={this.props.styles.container}>
         <ScrollView
@@ -164,6 +172,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             {defaultNotifications}
           </View>
           <View style={this.props.styles.section}>
+            {linkedDevices}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
           </View>
@@ -259,6 +268,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressDeleteAccount = () => {
     this.navigateIfActive(DeleteAccountRouteName);
+  };
+
+  onPressDevices = () => {
+    this.navigateIfActive(LinkedDevicesRouteName);
   };
 
   onPressBuildInfo = () => {

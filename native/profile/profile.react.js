@@ -16,6 +16,7 @@ import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
 import EditPassword from './edit-password.react.js';
 import EmojiUserAvatarCreation from './emoji-user-avatar-creation.react.js';
+import LinkedDevices from './linked-devices.react.js';
 import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
@@ -36,6 +37,7 @@ import {
   FriendListRouteName,
   DefaultNotificationsPreferencesRouteName,
   BlockListRouteName,
+  LinkedDevicesRouteName,
   type ScreenParamList,
   type ProfileParamList,
 } from '../navigation/route-names.js';
@@ -49,6 +51,7 @@ const emojiAvatarCreationOptions = {
 };
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
+const linkedDevicesOptions = { headerTitle: 'Linked devices' };
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
@@ -128,6 +131,11 @@ function ProfileComponent(props: Props): React.Node {
             name={DeleteAccountRouteName}
             component={DeleteAccount}
             options={deleteAccountOptions}
+          />
+          <Profile.Screen
+            name={LinkedDevicesRouteName}
+            component={LinkedDevices}
+            options={linkedDevicesOptions}
           />
           <Profile.Screen
             name={BuildInfoRouteName}
