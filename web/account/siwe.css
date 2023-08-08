@@ -38,3 +38,29 @@ div.siweContainer {
   display: flex;
   flex-direction: column;
 }
+
+div.middleArea {
+  position: relative;
+}
+div.mainMiddleArea {
+  display: flex;
+  flex-direction: column;
+}
+div.errorOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+div.hidden {
+  visibility: hidden;
+}
+
+div.siweLoginFormContainer p.redText {
+  color: var(--error-primary);
+}

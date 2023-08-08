@@ -1,6 +1,7 @@
 // @flow
 
 import '@rainbow-me/rainbowkit/styles.css';
+import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
@@ -15,6 +16,7 @@ import {
 } from 'lib/actions/siwe-actions.js';
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import stores from 'lib/facts/stores.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import type {
@@ -25,6 +27,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
+import { ServerError } from 'lib/utils/errors.js';
 import {
   createSIWEMessage,
   getSIWEStatementForPublicKey,
@@ -39,6 +42,8 @@ import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+
+type SIWELogInError = 'account_does_not_exist';
 
 type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,
@@ -87,17 +92,28 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     useSignedIdentityKeysBlob();
 
   const callSIWEAuthEndpoint = React.useCallback(
-    (message: string, signature: string, extraInfo) => {
+    async (message: string, signature: string, extraInfo) => {
       invariant(
         signedIdentityKeysBlob,
         'signedIdentityKeysBlob must be set in attemptSIWEAuth',
       );
-      return siweAuthCall({
-        message,
-        signature,
-        signedIdentityKeysBlob,
-        ...extraInfo,
-      });
+      try {
+        return await siweAuthCall({
+          message,
+          signature,
+          signedIdentityKeysBlob,
+          doNotRegister: true,
+          ...extraInfo,
+        });
+      } catch (e) {
+        if (
+          e instanceof ServerError &&
+          e.message === 'account_does_not_exist'
+        ) {
+          setError('account_does_not_exist');
+        }
+        throw e;
+      }
     },
     [signedIdentityKeysBlob, siweAuthCall],
   );
@@ -156,6 +172,17 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [],
   );
 
+  const [error, setError] = React.useState<?SIWELogInError>();
+
+  const mainMiddleAreaClassName = classNames({
+    [css.mainMiddleArea]: true,
+    [css.hidden]: !!error,
+  });
+  const errorOverlayClassNames = classNames({
+    [css.errorOverlay]: true,
+    [css.hidden]: !error,
+  });
+
   if (
     siweAuthLoadingStatus === 'loading' ||
     !siweNonce ||
@@ -169,6 +196,33 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     );
   }
 
+  let errorText;
+  if (error === 'account_does_not_exist') {
+    errorText = (
+      <>
+        <p className={css.redText}>
+          No Comm account found for that Ethereum wallet!
+        </p>
+        <p>
+          We require that users register on their mobile devices. Comm relies on
+          a primary device capable of scanning QR codes in order to authorize
+          secondary devices.
+        </p>
+        <p>
+          You can install our iOS app&nbsp;
+          <a href={stores.appStoreUrl} target="_blank" rel="noreferrer">
+            here
+          </a>
+          , or our Android app&nbsp;
+          <a href={stores.googlePlayUrl} target="_blank" rel="noreferrer">
+            here
+          </a>
+          .
+        </p>
+      </>
+    );
+  }
+
   return (
     <div className={css.siweLoginFormContainer}>
       <h4>Sign in with Ethereum</h4>
@@ -179,21 +233,26 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       <div className={css.connectButtonContainer}>
         <ConnectedWalletInfo />
       </div>
-      <div className={css.messageSigningStatements}>
-        <p>{siweMessageSigningExplanationStatements}</p>
-        <p>
-          By signing up, you agree to our{' '}
-          <a href="https://comm.app/terms">Terms of Use</a> &{' '}
-          <a href="https://comm.app/privacy">Privacy Policy</a>.
-        </p>
+      <div className={css.middleArea}>
+        <div className={mainMiddleAreaClassName}>
+          <div className={css.messageSigningStatements}>
+            <p>{siweMessageSigningExplanationStatements}</p>
+            <p>
+              By signing up, you agree to our{' '}
+              <a href="https://comm.app/terms">Terms of Use</a> &{' '}
+              <a href="https://comm.app/privacy">Privacy Policy</a>.
+            </p>
+          </div>
+          <Button
+            variant="filled"
+            onClick={onSignInButtonClick}
+            buttonColor={signInButtonColor}
+          >
+            Sign in using this wallet
+          </Button>
+        </div>
+        <div className={errorOverlayClassNames}>{errorText}</div>
       </div>
-      <Button
-        variant="filled"
-        onClick={onSignInButtonClick}
-        buttonColor={signInButtonColor}
-      >
-        Sign in using this wallet
-      </Button>
       <OrBreak />
       <Button
         variant="filled"
