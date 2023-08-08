@@ -5,8 +5,15 @@ import * as React from 'react';
 import { View, StyleSheet, Keyboard, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { logInActionTypes, logIn } from 'lib/actions/user-actions.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import {
+  logInActionTypes,
+  logIn,
+  getOlmSessionInitializationDataActionTypes,
+} from 'lib/actions/user-actions.js';
+import {
+  createLoadingStatusSelector,
+  combineLoadingStatuses,
+} from 'lib/selectors/loading-selectors.js';
 import {
   validEmailRegex,
   oldValidUsernameRegex,
@@ -354,11 +361,21 @@ const styles = StyleSheet.create({
   },
 });
 
-const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
+const logInLoadingStatusSelector =
+  createLoadingStatusSelector(logInActionTypes);
+const olmSessionInitializationDataLoadingStatusSelector =
+  createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
 
 const ConnectedLogInPanel: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedLogInPanel(props: BaseProps) {
-    const loadingStatus = useSelector(loadingStatusSelector);
+    const logInLoadingStatus = useSelector(logInLoadingStatusSelector);
+    const olmSessionInitializationDataLoadingStatus = useSelector(
+      olmSessionInitializationDataLoadingStatusSelector,
+    );
+    const loadingStatus = combineLoadingStatuses(
+      logInLoadingStatus,
+      olmSessionInitializationDataLoadingStatus,
+    );
 
     const navContext = React.useContext(NavContext);
     const logInExtraInfo = useSelector(state =>
