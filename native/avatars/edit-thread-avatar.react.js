@@ -9,6 +9,7 @@ import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
+  useNativeSetThreadAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
   useShowAvatarActionSheet,
 } from './avatar-hooks.js';
@@ -30,8 +31,9 @@ function EditThreadAvatar(props: Props): React.Node {
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
-  const { threadAvatarSaveInProgress, setThreadAvatar } =
-    editThreadAvatarContext;
+  const { threadAvatarSaveInProgress } = editThreadAvatarContext;
+
+  const nativeSetThreadAvatar = useNativeSetThreadAvatar();
 
   const selectFromGalleryAndUpdateThreadAvatar =
     useSelectFromGalleryAndUpdateThreadAvatar();
@@ -60,8 +62,8 @@ function EditThreadAvatar(props: Props): React.Node {
   }, [navigate, threadInfo.id]);
 
   const removeAvatar = React.useCallback(
-    () => setThreadAvatar(threadInfo.id, { type: 'remove' }),
-    [setThreadAvatar, threadInfo.id],
+    () => nativeSetThreadAvatar(threadInfo.id, { type: 'remove' }),
+    [nativeSetThreadAvatar, threadInfo.id],
   );
 
   const actionSheetConfig = React.useMemo(() => {
