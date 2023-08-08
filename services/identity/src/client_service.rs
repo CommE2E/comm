@@ -639,7 +639,7 @@ impl IdentityClientService for ClientService {
 
     let user_id = match self
       .client
-      .get_user_id_from_user_info(wallet_address.clone(), AuthType::Wallet)
+      .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
       .await
       .map_err(handle_db_error)?
     {
