@@ -6,5 +6,7 @@ steps:
       - 'source /Users/comm/.cargo/env'
       - 'yarn ci-cleaninstall'
       - 'cd desktop && yarn make-dev --arch universal'
+    retry:
+      automatic: true
     agents:
       - 'mac=true'
