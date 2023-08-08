@@ -6,7 +6,7 @@ use rand::{
 
 use crate::constants::ACCESS_TOKEN_LENGTH;
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum AuthType {
   Password,
   Wallet,

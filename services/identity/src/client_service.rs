@@ -1,48 +1,48 @@
-pub mod client_proto {
-  tonic::include_proto!("identity.client");
-}
+// Standard library imports
+use std::{str::FromStr};
 
-use std::str::FromStr;
-
-use crate::database::{self, Device};
-use crate::error::Error as DBError;
-use crate::{
-  client_service::client_proto::{
-    AddReservedUsernamesRequest, DeleteUserRequest, Empty,
-    GenerateNonceResponse, InboundKeysForUserRequest,
-    InboundKeysForUserResponse, LogoutRequest, OpaqueLoginFinishRequest,
-    OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
-    OpaqueLoginStartResponse, OutboundKeysForUserRequest,
-    OutboundKeysForUserResponse, RefreshUserPreKeysRequest,
-    RegistrationFinishRequest, RegistrationFinishResponse,
-    RegistrationStartRequest, RegistrationStartResponse,
-    RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
-    UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
-    UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
-    VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
-    WalletLoginRequest, WalletLoginResponse,
-  },
-  config::CONFIG,
-  database::{DatabaseClient, KeyPayload},
-  id::generate_uuid,
-  nonce::generate_nonce_data,
-  reserved_users::{
-    validate_add_reserved_usernames_message,
-    validate_remove_reserved_username_message,
-    validate_signed_account_ownership_message,
-  },
-  siwe::parse_and_verify_siwe_message,
-  token::{AccessTokenData, AuthType},
-};
+// External crate imports
 use aws_sdk_dynamodb::Error as DynamoDBError;
-pub use client_proto::identity_client_service_server::{
-  IdentityClientService, IdentityClientServiceServer,
-};
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use rand::rngs::OsRng;
 use tonic::Response;
 use tracing::{debug, error};
+
+// Workspace crate imports
+use crate::client_service::client_proto::{
+  AddReservedUsernamesRequest, DeleteUserRequest, Empty, GenerateNonceResponse, InboundKeysForUserRequest,
+  InboundKeysForUserResponse, LogoutRequest, OpaqueLoginFinishRequest,
+  OpaqueLoginFinishResponse, OpaqueLoginStartRequest, OpaqueLoginStartResponse,
+  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+  RefreshUserPreKeysRequest, RegistrationFinishRequest,
+  RegistrationFinishResponse, RegistrationStartRequest,
+  RegistrationStartResponse, RemoveReservedUsernameRequest,
+  ReservedRegistrationStartRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
+  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+};
+use crate::config::CONFIG;
+
+use crate::database::{DatabaseClient, Device, KeyPayload};
+use crate::error::Error as DBError;
+use crate::id::generate_uuid;
+use crate::nonce::generate_nonce_data;
+use crate::reserved_users::{
+  validate_add_reserved_usernames_message,
+  validate_remove_reserved_username_message,
+  validate_signed_account_ownership_message,
+};
+use crate::siwe::parse_and_verify_siwe_message;
+use crate::token::{AccessTokenData, AuthType};
+pub use client_proto::identity_client_service_server::{
+  IdentityClientService, IdentityClientServiceServer,
+};
+
+pub mod client_proto {
+  tonic::include_proto!("identity.client");
+}
 
 #[derive(Clone)]
 pub enum WorkflowInProgress {
@@ -80,7 +80,7 @@ pub struct FlattenedDeviceKeyUpload {
   pub notif_prekey: String,
   pub notif_prekey_signature: String,
   pub notif_onetime_keys: Vec<String>,
-  pub device_type: database::Device,
+  pub device_type: Device,
 }
 
 #[derive(derive_more::Constructor)]
