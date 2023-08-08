@@ -4,5 +4,7 @@ steps:
       - 'cd web'
       - 'nix develop --accept-flake-config --command yarn build-db-wasm'
       - 'git diff --exit-code'
+    retry:
+      automatic: true
     agents:
       - 'mac=true'
