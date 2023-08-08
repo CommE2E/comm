@@ -93,7 +93,7 @@ function useMessageTooltipReplyAction(
   const { addReply } = inputState;
   return React.useMemo(() => {
     if (
-      !isComposableMessageType(item.messageInfo.type) ||
+      item.messageInfo.type !== messageTypes.TEXT ||
       !threadHasPermission(threadInfo, threadPermissions.VOICED)
     ) {
       return null;
