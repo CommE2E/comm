@@ -7,6 +7,7 @@ import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-
 import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selectors.js';
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
+import { useNativeSetThreadAvatar } from '../../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
 import type { ChatNavigationProp } from '../../chat/chat.react.js';
 import { displayActionResultModal } from '../../navigation/action-result-modal.js';
@@ -33,16 +34,17 @@ function EmojiThreadAvatarCreation(props: Props): React.Node {
 
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext should be set');
+  const { threadAvatarSaveInProgress } = editThreadAvatarContext;
 
-  const { setThreadAvatar, threadAvatarSaveInProgress } =
-    editThreadAvatarContext;
+  const nativeSetThreadAvatar = useNativeSetThreadAvatar();
+
   const setAvatar = React.useCallback(
     async avatarRequest => {
-      const result = await setThreadAvatar(threadID, avatarRequest);
+      const result = await nativeSetThreadAvatar(threadID, avatarRequest);
       displayActionResultModal('Avatar updated!');
       return result;
     },
-    [setThreadAvatar, threadID],
+    [nativeSetThreadAvatar, threadID],
   );
 
   return (
