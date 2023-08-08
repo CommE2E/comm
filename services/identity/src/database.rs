@@ -608,7 +608,7 @@ impl DatabaseClient {
 
   pub async fn username_taken(&self, username: String) -> Result<bool, Error> {
     let result = self
-      .get_user_id_from_user_info(username, AuthType::Password)
+      .get_user_id_from_user_info(username, &AuthType::Password)
       .await?;
 
     Ok(result.is_some())
@@ -634,7 +634,7 @@ impl DatabaseClient {
   async fn get_user_from_user_info(
     &self,
     user_info: String,
-    auth_type: AuthType,
+    auth_type: &AuthType,
   ) -> Result<Option<HashMap<String, AttributeValue>>, Error> {
     let (index, attribute_name) = match auth_type {
       AuthType::Password => {
@@ -702,10 +702,53 @@ impl DatabaseClient {
     }
   }
 
+  pub async fn get_keys_for_user(
+    &self,
+    user_info: String,
+    auth_type: &AuthType,
+  ) -> Result<Option<Devices>, Error> {
+    let Some(mut user) =
+      self.get_user_from_user_info(user_info, auth_type).await?
+    else {
+      return Ok(None);
+    };
+
+    let devices = parse_map_attribute(
+      USERS_TABLE_DEVICES_ATTRIBUTE,
+      user.remove(USERS_TABLE_DEVICES_ATTRIBUTE),
+    )?;
+
+    let mut devices_response = HashMap::with_capacity(devices.len());
+    for (device_id_key, device_info) in devices {
+      let device_info_map =
+        parse_map_attribute(&device_id_key, Some(device_info))?;
+
+      let mut device_info_string_map = HashMap::new();
+      for (attribute_name, attribute_value) in device_info_map {
+        // Excluding onetime keys since we're moving them to a separate table
+        if attribute_name
+          == USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME
+          || attribute_name
+            == USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME
+        {
+          continue;
+        }
+
+        let attribute_value_str =
+          parse_string_attribute(&attribute_name, Some(attribute_value))?;
+        device_info_string_map.insert(attribute_name, attribute_value_str);
+      }
+
+      devices_response.insert(device_id_key, device_info_string_map);
+    }
+
+    Ok(Some(devices_response))
+  }
+
   pub async fn get_user_id_from_user_info(
     &self,
     user_info: String,
-    auth_type: AuthType,
+    auth_type: &AuthType,
   ) -> Result<Option<String>, Error> {
     match self
       .get_user_from_user_info(user_info.clone(), auth_type)
@@ -727,7 +770,7 @@ impl DatabaseClient {
     username: &str,
   ) -> Result<Option<(String, Vec<u8>)>, Error> {
     match self
-      .get_user_from_user_info(username.to_string(), AuthType::Password)
+      .get_user_from_user_info(username.to_string(), &AuthType::Password)
       .await
     {
       Ok(Some(mut user)) => {
@@ -850,8 +893,8 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))?;
 
     let Some(mut item) = get_response.item else {
-        return Ok(None);
-      };
+      return Ok(None);
+    };
 
     let nonce = parse_string_attribute(
       NONCE_TABLE_PARTITION_KEY,
@@ -983,6 +1026,8 @@ impl DatabaseClient {
 }
 
 type AttributeName = String;
+type DeviceKeys = HashMap<String, String>;
+type Devices = HashMap<String, DeviceKeys>;
 
 fn create_simple_primary_key(
   partition_key: (AttributeName, String),
@@ -1100,40 +1145,70 @@ fn parse_registration_data_attribute(
 
 #[allow(dead_code)]
 fn parse_map_attribute(
-  attribute_name: &'static str,
+  attribute_name: &str,
   attribute_value: Option<AttributeValue>,
 ) -> Result<HashMap<String, AttributeValue>, DBItemError> {
   match attribute_value {
     Some(AttributeValue::M(map)) => Ok(map),
-    Some(_) => Err(DBItemError::new(
-      attribute_name.to_string(),
-      attribute_value,
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name.to_string(),
-      attribute_value,
-      DBItemAttributeError::Missing,
-    )),
+    Some(_) => {
+      error!(
+          attribute = attribute_name,
+          value = ?attribute_value,
+          error_type = "IncorrectType",
+          "Unexpected attribute type when parsing map attribute"
+      );
+      Err(DBItemError::new(
+        attribute_name.to_string(),
+        attribute_value,
+        DBItemAttributeError::IncorrectType,
+      ))
+    }
+    None => {
+      error!(
+        attribute = attribute_name,
+        error_type = "Missing",
+        "Attribute is missing"
+      );
+      Err(DBItemError::new(
+        attribute_name.to_string(),
+        attribute_value,
+        DBItemAttributeError::Missing,
+      ))
+    }
   }
 }
 
 fn parse_string_attribute(
-  attribute_name: &'static str,
+  attribute_name: &str,
   attribute_value: Option<AttributeValue>,
 ) -> Result<String, DBItemError> {
   match attribute_value {
     Some(AttributeValue::S(value)) => Ok(value),
-    Some(_) => Err(DBItemError::new(
-      attribute_name.to_string(),
-      attribute_value,
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name.to_string(),
-      attribute_value,
-      DBItemAttributeError::Missing,
-    )),
+    Some(_) => {
+      error!(
+          attribute = attribute_name,
+          value = ?attribute_value,
+          error_type = "IncorrectType",
+          "Unexpected attribute type when parsing string attribute"
+      );
+      Err(DBItemError::new(
+        attribute_name.to_string(),
+        attribute_value,
+        DBItemAttributeError::IncorrectType,
+      ))
+    }
+    None => {
+      error!(
+        attribute = attribute_name,
+        error_type = "Missing",
+        "Attribute is missing"
+      );
+      Err(DBItemError::new(
+        attribute_name.to_string(),
+        attribute_value,
+        DBItemAttributeError::Missing,
+      ))
+    }
   }
 }
 
