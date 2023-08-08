@@ -1026,7 +1026,7 @@ impl DatabaseClient {
 }
 
 type AttributeName = String;
-type DeviceKeys = HashMap<String, String>;
+pub type DeviceKeys = HashMap<String, String>;
 type Devices = HashMap<String, DeviceKeys>;
 
 fn create_simple_primary_key(
