@@ -14,8 +14,15 @@ import Animated from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
-import { registerActionTypes, register } from 'lib/actions/user-actions.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import {
+  registerActionTypes,
+  register,
+  getOlmSessionInitializationDataActionTypes,
+} from 'lib/actions/user-actions.js';
+import {
+  createLoadingStatusSelector,
+  combineLoadingStatuses,
+} from 'lib/selectors/loading-selectors.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import type {
   RegisterInfo,
@@ -458,11 +465,21 @@ const styles = StyleSheet.create({
   },
 });
 
-const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
+const registerLoadingStatusSelector =
+  createLoadingStatusSelector(registerActionTypes);
+const olmSessionInitializationDataLoadingStatusSelector =
+  createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
 
 const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedRegisterPanel(props: BaseProps) {
-    const loadingStatus = useSelector(loadingStatusSelector);
+    const registerLoadingStatus = useSelector(registerLoadingStatusSelector);
+    const olmSessionInitializationDataLoadingStatus = useSelector(
+      olmSessionInitializationDataLoadingStatusSelector,
+    );
+    const loadingStatus = combineLoadingStatuses(
+      registerLoadingStatus,
+      olmSessionInitializationDataLoadingStatus,
+    );
 
     const navContext = React.useContext(NavContext);
     const logInExtraInfo = useSelector(state =>
