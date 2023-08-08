@@ -2,25 +2,35 @@ pub mod client_proto {
   tonic::include_proto!("identity.client");
 }
 
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use crate::{
   client_service::client_proto::{
     AddReservedUsernamesRequest, DeleteUserRequest, Empty,
-    GenerateNonceResponse, InboundKeysForUserRequest,
-    InboundKeysForUserResponse, OpaqueLoginFinishRequest,
-    OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
-    OpaqueLoginStartResponse, OutboundKeysForUserRequest,
-    OutboundKeysForUserResponse, OutboundKeyserverResponse,
-    RefreshUserPreKeysRequest, RegistrationFinishRequest,
-    RegistrationFinishResponse, RegistrationStartRequest,
-    RegistrationStartResponse, RemoveReservedUsernameRequest,
-    ReservedRegistrationStartRequest, UpdateUserPasswordFinishRequest,
-    UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-    UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
-    VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+    GenerateNonceResponse, IdentityKeyInfo, InboundKeyInfo,
+    InboundKeysForUserRequest, InboundKeysForUserResponse,
+    OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
+    OpaqueLoginStartRequest, OpaqueLoginStartResponse,
+    OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+    OutboundKeyserverResponse, PreKey, RefreshUserPreKeysRequest,
+    RegistrationFinishRequest, RegistrationFinishResponse,
+    RegistrationStartRequest, RegistrationStartResponse,
+    RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
+    UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+    UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+    VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
+    WalletLoginRequest, WalletLoginResponse,
   },
   config::CONFIG,
+  constants::{
+    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
+  },
   database::{DatabaseClient, Error as DBError, KeyPayload},
   id::generate_uuid,
   nonce::generate_nonce_data,
@@ -882,4 +892,61 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
       tonic::Status::failed_precondition("unexpected error")
     }
   }
+}
+
+fn device_info_to_inbound_key_info(
+  mut device_info: HashMap<String, String>,
+) -> Result<InboundKeyInfo, tonic::Status> {
+  let identity_info = IdentityKeyInfo {
+    payload: extract_from_device_info(
+      &mut device_info,
+      USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
+    )?,
+    payload_signature: extract_from_device_info(
+      &mut device_info,
+      USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
+    )?,
+    social_proof: Some(extract_from_device_info(
+      &mut device_info,
+      USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
+    )?),
+  };
+
+  let content_prekey = PreKey {
+    pre_key: extract_from_device_info(
+      &mut device_info,
+      USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
+    )?,
+    pre_key_signature: extract_from_device_info(
+      &mut device_info,
+      USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+    )?,
+  };
+
+  let notif_prekey = PreKey {
+    pre_key: extract_from_device_info(
+      &mut device_info,
+      USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
+    )?,
+    pre_key_signature: extract_from_device_info(
+      &mut device_info,
+      USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+    )?,
+  };
+
+  Ok(InboundKeyInfo {
+    identity_info: Some(identity_info),
+    content_prekey: Some(content_prekey),
+    notif_prekey: Some(notif_prekey),
+  })
+}
+
+fn extract_from_device_info(
+  map: &mut HashMap<String, String>,
+  key: &str,
+) -> Result<String, tonic::Status> {
+  map.remove(key).ok_or_else(|| {
+    error!("{} missing from device info", key);
+    tonic::Status::failed_precondition("Database item malformed")
+  })
 }
