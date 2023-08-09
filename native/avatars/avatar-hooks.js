@@ -340,7 +340,7 @@ function useNativeUpdateThreadImageAvatar(): (
 ) => Promise<void> {
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext must be defined');
-  const { updateImageThreadAvatar, updateThreadAvatarMediaUploadInProgress } =
+  const { baseSetThreadAvatar, updateThreadAvatarMediaUploadInProgress } =
     editThreadAvatarContext;
 
   const uploadSelectedMedia = useUploadSelectedMedia(
@@ -358,12 +358,12 @@ function useNativeUpdateThreadImageAvatar(): (
       }
 
       try {
-        await updateImageThreadAvatar(imageAvatarUpdateRequest, threadID);
+        await baseSetThreadAvatar(threadID, imageAvatarUpdateRequest);
       } catch {
         displayAvatarUpdateFailureAlert();
       }
     },
-    [updateImageThreadAvatar, uploadSelectedMedia],
+    [baseSetThreadAvatar, uploadSelectedMedia],
   );
 
   return nativeUpdateThreadImageAvatar;
