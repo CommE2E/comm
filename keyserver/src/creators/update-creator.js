@@ -17,6 +17,7 @@ import {
 import {
   defaultNumberPerThread,
   type FetchMessageInfosResult,
+  type MessageSelectionCriteria,
 } from 'lib/types/message-types.js';
 import {
   type UpdateTarget,
@@ -457,10 +458,13 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     calendarQuery = defaultCalendarQuery(viewer.platform, viewer.timeZone);
   }
   if (threadIDsNeedingDetailedFetch.size > 0) {
-    const messageSelectionCriteria = { threadCursors: {} };
+    const threadCursors: { [string]: ?string } = {};
     for (const threadID of threadIDsNeedingDetailedFetch) {
-      messageSelectionCriteria.threadCursors[threadID] = false;
+      threadCursors[threadID] = null;
     }
+    const messageSelectionCriteria: MessageSelectionCriteria = {
+      threadCursors,
+    };
     promises.messageInfosResult = fetchMessageInfos(
       viewer,
       messageSelectionCriteria,
