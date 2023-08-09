@@ -314,7 +314,7 @@ function useNativeSetThreadAvatar(): (
 ) => Promise<void> {
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext must be defined');
-  const { setThreadAvatar } = editThreadAvatarContext;
+  const { baseSetThreadAvatar } = editThreadAvatarContext;
 
   const nativeSetThreadAvatar = React.useCallback(
     async (
@@ -322,13 +322,13 @@ function useNativeSetThreadAvatar(): (
       avatarRequest: UpdateUserAvatarRequest,
     ): Promise<void> => {
       try {
-        await setThreadAvatar(threadID, avatarRequest);
+        await baseSetThreadAvatar(threadID, avatarRequest);
       } catch (e) {
         displayAvatarUpdateFailureAlert();
         throw e;
       }
     },
-    [setThreadAvatar],
+    [baseSetThreadAvatar],
   );
 
   return nativeSetThreadAvatar;
