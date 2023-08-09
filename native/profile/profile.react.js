@@ -16,6 +16,7 @@ import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
 import EditPassword from './edit-password.react.js';
 import EmojiUserAvatarCreation from './emoji-user-avatar-creation.react.js';
+import LinkedDevicesHeaderRightButton from './linked-devices-header-right-button.react.js';
 import LinkedDevices from './linked-devices.react.js';
 import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
@@ -51,7 +52,11 @@ const emojiAvatarCreationOptions = {
 };
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
-const linkedDevicesOptions = { headerTitle: 'Linked devices' };
+const linkedDevicesOptions = {
+  headerTitle: 'Linked devices',
+  // eslint-disable-next-line react/display-name
+  headerRight: () => <LinkedDevicesHeaderRightButton />,
+};
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
 const appearanceOptions = { headerTitle: 'Appearance' };
