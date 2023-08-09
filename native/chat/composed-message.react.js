@@ -215,6 +215,11 @@ class ComposedMessage extends React.PureComponent<Props> {
       // want to measure it in Message to see if it's correct
       if (item.messageShapeType === 'text') {
         viewStyle.push({ height: item.contentHeight });
+      } else if (item.messageShapeType === 'multimedia') {
+        const height = item.inlineEngagementHeight
+          ? item.contentHeight + item.inlineEngagementHeight
+          : item.contentHeight;
+        viewStyle.push({ height });
       }
     }
 

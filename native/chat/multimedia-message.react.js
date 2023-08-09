@@ -7,7 +7,7 @@ import type {
 } from '@react-navigation/native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
 import {
@@ -217,7 +217,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         shouldDisplayPinIndicator={shouldDisplayPinIndicator}
         {...viewProps}
       >
-        <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>
+        <View onLayout={this.onLayout} ref={this.viewRef}>
           <InnerMultimediaMessage
             item={item}
             verticalBounds={verticalBounds}
@@ -231,12 +231,6 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  expand: {
-    flex: 1,
-  },
-});
 
 const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedMultimediaMessage(props: BaseProps) {
