@@ -308,6 +308,32 @@ function useSelectFromGalleryAndUpdateUserAvatar(): () => Promise<void> {
   return selectFromGalleryAndUpdateUserAvatar;
 }
 
+function useNativeSetThreadAvatar(): (
+  threadID: string,
+  avatarRequest: UpdateUserAvatarRequest,
+) => Promise<void> {
+  const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
+  invariant(editThreadAvatarContext, 'editThreadAvatarContext must be defined');
+  const { setThreadAvatar } = editThreadAvatarContext;
+
+  const nativeSetThreadAvatar = React.useCallback(
+    async (
+      threadID: string,
+      avatarRequest: UpdateUserAvatarRequest,
+    ): Promise<void> => {
+      try {
+        await setThreadAvatar(threadID, avatarRequest);
+      } catch (e) {
+        displayAvatarUpdateFailureAlert();
+        throw e;
+      }
+    },
+    [setThreadAvatar],
+  );
+
+  return nativeSetThreadAvatar;
+}
+
 function useNativeUpdateThreadImageAvatar(): (
   selection: NativeMediaSelection,
   threadID: string,
@@ -486,5 +512,6 @@ export {
   useNativeSetUserAvatar,
   useNativeUpdateUserImageAvatar,
   useSelectFromGalleryAndUpdateThreadAvatar,
+  useNativeSetThreadAvatar,
   useNativeUpdateThreadImageAvatar,
 };
