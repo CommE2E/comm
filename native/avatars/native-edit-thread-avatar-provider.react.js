@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import { BaseEditThreadAvatarProvider } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 
-import { useUploadSelectedMedia } from './avatar-hooks.js';
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 
@@ -21,10 +20,7 @@ function NativeEditThreadAvatarProvider(props: Props): React.Node {
   );
 
   return (
-    <BaseEditThreadAvatarProvider
-      useUploadSelectedMedia={useUploadSelectedMedia}
-      activeThreadID={activeThreadID}
-    >
+    <BaseEditThreadAvatarProvider activeThreadID={activeThreadID}>
       {children}
     </BaseEditThreadAvatarProvider>
   );
