@@ -26,6 +26,8 @@ function Footer(): React.Node {
   ]);
   const legalLinksClassName = classNames([typography.paragraph2, css.links]);
 
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className={css.wrapper}>
       <div className={css.contentWrapper}>
@@ -120,7 +122,7 @@ function Footer(): React.Node {
         </div>
         <div className={css.legalContainer}>
           <p className={legalTextClassName}>
-            &copy; 2023 Comm. All Rights Reserved
+            &copy; {currentYear} Comm Technologies, Inc.
           </p>
           <div className={css.legalLinks}>
             <NavLink
