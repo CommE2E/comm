@@ -203,7 +203,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         commDescriptionLong: [
           'Comm uses Matrix’s implementation of Signal’s Double Ratchet algorithm for both two-person and group chats. However, we don’t use Megolm due to concerns over privacy implications.',
           'Instead of using a group ratchet, Comm arranges group chats in a “pairwise” way. When a user sends a message to a group chat, Comm handles that by sending that message individually to all users in the group chat.',
-          'The downside is that group chats don’t scale as well. Comm’s solution for large group chats is keyserver-hosted communities, which avoid sacrificing security/privacy guarantees by using a federated version of a classic client/server paradigm.',
+          'The downside is that group chats don’t scale as well. Comm’s solution for large group chats is keyserver-hosted communities, which avoid sacrificing security/privacy guarantees by leveraging keyservers to federate the classic client/server paradigm.',
         ],
         furtherReadingLinks: ['https://nebuchadnezzar-megolm.github.io/'],
       },
@@ -247,17 +247,14 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         competitorDescriptionShort:
           'Matrix relies on individual implementations and homeservers to handle backup.',
         commDescriptionShort:
-          'Comm backs up all of your user data, encrypted with either a password or an ETH wallet.',
+          'Comm backs up all of your user data, encrypted with either a password or an Ethereum wallet.',
         competitorDescriptionLong: [
-          'Matrix relies on homeservers to handle backup of unencrypted chats. Backup of encrypted chats is handled differently depending on which implementations of Matrix you’re using.',
+          'Matrix relies on homeservers to handle backup of unencrypted chats. Backup of encrypted chats is handled differently depending on which implementation of Matrix you’re using.',
           'The most popular implementation of Matrix is Element. Element backs up a group chat’s messages just once for the group, encrypted with the chat keys. Meanwhile, a given user’s chat keys are backed up separately, and encrypted with the user’s Security Phrase/Key.',
         ],
         commDescriptionLong: [
           'Comm backs up all of your user data via our backup service. The backup is encrypted so that Comm is not able to access the data.',
           'Since Comm doesn’t use a group ratchet due to privacy concerns (see “Encryption” section), group chat backups are not shared between users.',
-        ],
-        furtherReadingLinks: [
-          'https://twitter.com/CommDotApp/status/1539397765536444416',
         ],
       },
     ],
