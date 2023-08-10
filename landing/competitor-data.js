@@ -453,7 +453,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         commDescriptionShort:
           'Comm uses Signal’s Double Ratchet algorithm, the industry standard for E2E encryption.',
         competitorDescriptionLong: [
-          'Despite being presented as a privacy-focused messaging app, Telegram does not offer E2E encryption as a default. While there is a “Secret Chats” feature, those chats only work for 1-on-1 chats, and only appear on a single primary device.',
+          'Despite being presented as a privacy-focused messaging app, Telegram does not offer E2E encryption as a default. While there is a “Secret Chats” feature, it only works for 1-on-1 chats, and those chats only appear on a single primary device.',
         ],
         commDescriptionLong: [
           'Comm’s servers do not have access to plaintext user content. DMs are stored on individual user devices, and communities are hosted on individual users’ keyservers.',
@@ -461,6 +461,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         ],
         furtherReadingLinks: [
           'https://signal.org/docs/specifications/doubleratchet/',
+          'https://telegra.ph/Why-Isnt-Telegram-End-to-End-Encrypted-by-Default-08-14',
         ],
       },
       {
@@ -507,9 +508,6 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         ],
         commDescriptionLong: [
           'When you disable notifs for a chat, Comm moves it out of your inbox into a separate Background tab. The Background tab is a core primitive in Comm, and helps you separate signal from noise.',
-        ],
-        furtherReadingLinks: [
-          'https://twitter.com/CommDotApp/status/1545193952554336257',
         ],
       },
       {
