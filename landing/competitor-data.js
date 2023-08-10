@@ -132,10 +132,10 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         commDescriptionShort:
           'Comm uses the Double Ratchet algorithm. Pioneered by Signal, Double Ratchet is the industry standard for E2E encryption.',
         competitorDescriptionLong: [
-          'Keybase’s implementation of E2E encryption is unique in the industry. Whereas most most E2E-encrypted messaging apps use something like Signal’s Double Ratchet to preserve forward secrecy, Keybase took a different approach because they wanted to allow new chat members to see the full history of the chat prior to when they joined.',
+          'Keybase’s implementation of E2E encryption is unique in the industry. Whereas most E2E-encrypted messaging apps use something like Signal’s Double Ratchet to preserve forward secrecy, Keybase took a different approach because they wanted to allow new chat members to see the full history of the chat prior to when they joined.',
         ],
         commDescriptionLong: [
-          'Comm uses Matrix.org’s implementation of Double Ratchet, and as such is able to preserve forward secrecy. We allow new chat members to see full chat history by query peers’ keyservers.',
+          'Comm uses Matrix.org’s implementation of Double Ratchet, and as such is able to preserve forward secrecy. We allow new chat members to see full chat history by querying peers’ keyservers.',
         ],
       },
       {
@@ -146,7 +146,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         commDescriptionShort:
           'Comm utilizes user-hosted keyservers to handle search on the server side.',
         competitorDescriptionLong: [
-          'Keybase, like all other E2E-encrypted apps, is only able to execute search queries on your local device. As such, in order to fully execute a search query for a chat, Keybase must download that chat’s full history to the client device.',
+          'Keybase, like most other E2E-encrypted apps, is only able to execute search queries on your local device. As such, in order to exhaustively execute a search query for a chat, Keybase must download that chat’s full history to the client device.',
         ],
         commDescriptionLong: [
           'Though much research has been done on searchable encryption over the past 20 years, it remains an unsolved problem. Comm is able to circumvent the problem by sending queries to user-hosted keyservers, which are able to access plaintext data.',
@@ -160,7 +160,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         commDescriptionShort:
           'Comm backs up user keys, and facilitates account recovery by recovering those original keys.',
         competitorDescriptionLong: [
-          'Keybase’s servers have the ability to reset any account’s public keys at any time. This functionality is used to facilitate account recovery',
+          'Keybase’s servers have the ability to reset any account’s public keys at any time. This functionality is used to facilitate account recovery.',
         ],
         commDescriptionLong: [
           'Comm backs up user keys, and facilitates account recovery by recovering those original keys. Note that if the user forgets the secret securing their backup, they will not be able to recover their account.',
