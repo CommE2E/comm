@@ -389,11 +389,11 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         commDescriptionShort:
           'Comm allows you to nest channels inside other channels.',
         competitorDescriptionLong: [
-          'Slack is built to support communities, also known as “slacks” on the platform. Each server has a flat list of channels.',
+          'Slack is built to support communities, also known as “slacks” on the platform. Each “slack” has a flat list of channels.',
         ],
         commDescriptionLong: [
           'Comm’s implementation of communities looks a lot like Slack’s. The core difference is that Comm supports a full tree structure of channels for each community.',
-          'Comm also supports a threads feature, also similar to Slack’s. Comm threads appear in your inbox underneath their parent channel.',
+          'Comm also supports a threads feature, similar to Slack’s. Comm threads appear in your inbox underneath their parent channel.',
         ],
       },
       {
