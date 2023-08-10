@@ -980,6 +980,7 @@ dependencies = [
  "aws-types",
  "chrono",
  "derive_more",
+ "tracing",
 ]
 
 [[package]]
