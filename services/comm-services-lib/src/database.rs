@@ -97,42 +97,144 @@ impl<T: TryFromAttribute> AttributeTryInto<T> for Option<AttributeValue> {
   }
 }
 
+impl TryFromAttribute for String {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute_value: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    match attribute_value {
+      Some(AttributeValue::S(value)) => Ok(value),
+      Some(_) => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::IncorrectType,
+      )),
+      None => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::Missing,
+      )),
+    }
+  }
+}
+
+impl TryFromAttribute for bool {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute_value: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    match attribute_value {
+      Some(AttributeValue::Bool(value)) => Ok(value),
+      Some(_) => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::IncorrectType,
+      )),
+      None => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::Missing,
+      )),
+    }
+  }
+}
+
+impl TryFromAttribute for DateTime<Utc> {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    if let Some(AttributeValue::S(datetime)) = &attribute {
+      // parse() accepts a relaxed RFC3339 string
+      datetime.parse().map_err(|e| {
+        DBItemError::new(
+          attribute_name.into(),
+          Value::AttributeValue(attribute),
+          DBItemAttributeError::InvalidTimestamp(e),
+        )
+      })
+    } else {
+      Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute),
+        DBItemAttributeError::Missing,
+      ))
+    }
+  }
+}
+
+impl TryFromAttribute for HashMap<String, AttributeValue> {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute_value: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    match attribute_value {
+      Some(AttributeValue::M(map)) => Ok(map),
+      Some(_) => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::IncorrectType,
+      )),
+      None => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::Missing,
+      )),
+    }
+  }
+}
+
+impl TryFromAttribute for Vec<u8> {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute_value: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    match attribute_value {
+      Some(AttributeValue::B(data)) => Ok(data.into_inner()),
+      Some(_) => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::IncorrectType,
+      )),
+      None => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::Missing,
+      )),
+    }
+  }
+}
+
+#[deprecated = "Use `String::try_from_attr()` instead"]
 pub fn parse_string_attribute(
   attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<String, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::S(value)) => Ok(value),
-    Some(_) => Err(DBItemError::new(
-      attribute_name.into(),
-      Value::AttributeValue(attribute_value),
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name.into(),
-      Value::AttributeValue(attribute_value),
-      DBItemAttributeError::Missing,
-    )),
-  }
+  String::try_from_attr(attribute_name, attribute_value)
 }
 
+#[deprecated = "Use `bool::try_from_attr()` instead"]
 pub fn parse_bool_attribute(
   attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<bool, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::Bool(value)) => Ok(value),
-    Some(_) => Err(DBItemError::new(
-      attribute_name.into(),
-      Value::AttributeValue(attribute_value),
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name.into(),
-      Value::AttributeValue(attribute_value),
-      DBItemAttributeError::Missing,
-    )),
-  }
+  bool::try_from_attr(attribute_name, attribute_value)
+}
+
+#[deprecated = "Use `DateTime::<Utc>::try_from_attr()` instead"]
+pub fn parse_datetime_attribute(
+  attribute_name: impl Into<String>,
+  attribute_value: Option<AttributeValue>,
+) -> Result<DateTime<Utc>, DBItemError> {
+  DateTime::<Utc>::try_from_attr(attribute_name, attribute_value)
+}
+
+#[deprecated = "Use `HashMap::<String, AttributeValue>::try_from_attr()` instead"]
+pub fn parse_map_attribute(
+  attribute_name: impl Into<String>,
+  attribute_value: Option<AttributeValue>,
+) -> Result<HashMap<String, AttributeValue>, DBItemError> {
+  attribute_value.attr_try_into(attribute_name)
 }
 
 pub fn parse_int_attribute<T>(
@@ -159,28 +261,6 @@ where
   }
 }
 
-pub fn parse_datetime_attribute(
-  attribute_name: impl Into<String>,
-  attribute_value: Option<AttributeValue>,
-) -> Result<DateTime<Utc>, DBItemError> {
-  if let Some(AttributeValue::S(datetime)) = &attribute_value {
-    // parse() accepts a relaxed RFC3339 string
-    datetime.parse().map_err(|e| {
-      DBItemError::new(
-        attribute_name.into(),
-        Value::AttributeValue(attribute_value),
-        DBItemAttributeError::InvalidTimestamp(e),
-      )
-    })
-  } else {
-    Err(DBItemError::new(
-      attribute_name.into(),
-      Value::AttributeValue(attribute_value),
-      DBItemAttributeError::Missing,
-    ))
-  }
-}
-
 /// Parses the UTC timestamp in milliseconds from a DynamoDB numeric attribute
 pub fn parse_timestamp_attribute(
   attribute_name: impl Into<String>,
@@ -200,25 +280,6 @@ pub fn parse_timestamp_attribute(
       )
     })?;
   Ok(DateTime::from_utc(naive_datetime, Utc))
-}
-
-pub fn parse_map_attribute(
-  attribute_name: impl Into<String>,
-  attribute_value: Option<AttributeValue>,
-) -> Result<HashMap<String, AttributeValue>, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::M(map)) => Ok(map),
-    Some(_) => Err(DBItemError::new(
-      attribute_name.into(),
-      Value::AttributeValue(attribute_value),
-      DBItemAttributeError::IncorrectType,
-    )),
-    None => Err(DBItemError::new(
-      attribute_name.into(),
-      Value::AttributeValue(attribute_value),
-      DBItemAttributeError::Missing,
-    )),
-  }
 }
 
 pub fn parse_integer<T>(
