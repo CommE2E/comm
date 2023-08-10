@@ -542,6 +542,23 @@ async function updateInfosFromRawUpdateInfos(
   } = rawData;
   const updateInfos = [];
   const userIDsToFetch = new Set();
+
+  const rawEntryInfosByThreadID = {};
+  for (const entryInfo of calendarResult?.rawEntryInfos ?? []) {
+    if (!rawEntryInfosByThreadID[entryInfo.threadID]) {
+      rawEntryInfosByThreadID[entryInfo.threadID] = [];
+    }
+    rawEntryInfosByThreadID[entryInfo.threadID].push(entryInfo);
+  }
+
+  const rawMessageInfosByThreadID = {};
+  for (const messageInfo of messageInfosResult?.rawMessageInfos ?? []) {
+    if (!rawMessageInfosByThreadID[messageInfo.threadID]) {
+      rawMessageInfosByThreadID[messageInfo.threadID] = [];
+    }
+    rawMessageInfosByThreadID[messageInfo.threadID].push(messageInfo);
+  }
+
   for (const rawUpdateInfo of rawUpdateInfos) {
     if (rawUpdateInfo.type === updateTypes.DELETE_ACCOUNT) {
       updateInfos.push({
@@ -589,20 +606,14 @@ async function updateInfosFromRawUpdateInfos(
         );
         continue;
       }
-      const rawEntryInfos = [];
+
       invariant(calendarResult, 'should be set');
-      for (const entryInfo of calendarResult.rawEntryInfos) {
-        if (entryInfo.threadID === rawUpdateInfo.threadID) {
-          rawEntryInfos.push(entryInfo);
-        }
-      }
-      const rawMessageInfos = [];
+      const rawEntryInfos =
+        rawEntryInfosByThreadID[rawUpdateInfo.threadID] ?? [];
       invariant(messageInfosResult, 'should be set');
-      for (const messageInfo of messageInfosResult.rawMessageInfos) {
-        if (messageInfo.threadID === rawUpdateInfo.threadID) {
-          rawMessageInfos.push(messageInfo);
-        }
-      }
+      const rawMessageInfos =
+        rawMessageInfosByThreadID[rawUpdateInfo.threadID] ?? [];
+
       updateInfos.push({
         type: updateTypes.JOIN_THREAD,
         id: rawUpdateInfo.id,
