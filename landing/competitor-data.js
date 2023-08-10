@@ -57,7 +57,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         commDescriptionShort:
           'Comm’s inbox is the first thing you see when you open the app. It helps separate signal from noise.',
         competitorDescriptionLong: [
-          'Discord’s inbox is basically a simple notification queue tucked away in a corner. It merges all tags (including @all tags) into a single interface. Since any member of any channel in a server is able to tag you, typically this interface is relatively low-signal.',
+          'Discord’s inbox is basically a simple notification queue tucked away in a corner. It merges all tags (including @all tags) into a single interface. Since any member of any channel in a server is able to tag you, normally this interface is relatively low-signal.',
         ],
         commDescriptionLong: [
           'Comm’s inbox is the first thing you see when you open the app. It resembles a typical messaging app, with all of your chats appearing ordered by the most recent message.',
@@ -76,7 +76,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         ],
         commDescriptionLong: [
           'Comm’s implementation of communities looks a lot like Discord’s. The core difference is that Comm supports a full tree structure of channels for each community.',
-          'Comm also supports a threads feature, also similar to Discord’s. Comm threads appear in your inbox underneath their parent channel.',
+          'Comm also supports a threads feature, similar to Discord’s. Comm threads appear in your inbox underneath their parent channel.',
         ],
       },
       {
