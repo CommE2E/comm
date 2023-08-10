@@ -63,15 +63,8 @@ input.emailInputFailure {
   border: 1px solid var(--error-dark-50);
 }
 
-p.feedbackText {
+p.errorText {
   margin-top: 8px;
-}
-
-p.feedbackTextSuccess {
-  color: var(--success-dark-50);
-}
-
-p.feedbackTextFailure {
   color: var(--error-dark-50);
 }
 
@@ -91,7 +84,7 @@ p.feedbackTextFailure {
     margin-bottom: 8px;
   }
 
-  p.feedbackText {
+  p.errorText {
     text-align: center;
     margin-top: 0;
   }
