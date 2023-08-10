@@ -38,8 +38,8 @@ export const assetMetaData: $ReadOnlyArray<Asset> = [
     infoBlockContent: (
       <>
         <p className={paragraphClassName}>
-          Comm&rsquo;s central innovation is the idea of the keyserver: a
-          personal, private server.
+          Comm&rsquo;s core innovation is the idea of the keyserver: a personal,
+          private server.
         </p>
         <p className={paragraphClassName}>
           E2E-encrypted apps today are limited because they have to do
