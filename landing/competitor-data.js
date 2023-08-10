@@ -303,7 +303,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         competitorDescriptionShort:
           'Your identity on Signal is linked to a phone number.',
         commDescriptionShort:
-          'Comm accounts are associated with a username or an Ethereum wallet',
+          'Comm accounts are associated with a username or an Ethereum wallet.',
         competitorDescriptionLong: [
           'Your identity on Signal is linked to a phone number, which limits the anonymity and sovereignty of user accounts.',
         ],
