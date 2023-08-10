@@ -41,8 +41,8 @@ export const faqData: $ReadOnlyArray<FAQItem> = [
     answer: (
       <p className={answerClassName}>
         <span>
-          Comm is still in beta, and as such it&rsquo;s only possible to run on
-          a keyserver using our Docker Compose config. If you&rsquo;re
+          Comm is still in beta, and as such it&rsquo;s only possible to run a
+          keyserver using our Docker Compose config. If you&rsquo;re
           sufficiently technical, check out&nbsp;
         </span>
         <a
@@ -74,6 +74,7 @@ export const faqData: $ReadOnlyArray<FAQItem> = [
         >
           this doc
         </a>
+        <span>.</span>
       </p>
     ),
   },
