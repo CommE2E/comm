@@ -67,7 +67,7 @@ function SubscriptionForm(): React.Node {
     setSubscriptionFormStatus({ status: 'pending' });
   }, [email]);
 
-  let btnText = 'Request Access';
+  let btnText = 'Subscribe for updates';
   let feedbackText = '';
   let btnStyle = css.button;
   let inputStyle = css.emailInput;
@@ -79,10 +79,8 @@ function SubscriptionForm(): React.Node {
     inputStyle = `${css.emailInput} ${css.emailInputFailure}`;
     feedbackTextStyle = `${css.feedbackText} ${css.feedbackTextFailure}`;
   } else if (subscriptionFormStatus.status === 'success') {
-    btnText = 'Requested!';
-    feedbackText = 'We will be in touch with next steps!';
+    btnText = 'Subscribed!';
     btnStyle = `${css.button} ${css.buttonSuccess}`;
-    feedbackTextStyle = `${css.feedbackText} ${css.feedbackTextSuccess}`;
   }
 
   const inputClassName = classNames([typography.paragraph2, inputStyle]);

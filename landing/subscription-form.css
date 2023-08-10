@@ -67,10 +67,6 @@ p.feedbackText {
   margin-top: 8px;
 }
 
-p.feedbackTextSuccess {
-  color: var(--success-dark-50);
-}
-
 p.feedbackTextFailure {
   color: var(--error-dark-50);
 }
