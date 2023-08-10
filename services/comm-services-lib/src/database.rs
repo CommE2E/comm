@@ -24,7 +24,7 @@ pub enum Value {
 
 #[derive(Debug, derive_more::Error, derive_more::Constructor)]
 pub struct DBItemError {
-  attribute_name: &'static str,
+  attribute_name: String,
   attribute_value: Value,
   attribute_error: DBItemAttributeError,
 }
@@ -64,18 +64,18 @@ pub enum DBItemAttributeError {
 }
 
 pub fn parse_string_attribute(
-  attribute_name: &'static str,
+  attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<String, DBItemError> {
   match attribute_value {
     Some(AttributeValue::S(value)) => Ok(value),
     Some(_) => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::Missing,
     )),
@@ -83,18 +83,18 @@ pub fn parse_string_attribute(
 }
 
 pub fn parse_bool_attribute(
-  attribute_name: &'static str,
+  attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<bool, DBItemError> {
   match attribute_value {
     Some(AttributeValue::Bool(value)) => Ok(value),
     Some(_) => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::Missing,
     )),
@@ -102,7 +102,7 @@ pub fn parse_bool_attribute(
 }
 
 pub fn parse_int_attribute<T>(
-  attribute_name: &'static str,
+  attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<T, DBItemError>
 where
@@ -110,15 +110,15 @@ where
 {
   match &attribute_value {
     Some(AttributeValue::N(numeric_str)) => {
-      parse_integer(attribute_name, &numeric_str)
+      parse_integer(attribute_name, numeric_str)
     }
     Some(_) => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::Missing,
     )),
@@ -126,21 +126,21 @@ where
 }
 
 pub fn parse_datetime_attribute(
-  attribute_name: &'static str,
+  attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<DateTime<Utc>, DBItemError> {
   if let Some(AttributeValue::S(datetime)) = &attribute_value {
     // parse() accepts a relaxed RFC3339 string
     datetime.parse().map_err(|e| {
       DBItemError::new(
-        attribute_name,
+        attribute_name.into(),
         Value::AttributeValue(attribute_value),
         DBItemAttributeError::InvalidTimestamp(e),
       )
     })
   } else {
     Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::Missing,
     ))
@@ -149,11 +149,14 @@ pub fn parse_datetime_attribute(
 
 /// Parses the UTC timestamp in milliseconds from a DynamoDB numeric attribute
 pub fn parse_timestamp_attribute(
-  attribute_name: &'static str,
+  attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<DateTime<Utc>, DBItemError> {
-  let timestamp =
-    parse_int_attribute::<i64>(attribute_name, attribute_value.clone())?;
+  let attribute_name: String = attribute_name.into();
+  let timestamp = parse_int_attribute::<i64>(
+    attribute_name.clone(),
+    attribute_value.clone(),
+  )?;
   let naive_datetime = chrono::NaiveDateTime::from_timestamp_millis(timestamp)
     .ok_or_else(|| {
       DBItemError::new(
@@ -166,18 +169,18 @@ pub fn parse_timestamp_attribute(
 }
 
 pub fn parse_map_attribute(
-  attribute_name: &'static str,
+  attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
 ) -> Result<HashMap<String, AttributeValue>, DBItemError> {
   match attribute_value {
     Some(AttributeValue::M(map)) => Ok(map),
     Some(_) => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      attribute_name,
+      attribute_name.into(),
       Value::AttributeValue(attribute_value),
       DBItemAttributeError::Missing,
     )),
@@ -185,7 +188,7 @@ pub fn parse_map_attribute(
 }
 
 pub fn parse_integer<T>(
-  attribute_name: &'static str,
+  attribute_name: impl Into<String>,
   attribute_value: &str,
 ) -> Result<T, DBItemError>
 where
@@ -193,8 +196,8 @@ where
 {
   attribute_value.parse::<T>().map_err(|e| {
     DBItemError::new(
-      attribute_name,
-      Value::String(attribute_value.to_string()),
+      attribute_name.into(),
+      Value::String(attribute_value.into()),
       DBItemAttributeError::InvalidNumberFormat(e),
     )
   })
