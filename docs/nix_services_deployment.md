@@ -44,7 +44,7 @@ The Docker image for Tunnelbroker can be built using the following command from 
 
 ```
 docker build -f services/tunnelbroker -t commapp/tunnelbroker:<tag> .
-# Alternatively, there's a script which creates a very small docker context before building
+# Alternatively, there’s a script which creates a very small docker context before building
 services/tunnelbroker/make_docker_image.sh -t commapp/tunnelbroker:<tag> .
 ```
 
