@@ -3,13 +3,15 @@ use futures_core::Stream;
 use futures_util::{StreamExt, TryStreamExt};
 use reqwest::{
   multipart::{Form, Part},
-  Body, Url,
+  Body, Method, RequestBuilder, Url,
 };
 use tracing::{debug, trace, warn};
 
 // publicly re-export some reqwest types
 pub use reqwest::Error as ReqwestError;
 pub use reqwest::StatusCode;
+
+use crate::auth::UserIdentity;
 
 #[derive(From, Error, Debug, Display)]
 pub enum BlobServiceError {
@@ -45,21 +47,54 @@ pub enum BlobServiceError {
 /// The `BlobServiceClient` holds a connection pool internally, so it is advised that
 /// you create one and **reuse** it, by **cloning**.
 ///
+/// A clone is recommended for each individual client identity, that has
+/// a different `UserIdentity`.
+///
+/// # Example
+/// ```rust
+/// // create client for user A
+/// let clientA = BlobServiceClient::new(blob_endpoint).with_user_identity(userA);
+///
+/// // reuse the client connection with different credentials
+/// let clientB = clientA.clone().with_user_identity(userB);
+///
+/// // clientA still uses userA credentials
+/// ```
+///
+/// A clone is recommended when the client concurrently handles multiple identities -
+/// e.g. a HTTP service handling requests from different users
+///
 /// You should **not** wrap the `BlobServiceClient` in an `Rc` or `Arc` to **reuse** it,
 /// because it already uses an `Arc` internally.
 #[derive(Clone)]
 pub struct BlobServiceClient {
   http_client: reqwest::Client,
   blob_service_url: reqwest::Url,
+  user_identity: Option<UserIdentity>,
 }
 
 impl BlobServiceClient {
+  /// Creates a new Blob Service client instance. It is unauthenticated by default
+  /// so you need to call `with_user_identity()` afterwards:
+  /// ```rust
+  /// let client = BlobServiceClient::new(blob_endpoint).with_user_identity(user);
+  /// ```
+  ///
+  /// **Note**: It is advised to create this client once and reuse by **cloning**.
+  /// See [`BlobServiceClient`] docs for details
   pub fn new(blob_service_url: reqwest::Url) -> Self {
     debug!("Creating BlobServiceClient. URL: {}", blob_service_url);
     Self {
       http_client: reqwest::Client::new(),
       blob_service_url,
+      user_identity: None,
     }
+  }
+
+  pub fn with_user_identity(mut self, user_identity: UserIdentity) -> Self {
+    trace!("Set user_identity: {:?}", &user_identity);
+    self.user_identity = Some(user_identity);
+    self
   }
 
   /// Downloads blob with given [`blob_hash`].
@@ -88,8 +123,7 @@ impl BlobServiceClient {
     let url = self.get_blob_url(Some(blob_hash))?;
 
     let response = self
-      .http_client
-      .get(url)
+      .request(Method::GET, url)
       .send()
       .await
       .map_err(BlobServiceError::ClientError)?;
@@ -129,7 +163,11 @@ impl BlobServiceClient {
       blob_hash: blob_hash.to_string(),
     };
     debug!("Request payload: {:?}", payload);
-    let response = self.http_client.post(url).json(&payload).send().await?;
+    let response = self
+      .request(Method::POST, url)
+      .json(&payload)
+      .send()
+      .await?;
 
     debug!("Response status: {}", response.status());
     if response.status().is_success() {
@@ -162,7 +200,11 @@ impl BlobServiceClient {
     };
     debug!("Request payload: {:?}", payload);
 
-    let response = self.http_client.delete(url).json(&payload).send().await?;
+    let response = self
+      .request(Method::DELETE, url)
+      .json(&payload)
+      .send()
+      .await?;
     debug!("Response status: {}", response.status());
 
     if response.status().is_success() {
@@ -214,7 +256,11 @@ impl BlobServiceClient {
       .text("blob_hash", blob_hash.into())
       .part("blob_data", Part::stream(streaming_body));
 
-    let response = self.http_client.put(url).multipart(form).send().await?;
+    let response = self
+      .request(Method::PUT, url)
+      .multipart(form)
+      .send()
+      .await?;
     debug!("Response status: {}", response.status());
 
     if response.status().is_success() {
@@ -272,6 +318,16 @@ impl BlobServiceClient {
       .map_err(|err| BlobServiceError::URLError(err.to_string()))?;
     trace!("Constructed request URL: {}", url);
     Ok(url)
+  }
+
+  fn request(&self, http_method: Method, url: Url) -> RequestBuilder {
+    let request = self.http_client.request(http_method, url);
+    match &self.user_identity {
+      Some(user) => {
+        request.bearer_auth(user.authorization_token().expect("TODO"))
+      }
+      None => request,
+    }
   }
 }
 
