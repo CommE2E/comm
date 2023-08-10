@@ -231,7 +231,7 @@ fn is_raw_row_unchecked(
   if value != kind.str_value() {
     // The unchecked attribute exists but has an incorrect value
     return Err(DBError::Attribute(DBItemError::new(
-      ATTR_UNCHECKED,
+      ATTR_UNCHECKED.to_string(),
       Value::String(value.to_string()),
       comm_services_lib::database::DBItemAttributeError::IncorrectType,
     )));
