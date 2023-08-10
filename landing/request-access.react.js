@@ -12,7 +12,7 @@ function RequestAccess(): React.Node {
 
   return (
     <section className={css.requestAccessSection}>
-      <h1 className={headerClassName}>Request access for our beta today</h1>
+      <h1 className={headerClassName}>Join our mailing list for updates</h1>
       <div className={css.subscriptionform}>
         <SubscriptionForm />
       </div>
