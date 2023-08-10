@@ -63,6 +63,41 @@ pub enum DBItemAttributeError {
   InvalidNumberFormat(ParseIntError),
 }
 
+/// Conversion trait for [`AttributeValue`]
+///
+/// Types implementing this trait are able to do the following:
+/// ```rust
+/// use comm_services_lib::database::{TryFromAttribute, AttributeTryInto};
+///
+/// let foo = SomeType::try_from_attr("MyAttribute", Some(attribute));
+///
+/// // if `AttributeTryInto` is imported, also:
+/// let bar = Some(attribute).attr_try_into("MyAttribute");
+pub trait TryFromAttribute: Sized {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError>;
+}
+
+/// Do NOT implement this trait directly. Implement [`TryFromAttribute`] instead
+pub trait AttributeTryInto<T> {
+  fn attr_try_into(
+    self,
+    attribute_name: impl Into<String>,
+  ) -> Result<T, DBItemError>;
+}
+// Automatic attr_try_into() for all attribute values
+// that have TryFromAttribute implemented
+impl<T: TryFromAttribute> AttributeTryInto<T> for Option<AttributeValue> {
+  fn attr_try_into(
+    self,
+    attribute_name: impl Into<String>,
+  ) -> Result<T, DBItemError> {
+    T::try_from_attr(attribute_name, self)
+  }
+}
+
 pub fn parse_string_attribute(
   attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
