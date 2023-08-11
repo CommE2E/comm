@@ -95,12 +95,6 @@ function InnerTextMessage(props: Props): React.Node {
 
   const cornerStyle = getRoundedContainerStyle(filterCorners(allCorners, item));
 
-  if (!__DEV__) {
-    // We don't force view height in dev mode because we
-    // want to measure it in Message to see if it's correct
-    messageStyle.height = item.contentHeight;
-  }
-
   const rules = useTextMessageMarkdownRules(darkColor);
   const textMessageMarkdown = useTextMessageMarkdown(item.messageInfo);
 
