@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 // Standard library imports
 use std::str::FromStr;
 
@@ -11,7 +12,8 @@ use tracing::{debug, error};
 
 // Workspace crate imports
 use crate::client_service::client_proto::{
-  AddReservedUsernamesRequest, DeleteUserRequest, Empty, GenerateNonceResponse,
+  inbound_keys_for_user_request::Identifier, AddReservedUsernamesRequest,
+  DeleteUserRequest, Empty, GenerateNonceResponse, InboundKeyInfo,
   InboundKeysForUserRequest, InboundKeysForUserResponse, LogoutRequest,
   OpaqueLoginFinishRequest, OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
   OpaqueLoginStartResponse, OutboundKeysForUserRequest,
@@ -27,6 +29,7 @@ use crate::client_service::client_proto::{
 use crate::config::CONFIG;
 use crate::database::{DatabaseClient, Device, KeyPayload};
 use crate::error::Error as DBError;
+use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
@@ -790,9 +793,50 @@ impl IdentityClientService for ClientService {
 
   async fn get_inbound_keys_for_user(
     &self,
-    _request: tonic::Request<InboundKeysForUserRequest>,
+    request: tonic::Request<InboundKeysForUserRequest>,
   ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    let (user_ident, auth_type) = match message.identifier {
+      None => {
+        return Err(tonic::Status::invalid_argument("no identifier provided"))
+      }
+      Some(Identifier::Username(username)) => (username, AuthType::Password),
+      Some(Identifier::WalletAddress(address)) => (address, AuthType::Wallet),
+    };
+
+    let devices_map = self
+      .client
+      .get_keys_for_user(user_ident, &auth_type)
+      .await
+      .map_err(handle_db_error)?
+      .ok_or_else(|| match auth_type {
+        AuthType::Password => tonic::Status::not_found("username not found"),
+        AuthType::Wallet => {
+          tonic::Status::not_found("wallet address not found")
+        }
+      })?;
+
+    let transformed_devices = devices_map
+      .into_iter()
+      .filter_map(|(key, device_info)| {
+        let device_info_with_auth = DeviceInfoWithAuth {
+          device_info,
+          auth_type: &auth_type,
+        };
+        match InboundKeyInfo::try_from(device_info_with_auth) {
+          Ok(key_info) => Some((key, key_info)),
+          Err(_) => {
+            error!("Failed to transform device info for key {}", key);
+            None
+          }
+        }
+      })
+      .collect::<HashMap<_, _>>();
+
+    Ok(tonic::Response::new(InboundKeysForUserResponse {
+      devices: transformed_devices,
+    }))
   }
 
   async fn upload_one_time_keys(
