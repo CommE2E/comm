@@ -1,10 +1,26 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::{DateTime, Utc};
-use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::num::ParseIntError;
 use std::str::FromStr;
+
+// # Useful type aliases
+
+// Rust exports `pub type` only into the so-called "type namespace", but in
+// order to use them e.g. with the `TryFromAttribute` trait, they also need
+// to be exported into the "value namespace" which is what `pub use` does.
+//
+// To overcome that, a dummy module is created and aliases are re-exported
+// with `pub use` construct
+mod aliases {
+  use aws_sdk_dynamodb::types::AttributeValue;
+  use std::collections::HashMap;
+  pub type AttributeMap = HashMap<String, AttributeValue>;
+}
+pub use self::aliases::AttributeMap;
+
+// # Error handling
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -167,7 +183,7 @@ impl TryFromAttribute for DateTime<Utc> {
   }
 }
 
-impl TryFromAttribute for HashMap<String, AttributeValue> {
+impl TryFromAttribute for AttributeMap {
   fn try_from_attr(
     attribute_name: impl Into<String>,
     attribute_value: Option<AttributeValue>,
@@ -233,11 +249,11 @@ pub fn parse_datetime_attribute(
   DateTime::<Utc>::try_from_attr(attribute_name, attribute_value)
 }
 
-#[deprecated = "Use `HashMap::<String, AttributeValue>::try_from_attr()` instead"]
+#[deprecated = "Use `AttributeMap::try_from_attr()` instead"]
 pub fn parse_map_attribute(
   attribute_name: impl Into<String>,
   attribute_value: Option<AttributeValue>,
-) -> Result<HashMap<String, AttributeValue>, DBItemError> {
+) -> Result<AttributeMap, DBItemError> {
   attribute_value.attr_try_into(attribute_name)
 }
 

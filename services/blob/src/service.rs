@@ -211,7 +211,7 @@ impl BlobService {
       trace!("Getting blob item");
       let Some(blob_item) = self.db.get_blob_item(&blob_hash).await? else {
         trace!("Blob item not found, nothing to do");
-        return Ok(())
+        return Ok(());
       };
 
       trace!("Deleting S3 object");

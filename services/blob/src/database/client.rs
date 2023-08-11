@@ -4,7 +4,7 @@ use aws_sdk_dynamodb::{
   Error as DynamoDBError,
 };
 use chrono::Utc;
-use comm_services_lib::database::parse_string_attribute;
+use comm_services_lib::database::TryFromAttribute;
 use std::{collections::HashMap, sync::Arc};
 use tracing::{debug, error, trace};
 
@@ -205,7 +205,7 @@ impl DatabaseClient {
         // filter out rows that are blob items
         // we cannot do it in key condition expression - it doesn't support the <> operator
         // filter expression doesn't work either - it doesn't support filtering by sort key
-        match parse_string_attribute(ATTR_HOLDER, row.remove(ATTR_HOLDER)) {
+        match String::try_from_attr(ATTR_HOLDER, row.remove(ATTR_HOLDER)) {
           Ok(value) if value.as_str() == BLOB_ITEM_ROW_HOLDER_VALUE => None,
           holder => Some(holder),
         }
