@@ -1,7 +1,9 @@
 #import "NotificationService.h"
 #import "Logger.h"
 #import "NotificationsCryptoModule.h"
+#import "StaffUtils.h"
 #import "TemporaryMessageStorage.h"
+#import <mach/mach.h>
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
@@ -14,11 +16,29 @@ int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
 CFStringRef newMessageInfosDarwinNotification =
     CFSTR("app.comm.darwin_new_message_infos");
 
+// Implementation below was inspired by the
+// following discussion with Apple staff member:
+// https://developer.apple.com/forums/thread/105088
+size_t getMemoryUsage() {
+  task_vm_info_data_t vmInfo;
+  mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+
+  kern_return_t result =
+      task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
+
+  if (result != KERN_SUCCESS) {
+    return -1;
+  }
+
+  size_t memory_usage = static_cast<size_t>(vmInfo.phys_footprint);
+  // We divide to get the result in MB's
+  return memory_usage / (1024 * 1024);
+}
+
 @interface NotificationService ()
 
-@property(nonatomic, strong) void (^contentHandler)
-    (UNNotificationContent *contentToDeliver);
-@property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
+@property(strong) NSMutableDictionary *contentHandlers;
+@property(strong) NSMutableDictionary *contents;
 
 @end
 
@@ -28,74 +48,183 @@ CFStringRef newMessageInfosDarwinNotification =
                    withContentHandler:
                        (void (^)(UNNotificationContent *_Nonnull))
                            contentHandler {
-  self.contentHandler = contentHandler;
-  self.bestAttemptContent = [request.content mutableCopy];
+  // Set-up methods are idempotent
+  [NotificationService setUpNSEProcess];
+  [self setUpNSEInstance];
 
-  if ([self shouldBeDecrypted:self.bestAttemptContent.userInfo]) {
-    @try {
-      [self decryptBestAttemptContent];
-    } @catch (NSException *e) {
-      comm::Logger::log(
-          "NSE: Received exception: " + std::string([e.name UTF8String]) +
-          " with reason: " + std::string([e.reason UTF8String]) +
-          " during notification decryption");
-      self.contentHandler([[UNNotificationContent alloc] init]);
+  NSString *contentHandlerKey = [request.identifier copy];
+  UNMutableNotificationContent *content = [request.content mutableCopy];
+  [self putContent:content withHandler:contentHandler forKey:contentHandlerKey];
+
+  // Step 1: notification decryption.
+  if ([self shouldBeDecrypted:content.userInfo]) {
+    std::string decryptErrorMessage;
+    try {
+      @try {
+        content = [self decryptContent:content];
+      } @catch (NSException *e) {
+        decryptErrorMessage = "NSE: Received Obj-C exception: " +
+            std::string([e.name UTF8String]) +
+            " during notification decryption.";
+      }
+    } catch (const std::exception &e) {
+      decryptErrorMessage =
+          "NSE: Received C++ exception: " + std::string(e.what()) +
+          " during notification decryption.";
+    }
+
+    if (decryptErrorMessage.size()) {
+      NSString *errorMessage =
+          [NSString stringWithUTF8String:decryptErrorMessage.c_str()];
+      [self callContentHandlerForKey:contentHandlerKey
+                      onErrorMessage:errorMessage];
       return;
     }
-  } else if ([self shouldAlertUnencryptedNotification:self.bestAttemptContent
-                                                          .userInfo]) {
+  } else if ([self shouldAlertUnencryptedNotification:content.userInfo]) {
     // In future this will be replaced by notification content
     // modification for DEV environment and staff members
     comm::Logger::log("NSE: Received erroneously unencrypted notitication.");
   }
 
-  [self persistMessagePayload:self.bestAttemptContent.userInfo];
+  // Step 2: notification persistence in a temporary storage
+  std::string persistErrorMessage;
+  try {
+    @try {
+      [self persistMessagePayload:content.userInfo];
+    } @catch (NSException *e) {
+      persistErrorMessage =
+          "NSE: Received Obj-C exception: " + std::string([e.name UTF8String]) +
+          " during notification persistence.";
+    }
+  } catch (const std::exception &e) {
+    persistErrorMessage =
+        "NSE: Received C++ exception: " + std::string(e.what()) +
+        " during notification persistence.";
+  }
+
+  if (persistErrorMessage.size()) {
+    NSString *errorMessage =
+        [NSString stringWithUTF8String:persistErrorMessage.c_str()];
+    [self callContentHandlerForKey:contentHandlerKey
+                    onErrorMessage:errorMessage];
+    return;
+  }
+
+  // Step 3: (optional) rescind read notifications
+
   // Message payload persistence is a higher priority task, so it has
   // to happen prior to potential notification center clearing.
-  if ([self isRescind:self.bestAttemptContent.userInfo]) {
-    [self removeNotificationWithIdentifier:self.bestAttemptContent
-                                               .userInfo[@"notificationId"]];
-    self.contentHandler([[UNNotificationContent alloc] init]);
+  if ([self isRescind:content.userInfo]) {
+    std::string rescindErrorMessage;
+    try {
+      @try {
+        [self
+            removeNotificationWithIdentifier:content
+                                                 .userInfo[@"notificationId"]];
+      } @catch (NSException *e) {
+        rescindErrorMessage = "NSE: Received Obj-C exception: " +
+            std::string([e.name UTF8String]) + " during notification rescind.";
+      }
+    } catch (const std::exception &e) {
+      rescindErrorMessage =
+          "NSE: Received C++ exception: " + std::string(e.what()) +
+          " during notification rescind.";
+    }
+
+    if (rescindErrorMessage.size()) {
+      NSString *errorMessage =
+          [NSString stringWithUTF8String:rescindErrorMessage.c_str()];
+      [self callContentHandlerForKey:contentHandlerKey
+                      onErrorMessage:errorMessage];
+      return;
+    }
+    [self callContentHandlerForKey:contentHandlerKey
+                       withContent:[[UNNotificationContent alloc] init]];
     return;
   }
 
-  if ([self isBadgeOnly:self.bestAttemptContent.userInfo]) {
-    UNMutableNotificationContent *badgeOnlyContent =
-        [[UNMutableNotificationContent alloc] init];
-    badgeOnlyContent.badge = self.bestAttemptContent.badge;
-    self.contentHandler(badgeOnlyContent);
+  // Step 4: (optional) update badge count for badge only notif
+  if ([self isBadgeOnly:content.userInfo]) {
+    UNNotificationContent *badgeOnlyContent =
+        [self getBadgeOnlyContentFor:content];
+    [self callContentHandlerForKey:contentHandlerKey
+                       withContent:badgeOnlyContent];
     return;
   }
 
+  // Step 5: notify main app that there is data
+  // to transfer to SQLite and redux.
   [self sendNewMessageInfosNotification];
-  // TODO modify self.bestAttemptContent here
-
-  self.contentHandler(self.bestAttemptContent);
+  if (NSString *currentMemoryEventMessage =
+          [NotificationService getAndSetMemoryEventMessage:nil]) {
+    [self callContentHandlerForKey:contentHandlerKey
+                    onErrorMessage:currentMemoryEventMessage];
+    return;
+  }
+  [self callContentHandlerForKey:contentHandlerKey withContent:content];
 }
 
 - (void)serviceExtensionTimeWillExpire {
   // Called just before the extension will be terminated by the system.
   // Use this as an opportunity to deliver your "best attempt" at modified
   // content, otherwise the original push payload will be used.
-  if ([self isRescind:self.bestAttemptContent.userInfo]) {
-    // If we get to this place it means we were unable to
-    // remove relevant notification from notification center in
-    // in time given to NSE to process notification.
-    // It is an extremely unlikely to happen.
-    comm::Logger::log("NSE: Exceeded time limit to rescind a notification.");
-    self.contentHandler([[UNNotificationContent alloc] init]);
-    return;
+  NSMutableArray<void (^)(UNNotificationContent *_Nonnull)> *allHandlers =
+      [[NSMutableArray alloc] init];
+  NSMutableArray<UNNotificationContent *> *allContents =
+      [[NSMutableArray alloc] init];
+
+  @synchronized(self.contentHandlers) {
+    for (NSString *key in self.contentHandlers) {
+      [allHandlers addObject:self.contentHandlers[key]];
+      [allContents addObject:self.contents[key]];
+    }
+
+    [self.contentHandlers removeAllObjects];
+    [self.contents removeAllObjects];
   }
-  if ([self shouldBeDecrypted:self.bestAttemptContent.userInfo] &&
-      !self.bestAttemptContent.userInfo[@"succesfullyDecrypted"]) {
-    // If we get to this place it means we were unable to
-    // decrypt encrypted notification content in time
-    // given to NSE to process notification.
-    comm::Logger::log("NSE: Exceeded time limit to decrypt a notification.");
-    self.contentHandler([[UNNotificationContent alloc] init]);
-    return;
+
+  for (int i = 0; i < allContents.count; i++) {
+    UNNotificationContent *content = allContents[i];
+    void (^handler)(UNNotificationContent *_Nonnull) = allHandlers[i];
+
+    if ([self isRescind:content.userInfo]) {
+      // If we get to this place it means we were unable to
+      // remove relevant notification from notification center in
+      // in time given to NSE to process notification.
+      // It is an extremely unlikely to happen.
+      NSString *errorMessage =
+          @"NSE: Exceeded time limit to rescind a notification.";
+      UNNotificationContent *errorContent =
+          [self buildContentForError:errorMessage];
+      handler(errorContent);
+      continue;
+    }
+
+    if ([self shouldBeDecrypted:content.userInfo] &&
+        !content.userInfo[@"succesfullyDecrypted"]) {
+      // If we get to this place it means we were unable to
+      // decrypt encrypted notification content in time
+      // given to NSE to process notification.
+      NSString *errorMessage =
+          @"NSE: Exceeded time limit to decrypt a notification.";
+      UNNotificationContent *errorContent =
+          [self buildContentForError:errorMessage];
+      handler(errorContent);
+      continue;
+    }
+
+    // At this point we know that the content is at least
+    // correctly decrypted so we can display it to the user.
+    // Another operation, like persistence, had failed.
+    if ([self isBadgeOnly:content.userInfo]) {
+      UNNotificationContent *badgeOnlyContent =
+          [self getBadgeOnlyContentFor:content];
+      handler(badgeOnlyContent);
+      continue;
+    }
+
+    handler(content);
   }
-  self.contentHandler(self.bestAttemptContent);
 }
 
 - (void)removeNotificationWithIdentifier:(NSString *)identifier {
@@ -170,6 +299,14 @@ CFStringRef newMessageInfosDarwinNotification =
   return !payload[@"threadID"];
 }
 
+- (UNNotificationContent *)getBadgeOnlyContentFor:
+    (UNNotificationContent *)content {
+  UNMutableNotificationContent *badgeOnlyContent =
+      [[UNMutableNotificationContent alloc] init];
+  badgeOnlyContent.badge = content.badge;
+  return badgeOnlyContent;
+}
+
 - (void)sendNewMessageInfosNotification {
   CFNotificationCenterPostNotification(
       CFNotificationCenterGetDarwinNotifyCenter(),
@@ -199,17 +336,17 @@ CFStringRef newMessageInfosDarwinNotification =
               .c_str()];
 }
 
-- (void)decryptBestAttemptContent {
-  NSString *decryptedSerializedPayload = [self
-      singleDecrypt:self.bestAttemptContent.userInfo[encryptedPayloadKey]];
+- (UNMutableNotificationContent *)decryptContent:
+    (UNMutableNotificationContent *)content {
+  NSString *decryptedSerializedPayload =
+      [self singleDecrypt:content.userInfo[encryptedPayloadKey]];
   NSDictionary *decryptedPayload = [NSJSONSerialization
       JSONObjectWithData:[decryptedSerializedPayload
                              dataUsingEncoding:NSUTF8StringEncoding]
                  options:0
                    error:nil];
 
-  NSMutableDictionary *mutableUserInfo =
-      [self.bestAttemptContent.userInfo mutableCopy];
+  NSMutableDictionary *mutableUserInfo = [content.userInfo mutableCopy];
 
   NSMutableDictionary *mutableAps = nil;
   if (mutableUserInfo[@"aps"]) {
@@ -218,7 +355,7 @@ CFStringRef newMessageInfosDarwinNotification =
 
   NSString *body = decryptedPayload[@"merged"];
   if (body) {
-    self.bestAttemptContent.body = body;
+    content.body = body;
     if (mutableAps && mutableAps[@"alert"]) {
       mutableAps[@"alert"] = body;
     }
@@ -226,7 +363,7 @@ CFStringRef newMessageInfosDarwinNotification =
 
   NSString *threadID = decryptedPayload[@"threadID"];
   if (threadID) {
-    self.bestAttemptContent.threadIdentifier = threadID;
+    content.threadIdentifier = threadID;
     mutableUserInfo[@"threadID"] = threadID;
     if (mutableAps) {
       mutableAps[@"thread-id"] = threadID;
@@ -236,7 +373,7 @@ CFStringRef newMessageInfosDarwinNotification =
   NSString *badgeStr = decryptedPayload[@"badge"];
   if (badgeStr) {
     NSNumber *badge = @([badgeStr intValue]);
-    self.bestAttemptContent.badge = badge;
+    content.badge = badge;
     if (mutableAps) {
       mutableAps[@"badge"] = badge;
     }
@@ -257,7 +394,126 @@ CFStringRef newMessageInfosDarwinNotification =
     mutableUserInfo[@"aps"] = mutableAps;
   }
   [mutableUserInfo removeObjectForKey:encryptedPayloadKey];
-  self.bestAttemptContent.userInfo = mutableUserInfo;
+  content.userInfo = mutableUserInfo;
+  return content;
+}
+
+// Apple documentation for NSE does not explicitely state
+// that single NSE instance will be used by only one thread
+// at a time. Even though UNNotificationServiceExtension API
+// suggests that it could be the case we don't trust it
+// and keep a synchronized collection of handlers and contents.
+
+- (void)setUpNSEInstance {
+  @synchronized(self) {
+    if (self.contentHandlers) {
+      return;
+    }
+    self.contentHandlers = [[NSMutableDictionary alloc] init];
+    self.contents = [[NSMutableDictionary alloc] init];
+  }
+}
+
+- (void)putContent:(UNNotificationContent *)content
+       withHandler:(void (^)(UNNotificationContent *_Nonnull))handler
+            forKey:(NSString *)key {
+  @synchronized(self.contentHandlers) {
+    [self.contentHandlers setObject:handler forKey:key];
+    [self.contents setObject:content forKey:key];
+  }
+}
+
+- (void)callContentHandlerForKey:(NSString *)key
+                     withContent:(UNNotificationContent *)content {
+  void (^handler)(UNNotificationContent *_Nonnull);
+
+  @synchronized(self.contentHandlers) {
+    handler = [self.contentHandlers objectForKey:key];
+    [self.contentHandlers removeObjectForKey:key];
+    [self.contents removeObjectForKey:key];
+  }
+
+  if (!handler) {
+    return;
+  }
+  handler(content);
+}
+
+- (UNNotificationContent *)buildContentForError:(NSString *)error {
+  UNMutableNotificationContent *content =
+      [[UNMutableNotificationContent alloc] init];
+  content.body = error;
+  return content;
+}
+
+- (void)callContentHandlerForKey:(NSString *)key
+                  onErrorMessage:(NSString *)errorMessage {
+  comm::Logger::log(std::string([errorMessage UTF8String]));
+
+  if (!comm::StaffUtils::isStaffRelease()) {
+    [self callContentHandlerForKey:key
+                       withContent:[[UNNotificationContent alloc] init]];
+    return;
+  }
+
+  UNNotificationContent *content = [self buildContentForError:errorMessage];
+  [self callContentHandlerForKey:key withContent:content];
+}
+
+// Monitor memory usage
++ (NSString *)getAndSetMemoryEventMessage:(NSString *)message {
+  static NSString *memoryEventMessage = nil;
+  static NSLock *memoryEventLock = [[NSLock alloc] init];
+
+  if (![memoryEventLock tryLock]) {
+    return nil;
+  }
+
+  NSString *currentMemoryEventMessage =
+      memoryEventMessage ? [memoryEventMessage copy] : nil;
+  memoryEventMessage = [message copy];
+  [memoryEventLock unlock];
+
+  return currentMemoryEventMessage;
+}
+
++ (dispatch_source_t)registerForMemoryEvents {
+  dispatch_source_t memorySource = dispatch_source_create(
+      DISPATCH_SOURCE_TYPE_MEMORYPRESSURE,
+      0L,
+      DISPATCH_MEMORYPRESSURE_CRITICAL,
+      dispatch_get_main_queue());
+
+  dispatch_block_t eventHandler = ^{
+    NSString *criticalMemoryEventMessage =
+        [NSString stringWithFormat:
+                      @"NSE: Received CRITICAL memory event. Memory usage: %ld",
+                      getMemoryUsage()];
+
+    comm::Logger::log(std::string([criticalMemoryEventMessage UTF8String]));
+    if (!comm::StaffUtils::isStaffRelease()) {
+      // If it is not a staff release we don't set
+      // memoryEventMessage variable since it will
+      // not be displayed to the client anyway
+      return;
+    }
+
+    [NotificationService
+        getAndSetMemoryEventMessage:criticalMemoryEventMessage];
+  };
+
+  dispatch_source_set_event_handler(memorySource, eventHandler);
+  dispatch_activate(memorySource);
+  return memorySource;
+}
+
++ (void)setUpNSEProcess {
+  static dispatch_source_t memoryEventSource;
+  static dispatch_once_t onceToken;
+
+  dispatch_once(&onceToken, ^{
+    memoryEventSource = [NotificationService registerForMemoryEvents];
+  });
 }
 
 @end
