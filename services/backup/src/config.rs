@@ -3,16 +3,12 @@ use once_cell::sync::Lazy;
 use tracing::info;
 
 use crate::constants::{
-  DEFAULT_BLOB_SERVICE_URL, DEFAULT_GRPC_SERVER_PORT, DEFAULT_LOCALSTACK_URL,
-  SANDBOX_ENV_VAR,
+  DEFAULT_BLOB_SERVICE_URL, DEFAULT_LOCALSTACK_URL, SANDBOX_ENV_VAR,
 };
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct AppConfig {
-  /// gRPC server listening port
-  #[arg(long = "port", default_value_t = DEFAULT_GRPC_SERVER_PORT)]
-  pub listening_port: u64,
   /// Run the service in sandbox
   #[arg(long = "sandbox", default_value_t = false)]
   // support the env var for compatibility reasons
