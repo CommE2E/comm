@@ -1,5 +1,6 @@
+use std::collections::HashMap;
 // Standard library imports
-use std::{str::FromStr};
+use std::str::FromStr;
 
 // External crate imports
 use aws_sdk_dynamodb::Error as DynamoDBError;
@@ -11,22 +12,26 @@ use tracing::{debug, error};
 
 // Workspace crate imports
 use crate::client_service::client_proto::{
-  AddReservedUsernamesRequest, DeleteUserRequest, Empty, GenerateNonceResponse, InboundKeysForUserRequest,
-  InboundKeysForUserResponse, LogoutRequest, OpaqueLoginFinishRequest,
-  OpaqueLoginFinishResponse, OpaqueLoginStartRequest, OpaqueLoginStartResponse,
-  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RefreshUserPreKeysRequest, RegistrationFinishRequest,
-  RegistrationFinishResponse, RegistrationStartRequest,
-  RegistrationStartResponse, RemoveReservedUsernameRequest,
-  ReservedRegistrationStartRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
-  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+  inbound_keys_for_user_request::Identifier::Username,
+  inbound_keys_for_user_request::Identifier::WalletAddress,
+  AddReservedUsernamesRequest, DeleteUserRequest, Empty, GenerateNonceResponse,
+  InboundKeysForUserRequest, InboundKeysForUserResponse, LogoutRequest,
+  OpaqueLoginFinishRequest, OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
+  OpaqueLoginStartResponse, OutboundKeysForUserRequest,
+  OutboundKeysForUserResponse, RefreshUserPreKeysRequest,
+  RegistrationFinishRequest, RegistrationFinishResponse,
+  RegistrationStartRequest, RegistrationStartResponse,
+  RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
+  WalletLoginRequest, WalletLoginResponse,
 };
 use crate::config::CONFIG;
 
 use crate::database::{DatabaseClient, Device, KeyPayload};
 use crate::error::Error as DBError;
+use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
@@ -39,6 +44,8 @@ use crate::token::{AccessTokenData, AuthType};
 pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
 };
+
+use self::client_proto::InboundKeyInfo;
 
 pub mod client_proto {
   tonic::include_proto!("identity.client");
@@ -790,9 +797,45 @@ impl IdentityClientService for ClientService {
 
   async fn get_inbound_keys_for_user(
     &self,
-    _request: tonic::Request<InboundKeysForUserRequest>,
+    request: tonic::Request<InboundKeysForUserRequest>,
   ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    let (user_ident, auth_type) = match message.identifier {
+      None => {
+        return Err(tonic::Status::invalid_argument("no identifier provided"))
+      }
+      Some(Username(username)) => (username, AuthType::Password),
+      Some(WalletAddress(address)) => (address, AuthType::Wallet),
+    };
+
+    let devices_map = self
+      .client
+      .get_keys_for_user(user_ident, &auth_type)
+      .await
+      .map_err(handle_db_error)?
+      .ok_or_else(|| match auth_type {
+        AuthType::Password => tonic::Status::not_found("username not found"),
+        AuthType::Wallet => {
+          tonic::Status::not_found("wallet address not found")
+        }
+      })?;
+
+    let transformed_devices = devices_map
+      .into_iter()
+      .map(|(key, device_info)| {
+        let device_info_with_auth = DeviceInfoWithAuth {
+          device_info,
+          auth_type: &auth_type,
+        };
+        let key_info = InboundKeyInfo::try_from(device_info_with_auth)?;
+        Ok((key, key_info))
+      })
+      .collect::<Result<HashMap<_, _>, tonic::Status>>()?;
+
+    Ok(tonic::Response::new(InboundKeysForUserResponse {
+      devices: transformed_devices,
+    }))
   }
 
   async fn upload_one_time_keys(
