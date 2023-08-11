@@ -16,14 +16,12 @@ chrono = "0.4"
 clap = { version = "4.0", features = ["derive", "env"] }
 comm-services-lib = { path = "../comm-services-lib" }
 once_cell = "1.17"
-prost = "0.11"
 rand = "0.8.5"
-tokio = { version = "1.24", features = ["rt-multi-thread"]}
+tokio = { version = "1.24", features = ["rt-multi-thread", "macros"] }
 tokio-stream = "0.1"
-tonic = "0.8"
 tracing = "0.1"
-tracing-futures =  { version = "0.2", features = ["futures-03"] }
-tracing-subscriber = { version = "0.3", features = ["env-filter"]}
+tracing-futures = { version = "0.2", features = ["futures-03"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1.2", features = ["v4"] }
 
 [build-dependencies]
