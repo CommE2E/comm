@@ -5,7 +5,9 @@ use crate::constants::{
   PLATFORM_IOS,
 };
 use aws_sdk_dynamodb::types::{AttributeValue, Select};
-use comm_services_lib::database::{self, DBItemError, Error};
+use comm_services_lib::database::{
+  self, AttributeMap, DBItemError, Error, TryFromAttribute,
+};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::error;
@@ -20,12 +22,12 @@ fn parse_code_version_specific_feature_config(
   value: Option<AttributeValue>,
 ) -> Result<CodeVersionSpecificFeatureConfig, DBItemError> {
   let mut code_version_config_map =
-    database::parse_map_attribute(FEATURE_FLAGS_CONFIG_FIELD, value)?;
-  let staff = database::parse_bool_attribute(
+    AttributeMap::try_from_attr(FEATURE_FLAGS_CONFIG_FIELD, value)?;
+  let staff = bool::try_from_attr(
     FEATURE_FLAGS_STAFF_FIELD,
     code_version_config_map.remove(FEATURE_FLAGS_STAFF_FIELD),
   )?;
-  let non_staff = database::parse_bool_attribute(
+  let non_staff = bool::try_from_attr(
     FEATURE_FLAGS_NON_STAFF_FIELD,
     code_version_config_map.remove(FEATURE_FLAGS_NON_STAFF_FIELD),
   )?;
@@ -39,13 +41,13 @@ pub struct FeatureConfig {
 }
 
 fn parse_feature_config(
-  mut attribute_value: HashMap<String, AttributeValue>,
+  mut attribute_value: AttributeMap,
 ) -> Result<FeatureConfig, DBItemError> {
-  let feature_name = database::parse_string_attribute(
+  let feature_name = String::try_from_attr(
     FEATURE_FLAGS_FEATURE_FIELD,
     attribute_value.remove(FEATURE_FLAGS_FEATURE_FIELD),
   )?;
-  let config_map = database::parse_map_attribute(
+  let config_map = AttributeMap::try_from_attr(
     FEATURE_FLAGS_CONFIG_FIELD,
     attribute_value.remove(FEATURE_FLAGS_CONFIG_FIELD),
   )?;
