@@ -18,12 +18,12 @@ use crate::{
   token::AuthType,
 };
 
-struct DeviceInfoWithAuth<'a> {
-  device_info: HashMap<String, String>,
-  auth_type: &'a AuthType,
+pub struct DeviceInfoWithAuth<'a> {
+  pub device_info: HashMap<String, String>,
+  pub auth_type: &'a AuthType,
 }
 
-impl<'a> TryFrom<DeviceInfoWithAuth<'_>> for InboundKeyInfo {
+impl TryFrom<DeviceInfoWithAuth<'_>> for InboundKeyInfo {
   type Error = tonic::Status;
 
   fn try_from(data: DeviceInfoWithAuth) -> Result<Self, Self::Error> {
