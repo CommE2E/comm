@@ -79,16 +79,9 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
     });
   }, [robotextWithENSNames, activeTheme, threadID, styles.robotext]);
 
-  const viewStyle = [styles.robotextContainer];
-  if (!__DEV__) {
-    // We don't force view height in dev mode because we
-    // want to measure it in Message to see if it's correct
-    viewStyle.push({ height: item.contentHeight });
-  }
-
   return (
     <TouchableWithoutFeedback onPress={onPress} onLongPress={onLongPress}>
-      <View style={viewStyle}>
+      <View style={styles.robotextContainer}>
         <Text style={styles.robotext}>{textParts}</Text>
       </View>
     </TouchableWithoutFeedback>
