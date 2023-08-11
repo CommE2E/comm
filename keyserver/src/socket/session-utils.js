@@ -4,10 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import type { TUnion } from 'tcomb';
 
-import {
-  serverEntryInfo,
-  serverEntryInfosObject,
-} from 'lib/shared/entry-utils.js';
+import { serverEntryInfo } from 'lib/shared/entry-utils.js';
 import type { UpdateActivityResult } from 'lib/types/activity-types.js';
 import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isDeviceType } from 'lib/types/device-types.js';
@@ -65,6 +62,7 @@ import {
   setCookieSignedIdentityKeysBlob,
 } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
+import { serverStateSyncSpecs } from '../shared/state-sync/state-sync-specs.js';
 import { activityUpdater } from '../updaters/activity-updaters.js';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters.js';
 import type { SessionUpdate } from '../updaters/session-updaters.js';
@@ -392,21 +390,20 @@ async function checkState(
   status: StateCheckStatus,
   calendarQuery: CalendarQuery,
 ): Promise<StateCheckResult> {
+  const query = [calendarQuery];
   if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };
   } else if (status.status === 'state_check') {
     const promises = {
-      threadsResult: fetchThreadInfos(viewer),
-      entriesResult: fetchEntryInfos(viewer, [calendarQuery]),
-      currentUserInfo: fetchCurrentUserInfo(viewer),
-      userInfosResult: fetchKnownUserInfos(viewer),
+      threadsResult: serverStateSyncSpecs.threads.fetchAll(viewer, query),
+      entriesResult: serverStateSyncSpecs.entries.fetchAll(viewer, query),
+      currentUserInfo: serverStateSyncSpecs.currentUser.fetchAll(viewer, query),
+      userInfosResult: serverStateSyncSpecs.users.fetchAll(viewer, query),
     };
     const fetchedData = await promiseAll(promises);
     const hashesToCheck = {
       threadInfos: hash(fetchedData.threadsResult.threadInfos),
-      entryInfos: hash(
-        serverEntryInfosObject(fetchedData.entriesResult.rawEntryInfos),
-      ),
+      entryInfos: hash(fetchedData.entriesResult),
       currentUserInfo: hash(fetchedData.currentUserInfo),
       userInfos: hash(fetchedData.userInfosResult),
     };
