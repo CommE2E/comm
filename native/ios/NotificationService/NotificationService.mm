@@ -2,6 +2,7 @@
 #import "Logger.h"
 #import "NotificationsCryptoModule.h"
 #import "TemporaryMessageStorage.h"
+#import <mach/mach.h>
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
@@ -14,11 +15,31 @@ int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
 CFStringRef newMessageInfosDarwinNotification =
     CFSTR("app.comm.darwin_new_message_infos");
 
+// Implementation below was inspired by the
+// following discussion with Apple staff member:
+// https://developer.apple.com/forums/thread/105088
+size_t getMemoryUsage() {
+  task_vm_info_data_t vmInfo;
+  mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+
+  kern_return_t result =
+      task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
+
+  if (result != KERN_SUCCESS) {
+    return -1;
+  }
+
+  size_t memory_usage = static_cast<size_t>(vmInfo.phys_footprint);
+  // We divide to get the result in MB's
+  return memory_usage / (1024 * 1024);
+}
+
 @interface NotificationService ()
 
 @property(nonatomic, strong) void (^contentHandler)
     (UNNotificationContent *contentToDeliver);
 @property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
+@property BOOL contentHandlerCalled;
 
 @end
 
@@ -30,16 +51,32 @@ CFStringRef newMessageInfosDarwinNotification =
                            contentHandler {
   self.contentHandler = contentHandler;
   self.bestAttemptContent = [request.content mutableCopy];
+  self.contentHandlerCalled = NO;
+
+  dispatch_source_t memorySource = [self registerForMemoryEvents];
 
   if ([self shouldBeDecrypted:self.bestAttemptContent.userInfo]) {
-    @try {
-      [self decryptBestAttemptContent];
-    } @catch (NSException *e) {
-      comm::Logger::log(
-          "NSE: Received exception: " + std::string([e.name UTF8String]) +
-          " with reason: " + std::string([e.reason UTF8String]) +
-          " during notification decryption");
-      self.contentHandler([[UNNotificationContent alloc] init]);
+    std::string decryptErrorMessage;
+    try {
+      @try {
+        [self decryptBestAttemptContent];
+      } @catch (NSException *e) {
+        decryptErrorMessage = "NSE: Received Obj-C exception: " +
+            std::string([e.name UTF8String]) +
+            " during notification decryption.";
+      } @catch (...) {
+        @throw;
+      }
+    } catch (const std::exception &e) {
+      decryptErrorMessage =
+          "NSE: Received C++ exception: " + std::string(e.what()) +
+          " during notification decryption.";
+    }
+
+    if (decryptErrorMessage.size()) {
+      comm::Logger::log(decryptErrorMessage);
+      [self callContentHandlerOnErrorMessage:
+                [NSString stringWithUTF8String:decryptErrorMessage.c_str()]];
       return;
     }
   } else if ([self shouldAlertUnencryptedNotification:self.bestAttemptContent
@@ -49,13 +86,58 @@ CFStringRef newMessageInfosDarwinNotification =
     comm::Logger::log("NSE: Received erroneously unencrypted notitication.");
   }
 
-  [self persistMessagePayload:self.bestAttemptContent.userInfo];
+  std::string persistErrorMessage;
+  try {
+    @try {
+      [self persistMessagePayload:self.bestAttemptContent.userInfo];
+    } @catch (NSException *e) {
+      persistErrorMessage =
+          "NSE: Received Obj-C exception: " + std::string([e.name UTF8String]) +
+          " during notification persistence.";
+    } @catch (...) {
+      @throw;
+    }
+  } catch (const std::exception &e) {
+    persistErrorMessage =
+        "NSE: Received C++ exception: " + std::string(e.what()) +
+        " during notification persistence.";
+  }
+
+  if (persistErrorMessage.size()) {
+    comm::Logger::log(persistErrorMessage);
+    [self callContentHandlerOnErrorMessage:
+              [NSString stringWithUTF8String:persistErrorMessage.c_str()]];
+    return;
+  }
+
   // Message payload persistence is a higher priority task, so it has
   // to happen prior to potential notification center clearing.
   if ([self isRescind:self.bestAttemptContent.userInfo]) {
-    [self removeNotificationWithIdentifier:self.bestAttemptContent
-                                               .userInfo[@"notificationId"]];
-    self.contentHandler([[UNNotificationContent alloc] init]);
+    std::string rescindErrorMessage;
+    try {
+      @try {
+        [self
+            removeNotificationWithIdentifier:self.bestAttemptContent
+                                                 .userInfo[@"notificationId"]];
+      } @catch (NSException *e) {
+        rescindErrorMessage = "NSE: Received Obj-C exception: " +
+            std::string([e.name UTF8String]) + " during notification rescind.";
+      } @catch (...) {
+        @throw;
+      }
+    } catch (const std::exception &e) {
+      rescindErrorMessage =
+          "NSE: Received C++ exception: " + std::string(e.what()) +
+          " during notification rescind.";
+    }
+
+    if (rescindErrorMessage.size()) {
+      comm::Logger::log(rescindErrorMessage);
+      [self callContentHandlerOnErrorMessage:
+                [NSString stringWithUTF8String:rescindErrorMessage.c_str()]];
+      return;
+    }
+    [self threadSafeContentHandlerCall:[[UNNotificationContent alloc] init]];
     return;
   }
 
@@ -63,14 +145,14 @@ CFStringRef newMessageInfosDarwinNotification =
     UNMutableNotificationContent *badgeOnlyContent =
         [[UNMutableNotificationContent alloc] init];
     badgeOnlyContent.badge = self.bestAttemptContent.badge;
-    self.contentHandler(badgeOnlyContent);
+    [self threadSafeContentHandlerCall:badgeOnlyContent];
     return;
   }
 
   [self sendNewMessageInfosNotification];
   // TODO modify self.bestAttemptContent here
-
-  self.contentHandler(self.bestAttemptContent);
+  [self unregisterForMemoryEventsFrom:memorySource];
+  [self threadSafeContentHandlerCall:self.bestAttemptContent];
 }
 
 - (void)serviceExtensionTimeWillExpire {
@@ -258,6 +340,55 @@ CFStringRef newMessageInfosDarwinNotification =
   }
   [mutableUserInfo removeObjectForKey:encryptedPayloadKey];
   self.bestAttemptContent.userInfo = mutableUserInfo;
+}
+
+- (dispatch_source_t)registerForMemoryEvents {
+  dispatch_source_t memorySource = dispatch_source_create(
+      DISPATCH_SOURCE_TYPE_MEMORYPRESSURE,
+      0L,
+      DISPATCH_MEMORYPRESSURE_CRITICAL,
+      dispatch_get_main_queue());
+
+  __weak __typeof(self) weakSelf = self;
+  dispatch_block_t eventHandler = ^{
+    std::string criticalMemoryEventMessage =
+        "NSE: Received CRITICAL memory event. Memory usage: " +
+        std::to_string(getMemoryUsage());
+
+    __typeof(weakSelf) strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+
+    [strongSelf
+        callContentHandlerOnErrorMessage:
+            [NSString stringWithUTF8String:criticalMemoryEventMessage.c_str()]];
+  };
+
+  dispatch_source_set_event_handler(memorySource, eventHandler);
+  dispatch_activate(memorySource);
+  return memorySource;
+}
+
+- (void)unregisterForMemoryEventsFrom:(dispatch_source_t)source {
+  dispatch_source_cancel(source);
+}
+
+- (void)callContentHandlerOnErrorMessage:(NSString *)errorMessage {
+  UNMutableNotificationContent *content =
+      [[UNMutableNotificationContent alloc] init];
+  content.body = errorMessage;
+  [self threadSafeContentHandlerCall:content];
+}
+
+- (void)threadSafeContentHandlerCall:(UNNotificationContent *)content {
+  @synchronized(self) {
+    if (self.contentHandlerCalled) {
+      return;
+    }
+    self.contentHandlerCalled = YES;
+    self.contentHandler(content);
+  }
 }
 
 @end
