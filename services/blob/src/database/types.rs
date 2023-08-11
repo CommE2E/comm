@@ -1,7 +1,7 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
 use comm_services_lib::database::{
-  parse_string_attribute, parse_timestamp_attribute, DBItemError, Value,
+  parse_timestamp_attribute, AttributeTryInto, DBItemError, Value,
 };
 use derive_more::Constructor;
 use std::collections::HashMap;
@@ -29,10 +29,10 @@ impl TryFrom<RawAttributes> for DBRow {
   type Error = DBError;
 
   fn try_from(attributes: RawAttributes) -> Result<Self, Self::Error> {
-    let holder = parse_string_attribute(
-      ATTR_HOLDER,
-      attributes.get(ATTR_HOLDER).cloned(),
-    )?;
+    let holder: String = attributes
+      .get(ATTR_HOLDER)
+      .cloned()
+      .attr_try_into(ATTR_HOLDER)?;
     let row = match holder.as_str() {
       BLOB_ITEM_ROW_HOLDER_VALUE => DBRow::BlobItem(attributes.try_into()?),
       _ => DBRow::HolderAssignment(attributes.try_into()?),
@@ -79,12 +79,12 @@ impl TryFrom<RawAttributes> for BlobItemRow {
   type Error = DBError;
 
   fn try_from(mut attributes: RawAttributes) -> Result<Self, Self::Error> {
-    let blob_hash = parse_string_attribute(
-      ATTR_BLOB_HASH,
-      attributes.remove(ATTR_BLOB_HASH),
-    )?;
-    let s3_path =
-      parse_string_attribute(ATTR_S3_PATH, attributes.remove(ATTR_S3_PATH))?;
+    let blob_hash = attributes
+      .remove(ATTR_BLOB_HASH)
+      .attr_try_into(ATTR_BLOB_HASH)?;
+    let s3_path: String = attributes
+      .remove(ATTR_S3_PATH)
+      .attr_try_into(ATTR_S3_PATH)?;
     let created_at = parse_timestamp_attribute(
       ATTR_CREATED_AT,
       attributes.remove(ATTR_CREATED_AT),
@@ -123,12 +123,10 @@ impl TryFrom<RawAttributes> for HolderAssignmentRow {
   type Error = DBError;
 
   fn try_from(mut attributes: RawAttributes) -> Result<Self, Self::Error> {
-    let holder =
-      parse_string_attribute(ATTR_HOLDER, attributes.remove(ATTR_HOLDER))?;
-    let blob_hash = parse_string_attribute(
-      ATTR_BLOB_HASH,
-      attributes.remove(ATTR_BLOB_HASH),
-    )?;
+    let holder = attributes.remove(ATTR_HOLDER).attr_try_into(ATTR_HOLDER)?;
+    let blob_hash = attributes
+      .remove(ATTR_BLOB_HASH)
+      .attr_try_into(ATTR_BLOB_HASH)?;
     let created_at = parse_timestamp_attribute(
       ATTR_CREATED_AT,
       attributes.remove(ATTR_CREATED_AT),
@@ -174,12 +172,10 @@ impl TryFrom<RawAttributes> for PrimaryKey {
   type Error = DBError;
 
   fn try_from(mut attributes: RawAttributes) -> Result<Self, Self::Error> {
-    let blob_hash = parse_string_attribute(
-      ATTR_BLOB_HASH,
-      attributes.remove(ATTR_BLOB_HASH),
-    )?;
-    let holder =
-      parse_string_attribute(ATTR_HOLDER, attributes.remove(ATTR_HOLDER))?;
+    let blob_hash = attributes
+      .remove(ATTR_BLOB_HASH)
+      .attr_try_into(ATTR_BLOB_HASH)?;
+    let holder = attributes.remove(ATTR_HOLDER).attr_try_into(ATTR_HOLDER)?;
     Ok(PrimaryKey { blob_hash, holder })
   }
 }

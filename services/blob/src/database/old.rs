@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput, types::AttributeValue,
 };
