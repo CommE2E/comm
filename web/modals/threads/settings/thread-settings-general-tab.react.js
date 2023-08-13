@@ -147,7 +147,7 @@ function ThreadSettingsGeneralTab(
     return 'Save';
   }, [threadSettingsOperationInProgress]);
 
-  const editingAvatarsOnWebEnabled = false;
+  const editingAvatarsOnWebEnabled = true;
   let avatarNode;
   if (editingAvatarsOnWebEnabled) {
     avatarNode = <EditThreadAvatar threadInfo={threadInfo} />;
