@@ -78,4 +78,5 @@ export {
   natNodeServer,
   setCustomServer,
   normalizeURL,
+  devIsEmulator,
 };
