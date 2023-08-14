@@ -7,10 +7,13 @@ import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
 import { useSigner } from 'wagmi';
 
+import { isDev } from 'lib/utils/dev-utils.js';
+
 import css from './log-in-form.css';
 import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
+import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import { initOlm } from '../olm/olm-utils.js';
 import {
@@ -98,6 +101,26 @@ function LoginForm(): React.Node {
     })();
   }, [dispatch, notificationIdentityPublicKeys, primaryIdentityPublicKeys]);
 
+  const onQRCodeLoginButtonClick = React.useCallback(() => {}, []);
+
+  const qRCodeLoginButton = React.useMemo(() => {
+    if (!isDev) {
+      return null;
+    }
+
+    return (
+      <div className={css.form_qrcode_login}>
+        <Button
+          variant="outline"
+          type="submit"
+          onClick={onQRCodeLoginButtonClick}
+        >
+          Sign in via QR Code
+        </Button>
+      </div>
+    );
+  }, [onQRCodeLoginButtonClick]);
+
   const [siweAuthFlowSelected, setSIWEAuthFlowSelected] =
     React.useState<boolean>(false);
 
@@ -123,6 +146,7 @@ function LoginForm(): React.Node {
       <TraditionalLoginForm />
       <OrBreak />
       <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />
+      {qRCodeLoginButton}
     </div>
   );
 }
