@@ -48,6 +48,7 @@ pub async fn login_user(
       }),
       onetime_content_prekeys: content_one_time_keys,
       onetime_notif_prekeys: notif_one_time_keys,
+      device_type: DeviceType::Keyserver.into(),
     }),
   };
 
