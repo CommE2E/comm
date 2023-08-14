@@ -115,6 +115,7 @@ list(APPEND ANDROID_NATIVE_CODE
   "./src/cpp/ThreadOperationsJNIHelper.cpp"
   "./src/cpp/jsiInstaller.cpp"
   "./src/cpp/NotificationsCryptoModuleJNIHelper.cpp"
+  "./src/cpp/StaffUtilsJNIHelper.cpp"
 )
 
 list(APPEND GENERATED_NATIVE_CODE
