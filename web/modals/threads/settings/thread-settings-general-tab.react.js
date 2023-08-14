@@ -22,6 +22,7 @@ import { firstLine } from 'lib/utils/string-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-general-tab.css';
+import EditThreadAvatar from '../../../avatars/edit-thread-avatar.react.js';
 import LoadingIndicator from '../../../loading-indicator.react.js';
 import Input from '../../input.react.js';
 import ColorSelector from '../color-selector.react.js';
@@ -146,9 +147,16 @@ function ThreadSettingsGeneralTab(
     return 'Save';
   }, [threadSettingsOperationInProgress]);
 
+  const editingAvatarsOnWebEnabled = false;
+  let avatarNode;
+  if (editingAvatarsOnWebEnabled) {
+    avatarNode = <EditThreadAvatar threadInfo={threadInfo} />;
+  }
+
   return (
     <form method="POST" className={css.container}>
       <div>
+        {avatarNode}
         <div className={css.form_title}>Chat name</div>
         <div className={css.form_content}>
           <Input
