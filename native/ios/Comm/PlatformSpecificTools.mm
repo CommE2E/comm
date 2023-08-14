@@ -37,4 +37,8 @@ std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
               .path UTF8String]);
 }
 
+bool PlatformSpecificTools::isStaffRelease() {
+  return false;
+}
+
 }; // namespace comm

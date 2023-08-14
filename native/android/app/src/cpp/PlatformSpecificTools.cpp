@@ -31,6 +31,12 @@ public:
         cls->getStaticMethod<JString()>("getNotificationsCryptoAccountPath");
     return method(cls)->toStdString();
   }
+
+  static bool isStaffRelease() {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<jboolean()>("isStaffRelease");
+    return method(cls);
+  }
 };
 
 namespace comm {
@@ -53,6 +59,14 @@ std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
     path = PlatformSpecificToolsJavaClass::getNotificationsCryptoAccountPath();
   });
   return path;
+}
+
+bool PlatformSpecificTools::isStaffRelease() {
+  bool staffRelease;
+  NativeAndroidAccessProvider::runTask([&staffRelease]() {
+    staffRelease = PlatformSpecificToolsJavaClass::isStaffRelease();
+  });
+  return staffRelease;
 }
 
 } // namespace comm

@@ -26,4 +26,8 @@ public class PlatformSpecificTools {
         .getFileStreamPath("comm_notifications_crypto_account")
         .getPath();
   }
+
+  public static boolean isStaffRelease() {
+    return false;
+  }
 }
