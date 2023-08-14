@@ -47,7 +47,7 @@ COMM_JSONCONFIG_facts_backups='{"enabled":true,"directory":"/home/comm/backups",
 - `COMM_JSONCONFIG_facts_commapp_url`: Your keyserver needs to know what its externally-facing URL is in order to construct links. It also needs to know if it’s being proxied to that externally-facing URL, and what the internal route path is.
   - `baseDomain`: Externally-facing domain. Used for constructing links.
   - `basePath`: Externally-facing path. Used for constructing links.
-  - `baseRoutePath`: Internally-facing path. Same as basePath if no proxy. If there's a proxy, this is the local path (e.g. http://localhost:3000/landing would correspond with /landing/)
+  - `baseRoutePath`: Internally-facing path. Same as basePath if no proxy. If there’s a proxy, this is the local path (e.g. http://localhost:3000/landing would correspond with /landing/)
   - `proxy`: `"none" | "apache"` Determines which request headers to use for HTTPS validation and IP address timezone detection.
   - `https`: If true, checks request headers to validate that HTTPS is in use.
 
