@@ -15,12 +15,12 @@ const localhostHostnameFromAndroidEmulator = '10.0.2.2';
 
 const productionNodeServerURL = 'https://squadcal.org';
 const productionLandingURL = 'https://comm.app';
-const devIsEmulator: boolean = __DEV__ && DeviceInfo.isEmulatorSync();
+const deviceIsEmulator: boolean = __DEV__ && DeviceInfo.isEmulatorSync();
 
 // ESLint doesn't recognize that invariant always throws
 // eslint-disable-next-line consistent-return
 function getDevServerHostname(): string {
-  if (!devIsEmulator) {
+  if (!deviceIsEmulator) {
     checkForMissingNatDevHostname();
     return natDevHostname;
   } else if (Platform.OS === 'android') {
@@ -78,4 +78,5 @@ export {
   natNodeServer,
   setCustomServer,
   normalizeURL,
+  deviceIsEmulator,
 };
