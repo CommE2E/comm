@@ -22,6 +22,7 @@ import PrivacyPreferences from './privacy-preferences.react.js';
 import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
 import RelationshipList from './relationship-list.react.js';
+import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
@@ -39,6 +40,7 @@ import {
   DefaultNotificationsPreferencesRouteName,
   BlockListRouteName,
   LinkedDevicesRouteName,
+  SecondaryDeviceQRCodeScannerRouteName,
   type ScreenParamList,
   type ProfileParamList,
 } from '../navigation/route-names.js';
@@ -56,6 +58,10 @@ const linkedDevicesOptions = {
   headerTitle: 'Linked devices',
   // eslint-disable-next-line react/display-name
   headerRight: () => <LinkedDevicesHeaderRightButton />,
+};
+const secondaryDeviceQRCodeScannerOptions = {
+  headerTitle: '',
+  headerBackTitleVisible: false,
 };
 const buildInfoOptions = { headerTitle: 'Build info' };
 const devToolsOptions = { headerTitle: 'Developer tools' };
@@ -141,6 +147,11 @@ function ProfileComponent(props: Props): React.Node {
             name={LinkedDevicesRouteName}
             component={LinkedDevices}
             options={linkedDevicesOptions}
+          />
+          <Profile.Screen
+            name={SecondaryDeviceQRCodeScannerRouteName}
+            component={SecondaryDeviceQRCodeScanner}
+            options={secondaryDeviceQRCodeScannerOptions}
           />
           <Profile.Screen
             name={BuildInfoRouteName}
