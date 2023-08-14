@@ -6,11 +6,13 @@ include(GNUInstallDirs)
 set(TOOLS_HDRS
   "Base64.h"
   "WorkerThread.h"
+  "StaffUtils.h"
 )
 
 set(TOOLS_SRCS
   "Base64.cpp"
   "WorkerThread.cpp"
+  "StaffUtils.cpp"
 )
 
 add_library(comm-tools
