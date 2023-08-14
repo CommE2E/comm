@@ -67,3 +67,9 @@ div.modal_body .input[type='password']:focus {
   border: #6a20e399 solid 1px;
   transition: border 0.35s ease;
 }
+
+div.form_qrcode_login {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
