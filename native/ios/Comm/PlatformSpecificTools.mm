@@ -36,5 +36,4 @@ std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
            URLByAppendingPathComponent:@"comm_notifications_crypto_account"]
               .path UTF8String]);
 }
-
 }; // namespace comm

@@ -54,5 +54,4 @@ std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
   });
   return path;
 }
-
 } // namespace comm
