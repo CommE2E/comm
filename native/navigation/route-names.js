@@ -95,6 +95,8 @@ export const RelationshipListItemTooltipModalRouteName =
   'RelationshipListItemTooltipModal';
 export const RobotextMessageTooltipModalRouteName =
   'RobotextMessageTooltipModal';
+export const SecondaryDeviceQRCodeScannerRouteName =
+  'SecondaryDeviceQRCodeScanner';
 export const SidebarListModalRouteName = 'SidebarListModal';
 export const SubchannelsListModalRouteName = 'SubchannelsListModal';
 export const TabNavigatorRouteName = 'TabNavigator';
@@ -217,6 +219,7 @@ export type ProfileParamList = {
   +FriendList: void,
   +BlockList: void,
   +LinkedDevices: void,
+  +SecondaryDeviceQRCodeScanner: void,
 };
 
 export type CommunityDrawerParamList = { +TabNavigator: void };
