@@ -1,25 +1,23 @@
 pub mod add_reserved_usernames;
-pub mod auth_client;
 pub mod login;
 pub mod prekey;
 pub mod register_user;
 pub mod remove_reserved_usernames;
-pub mod identity_client {
-  tonic::include_proto!("identity.client");
-}
 
-use identity_client::identity_client_service_client::IdentityClientServiceClient;
-use identity_client::{
-  AddReservedUsernamesRequest, DeviceKeyUpload, DeviceType, IdentityKeyInfo,
-  PreKey, RegistrationFinishRequest, RegistrationStartRequest,
-  RemoveReservedUsernameRequest,
+use grpc_clients::identity::authenticated::AuthLayer;
+use grpc_clients::identity::protos::unauthenticated as client_proto;
+use grpc_clients::identity::protos::authenticated::identity_client_service_client::IdentityClientServiceClient as AuthClient;
+use client_proto::identity_client_service_client::IdentityClientServiceClient;
+use client_proto::{
+  AddReservedUsernamesRequest, DeviceKeyUpload, IdentityKeyInfo, PreKey,
+  RegistrationFinishRequest, RegistrationStartRequest, DeviceType,
+  RemoveReservedUsernameRequest
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
+use tonic::codegen::InterceptedService;
 use std::env::var;
-use std::path::Path;
-use tonic::transport::{Certificate, ClientTlsConfig};
 use tonic::{transport::Channel, Request};
 use tracing::{self, info, instrument, warn, Level};
 use tracing_subscriber::EnvFilter;
@@ -44,23 +42,6 @@ lazy_static! {
   };
 }
 
-const CERT_PATHS: &'static [&'static str] = &[
-  // MacOS and newer Ubuntu
-  "/etc/ssl/cert.pem",
-  // Common CA cert paths
-  "/etc/ssl/certs/ca-bundle.crt",
-  "/etc/ssl/certs/ca-certificates.crt",
-];
-
-pub fn get_ca_cert_contents() -> Option<String> {
-  CERT_PATHS
-    .iter()
-    .map(Path::new)
-    .filter(|p| p.exists())
-    .filter_map(|f| std::fs::read_to_string(f).ok())
-    .next()
-}
-
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct IdentityServiceConfig {
@@ -76,29 +57,37 @@ impl Default for IdentityServiceConfig {
   }
 }
 
-async fn get_identity_service_channel() -> Result<Channel> {
-  let ca_cert = get_ca_cert_contents().expect("Unable to get CA bundle");
-
+async fn get_identity_client_service_channel(
+) -> Result<IdentityClientServiceClient<Channel>> {
   info!("Connecting to identity service");
 
-  let mut channel =
-    Channel::from_static(&IDENTITY_SERVICE_CONFIG.identity_socket_addr);
+  grpc_clients::identity::get_unauthenticated_client(
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
+  )
+  .await
+  .map_err(|_| {
+    Error::new(
+      Status::GenericFailure,
+      "Unable to connect to identity service".to_string(),
+    )
+  })
+}
 
-  // tls_config will fail if the underlying URI is only http://
-  if IDENTITY_SERVICE_CONFIG
-    .identity_socket_addr
-    .starts_with("https:")
-  {
-    channel = channel
-      .tls_config(
-        ClientTlsConfig::new().ca_certificate(Certificate::from_pem(&ca_cert)),
-      )
-      .map_err(|_| {
-        Error::new(Status::GenericFailure, "TLS configure failed")
-      })?;
-  }
+async fn get_identity_authenticated_service_channel(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+) -> Result<AuthClient<InterceptedService<Channel, AuthLayer>>> {
+  info!("Connecting to identity service");
 
-  channel.connect().await.map_err(|_| {
+  grpc_clients::identity::get_auth_client(
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
+    user_id,
+    device_id,
+    access_token,
+  )
+  .await
+  .map_err(|_| {
     Error::new(
       Status::GenericFailure,
       "Unable to connect to identity service".to_string(),

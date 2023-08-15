@@ -18,8 +18,7 @@ pub async fn register_user(
   debug!("Attempting to register user: {}", username);
 
   // Set up the gRPC client that will be used to talk to the Identity service
-  let channel = get_identity_service_channel().await?;
-  let mut identity_client = IdentityClientServiceClient::new(channel);
+  let mut identity_client = get_identity_client_service_channel().await?;
 
   // Start OPAQUE registration and send initial registration request
   let mut opaque_registration = comm_opaque2::client::Registration::new();
