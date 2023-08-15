@@ -32,6 +32,7 @@ import { registerConfig } from 'lib/utils/config.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
+import QrCodeLogin from './account/qr-code-login.react.js';
 import WebEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
@@ -179,7 +180,7 @@ class App extends React.PureComponent<Props> {
     } else {
       content = (
         <>
-          <Splash />
+          {this.renderLoginPage()}
           {this.props.modals}
         </>
       );
@@ -212,6 +213,20 @@ class App extends React.PureComponent<Props> {
 
   onHeaderDoubleClick = () => electron?.doubleClickTopBar();
   stopDoubleClickPropagation = electron ? e => e.stopPropagation() : null;
+
+  renderLoginPage() {
+    const { loginMethod } = this.props.navInfo;
+
+    let loginPage;
+
+    if (!loginMethod || loginMethod === 'form') {
+      loginPage = <Splash />;
+    } else if (loginMethod === 'qr-code') {
+      loginPage = <QrCodeLogin />;
+    }
+
+    return loginPage;
+  }
 
   renderMainContent() {
     const mainContent = this.getMainContentWithSwitcher();
