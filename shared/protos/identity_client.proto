@@ -108,6 +108,9 @@ enum DeviceType {
   Keyserver = 0;
   Native = 1;
   Web = 2;
+  iOS = 3;
+  Android = 4;
+  Windows = 5;
 }
 
 // Bundle of information needed for creating an initial message using X3DH
