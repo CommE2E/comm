@@ -3,7 +3,10 @@
 import olm from '@commapp/olm';
 import { createSelector } from 'reselect';
 
-import { sessionIDSelector } from 'lib/selectors/keyserver-selectors.js';
+import {
+  sessionIDSelector,
+  urlPrefixSelector,
+} from 'lib/selectors/keyserver-selectors.js';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
@@ -28,10 +31,13 @@ import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 import { initOlm } from '../olm/olm-utils.js';
 import type { AppState } from '../redux/redux-setup.js';
 
-const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
-  (state: AppState) => state.urlPrefix,
-  createOpenSocketFunction,
-);
+const openSocketSelector: (state: AppState) => ?() => WebSocket =
+  createSelector(urlPrefixSelector, (urlPrefix: ?string) => {
+    if (!urlPrefix) {
+      return null;
+    }
+    return createOpenSocketFunction(urlPrefix);
+  });
 
 const sessionIdentificationSelector: (
   state: AppState,

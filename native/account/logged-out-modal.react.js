@@ -1,6 +1,7 @@
 // @flow
 
 import Icon from '@expo/vector-icons/FontAwesome.js';
+import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import {
@@ -18,7 +19,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
 import { resetUserStateActionType } from 'lib/actions/user-actions.js';
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
+import {
+  cookieSelector,
+  urlPrefixSelector,
+} from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -776,7 +780,8 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
     );
     const persistedStateLoaded = usePersistedStateLoaded();
     const cookie = useSelector(cookieSelector);
-    const urlPrefix = useSelector(state => state.urlPrefix);
+    const urlPrefix = useSelector(urlPrefixSelector);
+    invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const loggedIn = useSelector(isLoggedIn);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const splashStyle = useSelector(splashStyleSelector);

@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -7,7 +8,10 @@ import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
+import {
+  cookieSelector,
+  urlPrefixSelector,
+} from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   logInActionSources,
@@ -34,7 +38,8 @@ function SQLiteDataHandler(): React.Node {
     state => !!(state._persist && state._persist.rehydrated),
   );
   const cookie = useSelector(cookieSelector);
-  const urlPrefix = useSelector(state => state.urlPrefix);
+  const urlPrefix = useSelector(urlPrefixSelector);
+  invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
   const staffCanSee = useStaffCanSee();
   const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
   const loggedIn = useSelector(isLoggedIn);
