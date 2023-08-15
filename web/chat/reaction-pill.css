@@ -1,0 +1,21 @@
+a.reactionContainer {
+  background: var(--inline-engagement-bg);
+  color: var(--inline-engagement-color);
+  font-size: var(--s-font-14);
+  line-height: var(--line-height-text);
+  transition: background 0.2s ease-in-out;
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+a.reactionContainer:hover {
+  background: var(--inline-engagement-bg-hover);
+}
+
+a.reactionContainerSelected {
+  border: 1px solid var(--inline-engagement-color);
+  padding: 3px 7px;
+}
