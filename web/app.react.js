@@ -32,6 +32,7 @@ import { registerConfig } from 'lib/utils/config.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
+import WebEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
@@ -167,10 +168,12 @@ class App extends React.PureComponent<Props> {
     if (this.props.loggedIn) {
       content = (
         <>
-          <EditUserAvatarProvider>
-            {this.renderMainContent()}
-            {this.props.modals}
-          </EditUserAvatarProvider>
+          <WebEditThreadAvatarProvider>
+            <EditUserAvatarProvider>
+              {this.renderMainContent()}
+              {this.props.modals}
+            </EditUserAvatarProvider>
+          </WebEditThreadAvatarProvider>
         </>
       );
     } else {
