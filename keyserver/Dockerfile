@@ -138,6 +138,9 @@ COPY --chown=comm shared/comm-opaque2 shared/comm-opaque2/
 # Copy protobuf files as a dependency for the shared client libraries
 COPY --chown=comm shared/protos shared/protos/
 
+# Copy identity service gRPC client
+COPY --chown=comm shared/grpc_clients shared/grpc_clients/
+
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
 

@@ -7,8 +7,7 @@ pub async fn add_reserved_usernames(
   signature: String,
 ) -> Result<()> {
   // Set up the gRPC client that will be used to talk to the Identity service
-  let channel = get_identity_service_channel().await?;
-  let mut identity_client = IdentityClientServiceClient::new(channel);
+  let mut identity_client = get_identity_client_service_channel().await?;
 
   let add_reserved_usernames_request =
     AddReservedUsernamesRequest { message, signature };
