@@ -242,4 +242,5 @@
   --community-roles-text-color: var(--shades-white-100);
   --modal-separator: var(--shades-black-80);
   --create-roles-text-color: var(--shades-white-100);
+  --qr-code-login-instructions-color: var(--shades-black-60);
 }
