@@ -1,0 +1,45 @@
+div.qrContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg);
+}
+
+div.title {
+  padding-top: 90px;
+  color: var(--label-default-color);
+  font-size: var(--xxxl-font-32);
+  font-weight: var(--bold);
+}
+
+div.scanInstructions {
+  color: var(--label-default-color);
+  font-size: var(--l-font-18);
+  font-weight: var(--semi-bold);
+  padding: 40px;
+}
+
+div.instructionsContainer {
+  margin-top: 50px;
+  width: 350px;
+  border: solid var(--help-color) 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+div.instructionsTitle {
+  color: var(--help-color);
+  font-weight: var(--bold);
+  margin: 15px 0;
+}
+
+div.instructionsStep {
+  color: var(--label-default-color);
+}
+
+div.instructionsStep:last-of-type {
+  margin-bottom: 20px;
+}
