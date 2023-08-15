@@ -11,5 +11,5 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged)]
 pub enum Messages {
   RefreshKeysRequest(RefreshKeyRequest),
-  SessionRequest(SessionRequest),
+  SessionRequest(ConnectionInitializationMessage),
 }

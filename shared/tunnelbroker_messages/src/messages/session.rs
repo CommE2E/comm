@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// The workflow when estabilishing a tunnelbroker connection:
+/// The workflow when establishing a tunnelbroker connection:
 ///   - Client sends SessionRequest
 ///   - Tunnelbroker validates access_token with identity service
 ///   - Tunnelbroker emits an AMQP message declaring that it has opened a new
@@ -31,7 +31,8 @@ pub enum DeviceTypes {
 /// service before continuing with the request.
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
-pub struct SessionRequest {
+pub struct ConnectionInitializationMessage {
+  pub user_id: String,
   pub device_id: String,
   pub access_token: String,
   pub notify_token: Option<String>,
@@ -55,11 +56,13 @@ mod session_tests {
       "type": "sessionRequest",
       "accessToken": "xkdeifjsld",
       "deviceId": "foo",
+      "userId": "alice",
       "deviceType": "keyserver"
     }"#;
 
     let request =
-      serde_json::from_str::<SessionRequest>(example_payload).unwrap();
+      serde_json::from_str::<ConnectionInitializationMessage>(example_payload)
+        .unwrap();
     assert_eq!(request.device_id, "foo");
     assert_eq!(request.access_token, "xkdeifjsld");
     assert_eq!(request.device_os, None);
