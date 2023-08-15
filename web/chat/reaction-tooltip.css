@@ -1,0 +1,28 @@
+div.container {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--message-action-tooltip-bg);
+  border-radius: 8px;
+  margin: 4px 0;
+}
+
+div.container:hover {
+  cursor: pointer;
+}
+
+p.usernameText {
+  font-size: var(--s-font-14);
+  color: var(--tool-tip-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+p.seeMoreText {
+  font-size: var(--xs-font-12);
+  color: var(--purple-link);
+  white-space: nowrap;
+}
+
+div.container:hover p.seeMoreText {
+  text-decoration: underline;
+}
