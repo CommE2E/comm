@@ -139,8 +139,8 @@ impl IdentityClientService for AuthenticatedService {
           pre_key: db_keys.notif_prekey.prekey,
           pre_key_signature: db_keys.notif_prekey.prekey_signature,
         }),
-        onetime_content_prekey: db_keys.content_one_time_key,
-        onetime_notif_prekey: db_keys.notif_one_time_key,
+        one_time_content_prekey: db_keys.content_one_time_key,
+        one_time_notif_prekey: db_keys.notif_one_time_key,
       });
 
     let response = Response::new(KeyserverKeysResponse {

@@ -65,8 +65,8 @@ mod ffi {
       content_prekey_signature: String,
       notif_prekey: String,
       notif_prekey_signature: String,
-      content_onetime_keys: Vec<String>,
-      notif_onetime_keys: Vec<String>,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
       promise_id: u32,
     );
 
@@ -80,8 +80,8 @@ mod ffi {
       content_prekey_signature: String,
       notif_prekey: String,
       notif_prekey_signature: String,
-      content_onetime_keys: Vec<String>,
-      notif_onetime_keys: Vec<String>,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
       promise_id: u32,
     );
 
@@ -95,8 +95,8 @@ mod ffi {
       content_prekey_signature: String,
       notif_prekey: String,
       notif_prekey_signature: String,
-      content_onetime_keys: Vec<String>,
-      notif_onetime_keys: Vec<String>,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
       social_proof: String,
       promise_id: u32,
     );
@@ -169,8 +169,8 @@ fn register_user(
   content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
-  content_onetime_keys: Vec<String>,
-  notif_onetime_keys: Vec<String>,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
@@ -183,8 +183,8 @@ fn register_user(
       content_prekey_signature,
       notif_prekey,
       notif_prekey_signature,
-      content_onetime_keys,
-      notif_onetime_keys,
+      content_one_time_keys,
+      notif_one_time_keys,
     };
     let result = register_user_helper(password_user_info).await;
     handle_string_result_as_callback(result, promise_id);
@@ -200,8 +200,8 @@ struct PasswordUserInfo {
   content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
-  content_onetime_keys: Vec<String>,
-  notif_onetime_keys: Vec<String>,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -234,8 +234,8 @@ async fn register_user_helper(
         pre_key: password_user_info.notif_prekey,
         pre_key_signature: password_user_info.notif_prekey_signature,
       }),
-      onetime_content_prekeys: password_user_info.content_onetime_keys,
-      onetime_notif_prekeys: password_user_info.notif_onetime_keys,
+      one_time_content_prekeys: password_user_info.content_one_time_keys,
+      one_time_notif_prekeys: password_user_info.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
   };
@@ -279,8 +279,8 @@ fn login_password_user(
   content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
-  content_onetime_keys: Vec<String>,
-  notif_onetime_keys: Vec<String>,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
@@ -293,8 +293,8 @@ fn login_password_user(
       content_prekey_signature,
       notif_prekey,
       notif_prekey_signature,
-      content_onetime_keys,
-      notif_onetime_keys,
+      content_one_time_keys,
+      notif_one_time_keys,
     };
     let result = login_password_user_helper(password_user_info).await;
     handle_string_result_as_callback(result, promise_id);
@@ -325,8 +325,8 @@ async fn login_password_user_helper(
         pre_key: password_user_info.notif_prekey,
         pre_key_signature: password_user_info.notif_prekey_signature,
       }),
-      onetime_content_prekeys: password_user_info.content_onetime_keys,
-      onetime_notif_prekeys: password_user_info.notif_onetime_keys,
+      one_time_content_prekeys: password_user_info.content_one_time_keys,
+      one_time_notif_prekeys: password_user_info.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
   };
@@ -366,8 +366,8 @@ struct WalletUserInfo {
   content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
-  content_onetime_keys: Vec<String>,
-  notif_onetime_keys: Vec<String>,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
   social_proof: String,
 }
 
@@ -381,8 +381,8 @@ fn login_wallet_user(
   content_prekey_signature: String,
   notif_prekey: String,
   notif_prekey_signature: String,
-  content_onetime_keys: Vec<String>,
-  notif_onetime_keys: Vec<String>,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
   social_proof: String,
   promise_id: u32,
 ) {
@@ -396,8 +396,8 @@ fn login_wallet_user(
       content_prekey_signature,
       notif_prekey,
       notif_prekey_signature,
-      content_onetime_keys,
-      notif_onetime_keys,
+      content_one_time_keys,
+      notif_one_time_keys,
       social_proof,
     };
     let result = login_wallet_user_helper(wallet_user_info).await;
@@ -425,8 +425,8 @@ async fn login_wallet_user_helper(
         pre_key: wallet_user_info.notif_prekey,
         pre_key_signature: wallet_user_info.notif_prekey_signature,
       }),
-      onetime_content_prekeys: wallet_user_info.content_onetime_keys,
-      onetime_notif_prekeys: wallet_user_info.notif_onetime_keys,
+      one_time_content_prekeys: wallet_user_info.content_one_time_keys,
+      one_time_notif_prekeys: wallet_user_info.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
   };
