@@ -24,13 +24,13 @@ pub async fn create_tunnelbroker_client(
 pub async fn send_refresh_keys_request(
   device_id: &str,
 ) -> Result<Response<Empty>, Error> {
-  use crate::constants::ONETIME_KEY_REFRESH_NUMBER;
+  use crate::constants::ONE_TIME_KEY_REFRESH_NUMBER;
 
   let mut tunnelbroker_client = create_tunnelbroker_client().await?;
 
   let refresh_request = messages::RefreshKeyRequest {
     device_id: device_id.to_string(),
-    number_of_keys: ONETIME_KEY_REFRESH_NUMBER,
+    number_of_keys: ONE_TIME_KEY_REFRESH_NUMBER,
   };
 
   let payload = serde_json::to_string(&refresh_request).unwrap();
