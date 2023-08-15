@@ -319,10 +319,10 @@ impl DatabaseClient {
 
     let keyserver = devices.get_map(keyserver_id)?;
     let notif_one_time_key: Option<String> = self
-      .get_onetime_key(keyserver_id, OlmAccountType::Notification)
+      .get_one_time_key(keyserver_id, OlmAccountType::Notification)
       .await?;
     let content_one_time_key: Option<String> = self
-      .get_onetime_key(keyserver_id, OlmAccountType::Content)
+      .get_one_time_key(keyserver_id, OlmAccountType::Content)
       .await?;
 
     debug!(
@@ -384,26 +384,26 @@ impl DatabaseClient {
     return Ok(Some(outbound_payload));
   }
 
-  /// Will "mint" a single onetime key by attempting to successfully deleting
+  /// Will "mint" a single one time key by attempting to successfully deleting
   /// a key
-  pub async fn get_onetime_key(
+  pub async fn get_one_time_key(
     &self,
     device_id: &str,
     account_type: OlmAccountType,
   ) -> Result<Option<String>, Error> {
     use crate::constants::one_time_keys_table as otk_table;
-    use crate::constants::ONETIME_KEY_MINIMUM_THRESHOLD;
+    use crate::constants::ONE_TIME_KEY_MINIMUM_THRESHOLD;
 
-    let query_result = self.get_onetime_keys(device_id, account_type).await?;
+    let query_result = self.get_one_time_keys(device_id, account_type).await?;
     let items = query_result.items();
 
     // If no onetime keys exists, return none early
     let Some(item_vec) = items else {
-      debug!("Unable to find {:?} onetime-key", account_type);
+      debug!("Unable to find {:?} one time key", account_type);
       return Ok(None);
     };
 
-    if item_vec.len() < ONETIME_KEY_MINIMUM_THRESHOLD {
+    if item_vec.len() < ONE_TIME_KEY_MINIMUM_THRESHOLD {
       // Avoid device_id being moved out-of-scope by "move"
       let device_id = device_id.to_string();
       tokio::spawn(async move {
@@ -415,8 +415,8 @@ impl DatabaseClient {
     }
 
     let mut result = None;
-    // Attempt to delete the onetime keys individually, a successful delete
-    // mints the onetime key to the requester
+    // Attempt to delete the one time keys individually, a successful delete
+    // mints the one time key to the requester
     for item in item_vec {
       let pk = item.get_string(otk_table::PARTITION_KEY)?;
       let otk = item.get_string(otk_table::SORT_KEY)?;
@@ -432,7 +432,7 @@ impl DatabaseClient {
         ),
       ]);
 
-      debug!("Attempting to delete a {:?} onetime-key", account_type);
+      debug!("Attempting to delete a {:?} one time key", account_type);
       match self
         .client
         .delete_item()
@@ -458,7 +458,7 @@ impl DatabaseClient {
     Ok(result)
   }
 
-  pub async fn get_onetime_keys(
+  pub async fn get_one_time_keys(
     &self,
     device_id: &str,
     account_type: OlmAccountType,
@@ -579,9 +579,9 @@ impl DatabaseClient {
     // Avoid borrowing from lifetime of flattened_device_key_upload
     let device_id = flattened_device_key_upload.device_id_key.clone();
     let content_one_time_keys =
-      flattened_device_key_upload.content_onetime_keys.clone();
+      flattened_device_key_upload.content_one_time_keys.clone();
     let notif_one_time_keys =
-      flattened_device_key_upload.notif_onetime_keys.clone();
+      flattened_device_key_upload.notif_one_time_keys.clone();
 
     let device_info =
       create_device_info(flattened_device_key_upload, social_proof);
