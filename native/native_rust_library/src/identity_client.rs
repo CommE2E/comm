@@ -13,8 +13,8 @@ pub async fn login_user_pake(
   _identity_prekey_signature: String,
   _notif_prekey: String,
   _notif_prekey_signature: String,
-  _identity_onetime_keys: Vec<String>,
-  _notif_onetime_keys: Vec<String>,
+  _identity_one_time_keys: Vec<String>,
+  _notif_one_time_keys: Vec<String>,
 ) -> Result<String, Status> {
   unimplemented!();
 }
@@ -29,8 +29,8 @@ pub async fn login_user_wallet(
   _identity_prekey_signature: String,
   _notif_prekey: String,
   _notif_prekey_signature: String,
-  _identity_onetime_keys: Vec<String>,
-  _notif_onetime_keys: Vec<String>,
+  _identity_one_time_keys: Vec<String>,
+  _notif_one_time_keys: Vec<String>,
 ) -> Result<String, Status> {
   unimplemented!();
 }

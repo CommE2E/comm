@@ -118,8 +118,8 @@ message DeviceKeyUpload {
   IdentityKeyInfo deviceKeyInfo = 1;
   PreKey contentUpload = 2;
   PreKey notifUpload = 3;
-  repeated string onetimeContentPrekeys = 4;
-  repeated string onetimeNotifPrekeys = 5;
+  repeated string oneTimeContentPrekeys = 4;
+  repeated string oneTimeNotifPrekeys = 5;
   DeviceType deviceType = 6;
 }
 
@@ -268,8 +268,8 @@ message OutboundKeyInfo {
   IdentityKeyInfo identityInfo = 1;
   PreKey contentPrekey = 2;
   PreKey notifPrekey = 3;
-  optional string onetimeContentPrekey = 4;
-  optional string onetimeNotifPrekey = 5;
+  optional string oneTimeContentPrekey = 4;
+  optional string oneTimeNotifPrekey = 5;
 }
 
 // Information needed by a device to establish communcation when responding
