@@ -1,0 +1,8 @@
+.editThreadAvatarContainer {
+  position: relative;
+  height: 112px;
+  width: 112px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
