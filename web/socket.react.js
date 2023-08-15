@@ -1,11 +1,15 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { logOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
+import {
+  cookieSelector,
+  urlPrefixSelector,
+} from 'lib/selectors/keyserver-selectors.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import {
   useServerCall,
@@ -27,7 +31,8 @@ import {
 const WebSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function WebSocket(props) {
     const cookie = useSelector(cookieSelector);
-    const urlPrefix = useSelector(state => state.urlPrefix);
+    const urlPrefix = useSelector(urlPrefixSelector);
+    invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
     const connection = useSelector(state => state.connection);
     const active = useSelector(
       state =>
@@ -37,6 +42,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     );
 
     const openSocket = useSelector(openSocketSelector);
+    invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(sessionIdentificationSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
     const getClientResponses = useSelector(webGetClientResponsesSelector);

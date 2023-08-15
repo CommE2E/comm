@@ -2,7 +2,10 @@
 
 import { createSelector } from 'reselect';
 
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
+import {
+  cookieSelector,
+  urlPrefixSelector,
+} from 'lib/selectors/keyserver-selectors.js';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
@@ -24,16 +27,22 @@ import { calendarActiveSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
 
-const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
-  (state: AppState) => state.urlPrefix,
-  // We don't actually use the cookie in the socket open function, but we do use
-  // it in the initial message, and when the cookie changes the socket needs to
-  // be reopened. By including the cookie here, whenever the cookie changes this
-  // function will change, which tells the Socket component to restart the
-  // connection.
-  cookieSelector,
-  createOpenSocketFunction,
-);
+const openSocketSelector: (state: AppState) => ?() => WebSocket =
+  createSelector(
+    urlPrefixSelector,
+    // We don't actually use the cookie in the socket open function,
+    // but we do use it in the initial message, and when the cookie changes
+    // the socket needs to be reopened. By including the cookie here,
+    // whenever the cookie changes this function will change,
+    // which tells the Socket component to restart the connection.
+    cookieSelector,
+    (urlPrefix: ?string) => {
+      if (!urlPrefix) {
+        return null;
+      }
+      return createOpenSocketFunction(urlPrefix);
+    },
+  );
 
 const sessionIdentificationSelector: (
   state: AppState,
