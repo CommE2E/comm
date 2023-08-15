@@ -70,11 +70,15 @@ impl FromStr for KeyPayload {
 }
 
 #[derive(Clone, Copy)]
+#[allow(non_camel_case_types)]
 pub enum Device {
   // Numeric values should match the protobuf definition
   Keyserver = 0,
-  Native,
   Web,
+  Ios,
+  Android,
+  Windows,
+  MacOS,
 }
 
 impl TryFrom<i32> for Device {
@@ -83,8 +87,11 @@ impl TryFrom<i32> for Device {
   fn try_from(value: i32) -> Result<Self, Self::Error> {
     match value {
       0 => Ok(Device::Keyserver),
-      1 => Ok(Device::Native),
-      2 => Ok(Device::Web),
+      1 => Ok(Device::Web),
+      2 => Ok(Device::Ios),
+      3 => Ok(Device::Android),
+      4 => Ok(Device::Windows),
+      5 => Ok(Device::MacOS),
       _ => Err(Error::Attribute(DBItemError {
         attribute_name: USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME
           .to_string(),
@@ -99,8 +106,11 @@ impl Display for Device {
   fn fmt(&self, f: &mut Formatter) -> FmtResult {
     match self {
       Device::Keyserver => write!(f, "keyserver"),
-      Device::Native => write!(f, "native"),
       Device::Web => write!(f, "web"),
+      Device::Ios => write!(f, "ios"),
+      Device::Android => write!(f, "android"),
+      Device::Windows => write!(f, "windows"),
+      Device::MacOS => write!(f, "macos"),
     }
   }
 }
