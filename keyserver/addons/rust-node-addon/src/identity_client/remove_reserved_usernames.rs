@@ -7,8 +7,7 @@ pub async fn remove_reserved_username(
   signature: String,
 ) -> Result<()> {
   // Set up the gRPC client that will be used to talk to the Identity service
-  let channel = get_identity_service_channel().await?;
-  let mut identity_client = IdentityClientServiceClient::new(channel);
+  let mut identity_client = get_identity_client_service_channel().await?;
 
   let remove_reserved_username_request =
     RemoveReservedUsernameRequest { message, signature };
