@@ -511,6 +511,7 @@ async function websiteResponder(
           cookie: undefined,
           sessionID,
           updatesCurrentAsOf,
+          urlPrefix,
         },
       },
     };
