@@ -1,0 +1,40 @@
+div.qrContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--qr-code-login-background-color);
+}
+
+h1.title {
+  padding-top: 90px;
+  color: var(--qr-code-login-text-color);
+}
+
+h4.scanInstructions {
+  color: var(--qr-code-login-text-color);
+  padding: 40px;
+}
+
+div.instructionsContainer {
+  margin-top: 50px;
+  width: 350px;
+  border: solid var(--qr-code-login-instructions-color) 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+div.instructionsTitle {
+  color: var(--qr-code-login-instructions-color);
+  margin: 15px 0;
+}
+
+div.instructionsStep {
+  color: var(--qr-code-login-text-color);
+}
+
+div.instructionsStep:last-of-type {
+  margin-bottom: 20px;
+}
