@@ -123,7 +123,10 @@ const defaultState = ({
   lastCommunicatedPlatformDetails: {},
   keyserverStore: {
     keyserverInfos: {
-      [ashoatKeyserverID]: { updatesCurrentAsOf: 0 },
+      [ashoatKeyserverID]: {
+        updatesCurrentAsOf: 0,
+        urlPrefix: defaultURLPrefix,
+      },
     },
   },
 }: AppState);
