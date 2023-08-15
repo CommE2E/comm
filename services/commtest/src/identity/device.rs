@@ -49,8 +49,8 @@ pub async fn create_device() -> DeviceInfo {
         pre_key: "notif_prekey".to_string(),
         pre_key_signature: "notif_prekey_sig".to_string(),
       }),
-      onetime_content_prekeys: Vec::new(),
-      onetime_notif_prekeys: Vec::new(),
+      one_time_content_prekeys: Vec::new(),
+      one_time_notif_prekeys: Vec::new(),
       device_type: client::DeviceType::Keyserver.into(),
     }),
   };
