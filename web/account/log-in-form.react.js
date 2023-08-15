@@ -16,6 +16,7 @@ import TraditionalLoginForm from './traditional-login-form.react.js';
 import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import { initOlm } from '../olm/olm-utils.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
 import {
   setPrimaryIdentityKeys,
   setNotificationIdentityKeys,
@@ -101,7 +102,14 @@ function LoginForm(): React.Node {
     })();
   }, [dispatch, notificationIdentityPublicKeys, primaryIdentityPublicKeys]);
 
-  const onQRCodeLoginButtonClick = React.useCallback(() => {}, []);
+  const onQRCodeLoginButtonClick = React.useCallback(() => {
+    dispatch({
+      type: updateNavInfoActionType,
+      payload: {
+        loginMethod: 'qr-code',
+      },
+    });
+  }, [dispatch]);
 
   const QRCodeLoginButton = React.useMemo(() => {
     if (!isDev) {

@@ -14,6 +14,7 @@ import {
 import { tID, tShape } from 'lib/utils/validation-utils.js';
 
 export type NavigationTab = 'calendar' | 'chat' | 'settings';
+export type LoginMethod = 'form' | 'qr-code';
 const navigationTabValidator = t.enums.of(['calendar', 'chat', 'settings']);
 
 export type NavigationSettingsSection = 'account' | 'danger-zone';
@@ -34,6 +35,7 @@ export type NavInfo = {
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
   +chatMode?: NavigationChatMode,
   +inviteSecret?: ?string,
+  +loginMethod?: LoginMethod,
 };
 
 export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
