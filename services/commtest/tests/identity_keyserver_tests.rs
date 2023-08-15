@@ -63,11 +63,11 @@ async fn set_prekey() {
     .unwrap();
 
   assert_eq!(
-    first_reponse.onetime_content_prekey,
+    first_reponse.one_time_content_prekey,
     Some("content1".to_string())
   );
   assert_eq!(
-    first_reponse.onetime_notif_prekey,
+    first_reponse.one_time_notif_prekey,
     Some("notif1".to_string())
   );
 
@@ -80,6 +80,6 @@ async fn set_prekey() {
     .unwrap();
 
   // The one time keys should be exhausted
-  assert_eq!(second_reponse.onetime_content_prekey, None);
-  assert_eq!(second_reponse.onetime_notif_prekey, None);
+  assert_eq!(second_reponse.one_time_content_prekey, None);
+  assert_eq!(second_reponse.one_time_notif_prekey, None);
 }

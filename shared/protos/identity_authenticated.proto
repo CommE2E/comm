@@ -36,8 +36,8 @@ message OutboundKeyInfo {
   identity.client.IdentityKeyInfo identityInfo = 1;
   identity.client.PreKey contentPrekey = 2;
   identity.client.PreKey notifPrekey = 3;
-  optional string onetimeContentPrekey = 4;
-  optional string onetimeNotifPrekey = 5;
+  optional string oneTimeContentPrekey = 4;
+  optional string oneTimeNotifPrekey = 5;
 }
 
 message KeyserverKeysResponse {

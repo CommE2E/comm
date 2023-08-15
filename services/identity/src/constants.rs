@@ -56,12 +56,12 @@ pub const USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME: &str =
   "identityPreKey";
 pub const USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME:
   &str = "identityPreKeySignature";
-pub const USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME: &str =
+pub const USERS_TABLE_DEVICES_MAP_CONTENT_ONE_TIME_KEYS_ATTRIBUTE_NAME: &str =
   "identityOneTimeKeys";
 pub const USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME: &str = "preKey";
 pub const USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME: &str =
   "preKeySignature";
-pub const USERS_TABLE_DEVICES_MAP_NOTIF_ONETIME_KEYS_ATTRIBUTE_NAME: &str =
+pub const USERS_TABLE_DEVICES_MAP_NOTIF_ONE_TIME_KEYS_ATTRIBUTE_NAME: &str =
   "notifOneTimeKeys";
 pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
 pub const USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME: &str =
@@ -133,7 +133,7 @@ pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";
 
 // X3DH key management
 
-// Threshold for requesting more onetime keys
-pub const ONETIME_KEY_MINIMUM_THRESHOLD: usize = 5;
+// Threshold for requesting more one_time keys
+pub const ONE_TIME_KEY_MINIMUM_THRESHOLD: usize = 5;
 // Number of keys to be refreshed when below the threshold
-pub const ONETIME_KEY_REFRESH_NUMBER: u32 = 5;
+pub const ONE_TIME_KEY_REFRESH_NUMBER: u32 = 5;
