@@ -682,6 +682,23 @@ const migrations = {
       },
     };
   },
+  [47]: async state => {
+    const { urlPrefix, keyserverStore, ...rest } = state;
+
+    return {
+      ...rest,
+      keyserverStore: {
+        ...keyserverStore,
+        keyserverInfos: {
+          ...keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+            urlPrefix,
+          },
+        },
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -776,7 +793,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 46,
+  version: 47,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

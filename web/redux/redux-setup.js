@@ -79,7 +79,6 @@ export type AppState = {
   +loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
   +communityPickerStore: CommunityPickerStore,
-  +urlPrefix: string,
   +windowDimensions: WindowDimensions,
   +deviceToken: ?string,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,

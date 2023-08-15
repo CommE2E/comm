@@ -39,7 +39,6 @@ export type AppState = {
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
   +deviceToken: ?string,
   +dataLoaded: boolean,
-  +urlPrefix: string,
   +customServer: ?string,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
