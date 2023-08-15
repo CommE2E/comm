@@ -23,8 +23,7 @@ div.rightContainer {
   flex-direction: row-reverse;
 }
 
-a.sidebarContainer,
-a.reactionContainer {
+a.sidebarContainer {
   background: var(--inline-engagement-bg);
   color: var(--inline-engagement-color);
   font-size: var(--s-font-14);
@@ -37,14 +36,8 @@ a.reactionContainer {
   gap: 4px;
 }
 
-a.sidebarContainer:hover,
-a.reactionContainer:hover {
+a.sidebarContainer:hover {
   background: var(--inline-engagement-bg-hover);
-}
-
-a.reactionContainerSelected {
-  border: 1px solid var(--inline-engagement-color);
-  padding: 3px 7px;
 }
 
 div.unread {
