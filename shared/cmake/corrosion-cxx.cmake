@@ -3,7 +3,7 @@
 # <_LIB_PATH_STEM> must match the crate name:
 # "path/to/myrustcrate" -> "libmyrustcrate.a"
 function(add_library_rust)
-  set(value_keywords PATH NAMESPACE CXX_BRIDGE_SOURCE_FILE)
+  set(value_keywords PATH NAMESPACE FEATURES CXX_BRIDGE_SOURCE_FILE)
   cmake_parse_arguments(
     rust_lib
     "${OPTIONS}"
@@ -42,7 +42,10 @@ function(add_library_rust)
   set(namespace ${rust_lib_NAMESPACE})
   set(cxx_bridge_source_file "${rust_lib_SOURCE_FOLDER}/lib.rs")
 
-  corrosion_import_crate(MANIFEST_PATH "${lib_path}/Cargo.toml")
+  corrosion_import_crate(
+    MANIFEST_PATH "${lib_path}/Cargo.toml"
+    FEATURES "${rust_lib_FEATURES}"
+  )
 
   get_filename_component(_LIB_PATH_STEM ${lib_path} NAME)
   message(STATUS "Library stem path: ${_LIB_PATH_STEM}")
