@@ -16,10 +16,11 @@ import { useSelector } from '../redux/redux-utils.js';
 type Props = {
   +threadInfo: RawThreadInfo | ThreadInfo,
   +size: 'micro' | 'small' | 'large' | 'profile',
+  +showSpinner?: boolean,
 };
 
 function ThreadAvatar(props: Props): React.Node {
-  const { threadInfo, size } = props;
+  const { threadInfo, size, showSpinner } = props;
 
   const avatarInfo = useAvatarForThread(threadInfo);
 
@@ -42,7 +43,13 @@ function ThreadAvatar(props: Props): React.Node {
 
   const resolvedThreadAvatar = useENSResolvedAvatar(avatarInfo, displayUser);
 
-  return <Avatar size={size} avatarInfo={resolvedThreadAvatar} />;
+  return (
+    <Avatar
+      size={size}
+      avatarInfo={resolvedThreadAvatar}
+      showSpinner={showSpinner}
+    />
+  );
 }
 
 export default ThreadAvatar;
