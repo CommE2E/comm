@@ -70,6 +70,8 @@ function canonicalURLFromReduxState(
     } else if (navInfo.tab === 'settings' && navInfo.settingsSection) {
       newURL += `${navInfo.settingsSection}/`;
     }
+  } else if (navInfo.loginMethod === 'qr-code') {
+    newURL += 'qr-code/';
   }
 
   return newURL;
@@ -145,6 +147,12 @@ function navInfoFromURL(
 
   if (urlInfo.inviteSecret) {
     newNavInfo.inviteSecret = urlInfo.inviteSecret;
+  }
+
+  if (urlInfo.qrCode) {
+    newNavInfo.loginMethod = 'qr-code';
+  } else {
+    newNavInfo.loginMethod = 'form';
   }
 
   return newNavInfo;
