@@ -28,3 +28,6 @@ tonic-build = "0.9.1"
 
 [lib]
 crate-type = ["staticlib"]
+
+[features]
+android = []
