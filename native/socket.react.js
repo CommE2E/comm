@@ -1,11 +1,15 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
+import {
+  cookieSelector,
+  urlPrefixSelector,
+} from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
@@ -39,7 +43,8 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const navContext = React.useContext(NavContext);
 
     const cookie = useSelector(cookieSelector);
-    const urlPrefix = useSelector(state => state.urlPrefix);
+    const urlPrefix = useSelector(urlPrefixSelector);
+    invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
     const connection = useSelector(state => state.connection);
     const frozen = useSelector(state => state.frozen);
     const active = useSelector(
@@ -51,6 +56,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const currentUserInfo = useSelector(state => state.currentUserInfo);
 
     const openSocket = useSelector(openSocketSelector);
+    invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(sessionIdentificationSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
 

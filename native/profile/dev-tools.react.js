@@ -1,10 +1,12 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 
+import { urlPrefixSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 
@@ -234,7 +236,8 @@ const unboundStyles = {
 
 const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedDevTools(props: BaseProps) {
-    const urlPrefix = useSelector(state => state.urlPrefix);
+    const urlPrefix = useSelector(urlPrefixSelector);
+    invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const customServer = useSelector(state => state.customServer);
     const colors = useColors();
     const styles = useStyles(unboundStyles);

@@ -1,9 +1,11 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 import { useDispatch } from 'react-redux';
 
+import { urlPrefixSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 
@@ -117,7 +119,8 @@ const unboundStyles = {
 
 const ConnectedCustomServerModal: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedCustomServerModal(props: BaseProps) {
-    const urlPrefix = useSelector(state => state.urlPrefix);
+    const urlPrefix = useSelector(urlPrefixSelector);
+    invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const customServer = useSelector(state => state.customServer);
     const styles = useStyles(unboundStyles);
     const dispatch = useDispatch();
