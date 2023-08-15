@@ -384,7 +384,7 @@ def cxxBridgeBindingDir = "${nativeRustLibraryDir}/target/cxxbridge/native_rust_
 def cxxBridgeCommonDir = "${nativeRustLibraryDir}/target/cxxbridge/rust"
 
 task buildNativeRustLibrary(type: Exec) {
-  commandLine "cargo", "build", "--manifest-path", nativeRustLibraryManifestPath
+  commandLine "cargo", "build", "--features", "android", "--manifest-path", nativeRustLibraryManifestPath
 }
 
 task copyNativeRustLibraryFiles(dependsOn: buildNativeRustLibrary, type: Copy) {
