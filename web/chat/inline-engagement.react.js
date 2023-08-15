@@ -6,12 +6,11 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
-import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './inline-engagement.css';
-import { useSendReaction } from './reaction-message-utils.js';
+import ReactionPill from './reaction-pill.react.js';
 import CommIcon from '../CommIcon.react.js';
 import { useOnClickThread } from '../selectors/thread-selectors.js';
 
@@ -78,47 +77,21 @@ function InlineEngagement(props: Props): React.Node {
     );
   }, [sidebarThreadInfo, repliesText, onClickSidebar]);
 
-  const localID = useNextLocalID();
-  const sendReaction = useSendReaction(
-    messageInfo.id,
-    localID,
-    threadInfo.id,
-    reactions,
-  );
-
-  const onClickReaction = React.useCallback(
-    (event: SyntheticEvent<HTMLElement>, reaction: string) => {
-      event.preventDefault();
-      sendReaction(reaction);
-    },
-    [sendReaction],
-  );
-
   const reactionsList = React.useMemo(() => {
     if (Object.keys(reactions).length === 0) {
       return null;
     }
 
-    return Object.keys(reactions).map(reaction => {
-      const reactionInfo = reactions[reaction];
-      const numOfReacts = reactionInfo.users.length;
-
-      const reactionClassName = classNames({
-        [css.reactionContainer]: true,
-        [css.reactionContainerSelected]: reactionInfo.viewerReacted,
-      });
-
-      return (
-        <a
-          onClick={event => onClickReaction(event, reaction)}
-          className={reactionClassName}
-          key={reaction}
-        >
-          {`${reaction} ${numOfReacts}`}
-        </a>
-      );
-    });
-  }, [reactions, onClickReaction]);
+    return Object.keys(reactions).map(reaction => (
+      <ReactionPill
+        key={reaction}
+        reaction={reaction}
+        messageInfo={messageInfo}
+        threadInfo={threadInfo}
+        reactions={reactions}
+      />
+    ));
+  }, [reactions, messageInfo, threadInfo]);
 
   const containerClasses = classNames([
     css.inlineEngagementContainer,
