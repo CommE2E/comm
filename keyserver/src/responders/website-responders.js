@@ -195,7 +195,6 @@ const initialReduxStateValidator = tShape({
     'default communityPickerStore',
     _isEqual({ chat: null, calendar: null }),
   ),
-  urlPrefix: t.String,
   windowDimensions: t.irreducible(
     'default windowDimensions',
     _isEqual({ width: 0, height: 0 }),
@@ -587,7 +586,6 @@ async function websiteResponder(
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
     communityPickerStore: { chat: null, calendar: null },
-    urlPrefix,
     windowDimensions: { width: 0, height: 0 },
     notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
     connection: (async () => ({

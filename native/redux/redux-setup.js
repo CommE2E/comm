@@ -92,7 +92,6 @@ const defaultState = ({
   calendarFilters: defaultCalendarFilters,
   deviceToken: null,
   dataLoaded: false,
-  urlPrefix: defaultURLPrefix,
   customServer: natNodeServer,
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   connection: defaultConnectionInfo(Platform.OS),
