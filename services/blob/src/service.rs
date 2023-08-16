@@ -275,9 +275,8 @@ impl BlobDownloadObject {
         let range = offset..(offset + next_size);
         trace!(?range, "Getting {} bytes of data", next_size);
 
-        yield s3_client
-          .get_object_bytes(&s3_path, range)
-          .await?;
+        let bytes = s3_client.get_object_bytes(&s3_path, range).await?;
+        yield bytes;
 
         offset += next_size;
       }
