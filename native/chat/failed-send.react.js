@@ -139,7 +139,6 @@ const unboundStyles = {
     paddingHorizontal: 3,
   },
   failedSendInfo: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     marginRight: 20,
