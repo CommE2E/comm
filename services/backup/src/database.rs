@@ -2,7 +2,7 @@ use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput, types::AttributeValue,
 };
 use chrono::{DateTime, Utc};
-use comm_services_lib::database::{self, DBItemError, Error};
+use comm_services_lib::database::{DBItemError, Error, TryFromAttribute};
 use std::{collections::HashMap, sync::Arc};
 use tracing::error;
 
@@ -391,27 +391,27 @@ impl DatabaseClient {
 fn parse_backup_item(
   mut item: HashMap<String, AttributeValue>,
 ) -> Result<BackupItem, DBItemError> {
-  let user_id = database::parse_string_attribute(
+  let user_id = String::try_from_attr(
     BACKUP_TABLE_FIELD_USER_ID,
     item.remove(BACKUP_TABLE_FIELD_USER_ID),
   )?;
-  let backup_id = database::parse_string_attribute(
+  let backup_id = String::try_from_attr(
     BACKUP_TABLE_FIELD_BACKUP_ID,
     item.remove(BACKUP_TABLE_FIELD_BACKUP_ID),
   )?;
-  let created = database::parse_datetime_attribute(
+  let created = DateTime::<Utc>::try_from_attr(
     BACKUP_TABLE_FIELD_CREATED,
     item.remove(BACKUP_TABLE_FIELD_CREATED),
   )?;
-  let recovery_data = database::parse_string_attribute(
+  let recovery_data = String::try_from_attr(
     BACKUP_TABLE_FIELD_RECOVERY_DATA,
     item.remove(BACKUP_TABLE_FIELD_RECOVERY_DATA),
   )?;
-  let compaction_holder = database::parse_string_attribute(
+  let compaction_holder = String::try_from_attr(
     BACKUP_TABLE_FIELD_COMPACTION_HOLDER,
     item.remove(BACKUP_TABLE_FIELD_COMPACTION_HOLDER),
   )?;
-  let attachment_holders = database::parse_string_attribute(
+  let attachment_holders = String::try_from_attr(
     BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS,
     item.remove(BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS),
   )?;
@@ -428,27 +428,27 @@ fn parse_backup_item(
 fn parse_log_item(
   mut item: HashMap<String, AttributeValue>,
 ) -> Result<LogItem, DBItemError> {
-  let backup_id = database::parse_string_attribute(
+  let backup_id = String::try_from_attr(
     LOG_TABLE_FIELD_BACKUP_ID,
     item.remove(LOG_TABLE_FIELD_BACKUP_ID),
   )?;
-  let log_id = database::parse_string_attribute(
+  let log_id = String::try_from_attr(
     LOG_TABLE_FIELD_LOG_ID,
     item.remove(LOG_TABLE_FIELD_LOG_ID),
   )?;
-  let persisted_in_blob = database::parse_bool_attribute(
+  let persisted_in_blob = bool::try_from_attr(
     LOG_TABLE_FIELD_PERSISTED_IN_BLOB,
     item.remove(LOG_TABLE_FIELD_PERSISTED_IN_BLOB),
   )?;
-  let value = database::parse_string_attribute(
+  let value = String::try_from_attr(
     LOG_TABLE_FIELD_VALUE,
     item.remove(LOG_TABLE_FIELD_VALUE),
   )?;
-  let data_hash = database::parse_string_attribute(
+  let data_hash = String::try_from_attr(
     LOG_TABLE_FIELD_DATA_HASH,
     item.remove(LOG_TABLE_FIELD_DATA_HASH),
   )?;
-  let attachment_holders = database::parse_string_attribute(
+  let attachment_holders = String::try_from_attr(
     LOG_TABLE_FIELD_ATTACHMENT_HOLDERS,
     item.remove(LOG_TABLE_FIELD_ATTACHMENT_HOLDERS),
   )?;
