@@ -480,6 +480,7 @@ impl DatabaseClient {
         ..
       }) => {
         let created = parse_created_attribute(
+          ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
           item.remove(ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE),
         )?;
         let auth_type = parse_auth_type_attribute(
@@ -823,6 +824,53 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
+  pub async fn get_nonce_from_nonces_table(
+    &self,
+    nonce_value: String,
+  ) -> Result<Option<NonceData>, Error> {
+    let get_response = self
+      .client
+      .get_item()
+      .table_name(NONCE_TABLE)
+      .key(NONCE_TABLE_PARTITION_KEY, AttributeValue::S(nonce_value))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    let mut item = match get_response.item {
+      Some(item) => item,
+      None => return Ok(None),
+    };
+
+    let nonce = parse_string_attribute(
+      NONCE_TABLE_PARTITION_KEY,
+      item.remove(&NONCE_TABLE_PARTITION_KEY.to_string()),
+    )?;
+
+    let created = parse_created_attribute(
+      NONCE_TABLE_CREATED_ATTRIBUTE,
+      item.remove(&NONCE_TABLE_CREATED_ATTRIBUTE.to_string()),
+    )?;
+
+    Ok(Some(NonceData { nonce, created }))
+  }
+
+  pub async fn remove_nonce_from_nonces_table(
+    &self,
+    nonce: String,
+  ) -> Result<(), Error> {
+    self
+      .client
+      .delete_item()
+      .table_name(NONCE_TABLE)
+      .key(NONCE_TABLE_PARTITION_KEY, AttributeValue::S(nonce))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
+
   pub async fn add_usernames_to_reserved_usernames_table(
     &self,
     usernames: Vec<String>,
@@ -932,19 +980,20 @@ fn create_composite_primary_key(
 }
 
 fn parse_created_attribute(
+  attribute_name: &str,
   attribute: Option<AttributeValue>,
 ) -> Result<DateTime<Utc>, DBItemError> {
   if let Some(AttributeValue::S(created)) = &attribute {
     created.parse().map_err(|e| {
       DBItemError::new(
-        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
+        attribute_name.to_string(),
         attribute,
         DBItemAttributeError::InvalidTimestamp(e),
       )
     })
   } else {
     Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
+      attribute_name.to_string(),
       attribute,
       DBItemAttributeError::Missing,
     ))

@@ -49,5 +49,7 @@ pub enum DBItemAttributeError {
   #[display(...)]
   InvalidTimestamp(chrono::ParseError),
   #[display(...)]
+  ExpiredTimestamp,
+  #[display(...)]
   InvalidValue,
 }
