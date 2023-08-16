@@ -39,7 +39,7 @@ prev:
   # add packages meant for just this repository
   amqp-cpp = prev.callPackage ./amqp-cpp.nix { };
 
-  arcanist = prev.callPackage ./arcanist.nix { };
+  arcanist = final.callPackage ./arcanist.nix { };
 
   better-prompt = prev.callPackage ./better-prompt.nix { };
 
@@ -60,10 +60,7 @@ prev:
 
   localstack-up = prev.callPackage ./localstack-up.nix { };
 
-  # Make our version of mariadb the default everywhere
-  mariadb = prev.mariadb_108;
-
-  mariadb-up = prev.callPackage ./mariadb-up-mac.nix { };
+  mariadb-up = final.callPackage ./mariadb-up-mac.nix { };
 
   mysql-down = prev.callPackage ./mysql-down-linux.nix { };
 
