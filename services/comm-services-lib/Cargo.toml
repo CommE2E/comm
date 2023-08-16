@@ -5,13 +5,8 @@ edition = "2021"
 license = "BSD-3-Clause"
 
 [features]
-blob-client = [
-  "dep:reqwest",
-  "dep:futures-core",
-  "dep:futures-util",
-  "dep:serde",
-  "dep:serde_json",
-]
+blob-client = ["dep:reqwest", "dep:futures-core", "dep:futures-util"]
+http = ["dep:actix-cors"]
 
 [dependencies]
 aws-config = "0.55"
@@ -28,5 +23,5 @@ reqwest = { version = "0.11", features = [
   "multipart",
   "stream",
 ], optional = true }
-serde = { version = "1.0", features = ["derive"], optional = true }
-serde_json = { version = "1.0", optional = true }
+# http dependencies
+actix-cors = { version = "0.6", optional = true }

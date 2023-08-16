@@ -1,6 +1,5 @@
 use crate::{config::CONFIG, service::BlobService};
 
-use actix_cors::Cors;
 use actix_web::{web, App, HttpServer};
 use anyhow::Result;
 use tracing::info;
@@ -12,23 +11,6 @@ mod handlers {
   pub(super) mod blob;
 }
 
-fn cors_config() -> Cors {
-  // For local development, use relaxed CORS config
-  if CONFIG.localstack_endpoint.is_some() {
-    // All origins, methods, request headers and exposed headers allowed.
-    // Credentials supported. Max age 1 hour. Does not send wildcard.
-    return Cors::permissive();
-  }
-
-  Cors::default()
-    .allowed_origin("https://web.comm.app")
-    // for local development using prod service
-    .allowed_origin("http://localhost:3000")
-    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-    .allow_any_header()
-    .expose_any_header()
-}
-
 pub async fn run_http_server(blob_service: BlobService) -> Result<()> {
   info!(
     "Starting HTTP server listening at port {}",
@@ -37,7 +19,9 @@ pub async fn run_http_server(blob_service: BlobService) -> Result<()> {
   HttpServer::new(move || {
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
-      .wrap(cors_config())
+      .wrap(comm_services_lib::http::cors_config(
+        CONFIG.localstack_endpoint.is_some(),
+      ))
       .app_data(web::Data::new(blob_service.to_owned()))
       .service(
         web::resource("/blob/{holder}")
