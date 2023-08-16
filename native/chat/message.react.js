@@ -46,6 +46,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +keyboardState: ?KeyboardState,
+  +viewStyle: { +height: number },
 };
 class Message extends React.Component<Props> {
   shouldComponentUpdate(nextProps: Props): boolean {
@@ -64,6 +65,10 @@ class Message extends React.Component<Props> {
   }
 
   render() {
+    // We don't force view height in dev mode because we
+    // want to measure it in the onLayout below to see if it's correct
+    const viewStyle = __DEV__ ? undefined : this.props.viewStyle;
+
     let message;
     if (this.props.item.messageShapeType === 'text') {
       message = (
@@ -75,6 +80,7 @@ class Message extends React.Component<Props> {
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
           shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
+          style={viewStyle}
         />
       );
     } else if (this.props.item.messageShapeType === 'multimedia') {
@@ -85,6 +91,7 @@ class Message extends React.Component<Props> {
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
           shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
+          style={viewStyle}
         />
       );
     } else {
@@ -96,6 +103,7 @@ class Message extends React.Component<Props> {
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
+          style={viewStyle}
         />
       );
     }
@@ -117,7 +125,7 @@ class Message extends React.Component<Props> {
     }
 
     const measuredHeight = event.nativeEvent.layout.height;
-    const expectedHeight = messageItemHeight(this.props.item);
+    const expectedHeight = this.props.viewStyle.height;
 
     const pixelRatio = 1 / PixelRatio.get();
     const distance = Math.abs(measuredHeight - expectedHeight);
@@ -146,7 +154,17 @@ class Message extends React.Component<Props> {
 const ConnectedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedMessage(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
-    return <Message {...props} keyboardState={keyboardState} />;
+
+    const viewStyle = React.useMemo(
+      () => ({
+        height: messageItemHeight(props.item),
+      }),
+      [props.item],
+    );
+
+    return (
+      <Message {...props} keyboardState={keyboardState} viewStyle={viewStyle} />
+    );
   },
 );
 
