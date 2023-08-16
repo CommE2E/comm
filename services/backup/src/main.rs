@@ -1,4 +1,5 @@
 use anyhow::Result;
+use comm_services_lib::blob::client::BlobServiceClient;
 use tracing::Level;
 use tracing_subscriber::EnvFilter;
 
@@ -29,8 +30,9 @@ async fn main() -> Result<()> {
 
   let aws_config = config::load_aws_config().await;
   let db_client = database::DatabaseClient::new(&aws_config);
+  let blob_client = BlobServiceClient::new(CONFIG.blob_service_url.clone());
 
-  http::run_http_server(db_client).await?;
+  http::run_http_server(db_client, blob_client).await?;
 
   Ok(())
 }
