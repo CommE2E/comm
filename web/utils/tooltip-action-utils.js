@@ -21,16 +21,13 @@ import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import {
   type MessageTooltipAction,
-  findTooltipPosition,
-  getTooltipStyle,
+  getTooltipPositionStyle,
   calculateTooltipSize,
-  type TooltipSize,
   type TooltipPosition,
 } from './tooltip-utils.js';
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
 import MessageTooltip from '../chat/message-tooltip.react.js';
-import type { PositionInfo } from '../chat/position-types.js';
 import { useTooltipContext } from '../chat/tooltip-provider.js';
 import CommIcon from '../CommIcon.react.js';
 import { InputStateContext } from '../input/input-state.js';
@@ -304,43 +301,6 @@ type UseMessageTooltipResult = {
   onMouseEnter: (event: SyntheticEvent<HTMLElement>) => void,
   onMouseLeave: ?() => mixed,
 };
-
-type GetTooltipPositionStyleParams = {
-  +tooltipSourcePosition: ?PositionInfo,
-  +tooltipSize: TooltipSize,
-  +availablePositions: $ReadOnlyArray<TooltipPosition>,
-  +preventDisplayingBelowSource?: boolean,
-};
-
-function getTooltipPositionStyle(params: GetTooltipPositionStyleParams) {
-  const {
-    tooltipSourcePosition,
-    tooltipSize,
-    availablePositions,
-    preventDisplayingBelowSource,
-  } = params;
-  if (!tooltipSourcePosition) {
-    return undefined;
-  }
-  const tooltipPosition = findTooltipPosition({
-    sourcePositionInfo: tooltipSourcePosition,
-    tooltipSize,
-    availablePositions,
-    defaultPosition: availablePositions[0],
-    preventDisplayingBelowSource,
-  });
-  if (!tooltipPosition) {
-    return undefined;
-  }
-
-  const tooltipPositionStyle = getTooltipStyle({
-    tooltipPosition,
-    sourcePositionInfo: tooltipSourcePosition,
-    tooltipSize,
-  });
-
-  return tooltipPositionStyle;
-}
 
 function useMessageTooltip({
   availablePositions,

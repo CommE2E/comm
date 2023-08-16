@@ -283,6 +283,45 @@ function getTooltipStyle({
   invariant(false, `Unexpected tooltip position value: ${tooltipPosition}`);
 }
 
+type GetTooltipPositionStyleParams = {
+  +tooltipSourcePosition: ?PositionInfo,
+  +tooltipSize: TooltipSize,
+  +availablePositions: $ReadOnlyArray<TooltipPosition>,
+  +preventDisplayingBelowSource?: boolean,
+};
+
+function getTooltipPositionStyle(
+  params: GetTooltipPositionStyleParams,
+): ?TooltipPositionStyle {
+  const {
+    tooltipSourcePosition,
+    tooltipSize,
+    availablePositions,
+    preventDisplayingBelowSource,
+  } = params;
+  if (!tooltipSourcePosition) {
+    return undefined;
+  }
+  const tooltipPosition = findTooltipPosition({
+    sourcePositionInfo: tooltipSourcePosition,
+    tooltipSize,
+    availablePositions,
+    defaultPosition: availablePositions[0],
+    preventDisplayingBelowSource,
+  });
+  if (!tooltipPosition) {
+    return undefined;
+  }
+
+  const tooltipPositionStyle = getTooltipStyle({
+    tooltipPosition,
+    sourcePositionInfo: tooltipSourcePosition,
+    tooltipSize,
+  });
+
+  return tooltipPositionStyle;
+}
+
 type CalculateTooltipSizeArgs = {
   +tooltipLabels: $ReadOnlyArray<string>,
   +timestamp: string,
@@ -317,4 +356,4 @@ function calculateTooltipSize({
   };
 }
 
-export { findTooltipPosition, calculateTooltipSize, getTooltipStyle };
+export { findTooltipPosition, getTooltipPositionStyle, calculateTooltipSize };
