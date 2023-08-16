@@ -12,7 +12,11 @@ import type { ChatNavigationProp } from './chat.react.js';
 import { InlineEngagement } from './inline-engagement.react.js';
 import { InnerRobotextMessage } from './inner-robotext-message.react.js';
 import { Timestamp } from './timestamp.react.js';
-import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils.js';
+import {
+  messageItemHeight,
+  getMessageTooltipKey,
+  useContentAndHeaderOpacity,
+} from './utils.js';
 import { ChatContext } from '../chat/chat-context.js';
 import { KeyboardContext } from '../keyboard/keyboard-state.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
@@ -200,15 +204,15 @@ function RobotextMessage(props: Props): React.Node {
   if (!__DEV__) {
     // We don't force view height in dev mode because we
     // want to measure it in Message to see if it's correct
-    viewStyle.height = item.contentHeight;
+    viewStyle.height = messageItemHeight(item);
   }
 
   return (
-    <View {...viewProps}>
+    <View {...viewProps} style={viewStyle}>
       <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
         {timestamp}
       </AnimatedView>
-      <View onLayout={onLayout} ref={viewRef} style={viewStyle}>
+      <View onLayout={onLayout} ref={viewRef}>
         <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
           <InnerRobotextMessage
             item={item}

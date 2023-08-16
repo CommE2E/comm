@@ -27,7 +27,11 @@ import { MessageEditingContext } from './message-editing-context.react.js';
 import { MessageHeader } from './message-header.react.js';
 import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
-import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
+import {
+  messageItemHeight,
+  useContentAndHeaderOpacity,
+  useDeliveryIconOpacity,
+} from './utils.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import CommIcon from '../components/comm-icon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
@@ -209,27 +213,20 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    const viewStyle = [styles.alignment];
+    const viewStyle = {};
     if (!__DEV__) {
       // We don't force view height in dev mode because we
       // want to measure it in Message to see if it's correct
-      if (item.messageShapeType === 'text') {
-        viewStyle.push({ height: item.contentHeight });
-      } else if (item.messageShapeType === 'multimedia') {
-        const height = item.inlineEngagementHeight
-          ? item.contentHeight + item.inlineEngagementHeight
-          : item.contentHeight;
-        viewStyle.push({ height });
-      }
+      viewStyle.height = messageItemHeight(item);
     }
 
     return (
-      <View {...viewProps}>
+      <View {...viewProps} style={viewStyle}>
         <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
           <MessageHeader item={item} focused={focused} display="lowContrast" />
         </AnimatedView>
         <AnimatedView style={[containerStyle, editedMessageStyle]}>
-          <View style={viewStyle}>
+          <View style={styles.alignment}>
             <View style={[styles.content, alignStyle]}>
               {deliveryIcon}
               {messageBox}
