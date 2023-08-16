@@ -13,7 +13,8 @@ mod handlers {
 }
 
 fn cors_config() -> Cors {
-  if CONFIG.is_sandbox {
+  // For local development, use relaxed CORS config
+  if CONFIG.localstack_endpoint.is_some() {
     // All origins, methods, request headers and exposed headers allowed.
     // Credentials supported. Max age 1 hour. Does not send wildcard.
     return Cors::permissive();

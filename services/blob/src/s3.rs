@@ -107,7 +107,7 @@ impl S3Client {
   pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
     let s3_config = aws_sdk_s3::config::Builder::from(aws_config)
       // localstack doesn't support virtual addressing
-      .force_path_style(crate::config::CONFIG.is_sandbox)
+      .force_path_style(crate::config::CONFIG.localstack_endpoint.is_some())
       .build();
     S3Client {
       client: Arc::new(aws_sdk_s3::Client::from_conf(s3_config)),
