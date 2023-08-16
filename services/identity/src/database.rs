@@ -22,7 +22,8 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
-  NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
+  NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
+  NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
   RESERVED_USERNAMES_TABLE, RESERVED_USERNAMES_TABLE_PARTITION_KEY,
   USERS_TABLE, USERS_TABLE_DEVICES_ATTRIBUTE,
   USERS_TABLE_DEVICES_MAP_CONTENT_ONETIME_KEYS_ATTRIBUTE_NAME,
@@ -479,7 +480,7 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       }) => {
-        let created = parse_created_attribute(
+        let created = parse_date_time_attribute(
           ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
           item.remove(ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE),
         )?;
@@ -813,6 +814,14 @@ impl DatabaseClient {
         NONCE_TABLE_CREATED_ATTRIBUTE.to_string(),
         AttributeValue::S(nonce_data.created.to_rfc3339()),
       ),
+      (
+        NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE.to_string(),
+        AttributeValue::S(nonce_data.expiration_time.to_rfc3339()),
+      ),
+      (
+        NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE.to_string(),
+        AttributeValue::N(nonce_data.expiration_time.timestamp().to_string()),
+      ),
     ]);
     self
       .client
@@ -847,12 +856,21 @@ impl DatabaseClient {
       item.remove(&NONCE_TABLE_PARTITION_KEY.to_string()),
     )?;
 
-    let created = parse_created_attribute(
+    let created = parse_date_time_attribute(
       NONCE_TABLE_CREATED_ATTRIBUTE,
       item.remove(&NONCE_TABLE_CREATED_ATTRIBUTE.to_string()),
     )?;
 
-    Ok(Some(NonceData { nonce, created }))
+    let expiration_time = parse_date_time_attribute(
+      NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
+      item.remove(&NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE.to_string()),
+    )?;
+
+    Ok(Some(NonceData {
+      nonce,
+      created,
+      expiration_time,
+    }))
   }
 
   pub async fn remove_nonce_from_nonces_table(
@@ -979,7 +997,7 @@ fn create_composite_primary_key(
   primary_key
 }
 
-fn parse_created_attribute(
+fn parse_date_time_attribute(
   attribute_name: &str,
   attribute: Option<AttributeValue>,
 ) -> Result<DateTime<Utc>, DBItemError> {

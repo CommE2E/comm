@@ -80,6 +80,9 @@ pub const ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE: &str = "token";
 pub const NONCE_TABLE: &str = "identity-nonces";
 pub const NONCE_TABLE_PARTITION_KEY: &str = "nonce";
 pub const NONCE_TABLE_CREATED_ATTRIBUTE: &str = "created";
+pub const NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE: &str = "expirationTime";
+pub const NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
+  "expirationTimeUnix";
 
 // Usernames reserved because they exist in Ashoat's keyserver already
 pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
@@ -102,6 +105,7 @@ pub const KEYSERVER_PUBLIC_KEY: &str = "KEYSERVER_PUBLIC_KEY";
 // Nonce
 
 pub const NONCE_LENGTH: usize = 17;
+pub const NONCE_TTL_DURATION: i64 = 30;
 
 // LocalStack
 
