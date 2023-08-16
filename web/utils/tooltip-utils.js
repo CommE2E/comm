@@ -46,10 +46,6 @@ export type MessageTooltipAction = {
   +actionButtonContent: React.Node,
 };
 
-const font =
-  '14px "Inter", -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
-  '"Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", ui-sans-serif';
-
 type FindTooltipPositionArgs = {
   +sourcePositionInfo: PositionInfo,
   +tooltipSize: TooltipSize,
@@ -335,7 +331,7 @@ function calculateTooltipSize({
   +height: number,
 } {
   const textWidth =
-    calculateMaxTextWidth([...tooltipLabels, timestamp], font) +
+    calculateMaxTextWidth([...tooltipLabels, timestamp], 14) +
     2 * tooltipLabelStyle.padding;
   const buttonsWidth =
     tooltipLabels.length *
