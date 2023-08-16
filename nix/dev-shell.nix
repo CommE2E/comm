@@ -32,7 +32,7 @@
 , openjdk11
 , openssl
 , pkg-config
-, protobuf_3_15_cmake
+, protobuf3_21
 , python3
 , rabbitmq-server
 , redis
@@ -87,7 +87,7 @@ mkShell {
     libuv
     localstack
     pkg-config
-    protobuf_3_15_cmake
+    protobuf3_21
     grpc
     rabbitmq-server # runtime service
   ] ++ lib.optionals stdenv.isDarwin [
@@ -99,7 +99,7 @@ mkShell {
   buildInputs = [
     # protobuf exposes both a library and a command
     # thus should appear in both inputs
-    protobuf_3_15_cmake
+    protobuf3_21
     aws-sdk-cpp # tunnelbroker
     corrosion # tunnelbroker
     double-conversion # tunnelbroker
