@@ -10,6 +10,13 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useSendReaction } from './reaction-message-utils.js';
 import css from './reaction-pill.css';
+import { useReactionTooltip } from '../utils/tooltip-action-utils.js';
+import { tooltipPositions } from '../utils/tooltip-utils.js';
+
+const availableReactionTooltipPositions = [
+  tooltipPositions.TOP,
+  tooltipPositions.BOTTOM,
+];
 
 type Props = {
   +reaction: string,
@@ -37,6 +44,12 @@ function ReactionPill(props: Props): React.Node {
     [reaction, sendReaction],
   );
 
+  const { onMouseEnter, onMouseLeave } = useReactionTooltip({
+    reaction,
+    reactions,
+    availablePositions: availableReactionTooltipPositions,
+  });
+
   const reactionInfo = reactions[reaction];
   const numOfReacts = reactionInfo.users.length;
 
@@ -46,7 +59,13 @@ function ReactionPill(props: Props): React.Node {
   });
 
   return (
-    <a onClick={onClickReaction} className={reactionClassName} key={reaction}>
+    <a
+      onClick={onClickReaction}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      className={reactionClassName}
+      key={reaction}
+    >
       {`${reaction} ${numOfReacts}`}
     </a>
   );
