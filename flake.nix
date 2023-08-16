@@ -3,10 +3,12 @@
 
   inputs = {
     utils.url = "github:numtide/flake-utils";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # Do not update, used for EOL versions of mariaDB and arcanist+php8.0
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   };
 
-  outputs = { self, nixpkgs, utils, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, utils, ... }:
     let
       # Overlays allow for extending a package set, in this case, we are
       # extending nixpkgs with our devShell
@@ -19,9 +21,20 @@
       # Since we build for many systems (e.g. aarch64, x86_64-linux), we
       # create a helper function to help facilitate instantiation of the related
       # package set
-      pkgsForSystem = system: import nixpkgs {
-        inherit overlays system;
-      };
+      pkgsForSystem = system: let
+        oldNixpkgs = import nixpkgs { inherit system; };
+      in
+        import nixpkgs-unstable {
+          inherit system;
+          overlays = overlays ++ [
+            # Re-introduce older packages that were removed in latest nixpkgs
+            (_: _: {
+              emscripten = oldNixpkgs.emscripten; # Changed signficantly
+              php80 = oldNixpkgs.php80; # Used for arcanist
+              mariadb = oldNixpkgs.mariadb_108;
+            })
+          ];
+        };
 
     # utils.lib.eachSystem helps create a result set of expected flake outputs
     # of the form <output>.<system>
