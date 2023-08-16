@@ -305,37 +305,29 @@ type UseMessageTooltipResult = {
   onMouseLeave: ?() => mixed,
 };
 
-type CreateTooltipParams = {
-  +tooltipMessagePosition: ?PositionInfo,
+type GetTooltipPositionStyleParams = {
+  +tooltipSourcePosition: ?PositionInfo,
   +tooltipSize: TooltipSize,
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
-  +containsInlineEngagement: boolean,
-  +tooltipActions: $ReadOnlyArray<MessageTooltipAction>,
-  +messageTimestamp: string,
-  +item: ChatMessageInfoItem,
-  +threadInfo: ThreadInfo,
+  +preventDisplayingBelowSource?: boolean,
 };
 
-function createTooltip(params: CreateTooltipParams) {
+function getTooltipPositionStyle(params: GetTooltipPositionStyleParams) {
   const {
-    tooltipMessagePosition,
+    tooltipSourcePosition,
     tooltipSize,
     availablePositions,
-    containsInlineEngagement,
-    tooltipActions,
-    messageTimestamp,
-    item,
-    threadInfo,
+    preventDisplayingBelowSource,
   } = params;
-  if (!tooltipMessagePosition) {
+  if (!tooltipSourcePosition) {
     return undefined;
   }
   const tooltipPosition = findTooltipPosition({
-    sourcePositionInfo: tooltipMessagePosition,
+    sourcePositionInfo: tooltipSourcePosition,
     tooltipSize,
     availablePositions,
     defaultPosition: availablePositions[0],
-    preventDisplayingBelowSource: containsInlineEngagement,
+    preventDisplayingBelowSource,
   });
   if (!tooltipPosition) {
     return undefined;
@@ -343,21 +335,11 @@ function createTooltip(params: CreateTooltipParams) {
 
   const tooltipPositionStyle = getTooltipStyle({
     tooltipPosition,
-    sourcePositionInfo: tooltipMessagePosition,
+    sourcePositionInfo: tooltipSourcePosition,
     tooltipSize,
   });
 
-  const tooltip = (
-    <MessageTooltip
-      actions={tooltipActions}
-      messageTimestamp={messageTimestamp}
-      tooltipPositionStyle={tooltipPositionStyle}
-      tooltipSize={tooltipSize}
-      item={item}
-      threadInfo={threadInfo}
-    />
-  );
-  return { tooltip, tooltipPositionStyle };
+  return tooltipPositionStyle;
 }
 
 function useMessageTooltip({
@@ -404,21 +386,27 @@ function useMessageTooltip({
       const messagePosition = { top, bottom, left, right, height, width };
       setTooltipMessagePosition(messagePosition);
 
-      const tooltipResult = createTooltip({
-        tooltipMessagePosition: messagePosition,
+      const tooltipPositionStyle = getTooltipPositionStyle({
+        tooltipSourcePosition: messagePosition,
         tooltipSize,
         availablePositions,
-        containsInlineEngagement,
-        tooltipActions,
-        messageTimestamp,
-        item,
-        threadInfo,
+        preventDisplayingBelowSource: containsInlineEngagement,
       });
-      if (!tooltipResult) {
+
+      if (!tooltipPositionStyle) {
         return;
       }
 
-      const { tooltip, tooltipPositionStyle } = tooltipResult;
+      const tooltip = (
+        <MessageTooltip
+          actions={tooltipActions}
+          messageTimestamp={messageTimestamp}
+          tooltipPositionStyle={tooltipPositionStyle}
+          tooltipSize={tooltipSize}
+          item={item}
+          threadInfo={threadInfo}
+        />
+      );
       const renderTooltipResult = renderTooltip({
         newNode: tooltip,
         tooltipPositionStyle,
@@ -446,21 +434,28 @@ function useMessageTooltip({
       return;
     }
 
-    const tooltipResult = createTooltip({
-      tooltipMessagePosition,
+    const tooltipPositionStyle = getTooltipPositionStyle({
+      tooltipSourcePosition: tooltipMessagePosition,
       tooltipSize,
       availablePositions,
-      containsInlineEngagement,
-      tooltipActions,
-      messageTimestamp,
-      item,
-      threadInfo,
+      preventDisplayingBelowSource: containsInlineEngagement,
     });
-    if (!tooltipResult) {
+    if (!tooltipPositionStyle) {
       return;
     }
 
-    updateTooltip.current?.(tooltipResult.tooltip);
+    const tooltip = (
+      <MessageTooltip
+        actions={tooltipActions}
+        messageTimestamp={messageTimestamp}
+        tooltipPositionStyle={tooltipPositionStyle}
+        tooltipSize={tooltipSize}
+        item={item}
+        threadInfo={threadInfo}
+      />
+    );
+
+    updateTooltip.current?.(tooltip);
   }, [
     availablePositions,
     containsInlineEngagement,
