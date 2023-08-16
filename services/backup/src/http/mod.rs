@@ -1,9 +1,16 @@
 use actix_web::{web, App, HttpServer};
 use anyhow::Result;
-use comm_services_lib::blob::client::BlobServiceClient;
+use comm_services_lib::{
+  blob::client::BlobServiceClient,
+  http::auth::get_comm_authentication_middleware,
+};
 use tracing::info;
 
 use crate::{database::DatabaseClient, CONFIG};
+
+mod handlers {
+  pub(super) mod backup;
+}
 
 pub async fn run_http_server(
   db_client: DatabaseClient,
@@ -18,6 +25,8 @@ pub async fn run_http_server(
   let blob = web::Data::new(blob_client);
 
   HttpServer::new(move || {
+    let auth_middleware = get_comm_authentication_middleware();
+
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
       .wrap(comm_services_lib::http::cors_config(
@@ -26,7 +35,9 @@ pub async fn run_http_server(
       .app_data(db.clone())
       .app_data(blob.clone())
       .service(
-        web::resource("/hello").route(web::get().to(|| async { "world" })),
+        web::resource("/backups")
+          .route(web::post().to(handlers::backup::upload))
+          .wrap(auth_middleware),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
