@@ -1,6 +1,7 @@
 use actix_multipart::{Field, MultipartError};
-use actix_web::error::ParseError;
+use actix_web::error::{ErrorBadRequest, ParseError};
 use tokio_stream::StreamExt;
+use tracing::warn;
 
 /// Can be used to get a single field from multipart body with it's data
 /// converted to a string
@@ -39,4 +40,21 @@ pub async fn get_text_field(
     String::from_utf8(buf).map_err(|err| ParseError::Utf8(err.utf8_error()))?;
 
   Ok(Some((name, text)))
+}
+
+pub async fn get_named_text_field(
+  name: &str,
+  multipart: &mut actix_multipart::Multipart,
+) -> actix_web::Result<String> {
+  let Some((field_name, backup_id)) = get_text_field(multipart).await? else {
+    warn!("Malformed request: expected a field.");
+    return Err(ErrorBadRequest("Bad request"));
+  };
+
+  if field_name != name {
+    warn!(name, "Malformed request: '{name}' text field expected.");
+    return Err(ErrorBadRequest("Bad request"));
+  }
+
+  Ok(backup_id)
 }
