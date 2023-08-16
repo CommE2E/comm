@@ -24,6 +24,8 @@ import {
   getTooltipPositionStyle,
   calculateTooltipSize,
   type TooltipPosition,
+  type TooltipPositionStyle,
+  type TooltipSize,
 } from './tooltip-utils.js';
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
@@ -36,6 +38,101 @@ import {
   useOnClickPendingSidebar,
   useOnClickThread,
 } from '../selectors/thread-selectors.js';
+
+type UseTooltipArgs = {
+  +createTooltip: (tooltipPositionStyle: TooltipPositionStyle) => React.Node,
+  +tooltipSize: TooltipSize,
+  +availablePositions: $ReadOnlyArray<TooltipPosition>,
+  +preventDisplayingBelowSource?: boolean,
+};
+type UseTooltipResult = {
+  onMouseEnter: (event: SyntheticEvent<HTMLElement>) => mixed,
+  onMouseLeave: ?() => mixed,
+};
+
+function useTooltip({
+  createTooltip,
+  tooltipSize,
+  availablePositions,
+  preventDisplayingBelowSource,
+}: UseTooltipArgs): UseTooltipResult {
+  const [onMouseLeave, setOnMouseLeave] = React.useState<?() => mixed>(null);
+  const [tooltipSourcePosition, setTooltipSourcePosition] = React.useState();
+
+  const { renderTooltip } = useTooltipContext();
+  const updateTooltip = React.useRef();
+
+  const onMouseEnter = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      if (!renderTooltip) {
+        return;
+      }
+      const rect = event.currentTarget.getBoundingClientRect();
+      const { top, bottom, left, right, height, width } = rect;
+      const sourcePosition = { top, bottom, left, right, height, width };
+      setTooltipSourcePosition(sourcePosition);
+
+      const tooltipPositionStyle = getTooltipPositionStyle({
+        tooltipSourcePosition: sourcePosition,
+        tooltipSize,
+        availablePositions,
+        preventDisplayingBelowSource,
+      });
+      if (!tooltipPositionStyle) {
+        return;
+      }
+
+      const tooltip = createTooltip(tooltipPositionStyle);
+
+      const renderTooltipResult = renderTooltip({
+        newNode: tooltip,
+        tooltipPositionStyle,
+      });
+      if (renderTooltipResult) {
+        const { onMouseLeaveCallback: callback } = renderTooltipResult;
+        setOnMouseLeave((() => callback: () => () => mixed));
+        updateTooltip.current = renderTooltipResult.updateTooltip;
+      }
+    },
+    [
+      availablePositions,
+      createTooltip,
+      preventDisplayingBelowSource,
+      renderTooltip,
+      tooltipSize,
+    ],
+  );
+
+  React.useEffect(() => {
+    if (!updateTooltip.current) {
+      return;
+    }
+
+    const tooltipPositionStyle = getTooltipPositionStyle({
+      tooltipSourcePosition,
+      tooltipSize,
+      availablePositions,
+      preventDisplayingBelowSource,
+    });
+    if (!tooltipPositionStyle) {
+      return;
+    }
+
+    const tooltip = createTooltip(tooltipPositionStyle);
+    updateTooltip.current?.(tooltip);
+  }, [
+    availablePositions,
+    createTooltip,
+    preventDisplayingBelowSource,
+    tooltipSize,
+    tooltipSourcePosition,
+  ]);
+
+  return {
+    onMouseEnter,
+    onMouseLeave,
+  };
+}
 
 function useMessageTooltipSidebarAction(
   item: ChatMessageInfoItem,
@@ -297,19 +394,11 @@ type UseMessageTooltipArgs = {
   +threadInfo: ThreadInfo,
 };
 
-type UseMessageTooltipResult = {
-  onMouseEnter: (event: SyntheticEvent<HTMLElement>) => void,
-  onMouseLeave: ?() => mixed,
-};
-
 function useMessageTooltip({
   availablePositions,
   item,
   threadInfo,
-}: UseMessageTooltipArgs): UseMessageTooltipResult {
-  const [onMouseLeave, setOnMouseLeave] = React.useState<?() => mixed>(null);
-
-  const { renderTooltip } = useTooltipContext();
+}: UseMessageTooltipArgs): UseTooltipResult {
   const tooltipActions = useMessageTooltipActions(item, threadInfo);
 
   const containsInlineEngagement = !!item.threadCreatedFromMessage;
@@ -333,78 +422,8 @@ function useMessageTooltip({
     });
   }, [messageTimestamp, tooltipActions]);
 
-  const updateTooltip = React.useRef();
-  const [tooltipMessagePosition, setTooltipMessagePosition] = React.useState();
-
-  const onMouseEnter = React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      if (!renderTooltip) {
-        return;
-      }
-      const rect = event.currentTarget.getBoundingClientRect();
-      const { top, bottom, left, right, height, width } = rect;
-      const messagePosition = { top, bottom, left, right, height, width };
-      setTooltipMessagePosition(messagePosition);
-
-      const tooltipPositionStyle = getTooltipPositionStyle({
-        tooltipSourcePosition: messagePosition,
-        tooltipSize,
-        availablePositions,
-        preventDisplayingBelowSource: containsInlineEngagement,
-      });
-
-      if (!tooltipPositionStyle) {
-        return;
-      }
-
-      const tooltip = (
-        <MessageTooltip
-          actions={tooltipActions}
-          messageTimestamp={messageTimestamp}
-          tooltipPositionStyle={tooltipPositionStyle}
-          tooltipSize={tooltipSize}
-          item={item}
-          threadInfo={threadInfo}
-        />
-      );
-      const renderTooltipResult = renderTooltip({
-        newNode: tooltip,
-        tooltipPositionStyle,
-      });
-      if (renderTooltipResult) {
-        const { onMouseLeaveCallback: callback } = renderTooltipResult;
-        setOnMouseLeave((() => callback: () => () => mixed));
-        updateTooltip.current = renderTooltipResult.updateTooltip;
-      }
-    },
-    [
-      availablePositions,
-      containsInlineEngagement,
-      item,
-      messageTimestamp,
-      renderTooltip,
-      threadInfo,
-      tooltipActions,
-      tooltipSize,
-    ],
-  );
-
-  React.useEffect(() => {
-    if (!updateTooltip.current) {
-      return;
-    }
-
-    const tooltipPositionStyle = getTooltipPositionStyle({
-      tooltipSourcePosition: tooltipMessagePosition,
-      tooltipSize,
-      availablePositions,
-      preventDisplayingBelowSource: containsInlineEngagement,
-    });
-    if (!tooltipPositionStyle) {
-      return;
-    }
-
-    const tooltip = (
+  const createMessageTooltip = React.useCallback(
+    tooltipPositionStyle => (
       <MessageTooltip
         actions={tooltipActions}
         messageTimestamp={messageTimestamp}
@@ -413,19 +432,16 @@ function useMessageTooltip({
         item={item}
         threadInfo={threadInfo}
       />
-    );
+    ),
+    [item, messageTimestamp, threadInfo, tooltipActions, tooltipSize],
+  );
 
-    updateTooltip.current?.(tooltip);
-  }, [
-    availablePositions,
-    containsInlineEngagement,
-    item,
-    messageTimestamp,
-    threadInfo,
-    tooltipActions,
-    tooltipMessagePosition,
+  const { onMouseEnter, onMouseLeave } = useTooltip({
+    createTooltip: createMessageTooltip,
     tooltipSize,
-  ]);
+    availablePositions,
+    preventDisplayingBelowSource: containsInlineEngagement,
+  });
 
   return {
     onMouseEnter,
