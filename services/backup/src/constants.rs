@@ -32,7 +32,7 @@ pub const GRPC_METADATA_SIZE_PER_MESSAGE: usize = 5;
 
 // Configuration defaults
 pub const DEFAULT_HTTP_PORT: u16 = 51002;
-pub const DEFAULT_BLOB_SERVICE_URL: &str = "http://localhost:50053";
+pub const DEFAULT_BLOB_SERVICE_URL: &str = "http://localhost:51001";
 
 // Environment variable names
 pub const LOG_LEVEL_ENV_VAR: &str =

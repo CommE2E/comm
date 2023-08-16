@@ -15,8 +15,8 @@ pub struct AppConfig {
   #[arg(long)]
   pub localstack_endpoint: Option<String>,
   /// Blob service URL
-  #[arg(long, default_value_t = DEFAULT_BLOB_SERVICE_URL.to_string())]
-  pub blob_service_url: String,
+  #[arg(long, default_value = DEFAULT_BLOB_SERVICE_URL)]
+  pub blob_service_url: reqwest::Url,
 }
 
 /// Stores configuration parsed from command-line arguments
