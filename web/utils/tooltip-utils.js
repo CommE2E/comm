@@ -174,7 +174,7 @@ function findTooltipPosition({
   return defaultPosition;
 }
 
-type GetMessageActionTooltipStyleParams = {
+type GetTooltipStyleParams = {
   +sourcePositionInfo: PositionInfo,
   +tooltipSize: TooltipSize,
   +tooltipPosition: TooltipPosition,
@@ -182,11 +182,11 @@ type GetMessageActionTooltipStyleParams = {
 
 // ESLint doesn't recognize that invariant always throws
 // eslint-disable-next-line consistent-return
-function getMessageActionTooltipStyle({
+function getTooltipStyle({
   sourcePositionInfo,
   tooltipSize,
   tooltipPosition,
-}: GetMessageActionTooltipStyleParams): TooltipPositionStyle {
+}: GetTooltipStyleParams): TooltipPositionStyle {
   if (tooltipPosition === tooltipPositions.RIGHT_TOP) {
     return {
       anchorPoint: {
@@ -317,8 +317,4 @@ function calculateTooltipSize({
   };
 }
 
-export {
-  findTooltipPosition,
-  calculateTooltipSize,
-  getMessageActionTooltipStyle,
-};
+export { findTooltipPosition, calculateTooltipSize, getTooltipStyle };
