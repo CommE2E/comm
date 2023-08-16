@@ -8,6 +8,8 @@ import {
   tooltipButtonStyle,
   tooltipLabelStyle,
   tooltipStyle,
+  reactionTooltipStyle,
+  reactionSeeMoreLabel,
 } from '../chat/chat-constants.js';
 import type { PositionInfo } from '../chat/position-types.js';
 import { calculateMaxTextWidth } from '../utils/text-utils.js';
@@ -349,8 +351,53 @@ function calculateMessageTooltipSize({
   };
 }
 
+function calculateReactionTooltipSize(
+  usernames: $ReadOnlyArray<string>,
+): TooltipSize {
+  const showMoreTextIsShown = usernames.length > 5;
+  const {
+    maxWidth,
+    maxHeight,
+    paddingLeft,
+    paddingRight,
+    paddingTop,
+    paddingBottom,
+    rowGap,
+  } = reactionTooltipStyle;
+
+  const maxTooltipContentWidth = maxWidth;
+  const maxTooltipContentHeight = maxHeight;
+
+  const usernamesTextWidth = calculateMaxTextWidth(usernames, 14);
+  const seeMoreTextWidth = calculateMaxTextWidth([reactionSeeMoreLabel], 12);
+
+  let textWidth = usernamesTextWidth;
+  if (showMoreTextIsShown) {
+    textWidth = Math.max(usernamesTextWidth, seeMoreTextWidth);
+  }
+
+  const width =
+    Math.min(maxTooltipContentWidth, textWidth) + paddingLeft + paddingRight;
+
+  let height =
+    usernames.length * tooltipLabelStyle.height +
+    (usernames.length - 1) * rowGap;
+
+  if (showMoreTextIsShown) {
+    height = maxTooltipContentHeight;
+  }
+
+  height += paddingTop + paddingBottom;
+
+  return {
+    width,
+    height,
+  };
+}
+
 export {
   findTooltipPosition,
   getTooltipPositionStyle,
   calculateMessageTooltipSize,
+  calculateReactionTooltipSize,
 };
