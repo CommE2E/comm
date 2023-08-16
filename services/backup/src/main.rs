@@ -5,6 +5,7 @@ use tracing_subscriber::EnvFilter;
 pub mod config;
 pub mod constants;
 pub mod database;
+pub mod http;
 pub mod utils;
 
 // re-export this to be available as crate::CONFIG
@@ -27,7 +28,9 @@ async fn main() -> Result<()> {
   configure_logging()?;
 
   let aws_config = config::load_aws_config().await;
-  let _db = database::DatabaseClient::new(&aws_config);
+  let db_client = database::DatabaseClient::new(&aws_config);
+
+  http::run_http_server(db_client).await?;
 
   Ok(())
 }
