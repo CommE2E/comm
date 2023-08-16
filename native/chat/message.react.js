@@ -64,6 +64,13 @@ class Message extends React.Component<Props> {
   }
 
   render() {
+    const viewStyle = {};
+    if (!__DEV__) {
+      // We don't force view height in dev mode because we
+      // want to measure it in the onLayout below to see if it's correct
+      viewStyle.height = messageItemHeight(this.props.item);
+    }
+
     let message;
     if (this.props.item.messageShapeType === 'text') {
       message = (
@@ -75,6 +82,7 @@ class Message extends React.Component<Props> {
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
           shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
+          style={viewStyle}
         />
       );
     } else if (this.props.item.messageShapeType === 'multimedia') {
@@ -85,6 +93,7 @@ class Message extends React.Component<Props> {
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
           shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
+          style={viewStyle}
         />
       );
     } else {
@@ -96,6 +105,7 @@ class Message extends React.Component<Props> {
           focused={this.props.focused}
           toggleFocus={this.props.toggleFocus}
           verticalBounds={this.props.verticalBounds}
+          style={viewStyle}
         />
       );
     }
