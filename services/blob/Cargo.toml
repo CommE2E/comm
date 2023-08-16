@@ -7,7 +7,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-actix-cors = "0.6"
 actix-multipart = "0.6"
 actix-web = "4.3"
 anyhow = "1.0"
@@ -18,19 +17,19 @@ aws-sdk-s3 = "0.27"
 aws-types = "0.55.2"
 chrono = "0.4"
 clap = { version = "4.0", features = ["derive", "env"] }
-comm-services-lib = { path = "../comm-services-lib" }
+comm-services-lib = { path = "../comm-services-lib", features = ["http"] }
 derive_more = "0.99"
 http = "0.2"
 once_cell = "1.17"
 prost = "0.11"
 serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.24", features = ["rt-multi-thread"]}
+tokio = { version = "1.24", features = ["rt-multi-thread"] }
 tokio-stream = "0.1"
 tonic = "0.8"
 tracing = "0.1"
 tracing-actix-web = "0.7.3"
-tracing-futures =  { version = "0.2", features = ["futures-03"] }
-tracing-subscriber = { version = "0.3", features = ["env-filter"]}
+tracing-futures = { version = "0.2", features = ["futures-03"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 [build-dependencies]
 tonic-build = "0.8"
