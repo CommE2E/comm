@@ -26,6 +26,7 @@ services_usage() {
   echo "Comm Development Services"
   echo ""
   echo "Commands:"
+  echo "  clean   - stop services and clean caches"
   echo "  restart - restart services"
   echo "  start   - start localstack and rabbitmq"
   echo "  stop    - stop localstack and rabbitmq"
@@ -36,6 +37,12 @@ services_usage() {
 
 services_command() {
   case "$1" in
+    clean)
+      "$0" services stop || true
+      log "Cleaning RabbitMQ cache"
+      [[ -n "${RABBITMQ_HOME}" ]] && \
+        rm -r "${RABBITMQ_HOME}"
+      ;;
     restart)
       "$0" services stop || true
       "$0" services start
