@@ -47,7 +47,7 @@ use tracing::{debug, error};
 #[derive(Clone)]
 pub enum WorkflowInProgress {
   Registration(UserRegistrationInfo),
-  Login(UserLoginInfo),
+  Login(Box<UserLoginInfo>),
   Update(UpdateState),
 }
 
@@ -509,7 +509,10 @@ impl IdentityClientService for ClientService {
       let session_id = generate_uuid();
       self
         .cache
-        .insert(session_id.clone(), WorkflowInProgress::Login(login_state))
+        .insert(
+          session_id.clone(),
+          WorkflowInProgress::Login(Box::new(login_state)),
+        )
         .await;
 
       let response = Response::new(OpaqueLoginStartResponse {

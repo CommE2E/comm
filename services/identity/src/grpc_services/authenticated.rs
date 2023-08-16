@@ -44,7 +44,7 @@ pub fn auth_intercept(
   println!("Intercepting request: {:?}", req);
 
   let (user_id, device_id, access_token) = get_auth_info(&req)
-    .ok_or(Status::unauthenticated("Missing credentials"))?;
+    .ok_or_else(|| Status::unauthenticated("Missing credentials"))?;
 
   let handle = tokio::runtime::Handle::current();
   let new_db_client = db_client.clone();
@@ -71,12 +71,12 @@ pub fn auth_intercept(
 pub fn get_user_and_device_id<T>(
   request: &Request<T>,
 ) -> Result<(String, String), Status> {
-  let user_id = get_value(&request, "user_id")
-    .ok_or(Status::unauthenticated("Missing user_id field"))?;
-  let device_id = get_value(&request, "device_id")
-    .ok_or(Status::unauthenticated("Missing device_id field"))?;
+  let user_id = get_value(request, "user_id")
+    .ok_or_else(|| Status::unauthenticated("Missing user_id field"))?;
+  let device_id = get_value(request, "device_id")
+    .ok_or_else(|| Status::unauthenticated("Missing device_id field"))?;
 
-  return Ok((user_id, device_id));
+  Ok((user_id, device_id))
 }
 
 #[tonic::async_trait]
@@ -92,10 +92,10 @@ impl IdentityClientService for AuthenticatedService {
 
     let content_keys = message
       .new_content_pre_keys
-      .ok_or(Status::invalid_argument("Missing content keys"))?;
+      .ok_or_else(|| Status::invalid_argument("Missing content keys"))?;
     let notif_keys = message
       .new_notif_pre_keys
-      .ok_or(Status::invalid_argument("Missing notification keys"))?;
+      .ok_or_else(|| Status::invalid_argument("Missing notification keys"))?;
 
     self
       .db_client

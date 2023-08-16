@@ -78,7 +78,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       );
       let raw_auth_service = AuthenticatedService::new(database_client.clone());
       let auth_service =
-        AuthServer::with_interceptor(raw_auth_service, move |mut req| {
+        AuthServer::with_interceptor(raw_auth_service, move |req| {
           grpc_services::authenticated::auth_intercept(req, &database_client)
         });
 
