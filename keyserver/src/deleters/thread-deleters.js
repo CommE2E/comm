@@ -61,6 +61,30 @@ async function deleteThread(
     ),
   ]);
 
+  const time = Date.now();
+  const updateDatas = [];
+  for (const containedThreadID of threadIDs) {
+    for (const memberInfo of serverThreadInfos[containedThreadID].members) {
+      updateDatas.push({
+        type: updateTypes.DELETE_THREAD,
+        userID: memberInfo.id,
+        time,
+        threadID: containedThreadID,
+      });
+    }
+  }
+
+  const [{ viewerUpdates }] = await Promise.all([
+    createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
+    deleteThreadsFromDB(threadIDs),
+  ]);
+
+  return { updatesResult: { newUpdates: viewerUpdates } };
+}
+
+function deleteThreadsFromDB(
+  threadIDs: $ReadOnlyArray<string>,
+): Promise<mixed> {
   const deletionQuery = SQL`
     START TRANSACTION;
     DELETE FROM threads WHERE id IN (${threadIDs});
@@ -92,26 +116,7 @@ async function deleteThread(
       WHERE n.thread IN (${threadIDs});
     COMMIT;
   `;
-
-  const time = Date.now();
-  const updateDatas = [];
-  for (const containedThreadID of threadIDs) {
-    for (const memberInfo of serverThreadInfos[containedThreadID].members) {
-      updateDatas.push({
-        type: updateTypes.DELETE_THREAD,
-        userID: memberInfo.id,
-        time,
-        threadID: containedThreadID,
-      });
-    }
-  }
-
-  const [{ viewerUpdates }] = await Promise.all([
-    createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
-    dbQuery(deletionQuery, { multipleStatements: true }),
-  ]);
-
-  return { updatesResult: { newUpdates: viewerUpdates } };
+  return dbQuery(deletionQuery, { multipleStatements: true });
 }
 
 async function deleteInaccessibleThreads(): Promise<void> {
@@ -120,30 +125,18 @@ async function deleteInaccessibleThreads(): Promise<void> {
   // are not technically a member (in which case role=0). For now, we're also
   // excluding threads with children, since to properly delete those we would
   // need to update their parent_thread_id, and possibly change their type.
-  await dbQuery(SQL`
-    DELETE t, i, m2, d, id, e, ie, re, ire, r, ir, ms, im, up, iu, f, n, ino
+  const [fetchResult] = await dbQuery(SQL`
+    SELECT t.id
     FROM threads t
-    LEFT JOIN ids i ON i.id = t.id
-    LEFT JOIN memberships m1 ON m1.thread = t.id AND m1.role > -1
+    LEFT JOIN memberships m ON m.thread = t.id AND m.role > -1
     LEFT JOIN threads c ON c.parent_thread_id = t.id
-    LEFT JOIN memberships m2 ON m2.thread = t.id
-    LEFT JOIN days d ON d.thread = t.id
-    LEFT JOIN ids id ON id.id = d.id
-    LEFT JOIN entries e ON e.day = d.id
-    LEFT JOIN ids ie ON ie.id = e.id
-    LEFT JOIN revisions re ON re.entry = e.id
-    LEFT JOIN ids ire ON ire.id = re.id
-    LEFT JOIN roles r ON r.thread = t.id
-    LEFT JOIN ids ir ON ir.id = r.id
-    LEFT JOIN messages ms ON ms.thread = t.id
-    LEFT JOIN ids im ON im.id = ms.id
-    LEFT JOIN uploads up ON (up.container = ms.id OR up.container = t.id)
-    LEFT JOIN ids iu ON iu.id = up.id
-    LEFT JOIN focused f ON f.thread = t.id
-    LEFT JOIN notifications n ON n.thread = t.id
-    LEFT JOIN ids ino ON ino.id = n.id
-    WHERE m1.thread IS NULL AND c.id IS NULL
+    WHERE m.thread IS NULL AND c.id IS NULL
   `);
+  const threadIDs = new Set(fetchResult.map(({ id }) => id));
+  if (threadIDs.size === 0) {
+    return;
+  }
+  await deleteThreadsFromDB([...threadIDs]);
 }
 
 export { deleteThread, deleteInaccessibleThreads };
