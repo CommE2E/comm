@@ -230,9 +230,6 @@ resource "aws_dynamodb_table" "identity-tokens" {
 }
 
 resource "aws_dynamodb_table" "identity-nonces" {
-  # This table doesnt exist in prod
-  count = var.is_dev ? 1 : 0
-
   name         = "identity-nonces"
   hash_key     = "nonce"
   billing_mode = "PAY_PER_REQUEST"
@@ -240,6 +237,11 @@ resource "aws_dynamodb_table" "identity-nonces" {
   attribute {
     name = "nonce"
     type = "S"
+  }
+
+  ttl {
+    attribute_name = "expirationTimeUnix"
+    enabled        = true
   }
 }
 
