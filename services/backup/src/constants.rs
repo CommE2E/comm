@@ -5,6 +5,7 @@ pub const ID_SEPARATOR: &str = ":";
 pub const ATTACHMENT_HOLDER_SEPARATOR: &str = ";";
 
 // Configuration defaults
+pub const DEFAULT_HTTP_PORT: u16 = 50052;
 pub const DEFAULT_BLOB_SERVICE_URL: &str = "http://localhost:50053";
 
 // Environment variable names

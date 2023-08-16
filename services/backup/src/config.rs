@@ -2,11 +2,14 @@ use clap::Parser;
 use once_cell::sync::Lazy;
 use tracing::info;
 
-use crate::constants::DEFAULT_BLOB_SERVICE_URL;
+use crate::constants::{DEFAULT_BLOB_SERVICE_URL, DEFAULT_HTTP_PORT};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct AppConfig {
+  /// HTTP server listening port
+  #[arg(long, default_value_t = DEFAULT_HTTP_PORT)]
+  pub http_port: u16,
   /// AWS Localstack service URL
   #[arg(env = "LOCALSTACK_ENDPOINT")]
   #[arg(long)]
