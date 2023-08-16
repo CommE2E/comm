@@ -1,6 +1,5 @@
 use crate::http::errors::handle_blob_service_error;
 use crate::service::BlobService;
-use crate::tools::BoxedError;
 use crate::validate_identifier;
 
 use actix_web::error::{
@@ -11,7 +10,7 @@ use actix_web::{
   web, Error as HttpError, HttpResponse,
 };
 use anyhow::Result;
-use async_stream::{try_stream, AsyncStream};
+use async_stream::try_stream;
 use serde::{Deserialize, Serialize};
 use tokio_stream::StreamExt;
 use tracing::{debug, info, instrument, trace, warn};
@@ -175,7 +174,7 @@ pub async fn upload_blob_handler(
   tracing::Span::current().record("blob_hash", &blob_hash);
 
   trace!("Receiving blob data");
-  let stream: AsyncStream<Result<Vec<u8>, BoxedError>, _> = try_stream! {
+  let stream = try_stream! {
     while let Some(mut field) = payload.try_next().await.map_err(Box::new)? {
       let field_name = field.name();
       if field_name != "blob_data" {
