@@ -46,8 +46,8 @@ use tracing::{debug, error};
 
 #[derive(Clone)]
 pub enum WorkflowInProgress {
-  Registration(UserRegistrationInfo),
-  Login(UserLoginInfo),
+  Registration(Box<UserRegistrationInfo>),
+  Login(Box<UserLoginInfo>),
   Update(UpdateState),
 }
 
@@ -171,7 +171,7 @@ impl IdentityClientService for ClientService {
         .cache
         .insert(
           session_id.clone(),
-          WorkflowInProgress::Registration(registration_state),
+          WorkflowInProgress::Registration(Box::new(registration_state)),
         )
         .await;
 
@@ -275,7 +275,7 @@ impl IdentityClientService for ClientService {
         .cache
         .insert(
           session_id.clone(),
-          WorkflowInProgress::Registration(registration_state),
+          WorkflowInProgress::Registration(Box::new(registration_state)),
         )
         .await;
 
@@ -308,7 +308,7 @@ impl IdentityClientService for ClientService {
       let device_id = state.flattened_device_key_upload.device_id_key.clone();
       let user_id = self
         .client
-        .add_password_user_to_users_table(state, password_file)
+        .add_password_user_to_users_table(*state, password_file)
         .await
         .map_err(handle_db_error)?;
 
@@ -509,7 +509,10 @@ impl IdentityClientService for ClientService {
       let session_id = generate_uuid();
       self
         .cache
-        .insert(session_id.clone(), WorkflowInProgress::Login(login_state))
+        .insert(
+          session_id.clone(),
+          WorkflowInProgress::Login(Box::new(login_state)),
+        )
         .await;
 
       let response = Response::new(OpaqueLoginStartResponse {

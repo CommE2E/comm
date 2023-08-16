@@ -53,7 +53,7 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
   let public_key_string = CONFIG
     .keyserver_public_key
     .clone()
-    .ok_or(Status::failed_precondition("missing key"))?;
+    .ok_or_else(|| Status::failed_precondition("missing key"))?;
 
   let public_key_bytes = general_purpose::STANDARD_NO_PAD
     .decode(public_key_string)

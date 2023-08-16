@@ -1029,6 +1029,7 @@ fn parse_registration_data_attribute(
   }
 }
 
+#[allow(dead_code)]
 fn parse_map_attribute(
   attribute_name: &'static str,
   attribute_value: Option<AttributeValue>,
