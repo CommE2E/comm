@@ -3,7 +3,7 @@ use aws_sdk_dynamodb::{
 };
 use chrono::{DateTime, Utc};
 use comm_services_lib::database::{DBItemError, Error, TryFromAttribute};
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 use tracing::error;
 
 use crate::constants::{
@@ -107,13 +107,13 @@ impl LogItem {
 
 #[derive(Clone)]
 pub struct DatabaseClient {
-  client: Arc<aws_sdk_dynamodb::Client>,
+  client: aws_sdk_dynamodb::Client,
 }
 
 impl DatabaseClient {
   pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
     DatabaseClient {
-      client: Arc::new(aws_sdk_dynamodb::Client::new(aws_config)),
+      client: aws_sdk_dynamodb::Client::new(aws_config),
     }
   }
 
