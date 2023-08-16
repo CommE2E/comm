@@ -21,7 +21,7 @@ import {
   avatarOffset,
 } from './chat-constants.js';
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
-import { FailedSend } from './failed-send.react.js';
+import { FailedSend, failedSendHeight } from './failed-send.react.js';
 import { InlineEngagement } from './inline-engagement.react.js';
 import { MessageEditingContext } from './message-editing-context.react.js';
 import { MessageHeader } from './message-header.react.js';
@@ -214,11 +214,21 @@ class ComposedMessage extends React.PureComponent<Props> {
       // We don't force view height in dev mode because we
       // want to measure it in Message to see if it's correct
       if (item.messageShapeType === 'text') {
-        viewStyle.push({ height: item.contentHeight });
+        let height = item.contentHeight;
+        if (sendFailed) {
+          height += failedSendHeight;
+        }
+
+        viewStyle.push({ height });
       } else if (item.messageShapeType === 'multimedia') {
-        const height = item.inlineEngagementHeight
-          ? item.contentHeight + item.inlineEngagementHeight
-          : item.contentHeight;
+        let height = item.contentHeight;
+        if (item.inlineEngagementHeight) {
+          height += item.inlineEngagementHeight;
+        }
+        if (sendFailed) {
+          height += failedSendHeight;
+        }
+
         viewStyle.push({ height });
       }
     }
