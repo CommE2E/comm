@@ -61,27 +61,36 @@ async function deleteThread(
     ),
   ]);
 
-  const query = SQL`
-    DELETE t, ic, d, id, e, ie, re, ire, mm, r, ir, ms, im, up, iu, f, n, ino
-    FROM threads t
-    LEFT JOIN ids ic ON ic.id = t.id
-    LEFT JOIN days d ON d.thread = t.id
-    LEFT JOIN ids id ON id.id = d.id
-    LEFT JOIN entries e ON e.day = d.id
-    LEFT JOIN ids ie ON ie.id = e.id
-    LEFT JOIN revisions re ON re.entry = e.id
-    LEFT JOIN ids ire ON ire.id = re.id
-    LEFT JOIN memberships mm ON mm.thread = t.id
-    LEFT JOIN roles r ON r.thread = t.id
-    LEFT JOIN ids ir ON ir.id = r.id
-    LEFT JOIN messages ms ON ms.thread = t.id
-    LEFT JOIN ids im ON im.id = ms.id
-    LEFT JOIN uploads up ON (up.container = ms.id OR up.container = t.id)
-    LEFT JOIN ids iu ON iu.id = up.id
-    LEFT JOIN focused f ON f.thread = t.id
-    LEFT JOIN notifications n ON n.thread = t.id
-    LEFT JOIN ids ino ON ino.id = n.id
-    WHERE t.id IN (${threadIDs})
+  const deletionQuery = SQL`
+    START TRANSACTION;
+    DELETE FROM threads WHERE id IN (${threadIDs});
+    DELETE FROM ids WHERE id IN (${threadIDs});
+    DELETE d, id, e, ie, r, ir
+      FROM days d
+      LEFT JOIN ids id ON id.id = d.id
+      LEFT JOIN entries e ON e.day = d.id
+      LEFT JOIN ids ie ON ie.id = e.id
+      LEFT JOIN revisions r ON r.entry = e.id
+      LEFT JOIN ids ir ON ir.id = r.id
+      WHERE d.thread IN (${threadIDs});
+    DELETE FROM memberships WHERE thread IN (${threadIDs});
+    DELETE r, i
+      FROM roles r
+      LEFT JOIN ids i ON i.id = r.id
+      WHERE r.thread IN (${threadIDs});
+    DELETE m, im, u, iu
+      FROM messages m
+      LEFT JOIN ids im ON im.id = m.id
+      LEFT JOIN uploads u ON u.container = m.id
+      LEFT JOIN ids iu ON iu.id = u.id
+      WHERE m.thread IN (${threadIDs});
+    DELETE FROM uploads WHERE container IN (${threadIDs});
+    DELETE FROM focused WHERE thread IN (${threadIDs});
+    DELETE n, i
+      FROM notifications n
+      LEFT JOIN ids i ON i.id = n.id
+      WHERE n.thread IN (${threadIDs});
+    COMMIT;
   `;
 
   const time = Date.now();
@@ -99,7 +108,7 @@ async function deleteThread(
 
   const [{ viewerUpdates }] = await Promise.all([
     createUpdates(updateDatas, { viewer, updatesForCurrentSession: 'return' }),
-    dbQuery(query),
+    dbQuery(deletionQuery, { multipleStatements: true }),
   ]);
 
   return { updatesResult: { newUpdates: viewerUpdates } };
