@@ -5,7 +5,10 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useResettingState } from 'lib/hooks/use-resetting-state.js';
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import type {
+  ReactionInfo,
+  ChatMessageInfoItem,
+} from 'lib/selectors/chat-selectors.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
@@ -23,6 +26,7 @@ import {
   type MessageTooltipAction,
   getTooltipPositionStyle,
   calculateMessageTooltipSize,
+  calculateReactionTooltipSize,
   type TooltipPosition,
   type TooltipPositionStyle,
   type TooltipSize,
@@ -30,6 +34,7 @@ import {
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
 import MessageTooltip from '../chat/message-tooltip.react.js';
+import ReactionTooltip from '../chat/reaction-tooltip.react.js';
 import { useTooltipContext } from '../chat/tooltip-provider.js';
 import CommIcon from '../CommIcon.react.js';
 import { InputStateContext } from '../input/input-state.js';
@@ -388,6 +393,11 @@ function useMessageTooltipActions(
   );
 }
 
+const undefinedTooltipSize = {
+  width: 0,
+  height: 0,
+};
+
 type UseMessageTooltipArgs = {
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
   +item: ChatMessageInfoItem,
@@ -410,10 +420,7 @@ function useMessageTooltip({
 
   const tooltipSize = React.useMemo(() => {
     if (typeof document === 'undefined') {
-      return {
-        width: 0,
-        height: 0,
-      };
+      return undefinedTooltipSize;
     }
     const tooltipLabels = tooltipActions.map(action => action.label);
     return calculateMessageTooltipSize({
@@ -449,10 +456,51 @@ function useMessageTooltip({
   };
 }
 
+type UseReactionTooltipArgs = {
+  +reaction: string,
+  +reactions: ReactionInfo,
+  +availablePositions: $ReadOnlyArray<TooltipPosition>,
+};
+
+function useReactionTooltip({
+  reaction,
+  reactions,
+  availablePositions,
+}: UseReactionTooltipArgs): UseTooltipResult {
+  const { users } = reactions[reaction];
+
+  const tooltipSize = React.useMemo(() => {
+    if (typeof document === 'undefined') {
+      return undefinedTooltipSize;
+    }
+
+    const usernames = users.map(user => user.username).filter(Boolean);
+
+    return calculateReactionTooltipSize(usernames);
+  }, [users]);
+
+  const createReactionTooltip = React.useCallback(
+    () => <ReactionTooltip reactions={reactions} reaction={reaction} />,
+    [reaction, reactions],
+  );
+
+  const { onMouseEnter, onMouseLeave } = useTooltip({
+    createTooltip: createReactionTooltip,
+    tooltipSize,
+    availablePositions,
+  });
+
+  return {
+    onMouseEnter,
+    onMouseLeave,
+  };
+}
+
 export {
   useMessageTooltipSidebarAction,
   useMessageTooltipReplyAction,
   useMessageReactAction,
   useMessageTooltipActions,
   useMessageTooltip,
+  useReactionTooltip,
 };
