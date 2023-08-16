@@ -14,7 +14,7 @@ aws-sdk-dynamodb = "0.27"
 aws-types = "0.55"
 chrono = "0.4"
 clap = { version = "4.0", features = ["derive", "env"] }
-comm-services-lib = { path = "../comm-services-lib", features = ["http"] }
+comm-services-lib = { path = "../comm-services-lib", features = ["http", "blob-client"] }
 once_cell = "1.17"
 rand = "0.8.5"
 tokio = { version = "1.24", features = ["rt-multi-thread", "macros"] }
@@ -25,6 +25,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1.2", features = ["v4"] }
 actix-web = "4.3"
 tracing-actix-web = "0.7.3"
+reqwest = "0.11.18"
 
 [build-dependencies]
 tonic-build = "0.8"
