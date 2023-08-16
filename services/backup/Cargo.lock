@@ -747,6 +747,7 @@ dependencies = [
 name = "backup"
 version = "0.1.0"
 dependencies = [
+ "actix-multipart",
  "actix-web",
  "anyhow",
  "async-stream",

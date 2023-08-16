@@ -30,6 +30,7 @@ actix-web = "4.3"
 tracing-actix-web = "0.7.3"
 reqwest = "0.11.18"
 derive_more = "0.99"
+actix-multipart = "0.6"
 
 [build-dependencies]
 tonic-build = "0.8"

@@ -1,5 +1,5 @@
 use aws_sdk_dynamodb::types::AttributeValue;
-use aws_sdk_dynamodb::Error as DynamoDBError;
+pub use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::{DateTime, Utc};
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
