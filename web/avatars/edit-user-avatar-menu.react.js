@@ -10,7 +10,7 @@ import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
-import css from './edit-user-avatar-menu.css';
+import css from './edit-avatar-menu.css';
 import EmojiAvatarSelectionModal from './emoji-avatar-selection-modal.react.js';
 import CommIcon from '../CommIcon.react.js';
 import MenuItem from '../components/menu-item.react.js';
