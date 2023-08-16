@@ -5,7 +5,9 @@ use actix_web::{
   },
   HttpResponse, ResponseError,
 };
+pub use aws_sdk_dynamodb::Error as DynamoDBError;
 use comm_services_lib::blob::client::BlobServiceError;
+use comm_services_lib::database::Error as DBError;
 use reqwest::StatusCode;
 use tracing::{error, trace, warn};
 
@@ -14,6 +16,7 @@ use tracing::{error, trace, warn};
 )]
 pub enum BackupError {
   BlobError(BlobServiceError),
+  DB(comm_services_lib::database::Error),
 }
 
 impl From<&BackupError> for actix_web::Error {
@@ -41,6 +44,20 @@ impl From<&BackupError> for actix_web::Error {
         error!("Unexpected blob error: {err}");
         ErrorInternalServerError("server error")
       }
+      BackupError::DB(err) => match err {
+        DBError::AwsSdk(
+          err @ (DynamoDBError::InternalServerError(_)
+          | DynamoDBError::ProvisionedThroughputExceededException(_)
+          | DynamoDBError::RequestLimitExceeded(_)),
+        ) => {
+          warn!("AWS transient error occurred: {err}");
+          ErrorServiceUnavailable("please retry")
+        }
+        unexpected => {
+          error!("Received an unexpected DB error: {0:?} - {0}", unexpected);
+          ErrorInternalServerError("server error")
+        }
+      },
     }
   }
 }
