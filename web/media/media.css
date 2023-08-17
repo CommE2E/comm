@@ -100,6 +100,7 @@ div.multimediaModalOverlay {
   box-sizing: border-box;
   display: flex;
   justify-content: center;
+  -webkit-app-region: no-drag;
 }
 div.multimediaModalOverlay > .mediaContainer {
   display: flex;
