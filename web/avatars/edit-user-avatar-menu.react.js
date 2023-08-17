@@ -11,7 +11,7 @@ import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
-import EmojiAvatarSelectionModal from './emoji-avatar-selection-modal.react.js';
+import UserEmojiAvatarSelectionModal from './user-emoji-avatar-selection-modal.react.js';
 import CommIcon from '../CommIcon.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
@@ -45,7 +45,7 @@ function EditUserAvatarMenu(): React.Node {
   const { pushModal } = useModalContext();
 
   const openEmojiSelectionModal = React.useCallback(
-    () => pushModal(<EmojiAvatarSelectionModal />),
+    () => pushModal(<UserEmojiAvatarSelectionModal />),
     [pushModal],
   );
 
