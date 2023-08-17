@@ -424,8 +424,8 @@ async function checkState(
     fetchAllUserInfos = false,
     fetchUserInfo = false;
   const threadIDsToFetch = new Set(),
-    entryIDsToFetch = [],
-    userIDsToFetch = [];
+    entryIDsToFetch = new Set(),
+    userIDsToFetch = new Set();
   for (const key of invalidKeys) {
     if (key === 'threadInfos') {
       fetchAllThreads = true;
@@ -440,10 +440,10 @@ async function checkState(
       threadIDsToFetch.add(threadID);
     } else if (key.startsWith('entryInfo|')) {
       const [, entryID] = key.split('|');
-      entryIDsToFetch.push(entryID);
+      entryIDsToFetch.add(entryID);
     } else if (key.startsWith('userInfo|')) {
       const [, userID] = key.split('|');
-      userIDsToFetch.push(userID);
+      userIDsToFetch.add(userID);
     }
   }
 
@@ -457,13 +457,13 @@ async function checkState(
   }
   if (fetchAllEntries) {
     fetchPromises.entriesResult = fetchEntryInfos(viewer, [calendarQuery]);
-  } else if (entryIDsToFetch.length > 0) {
+  } else if (entryIDsToFetch.size > 0) {
     fetchPromises.entryInfos = fetchEntryInfosByID(viewer, entryIDsToFetch);
   }
   if (fetchAllUserInfos) {
     fetchPromises.userInfos = fetchKnownUserInfos(viewer);
-  } else if (userIDsToFetch.length > 0) {
-    fetchPromises.userInfos = fetchKnownUserInfos(viewer, userIDsToFetch);
+  } else if (userIDsToFetch.size > 0) {
+    fetchPromises.userInfos = fetchKnownUserInfos(viewer, [...userIDsToFetch]);
   }
   if (fetchUserInfo) {
     fetchPromises.currentUserInfo = fetchCurrentUserInfo(viewer);
