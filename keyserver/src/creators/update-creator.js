@@ -481,9 +481,10 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   }
 
   if (entryIDsNeedingFetch.size > 0) {
-    promises.entryInfosResult = fetchEntryInfosByID(viewer, [
-      ...entryIDsNeedingFetch,
-    ]);
+    promises.entryInfosResult = fetchEntryInfosByID(
+      viewer,
+      entryIDsNeedingFetch,
+    );
   }
 
   if (currentUserNeedsFetch) {

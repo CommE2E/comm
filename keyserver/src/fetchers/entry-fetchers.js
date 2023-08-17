@@ -37,7 +37,7 @@ async function fetchEntryInfo(
   viewer: Viewer,
   entryID: string,
 ): Promise<?RawEntryInfo> {
-  const results = await fetchEntryInfosByID(viewer, [entryID]);
+  const results = await fetchEntryInfosByID(viewer, new Set([entryID]));
   if (results.length === 0) {
     return null;
   }
@@ -61,9 +61,9 @@ function rawEntryInfoFromRow(row: Object): RawEntryInfo {
 const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
 async function fetchEntryInfosByID(
   viewer: Viewer,
-  entryIDs: $ReadOnlyArray<string>,
+  entryIDs: $ReadOnlySet<string>,
 ): Promise<RawEntryInfo[]> {
-  if (entryIDs.length === 0) {
+  if (entryIDs.size === 0) {
     return [];
   }
   const viewerID = viewer.id;
@@ -74,7 +74,7 @@ async function fetchEntryInfosByID(
     FROM entries e
     LEFT JOIN days d ON d.id = e.day
     LEFT JOIN memberships m ON m.thread = d.thread AND m.user = ${viewerID}
-    WHERE e.id IN (${entryIDs}) AND
+    WHERE e.id IN (${[...entryIDs]}) AND
       JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
   `;
   const [result] = await dbQuery(query);
