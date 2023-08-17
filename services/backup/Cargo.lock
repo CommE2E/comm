@@ -756,6 +756,7 @@ dependencies = [
  "chrono",
  "clap",
  "comm-services-lib",
+ "derive_more",
  "once_cell",
  "rand",
  "reqwest",
