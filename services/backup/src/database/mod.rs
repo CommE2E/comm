@@ -1,9 +1,12 @@
+pub mod backup_item;
+pub mod log_item;
+
+use std::collections::HashMap;
+
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput, types::AttributeValue,
 };
-use chrono::{DateTime, Utc};
-use comm_services_lib::database::{DBItemError, Error, TryFromAttribute};
-use std::collections::HashMap;
+use comm_services_lib::database::Error;
 use tracing::error;
 
 use crate::constants::{
@@ -16,94 +19,10 @@ use crate::constants::{
   LOG_TABLE_FIELD_PERSISTED_IN_BLOB, LOG_TABLE_FIELD_VALUE, LOG_TABLE_NAME,
 };
 
-#[derive(Clone, Debug)]
-pub struct BackupItem {
-  pub user_id: String,
-  pub backup_id: String,
-  pub created: DateTime<Utc>,
-  pub recovery_data: String,
-  pub compaction_holder: String,
-  pub attachment_holders: String,
-}
-
-impl BackupItem {
-  pub fn new(
-    user_id: String,
-    backup_id: String,
-    compaction_holder: String,
-  ) -> Self {
-    BackupItem {
-      user_id,
-      backup_id,
-      compaction_holder,
-      created: chrono::Utc::now(),
-      // TODO: Recovery data is mocked with random string
-      recovery_data: crate::utils::generate_random_string(
-        20,
-        &mut rand::thread_rng(),
-      ),
-      attachment_holders: String::new(),
-    }
-  }
-}
-
-static LOG_ITEM_HEADERS_SIZE: usize = {
-  let mut size: usize = 0;
-  size += LOG_TABLE_FIELD_BACKUP_ID.as_bytes().len();
-  size += LOG_TABLE_FIELD_LOG_ID.as_bytes().len();
-  size += LOG_TABLE_FIELD_PERSISTED_IN_BLOB.as_bytes().len();
-  size += LOG_TABLE_FIELD_VALUE.as_bytes().len();
-  size += LOG_TABLE_FIELD_ATTACHMENT_HOLDERS.as_bytes().len();
-  size += LOG_TABLE_FIELD_DATA_HASH.as_bytes().len();
-  size
+use self::{
+  backup_item::{parse_backup_item, BackupItem},
+  log_item::{parse_log_item, LogItem},
 };
-
-#[derive(Clone, Debug)]
-pub struct LogItem {
-  pub backup_id: String,
-  pub log_id: String,
-  pub persisted_in_blob: bool,
-  pub value: String,
-  pub attachment_holders: String,
-  pub data_hash: String,
-}
-
-impl LogItem {
-  /// Calculates size based on raw log item components,
-  /// without allocating a new item
-  pub fn size_from_components(
-    backup_id: &str,
-    log_id: &str,
-    log_hash: &str,
-    data: &[u8],
-  ) -> usize {
-    let mut size: usize = LOG_ITEM_HEADERS_SIZE;
-    size += backup_id.as_bytes().len();
-    size += log_id.as_bytes().len();
-    size += data.len();
-    size += log_hash.as_bytes().len();
-
-    // persistent in blob, attachment holders, use defaults here
-    size += false.to_string().as_bytes().len();
-    size += "".as_bytes().len();
-
-    size
-  }
-
-  /// Total size of this item in the DynamoDB table. This value must be
-  /// smaller than [`crate::constants::LOG_DATA_SIZE_DATABASE_LIMIT`]
-  /// in order to successfully put this item into a DynamoDB database.
-  pub fn total_size(&self) -> usize {
-    let mut size: usize = LOG_ITEM_HEADERS_SIZE;
-    size += self.backup_id.as_bytes().len();
-    size += self.log_id.as_bytes().len();
-    size += self.persisted_in_blob.to_string().as_bytes().len();
-    size += self.value.as_bytes().len();
-    size += self.attachment_holders.as_bytes().len();
-    size += self.data_hash.as_bytes().len();
-    size
-  }
-}
 
 #[derive(Clone)]
 pub struct DatabaseClient {
@@ -386,78 +305,4 @@ impl DatabaseClient {
 
     Ok(())
   }
-}
-
-fn parse_backup_item(
-  mut item: HashMap<String, AttributeValue>,
-) -> Result<BackupItem, DBItemError> {
-  let user_id = String::try_from_attr(
-    BACKUP_TABLE_FIELD_USER_ID,
-    item.remove(BACKUP_TABLE_FIELD_USER_ID),
-  )?;
-  let backup_id = String::try_from_attr(
-    BACKUP_TABLE_FIELD_BACKUP_ID,
-    item.remove(BACKUP_TABLE_FIELD_BACKUP_ID),
-  )?;
-  let created = DateTime::<Utc>::try_from_attr(
-    BACKUP_TABLE_FIELD_CREATED,
-    item.remove(BACKUP_TABLE_FIELD_CREATED),
-  )?;
-  let recovery_data = String::try_from_attr(
-    BACKUP_TABLE_FIELD_RECOVERY_DATA,
-    item.remove(BACKUP_TABLE_FIELD_RECOVERY_DATA),
-  )?;
-  let compaction_holder = String::try_from_attr(
-    BACKUP_TABLE_FIELD_COMPACTION_HOLDER,
-    item.remove(BACKUP_TABLE_FIELD_COMPACTION_HOLDER),
-  )?;
-  let attachment_holders = String::try_from_attr(
-    BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS,
-    item.remove(BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS),
-  )?;
-  Ok(BackupItem {
-    user_id,
-    backup_id,
-    created,
-    recovery_data,
-    compaction_holder,
-    attachment_holders,
-  })
-}
-
-fn parse_log_item(
-  mut item: HashMap<String, AttributeValue>,
-) -> Result<LogItem, DBItemError> {
-  let backup_id = String::try_from_attr(
-    LOG_TABLE_FIELD_BACKUP_ID,
-    item.remove(LOG_TABLE_FIELD_BACKUP_ID),
-  )?;
-  let log_id = String::try_from_attr(
-    LOG_TABLE_FIELD_LOG_ID,
-    item.remove(LOG_TABLE_FIELD_LOG_ID),
-  )?;
-  let persisted_in_blob = bool::try_from_attr(
-    LOG_TABLE_FIELD_PERSISTED_IN_BLOB,
-    item.remove(LOG_TABLE_FIELD_PERSISTED_IN_BLOB),
-  )?;
-  let value = String::try_from_attr(
-    LOG_TABLE_FIELD_VALUE,
-    item.remove(LOG_TABLE_FIELD_VALUE),
-  )?;
-  let data_hash = String::try_from_attr(
-    LOG_TABLE_FIELD_DATA_HASH,
-    item.remove(LOG_TABLE_FIELD_DATA_HASH),
-  )?;
-  let attachment_holders = String::try_from_attr(
-    LOG_TABLE_FIELD_ATTACHMENT_HOLDERS,
-    item.remove(LOG_TABLE_FIELD_ATTACHMENT_HOLDERS),
-  )?;
-  Ok(LogItem {
-    log_id,
-    backup_id,
-    persisted_in_blob,
-    value,
-    data_hash,
-    attachment_holders,
-  })
 }
