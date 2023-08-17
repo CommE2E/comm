@@ -1,23 +1,16 @@
-use clap::{builder::FalseyValueParser, Parser};
+use clap::Parser;
 use once_cell::sync::Lazy;
 use tracing::info;
 
-use crate::constants::{
-  DEFAULT_BLOB_SERVICE_URL, DEFAULT_LOCALSTACK_URL, SANDBOX_ENV_VAR,
-};
+use crate::constants::DEFAULT_BLOB_SERVICE_URL;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct AppConfig {
-  /// Run the service in sandbox
-  #[arg(long = "sandbox", default_value_t = false)]
-  // support the env var for compatibility reasons
-  #[arg(env = SANDBOX_ENV_VAR)]
-  #[arg(value_parser = FalseyValueParser::new())]
-  pub is_sandbox: bool,
-  /// AWS Localstack service URL, applicable in sandbox mode
-  #[arg(long, default_value_t = DEFAULT_LOCALSTACK_URL.to_string())]
-  pub localstack_url: String,
+  /// AWS Localstack service URL
+  #[arg(env = "LOCALSTACK_ENDPOINT")]
+  #[arg(long)]
+  pub localstack_endpoint: Option<String>,
   /// Blob service URL
   #[arg(long, default_value_t = DEFAULT_BLOB_SERVICE_URL.to_string())]
   pub blob_service_url: String,
@@ -38,12 +31,9 @@ pub(super) fn parse_cmdline_args() {
 pub async fn load_aws_config() -> aws_types::SdkConfig {
   let mut config_builder = aws_config::from_env();
 
-  if CONFIG.is_sandbox {
-    info!(
-      "Running in sandbox environment. Localstack URL: {}",
-      &CONFIG.localstack_url
-    );
-    config_builder = config_builder.endpoint_url(&CONFIG.localstack_url);
+  if let Some(endpoint) = &CONFIG.localstack_endpoint {
+    info!("Using Localstack. AWS endpoint URL: {}", endpoint);
+    config_builder = config_builder.endpoint_url(endpoint);
   }
 
   config_builder.load().await

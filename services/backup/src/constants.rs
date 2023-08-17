@@ -31,12 +31,9 @@ pub const GRPC_CHUNK_SIZE_LIMIT: usize = 4 * 1024 * 1024;
 pub const GRPC_METADATA_SIZE_PER_MESSAGE: usize = 5;
 
 // Configuration defaults
-pub const DEFAULT_LOCALSTACK_URL: &str = "http://localhost:4566";
 pub const DEFAULT_BLOB_SERVICE_URL: &str = "http://localhost:50053";
 
 // Environment variable names
-
-pub const SANDBOX_ENV_VAR: &str = "COMM_SERVICES_SANDBOX";
 pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 
