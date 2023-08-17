@@ -64,13 +64,13 @@ import {
 
     // Allow login to be optional until staging environment is available
     try {
-      // We await here to ensure Keyserver has been provisioned a
-      // "commServicesAccessToken". In the future, this will be necessary for
-      // many Keyserver operations.
+      // We await here to ensure the keyserver has been provisioned a
+      // commServicesAccessToken. In the future, this will be necessary for
+      // many keyserver operations.
       const identityInfo = await verifyUserLoggedIn();
       // We don't await here, as Tunnelbroker communication is not needed for
-      // normal Keyserver behavior. In addition, this doesn't return information
-      // useful for other Keyserver functions.
+      // normal keyserver behavior yet. In addition, this doesn't return
+      // information useful for other keyserver functions.
       handleAsyncPromise(createAndMaintainTunnelbrokerWebsocket(identityInfo));
     } catch (e) {
       console.warn('failed_identity_login');
