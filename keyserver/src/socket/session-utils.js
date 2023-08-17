@@ -521,12 +521,14 @@ async function checkState(
       stateChanges.rawThreadInfos.push(threadInfo);
     } else if (key.startsWith('entryInfo|')) {
       const [, entryID] = key.split('|');
-      const rawEntryInfos = fetchedData.entriesResult
-        ? fetchedData.entriesResult.rawEntryInfos
-        : fetchedData.entryInfos;
-      const entryInfo = rawEntryInfos.find(
-        candidate => candidate.id === entryID,
-      );
+      let entryInfo;
+      if (fetchedData.entriesResult) {
+        entryInfo = fetchedData.entriesResult.rawEntryInfos.find(
+          candidate => candidate.id === entryID,
+        );
+      } else {
+        entryInfo = fetchedData.entryInfos[entryID];
+      }
       if (!entryInfo) {
         if (!stateChanges.deleteEntryIDs) {
           stateChanges.deleteEntryIDs = [];

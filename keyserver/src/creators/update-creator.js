@@ -9,7 +9,7 @@ import {
   rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils.js';
 import {
-  type RawEntryInfo,
+  type RawEntryInfos,
   type FetchEntryInfosBase,
   type CalendarQuery,
   defaultCalendarQuery,
@@ -526,7 +526,7 @@ export type UpdateInfosRawData = {
   threadInfosResult: FetchThreadInfosResult,
   messageInfosResult: ?FetchMessageInfosResult,
   calendarResult: ?FetchEntryInfosBase,
-  entryInfosResult: ?$ReadOnlyArray<RawEntryInfo>,
+  entryInfosResult: ?RawEntryInfos,
   currentUserInfoResult: ?OldLoggedInUserInfo | LoggedInUserInfo,
 };
 async function updateInfosFromRawUpdateInfos(
@@ -634,9 +634,7 @@ async function updateInfosFromRawUpdateInfos(
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
       invariant(entryInfosResult, 'should be set');
-      const entryInfo = entryInfosResult.find(
-        candidate => candidate.id === rawUpdateInfo.entryID,
-      );
+      const entryInfo = entryInfosResult[rawUpdateInfo.entryID];
       if (!entryInfo) {
         console.warn(
           "failed to hydrate updateTypes.UPDATE_ENTRY because we couldn't " +

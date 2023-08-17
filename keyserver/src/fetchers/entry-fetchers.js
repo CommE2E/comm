@@ -14,6 +14,7 @@ import type {
   FetchEntryInfosBase,
   DeltaEntryInfosResponse,
   RawEntryInfo,
+  RawEntryInfos,
 } from 'lib/types/entry-types.js';
 import { calendarThreadFilterTypes } from 'lib/types/filter-types.js';
 import type { HistoryRevisionInfo } from 'lib/types/history-types.js';
@@ -38,10 +39,7 @@ async function fetchEntryInfo(
   entryID: string,
 ): Promise<?RawEntryInfo> {
   const results = await fetchEntryInfosByID(viewer, new Set([entryID]));
-  if (results.length === 0) {
-    return null;
-  }
-  return results[0];
+  return results[entryID];
 }
 
 function rawEntryInfoFromRow(row: Object): RawEntryInfo {
@@ -62,9 +60,9 @@ const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
 async function fetchEntryInfosByID(
   viewer: Viewer,
   entryIDs: $ReadOnlySet<string>,
-): Promise<RawEntryInfo[]> {
+): Promise<RawEntryInfos> {
   if (entryIDs.size === 0) {
-    return [];
+    return {};
   }
   const viewerID = viewer.id;
   const query = SQL`
@@ -78,7 +76,11 @@ async function fetchEntryInfosByID(
       JSON_EXTRACT(m.permissions, ${visPermissionExtractString}) IS TRUE
   `;
   const [result] = await dbQuery(query);
-  return result.map(rawEntryInfoFromRow);
+  const entryInfos = {};
+  for (const row of result) {
+    entryInfos[row.id] = rawEntryInfoFromRow(row);
+  }
+  return entryInfos;
 }
 
 function sqlConditionForCalendarQuery(
