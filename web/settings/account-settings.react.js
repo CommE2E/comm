@@ -18,7 +18,6 @@ import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
-import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -77,18 +76,10 @@ function AccountSettings(): React.Node {
     );
   }
 
-  const editingAvatarsOnWebEnabled = true;
-  let avatarNode;
-  if (editingAvatarsOnWebEnabled) {
-    avatarNode = <EditUserAvatar userID={currentUserInfo.id} />;
-  } else {
-    avatarNode = <UserAvatar size="profile" userID={currentUserInfo.id} />;
-  }
-
   return (
     <div className={css.container}>
       <h4 className={css.header}>My Account</h4>
-      {avatarNode}
+      <EditUserAvatar userID={currentUserInfo.id} />
       <div className={css.content}>
         <ul>
           <li>
