@@ -32,7 +32,7 @@ import { registerConfig } from 'lib/utils/config.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
-import WebEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
+import WebEditThreadAvatarProvider from './avatars/web-edit-thread-avatar-provider.react.js';
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
