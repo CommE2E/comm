@@ -11,6 +11,7 @@ import type {
   ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 
+import MarkdownChatMention from './markdown-chat-mention.react.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
 
 export type MarkdownRules = {
@@ -197,6 +198,25 @@ function textMessageRules(
           output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
           state: SharedMarkdown.State,
         ) => <strong key={state.key}>{node.content}</strong>,
+      },
+      chatMention: {
+        ...SimpleMarkdown.defaultRules.strong,
+        match: SharedMarkdown.matchChatMentions(),
+        parse: (capture: SharedMarkdown.Capture) =>
+          SharedMarkdown.parseChatMention(chatMentionCandidates, capture),
+        // eslint-disable-next-line react/display-name
+        react: (
+          node: SharedMarkdown.SingleASTNode,
+          output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+          state: SharedMarkdown.State,
+        ) => (
+          <MarkdownChatMention
+            key={state.key}
+            threadInfo={node.threadInfo}
+            hasAccessToChat={node.hasAccessToChat}
+            text={node.content}
+          />
+        ),
       },
     },
   };
