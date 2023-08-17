@@ -6,6 +6,7 @@ use tracing_subscriber::EnvFilter;
 pub mod config;
 pub mod constants;
 pub mod database;
+pub mod error;
 pub mod http;
 pub mod utils;
 
