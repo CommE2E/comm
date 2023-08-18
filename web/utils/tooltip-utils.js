@@ -48,6 +48,25 @@ export type MessageTooltipAction = {
   +actionButtonContent: React.Node,
 };
 
+function getTooltipScreenOverflowXCorrection(
+  xAnchor: number,
+  tooltipWidth: number,
+): number {
+  const appContainerPositionInfo = getAppContainerPositionInfo();
+  if (!appContainerPositionInfo) {
+    return 0;
+  }
+
+  const { right: containerRight } = appContainerPositionInfo;
+  const padding = 8;
+
+  const tooltipScreenOverflowX = xAnchor + tooltipWidth - containerRight;
+  const correction =
+    tooltipScreenOverflowX > 0 ? -tooltipScreenOverflowX - padding : 0;
+
+  return correction;
+}
+
 type FindTooltipPositionArgs = {
   +sourcePositionInfo: PositionInfo,
   +tooltipSize: TooltipSize,
@@ -252,12 +271,19 @@ function getTooltipStyle({
       alignment: 'left',
     };
   } else if (tooltipPosition === tooltipPositions.TOP) {
+    const xAnchor =
+      sourcePositionInfo.left +
+      sourcePositionInfo.width / 2 -
+      tooltipSize.width / 2;
+
+    const tooltipOverflowXCorrection = getTooltipScreenOverflowXCorrection(
+      xAnchor,
+      tooltipSize.width,
+    );
+
     return {
       anchorPoint: {
-        x:
-          sourcePositionInfo.left +
-          sourcePositionInfo.width / 2 -
-          tooltipSize.width / 2,
+        x: xAnchor + tooltipOverflowXCorrection,
         y: sourcePositionInfo.top,
       },
       horizontalPosition: 'right',
@@ -265,12 +291,19 @@ function getTooltipStyle({
       alignment: 'center',
     };
   } else if (tooltipPosition === tooltipPositions.BOTTOM) {
+    const xAnchor =
+      sourcePositionInfo.left +
+      sourcePositionInfo.width / 2 -
+      tooltipSize.width / 2;
+
+    const tooltipOverflowXCorrection = getTooltipScreenOverflowXCorrection(
+      xAnchor,
+      tooltipSize.width,
+    );
+
     return {
       anchorPoint: {
-        x:
-          sourcePositionInfo.left +
-          sourcePositionInfo.width / 2 -
-          tooltipSize.width / 2,
+        x: xAnchor + tooltipOverflowXCorrection,
         y: sourcePositionInfo.bottom,
       },
       horizontalPosition: 'right',
