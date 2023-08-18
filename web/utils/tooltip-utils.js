@@ -48,6 +48,28 @@ export type MessageTooltipAction = {
   +actionButtonContent: React.Node,
 };
 
+function getTooltipScreenOverflowRightCorrection(
+  xAnchor: number,
+  tooltipWidth: number,
+): number {
+  const appContainerPositionInfo = getAppContainerPositionInfo();
+  if (!appContainerPositionInfo) {
+    return 0;
+  }
+
+  const { right: containerRight } = appContainerPositionInfo;
+  const padding = 8;
+
+  const tooltipRightEdge = xAnchor + tooltipWidth;
+  const correction = tooltipRightEdge - containerRight;
+
+  if (correction <= 0) {
+    return 0;
+  }
+
+  return correction + padding;
+}
+
 type FindTooltipPositionArgs = {
   +sourcePositionInfo: PositionInfo,
   +tooltipSize: TooltipSize,
@@ -252,12 +274,19 @@ function getTooltipStyle({
       alignment: 'left',
     };
   } else if (tooltipPosition === tooltipPositions.TOP) {
+    const xAnchor =
+      sourcePositionInfo.left +
+      sourcePositionInfo.width / 2 -
+      tooltipSize.width / 2;
+
+    const tooltipOverflowXCorrection = getTooltipScreenOverflowRightCorrection(
+      xAnchor,
+      tooltipSize.width,
+    );
+
     return {
       anchorPoint: {
-        x:
-          sourcePositionInfo.left +
-          sourcePositionInfo.width / 2 -
-          tooltipSize.width / 2,
+        x: xAnchor - tooltipOverflowXCorrection,
         y: sourcePositionInfo.top,
       },
       horizontalPosition: 'right',
@@ -265,12 +294,19 @@ function getTooltipStyle({
       alignment: 'center',
     };
   } else if (tooltipPosition === tooltipPositions.BOTTOM) {
+    const xAnchor =
+      sourcePositionInfo.left +
+      sourcePositionInfo.width / 2 -
+      tooltipSize.width / 2;
+
+    const tooltipOverflowXCorrection = getTooltipScreenOverflowRightCorrection(
+      xAnchor,
+      tooltipSize.width,
+    );
+
     return {
       anchorPoint: {
-        x:
-          sourcePositionInfo.left +
-          sourcePositionInfo.width / 2 -
-          tooltipSize.width / 2,
+        x: xAnchor - tooltipOverflowXCorrection,
         y: sourcePositionInfo.bottom,
       },
       horizontalPosition: 'right',
