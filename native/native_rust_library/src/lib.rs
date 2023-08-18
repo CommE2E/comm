@@ -9,12 +9,15 @@ use tokio::runtime::{Builder, Runtime};
 use tonic::{transport::Channel, Status};
 use tracing::instrument;
 
+mod argon2_tools;
 mod crypto_tools;
 mod identity_client;
+
 mod identity {
   tonic::include_proto!("identity.client");
 }
 
+use argon2_tools::compute_backup_key;
 use crypto_tools::generate_device_id;
 use identity::identity_client_service_client::IdentityClientServiceClient;
 use identity::{
@@ -106,6 +109,9 @@ mod ffi {
 
     // Crypto Tools
     fn generate_device_id(device_type: DeviceType) -> Result<String>;
+
+    // Argon2
+    fn compute_backup_key(password: &str, backup_id: &str) -> Result<[u8; 32]>;
   }
 
   unsafe extern "C++" {
