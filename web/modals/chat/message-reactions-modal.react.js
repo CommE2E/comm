@@ -34,7 +34,7 @@ function MessageReactionsModal(props: Props): React.Node {
   );
 
   return (
-    <Modal size="large" name="Reactions" onClose={onClose}>
+    <Modal size="large" name="All reactions" onClose={onClose}>
       <div className={css.modalContentContainer}>{reactionsList}</div>
     </Modal>
   );
