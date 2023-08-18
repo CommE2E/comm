@@ -67,7 +67,7 @@ function MessageReactionsModal(props: Props): React.Node {
     >
       <SafeAreaView edges={modalContainerSafeAreaEdges}>
         <View style={styles.modalContentContainer}>
-          <Text style={styles.reactionsListTitleText}>Reactions</Text>
+          <Text style={styles.reactionsListTitleText}>All reactions</Text>
           <TouchableHighlight
             onPress={close}
             style={styles.closeButton}
