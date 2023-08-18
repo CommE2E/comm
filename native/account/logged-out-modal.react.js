@@ -556,19 +556,39 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         );
       }
 
+      const signInButtons = [];
+      signInButtons.push(
+        <TouchableOpacity
+          onPress={this.onPressLogIn}
+          style={[styles.button, styles.classicAuthButton]}
+          activeOpacity={0.6}
+          key="login-form"
+        >
+          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+            Sign in
+          </Text>
+        </TouchableOpacity>,
+      );
+      if (__DEV__) {
+        signInButtons.push(
+          <TouchableOpacity
+            onPress={null}
+            style={[styles.button, styles.classicAuthButton]}
+            activeOpacity={0.6}
+            key="qr-code-login"
+          >
+            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+              Sign in (QR)
+            </Text>
+          </TouchableOpacity>,
+        );
+      }
+
       buttons = (
         <Animated.View style={[styles.buttonContainer, opacityStyle]}>
           <LoggedOutStaffInfo />
           {siweButton}
-          <TouchableOpacity
-            onPress={this.onPressLogIn}
-            style={[styles.button, styles.classicAuthButton]}
-            activeOpacity={0.6}
-          >
-            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-              Sign in
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.signInButtons}>{signInButtons}</View>
           <View style={styles.registerButtons}>{registerButtons}</View>
         </Animated.View>
       );
@@ -703,6 +723,9 @@ const unboundStyles = {
     color: 'whiteText',
   },
   registerButtons: {
+    flexDirection: 'row',
+  },
+  signInButtons: {
     flexDirection: 'row',
   },
   container: {
