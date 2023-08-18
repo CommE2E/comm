@@ -144,3 +144,66 @@ async fn forward_field_to_blob(
 
   Ok(blob_info)
 }
+
+#[instrument(name = "download_user_keys", skip_all, fields(backup_id = %path.as_str()))]
+pub async fn download_user_keys(
+  user: UserIdentity,
+  path: web::Path<String>,
+  blob_client: web::Data<BlobServiceClient>,
+  db_client: web::Data<DatabaseClient>,
+) -> actix_web::Result<HttpResponse> {
+  info!("Download user keys request");
+  let backup_id = path.into_inner();
+  download_user_blob(
+    |item| &item.user_keys,
+    &user.user_id,
+    &backup_id,
+    blob_client,
+    db_client,
+  )
+  .await
+}
+
+#[instrument(name = "download_user_data", skip_all, fields(backup_id = %path.as_str()))]
+pub async fn download_user_data(
+  user: UserIdentity,
+  path: web::Path<String>,
+  blob_client: web::Data<BlobServiceClient>,
+  db_client: web::Data<DatabaseClient>,
+) -> actix_web::Result<HttpResponse> {
+  info!("Download user data request");
+  let backup_id = path.into_inner();
+  download_user_blob(
+    |item| &item.user_data,
+    &user.user_id,
+    &backup_id,
+    blob_client,
+    db_client,
+  )
+  .await
+}
+
+pub async fn download_user_blob(
+  data_extractor: impl FnOnce(&BackupItem) -> &BlobInfo,
+  user_id: &str,
+  backup_id: &str,
+  blob_client: web::Data<BlobServiceClient>,
+  db_client: web::Data<DatabaseClient>,
+) -> actix_web::Result<HttpResponse> {
+  let backup_item = db_client
+    .find_backup_item(user_id, backup_id)
+    .await
+    .map_err(BackupError::from)?
+    .ok_or(BackupError::NoBackup)?;
+
+  let stream = blob_client
+    .get(&data_extractor(&backup_item).blob_hash)
+    .await
+    .map_err(BackupError::from)?;
+
+  Ok(
+    HttpResponse::Ok()
+      .content_type("application/octet-stream")
+      .streaming(stream),
+  )
+}

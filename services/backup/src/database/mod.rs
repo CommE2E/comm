@@ -72,7 +72,7 @@ impl DatabaseClient {
       ),
     ]);
 
-    match self
+    let output = self
       .client
       .get_item()
       .table_name(BACKUP_TABLE_NAME)
@@ -82,15 +82,16 @@ impl DatabaseClient {
       .map_err(|e| {
         error!("DynamoDB client failed to find backup item");
         Error::AwsSdk(e.into())
-      })? {
-      GetItemOutput {
-        item: Some(item), ..
-      } => {
-        let backup_item = item.try_into()?;
-        Ok(Some(backup_item))
-      }
-      _ => Ok(None),
-    }
+      })?;
+
+    let GetItemOutput {
+      item: Some(item), ..
+    } = output else {
+      return Ok(None)
+    };
+
+    let backup_item = item.try_into()?;
+    Ok(Some(backup_item))
   }
 
   pub async fn find_last_backup_item(
