@@ -27,7 +27,7 @@ type ClientPublicKeys = {
   +signature: string,
 };
 
-export interface Spec extends TurboModule {
+interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
   +updateDraft: (key: string, text: string) => Promise<boolean>;
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
@@ -79,6 +79,14 @@ export interface Spec extends TurboModule {
   +clearSensitiveData: () => Promise<void>;
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;
+  +computeBackupKey: (password: string, backupID: string) => Promise<Object>;
+}
+
+export interface CoreModuleSpec extends Spec {
+  +computeBackupKey: (
+    password: string,
+    backupID: string,
+  ) => Promise<ArrayBuffer>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
