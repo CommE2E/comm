@@ -845,4 +845,33 @@ jsi::Value CommCoreModule::computeBackupKey(
       });
 }
 
+jsi::Value CommCoreModule::generateRandomString(jsi::Runtime &rt, double size) {
+  return createPromiseAsJSIValue(
+      rt,
+      [this, &size](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, &size, promise]() {
+          std::string error;
+          std::string randomString;
+          try {
+            randomString = crypto::Tools::generateRandomString(size);
+          } catch (const std::exception &e) {
+            error = "Failed to generate random string for size " +
+                std::to_string(size) + ": " + e.what();
+          }
+
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, error, randomString, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                } else {
+                  jsi::String jsiRandomString =
+                      jsi::String::createFromUtf8(innerRt, randomString);
+                  promise->resolve(std::move(jsiRandomString));
+                }
+              });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 } // namespace comm
