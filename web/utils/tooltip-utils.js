@@ -318,18 +318,15 @@ function getTooltipPositionStyle(
   return tooltipPositionStyle;
 }
 
-type CalculateTooltipSizeArgs = {
+type CalculateMessageTooltipSizeArgs = {
   +tooltipLabels: $ReadOnlyArray<string>,
   +timestamp: string,
 };
 
-function calculateTooltipSize({
+function calculateMessageTooltipSize({
   tooltipLabels,
   timestamp,
-}: CalculateTooltipSizeArgs): {
-  +width: number,
-  +height: number,
-} {
+}: CalculateMessageTooltipSizeArgs): TooltipSize {
   const textWidth =
     calculateMaxTextWidth([...tooltipLabels, timestamp], 14) +
     2 * tooltipLabelStyle.padding;
@@ -352,4 +349,8 @@ function calculateTooltipSize({
   };
 }
 
-export { findTooltipPosition, getTooltipPositionStyle, calculateTooltipSize };
+export {
+  findTooltipPosition,
+  getTooltipPositionStyle,
+  calculateMessageTooltipSize,
+};

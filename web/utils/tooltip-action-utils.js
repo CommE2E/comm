@@ -22,7 +22,7 @@ import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 import {
   type MessageTooltipAction,
   getTooltipPositionStyle,
-  calculateTooltipSize,
+  calculateMessageTooltipSize,
   type TooltipPosition,
   type TooltipPositionStyle,
   type TooltipSize,
@@ -416,7 +416,7 @@ function useMessageTooltip({
       };
     }
     const tooltipLabels = tooltipActions.map(action => action.label);
-    return calculateTooltipSize({
+    return calculateMessageTooltipSize({
       tooltipLabels,
       timestamp: messageTimestamp,
     });
