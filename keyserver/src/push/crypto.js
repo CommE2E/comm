@@ -4,8 +4,6 @@ import apn from '@parse/node-apn';
 import invariant from 'invariant';
 import _cloneDeep from 'lodash/fp/cloneDeep.js';
 
-import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
-
 import type {
   AndroidNotification,
   AndroidNotificationPayload,
@@ -66,11 +64,7 @@ async function encryptIOSNotification(
 
     encryptedNotification.payload.encryptedPayload = serializedPayload.body;
 
-    if (
-      codeVersion &&
-      codeVersion >= NEXT_CODE_VERSION &&
-      codeVersion % 2 === 0
-    ) {
+    if (codeVersion && codeVersion >= 254 && codeVersion % 2 === 0) {
       encryptedNotification.aps = {
         alert: { body: 'ENCRYPTED' },
         ...encryptedNotification.aps,
