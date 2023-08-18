@@ -1,6 +1,6 @@
 use actix_web::{
   error::{
-    ErrorBadRequest, ErrorConflict, ErrorInternalServerError,
+    ErrorBadRequest, ErrorConflict, ErrorInternalServerError, ErrorNotFound,
     ErrorServiceUnavailable, HttpError,
   },
   HttpResponse, ResponseError,
@@ -15,6 +15,7 @@ use tracing::{error, trace, warn};
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
 pub enum BackupError {
+  NoBackup,
   BlobError(BlobServiceError),
   DB(comm_services_lib::database::Error),
 }
@@ -23,6 +24,7 @@ impl From<&BackupError> for actix_web::Error {
   fn from(value: &BackupError) -> Self {
     trace!("Handling backup service error: {value}");
     match value {
+      BackupError::NoBackup => ErrorNotFound("not found"),
       BackupError::BlobError(
         err @ (BlobServiceError::ClientError(_)
         | BlobServiceError::UnexpectedHttpStatus(_)

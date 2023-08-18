@@ -25,8 +25,6 @@ pub async fn run_http_server(
   let blob = web::Data::new(blob_client);
 
   HttpServer::new(move || {
-    let auth_middleware = get_comm_authentication_middleware();
-
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
       .wrap(comm_services_lib::http::cors_config(
@@ -35,9 +33,20 @@ pub async fn run_http_server(
       .app_data(db.clone())
       .app_data(blob.clone())
       .service(
-        web::resource("/backups")
-          .route(web::post().to(handlers::backup::upload))
-          .wrap(auth_middleware),
+        // Services requiring authetication
+        web::scope("/backups")
+          .wrap(get_comm_authentication_middleware())
+          .service(
+            web::resource("").route(web::post().to(handlers::backup::upload)),
+          )
+          .service(
+            web::resource("{backup_id}/user_keys")
+              .route(web::get().to(handlers::backup::download_user_keys)),
+          )
+          .service(
+            web::resource("{backup_id}/user_data")
+              .route(web::get().to(handlers::backup::download_user_data)),
+          ),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?

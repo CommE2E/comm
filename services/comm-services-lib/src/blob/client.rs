@@ -1,3 +1,4 @@
+use actix_web::web::Bytes;
 use derive_more::{Display, Error, From};
 use futures_core::Stream;
 use futures_util::{StreamExt, TryStreamExt};
@@ -83,7 +84,7 @@ impl BlobServiceClient {
   pub async fn get(
     &self,
     blob_hash: &str,
-  ) -> BlobResult<impl Stream<Item = BlobResult<Vec<u8>>>> {
+  ) -> BlobResult<impl Stream<Item = BlobResult<Bytes>>> {
     debug!(?blob_hash, "Get blob request");
     let url = self.get_blob_url(Some(blob_hash))?;
 
@@ -97,7 +98,7 @@ impl BlobServiceClient {
     debug!("Response status: {}", response.status());
     if response.status().is_success() {
       let stream = response.bytes_stream().map(|result| match result {
-        Ok(bytes) => Ok(bytes.into()),
+        Ok(bytes) => Ok(bytes),
         Err(error) => {
           warn!("Error while streaming response: {}", error);
           Err(BlobServiceError::ClientError(error))
