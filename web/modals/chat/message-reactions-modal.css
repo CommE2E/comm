@@ -7,6 +7,7 @@ div.modalContentContainer {
   flex-direction: column;
   font-size: var(--l-font-18);
   gap: 16px;
+  overflow-y: auto;
 }
 
 div.userRowContainer {
