@@ -116,6 +116,7 @@ function Menu(props: MenuProps): React.Node {
       ref={buttonRef}
       className={css.menuButton}
       onClick={onClickMenuCallback}
+      type="button"
     >
       {icon}
     </button>
