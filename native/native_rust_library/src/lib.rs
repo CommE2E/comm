@@ -11,6 +11,8 @@ use tracing::instrument;
 
 mod crypto_tools;
 mod identity_client;
+mod argon2_tools;
+
 mod identity {
   tonic::include_proto!("identity.client");
 }
@@ -22,6 +24,7 @@ use identity::{
   OpaqueLoginStartRequest, PreKey, RegistrationFinishRequest,
   RegistrationStartRequest, WalletLoginRequest,
 };
+use argon2_tools::compute_backup_key;
 
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
@@ -101,6 +104,12 @@ mod ffi {
 
     // Crypto Tools
     fn generate_device_id(device_type: DeviceType) -> Result<String>;
+
+    // Argon2
+    fn compute_backup_key(
+      password: &str,
+      backup_id: &str,
+    ) -> Result<[u8; 32]>;
   }
 
   unsafe extern "C++" {
