@@ -48,6 +48,28 @@ export type MessageTooltipAction = {
   +actionButtonContent: React.Node,
 };
 
+function getTooltipScreenOverflowRightCorrection(
+  xAnchor: number,
+  tooltipWidth: number,
+): number {
+  const appContainerPositionInfo = getAppContainerPositionInfo();
+  if (!appContainerPositionInfo) {
+    return 0;
+  }
+
+  const { right: containerRight } = appContainerPositionInfo;
+  const padding = 8;
+
+  const tooltipRightEdge = xAnchor + tooltipWidth;
+  const screenRightOverflow = tooltipRightEdge - containerRight;
+
+  if (screenRightOverflow <= 0) {
+    return 0;
+  }
+
+  return screenRightOverflow + padding;
+}
+
 type FindTooltipPositionArgs = {
   +sourcePositionInfo: PositionInfo,
   +tooltipSize: TooltipSize,
@@ -252,12 +274,17 @@ function getTooltipStyle({
       alignment: 'left',
     };
   } else if (tooltipPosition === tooltipPositions.TOP) {
+    const xAnchor =
+      sourcePositionInfo.left +
+      sourcePositionInfo.width / 2 -
+      tooltipSize.width / 2;
+
+    const tooltipOverflowRightCorrection =
+      getTooltipScreenOverflowRightCorrection(xAnchor, tooltipSize.width);
+
     return {
       anchorPoint: {
-        x:
-          sourcePositionInfo.left +
-          sourcePositionInfo.width / 2 -
-          tooltipSize.width / 2,
+        x: xAnchor - tooltipOverflowRightCorrection,
         y: sourcePositionInfo.top,
       },
       horizontalPosition: 'right',
@@ -265,12 +292,17 @@ function getTooltipStyle({
       alignment: 'center',
     };
   } else if (tooltipPosition === tooltipPositions.BOTTOM) {
+    const xAnchor =
+      sourcePositionInfo.left +
+      sourcePositionInfo.width / 2 -
+      tooltipSize.width / 2;
+
+    const tooltipOverflowRightCorrection =
+      getTooltipScreenOverflowRightCorrection(xAnchor, tooltipSize.width);
+
     return {
       anchorPoint: {
-        x:
-          sourcePositionInfo.left +
-          sourcePositionInfo.width / 2 -
-          tooltipSize.width / 2,
+        x: xAnchor - tooltipOverflowRightCorrection,
         y: sourcePositionInfo.bottom,
       },
       horizontalPosition: 'right',
