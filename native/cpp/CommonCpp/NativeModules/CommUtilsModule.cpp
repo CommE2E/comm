@@ -150,4 +150,30 @@ jsi::String CommUtilsModule::sha256(jsi::Runtime &rt, jsi::Object data) {
   return jsi::String::createFromUtf8(rt, sha256String);
 }
 
+jsi::String CommUtilsModule::decodeString(jsi::Runtime &rt, jsi::Object data) {
+  auto arrayBuffer = data.getArrayBuffer(rt);
+  auto dataPtr = arrayBuffer.data(rt);
+  auto size = arrayBuffer.size(rt);
+
+  auto bytes = std::vector<uint8_t>{dataPtr, dataPtr + size};
+  auto str = std::string(bytes.begin(), bytes.end());
+  return jsi::String::createFromUtf8(rt, str);
+}
+
+jsi::Object
+CommUtilsModule::encodeString(jsi::Runtime &rt, jsi::String inputStr) {
+  auto str = inputStr.utf8(rt);
+  auto bytes = std::vector<uint8_t>(str.begin(), str.end());
+  auto size = bytes.size();
+
+  auto arrayBuffer = rt.global()
+                         .getPropertyAsFunction(rt, "ArrayBuffer")
+                         .callAsConstructor(rt, {static_cast<double>(size)})
+                         .asObject(rt)
+                         .getArrayBuffer(rt);
+
+  memcpy(arrayBuffer.data(rt), bytes.data(), size);
+  return std::move(arrayBuffer);
+}
+
 } // namespace comm
