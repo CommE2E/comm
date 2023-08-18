@@ -1,6 +1,6 @@
 // @flow
 
-import type { Spec as CoreModuleSpec } from './schema/CommCoreModuleSchema.js';
+import type { CoreModuleSpec } from './schema/CommCoreModuleSchema.js';
 import type { Spec as RustModuleSpec } from './schema/CommRustModuleSchema.js';
 import type { UtilsModuleSpec } from './schema/CommUtilsModuleSchema.js';
 
