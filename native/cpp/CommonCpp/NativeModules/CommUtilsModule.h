@@ -32,6 +32,10 @@ class CommUtilsModule
   virtual jsi::Object
   base64DecodeBuffer(jsi::Runtime &rt, jsi::String base64) override;
   virtual jsi::String sha256(jsi::Runtime &rt, jsi::Object data) override;
+  virtual jsi::String
+  decodeUTF8ArrayBufferToString(jsi::Runtime &rt, jsi::Object data) override;
+  virtual jsi::Object
+  encodeStringToUTF8ArrayBuffer(jsi::Runtime &rt, jsi::String str) override;
 
 public:
   CommUtilsModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

@@ -150,4 +150,42 @@ jsi::String CommUtilsModule::sha256(jsi::Runtime &rt, jsi::Object data) {
   return jsi::String::createFromUtf8(rt, sha256String);
 }
 
+jsi::String CommUtilsModule::decodeUTF8ArrayBufferToString(
+    jsi::Runtime &rt,
+    jsi::Object data) {
+  auto arrayBuffer = data.getArrayBuffer(rt);
+  auto dataPtr = arrayBuffer.data(rt);
+  auto size = arrayBuffer.size(rt);
+
+  auto bytes = std::vector<uint8_t>{dataPtr, dataPtr + size};
+  auto str = std::string(bytes.begin(), bytes.end());
+  jsi::String jsiStr = jsi::String::createFromUtf8(rt, str);
+
+  // createFromUtf8() results are undefined if
+  // str contains invalid code points.
+  auto strAfterConversion = jsiStr.utf8(rt);
+  if (str != strAfterConversion) {
+    throw jsi::JSError(rt, "Invalid UTF-8 ArrayBuffer");
+  }
+
+  return jsiStr;
+}
+
+jsi::Object CommUtilsModule::encodeStringToUTF8ArrayBuffer(
+    jsi::Runtime &rt,
+    jsi::String inputStr) {
+  auto str = inputStr.utf8(rt);
+  auto bytes = std::vector<uint8_t>(str.begin(), str.end());
+  auto size = bytes.size();
+
+  auto arrayBuffer = rt.global()
+                         .getPropertyAsFunction(rt, "ArrayBuffer")
+                         .callAsConstructor(rt, {static_cast<double>(size)})
+                         .asObject(rt)
+                         .getArrayBuffer(rt);
+
+  memcpy(arrayBuffer.data(rt), bytes.data(), size);
+  return std::move(arrayBuffer);
+}
+
 } // namespace comm

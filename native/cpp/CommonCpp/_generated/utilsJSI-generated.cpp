@@ -27,6 +27,12 @@ static jsi::Value __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_base64DecodeBuf
 static jsi::Value __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_sha256(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommUtilsModuleSchemaCxxSpecJSI *>(&turboModule)->sha256(rt, args[0].asObject(rt));
 }
+static jsi::Value __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_decodeUTF8ArrayBufferToString(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommUtilsModuleSchemaCxxSpecJSI *>(&turboModule)->decodeUTF8ArrayBufferToString(rt, args[0].asObject(rt));
+}
+static jsi::Value __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_encodeStringToUTF8ArrayBuffer(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommUtilsModuleSchemaCxxSpecJSI *>(&turboModule)->encodeStringToUTF8ArrayBuffer(rt, args[0].asString(rt));
+}
 
 CommUtilsModuleSchemaCxxSpecJSI::CommUtilsModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommUtilsTurboModule", jsInvoker) {
@@ -35,6 +41,8 @@ CommUtilsModuleSchemaCxxSpecJSI::CommUtilsModuleSchemaCxxSpecJSI(std::shared_ptr
   methodMap_["base64EncodeBuffer"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_base64EncodeBuffer};
   methodMap_["base64DecodeBuffer"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_base64DecodeBuffer};
   methodMap_["sha256"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_sha256};
+  methodMap_["decodeUTF8ArrayBufferToString"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_decodeUTF8ArrayBufferToString};
+  methodMap_["encodeStringToUTF8ArrayBuffer"] = MethodMetadata {1, __hostFunction_CommUtilsModuleSchemaCxxSpecJSI_encodeStringToUTF8ArrayBuffer};
 }
 
 

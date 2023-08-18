@@ -15,6 +15,9 @@ interface Spec extends TurboModule {
   +base64DecodeBuffer: (base64: string) => JSIArrayBuffer;
   // crypto utils
   +sha256: (data: JSIArrayBuffer) => string;
+  // encoding utils
+  +decodeUTF8ArrayBufferToString: (data: JSIArrayBuffer) => string;
+  +encodeStringToUTF8ArrayBuffer: (str: string) => JSIArrayBuffer;
 }
 
 // for public interface, we use the correct types
@@ -24,6 +27,8 @@ export interface UtilsModuleSpec {
   +base64EncodeBuffer: (data: ArrayBuffer) => string;
   +base64DecodeBuffer: (base64: string) => ArrayBuffer;
   +sha256: (data: ArrayBuffer) => string;
+  +decodeUTF8ArrayBufferToString: (data: ArrayBuffer) => string;
+  +encodeStringToUTF8ArrayBuffer: (str: string) => ArrayBuffer;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
