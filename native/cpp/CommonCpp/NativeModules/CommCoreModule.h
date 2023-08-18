@@ -89,6 +89,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String password,
       jsi::String backupID) override;
+  virtual jsi::Value
+  generateRandomString(jsi::Runtime &rt, double size) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

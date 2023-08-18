@@ -80,6 +80,7 @@ interface Spec extends TurboModule {
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;
   +computeBackupKey: (password: string, backupID: string) => Promise<Object>;
+  +generateRandomString: (size: number) => Promise<string>;
 }
 
 export interface CoreModuleSpec extends Spec {
