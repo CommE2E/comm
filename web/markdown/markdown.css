@@ -101,6 +101,6 @@ span.revealSpoilerAnimation {
   }
   to {
     background: transparent;
-    color: white;
+    color: inherit;
   }
 }
