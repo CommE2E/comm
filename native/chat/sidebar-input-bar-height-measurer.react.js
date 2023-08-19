@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useChatMentionCandidatesObj } from 'lib/shared/thread-utils.js';
 
 import { DummyChatInputBar } from './chat-input-bar.react.js';
 import { useMessageListScreenWidth } from './composed-message-width.js';
@@ -21,9 +22,15 @@ function SidebarInputBarHeightMeasurer(props: Props): React.Node {
   const width = useMessageListScreenWidth();
 
   const loggedInUserInfo = useLoggedInUserInfo();
+  const chatMentionCandidatesObj = useChatMentionCandidatesObj();
   const sidebarThreadInfo = React.useMemo(
-    () => getUnresolvedSidebarThreadInfo({ sourceMessage, loggedInUserInfo }),
-    [sourceMessage, loggedInUserInfo],
+    () =>
+      getUnresolvedSidebarThreadInfo({
+        sourceMessage,
+        loggedInUserInfo,
+        chatMentionCandidatesObj,
+      }),
+    [sourceMessage, loggedInUserInfo, chatMentionCandidatesObj],
   );
   if (!sidebarThreadInfo) {
     return null;
