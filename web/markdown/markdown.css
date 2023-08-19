@@ -76,6 +76,12 @@ div.lightBackground a {
 div.darkBackground a {
   color: white;
 }
+div.markdown a.chatMention {
+  text-decoration: none;
+}
+div.lightBackground a.chatMention {
+  color: black;
+}
 
 span.spoiler {
   background: var(--spoiler-background-color);
