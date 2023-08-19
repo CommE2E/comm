@@ -5,12 +5,7 @@ edition = "2021"
 license = "BSD-3-Clause"
 
 [features]
-blob-client = [
-  "dep:reqwest",
-  "dep:futures-core",
-  "dep:futures-util",
-  "dep:tokio",
-]
+blob-client = ["dep:reqwest", "dep:futures-core", "dep:futures-util"]
 http = ["dep:actix-cors"]
 
 [dependencies]
@@ -22,6 +17,7 @@ chrono = "0.4"
 derive_more = "0.99"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
+tokio = "1.32"
 tracing = "0.1"
 # blob client dependencies
 futures-core = { version = "0.3", optional = true }
@@ -31,6 +27,5 @@ reqwest = { version = "0.11", features = [
   "multipart",
   "stream",
 ], optional = true }
-tokio = { version = "1.32", optional = true }
 # http dependencies
 actix-cors = { version = "0.6", optional = true }
