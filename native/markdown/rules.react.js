@@ -395,14 +395,9 @@ function textMessageRules(
   };
 }
 
-let defaultTextMessageRules = null;
-
-function getDefaultTextMessageRules(): MarkdownRules {
-  if (!defaultTextMessageRules) {
-    defaultTextMessageRules = textMessageRules([], false);
-  }
-  return defaultTextMessageRules;
-}
+const getDefaultTextMessageRules: () => MarkdownRules = _memoize(() =>
+  textMessageRules([], false),
+);
 
 export {
   inlineMarkdownRules,
