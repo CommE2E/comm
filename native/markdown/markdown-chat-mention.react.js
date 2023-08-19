@@ -5,7 +5,10 @@ import { Text } from 'react-native';
 
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
-import { useMarkdownOnPressUtils } from './markdown-utils.js';
+import {
+  useMarkdownOnPressUtils,
+  useHandleChatMentionClick,
+} from './markdown-utils.js';
 
 type TextProps = React.ElementConfig<typeof Text>;
 type Props = {
@@ -19,8 +22,10 @@ function MarkdownChatMention(props: Props): React.Node {
   const { shouldBePressable, onLongPressHandler } = useMarkdownOnPressUtils(
     !hasAccessToChat,
   );
+  const onPressHandler = useHandleChatMentionClick(threadInfo);
   return (
     <Text
+      onPress={shouldBePressable ? onPressHandler : null}
       onLongPress={shouldBePressable ? onLongPressHandler : null}
       style={hasAccessToChat ? style : null}
       {...rest}
