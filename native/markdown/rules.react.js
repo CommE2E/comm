@@ -6,7 +6,11 @@ import { Text, View, Platform } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import * as SharedMarkdown from 'lib/shared/markdown.js';
-import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  RelativeMemberInfo,
+  ThreadInfo,
+  ChatMentionCandidates,
+} from 'lib/types/thread-types.js';
 
 import MarkdownLink from './markdown-link.react.js';
 import MarkdownParagraph from './markdown-paragraph.react.js';
@@ -353,19 +357,21 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
 
 function useTextMessageRulesFunc(
   threadInfo: ThreadInfo,
+  chatMentionCandidates: ChatMentionCandidates,
 ): (useDarkStyle: boolean) => MarkdownRules {
   const { members } = threadInfo;
   return React.useMemo(
     () =>
       _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
-        textMessageRules(members, useDarkStyle),
+        textMessageRules(members, chatMentionCandidates, useDarkStyle),
       ),
-    [members],
+    [members, chatMentionCandidates],
   );
 }
 
 function textMessageRules(
   members: $ReadOnlyArray<RelativeMemberInfo>,
+  chatMentionCandidates: ChatMentionCandidates,
   useDarkStyle: boolean,
 ): MarkdownRules {
   const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
@@ -395,8 +401,10 @@ function textMessageRules(
   };
 }
 
-const getDefaultTextMessageRules: () => MarkdownRules = _memoize(() =>
-  textMessageRules([], false),
+const getDefaultTextMessageRules: (
+  overrideDefaultChatMentionCandidates?: ChatMentionCandidates,
+) => MarkdownRules = _memoize((overrideDefaultChatMentionCandidates = {}) =>
+  textMessageRules([], overrideDefaultChatMentionCandidates, false),
 );
 
 export {
