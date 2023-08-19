@@ -8,8 +8,12 @@ import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import {
   createPendingSidebar,
   createUnresolvedPendingSidebar,
+  useThreadChatMentionCandidates,
 } from 'lib/shared/thread-utils.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  ThreadInfo,
+  ChatMentionCandidates,
+} from 'lib/types/thread-types.js';
 import type { LoggedInUserInfo } from 'lib/types/user-types.js';
 import type { GetENSNames } from 'lib/utils/ens-helpers.js';
 
@@ -21,11 +25,12 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 type GetUnresolvedSidebarThreadInfoInput = {
   +sourceMessage: ChatMessageInfoItemWithHeight,
   +loggedInUserInfo: ?LoggedInUserInfo,
+  +chatMentionCandidates: ChatMentionCandidates,
 };
 function getUnresolvedSidebarThreadInfo(
   input: GetUnresolvedSidebarThreadInfoInput,
 ): ?ThreadInfo {
-  const { sourceMessage, loggedInUserInfo } = input;
+  const { sourceMessage, loggedInUserInfo, chatMentionCandidates } = input;
   const threadCreatedFromMessage = sourceMessage.threadCreatedFromMessage;
   if (threadCreatedFromMessage) {
     return threadCreatedFromMessage;
@@ -40,7 +45,8 @@ function getUnresolvedSidebarThreadInfo(
     sourceMessageInfo: messageInfo,
     parentThreadInfo: threadInfo,
     loggedInUserInfo,
-    markdownRules: getDefaultTextMessageRules().simpleMarkdownRules,
+    markdownRules: getDefaultTextMessageRules(chatMentionCandidates)
+      .simpleMarkdownRules,
   });
 }
 
@@ -51,7 +57,12 @@ type GetSidebarThreadInfoInput = {
 async function getSidebarThreadInfo(
   input: GetSidebarThreadInfoInput,
 ): Promise<?ThreadInfo> {
-  const { sourceMessage, loggedInUserInfo, getENSNames } = input;
+  const {
+    sourceMessage,
+    loggedInUserInfo,
+    getENSNames,
+    chatMentionCandidates,
+  } = input;
   const threadCreatedFromMessage = sourceMessage.threadCreatedFromMessage;
   if (threadCreatedFromMessage) {
     return threadCreatedFromMessage;
@@ -66,7 +77,8 @@ async function getSidebarThreadInfo(
     sourceMessageInfo: messageInfo,
     parentThreadInfo: threadInfo,
     loggedInUserInfo,
-    markdownRules: getDefaultTextMessageRules().simpleMarkdownRules,
+    markdownRules: getDefaultTextMessageRules(chatMentionCandidates)
+      .simpleMarkdownRules,
     getENSNames,
   });
 }
@@ -77,16 +89,24 @@ function useNavigateToSidebar(
   const loggedInUserInfo = useLoggedInUserInfo();
   const navigateToThread = useNavigateToThread();
   const cacheContext = React.useContext(ENSCacheContext);
+  const chatMentionCandidates = useThreadChatMentionCandidates(item.threadInfo);
   const { getENSNames } = cacheContext;
   return React.useCallback(async () => {
     const threadInfo = await getSidebarThreadInfo({
       sourceMessage: item,
       loggedInUserInfo,
       getENSNames,
+      chatMentionCandidates,
     });
     invariant(threadInfo, 'threadInfo should be set');
     navigateToThread({ threadInfo });
-  }, [navigateToThread, item, loggedInUserInfo, getENSNames]);
+  }, [
+    item,
+    loggedInUserInfo,
+    getENSNames,
+    chatMentionCandidates,
+    navigateToThread,
+  ]);
 }
 
 function useAnimatedNavigateToSidebar(
