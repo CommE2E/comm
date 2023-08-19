@@ -250,9 +250,11 @@ function Root() {
         theme={theme}
         ref={containerRef}
       >
-        <InviteLinksContextProvider>
-          <RootNavigator />
-        </InviteLinksContextProvider>
+        <ChatContextProvider>
+          <InviteLinksContextProvider>
+            <RootNavigator />
+          </InviteLinksContextProvider>
+        </ChatContextProvider>
         <NavigationHandler />
       </NavigationContainer>
     );
@@ -272,27 +274,25 @@ function Root() {
                           <EditUserAvatarProvider>
                             <NativeEditThreadAvatarProvider>
                               <MarkdownContextProvider>
-                                <ChatContextProvider>
-                                  <MessageSearchProvider>
-                                    <RegistrationContextProvider>
-                                      <SQLiteDataHandler />
-                                      <ConnectedStatusBar />
-                                      <ReduxPersistGate
-                                        persistor={getPersistor()}
-                                      >
-                                        {gated}
-                                      </ReduxPersistGate>
-                                      <PersistedStateGate>
-                                        <Socket
-                                          detectUnsupervisedBackgroundRef={
-                                            detectUnsupervisedBackgroundRef
-                                          }
-                                        />
-                                      </PersistedStateGate>
-                                      {navigation}
-                                    </RegistrationContextProvider>
-                                  </MessageSearchProvider>
-                                </ChatContextProvider>
+                                <MessageSearchProvider>
+                                  <RegistrationContextProvider>
+                                    <SQLiteDataHandler />
+                                    <ConnectedStatusBar />
+                                    <ReduxPersistGate
+                                      persistor={getPersistor()}
+                                    >
+                                      {gated}
+                                    </ReduxPersistGate>
+                                    <PersistedStateGate>
+                                      <Socket
+                                        detectUnsupervisedBackgroundRef={
+                                          detectUnsupervisedBackgroundRef
+                                        }
+                                      />
+                                    </PersistedStateGate>
+                                    {navigation}
+                                  </RegistrationContextProvider>
+                                </MessageSearchProvider>
                               </MarkdownContextProvider>
                             </NativeEditThreadAvatarProvider>
                           </EditUserAvatarProvider>
