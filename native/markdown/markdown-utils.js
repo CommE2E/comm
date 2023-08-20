@@ -5,12 +5,14 @@ import * as React from 'react';
 import { Linking } from 'react-native';
 
 import { inviteLinkUrl } from 'lib/facts/links.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
   MarkdownContext,
   type MarkdownContextType,
 } from './markdown-context.js';
 import { MarkdownSpoilerContext } from './markdown-spoiler-context.js';
+import { useNavigateToThreadWithFadeAnimation } from '../chat/message-list-types.js';
 import { MessagePressResponderContext } from '../chat/message-press-responder-context.js';
 import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
 import { InviteLinksContext } from '../invite-links/invite-links-context-provider.react.js';
@@ -101,4 +103,19 @@ function useHandleLinkClick(
   ]);
 }
 
-export { useMarkdownOnPressUtils, useHandleLinkClick };
+function useHandleChatMentionClick(
+  threadInfo: ThreadInfo,
+  messageKey: ?string,
+): () => mixed {
+  const navigateToThreadWithFadeAnimation =
+    useNavigateToThreadWithFadeAnimation(threadInfo, messageKey);
+  return React.useCallback(() => {
+    navigateToThreadWithFadeAnimation();
+  }, [navigateToThreadWithFadeAnimation]);
+}
+
+export {
+  useMarkdownOnPressUtils,
+  useHandleLinkClick,
+  useHandleChatMentionClick,
+};
