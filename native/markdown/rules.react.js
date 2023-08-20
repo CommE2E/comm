@@ -12,6 +12,7 @@ import type {
   ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 
+import MarkdownChatMention from './markdown-chat-mention.react.js';
 import MarkdownLink from './markdown-link.react.js';
 import MarkdownParagraph from './markdown-paragraph.react.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
@@ -396,6 +397,29 @@ function textMessageRules(
             {node.content}
           </Text>
         ),
+      },
+      chatMention: {
+        ...SimpleMarkdown.defaultRules.strong,
+        match: SharedMarkdown.matchChatMentions(),
+        parse: (capture: SharedMarkdown.Capture) =>
+          SharedMarkdown.parseChatMention(chatMentionCandidates, capture),
+        // eslint-disable-next-line react/display-name
+        react: (
+          node: SharedMarkdown.SingleASTNode,
+          output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+          state: SharedMarkdown.State,
+        ) => {
+          return (
+            <MarkdownChatMention
+              key={state.key}
+              threadInfo={node.threadInfo}
+              hasAccessToChat={node.hasAccessToChat}
+              style={styles.bold}
+            >
+              {node.content}
+            </MarkdownChatMention>
+          );
+        },
       },
     },
   };
