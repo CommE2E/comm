@@ -7,9 +7,16 @@ import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
 
 import Multimedia from '../media/multimedia.react.js';
 
+export type AvatarSize =
+  | 'micro'
+  | 'small'
+  | 'large'
+  | 'profile'
+  | 'profileLarge';
+
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
-  +size: 'micro' | 'small' | 'large' | 'profile',
+  +size: AvatarSize,
 };
 
 function Avatar(props: Props): React.Node {
@@ -22,8 +29,10 @@ function Avatar(props: Props): React.Node {
       return styles.small;
     } else if (size === 'large') {
       return styles.large;
+    } else if (size === 'profile') {
+      return styles.profile;
     }
-    return styles.profile;
+    return styles.profileLarge;
   }, [size]);
 
   const emojiContainerStyle = React.useMemo(() => {
@@ -43,8 +52,10 @@ function Avatar(props: Props): React.Node {
       return styles.emojiSmall;
     } else if (size === 'large') {
       return styles.emojiLarge;
+    } else if (size === 'profile') {
+      return styles.emojiProfile;
     }
-    return styles.emojiProfile;
+    return styles.emojiProfileLarge;
   }, [size]);
 
   const avatar = React.useMemo(() => {
@@ -92,6 +103,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   emojiProfile: {
+    fontSize: 64,
+    textAlign: 'center',
+  },
+  emojiProfileLarge: {
     fontSize: 80,
     textAlign: 'center',
   },
@@ -113,6 +128,11 @@ const styles = StyleSheet.create({
     width: 16,
   },
   profile: {
+    borderRadius: 45,
+    height: 90,
+    width: 90,
+  },
+  profileLarge: {
     borderRadius: 56,
     height: 112,
     width: 112,

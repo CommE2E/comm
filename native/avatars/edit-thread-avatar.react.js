@@ -99,7 +99,7 @@ function EditThreadAvatar(props: Props): React.Node {
 
   return (
     <TouchableOpacity onPress={showAvatarActionSheet} disabled={disabled}>
-      <ThreadAvatar threadInfo={threadInfo} size="profile" />
+      <ThreadAvatar threadInfo={threadInfo} size="profileLarge" />
       {spinner}
       {!disabled ? <EditAvatarBadge /> : null}
     </TouchableOpacity>
