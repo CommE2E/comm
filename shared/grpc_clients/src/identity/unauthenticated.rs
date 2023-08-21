@@ -6,6 +6,6 @@ use crate::error::Error;
 pub async fn get_unauthenticated_client(
   url: &str,
 ) -> Result<IdentityClientServiceClient<Channel>, Error> {
-  let channel = super::get_identity_service_channel(url).await?;
+  let channel = crate::get_grpc_service_channel(url).await?;
   Ok(IdentityClientServiceClient::new(channel))
 }
