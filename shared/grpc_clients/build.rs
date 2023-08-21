@@ -5,6 +5,7 @@ fn main() {
       &[
         "../protos/identity_client.proto",
         "../protos/identity_authenticated.proto",
+        "../protos/tunnelbroker.proto",
       ],
       &["../protos"],
     )
