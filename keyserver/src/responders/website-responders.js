@@ -47,7 +47,7 @@ import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { infoFromURL } from 'lib/utils/url-utils.js';
+import { infoFromURL, urlInfoValidator } from 'lib/utils/url-utils.js';
 import {
   tBool,
   tNumber,
@@ -77,7 +77,7 @@ import {
   getAppURLFactsFromRequestURL,
   getCommAppURLFacts,
 } from '../utils/urls.js';
-import { validateOutput } from '../utils/validation-utils.js';
+import { validateOutput, validateInput } from '../utils/validation-utils.js';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -276,7 +276,16 @@ async function websiteResponder(
 
   const initialNavInfoPromise = (async () => {
     try {
-      const urlInfo = infoFromURL(req.url);
+      let urlInfo = infoFromURL(decodeURI(req.url));
+
+      try {
+        urlInfo = await validateInput(viewer, urlInfoValidator, urlInfo, true);
+      } catch (exc) {
+        // We should still be able to handle older links
+        if (exc.message !== 'invalid_client_id_prefix') {
+          throw exc;
+        }
+      }
 
       let backupInfo = {
         now: currentDateInTimeZone(viewer.timeZone),
