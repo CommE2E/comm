@@ -209,20 +209,34 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
+    const viewStyle = [styles.alignment];
+    if (!__DEV__) {
+      // We don't force view height in dev mode because we
+      // want to measure it in Message to see if it's correct
+      if (item.messageShapeType === 'text') {
+        viewStyle.push({ height: item.contentHeight });
+      } else if (item.messageShapeType === 'multimedia') {
+        const height = item.inlineEngagementHeight
+          ? item.contentHeight + item.inlineEngagementHeight
+          : item.contentHeight;
+        viewStyle.push({ height });
+      }
+    }
+
     return (
       <View {...viewProps}>
         <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
           <MessageHeader item={item} focused={focused} display="lowContrast" />
         </AnimatedView>
         <AnimatedView style={[containerStyle, editedMessageStyle]}>
-          <View style={styles.alignment}>
+          <View style={viewStyle}>
             <View style={[styles.content, alignStyle]}>
               {deliveryIcon}
               {messageBox}
             </View>
-            {failedSendInfo}
             {inlineEngagement}
           </View>
+          {failedSendInfo}
         </AnimatedView>
       </View>
     );
