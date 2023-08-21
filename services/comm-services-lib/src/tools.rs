@@ -18,6 +18,8 @@ pub fn is_valid_identifier(identifier: &str) -> bool {
     .all(|c| c.is_ascii_alphanumeric() || VALID_IDENTIFIER_CHARS.contains(&c))
 }
 
+pub type BoxedError = Box<dyn std::error::Error>;
+
 #[cfg(test)]
 mod valid_identifier_tests {
   use super::*;
