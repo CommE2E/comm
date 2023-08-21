@@ -2,17 +2,10 @@
 
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import invariant from 'invariant';
 import * as React from 'react';
 
-import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import {
-  defaultAnonymousUserEmojiAvatar,
-  getAvatarForUser,
-  getDefaultAvatar,
-} from 'lib/shared/avatar-utils.js';
 import type {
   ClientAvatar,
   ClientEmojiAvatar,
@@ -25,37 +18,30 @@ import Tabs from '../components/tabs.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Modal from '../modals/modal.react.js';
 import ColorSelector from '../modals/threads/color-selector.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 
 type TabType = 'emoji' | 'color';
 
-function EmojiAvatarSelectionModal(): React.Node {
+type Props = {
+  +currentAvatar: ClientAvatar,
+  +defaultAvatar: ClientEmojiAvatar,
+  +setEmojiAvatar: (pendingEmojiAvatar: ClientEmojiAvatar) => Promise<void>,
+  +avatarSaveInProgress: boolean,
+};
+function EmojiAvatarSelectionModal(props: Props): React.Node {
   const { popModal } = useModalContext();
 
-  const editUserAvatarContext = React.useContext(EditUserAvatarContext);
-  invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
-
-  const { baseSetUserAvatar, userAvatarSaveInProgress } = editUserAvatarContext;
+  const { currentAvatar, defaultAvatar, setEmojiAvatar, avatarSaveInProgress } =
+    props;
 
   const [updateAvatarStatus, setUpdateAvatarStatus] =
     React.useState<?('success' | 'failure')>();
 
-  const currentUserInfo = useSelector(state => state.currentUserInfo);
-  const currentUserAvatar: ClientAvatar = getAvatarForUser(currentUserInfo);
-  const defaultUserAvatar: ClientEmojiAvatar = currentUserInfo?.username
-    ? getDefaultAvatar(currentUserInfo.username)
-    : defaultAnonymousUserEmojiAvatar;
-
   const [pendingAvatarEmoji, setPendingAvatarEmoji] = React.useState(
-    currentUserAvatar.type === 'emoji'
-      ? currentUserAvatar.emoji
-      : defaultUserAvatar.emoji,
+    currentAvatar.type === 'emoji' ? currentAvatar.emoji : defaultAvatar.emoji,
   );
 
   const [pendingAvatarColor, setPendingAvatarColor] = React.useState(
-    currentUserAvatar.type === 'emoji'
-      ? currentUserAvatar.color
-      : defaultUserAvatar.color,
+    currentAvatar.type === 'emoji' ? currentAvatar.color : defaultAvatar.color,
   );
 
   const pendingEmojiAvatar: ClientEmojiAvatar = React.useMemo(
@@ -79,16 +65,16 @@ function EmojiAvatarSelectionModal(): React.Node {
 
   const onSaveAvatar = React.useCallback(async () => {
     try {
-      await baseSetUserAvatar(pendingEmojiAvatar);
+      await setEmojiAvatar(pendingEmojiAvatar);
       setUpdateAvatarStatus('success');
     } catch {
       setUpdateAvatarStatus('failure');
     }
-  }, [pendingEmojiAvatar, baseSetUserAvatar]);
+  }, [setEmojiAvatar, pendingEmojiAvatar]);
 
   let saveButtonContent;
   let buttonColor;
-  if (userAvatarSaveInProgress) {
+  if (avatarSaveInProgress) {
     buttonColor = buttonThemes.standard;
     saveButtonContent = <LoadingIndicator status="loading" size="medium" />;
   } else if (updateAvatarStatus === 'success') {
@@ -121,7 +107,7 @@ function EmojiAvatarSelectionModal(): React.Node {
           <Avatar
             avatarInfo={pendingEmojiAvatar}
             size="profile"
-            showSpinner={userAvatarSaveInProgress}
+            showSpinner={avatarSaveInProgress}
           />
         </div>
         <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
@@ -153,7 +139,7 @@ function EmojiAvatarSelectionModal(): React.Node {
               variant="filled"
               buttonColor={buttonColor}
               onClick={onSaveAvatar}
-              disabled={userAvatarSaveInProgress}
+              disabled={avatarSaveInProgress}
             >
               <div className={css.saveAvatarButtonContent}>
                 {saveButtonContent}
