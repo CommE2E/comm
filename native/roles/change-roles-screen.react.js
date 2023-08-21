@@ -212,7 +212,7 @@ function ChangeRolesScreen(props: Props): React.Node {
         </Text>
       </View>
       <View style={styles.memberInfo}>
-        <UserAvatar userID={memberInfo.id} size="profile" />
+        <UserAvatar userID={memberInfo.id} size="profileLarge" />
         <Text style={styles.memberInfoUsername}>{memberInfo.username}</Text>
       </View>
       {roleSelector}

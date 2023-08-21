@@ -8,13 +8,12 @@ import {
 } from 'lib/shared/avatar-utils.js';
 import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
 
-import Avatar from './avatar.react.js';
+import Avatar, { type AvatarSize } from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-type Size = 'micro' | 'small' | 'large' | 'profile';
 type Props =
-  | { +userID: ?string, +size: Size }
-  | { +userInfo: ?GenericUserInfoWithAvatar, +size: Size };
+  | { +userID: ?string, +size: AvatarSize }
+  | { +userInfo: ?GenericUserInfoWithAvatar, +size: AvatarSize };
 function UserAvatar(props: Props): React.Node {
   const { userID, userInfo: userInfoProp, size } = props;
 
