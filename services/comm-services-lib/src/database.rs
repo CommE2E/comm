@@ -66,13 +66,14 @@ pub enum DBItemAttributeError {
 /// Conversion trait for [`AttributeValue`]
 ///
 /// Types implementing this trait are able to do the following:
-/// ```rust
+/// ```ignore
 /// use comm_services_lib::database::{TryFromAttribute, AttributeTryInto};
 ///
-/// let foo = SomeType::try_from_attr("MyAttribute", Some(attribute));
+/// let foo = SomeType::try_from_attr("MyAttribute", Some(attribute))?;
 ///
 /// // if `AttributeTryInto` is imported, also:
-/// let bar = Some(attribute).attr_try_into("MyAttribute");
+/// let bar = Some(attribute).attr_try_into("MyAttribute")?;
+/// ```
 pub trait TryFromAttribute: Sized {
   fn try_from_attr(
     attribute_name: impl Into<String>,
