@@ -33,7 +33,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
+import { userStoreMentionSearchIndex } from 'lib/selectors/user-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import {
@@ -49,7 +49,7 @@ import {
   messageKey,
   type MessagePreviewResult,
 } from 'lib/shared/message-utils.js';
-import SearchIndex from 'lib/shared/search-index.js';
+import SentencePrefixSearchIndex from 'lib/shared/sentence-prefix-search-index.js';
 import {
   threadHasPermission,
   viewerIsMember,
@@ -169,7 +169,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
-  +userSearchIndex: SearchIndex,
+  +userSearchIndex: SentencePrefixSearchIndex,
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
@@ -1268,7 +1268,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const dispatchActionPromise = useDispatchActionPromise();
   const callJoinThread = useServerCall(joinThread);
 
-  const userSearchIndex = useSelector(userStoreSearchIndex);
+  const userSearchIndex = useSelector(userStoreMentionSearchIndex);
 
   const { parentThreadID } = props.threadInfo;
   const parentThreadInfo = useSelector(state =>
