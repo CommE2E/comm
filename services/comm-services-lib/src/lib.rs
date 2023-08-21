@@ -1,3 +1,4 @@
+pub mod auth;
 pub mod blob;
 pub mod constants;
 pub mod database;

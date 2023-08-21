@@ -731,8 +731,11 @@ dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
  "aws-types",
+ "base64",
  "chrono",
  "derive_more",
+ "serde",
+ "serde_json",
  "tracing",
 ]
 
