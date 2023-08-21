@@ -1,9 +1,7 @@
-mod proto {
-  tonic::include_proto!("tunnelbroker");
-}
 use crate::config::CONFIG;
-use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
-use proto::{Empty, MessageToDevice};
+use grpc_clients::tunnelbroker::protos;
+use protos::tunnelbroker_service_client::TunnelbrokerServiceClient;
+use protos::{Empty, MessageToDevice};
 use tonic::transport::Channel;
 use tonic::Response;
 use tracing::error;
