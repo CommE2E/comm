@@ -46,9 +46,9 @@ pub async fn get_auth_client(
   device_id: String,
   access_token: String,
 ) -> Result<AuthClient<InterceptedService<Channel, AuthLayer>>, Error> {
-  use super::get_identity_service_channel;
+  use crate::get_grpc_service_channel;
 
-  let channel = get_identity_service_channel(url).await?;
+  let channel = get_grpc_service_channel(url).await?;
 
   let interceptor = AuthLayer {
     user_id,
