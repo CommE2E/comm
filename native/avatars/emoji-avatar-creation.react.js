@@ -102,7 +102,7 @@ function EmojiAvatarCreation(props: Props): React.Node {
           <TouchableWithoutFeedback onPress={onPressEditEmoji}>
             <View>
               <View>
-                <Avatar size="profile" avatarInfo={stagedAvatarInfo} />
+                <Avatar size="profileLarge" avatarInfo={stagedAvatarInfo} />
                 {loadingContainer}
               </View>
               <Text style={styles.editEmojiText}>Edit Emoji</Text>
