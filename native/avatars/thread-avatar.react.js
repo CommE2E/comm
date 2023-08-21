@@ -10,12 +10,12 @@ import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type RawThreadInfo, type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Avatar from './avatar.react.js';
+import Avatar, { type AvatarSize } from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +threadInfo: RawThreadInfo | ThreadInfo,
-  +size: 'micro' | 'small' | 'large' | 'profile',
+  +size: AvatarSize,
 };
 
 function ThreadAvatar(props: Props): React.Node {
