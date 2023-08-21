@@ -2,18 +2,16 @@ use crate::http::errors::handle_blob_service_error;
 use crate::service::BlobService;
 use crate::validate_identifier;
 
-use actix_web::error::{
-  ErrorBadRequest, ErrorInternalServerError, ErrorRangeNotSatisfiable,
-};
+use actix_web::error::{ErrorBadRequest, ErrorRangeNotSatisfiable};
 use actix_web::{
   http::header::{ByteRangeSpec, Range},
-  web, Error as HttpError, HttpResponse,
+  web, HttpResponse,
 };
-use anyhow::Result;
 use async_stream::try_stream;
+use comm_services_lib::http::multipart;
 use serde::{Deserialize, Serialize};
 use tokio_stream::StreamExt;
-use tracing::{debug, info, instrument, trace, warn};
+use tracing::{info, instrument, trace, warn};
 use tracing_futures::Instrument;
 
 /// Returns a tuple of first and last byte number (inclusive) represented by given range header.
@@ -137,31 +135,6 @@ pub async fn assign_holder_handler(
   Ok(HttpResponse::Ok().json(web::Json(AssignHolderResponnse { data_exists })))
 }
 
-async fn get_blob_hash_field(
-  multipart_payload: &mut actix_multipart::Multipart,
-) -> Result<String, HttpError> {
-  let Some(mut field) = multipart_payload.try_next().await? else {
-    debug!("Malfolmed multipart request");
-    return Err(ErrorBadRequest("Bad request"));
-  };
-
-  if field.name() != "blob_hash" {
-    warn!("Blob hash is required as a first form field");
-    return Err(ErrorBadRequest("Bad request"));
-  }
-
-  let mut buf = Vec::new();
-  while let Some(chunk) = field.try_next().await? {
-    buf.extend_from_slice(&chunk);
-  }
-
-  let blob_hash = String::from_utf8(buf)
-    .map_err(|_| ErrorInternalServerError("Internal error"))?;
-
-  validate_identifier!(blob_hash);
-  return Ok(blob_hash);
-}
-
 #[instrument(skip_all, name = "upload_blob", fields(blob_hash))]
 pub async fn upload_blob_handler(
   service: web::Data<BlobService>,
@@ -169,13 +142,22 @@ pub async fn upload_blob_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Upload blob request");
 
-  let blob_hash = get_blob_hash_field(&mut payload).await?;
-  debug!("Received blob_hash: {}", &blob_hash);
+  let Some((name, blob_hash)) = multipart::get_text_field(&mut payload).await? else {
+    warn!("Malformed request: expected a field.");
+    return Err(ErrorBadRequest("Bad request"));
+  };
+
+  if name != "blob_hash" {
+    warn!(name, "Malformed request: 'blob_hash' text field expected.");
+    return Err(ErrorBadRequest("Bad request"));
+  }
+  validate_identifier!(blob_hash);
+
   tracing::Span::current().record("blob_hash", &blob_hash);
 
   trace!("Receiving blob data");
   let stream = try_stream! {
-    while let Some(mut field) = payload.try_next().await.map_err(Box::new)? {
+    while let Some(mut field) = payload.try_next().await? {
       let field_name = field.name();
       if field_name != "blob_data" {
         warn!(
@@ -185,8 +167,8 @@ pub async fn upload_blob_handler(
         Err(ErrorBadRequest("Bad request"))?;
       }
 
-      while let Some(chunk) = field.try_next().await.map_err(Box::new)? {
-        yield chunk.to_vec();
+      while let Some(chunk) = field.try_next().await? {
+        yield chunk;
       }
     }
     trace!("Stream done");

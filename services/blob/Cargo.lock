@@ -976,11 +976,18 @@ name = "comm-services-lib"
 version = "0.1.0"
 dependencies = [
  "actix-cors",
+ "actix-multipart",
+ "actix-web",
+ "anyhow",
  "aws-config",
  "aws-sdk-dynamodb",
  "aws-types",
  "chrono",
  "derive_more",
+ "futures-core",
+ "futures-util",
+ "http",
+ "tokio-stream",
  "tracing",
 ]
 
