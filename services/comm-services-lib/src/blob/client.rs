@@ -72,6 +72,9 @@ impl BlobServiceClient {
   ///
   /// # Example
   /// ```rust
+  /// # use comm_services_lib::blob::client::*;
+  /// # use futures_util::stream::TryStreamExt;
+  /// # async fn f() -> anyhow::Result<()> {
   /// let client =
   ///   BlobServiceClient::new("http://localhost:50053".parse()?);
   ///
@@ -79,6 +82,8 @@ impl BlobServiceClient {
   /// while let Some(data) = stream.try_next().await? {
   ///   println!("Got data: {:?}", data);
   /// }
+  /// # Ok(())
+  /// # }
   /// ```
   pub async fn get(
     &self,
@@ -182,8 +187,9 @@ impl BlobServiceClient {
   ///
   /// # Example
   /// ```rust
+  /// # use comm_services_lib::blob::client::*;
   /// use std::io::{Error, ErrorKind};
-  ///
+  /// # async fn f() -> anyhow::Result<()> {
   /// let client =
   ///   BlobServiceClient::new("http://localhost:50053".parse()?);
   ///
@@ -192,7 +198,11 @@ impl BlobServiceClient {
   ///   yield Ok(vec![4, 5, 6]);
   ///   yield Err(Error::new(ErrorKind::Other, "Oops"));
   /// };
+  ///
+  /// # let blob_hash = "hash".to_string();
   /// client.upload_blob(&blob_hash, stream).await?;
+  /// # Ok(())
+  /// # }
   /// ```
   pub async fn upload_blob<H, S>(
     &self,
