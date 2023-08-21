@@ -31,8 +31,9 @@ async function validateInput<T>(
   viewer: Viewer,
   inputValidator: TType<T>,
   input: mixed,
+  ignoreViewerVersion?: boolean,
 ): Promise<T> {
-  if (!viewer.isSocket) {
+  if (!ignoreViewerVersion && !viewer.isSocket) {
     await checkClientSupported(viewer, inputValidator, input);
   }
   const convertedInput = checkInputValidator(inputValidator, input);
@@ -41,7 +42,8 @@ async function validateInput<T>(
     hasMinStateVersion(viewer.platformDetails, {
       native: 43,
       web: 3,
-    })
+    }) ||
+    ignoreViewerVersion
   ) {
     try {
       return convertClientIDsToServerIDs(
