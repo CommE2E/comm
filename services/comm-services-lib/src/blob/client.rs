@@ -71,14 +71,18 @@ impl BlobServiceClient {
   /// - [BlobServiceError::InvalidArguments] if blob hash has incorrect format
   ///
   /// # Example
-  /// ```rust
+  /// ```no_run
+  /// # use comm_services_lib::blob::client::BlobServiceClient;
+  /// # use futures_util::stream::TryStreamExt;
+  /// # async fn f() {
   /// let client =
-  ///   BlobServiceClient::new("http://localhost:50053".parse()?);
+  ///   BlobServiceClient::new("http://localhost:50053".parse().unwrap());
   ///
-  /// let mut stream = client.get("hello").await?;
-  /// while let Some(data) = stream.try_next().await? {
+  /// let mut stream = client.get("hello").await.unwrap();
+  /// while let Some(data) = stream.try_next().await.unwrap() {
   ///   println!("Got data: {:?}", data);
   /// }
+  /// # }
   /// ```
   pub async fn get(
     &self,
@@ -181,18 +185,22 @@ impl BlobServiceClient {
   /// already exists.
   ///
   /// # Example
-  /// ```rust
+  /// ```no_run
+  /// # use comm_services_lib::blob::client::BlobServiceClient;
+  /// # use async_stream;
+  /// # async fn f(blob_hash: String) {
   /// use std::io::{Error, ErrorKind};
-  ///
   /// let client =
-  ///   BlobServiceClient::new("http://localhost:50053".parse()?);
+  ///   BlobServiceClient::new("http://localhost:50053".parse().unwrap());
   ///
   /// let stream = async_stream::stream! {
   ///   yield Ok(vec![1, 2, 3]);
   ///   yield Ok(vec![4, 5, 6]);
   ///   yield Err(Error::new(ErrorKind::Other, "Oops"));
   /// };
-  /// client.upload_blob(&blob_hash, stream).await?;
+  ///
+  /// client.upload_blob(&blob_hash, stream).await.unwrap();
+  /// # }
   /// ```
   pub async fn upload_blob<H, S>(
     &self,

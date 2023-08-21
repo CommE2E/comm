@@ -66,13 +66,14 @@ pub enum DBItemAttributeError {
 /// Conversion trait for [`AttributeValue`]
 ///
 /// Types implementing this trait are able to do the following:
-/// ```rust
+/// ```
 /// use comm_services_lib::database::{TryFromAttribute, AttributeTryInto};
-///
-/// let foo = SomeType::try_from_attr("MyAttribute", Some(attribute));
+/// # let attribute = aws_sdk_dynamodb::types::AttributeValue::S("a".to_string());
+/// let foo = String::try_from_attr("MyAttribute", Some(attribute)).unwrap();
 ///
 /// // if `AttributeTryInto` is imported, also:
-/// let bar = Some(attribute).attr_try_into("MyAttribute");
+/// # let attribute = aws_sdk_dynamodb::types::AttributeValue::S("a".to_string());
+/// let bar: String = Some(attribute).attr_try_into("MyAttribute").unwrap();
 pub trait TryFromAttribute: Sized {
   fn try_from_attr(
     attribute_name: impl Into<String>,
