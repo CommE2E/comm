@@ -37,10 +37,10 @@ import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import {
-  getTypeaheadUserSuggestions,
+  getMentionTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
   type Selection,
-  getMentionsCandidates,
+  getUserMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
 import {
   localIDPrefix,
@@ -131,7 +131,7 @@ import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
-import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';
+import { nativeMentionTypeaheadRegex } from '../utils/typeahead-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Clock, block, set, cond, neq, sub, interpolateNode, stopClock } =
@@ -170,7 +170,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
   +userSearchIndex: SearchIndex,
-  +mentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
@@ -561,7 +561,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     const typeaheadRegexMatches = getTypeaheadRegexMatches(
       this.state.selectionState.text,
       this.state.selectionState.selection,
-      nativeTypeaheadRegex,
+      nativeMentionTypeaheadRegex,
     );
 
     let typeaheadTooltip = null;
@@ -572,9 +572,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         textPrefix: typeaheadRegexMatches[4] ?? '',
       };
 
-      const suggestedUsers = getTypeaheadUserSuggestions(
+      const suggestedUsers = getMentionTypeaheadUserSuggestions(
         this.props.userSearchIndex,
-        this.props.mentionsCandidates,
+        this.props.userMentionsCandidates,
         this.props.viewerID,
         typeaheadMatchedStrings.textPrefix,
       );
@@ -1275,7 +1275,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
 
-  const mentionsCandidates = getMentionsCandidates(
+  const userMentionsCandidates = getUserMentionsCandidates(
     props.threadInfo,
     parentThreadInfo,
   );
@@ -1313,7 +1313,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       joinThread={callJoinThread}
       inputState={inputState}
       userSearchIndex={userSearchIndex}
-      mentionsCandidates={mentionsCandidates}
+      userMentionsCandidates={userMentionsCandidates}
       parentThreadInfo={parentThreadInfo}
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
