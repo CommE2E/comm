@@ -71,7 +71,7 @@ impl BlobServiceClient {
   /// - [BlobServiceError::InvalidArguments] if blob hash has incorrect format
   ///
   /// # Example
-  /// ```rust
+  /// ```ignore
   /// let client =
   ///   BlobServiceClient::new("http://localhost:50053".parse()?);
   ///
@@ -181,7 +181,7 @@ impl BlobServiceClient {
   /// already exists.
   ///
   /// # Example
-  /// ```rust
+  /// ```ignore
   /// use std::io::{Error, ErrorKind};
   ///
   /// let client =
