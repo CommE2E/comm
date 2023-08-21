@@ -1,11 +1,11 @@
-mod proto {
-  tonic::include_proto!("tunnelbroker");
-}
 use crate::config::CONFIG;
-use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
-use proto::{Empty, MessageToDevice};
+use grpc_clients::tunnelbroker::create_tunnelbroker_client as shared_tb_client;
+use grpc_clients::tunnelbroker::protos;
+use protos::tunnelbroker_service_client::TunnelbrokerServiceClient;
+use protos::{Empty, MessageToDevice};
 use tonic::transport::Channel;
 use tonic::Response;
+use tonic::Status;
 use tracing::error;
 use tunnelbroker_messages as messages;
 
@@ -13,11 +13,11 @@ use crate::error::Error;
 
 pub async fn create_tunnelbroker_client(
 ) -> Result<TunnelbrokerServiceClient<Channel>, Error> {
-  TunnelbrokerServiceClient::connect(CONFIG.tunnelbroker_endpoint.to_string())
+  shared_tb_client(&CONFIG.tunnelbroker_endpoint)
     .await
     .map_err(|e| {
       error!("Unable able to connect to tunnelbroker: {:?}", e);
-      e.into()
+      Error::Status(Status::invalid_argument(format!("{}", e)))
     })
 }
 

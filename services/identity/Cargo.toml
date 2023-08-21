@@ -20,6 +20,7 @@ rand = "0.8"
 constant_time_eq = "0.2.2"
 siwe = "0.3"
 comm-opaque2 = { path = "../../shared/comm-opaque2" }
+grpc_clients = { path = "../../shared/grpc_clients" }
 once_cell = "1.17"
 hex = "0.4"
 tonic-web = "0.9.1"
