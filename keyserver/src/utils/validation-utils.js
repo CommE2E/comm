@@ -8,6 +8,11 @@ import {
   hasMinStateVersion,
 } from 'lib/shared/version-utils.js';
 import { type PlatformDetails } from 'lib/types/device-types.js';
+import {
+  convertClientIDsToServerIDs,
+  convertObject,
+  convertServerIDsToClientIDs,
+} from 'lib/utils/conversion-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
   tCookie,
@@ -16,9 +21,6 @@ import {
   tPlatformDetails,
   assertWithValidator,
   ashoatKeyserverID,
-  convertClientIDsToServerIDs,
-  convertObject,
-  convertServerIDsToClientIDs,
 } from 'lib/utils/validation-utils.js';
 
 import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
