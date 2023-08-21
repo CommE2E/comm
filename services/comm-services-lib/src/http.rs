@@ -1,4 +1,9 @@
+pub mod multipart;
+
+use crate::tools::BoxedError;
 use actix_cors::Cors;
+use actix_web::web::Bytes;
+use futures_core::Stream;
 
 pub fn cors_config(is_sandbox: bool) -> Cors {
   // For local development, use relaxed CORS config
@@ -16,3 +21,13 @@ pub fn cors_config(is_sandbox: bool) -> Cors {
     .allow_any_header()
     .expose_any_header()
 }
+
+// Trait type aliases aren't supported in Rust, but
+// we can workaround this by creating an empty trait
+// that extends the traits we want to alias.
+#[rustfmt::skip]
+pub trait ByteStream:
+  Stream<Item = Result<Bytes, BoxedError>> {}
+#[rustfmt::skip]
+impl<T> ByteStream for T where
+  T: Stream<Item = Result<Bytes, BoxedError>> {}
