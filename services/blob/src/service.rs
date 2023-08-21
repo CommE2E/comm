@@ -4,6 +4,8 @@ use std::sync::Arc;
 
 use async_stream::try_stream;
 use chrono::Duration;
+use comm_services_lib::http::ByteStream;
+use comm_services_lib::tools::BoxedError;
 use tokio_stream::StreamExt;
 use tonic::codegen::futures_core::Stream;
 use tracing::{debug, error, trace, warn};
@@ -14,7 +16,7 @@ use crate::database::types::{
 };
 use crate::database::DBError;
 use crate::s3::{Error as S3Error, S3Client, S3Path};
-use crate::tools::{BoxedError, ByteStream, MemOps};
+use crate::tools::MemOps;
 use crate::{constants::BLOB_DOWNLOAD_CHUNK_SIZE, database::DatabaseClient};
 
 #[derive(
@@ -132,13 +134,13 @@ impl BlobService {
 
     tokio::pin!(blob_data_stream);
     let mut s3_chunk: Vec<u8> = Vec::new();
-    while let Some(mut chunk) =
+    while let Some(chunk) =
       blob_data_stream.try_next().await.map_err(|err| {
         warn!("Failed to get data chunk: {:?}", err);
         BlobServiceError::InputError(err)
       })?
     {
-      s3_chunk.append(&mut chunk);
+      s3_chunk.extend_from_slice(&chunk);
 
       // New parts should be added to AWS only if they exceed minimum part size,
       // Otherwise AWS returns error
