@@ -59,6 +59,7 @@ import {
   draftKeyFromThreadID,
   useThreadChatMentionCandidates,
 } from 'lib/shared/thread-utils.js';
+import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PhotoPaste } from 'lib/types/media-types.js';
@@ -90,6 +91,7 @@ import {
 } from './message-editing-context.react.js';
 import type { RemoveEditMode } from './message-list-types.js';
 import TypeaheadTooltip from './typeahead-tooltip.react.js';
+import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
 // eslint-disable-next-line import/extensions
 import ClearableTextInput from '../components/clearable-text-input.react';
@@ -495,6 +497,23 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return checkIfDefaultMembersAreVoiced(this.props.threadInfo);
   }
 
+  typeaheadTooltipButton = ({ item, suggestionText, styles }) => {
+    return (
+      <>
+        <UserAvatar size="small" userID={item.id} />
+        <Text style={styles.buttonLabel} numberOfLines={1}>
+          {suggestionText}
+        </Text>
+      </>
+    );
+  };
+
+  typeaheadTooltipSuggestionTextExtractor = (
+    item: RelativeMemberInfo,
+  ): string => {
+    return `@${stringForUserExplicit(item)}`;
+  };
+
   render() {
     const isMember = viewerIsMember(this.props.threadInfo);
     const canJoin = threadHasPermission(
@@ -567,8 +586,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           <TypeaheadTooltip
             text={this.state.text}
             matchedStrings={typeaheadMatchedStrings}
-            suggestedUsers={suggestedUsers}
+            suggestions={suggestedUsers}
             focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
+            typeaheadButtonRenderer={this.typeaheadTooltipButton}
+            suggestionTextExtractor={
+              this.typeaheadTooltipSuggestionTextExtractor
+            }
           />
         );
       }

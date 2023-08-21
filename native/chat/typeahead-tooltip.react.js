@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Platform, Text } from 'react-native';
+import { Platform } from 'react-native';
 import { PanGestureHandler, FlatList } from 'react-native-gesture-handler';
 
 import {
@@ -9,25 +9,33 @@ import {
   type Selection,
   getNewTextAndSelection,
 } from 'lib/shared/mention-utils.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
 
-export type TypeaheadTooltipProps = {
+export type TypeaheadTooltipProps<EntryType> = {
   +text: string,
   +matchedStrings: TypeaheadMatchedStrings,
-  +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  +suggestions: $ReadOnlyArray<EntryType>,
   +focusAndUpdateTextAndSelection: (text: string, selection: Selection) => void,
+  +typeaheadButtonRenderer: ({
+    item: EntryType,
+    suggestionText: string,
+    styles: typeof unboundStyles,
+  }) => React.Node,
+  +suggestionTextExtractor: (entry: EntryType) => string,
 };
 
-function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
+function TypeaheadTooltip<EntryType>(
+  props: TypeaheadTooltipProps<EntryType>,
+): React.Node {
   const {
     text,
     matchedStrings,
-    suggestedUsers,
+    suggestions,
     focusAndUpdateTextAndSelection,
+    typeaheadButtonRenderer,
+    suggestionTextExtractor,
   } = props;
 
   const { textBeforeAtSymbol, textPrefix } = matchedStrings;
@@ -35,13 +43,14 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   const styles = useStyles(unboundStyles);
 
   const renderTypeaheadButton = React.useCallback(
-    ({ item }: { item: RelativeMemberInfo, ... }) => {
+    ({ item }: { item: EntryType, ... }) => {
+      const suggestionText = suggestionTextExtractor(item);
       const onPress = () => {
         const { newText, newSelectionStart } = getNewTextAndSelection(
           textBeforeAtSymbol,
           text,
           textPrefix,
-          item,
+          suggestionText,
         );
 
         focusAndUpdateTextAndSelection(newText, {
@@ -52,16 +61,18 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
       return (
         <Button onPress={onPress} style={styles.button} iosActiveOpacity={0.85}>
-          <UserAvatar size="small" userID={item.id} />
-          <Text style={styles.buttonLabel} numberOfLines={1}>
-            @{item.username}
-          </Text>
+          {typeaheadButtonRenderer({
+            item,
+            suggestionText,
+            styles,
+          })}
         </Button>
       );
     },
     [
-      styles.button,
-      styles.buttonLabel,
+      suggestionTextExtractor,
+      styles,
+      typeaheadButtonRenderer,
       textBeforeAtSymbol,
       text,
       textPrefix,
@@ -95,7 +106,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
       <FlatList
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
-        data={suggestedUsers}
+        data={suggestions}
         renderItem={renderTypeaheadButton}
         keyboardShouldPersistTaps="always"
       />
@@ -104,7 +115,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
       renderTypeaheadButton,
       styles.container,
       styles.contentContainer,
-      suggestedUsers,
+      suggestions,
     ],
   );
 
