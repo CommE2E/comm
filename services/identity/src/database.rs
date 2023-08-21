@@ -472,9 +472,19 @@ impl DatabaseClient {
       .table_name(NAME)
       .key_condition_expression(format!("{} = :pk", PARTITION_KEY))
       .expression_attribute_values(":pk", AttributeValue::S(partition_key))
+      .return_consumed_capacity(
+        aws_sdk_dynamodb::model::ReturnConsumedCapacity::Total,
+      )
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
+      .map(|response| {
+        let capacity_units = response
+          .consumed_capacity()
+          .and_then(|it| it.capacity_units());
+        info!("OTK read consumed capacity: {:?}", capacity_units);
+        response
+      })
   }
 
   pub async fn set_prekey(
