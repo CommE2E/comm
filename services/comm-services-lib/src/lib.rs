@@ -1,3 +1,4 @@
+pub mod auth;
 pub mod blob;
 pub mod database;
 #[cfg(feature = "http")]
