@@ -5,13 +5,7 @@ edition = "2021"
 license = "BSD-3-Clause"
 
 [features]
-blob-client = [
-  "dep:reqwest",
-  "dep:futures-core",
-  "dep:futures-util",
-  "dep:serde",
-  "dep:serde_json",
-]
+blob-client = ["dep:reqwest", "dep:futures-core", "dep:futures-util"]
 http = [
   "dep:actix-cors",
   "dep:actix-web",
@@ -20,14 +14,18 @@ http = [
   "dep:futures-util",
   "dep:http",
   "dep:tokio-stream",
+  "dep:actix-web-httpauth",
 ]
 
 [dependencies]
 aws-config = "0.55"
 aws-sdk-dynamodb = "0.27"
 aws-types = "0.55"
+base64 = "0.21"
 chrono = "0.4"
 derive_more = "0.99"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
 tracing = "0.1"
 anyhow = "1.0.74"
 futures-core = { version = "0.3", optional = true }
@@ -37,10 +35,9 @@ reqwest = { version = "0.11", features = [
   "multipart",
   "stream",
 ], optional = true }
-serde = { version = "1.0", features = ["derive"], optional = true }
-serde_json = { version = "1.0", optional = true }
 actix-cors = { version = "0.6", optional = true }
 actix-web = { version = "4.3", optional = true }
 http = { version = "0.2.9", optional = true }
+actix-web-httpauth = { version = "0.8.0", optional = true }
 actix-multipart = { version = "0.6", optional = true }
 tokio-stream = { version = "0.1.14", optional = true }
