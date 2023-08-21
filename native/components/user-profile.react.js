@@ -1,7 +1,8 @@
 // @flow
 
+import Clipboard from '@react-native-clipboard/clipboard';
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 import type { AccountUserInfo } from 'lib/types/user-types';
 
@@ -16,7 +17,46 @@ type Props = {
 function UserProfile(props: Props): React.Node {
   const { userInfo } = props;
 
+  const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
+
   const styles = useStyles(unboundStyles);
+
+  const onPressCopyUsername = React.useCallback(() => {
+    Clipboard.setString(userInfo.username);
+    setUsernameCopied(true);
+    setTimeout(() => setUsernameCopied(false), 3000);
+  }, [userInfo.username]);
+
+  const copyUsernameButton = React.useMemo(() => {
+    if (usernameCopied) {
+      return (
+        <View style={styles.copyUsernameContainer}>
+          <SWMansionIcon
+            name="check"
+            style={styles.copyUsernameIcon}
+            size={16}
+          />
+          <Text style={styles.copyUsernameText}>Username copied!</Text>
+        </View>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.copyUsernameContainer}
+        onPress={onPressCopyUsername}
+      >
+        <SWMansionIcon name="copy" style={styles.copyUsernameIcon} size={16} />
+        <Text style={styles.copyUsernameText}>Copy username</Text>
+      </TouchableOpacity>
+    );
+  }, [
+    onPressCopyUsername,
+    styles.copyUsernameContainer,
+    styles.copyUsernameIcon,
+    styles.copyUsernameText,
+    usernameCopied,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -25,14 +65,7 @@ function UserProfile(props: Props): React.Node {
         <UserAvatar size="profile" userID={userInfo.id} />
         <View style={styles.usernameContainer}>
           <Text style={styles.usernameText}>{userInfo.username}</Text>
-          <View style={styles.copyUsernameContainer}>
-            <SWMansionIcon
-              name="copy"
-              style={styles.copyUsernameIcon}
-              size={16}
-            />
-            <Text style={styles.copyUsernameText}>Copy username</Text>
-          </View>
+          {copyUsernameButton}
         </View>
       </View>
     </View>
