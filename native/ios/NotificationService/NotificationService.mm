@@ -1,6 +1,7 @@
 #import "NotificationService.h"
 #import "Logger.h"
 #import "NotificationsCryptoModule.h"
+#import "StaffUtils.h"
 #import "TemporaryMessageStorage.h"
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
@@ -31,15 +32,27 @@ CFStringRef newMessageInfosDarwinNotification =
   self.contentHandler = contentHandler;
   self.bestAttemptContent = [request.content mutableCopy];
 
+  // Step 1: notification decryption.
   if ([self shouldBeDecrypted:self.bestAttemptContent.userInfo]) {
-    @try {
-      [self decryptBestAttemptContent];
-    } @catch (NSException *e) {
-      comm::Logger::log(
-          "NSE: Received exception: " + std::string([e.name UTF8String]) +
-          " with reason: " + std::string([e.reason UTF8String]) +
-          " during notification decryption");
-      self.contentHandler([[UNNotificationContent alloc] init]);
+    std::string decryptErrorMessage;
+    try {
+      @try {
+        [self decryptBestAttemptContent];
+      } @catch (NSException *e) {
+        decryptErrorMessage = "NSE: Received Obj-C exception: " +
+            std::string([e.name UTF8String]) +
+            " during notification decryption.";
+      }
+    } catch (const std::exception &e) {
+      decryptErrorMessage =
+          "NSE: Received C++ exception: " + std::string(e.what()) +
+          " during notification decryption.";
+    }
+
+    if (decryptErrorMessage.size()) {
+      NSString *errorMessage =
+          [NSString stringWithUTF8String:decryptErrorMessage.c_str()];
+      [self callContentHandlerOnErrorMessage:errorMessage];
       return;
     }
   } else if ([self shouldAlertUnencryptedNotification:self.bestAttemptContent
@@ -49,12 +62,58 @@ CFStringRef newMessageInfosDarwinNotification =
     comm::Logger::log("NSE: Received erroneously unencrypted notitication.");
   }
 
-  [self persistMessagePayload:self.bestAttemptContent.userInfo];
+  // Step 2: notification persistence in a temporary storage
+  std::string persistErrorMessage;
+  try {
+    @try {
+      [self persistMessagePayload:self.bestAttemptContent.userInfo];
+    } @catch (NSException *e) {
+      persistErrorMessage =
+          "NSE: Received Obj-C exception: " + std::string([e.name UTF8String]) +
+          " during notification persistence.";
+    }
+  } catch (const std::exception &e) {
+    persistErrorMessage =
+        "NSE: Received C++ exception: " + std::string(e.what()) +
+        " during notification persistence.";
+  }
+
+  if (persistErrorMessage.size() && comm::StaffUtils::isStaffRelease()) {
+    NSString *errorMessage =
+        [NSString stringWithUTF8String:persistErrorMessage.c_str()];
+    UNNotificationContent *errorContent =
+        [self buildContentForError:errorMessage];
+    self.contentHandler(errorContent);
+    return;
+  }
+
+  // Step 3: (optional) rescind read notifications
+
   // Message payload persistence is a higher priority task, so it has
   // to happen prior to potential notification center clearing.
   if ([self isRescind:self.bestAttemptContent.userInfo]) {
-    [self removeNotificationWithIdentifier:self.bestAttemptContent
-                                               .userInfo[@"notificationId"]];
+    std::string rescindErrorMessage;
+    try {
+      @try {
+        [self
+            removeNotificationWithIdentifier:self.bestAttemptContent
+                                                 .userInfo[@"notificationId"]];
+      } @catch (NSException *e) {
+        rescindErrorMessage = "NSE: Received Obj-C exception: " +
+            std::string([e.name UTF8String]) + " during notification rescind.";
+      }
+    } catch (const std::exception &e) {
+      rescindErrorMessage =
+          "NSE: Received C++ exception: " + std::string(e.what()) +
+          " during notification rescind.";
+    }
+
+    if (rescindErrorMessage.size()) {
+      NSString *errorMessage =
+          [NSString stringWithUTF8String:rescindErrorMessage.c_str()];
+      [self callContentHandlerOnErrorMessage:errorMessage];
+      return;
+    }
     self.contentHandler([[UNNotificationContent alloc] init]);
     return;
   }
@@ -82,8 +141,9 @@ CFStringRef newMessageInfosDarwinNotification =
     // remove relevant notification from notification center in
     // in time given to NSE to process notification.
     // It is an extremely unlikely to happen.
-    comm::Logger::log("NSE: Exceeded time limit to rescind a notification.");
-    self.contentHandler([[UNNotificationContent alloc] init]);
+    NSString *errorMessage =
+        @"NSE: Exceeded time limit to rescind a notification.";
+    [self callContentHandlerOnErrorMessage:errorMessage];
     return;
   }
   if ([self shouldBeDecrypted:self.bestAttemptContent.userInfo] &&
@@ -91,8 +151,9 @@ CFStringRef newMessageInfosDarwinNotification =
     // If we get to this place it means we were unable to
     // decrypt encrypted notification content in time
     // given to NSE to process notification.
-    comm::Logger::log("NSE: Exceeded time limit to decrypt a notification.");
-    self.contentHandler([[UNNotificationContent alloc] init]);
+    NSString *errorMessage =
+        @"NSE: Exceeded time limit to decrypt a notification.";
+    [self callContentHandlerOnErrorMessage:errorMessage];
     return;
   }
   self.contentHandler(self.bestAttemptContent);
@@ -258,6 +319,25 @@ CFStringRef newMessageInfosDarwinNotification =
   }
   [mutableUserInfo removeObjectForKey:encryptedPayloadKey];
   self.bestAttemptContent.userInfo = mutableUserInfo;
+}
+
+- (UNNotificationContent *)buildContentForError:(NSString *)error {
+  UNMutableNotificationContent *content =
+      [[UNMutableNotificationContent alloc] init];
+  content.body = error;
+  return content;
+}
+
+- (void)callContentHandlerOnErrorMessage:(NSString *)errorMessage {
+  comm::Logger::log(std::string([errorMessage UTF8String]));
+
+  if (!comm::StaffUtils::isStaffRelease()) {
+    self.contentHandler([[UNNotificationContent alloc] init]);
+    return;
+  }
+
+  UNNotificationContent *content = [self buildContentForError:errorMessage];
+  self.contentHandler(content);
 }
 
 @end
