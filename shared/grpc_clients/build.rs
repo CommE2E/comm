@@ -10,4 +10,8 @@ fn main() {
       &["../protos"],
     )
     .unwrap_or_else(|e| panic!("Failed to compile protos {:?}", e));
+
+  println!("cargo:rerun-if-changed=../protos/identity_client.proto");
+  println!("cargo:rerun-if-changed=../protos/identity_authenticated.proto");
+  println!("cargo:rerun-if-changed=../protos/tunnelbroker.proto");
 }
