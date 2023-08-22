@@ -6,6 +6,7 @@ import { Text } from 'react-native';
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
 import { useMarkdownOnPressUtils } from './markdown-utils.js';
+import { useNavigateToThreadWithFadeAnimation } from '../chat/message-list-types.js';
 
 type TextProps = React.ElementConfig<typeof Text>;
 type Props = {
@@ -16,11 +17,17 @@ type Props = {
 };
 function MarkdownChatMention(props: Props): React.Node {
   const { threadInfo, hasAccessToChat, ...rest } = props;
-  const { isRevealed, onLongPressHandler } = useMarkdownOnPressUtils();
+  const { messageKey, isRevealed, onLongPressHandler } =
+    useMarkdownOnPressUtils();
   const shouldBePressable = hasAccessToChat ? isRevealed : false;
+  const onPressHandler = useNavigateToThreadWithFadeAnimation(
+    threadInfo,
+    messageKey,
+  );
   return (
     <Text
-      onLongPress={shouldBePressable ? onLongPressHandler : null}
+      onPress={shouldBePressable ? onPressHandler : null}
+      onLongPress={isRevealed ? onLongPressHandler : null}
       {...rest}
     />
   );
