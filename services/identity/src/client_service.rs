@@ -845,17 +845,23 @@ impl IdentityClientService for ClientService {
     request: tonic::Request<VerifyUserAccessTokenRequest>,
   ) -> Result<tonic::Response<VerifyUserAccessTokenResponse>, tonic::Status> {
     let message = request.into_inner();
+    debug!("Verifying device: {}", &message.signing_public_key);
+
     let token_valid = self
       .client
       .verify_access_token(
         message.user_id,
-        message.signing_public_key,
+        message.signing_public_key.clone(),
         message.access_token,
       )
       .await
       .map_err(handle_db_error)?;
 
     let response = Response::new(VerifyUserAccessTokenResponse { token_valid });
+    debug!(
+      "device {} was verified: {}",
+      &message.signing_public_key, token_valid
+    );
     Ok(response)
   }
 
