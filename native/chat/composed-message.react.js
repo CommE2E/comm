@@ -234,9 +234,9 @@ class ComposedMessage extends React.PureComponent<Props> {
               {deliveryIcon}
               {messageBox}
             </View>
-            {failedSendInfo}
             {inlineEngagement}
           </View>
+          {failedSendInfo}
         </AnimatedView>
       </View>
     );
