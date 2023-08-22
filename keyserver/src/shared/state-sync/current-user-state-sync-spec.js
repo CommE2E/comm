@@ -12,7 +12,7 @@ import type { Viewer } from '../../session/viewer.js';
 export const currentUserStateSyncSpec: StateSyncSpec<
   OldCurrentUserInfo | CurrentUserInfo,
 > = Object.freeze({
-  fetchAll(viewer: Viewer) {
+  fetch(viewer: Viewer) {
     return fetchCurrentUserInfo(viewer);
   },
 });

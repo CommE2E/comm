@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import type { TUnion } from 'tcomb';
 
-import { serverEntryInfo } from 'lib/shared/entry-utils.js';
 import type { UpdateActivityResult } from 'lib/types/activity-types.js';
 import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isDeviceType } from 'lib/types/device-types.js';
@@ -38,17 +37,8 @@ import {
 import { createOlmSession } from '../creators/olm-session-creator.js';
 import { saveOneTimeKeys } from '../creators/one-time-keys-creator.js';
 import createReport from '../creators/report-creator.js';
-import {
-  fetchEntryInfos,
-  fetchEntryInfosByID,
-  fetchEntriesForSession,
-} from '../fetchers/entry-fetchers.js';
+import { fetchEntriesForSession } from '../fetchers/entry-fetchers.js';
 import { checkIfSessionHasEnoughOneTimeKeys } from '../fetchers/key-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
-import {
-  fetchCurrentUserInfo,
-  fetchKnownUserInfos,
-} from '../fetchers/user-fetchers.js';
 import { activityUpdatesInputValidator } from '../responders/activity-responders.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import {
@@ -395,10 +385,10 @@ async function checkState(
     return { sessionUpdate: { lastValidated: Date.now() } };
   } else if (status.status === 'state_check') {
     const promises = {
-      threadsResult: serverStateSyncSpecs.threads.fetchAll(viewer, query),
-      entriesResult: serverStateSyncSpecs.entries.fetchAll(viewer, query),
-      currentUserInfo: serverStateSyncSpecs.currentUser.fetchAll(viewer, query),
-      userInfosResult: serverStateSyncSpecs.users.fetchAll(viewer, query),
+      threadsResult: serverStateSyncSpecs.threads.fetch(viewer, query),
+      entriesResult: serverStateSyncSpecs.entries.fetch(viewer, query),
+      currentUserInfo: serverStateSyncSpecs.currentUser.fetch(viewer, query),
+      userInfosResult: serverStateSyncSpecs.users.fetch(viewer, query),
     };
     const fetchedData = await promiseAll(promises);
     const hashesToCheck = {
@@ -446,24 +436,43 @@ async function checkState(
 
   const fetchPromises = {};
   if (fetchAllThreads) {
-    fetchPromises.threadsResult = fetchThreadInfos(viewer);
+    fetchPromises.threadsResult = serverStateSyncSpecs.threads.fetch(
+      viewer,
+      query,
+    );
   } else if (threadIDsToFetch.size > 0) {
-    fetchPromises.threadsResult = fetchThreadInfos(viewer, {
-      threadIDs: threadIDsToFetch,
-    });
+    fetchPromises.threadsResult = serverStateSyncSpecs.threads.fetch(
+      viewer,
+      query,
+      threadIDsToFetch,
+    );
   }
   if (fetchAllEntries) {
-    fetchPromises.entriesResult = fetchEntryInfos(viewer, [calendarQuery]);
+    fetchPromises.entryInfos = serverStateSyncSpecs.entries.fetch(
+      viewer,
+      query,
+    );
   } else if (entryIDsToFetch.size > 0) {
-    fetchPromises.entryInfos = fetchEntryInfosByID(viewer, entryIDsToFetch);
+    fetchPromises.entryInfos = serverStateSyncSpecs.entries.fetch(
+      viewer,
+      query,
+      entryIDsToFetch,
+    );
   }
   if (fetchAllUserInfos) {
-    fetchPromises.userInfos = fetchKnownUserInfos(viewer);
+    fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(viewer, query);
   } else if (userIDsToFetch.size > 0) {
-    fetchPromises.userInfos = fetchKnownUserInfos(viewer, [...userIDsToFetch]);
+    fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(
+      viewer,
+      query,
+      userIDsToFetch,
+    );
   }
   if (fetchUserInfo) {
-    fetchPromises.currentUserInfo = fetchCurrentUserInfo(viewer);
+    fetchPromises.currentUserInfo = serverStateSyncSpecs.currentUser.fetch(
+      viewer,
+      query,
+    );
   }
   const fetchedData = await promiseAll(fetchPromises);
 
@@ -482,12 +491,10 @@ async function checkState(
     } else if (key === 'entryInfos') {
       // Instead of returning all entryInfos, we want to narrow down and figure
       // out which entryInfos don't match first
-      const { rawEntryInfos } = fetchedData.entriesResult;
-      for (const rawEntryInfo of rawEntryInfos) {
-        const entryInfo = serverEntryInfo(rawEntryInfo);
+      const { entryInfos } = fetchedData;
+      for (const entryID in entryInfos) {
+        const entryInfo = entryInfos[entryID];
         invariant(entryInfo, 'should be set');
-        const { id: entryID } = entryInfo;
-        invariant(entryID, 'should be set');
         hashesToCheck[`entryInfo|${entryID}`] = hash(entryInfo);
       }
       failUnmentioned.entryInfos = true;
@@ -518,14 +525,7 @@ async function checkState(
       stateChanges.rawThreadInfos.push(threadInfo);
     } else if (key.startsWith('entryInfo|')) {
       const [, entryID] = key.split('|');
-      let entryInfo;
-      if (fetchedData.entriesResult) {
-        entryInfo = fetchedData.entriesResult.rawEntryInfos.find(
-          candidate => candidate.id === entryID,
-        );
-      } else {
-        entryInfo = fetchedData.entryInfos[entryID];
-      }
+      const entryInfo = fetchedData.entryInfos[entryID];
       if (!entryInfo) {
         if (!stateChanges.deleteEntryIDs) {
           stateChanges.deleteEntryIDs = [];
