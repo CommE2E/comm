@@ -2,7 +2,7 @@ div.modal_body {
   display: flex;
   flex-direction: column;
   width: 383px;
-  height: 560px;
+  height: 650px;
   overflow: hidden;
 }
 div.tab_body {

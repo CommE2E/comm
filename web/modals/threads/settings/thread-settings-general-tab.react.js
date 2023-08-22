@@ -147,16 +147,12 @@ function ThreadSettingsGeneralTab(
     return 'Save';
   }, [threadSettingsOperationInProgress]);
 
-  const editingAvatarsOnWebEnabled = false;
-  let avatarNode;
-  if (editingAvatarsOnWebEnabled) {
-    avatarNode = <EditThreadAvatar threadInfo={threadInfo} />;
-  }
-
   return (
     <form method="POST" className={css.container}>
       <div>
-        {avatarNode}
+        <div className={css.editAvatarContainer}>
+          <EditThreadAvatar threadInfo={threadInfo} />
+        </div>
         <div className={css.form_title}>Chat name</div>
         <div className={css.form_content}>
           <Input
