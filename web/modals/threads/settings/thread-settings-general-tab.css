@@ -34,3 +34,9 @@ form.container {
   flex-direction: column;
   flex: 1;
 }
+
+div.editAvatarContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
