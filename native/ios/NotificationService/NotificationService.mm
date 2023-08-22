@@ -3,6 +3,7 @@
 #import "NotificationsCryptoModule.h"
 #import "StaffUtils.h"
 #import "TemporaryMessageStorage.h"
+#import <mach/mach.h>
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
@@ -14,6 +15,24 @@ const std::string callingProcessName = "NSE";
 int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
 CFStringRef newMessageInfosDarwinNotification =
     CFSTR("app.comm.darwin_new_message_infos");
+
+// Implementation below was inspired by the
+// following discussion with Apple staff member:
+// https://developer.apple.com/forums/thread/105088
+size_t getMemoryUsageInBytes() {
+  task_vm_info_data_t vmInfo;
+  mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+
+  kern_return_t result =
+      task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
+
+  if (result != KERN_SUCCESS) {
+    return -1;
+  }
+
+  size_t memory_usage = static_cast<size_t>(vmInfo.phys_footprint);
+  return memory_usage;
+}
 
 @interface NotificationService ()
 
@@ -29,6 +48,8 @@ CFStringRef newMessageInfosDarwinNotification =
                    withContentHandler:
                        (void (^)(UNNotificationContent *_Nonnull))
                            contentHandler {
+  [NotificationService setUpNSEProcess];
+
   self.contentHandler = contentHandler;
   self.bestAttemptContent = [request.content mutableCopy];
 
@@ -124,7 +145,13 @@ CFStringRef newMessageInfosDarwinNotification =
   }
 
   [self sendNewMessageInfosNotification];
-  // TODO modify self.bestAttemptContent here
+
+  if (NSString *currentMemoryEventMessage =
+          [NotificationService getAndSetMemoryEventMessage:nil]) {
+    cumulatedErrorMessage +=
+        std::string([currentMemoryEventMessage UTF8String]) + " ";
+  }
+
   if (cumulatedErrorMessage.size()) {
     cumulatedErrorMessage = "NSE: Received " + cumulatedErrorMessage;
     [self callContentHandlerOnErrorMessage:
@@ -132,7 +159,6 @@ CFStringRef newMessageInfosDarwinNotification =
                      withPublicUserContent:publicUserContent];
     return;
   }
-
   self.contentHandler(self.bestAttemptContent);
 }
 
@@ -348,6 +374,63 @@ CFStringRef newMessageInfosDarwinNotification =
 
   UNNotificationContent *content = [self buildContentForError:errorMessage];
   self.contentHandler(content);
+}
+
+// Monitor memory usage
++ (NSString *)getAndSetMemoryEventMessage:(NSString *)message {
+  static NSString *memoryEventMessage = nil;
+  static NSLock *memoryEventLock = [[NSLock alloc] init];
+
+  @try {
+    if (![memoryEventLock tryLock]) {
+      return nil;
+    }
+    NSString *currentMemoryEventMessage =
+        memoryEventMessage ? [memoryEventMessage copy] : nil;
+    memoryEventMessage = [message copy];
+    return currentMemoryEventMessage;
+  } @finally {
+    [memoryEventLock unlock];
+  }
+}
+
++ (dispatch_source_t)registerForMemoryEvents {
+  dispatch_source_t memorySource = dispatch_source_create(
+      DISPATCH_SOURCE_TYPE_MEMORYPRESSURE,
+      0L,
+      DISPATCH_MEMORYPRESSURE_CRITICAL,
+      dispatch_get_main_queue());
+
+  dispatch_block_t eventHandler = ^{
+    NSString *criticalMemoryEventMessage = [NSString
+        stringWithFormat:
+            @"NSE: Received CRITICAL memory event. Memory usage: %ld bytes",
+            getMemoryUsageInBytes()];
+
+    comm::Logger::log(std::string([criticalMemoryEventMessage UTF8String]));
+    if (!comm::StaffUtils::isStaffRelease()) {
+      // If it is not a staff release we don't set
+      // memoryEventMessage variable since it will
+      // not be displayed to the client anyway
+      return;
+    }
+
+    [NotificationService
+        getAndSetMemoryEventMessage:criticalMemoryEventMessage];
+  };
+
+  dispatch_source_set_event_handler(memorySource, eventHandler);
+  dispatch_activate(memorySource);
+  return memorySource;
+}
+
++ (void)setUpNSEProcess {
+  static dispatch_source_t memoryEventSource;
+  static dispatch_once_t onceToken;
+
+  dispatch_once(&onceToken, ^{
+    memoryEventSource = [NotificationService registerForMemoryEvents];
+  });
 }
 
 @end
