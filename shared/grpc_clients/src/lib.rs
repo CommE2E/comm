@@ -2,6 +2,9 @@ pub mod error;
 pub mod identity;
 pub mod tunnelbroker;
 
+// Re-export some dependencies which may need to be used by downstream crates
+pub use tonic;
+
 use error::Error;
 use std::path::Path;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig};

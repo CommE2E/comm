@@ -10,9 +10,7 @@ rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"/{scripts,shared,services/tunnelbroker}
 
 cp "$SCRIPT_DIR/../../scripts/install_protobuf.sh" "$BUILD_DIR"/scripts
-cp -r "${SCRIPT_DIR}/../../shared/protos" "$BUILD_DIR"/shared/protos
-cp -r "${SCRIPT_DIR}/../../shared/tunnelbroker_messages" \
-  "$BUILD_DIR"/shared/tunnelbroker_messages
+cp -r "${SCRIPT_DIR}/../../shared" "$BUILD_DIR"/
 cp -r "${SCRIPT_DIR}"/{Cargo.toml,Cargo.lock,build.rs,src} \
   "$BUILD_DIR"/services/tunnelbroker/
 

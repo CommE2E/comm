@@ -13,8 +13,7 @@ RUN ../../scripts/install_protobuf.sh
 
 COPY services/tunnelbroker .
 
-COPY shared/protos ../../shared/protos
-COPY shared/tunnelbroker_messages ../../shared/tunnelbroker_messages
+COPY shared ../../shared/
 
 RUN cargo install --path .
 
