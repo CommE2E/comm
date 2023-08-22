@@ -4,11 +4,13 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
+import ThreadEmojiAvatarSelectionModal from './thread-emoji-avatar-selection-modal.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 import { allowedMimeTypeString } from '../media/file-utils.js';
@@ -77,13 +79,32 @@ function EditThreadAvatarMenu(props: Props): React.Node {
     [onImageMenuItemClicked],
   );
 
+  const { pushModal } = useModalContext();
+  const openEmojiSelectionModal = React.useCallback(
+    () =>
+      pushModal(<ThreadEmojiAvatarSelectionModal threadInfo={threadInfo} />),
+    [pushModal, threadInfo],
+  );
+
+  const emojiMenuItem = React.useMemo(
+    () => (
+      <MenuItem
+        key="emoji"
+        text="Select emoji"
+        icon="emote-smile"
+        onClick={openEmojiSelectionModal}
+      />
+    ),
+    [openEmojiSelectionModal],
+  );
+
   const menuItems = React.useMemo(() => {
-    const items = [imageMenuItem];
+    const items = [emojiMenuItem, imageMenuItem];
     if (threadInfo.avatar) {
       items.push(removeMenuItem);
     }
     return items;
-  }, [imageMenuItem, removeMenuItem, threadInfo.avatar]);
+  }, [emojiMenuItem, imageMenuItem, removeMenuItem, threadInfo.avatar]);
 
   return (
     <div>
