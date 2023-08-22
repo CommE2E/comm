@@ -5,8 +5,9 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { Viewer } from '../../session/viewer.js';
 
 export type StateSyncSpec<Infos> = {
-  +fetchAll: (
+  +fetch: (
     viewer: Viewer,
     calendarQuery: $ReadOnlyArray<CalendarQuery>,
+    ids?: $ReadOnlySet<string>,
   ) => Promise<Infos>,
 };
