@@ -2,7 +2,9 @@ pub mod amqp;
 pub mod config;
 pub mod constants;
 pub mod database;
+pub mod error;
 pub mod grpc;
+pub mod identity;
 pub mod websockets;
 
 use anyhow::{anyhow, Result};
