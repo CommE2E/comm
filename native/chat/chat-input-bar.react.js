@@ -38,6 +38,7 @@ import { colorIsDark } from 'lib/shared/color-utils.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import {
   getMentionTypeaheadUserSuggestions,
+  getMentionTypeaheadChatSuggestions,
   getTypeaheadRegexMatches,
   type Selection,
   getUserMentionsCandidates,
@@ -59,6 +60,7 @@ import {
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
   useThreadChatMentionCandidates,
+  useThreadChatMentionSearchIndex,
 } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
@@ -77,6 +79,7 @@ import type {
   ThreadJoinPayload,
   RelativeMemberInfo,
   ResolvedThreadInfo,
+  ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
@@ -93,6 +96,7 @@ import {
 } from './message-editing-context.react.js';
 import type { RemoveEditMode } from './message-list-types.js';
 import TypeaheadTooltip from './typeahead-tooltip.react.js';
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
 // eslint-disable-next-line import/extensions
@@ -173,6 +177,8 @@ type Props = {
   +inputState: ?InputState,
   +userSearchIndex: SentencePrefixSearchIndex,
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +chatMentionSearchIndex: SentencePrefixSearchIndex,
+  +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
@@ -505,6 +511,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (item.type === 'user') {
       text = suggestionText;
       avatarComponent = <UserAvatar size="small" userID={item.user.id} />;
+    } else if (item.type === 'chat') {
+      text = `@${item.chat.uiName}`;
+      avatarComponent = <ThreadAvatar size="small" threadInfo={item.chat} />;
     }
     return (
       <>
@@ -596,10 +605,15 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         this.props.viewerID,
         typeaheadMatchedStrings.textPrefix,
       );
-      const suggestions = suggestedUsers.map(user => ({
-        type: 'user',
-        user,
-      }));
+      const suggestedChats = getMentionTypeaheadChatSuggestions(
+        this.props.chatMentionSearchIndex,
+        this.props.chatMentionCandidates,
+        typeaheadMatchedStrings.textPrefix,
+      );
+      const suggestions = [
+        ...suggestedUsers.map(user => ({ type: 'user', user })),
+        ...suggestedChats.map(chat => ({ type: 'chat', chat })),
+      ];
 
       if (suggestions.length > 0) {
         typeaheadTooltip = (
@@ -1292,6 +1306,10 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const userSearchIndex = useSelector(userStoreMentionSearchIndex);
 
+  const chatMentionSearchIndex = useThreadChatMentionSearchIndex(
+    props.threadInfo,
+  );
+
   const { parentThreadID } = props.threadInfo;
   const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
@@ -1336,6 +1354,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       inputState={inputState}
       userSearchIndex={userSearchIndex}
       userMentionsCandidates={userMentionsCandidates}
+      chatMentionSearchIndex={chatMentionSearchIndex}
+      chatMentionCandidates={chatMentionCandidates}
       parentThreadInfo={parentThreadInfo}
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
