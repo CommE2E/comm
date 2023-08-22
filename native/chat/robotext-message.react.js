@@ -196,12 +196,19 @@ function RobotextMessage(props: Props): React.Node {
 
   const contentAndHeaderOpacity = useContentAndHeaderOpacity(item);
 
+  const viewStyle = {};
+  if (!__DEV__) {
+    // We don't force view height in dev mode because we
+    // want to measure it in Message to see if it's correct
+    viewStyle.height = item.contentHeight;
+  }
+
   return (
     <View {...viewProps}>
       <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
         {timestamp}
       </AnimatedView>
-      <View onLayout={onLayout} ref={viewRef}>
+      <View onLayout={onLayout} ref={viewRef} style={viewStyle}>
         <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
           <InnerRobotextMessage
             item={item}
