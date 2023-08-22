@@ -49,6 +49,7 @@ import {
   type NavigationRoute,
   LoggedOutModalRouteName,
   RegistrationRouteName,
+  QRCodeSignInNavigatorRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
@@ -572,7 +573,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       if (__DEV__) {
         signInButtons.push(
           <TouchableOpacity
-            onPress={null}
+            onPress={this.onPressQRCodeSignIn}
             style={[styles.button, styles.classicAuthButton]}
             activeOpacity={0.6}
             key="qr-code-login"
@@ -670,6 +671,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.keyboardHeightValue.setValue(-1);
     }
     this.setMode('log-in');
+  };
+
+  onPressQRCodeSignIn = () => {
+    this.props.navigation.navigate(QRCodeSignInNavigatorRouteName);
   };
 
   onPressRegister = () => {
