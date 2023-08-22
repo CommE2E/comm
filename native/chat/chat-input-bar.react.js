@@ -41,6 +41,7 @@ import {
   getTypeaheadRegexMatches,
   type Selection,
   getUserMentionsCandidates,
+  encodeChatMentionText,
 } from 'lib/shared/mention-utils.js';
 import {
   localIDPrefix,
@@ -70,11 +71,12 @@ import type {
 } from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  type ThreadInfo,
-  type ClientThreadJoinRequest,
-  type ThreadJoinPayload,
-  type RelativeMemberInfo,
+import type {
+  ThreadInfo,
+  ClientThreadJoinRequest,
+  ThreadJoinPayload,
+  RelativeMemberInfo,
+  ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
@@ -497,19 +499,35 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return checkIfDefaultMembersAreVoiced(this.props.threadInfo);
   }
 
-  typeaheadTooltipButton = ({ item, suggestionText, styles }) => (
-    <>
-      <UserAvatar size="small" userID={item.id} />
-      <Text style={styles.buttonLabel} numberOfLines={1}>
-        {suggestionText}
-      </Text>
-    </>
-  );
+  typeaheadTooltipButton = ({ item, suggestionText, styles }) => {
+    let text = suggestionText;
+    let avatarComponent = null;
+    if (item.type === 'user') {
+      text = suggestionText;
+      avatarComponent = <UserAvatar size="small" userID={item.user.id} />;
+    }
+    return (
+      <>
+        {avatarComponent}
+        <Text style={styles.buttonLabel} numberOfLines={1}>
+          {text}
+        </Text>
+      </>
+    );
+  };
 
   typeaheadTooltipSuggestionTextExtractor = (
-    item: RelativeMemberInfo,
+    item:
+      | { type: 'user', user: RelativeMemberInfo }
+      | { type: 'chat', chat: ResolvedThreadInfo },
   ): string => {
-    return `@${stringForUserExplicit(item)}`;
+    if (item.type === 'user') {
+      return `@${stringForUserExplicit(item.user)}`;
+    }
+    if (item.type === 'chat') {
+      return `@[[${item.chat.id}:${encodeChatMentionText(item.chat.uiName)}]]`;
+    }
+    return '';
   };
 
   render() {
@@ -578,13 +596,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         this.props.viewerID,
         typeaheadMatchedStrings.textPrefix,
       );
+      const suggestions = suggestedUsers.map(user => ({
+        type: 'user',
+        user,
+      }));
 
-      if (suggestedUsers.length > 0) {
+      if (suggestions.length > 0) {
         typeaheadTooltip = (
           <TypeaheadTooltip
             text={this.state.text}
             matchedStrings={typeaheadMatchedStrings}
-            suggestions={suggestedUsers}
+            suggestions={suggestions}
             focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
             typeaheadButtonRenderer={this.typeaheadTooltipButton}
             suggestionTextExtractor={
