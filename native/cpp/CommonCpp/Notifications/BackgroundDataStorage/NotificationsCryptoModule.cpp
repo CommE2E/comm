@@ -24,6 +24,7 @@ const std::string NotificationsCryptoModule::keyserverHostedNotificationsID =
 const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
     "{\"type\": \"init\"}";
 const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
+const int temporaryFilePathRandomSuffixLength = 32;
 
 crypto::CryptoModule NotificationsCryptoModule::deserializeCryptoModule(
     const std::string &path,
@@ -88,13 +89,12 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
       folly::dynamic::object("account", account)("sessions", sessions);
   std::string pickledPersist = folly::toJson(persistJSON);
 
-  std::string temporaryPath = path + callingProcessName;
-  // This is for the case if any of the steps below failed/app was killed
-  // in a previous call to this method leaving temporary file unremoved.
-  // We supply `callingProcessName` as function argument in order to name
-  // temporary file in a deterministic way. Otherwise we would need to use
-  // directory search API to retrieve unremoved files paths.
-  remove(temporaryPath.c_str());
+  std::string temporaryFilePathRandomSuffix =
+      crypto::Tools::generateRandomHexString(
+          temporaryFilePathRandomSuffixLength);
+  std::string temporaryPath =
+      path + callingProcessName + temporaryFilePathRandomSuffix;
+
   mode_t readWritePermissionsMode = 0666;
   int temporaryFD =
       open(temporaryPath.c_str(), O_CREAT | O_WRONLY, readWritePermissionsMode);
@@ -129,6 +129,7 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
         "Details: " +
         std::string(strerror(errno)));
   }
+  remove(temporaryPath.c_str());
 }
 
 void NotificationsCryptoModule::callCryptoModule(
