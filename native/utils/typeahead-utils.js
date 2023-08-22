@@ -6,6 +6,7 @@ import { Text } from 'react-native';
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
 import {
   getNewTextAndSelection,
+  encodeChatMentionText,
   type Selection,
   type TypeaheadTooltipActionItem,
   type MentionTypeaheadSuggestionItem,
@@ -63,6 +64,30 @@ function mentionTypeaheadTooltipActions({
         actionButtonContent: {
           type: 'user',
           userInfo,
+        },
+      });
+    } else if (suggestion.type === 'chat') {
+      const { chat } = suggestion;
+      const mentionText = `@[[${chat.id}:${encodeChatMentionText(
+        chat.uiName,
+      )}]]`;
+      actions.push({
+        key: chat.id,
+        execute: () => {
+          const { newText, newSelectionStart } = getNewTextAndSelection(
+            textBeforeAtSymbol,
+            text,
+            textPrefix,
+            mentionText,
+          );
+          focusAndUpdateTextAndSelection(newText, {
+            start: newSelectionStart,
+            end: newSelectionStart,
+          });
+        },
+        actionButtonContent: {
+          type: 'chat',
+          chat,
         },
       });
     }
