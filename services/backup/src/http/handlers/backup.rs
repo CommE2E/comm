@@ -3,10 +3,11 @@ use std::{collections::HashSet, convert::Infallible};
 use actix_web::{
   error::ErrorBadRequest,
   web::{self, Bytes},
-  HttpResponse,
+  HttpResponse, Responder,
 };
 use comm_services_lib::{
   auth::UserIdentity,
+  backup::LatestBackupIDResponse,
   blob::{client::BlobServiceClient, types::BlobInfo},
   http::multipart::get_text_field,
 };
@@ -215,6 +216,60 @@ pub async fn download_user_blob(
 
   let stream = blob_client
     .get(&data_extractor(&backup_item).blob_hash)
+    .await
+    .map_err(BackupError::from)?;
+
+  Ok(
+    HttpResponse::Ok()
+      .content_type("application/octet-stream")
+      .streaming(stream),
+  )
+}
+
+#[instrument(name = "get_latest_backup_id", skip_all, fields(username = %path.as_str()))]
+pub async fn get_latest_backup_id(
+  path: web::Path<String>,
+  db_client: web::Data<DatabaseClient>,
+) -> actix_web::Result<impl Responder> {
+  let username = path.into_inner();
+  // Treat username as user_id in the initial version
+  let user_id = username;
+
+  let Some(backup_item) = db_client
+    .find_last_backup_item(&user_id)
+    .await
+    .map_err(BackupError::from)? else
+  {
+    return Err(BackupError::NoBackup.into());
+  };
+
+  let response = LatestBackupIDResponse {
+    backup_id: backup_item.backup_id,
+  };
+
+  Ok(web::Json(response))
+}
+
+#[instrument(name = "download_latest_backup_keys", skip_all, fields(username = %path.as_str()))]
+pub async fn download_latest_backup_keys(
+  path: web::Path<String>,
+  db_client: web::Data<DatabaseClient>,
+  blob_client: web::Data<BlobServiceClient>,
+) -> actix_web::Result<HttpResponse> {
+  let username = path.into_inner();
+  // Treat username as user_id in the initial version
+  let user_id = username;
+
+  let Some(backup_item) = db_client
+    .find_last_backup_item(&user_id)
+    .await
+    .map_err(BackupError::from)? else
+  {
+    return Err(BackupError::NoBackup.into());
+  };
+
+  let stream = blob_client
+    .get(&backup_item.user_keys.blob_hash)
     .await
     .map_err(BackupError::from)?;
 
