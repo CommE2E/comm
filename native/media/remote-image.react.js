@@ -1,8 +1,10 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 
+import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { type ConnectionStatus } from 'lib/types/socket-types.js';
 
 import LoadableImage from './loadable-image.react.js';
@@ -67,7 +69,9 @@ class RemoteImage extends React.PureComponent<Props, State> {
 
 const ConnectedRemoteImage: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedRemoteImage(props: BaseProps) {
-    const connectionStatus = useSelector(state => state.connection.status);
+    const connection = useSelector(connectionSelector);
+    invariant(connection, 'keyserver missing from keyserverStore');
+    const connectionStatus = connection.status;
 
     return <RemoteImage {...props} connectionStatus={connectionStatus} />;
   });
