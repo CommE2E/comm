@@ -11,6 +11,7 @@ import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import type {
   RegisterResponse,
   RegisterRequest,
+  UserIdentifier,
 } from 'lib/types/account-types.js';
 import type {
   ReservedUsernameMessage,
@@ -305,4 +306,107 @@ async function processSIWEAccountCreation(
   return id;
 }
 
-export { createAccount, processSIWEAccountCreation };
+export type ProcessVerifiedIdentityAccountCreationRequest = {
+  +identifier: UserIdentifier,
+  +calendarQuery: CalendarQuery,
+  +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+  +platformDetails: PlatformDetails,
+  +socialProof?: ?SIWESocialProof,
+  +userID: string,
+};
+// Note: `processVerifiedIdentityAccountCreation(...)` assumes that the validity
+// of `ProcessVerifiedIdentityAccountCreationRequest` was checked at call site.
+async function processVerifiedIdentityAccountCreation(
+  viewer: Viewer,
+  request: ProcessVerifiedIdentityAccountCreationRequest,
+): Promise<string> {
+  const { calendarQuery, userID, identifier } = request;
+  await verifyCalendarQueryThreadIDs(calendarQuery);
+
+  const time = Date.now();
+  const deviceToken = request.deviceTokenUpdateRequest
+    ? request.deviceTokenUpdateRequest.deviceToken
+    : viewer.deviceToken;
+
+  let username, ethereum_address;
+
+  if ('username' in identifier) {
+    username = identifier.username;
+  }
+
+  if ('walletAddress' in identifier) {
+    ethereum_address = identifier.walletAddress;
+    if (!username) {
+      username = identifier.walletAddress;
+    }
+  }
+
+  const newUserRow = [userID, username, ethereum_address, time];
+  const newUserQuery = SQL`
+    INSERT INTO users(id, username, ethereum_address, creation_time)
+    VALUES ${[newUserRow]}
+  `;
+  const [userViewerData] = await Promise.all([
+    createNewUserCookie(userID, {
+      platformDetails: request.platformDetails,
+      deviceToken,
+      socialProof: request.socialProof,
+    }),
+    deleteCookie(viewer.cookieID),
+    dbQuery(newUserQuery),
+  ]);
+  viewer.setNewCookie(userViewerData);
+
+  await setNewSession(viewer, calendarQuery, 0);
+
+  await Promise.all([
+    updateThread(
+      createScriptViewer(ashoat.id),
+      {
+        threadID: genesis.id,
+        changes: { newMemberIDs: [userID] },
+      },
+      { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
+    ),
+    viewerAcknowledgmentUpdater(viewer, policyTypes.tosAndPrivacyPolicy),
+  ]);
+
+  const [privateThreadResult, ashoatThreadResult] = await Promise.all([
+    createPrivateThread(viewer),
+    createThread(
+      viewer,
+      {
+        type: threadTypes.PERSONAL,
+        initialMemberIDs: [ashoat.id],
+      },
+      { forceAddMembers: true },
+    ),
+  ]);
+  const ashoatThreadID = ashoatThreadResult.newThreadID;
+  const privateThreadID = privateThreadResult.newThreadID;
+
+  let messageTime = Date.now();
+  const ashoatMessageDatas = ashoatMessages.map(message => ({
+    type: messageTypes.TEXT,
+    threadID: ashoatThreadID,
+    creatorID: ashoat.id,
+    time: messageTime++,
+    text: message,
+  }));
+  const privateMessageDatas = privateMessages.map(message => ({
+    type: messageTypes.TEXT,
+    threadID: privateThreadID,
+    creatorID: commbot.userID,
+    time: messageTime++,
+    text: message,
+  }));
+  const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
+  await Promise.all([createMessages(viewer, messageDatas)]);
+  return userID;
+}
+
+export {
+  createAccount,
+  processSIWEAccountCreation,
+  processVerifiedIdentityAccountCreation,
+};
