@@ -18,8 +18,8 @@ pub const BACKUP_TABLE_NAME: &str = "backup-service-backup";
 pub const BACKUP_TABLE_FIELD_USER_ID: &str = "userID";
 pub const BACKUP_TABLE_FIELD_BACKUP_ID: &str = "backupID";
 pub const BACKUP_TABLE_FIELD_CREATED: &str = "created";
-pub const BACKUP_TABLE_FIELD_RECOVERY_DATA: &str = "recoveryData";
-pub const BACKUP_TABLE_FIELD_COMPACTION_HOLDER: &str = "compactionHolder";
+pub const BACKUP_TABLE_FIELD_USER_DATA: &str = "userData";
+pub const BACKUP_TABLE_FIELD_USER_KEYS: &str = "userKeys";
 pub const BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS: &str = "attachmentHolders";
 pub const BACKUP_TABLE_INDEX_USERID_CREATED: &str = "userID-created-index";
 
