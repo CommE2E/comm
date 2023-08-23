@@ -1,5 +1,6 @@
 pub mod add_reserved_usernames;
 pub mod auth_client;
+pub mod get_inbound_keys_for_user;
 pub mod login;
 pub mod prekey;
 pub mod register_user;
@@ -10,9 +11,10 @@ pub mod identity_client {
 
 use identity_client::identity_client_service_client::IdentityClientServiceClient;
 use identity_client::{
-  AddReservedUsernamesRequest, DeviceKeyUpload, DeviceType, IdentityKeyInfo,
-  PreKey, RegistrationFinishRequest, RegistrationStartRequest,
-  RemoveReservedUsernameRequest,
+  inbound_keys_for_user_request::Identifier, AddReservedUsernamesRequest,
+  DeviceKeyUpload, DeviceType, IdentityKeyInfo, InboundKeyInfo,
+  InboundKeysForUserRequest, PreKey, RegistrationFinishRequest,
+  RegistrationStartRequest, RemoveReservedUsernameRequest,
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
@@ -116,6 +118,58 @@ pub struct SignedIdentityKeysBlob {
 pub struct UserLoginInfo {
   pub user_id: String,
   pub access_token: String,
+}
+
+#[napi(object)]
+pub struct InboundKeyInfoResponse {
+  pub payload: String,
+  pub payload_signature: String,
+  pub social_proof: Option<String>,
+  pub content_prekey: String,
+  pub content_prekey_signature: String,
+  pub notif_prekey: String,
+  pub notif_prekey_signature: String,
+}
+
+impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
+  type Error = Error;
+
+  fn try_from(key_info: InboundKeyInfo) -> Result<Self> {
+    // Extracting IdentityKeyInfo fields
+    let identity_info = key_info
+      .identity_info
+      .ok_or(Error::from_status(Status::GenericFailure))?;
+
+    let payload = identity_info.payload;
+    let payload_signature = identity_info.payload_signature;
+    let social_proof = identity_info.social_proof;
+
+    // Extracting PreKey fields for content_prekey
+    let content_prekey = key_info
+      .content_prekey
+      .ok_or(Error::from_status(Status::GenericFailure))?;
+
+    let content_prekey_value = content_prekey.pre_key;
+    let content_prekey_signature = content_prekey.pre_key_signature;
+
+    // Extracting PreKey fields for notif_prekey
+    let notif_prekey = key_info
+      .notif_prekey
+      .ok_or(Error::from_status(Status::GenericFailure))?; // You can replace () with your custom error type
+
+    let notif_prekey_value = notif_prekey.pre_key;
+    let notif_prekey_signature = notif_prekey.pre_key_signature;
+
+    Ok(Self {
+      payload,
+      payload_signature,
+      social_proof,
+      content_prekey: content_prekey_value,
+      content_prekey_signature,
+      notif_prekey: notif_prekey_value,
+      notif_prekey_signature,
+    })
+  }
 }
 
 pub fn handle_grpc_error(error: tonic::Status) -> napi::Error {
