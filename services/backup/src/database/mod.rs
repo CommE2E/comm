@@ -18,7 +18,7 @@ use crate::constants::{
 };
 
 use self::{
-  backup_item::BackupItem,
+  backup_item::{BackupItem, OrderedBackupItem},
   log_item::{parse_log_item, LogItem},
 };
 
@@ -97,7 +97,7 @@ impl DatabaseClient {
   pub async fn find_last_backup_item(
     &self,
     user_id: &str,
-  ) -> Result<Option<BackupItem>, Error> {
+  ) -> Result<Option<OrderedBackupItem>, Error> {
     let response = self
       .client
       .query()
