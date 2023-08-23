@@ -148,14 +148,14 @@ const migrations = {
       actualizedCalendarQuery: undefined,
     },
   }),
-  [9]: (state: AppState) => ({
+  [9]: state => ({
     ...state,
     connection: {
       ...state.connection,
       lateResponses: [],
     },
   }),
-  [10]: (state: AppState) => ({
+  [10]: state => ({
     ...state,
     nextLocalID: highestLocalIDSelector(state) + 1,
     connection: {
@@ -594,7 +594,7 @@ const migrations = {
     }
     return state;
   },
-  [43]: async (state: AppState) => {
+  [43]: async state => {
     const { messages, drafts, threads, messageStoreThreads } =
       await commCoreModule.getClientDBStore();
 
@@ -699,6 +699,23 @@ const migrations = {
       },
     };
   },
+  [48]: async state => {
+    const { connection, keyserverStore, ...rest } = state;
+
+    return {
+      ...rest,
+      keyserverStore: {
+        ...keyserverStore,
+        keyserverInfos: {
+          ...keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+            connection,
+          },
+        },
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -793,7 +810,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 47,
+  version: 48,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

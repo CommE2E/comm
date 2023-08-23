@@ -203,23 +203,6 @@ const initialReduxStateValidator = tShape({
     'default notifPermissionAlertInfo',
     _isEqual(defaultNotifPermissionAlertInfo),
   ),
-  connection: tShape({
-    status: tString('connecting'),
-    queuedActivityUpdates: t.irreducible(
-      'default queuedActivityUpdates',
-      _isEqual([]),
-    ),
-    actualizedCalendarQuery: tShape({
-      startDate: t.String,
-      endDate: t.String,
-      filters: t.irreducible(
-        'default filters',
-        _isEqual(defaultCalendarFilters),
-      ),
-    }),
-    lateResponses: t.irreducible('default lateResponses', _isEqual([])),
-    showDisconnectedBar: tBool(false),
-  }),
   watchedThreadIDs: t.irreducible('default watchedThreadIDs', _isEqual([])),
   lifecycleState: tString('active'),
   enabledApps: t.irreducible(
@@ -604,7 +587,6 @@ async function websiteResponder(
     communityPickerStore: { chat: null, calendar: null },
     windowDimensions: { width: 0, height: 0 },
     notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-    connection: connectionPromise,
     watchedThreadIDs: [],
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,
