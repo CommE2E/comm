@@ -125,6 +125,7 @@ const defaultState = ({
       [ashoatKeyserverID]: {
         updatesCurrentAsOf: 0,
         urlPrefix: defaultURLPrefix,
+        connection: defaultConnectionInfo(Platform.OS),
       },
     },
   },
