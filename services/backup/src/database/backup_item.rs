@@ -125,3 +125,46 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
     })
   }
 }
+
+/// Corresponds to the items in the [`crate::constants::BACKUP_TABLE_INDEX_USERID_CREATED`]
+/// global index
+#[derive(Clone, Debug)]
+pub struct OrderedBackupItem {
+  pub user_id: String,
+  pub created: DateTime<Utc>,
+  pub backup_id: String,
+  pub user_keys: BlobInfo,
+}
+
+impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
+  type Error = DBItemError;
+
+  fn try_from(
+    mut value: HashMap<String, AttributeValue>,
+  ) -> Result<Self, Self::Error> {
+    let user_id = String::try_from_attr(
+      BACKUP_TABLE_FIELD_USER_ID,
+      value.remove(BACKUP_TABLE_FIELD_USER_ID),
+    )?;
+    let created = DateTime::<Utc>::try_from_attr(
+      BACKUP_TABLE_FIELD_CREATED,
+      value.remove(BACKUP_TABLE_FIELD_CREATED),
+    )?;
+    let backup_id = String::try_from_attr(
+      BACKUP_TABLE_FIELD_BACKUP_ID,
+      value.remove(BACKUP_TABLE_FIELD_BACKUP_ID),
+    )?;
+
+    let user_keys = BlobInfo::try_from_attr(
+      BACKUP_TABLE_FIELD_USER_KEYS,
+      value.remove(BACKUP_TABLE_FIELD_USER_KEYS),
+    )?;
+
+    Ok(OrderedBackupItem {
+      user_id,
+      created,
+      backup_id,
+      user_keys,
+    })
+  }
+}

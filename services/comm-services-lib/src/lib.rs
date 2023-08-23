@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod backup;
 pub mod blob;
 pub mod constants;
 pub mod database;
