@@ -175,7 +175,6 @@ const initialReduxStateValidator = tShape({
   deviceID: t.Nil,
   currentUserInfo: currentUserInfoValidator,
   draftStore: t.irreducible('default draftStore', _isEqual({ drafts: {} })),
-  sessionID: t.maybe(t.String),
   entryStore: entryStoreValidator,
   threadStore: threadStoreValidator,
   userStore: tShape({
@@ -587,7 +586,6 @@ async function websiteResponder(
     deviceID: null,
     currentUserInfo: currentUserInfoPromise,
     draftStore: { drafts: {} },
-    sessionID: sessionIDPromise,
     entryStore: entryStorePromise,
     threadStore: threadStorePromise,
     userStore: userStorePromise,
