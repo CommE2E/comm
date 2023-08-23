@@ -506,10 +506,16 @@ async function websiteResponder(
     };
   })();
 
+  const connectionPromise = (async () => ({
+    ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
+    actualizedCalendarQuery: await calendarQueryPromise,
+  }))();
+
   const keyserverStorePromise = (async () => {
-    const { sessionID, updatesCurrentAsOf } = await promiseAll({
+    const { sessionID, updatesCurrentAsOf, connection } = await promiseAll({
       sessionID: sessionIDPromise,
       updatesCurrentAsOf: currentAsOfPromise,
+      connection: connectionPromise,
     });
 
     return {
@@ -519,6 +525,7 @@ async function websiteResponder(
           sessionID,
           updatesCurrentAsOf,
           urlPrefix,
+          connection,
         },
       },
     };
@@ -595,10 +602,7 @@ async function websiteResponder(
     communityPickerStore: { chat: null, calendar: null },
     windowDimensions: { width: 0, height: 0 },
     notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-    connection: (async () => ({
-      ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
-      actualizedCalendarQuery: await calendarQueryPromise,
-    }))(),
+    connection: connectionPromise,
     watchedThreadIDs: [],
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,
