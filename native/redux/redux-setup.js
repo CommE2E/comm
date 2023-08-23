@@ -94,7 +94,6 @@ const defaultState = ({
   dataLoaded: false,
   customServer: natNodeServer,
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-  connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultEnabledApps,
