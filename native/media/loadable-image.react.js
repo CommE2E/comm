@@ -16,9 +16,10 @@ type Props = {
   +spinnerColor: string,
   +style: ImageStyle,
   +invisibleLoad: boolean,
+  +errorOccured?: boolean,
 };
 function LoadableImage(props: Props): React.Node {
-  const { source, placeholder, onLoad: onLoadProp } = props;
+  const { source, placeholder, onLoad: onLoadProp, errorOccured } = props;
   const styles = useStyles(unboundStyles);
 
   const [loaded, setLoaded] = React.useState(false);
@@ -52,7 +53,13 @@ function LoadableImage(props: Props): React.Node {
   }
 
   let statusIndicator;
-  if (!loaded) {
+  if (error || errorOccured) {
+    statusIndicator = (
+      <View style={styles.statusIndicatorContainer}>
+        <Icon name="alert-circle" style={styles.errorIndicator} size={42} />
+      </View>
+    );
+  } else if (!loaded) {
     statusIndicator = (
       <View style={styles.statusIndicatorContainer}>
         <ActivityIndicator color={props.spinnerColor} size="large" />
