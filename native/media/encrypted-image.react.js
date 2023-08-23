@@ -1,8 +1,10 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 
 import { decryptBase64, decryptMedia } from './encryption-utils.js';
 import LoadableImage from './loadable-image.react.js';
@@ -33,7 +35,9 @@ function EncryptedImage(props: Props): React.Node {
   const mediaCache = React.useContext(MediaCacheContext);
   const [source, setSource] = React.useState(null);
 
-  const connectionStatus = useSelector(state => state.connection.status);
+  const connection = useSelector(connectionSelector);
+  invariant(connection, 'keyserver missing from keyserverStore');
+  const connectionStatus = connection.status;
   const prevConnectionStatusRef = React.useRef(connectionStatus);
   const [attempt, setAttempt] = React.useState(0);
 
