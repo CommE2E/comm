@@ -24,7 +24,7 @@ resource "aws_dynamodb_table" "backup-service-backup" {
     hash_key           = "userID"
     range_key          = "created"
     projection_type    = "INCLUDE"
-    non_key_attributes = ["recoveryData"]
+    non_key_attributes = ["userKeys"]
   }
 }
 
