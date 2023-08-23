@@ -7,6 +7,16 @@ type UserLoginResponse = {
   +accessToken: string,
 };
 
+type InboundKeyInfoResponse = {
+  +payload: string,
+  +payloadSignature: string,
+  +socialProof?: ?string,
+  +contentPrekey: string,
+  +contentPrekeySignature: string,
+  +notifPrekey: string,
+  +notifPrekeySignature: string,
+};
+
 type RustNativeBindingAPI = {
   +loginUser: (
     username: string,
@@ -35,7 +45,7 @@ type RustNativeBindingAPI = {
     message: string,
     signature: string,
   ) => Promise<void>,
-  +publish_prekeys: (
+  +publishPrekeys: (
     userId: string,
     deviceId: string,
     accessToken: string,
@@ -44,6 +54,11 @@ type RustNativeBindingAPI = {
     notifPrekey: string,
     notifPrekeySignature: string,
   ) => Promise<boolean>,
+  +getInboundKeysForUserDevice: (
+    identifierType: string,
+    identifierValue: string,
+    deviceId: string,
+  ) => Promise<InboundKeyInfoResponse>,
 };
 
 export type { RustNativeBindingAPI };
