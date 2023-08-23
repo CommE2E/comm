@@ -297,8 +297,30 @@ impl BlobServiceClient {
       return Ok(false);
     }
     trace!("Uploading blob data...");
-    self.upload_blob(blob_hash, data_stream).await?;
-    Ok(true)
+    let Err(upload_error) = self.upload_blob(blob_hash, data_stream).await else {
+      return Ok(true);
+    };
+
+    trace!(%blob_hash, %holder, "Revoking holder due to upload failure");
+    self.schedule_revoke_holder(blob_hash, holder);
+    Err(upload_error)
+  }
+
+  /// revokes holder in a separate task. Useful to clean up after
+  /// upload failure without blocking the current task.
+  pub fn schedule_revoke_holder(
+    &self,
+    blob_hash: impl Into<String>,
+    holder: impl Into<String>,
+  ) {
+    let this = self.clone();
+    let blob_hash: String = blob_hash.into();
+    let holder: String = holder.into();
+    tokio::spawn(async move {
+      if let Err(err) = this.revoke_holder(&blob_hash, &holder).await {
+        warn!("Failed to revoke holder: {0:?} - {0}", err);
+      }
+    });
   }
 }
 
