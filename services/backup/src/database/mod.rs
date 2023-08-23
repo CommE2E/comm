@@ -10,9 +10,7 @@ use comm_services_lib::database::Error;
 use tracing::error;
 
 use crate::constants::{
-  BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS, BACKUP_TABLE_FIELD_BACKUP_ID,
-  BACKUP_TABLE_FIELD_COMPACTION_HOLDER, BACKUP_TABLE_FIELD_CREATED,
-  BACKUP_TABLE_FIELD_RECOVERY_DATA, BACKUP_TABLE_FIELD_USER_ID,
+  BACKUP_TABLE_FIELD_BACKUP_ID, BACKUP_TABLE_FIELD_USER_ID,
   BACKUP_TABLE_INDEX_USERID_CREATED, BACKUP_TABLE_NAME,
   LOG_TABLE_FIELD_ATTACHMENT_HOLDERS, LOG_TABLE_FIELD_BACKUP_ID,
   LOG_TABLE_FIELD_DATA_HASH, LOG_TABLE_FIELD_LOG_ID,
@@ -20,7 +18,7 @@ use crate::constants::{
 };
 
 use self::{
-  backup_item::{parse_backup_item, BackupItem},
+  backup_item::BackupItem,
   log_item::{parse_log_item, LogItem},
 };
 
@@ -41,32 +39,7 @@ impl DatabaseClient {
     &self,
     backup_item: BackupItem,
   ) -> Result<(), Error> {
-    let item = HashMap::from([
-      (
-        BACKUP_TABLE_FIELD_USER_ID.to_string(),
-        AttributeValue::S(backup_item.user_id),
-      ),
-      (
-        BACKUP_TABLE_FIELD_CREATED.to_string(),
-        AttributeValue::S(backup_item.created.to_rfc3339()),
-      ),
-      (
-        BACKUP_TABLE_FIELD_BACKUP_ID.to_string(),
-        AttributeValue::S(backup_item.backup_id),
-      ),
-      (
-        BACKUP_TABLE_FIELD_RECOVERY_DATA.to_string(),
-        AttributeValue::S(backup_item.recovery_data),
-      ),
-      (
-        BACKUP_TABLE_FIELD_COMPACTION_HOLDER.to_string(),
-        AttributeValue::S(backup_item.compaction_holder),
-      ),
-      (
-        BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS.to_string(),
-        AttributeValue::S(backup_item.attachment_holders),
-      ),
-    ]);
+    let item = backup_item.into();
 
     self
       .client
@@ -113,7 +86,7 @@ impl DatabaseClient {
       GetItemOutput {
         item: Some(item), ..
       } => {
-        let backup_item = parse_backup_item(item)?;
+        let backup_item = item.try_into()?;
         Ok(Some(backup_item))
       }
       _ => Ok(None),
@@ -146,7 +119,7 @@ impl DatabaseClient {
 
     match response.items.unwrap_or_default().pop() {
       Some(item) => {
-        let backup_item = parse_backup_item(item)?;
+        let backup_item = item.try_into()?;
         Ok(Some(backup_item))
       }
       None => Ok(None),
