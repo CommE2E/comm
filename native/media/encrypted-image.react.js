@@ -36,6 +36,7 @@ function EncryptedImage(props: Props): React.Node {
   const connectionStatus = useSelector(state => state.connection.status);
   const prevConnectionStatusRef = React.useRef(connectionStatus);
   const [attempt, setAttempt] = React.useState(0);
+  const [errorOccured, setErrorOccured] = React.useState(false);
 
   if (prevConnectionStatusRef.current !== connectionStatus) {
     if (!source && connectionStatus === 'connected') {
@@ -79,8 +80,7 @@ function EncryptedImage(props: Props): React.Node {
           mediaCache?.set(blobURI, result.uri);
           setSource({ uri: result.uri });
         } else {
-          // Setting an invalid uri will cause the Image to run onError
-          setSource({ uri: 'data:,' });
+          setErrorOccured(true);
         }
       }
     };
@@ -107,6 +107,7 @@ function EncryptedImage(props: Props): React.Node {
       style={style}
       invisibleLoad={invisibleLoad}
       key={attempt}
+      errorOccured={errorOccured}
     />
   );
 }
