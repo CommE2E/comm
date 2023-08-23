@@ -33,6 +33,17 @@ pub async fn run_http_server(
       .app_data(db.clone())
       .app_data(blob.clone())
       .service(
+        // Services that don't require authetication
+        web::scope("/backups/latest")
+          .service(
+            web::resource("{username}/backup_id")
+              .route(web::get().to(handlers::backup::get_latest_backup_id)),
+          )
+          .service(web::resource("{username}/user_keys").route(
+            web::get().to(handlers::backup::download_latest_backup_keys),
+          )),
+      )
+      .service(
         // Services requiring authetication
         web::scope("/backups")
           .wrap(get_comm_authentication_middleware())
