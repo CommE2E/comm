@@ -1,6 +1,7 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::{DateTime, Utc};
+use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 use std::num::ParseIntError;
 use std::str::FromStr;
@@ -246,6 +247,27 @@ impl TryFromAttribute for Vec<u8> {
   ) -> Result<Self, DBItemError> {
     match attribute_value {
       Some(AttributeValue::B(data)) => Ok(data.into_inner()),
+      Some(_) => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::IncorrectType,
+      )),
+      None => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute_value),
+        DBItemAttributeError::Missing,
+      )),
+    }
+  }
+}
+
+impl TryFromAttribute for HashSet<String> {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute_value: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    match attribute_value {
+      Some(AttributeValue::Ss(set)) => Ok(set.into_iter().collect()),
       Some(_) => Err(DBItemError::new(
         attribute_name.into(),
         Value::AttributeValue(attribute_value),
