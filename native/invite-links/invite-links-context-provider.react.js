@@ -9,6 +9,7 @@ import {
   verifyInviteLink,
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
+import { inviteLinkUrlPrefix } from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import {
@@ -78,9 +79,13 @@ function InviteLinksContextProvider(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const validateLink = useServerCall(verifyInviteLink);
   const navigation = useNavigation();
+  const isCurrentLinkInviteLink = React.useMemo(
+    () => currentLink?.startsWith(inviteLinkUrlPrefix),
+    [currentLink],
+  );
   React.useEffect(() => {
     (async () => {
-      if (!loggedIn || !currentLink) {
+      if (!loggedIn || !currentLink || !isCurrentLinkInviteLink) {
         return;
       }
       // We're setting this to null so that we ensure that each link click
@@ -107,7 +112,14 @@ function InviteLinksContextProvider(props: Props): React.Node {
         },
       });
     })();
-  }, [currentLink, dispatchActionPromise, loggedIn, navigation, validateLink]);
+  }, [
+    currentLink,
+    dispatchActionPromise,
+    loggedIn,
+    isCurrentLinkInviteLink,
+    navigation,
+    validateLink,
+  ]);
 
   const contextValue = React.useMemo(
     () => ({

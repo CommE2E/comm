@@ -68,6 +68,11 @@
           android:host="comm.app"
           android:pathPrefix="/invite"
         />
+        <data
+          android:scheme="https"
+          android:host="comm.app"
+          android:pathPrefix="/qr-code"
+        />
       </intent-filter>
     </activity>
     <activity
