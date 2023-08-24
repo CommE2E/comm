@@ -1,6 +1,7 @@
 // @flow
 
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainer } from '@react-navigation/native';
@@ -267,37 +268,41 @@ function Root() {
                 <MessageEditingContextProvider>
                   <SafeAreaProvider initialMetrics={initialWindowMetrics}>
                     <ActionSheetProvider>
-                      <ENSCacheProvider provider={provider}>
-                        <MediaCacheProvider persistence={filesystemMediaCache}>
-                          <EditUserAvatarProvider>
-                            <NativeEditThreadAvatarProvider>
-                              <MarkdownContextProvider>
-                                <ChatContextProvider>
-                                  <MessageSearchProvider>
-                                    <RegistrationContextProvider>
-                                      <SQLiteDataHandler />
-                                      <ConnectedStatusBar />
-                                      <ReduxPersistGate
-                                        persistor={getPersistor()}
-                                      >
-                                        {gated}
-                                      </ReduxPersistGate>
-                                      <PersistedStateGate>
-                                        <Socket
-                                          detectUnsupervisedBackgroundRef={
-                                            detectUnsupervisedBackgroundRef
-                                          }
-                                        />
-                                      </PersistedStateGate>
-                                      {navigation}
-                                    </RegistrationContextProvider>
-                                  </MessageSearchProvider>
-                                </ChatContextProvider>
-                              </MarkdownContextProvider>
-                            </NativeEditThreadAvatarProvider>
-                          </EditUserAvatarProvider>
-                        </MediaCacheProvider>
-                      </ENSCacheProvider>
+                      <BottomSheetModalProvider>
+                        <ENSCacheProvider provider={provider}>
+                          <MediaCacheProvider
+                            persistence={filesystemMediaCache}
+                          >
+                            <EditUserAvatarProvider>
+                              <NativeEditThreadAvatarProvider>
+                                <MarkdownContextProvider>
+                                  <ChatContextProvider>
+                                    <MessageSearchProvider>
+                                      <RegistrationContextProvider>
+                                        <SQLiteDataHandler />
+                                        <ConnectedStatusBar />
+                                        <ReduxPersistGate
+                                          persistor={getPersistor()}
+                                        >
+                                          {gated}
+                                        </ReduxPersistGate>
+                                        <PersistedStateGate>
+                                          <Socket
+                                            detectUnsupervisedBackgroundRef={
+                                              detectUnsupervisedBackgroundRef
+                                            }
+                                          />
+                                        </PersistedStateGate>
+                                        {navigation}
+                                      </RegistrationContextProvider>
+                                    </MessageSearchProvider>
+                                  </ChatContextProvider>
+                                </MarkdownContextProvider>
+                              </NativeEditThreadAvatarProvider>
+                            </EditUserAvatarProvider>
+                          </MediaCacheProvider>
+                        </ENSCacheProvider>
+                      </BottomSheetModalProvider>
                     </ActionSheetProvider>
                   </SafeAreaProvider>
                 </MessageEditingContextProvider>
