@@ -10,12 +10,15 @@
         "components": [
           {
             "/": "/invite/*"
+          },
+          {
+            "/": "/qr-code/*"
           }
         ]
       },
       {
         "appID": "H98Y8MH53M.app.comm",
-        "paths": [ "/invite/*" ]
+        "paths": [ "/invite/*", "/qr-code/*" ]
       }
     ]
   }
