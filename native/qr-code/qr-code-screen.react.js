@@ -4,6 +4,8 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
+import { qrCodeLinkUrl } from 'lib/facts/links.js';
+
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -12,6 +14,8 @@ type QRCodeScreenProps = {
   +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,
   +route: NavigationRoute<'QRCodeScreen'>,
 };
+
+const qrCodeValue = qrCodeLinkUrl('random_aes256_key', 'device_ed25519_key');
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
@@ -22,7 +26,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
       <Text style={styles.headingSubtext}>
         Open the Comm app on your phone and scan the QR code below
       </Text>
-      <QRCode value="https://www.google.com" size={200} />
+      <QRCode value={qrCodeValue} size={200} />
       <View style={styles.instructionsBox}>
         <Text style={styles.instructionsTitle}>How to find the scanner:</Text>
         <Text style={styles.instructionsStep}>
