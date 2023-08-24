@@ -36,10 +36,14 @@ function SecondaryDeviceQRCodeScanner(props: { ... }): React.Node {
   }, [navigation]);
 
   const onConnect = React.useCallback((barCodeEvent: BarCodeEvent) => {
-    const { type, data } = barCodeEvent;
+    const { data } = barCodeEvent;
+    const extractKeysFromURLRegex = /comm:\/\/qr-code\/(.*)/;
+    const keysMatch = data.match(extractKeysFromURLRegex)?.[1] ?? '';
+    const keys = JSON.parse(decodeURIComponent(keysMatch));
+
     Alert.alert(
       'Scan successful',
-      `Bar code with type ${type} and data ${data} has been scanned!`,
+      `QR code contains the following keys: ${JSON.stringify(keys)}`,
       [{ text: 'OK' }],
     );
   }, []);
