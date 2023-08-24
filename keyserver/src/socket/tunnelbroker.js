@@ -7,6 +7,8 @@ import {
   type TBKeyserverConnectionInitializationMessage,
   type TBMessage,
 } from 'lib/types/tunnelbroker-messages.js';
+import { TBRefreshKeysValidator } from 'lib/types/tunnelbroker-messages.js';
+import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
@@ -26,17 +28,28 @@ async function createAndMaintainTunnelbrokerWebsocket(
   );
 }
 
-function handleTBMessageEvent(event: MessageEvent): Promise<void> {
+async function handleTBMessage(message: TBMessage): Promise<void> {
+  // Currently, there is only one message type which is sent from tunnelbroker
+  if (TBRefreshKeysValidator.is(message)) {
+    return await uploadNewOneTimeKeys(message.numberOfKeys);
+  }
+
+  throw new ServerError('invalid_tunnelbroker_message');
+}
+
+async function handleTBMessageEvent(event: MessageEvent): Promise<void> {
   invariant(
     typeof event.data === 'string',
     'Messages from tunnelbroker should be a string',
   );
 
-  // Currently, there is only one message type which is sent from tunnelbroker
-  const content: string = event.data;
-  const message: TBMessage = JSON.parse(content);
+  const message: TBMessage = JSON.parse(event.data);
 
-  return uploadNewOneTimeKeys(message.numberOfKeys);
+  try {
+    await handleTBMessage(message);
+  } catch (e) {
+    console.error('Failed to handle tunnelbroker message: ', e);
+  }
 }
 
 function openTunnelbrokerConnection(
