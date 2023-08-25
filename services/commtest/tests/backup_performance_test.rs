@@ -1,22 +1,29 @@
 use bytesize::ByteSize;
-use commtest::backup::{
-  add_attachments,
-  backup_utils::{self, BackupData, BackupServiceClient, Item},
-  create_new_backup, pull_backup, send_log,
+use comm_services_lib::{auth::UserIdentity, backup::LatestBackupIDResponse};
+use commtest::{
+  backup::{
+    backup_utils::BackupData,
+    create_new_backup,
+    pull_backup::{self, BackupDescriptor},
+  },
+  tools::{generate_stable_nbytes, obtain_number_of_threads, Error},
 };
-use commtest::tools::{obtain_number_of_threads, Error};
 use std::env;
-use std::sync::mpsc::channel;
-use tokio::runtime::Runtime;
+use tokio::{runtime::Runtime, task::JoinSet};
 
 #[tokio::test]
 async fn backup_performance_test() -> Result<(), Error> {
   let port = env::var("COMM_SERVICES_PORT_BACKUP")
-    .expect("port env var expected but not received");
-  let client =
-    BackupServiceClient::connect(format!("http://localhost:{}", port)).await?;
+    .expect("port env var expected but not received")
+    .parse()
+    .expect("port env var should be a number");
+
+  let mut url = reqwest::Url::parse("http://localhost")?;
+  url.set_port(Some(port)).expect("failed to set port");
 
   let number_of_threads = obtain_number_of_threads();
+
+  let rt = Runtime::new().unwrap();
 
   println!(
     "Running performance tests for backup, number of threads: {}",
@@ -24,205 +31,157 @@ async fn backup_performance_test() -> Result<(), Error> {
   );
 
   let mut backup_data = vec![];
-
   for i in 0..number_of_threads {
     backup_data.push(BackupData {
-      user_id: format!("user{}", i),
-      device_id: format!("device{}", i),
-      backup_item: Item::new(
-        String::new(),
-        vec![ByteSize::mib(1).as_u64() as usize; 3 + (i % 5)],
-        (0..(i % 5)).map(|x| format!("holder{}", x)).collect(),
+      backup_id: format!("b{i}"),
+      user_keys_hash: format!("kh{i}"),
+      user_keys: generate_stable_nbytes(
+        ByteSize::kib(4).as_u64() as usize,
+        Some(i as u8),
       ),
-      log_items: (0..(i % 4))
-        .map(|x| {
-          Item::new(
-            String::new(),
-            vec![ByteSize::mib(1).as_u64() as usize; 2 + (x % 2)],
-            (0..(i % 5)).map(|x| format!("holder{}-{}", i, x)).collect(),
-          )
-        })
-        .collect(),
+      user_data_hash: format!("dh{i}"),
+      user_data: generate_stable_nbytes(
+        ByteSize::mib(4).as_u64() as usize,
+        Some(i as u8),
+      ),
+      attachments: vec![],
     });
   }
 
-  let rt = Runtime::new().unwrap();
+  let user_identities = [
+    UserIdentity {
+      user_id: "1".to_string(),
+      access_token: "dummy access token".to_string(),
+      device_id: "dummy device_id".to_string(),
+    },
+    UserIdentity {
+      user_id: "2".to_string(),
+      access_token: "dummy access token".to_string(),
+      device_id: "dummy device_id".to_string(),
+    },
+  ];
+
   tokio::task::spawn_blocking(move || {
-    // CREATE NEW BACKUP
+    println!("Creating new backups");
     rt.block_on(async {
-      println!("performing CREATE NEW BACKUP operations");
-      let mut handlers = vec![];
-      let (sender, receiver) = channel::<(usize, String)>();
+      let mut set = JoinSet::new();
       for (i, item) in backup_data.iter().enumerate() {
-        let item_cloned = item.clone();
-        let mut client_cloned = client.clone();
-        let sender_cloned = sender.clone();
-        handlers.push(tokio::spawn(async move {
-          let id = create_new_backup::run(&mut client_cloned, &item_cloned)
-            .await
-            .unwrap();
-          assert!(
-            !id.is_empty(),
-            "backup id should not be empty after creating a new backup"
-          );
-          sender_cloned.send((i, id)).unwrap();
-        }));
+        let url = url.clone();
+        let user = user_identities[i % user_identities.len()].clone();
+        let item = item.clone();
+        set.spawn(async move {
+          create_new_backup::run(url, &user, &item).await.unwrap();
+        });
       }
-      // https://docs.rs/tokio/1.1.0/tokio/sync/mpsc/struct.Receiver.html#method.recv
-      // The channel is closed when all senders have been dropped, or when close
-      // is called. The best option here is to clone the sender for every
-      // thread, drop the original one and let all the clones be dropped when
-      // going out of scope which is equal to the parent thread's termination.
-      drop(sender);
 
-      for handler in handlers {
-        handler.await.unwrap();
-      }
-      for data in receiver {
-        println!("received: {:?}", data);
-        let (index, id) = data;
-        backup_data[index].backup_item.id = id;
+      while let Some(result) = set.join_next().await {
+        result.unwrap();
       }
     });
 
-    // check if backup IDs are properly set
-    for (i, item) in backup_data.iter().enumerate() {
-      assert!(
-        !item.backup_item.id.is_empty(),
-        "missing backup id for index {}",
-        i
-      );
+    let mut latest_ids_for_user = vec![];
+    println!("Reading latest ids");
+    rt.block_on(async {
+      let mut handlers = vec![];
+      for user in &user_identities {
+        let url = url.clone();
+        let descriptor = BackupDescriptor::Latest {
+          username: user.user_id.clone(),
+        };
+        handlers.push(tokio::spawn(async move {
+          let response = pull_backup::run(
+            url,
+            descriptor,
+            pull_backup::RequestedData::BackupID,
+          )
+          .await
+          .unwrap();
+
+          serde_json::from_slice::<LatestBackupIDResponse>(&response).unwrap()
+        }));
+      }
+
+      for handler in handlers {
+        latest_ids_for_user.push(handler.await.unwrap().backup_id);
+      }
+    });
+
+    assert_eq!(latest_ids_for_user.len(), user_identities.len());
+
+    let mut latest_user_keys_for_user = vec![];
+    println!("Reading latest user keys");
+    rt.block_on(async {
+      let mut handlers = vec![];
+      for user in &user_identities {
+        let url = url.clone();
+        let descriptor = BackupDescriptor::Latest {
+          username: user.user_id.clone(),
+        };
+        handlers.push(tokio::spawn(async move {
+          pull_backup::run(
+            url,
+            descriptor,
+            pull_backup::RequestedData::UserKeys,
+          )
+          .await
+          .unwrap()
+        }));
+      }
+
+      for handler in handlers {
+        latest_user_keys_for_user.push(handler.await.unwrap());
+      }
+    });
+
+    assert_eq!(latest_user_keys_for_user.len(), user_identities.len());
+    for (backup_id, user_keys) in
+      latest_ids_for_user.iter().zip(latest_user_keys_for_user)
+    {
+      let backup = backup_data
+        .iter()
+        .find(|data| data.backup_id == *backup_id)
+        .expect("Request should return existing backup data");
+
+      assert_eq!(backup.user_keys, user_keys);
     }
 
-    // ADD ATTACHMENTS - BACKUPS
+    let mut latest_user_data_for_user = vec![];
+    println!("Reading latest user data");
     rt.block_on(async {
-      println!("performing ADD ATTACHMENTS - BACKUPS operations");
       let mut handlers = vec![];
-      for item in &backup_data {
-        let item_cloned = item.clone();
-        let mut client_cloned = client.clone();
+      for (i, backup_id) in latest_ids_for_user.iter().enumerate() {
+        let url = url.clone();
+        let descriptor = BackupDescriptor::BackupID {
+          backup_id: backup_id.clone(),
+          user_identity: user_identities[i % user_identities.len()].clone(),
+        };
         handlers.push(tokio::spawn(async move {
-          if !item_cloned.backup_item.attachments_holders.is_empty() {
-            add_attachments::run(&mut client_cloned, &item_cloned, None)
-              .await
-              .unwrap();
-          }
+          pull_backup::run(
+            url,
+            descriptor,
+            pull_backup::RequestedData::UserData,
+          )
+          .await
+          .unwrap()
         }));
       }
 
       for handler in handlers {
-        handler.await.unwrap();
+        latest_user_data_for_user.push(handler.await.unwrap());
       }
     });
 
-    // SEND LOG
-    rt.block_on(async {
-      println!("performing SEND LOG operations");
-      let mut handlers = vec![];
-      let (sender, receiver) = channel::<(usize, usize, String)>();
-      for (backup_index, backup_item) in backup_data.iter().enumerate() {
-        let backup_item_cloned = backup_item.clone();
-        for log_index in 0..backup_item_cloned.log_items.len() {
-          let backup_item_recloned = backup_item_cloned.clone();
-          let mut client_cloned = client.clone();
-          let sender_cloned = sender.clone();
-          handlers.push(tokio::spawn(async move {
-            println!(
-              "sending log, backup index: [{}] log index: [{}]",
-              backup_index, log_index
-            );
-            let id = send_log::run(
-              &mut client_cloned,
-              &backup_item_recloned,
-              log_index,
-            )
-            .await
-            .unwrap();
-            assert!(!id.is_empty(), "log id should not be empty after sending");
-            sender_cloned.send((backup_index, log_index, id)).unwrap();
-          }));
-        }
-      }
-      // https://docs.rs/tokio/1.1.0/tokio/sync/mpsc/struct.Receiver.html#method.recv
-      // The channel is closed when all senders have been dropped, or when close
-      // is called. The best option here is to clone the sender for every
-      // thread, drop the original one and let all the clones be dropped when
-      // going out of scope which is equal to the parent thread's termination.
-      drop(sender);
+    assert_eq!(latest_user_data_for_user.len(), user_identities.len());
+    for (backup_id, user_data) in
+      latest_ids_for_user.iter().zip(latest_user_data_for_user)
+    {
+      let backup = backup_data
+        .iter()
+        .find(|data| data.backup_id == *backup_id)
+        .expect("Request should return existing backup data");
 
-      for handler in handlers {
-        handler.await.unwrap();
-      }
-      for data in receiver {
-        println!("received: {:?}", data);
-        let (backup_index, log_index, id) = data;
-        backup_data[backup_index].log_items[log_index].id = id;
-      }
-    });
-
-    // check if log IDs are properly set
-    for (backup_index, backup_item) in backup_data.iter().enumerate() {
-      for (log_index, log_item) in backup_item.log_items.iter().enumerate() {
-        assert!(
-          !log_item.id.is_empty(),
-          "missing log id for backup index {} and log index {}",
-          backup_index,
-          log_index
-        );
-      }
+      assert_eq!(backup.user_data, user_data);
     }
-
-    // ADD ATTACHMENTS - LOGS
-    rt.block_on(async {
-      println!("performing ADD ATTACHMENTS - LOGS operations");
-      let mut handlers = vec![];
-      for backup_item in &backup_data {
-        let backup_item_cloned = backup_item.clone();
-        for log_index in 0..backup_item_cloned.log_items.len() {
-          let backup_item_recloned = backup_item_cloned.clone();
-          let mut client_cloned = client.clone();
-          handlers.push(tokio::spawn(async move {
-            if !backup_item_recloned
-              .backup_item
-              .attachments_holders
-              .is_empty()
-            {
-              add_attachments::run(
-                &mut client_cloned,
-                &backup_item_recloned,
-                Some(log_index),
-              )
-              .await
-              .unwrap();
-            }
-          }));
-        }
-      }
-
-      for handler in handlers {
-        handler.await.unwrap();
-      }
-    });
-
-    // PULL BACKUP
-    rt.block_on(async {
-      println!("performing PULL BACKUP operations");
-      let mut handlers = vec![];
-      for item in backup_data {
-        let item_cloned = item.clone();
-        let mut client_cloned = client.clone();
-        handlers.push(tokio::spawn(async move {
-          let result = pull_backup::run(&mut client_cloned, &item_cloned)
-            .await
-            .unwrap();
-          backup_utils::compare_backups(&item_cloned, &result);
-        }));
-      }
-
-      for handler in handlers {
-        handler.await.unwrap();
-      }
-    });
   })
   .await
   .expect("Task panicked");
