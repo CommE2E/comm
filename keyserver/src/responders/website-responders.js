@@ -202,6 +202,23 @@ const initialReduxStateValidator = tShape({
     'default notifPermissionAlertInfo',
     _isEqual(defaultNotifPermissionAlertInfo),
   ),
+  connection: tShape({
+    status: tString('connecting'),
+    queuedActivityUpdates: t.irreducible(
+      'default queuedActivityUpdates',
+      _isEqual([]),
+    ),
+    actualizedCalendarQuery: tShape({
+      startDate: t.String,
+      endDate: t.String,
+      filters: t.irreducible(
+        'default filters',
+        _isEqual(defaultCalendarFilters),
+      ),
+    }),
+    lateResponses: t.irreducible('default lateResponses', _isEqual([])),
+    showDisconnectedBar: tBool(false),
+  }),
   watchedThreadIDs: t.irreducible('default watchedThreadIDs', _isEqual([])),
   lifecycleState: tString('active'),
   enabledApps: t.irreducible(
@@ -489,16 +506,10 @@ async function websiteResponder(
     };
   })();
 
-  const connectionPromise = (async () => ({
-    ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
-    actualizedCalendarQuery: await calendarQueryPromise,
-  }))();
-
   const keyserverStorePromise = (async () => {
-    const { sessionID, updatesCurrentAsOf, connection } = await promiseAll({
+    const { sessionID, updatesCurrentAsOf } = await promiseAll({
       sessionID: sessionIDPromise,
       updatesCurrentAsOf: currentAsOfPromise,
-      connection: connectionPromise,
     });
 
     return {
@@ -508,7 +519,6 @@ async function websiteResponder(
           sessionID,
           updatesCurrentAsOf,
           urlPrefix,
-          connection,
         },
       },
     };
@@ -585,6 +595,10 @@ async function websiteResponder(
     communityPickerStore: { chat: null, calendar: null },
     windowDimensions: { width: 0, height: 0 },
     notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
+    connection: (async () => ({
+      ...defaultConnectionInfo(viewer.platform ?? 'web', viewer.timeZone),
+      actualizedCalendarQuery: await calendarQueryPromise,
+    }))(),
     watchedThreadIDs: [],
     lifecycleState: 'active',
     enabledApps: defaultWebEnabledApps,

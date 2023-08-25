@@ -9,7 +9,6 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js'
 import {
   cookieSelector,
   urlPrefixSelector,
-  connectionSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import {
@@ -34,8 +33,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const cookie = useSelector(cookieSelector);
     const urlPrefix = useSelector(urlPrefixSelector);
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
-    const connection = useSelector(connectionSelector);
-    invariant(connection, 'keyserver missing from keyserverStore');
+    const connection = useSelector(state => state.connection);
     const active = useSelector(
       state =>
         !!state.currentUserInfo &&

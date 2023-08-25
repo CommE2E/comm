@@ -94,6 +94,7 @@ const defaultState = ({
   dataLoaded: false,
   customServer: natNodeServer,
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
+  connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultEnabledApps,
@@ -124,7 +125,6 @@ const defaultState = ({
       [ashoatKeyserverID]: {
         updatesCurrentAsOf: 0,
         urlPrefix: defaultURLPrefix,
-        connection: defaultConnectionInfo(Platform.OS),
       },
     },
   },

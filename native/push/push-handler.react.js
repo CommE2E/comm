@@ -1,7 +1,6 @@
 // @flow
 
 import * as Haptics from 'expo-haptics';
-import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, LogBox } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
@@ -12,10 +11,7 @@ import {
   setDeviceToken,
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
-import {
-  updatesCurrentAsOfSelector,
-  connectionSelector,
-} from 'lib/selectors/keyserver-selectors.js';
+import { updatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import {
   unreadCount,
   threadInfoSelector,
@@ -645,8 +641,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const notifPermissionAlertInfo = useSelector(
       state => state.notifPermissionAlertInfo,
     );
-    const connection = useSelector(connectionSelector);
-    invariant(connection, 'keyserver missing from keyserverStore');
+    const connection = useSelector(state => state.connection);
     const updatesCurrentAsOf = useSelector(updatesCurrentAsOfSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
     const loggedIn = useSelector(isLoggedIn);
