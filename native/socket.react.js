@@ -100,7 +100,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     }, [active, navContext]);
 
     const lastCommunicatedPlatformDetails = useSelector(
-      state => state.lastCommunicatedPlatformDetails[urlPrefix],
+      state => state.lastCommunicatedPlatformDetails,
     );
 
     const dispatch = useDispatch();

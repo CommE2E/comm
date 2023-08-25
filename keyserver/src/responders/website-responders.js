@@ -238,7 +238,7 @@ const initialReduxStateValidator = tShape({
   inviteLinksStore: inviteLinksStoreValidator,
   lastCommunicatedPlatformDetails: t.irreducible(
     'default lastCommunicatedPlatformDetails',
-    _isEqual({}),
+    _isEqual(null),
   ),
   keyserverStore: keyserverStoreValidator,
 });
@@ -605,7 +605,7 @@ async function websiteResponder(
     _persist: null,
     commServicesAccessToken: null,
     inviteLinksStore: inviteLinksStorePromise,
-    lastCommunicatedPlatformDetails: {},
+    lastCommunicatedPlatformDetails: null,
     keyserverStore: keyserverStorePromise,
   });
   const validatedInitialReduxState = validateOutput(

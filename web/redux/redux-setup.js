@@ -18,7 +18,7 @@ import type {
   OLMIdentityKeys,
   PickledOLMAccount,
 } from 'lib/types/crypto-types.js';
-import type { LastCommunicatedPlatformDetails } from 'lib/types/device-types.js';
+import type { PlatformDetails } from 'lib/types/device-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
@@ -95,7 +95,7 @@ export type AppState = {
   +_persist: ?PersistState,
   +commServicesAccessToken: ?string,
   +inviteLinksStore: InviteLinksStore,
-  +lastCommunicatedPlatformDetails: LastCommunicatedPlatformDetails,
+  +lastCommunicatedPlatformDetails: ?PlatformDetails,
   +keyserverStore: KeyserverStore,
 };
 
