@@ -1,4 +1,5 @@
 pub mod config;
+pub mod database;
 pub mod report_types;
 
 use anyhow::Result;
