@@ -392,7 +392,7 @@ async function checkState(
     };
     const fetchedData = await promiseAll(promises);
     const hashesToCheck = {
-      threadInfos: hash(fetchedData.threadsResult.threadInfos),
+      threadInfos: hash(fetchedData.threadsResult),
       entryInfos: hash(fetchedData.entriesResult),
       currentUserInfo: hash(fetchedData.currentUserInfo),
       userInfos: hash(fetchedData.userInfosResult),
@@ -436,12 +436,12 @@ async function checkState(
 
   const fetchPromises = {};
   if (fetchAllThreads) {
-    fetchPromises.threadsResult = serverStateSyncSpecs.threads.fetch(
+    fetchPromises.threadInfos = serverStateSyncSpecs.threads.fetch(
       viewer,
       query,
     );
   } else if (threadIDsToFetch.size > 0) {
-    fetchPromises.threadsResult = serverStateSyncSpecs.threads.fetch(
+    fetchPromises.threadInfos = serverStateSyncSpecs.threads.fetch(
       viewer,
       query,
       threadIDsToFetch,
@@ -483,7 +483,7 @@ async function checkState(
     if (key === 'threadInfos') {
       // Instead of returning all threadInfos, we want to narrow down and figure
       // out which threadInfos don't match first
-      const { threadInfos } = fetchedData.threadsResult;
+      const { threadInfos } = fetchedData;
       for (const threadID in threadInfos) {
         hashesToCheck[`threadInfo|${threadID}`] = hash(threadInfos[threadID]);
       }
@@ -510,7 +510,7 @@ async function checkState(
       stateChanges.currentUserInfo = fetchedData.currentUserInfo;
     } else if (key.startsWith('threadInfo|')) {
       const [, threadID] = key.split('|');
-      const { threadInfos } = fetchedData.threadsResult;
+      const { threadInfos } = fetchedData;
       const threadInfo = threadInfos[threadID];
       if (!threadInfo) {
         if (!stateChanges.deleteThreadIDs) {

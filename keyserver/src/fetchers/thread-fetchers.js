@@ -223,8 +223,11 @@ async function fetchServerThreadInfos(
   return { threadInfos };
 }
 
+export type RawThreadInfos = {
+  +[id: string]: RawThreadInfo,
+};
 export type FetchThreadInfosResult = {
-  +threadInfos: { +[id: string]: RawThreadInfo },
+  +threadInfos: RawThreadInfos,
 };
 
 async function fetchThreadInfos(

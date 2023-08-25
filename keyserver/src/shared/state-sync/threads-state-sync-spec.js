@@ -5,22 +5,19 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { StateSyncSpec } from './state-sync-spec.js';
 import {
   fetchThreadInfos,
-  type FetchThreadInfosResult,
+  type RawThreadInfos,
 } from '../../fetchers/thread-fetchers.js';
 import type { Viewer } from '../../session/viewer.js';
 
-export const threadsStateSyncSpec: StateSyncSpec<FetchThreadInfosResult> =
+export const threadsStateSyncSpec: StateSyncSpec<RawThreadInfos> =
   Object.freeze({
-    fetch(
+    async fetch(
       viewer: Viewer,
       query: $ReadOnlyArray<CalendarQuery>,
       ids?: $ReadOnlySet<string>,
     ) {
-      if (ids) {
-        return fetchThreadInfos(viewer, {
-          threadIDs: ids,
-        });
-      }
-      return fetchThreadInfos(viewer);
+      const filter = ids ? { threadIDs: ids } : undefined;
+      const result = await fetchThreadInfos(viewer, filter);
+      return result.threadInfos;
     },
   });
