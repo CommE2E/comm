@@ -2,8 +2,11 @@ pub mod config;
 pub mod database;
 pub mod http;
 pub mod report_types;
+pub mod service;
 
 use anyhow::Result;
+use comm_services_lib::blob::client::BlobServiceClient;
+use service::ReportsService;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
 fn configure_logging() -> Result<()> {
@@ -24,9 +27,12 @@ fn configure_logging() -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
   configure_logging()?;
-  config::parse_cmdline_args()?;
+  let cfg = config::parse_cmdline_args()?;
+  let aws_config = config::load_aws_config().await;
 
-  let _aws_config = config::load_aws_config().await;
+  let db = database::client::DatabaseClient::new(&aws_config);
+  let blob_client = BlobServiceClient::new(cfg.blob_service_url.clone());
+  let service = ReportsService::new(db, blob_client);
 
-  crate::http::run_http_server().await
+  crate::http::run_http_server(service).await
 }
