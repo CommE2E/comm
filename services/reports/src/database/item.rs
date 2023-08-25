@@ -1,7 +1,11 @@
 use aws_sdk_dynamodb::{primitives::Blob, types::AttributeValue};
 use chrono::{DateTime, Utc};
 use comm_services_lib::{
-  blob::types::BlobInfo,
+  blob::{
+    client::{BlobServiceClient, BlobServiceError},
+    types::BlobInfo,
+  },
+  constants::DDB_ITEM_SIZE_LIMIT,
   database::{
     self, AttributeMap, AttributeTryInto, DBItemError, TryFromAttribute,
   },
@@ -30,6 +34,20 @@ pub struct ReportItem {
   pub encryption_key: Option<String>,
 }
 
+/// contains some redundancy as not all keys are always present
+static REPORT_ITEM_KEYS_SIZE: usize = {
+  let mut size: usize = 0;
+  size += ATTR_REPORT_ID.as_bytes().len();
+  size += ATTR_REPORT_TYPE.as_bytes().len();
+  size += ATTR_USER_ID.as_bytes().len();
+  size += ATTR_PLATFORM.as_bytes().len();
+  size += ATTR_CREATION_TIME.as_bytes().len();
+  size += ATTR_ENCRYPTION_KEY.as_bytes().len();
+  size += ATTR_BLOB_INFO.as_bytes().len();
+  size += ATTR_REPORT_CONTENT.as_bytes().len();
+  size
+};
+
 impl ReportItem {
   pub fn into_attrs(self) -> AttributeMap {
     let creation_time = self
@@ -56,7 +74,45 @@ impl ReportItem {
     attrs
   }
 
+  pub async fn ensure_size_constraints(
+    &mut self,
+    blob_client: &BlobServiceClient,
+  ) -> Result<(), BlobServiceError> {
+    if self.total_size() < DDB_ITEM_SIZE_LIMIT {
+      return Ok(());
+    };
+
+    self.content.move_to_blob(blob_client).await
+  }
+
+  fn total_size(&self) -> usize {
+    let mut size = REPORT_ITEM_KEYS_SIZE;
+    size += self.id.as_bytes().len();
+    size += self.user_id.as_bytes().len();
+    size += self.platform.to_string().as_bytes().len();
+    size += (self.report_type as u8).to_string().as_bytes().len();
+    size += match &self.content {
+      ReportContent::Database(data) => data.len(),
+      ReportContent::Blob(info) => {
+        let mut size = 0;
+        size += "holder".as_bytes().len();
+        size += "blob_hash".as_bytes().len();
+        size += info.holder.as_bytes().len();
+        size += info.blob_hash.as_bytes().len();
+        size
+      }
+    };
+    if let Some(key) = self.encryption_key.as_ref() {
+      size += key.as_bytes().len();
+    }
+    size
+  }
+
   /// Creates a report item from a report input payload
+  ///
+  /// WARN: Note that this method stores content as [`ReportStorage::Database`]
+  /// regardless of its size. Use [`ensure_size_constraints`] to move content to
+  /// blob storage if necessary.
   pub fn from_input(
     payload: ReportInput,
     user_id: Option<String>,
@@ -152,6 +208,16 @@ impl ReportContent {
       .remove(ATTR_REPORT_CONTENT)
       .attr_try_into(ATTR_REPORT_CONTENT)?;
     Ok(ReportContent::Database(content_data))
+  }
+
+  /// Moves report content to blob storage:
+  /// - Switches `self` from [`ReportStorage::Database`] to [`ReportStorage::Blob`]
+  /// - No-op for [`ReportStorage::Blob`]
+  async fn move_to_blob(
+    &mut self,
+    blob_client: &BlobServiceClient,
+  ) -> Result<(), BlobServiceError> {
+    todo!()
   }
 }
 
