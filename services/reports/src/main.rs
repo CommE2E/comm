@@ -1,4 +1,5 @@
 pub mod config;
+pub mod report_types;
 
 use anyhow::Result;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
