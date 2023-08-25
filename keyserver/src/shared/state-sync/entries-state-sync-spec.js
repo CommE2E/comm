@@ -23,5 +23,6 @@ export const entriesStateSyncSpec: StateSyncSpec<RawEntryInfos> = Object.freeze(
       const entriesResult = await fetchEntryInfos(viewer, query);
       return serverEntryInfosObject(entriesResult.rawEntryInfos);
     },
+    hashKey: 'entryInfos',
   },
 );

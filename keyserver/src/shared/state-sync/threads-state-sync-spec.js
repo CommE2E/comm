@@ -20,4 +20,5 @@ export const threadsStateSyncSpec: StateSyncSpec<RawThreadInfos> =
       const result = await fetchThreadInfos(viewer, filter);
       return result.threadInfos;
     },
+    hashKey: 'threadInfos',
   });

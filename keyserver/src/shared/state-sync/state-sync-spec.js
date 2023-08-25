@@ -10,4 +10,5 @@ export type StateSyncSpec<Infos> = {
     calendarQuery: $ReadOnlyArray<CalendarQuery>,
     ids?: $ReadOnlySet<string>,
   ) => Promise<Infos>,
+  +hashKey: string,
 };
