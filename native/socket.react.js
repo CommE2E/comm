@@ -9,7 +9,6 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js'
 import {
   cookieSelector,
   urlPrefixSelector,
-  connectionSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
@@ -46,8 +45,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const cookie = useSelector(cookieSelector);
     const urlPrefix = useSelector(urlPrefixSelector);
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
-    const connection = useSelector(connectionSelector);
-    invariant(connection, 'keyserver missing from keyserverStore');
+    const connection = useSelector(state => state.connection);
     const frozen = useSelector(state => state.frozen);
     const active = useSelector(
       state => isLoggedIn(state) && state.lifecycleState !== 'background',

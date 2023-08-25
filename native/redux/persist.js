@@ -716,6 +716,26 @@ const migrations = {
       },
     };
   },
+  [49]: async state => {
+    const { keyserverStore, ...rest } = state;
+
+    const { connection, ...keyserverRest } =
+      keyserverStore.keyserverInfos[ashoatKeyserverID];
+
+    return {
+      ...rest,
+      keyserverStore: {
+        ...keyserverStore,
+        keyserverInfos: {
+          ...keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...keyserverRest,
+          },
+        },
+      },
+      connection,
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -810,7 +830,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 48,
+  version: 49,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

@@ -15,6 +15,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
+import type { ConnectionInfo } from 'lib/types/socket-types.js';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
@@ -40,6 +41,7 @@ export type AppState = {
   +dataLoaded: boolean,
   +customServer: ?string,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
+  +connection: ConnectionInfo,
   +watchedThreadIDs: $ReadOnlyArray<string>,
   +lifecycleState: LifecycleState,
   +enabledApps: EnabledApps,

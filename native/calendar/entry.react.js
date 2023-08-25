@@ -28,7 +28,6 @@ import {
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
-import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
@@ -784,9 +783,9 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         navContext,
       }),
     );
-    const connection = useSelector(connectionSelector);
-    invariant(connection, 'keyserver missing from keyserverStore');
-    const online = connection.status === 'connected';
+    const online = useSelector(
+      state => state.connection.status === 'connected',
+    );
     const styles = useStyles(unboundStyles);
 
     const navigateToThread = useNavigateToThread();
