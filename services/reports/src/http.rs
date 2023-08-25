@@ -4,8 +4,9 @@ use tracing::info;
 
 use crate::config::CONFIG;
 use crate::constants::REQUEST_BODY_JSON_SIZE_LIMIT;
+use crate::service::ReportsService;
 
-pub async fn run_http_server() -> Result<()> {
+pub async fn run_http_server(service: ReportsService) -> Result<()> {
   use actix_web::middleware::{Logger, NormalizePath};
   use comm_services_lib::http::cors_config;
   use tracing_actix_web::TracingLogger;
@@ -19,6 +20,7 @@ pub async fn run_http_server() -> Result<()> {
       web::JsonConfig::default().limit(REQUEST_BODY_JSON_SIZE_LIMIT);
     App::new()
       .app_data(json_cfg)
+      .app_data(service.to_owned())
       .wrap(Logger::default())
       .wrap(TracingLogger::default())
       .wrap(NormalizePath::trim())
