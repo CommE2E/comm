@@ -8,6 +8,7 @@ use commtest::{
   },
   tools::{generate_stable_nbytes, Error},
 };
+use reqwest::StatusCode;
 use std::env;
 
 #[tokio::test]
@@ -105,6 +106,23 @@ async fn backup_integration_test() -> Result<(), Error> {
   )
   .await?;
   assert_eq!(user_keys, backup_datas[1].user_keys);
+
+  // Test cleanup
+  let first_backup_descriptor = BackupDescriptor::BackupID {
+    backup_id: backup_datas[0].backup_id.clone(),
+    user_identity: user_identity.clone(),
+  };
+
+  let response = pull_backup::run(
+    url.clone(),
+    first_backup_descriptor.clone(),
+    RequestedData::UserKeys,
+  )
+  .await;
+  assert!(
+    matches!(response, Err(Error::HttpStatus(StatusCode::NOT_FOUND))),
+    "First backup should have been removed, instead got response: {response:?}"
+  );
 
   Ok(())
 }
