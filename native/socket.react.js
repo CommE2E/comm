@@ -10,6 +10,7 @@ import {
   cookieSelector,
   urlPrefixSelector,
   connectionSelector,
+  lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
@@ -100,7 +101,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     }, [active, navContext]);
 
     const lastCommunicatedPlatformDetails = useSelector(
-      state => state.lastCommunicatedPlatformDetails,
+      lastCommunicatedPlatformDetailsSelector,
     );
 
     const dispatch = useDispatch();
