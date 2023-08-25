@@ -117,6 +117,38 @@ impl<T: TryFromAttribute> AttributeTryInto<T> for Option<AttributeValue> {
   }
 }
 
+/// Helper trait for extracting attributes from a collection
+pub trait AttributeExtractor {
+  /// Gets an attribute from the map and tries to convert it to the given type
+  /// This method does not consume the raw attribute - it gets cloned
+  /// See [`AttributeExtractor::take_attr`] for a non-cloning method
+  fn get_attr<T: TryFromAttribute>(
+    &self,
+    attribute_name: &str,
+  ) -> Result<T, DBItemError>;
+  /// Takes an attribute from the map and tries to convert it to the given type
+  /// This method consumes the raw attribute - it gets removed from the map
+  /// See [`AttributeExtractor::get_attr`] for a non-mutating method
+  fn take_attr<T: TryFromAttribute>(
+    &mut self,
+    attribute_name: &str,
+  ) -> Result<T, DBItemError>;
+}
+impl AttributeExtractor for AttributeMap {
+  fn get_attr<T: TryFromAttribute>(
+    &self,
+    attribute_name: &str,
+  ) -> Result<T, DBItemError> {
+    T::try_from_attr(attribute_name, self.get(attribute_name).cloned())
+  }
+  fn take_attr<T: TryFromAttribute>(
+    &mut self,
+    attribute_name: &str,
+  ) -> Result<T, DBItemError> {
+    T::try_from_attr(attribute_name, self.remove(attribute_name))
+  }
+}
+
 impl TryFromAttribute for String {
   fn try_from_attr(
     attribute_name: impl Into<String>,
