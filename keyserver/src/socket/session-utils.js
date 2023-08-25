@@ -401,25 +401,19 @@ async function checkState(
     return { checkStateRequest };
   }
 
-  const { invalidKeys } = status;
+  const invalidKeys = new Set(status.invalidKeys);
 
-  let fetchAllThreads = false,
-    fetchAllEntries = false,
-    fetchAllUserInfos = false,
-    fetchUserInfo = false;
+  const shouldFetchAll = Object.fromEntries(
+    values(serverStateSyncSpecs).map(spec => [
+      spec.hashKey,
+      invalidKeys.has(spec.hashKey),
+    ]),
+  );
   const threadIDsToFetch = new Set(),
     entryIDsToFetch = new Set(),
     userIDsToFetch = new Set();
   for (const key of invalidKeys) {
-    if (key === 'threadInfos') {
-      fetchAllThreads = true;
-    } else if (key === 'entryInfos') {
-      fetchAllEntries = true;
-    } else if (key === 'userInfos') {
-      fetchAllUserInfos = true;
-    } else if (key === 'currentUserInfo') {
-      fetchUserInfo = true;
-    } else if (key.startsWith('threadInfo|')) {
+    if (key.startsWith('threadInfo|')) {
       const [, threadID] = key.split('|');
       threadIDsToFetch.add(threadID);
     } else if (key.startsWith('entryInfo|')) {
@@ -432,7 +426,7 @@ async function checkState(
   }
 
   const fetchPromises = {};
-  if (fetchAllThreads) {
+  if (shouldFetchAll[serverStateSyncSpecs.threads.hashKey]) {
     fetchPromises.threadInfos = serverStateSyncSpecs.threads.fetch(
       viewer,
       query,
@@ -444,7 +438,7 @@ async function checkState(
       threadIDsToFetch,
     );
   }
-  if (fetchAllEntries) {
+  if (shouldFetchAll[serverStateSyncSpecs.entries.hashKey]) {
     fetchPromises.entryInfos = serverStateSyncSpecs.entries.fetch(
       viewer,
       query,
@@ -456,7 +450,7 @@ async function checkState(
       entryIDsToFetch,
     );
   }
-  if (fetchAllUserInfos) {
+  if (shouldFetchAll[serverStateSyncSpecs.users.hashKey]) {
     fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(viewer, query);
   } else if (userIDsToFetch.size > 0) {
     fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(
@@ -465,7 +459,7 @@ async function checkState(
       userIDsToFetch,
     );
   }
-  if (fetchUserInfo) {
+  if (shouldFetchAll[serverStateSyncSpecs.currentUser.hashKey]) {
     fetchPromises.currentUserInfo = serverStateSyncSpecs.currentUser.fetch(
       viewer,
       query,
