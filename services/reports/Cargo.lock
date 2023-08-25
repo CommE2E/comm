@@ -1382,6 +1382,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "aws-config",
+ "aws-sdk-dynamodb",
  "chrono",
  "clap",
  "comm-services-lib",
