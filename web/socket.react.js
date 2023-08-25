@@ -10,6 +10,7 @@ import {
   cookieSelector,
   urlPrefixSelector,
   connectionSelector,
+  lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import {
@@ -65,7 +66,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const callLogOut = useServerCall(logOut);
 
     const lastCommunicatedPlatformDetails = useSelector(
-      state => state.lastCommunicatedPlatformDetails,
+      lastCommunicatedPlatformDetailsSelector,
     );
 
     return (
