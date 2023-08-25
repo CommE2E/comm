@@ -26,7 +26,7 @@ import {
 } from 'lib/types/request-types.js';
 import { sessionCheckFrequency } from 'lib/types/session-types.js';
 import { signedIdentityKeysBlobValidator } from 'lib/utils/crypto-utils.js';
-import { hash } from 'lib/utils/objects.js';
+import { hash, values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import {
   tShape,
@@ -384,19 +384,16 @@ async function checkState(
   if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };
   } else if (status.status === 'state_check') {
-    const promises = {
-      threadsResult: serverStateSyncSpecs.threads.fetch(viewer, query),
-      entriesResult: serverStateSyncSpecs.entries.fetch(viewer, query),
-      currentUserInfo: serverStateSyncSpecs.currentUser.fetch(viewer, query),
-      userInfosResult: serverStateSyncSpecs.users.fetch(viewer, query),
-    };
-    const fetchedData = await promiseAll(promises);
-    const hashesToCheck = {
-      threadInfos: hash(fetchedData.threadsResult),
-      entryInfos: hash(fetchedData.entriesResult),
-      currentUserInfo: hash(fetchedData.currentUserInfo),
-      userInfos: hash(fetchedData.userInfosResult),
-    };
+    const promises = Object.fromEntries(
+      values(serverStateSyncSpecs).map(spec => [
+        spec.hashKey,
+        (async () => {
+          const data = await spec.fetch(viewer, query);
+          return hash(data);
+        })(),
+      ]),
+    );
+    const hashesToCheck = await promiseAll(promises);
     const checkStateRequest = {
       type: serverRequestTypes.CHECK_STATE,
       hashesToCheck,

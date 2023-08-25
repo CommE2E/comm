@@ -19,4 +19,5 @@ export const usersStateSyncSpec: StateSyncSpec<UserInfos> = Object.freeze({
 
     return fetchKnownUserInfos(viewer);
   },
+  hashKey: 'userInfos',
 });

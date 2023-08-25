@@ -15,4 +15,5 @@ export const currentUserStateSyncSpec: StateSyncSpec<
   fetch(viewer: Viewer) {
     return fetchCurrentUserInfo(viewer);
   },
+  hashKey: 'currentUserInfo',
 });
