@@ -20,6 +20,58 @@ pub fn is_valid_identifier(identifier: &str) -> bool {
 
 pub type BoxedError = Box<dyn std::error::Error>;
 
+/// Defers call of the provided function to when [Defer] goes out of scope.
+/// This can be used for cleanup code that must be run when e.g. the enclosing
+/// function exits either by return or try operator `?`.
+///
+/// # Example
+/// ```ignore
+/// fn f(){
+///     let _ = Defer::new(|| println!("cleanup"))
+///     
+///     // Cleanup will run if function would exit here
+///     operation_that_can_fail()?;
+///
+///     if should_exit_early {
+///       // Cleanup will run if function would exit here
+///       return;
+///     }
+/// }
+/// ```
+pub struct Defer<'s>(Option<Box<dyn FnOnce() + 's>>);
+
+impl<'s> Defer<'s> {
+  pub fn new(f: impl FnOnce() + 's) -> Self {
+    Self(Some(Box::new(f)))
+  }
+
+  /// Consumes the value, without calling the provided function
+  ///
+  /// # Example
+  /// ```ignore
+  /// // Start a "transaction"
+  /// operation_that_should_be_reverted();
+  /// let revert = Defer::new(|| println!("revert"))
+  /// operation_that_can_fail()?;
+  /// operation_that_can_fail()?;
+  /// operation_that_can_fail()?;
+  /// // Now we can "commit" the changes
+  /// revert.cancel();
+  /// ```
+  pub fn cancel(mut self) {
+    self.0 = None;
+    // Implicit drop
+  }
+}
+
+impl Drop for Defer<'_> {
+  fn drop(&mut self) {
+    if let Some(f) = self.0.take() {
+      f();
+    }
+  }
+}
+
 #[cfg(test)]
 mod valid_identifier_tests {
   use super::*;
@@ -66,5 +118,40 @@ mod valid_identifier_tests {
   #[test]
   fn empty_is_invalid() {
     assert!(!is_valid_identifier(""));
+  }
+
+  #[test]
+  fn defer_runs() {
+    fn f(a: &mut bool) {
+      let _ = Defer::new(|| *a = true);
+    }
+
+    let mut v = false;
+    f(&mut v);
+    assert!(v)
+  }
+
+  #[test]
+  fn consumed_defer_doesnt_run() {
+    fn f(a: &mut bool) {
+      let defer = Defer::new(|| *a = true);
+      defer.cancel();
+    }
+
+    let mut v = false;
+    f(&mut v);
+    assert!(!v)
+  }
+
+  #[test]
+  fn defer_runs_on_try() {
+    fn f(a: &mut bool) -> Result<(), ()> {
+      let _ = Defer::new(|| *a = true);
+      Err(())
+    }
+
+    let mut v = false;
+    let _ = f(&mut v);
+    assert!(v)
   }
 }
