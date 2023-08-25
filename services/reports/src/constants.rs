@@ -1,1 +1,2 @@
 pub const REPORT_LIST_PAGE_SIZE: i32 = 20;
+pub const REQUEST_BODY_JSON_SIZE_LIMIT: usize = 10 * 1024 * 1024; // 10MB
