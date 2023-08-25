@@ -10,6 +10,7 @@ use comm_services_lib::{
   backup::LatestBackupIDResponse,
   blob::{client::BlobServiceClient, types::BlobInfo},
   http::multipart::get_text_field,
+  tools::Defer,
 };
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tracing::{info, instrument, trace, warn};
@@ -39,7 +40,7 @@ pub async fn upload(
 
   tracing::Span::current().record("backup_id", &backup_id);
 
-  let user_keys_blob_info = forward_field_to_blob(
+  let (user_keys_blob_info, user_keys_revoke) = forward_field_to_blob(
     &mut multipart,
     &blob_client,
     "user_keys_hash",
@@ -47,7 +48,7 @@ pub async fn upload(
   )
   .await?;
 
-  let user_data_blob_info = forward_field_to_blob(
+  let (user_data_blob_info, user_data_revoke) = forward_field_to_blob(
     &mut multipart,
     &blob_client,
     "user_data_hash",
@@ -83,6 +84,10 @@ pub async fn upload(
     .put_backup_item(item)
     .await
     .map_err(BackupError::from)?;
+
+  user_keys_revoke.cancel();
+  user_data_revoke.cancel();
+
   Ok(HttpResponse::Ok().finish())
 }
 
@@ -91,12 +96,12 @@ pub async fn upload(
   name = "forward_to_blob",
   fields(hash_field_name, data_field_name)
 )]
-async fn forward_field_to_blob(
+async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
   multipart: &mut actix_multipart::Multipart,
-  blob_client: &web::Data<BlobServiceClient>,
+  blob_client: &'blob web::Data<BlobServiceClient>,
   hash_field_name: &str,
   data_field_name: &str,
-) -> actix_web::Result<BlobInfo> {
+) -> actix_web::Result<(BlobInfo, Defer<'revoke>)> {
   trace!("Reading blob fields: {hash_field_name:?}, {data_field_name:?}");
 
   let Some((name, blob_hash)) = get_text_field(multipart).await? else {
@@ -160,7 +165,13 @@ async fn forward_field_to_blob(
 
   tokio::try_join!(receive_promise, send_promise)?;
 
-  Ok(blob_info)
+  let revoke_info = blob_info.clone();
+  let revoke_holder = Defer::new(|| {
+    blob_client
+      .schedule_revoke_holder(revoke_info.blob_hash, revoke_info.holder)
+  });
+
+  Ok((blob_info, revoke_holder))
 }
 
 #[instrument(name = "download_user_keys", skip_all, fields(backup_id = %path.as_str()))]
