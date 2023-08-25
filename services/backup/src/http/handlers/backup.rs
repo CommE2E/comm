@@ -73,7 +73,7 @@ pub async fn upload(
     };
 
   let item = BackupItem::new(
-    user.user_id,
+    user.user_id.clone(),
     backup_id,
     user_keys_blob_info,
     user_data_blob_info,
@@ -87,6 +87,22 @@ pub async fn upload(
 
   user_keys_revoke.cancel();
   user_data_revoke.cancel();
+
+  for backup in db_client
+    .remove_old_backups(&user.user_id)
+    .await
+    .map_err(BackupError::from)?
+  {
+    blob_client.schedule_revoke_holder(
+      backup.user_keys.blob_hash,
+      backup.user_keys.holder,
+    );
+
+    blob_client.schedule_revoke_holder(
+      backup.user_data.blob_hash,
+      backup.user_data.holder,
+    );
+  }
 
   Ok(HttpResponse::Ok().finish())
 }
