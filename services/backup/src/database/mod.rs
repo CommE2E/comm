@@ -4,10 +4,11 @@ pub mod log_item;
 use std::collections::HashMap;
 
 use aws_sdk_dynamodb::{
-  operation::get_item::GetItemOutput, types::AttributeValue,
+  operation::get_item::GetItemOutput,
+  types::{AttributeValue, ReturnValue},
 };
 use comm_services_lib::database::Error;
-use tracing::error;
+use tracing::{error, trace, warn};
 
 use crate::constants::{
   BACKUP_TABLE_FIELD_BACKUP_ID, BACKUP_TABLE_FIELD_USER_ID,
@@ -61,16 +62,7 @@ impl DatabaseClient {
     user_id: &str,
     backup_id: &str,
   ) -> Result<Option<BackupItem>, Error> {
-    let item_key = HashMap::from([
-      (
-        BACKUP_TABLE_FIELD_USER_ID.to_string(),
-        AttributeValue::S(user_id.to_string()),
-      ),
-      (
-        BACKUP_TABLE_FIELD_BACKUP_ID.to_string(),
-        AttributeValue::S(backup_id.to_string()),
-      ),
-    ]);
+    let item_key = Self::get_item_key(user_id, backup_id);
 
     let output = self
       .client
@@ -127,15 +119,19 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn remove_backup_item(&self, backup_id: &str) -> Result<(), Error> {
-    self
+  pub async fn remove_backup_item(
+    &self,
+    user_id: &str,
+    backup_id: &str,
+  ) -> Result<Option<BackupItem>, Error> {
+    let item_key = Self::get_item_key(user_id, backup_id);
+
+    let response = self
       .client
       .delete_item()
       .table_name(BACKUP_TABLE_NAME)
-      .key(
-        BACKUP_TABLE_FIELD_BACKUP_ID,
-        AttributeValue::S(backup_id.to_string()),
-      )
+      .set_key(Some(item_key))
+      .return_values(ReturnValue::AllOld)
       .send()
       .await
       .map_err(|e| {
@@ -143,7 +139,95 @@ impl DatabaseClient {
         Error::AwsSdk(e.into())
       })?;
 
-    Ok(())
+    response
+      .attributes
+      .map(BackupItem::try_from)
+      .transpose()
+      .map_err(Error::from)
+  }
+
+  /// For the purposes of the initial backup version this function
+  /// removes all backups except for the latest one
+  pub async fn remove_old_backups(
+    &self,
+    user_id: &str,
+  ) -> Result<Vec<BackupItem>, Error> {
+    let response = self
+      .client
+      .query()
+      .table_name(BACKUP_TABLE_NAME)
+      .index_name(BACKUP_TABLE_INDEX_USERID_CREATED)
+      .key_condition_expression("#userID = :valueToMatch")
+      .expression_attribute_names("#userID", BACKUP_TABLE_FIELD_USER_ID)
+      .expression_attribute_values(
+        ":valueToMatch",
+        AttributeValue::S(user_id.to_string()),
+      )
+      .scan_index_forward(false)
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to fetch backups");
+        Error::AwsSdk(e.into())
+      })?;
+
+    if response.last_evaluated_key().is_some() {
+      // In the intial version of the backup service this function will be run
+      // for every new backup (each user only has one backup), so this shouldn't
+      // happen
+      warn!("Not all old backups have been cleaned up");
+    }
+
+    let items = response
+      .items
+      .unwrap_or_default()
+      .into_iter()
+      .map(OrderedBackupItem::try_from)
+      .collect::<Result<Vec<_>, _>>()?;
+
+    let mut removed_backups = vec![];
+
+    let Some(latest) = items.iter().map(|item| item.created).max() else {
+      return Ok(removed_backups);
+    };
+
+    for item in items {
+      if item.created == latest {
+        trace!(
+          "Skipping removal of the latest backup item: {}",
+          item.backup_id
+        );
+        continue;
+      }
+
+      trace!("Removing backup item: {item:?}");
+
+      if let Some(backup) =
+        self.remove_backup_item(user_id, &item.backup_id).await?
+      {
+        removed_backups.push(backup);
+      } else {
+        warn!("Backup was found during query, but wasn't found when deleting")
+      };
+    }
+
+    Ok(removed_backups)
+  }
+
+  fn get_item_key(
+    user_id: &str,
+    backup_id: &str,
+  ) -> HashMap<String, AttributeValue> {
+    HashMap::from([
+      (
+        BACKUP_TABLE_FIELD_USER_ID.to_string(),
+        AttributeValue::S(user_id.to_string()),
+      ),
+      (
+        BACKUP_TABLE_FIELD_BACKUP_ID.to_string(),
+        AttributeValue::S(backup_id.to_string()),
+      ),
+    ])
   }
 
   // log item
