@@ -3,6 +3,7 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import * as React from 'react';
 
+import BottomSheetHandle from './bottom-sheet-handle.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -21,7 +22,7 @@ function ForwardedBottomSheet(props: Props, ref): React.Node {
       ref={ref}
       backgroundStyle={styles.background}
       snapPoints={snapPoints}
-      handleIndicatorStyle={styles.handleIndicator}
+      handleComponent={BottomSheetHandle}
     >
       {children}
     </BottomSheetModal>
@@ -31,10 +32,6 @@ function ForwardedBottomSheet(props: Props, ref): React.Node {
 const unboundStyles = {
   background: {
     backgroundColor: 'modalForeground',
-  },
-  handleIndicator: {
-    backgroundColor: 'modalKnob',
-    width: 64,
   },
 };
 
