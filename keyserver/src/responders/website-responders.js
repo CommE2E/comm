@@ -508,6 +508,7 @@ async function websiteResponder(
           updatesCurrentAsOf,
           urlPrefix,
           connection: defaultConnectionInfo,
+          lastCommunicatedPlatformDetails: null,
         },
       },
     };
