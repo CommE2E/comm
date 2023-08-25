@@ -76,7 +76,6 @@ function UserProfile(props: Props): React.Node {
 
 const unboundStyles = {
   container: {
-    backgroundColor: 'modalForeground',
     paddingHorizontal: 16,
   },
   moreIcon: {
