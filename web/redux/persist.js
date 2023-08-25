@@ -27,6 +27,7 @@ import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
 import type { AppState } from './redux-setup.js';
@@ -107,6 +108,23 @@ const migrations = {
 
     return newState;
   },
+  [4]: async state => {
+    const { lastCommunicatedPlatformDetails, keyserverStore, ...rest } = state;
+
+    return {
+      ...rest,
+      keyserverStore: {
+        ...keyserverStore,
+        keyserverInfos: {
+          ...keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+            lastCommunicatedPlatformDetails,
+          },
+        },
+      },
+    };
+  },
 };
 
 const persistWhitelist = [
@@ -115,7 +133,6 @@ const persistWhitelist = [
   'cryptoStore',
   'notifPermissionAlertInfo',
   'commServicesAccessToken',
-  'lastCommunicatedPlatformDetails',
   'keyserverStore',
 ];
 
@@ -195,7 +212,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 3,
+  version: 4,
   transforms: [keyserverStoreTransform],
 };
 
