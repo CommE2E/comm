@@ -121,7 +121,7 @@ const defaultState = ({
   inviteLinksStore: {
     links: {},
   },
-  lastCommunicatedPlatformDetails: {},
+  lastCommunicatedPlatformDetails: null,
   keyserverStore: {
     keyserverInfos: {
       [ashoatKeyserverID]: {
