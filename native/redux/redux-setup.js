@@ -127,6 +127,7 @@ const defaultState = ({
         updatesCurrentAsOf: 0,
         urlPrefix: defaultURLPrefix,
         connection: defaultConnectionInfo,
+        lastCommunicatedPlatformDetails: null,
       },
     },
   },
