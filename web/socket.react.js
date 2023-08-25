@@ -65,7 +65,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const callLogOut = useServerCall(logOut);
 
     const lastCommunicatedPlatformDetails = useSelector(
-      state => state.lastCommunicatedPlatformDetails[urlPrefix],
+      state => state.lastCommunicatedPlatformDetails,
     );
 
     return (

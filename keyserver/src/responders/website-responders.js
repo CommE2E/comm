@@ -605,7 +605,7 @@ async function websiteResponder(
     _persist: null,
     commServicesAccessToken: null,
     inviteLinksStore: inviteLinksStorePromise,
-    lastCommunicatedPlatformDetails: {},
+    lastCommunicatedPlatformDetails: null,
     keyserverStore: keyserverStorePromise,
   });
   const validatedInitialReduxState = validateOutput(
