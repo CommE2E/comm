@@ -289,3 +289,14 @@ resource "aws_dynamodb_table" "feature-flags" {
     type = "S"
   }
 }
+
+resource "aws_dynamodb_table" "reports-service-reports" {
+  name         = "reports-service-reports"
+  hash_key     = "reportID"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "reportID"
+    type = "S"
+  }
+}
