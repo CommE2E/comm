@@ -5,12 +5,14 @@ use comm_services_lib::{
     client::{BlobServiceClient, BlobServiceError},
     types::BlobInfo,
   },
+  bytes::Bytes,
   constants::DDB_ITEM_SIZE_LIMIT,
   database::{
     self, AttributeExtractor, AttributeMap, DBItemError, TryFromAttribute,
   },
 };
 use num_traits::FromPrimitive;
+use tokio_stream::StreamExt;
 use tracing::debug;
 
 use super::constants::*;
@@ -82,6 +84,10 @@ impl ReportItem {
       return Ok(());
     };
 
+    debug!(
+      report_id = ?self.id,
+      "Report content exceeds DDB item size limit, moving to blob storage"
+    );
     self.content.move_to_blob(blob_client).await
   }
 
@@ -211,7 +217,24 @@ impl ReportContent {
     &mut self,
     blob_client: &BlobServiceClient,
   ) -> Result<(), BlobServiceError> {
-    todo!()
+    let Self::Database(ref mut contents) = self else { return Ok(()); };
+    let data = std::mem::take(contents);
+
+    let blob_hash = sha256::digest(&data);
+    let holder = uuid::Uuid::new_v4().to_string();
+
+    // NOTE: We send the data as a single chunk. This shouldn't be a problem
+    // unless we start receiving very large reports. In that case, we should
+    // consider splitting the data into chunks and sending them as a stream.
+    let data_stream = tokio_stream::once(Result::<_, std::io::Error>::Ok(data));
+
+    blob_client
+      .simple_put(&blob_hash, &holder, data_stream)
+      .await?;
+
+    let new_blob_info = BlobInfo::new(blob_hash, holder);
+    *self = Self::Blob(new_blob_info);
+    Ok(())
   }
 
   /// Fetches report content bytes
@@ -222,7 +245,10 @@ impl ReportContent {
     match self {
       ReportContent::Database(data) => Ok(data),
       ReportContent::Blob(BlobInfo { blob_hash, .. }) => {
-        todo!()
+        let stream = blob_client.get(&blob_hash).await?;
+        let chunks: Vec<Bytes> = stream.collect::<Result<_, _>>().await?;
+        let data = chunks.into_iter().flatten().collect();
+        Ok(data)
       }
     }
   }
