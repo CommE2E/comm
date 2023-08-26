@@ -1,6 +1,7 @@
+use bytes::Bytes;
 use derive_more::{Display, Error, From};
 use futures_core::Stream;
-use futures_util::{StreamExt, TryStreamExt};
+use futures_util::StreamExt;
 use reqwest::{
   multipart::{Form, Part},
   Body, Method, RequestBuilder,
@@ -125,7 +126,7 @@ impl BlobServiceClient {
   pub async fn get(
     &self,
     blob_hash: &str,
-  ) -> BlobResult<impl Stream<Item = BlobResult<Vec<u8>>>> {
+  ) -> BlobResult<impl Stream<Item = BlobResult<Bytes>>> {
     debug!(?blob_hash, "Get blob request");
     let url = self.get_blob_url(Some(blob_hash))?;
 
@@ -138,7 +139,7 @@ impl BlobServiceClient {
     debug!("Response status: {}", response.status());
     if response.status().is_success() {
       let stream = response.bytes_stream().map(|result| match result {
-        Ok(bytes) => Ok(bytes.into()),
+        Ok(bytes) => Ok(bytes),
         Err(error) => {
           warn!("Error while streaming response: {}", error);
           Err(BlobServiceError::ClientError(error))
@@ -252,13 +253,12 @@ impl BlobServiceClient {
     H: Into<String>,
     S: futures_core::stream::TryStream + Send + Sync + 'static,
     S::Error: Into<Box<dyn std::error::Error + Send + Sync>>,
-    Vec<u8>: From<S::Ok>,
+    Bytes: From<S::Ok>,
   {
     debug!("Upload blob request");
     let url = self.get_blob_url(None)?;
 
-    let stream = data_stream.map_ok(Vec::from);
-    let streaming_body = Body::wrap_stream(stream);
+    let streaming_body = Body::wrap_stream(data_stream);
     let form = Form::new()
       .text("blob_hash", blob_hash.into())
       .part("blob_data", Part::stream(streaming_body));
@@ -295,7 +295,7 @@ impl BlobServiceClient {
   where
     S: futures_core::stream::TryStream + Send + Sync + 'static,
     S::Error: Into<Box<dyn std::error::Error + Send + Sync>>,
-    Vec<u8>: From<S::Ok>,
+    Bytes: From<S::Ok>,
   {
     trace!("Begin simple put. Assigning holder...");
     let data_exists = self.assign_holder(blob_hash, holder).await?;

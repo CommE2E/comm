@@ -5,7 +5,12 @@ edition = "2021"
 license = "BSD-3-Clause"
 
 [features]
-blob-client = ["dep:reqwest", "dep:futures-core", "dep:futures-util"]
+blob-client = [
+  "dep:bytes",
+  "dep:reqwest",
+  "dep:futures-core",
+  "dep:futures-util",
+]
 http = [
   "dep:actix-cors",
   "dep:actix-web",
@@ -30,6 +35,7 @@ tokio = "1.32"
 tracing = "0.1"
 anyhow = "1.0.74"
 # blob client dependencies
+bytes = { version = "1.4", optional = true }
 futures-core = { version = "0.3", optional = true }
 futures-util = { version = "0.3", optional = true }
 reqwest = { version = "0.11", features = [
