@@ -9,7 +9,7 @@ use serde::{de::Error, Deserialize, Serialize};
 use serde_repr::Deserialize_repr;
 
 #[derive(Clone, Debug, Deref, Serialize, Into)]
-#[repr(transparent)]
+#[serde(transparent)]
 pub struct ReportID(String);
 impl Default for ReportID {
   fn default() -> Self {
@@ -89,9 +89,12 @@ impl<'de> serde::de::Deserialize<'de> for ReportInput {
   {
     let mut this = Self::deserialize(deserializer)?;
     if this.time.is_none() {
-      if !matches!(this.report_type, ReportType::ThreadInconsistency) {
+      if !matches!(
+        this.report_type,
+        ReportType::ThreadInconsistency | ReportType::ErrorReport
+      ) {
         return Err(Error::custom(
-          "The 'time' field is optional only for thread inconsistency reports",
+          "The 'time' field is optional only for thread inconsistency and error reports",
         ));
       }
       this.time = Some(Utc::now());
