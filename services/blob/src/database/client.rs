@@ -5,7 +5,7 @@ use aws_sdk_dynamodb::{
 };
 use chrono::Utc;
 use comm_services_lib::database::TryFromAttribute;
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 use tracing::{debug, error, trace};
 
 use crate::constants::db::*;
@@ -15,14 +15,14 @@ use super::types::*;
 
 #[derive(Clone)]
 pub struct DatabaseClient {
-  ddb: Arc<aws_sdk_dynamodb::Client>,
+  ddb: aws_sdk_dynamodb::Client,
 }
 
 /// public interface implementation
 impl DatabaseClient {
-  pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
+  pub fn new(aws_config: &aws_config::SdkConfig) -> Self {
     DatabaseClient {
-      ddb: Arc::new(aws_sdk_dynamodb::Client::new(aws_config)),
+      ddb: aws_sdk_dynamodb::Client::new(aws_config),
     }
   }
 
@@ -122,7 +122,7 @@ impl DatabaseClient {
     // delete the holder row
     let assignment_key = PrimaryKey {
       blob_hash: blob_hash.clone(),
-      holder: holder.into(),
+      holder,
     };
     let delete_request = Delete::builder()
       .table_name(BLOB_TABLE_NAME)
@@ -211,7 +211,7 @@ impl DatabaseClient {
         }
       })
       .collect::<Result<Vec<_>, _>>()
-      .map_err(|err| DBError::Attribute(err))
+      .map_err(DBError::Attribute)
   }
 }
 

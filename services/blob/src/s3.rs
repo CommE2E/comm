@@ -4,10 +4,7 @@ use aws_sdk_s3::{
   types::{CompletedMultipartUpload, CompletedPart},
   Error as S3Error,
 };
-use std::{
-  ops::{Bound, RangeBounds},
-  sync::Arc,
-};
+use std::ops::{Bound, RangeBounds};
 use tracing::{debug, error, trace};
 
 #[derive(
@@ -100,17 +97,17 @@ impl TryFrom<&str> for S3Path {
 
 #[derive(Clone)]
 pub struct S3Client {
-  client: Arc<aws_sdk_s3::Client>,
+  client: aws_sdk_s3::Client,
 }
 
 impl S3Client {
-  pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
+  pub fn new(aws_config: &aws_config::SdkConfig) -> Self {
     let s3_config = aws_sdk_s3::config::Builder::from(aws_config)
       // localstack doesn't support virtual addressing
       .force_path_style(crate::config::CONFIG.localstack_endpoint.is_some())
       .build();
     S3Client {
-      client: Arc::new(aws_sdk_s3::Client::from_conf(s3_config)),
+      client: aws_sdk_s3::Client::from_conf(s3_config),
     }
   }
 
@@ -204,7 +201,7 @@ impl S3Client {
 
 /// Represents a multipart upload session to the AWS S3
 pub struct MultiPartUploadSession {
-  client: Arc<aws_sdk_s3::Client>,
+  client: aws_sdk_s3::Client,
   bucket_name: String,
   object_name: String,
   upload_id: String,
@@ -215,7 +212,7 @@ impl MultiPartUploadSession {
   /// Starts a new upload session and returns its instance
   /// Don't call this directly, use [`S3Client::start_upload_session()`] instead
   async fn start(
-    client: &Arc<aws_sdk_s3::Client>,
+    client: &aws_sdk_s3::Client,
     s3_path: &S3Path,
   ) -> S3Result<Self> {
     let multipart_upload_res: CreateMultipartUploadOutput = client

@@ -14,7 +14,6 @@ async-stream = "0.3"
 aws-config = "0.55"
 aws-sdk-dynamodb = "0.27"
 aws-sdk-s3 = "0.27"
-aws-types = "0.55.2"
 chrono = "0.4"
 clap = { version = "4.0", features = ["derive", "env"] }
 comm-services-lib = { path = "../comm-services-lib", features = ["http"] }

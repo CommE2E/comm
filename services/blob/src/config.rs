@@ -39,7 +39,7 @@ pub(super) fn parse_cmdline_args() -> Result<&'static AppConfig> {
 }
 
 /// Provides region/credentials configuration for AWS SDKs
-pub async fn load_aws_config() -> aws_types::SdkConfig {
+pub async fn load_aws_config() -> aws_config::SdkConfig {
   let mut config_builder = aws_config::from_env();
 
   if let Some(endpoint) = &CONFIG.localstack_endpoint {
