@@ -6,8 +6,12 @@ use comm_services_lib::{
 };
 use derive_more::{Display, Error, From};
 use std::future::{ready, Ready};
+use tracing::error;
 
-use crate::database::client::DatabaseClient;
+use crate::{
+  database::{client::DatabaseClient, item::ReportItem},
+  report_types::{ReportID, ReportInput},
+};
 
 #[derive(Debug, Display, Error, From)]
 pub enum ReportsServiceError {
@@ -54,6 +58,41 @@ impl ReportsService {
       blob_client: self.blob_client.with_user_identity(user),
       requesting_user_id: Some(user_id),
     }
+  }
+
+  pub async fn save_reports(
+    &self,
+    reports: Vec<ReportInput>,
+  ) -> ServiceResult<Vec<ReportID>> {
+    let mut items = Vec::with_capacity(reports.len());
+    let mut tasks = tokio::task::JoinSet::new();
+
+    // 1. Concurrently upload reports to blob service if needed
+    for input in reports {
+      let blob_client = self.blob_client.clone();
+      let user_id = self.requesting_user_id.clone();
+      tasks.spawn(async move {
+        let mut item = ReportItem::from_input(input, user_id)
+          .map_err(ReportsServiceError::SerdeError)?;
+        item.ensure_size_constraints(&blob_client).await?;
+        Ok(item)
+      });
+    }
+
+    // 2. Wait for all uploads to complete and collect results
+    // If any of them failed, abort
+    while let Some(task) = tasks.join_next().await {
+      let result: Result<_, ReportsServiceError> = task.map_err(|err| {
+        error!("Task failed to join: {err}");
+        ReportsServiceError::Unexpected
+      })?;
+      items.push(result?);
+    }
+
+    // 3. Store reports in database
+    let ids = items.iter().map(|item| item.id.clone()).collect();
+    self.db.save_reports(items).await?;
+    Ok(ids)
   }
 }
 
