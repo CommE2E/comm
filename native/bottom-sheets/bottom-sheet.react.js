@@ -3,6 +3,7 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import * as React from 'react';
 
+import BottomSheetBackdrop from './bottom-sheet-backdrop.react.js';
 import BottomSheetHandle from './bottom-sheet-handle.react.js';
 import { useStyles } from '../themes/colors.js';
 
@@ -26,6 +27,7 @@ function ForwardedBottomSheet(
       backgroundStyle={styles.background}
       snapPoints={snapPoints}
       handleComponent={BottomSheetHandle}
+      backdropComponent={BottomSheetBackdrop}
     >
       {children}
     </BottomSheetModal>
