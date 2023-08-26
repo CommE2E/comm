@@ -21,7 +21,6 @@ RUN cargo build --release && rm src/*.rs
 
 # Copy actual application sources
 COPY services/blob .
-COPY shared/protos/blob.proto ../../shared/protos/
 
 # Remove the previously-built binary so that only the application itself is
 # rebuilt

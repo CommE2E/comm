@@ -44,7 +44,7 @@ services:
         - COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
     image: commapp/blob-server:0.1
     ports:
-      - '${COMM_SERVICES_PORT_BLOB}:50051'
+      - '${COMM_SERVICES_PORT_BLOB}:50053'
     volumes:
       - $HOME/.aws/config:/home/comm/.aws/config:ro
       - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
