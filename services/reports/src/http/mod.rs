@@ -1,6 +1,6 @@
 use actix_web::error::{
-  ErrorBadRequest, ErrorInternalServerError, ErrorServiceUnavailable,
-  ErrorUnsupportedMediaType,
+  ErrorBadRequest, ErrorInternalServerError, ErrorNotFound,
+  ErrorServiceUnavailable, ErrorUnsupportedMediaType,
 };
 use actix_web::{web, App, HttpResponse, HttpServer, ResponseError};
 use anyhow::Result;
@@ -34,7 +34,11 @@ pub async fn run_http_server(service: ReportsService) -> Result<()> {
       .wrap(cors_config(CONFIG.is_dev()))
       // Health endpoint for load balancers checks
       .route("/health", web::get().to(HttpResponse::Ok))
-      .service(handlers::post_reports)
+      .service(
+        web::scope("/reports")
+          .service(handlers::post_reports)
+          .service(handlers::get_single_report),
+      )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
   .run()
@@ -98,5 +102,16 @@ impl ResponseError for ReportsServiceError {
     handle_reports_service_error(self)
       .as_response_error()
       .status_code()
+  }
+}
+
+trait NotFoundHandler<T> {
+  /// Returns `Ok(T)` if `self` is `Some(T)`,
+  /// otherwise returns a `404 Not Found` error.
+  fn unwrap_or_404(self) -> actix_web::Result<T>;
+}
+impl<T> NotFoundHandler<T> for Option<T> {
+  fn unwrap_or_404(self) -> actix_web::Result<T> {
+    self.ok_or_else(|| ErrorNotFound("not found"))
   }
 }

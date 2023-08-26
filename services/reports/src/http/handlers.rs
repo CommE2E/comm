@@ -1,5 +1,7 @@
-use actix_web::{post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 use serde::Deserialize;
+
+use super::NotFoundHandler;
 
 use crate::report_types::ReportInput;
 use crate::service::ReportsService;
@@ -21,7 +23,7 @@ impl PostReportsPayload {
   }
 }
 
-#[post("/reports")]
+#[post("")]
 async fn post_reports(
   payload: web::Json<PostReportsPayload>,
   service: ReportsService,
@@ -31,5 +33,19 @@ async fn post_reports(
   let payload = payload.into_inner();
   let ids = service.save_reports(payload.into_vec()).await?;
   let response = HttpResponse::Created().json(json!({ "reportIDs": ids }));
+  Ok(response)
+}
+
+#[get("/{report_id}")]
+async fn get_single_report(
+  path: web::Path<String>,
+  service: ReportsService,
+) -> actix_web::Result<HttpResponse> {
+  let report_id = path.into_inner();
+  let report = service
+    .get_report(report_id.into())
+    .await?
+    .unwrap_or_404()?;
+  let response = HttpResponse::Ok().json(report);
   Ok(response)
 }
