@@ -1,8 +1,36 @@
 use actix_web::FromRequest;
-use comm_services_lib::{auth::UserIdentity, blob::client::BlobServiceClient};
+use comm_services_lib::{
+  auth::UserIdentity,
+  blob::client::{BlobServiceClient, BlobServiceError},
+  database,
+};
+use derive_more::{Display, Error, From};
 use std::future::{ready, Ready};
 
 use crate::database::client::DatabaseClient;
+
+#[derive(Debug, Display, Error, From)]
+pub enum ReportsServiceError {
+  DatabaseError(database::Error),
+  BlobError(BlobServiceError),
+  /// Error during parsing user input
+  /// Usually this indicates user error
+  #[from(ignore)]
+  ParseError(serde_json::Error),
+  /// Error during serializing/deserializing internal data
+  /// This is usually a service bug / data inconsistency
+  #[from(ignore)]
+  SerdeError(serde_json::Error),
+  /// Unsupported report type
+  /// Returned when trying to perform an operation on an incompatible report type
+  /// e.g. create a Redux Devtools import from a media mission report
+  UnsupportedReportType,
+  /// Unexpected error
+  Unexpected,
+}
+
+type ServiceResult<T> = Result<T, ReportsServiceError>;
+
 #[derive(Clone)]
 pub struct ReportsService {
   db: DatabaseClient,
