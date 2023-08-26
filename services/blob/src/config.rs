@@ -1,19 +1,15 @@
-use anyhow::{ensure, Result};
+use anyhow::Result;
 use clap::Parser;
 use once_cell::sync::Lazy;
 use tracing::info;
 
 use crate::constants::{
-  DEFAULT_GRPC_PORT, DEFAULT_HTTP_PORT, DEFAULT_S3_BUCKET_NAME,
-  S3_BUCKET_ENV_VAR,
+  DEFAULT_HTTP_PORT, DEFAULT_S3_BUCKET_NAME, S3_BUCKET_ENV_VAR,
 };
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct AppConfig {
-  /// gRPC server listening port
-  #[arg(long, default_value_t = DEFAULT_GRPC_PORT)]
-  pub grpc_port: u16,
   /// HTTP server listening port
   #[arg(long, default_value_t = DEFAULT_HTTP_PORT)]
   pub http_port: u16,
@@ -32,21 +28,14 @@ pub static CONFIG: Lazy<AppConfig> = Lazy::new(AppConfig::parse);
 
 /// Processes the command-line arguments and environment variables.
 /// Should be called at the beginning of the `main()` function.
-pub(super) fn parse_cmdline_args() -> Result<()> {
+pub(super) fn parse_cmdline_args() -> Result<&'static AppConfig> {
   // force evaluation of the lazy initialized config
   let cfg = Lazy::force(&CONFIG);
-
-  // Perform some additional validation for CLI args
-  ensure!(
-    cfg.grpc_port != cfg.http_port,
-    "gRPC and HTTP ports cannot be the same: {}",
-    cfg.grpc_port
-  );
 
   if cfg.s3_bucket_name != DEFAULT_S3_BUCKET_NAME {
     info!("Using custom S3 bucket: {}", &cfg.s3_bucket_name);
   }
-  Ok(())
+  Ok(cfg)
 }
 
 /// Provides region/credentials configuration for AWS SDKs
