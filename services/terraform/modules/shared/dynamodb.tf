@@ -45,39 +45,6 @@ resource "aws_dynamodb_table" "backup-service-log" {
   }
 }
 
-resource "aws_dynamodb_table" "blob-service-blob" {
-  name         = "blob-service-blob"
-  hash_key     = "blobHash"
-  billing_mode = "PAY_PER_REQUEST"
-
-  attribute {
-    name = "blobHash"
-    type = "S"
-  }
-}
-
-resource "aws_dynamodb_table" "blob-service-reverse-index" {
-  name         = "blob-service-reverse-index"
-  hash_key     = "holder"
-  billing_mode = "PAY_PER_REQUEST"
-
-  attribute {
-    name = "holder"
-    type = "S"
-  }
-
-  attribute {
-    name = "blobHash"
-    type = "S"
-  }
-
-  global_secondary_index {
-    name            = "blobHash-index"
-    hash_key        = "blobHash"
-    projection_type = "ALL"
-  }
-}
-
 resource "aws_dynamodb_table" "blob-service-blobs" {
   name         = "blob-service-blobs"
   hash_key     = "blob_hash"
@@ -257,10 +224,10 @@ resource "aws_dynamodb_table" "identity-reserved-usernames" {
 }
 
 resource "aws_dynamodb_table" "identity-one-time-keys" {
-  name           = "identity-one-time-keys"
-  hash_key       = "deviceID"
-  range_key      = "oneTimeKey"
-  billing_mode   = "PAY_PER_REQUEST"
+  name         = "identity-one-time-keys"
+  hash_key     = "deviceID"
+  range_key    = "oneTimeKey"
+  billing_mode = "PAY_PER_REQUEST"
 
   attribute {
     name = "deviceID"
