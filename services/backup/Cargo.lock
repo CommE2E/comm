@@ -955,6 +955,7 @@ dependencies = [
  "aws-sdk-dynamodb",
  "aws-types",
  "base64 0.21.2",
+ "bytes",
  "chrono",
  "derive_more",
  "futures-core",
