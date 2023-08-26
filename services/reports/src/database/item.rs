@@ -213,6 +213,19 @@ impl ReportContent {
   ) -> Result<(), BlobServiceError> {
     todo!()
   }
+
+  /// Fetches report content bytes
+  pub async fn fetch_bytes(
+    self,
+    blob_client: &BlobServiceClient,
+  ) -> Result<Vec<u8>, BlobServiceError> {
+    match self {
+      ReportContent::Database(data) => Ok(data),
+      ReportContent::Blob(BlobInfo { blob_hash, .. }) => {
+        todo!()
+      }
+    }
+  }
 }
 
 // DB conversions for report types
