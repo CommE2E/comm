@@ -11,6 +11,8 @@ use crate::config::CONFIG;
 use crate::constants::REQUEST_BODY_JSON_SIZE_LIMIT;
 use crate::service::{ReportsService, ReportsServiceError};
 
+mod handlers;
+
 pub async fn run_http_server(service: ReportsService) -> Result<()> {
   use actix_web::middleware::{Logger, NormalizePath};
   use comm_services_lib::http::cors_config;
@@ -32,6 +34,7 @@ pub async fn run_http_server(service: ReportsService) -> Result<()> {
       .wrap(cors_config(CONFIG.is_dev()))
       // Health endpoint for load balancers checks
       .route("/health", web::get().to(HttpResponse::Ok))
+      .service(handlers::post_reports)
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
   .run()
