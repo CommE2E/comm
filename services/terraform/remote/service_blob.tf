@@ -2,9 +2,7 @@ locals {
   blob_service_image_tag           = local.is_staging ? "latest" : "0.2.0"
   blob_service_container_name      = "blob-service-server"
   blob_service_server_image        = "commapp/blob-server:${local.blob_service_image_tag}"
-  blob_service_container_http_port = 51001
-  blob_service_container_grpc_port = 50051
-  blob_service_grpc_public_port    = 50053
+  blob_service_container_http_port = 50053
   blob_service_domain_name         = "blob.${local.root_domain}"
   blob_service_s3_bucket           = "commapp-blob${local.s3_bucket_name_suffix}"
 }
@@ -22,12 +20,6 @@ resource "aws_ecs_task_definition" "blob_service" {
           containerPort = local.blob_service_container_http_port
           protocol      = "tcp"
           appProtocol   = "http"
-        },
-        {
-          name          = "blob-service-ecs-grpc"
-          containerPort = local.blob_service_container_grpc_port
-          protocol      = "tcp"
-          appProtocol   = "grpc"
         }
       ]
       environment = [
@@ -84,13 +76,6 @@ resource "aws_ecs_service" "blob_service" {
     container_port   = local.blob_service_container_http_port
   }
 
-  # gRPC
-  load_balancer {
-    target_group_arn = aws_lb_target_group.blob_service_grpc.arn
-    container_name   = local.blob_service_container_name
-    container_port   = local.blob_service_container_grpc_port
-  }
-
   deployment_circuit_breaker {
     enable   = true
     rollback = true
@@ -108,14 +93,6 @@ resource "aws_security_group" "blob_service" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "HTTP port"
-  }
-
-  ingress {
-    from_port   = local.blob_service_container_grpc_port
-    to_port     = local.blob_service_container_grpc_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "gRPC port"
   }
 
   # Allow all outbound traffic
@@ -148,23 +125,6 @@ resource "aws_lb_target_group" "blob_service_http" {
     protocol = "HTTP"
     path     = "/health"
     matcher  = "200-499"
-  }
-}
-
-resource "aws_lb_target_group" "blob_service_grpc" {
-  name             = "blob-service-ecs-grpc-tg"
-  port             = local.blob_service_container_grpc_port
-  protocol         = "HTTP"
-  protocol_version = "GRPC"
-  vpc_id           = aws_vpc.default.id
-
-  # The "bridge" network mode requires target type set to instance
-  target_type = "instance"
-
-  health_check {
-    enabled             = true
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
   }
 }
 
@@ -217,24 +177,6 @@ resource "aws_lb_listener" "blob_service_https" {
 
     # Target group cannot be destroyed if it is used
     replace_triggered_by = [aws_lb_target_group.blob_service_http]
-  }
-}
-
-resource "aws_lb_listener" "blob_service_grpc" {
-  load_balancer_arn = aws_lb.blob_service.arn
-  port              = local.blob_service_grpc_public_port
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = data.aws_acm_certificate.blob_service.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.blob_service_grpc.arn
-  }
-
-  lifecycle {
-    # Target group cannot be destroyed if it is used
-    replace_triggered_by = [aws_lb_target_group.blob_service_grpc]
   }
 }
 
