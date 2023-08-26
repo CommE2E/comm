@@ -37,7 +37,8 @@ pub async fn run_http_server(service: ReportsService) -> Result<()> {
       .service(
         web::scope("/reports")
           .service(handlers::post_reports)
-          .service(handlers::get_single_report),
+          .service(handlers::get_single_report)
+          .service(handlers::redux_devtools_import),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
