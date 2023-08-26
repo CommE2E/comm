@@ -5,12 +5,15 @@ use comm_services_lib::{
   database,
 };
 use derive_more::{Display, Error, From};
-use std::future::{ready, Ready};
+use std::{
+  collections::HashMap,
+  future::{ready, Ready},
+};
 use tracing::error;
 
 use crate::{
   database::{client::DatabaseClient, item::ReportItem},
-  report_types::{ReportID, ReportInput, ReportOutput},
+  report_types::{ReportID, ReportInput, ReportOutput, ReportType},
 };
 
 #[derive(Debug, Display, Error, From)]
@@ -125,6 +128,22 @@ impl ReportsService {
     };
     Ok(Some(output))
   }
+
+  pub async fn get_redux_devtools_import(
+    &self,
+    report_id: ReportID,
+  ) -> ServiceResult<Option<serde_json::Value>> {
+    let Some(report) = self.get_report(report_id).await? else {
+      return Ok(None);
+    };
+    if !matches!(report.report_type, ReportType::ErrorReport) {
+      return Err(ReportsServiceError::UnsupportedReportType);
+    };
+
+    let redux_devtools_payload = prepare_redux_devtools_import(report.content)
+      .map_err(ReportsServiceError::SerdeError)?;
+    Ok(Some(redux_devtools_payload))
+  }
 }
 
 impl FromRequest for ReportsService {
@@ -159,4 +178,30 @@ impl FromRequest for ReportsService {
 
     ready(Ok(auth_service))
   }
+}
+
+/// Transforms report content JSON into format that can be
+/// imported into Redux DevTools.
+fn prepare_redux_devtools_import(
+  mut error_report: HashMap<String, serde_json::Value>,
+) -> Result<serde_json::Value, serde_json::Error> {
+  use serde_json::{json, map::Map, Value};
+
+  let nav_state = error_report.remove("navState");
+  let actions = error_report.remove("actions");
+  let mut preloaded_state = error_report
+    .remove("preloadedState")
+    .unwrap_or_else(|| Value::Object(Map::new()));
+
+  preloaded_state["navState"] = nav_state.into();
+  preloaded_state["frozen"] = true.into();
+  preloaded_state["_persist"]["rehydrated"] = false.into();
+
+  let preload_state_str = serde_json::to_string(&preloaded_state)?;
+  let payload_str = serde_json::to_string(&actions)?;
+
+  Ok(json!({
+    "preloadedState": preload_state_str,
+    "payload": payload_str,
+  }))
 }

@@ -1,4 +1,5 @@
 use actix_web::{get, post, web, HttpResponse};
+use http::header;
 use serde::Deserialize;
 
 use super::NotFoundHandler;
@@ -47,5 +48,25 @@ async fn get_single_report(
     .await?
     .unwrap_or_404()?;
   let response = HttpResponse::Ok().json(report);
+  Ok(response)
+}
+
+#[get("/{report_id}/redux-devtools.json")]
+async fn redux_devtools_import(
+  path: web::Path<String>,
+  service: ReportsService,
+) -> actix_web::Result<HttpResponse> {
+  let report_id = path.into_inner();
+  let devtools_json = service
+    .get_redux_devtools_import(report_id.clone().into())
+    .await?
+    .unwrap_or_404()?;
+
+  let response = HttpResponse::Ok()
+    .insert_header((
+      header::CONTENT_DISPOSITION,
+      format!("attachment; filename=report-{}.json", report_id),
+    ))
+    .json(devtools_json);
   Ok(response)
 }
