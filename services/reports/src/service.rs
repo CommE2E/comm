@@ -10,7 +10,7 @@ use tracing::error;
 
 use crate::{
   database::{client::DatabaseClient, item::ReportItem},
-  report_types::{ReportID, ReportInput},
+  report_types::{ReportID, ReportInput, ReportOutput},
 };
 
 #[derive(Debug, Display, Error, From)]
@@ -93,6 +93,37 @@ impl ReportsService {
     let ids = items.iter().map(|item| item.id.clone()).collect();
     self.db.save_reports(items).await?;
     Ok(ids)
+  }
+
+  pub async fn get_report(
+    &self,
+    report_id: ReportID,
+  ) -> ServiceResult<Option<ReportOutput>> {
+    let Some(report_item) = self.db.get_report(&report_id).await? else {
+      return Ok(None);
+    };
+    let ReportItem {
+      user_id,
+      report_type,
+      platform,
+      creation_time,
+      content,
+      ..
+    } = report_item;
+
+    let report_data = content.fetch_bytes(&self.blob_client).await?;
+    let report_json = serde_json::from_slice(report_data.as_slice())
+      .map_err(ReportsServiceError::SerdeError)?;
+
+    let output = ReportOutput {
+      id: report_id,
+      user_id,
+      platform,
+      report_type,
+      creation_time,
+      content: report_json,
+    };
+    Ok(Some(output))
   }
 }
 
