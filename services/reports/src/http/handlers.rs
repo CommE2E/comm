@@ -37,6 +37,24 @@ async fn post_reports(
   Ok(response)
 }
 
+#[derive(Debug, Deserialize)]
+struct QueryOptions {
+  cursor: Option<String>,
+  // there can be more options here in the future
+  // e.g. filter by platform, report type, user, etc.
+}
+
+#[get("")]
+async fn query_reports(
+  query: web::Query<QueryOptions>,
+  service: ReportsService,
+) -> actix_web::Result<HttpResponse> {
+  let query = query.into_inner();
+  let page = service.list_reports(query.cursor).await?;
+  let response = HttpResponse::Ok().json(page);
+  Ok(response)
+}
+
 #[get("/{report_id}")]
 async fn get_single_report(
   path: web::Path<String>,
