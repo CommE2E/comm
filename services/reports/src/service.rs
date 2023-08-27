@@ -12,7 +12,10 @@ use std::{
 use tracing::error;
 
 use crate::{
-  database::{client::DatabaseClient, item::ReportItem},
+  database::{
+    client::{DatabaseClient, ReportsPage},
+    item::ReportItem,
+  },
   report_types::{ReportID, ReportInput, ReportOutput, ReportType},
 };
 
@@ -143,6 +146,14 @@ impl ReportsService {
     let redux_devtools_payload = prepare_redux_devtools_import(report.content)
       .map_err(ReportsServiceError::SerdeError)?;
     Ok(Some(redux_devtools_payload))
+  }
+
+  pub async fn list_reports(
+    &self,
+    cursor: Option<String>,
+  ) -> ServiceResult<ReportsPage> {
+    let page = self.db.scan_reports(cursor).await?;
+    Ok(page)
   }
 }
 
