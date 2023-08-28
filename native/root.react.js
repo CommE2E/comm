@@ -26,6 +26,7 @@ import { actionLogger } from 'lib/utils/action-logger.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
+import BackupHandler from './backup/backup-handler.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
@@ -240,6 +241,7 @@ function Root() {
       <ConnectivityUpdater />
       <ThemeHandler />
       <OrientationHandler />
+      <BackupHandler />
     </>
   );
   let navigation;
