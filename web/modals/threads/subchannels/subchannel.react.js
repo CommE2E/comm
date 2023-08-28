@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { type ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useMessagePreview } from 'lib/shared/message-utils.js';
+import { useThreadChatMentionCandidates } from 'lib/shared/thread-utils.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -50,11 +51,11 @@ function Subchannel(props: Props): React.Node {
     () => shortAbsoluteDate(lastUpdatedTimeIncludingSidebars),
     [lastUpdatedTimeIncludingSidebars],
   );
-
+  const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
   const messagePreviewResult = useMessagePreview(
     mostRecentMessageInfo,
     threadInfo,
-    getDefaultTextMessageRules().simpleMarkdownRules,
+    getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );
 
   const lastMessage = React.useMemo(() => {
