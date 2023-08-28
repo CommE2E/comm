@@ -10,4 +10,10 @@ function getBackupBytesFromBlob(blob: Blob): Uint8Array {
   return new Uint8Array(decodedBuffer);
 }
 
-export { getBackupBytesFromBlob };
+function convertObjToBytes<T>(obj: T): Uint8Array {
+  const objStr = JSON.stringify(obj);
+  const objBuffer = commUtilsModule.encodeStringToUTF8ArrayBuffer(objStr ?? '');
+  return new Uint8Array(objBuffer);
+}
+
+export { getBackupBytesFromBlob, convertObjToBytes };
