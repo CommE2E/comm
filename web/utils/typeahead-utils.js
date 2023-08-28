@@ -4,10 +4,13 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
-import { getNewTextAndSelection } from 'lib/shared/mention-utils.js';
+import {
+  getNewTextAndSelection,
+  type MentionTypeaheadSuggestionItem,
+  type TypeaheadTooltipActionItem,
+} from 'lib/shared/mention-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
 import UserAvatar from '../avatars/user-avatar.react.js';
 import { typeaheadStyle } from '../chat/chat-constants.js';
@@ -17,12 +20,6 @@ import Button from '../components/button.react.js';
 const webMentionTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
-
-export type TypeaheadTooltipAction = {
-  +key: string,
-  +execute: () => mixed,
-  +actionButtonContent: { +userID: string, +username: string },
-};
 
 export type TooltipPosition = {
   +top: number,
@@ -76,55 +73,67 @@ function getCaretOffsets(
     caretLeftOffset,
   };
 }
-export type GetTypeaheadTooltipActionsParams = {
+export type GetTypeaheadTooltipActionsParams<SuggestionItemType> = {
   +inputStateDraft: string,
   +inputStateSetDraft: (draft: string) => mixed,
   +inputStateSetTextCursorPosition: (newPosition: number) => mixed,
-  +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  +suggestions: $ReadOnlyArray<SuggestionItemType>,
   +textBeforeAtSymbol: string,
   +textPrefix: string,
 };
 
-function getTypeaheadTooltipActions(
-  params: GetTypeaheadTooltipActionsParams,
-): $ReadOnlyArray<TypeaheadTooltipAction> {
+function getMentionTypeaheadTooltipActions(
+  params: GetTypeaheadTooltipActionsParams<MentionTypeaheadSuggestionItem>,
+): $ReadOnlyArray<TypeaheadTooltipActionItem<MentionTypeaheadSuggestionItem>> {
   const {
     inputStateDraft,
     inputStateSetDraft,
     inputStateSetTextCursorPosition,
-    suggestedUsers,
+    suggestions,
     textBeforeAtSymbol,
     textPrefix,
   } = params;
-  return suggestedUsers
-    .filter(
-      suggestedUser => stringForUserExplicit(suggestedUser) !== 'anonymous',
-    )
-    .map(suggestedUser => ({
-      key: suggestedUser.id,
-      execute: () => {
-        const { newText, newSelectionStart } = getNewTextAndSelection(
-          textBeforeAtSymbol,
-          inputStateDraft,
-          textPrefix,
-          stringForUserExplicit(suggestedUser),
-        );
+  const actions = [];
+  for (const suggestion of suggestions) {
+    if (suggestion.type === 'user') {
+      const suggestedUser = suggestion.userInfo;
+      if (stringForUserExplicit(suggestedUser) === 'anonymous') {
+        continue;
+      }
+      const mentionText = `@${stringForUserExplicit(suggestedUser)}`;
+      actions.push({
+        key: suggestedUser.id,
+        execute: () => {
+          const { newText, newSelectionStart } = getNewTextAndSelection(
+            textBeforeAtSymbol,
+            inputStateDraft,
+            textPrefix,
+            mentionText,
+          );
 
-        inputStateSetDraft(newText);
-        inputStateSetTextCursorPosition(newSelectionStart);
-      },
-      actionButtonContent: {
-        userID: suggestedUser.id,
-        username: stringForUserExplicit(suggestedUser),
-      },
-    }));
+          inputStateSetDraft(newText);
+          inputStateSetTextCursorPosition(newSelectionStart);
+        },
+        actionButtonContent: {
+          type: 'user',
+          userInfo: suggestedUser,
+        },
+      });
+    }
+  }
+  return actions;
 }
 
-function getTypeaheadTooltipButtons(
-  setChosenPositionInOverlay: SetState<number>,
-  chosenPositionInOverlay: number,
-  actions: $ReadOnlyArray<TypeaheadTooltipAction>,
+export type GetMentionTypeaheadTooltipButtonsParams<SuggestionItemType> = {
+  +setChosenPositionInOverlay: SetState<number>,
+  +chosenPositionInOverlay: number,
+  +actions: $ReadOnlyArray<TypeaheadTooltipActionItem<SuggestionItemType>>,
+};
+function getMentionTypeaheadTooltipButtons(
+  params: GetMentionTypeaheadTooltipButtonsParams<MentionTypeaheadSuggestionItem>,
 ): $ReadOnlyArray<React.Node> {
+  const { setChosenPositionInOverlay, chosenPositionInOverlay, actions } =
+    params;
   return actions.map((action, idx) => {
     const { key, execute, actionButtonContent } = action;
     const buttonClasses = classNames(css.suggestion, {
@@ -137,6 +146,16 @@ function getTypeaheadTooltipButtons(
       setChosenPositionInOverlay(idx);
     };
 
+    let avatarComponent = null;
+    let typeaheadButtonText = null;
+    if (actionButtonContent.type === 'user') {
+      const suggestedUser = actionButtonContent.userInfo;
+      avatarComponent = (
+        <UserAvatar size="small" userID={actionButtonContent.userInfo.id} />
+      );
+      typeaheadButtonText = `@${stringForUserExplicit(suggestedUser)}`;
+    }
+
     return (
       <Button
         key={key}
@@ -144,8 +163,8 @@ function getTypeaheadTooltipButtons(
         onMouseMove={onMouseMove}
         className={buttonClasses}
       >
-        <UserAvatar size="small" userID={actionButtonContent.userID} />
-        <span className={css.username}>@{actionButtonContent.username}</span>
+        {avatarComponent}
+        <span className={css.username}>{typeaheadButtonText}</span>
       </Button>
     );
   });
@@ -208,8 +227,8 @@ function getTypeaheadTooltipPosition(
 export {
   webMentionTypeaheadRegex,
   getCaretOffsets,
-  getTypeaheadTooltipActions,
-  getTypeaheadTooltipButtons,
+  getMentionTypeaheadTooltipActions,
+  getMentionTypeaheadTooltipButtons,
   getTypeaheadOverlayScroll,
   getTypeaheadTooltipPosition,
 };
