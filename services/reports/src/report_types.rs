@@ -41,6 +41,23 @@ pub enum ReportType {
   UserInconsistency = 4,
 }
 
+impl ReportType {
+  pub fn is_error(&self) -> bool {
+    matches!(self, Self::ErrorReport)
+  }
+  pub fn is_media_mission(&self) -> bool {
+    matches!(self, Self::MediaMission)
+  }
+  pub fn is_inconsistency(&self) -> bool {
+    matches!(
+      self,
+      ReportType::ThreadInconsistency
+        | ReportType::EntryInconsistency
+        | ReportType::UserInconsistency
+    )
+  }
+}
+
 /// Report platform
 #[derive(Clone, Debug, Serialize, Deserialize, Display)]
 #[serde(rename_all = "lowercase")]
@@ -56,8 +73,8 @@ pub enum ReportPlatform {
 #[serde(rename_all = "camelCase")]
 pub struct PlatformDetails {
   pub platform: ReportPlatform,
-  code_version: Option<u16>,
-  state_version: Option<u16>,
+  pub code_version: Option<u16>,
+  pub state_version: Option<u16>,
 }
 
 /// Input report payload - this is the JSON we receive from clients

@@ -9,7 +9,7 @@ const DEFAULT_CONFIG_PATH: &str = "./email-config.json";
 #[derive(Clone, Debug, Hash, Eq, PartialEq, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum MailingGroup {
-  ErrorsReports,
+  ErrorReports,
   InconsistencyReports,
   MediaReports,
 }
@@ -18,7 +18,7 @@ impl From<&ReportType> for MailingGroup {
   fn from(value: &ReportType) -> Self {
     use ReportType::*;
     match value {
-      ErrorReport => Self::ErrorsReports,
+      ErrorReport => Self::ErrorReports,
       MediaMission => Self::MediaReports,
       ThreadInconsistency | EntryInconsistency | UserInconsistency => {
         Self::InconsistencyReports
@@ -37,7 +37,7 @@ pub struct EmailConfig {
   pub postmark_token: String,
   /// E-mail that is used as a sender
   pub sender_email: String,
-  /// Receiver e-mails for report types
+  /// Recipient e-mails for report types
   pub mailing_groups: HashMap<MailingGroup, String>,
 }
 
@@ -110,6 +110,21 @@ mod tests {
     sender_email: "foo@bar.com".to_string(),
     mailing_groups: HashMap::new(),
   });
+
+  #[test]
+  fn parse_args_disabled() {
+    // should return none when config exists but is disabled
+    let mut args = EmailArgs {
+      config_content: Some(EXAMPLE_CFG.clone()),
+      config_file: None,
+    };
+    let cfg = args.parse().expect("failed to parse");
+    assert!(cfg.is_some());
+
+    args.config_content.as_mut().unwrap().disabled = true;
+    let cfg = args.parse().expect("failed to parse");
+    assert!(cfg.is_none());
+  }
 
   #[test]
   fn parse_args_priority() {
