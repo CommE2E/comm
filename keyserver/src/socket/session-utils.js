@@ -409,19 +409,15 @@ async function checkState(
       invalidKeys.has(spec.hashKey),
     ]),
   );
-  const threadIDsToFetch = new Set(),
-    entryIDsToFetch = new Set(),
-    userIDsToFetch = new Set();
+  const idsToFetch = Object.fromEntries(
+    values(serverStateSyncSpecs)
+      .filter(spec => spec.innerHashKey)
+      .map(spec => [spec.innerHashKey, new Set()]),
+  );
   for (const key of invalidKeys) {
-    if (key.startsWith('threadInfo|')) {
-      const [, threadID] = key.split('|');
-      threadIDsToFetch.add(threadID);
-    } else if (key.startsWith('entryInfo|')) {
-      const [, entryID] = key.split('|');
-      entryIDsToFetch.add(entryID);
-    } else if (key.startsWith('userInfo|')) {
-      const [, userID] = key.split('|');
-      userIDsToFetch.add(userID);
+    const [innerHashKey, id] = key.split('|');
+    if (innerHashKey && id) {
+      idsToFetch[innerHashKey]?.add(id);
     }
   }
 
@@ -431,11 +427,11 @@ async function checkState(
       viewer,
       query,
     );
-  } else if (threadIDsToFetch.size > 0) {
+  } else if (idsToFetch[serverStateSyncSpecs.threads.innerHashKey]?.size > 0) {
     fetchPromises.threadInfos = serverStateSyncSpecs.threads.fetch(
       viewer,
       query,
-      threadIDsToFetch,
+      idsToFetch[serverStateSyncSpecs.threads.innerHashKey],
     );
   }
   if (shouldFetchAll[serverStateSyncSpecs.entries.hashKey]) {
@@ -443,20 +439,20 @@ async function checkState(
       viewer,
       query,
     );
-  } else if (entryIDsToFetch.size > 0) {
+  } else if (idsToFetch[serverStateSyncSpecs.entries.innerHashKey]?.size > 0) {
     fetchPromises.entryInfos = serverStateSyncSpecs.entries.fetch(
       viewer,
       query,
-      entryIDsToFetch,
+      idsToFetch[serverStateSyncSpecs.entries.innerHashKey],
     );
   }
   if (shouldFetchAll[serverStateSyncSpecs.users.hashKey]) {
     fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(viewer, query);
-  } else if (userIDsToFetch.size > 0) {
+  } else if (idsToFetch[serverStateSyncSpecs.users.innerHashKey]?.size > 0) {
     fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(
       viewer,
       query,
-      userIDsToFetch,
+      idsToFetch[serverStateSyncSpecs.users.innerHashKey],
     );
   }
   if (shouldFetchAll[serverStateSyncSpecs.currentUser.hashKey]) {
