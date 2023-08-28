@@ -11,6 +11,7 @@ import NavFromReduxHandler from './nav-from-redux-handler.react.js';
 import { useIsAppLoggedIn } from './nav-selectors.js';
 import { NavContext, type NavAction } from './navigation-context.js';
 import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react.js';
+import QRCodeLinkHandler from './qr-code-link-handler.react.js';
 import ThreadScreenTracker from './thread-screen-tracker.react.js';
 import DevTools from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -43,6 +44,7 @@ const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
         <ThreadScreenTracker />
         <ModalPruner navContext={navContext} />
         <PolicyAcknowledgmentHandler />
+        <QRCodeLinkHandler />
         {devTools}
       </>
     );
