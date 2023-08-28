@@ -1,7 +1,7 @@
-use maud::{html, Markup, Render};
+use maud::{html, Markup, PreEscaped, Render};
 use tracing::error;
 
-use crate::{config::SERVICE_PUBLIC_URL, report_types::*};
+use crate::{config::SERVICE_PUBLIC_URL, report_types::*, report_utils};
 
 mod html_layout;
 
@@ -65,6 +65,10 @@ fn message_body_for_report(
       li { "Time:      " b { (time) } }
       li { "Report ID: " b { (report_id) } }
     }
+
+    @if report.report_type.is_inconsistency() {
+      (inconsistency_details(report))
+    }
     (further_actions(report_id, report.report_type.is_error()))
     (display_contents(report, report_id))
   }
@@ -105,6 +109,39 @@ fn media_mission_status(report: &ReportInput) -> &str {
     .and_then(|obj| obj["result"]["success"].as_bool())
     .map(|success| if success { "success" } else { "failed" })
     .unwrap_or("completed")
+}
+
+fn inconsistency_details(report: &ReportInput) -> Markup {
+  let (subjects, ids) = match report.report_type {
+    ReportType::ThreadInconsistency => (
+      "Thread IDs",
+      report_utils::inconsistent_thread_ids(&report.report_content),
+    ),
+    ReportType::UserInconsistency => (
+      "User IDs",
+      report_utils::inconsistent_user_ids(&report.report_content),
+    ),
+    ReportType::EntryInconsistency => (
+      "Entries",
+      report_utils::inconsistent_entry_ids(&report.report_content),
+    ),
+    _ => return html!(),
+  };
+
+  let formatted_ids = if ids.is_empty() {
+    html! { em { "[None found]" } }.into_string()
+  } else {
+    ids
+      .into_iter()
+      .map(|id| html! { code { (id) } }.into_string())
+      .collect::<Vec<_>>()
+      .join(", ")
+  };
+
+  html! {
+    h3 { "Inconsistency details" }
+    p { (subjects) " that are inconsistent: " (PreEscaped(formatted_ids))}
+  }
 }
 
 fn further_actions(
