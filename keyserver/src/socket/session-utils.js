@@ -435,39 +435,26 @@ async function checkState(
   }
   const fetchedData = await promiseAll(fetchPromises);
 
+  const specPerHashKey = Object.fromEntries(
+    values(serverStateSyncSpecs).map(spec => [spec.hashKey, spec]),
+  );
   const hashesToCheck = {},
     failUnmentioned = {},
     stateChanges = {};
   for (const key of invalidKeys) {
-    if (key === 'threadInfos') {
-      // Instead of returning all threadInfos, we want to narrow down and figure
-      // out which threadInfos don't match first
-      const threadInfos = fetchedData[serverStateSyncSpecs.threads.hashKey];
-      for (const threadID in threadInfos) {
-        hashesToCheck[`threadInfo|${threadID}`] = hash(threadInfos[threadID]);
+    const spec = specPerHashKey[key];
+    const innerHashKey = spec?.innerHashKey;
+    const isTopLevelKey = !!spec;
+    if (isTopLevelKey && innerHashKey) {
+      // Instead of returning all the infos, we want to narrow down and figure
+      // out which infos don't match first
+      const infos = fetchedData[key];
+      for (const infoID in infos) {
+        hashesToCheck[`${innerHashKey}|${infoID}`] = hash(infos[infoID]);
       }
-      failUnmentioned.threadInfos = true;
-    } else if (key === 'entryInfos') {
-      // Instead of returning all entryInfos, we want to narrow down and figure
-      // out which entryInfos don't match first
-      const entryInfos = fetchedData[serverStateSyncSpecs.entries.hashKey];
-      for (const entryID in entryInfos) {
-        const entryInfo = entryInfos[entryID];
-        invariant(entryInfo, 'should be set');
-        hashesToCheck[`entryInfo|${entryID}`] = hash(entryInfo);
-      }
-      failUnmentioned.entryInfos = true;
-    } else if (key === 'userInfos') {
-      // Instead of returning all userInfos, we want to narrow down and figure
-      // out which userInfos don't match first
-      const userInfos = fetchedData[serverStateSyncSpecs.users.hashKey];
-      for (const userID in userInfos) {
-        hashesToCheck[`userInfo|${userID}`] = hash(userInfos[userID]);
-      }
-      failUnmentioned.userInfos = true;
-    } else if (key === 'currentUserInfo') {
-      stateChanges.currentUserInfo =
-        fetchedData[serverStateSyncSpecs.currentUser.hashKey];
+      failUnmentioned[key] = true;
+    } else if (isTopLevelKey) {
+      stateChanges[key] = fetchedData[key];
     } else if (key.startsWith('threadInfo|')) {
       const [, threadID] = key.split('|');
       const threadInfos = fetchedData[serverStateSyncSpecs.threads.hashKey];
