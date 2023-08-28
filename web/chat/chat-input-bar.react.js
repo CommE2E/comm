@@ -602,7 +602,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
           ? {
               textBeforeAtSymbol:
                 typeaheadRegexMatches.groups?.textPrefix ?? '',
-              usernamePrefix: typeaheadRegexMatches.groups?.username ?? '',
+              textPrefix: typeaheadRegexMatches.groups?.username ?? '',
             }
           : null,
       [typeaheadRegexMatches],
@@ -630,7 +630,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
           userSearchIndex,
           props.inputState.typeaheadState.frozenMentionsCandidates,
           viewerID,
-          typeaheadMatchedStrings.usernamePrefix,
+          typeaheadMatchedStrings.textPrefix,
         );
       }, [
         userSearchIndex,

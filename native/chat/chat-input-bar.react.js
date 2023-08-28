@@ -552,14 +552,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (typeaheadRegexMatches && !isEditMode) {
       const typeaheadMatchedStrings = {
         textBeforeAtSymbol: typeaheadRegexMatches[1] ?? '',
-        usernamePrefix: typeaheadRegexMatches[4] ?? '',
+        textPrefix: typeaheadRegexMatches[4] ?? '',
       };
 
       const suggestedUsers = getTypeaheadUserSuggestions(
         this.props.userSearchIndex,
         this.props.mentionsCandidates,
         this.props.viewerID,
-        typeaheadMatchedStrings.usernamePrefix,
+        typeaheadMatchedStrings.textPrefix,
       );
 
       if (suggestedUsers.length > 0) {
