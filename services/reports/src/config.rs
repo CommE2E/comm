@@ -1,10 +1,12 @@
 use anyhow::Result;
 use clap::Parser;
 use comm_services_lib::blob::client::Url;
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use tracing::info;
 
-// environment variabl names
+use crate::email::config::{EmailArgs, EmailConfig};
+
+// environment variable names
 const ENV_LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
 const ENV_BLOB_SERVICE_URL: &str = "BLOB_SERVICE_URL";
 
@@ -21,11 +23,27 @@ pub struct AppConfig {
   #[arg(env = ENV_LOCALSTACK_ENDPOINT)]
   #[arg(long)]
   localstack_endpoint: Option<String>,
+
+  /// This config shouldn't be used directly.
+  /// Use [`AppConfig::email_config()`] instead.
+  #[clap(skip)]
+  email_config: OnceCell<Option<EmailConfig>>,
+  /// used for parsing purposes only
+  #[command(flatten)]
+  email_args: EmailArgs,
 }
 
 impl AppConfig {
   pub fn is_dev(&self) -> bool {
     self.localstack_endpoint.is_some()
+  }
+
+  pub fn emails_enabled(&self) -> bool {
+    self.email_config().is_some()
+  }
+
+  pub fn email_config(&self) -> Option<&EmailConfig> {
+    self.email_config.get().and_then(Option::as_ref)
   }
 }
 
@@ -37,7 +55,14 @@ pub static CONFIG: Lazy<AppConfig> = Lazy::new(AppConfig::parse);
 /// Should be called at the beginning of the `main()` function.
 pub(super) fn parse_cmdline_args() -> Result<&'static AppConfig> {
   // force evaluation of the lazy initialized config
-  Ok(Lazy::force(&CONFIG))
+  let cfg = Lazy::force(&CONFIG);
+
+  // initialize e-mail config
+  cfg
+    .email_config
+    .get_or_try_init(|| cfg.email_args.parse())?;
+
+  Ok(cfg)
 }
 
 /// Provides region/credentials configuration for AWS SDKs
