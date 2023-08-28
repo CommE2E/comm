@@ -1,8 +1,11 @@
 use maud::{html, Markup, Render};
+use tracing::error;
 
-use crate::report_types::*;
+use crate::{config::SERVICE_PUBLIC_URL, report_types::*};
 
 mod html_layout;
+
+const MAX_JSON_LINES: usize = 100;
 
 pub fn render_email_for_report(
   report_input: &ReportInput,
@@ -62,6 +65,8 @@ fn message_body_for_report(
       li { "Time:      " b { (time) } }
       li { "Report ID: " b { (report_id) } }
     }
+    (further_actions(report_id, report.report_type.is_error()))
+    (display_contents(report, report_id))
   }
 }
 
@@ -100,6 +105,52 @@ fn media_mission_status(report: &ReportInput) -> &str {
     .and_then(|obj| obj["result"]["success"].as_bool())
     .map(|success| if success { "success" } else { "failed" })
     .unwrap_or("completed")
+}
+
+fn further_actions(
+  report_id: &ReportID,
+  display_download_link: bool,
+) -> Markup {
+  html! {
+    h3 { "Further actions" }
+    ul {
+      li { a href=(report_link(report_id)) { "Open raw report JSON" } }
+      @if display_download_link {
+        li { a href={ (report_link(report_id)) "/redux-devtools.json" } { "Redux Devtools import" } }
+      }
+    }
+  }
+}
+
+fn display_contents(report: &ReportInput, report_id: &ReportID) -> Markup {
+  let pretty = match serde_json::to_string_pretty(&report.report_content) {
+    Ok(string) => string,
+    Err(err) => {
+      error!("Failed to render report JSON: {err}");
+      return html! { pre { "ERROR: Failed to render JSON" } };
+    }
+  };
+
+  let content: String = pretty
+    .split('\n')
+    .take(MAX_JSON_LINES)
+    .collect::<Vec<&str>>()
+    .join("\n");
+
+  html! {
+    h3 { "Report contents" }
+    em {
+      "The content is truncated to " (MAX_JSON_LINES) " lines. To view more, "
+      a href=(report_link(report_id)) { "open full report" }
+      "."
+    }
+    pre { (content) }
+  }
+}
+
+fn report_link(id: &ReportID) -> String {
+  let base_url = SERVICE_PUBLIC_URL.as_str();
+  format!("{base_url}/reports/{}", id.as_str())
 }
 
 impl Render for PlatformDetails {
