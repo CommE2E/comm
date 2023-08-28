@@ -13,6 +13,7 @@ import {
   createMessageInfo,
   modifyItemForResultScreen,
 } from 'lib/shared/message-utils.js';
+import { isComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -75,13 +76,11 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
       return [];
     }
 
-    const pinnedMessageIDs = new Set();
-    translatedMessageResults.forEach(item => pinnedMessageIDs.add(item.id));
-
     const chatMessageInfoItems = chatMessageInfos.filter(
       item =>
         item.itemType === 'message' &&
-        pinnedMessageIDs.has(item.messageInfo.id),
+        item.isPinned &&
+        isComposableMessageType(item.messageInfo.type),
     );
 
     // By the nature of using messageListData and passing in
@@ -106,7 +105,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
     }
 
     return sortedChatMessageInfoItems;
-  }, [translatedMessageResults, chatMessageInfos, rawMessageResults]);
+  }, [chatMessageInfos, rawMessageResults]);
 
   const modifiedItems = React.useMemo(
     () =>

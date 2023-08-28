@@ -8,6 +8,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { fetchPinnedMessages } from 'lib/actions/message-actions.js';
 import { messageListData } from 'lib/selectors/chat-selectors.js';
 import { createMessageInfo } from 'lib/shared/message-utils.js';
+import { isComposableMessageType } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
@@ -70,13 +71,11 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
       return [];
     }
 
-    const pinnedMessageIDs = new Set();
-    translatedMessageResults.forEach(item => pinnedMessageIDs.add(item.id));
-
     const chatMessageInfoItems = chatMessageInfos.filter(
       item =>
         item.itemType === 'message' &&
-        pinnedMessageIDs.has(item.messageInfo.id),
+        item.isPinned &&
+        isComposableMessageType(item.messageInfo.type),
     );
 
     // By the nature of using messageListData and passing in
@@ -101,7 +100,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     }
 
     return sortedChatMessageInfoItems.filter(Boolean);
-  }, [translatedMessageResults, chatMessageInfos, rawMessageResults]);
+  }, [chatMessageInfos, rawMessageResults]);
 
   const measureCallback = React.useCallback(
     (listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>) => {
