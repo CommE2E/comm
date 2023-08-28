@@ -54,4 +54,22 @@ async function uploadBackup(backup: BackupEncrypted, auth: BackupAuth) {
   }
 }
 
-export { uploadBackup };
+async function getBackupID(username: string): Promise<string> {
+  const getBackupIDEndpoint = backupService.httpEndpoints.GET_LATEST_BACKUP_ID;
+  const getBackupIDResponse = await fetch(
+    makeBackupServiceEndpointURL(getBackupIDEndpoint, { username }),
+    {
+      method: getBackupIDEndpoint.method,
+    },
+  );
+
+  if (!getBackupIDResponse.ok) {
+    const { status, statusText } = getBackupIDResponse;
+    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
+  }
+
+  const { backupID } = await getBackupIDResponse.json();
+  return backupID;
+}
+
+export { uploadBackup, getBackupID };
