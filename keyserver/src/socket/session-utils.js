@@ -422,44 +422,16 @@ async function checkState(
   }
 
   const fetchPromises = {};
-  if (shouldFetchAll[serverStateSyncSpecs.threads.hashKey]) {
-    fetchPromises.threadInfos = serverStateSyncSpecs.threads.fetch(
-      viewer,
-      query,
-    );
-  } else if (idsToFetch[serverStateSyncSpecs.threads.innerHashKey]?.size > 0) {
-    fetchPromises.threadInfos = serverStateSyncSpecs.threads.fetch(
-      viewer,
-      query,
-      idsToFetch[serverStateSyncSpecs.threads.innerHashKey],
-    );
-  }
-  if (shouldFetchAll[serverStateSyncSpecs.entries.hashKey]) {
-    fetchPromises.entryInfos = serverStateSyncSpecs.entries.fetch(
-      viewer,
-      query,
-    );
-  } else if (idsToFetch[serverStateSyncSpecs.entries.innerHashKey]?.size > 0) {
-    fetchPromises.entryInfos = serverStateSyncSpecs.entries.fetch(
-      viewer,
-      query,
-      idsToFetch[serverStateSyncSpecs.entries.innerHashKey],
-    );
-  }
-  if (shouldFetchAll[serverStateSyncSpecs.users.hashKey]) {
-    fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(viewer, query);
-  } else if (idsToFetch[serverStateSyncSpecs.users.innerHashKey]?.size > 0) {
-    fetchPromises.userInfos = serverStateSyncSpecs.users.fetch(
-      viewer,
-      query,
-      idsToFetch[serverStateSyncSpecs.users.innerHashKey],
-    );
-  }
-  if (shouldFetchAll[serverStateSyncSpecs.currentUser.hashKey]) {
-    fetchPromises.currentUserInfo = serverStateSyncSpecs.currentUser.fetch(
-      viewer,
-      query,
-    );
+  for (const spec of values(serverStateSyncSpecs)) {
+    if (shouldFetchAll[spec.hashKey]) {
+      fetchPromises[spec.hashKey] = spec.fetch(viewer, query);
+    } else if (idsToFetch[spec.innerHashKey]?.size > 0) {
+      fetchPromises[spec.hashKey] = spec.fetch(
+        viewer,
+        query,
+        idsToFetch[spec.innerHashKey],
+      );
+    }
   }
   const fetchedData = await promiseAll(fetchPromises);
 
@@ -470,7 +442,7 @@ async function checkState(
     if (key === 'threadInfos') {
       // Instead of returning all threadInfos, we want to narrow down and figure
       // out which threadInfos don't match first
-      const { threadInfos } = fetchedData;
+      const threadInfos = fetchedData[serverStateSyncSpecs.threads.hashKey];
       for (const threadID in threadInfos) {
         hashesToCheck[`threadInfo|${threadID}`] = hash(threadInfos[threadID]);
       }
@@ -478,7 +450,7 @@ async function checkState(
     } else if (key === 'entryInfos') {
       // Instead of returning all entryInfos, we want to narrow down and figure
       // out which entryInfos don't match first
-      const { entryInfos } = fetchedData;
+      const entryInfos = fetchedData[serverStateSyncSpecs.entries.hashKey];
       for (const entryID in entryInfos) {
         const entryInfo = entryInfos[entryID];
         invariant(entryInfo, 'should be set');
@@ -488,16 +460,17 @@ async function checkState(
     } else if (key === 'userInfos') {
       // Instead of returning all userInfos, we want to narrow down and figure
       // out which userInfos don't match first
-      const { userInfos } = fetchedData;
+      const userInfos = fetchedData[serverStateSyncSpecs.users.hashKey];
       for (const userID in userInfos) {
         hashesToCheck[`userInfo|${userID}`] = hash(userInfos[userID]);
       }
       failUnmentioned.userInfos = true;
     } else if (key === 'currentUserInfo') {
-      stateChanges.currentUserInfo = fetchedData.currentUserInfo;
+      stateChanges.currentUserInfo =
+        fetchedData[serverStateSyncSpecs.currentUser.hashKey];
     } else if (key.startsWith('threadInfo|')) {
       const [, threadID] = key.split('|');
-      const { threadInfos } = fetchedData;
+      const threadInfos = fetchedData[serverStateSyncSpecs.threads.hashKey];
       const threadInfo = threadInfos[threadID];
       if (!threadInfo) {
         if (!stateChanges.deleteThreadIDs) {
@@ -512,7 +485,8 @@ async function checkState(
       stateChanges.rawThreadInfos.push(threadInfo);
     } else if (key.startsWith('entryInfo|')) {
       const [, entryID] = key.split('|');
-      const entryInfo = fetchedData.entryInfos[entryID];
+      const entryInfos = fetchedData[serverStateSyncSpecs.entries.hashKey];
+      const entryInfo = entryInfos[entryID];
       if (!entryInfo) {
         if (!stateChanges.deleteEntryIDs) {
           stateChanges.deleteEntryIDs = [];
@@ -525,9 +499,9 @@ async function checkState(
       }
       stateChanges.rawEntryInfos.push(entryInfo);
     } else if (key.startsWith('userInfo|')) {
-      const { userInfos: fetchedUserInfos } = fetchedData;
       const [, userID] = key.split('|');
-      const userInfo = fetchedUserInfos[userID];
+      const userInfos = fetchedData[serverStateSyncSpecs.users.hashKey];
+      const userInfo = userInfos[userID];
       if (!userInfo || !userInfo.username) {
         if (!stateChanges.deleteUserInfoIDs) {
           stateChanges.deleteUserInfoIDs = [];
