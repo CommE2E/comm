@@ -8,6 +8,7 @@ import { makeBackupServiceEndpointURL } from 'lib/utils/backup-service.js';
 import { toBase64URL } from 'lib/utils/base64.js';
 
 import { commUtilsModule } from '../native-modules.js';
+import { arrayBufferFromBlob } from '../utils/blob-utils-module.js';
 
 function getBackupFormData(backup: BackupEncrypted): FormData {
   const { backupID, userKeys, userData } = backup;
@@ -54,4 +55,25 @@ async function uploadBackup(backup: BackupEncrypted, auth: BackupAuth) {
   }
 }
 
-export { uploadBackup };
+async function getBackupID(username: string): Promise<string> {
+  const getBackupIDEndpoint = backupService.httpEndpoints.GET_BACKUP_ID;
+  const getBackupIDResponse = await fetch(
+    makeBackupServiceEndpointURL(getBackupIDEndpoint, { username }),
+    {
+      method: getBackupIDEndpoint.method,
+    },
+  );
+
+  if (!getBackupIDResponse.ok) {
+    const { status, statusText } = getBackupIDResponse;
+    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
+  }
+
+  const blob = await getBackupIDResponse.blob();
+  const buffer = arrayBufferFromBlob(blob);
+  const backupIDJSON = commUtilsModule.decodeUTF8ArrayBufferToString(buffer);
+  const { backupID } = JSON.parse(backupIDJSON);
+  return backupID;
+}
+
+export { uploadBackup, getBackupID };
