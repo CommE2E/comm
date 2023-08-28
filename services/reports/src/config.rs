@@ -9,6 +9,16 @@ use crate::email::config::{EmailArgs, EmailConfig};
 // environment variable names
 const ENV_LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
 const ENV_BLOB_SERVICE_URL: &str = "BLOB_SERVICE_URL";
+const ENV_PUBLIC_URL: &str = "PUBLIC_URL";
+
+/// Base URL on which Reports service is accessible.
+/// Used for sending e-mail links.
+pub static SERVICE_PUBLIC_URL: Lazy<String> = Lazy::new(|| {
+  std::env::var(ENV_PUBLIC_URL)
+    .ok()
+    .filter(|s| !s.is_empty())
+    .unwrap_or_else(|| "http://localhost:50056".to_string())
+});
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
