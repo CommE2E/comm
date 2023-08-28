@@ -1,6 +1,7 @@
 pub mod config;
 pub mod constants;
 pub mod database;
+pub mod email;
 pub mod http;
 pub mod report_types;
 pub mod service;
