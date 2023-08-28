@@ -47,6 +47,16 @@ impl EmailConfig {
       .as_ref()
       .expect("FATAL. Postmark token not defined")
   }
+
+  pub fn recipient_for_report_type(
+    &self,
+    report_type: &ReportType,
+  ) -> Option<&str> {
+    self
+      .mailing_groups
+      .get(&report_type.into())
+      .map(String::as_str)
+  }
 }
 
 impl FromStr for EmailConfig {
