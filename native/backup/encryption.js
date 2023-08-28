@@ -1,9 +1,14 @@
 // @flow
 
 import { hexToUintArray } from 'lib/media/data-utils.js';
-import type { Backup, BackupEncrypted } from 'lib/types/backup-types.js';
+import type {
+  Backup,
+  BackupEncrypted,
+  UserData,
+  UserKeys,
+} from 'lib/types/backup-types.js';
 
-import { convertObjToBytes } from './conversion-utils.js';
+import { convertBytesToObj, convertObjToBytes } from './conversion-utils.js';
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
 import * as AES from '../utils/aes-crypto-module.js';
@@ -31,4 +36,27 @@ async function encryptBackup(backup: Backup): Promise<BackupEncrypted> {
   return { backupID, userKeys: ct1, userData: ct2 };
 }
 
-export { getBackupKey, encryptBackup };
+async function decryptUserKeys(
+  backupID: string,
+  userKeysBytes: ArrayBuffer,
+): Promise<UserKeys> {
+  const backupKey = await getBackupKey(backupID);
+  const decryptedUserKeys = AES.decrypt(
+    backupKey,
+    new Uint8Array(userKeysBytes),
+  );
+  return convertBytesToObj<UserKeys>(decryptedUserKeys);
+}
+
+async function decryptUserData(
+  backupDataKey: string,
+  userDataBytes: ArrayBuffer,
+): Promise<UserData> {
+  const decryptedUserData = AES.decrypt(
+    hexToUintArray(backupDataKey),
+    new Uint8Array(userDataBytes),
+  );
+  return convertBytesToObj<UserData>(decryptedUserData);
+}
+
+export { getBackupKey, encryptBackup, decryptUserKeys, decryptUserData };
