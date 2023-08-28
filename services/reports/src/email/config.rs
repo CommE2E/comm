@@ -41,6 +41,18 @@ pub struct EmailConfig {
   pub mailing_groups: HashMap<MailingGroup, String>,
 }
 
+impl EmailConfig {
+  pub fn recipient_for_report_type(
+    &self,
+    report_type: &ReportType,
+  ) -> Option<&str> {
+    self
+      .mailing_groups
+      .get(&report_type.into())
+      .map(String::as_str)
+  }
+}
+
 impl FromStr for EmailConfig {
   type Err = serde_json::Error;
   fn from_str(s: &str) -> Result<Self, Self::Err> {
