@@ -31,10 +31,11 @@ async fn main() -> Result<()> {
   configure_logging()?;
   let cfg = config::parse_cmdline_args()?;
   let aws_config = config::load_aws_config().await;
+  let email_config = cfg.email_config();
 
   let db = database::client::DatabaseClient::new(&aws_config);
   let blob_client = BlobServiceClient::new(cfg.blob_service_url.clone());
-  let service = ReportsService::new(db, blob_client);
+  let service = ReportsService::new(db, blob_client, email_config);
 
   crate::http::run_http_server(service).await
 }
