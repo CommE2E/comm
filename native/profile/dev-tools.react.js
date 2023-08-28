@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { entries } from 'lodash/object.js';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -8,9 +9,11 @@ import { useDispatch } from 'react-redux';
 
 import { urlPrefixSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
+import { useClientBackup } from '../backup/use-client-backup.js';
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { commCoreModule } from '../native-modules.js';
@@ -18,6 +21,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { CustomServerModalRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles, type Colors } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 import { wipeAndExit } from '../utils/crash-utils.js';
 import { checkForMissingNatDevHostname } from '../utils/dev-hostname.js';
 import { nodeServerOptions } from '../utils/url-utils.js';
@@ -42,6 +46,7 @@ type Props = {
   +colors: Colors,
   +styles: typeof unboundStyles,
   +dispatch: Dispatch,
+  +testRestore: () => Promise<void>,
 };
 class DevTools extends React.PureComponent<Props> {
   render() {
@@ -138,6 +143,18 @@ class DevTools extends React.PureComponent<Props> {
                 Wipe state and kill app
               </Text>
             </Button>
+            <View style={this.props.styles.hr} />
+            <Button
+              onPress={this.onPressTestRestore}
+              style={this.props.styles.row}
+              iosFormat="highlight"
+              iosHighlightUnderlayColor={underlay}
+              iosActiveOpacity={0.85}
+            >
+              <Text style={this.props.styles.redText}>
+                Test backup restore protocol
+              </Text>
+            </Button>
           </View>
           <Text style={this.props.styles.header}>SERVER</Text>
           <View style={this.props.styles.slightlyPaddedSection}>
@@ -158,6 +175,10 @@ class DevTools extends React.PureComponent<Props> {
 
   onPressWipe = async () => {
     await wipeAndExit();
+  };
+
+  onPressTestRestore = async () => {
+    await this.props.testRestore();
   };
 
   onSelectServer = (server: string) => {
@@ -242,6 +263,22 @@ const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const dispatch = useDispatch();
+    const userStore = useSelector(state => state.userStore);
+    const { restoreBackupProtocol } = useClientBackup();
+
+    const testRestore = React.useCallback(async () => {
+      let message;
+      try {
+        const result = await restoreBackupProtocol({ userStore });
+        message = entries(result)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join('\n');
+      } catch (e) {
+        console.error(`Backup uploading error: ${e}`);
+        message = `Backup restore error: ${String(getMessageForException(e))}`;
+      }
+      Alert.alert('Restore protocol result', message);
+    }, [restoreBackupProtocol, userStore]);
 
     return (
       <DevTools
@@ -251,6 +288,7 @@ const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         colors={colors}
         styles={styles}
         dispatch={dispatch}
+        testRestore={testRestore}
       />
     );
   },
