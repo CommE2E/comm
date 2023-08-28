@@ -16,4 +16,9 @@ function convertObjToBytes<T>(obj: T): Uint8Array {
   return new Uint8Array(objBuffer);
 }
 
-export { getBackupBytesFromBlob, convertObjToBytes };
+function convertBytesToObj<T>(bytes: Uint8Array): T {
+  const str = commUtilsModule.decodeUTF8ArrayBufferToString(bytes.buffer);
+  return JSON.parse(str);
+}
+
+export { getBackupBytesFromBlob, convertObjToBytes, convertBytesToObj };
