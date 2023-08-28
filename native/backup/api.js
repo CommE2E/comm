@@ -103,4 +103,30 @@ async function getUserKeysAuth(
   return getBackupBytesFromBlob(blob);
 }
 
-export { uploadBackup, getBackupID, getUserKeysAuth };
+async function getUserData(
+  backupID: string,
+  auth: BackupAuth,
+): Promise<Uint8Array> {
+  const authHeader = getBackupAuthorizationHeader(auth);
+
+  const getUserDataEndpoint = backupService.httpEndpoints.GET_USER_DATA;
+  const getUserDataResponse = await fetch(
+    makeBackupServiceEndpointURL(getUserDataEndpoint, { backupID }),
+    {
+      method: getUserDataEndpoint.method,
+      headers: {
+        Authorization: authHeader,
+      },
+    },
+  );
+
+  if (!getUserDataResponse.ok) {
+    const { status, statusText } = getUserDataResponse;
+    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
+  }
+
+  const blob = await getUserDataResponse.blob();
+  return getBackupBytesFromBlob(blob);
+}
+
+export { uploadBackup, getBackupID, getUserKeysAuth, getUserData };
