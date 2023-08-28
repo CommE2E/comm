@@ -4,6 +4,7 @@ pub mod database;
 pub mod email;
 pub mod http;
 pub mod report_types;
+pub mod report_utils;
 pub mod service;
 
 use anyhow::Result;
