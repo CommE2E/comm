@@ -11,4 +11,5 @@ export type StateSyncSpec<Infos> = {
     ids?: $ReadOnlySet<string>,
   ) => Promise<Infos>,
   +hashKey: string,
+  +innerHashKey?: string,
 };
