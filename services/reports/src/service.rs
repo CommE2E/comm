@@ -8,6 +8,7 @@ use derive_more::{Display, Error, From};
 use std::{
   collections::HashMap,
   future::{ready, Ready},
+  sync::Arc,
 };
 use tracing::error;
 
@@ -16,6 +17,7 @@ use crate::{
     client::{DatabaseClient, ReportsPage},
     item::ReportItem,
   },
+  email::config::EmailConfig,
   report_types::{ReportID, ReportInput, ReportOutput, ReportType},
 };
 
@@ -46,14 +48,20 @@ pub struct ReportsService {
   db: DatabaseClient,
   blob_client: BlobServiceClient,
   requesting_user_id: Option<String>,
+  email_config: Option<Arc<EmailConfig>>,
 }
 
 impl ReportsService {
-  pub fn new(db: DatabaseClient, blob_client: BlobServiceClient) -> Self {
+  pub fn new(
+    db: DatabaseClient,
+    blob_client: BlobServiceClient,
+    email_config: Option<EmailConfig>,
+  ) -> Self {
     Self {
       db,
       blob_client,
       requesting_user_id: None,
+      email_config: email_config.map(Arc::new),
     }
   }
 
@@ -61,6 +69,7 @@ impl ReportsService {
     let user_id = user.user_id.to_string();
     Self {
       db: self.db.clone(),
+      email_config: self.email_config.clone(),
       blob_client: self.blob_client.with_user_identity(user),
       requesting_user_id: Some(user_id),
     }
