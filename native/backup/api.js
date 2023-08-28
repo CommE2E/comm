@@ -7,6 +7,7 @@ import type { BackupAuth, BackupEncrypted } from 'lib/types/backup-types.js';
 import { makeBackupServiceEndpointURL } from 'lib/utils/backup-service.js';
 import { toBase64URL } from 'lib/utils/base64.js';
 
+import { getBackupBytesFromBlob } from './conversion-utils.js';
 import { commUtilsModule } from '../native-modules.js';
 import { arrayBufferFromBlob } from '../utils/blob-utils-module.js';
 
@@ -76,4 +77,30 @@ async function getBackupID(username: string): Promise<string> {
   return backupID;
 }
 
-export { uploadBackup, getBackupID };
+async function getUserKeysAuth(
+  backupID: string,
+  auth: BackupAuth,
+): Promise<Uint8Array> {
+  const authHeader = getBackupAuthorizationHeader(auth);
+
+  const getUserKeysEndpoint = backupService.httpEndpoints.GET_USER_KEYS_AUTH;
+  const getUserKeysResponse = await fetch(
+    makeBackupServiceEndpointURL(getUserKeysEndpoint, { backup_id: backupID }),
+    {
+      method: getUserKeysEndpoint.method,
+      headers: {
+        Authorization: authHeader,
+      },
+    },
+  );
+
+  if (!getUserKeysResponse.ok) {
+    const { status, statusText } = getUserKeysResponse;
+    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
+  }
+
+  const blob = await getUserKeysResponse.blob();
+  return getBackupBytesFromBlob(blob);
+}
+
+export { uploadBackup, getBackupID, getUserKeysAuth };
