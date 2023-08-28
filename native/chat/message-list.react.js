@@ -27,7 +27,7 @@ import {
 
 import ChatList from './chat-list.react.js';
 import type { ChatNavigationProp } from './chat.react.js';
-import { Message } from './message.react.js';
+import Message from './message.react.js';
 import RelationshipPrompt from './relationship-prompt.react.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import {

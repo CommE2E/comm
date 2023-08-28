@@ -9,7 +9,7 @@ import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import { type ChatNavigationProp } from './chat.react.js';
 import { MessageListContextProvider } from './message-list-types.js';
-import { Message } from './message.react.js';
+import Message from './message.react.js';
 import { modifyItemForResultScreen } from './utils.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
