@@ -19,6 +19,7 @@ comm-services-lib = { path = "../comm-services-lib", features = [
 ] }
 derive_more = "0.99"
 http = "0.2"
+maud = "0.25"
 num-traits = "0.2"
 num-derive = "0.4"
 once_cell = "1.17"
