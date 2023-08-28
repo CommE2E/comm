@@ -16,6 +16,30 @@ pub fn render_email_for_report(
   ))
 }
 
+// Examples:
+// [Android] Error report for User(ID = foo)
+// Media mission failed for User(ID = foo)
+// Thread inconsistency report for User(ID = foo)
+pub fn subject_for_report(
+  report_input: &ReportInput,
+  user_id: Option<&str>,
+) -> String {
+  let kind = title_for_report_type(&report_input.report_type);
+  let user = format!("User(ID = {})", user_id.unwrap_or("[unknown]"));
+  let object = if report_input.report_type.is_media_mission() {
+    media_mission_status(report_input)
+  } else {
+    "report"
+  };
+  let platform_prefix = if report_input.report_type.is_error() {
+    format!("[{}] ", report_input.platform_details.platform)
+  } else {
+    "".into()
+  };
+
+  format!("{platform_prefix}{kind} {object} for {user}")
+}
+
 fn message_body_for_report(
   report: &ReportInput,
   report_id: &ReportID,
@@ -30,6 +54,8 @@ fn message_body_for_report(
     .to_string();
 
   html! {
+    h2 { (title_for_report_type(&report.report_type)) " report" }
+    p { (intro_text(report, user_id)) }
     ul {
       li { "User ID:   " b { (user) } }
       li { "Platform:  " (platform)   }
@@ -37,6 +63,43 @@ fn message_body_for_report(
       li { "Report ID: " b { (report_id) } }
     }
   }
+}
+
+fn title_for_report_type(report_type: &ReportType) -> &str {
+  match report_type {
+    ReportType::ErrorReport => "Error",
+    ReportType::ThreadInconsistency => "Thread inconsistency",
+    ReportType::EntryInconsistency => "Entry inconsistency",
+    ReportType::UserInconsistency => "User inconsistency",
+    ReportType::MediaMission => "Media mission",
+  }
+}
+
+fn intro_text(report: &ReportInput, user_id: Option<&str>) -> String {
+  let user = format!("User (ID = {})", user_id.unwrap_or("[unknown]"));
+  match &report.report_type {
+    ReportType::ErrorReport => format!("{user} encountered an error :("),
+    ReportType::ThreadInconsistency
+    | ReportType::EntryInconsistency
+    | ReportType::UserInconsistency => {
+      format!("System detected inconsistency for {user}")
+    }
+    ReportType::MediaMission => {
+      let status = media_mission_status(report);
+      format!("Media mission {status} for {user}")
+    }
+  }
+}
+
+/// returns "success" or "failed" based on media mission status
+/// falls back to "completed" if couldn't determine
+fn media_mission_status(report: &ReportInput) -> &str {
+  report
+    .report_content
+    .get("mediaMission")
+    .and_then(|obj| obj["result"]["success"].as_bool())
+    .map(|success| if success { "success" } else { "failed" })
+    .unwrap_or("completed")
 }
 
 impl Render for PlatformDetails {
