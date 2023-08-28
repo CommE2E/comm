@@ -1,4 +1,5 @@
 use actix_web::FromRequest;
+use chrono::Utc;
 use comm_services_lib::{
   auth::UserIdentity,
   blob::client::{BlobServiceClient, BlobServiceError},
@@ -14,8 +15,9 @@ use tracing::error;
 use crate::{
   database::{
     client::{DatabaseClient, ReportsPage},
-    item::ReportItem,
+    item::{ReportContent, ReportItem},
   },
+  email::ReportEmail,
   report_types::{ReportID, ReportInput, ReportOutput, ReportType},
 };
 
@@ -68,20 +70,20 @@ impl ReportsService {
 
   pub async fn save_reports(
     &self,
-    reports: Vec<ReportInput>,
+    inputs: Vec<ReportInput>,
   ) -> ServiceResult<Vec<ReportID>> {
-    let mut items = Vec::with_capacity(reports.len());
+    let mut reports = Vec::with_capacity(inputs.len());
     let mut tasks = tokio::task::JoinSet::new();
 
-    // 1. Concurrently upload reports to blob service if needed
-    for input in reports {
+    // 1. Concurrently prepare reports. Upload them to blob service if needed
+    for input in inputs {
       let blob_client = self.blob_client.clone();
       let user_id = self.requesting_user_id.clone();
       tasks.spawn(async move {
-        let mut item = ReportItem::from_input(input, user_id)
+        let mut report = process_report(input, user_id)
           .map_err(ReportsServiceError::SerdeError)?;
-        item.ensure_size_constraints(&blob_client).await?;
-        Ok(item)
+        report.db_item.ensure_size_constraints(&blob_client).await?;
+        Ok(report)
       });
     }
 
@@ -92,12 +94,23 @@ impl ReportsService {
         error!("Task failed to join: {err}");
         ReportsServiceError::Unexpected
       })?;
-      items.push(result?);
+      reports.push(result?);
     }
 
-    // 3. Store reports in database
-    let ids = items.iter().map(|item| item.id.clone()).collect();
-    self.db.save_reports(items).await?;
+    let (ids, (db_items, emails)): (Vec<_>, (Vec<_>, Vec<_>)) = reports
+      .into_iter()
+      .map(|ProcessedReport { id, db_item, email }| (id, (db_item, email)))
+      .unzip();
+
+    // 3. Store the reports in database
+    self.db.save_reports(db_items).await?;
+
+    // 4. Send e-mails asynchronously
+    tokio::spawn(async move {
+      if let Err(err) = crate::email::send_emails(emails).await {
+        error!("Failed to send e-mails: {err}");
+      }
+    });
     Ok(ids)
   }
 
@@ -190,6 +203,47 @@ impl FromRequest for ReportsService {
 
     ready(Ok(auth_service))
   }
+}
+
+struct ProcessedReport {
+  id: ReportID,
+  db_item: ReportItem,
+  email: ReportEmail,
+}
+
+fn process_report(
+  input: ReportInput,
+  user_id: Option<String>,
+) -> Result<ProcessedReport, serde_json::Error> {
+  let id = ReportID::default();
+  let email = crate::email::prepare_email(&input, &id, user_id.as_deref());
+
+  let ReportInput {
+    platform_details,
+    report_type,
+    time,
+    mut report_content,
+  } = input;
+
+  // Add "platformDetails" back to report content.
+  // It was deserialized into a separate field.
+  let platform_details_value = serde_json::to_value(&platform_details)?;
+  report_content.insert("platformDetails".to_string(), platform_details_value);
+
+  // serialize report JSON to bytes
+  let content_bytes = serde_json::to_vec(&report_content)?;
+
+  let db_item = ReportItem {
+    id: id.clone(),
+    user_id: user_id.unwrap_or("[null]".to_string()),
+    platform: platform_details.platform.clone(),
+    report_type,
+    creation_time: time.unwrap_or_else(Utc::now),
+    encryption_key: None,
+    content: ReportContent::Database(content_bytes),
+  };
+
+  Ok(ProcessedReport { id, db_item, email })
 }
 
 /// Transforms report content JSON into format that can be

@@ -113,44 +113,6 @@ impl ReportItem {
     }
     size
   }
-
-  /// Creates a report item from a report input payload
-  ///
-  /// WARN: Note that this method stores content as [`ReportStorage::Database`]
-  /// regardless of its size. Use [`ensure_size_constraints`] to move content to
-  /// blob storage if necessary.
-  pub fn from_input(
-    payload: ReportInput,
-    user_id: Option<String>,
-  ) -> Result<Self, serde_json::Error> {
-    let ReportInput {
-      platform_details,
-      report_type,
-      time,
-      mut report_content,
-    } = payload;
-
-    let platform = platform_details.platform.clone();
-
-    // Add "platformDetails" back to report content
-    let platform_details_value = serde_json::to_value(platform_details)?;
-    report_content
-      .insert("platformDetails".to_string(), platform_details_value);
-
-    // serialize report JSON to bytes
-    let content_bytes = serde_json::to_vec(&report_content)?;
-    let content = ReportContent::Database(content_bytes);
-
-    Ok(ReportItem {
-      id: ReportID::default(),
-      user_id: user_id.unwrap_or("[null]".to_string()),
-      platform,
-      report_type,
-      creation_time: time.unwrap_or_else(Utc::now),
-      encryption_key: None,
-      content,
-    })
-  }
 }
 
 impl TryFrom<AttributeMap> for ReportItem {
