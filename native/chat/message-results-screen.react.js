@@ -8,6 +8,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { fetchPinnedMessages } from 'lib/actions/message-actions.js';
 import { messageListData } from 'lib/selectors/chat-selectors.js';
 import { createMessageInfo } from 'lib/shared/message-utils.js';
+import { isComposableMessageType } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
@@ -76,7 +77,8 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     const chatMessageInfoItems = chatMessageInfos.filter(
       item =>
         item.itemType === 'message' &&
-        pinnedMessageIDs.has(item.messageInfo.id),
+        pinnedMessageIDs.has(item.messageInfo.id) &&
+        isComposableMessageType(item.messageInfo.type),
     );
 
     // By the nature of using messageListData and passing in

@@ -13,6 +13,7 @@ import {
   createMessageInfo,
   modifyItemForResultScreen,
 } from 'lib/shared/message-utils.js';
+import { isComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -81,7 +82,8 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
     const chatMessageInfoItems = chatMessageInfos.filter(
       item =>
         item.itemType === 'message' &&
-        pinnedMessageIDs.has(item.messageInfo.id),
+        pinnedMessageIDs.has(item.messageInfo.id) &&
+        isComposableMessageType(item.messageInfo.type),
     );
 
     // By the nature of using messageListData and passing in

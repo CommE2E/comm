@@ -26,7 +26,7 @@ import {
   defaultMaxMessageAge,
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
-  isMessageSidebarSourceReactionOrEdit,
+  isMessageSidebarSourceReactionEditOrPin,
   type SearchMessagesResponse,
 } from 'lib/types/message-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
@@ -745,9 +745,9 @@ async function fetchDerivedMessages(
   for (const message of messages) {
     let { rawMessageInfo } = message;
     invariant(
-      !isMessageSidebarSourceReactionOrEdit(rawMessageInfo),
+      !isMessageSidebarSourceReactionEditOrPin(rawMessageInfo),
       'SIDEBAR_SOURCE or TOGGLE_PIN should not point to a ' +
-        'SIDEBAR_SOURCE, REACTION or EDIT_MESSAGE',
+        'SIDEBAR_SOURCE, REACTION, EDIT_MESSAGE or TOGGLE_PIN',
     );
     if (rawMessageInfo.id) {
       const editedContent = edits.get(rawMessageInfo.id);
@@ -849,6 +849,7 @@ async function fetchRelatedMessages(
       AND (
         m.type = ${messageTypes.SIDEBAR_SOURCE}
         OR m.type = ${messageTypes.REACTION}
+        OR m.type = ${messageTypes.TOGGLE_PIN}
       )
     UNION SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, 
       m.creation, m.user AS creatorID, m.target_message as targetMessageID,
@@ -889,7 +890,7 @@ async function rawMessageInfoForRowsAndRelatedMessages(
   >();
   for (const message of parsedResults) {
     const { rawMessageInfo } = message;
-    if (isMessageSidebarSourceReactionOrEdit(rawMessageInfo)) {
+    if (isMessageSidebarSourceReactionEditOrPin(rawMessageInfo)) {
       continue;
     }
     invariant(rawMessageInfo.id, 'rawMessageInfo.id should not be null');
