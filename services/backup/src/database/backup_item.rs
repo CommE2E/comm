@@ -1,13 +1,13 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
 use comm_services_lib::{
-  blob::types::BlobInfo,
-  database::{DBItemError, TryFromAttribute},
+  blob::{client::BlobServiceClient, types::BlobInfo},
+  database::{AttributeTryInto, DBItemError, TryFromAttribute},
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::constants::{
-  BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS, BACKUP_TABLE_FIELD_BACKUP_ID,
+  BACKUP_TABLE_FIELD_ATTACHMENTS, BACKUP_TABLE_FIELD_BACKUP_ID,
   BACKUP_TABLE_FIELD_CREATED, BACKUP_TABLE_FIELD_USER_DATA,
   BACKUP_TABLE_FIELD_USER_ID, BACKUP_TABLE_FIELD_USER_KEYS,
 };
@@ -19,7 +19,7 @@ pub struct BackupItem {
   pub created: DateTime<Utc>,
   pub user_keys: BlobInfo,
   pub user_data: BlobInfo,
-  pub attachment_holders: HashSet<String>,
+  pub attachments: Vec<BlobInfo>,
 }
 
 impl BackupItem {
@@ -28,7 +28,7 @@ impl BackupItem {
     backup_id: String,
     user_keys: BlobInfo,
     user_data: BlobInfo,
-    attachment_holders: HashSet<String>,
+    attachments: Vec<BlobInfo>,
   ) -> Self {
     BackupItem {
       user_id,
@@ -36,7 +36,22 @@ impl BackupItem {
       created: chrono::Utc::now(),
       user_keys,
       user_data,
-      attachment_holders,
+      attachments,
+    }
+  }
+
+  pub async fn revoke_holders(self, blob_client: &BlobServiceClient) {
+    blob_client
+      .schedule_revoke_holder(self.user_keys.blob_hash, self.user_keys.holder);
+
+    blob_client
+      .schedule_revoke_holder(self.user_data.blob_hash, self.user_data.holder);
+
+    for attachment_info in self.attachments {
+      blob_client.schedule_revoke_holder(
+        attachment_info.blob_hash,
+        attachment_info.holder,
+      );
     }
   }
 }
@@ -66,10 +81,16 @@ impl From<BackupItem> for HashMap<String, AttributeValue> {
       ),
     ]);
 
-    if !value.attachment_holders.is_empty() {
+    if !value.attachments.is_empty() {
       attrs.insert(
-        BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS.to_string(),
-        AttributeValue::Ss(value.attachment_holders.into_iter().collect()),
+        BACKUP_TABLE_FIELD_ATTACHMENTS.to_string(),
+        AttributeValue::L(
+          value
+            .attachments
+            .into_iter()
+            .map(AttributeValue::from)
+            .collect(),
+        ),
       );
     }
 
@@ -105,14 +126,11 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       value.remove(BACKUP_TABLE_FIELD_USER_DATA),
     )?;
 
-    let attachments = value.remove(BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS);
-    let attachment_holders = if attachments.is_some() {
-      HashSet::<String>::try_from_attr(
-        BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS,
-        attachments,
-      )?
+    let attachments = value.remove(BACKUP_TABLE_FIELD_ATTACHMENTS);
+    let attachments = if attachments.is_some() {
+      attachments.attr_try_into(BACKUP_TABLE_FIELD_ATTACHMENTS)?
     } else {
-      HashSet::new()
+      Vec::new()
     };
 
     Ok(BackupItem {
@@ -121,7 +139,7 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       created,
       user_keys,
       user_data,
-      attachment_holders,
+      attachments,
     })
   }
 }
