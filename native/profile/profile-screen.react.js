@@ -36,6 +36,7 @@ import {
   PrivacyPreferencesRouteName,
   DefaultNotificationsPreferencesRouteName,
   LinkedDevicesRouteName,
+  BackupMenuRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -86,7 +87,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    let developerTools, defaultNotifications;
+    let developerTools, defaultNotifications, backupMenu;
     const { staffCanSee } = this.props;
     if (staffCanSee) {
       developerTools = (
@@ -98,6 +99,10 @@ class ProfileScreen extends React.PureComponent<Props> {
           content="Default Notifications"
           onPress={this.onPressDefaultNotifications}
         />
+      );
+
+      backupMenu = (
+        <ProfileRow content="Backup menu" onPress={this.onPressBackupMenu} />
       );
     }
 
@@ -170,6 +175,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             <ProfileRow content="Appearance" onPress={this.onPressAppearance} />
             <ProfileRow content="Privacy" onPress={this.onPressPrivacy} />
             {defaultNotifications}
+            {backupMenu}
           </View>
           <View style={this.props.styles.section}>
             {linkedDevices}
@@ -300,6 +306,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressBlockList = () => {
     this.navigateIfActive(BlockListRouteName);
+  };
+
+  onPressBackupMenu = () => {
+    this.navigateIfActive(BackupMenuRouteName);
   };
 }
 
