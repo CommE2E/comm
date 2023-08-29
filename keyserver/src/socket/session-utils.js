@@ -411,8 +411,8 @@ async function checkState(
   );
   const idsToFetch = Object.fromEntries(
     values(serverStateSyncSpecs)
-      .filter(spec => spec.innerHashKey)
-      .map(spec => [spec.innerHashKey, new Set()]),
+      .filter(spec => spec.innerHashSpec?.hashKey)
+      .map(spec => [spec.innerHashSpec?.hashKey, new Set()]),
   );
   for (const key of invalidKeys) {
     const [innerHashKey, id] = key.split('|');
@@ -425,11 +425,11 @@ async function checkState(
   for (const spec of values(serverStateSyncSpecs)) {
     if (shouldFetchAll[spec.hashKey]) {
       fetchPromises[spec.hashKey] = spec.fetch(viewer, query);
-    } else if (idsToFetch[spec.innerHashKey]?.size > 0) {
+    } else if (idsToFetch[spec.innerHashSpec?.hashKey]?.size > 0) {
       fetchPromises[spec.hashKey] = spec.fetch(
         viewer,
         query,
-        idsToFetch[spec.innerHashKey],
+        idsToFetch[spec.innerHashSpec?.hashKey],
       );
     }
   }
@@ -438,12 +438,17 @@ async function checkState(
   const specPerHashKey = Object.fromEntries(
     values(serverStateSyncSpecs).map(spec => [spec.hashKey, spec]),
   );
+  const specPerInnerHashKey = Object.fromEntries(
+    values(serverStateSyncSpecs)
+      .filter(spec => spec.innerHashSpec?.hashKey)
+      .map(spec => [spec.innerHashSpec?.hashKey, spec]),
+  );
   const hashesToCheck = {},
     failUnmentioned = {},
     stateChanges = {};
   for (const key of invalidKeys) {
     const spec = specPerHashKey[key];
-    const innerHashKey = spec?.innerHashKey;
+    const innerHashKey = spec?.innerHashSpec?.hashKey;
     const isTopLevelKey = !!spec;
     if (isTopLevelKey && innerHashKey) {
       // Instead of returning all the infos, we want to narrow down and figure
@@ -455,55 +460,26 @@ async function checkState(
       failUnmentioned[key] = true;
     } else if (isTopLevelKey) {
       stateChanges[key] = fetchedData[key];
-    } else if (key.startsWith('threadInfo|')) {
-      const [, threadID] = key.split('|');
-      const threadInfos = fetchedData[serverStateSyncSpecs.threads.hashKey];
-      const threadInfo = threadInfos[threadID];
-      if (!threadInfo) {
-        if (!stateChanges.deleteThreadIDs) {
-          stateChanges.deleteThreadIDs = [];
-        }
-        stateChanges.deleteThreadIDs.push(threadID);
+    } else {
+      const [keyPrefix, id] = key.split('|');
+      const innerSpec = specPerInnerHashKey[keyPrefix];
+      const innerHashSpec = innerSpec?.innerHashSpec;
+      if (!innerHashSpec || !id) {
         continue;
       }
-      if (!stateChanges.rawThreadInfos) {
-        stateChanges.rawThreadInfos = [];
-      }
-      stateChanges.rawThreadInfos.push(threadInfo);
-    } else if (key.startsWith('entryInfo|')) {
-      const [, entryID] = key.split('|');
-      const entryInfos = fetchedData[serverStateSyncSpecs.entries.hashKey];
-      const entryInfo = entryInfos[entryID];
-      if (!entryInfo) {
-        if (!stateChanges.deleteEntryIDs) {
-          stateChanges.deleteEntryIDs = [];
+      const infos = fetchedData[innerSpec.hashKey];
+      const info = infos[id];
+      if (!info || innerHashSpec.additionalDeleteCondition?.(info)) {
+        if (!stateChanges[innerHashSpec.deleteKey]) {
+          stateChanges[innerHashSpec.deleteKey] = [];
         }
-        stateChanges.deleteEntryIDs.push(entryID);
+        stateChanges[innerHashSpec.deleteKey].push(id);
         continue;
       }
-      if (!stateChanges.rawEntryInfos) {
-        stateChanges.rawEntryInfos = [];
+      if (!stateChanges[innerHashSpec.rawInfosKey]) {
+        stateChanges[innerHashSpec.rawInfosKey] = [];
       }
-      stateChanges.rawEntryInfos.push(entryInfo);
-    } else if (key.startsWith('userInfo|')) {
-      const [, userID] = key.split('|');
-      const userInfos = fetchedData[serverStateSyncSpecs.users.hashKey];
-      const userInfo = userInfos[userID];
-      if (!userInfo || !userInfo.username) {
-        if (!stateChanges.deleteUserInfoIDs) {
-          stateChanges.deleteUserInfoIDs = [];
-        }
-        stateChanges.deleteUserInfoIDs.push(userID);
-      } else {
-        if (!stateChanges.userInfos) {
-          stateChanges.userInfos = [];
-        }
-        stateChanges.userInfos.push({
-          ...userInfo,
-          // Flow gets confused if we don't do this
-          username: userInfo.username,
-        });
-      }
+      stateChanges[innerHashSpec.rawInfosKey].push(info);
     }
   }
 
