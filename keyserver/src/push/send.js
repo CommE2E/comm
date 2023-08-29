@@ -10,6 +10,7 @@ import _pickBy from 'lodash/fp/pickBy.js';
 import t from 'tcomb';
 import uuidv4 from 'uuid/v4.js';
 
+import genesis from 'lib/facts/genesis.js';
 import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
 import { isUserMentioned } from 'lib/shared/mention-utils.js';
 import {
@@ -395,6 +396,104 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   ]);
 
   await saveNotifResults(deliveryResults, notifications, true);
+}
+
+const baseParentTraverseQuery = (threadID: string) => SQL`
+  WITH RECURSIVE thread_tree AS (
+    SELECT id, parent_thread_id
+    FROM threads
+    WHERE id = ${threadID}
+    UNION ALL
+    SELECT t.id, t.parent_thread_id
+    FROM threads t
+    JOIN thread_tree tt ON t.id = tt.parent_thread_id
+  )
+  SELECT id FROM thread_tree
+  `;
+
+async function isThreadMentionable(
+  messageThreadID: string,
+  mentionedThreadID: string,
+  threadInfos: { +[id: string]: ServerThreadInfo },
+) {
+  if (!(mentionedThreadID in threadInfos)) {
+    return false;
+  }
+
+  const messageThread = threadInfos[messageThreadID];
+  const mentionedThread = threadInfos[mentionedThreadID];
+  if (!messageThread || !mentionedThread) {
+    return false;
+  }
+  if (!messageThread.community) {
+    if (messageThread.id === genesis.id) {
+      return false;
+    }
+    if (!mentionedThread.community) {
+      return false;
+    }
+    return messageThread.id === mentionedThread.community;
+  } else {
+    if (messageThread.community === genesis.id) {
+      if (mentionedThread.community !== genesis.id) {
+        return false;
+      }
+      // Check if two threads share the same first child of GENESIS
+      const [mentionedThreadChildren] = await dbQuery(
+        baseParentTraverseQuery(mentionedThreadID),
+      );
+      const mentionedThreadChildrenTraversePath = mentionedThreadChildren.map(
+        row => row.id.toString(),
+      );
+      if (messageThread.parentThreadID === genesis.id) {
+        return (
+          mentionedThreadChildrenTraversePath[
+            mentionedThreadChildrenTraversePath.length - 2
+          ] === messageThreadID
+        );
+      }
+      const [messageThreadChildren] = await dbQuery(
+        baseParentTraverseQuery(messageThreadID),
+      );
+      const messageThreadChildrenTraversePath = messageThreadChildren.map(
+        row => row.id,
+      );
+      return (
+        messageThreadChildrenTraversePath[
+          messageThreadChildrenTraversePath.length - 2
+        ] ===
+        mentionedThreadChildrenTraversePath[
+          mentionedThreadChildrenTraversePath.length - 2
+        ]
+      );
+    }
+    if (!mentionedThread.community) {
+      return messageThread.community === mentionedThread.id;
+    }
+    return messageThread.community === mentionedThread.community;
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
+async function getMentionableThreads(
+  messageThreadID: string,
+  mentionedThreadIDs: $ReadOnlySet<string>,
+  userID: string,
+): Promise<Set<string>> {
+  const allowedToMentionThreadIDs = new Set();
+  const threadFetchResult = await fetchServerThreadInfos({
+    threadIDs: new Set([messageThreadID, ...mentionedThreadIDs]),
+    accessibleToUserID: userID,
+  });
+  const threadInfos = threadFetchResult.threadInfos;
+  for (const mentionedThreadID of mentionedThreadIDs) {
+    if (
+      await isThreadMentionable(messageThreadID, mentionedThreadID, threadInfos)
+    ) {
+      allowedToMentionThreadIDs.add(mentionedThreadID);
+    }
+  }
+  return allowedToMentionThreadIDs;
 }
 
 async function sendRescindNotifs(rescindInfo: PushInfo) {
