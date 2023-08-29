@@ -1,5 +1,3 @@
-use std::{collections::HashSet, convert::Infallible};
-
 use actix_web::{
   error::ErrorBadRequest,
   web::{self, Bytes},
@@ -12,6 +10,7 @@ use comm_services_lib::{
   http::multipart::{get_named_text_field, get_text_field},
   tools::Defer,
 };
+use std::convert::Infallible;
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tracing::{info, instrument, trace, warn};
 
@@ -49,7 +48,7 @@ pub async fn upload(
   )
   .await?;
 
-  let attachments_holders: HashSet<String> =
+  let attachments_hashes: Vec<String> =
     match get_text_field(&mut multipart).await? {
       Some((name, attachments)) => {
         if name != "attachments" {
@@ -62,15 +61,28 @@ pub async fn upload(
 
         attachments.lines().map(ToString::to_string).collect()
       }
-      None => HashSet::new(),
+      None => Vec::new(),
     };
+
+  let mut attachments = Vec::new();
+  let mut attachments_revokes = vec![];
+  for attachment_hash in attachments_hashes {
+    let (holder, revoke) =
+      create_attachment_holder(&attachment_hash, &blob_client).await?;
+
+    attachments.push(BlobInfo {
+      blob_hash: attachment_hash,
+      holder,
+    });
+    attachments_revokes.push(revoke);
+  }
 
   let item = BackupItem::new(
     user.user_id.clone(),
     backup_id,
     user_keys_blob_info,
     user_data_blob_info,
-    attachments_holders,
+    attachments,
   );
 
   db_client
@@ -80,21 +92,16 @@ pub async fn upload(
 
   user_keys_revoke.cancel();
   user_data_revoke.cancel();
+  for attachment_revoke in attachments_revokes {
+    attachment_revoke.cancel();
+  }
 
   for backup in db_client
     .remove_old_backups(&user.user_id)
     .await
     .map_err(BackupError::from)?
   {
-    blob_client.schedule_revoke_holder(
-      backup.user_keys.blob_hash,
-      backup.user_keys.holder,
-    );
-
-    blob_client.schedule_revoke_holder(
-      backup.user_data.blob_hash,
-      backup.user_data.holder,
-    );
+    backup.revoke_holders(&blob_client).await;
   }
 
   Ok(HttpResponse::Ok().finish())
@@ -171,6 +178,30 @@ async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
   });
 
   Ok((blob_info, revoke_holder))
+}
+
+#[instrument(skip_all, name = "create_attachment_holder")]
+async fn create_attachment_holder<'revoke, 'blob: 'revoke>(
+  attachment: &str,
+  blob_client: &'blob web::Data<BlobServiceClient>,
+) -> Result<(String, Defer<'revoke>), BackupError> {
+  let holder = uuid::Uuid::new_v4().to_string();
+
+  if !blob_client
+    .assign_holder(attachment, &holder)
+    .await
+    .map_err(BackupError::from)?
+  {
+    warn!("Blob attachment with hash {attachment:?} doesn't exist");
+  }
+
+  let revoke_hash = attachment.to_string();
+  let revoke_holder = holder.clone();
+  let revoke_holder = Defer::new(|| {
+    blob_client.schedule_revoke_holder(revoke_hash, revoke_holder)
+  });
+
+  Ok((holder, revoke_holder))
 }
 
 #[instrument(name = "download_user_keys", skip_all, fields(backup_id = %path.as_str()))]
