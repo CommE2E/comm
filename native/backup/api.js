@@ -6,6 +6,7 @@ import backupService from 'lib/facts/backup-service.js';
 import type { BackupAuth, BackupEncrypted } from 'lib/types/backup-types.js';
 import { makeBackupServiceEndpointURL } from 'lib/utils/backup-service.js';
 import { toBase64URL } from 'lib/utils/base64.js';
+import { handleHTTPResponseError } from 'lib/utils/services-utils.js';
 
 import { getBackupBytesFromBlob } from './conversion-utils.js';
 import { commUtilsModule } from '../native-modules.js';
@@ -49,10 +50,7 @@ async function uploadBackup(backup: BackupEncrypted, auth: BackupAuth) {
     },
   );
 
-  if (!sendBackupResponse.ok) {
-    const { status, statusText } = sendBackupResponse;
-    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
-  }
+  handleHTTPResponseError(sendBackupResponse);
 }
 
 async function getBackupID(username: string): Promise<string> {
@@ -64,10 +62,7 @@ async function getBackupID(username: string): Promise<string> {
     },
   );
 
-  if (!getBackupIDResponse.ok) {
-    const { status, statusText } = getBackupIDResponse;
-    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
-  }
+  handleHTTPResponseError(getBackupIDResponse);
 
   const { backupID } = await getBackupIDResponse.json();
   return backupID;
@@ -90,10 +85,7 @@ async function getUserKeys(
     },
   );
 
-  if (!getUserKeysResponse.ok) {
-    const { status, statusText } = getUserKeysResponse;
-    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
-  }
+  handleHTTPResponseError(getUserKeysResponse);
 
   const blob = await getUserKeysResponse.blob();
   return getBackupBytesFromBlob(blob);
@@ -116,10 +108,7 @@ async function getUserData(
     },
   );
 
-  if (!getUserDataResponse.ok) {
-    const { status, statusText } = getUserDataResponse;
-    throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
-  }
+  handleHTTPResponseError(getUserDataResponse);
 
   const blob = await getUserDataResponse.blob();
   return getBackupBytesFromBlob(blob);
