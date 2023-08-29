@@ -53,6 +53,7 @@ export const AppearancePreferencesRouteName = 'AppearancePreferences';
 export const AppRouteName = 'App';
 export const AppsRouteName = 'Apps';
 export const BackgroundChatThreadListRouteName = 'BackgroundChatThreadList';
+export const BackupMenuRouteName = 'BackupMenu';
 export const BlockListRouteName = 'BlockList';
 export const BuildInfoRouteName = 'BuildInfo';
 export const CalendarRouteName = 'Calendar';
@@ -223,6 +224,7 @@ export type ProfileParamList = {
   +BlockList: void,
   +LinkedDevices: void,
   +SecondaryDeviceQRCodeScanner: void,
+  +BackupMenu: void,
 };
 
 export type CommunityDrawerParamList = { +TabNavigator: void };
