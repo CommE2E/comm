@@ -1,3 +1,5 @@
+pub mod client;
+
 use tonic::transport::Channel;
 
 use super::protos::client::identity_client_service_client::IdentityClientServiceClient;
