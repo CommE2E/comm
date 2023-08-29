@@ -9,6 +9,7 @@ import sleep from 'lib/utils/sleep.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
+import { SingleLine } from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -66,7 +67,9 @@ function UserProfile(props: Props): React.Node {
       <View style={styles.userInfoContainer}>
         <UserAvatar size="profile" userID={userInfo.id} />
         <View style={styles.usernameContainer}>
-          <Text style={styles.usernameText}>{userInfo.username}</Text>
+          <SingleLine style={styles.usernameText}>
+            {userInfo.username}
+          </SingleLine>
           {copyUsernameButton}
         </View>
       </View>
@@ -86,7 +89,9 @@ const unboundStyles = {
     flexDirection: 'row',
   },
   usernameContainer: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'flex-start',
     paddingLeft: 16,
   },
   usernameText: {
