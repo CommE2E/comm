@@ -24,6 +24,10 @@ export const entriesStateSyncSpec: StateSyncSpec<RawEntryInfos> = Object.freeze(
       return serverEntryInfosObject(entriesResult.rawEntryInfos);
     },
     hashKey: 'entryInfos',
-    innerHashKey: 'entryInfo',
+    innerHashSpec: {
+      hashKey: 'entryInfo',
+      deleteKey: 'deleteEntryIDs',
+      rawInfosKey: 'rawEntryInfos',
+    },
   },
 );
