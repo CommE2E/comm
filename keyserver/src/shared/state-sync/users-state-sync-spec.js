@@ -1,13 +1,14 @@
 // @flow
 
+import { usersStateSyncSpec as libSpec } from 'lib/shared/state-sync/users-state-sync-spec.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { UserInfos, UserInfo } from 'lib/types/user-types.js';
 
-import type { StateSyncSpec } from './state-sync-spec.js';
+import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import { fetchKnownUserInfos } from '../../fetchers/user-fetchers.js';
 import type { Viewer } from '../../session/viewer.js';
 
-export const usersStateSyncSpec: StateSyncSpec<UserInfos, UserInfo> =
+export const usersStateSyncSpec: ServerStateSyncSpec<UserInfos, UserInfo> =
   Object.freeze({
     fetch(
       viewer: Viewer,
@@ -20,13 +21,5 @@ export const usersStateSyncSpec: StateSyncSpec<UserInfos, UserInfo> =
 
       return fetchKnownUserInfos(viewer);
     },
-    hashKey: 'userInfos',
-    innerHashSpec: {
-      hashKey: 'userInfo',
-      deleteKey: 'deleteUserInfoIDs',
-      rawInfosKey: 'userInfos',
-      additionalDeleteCondition(user: UserInfo) {
-        return !user.username;
-      },
-    },
+    ...libSpec,
   });
