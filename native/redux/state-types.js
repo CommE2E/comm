@@ -24,6 +24,7 @@ import type { DimensionsInfo } from './dimensions-updater.react.js';
 import type { NavInfo } from '../navigation/default-state.js';
 import type { DeviceCameraInfo } from '../types/camera.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
+import type { LocalSettings } from '../types/local-settings-types.js';
 import type { GlobalThemeInfo } from '../types/themes.js';
 
 export type AppState = {
@@ -59,4 +60,5 @@ export type AppState = {
   +inviteLinksStore: InviteLinksStore,
   +lastCommunicatedPlatformDetails: LastCommunicatedPlatformDetails,
   +keyserverStore: KeyserverStore,
+  +localSettings: LocalSettings,
 };
