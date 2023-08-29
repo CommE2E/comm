@@ -96,6 +96,7 @@ import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.j
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { generateReportID } from 'lib/utils/report-utils.js';
+import { handleHTTPResponseError } from 'lib/utils/services-utils.js';
 
 import {
   type PendingMultimediaUpload,
@@ -1099,10 +1100,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         },
       );
 
-      if (!assignHolderResponse.ok) {
-        const { status, statusText } = assignHolderResponse;
-        throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
-      }
+      handleHTTPResponseError(assignHolderResponse);
+
       const { data_exists: dataExistsResponse } =
         await assignHolderResponse.json();
       blobAlreadyExists = dataExistsResponse;

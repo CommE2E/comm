@@ -102,6 +102,7 @@ import {
   generateReportID,
   useIsReportEnabled,
 } from 'lib/utils/report-utils.js';
+import { handleHTTPResponseError } from 'lib/utils/services-utils.js';
 
 import {
   type EditInputBarMessageParameters,
@@ -1186,10 +1187,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         },
       );
 
-      if (!assignHolderResponse.ok) {
-        const { status, statusText } = assignHolderResponse;
-        throw new Error(`Server responded with HTTP ${status}: ${statusText}`);
-      }
+      handleHTTPResponseError(assignHolderResponse);
       const { data_exists: dataExistsResponse } =
         await assignHolderResponse.json();
       blobAlreadyExists = dataExistsResponse;
