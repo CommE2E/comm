@@ -66,7 +66,13 @@ function UserProfile(props: Props): React.Node {
       <View style={styles.userInfoContainer}>
         <UserAvatar size="profile" userID={userInfo.id} />
         <View style={styles.usernameContainer}>
-          <Text style={styles.usernameText}>{userInfo.username}</Text>
+          <Text
+            style={styles.usernameText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {userInfo.username}
+          </Text>
           {copyUsernameButton}
         </View>
       </View>
@@ -86,7 +92,9 @@ const unboundStyles = {
     flexDirection: 'row',
   },
   usernameContainer: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'flex-start',
     paddingLeft: 16,
   },
   usernameText: {
