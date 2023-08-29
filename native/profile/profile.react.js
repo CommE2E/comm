@@ -10,6 +10,7 @@ import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 
 import AppearancePreferences from './appearance-preferences.react.js';
+import BackupMenu from './backup-menu.react.js';
 import BuildInfo from './build-info.react.js';
 import DefaultNotificationsPreferences from './default-notifications-preferences.react.js';
 import DeleteAccount from './delete-account.react.js';
@@ -41,6 +42,7 @@ import {
   BlockListRouteName,
   LinkedDevicesRouteName,
   SecondaryDeviceQRCodeScannerRouteName,
+  BackupMenuRouteName,
   type ScreenParamList,
   type ProfileParamList,
 } from '../navigation/route-names.js';
@@ -59,6 +61,7 @@ const linkedDevicesOptions = {
   // eslint-disable-next-line react/display-name
   headerRight: () => <LinkedDevicesHeaderRightButton />,
 };
+const backupMenuOptions = { headerTitle: 'Backup menu' };
 const secondaryDeviceQRCodeScannerOptions = {
   headerTitle: '',
   headerBackTitleVisible: false,
@@ -147,6 +150,11 @@ function ProfileComponent(props: Props): React.Node {
             name={LinkedDevicesRouteName}
             component={LinkedDevices}
             options={linkedDevicesOptions}
+          />
+          <Profile.Screen
+            name={BackupMenuRouteName}
+            component={BackupMenu}
+            options={backupMenuOptions}
           />
           <Profile.Screen
             name={SecondaryDeviceQRCodeScannerRouteName}
