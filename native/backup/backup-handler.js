@@ -19,6 +19,9 @@ function BackupHandler(): null {
   const currentUserID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
+  const isBackupEnabled = useSelector(
+    state => state.localSettings.isBackupEnabled,
+  );
   const loggedIn = useSelector(isLoggedIn);
   const staffCanSee = useStaffCanSee();
 
@@ -26,7 +29,7 @@ function BackupHandler(): null {
 
   React.useEffect(() => {
     (async () => {
-      if (!loggedIn || !staffCanSee) {
+      if (!isBackupEnabled || !loggedIn || !staffCanSee) {
         return;
       }
 
@@ -54,7 +57,14 @@ function BackupHandler(): null {
         }
       }
     })();
-  }, [currentUserID, loggedIn, staffCanSee, uploadBackupProtocol, userStore]);
+  }, [
+    currentUserID,
+    isBackupEnabled,
+    staffCanSee,
+    loggedIn,
+    uploadBackupProtocol,
+    userStore,
+  ]);
 
   return null;
 }
