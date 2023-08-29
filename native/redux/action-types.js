@@ -10,6 +10,7 @@ import type { DimensionsInfo } from './dimensions-updater.react.js';
 import type { AppState } from './state-types.js';
 import type { DeviceCameraInfo } from '../types/camera.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
+import type { LocalSettings } from '../types/local-settings-types.js';
 import type { GlobalThemeInfo } from '../types/themes.js';
 
 export const updateDimensionsActiveType = 'UPDATE_DIMENSIONS';
@@ -21,6 +22,7 @@ export const updateThreadLastNavigatedActionType =
   'UPDATE_THREAD_LAST_NAVIGATED';
 export const setStoreLoadedActionType = 'SET_STORE_LOADED';
 export const setReduxStateActionType = 'SET_REDUX_STATE';
+export const setLocalSettingsActionType = 'SET_LOCAL_SETTINGS';
 
 export const backgroundActionTypes: Set<string> = new Set([
   saveMessagesActionType,
@@ -62,4 +64,5 @@ export type Action =
     }
   | {
       +type: 'SET_STORE_LOADED',
-    };
+    }
+  | { +type: 'SET_LOCAL_SETTINGS', +payload: LocalSettings };
