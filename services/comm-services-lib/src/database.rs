@@ -282,6 +282,35 @@ impl TryFromAttribute for HashSet<String> {
   }
 }
 
+impl<T: TryFromAttribute> TryFromAttribute for Vec<T> {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    let attribute_name = attribute_name.into();
+    match attribute {
+      Some(AttributeValue::L(list)) => Ok(
+        list
+          .into_iter()
+          .map(|attribute| {
+            T::try_from_attr(format!("{attribute_name}[i]"), Some(attribute))
+          })
+          .collect::<Result<Vec<T>, _>>()?,
+      ),
+      Some(_) => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute),
+        DBItemAttributeError::IncorrectType,
+      )),
+      None => Err(DBItemError::new(
+        attribute_name.into(),
+        Value::AttributeValue(attribute),
+        DBItemAttributeError::Missing,
+      )),
+    }
+  }
+}
+
 #[deprecated = "Use `String::try_from_attr()` instead"]
 pub fn parse_string_attribute(
   attribute_name: impl Into<String>,
