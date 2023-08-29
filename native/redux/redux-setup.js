@@ -44,6 +44,7 @@ import {
   setReduxStateActionType,
   setStoreLoadedActionType,
   type Action,
+  setLocalSettingsActionType,
 } from './action-types.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { defaultDimensionsInfo } from './dimensions-updater.react.js';
@@ -129,6 +130,9 @@ const defaultState = ({
         connection: defaultConnectionInfo,
       },
     },
+  },
+  localSettings: {
+    isBackupEnabled: false,
   },
 }: AppState);
 
@@ -300,6 +304,20 @@ function reducer(state: AppState = defaultState, action: Action) {
       });
     }
     return state;
+  } else if (action.type === setLocalSettingsActionType) {
+    return {
+      ...state,
+      localSettings: { ...state.localSettings, ...action.payload },
+    };
+  } else if (
+    action.type === logOutActionTypes.started ||
+    action.type === logOutActionTypes.success ||
+    action.type === deleteAccountActionTypes.success
+  ) {
+    return {
+      ...state,
+      localSettings: { isBackupEnabled: false },
+    };
   }
 
   if (action.type === setNewSessionActionType) {
