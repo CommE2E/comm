@@ -41,6 +41,10 @@ import {
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
+import type {
+  KeyserverStore,
+  KeyserverInfo,
+} from 'lib/types/keyserver-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type LocalMessageInfo,
@@ -50,7 +54,10 @@ import type {
   ReportStore,
   ClientReportCreationRequest,
 } from 'lib/types/report-types.js';
-import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import {
+  defaultConnectionInfo,
+  type ConnectionInfo,
+} from 'lib/types/socket-types.js';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -829,6 +836,42 @@ const reportStoreTransform: Transform = createTransform(
   { whitelist: ['reportStore'] },
 );
 
+type PersistedKeyserverInfo = $Diff<
+  KeyserverInfo,
+  { +connection: ConnectionInfo },
+>;
+type PersistedKeyserverStore = {
+  +keyserverInfos: { +[key: string]: PersistedKeyserverInfo },
+};
+const keyserverStoreTransform: Transform = createTransform(
+  (state: KeyserverStore): PersistedKeyserverStore => {
+    const keyserverInfos = {};
+    for (const key in state.keyserverInfos) {
+      const { connection, ...rest } = state.keyserverInfos[key];
+      keyserverInfos[key] = rest;
+    }
+    return {
+      ...state,
+      keyserverInfos,
+    };
+  },
+  (state: PersistedKeyserverStore): KeyserverStore => {
+    const keyserverInfos = {};
+    const defaultConnection = defaultConnectionInfo;
+    for (const key in state.keyserverInfos) {
+      keyserverInfos[key] = {
+        ...state.keyserverInfos[key],
+        connection: { ...defaultConnection },
+      };
+    }
+    return {
+      ...state,
+      keyserverInfos,
+    };
+  },
+  { whitelist: ['keyserverStore'] },
+);
+
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
@@ -846,7 +889,11 @@ const persistConfig = {
   ],
   debug: __DEV__,
   version: 50,
-  transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
+  transforms: [
+    messageStoreMessagesBlocklistTransform,
+    reportStoreTransform,
+    keyserverStoreTransform,
+  ],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
