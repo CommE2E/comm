@@ -129,7 +129,11 @@ import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
-import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';
+import {
+  nativeTypeaheadRegex,
+  mentionTypeaheadTooltipActions,
+  mentionTypeaheadTooltipButtonRenderer,
+} from '../utils/typeahead-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Clock, block, set, cond, neq, sub, interpolateNode, stopClock } =
@@ -567,8 +571,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           <TypeaheadTooltip
             text={this.state.text}
             matchedStrings={typeaheadMatchedStrings}
-            suggestedUsers={suggestedUsers}
+            suggestions={suggestedUsers}
             focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
+            typeaheadButtonRenderer={mentionTypeaheadTooltipButtonRenderer}
+            typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
           />
         );
       }
