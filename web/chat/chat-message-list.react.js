@@ -19,7 +19,10 @@ import {
   useMessageListData,
 } from 'lib/selectors/chat-selectors.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import { threadIsPending } from 'lib/shared/thread-utils.js';
+import {
+  threadIsPending,
+  useThreadChatMentionCandidates,
+} from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
@@ -437,7 +440,11 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
 
     const { clearTooltip } = useTooltipContext();
 
-    const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo);
+    const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
+    const getTextMessageMarkdownRules = useTextMessageRulesFunc(
+      threadInfo,
+      chatMentionCandidates,
+    );
     const messageListContext = React.useMemo(() => {
       if (!getTextMessageMarkdownRules) {
         return undefined;
