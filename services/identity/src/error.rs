@@ -149,7 +149,7 @@ impl AttributeValueFromHashMap for HashMap<String, AttributeValue> {
 
 pub fn consume_error<T>(result: Result<T, Error>) {
   match result {
-    Ok(_) => return,
+    Ok(_) => (),
     Err(e) => {
       error!("{}", e);
     }
