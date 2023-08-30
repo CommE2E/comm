@@ -227,13 +227,12 @@ const styles = StyleSheet.create({
     color: '#036AFF',
   },
   crashID: {
-    flexDirection: 'row',
+    alignItems: 'center',
     paddingBottom: 12,
     paddingTop: 2,
   },
   crashIDText: {
     color: 'black',
-    paddingRight: 8,
   },
   errorReportID: {
     flexDirection: 'row',
@@ -241,7 +240,13 @@ const styles = StyleSheet.create({
   },
   errorReportIDText: {
     color: 'black',
+    fontFamily: Platform.select({
+      ios: 'Menlo',
+      default: 'monospace',
+    }),
+    fontSize: 12,
     paddingRight: 8,
+    paddingTop: 3,
   },
   errorText: {
     color: 'black',
