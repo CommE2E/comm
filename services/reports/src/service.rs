@@ -3,6 +3,7 @@ use chrono::Utc;
 use comm_services_lib::{
   auth::UserIdentity,
   blob::client::{BlobServiceClient, BlobServiceError},
+  crypto::aes256,
   database,
 };
 use derive_more::{Display, Error, From};
@@ -11,9 +12,10 @@ use std::{
   future::{ready, Ready},
   sync::Arc,
 };
-use tracing::error;
+use tracing::{error, trace};
 
 use crate::{
+  config::CONFIG,
   database::{
     client::{DatabaseClient, ReportsPage},
     item::{ReportContent, ReportItem},
@@ -38,6 +40,9 @@ pub enum ReportsServiceError {
   /// Returned when trying to perform an operation on an incompatible report type
   /// e.g. create a Redux Devtools import from a media mission report
   UnsupportedReportType,
+  /// Error during encryption or decryption
+  #[display(fmt = "Encryption error")]
+  EncryptionError,
   /// Unexpected error
   Unexpected,
 }
@@ -88,8 +93,7 @@ impl ReportsService {
       let blob_client = self.blob_client.clone();
       let user_id = self.requesting_user_id.clone();
       tasks.spawn(async move {
-        let mut report = process_report(input, user_id)
-          .map_err(ReportsServiceError::SerdeError)?;
+        let mut report = process_report(input, user_id)?;
         report.db_item.ensure_size_constraints(&blob_client).await?;
         Ok(report)
       });
@@ -126,6 +130,7 @@ impl ReportsService {
     &self,
     report_id: ReportID,
   ) -> ServiceResult<Option<ReportOutput>> {
+    use ReportsServiceError::{EncryptionError, SerdeError};
     let Some(report_item) = self.db.get_report(&report_id).await? else {
       return Ok(None);
     };
@@ -135,12 +140,21 @@ impl ReportsService {
       platform,
       creation_time,
       content,
+      encryption_key,
       ..
     } = report_item;
 
-    let report_data = content.fetch_bytes(&self.blob_client).await?;
-    let report_json = serde_json::from_slice(report_data.as_slice())
-      .map_err(ReportsServiceError::SerdeError)?;
+    let mut report_data = content.fetch_bytes(&self.blob_client).await?;
+    if let Some(key) = encryption_key {
+      trace!("Encryption key present. Decrypting report data");
+      report_data = aes256::decrypt(&report_data, &key).map_err(|_| {
+        error!("Failed to decrypt report");
+        EncryptionError
+      })?;
+    }
+
+    let report_json =
+      serde_json::from_slice(report_data.as_slice()).map_err(SerdeError)?;
 
     let output = ReportOutput {
       id: report_id,
@@ -222,7 +236,9 @@ struct ProcessedReport {
 fn process_report(
   input: ReportInput,
   user_id: Option<String>,
-) -> Result<ProcessedReport, serde_json::Error> {
+) -> Result<ProcessedReport, ReportsServiceError> {
+  use ReportsServiceError::*;
+
   let id = ReportID::default();
   let email = crate::email::prepare_email(&input, &id, user_id.as_deref());
 
@@ -235,11 +251,26 @@ fn process_report(
 
   // Add "platformDetails" back to report content.
   // It was deserialized into a separate field.
-  let platform_details_value = serde_json::to_value(&platform_details)?;
+  let platform_details_value =
+    serde_json::to_value(&platform_details).map_err(SerdeError)?;
   report_content.insert("platformDetails".to_string(), platform_details_value);
 
   // serialize report JSON to bytes
-  let content_bytes = serde_json::to_vec(&report_content)?;
+  let content_bytes =
+    serde_json::to_vec(&report_content).map_err(SerdeError)?;
+
+  // possibly encrypt report
+  let (content, encryption_key) = if CONFIG.encrypt_reports {
+    trace!(?id, "Encrypting report");
+    let key = aes256::EncryptionKey::new();
+    let data = aes256::encrypt(&content_bytes, &key).map_err(|_| {
+      error!("Failed to encrypt report");
+      EncryptionError
+    })?;
+    (data, Some(key))
+  } else {
+    (content_bytes, None)
+  };
 
   let db_item = ReportItem {
     id: id.clone(),
@@ -247,8 +278,8 @@ fn process_report(
     platform: platform_details.platform.clone(),
     report_type,
     creation_time: time.unwrap_or_else(Utc::now),
-    encryption_key: None,
-    content: ReportContent::Database(content_bytes),
+    encryption_key,
+    content: ReportContent::Database(content),
   };
 
   Ok(ProcessedReport { id, db_item, email })
