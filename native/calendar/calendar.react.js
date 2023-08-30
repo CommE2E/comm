@@ -24,6 +24,7 @@ import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
 } from 'lib/actions/entry-actions.js';
+import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import type {
@@ -1068,7 +1069,9 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const calendarFilters = useSelector(state => state.calendarFilters);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const loadingStatus = useSelector(loadingStatusSelector);
-    const connectionStatus = useSelector(state => state.connection.status);
+    const connection = useSelector(connectionSelector);
+    invariant(connection, 'keyserver missing from keyserverStore');
+    const connectionStatus = connection.status;
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useIndicatorStyle();
