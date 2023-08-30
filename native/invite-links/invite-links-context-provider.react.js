@@ -9,6 +9,10 @@ import {
   verifyInviteLink,
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
+import {
+  parseSecretFromInviteLinkURL,
+  parseInstallReferrerFromInviteLinkURL,
+} from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import {
@@ -67,7 +71,7 @@ function InviteLinksContextProvider(props: Props): React.Node {
     if (!installReferrer) {
       return;
     }
-    const linkSecret = parseInstallReferrer(installReferrer);
+    const linkSecret = parseInstallReferrerFromInviteLinkURL(installReferrer);
     if (linkSecret) {
       setCurrentLink(linkSecret);
     }
@@ -87,7 +91,7 @@ function InviteLinksContextProvider(props: Props): React.Node {
       // results in at most one validation and navigation.
       setCurrentLink(null);
 
-      const secret = parseSecret(currentLink);
+      const secret = parseSecretFromInviteLinkURL(currentLink);
       if (!secret) {
         return;
       }
@@ -121,18 +125,6 @@ function InviteLinksContextProvider(props: Props): React.Node {
       {children}
     </InviteLinksContext.Provider>
   );
-}
-
-const urlRegex = /invite\/(\S+)$/;
-function parseSecret(url: string) {
-  const match = urlRegex.exec(url);
-  return match?.[1];
-}
-
-const referrerRegex = /utm_source=(invite\/(\S+))$/;
-function parseInstallReferrer(referrer: string) {
-  const match = referrerRegex.exec(referrer);
-  return match?.[1];
 }
 
 export { InviteLinksContext, InviteLinksContextProvider };
