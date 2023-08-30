@@ -8,6 +8,7 @@ import type {
   MentionTypeaheadSuggestionItem,
 } from 'lib/shared/mention-utils.js';
 
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -26,6 +27,14 @@ function MentionTypeaheadTooltipButton(props: Props): React.Node {
       <UserAvatar size="small" userID={item.actionButtonContent.userInfo.id} />
     );
     typeaheadTooltipButtonText = item.actionButtonContent.userInfo.username;
+  } else if (item.actionButtonContent.type === 'chat') {
+    typeaheadTooltipButtonText = item.actionButtonContent.threadInfo.uiName;
+    avatarComponent = (
+      <ThreadAvatar
+        size="small"
+        threadInfo={item.actionButtonContent.threadInfo}
+      />
+    );
   }
 
   return (
