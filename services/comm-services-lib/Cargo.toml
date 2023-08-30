@@ -21,6 +21,7 @@ http = [
   "dep:tokio-stream",
   "dep:actix-web-httpauth",
 ]
+crypto = ["dep:aead", "dep:aes-gcm", "dep:bytes"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -51,3 +52,6 @@ http = { version = "0.2.9", optional = true }
 actix-web-httpauth = { version = "0.8.0", optional = true }
 actix-multipart = { version = "0.6", optional = true }
 tokio-stream = { version = "0.1.14", optional = true }
+# crypto dependencies
+aes-gcm = { version = "0.10", optional = true }
+aead = { version = "0.5", features = ["bytes"], optional = true }
