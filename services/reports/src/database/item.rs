@@ -7,6 +7,7 @@ use comm_services_lib::{
   },
   bytes::Bytes,
   constants::DDB_ITEM_SIZE_LIMIT,
+  crypto::aes256::EncryptionKey,
   database::{
     self, AttributeExtractor, AttributeMap, DBItemError, TryFromAttribute,
   },
@@ -35,7 +36,7 @@ pub struct ReportItem {
   #[serde(skip_serializing)]
   pub content: ReportContent,
   #[serde(skip_serializing)]
-  pub encryption_key: Option<String>,
+  pub encryption_key: Option<EncryptionKey>,
 }
 
 /// contains some redundancy as not all keys are always present
@@ -73,7 +74,7 @@ impl ReportItem {
     attrs.insert(content_attr_name, content_attr);
 
     if let Some(key) = self.encryption_key {
-      attrs.insert(ATTR_ENCRYPTION_KEY.to_string(), AttributeValue::S(key));
+      attrs.insert(ATTR_ENCRYPTION_KEY.to_string(), key.into());
     }
     attrs
   }
@@ -111,7 +112,7 @@ impl ReportItem {
       }
     };
     if let Some(key) = self.encryption_key.as_ref() {
-      size += key.as_bytes().len();
+      size += key.as_ref().len();
     }
     size
   }
@@ -130,7 +131,7 @@ impl TryFrom<AttributeMap> for ReportItem {
     let content = ReportContent::parse_from_attrs(&mut row)?;
     let encryption_key = row
       .remove(ATTR_ENCRYPTION_KEY)
-      .map(|attr| String::try_from_attr(ATTR_ENCRYPTION_KEY, Some(attr)))
+      .map(|attr| EncryptionKey::try_from_attr(ATTR_ENCRYPTION_KEY, Some(attr)))
       .transpose()?;
 
     Ok(ReportItem {
