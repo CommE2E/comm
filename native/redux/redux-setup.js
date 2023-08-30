@@ -95,7 +95,6 @@ const defaultState = ({
   dataLoaded: false,
   customServer: natNodeServer,
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-  connection: defaultConnectionInfo(),
   actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
   watchedThreadIDs: [],
   lifecycleState: 'active',
