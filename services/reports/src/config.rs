@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::Parser;
+use clap::{ArgAction, Parser};
 use comm_services_lib::blob::client::Url;
 use once_cell::sync::Lazy;
 use tracing::{info, warn};
@@ -26,9 +26,16 @@ pub struct AppConfig {
   /// HTTP server listening port
   #[arg(long, default_value_t = 50056)]
   pub http_port: u16,
+
   #[arg(env = ENV_BLOB_SERVICE_URL)]
   #[arg(long, default_value = "http://localhost:50053")]
   pub blob_service_url: Url,
+
+  /// Should reports be encrypted? Note that this flag disables encryption
+  /// which is enabled by default.
+  #[arg(long = "no-encrypt", action = ArgAction::SetFalse)]
+  pub encrypt_reports: bool,
+
   /// AWS Localstack service URL
   #[arg(env = ENV_LOCALSTACK_ENDPOINT)]
   #[arg(long)]
@@ -70,6 +77,10 @@ pub(super) fn parse_cmdline_args() -> Result<&'static AppConfig> {
     None => {
       warn!("E-mail config is disabled or missing! E-mails will not be sent.");
     }
+  }
+
+  if !cfg.encrypt_reports {
+    warn!("Encryption disabled. Reports will be stored in plaintext!");
   }
 
   Ok(cfg)
