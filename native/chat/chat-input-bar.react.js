@@ -90,6 +90,7 @@ import {
 } from './message-editing-context.react.js';
 import type { RemoveEditMode } from './message-list-types.js';
 import TypeaheadTooltip from './typeahead-tooltip.react.js';
+import MentionTypeaheadTooltipButton from '../chat/mention-typeahead-tooltip-button.react.js';
 import Button from '../components/button.react.js';
 // eslint-disable-next-line import/extensions
 import ClearableTextInput from '../components/clearable-text-input.react';
@@ -129,7 +130,10 @@ import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
-import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';
+import {
+  nativeTypeaheadRegex,
+  mentionTypeaheadTooltipActions,
+} from '../utils/typeahead-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Clock, block, set, cond, neq, sub, interpolateNode, stopClock } =
@@ -567,8 +571,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           <TypeaheadTooltip
             text={this.state.text}
             matchedStrings={typeaheadMatchedStrings}
-            suggestedUsers={suggestedUsers}
+            suggestions={suggestedUsers}
             focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
+            typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
+            TypeaheadTooltipButtonComponent={MentionTypeaheadTooltipButton}
           />
         );
       }

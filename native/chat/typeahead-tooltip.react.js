@@ -1,72 +1,74 @@
 // @flow
 
 import * as React from 'react';
-import { Platform, Text } from 'react-native';
+import { Platform } from 'react-native';
 import { PanGestureHandler, FlatList } from 'react-native-gesture-handler';
 
 import {
   type TypeaheadMatchedStrings,
   type Selection,
-  getNewTextAndSelection,
+  type TypeaheadTooltipActionItem,
 } from 'lib/shared/mention-utils.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import UserAvatar from '../avatars/user-avatar.react.js';
-import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
+import type {
+  TypeaheadTooltipActionsParams,
+  TypeaheadTooltipButtonComponentType,
+} from '../utils/typeahead-utils.js';
 
-export type TypeaheadTooltipProps = {
+export type TypeaheadTooltipProps<SuggestionItemType> = {
   +text: string,
   +matchedStrings: TypeaheadMatchedStrings,
-  +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  +suggestions: $ReadOnlyArray<SuggestionItemType>,
   +focusAndUpdateTextAndSelection: (text: string, selection: Selection) => void,
+  +typeaheadTooltipActionsGetter: (
+    TypeaheadTooltipActionsParams<SuggestionItemType>,
+  ) => $ReadOnlyArray<TypeaheadTooltipActionItem<SuggestionItemType>>,
+  +TypeaheadTooltipButtonComponent: TypeaheadTooltipButtonComponentType<SuggestionItemType>,
 };
 
-function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
+function TypeaheadTooltip<SuggestionItemType>(
+  props: TypeaheadTooltipProps<SuggestionItemType>,
+): React.Node {
   const {
     text,
     matchedStrings,
-    suggestedUsers,
+    suggestions,
     focusAndUpdateTextAndSelection,
+    TypeaheadTooltipButtonComponent,
+    typeaheadTooltipActionsGetter,
   } = props;
 
   const { textBeforeAtSymbol, textPrefix } = matchedStrings;
 
   const styles = useStyles(unboundStyles);
-
-  const renderTypeaheadButton = React.useCallback(
-    ({ item }: { item: RelativeMemberInfo, ... }) => {
-      const onPress = () => {
-        const { newText, newSelectionStart } = getNewTextAndSelection(
-          textBeforeAtSymbol,
-          text,
-          textPrefix,
-          item,
-        );
-
-        focusAndUpdateTextAndSelection(newText, {
-          start: newSelectionStart,
-          end: newSelectionStart,
-        });
-      };
-
-      return (
-        <Button onPress={onPress} style={styles.button} iosActiveOpacity={0.85}>
-          <UserAvatar size="small" userID={item.id} />
-          <Text style={styles.buttonLabel} numberOfLines={1}>
-            @{item.username}
-          </Text>
-        </Button>
-      );
-    },
+  const actions = React.useMemo(
+    () =>
+      typeaheadTooltipActionsGetter({
+        suggestions,
+        textBeforeAtSymbol,
+        text,
+        textPrefix,
+        focusAndUpdateTextAndSelection,
+      }),
     [
-      styles.button,
-      styles.buttonLabel,
+      typeaheadTooltipActionsGetter,
+      suggestions,
       textBeforeAtSymbol,
       text,
       textPrefix,
       focusAndUpdateTextAndSelection,
     ],
+  );
+
+  const renderTypeaheadButton = React.useCallback(
+    ({
+      item,
+    }: {
+      item: TypeaheadTooltipActionItem<SuggestionItemType>,
+      ...
+    }) => <TypeaheadTooltipButtonComponent item={item} />,
+    [],
   );
 
   // This is a hack that was introduced due to a buggy behavior of a
@@ -95,17 +97,12 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
       <FlatList
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
-        data={suggestedUsers}
+        data={actions}
         renderItem={renderTypeaheadButton}
         keyboardShouldPersistTaps="always"
       />
     ),
-    [
-      renderTypeaheadButton,
-      styles.container,
-      styles.contentContainer,
-      suggestedUsers,
-    ],
+    [actions, renderTypeaheadButton, styles.container, styles.contentContainer],
   );
 
   const listWithConditionalHandler = React.useMemo(() => {
@@ -133,19 +130,6 @@ const unboundStyles = {
   },
   contentContainer: {
     padding: 8,
-  },
-  button: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    innerHeight: 24,
-    padding: 8,
-    color: 'typeaheadTooltipText',
-  },
-  buttonLabel: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '400',
-    marginLeft: 8,
   },
 };
 
