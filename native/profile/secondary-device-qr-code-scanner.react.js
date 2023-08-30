@@ -5,7 +5,7 @@ import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { parseKeysFromQRCodeURL } from 'lib/facts/links.js';
+import { parseDataFromDeepLink } from 'lib/facts/links.js';
 
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -39,9 +39,10 @@ function SecondaryDeviceQRCodeScanner(props: { ... }): React.Node {
 
   const onConnect = React.useCallback((barCodeEvent: BarCodeEvent) => {
     const { data } = barCodeEvent;
-    const keysMatch = parseKeysFromQRCodeURL(data);
+    const parsedData = parseDataFromDeepLink(data);
+    const keysMatch = parsedData?.data?.keys;
 
-    if (!keysMatch) {
+    if (!parsedData || !keysMatch) {
       Alert.alert(
         'Scan failed',
         'QR code does not contain a valid pair of keys.',
