@@ -86,7 +86,6 @@ fn handle_reports_service_error(err: &ReportsServiceError) -> actix_web::Error {
         ErrorInternalServerError("internal error")
       }
     },
-    #[allow(unreachable_patterns)]
     err => {
       error!("Received an unexpected error: {0:?} - {0}", err);
       ErrorInternalServerError("server error")
