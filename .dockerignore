@@ -7,6 +7,12 @@
 
 node_modules
 
+desktop/node_modules
+desktop/assets
+desktop/dist
+desktop/out
+desktop/*.provisionprofile
+
 landing/node_modules
 landing/dist
 
@@ -27,14 +33,11 @@ keyserver/facts
 keyserver/secrets
 keyserver/*.env
 keyserver/*.env.*
+keyserver/addons/rust-node-addon/target
 
-services/tunnelbroker/Dockerfile
-services/identity/target
-services/identity/Dockerfile
+services/*/Dockerfile
+services/*/target
 services/identity/secrets
-services/backup/Dockerfile
-services/blob/target
-services/blob/Dockerfile
 services/electron-update-server/node_modules
 
 native/cpp/**/build
