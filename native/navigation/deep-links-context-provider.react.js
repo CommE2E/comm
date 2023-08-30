@@ -20,11 +20,11 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import { InviteLinkModalRouteName } from '../navigation/route-names.js';
+import { InviteLinkModalRouteName } from './route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnFirstLaunchEffect } from '../utils/hooks.js';
 
-type InviteLinksContextType = {
+type DeepLinksContextType = {
   +setCurrentLinkUrl: SetState<?string>,
 };
 
@@ -32,13 +32,13 @@ const defaultContext = {
   setCurrentLinkUrl: () => {},
 };
 
-const InviteLinksContext: React.Context<InviteLinksContextType> =
-  React.createContext<InviteLinksContextType>(defaultContext);
+const DeepLinksContext: React.Context<DeepLinksContextType> =
+  React.createContext<DeepLinksContextType>(defaultContext);
 
 type Props = {
   +children: React.Node,
 };
-function InviteLinksContextProvider(props: Props): React.Node {
+function DeepLinksContextProvider(props: Props): React.Node {
   const { children } = props;
   const [currentLink, setCurrentLink] = React.useState(null);
 
@@ -121,10 +121,10 @@ function InviteLinksContextProvider(props: Props): React.Node {
   );
 
   return (
-    <InviteLinksContext.Provider value={contextValue}>
+    <DeepLinksContext.Provider value={contextValue}>
       {children}
-    </InviteLinksContext.Provider>
+    </DeepLinksContext.Provider>
   );
 }
 
-export { InviteLinksContext, InviteLinksContextProvider };
+export { DeepLinksContext, DeepLinksContextProvider };

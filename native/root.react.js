@@ -34,10 +34,10 @@ import ConnectedStatusBar from './connected-status-bar.react.js';
 import { SQLiteDataHandler } from './data/sqlite-data-handler.js';
 import ErrorBoundary from './error-boundary.react.js';
 import InputStateContainer from './input/input-state-container.react.js';
-import { InviteLinksContextProvider } from './invite-links/invite-links-context-provider.react.js';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react.js';
 import MarkdownContextProvider from './markdown/markdown-context-provider.react.js';
 import { filesystemMediaCache } from './media/media-cache.js';
+import { DeepLinksContextProvider } from './navigation/deep-links-context-provider.react.js';
 import { defaultNavigationState } from './navigation/default-state.js';
 import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react.js';
 import { setGlobalNavContext } from './navigation/icky-global.js';
@@ -251,9 +251,9 @@ function Root() {
         theme={theme}
         ref={containerRef}
       >
-        <InviteLinksContextProvider>
+        <DeepLinksContextProvider>
           <RootNavigator />
-        </InviteLinksContextProvider>
+        </DeepLinksContextProvider>
         <NavigationHandler />
       </NavigationContainer>
     );
