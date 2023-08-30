@@ -11,9 +11,7 @@ use comm_services_lib::database::Error;
 use tracing::{error, trace, warn};
 
 use crate::constants::{
-  BACKUP_TABLE_FIELD_BACKUP_ID, BACKUP_TABLE_FIELD_USER_ID,
-  BACKUP_TABLE_INDEX_USERID_CREATED, BACKUP_TABLE_NAME,
-  LOG_TABLE_FIELD_ATTACHMENT_HOLDERS, LOG_TABLE_FIELD_BACKUP_ID,
+  backup_table, LOG_TABLE_FIELD_ATTACHMENT_HOLDERS, LOG_TABLE_FIELD_BACKUP_ID,
   LOG_TABLE_FIELD_DATA_HASH, LOG_TABLE_FIELD_LOG_ID,
   LOG_TABLE_FIELD_PERSISTED_IN_BLOB, LOG_TABLE_FIELD_VALUE, LOG_TABLE_NAME,
 };
@@ -45,7 +43,7 @@ impl DatabaseClient {
     self
       .client
       .put_item()
-      .table_name(BACKUP_TABLE_NAME)
+      .table_name(backup_table::TABLE_NAME)
       .set_item(Some(item))
       .send()
       .await
@@ -67,7 +65,7 @@ impl DatabaseClient {
     let output = self
       .client
       .get_item()
-      .table_name(BACKUP_TABLE_NAME)
+      .table_name(backup_table::TABLE_NAME)
       .set_key(Some(item_key))
       .send()
       .await
@@ -93,10 +91,10 @@ impl DatabaseClient {
     let response = self
       .client
       .query()
-      .table_name(BACKUP_TABLE_NAME)
-      .index_name(BACKUP_TABLE_INDEX_USERID_CREATED)
+      .table_name(backup_table::TABLE_NAME)
+      .index_name(backup_table::CREATED_INDEX)
       .key_condition_expression("#userID = :valueToMatch")
-      .expression_attribute_names("#userID", BACKUP_TABLE_FIELD_USER_ID)
+      .expression_attribute_names("#userID", backup_table::attr::USER_ID)
       .expression_attribute_values(
         ":valueToMatch",
         AttributeValue::S(user_id.to_string()),
@@ -129,7 +127,7 @@ impl DatabaseClient {
     let response = self
       .client
       .delete_item()
-      .table_name(BACKUP_TABLE_NAME)
+      .table_name(backup_table::TABLE_NAME)
       .set_key(Some(item_key))
       .return_values(ReturnValue::AllOld)
       .send()
@@ -155,10 +153,10 @@ impl DatabaseClient {
     let response = self
       .client
       .query()
-      .table_name(BACKUP_TABLE_NAME)
-      .index_name(BACKUP_TABLE_INDEX_USERID_CREATED)
+      .table_name(backup_table::TABLE_NAME)
+      .index_name(backup_table::CREATED_INDEX)
       .key_condition_expression("#userID = :valueToMatch")
-      .expression_attribute_names("#userID", BACKUP_TABLE_FIELD_USER_ID)
+      .expression_attribute_names("#userID", backup_table::attr::USER_ID)
       .expression_attribute_values(
         ":valueToMatch",
         AttributeValue::S(user_id.to_string()),
@@ -220,11 +218,11 @@ impl DatabaseClient {
   ) -> HashMap<String, AttributeValue> {
     HashMap::from([
       (
-        BACKUP_TABLE_FIELD_USER_ID.to_string(),
+        backup_table::attr::USER_ID.to_string(),
         AttributeValue::S(user_id.to_string()),
       ),
       (
-        BACKUP_TABLE_FIELD_BACKUP_ID.to_string(),
+        backup_table::attr::BACKUP_ID.to_string(),
         AttributeValue::S(backup_id.to_string()),
       ),
     ])
