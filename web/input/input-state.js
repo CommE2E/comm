@@ -9,7 +9,11 @@ import {
   type MediaMissionStep,
 } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
+import type {
+  ThreadInfo,
+  RelativeMemberInfo,
+  ChatMentionCandidates,
+} from 'lib/types/thread-types.js';
 
 export type PendingMultimediaUpload = {
   +localID: string,
@@ -43,6 +47,7 @@ export type TypeaheadState = {
   +canBeVisible: boolean,
   +keepUpdatingThreadMembers: boolean,
   +frozenUserMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +frozenChatMentionsCandidates: ChatMentionCandidates,
   +moveChoiceUp: ?() => void,
   +moveChoiceDown: ?() => void,
   +close: ?() => void,
