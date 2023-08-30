@@ -12,7 +12,10 @@ import uuidv4 from 'uuid/v4.js';
 
 import genesis from 'lib/facts/genesis.js';
 import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
-import { isUserMentioned } from 'lib/shared/mention-utils.js';
+import {
+  isUserMentioned,
+  extractChatMentions,
+} from 'lib/shared/mention-utils.js';
 import {
   createMessageInfo,
   sortMessageInfoList,
@@ -23,6 +26,7 @@ import { notifTextsForMessageInfo } from 'lib/shared/notif-utils.js';
 import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
+  extractThreadID,
 } from 'lib/shared/thread-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -111,7 +115,12 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
   const [
     unreadCounts,
-    { usersToCollapsableNotifInfo, serverThreadInfos, userInfos },
+    {
+      usersToCollapsableNotifInfo,
+      serverThreadInfos,
+      userInfos,
+      userThreadIDs,
+    },
     dbIDs,
   ] = await Promise.all([
     getUnreadCounts(Object.keys(pushInfo)),
@@ -183,13 +192,19 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         continue;
       }
       const badgeOnly = !displayBanner && !userWasMentioned;
-
+      const mentionableThreadIDs = await getMentionableThreads(
+        threadID,
+        userThreadIDs[userID],
+        userID,
+      );
       const notifTargetUserInfo = { id: userID, username };
       const notifTexts = await notifTextsForMessageInfo(
         allMessageInfos,
-        threadInfo,
+        threadID,
         notifTargetUserInfo,
         getENSNames,
+        mentionableThreadIDs,
+        threadInfos,
       );
       if (!notifTexts) {
         continue;
@@ -481,7 +496,6 @@ async function isThreadMentionable(
   return messageThread.community === mentionedThread.community;
 }
 
-// eslint-disable-next-line no-unused-vars
 async function getMentionableThreads(
   messageThreadID: string,
   mentionedThreadIDs: $ReadOnlySet<string>,
@@ -602,8 +616,13 @@ async function fetchInfos(pushInfo: PushInfo) {
   const usersToCollapsableNotifInfo = await fetchCollapsableNotifs(pushInfo);
 
   const threadIDs = new Set();
+  const userThreadIDs = {};
+  const mentionThreadIDs = new Set();
   const threadWithChangedNamesToMessages = new Map();
-  const addThreadIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
+  const addThreadIDsFromMessageInfos = (
+    rawMessageInfo: RawMessageInfo,
+    userID: string,
+  ) => {
     const threadID = rawMessageInfo.threadID;
     threadIDs.add(threadID);
     const messageSpec = messageSpecs[rawMessageInfo.type];
@@ -623,14 +642,33 @@ async function fetchInfos(pushInfo: PushInfo) {
         threadWithChangedNamesToMessages.set(threadID, [rawMessageInfo.id]);
       }
     }
+    const unwrappedMessageInfo =
+      rawMessageInfo.type === messageTypes.SIDEBAR_SOURCE
+        ? rawMessageInfo.sourceMessage
+        : rawMessageInfo;
+    if (
+      unwrappedMessageInfo &&
+      unwrappedMessageInfo.type === messageTypes.TEXT
+    ) {
+      for (const { threadID: mentionedThreadID } of extractChatMentions(
+        unwrappedMessageInfo.text,
+      )) {
+        const transformedMentionedThreadID = extractThreadID(mentionedThreadID);
+        mentionThreadIDs.add(transformedMentionedThreadID);
+        userThreadIDs[userID].add(transformedMentionedThreadID);
+      }
+    }
   };
   for (const userID in usersToCollapsableNotifInfo) {
+    if (!userThreadIDs[userID]) {
+      userThreadIDs[userID] = new Set();
+    }
     for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
       for (const rawMessageInfo of notifInfo.existingMessageInfos) {
-        addThreadIDsFromMessageInfos(rawMessageInfo);
+        addThreadIDsFromMessageInfos(rawMessageInfo, userID);
       }
       for (const rawMessageInfo of notifInfo.newMessageInfos) {
-        addThreadIDsFromMessageInfos(rawMessageInfo);
+        addThreadIDsFromMessageInfos(rawMessageInfo, userID);
       }
     }
   }
@@ -638,6 +676,9 @@ async function fetchInfos(pushInfo: PushInfo) {
   const promises = {};
   // These threadInfos won't have currentUser set
   promises.threadResult = fetchServerThreadInfos({ threadIDs });
+  promises.mentionThreadResult = fetchServerThreadInfos({
+    threadIDs: mentionThreadIDs,
+  });
   if (threadWithChangedNamesToMessages.size > 0) {
     const typesThatAffectName = [
       messageTypes.CHANGE_SETTINGS,
@@ -670,7 +711,9 @@ async function fetchInfos(pushInfo: PushInfo) {
     promises.oldNames = dbQuery(oldNameQuery);
   }
 
-  const { threadResult, oldNames } = await promiseAll(promises);
+  const { threadResult, oldNames, mentionThreadResult } = await promiseAll(
+    promises,
+  );
   const serverThreadInfos = threadResult.threadInfos;
   if (oldNames) {
     const [result] = oldNames;
@@ -685,7 +728,15 @@ async function fetchInfos(pushInfo: PushInfo) {
     usersToCollapsableNotifInfo,
   );
 
-  return { usersToCollapsableNotifInfo, serverThreadInfos, userInfos };
+  return {
+    usersToCollapsableNotifInfo,
+    serverThreadInfos: {
+      ...serverThreadInfos,
+      ...mentionThreadResult.threadInfos,
+    },
+    userInfos,
+    userThreadIDs,
+  };
 }
 
 async function fetchNotifUserInfos(
