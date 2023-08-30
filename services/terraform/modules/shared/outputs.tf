@@ -2,6 +2,7 @@ locals {
   exported_dynamodb_tables = [
     aws_dynamodb_table.feature-flags,
     aws_dynamodb_table.backup-service-backup,
+    aws_dynamodb_table.reports-service-reports,
   ]
 }
 
