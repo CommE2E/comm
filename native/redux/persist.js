@@ -39,6 +39,7 @@ import {
   unshimFunc,
 } from 'lib/shared/unshim-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
+import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -141,7 +142,8 @@ const migrations = {
     ...state,
     pingTimestamps: undefined,
     activeServerRequests: undefined,
-    connection: defaultConnectionInfo(Platform.OS),
+    connection: defaultConnectionInfo(),
+    actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
     watchedThreadIDs: [],
     entryStore: {
       ...state.entryStore,
@@ -736,6 +738,16 @@ const migrations = {
       connection,
     };
   },
+  [50]: async state => {
+    const { connection, ...rest } = state;
+    const { actualizedCalendarQuery, ...connectionRest } = connection;
+
+    return {
+      ...rest,
+      connection: connectionRest,
+      actualizedCalendarQuery,
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -830,7 +842,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 49,
+  version: 50,
   transforms: [messageStoreMessagesBlocklistTransform, reportStoreTransform],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

@@ -22,6 +22,7 @@ import {
 } from 'lib/shared/session-utils.js';
 import { isStaff } from 'lib/shared/staff-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
+import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
@@ -94,7 +95,8 @@ const defaultState = ({
   dataLoaded: false,
   customServer: natNodeServer,
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-  connection: defaultConnectionInfo(Platform.OS),
+  connection: defaultConnectionInfo(),
+  actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultEnabledApps,
