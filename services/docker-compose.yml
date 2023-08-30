@@ -35,6 +35,7 @@ services:
       - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
   # blob
   blob-server:
+    platform: linux/amd64
     depends_on:
       - localstack
     build:
@@ -69,6 +70,21 @@ services:
     image: commapp/feature-flags:0.1
     ports:
       - '${COMM_SERVICES_PORT_FEATURE_FLAGS}:50051'
+    volumes:
+      - $HOME/.aws/config:/home/comm/.aws/config:ro
+      - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
+  # reports
+  reports-server:
+    platform: linux/amd64
+    depends_on:
+      - localstack
+      - blob-server
+    build:
+      dockerfile: services/reports/Dockerfile
+      context: ../
+    image: commapp/reports-server:0.1
+    ports:
+      - '${COMM_SERVICES_PORT_REPORTS}:50056'
     volumes:
       - $HOME/.aws/config:/home/comm/.aws/config:ro
       - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
