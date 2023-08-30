@@ -175,7 +175,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     typeaheadState: {
       canBeVisible: false,
       keepUpdatingThreadMembers: true,
-      frozenMentionsCandidates: [],
+      frozenUserMentionsCandidates: [],
       moveChoiceUp: null,
       moveChoiceDown: null,
       close: null,
