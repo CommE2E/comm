@@ -82,7 +82,7 @@ export type GetTypeaheadTooltipActionsParams = {
   +inputStateSetTextCursorPosition: (newPosition: number) => mixed,
   +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
   +textBeforeAtSymbol: string,
-  +usernamePrefix: string,
+  +textPrefix: string,
 };
 
 function getTypeaheadTooltipActions(
@@ -94,7 +94,7 @@ function getTypeaheadTooltipActions(
     inputStateSetTextCursorPosition,
     suggestedUsers,
     textBeforeAtSymbol,
-    usernamePrefix,
+    textPrefix,
   } = params;
   return suggestedUsers
     .filter(
@@ -106,7 +106,7 @@ function getTypeaheadTooltipActions(
         const { newText, newSelectionStart } = getNewTextAndSelection(
           textBeforeAtSymbol,
           inputStateDraft,
-          usernamePrefix,
+          textPrefix,
           suggestedUser,
         );
 
