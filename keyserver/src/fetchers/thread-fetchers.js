@@ -13,7 +13,7 @@ import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
-  type RawThreadInfo,
+  type RawThreadInfos,
   type ServerThreadInfo,
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -223,9 +223,6 @@ async function fetchServerThreadInfos(
   return { threadInfos };
 }
 
-export type RawThreadInfos = {
-  +[id: string]: RawThreadInfo,
-};
 export type FetchThreadInfosResult = {
   +threadInfos: RawThreadInfos,
 };
