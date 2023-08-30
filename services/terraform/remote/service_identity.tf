@@ -5,6 +5,13 @@ locals {
 
   # Port that the container is listening on
   identity_service_container_grpc_port = 50054
+  identity_sc_port_name                = "identity-service-ecs-grpc"
+  identity_sc_dns_name                 = "identity-service"
+
+  # Endpoint name accessible by other services in the same Service Connect namespace
+  # This renders to e.g. 'identity-service:50054'
+  identity_local_endpoint = "${local.identity_sc_dns_name}:${local.identity_service_container_grpc_port}"
+
   # Port that is exposed to the public SSL endpoint (appended to domain name)
   identity_service_grpc_public_port = 50054
   identity_service_domain_name      = "identity.${local.root_domain}"
@@ -25,7 +32,7 @@ resource "aws_ecs_task_definition" "identity_service" {
       essential = true
       portMappings = [
         {
-          name          = "identity-service-ecs-grpc"
+          name          = local.identity_sc_port_name
           containerPort = local.identity_service_container_grpc_port
           protocol      = "tcp"
           appProtocol   = "grpc"
@@ -85,6 +92,19 @@ resource "aws_ecs_service" "identity_service" {
   desired_count = 1
   lifecycle {
     ignore_changes = [desired_count]
+  }
+
+  # Expose Identity service to other services in the cluster
+  service_connect_configuration {
+    enabled = true
+    service {
+      discovery_name = local.identity_sc_dns_name
+      port_name      = local.identity_sc_port_name
+      client_alias {
+        port     = local.identity_service_container_grpc_port
+        dns_name = local.identity_sc_dns_name
+      }
+    }
   }
 
   load_balancer {
