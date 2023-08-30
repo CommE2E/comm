@@ -1,10 +1,19 @@
 locals {
-  blob_service_image_tag           = local.is_staging ? "latest" : "0.2.0"
-  blob_service_container_name      = "blob-service-server"
-  blob_service_server_image        = "commapp/blob-server:${local.blob_service_image_tag}"
+  blob_service_image_tag      = local.is_staging ? "latest" : "0.2.0"
+  blob_service_container_name = "blob-service-server"
+  blob_service_server_image   = "commapp/blob-server:${local.blob_service_image_tag}"
+
+  # HTTP port & configuration for ECS Service Connect
   blob_service_container_http_port = 50053
-  blob_service_domain_name         = "blob.${local.root_domain}"
-  blob_service_s3_bucket           = "commapp-blob${local.s3_bucket_name_suffix}"
+  blob_sc_port_name                = "blob-service-ecs-http"
+  blob_sc_dns_name                 = "blob-service"
+
+  # URL accessible by other services in the same Service Connect namespace
+  # This renders to 'http://blob-service:50053'
+  blob_local_url = "http://${local.blob_sc_dns_name}:${local.blob_service_container_http_port}"
+
+  blob_service_domain_name = "blob.${local.root_domain}"
+  blob_service_s3_bucket   = "commapp-blob${local.s3_bucket_name_suffix}"
 }
 
 resource "aws_ecs_task_definition" "blob_service" {
@@ -16,7 +25,7 @@ resource "aws_ecs_task_definition" "blob_service" {
       essential = true
       portMappings = [
         {
-          name          = "blob-service-ecs-http"
+          name          = local.blob_sc_port_name
           containerPort = local.blob_service_container_http_port
           protocol      = "tcp"
           appProtocol   = "http"
@@ -67,6 +76,19 @@ resource "aws_ecs_service" "blob_service" {
 
   lifecycle {
     ignore_changes = [desired_count]
+  }
+
+  # Expose Blob service to other services in the cluster
+  service_connect_configuration {
+    enabled = true
+    service {
+      discovery_name = local.blob_sc_dns_name
+      port_name      = local.blob_sc_port_name
+      client_alias {
+        port     = local.blob_service_container_http_port
+        dns_name = local.blob_sc_dns_name
+      }
+    }
   }
 
   # HTTP
