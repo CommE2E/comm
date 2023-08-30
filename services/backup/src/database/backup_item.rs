@@ -6,11 +6,7 @@ use comm_services_lib::{
 };
 use std::collections::HashMap;
 
-use crate::constants::{
-  BACKUP_TABLE_FIELD_ATTACHMENTS, BACKUP_TABLE_FIELD_BACKUP_ID,
-  BACKUP_TABLE_FIELD_CREATED, BACKUP_TABLE_FIELD_USER_DATA,
-  BACKUP_TABLE_FIELD_USER_ID, BACKUP_TABLE_FIELD_USER_KEYS,
-};
+use crate::constants::backup_table;
 
 #[derive(Clone, Debug)]
 pub struct BackupItem {
@@ -60,30 +56,30 @@ impl From<BackupItem> for HashMap<String, AttributeValue> {
   fn from(value: BackupItem) -> Self {
     let mut attrs = HashMap::from([
       (
-        BACKUP_TABLE_FIELD_USER_ID.to_string(),
+        backup_table::attr::USER_ID.to_string(),
         AttributeValue::S(value.user_id),
       ),
       (
-        BACKUP_TABLE_FIELD_BACKUP_ID.to_string(),
+        backup_table::attr::BACKUP_ID.to_string(),
         AttributeValue::S(value.backup_id),
       ),
       (
-        BACKUP_TABLE_FIELD_CREATED.to_string(),
+        backup_table::attr::CREATED.to_string(),
         AttributeValue::S(value.created.to_rfc3339()),
       ),
       (
-        BACKUP_TABLE_FIELD_USER_KEYS.to_string(),
+        backup_table::attr::USER_KEYS.to_string(),
         value.user_keys.into(),
       ),
       (
-        BACKUP_TABLE_FIELD_USER_DATA.to_string(),
+        backup_table::attr::USER_DATA.to_string(),
         value.user_data.into(),
       ),
     ]);
 
     if !value.attachments.is_empty() {
       attrs.insert(
-        BACKUP_TABLE_FIELD_ATTACHMENTS.to_string(),
+        backup_table::attr::ATTACHMENTS.to_string(),
         AttributeValue::L(
           value
             .attachments
@@ -105,30 +101,30 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
     mut value: HashMap<String, AttributeValue>,
   ) -> Result<Self, Self::Error> {
     let user_id = String::try_from_attr(
-      BACKUP_TABLE_FIELD_USER_ID,
-      value.remove(BACKUP_TABLE_FIELD_USER_ID),
+      backup_table::attr::USER_ID,
+      value.remove(backup_table::attr::USER_ID),
     )?;
     let backup_id = String::try_from_attr(
-      BACKUP_TABLE_FIELD_BACKUP_ID,
-      value.remove(BACKUP_TABLE_FIELD_BACKUP_ID),
+      backup_table::attr::BACKUP_ID,
+      value.remove(backup_table::attr::BACKUP_ID),
     )?;
     let created = DateTime::<Utc>::try_from_attr(
-      BACKUP_TABLE_FIELD_CREATED,
-      value.remove(BACKUP_TABLE_FIELD_CREATED),
+      backup_table::attr::CREATED,
+      value.remove(backup_table::attr::CREATED),
     )?;
 
     let user_keys = BlobInfo::try_from_attr(
-      BACKUP_TABLE_FIELD_USER_KEYS,
-      value.remove(BACKUP_TABLE_FIELD_USER_KEYS),
+      backup_table::attr::USER_KEYS,
+      value.remove(backup_table::attr::USER_KEYS),
     )?;
     let user_data = BlobInfo::try_from_attr(
-      BACKUP_TABLE_FIELD_USER_DATA,
-      value.remove(BACKUP_TABLE_FIELD_USER_DATA),
+      backup_table::attr::USER_DATA,
+      value.remove(backup_table::attr::USER_DATA),
     )?;
 
-    let attachments = value.remove(BACKUP_TABLE_FIELD_ATTACHMENTS);
+    let attachments = value.remove(backup_table::attr::ATTACHMENTS);
     let attachments = if attachments.is_some() {
-      attachments.attr_try_into(BACKUP_TABLE_FIELD_ATTACHMENTS)?
+      attachments.attr_try_into(backup_table::attr::ATTACHMENTS)?
     } else {
       vec![]
     };
@@ -161,21 +157,21 @@ impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
     mut value: HashMap<String, AttributeValue>,
   ) -> Result<Self, Self::Error> {
     let user_id = String::try_from_attr(
-      BACKUP_TABLE_FIELD_USER_ID,
-      value.remove(BACKUP_TABLE_FIELD_USER_ID),
+      backup_table::attr::USER_ID,
+      value.remove(backup_table::attr::USER_ID),
     )?;
     let created = DateTime::<Utc>::try_from_attr(
-      BACKUP_TABLE_FIELD_CREATED,
-      value.remove(BACKUP_TABLE_FIELD_CREATED),
+      backup_table::attr::CREATED,
+      value.remove(backup_table::attr::CREATED),
     )?;
     let backup_id = String::try_from_attr(
-      BACKUP_TABLE_FIELD_BACKUP_ID,
-      value.remove(BACKUP_TABLE_FIELD_BACKUP_ID),
+      backup_table::attr::BACKUP_ID,
+      value.remove(backup_table::attr::BACKUP_ID),
     )?;
 
     let user_keys = BlobInfo::try_from_attr(
-      BACKUP_TABLE_FIELD_USER_KEYS,
-      value.remove(BACKUP_TABLE_FIELD_USER_KEYS),
+      backup_table::attr::USER_KEYS,
+      value.remove(backup_table::attr::USER_KEYS),
     )?;
 
     Ok(OrderedBackupItem {

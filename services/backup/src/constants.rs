@@ -13,15 +13,19 @@ pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 
 // DynamoDB constants
+pub mod backup_table {
+  pub const TABLE_NAME: &str = "backup-service-backup";
+  pub const CREATED_INDEX: &str = "userID-created-index";
 
-pub const BACKUP_TABLE_NAME: &str = "backup-service-backup";
-pub const BACKUP_TABLE_FIELD_USER_ID: &str = "userID";
-pub const BACKUP_TABLE_FIELD_BACKUP_ID: &str = "backupID";
-pub const BACKUP_TABLE_FIELD_CREATED: &str = "created";
-pub const BACKUP_TABLE_FIELD_USER_DATA: &str = "userData";
-pub const BACKUP_TABLE_FIELD_USER_KEYS: &str = "userKeys";
-pub const BACKUP_TABLE_FIELD_ATTACHMENTS: &str = "attachments";
-pub const BACKUP_TABLE_INDEX_USERID_CREATED: &str = "userID-created-index";
+  pub mod attr {
+    pub const USER_ID: &str = "userID";
+    pub const BACKUP_ID: &str = "backupID";
+    pub const CREATED: &str = "created";
+    pub const USER_DATA: &str = "userData";
+    pub const USER_KEYS: &str = "userKeys";
+    pub const ATTACHMENTS: &str = "attachments";
+  }
+}
 
 pub const LOG_TABLE_NAME: &str = "backup-service-log";
 pub const LOG_TABLE_FIELD_BACKUP_ID: &str = "backupID";
