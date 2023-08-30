@@ -11,7 +11,7 @@ import t from 'tcomb';
 import uuidv4 from 'uuid/v4.js';
 
 import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
-import { isMentioned } from 'lib/shared/mention-utils.js';
+import { isUserMentioned } from 'lib/shared/mention-utils.js';
 import {
   createMessageInfo,
   sortMessageInfoList,
@@ -172,7 +172,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
               : newMessageInfo;
           return (
             unwrappedMessageInfo.type === messageTypes.TEXT &&
-            isMentioned(username, unwrappedMessageInfo.text)
+            isUserMentioned(username, unwrappedMessageInfo.text)
           );
         });
       if (!updateBadge && !displayBanner && !userWasMentioned) {
