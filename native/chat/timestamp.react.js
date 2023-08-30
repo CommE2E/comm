@@ -15,11 +15,25 @@ type Props = {
 };
 function Timestamp(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const style = [styles.timestamp];
-  if (props.display === 'modal') {
-    style.push(styles.modal);
-  }
-  return <SingleLine style={style}>{longAbsoluteDate(props.time)}</SingleLine>;
+  const style = React.useMemo(
+    () =>
+      props.display === 'modal'
+        ? [styles.timestamp, styles.modal]
+        : [styles.timestamp],
+    [props.display, styles.modal, styles.timestamp],
+  );
+
+  const absoluteDate = React.useMemo(
+    () => longAbsoluteDate(props.time),
+    [props.time],
+  );
+
+  const timestamp = React.useMemo(
+    () => <SingleLine style={style}>{absoluteDate}</SingleLine>,
+    [absoluteDate, style],
+  );
+
+  return timestamp;
 }
 
 const timestampHeight = 26;
