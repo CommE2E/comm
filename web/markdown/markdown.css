@@ -70,8 +70,14 @@ div.markdown ul {
 div.markdown a {
   text-decoration: underline;
 }
+div.markdown a.chatMention {
+  text-decoration: none;
+}
 div.lightBackground a {
   color: #2a5db0;
+}
+div.lightBackground a.chatMention {
+  color: black;
 }
 div.darkBackground a {
   color: white;
@@ -87,7 +93,8 @@ span.spoiler {
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
-span.spoiler a {
+span.spoiler a,
+span.spoiler a.chatMention {
   pointer-events: none;
   color: var(--spoiler-text-color);
 }
