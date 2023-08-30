@@ -13,7 +13,7 @@ import {
 import { MarkdownSpoilerContext } from './markdown-spoiler-context.js';
 import { MessagePressResponderContext } from '../chat/message-press-responder-context.js';
 import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
-import { InviteLinksContext } from '../invite-links/invite-links-context-provider.react.js';
+import { DeepLinksContext } from '../navigation/deep-links-context-provider.react.js';
 import Alert from '../utils/alert.js';
 import { normalizeURL } from '../utils/url-utils.js';
 
@@ -38,10 +38,10 @@ function useHandleLinkClick(
     displayURL += '…';
   }
 
-  const inviteLinksContext = React.useContext(InviteLinksContext);
+  const deepLinksContext = React.useContext(DeepLinksContext);
   return React.useCallback(() => {
     if (url.startsWith(inviteLinkUrl(''))) {
-      inviteLinksContext?.setCurrentLinkUrl(url);
+      deepLinksContext?.setCurrentLinkUrl(url);
       return;
     }
     messageKey && setLinkModalActive({ [messageKey]: true });
@@ -61,7 +61,7 @@ function useHandleLinkClick(
     displayURL,
     onDismiss,
     onConfirm,
-    inviteLinksContext,
+    deepLinksContext,
   ]);
 }
 
