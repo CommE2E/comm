@@ -382,9 +382,9 @@ function textMessageRules(
     ...baseRules,
     simpleMarkdownRules: {
       ...baseRules.simpleMarkdownRules,
-      mention: {
+      userMention: {
         ...SimpleMarkdown.defaultRules.strong,
-        match: SharedMarkdown.matchMentions(members),
+        match: SharedMarkdown.matchUserMentions(members),
         parse: (capture: SharedMarkdown.Capture) => ({
           content: capture[0],
         }),
