@@ -17,6 +17,7 @@ import {
   getMentionTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
   getUserMentionsCandidates,
+  getMentionTypeaheadChatSuggestions,
   type MentionTypeaheadSuggestionItem,
   type TypeaheadMatchedStrings,
 } from 'lib/shared/mention-utils.js';
@@ -27,6 +28,8 @@ import {
   threadFrozenDueToViewerBlock,
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
+  useThreadChatMentionCandidates,
+  useThreadChatMentionSearchIndex,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -578,6 +581,9 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callJoinThread = useServerCall(joinThread);
     const userSearchIndex = useSelector(userStoreMentionSearchIndex);
+    const chatMentionSearchIndex = useThreadChatMentionSearchIndex(
+      props.threadInfo,
+    );
 
     const { parentThreadID } = props.threadInfo;
     const parentThreadInfo = useSelector(state =>
@@ -587,6 +593,10 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const userMentionsCandidates = getUserMentionsCandidates(
       props.threadInfo,
       parentThreadInfo,
+    );
+
+    const chatMentionCandidates = useThreadChatMentionCandidates(
+      props.threadInfo,
     );
 
     const typeaheadRegexMatches = React.useMemo(
@@ -619,14 +629,15 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         const setter = props.inputState.setTypeaheadState;
         setter({
           frozenUserMentionsCandidates: userMentionsCandidates,
+          frozenChatMentionsCandidates: chatMentionCandidates,
         });
       }
     }, [
       userMentionsCandidates,
       props.inputState.setTypeaheadState,
       props.inputState.typeaheadState.keepUpdatingThreadMembers,
+      chatMentionCandidates,
     ]);
-
     const suggestedUsers = React.useMemo(() => {
       if (!typeaheadMatchedStrings) {
         return [];
@@ -643,6 +654,26 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       viewerID,
       typeaheadMatchedStrings,
     ]);
+    const suggestedChats = React.useMemo(() => {
+      if (!typeaheadMatchedStrings) {
+        return [];
+      }
+      return getMentionTypeaheadChatSuggestions(
+        chatMentionSearchIndex,
+        props.inputState.typeaheadState.frozenChatMentionsCandidates,
+        typeaheadMatchedStrings.textPrefix,
+      );
+    }, [
+      chatMentionSearchIndex,
+      props.inputState.typeaheadState.frozenChatMentionsCandidates,
+      typeaheadMatchedStrings,
+    ]);
+    const suggestions = React.useMemo(() => {
+      if (!typeaheadMatchedStrings) {
+        return [];
+      }
+      return [...suggestedUsers, ...suggestedChats];
+    }, [suggestedUsers, suggestedChats, typeaheadMatchedStrings]);
 
     return (
       <ChatInputBar
@@ -657,7 +688,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         dispatchActionPromise={dispatchActionPromise}
         joinThread={callJoinThread}
         typeaheadMatchedStrings={typeaheadMatchedStrings}
-        suggestions={suggestedUsers}
+        suggestions={suggestions}
         parentThreadInfo={parentThreadInfo}
       />
     );
