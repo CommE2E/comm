@@ -1,3 +1,5 @@
+use rand::{distributions::DistString, CryptoRng, Rng};
+
 // colon is valid because it is used as a separator
 // in some backup service identifiers
 const VALID_IDENTIFIER_CHARS: &'static [char] = &['_', '-', '=', ':'];
@@ -70,6 +72,13 @@ impl Drop for Defer<'_> {
       f();
     }
   }
+}
+
+pub fn generate_random_string(
+  length: usize,
+  rng: &mut (impl Rng + CryptoRng),
+) -> String {
+  rand::distributions::Alphanumeric.sample_string(rng, length)
 }
 
 #[cfg(test)]
