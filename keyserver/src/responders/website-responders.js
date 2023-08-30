@@ -516,6 +516,7 @@ async function websiteResponder(
           sessionID,
           updatesCurrentAsOf,
           urlPrefix,
+          connection: defaultConnectionInfo(),
         },
       },
     };
