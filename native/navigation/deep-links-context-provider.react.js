@@ -10,8 +10,9 @@ import {
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
 import {
-  parseSecretFromInviteLinkURL,
   parseInstallReferrerFromInviteLinkURL,
+  parseDataFromDeepLink,
+  type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -20,7 +21,10 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import { InviteLinkModalRouteName } from './route-names.js';
+import {
+  InviteLinkModalRouteName,
+  SecondaryDeviceQRCodeScannerRouteName,
+} from './route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnFirstLaunchEffect } from '../utils/hooks.js';
 
@@ -48,7 +52,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
     const subscription = Linking.addEventListener('url', ({ url }) =>
       setCurrentLink(url),
     );
-    // We're also checking if the app was opened by using an invite link.
+    // We're also checking if the app was opened by using a link.
     // In that case the listener won't be called and we're instead checking
     // if the initial URL is set.
     (async () => {
@@ -91,25 +95,30 @@ function DeepLinksContextProvider(props: Props): React.Node {
       // results in at most one validation and navigation.
       setCurrentLink(null);
 
-      const secret = parseSecretFromInviteLinkURL(currentLink);
-      if (!secret) {
+      const parsedData: ParsedDeepLinkData = parseDataFromDeepLink(currentLink);
+      if (!parsedData) {
         return;
       }
 
-      const validateLinkPromise = validateLink({ secret });
-      dispatchActionPromise(verifyInviteLinkActionTypes, validateLinkPromise);
-      const result = await validateLinkPromise;
-      if (result.status === 'already_joined') {
-        return;
-      }
+      if (parsedData.type === 'invite-link') {
+        const { secret } = parsedData.data;
+        const validateLinkPromise = validateLink({ secret });
+        dispatchActionPromise(verifyInviteLinkActionTypes, validateLinkPromise);
+        const result = await validateLinkPromise;
+        if (result.status === 'already_joined') {
+          return;
+        }
 
-      navigation.navigate<'InviteLinkModal'>({
-        name: InviteLinkModalRouteName,
-        params: {
-          invitationDetails: result,
-          secret,
-        },
-      });
+        navigation.navigate<'InviteLinkModal'>({
+          name: InviteLinkModalRouteName,
+          params: {
+            invitationDetails: result,
+            secret,
+          },
+        });
+      } else if (parsedData.type === 'qr-code') {
+        navigation.navigate(SecondaryDeviceQRCodeScannerRouteName);
+      }
     })();
   }, [currentLink, dispatchActionPromise, loggedIn, navigation, validateLink]);
 
