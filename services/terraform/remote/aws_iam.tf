@@ -138,3 +138,30 @@ resource "aws_iam_role" "feature_flags_service" {
   ]
 }
 
+# Reports Service IAM
+data "aws_iam_policy_document" "manage_reports_ddb" {
+  statement {
+    sid    = "ReportsFullDDBAccess"
+    effect = "Allow"
+    actions = [
+      "dynamodb:*",
+    ]
+    resources = [
+      module.shared.dynamodb_tables["reports-service-reports"].arn
+    ]
+  }
+}
+resource "aws_iam_policy" "manage_reports_ddb" {
+  name        = "reports-ddb-full-access"
+  policy      = data.aws_iam_policy_document.manage_reports_ddb.json
+  description = "Allows full access to reports DynamoDB table"
+}
+resource "aws_iam_role" "reports_service" {
+  name               = "reports-service-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_ecs_ec2.json
+
+  managed_policy_arns = [
+    aws_iam_policy.allow_ecs_exec.arn,
+    aws_iam_policy.manage_reports_ddb.arn
+  ]
+}
