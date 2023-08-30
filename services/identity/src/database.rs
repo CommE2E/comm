@@ -286,7 +286,7 @@ impl DatabaseClient {
     // first read in user info, then update one_time_keys with value we
     // gave to requester
     let user_info = self
-      .get_item_from_users_table(&user_id)
+      .get_item_from_users_table(user_id)
       .await?
       .item
       .ok_or(Error::MissingItem)?;
@@ -353,11 +353,10 @@ impl DatabaseClient {
       .to_string();
     let social_proof = keyserver
       .get(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME)
-      .map(|s| {
+      .and_then(|s| {
         s.to_string(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME)
           .ok()
       })
-      .flatten()
       .map(|s| s.to_owned());
 
     let full_content_prekey = PreKey {
@@ -380,7 +379,7 @@ impl DatabaseClient {
       notif_one_time_key,
     };
 
-    return Ok(Some(outbound_payload));
+    Ok(Some(outbound_payload))
   }
 
   /// Will "mint" a single one time key by attempting to successfully deleting

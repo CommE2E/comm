@@ -93,11 +93,11 @@ pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
 pub mod one_time_keys_table {
   // The `PARTITION_KEY` will contain "notification_${deviceID}" or
   // "content_${deviceID}" to allow for both key sets to coexist in the same table
-  pub const NAME: &'static str = "identity-one-time-keys";
-  pub const PARTITION_KEY: &'static str = "deviceID";
-  pub const DEVICE_ID: &'static str = PARTITION_KEY;
-  pub const SORT_KEY: &'static str = "oneTimeKey";
-  pub const ONE_TIME_KEY: &'static str = SORT_KEY;
+  pub const NAME: &str = "identity-one-time-keys";
+  pub const PARTITION_KEY: &str = "deviceID";
+  pub const DEVICE_ID: &str = PARTITION_KEY;
+  pub const SORT_KEY: &str = "oneTimeKey";
+  pub const ONE_TIME_KEY: &str = SORT_KEY;
 }
 
 // Tokio
