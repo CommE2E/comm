@@ -21,12 +21,7 @@ import {
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
-import {
-  type ErrorData,
-  type ClientReportCreationRequest,
-  type ReportCreationResponse,
-  reportTypes,
-} from 'lib/types/report-types.js';
+import { type ErrorData, reportTypes } from 'lib/types/report-types.js';
 import type { PreRequestUserState } from 'lib/types/session-types.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 import {
@@ -63,9 +58,6 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +sendReport: (
-    request: ClientReportCreationRequest,
-  ) => Promise<ReportCreationResponse>,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   +crashReportingEnabled: boolean,
 };
@@ -162,7 +154,7 @@ class Crash extends React.PureComponent<Props, State> {
       currentState: actionLogger.currentState,
       actions: actionLogger.actions,
     });
-    const result = await this.props.sendReport({
+    const result = await sendReport({
       type: reportTypes.ERROR,
       platformDetails: {
         platform: Platform.OS,
@@ -281,7 +273,6 @@ const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const preRequestUserState = useSelector(preRequestUserStateSelector);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callSendReport = useServerCall(sendReport);
     const callLogOut = useServerCall(logOut);
     const crashReportingEnabled = useIsReportEnabled('crashReports');
     return (
@@ -289,7 +280,6 @@ const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         {...props}
         preRequestUserState={preRequestUserState}
         dispatchActionPromise={dispatchActionPromise}
-        sendReport={callSendReport}
         logOut={callLogOut}
         crashReportingEnabled={crashReportingEnabled}
       />
