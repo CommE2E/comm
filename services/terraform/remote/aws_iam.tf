@@ -43,6 +43,7 @@ resource "aws_iam_role" "ecs_task_execution" {
   })
 
   managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess",
     "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
     # Let ECS write logs to CloudWatch
     "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
