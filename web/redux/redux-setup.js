@@ -21,7 +21,7 @@ import type {
 import type { LastCommunicatedPlatformDetails } from 'lib/types/device-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
-import type { EntryStore } from 'lib/types/entry-types.js';
+import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
 import { type CalendarFilter } from 'lib/types/filter-types.js';
 import type { KeyserverStore } from 'lib/types/keyserver-types.js';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
@@ -83,6 +83,7 @@ export type AppState = {
   +deviceToken: ?string,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
+  +actualizedCalendarQuery: CalendarQuery,
   +watchedThreadIDs: $ReadOnlyArray<string>,
   +lifecycleState: LifecycleState,
   +enabledApps: EnabledApps,

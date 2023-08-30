@@ -39,6 +39,7 @@ import {
   unshimFunc,
 } from 'lib/shared/unshim-utils.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
+import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -141,7 +142,8 @@ const migrations = {
     ...state,
     pingTimestamps: undefined,
     activeServerRequests: undefined,
-    connection: defaultConnectionInfo(Platform.OS),
+    connection: defaultConnectionInfo(),
+    actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
     watchedThreadIDs: [],
     entryStore: {
       ...state.entryStore,
