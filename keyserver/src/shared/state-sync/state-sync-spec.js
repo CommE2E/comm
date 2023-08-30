@@ -11,5 +11,5 @@ export type ServerStateSyncSpec<Infos, Info = empty> = {
     calendarQuery: $ReadOnlyArray<CalendarQuery>,
     ids?: $ReadOnlySet<string>,
   ) => Promise<Infos>,
-  ...StateSyncSpec<Info>,
+  ...StateSyncSpec<Infos, Info>,
 };
