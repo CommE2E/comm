@@ -26,7 +26,7 @@ export type TypeaheadTooltipProps = {
 function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   const { inputState, textarea, matchedStrings, suggestedUsers } = props;
 
-  const { textBeforeAtSymbol, usernamePrefix } = matchedStrings;
+  const { textBeforeAtSymbol, textPrefix } = matchedStrings;
 
   const [isVisibleForAnimation, setIsVisibleForAnimation] =
     React.useState(false);
@@ -63,7 +63,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
         inputStateSetTextCursorPosition: inputState.setTextCursorPosition,
         suggestedUsers,
         textBeforeAtSymbol,
-        usernamePrefix,
+        textPrefix,
       }),
     [
       inputState.draft,
@@ -71,7 +71,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
       inputState.setTextCursorPosition,
       suggestedUsers,
       textBeforeAtSymbol,
-      usernamePrefix,
+      textPrefix,
     ],
   );
 
