@@ -281,7 +281,6 @@ const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const preRequestUserState = useSelector(preRequestUserStateSelector);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callSendReport = useServerCall(sendReport);
     const callLogOut = useServerCall(logOut);
     const crashReportingEnabled = useIsReportEnabled('crashReports');
     return (
@@ -289,7 +288,7 @@ const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         {...props}
         preRequestUserState={preRequestUserState}
         dispatchActionPromise={dispatchActionPromise}
-        sendReport={callSendReport}
+        sendReport={sendReport}
         logOut={callLogOut}
         crashReportingEnabled={crashReportingEnabled}
       />
