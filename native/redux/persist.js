@@ -830,6 +830,7 @@ const persistConfig = {
     'frozen',
     'threadStore',
     'storeLoaded',
+    'connection',
   ],
   debug: __DEV__,
   version: 49,
