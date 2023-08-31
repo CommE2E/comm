@@ -11,6 +11,9 @@ package identity.authenticated;
 // the credentials on every request
 service IdentityClientService {
 
+  // Replenish one-time preKeys
+  rpc UploadOneTimeKeys(UploadOneTimeKeysRequest)
+    returns (identity.client.Empty) {}
   // Rotate a devices preKey and preKey signature
   // Rotated for deniability of older messages
   rpc RefreshUserPreKeys(RefreshUserPreKeysRequest)
@@ -23,6 +26,15 @@ service IdentityClientService {
 }
 
 // Helper types
+
+// UploadOneTimeKeys
+
+// As OPKs get exhausted, they need to be refreshed
+message UploadOneTimeKeysRequest {
+  repeated string contentOneTimePreKeys = 1;
+  repeated string notifOneTimePreKeys = 2;
+}
+
 
 // RefreshUserPreKeys
 
