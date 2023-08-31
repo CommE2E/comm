@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpResponse, HttpServer};
 use anyhow::Result;
 use comm_services_lib::{
   blob::client::BlobServiceClient,
@@ -32,6 +32,7 @@ pub async fn run_http_server(
       ))
       .app_data(db.clone())
       .app_data(blob.clone())
+      .route("/health", web::get().to(HttpResponse::Ok))
       .service(
         // Services that don't require authetication
         web::scope("/backups/latest")
