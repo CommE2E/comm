@@ -1,51 +1,39 @@
-FROM commapp/services-base:1.3.2 as builder
+FROM rust:1.70-bullseye as builder
 
-ENV PATH=/root/.cargo/bin:$PATH
-
-# Install Curl
-RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y curl \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Rust
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+WORKDIR /home/root/app/backup
 
-RUN mkdir -p /home/comm/app/backup
-WORKDIR /home/comm/app/backup
-RUN cargo init --bin
+# Install more recent version of protobuf, must be ran as root
+COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
+RUN ../../scripts/install_protobuf.sh
 
-# Cache build dependencies in a new layer
-COPY services/backup/Cargo.toml services/backup/Cargo.lock ./
-COPY services/comm-services-lib ../comm-services-lib
-RUN cargo build --release && rm src/*.rs 
+ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 # Copy actual application sources
-COPY services/backup .
+COPY services/comm-services-lib ../comm-services-lib
+COPY services/backup ./
 
-# Remove the previously-built binary so that only the application itself is
-# rebuilt
-RUN rm ./target/release/deps/backup*
-RUN cargo build --release
+RUN cargo install --locked --path .
 
 # Runner stage
-FROM commapp/services-base:1.3.2 as runner
+FROM debian:bullseye-slim as runner
+
+# Update dependencies, install ca-certificates which are required for TLS
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+# Only copy built binary from builder stage
+COPY --from=builder /usr/local/cargo/bin/backup /usr/local/bin/backup
+WORKDIR /home/comm/app/backup
 
 # Create a new user comm and use it to run subsequent commands
 RUN useradd -m comm
 USER comm
 
-# Only copy built binary from builder stage
-WORKDIR /home/comm/app/backup
-COPY --from=builder /home/comm/app/backup/target/release/backup .
+ENV RUST_LOG=info
 
-ARG COMM_SERVICES_SANDBOX
-ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
-ARG LOCALSTACK_URL
-ENV LOCALSTACK_URL=${LOCALSTACK_URL}
-ARG BLOB_SERVICE_URL
-ENV BLOB_SERVICE_URL=${BLOB_SERVICE_URL}
-
-CMD ./backup \
-  --localstack-url ${LOCALSTACK_URL} \
-  --blob-service-url ${BLOB_SERVICE_URL}
-  # The COMM_SERVICES_SANDBOX is processed by the executable
+CMD ["backup"]
