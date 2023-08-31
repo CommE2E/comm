@@ -1,15 +1,18 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
+import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
 import electron from '../electron.js';
+import { useSelector } from '../redux/redux-utils.js';
 import getTitle from '../title/getTitle.js';
 
 function useBadgeHandler() {
-  const connection = useSelector(state => state.connection);
+  const connection = useSelector(connectionSelector);
+  invariant(connection, 'keyserver missing from keyserverStore');
   const prevConnection = React.useRef();
 
   const boundUnreadCount = useSelector(unreadCount);
