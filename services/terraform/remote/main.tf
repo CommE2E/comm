@@ -52,3 +52,9 @@ module "shared" {
   bucket_name_suffix = local.s3_bucket_name_suffix
 }
 
+check "workspace_check" {
+  assert {
+    condition     = terraform.workspace == "staging" || terraform.workspace == "production"
+    error_message = "Terraform workspace must be either 'staging' or 'production'!"
+  }
+}
