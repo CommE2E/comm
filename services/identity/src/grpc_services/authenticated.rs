@@ -13,6 +13,7 @@ pub mod auth_proto {
 use auth_proto::{
   identity_client_service_server::IdentityClientService, KeyserverKeysResponse,
   OutboundKeyInfo, OutboundKeysForUserRequest, RefreshUserPreKeysRequest,
+  UploadOneTimeKeysRequest,
 };
 use client::{Empty, IdentityKeyInfo};
 use tracing::debug;
@@ -148,5 +149,26 @@ impl IdentityClientService for AuthenticatedService {
     });
 
     return Ok(response);
+  }
+
+  async fn upload_one_time_keys(
+    &self,
+    request: tonic::Request<UploadOneTimeKeysRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let (user_id, device_id) = get_user_and_device_id(&request)?;
+    let message = request.into_inner();
+
+    debug!("Attempting to update one time keys for user: {}", user_id);
+    self
+      .db_client
+      .append_one_time_prekeys(
+        device_id,
+        message.content_one_time_pre_keys,
+        message.notif_one_time_pre_keys,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    Ok(tonic::Response::new(Empty {}))
   }
 }
