@@ -239,6 +239,13 @@ function SwipeableMessage(props: Props): React.Node {
 
   const { contentStyle, children } = props;
 
+  const panGestureHandlerActiveOffsetX = React.useMemo(() => [-4, 4], []);
+  const panGestureHandlerFailOffsetY = React.useMemo(() => [-5, 5], []);
+  const panGestureHandlerStyle = React.useMemo(
+    () => [contentStyle, transformContentStyle],
+    [contentStyle, transformContentStyle],
+  );
+
   if (!triggerReply && !triggerSidebar) {
     return (
       <PanGestureHandler enabled={false}>
@@ -305,15 +312,13 @@ function SwipeableMessage(props: Props): React.Node {
   snakes.push(
     <PanGestureHandler
       maxPointers={1}
-      activeOffsetX={[-4, 4]}
+      activeOffsetX={panGestureHandlerActiveOffsetX}
       onGestureEvent={swipeEvent}
       failOffsetX={isViewer ? 5 : -5}
-      failOffsetY={[-5, 5]}
+      failOffsetY={panGestureHandlerFailOffsetY}
       key="gesture"
     >
-      <Animated.View style={[contentStyle, transformContentStyle]}>
-        {children}
-      </Animated.View>
+      <Animated.View style={panGestureHandlerStyle}>{children}</Animated.View>
     </PanGestureHandler>,
   );
 
