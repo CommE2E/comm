@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use clap::{Parser, Subcommand};
 use database::DatabaseClient;
 use moka::future::Cache;
 use tonic::transport::Server;
@@ -21,37 +20,16 @@ mod siwe;
 mod token;
 mod tunnelbroker;
 
-use config::load_config;
-use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
+use config::{load_config, Cli, Commands};
+use constants::IDENTITY_SERVICE_SOCKET_ADDR;
 use keygen::generate_and_persist_keypair;
 use tracing::{self, info, Level};
 use tracing_subscriber::EnvFilter;
 
+use clap::Parser;
 use client_service::{ClientService, IdentityClientServiceServer};
 use grpc_services::authenticated::auth_proto::identity_client_service_server::IdentityClientServiceServer as AuthServer;
 use grpc_services::authenticated::AuthenticatedService;
-
-#[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
-#[clap(propagate_version = true)]
-struct Cli {
-  #[clap(subcommand)]
-  command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-  /// Runs the server
-  Server,
-  /// Generates and persists a keypair to use for PAKE registration and login
-  Keygen {
-    #[clap(short, long)]
-    #[clap(default_value_t = String::from(SECRETS_DIRECTORY))]
-    dir: String,
-  },
-  /// Populates the `identity-users` table in DynamoDB from MySQL
-  PopulateDB,
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -66,9 +44,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let cli = Cli::parse();
   match &cli.command {
     Commands::Keygen { dir } => {
-      generate_and_persist_keypair(dir)?;
+      generate_and_persist_keypair(&dir)?;
     }
-    Commands::Server => {
+    Commands::Server { .. } => {
       load_config();
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
       let aws_config = aws_config::from_env().region("us-east-2").load().await;

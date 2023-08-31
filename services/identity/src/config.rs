@@ -1,5 +1,7 @@
 use base64::{engine::general_purpose, DecodeError, Engine as _};
+use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
+use path::Path;
 use std::{collections::HashSet, env, fmt, fs, io, path};
 use tracing::{error, info};
 
@@ -9,13 +11,54 @@ use crate::constants::{
   TUNNELBROKER_GRPC_ENDPOINT,
 };
 
-pub static CONFIG: Lazy<Config> =
-  Lazy::new(|| Config::load().expect("failed to load config"));
+pub static CONFIG: Lazy<Config> = Lazy::new(|| {
+  let args = Cli::parse();
+  Config::load(args.command).expect("failed to load config")
+});
 
 pub(super) fn load_config() {
   Lazy::force(&CONFIG);
 }
 
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+#[clap(propagate_version = true)]
+pub struct Cli {
+  #[clap(subcommand)]
+  pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+  /// Runs the server
+  Server {
+    #[clap(short, long)]
+    #[clap(env = LOCALSTACK_ENDPOINT)]
+    localstack_endpoint: Option<String>,
+    // Opaque 2.0 server secrets
+    #[clap(short, long)]
+    #[clap(env = OPAQUE_SERVER_SETUP)]
+    #[clap(default_value_t = format!("{}/{}", SECRETS_DIRECTORY, SECRETS_SETUP_FILE))]
+    server_setup_path: String,
+    #[clap(short, long)]
+    #[clap(env = KEYSERVER_PUBLIC_KEY)]
+    keyserver_public_key: Option<String>,
+    #[clap(short, long)]
+    #[clap(env = TUNNELBROKER_GRPC_ENDPOINT)]
+    #[clap(default_value_t = DEFAULT_TUNNELBROKER_ENDPOINT.to_string())]
+    tunnelbroker_endpoint: String,
+  },
+  /// Generates and persists a keypair to use for PAKE registration and login
+  Keygen {
+    #[clap(short, long)]
+    #[clap(default_value_t = String::from(SECRETS_DIRECTORY))]
+    dir: String,
+  },
+  /// Populates the `identity-users` table in DynamoDB from MySQL
+  PopulateDB,
+}
+
+// This config is the result of loading the values pass from the cli
 #[derive(Clone)]
 pub struct Config {
   pub localstack_endpoint: Option<String>,
@@ -28,36 +71,18 @@ pub struct Config {
 }
 
 impl Config {
-  fn load() -> Result<Self, Error> {
-    let localstack_endpoint = env::var(LOCALSTACK_ENDPOINT).ok();
-    let tunnelbroker_endpoint = match env::var(TUNNELBROKER_GRPC_ENDPOINT) {
-      Ok(val) => {
-        info!("Using tunnelbroker endpoint from env var: {}", val);
-        val
-      }
-      Err(std::env::VarError::NotPresent) => {
-        let val = DEFAULT_TUNNELBROKER_ENDPOINT;
-        info!("Falling back to default tunnelbroker endpoint: {}", val);
-        val.to_string()
-      }
-      Err(e) => {
-        error!(
-          "Failed to read environment variable {}: {:?}",
-          TUNNELBROKER_GRPC_ENDPOINT, e
-        );
-        return Err(Error::Env(e));
-      }
+  fn load(args: Commands) -> Result<Self, Error> {
+    let Commands::Server {
+      localstack_endpoint,
+      server_setup_path,
+      keyserver_public_key,
+      tunnelbroker_endpoint
+    } = args else {
+      return Err(Error::InvalidCommand);
     };
 
-    let mut path_buf = path::PathBuf::new();
-    path_buf.push(SECRETS_DIRECTORY);
-    path_buf.push(SECRETS_SETUP_FILE);
-
-    let server_setup = get_server_setup(path_buf.as_path())?;
-
+    let server_setup = get_server_setup(&Path::new(&server_setup_path))?;
     let reserved_usernames = get_reserved_usernames_set()?;
-
-    let keyserver_public_key = env::var(KEYSERVER_PUBLIC_KEY).ok();
 
     Ok(Self {
       localstack_endpoint,
@@ -91,6 +116,8 @@ pub enum Error {
   Json(serde_json::Error),
   #[display(...)]
   Decode(DecodeError),
+  #[display(...)]
+  InvalidCommand,
 }
 
 fn get_server_setup(
