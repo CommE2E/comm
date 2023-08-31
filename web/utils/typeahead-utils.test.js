@@ -1,6 +1,9 @@
 // @flow
 
-import { getTypeaheadOverlayScroll } from './typeahead-utils.js';
+import {
+  getTypeaheadOverlayScroll,
+  webMentionTypeaheadRegex,
+} from './typeahead-utils.js';
 import { typeaheadStyle } from '../chat/chat-constants.js';
 
 describe('getTypeaheadOverlayScroll', () => {
@@ -29,4 +32,29 @@ describe('getTypeaheadOverlayScroll', () => {
         3 * typeaheadStyle.rowHeight,
       ),
   );
+});
+
+describe('webMentionTypeaheadRegex', () => {
+  it('should match @username', () => {
+    expect('@username').toMatch(webMentionTypeaheadRegex);
+  });
+
+  it('should match @thread name with spaces', () => {
+    expect('@thread name with spaces').toMatch(webMentionTypeaheadRegex);
+  });
+
+  it('should match @', () => {
+    expect('@').toMatch(webMentionTypeaheadRegex);
+  });
+
+  it('should not match escaped @ mention', () => {
+    expect('\\@').not.toMatch(webMentionTypeaheadRegex);
+    expect('\\@username').not.toMatch(webMentionTypeaheadRegex);
+    expect('\\@thread with spaces').not.toMatch(webMentionTypeaheadRegex);
+  });
+
+  it('should not match mention longer than limits set in chat name regex', () => {
+    const longString = `@${'a'.repeat(200)} `;
+    expect(longString).not.toMatch(webMentionTypeaheadRegex);
+  });
 });
