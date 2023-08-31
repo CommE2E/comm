@@ -39,8 +39,6 @@ services:
     build:
       dockerfile: services/blob/Dockerfile
       context: ../
-      args:
-        - COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
     image: commapp/blob-server:0.1
     ports:
       - '${COMM_SERVICES_PORT_BLOB}:50053'
