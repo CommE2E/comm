@@ -246,83 +246,122 @@ function SwipeableMessage(props: Props): React.Node {
     [contentStyle, transformContentStyle],
   );
 
-  if (!triggerReply && !triggerSidebar) {
-    return (
-      <PanGestureHandler enabled={false}>
-        <Animated.View style={contentStyle}>{children}</Animated.View>
-      </PanGestureHandler>
-    );
-  }
-
   const threadColor = `#${props.threadColor}`;
   const tinyThreadColor = tinycolor(threadColor);
 
-  const snakes = [];
-  if (triggerReply) {
-    const replySnakeOpacityInterpolator = isViewer
-      ? interpolateOpacityForViewerPrimarySnake
-      : interpolateOpacityForNonViewerPrimarySnake;
-    snakes.push(
+  const replySwipeSnake = React.useMemo(
+    () => (
       <SwipeSnake
         isViewer={isViewer}
         translateX={translateX}
         color={threadColor}
-        opacityInterpolator={replySnakeOpacityInterpolator}
+        opacityInterpolator={
+          isViewer
+            ? interpolateOpacityForViewerPrimarySnake
+            : interpolateOpacityForNonViewerPrimarySnake
+        }
         key="reply"
       >
         <CommIcon name="reply-filled" size={14} />
-      </SwipeSnake>,
-    );
-  }
-  if (triggerReply && triggerSidebar) {
-    const sidebarSnakeTranslateXInterpolator = isViewer
-      ? interpolateTranslateXForViewerSecondarySnake
-      : interpolateTranslateXForNonViewerSecondarySnake;
-    const darkerThreadColor = tinyThreadColor
-      .darken(tinyThreadColor.isDark() ? 10 : 20)
-      .toString();
-    snakes.push(
+      </SwipeSnake>
+    ),
+    [isViewer, threadColor, translateX],
+  );
+
+  const sidebarSwipeSnakeWithReplySwipeSnake = React.useMemo(
+    () => (
       <SwipeSnake
         isViewer={isViewer}
         translateX={translateX}
-        color={darkerThreadColor}
-        translateXInterpolator={sidebarSnakeTranslateXInterpolator}
+        color={tinyThreadColor
+          .darken(tinyThreadColor.isDark() ? 10 : 20)
+          .toString()}
+        translateXInterpolator={
+          isViewer
+            ? interpolateTranslateXForViewerSecondarySnake
+            : interpolateTranslateXForNonViewerSecondarySnake
+        }
         key="sidebar"
       >
         <CommIcon name="sidebar-filled" size={16} />
-      </SwipeSnake>,
-    );
-  } else if (triggerSidebar) {
-    const sidebarSnakeOpacityInterpolator = isViewer
-      ? interpolateOpacityForViewerPrimarySnake
-      : interpolateOpacityForNonViewerPrimarySnake;
-    snakes.push(
+      </SwipeSnake>
+    ),
+    [isViewer, tinyThreadColor, translateX],
+  );
+
+  const sidebarSwipeSnakeWithoutReplySwipeSnake = React.useMemo(
+    () => (
       <SwipeSnake
         isViewer={isViewer}
         translateX={translateX}
         color={threadColor}
-        opacityInterpolator={sidebarSnakeOpacityInterpolator}
+        opacityInterpolator={
+          isViewer
+            ? interpolateOpacityForViewerPrimarySnake
+            : interpolateOpacityForNonViewerPrimarySnake
+        }
         key="sidebar"
       >
         <CommIcon name="sidebar-filled" size={16} />
-      </SwipeSnake>,
-    );
-  }
-
-  snakes.push(
-    <PanGestureHandler
-      maxPointers={1}
-      activeOffsetX={panGestureHandlerActiveOffsetX}
-      onGestureEvent={swipeEvent}
-      failOffsetX={isViewer ? 5 : -5}
-      failOffsetY={panGestureHandlerFailOffsetY}
-      key="gesture"
-    >
-      <Animated.View style={panGestureHandlerStyle}>{children}</Animated.View>
-    </PanGestureHandler>,
+      </SwipeSnake>
+    ),
+    [isViewer, threadColor, translateX],
   );
 
-  return snakes;
+  const panGestureHandler = React.useMemo(
+    () => (
+      <PanGestureHandler
+        maxPointers={1}
+        activeOffsetX={panGestureHandlerActiveOffsetX}
+        onGestureEvent={swipeEvent}
+        failOffsetX={isViewer ? 5 : -5}
+        failOffsetY={panGestureHandlerFailOffsetY}
+        key="gesture"
+      >
+        <Animated.View style={panGestureHandlerStyle}>{children}</Animated.View>
+      </PanGestureHandler>
+    ),
+    [
+      children,
+      isViewer,
+      panGestureHandlerActiveOffsetX,
+      panGestureHandlerFailOffsetY,
+      panGestureHandlerStyle,
+      swipeEvent,
+    ],
+  );
+
+  const swipeableMessage = React.useMemo(() => {
+    if (!triggerReply && !triggerSidebar) {
+      return (
+        <PanGestureHandler enabled={false}>
+          <Animated.View style={contentStyle}>{children}</Animated.View>
+        </PanGestureHandler>
+      );
+    }
+    const snakes = [];
+    if (triggerReply) {
+      snakes.push(replySwipeSnake);
+    }
+    if (triggerReply && triggerSidebar) {
+      snakes.push(sidebarSwipeSnakeWithReplySwipeSnake);
+    } else if (triggerSidebar) {
+      snakes.push(sidebarSwipeSnakeWithoutReplySwipeSnake);
+    }
+    snakes.push(panGestureHandler);
+    return snakes;
+  }, [
+    children,
+    contentStyle,
+    panGestureHandler,
+    replySwipeSnake,
+    sidebarSwipeSnakeWithReplySwipeSnake,
+    sidebarSwipeSnakeWithoutReplySwipeSnake,
+    triggerReply,
+    triggerSidebar,
+  ]);
+
+  return swipeableMessage;
 }
 
 const styles = {
