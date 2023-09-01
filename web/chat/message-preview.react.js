@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useMessagePreview } from 'lib/shared/message-utils.js';
+import { useThreadChatMentionCandidates } from 'lib/shared/thread-utils.js';
 import { type MessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -17,10 +18,11 @@ type Props = {
 };
 function MessagePreview(props: Props): React.Node {
   const { messageInfo, threadInfo } = props;
+  const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
   const messagePreviewResult = useMessagePreview(
     messageInfo,
     threadInfo,
-    getDefaultTextMessageRules().simpleMarkdownRules,
+    getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );
 
   if (!messageInfo) {
