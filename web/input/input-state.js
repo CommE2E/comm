@@ -42,7 +42,7 @@ export type PendingMultimediaUpload = {
 export type TypeaheadState = {
   +canBeVisible: boolean,
   +keepUpdatingThreadMembers: boolean,
-  +frozenMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +frozenUserMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +moveChoiceUp: ?() => void,
   +moveChoiceDown: ?() => void,
   +close: ?() => void,
