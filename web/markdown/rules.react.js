@@ -5,12 +5,14 @@ import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import * as SharedMarkdown from 'lib/shared/markdown.js';
+import { chatMentionRegex } from 'lib/shared/mention-utils.js';
 import type {
   RelativeMemberInfo,
   ThreadInfo,
   ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 
+import MarkdownChatMention from './markdown-chat-mention.react.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
 
 export type MarkdownRules = {
@@ -197,6 +199,25 @@ function textMessageRules(
           output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
           state: SharedMarkdown.State,
         ) => <strong key={state.key}>{node.content}</strong>,
+      },
+      chatMention: {
+        ...SimpleMarkdown.defaultRules.strong,
+        match: SimpleMarkdown.inlineRegex(chatMentionRegex),
+        parse: (capture: SharedMarkdown.Capture) =>
+          SharedMarkdown.parseChatMention(chatMentionCandidates, capture),
+        // eslint-disable-next-line react/display-name
+        react: (
+          node: SharedMarkdown.SingleASTNode,
+          output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+          state: SharedMarkdown.State,
+        ) => (
+          <MarkdownChatMention
+            key={state.key}
+            threadInfo={node.threadInfo}
+            hasAccessToChat={node.hasAccessToChat}
+            text={node.content}
+          />
+        ),
       },
     },
   };
