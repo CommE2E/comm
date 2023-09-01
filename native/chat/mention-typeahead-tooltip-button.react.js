@@ -5,7 +5,7 @@ import { Text } from 'react-native';
 
 import type {
   TypeaheadTooltipActionItem,
-  TypeaheadSuggestionItem,
+  MentionTypeaheadSuggestionItem,
 } from 'lib/shared/mention-utils.js';
 
 import UserAvatar from '../avatars/user-avatar.react.js';
@@ -13,7 +13,7 @@ import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +item: TypeaheadTooltipActionItem<TypeaheadSuggestionItem>,
+  +item: TypeaheadTooltipActionItem<MentionTypeaheadSuggestionItem>,
 };
 function MentionTypeaheadTooltipButton(props: Props): React.Node {
   const { item } = props;
