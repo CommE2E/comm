@@ -96,7 +96,8 @@ span.spoiler a.chatMention {
   pointer-events: none;
   color: var(--spoiler-text-color);
 }
-span.revealSpoilerAnimation {
+span.revealSpoilerAnimation,
+span.revealSpoilerAnimation a {
   animation: revealSpoiler 1s;
 }
 @keyframes revealSpoiler {
