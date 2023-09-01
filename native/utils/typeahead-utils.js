@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
 import {
   getNewTextAndSelection,
   getRawChatMention,
@@ -10,12 +9,13 @@ import {
   type TypeaheadTooltipActionItem,
   type MentionTypeaheadSuggestionItem,
 } from 'lib/shared/mention-utils.js';
+import { validChatNameRegexString } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 
 // Native regex is a little bit different than web one as
 // there are no named capturing groups yet on native.
 const nativeMentionTypeaheadRegex: RegExp = new RegExp(
-  `((^(.|\n)*\\s+)|^)@(${oldValidUsernameRegexString})?$`,
+  `((^(.|\n)*\\s+)|^)@(${validChatNameRegexString})?$`,
 );
 
 export type TypeaheadTooltipActionsParams<SuggestionItemType> = {
