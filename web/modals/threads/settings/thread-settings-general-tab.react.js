@@ -7,10 +7,7 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions.js';
-import {
-  threadHasPermission,
-  chatNameMaxLength,
-} from 'lib/shared/thread-utils.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
@@ -19,6 +16,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
+import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-general-tab.css';
