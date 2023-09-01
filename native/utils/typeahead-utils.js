@@ -5,6 +5,7 @@ import * as React from 'react';
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
 import {
   getNewTextAndSelection,
+  getRawChatMention,
   type Selection,
   type TypeaheadTooltipActionItem,
   type MentionTypeaheadSuggestionItem,
@@ -24,6 +25,24 @@ export type TypeaheadTooltipActionsParams<SuggestionItemType> = {
   +query: string,
   +focusAndUpdateTextAndSelection: (text: string, selection: Selection) => void,
 };
+function mentionTypeaheadTooltipActionExecuteHandler({
+  textBeforeAtSymbol,
+  text,
+  query,
+  mentionText,
+  focusAndUpdateTextAndSelection,
+}) {
+  const { newText, newSelectionStart } = getNewTextAndSelection(
+    textBeforeAtSymbol,
+    text,
+    query,
+    mentionText,
+  );
+  focusAndUpdateTextAndSelection(newText, {
+    start: newSelectionStart,
+    end: newSelectionStart,
+  });
+}
 function mentionTypeaheadTooltipActions({
   suggestions,
   textBeforeAtSymbol,
@@ -44,21 +63,35 @@ function mentionTypeaheadTooltipActions({
       const mentionText = `@${resolvedUsername}`;
       actions.push({
         key: userInfo.id,
-        execute: () => {
-          const { newText, newSelectionStart } = getNewTextAndSelection(
+        execute: () =>
+          mentionTypeaheadTooltipActionExecuteHandler({
             textBeforeAtSymbol,
             text,
             query,
             mentionText,
-          );
-          focusAndUpdateTextAndSelection(newText, {
-            start: newSelectionStart,
-            end: newSelectionStart,
-          });
-        },
+            focusAndUpdateTextAndSelection,
+          }),
         actionButtonContent: {
           type: 'user',
           userInfo,
+        },
+      });
+    } else if (suggestion.type === 'chat') {
+      const { threadInfo } = suggestion;
+      const mentionText = getRawChatMention(threadInfo);
+      actions.push({
+        key: threadInfo.id,
+        execute: () =>
+          mentionTypeaheadTooltipActionExecuteHandler({
+            textBeforeAtSymbol,
+            text,
+            query,
+            mentionText,
+            focusAndUpdateTextAndSelection,
+          }),
+        actionButtonContent: {
+          type: 'chat',
+          threadInfo,
         },
       });
     }
