@@ -385,6 +385,7 @@ async function wnsSinglePush(token: string, notification: string, url: string) {
 async function blobServiceUpload(payload: string): Promise<
   | {
       +blobHash: string,
+      +holder: string,
       +encryptionKey: string,
     }
   | { +blobUploadError: string },
@@ -394,7 +395,7 @@ async function blobServiceUpload(payload: string): Promise<
     await encrypt(encryptionKey, new TextEncoder().encode(payload)),
   );
 
-  const blobHolder = uuid.v4();
+  const holder = uuid.v4();
   const blobHashBase64 = await crypto
     .createHash('sha256')
     .update(encryptedPayloadBuffer)
@@ -413,7 +414,7 @@ async function blobServiceUpload(payload: string): Promise<
     {
       method: blobService.httpEndpoints.ASSIGN_HOLDER.method,
       body: JSON.stringify({
-        holder: blobHolder,
+        holder: holder,
         blob_hash: blobHash,
       }),
       headers: {
@@ -460,6 +461,7 @@ async function blobServiceUpload(payload: string): Promise<
   const encryptionKeyString = Buffer.from(encryptionKey).toString('base64');
   return {
     blobHash,
+    holder,
     encryptionKey: encryptionKeyString,
   };
 }

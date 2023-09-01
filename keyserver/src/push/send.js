@@ -807,10 +807,11 @@ async function prepareAPNsNotification(
     platformDetails.codeVersion &&
     platformDetails.codeVersion >= FUTURE_CODE_VERSION;
 
-  let blobHash, encryptionKey, blobUploadError;
+  let blobHash, holder, encryptionKey, blobUploadError;
   if (canQueryBlobService) {
     ({
       blobHash: blobHash,
+      holder: holder,
       encryptionKey: encryptionKey,
       blobUploadError: blobUploadError,
     } = await blobServiceUpload(copyWithMessageInfos.compile()));
@@ -823,9 +824,10 @@ async function prepareAPNsNotification(
     );
   }
 
-  if (blobHash && encryptionKey) {
+  if (blobHash && encryptionKey && holder) {
     notification.payload = {
       blobHash,
+      holder,
       encryptionKey,
       ...notification.payload,
     };
@@ -963,10 +965,11 @@ async function prepareAndroidNotification(
   }
 
   const canQueryBlobService = codeVersion && codeVersion >= FUTURE_CODE_VERSION;
-  let blobHash, encryptionKey, blobUploadError;
+  let blobHash, holder, encryptionKey, blobUploadError;
   if (canQueryBlobService) {
     ({
       blobHash: blobHash,
+      holder: holder,
       encryptionKey: encryptionKey,
       blobUploadError: blobUploadError,
     } = await blobServiceUpload(JSON.stringify(copyWithMessageInfos.data)));
@@ -980,7 +983,7 @@ async function prepareAndroidNotification(
   }
 
   let notifsWithoutMessageInfos;
-  if (!blobHash || !encryptionKey) {
+  if (!blobHash || !encryptionKey || !holder) {
     notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
       devicesWithExcessiveSize,
       notification,
@@ -995,6 +998,7 @@ async function prepareAndroidNotification(
           badgeOnly: badgeOnly ? '1' : '0',
           threadID,
           blobHash,
+          holder,
           encryptionKey,
           ...rest,
         },

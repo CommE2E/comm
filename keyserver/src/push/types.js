@@ -25,6 +25,7 @@ export type AndroidNotificationPayload =
       ...AndroidNotificationPayloadBase,
       +blobHash: string,
       +encryptionKey: string,
+      +holder: string,
     };
 
 export type AndroidNotification = {
