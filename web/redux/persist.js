@@ -1,14 +1,27 @@
 // @flow
 
 import invariant from 'invariant';
-import { getStoredState, purgeStoredState } from 'redux-persist';
+import {
+  getStoredState,
+  purgeStoredState,
+  createTransform,
+} from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
+import type { Transform } from 'redux-persist/es/types.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import {
   createAsyncMigrate,
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
+import type {
+  KeyserverInfo,
+  KeyserverStore,
+} from 'lib/types/keyserver-types.js';
+import {
+  defaultConnectionInfo,
+  type ConnectionInfo,
+} from 'lib/types/socket-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
@@ -103,6 +116,7 @@ const persistWhitelist = [
   'notifPermissionAlertInfo',
   'commServicesAccessToken',
   'lastCommunicatedPlatformDetails',
+  'keyserverStore',
 ];
 
 const rootKey = 'root';
@@ -126,6 +140,50 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
   return oldStorage;
 };
 
+type PersistedKeyserverInfo = $Diff<
+  KeyserverInfo,
+  {
+    +connection: ConnectionInfo,
+    +updatesCurrentAsOf: number,
+    +sessionID?: ?string,
+  },
+>;
+type PersistedKeyserverStore = {
+  +keyserverInfos: { +[key: string]: PersistedKeyserverInfo },
+};
+const keyserverStoreTransform: Transform = createTransform(
+  (state: KeyserverStore): PersistedKeyserverStore => {
+    const keyserverInfos = {};
+    for (const key in state.keyserverInfos) {
+      const { connection, updatesCurrentAsOf, sessionID, ...rest } =
+        state.keyserverInfos[key];
+      keyserverInfos[key] = rest;
+    }
+    return {
+      ...state,
+      keyserverInfos,
+    };
+  },
+  (state: PersistedKeyserverStore): KeyserverStore => {
+    const keyserverInfos = {};
+    const defaultConnection = defaultConnectionInfo;
+    for (const key in state.keyserverInfos) {
+      keyserverInfos[key] = {
+        ...state.keyserverInfos[key],
+        connection: { ...defaultConnection },
+        updatesCurrentAsOf:
+          preloadedState.keyserverStore.keyserverInfos[key].updatesCurrentAsOf,
+        sessionID: preloadedState.keyserverStore.keyserverInfos[key].sessionID,
+      };
+    }
+    return {
+      ...state,
+      keyserverInfos,
+    };
+  },
+  { whitelist: ['keyserverStore'] },
+);
+
 const persistConfig: PersistConfig = {
   key: rootKey,
   storage: commReduxStorageEngine,
@@ -138,6 +196,7 @@ const persistConfig: PersistConfig = {
     migrateStorageToSQLite,
   ): any),
   version: 3,
+  transforms: [keyserverStoreTransform],
 };
 
 export { persistConfig };
