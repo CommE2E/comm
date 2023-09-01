@@ -14,7 +14,6 @@ import {
   changeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { chatNameMaxLength } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type ResolvedThreadInfo,
@@ -27,6 +26,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
+import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
 
 import SaveSettingButton from './save-setting-button.react.js';
 import EditSettingButton from '../../components/edit-setting-button.react.js';
