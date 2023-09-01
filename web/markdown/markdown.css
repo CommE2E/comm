@@ -91,8 +91,8 @@ span.spoiler {
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
-span.spoiler a,
-span.spoiler a.chatMention {
+span.spoiler:not(.revealSpoilerAnimation) a,
+span.spoiler:not(.revealSpoilerAnimation) a.chatMention {
   pointer-events: none;
   color: var(--spoiler-text-color);
 }
@@ -107,6 +107,5 @@ span.revealSpoilerAnimation a {
   }
   to {
     background: transparent;
-    color: white;
   }
 }
