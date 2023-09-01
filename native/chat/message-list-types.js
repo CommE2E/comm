@@ -4,6 +4,7 @@ import { useNavigation, useNavigationState } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useThreadChatMentionCandidates } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type UserInfo } from 'lib/types/user-types.js';
 
@@ -35,7 +36,11 @@ const MessageListContext: React.Context<?MessageListContextType> =
   React.createContext<?MessageListContextType>();
 
 function useMessageListContext(threadInfo: ThreadInfo) {
-  const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo);
+  const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
+  const getTextMessageMarkdownRules = useTextMessageRulesFunc(
+    threadInfo,
+    chatMentionCandidates,
+  );
   return React.useMemo(
     () => ({
       getTextMessageMarkdownRules,
