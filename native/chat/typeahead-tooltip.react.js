@@ -30,7 +30,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     focusAndUpdateTextAndSelection,
   } = props;
 
-  const { textBeforeAtSymbol, usernamePrefix } = matchedStrings;
+  const { textBeforeAtSymbol, query } = matchedStrings;
 
   const styles = useStyles(unboundStyles);
 
@@ -40,7 +40,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
         const { newText, newSelectionStart } = getNewTextAndSelection(
           textBeforeAtSymbol,
           text,
-          usernamePrefix,
+          query,
           item,
         );
 
@@ -64,7 +64,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
       styles.buttonLabel,
       textBeforeAtSymbol,
       text,
-      usernamePrefix,
+      query,
       focusAndUpdateTextAndSelection,
     ],
   );
