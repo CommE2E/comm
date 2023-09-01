@@ -138,3 +138,31 @@ resource "aws_iam_role" "feature_flags_service" {
   ]
 }
 
+# Backup Service IAM
+data "aws_iam_policy_document" "manage_backup_ddb" {
+  statement {
+    sid    = "BackupFullDDBAccess"
+    effect = "Allow"
+    actions = [
+      "dynamodb:*",
+    ]
+    resources = [
+      module.shared.dynamodb_tables["backup-service-backup"].arn,
+      "${module.shared.dynamodb_tables["backup-service-backup"].arn}/index/*"
+    ]
+  }
+}
+resource "aws_iam_policy" "manage_backup_ddb" {
+  name        = "backup-ddb-full-access"
+  policy      = data.aws_iam_policy_document.manage_backup_ddb.json
+  description = "Allows full access to backup DynamoDB table"
+}
+resource "aws_iam_role" "backup_service" {
+  name               = "backup-service-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_ecs_ec2.json
+
+  managed_policy_arns = [
+    aws_iam_policy.allow_ecs_exec.arn,
+    aws_iam_policy.manage_backup_ddb.arn
+  ]
+}
