@@ -71,7 +71,7 @@ function constructWhereClause(
   return SQL`WHERE `.append(clause);
 }
 
-type FetchServerThreadInfosResult = {
+export type FetchServerThreadInfosResult = {
   +threadInfos: { +[id: string]: ServerThreadInfo },
 };
 
