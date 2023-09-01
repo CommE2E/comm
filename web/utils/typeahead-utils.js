@@ -7,11 +7,13 @@ import {
   getNewTextAndSelection,
   type MentionTypeaheadSuggestionItem,
   type TypeaheadTooltipActionItem,
+  getRawChatMention,
 } from 'lib/shared/mention-utils.js';
 import { validChatNameRegexString } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
@@ -81,7 +83,23 @@ export type GetTypeaheadTooltipActionsParams<SuggestionItemType> = {
   +textBeforeAtSymbol: string,
   +query: string,
 };
-
+function mentionTypeaheadTooltipActionExecuteHandler({
+  textBeforeAtSymbol,
+  inputStateDraft,
+  query,
+  mentionText,
+  inputStateSetDraft,
+  inputStateSetTextCursorPosition,
+}) {
+  const { newText, newSelectionStart } = getNewTextAndSelection(
+    textBeforeAtSymbol,
+    inputStateDraft,
+    query,
+    mentionText,
+  );
+  inputStateSetDraft(newText);
+  inputStateSetTextCursorPosition(newSelectionStart);
+}
 function getMentionTypeaheadTooltipActions(
   params: GetTypeaheadTooltipActionsParams<MentionTypeaheadSuggestionItem>,
 ): $ReadOnlyArray<TypeaheadTooltipActionItem<MentionTypeaheadSuggestionItem>> {
@@ -103,20 +121,37 @@ function getMentionTypeaheadTooltipActions(
       const mentionText = `@${stringForUserExplicit(suggestedUser)}`;
       actions.push({
         key: suggestedUser.id,
-        execute: () => {
-          const { newText, newSelectionStart } = getNewTextAndSelection(
+        execute: () =>
+          mentionTypeaheadTooltipActionExecuteHandler({
             textBeforeAtSymbol,
             inputStateDraft,
             query,
             mentionText,
-          );
-
-          inputStateSetDraft(newText);
-          inputStateSetTextCursorPosition(newSelectionStart);
-        },
+            inputStateSetDraft,
+            inputStateSetTextCursorPosition,
+          }),
         actionButtonContent: {
           type: 'user',
           userInfo: suggestedUser,
+        },
+      });
+    } else if (suggestion.type === 'chat') {
+      const suggestedChat = suggestion.threadInfo;
+      const mentionText = getRawChatMention(suggestedChat);
+      actions.push({
+        key: suggestedChat.id,
+        execute: () =>
+          mentionTypeaheadTooltipActionExecuteHandler({
+            textBeforeAtSymbol,
+            inputStateDraft,
+            query,
+            mentionText,
+            inputStateSetDraft,
+            inputStateSetTextCursorPosition,
+          }),
+        actionButtonContent: {
+          type: 'chat',
+          threadInfo: suggestedChat,
         },
       });
     }
@@ -154,6 +189,15 @@ function getMentionTypeaheadTooltipButtons(
         <UserAvatar size="small" userID={actionButtonContent.userInfo.id} />
       );
       typeaheadButtonText = `@${stringForUserExplicit(suggestedUser)}`;
+    } else if (actionButtonContent.type === 'chat') {
+      const suggestedChat = actionButtonContent.threadInfo;
+      avatarComponent = (
+        <ThreadAvatar
+          size="small"
+          threadInfo={actionButtonContent.threadInfo}
+        />
+      );
+      typeaheadButtonText = `@${suggestedChat.uiName}`;
     }
 
     return (
