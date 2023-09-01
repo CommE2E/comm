@@ -10,6 +10,7 @@ import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import {
   createPendingSidebar,
   threadInHomeChatList,
+  useThreadChatMentionCandidates,
 } from 'lib/shared/thread-utils.js';
 import type {
   ComposableMessageInfo,
@@ -72,6 +73,7 @@ function useOnClickPendingSidebar(
   const cacheContext = React.useContext(ENSCacheContext);
   const { getENSNames } = cacheContext;
 
+  const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
   return React.useCallback(
     async (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
@@ -82,7 +84,8 @@ function useOnClickPendingSidebar(
         sourceMessageInfo: messageInfo,
         parentThreadInfo: threadInfo,
         loggedInUserInfo,
-        markdownRules: getDefaultTextMessageRules().simpleMarkdownRules,
+        markdownRules: getDefaultTextMessageRules(chatMentionCandidates)
+          .simpleMarkdownRules,
         getENSNames,
       });
       dispatch({
@@ -93,7 +96,14 @@ function useOnClickPendingSidebar(
         },
       });
     },
-    [loggedInUserInfo, messageInfo, threadInfo, dispatch, getENSNames],
+    [
+      loggedInUserInfo,
+      chatMentionCandidates,
+      threadInfo,
+      messageInfo,
+      getENSNames,
+      dispatch,
+    ],
   );
 }
 
