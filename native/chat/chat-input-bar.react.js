@@ -38,6 +38,7 @@ import { colorIsDark } from 'lib/shared/color-utils.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import {
   getMentionTypeaheadUserSuggestions,
+  getMentionTypeaheadChatSuggestions,
   getTypeaheadRegexMatches,
   type Selection,
   getUserMentionsCandidates,
@@ -58,6 +59,7 @@ import {
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
   useThreadChatMentionCandidates,
+  useThreadChatMentionSearchIndex,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -74,6 +76,7 @@ import type {
   ClientThreadJoinRequest,
   ThreadJoinPayload,
   RelativeMemberInfo,
+  ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
@@ -173,6 +176,8 @@ type Props = {
   +inputState: ?InputState,
   +userSearchIndex: SentencePrefixSearchIndex,
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +chatMentionSearchIndex: SentencePrefixSearchIndex,
+  +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
@@ -565,13 +570,19 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         this.props.viewerID,
         typeaheadMatchedStrings.query,
       );
+      const suggestedChats = getMentionTypeaheadChatSuggestions(
+        this.props.chatMentionSearchIndex,
+        this.props.chatMentionCandidates,
+        typeaheadMatchedStrings.query,
+      );
+      const suggestions = [...suggestedUsers, ...suggestedChats];
 
-      if (suggestedUsers.length > 0) {
+      if (suggestions.length > 0) {
         typeaheadTooltip = (
           <TypeaheadTooltip
             text={this.state.text}
             matchedStrings={typeaheadMatchedStrings}
-            suggestions={suggestedUsers}
+            suggestions={suggestions}
             focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
             typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
             TypeaheadTooltipButtonComponent={MentionTypeaheadTooltipButton}
@@ -1255,6 +1266,10 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const userSearchIndex = useSelector(userStoreMentionSearchIndex);
 
+  const chatMentionSearchIndex = useThreadChatMentionSearchIndex(
+    props.threadInfo,
+  );
+
   const { parentThreadID } = props.threadInfo;
   const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
@@ -1299,6 +1314,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       inputState={inputState}
       userSearchIndex={userSearchIndex}
       userMentionsCandidates={userMentionsCandidates}
+      chatMentionSearchIndex={chatMentionSearchIndex}
+      chatMentionCandidates={chatMentionCandidates}
       parentThreadInfo={parentThreadInfo}
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
