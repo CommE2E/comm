@@ -32,21 +32,6 @@ function ChatThreadListSidebar(props: Props): React.Node {
     extendArrow = false,
   } = props;
 
-  let arrow;
-  if (extendArrow) {
-    arrow = (
-      <View style={styles.extendedArrow}>
-        <ExtendedArrow />
-      </View>
-    );
-  } else {
-    arrow = (
-      <View style={styles.arrow}>
-        <Arrow />
-      </View>
-    );
-  }
-
   const { threadInfo } = sidebarInfo;
 
   const onPress = React.useCallback(
@@ -54,18 +39,35 @@ function ChatThreadListSidebar(props: Props): React.Node {
     [threadInfo, onPressItem],
   );
 
-  return (
-    <Button
-      iosFormat="highlight"
-      iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
-      iosActiveOpacity={0.85}
-      style={styles.sidebar}
-      onPress={onPress}
-    >
-      {arrow}
+  const arrow = React.useMemo(() => {
+    if (extendArrow) {
+      return (
+        <View style={styles.extendedArrow}>
+          <ExtendedArrow />
+        </View>
+      );
+    }
+    return (
+      <View style={styles.arrow}>
+        <Arrow />
+      </View>
+    );
+  }, [extendArrow, styles.arrow, styles.extendedArrow]);
+
+  const unreadIndicator = React.useMemo(
+    () => (
       <View style={styles.unreadIndicatorContainer}>
         <UnreadDot unread={sidebarInfo.threadInfo.currentUser.unread} />
       </View>
+    ),
+    [
+      sidebarInfo.threadInfo.currentUser.unread,
+      styles.unreadIndicatorContainer,
+    ],
+  );
+
+  const swipeableThread = React.useMemo(
+    () => (
       <View style={styles.swipeableThreadContainer}>
         <SwipeableThread
           threadInfo={sidebarInfo.threadInfo}
@@ -77,8 +79,40 @@ function ChatThreadListSidebar(props: Props): React.Node {
           <SidebarItem sidebarInfo={sidebarInfo} />
         </SwipeableThread>
       </View>
-    </Button>
+    ),
+    [
+      currentlyOpenedSwipeableId,
+      onSwipeableWillOpen,
+      sidebarInfo,
+      styles.swipeableThreadContainer,
+    ],
   );
+
+  const chatThreadListSidebar = React.useMemo(
+    () => (
+      <Button
+        iosFormat="highlight"
+        iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
+        iosActiveOpacity={0.85}
+        style={styles.sidebar}
+        onPress={onPress}
+      >
+        {arrow}
+        {unreadIndicator}
+        {swipeableThread}
+      </Button>
+    ),
+    [
+      arrow,
+      colors.listIosHighlightUnderlay,
+      onPress,
+      styles.sidebar,
+      swipeableThread,
+      unreadIndicator,
+    ],
+  );
+
+  return chatThreadListSidebar;
 }
 
 const unboundStyles = {
