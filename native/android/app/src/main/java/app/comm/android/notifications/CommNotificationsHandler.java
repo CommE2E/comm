@@ -44,6 +44,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String ENCRYPTED_PAYLOAD_KEY = "encryptedPayload";
   private static final String ENCRYPTION_FAILED_KEY = "encryptionFailed";
   private static final String BLOB_HASH_KEY = "blobHash";
+  private static final String BLOB_HOLDER_KEY = "holder";
   private static final String AES_ENCRYPTION_KEY_KEY = "encryptionKey";
 
   private static final String CHANNEL_ID = "default";
@@ -108,7 +109,11 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     }
 
     String blobHash = message.getData().get(BLOB_HASH_KEY);
-    if (blobHash != null) {
+    String blobHolder = message.getData().get(BLOB_HOLDER_KEY);
+
+    if (blobHash != null && blobHolder != null) {
+      blobServiceClient.scheduleDeferredBlobDeletion(
+          blobHash, blobHolder, this.getApplicationContext());
       blobServiceClient.getAndConsumeAsync(
           blobHash,
           message,
