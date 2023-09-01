@@ -177,6 +177,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       canBeVisible: false,
       keepUpdatingThreadMembers: true,
       frozenUserMentionsCandidates: [],
+      frozenChatMentionsCandidates: {},
       moveChoiceUp: null,
       moveChoiceDown: null,
       close: null,
