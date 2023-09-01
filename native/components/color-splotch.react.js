@@ -20,16 +20,21 @@ function ColorSplotch(props: Props): React.Node {
     return styles.large;
   }, [size]);
 
-  return (
-    <SquircleView
-      style={style}
-      squircleParams={{
-        cornerSmoothing: 0.95,
-        cornerRadius: 10,
-        fillColor: `#${color}`,
-      }}
-    />
+  const squircleParams = React.useMemo(
+    () => ({
+      cornerSmoothing: 0.95,
+      cornerRadius: 10,
+      fillColor: `#${color}`,
+    }),
+    [color],
   );
+
+  const colorSplotch = React.useMemo(
+    () => <SquircleView style={style} squircleParams={squircleParams} />,
+    [squircleParams, style],
+  );
+
+  return colorSplotch;
 }
 
 const styles = StyleSheet.create({
