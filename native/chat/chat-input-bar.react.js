@@ -57,6 +57,7 @@ import {
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
+  useThreadChatMentionCandidates,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -1258,13 +1259,17 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     parentThreadInfo,
   );
 
+  const chatMentionCandidates = useThreadChatMentionCandidates(
+    props.threadInfo,
+  );
+
   const messageEditingContext = React.useContext(MessageEditingContext);
 
   const editedMessageInfo = messageEditingContext?.editState.editedMessage;
   const editedMessagePreview = useMessagePreview(
     editedMessageInfo,
     props.threadInfo,
-    getDefaultTextMessageRules().simpleMarkdownRules,
+    getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );
   const editMessage = useEditMessage();
 
