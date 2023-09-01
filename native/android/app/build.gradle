@@ -707,6 +707,15 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    def work_version = "2.8.1"
+    // (Java only)
+    implementation "androidx.work:work-runtime:$work_version"
+    // Kotlin + coroutines
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+    // Guava for listenable future to solve the bug:
+    // https://stackoverflow.com/questions/64290141/android-studio-class-file-for-com-google-common-util-concurrent-listenablefuture
+    // https://github.com/google/ExoPlayer/issues/7993
+   implementation "com.google.guava:guava:31.0.1-android"
 }
 
 if (isNewArchitectureEnabled()) {
