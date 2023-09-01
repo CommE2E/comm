@@ -5,7 +5,11 @@ import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import * as SharedMarkdown from 'lib/shared/markdown.js';
-import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  RelativeMemberInfo,
+  ThreadInfo,
+  ChatMentionCandidates,
+} from 'lib/types/thread-types.js';
 
 import MarkdownSpoiler from './markdown-spoiler.react.js';
 
@@ -159,19 +163,21 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
 
 function useTextMessageRulesFunc(
   threadInfo: ThreadInfo,
+  chatMentionCandidates: ChatMentionCandidates,
 ): boolean => MarkdownRules {
   const { members } = threadInfo;
   return React.useMemo(
     () =>
       _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
-        textMessageRules(members, useDarkStyle),
+        textMessageRules(members, chatMentionCandidates, useDarkStyle),
       ),
-    [members],
+    [chatMentionCandidates, members],
   );
 }
 
 function textMessageRules(
   members: $ReadOnlyArray<RelativeMemberInfo>,
+  chatMentionCandidates: ChatMentionCandidates,
   useDarkStyle: boolean,
 ): MarkdownRules {
   const baseRules = markdownRules(useDarkStyle);
@@ -198,11 +204,16 @@ function textMessageRules(
 
 let defaultTextMessageRules = null;
 
-function getDefaultTextMessageRules(): MarkdownRules {
-  if (!defaultTextMessageRules) {
-    defaultTextMessageRules = textMessageRules([], false);
+function getDefaultTextMessageRules(
+  overrideDefaultChatMentionCandidates: ChatMentionCandidates = {},
+): MarkdownRules {
+  if (Object.keys(overrideDefaultChatMentionCandidates).length === 0) {
+    if (!defaultTextMessageRules) {
+      defaultTextMessageRules = textMessageRules([], {}, false);
+    }
+    return defaultTextMessageRules;
   }
-  return defaultTextMessageRules;
+  return textMessageRules([], overrideDefaultChatMentionCandidates, false);
 }
 
 export { linkRules, useTextMessageRulesFunc, getDefaultTextMessageRules };
