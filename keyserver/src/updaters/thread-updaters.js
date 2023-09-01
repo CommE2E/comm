@@ -8,7 +8,6 @@ import {
   roleIsAdminRole,
   viewerIsMember,
   getThreadTypeParentRequirement,
-  validChatNameRegex,
 } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -30,6 +29,7 @@ import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';
+import { validChatNameRegex } from 'lib/utils/validation-utils.js';
 
 import { reportLinkUsage } from './link-updaters.js';
 import { updateRoles } from './role-updaters.js';

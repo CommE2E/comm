@@ -10,9 +10,9 @@ import {
   type TypeaheadTooltipActionItem,
   encodeChatMentionText,
 } from 'lib/shared/mention-utils.js';
-import { validChatNameRegexString } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
+import { validChatNameRegexString } from 'lib/utils/validation-utils.js';
 
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
