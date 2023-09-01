@@ -107,7 +107,7 @@ function getTypeaheadTooltipActions(
           textBeforeAtSymbol,
           inputStateDraft,
           query,
-          suggestedUser,
+          stringForUserExplicit(suggestedUser),
         );
 
         inputStateSetDraft(newText);
