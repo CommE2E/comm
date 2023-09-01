@@ -254,9 +254,11 @@ function Root() {
         ref={containerRef}
       >
         <BottomSheetModalProvider>
-          <DeepLinksContextProvider>
-            <RootNavigator />
-          </DeepLinksContextProvider>
+          <ChatContextProvider>
+            <DeepLinksContextProvider>
+              <RootNavigator />
+            </DeepLinksContextProvider>
+          </ChatContextProvider>
           <NavigationHandler />
         </BottomSheetModalProvider>
       </NavigationContainer>
@@ -277,27 +279,25 @@ function Root() {
                           <EditUserAvatarProvider>
                             <NativeEditThreadAvatarProvider>
                               <MarkdownContextProvider>
-                                <ChatContextProvider>
-                                  <MessageSearchProvider>
-                                    <RegistrationContextProvider>
-                                      <SQLiteDataHandler />
-                                      <ConnectedStatusBar />
-                                      <ReduxPersistGate
-                                        persistor={getPersistor()}
-                                      >
-                                        {gated}
-                                      </ReduxPersistGate>
-                                      <PersistedStateGate>
-                                        <Socket
-                                          detectUnsupervisedBackgroundRef={
-                                            detectUnsupervisedBackgroundRef
-                                          }
-                                        />
-                                      </PersistedStateGate>
-                                      {navigation}
-                                    </RegistrationContextProvider>
-                                  </MessageSearchProvider>
-                                </ChatContextProvider>
+                                <MessageSearchProvider>
+                                  <RegistrationContextProvider>
+                                    <SQLiteDataHandler />
+                                    <ConnectedStatusBar />
+                                    <ReduxPersistGate
+                                      persistor={getPersistor()}
+                                    >
+                                      {gated}
+                                    </ReduxPersistGate>
+                                    <PersistedStateGate>
+                                      <Socket
+                                        detectUnsupervisedBackgroundRef={
+                                          detectUnsupervisedBackgroundRef
+                                        }
+                                      />
+                                    </PersistedStateGate>
+                                    {navigation}
+                                  </RegistrationContextProvider>
+                                </MessageSearchProvider>
                               </MarkdownContextProvider>
                             </NativeEditThreadAvatarProvider>
                           </EditUserAvatarProvider>
