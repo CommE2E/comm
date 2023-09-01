@@ -7,7 +7,10 @@ import Animated from 'react-native-reanimated';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import { viewerIsMember } from 'lib/shared/thread-utils.js';
+import {
+  viewerIsMember,
+  useThreadChatMentionCandidates,
+} from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { clusterEndHeight } from './chat-constants.js';
@@ -206,9 +209,17 @@ function useAnimatedMessageTooltipButton({
   } = chatContext;
 
   const loggedInUserInfo = useLoggedInUserInfo();
+  const chatMentionCandidates = useThreadChatMentionCandidates(
+    sourceMessage.threadInfo,
+  );
   const sidebarThreadInfo = React.useMemo(
-    () => getUnresolvedSidebarThreadInfo({ sourceMessage, loggedInUserInfo }),
-    [sourceMessage, loggedInUserInfo],
+    () =>
+      getUnresolvedSidebarThreadInfo({
+        sourceMessage,
+        loggedInUserInfo,
+        chatMentionCandidates,
+      }),
+    [sourceMessage, loggedInUserInfo, chatMentionCandidates],
   );
 
   const currentInputBarHeight =
