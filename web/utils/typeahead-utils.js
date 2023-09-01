@@ -3,12 +3,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
 import {
   getNewTextAndSelection,
   type MentionTypeaheadSuggestionItem,
   type TypeaheadTooltipActionItem,
 } from 'lib/shared/mention-utils.js';
+import { validChatNameRegexString } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 
@@ -18,7 +18,7 @@ import css from '../chat/typeahead-tooltip.css';
 import Button from '../components/button.react.js';
 
 const webMentionTypeaheadRegex: RegExp = new RegExp(
-  `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
+  `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<mentionText>${validChatNameRegexString})?$`,
 );
 
 export type TooltipPosition = {
