@@ -608,7 +608,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
           ? {
               textBeforeAtSymbol:
                 typeaheadRegexMatches.groups?.textPrefix ?? '',
-              query: typeaheadRegexMatches.groups?.username ?? '',
+              query: typeaheadRegexMatches.groups?.mentionText ?? '',
             }
           : null,
       [typeaheadRegexMatches],
