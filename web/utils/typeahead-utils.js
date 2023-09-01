@@ -14,7 +14,7 @@ import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
 import Button from '../components/button.react.js';
 
-const webTypeaheadRegex: RegExp = new RegExp(
+const webMentionTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
 
@@ -206,7 +206,7 @@ function getTypeaheadTooltipPosition(
 }
 
 export {
-  webTypeaheadRegex,
+  webMentionTypeaheadRegex,
   getCaretOffsets,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipButtons,
