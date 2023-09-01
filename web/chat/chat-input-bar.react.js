@@ -14,9 +14,9 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import {
-  getTypeaheadUserSuggestions,
+  getMentionTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
-  getMentionsCandidates,
+  getUserMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
 import type { TypeaheadMatchedStrings } from 'lib/shared/mention-utils.js';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
@@ -56,7 +56,7 @@ import { allowedMimeTypeString } from '../media/file-utils.js';
 import Multimedia from '../media/multimedia.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
-import { webTypeaheadRegex } from '../utils/typeahead-utils.js';
+import { webMentionTypeaheadRegex } from '../utils/typeahead-utils.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,
@@ -578,7 +578,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
 
-    const mentionsCandidates = getMentionsCandidates(
+    const userMentionsCandidates = getUserMentionsCandidates(
       props.threadInfo,
       parentThreadInfo,
     );
@@ -591,7 +591,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
             start: props.inputState.textCursorPosition,
             end: props.inputState.textCursorPosition,
           },
-          webTypeaheadRegex,
+          webMentionTypeaheadRegex,
         ),
       [props.inputState.textCursorPosition, props.inputState.draft],
     );
@@ -612,11 +612,11 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       if (props.inputState.typeaheadState.keepUpdatingThreadMembers) {
         const setter = props.inputState.setTypeaheadState;
         setter({
-          frozenMentionsCandidates: mentionsCandidates,
+          frozenUserMentionsCandidates: userMentionsCandidates,
         });
       }
     }, [
-      mentionsCandidates,
+      userMentionsCandidates,
       props.inputState.setTypeaheadState,
       props.inputState.typeaheadState.keepUpdatingThreadMembers,
     ]);
@@ -626,15 +626,15 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         if (!typeaheadMatchedStrings) {
           return [];
         }
-        return getTypeaheadUserSuggestions(
+        return getMentionTypeaheadUserSuggestions(
           userSearchIndex,
-          props.inputState.typeaheadState.frozenMentionsCandidates,
+          props.inputState.typeaheadState.frozenUserMentionsCandidates,
           viewerID,
           typeaheadMatchedStrings.query,
         ).map(suggestion => suggestion.userInfo);
       }, [
         userSearchIndex,
-        props.inputState.typeaheadState.frozenMentionsCandidates,
+        props.inputState.typeaheadState.frozenUserMentionsCandidates,
         viewerID,
         typeaheadMatchedStrings,
       ]);

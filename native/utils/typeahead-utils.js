@@ -7,13 +7,13 @@ import {
   getNewTextAndSelection,
   type Selection,
   type TypeaheadTooltipActionItem,
-  type TypeaheadSuggestionItem,
+  type MentionTypeaheadSuggestionItem,
 } from 'lib/shared/mention-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 
 // Native regex is a little bit different than web one as
 // there are no named capturing groups yet on native.
-const nativeTypeaheadRegex: RegExp = new RegExp(
+const nativeMentionTypeaheadRegex: RegExp = new RegExp(
   `((^(.|\n)*\\s+)|^)@(${oldValidUsernameRegexString})?$`,
 );
 
@@ -30,8 +30,8 @@ function mentionTypeaheadTooltipActions({
   text,
   textPrefix,
   focusAndUpdateTextAndSelection,
-}: TypeaheadTooltipActionsParams<TypeaheadSuggestionItem>): $ReadOnlyArray<
-  TypeaheadTooltipActionItem<TypeaheadSuggestionItem>,
+}: TypeaheadTooltipActionsParams<MentionTypeaheadSuggestionItem>): $ReadOnlyArray<
+  TypeaheadTooltipActionItem<MentionTypeaheadSuggestionItem>,
 > {
   const actions = [];
   for (const suggestion of suggestions) {
@@ -71,4 +71,4 @@ export type TypeaheadTooltipButtonComponentType<SuggestionItemType> =
     +item: TypeaheadTooltipActionItem<SuggestionItemType>,
   }>;
 
-export { nativeTypeaheadRegex, mentionTypeaheadTooltipActions };
+export { nativeMentionTypeaheadRegex, mentionTypeaheadTooltipActions };
