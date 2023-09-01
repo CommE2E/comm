@@ -15,6 +15,7 @@ pub struct AppConfig {
   #[arg(long)]
   pub localstack_endpoint: Option<String>,
   /// Blob service URL
+  #[arg(env = "BLOB_SERVICE_URL")]
   #[arg(long, default_value = DEFAULT_BLOB_SERVICE_URL)]
   pub blob_service_url: reqwest::Url,
 }
