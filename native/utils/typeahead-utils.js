@@ -5,6 +5,7 @@ import * as React from 'react';
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils.js';
 import {
   getNewTextAndSelection,
+  encodeChatMentionText,
   type Selection,
   type TypeaheadTooltipActionItem,
   type MentionTypeaheadSuggestionItem,
@@ -59,6 +60,30 @@ function mentionTypeaheadTooltipActions({
         actionButtonContent: {
           type: 'user',
           userInfo,
+        },
+      });
+    } else if (suggestion.type === 'chat') {
+      const { threadInfo } = suggestion;
+      const mentionText = `@[[${threadInfo.id}:${encodeChatMentionText(
+        threadInfo.uiName,
+      )}]]`;
+      actions.push({
+        key: threadInfo.id,
+        execute: () => {
+          const { newText, newSelectionStart } = getNewTextAndSelection(
+            textBeforeAtSymbol,
+            text,
+            textPrefix,
+            mentionText,
+          );
+          focusAndUpdateTextAndSelection(newText, {
+            start: newSelectionStart,
+            end: newSelectionStart,
+          });
+        },
+        actionButtonContent: {
+          type: 'chat',
+          threadInfo,
         },
       });
     }
