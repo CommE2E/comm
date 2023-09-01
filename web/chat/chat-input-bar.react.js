@@ -12,7 +12,7 @@ import {
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
+import { userStoreMentionSearchIndex } from 'lib/selectors/user-selectors.js';
 import {
   getMentionTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
@@ -571,7 +571,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const dispatchActionPromise = useDispatchActionPromise();
     const callJoinThread = useServerCall(joinThread);
-    const userSearchIndex = useSelector(userStoreSearchIndex);
+    const userSearchIndex = useSelector(userStoreMentionSearchIndex);
 
     const { parentThreadID } = props.threadInfo;
     const parentThreadInfo = useSelector(state =>
