@@ -8,11 +8,13 @@ import {
   getNewTextAndSelection,
   type MentionTypeaheadSuggestionItem,
   type TypeaheadTooltipActionItem,
+  encodeChatMentionText,
 } from 'lib/shared/mention-utils.js';
 import { validChatNameRegexString } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 
+import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import { typeaheadStyle } from '../chat/chat-constants.js';
 import css from '../chat/typeahead-tooltip.css';
@@ -120,6 +122,29 @@ function getMentionTypeaheadTooltipActions(
           userInfo: suggestedUser,
         },
       });
+    } else if (suggestion.type === 'chat') {
+      const suggestedChat = suggestion.threadInfo;
+      const mentionText = `@[[${suggestedChat.id}:${encodeChatMentionText(
+        suggestedChat.uiName,
+      )}]]`;
+      actions.push({
+        key: suggestedChat.id,
+        execute: () => {
+          const { newText, newSelectionStart } = getNewTextAndSelection(
+            textBeforeAtSymbol,
+            inputStateDraft,
+            query,
+            mentionText,
+          );
+
+          inputStateSetDraft(newText);
+          inputStateSetTextCursorPosition(newSelectionStart);
+        },
+        actionButtonContent: {
+          type: 'chat',
+          threadInfo: suggestedChat,
+        },
+      });
     }
   }
   return actions;
@@ -155,6 +180,15 @@ function getMentionTypeaheadTooltipButtons(
         <UserAvatar size="small" userID={actionButtonContent.userInfo.id} />
       );
       typeaheadButtonText = `@${stringForUserExplicit(suggestedUser)}`;
+    } else if (actionButtonContent.type === 'chat') {
+      const suggestedChat = actionButtonContent.threadInfo;
+      avatarComponent = (
+        <ThreadAvatar
+          size="small"
+          threadInfo={actionButtonContent.threadInfo}
+        />
+      );
+      typeaheadButtonText = `@${suggestedChat.uiName}`;
     }
 
     return (
