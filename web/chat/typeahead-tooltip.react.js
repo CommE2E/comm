@@ -3,28 +3,47 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { TypeaheadMatchedStrings } from 'lib/shared/mention-utils.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
+import type {
+  TypeaheadMatchedStrings,
+  TypeaheadTooltipActionItem,
+} from 'lib/shared/mention-utils.js';
 import { leastPositiveResidue } from 'lib/utils/math-utils.js';
 
 import css from './typeahead-tooltip.css';
 import type { InputState } from '../input/input-state.js';
+import type {
+  GetTypeaheadTooltipActionsParams,
+  GetMentionTypeaheadTooltipButtonsParams,
+} from '../utils/typeahead-utils.js';
 import {
   getTypeaheadOverlayScroll,
-  getTypeaheadTooltipActions,
-  getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
 } from '../utils/typeahead-utils.js';
 
-export type TypeaheadTooltipProps = {
+export type TypeaheadTooltipProps<SuggestionItemType> = {
   +inputState: InputState,
   +textarea: HTMLTextAreaElement,
   +matchedStrings: TypeaheadMatchedStrings,
-  +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  +suggestions: $ReadOnlyArray<SuggestionItemType>,
+  +typeaheadTooltipActionsGetter: (
+    GetTypeaheadTooltipActionsParams<SuggestionItemType>,
+  ) => $ReadOnlyArray<TypeaheadTooltipActionItem<SuggestionItemType>>,
+  +typeaheadTooltipButtonsGetter: (
+    GetMentionTypeaheadTooltipButtonsParams<SuggestionItemType>,
+  ) => React.Node,
 };
 
-function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
-  const { inputState, textarea, matchedStrings, suggestedUsers } = props;
+function TypeaheadTooltip<SuggestionItemType>(
+  props: TypeaheadTooltipProps<SuggestionItemType>,
+): React.Node {
+  const {
+    inputState,
+    textarea,
+    matchedStrings,
+    suggestions,
+    typeaheadTooltipActionsGetter,
+    typeaheadTooltipButtonsGetter,
+  } = props;
 
   const { textBeforeAtSymbol, query } = matchedStrings;
 
@@ -38,7 +57,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
   React.useEffect(() => {
     setChosenPositionInOverlay(0);
-  }, [suggestedUsers]);
+  }, [suggestions]);
 
   React.useEffect(() => {
     setIsVisibleForAnimation(true);
@@ -57,11 +76,11 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
   const actions = React.useMemo(
     () =>
-      getTypeaheadTooltipActions({
+      typeaheadTooltipActionsGetter({
         inputStateDraft: inputState.draft,
         inputStateSetDraft: inputState.setDraft,
         inputStateSetTextCursorPosition: inputState.setTextCursorPosition,
-        suggestedUsers,
+        suggestions,
         textBeforeAtSymbol,
         query,
       }),
@@ -69,9 +88,10 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
       inputState.draft,
       inputState.setDraft,
       inputState.setTextCursorPosition,
-      suggestedUsers,
+      suggestions,
       textBeforeAtSymbol,
       query,
+      typeaheadTooltipActionsGetter,
     ],
   );
 
@@ -91,12 +111,12 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
   const tooltipButtons = React.useMemo(
     () =>
-      getTypeaheadTooltipButtons(
+      typeaheadTooltipButtonsGetter({
         setChosenPositionInOverlay,
         chosenPositionInOverlay,
         actions,
-      ),
-    [setChosenPositionInOverlay, actions, chosenPositionInOverlay],
+      }),
+    [typeaheadTooltipButtonsGetter, chosenPositionInOverlay, actions],
   );
 
   const close = React.useCallback(() => {
@@ -164,7 +184,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     }
   }, [chosenPositionInOverlay]);
 
-  if (suggestedUsers.length === 0) {
+  if (suggestions.length === 0) {
     return null;
   }
 
