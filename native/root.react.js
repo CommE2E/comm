@@ -253,10 +253,12 @@ function Root() {
         theme={theme}
         ref={containerRef}
       >
-        <DeepLinksContextProvider>
-          <RootNavigator />
-        </DeepLinksContextProvider>
-        <NavigationHandler />
+        <BottomSheetModalProvider>
+          <DeepLinksContextProvider>
+            <RootNavigator />
+          </DeepLinksContextProvider>
+          <NavigationHandler />
+        </BottomSheetModalProvider>
       </NavigationContainer>
     );
   }
@@ -270,41 +272,37 @@ function Root() {
                 <MessageEditingContextProvider>
                   <SafeAreaProvider initialMetrics={initialWindowMetrics}>
                     <ActionSheetProvider>
-                      <BottomSheetModalProvider>
-                        <ENSCacheProvider provider={provider}>
-                          <MediaCacheProvider
-                            persistence={filesystemMediaCache}
-                          >
-                            <EditUserAvatarProvider>
-                              <NativeEditThreadAvatarProvider>
-                                <MarkdownContextProvider>
-                                  <ChatContextProvider>
-                                    <MessageSearchProvider>
-                                      <RegistrationContextProvider>
-                                        <SQLiteDataHandler />
-                                        <ConnectedStatusBar />
-                                        <ReduxPersistGate
-                                          persistor={getPersistor()}
-                                        >
-                                          {gated}
-                                        </ReduxPersistGate>
-                                        <PersistedStateGate>
-                                          <Socket
-                                            detectUnsupervisedBackgroundRef={
-                                              detectUnsupervisedBackgroundRef
-                                            }
-                                          />
-                                        </PersistedStateGate>
-                                        {navigation}
-                                      </RegistrationContextProvider>
-                                    </MessageSearchProvider>
-                                  </ChatContextProvider>
-                                </MarkdownContextProvider>
-                              </NativeEditThreadAvatarProvider>
-                            </EditUserAvatarProvider>
-                          </MediaCacheProvider>
-                        </ENSCacheProvider>
-                      </BottomSheetModalProvider>
+                      <ENSCacheProvider provider={provider}>
+                        <MediaCacheProvider persistence={filesystemMediaCache}>
+                          <EditUserAvatarProvider>
+                            <NativeEditThreadAvatarProvider>
+                              <MarkdownContextProvider>
+                                <ChatContextProvider>
+                                  <MessageSearchProvider>
+                                    <RegistrationContextProvider>
+                                      <SQLiteDataHandler />
+                                      <ConnectedStatusBar />
+                                      <ReduxPersistGate
+                                        persistor={getPersistor()}
+                                      >
+                                        {gated}
+                                      </ReduxPersistGate>
+                                      <PersistedStateGate>
+                                        <Socket
+                                          detectUnsupervisedBackgroundRef={
+                                            detectUnsupervisedBackgroundRef
+                                          }
+                                        />
+                                      </PersistedStateGate>
+                                      {navigation}
+                                    </RegistrationContextProvider>
+                                  </MessageSearchProvider>
+                                </ChatContextProvider>
+                              </MarkdownContextProvider>
+                            </NativeEditThreadAvatarProvider>
+                          </EditUserAvatarProvider>
+                        </MediaCacheProvider>
+                      </ENSCacheProvider>
                     </ActionSheetProvider>
                   </SafeAreaProvider>
                 </MessageEditingContextProvider>
