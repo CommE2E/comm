@@ -13,6 +13,7 @@ import type { PasswordSelectionParams } from '../account/registration/password-s
 import type { RegistrationTermsParams } from '../account/registration/registration-terms.react.js';
 import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
+import type { UserProfileBottomSheetParams } from '../bottom-sheets/user-profile-bottom-sheet.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
 import type { FullScreenThreadMediaGalleryParams } from '../chat/fullscreen-thread-media-gallery.react.js';
@@ -133,6 +134,7 @@ export const CommunityRolesScreenRouteName = 'CommunityRolesScreen';
 export const CreateRolesScreenRouteName = 'CreateRolesScreen';
 export const QRCodeSignInNavigatorRouteName = 'QRCodeSignInNavigator';
 export const QRCodeScreenRouteName = 'QRCodeScreen';
+export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -153,6 +155,7 @@ export type RootParamList = {
   +InviteLinkNavigator: void,
   +RolesNavigator: void,
   +QRCodeSignInNavigator: void,
+  +UserProfileBottomSheet: UserProfileBottomSheetParams,
 };
 
 export type MessageTooltipRouteNames =
@@ -261,6 +264,10 @@ export type QRCodeSignInParamList = {
   +QRCodeScreen: void,
 };
 
+export type BottomSheetParamList = {
+  +UserProfileBottomSheet: UserProfileBottomSheetParams,
+};
+
 export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
@@ -274,6 +281,7 @@ export type ScreenParamList = {
   ...CommunityCreationParamList,
   ...RolesParamList,
   ...QRCodeSignInParamList,
+  ...BottomSheetParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
