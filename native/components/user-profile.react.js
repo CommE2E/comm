@@ -4,7 +4,8 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
-import type { AccountUserInfo } from 'lib/types/user-types';
+import { stringForUserExplicit } from 'lib/shared/user-utils.js';
+import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
@@ -13,22 +14,24 @@ import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +userInfo: AccountUserInfo,
+  +userInfo: UserInfo,
 };
 
 function UserProfile(props: Props): React.Node {
   const { userInfo } = props;
+
+  const usernameText = stringForUserExplicit(userInfo);
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
 
   const styles = useStyles(unboundStyles);
 
   const onPressCopyUsername = React.useCallback(async () => {
-    Clipboard.setString(userInfo.username);
+    Clipboard.setString(usernameText);
     setUsernameCopied(true);
     await sleep(3000);
     setUsernameCopied(false);
-  }, [userInfo.username]);
+  }, [usernameText]);
 
   const copyUsernameButton = React.useMemo(() => {
     if (usernameCopied) {
@@ -67,9 +70,7 @@ function UserProfile(props: Props): React.Node {
       <View style={styles.userInfoContainer}>
         <UserAvatar size="profile" userID={userInfo.id} />
         <View style={styles.usernameContainer}>
-          <SingleLine style={styles.usernameText}>
-            {userInfo.username}
-          </SingleLine>
+          <SingleLine style={styles.usernameText}>{usernameText}</SingleLine>
           {copyUsernameButton}
         </View>
       </View>
