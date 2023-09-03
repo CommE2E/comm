@@ -12,6 +12,7 @@ import sleep from 'lib/utils/sleep.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import UserProfileMessageButton from './user-profile-message-button.react.js';
+import UserProfileRelationshipButton from './user-profile-relationship-button.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -86,6 +87,23 @@ function UserProfile(props: Props): React.Node {
     );
   }, [userInfo?.relationshipStatus, userProfileThreadInfo]);
 
+  const relationshipButton = React.useMemo(() => {
+    if (
+      !userProfileThreadInfo ||
+      relationshipBlockedInEitherDirection(userInfo?.relationshipStatus)
+    ) {
+      return null;
+    }
+
+    const { threadInfo, pendingPersonalThreadUserInfo } = userProfileThreadInfo;
+    return (
+      <UserProfileRelationshipButton
+        threadInfo={threadInfo}
+        pendingPersonalThreadUserInfo={pendingPersonalThreadUserInfo}
+      />
+    );
+  }, [userInfo?.relationshipStatus, userProfileThreadInfo]);
+
   return (
     <View style={styles.container}>
       <SWMansionIcon name="menu-vertical" size={24} style={styles.moreIcon} />
@@ -97,6 +115,7 @@ function UserProfile(props: Props): React.Node {
         </View>
       </View>
       {messageButton}
+      {relationshipButton}
     </View>
   );
 }
