@@ -14,7 +14,7 @@ import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +userInfo: UserInfo,
+  +userInfo: ?UserInfo,
 };
 
 function UserProfile(props: Props): React.Node {
@@ -68,7 +68,7 @@ function UserProfile(props: Props): React.Node {
     <View style={styles.container}>
       <SWMansionIcon name="menu-vertical" size={24} style={styles.moreIcon} />
       <View style={styles.userInfoContainer}>
-        <UserAvatar size="profile" userID={userInfo.id} />
+        <UserAvatar size="profile" userID={userInfo?.id} />
         <View style={styles.usernameContainer}>
           <SingleLine style={styles.usernameText}>{usernameText}</SingleLine>
           {copyUsernameButton}
