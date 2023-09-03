@@ -4,11 +4,14 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
+import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
+import UserProfileMessageButton from './user-profile-message-button.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -19,6 +22,8 @@ type Props = {
 
 function UserProfile(props: Props): React.Node {
   const { userInfo } = props;
+
+  const userProfileThreadInfo = useUserProfileThreadInfo(userInfo);
 
   const usernameText = stringForUserExplicit(userInfo);
 
@@ -64,6 +69,23 @@ function UserProfile(props: Props): React.Node {
     usernameCopied,
   ]);
 
+  const messageButton = React.useMemo(() => {
+    if (
+      !userProfileThreadInfo ||
+      relationshipBlockedInEitherDirection(userInfo?.relationshipStatus)
+    ) {
+      return null;
+    }
+
+    const { threadInfo, pendingPersonalThreadUserInfo } = userProfileThreadInfo;
+    return (
+      <UserProfileMessageButton
+        threadInfo={threadInfo}
+        pendingPersonalThreadUserInfo={pendingPersonalThreadUserInfo}
+      />
+    );
+  }, [userInfo?.relationshipStatus, userProfileThreadInfo]);
+
   return (
     <View style={styles.container}>
       <SWMansionIcon name="menu-vertical" size={24} style={styles.moreIcon} />
@@ -74,6 +96,7 @@ function UserProfile(props: Props): React.Node {
           {copyUsernameButton}
         </View>
       </View>
+      {messageButton}
     </View>
   );
 }
@@ -112,6 +135,22 @@ const unboundStyles = {
   copyUsernameText: {
     color: 'purpleLink',
     fontSize: 12,
+  },
+  messageButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'purpleButton',
+    paddingVertical: 8,
+    marginTop: 16,
+    borderRadius: 8,
+  },
+  messageButtonIcon: {
+    color: 'floatingButtonLabel',
+    paddingRight: 8,
+  },
+  messageButtonText: {
+    color: 'floatingButtonLabel',
   },
 };
 
