@@ -45,10 +45,12 @@ import {
   CommunityCreationRouteName,
   RolesNavigatorRouteName,
   QRCodeSignInNavigatorRouteName,
+  UserProfileBottomSheetRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
+import UserProfileBottomSheet from '../bottom-sheets/user-profile-bottom-sheet.react.js';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
 import ImagePasteModal from '../chat/image-paste-modal.react.js';
 import MessageReactionsModal from '../chat/message-reactions-modal.react.js';
@@ -278,6 +280,10 @@ function RootComponent(): React.Node {
         options={modalOverlayScreenOptions}
       />
       <Root.Screen name={RolesNavigatorRouteName} component={RolesNavigator} />
+      <Root.Screen
+        name={UserProfileBottomSheetRouteName}
+        component={UserProfileBottomSheet}
+      />
     </Root.Navigator>
   );
 }
