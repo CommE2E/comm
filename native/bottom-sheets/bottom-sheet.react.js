@@ -9,17 +9,27 @@ import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +children: React.Node,
+  +onClosed: () => mixed,
 };
 
 function ForwardedBottomSheet(
   props: Props,
   ref: React.Ref<typeof BottomSheetModal>,
 ): React.Node {
-  const { children } = props;
+  const { children, onClosed } = props;
 
   const styles = useStyles(unboundStyles);
 
   const snapPoints = React.useMemo(() => ['25%', '50%'], []);
+
+  const onChange = React.useCallback(
+    (index: number) => {
+      if (index === -1) {
+        onClosed();
+      }
+    },
+    [onClosed],
+  );
 
   return (
     <BottomSheetModal
@@ -28,6 +38,7 @@ function ForwardedBottomSheet(
       snapPoints={snapPoints}
       handleComponent={BottomSheetHandle}
       backdropComponent={BottomSheetBackdrop}
+      onChange={onChange}
     >
       {children}
     </BottomSheetModal>
