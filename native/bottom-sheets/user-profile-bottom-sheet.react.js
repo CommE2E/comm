@@ -2,15 +2,14 @@
 
 import * as React from 'react';
 
-import type { AccountUserInfo } from 'lib/types/user-types.js';
-
 import BottomSheet from './bottom-sheet.react.js';
 import UserProfile from '../components/user-profile.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 export type UserProfileBottomSheetParams = {
-  +userInfo: AccountUserInfo,
+  +userID: string,
 };
 
 type Props = {
@@ -22,11 +21,13 @@ function UserProfileBottomSheet(props: Props): React.Node {
   const {
     navigation,
     route: {
-      params: { userInfo },
+      params: { userID },
     },
   } = props;
 
   const { goBackOnce } = navigation;
+
+  const userInfo = useSelector(state => state.userStore.userInfos[userID]);
 
   const bottomSheetRef = React.useRef();
 
