@@ -18,9 +18,9 @@ import {
   type BindServerCallsParams,
 } from 'lib/utils/action-utils.js';
 
-import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 import Alert from '../utils/alert.js';
+import { getPrimaryIdentityPublicKey } from '../utils/crypto-utils.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
@@ -79,10 +79,7 @@ function SIWEPanel(props: Props): React.Node {
           setNonce(response);
         })(),
       );
-      await commCoreModule.initializeCryptoAccount();
-      const {
-        primaryIdentityPublicKeys: { ed25519 },
-      } = await commCoreModule.getUserPublicKey();
+      const ed25519 = await getPrimaryIdentityPublicKey();
       setPrimaryIdentityPublicKey(ed25519);
     })();
   }, [dispatchActionPromise, getSIWENonceCall]);
