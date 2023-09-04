@@ -8,16 +8,22 @@ import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import { fetchThreadInfos } from '../../fetchers/thread-fetchers.js';
 import type { Viewer } from '../../session/viewer.js';
 
-export const threadsStateSyncSpec: ServerStateSyncSpec<RawThreadInfos> =
-  Object.freeze({
-    async fetch(
-      viewer: Viewer,
-      query: $ReadOnlyArray<CalendarQuery>,
-      ids?: $ReadOnlySet<string>,
-    ) {
-      const filter = ids ? { threadIDs: ids } : undefined;
-      const result = await fetchThreadInfos(viewer, filter);
-      return result.threadInfos;
-    },
-    ...libSpec,
-  });
+export const threadsStateSyncSpec: ServerStateSyncSpec<
+  RawThreadInfos,
+  RawThreadInfos,
+> = Object.freeze({
+  async fetch(
+    viewer: Viewer,
+    query: $ReadOnlyArray<CalendarQuery>,
+    ids?: $ReadOnlySet<string>,
+  ) {
+    const filter = ids ? { threadIDs: ids } : undefined;
+    const result = await fetchThreadInfos(viewer, filter);
+    return result.threadInfos;
+  },
+  async fetchFullSocketSyncPayload(viewer: Viewer) {
+    const result = await fetchThreadInfos(viewer);
+    return result.threadInfos;
+  },
+  ...libSpec,
+});

@@ -59,17 +59,11 @@ import { deleteActivityForViewerSession } from '../deleters/activity-deleters.js
 import { deleteCookie } from '../deleters/cookie-deleters.js';
 import { deleteUpdatesBeforeTimeTargetingSession } from '../deleters/update-deleters.js';
 import { jsonEndpoints } from '../endpoints.js';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
 import {
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
 } from '../fetchers/message-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers.js';
-import {
-  fetchCurrentUserInfo,
-  fetchKnownUserInfos,
-} from '../fetchers/user-fetchers.js';
 import {
   newEntryQueryInputValidator,
   verifyCalendarQueryThreadIDs,
@@ -83,6 +77,7 @@ import {
   isCookieMissingOlmNotificationsSession,
 } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
+import { serverStateSyncSpecs } from '../shared/state-sync/state-sync-specs.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
 import { assertSecureRequest } from '../utils/security-utils.js';
 import {
@@ -474,20 +469,20 @@ class Socket {
       isCookieMissingOlmNotificationsSession(viewer);
 
     if (!sessionInitializationResult.sessionContinued) {
-      const [threadsResult, entriesResult, currentUserInfo, knownUserInfos] =
-        await Promise.all([
-          fetchThreadInfos(viewer),
-          fetchEntryInfos(viewer, [calendarQuery]),
-          fetchCurrentUserInfo(viewer),
-          fetchKnownUserInfos(viewer),
-        ]);
+      const promises = Object.fromEntries(
+        values(serverStateSyncSpecs).map(spec => [
+          spec.hashKey,
+          spec.fetchFullSocketSyncPayload(viewer, [calendarQuery]),
+        ]),
+      );
+      const results = await promiseAll(promises);
       const payload: ServerStateSyncFullSocketPayload = {
         type: stateSyncPayloadTypes.FULL,
         messagesResult,
-        threadInfos: threadsResult.threadInfos,
-        currentUserInfo,
-        rawEntryInfos: entriesResult.rawEntryInfos,
-        userInfos: values(knownUserInfos),
+        threadInfos: results.threadInfos,
+        currentUserInfo: results.currentUserInfo,
+        rawEntryInfos: results.entryInfos,
+        userInfos: results.userInfos,
         updatesCurrentAsOf: oldUpdatesCurrentAsOf,
       };
       if (viewer.sessionChanged) {
