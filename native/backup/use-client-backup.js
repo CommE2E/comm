@@ -12,6 +12,7 @@ import { BACKUP_ID_LENGTH } from './constants.js';
 import { encryptBackup } from './encryption.js';
 import { commCoreModule } from '../native-modules.js';
 import { generateKey } from '../utils/aes-crypto-module.js';
+import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 type ClientBackup = {
   +uploadBackupProtocol: (userData: UserData) => Promise<void>,
@@ -32,18 +33,16 @@ function useClientBackup(): ClientBackup {
       console.info('Start uploading backup...');
 
       const backupDataKey = generateKey();
-      await commCoreModule.initializeCryptoAccount();
-      const {
-        primaryIdentityPublicKeys: { ed25519 },
-      } = await commCoreModule.getUserPublicKey();
+
+      const [ed25519, backupID] = await Promise.all([
+        getContentSigningKey(),
+        commCoreModule.generateRandomString(BACKUP_ID_LENGTH),
+      ]);
+
       const userKeys: UserKeys = {
         backupDataKey: uintArrayToHexString(backupDataKey),
         ed25519,
       };
-
-      const backupID = await commCoreModule.generateRandomString(
-        BACKUP_ID_LENGTH,
-      );
 
       const encryptedBackup = await encryptBackup({
         backupID,
