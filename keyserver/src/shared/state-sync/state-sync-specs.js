@@ -7,7 +7,7 @@ import { threadsStateSyncSpec } from './threads-state-sync-spec.js';
 import { usersStateSyncSpec } from './users-state-sync-spec.js';
 
 export const serverStateSyncSpecs: {
-  +[string]: ServerStateSyncSpec<*, *>,
+  +[string]: ServerStateSyncSpec<*, *, *>,
 } = Object.freeze({
   threads: threadsStateSyncSpec,
   entries: entriesStateSyncSpec,
