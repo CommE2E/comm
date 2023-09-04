@@ -53,30 +53,6 @@ const migrations = {
       },
     };
   },
-  [2]: async state => {
-    const databaseModule = await getDatabaseModule();
-    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
-    if (!isDatabaseSupported) {
-      return state;
-    }
-
-    const { drafts } = state.draftStore;
-    const draftStoreOperations = [];
-    for (const key in drafts) {
-      const text = drafts[key];
-      draftStoreOperations.push({
-        type: 'update',
-        payload: { key, text },
-      });
-    }
-
-    await databaseModule.schedule({
-      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-      storeOperations: { draftStoreOperations },
-    });
-
-    return state;
-  },
   [3]: async (state: AppState) => {
     let newState = state;
     if (state.draftStore) {
@@ -124,6 +100,34 @@ const migrations = {
         },
       },
     };
+  },
+  [5]: async state => {
+    const databaseModule = await getDatabaseModule();
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
+    if (!isDatabaseSupported) {
+      return state;
+    }
+
+    if (!state.draftStore) {
+      return state;
+    }
+
+    const { drafts } = state.draftStore;
+    const draftStoreOperations = [];
+    for (const key in drafts) {
+      const text = drafts[key];
+      draftStoreOperations.push({
+        type: 'update',
+        payload: { key, text },
+      });
+    }
+
+    await databaseModule.schedule({
+      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+      storeOperations: { draftStoreOperations },
+    });
+
+    return state;
   },
 };
 
@@ -234,7 +238,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 4,
+  version: 5,
   transforms: [keyserverStoreTransform],
 };
 
