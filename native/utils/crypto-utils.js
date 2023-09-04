@@ -52,4 +52,12 @@ function useInitialNotificationsEncryptedMessage(): (
   );
 }
 
-export { useInitialNotificationsEncryptedMessage };
+async function getContentSigningKey(): Promise<string> {
+  await commCoreModule.initializeCryptoAccount();
+  const {
+    primaryIdentityPublicKeys: { ed25519 },
+  } = await commCoreModule.getUserPublicKey();
+  return ed25519;
+}
+
+export { useInitialNotificationsEncryptedMessage, getContentSigningKey };
