@@ -97,6 +97,7 @@ export type AppState = {
   +commServicesAccessToken: ?string,
   +inviteLinksStore: InviteLinksStore,
   +keyserverStore: KeyserverStore,
+  +initialStateLoaded: boolean,
 };
 
 export type Action =
@@ -140,6 +141,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
           },
         },
       },
+      initialStateLoaded: true,
     });
   } else if (action.type === updateWindowDimensionsActionType) {
     return validateState(oldState, {
