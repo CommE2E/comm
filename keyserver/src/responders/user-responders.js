@@ -64,7 +64,6 @@ import {
   type PasswordUpdate,
   loggedOutUserInfoValidator,
   loggedInUserInfoValidator,
-  oldLoggedInUserInfoValidator,
   userInfoValidator,
 } from 'lib/types/user-types.js';
 import {
@@ -257,10 +256,7 @@ export const registerResponseValidator: TInterface<RegisterResponse> =
   tShape<RegisterResponse>({
     id: t.String,
     rawMessageInfos: t.list(rawMessageInfoValidator),
-    currentUserInfo: t.union([
-      oldLoggedInUserInfoValidator,
-      loggedInUserInfoValidator,
-    ]),
+    currentUserInfo: loggedInUserInfoValidator,
     cookieChange: tShape({
       threadInfos: t.dict(tID, rawThreadInfoValidator),
       userInfos: t.list(userInfoValidator),
@@ -432,10 +428,7 @@ export const logInRequestInputValidator: TInterface<LogInRequest> =
 
 export const logInResponseValidator: TInterface<LogInResponse> =
   tShape<LogInResponse>({
-    currentUserInfo: t.union([
-      loggedInUserInfoValidator,
-      oldLoggedInUserInfoValidator,
-    ]),
+    currentUserInfo: loggedInUserInfoValidator,
     rawMessageInfos: t.list(rawMessageInfoValidator),
     truncationStatuses: messageTruncationStatusesValidator,
     userInfos: t.list(userInfoValidator),
