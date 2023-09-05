@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { BACKUP_HASH_STORAGE_KEY } from './constants.js';
@@ -24,12 +25,20 @@ function BackupHandler(): null {
   );
   const loggedIn = useSelector(isLoggedIn);
   const staffCanSee = useStaffCanSee();
+  const isAccountWithPassword = useSelector(state =>
+    accountHasPassword(state.currentUserInfo),
+  );
 
   const { uploadBackupProtocol } = useClientBackup();
 
   React.useEffect(() => {
     (async () => {
-      if (!isBackupEnabled || !loggedIn || !staffCanSee) {
+      if (
+        !isBackupEnabled ||
+        !loggedIn ||
+        !staffCanSee ||
+        !isAccountWithPassword
+      ) {
         return;
       }
 
@@ -67,6 +76,7 @@ function BackupHandler(): null {
     loggedIn,
     uploadBackupProtocol,
     userStore,
+    isAccountWithPassword,
   ]);
 
   return null;
