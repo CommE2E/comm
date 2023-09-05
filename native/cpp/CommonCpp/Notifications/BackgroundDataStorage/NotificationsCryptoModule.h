@@ -30,6 +30,8 @@ public:
   static void clearSensitiveData();
   static std::string
   getNotificationsIdentityKeys(const std::string &callingProcessName);
+  static std::string
+  generateAndGetNotificationsPrekey(const std::string &callingProcessName);
   static crypto::EncryptedData initializeNotificationsSession(
       const std::string &identityKeys,
       const std::string &prekey,
