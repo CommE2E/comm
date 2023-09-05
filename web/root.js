@@ -7,7 +7,6 @@ import { Router, Route } from 'react-router';
 import { createStore, applyMiddleware, type Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction.js';
 import { persistReducer, persistStore } from 'redux-persist';
-import { PersistGate } from 'redux-persist/es/integration/react.js';
 import thunk from 'redux-thunk';
 
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
@@ -16,7 +15,7 @@ import App from './app.react.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import { localforageConfig } from './database/utils/constants.js';
 import ErrorBoundary from './error-boundary.react.js';
-import Loading from './loading.react.js';
+import InitialReduxStateGate from './redux/initial-state-gate.js';
 import { persistConfig } from './redux/persist.js';
 import { type AppState, type Action, reducer } from './redux/redux-setup.js';
 import history from './router-history.js';
@@ -36,15 +35,15 @@ const persistor = persistStore(store);
 
 const RootProvider = (): React.Node => (
   <Provider store={store}>
-    <PersistGate persistor={persistor} loading={<Loading />}>
-      <ErrorBoundary>
+    <ErrorBoundary>
+      <InitialReduxStateGate persistor={persistor}>
         <Router history={history.getHistoryObject()}>
           <Route path="*" component={App} />
         </Router>
         <Socket />
         <SQLiteDataHandler />
-      </ErrorBoundary>
-    </PersistGate>
+      </InitialReduxStateGate>
+    </ErrorBoundary>
   </Provider>
 );
 
