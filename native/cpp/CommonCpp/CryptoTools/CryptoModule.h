@@ -44,6 +44,7 @@ public:
   // Prekey rotation methods for X3DH
   std::uint8_t getNumPrekeys();
   std::string getPrekey();
+  std::string getPrekeySignature();
   folly::Optional<std::string> getUnpublishedPrekey();
   std::string generateAndGetPrekey();
   void markPrekeyAsPublished();

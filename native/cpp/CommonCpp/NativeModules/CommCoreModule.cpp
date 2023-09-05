@@ -528,26 +528,59 @@ jsi::Value CommCoreModule::getPrimaryOneTimeKeys(
       });
 }
 
-jsi::Value CommCoreModule::generateAndGetPrekey(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::generateAndGetPrekeys(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::string prekey;
+          std::string contentPrekey, contentPrekeySignature, notifPrekey,
+              notifPrekeySignature;
+
           if (this->cryptoModule == nullptr) {
             error = "user has not been initialized";
           } else {
-            prekey = this->cryptoModule->generateAndGetPrekey();
+            contentPrekey = this->cryptoModule->generateAndGetPrekey();
+            contentPrekeySignature = this->cryptoModule->getPrekeySignature();
+            try {
+              notifPrekey =
+                  NotificationsCryptoModule::generateAndGetNotificationsPrekey(
+                      "Comm");
+              notifPrekeySignature =
+                  NotificationsCryptoModule::getNotificationsPrekeySignature(
+                      "Comm");
+            } catch (const std::exception &e) {
+              error = e.what();
+            }
           }
+
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            auto prekeyJSI = jsi::String::createFromUtf8(innerRt, prekey);
-            promise->resolve(std::move(prekeyJSI));
+            auto contentPrekeyJSI =
+                jsi::String::createFromUtf8(innerRt, contentPrekey);
+            auto contentPrekeySignatureJSI =
+                jsi::String::createFromUtf8(innerRt, contentPrekeySignature);
+            auto notifPrekeyJSI =
+                jsi::String::createFromUtf8(innerRt, notifPrekey);
+            auto notifPrekeySignatureJSI =
+                jsi::String::createFromUtf8(innerRt, notifPrekeySignature);
+
+            auto signedPrekeysJSI = jsi::Object(innerRt);
+            signedPrekeysJSI.setProperty(
+                innerRt, "contentPrekey", contentPrekeyJSI);
+            signedPrekeysJSI.setProperty(
+                innerRt, "contentPrekeySignature", contentPrekeySignatureJSI);
+            signedPrekeysJSI.setProperty(
+                innerRt, "notifPrekey", notifPrekeyJSI);
+            signedPrekeysJSI.setProperty(
+                innerRt, "notifPrekeySignature", notifPrekeySignatureJSI);
+
+            promise->resolve(std::move(signedPrekeysJSI));
           });
         };
+
         this->cryptoThread->scheduleTask(job);
       });
 }
