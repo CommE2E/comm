@@ -528,6 +528,30 @@ jsi::Value CommCoreModule::getPrimaryOneTimeKeys(
       });
 }
 
+jsi::Value CommCoreModule::generateAndGetPrekey(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string prekey;
+          if (this->cryptoModule == nullptr) {
+            error = "user has not been initialized";
+          } else {
+            prekey = this->cryptoModule->generateAndGetPrekey();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            auto prekeyJSI = jsi::String::createFromUtf8(innerRt, prekey);
+            promise->resolve(std::move(prekeyJSI));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::initializeNotificationsSession(
     jsi::Runtime &rt,
     jsi::String identityKeys,
