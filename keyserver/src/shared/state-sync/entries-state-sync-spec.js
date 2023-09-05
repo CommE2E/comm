@@ -19,14 +19,11 @@ export const entriesStateSyncSpec: ServerStateSyncSpec<
   RawEntryInfos,
   $ReadOnlyArray<RawEntryInfo>,
 > = Object.freeze({
-  async fetch(
-    viewer: Viewer,
-    query: $ReadOnlyArray<CalendarQuery>,
-    ids?: $ReadOnlySet<string>,
-  ) {
+  async fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     if (ids) {
       return fetchEntryInfosByID(viewer, ids);
     }
+    const query = [viewer.calendarQuery];
     const entriesResult = await fetchEntryInfos(viewer, query);
     return serverEntryInfosObject(entriesResult.rawEntryInfos);
   },

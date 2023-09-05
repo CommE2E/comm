@@ -1,7 +1,6 @@
 // @flow
 
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
-import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { RawThreadInfos } from 'lib/types/thread-types.js';
 
 import type { ServerStateSyncSpec } from './state-sync-spec.js';
@@ -12,11 +11,7 @@ export const threadsStateSyncSpec: ServerStateSyncSpec<
   RawThreadInfos,
   RawThreadInfos,
 > = Object.freeze({
-  async fetch(
-    viewer: Viewer,
-    query: $ReadOnlyArray<CalendarQuery>,
-    ids?: $ReadOnlySet<string>,
-  ) {
+  async fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     const filter = ids ? { threadIDs: ids } : undefined;
     const result = await fetchThreadInfos(viewer, filter);
     return result.threadInfos;

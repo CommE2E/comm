@@ -602,7 +602,6 @@ class Socket {
       const { sessionUpdate, checkStateRequest } = await checkState(
         viewer,
         stateCheckStatus,
-        viewer.calendarQuery,
       );
       if (sessionUpdate) {
         await commitSessionUpdate(viewer, sessionUpdate);
@@ -825,11 +824,9 @@ class Socket {
     const { viewer } = this;
     invariant(viewer, 'should be set');
 
-    const { checkStateRequest } = await checkState(
-      viewer,
-      { status: 'state_check' },
-      viewer.calendarQuery,
-    );
+    const { checkStateRequest } = await checkState(viewer, {
+      status: 'state_check',
+    });
     invariant(checkStateRequest, 'should be set');
 
     this.sendMessage({

@@ -378,9 +378,7 @@ type StateCheckResult = {
 async function checkState(
   viewer: Viewer,
   status: StateCheckStatus,
-  calendarQuery: CalendarQuery,
 ): Promise<StateCheckResult> {
-  const query = [calendarQuery];
   if (status.status === 'state_validated') {
     return { sessionUpdate: { lastValidated: Date.now() } };
   } else if (status.status === 'state_check') {
@@ -388,7 +386,7 @@ async function checkState(
       values(serverStateSyncSpecs).map(spec => [
         spec.hashKey,
         (async () => {
-          const data = await spec.fetch(viewer, query);
+          const data = await spec.fetch(viewer);
           return hash(data);
         })(),
       ]),
@@ -424,11 +422,10 @@ async function checkState(
   const fetchPromises = {};
   for (const spec of values(serverStateSyncSpecs)) {
     if (shouldFetchAll[spec.hashKey]) {
-      fetchPromises[spec.hashKey] = spec.fetch(viewer, query);
+      fetchPromises[spec.hashKey] = spec.fetch(viewer);
     } else if (idsToFetch[spec.innerHashSpec?.hashKey]?.size > 0) {
       fetchPromises[spec.hashKey] = spec.fetch(
         viewer,
-        query,
         idsToFetch[spec.innerHashSpec?.hashKey],
       );
     }
