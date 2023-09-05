@@ -37,11 +37,14 @@ function BackupHandler(): null {
       const userDataBytes = convertObjToBytes(userData);
       const currentBackupHash = commUtilsModule.sha256(userDataBytes.buffer);
 
-      const recentBackupHash = await AsyncStorage.getItem(
+      const mostRecentlyUploadedBackupHash = await AsyncStorage.getItem(
         BACKUP_HASH_STORAGE_KEY,
       );
 
-      if (!recentBackupHash || currentBackupHash !== recentBackupHash) {
+      if (
+        !mostRecentlyUploadedBackupHash ||
+        currentBackupHash !== mostRecentlyUploadedBackupHash
+      ) {
         try {
           await uploadBackupProtocol(userData);
           await AsyncStorage.setItem(
