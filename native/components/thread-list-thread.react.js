@@ -6,7 +6,7 @@ import type { ThreadInfo, ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import Button from './button.react.js';
-import { SingleLine } from './single-line.react.js';
+import SingleLine from './single-line.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';

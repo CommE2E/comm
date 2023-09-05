@@ -95,7 +95,7 @@ import ClearableTextInput from '../components/clearable-text-input.react';
 import type { SyncedSelectionData } from '../components/selectable-text-input.js';
 // eslint-disable-next-line import/extensions
 import SelectableTextInput from '../components/selectable-text-input.react';
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   type InputState,

@@ -12,7 +12,7 @@ import type { InviteLink } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
