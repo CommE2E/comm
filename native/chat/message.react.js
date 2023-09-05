@@ -1,13 +1,11 @@
 // @flow
 
-import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import {
   LayoutAnimation,
   TouchableWithoutFeedback,
   PixelRatio,
 } from 'react-native';
-import shallowequal from 'shallowequal';
 
 import { messageKey } from 'lib/shared/message-utils.js';
 
@@ -16,17 +14,14 @@ import MultimediaMessage from './multimedia-message.react.js';
 import { RobotextMessage } from './robotext-message.react.js';
 import { TextMessage } from './text-message.react.js';
 import { messageItemHeight } from './utils.js';
-import {
-  type KeyboardState,
-  KeyboardContext,
-} from '../keyboard/keyboard-state.js';
+import { KeyboardContext } from '../keyboard/keyboard-state.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { type VerticalBounds } from '../types/layout-types.js';
 import type { LayoutEvent } from '../types/react-native.js';
 
-type BaseProps = {
+type Props = {
   +item: ChatMessageInfoItemWithHeight,
   +focused: boolean,
   +navigation:
@@ -43,111 +38,116 @@ type BaseProps = {
   +verticalBounds: ?VerticalBounds,
   shouldDisplayPinIndicator: boolean,
 };
-type Props = {
-  ...BaseProps,
-  +keyboardState: ?KeyboardState,
-};
-class Message extends React.Component<Props> {
-  shouldComponentUpdate(nextProps: Props): boolean {
-    const { item, ...props } = this.props;
-    const { item: nextItem, ...newProps } = nextProps;
-    return !_isEqual(item, nextItem) || !shallowequal(props, newProps);
-  }
+function Message(props: Props): React.Node {
+  const {
+    focused,
+    item,
+    navigation,
+    route,
+    toggleFocus,
+    verticalBounds,
+    shouldDisplayPinIndicator,
+  } = props;
 
-  componentDidUpdate(prevProps: Props) {
-    if (
-      (prevProps.focused || prevProps.item.startsConversation) !==
-      (this.props.focused || this.props.item.startsConversation)
-    ) {
-      LayoutAnimation.easeInEaseOut();
-    }
-  }
+  const focusedOrStartsConversation = focused || item.startsConversation;
+  React.useEffect(() => {
+    LayoutAnimation.easeInEaseOut();
+  }, [focusedOrStartsConversation]);
 
-  render() {
-    let message;
-    if (this.props.item.messageShapeType === 'text') {
-      message = (
+  const keyboardState = React.useContext(KeyboardContext);
+  const dismissKeyboard = keyboardState?.dismissKeyboard;
+  const onMessagePress = React.useCallback(
+    () => dismissKeyboard?.(),
+    [dismissKeyboard],
+  );
+
+  const onLayout = React.useCallback(
+    (event: LayoutEvent) => {
+      if (focused) {
+        return;
+      }
+
+      const measuredHeight = event.nativeEvent.layout.height;
+      const expectedHeight = messageItemHeight(item);
+
+      const pixelRatio = 1 / PixelRatio.get();
+      const distance = Math.abs(measuredHeight - expectedHeight);
+      if (distance < pixelRatio) {
+        return;
+      }
+
+      const approxMeasuredHeight = Math.round(measuredHeight * 100) / 100;
+      const approxExpectedHeight = Math.round(expectedHeight * 100) / 100;
+
+      console.log(
+        `Message height for ${item.messageShapeType} ` +
+          `${messageKey(item.messageInfo)} was expected to be ` +
+          `${approxExpectedHeight} but is actually ${approxMeasuredHeight}. ` +
+          "This means MessageList's FlatList isn't getting the right item " +
+          'height for some of its nodes, which is guaranteed to cause glitchy ' +
+          'behavior. Please investigate!!',
+      );
+    },
+    [focused, item],
+  );
+
+  const innerMessageNode = React.useMemo(() => {
+    if (item.messageShapeType === 'text') {
+      return (
         <TextMessage
-          item={this.props.item}
-          navigation={this.props.navigation}
-          route={this.props.route}
-          focused={this.props.focused}
-          toggleFocus={this.props.toggleFocus}
-          verticalBounds={this.props.verticalBounds}
-          shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
+          item={item}
+          navigation={navigation}
+          route={route}
+          focused={focused}
+          toggleFocus={toggleFocus}
+          verticalBounds={verticalBounds}
+          shouldDisplayPinIndicator={shouldDisplayPinIndicator}
         />
       );
-    } else if (this.props.item.messageShapeType === 'multimedia') {
-      message = (
+    } else if (item.messageShapeType === 'multimedia') {
+      return (
         <MultimediaMessage
-          item={this.props.item}
-          focused={this.props.focused}
-          toggleFocus={this.props.toggleFocus}
-          verticalBounds={this.props.verticalBounds}
-          shouldDisplayPinIndicator={this.props.shouldDisplayPinIndicator}
+          item={item}
+          focused={focused}
+          toggleFocus={toggleFocus}
+          verticalBounds={verticalBounds}
+          shouldDisplayPinIndicator={shouldDisplayPinIndicator}
         />
       );
     } else {
-      message = (
+      return (
         <RobotextMessage
-          item={this.props.item}
-          navigation={this.props.navigation}
-          route={this.props.route}
-          focused={this.props.focused}
-          toggleFocus={this.props.toggleFocus}
-          verticalBounds={this.props.verticalBounds}
+          item={item}
+          navigation={navigation}
+          route={route}
+          focused={focused}
+          toggleFocus={toggleFocus}
+          verticalBounds={verticalBounds}
         />
       );
     }
+  }, [
+    focused,
+    item,
+    navigation,
+    route,
+    shouldDisplayPinIndicator,
+    toggleFocus,
+    verticalBounds,
+  ]);
 
-    const onLayout = __DEV__ ? this.onLayout : undefined;
-    return (
+  const message = React.useMemo(
+    () => (
       <TouchableWithoutFeedback
-        onPress={this.dismissKeyboard}
-        onLayout={onLayout}
+        onPress={onMessagePress}
+        onLayout={__DEV__ ? onLayout : undefined}
       >
-        {message}
+        {innerMessageNode}
       </TouchableWithoutFeedback>
-    );
-  }
-
-  onLayout = (event: LayoutEvent) => {
-    if (this.props.focused) {
-      return;
-    }
-
-    const measuredHeight = event.nativeEvent.layout.height;
-    const expectedHeight = messageItemHeight(this.props.item);
-
-    const pixelRatio = 1 / PixelRatio.get();
-    const distance = Math.abs(measuredHeight - expectedHeight);
-    if (distance < pixelRatio) {
-      return;
-    }
-
-    const approxMeasuredHeight = Math.round(measuredHeight * 100) / 100;
-    const approxExpectedHeight = Math.round(expectedHeight * 100) / 100;
-    console.log(
-      `Message height for ${this.props.item.messageShapeType} ` +
-        `${messageKey(this.props.item.messageInfo)} was expected to be ` +
-        `${approxExpectedHeight} but is actually ${approxMeasuredHeight}. ` +
-        "This means MessageList's FlatList isn't getting the right item " +
-        'height for some of its nodes, which is guaranteed to cause glitchy ' +
-        'behavior. Please investigate!!',
-    );
-  };
-
-  dismissKeyboard = () => {
-    const { keyboardState } = this.props;
-    keyboardState && keyboardState.dismissKeyboard();
-  };
+    ),
+    [innerMessageNode, onLayout, onMessagePress],
+  );
+  return message;
 }
 
-const ConnectedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedMessage(props: BaseProps) {
-    const keyboardState = React.useContext(KeyboardContext);
-    return <Message {...props} keyboardState={keyboardState} />;
-  },
-);
-
-export { ConnectedMessage as Message };
+export default Message;
