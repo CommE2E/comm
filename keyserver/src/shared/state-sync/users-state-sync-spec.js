@@ -1,7 +1,6 @@
 // @flow
 
 import { usersStateSyncSpec as libSpec } from 'lib/shared/state-sync/users-state-sync-spec.js';
-import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { UserInfos, UserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -14,11 +13,7 @@ export const usersStateSyncSpec: ServerStateSyncSpec<
   $ReadOnlyArray<UserInfo>,
   UserInfo,
 > = Object.freeze({
-  fetch(
-    viewer: Viewer,
-    query: $ReadOnlyArray<CalendarQuery>,
-    ids?: $ReadOnlySet<string>,
-  ) {
+  fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     if (ids) {
       return fetchKnownUserInfos(viewer, [...ids]);
     }
