@@ -8,7 +8,7 @@ import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { type MessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import { useStyles } from '../themes/colors.js';
 

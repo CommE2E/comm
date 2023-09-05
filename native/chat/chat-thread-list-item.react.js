@@ -15,7 +15,7 @@ import MessagePreview from './message-preview.react.js';
 import SwipeableThread from './swipeable-thread.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import Button from '../components/button.react.js';
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
 import { useColors, useStyles } from '../themes/colors.js';

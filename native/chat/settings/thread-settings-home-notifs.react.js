@@ -18,7 +18,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
-import { SingleLine } from '../../components/single-line.react.js';
+import SingleLine from '../../components/single-line.react.js';
 import { useStyles } from '../../themes/colors.js';
 
 type BaseProps = {

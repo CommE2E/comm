@@ -23,7 +23,7 @@ import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
 import Action from '../components/action-row.react.js';
 import Button from '../components/button.react.js';
 import EditSettingButton from '../components/edit-setting-button.react.js';
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   EditPasswordRouteName,

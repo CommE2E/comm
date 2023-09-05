@@ -7,7 +7,7 @@ import type { SidebarInfo } from 'lib/types/thread-types.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {

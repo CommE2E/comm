@@ -18,4 +18,4 @@ function SingleLine(props: Props): React.Node {
   );
 }
 
-export { SingleLine };
+export default SingleLine;
