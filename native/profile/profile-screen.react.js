@@ -87,8 +87,8 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    let developerTools, defaultNotifications, backupMenu;
-    const { staffCanSee } = this.props;
+    let developerTools, defaultNotifications;
+    const { staffCanSee, isAccountWithPassword } = this.props;
     if (staffCanSee) {
       developerTools = (
         <ProfileRow content="Developer tools" onPress={this.onPressDevTools} />
@@ -100,7 +100,10 @@ class ProfileScreen extends React.PureComponent<Props> {
           onPress={this.onPressDefaultNotifications}
         />
       );
+    }
 
+    let backupMenu;
+    if (staffCanSee && isAccountWithPassword) {
       backupMenu = (
         <ProfileRow content="Backup menu" onPress={this.onPressBackupMenu} />
       );
