@@ -17,9 +17,7 @@ import { communityThreadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   UserInfos,
   CurrentUserInfo,
-  OldCurrentUserInfo,
   LoggedInUserInfo,
-  OldLoggedInUserInfo,
   GlobalUserInfo,
 } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -279,9 +277,7 @@ async function verifyUserOrCookieIDs(
   return result.map(row => row.id.toString());
 }
 
-async function fetchCurrentUserInfo(
-  viewer: Viewer,
-): Promise<OldCurrentUserInfo | CurrentUserInfo> {
+async function fetchCurrentUserInfo(viewer: Viewer): Promise<CurrentUserInfo> {
   if (!viewer.loggedIn) {
     return ({ id: viewer.cookieID, anonymous: true }: CurrentUserInfo);
   }
@@ -291,7 +287,7 @@ async function fetchCurrentUserInfo(
 
 async function fetchLoggedInUserInfo(
   viewer: Viewer,
-): Promise<OldLoggedInUserInfo | LoggedInUserInfo> {
+): Promise<LoggedInUserInfo> {
   const userQuery = SQL`
     SELECT u.id, u.username, u.avatar,
       up.id AS upload_id, up.secret AS upload_secret
