@@ -139,6 +139,22 @@ std::string CryptoModule::getPrekey() {
   return std::string{std::string{prekey.begin(), prekey.end()}};
 }
 
+std::string CryptoModule::getPrekeySignature() {
+  size_t signatureSize = ::olm_account_signature_length(this->account);
+
+  OlmBuffer signatureBuffer;
+  signatureBuffer.resize(signatureSize);
+
+  if (-1 ==
+      ::olm_account_prekey_signature(this->account, signatureBuffer.data())) {
+    throw std::runtime_error{
+        "error getPrekeySignature => " +
+        std::string{::olm_account_last_error(this->account)}};
+  }
+
+  return std::string{signatureBuffer.begin(), signatureBuffer.end()};
+}
+
 folly::Optional<std::string> CryptoModule::getUnpublishedPrekey() {
   OlmBuffer prekey;
   prekey.resize(::olm_account_prekey_length(this->account));
