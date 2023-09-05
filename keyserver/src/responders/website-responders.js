@@ -4,80 +4,21 @@ import html from 'common-tags/lib/html/index.js';
 import { detect as detectBrowser } from 'detect-browser';
 import type { $Response, $Request } from 'express';
 import fs from 'fs';
-import _isEqual from 'lodash/fp/isEqual.js';
-import _keyBy from 'lodash/fp/keyBy.js';
 import * as React from 'react';
 // eslint-disable-next-line import/extensions
 import ReactDOMServer from 'react-dom/server';
-import t from 'tcomb';
 import { promisify } from 'util';
 
 import { inviteLinkURL } from 'lib/facts/links.js';
-import { baseLegalPolicies } from 'lib/facts/policies.js';
 import stores from 'lib/facts/stores.js';
-import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
-import { freshMessageStore } from 'lib/reducers/message-reducer.js';
-import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
-import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
-import {
-  threadHasPermission,
-  threadIsPending,
-  parsePendingThreadID,
-  createPendingThread,
-} from 'lib/shared/thread-utils.js';
-import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
-import { entryStoreValidator } from 'lib/types/entry-types.js';
-import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import { keyserverStoreValidator } from 'lib/types/keyserver-types.js';
-import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
-import {
-  defaultNumberPerThread,
-  messageStoreValidator,
-} from 'lib/types/message-types.js';
-import { defaultEnabledReports } from 'lib/types/report-types.js';
-import { defaultConnectionInfo } from 'lib/types/socket-types.js';
-import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { threadStoreValidator } from 'lib/types/thread-types.js';
-import {
-  currentUserInfoValidator,
-  userInfosValidator,
-} from 'lib/types/user-types.js';
-import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
-import { ServerError } from 'lib/utils/errors.js';
-import { promiseAll } from 'lib/utils/promises.js';
-import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { infoFromURL, urlInfoValidator } from 'lib/utils/url-utils.js';
-import {
-  tBool,
-  tNumber,
-  tShape,
-  tString,
-  ashoatKeyserverID,
-} from 'lib/utils/validation-utils.js';
 import getTitle from 'web/title/getTitle.js';
-import { navInfoValidator } from 'web/types/nav-types.js';
-import { navInfoFromURL } from 'web/url-utils.js';
 
-import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
-import { fetchPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
-import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
-import { hasAnyNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
-import {
-  fetchCurrentUserInfo,
-  fetchKnownUserInfos,
-  fetchUserInfos,
-} from '../fetchers/user-fetchers.js';
-import { getWebPushConfig } from '../push/providers.js';
-import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
-import { streamJSON, waitForStream } from '../utils/json-stream.js';
+import { waitForStream } from '../utils/json-stream.js';
 import {
   getAppURLFactsFromRequestURL,
   getCommAppURLFacts,
 } from '../utils/urls.js';
-import { validateOutput, validateInput } from '../utils/validation-utils.js';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -170,347 +111,17 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
-const initialReduxStateValidator = tShape({
-  navInfo: navInfoValidator,
-  deviceID: t.Nil,
-  currentUserInfo: currentUserInfoValidator,
-  draftStore: t.irreducible('default draftStore', _isEqual({ drafts: {} })),
-  entryStore: entryStoreValidator,
-  threadStore: threadStoreValidator,
-  userStore: tShape({
-    userInfos: userInfosValidator,
-    inconsistencyReports: t.irreducible(
-      'default inconsistencyReports',
-      _isEqual([]),
-    ),
-  }),
-  messageStore: messageStoreValidator,
-  loadingStatuses: t.irreducible('default loadingStatuses', _isEqual({})),
-  calendarFilters: t.irreducible(
-    'defaultCalendarFilters',
-    _isEqual(defaultCalendarFilters),
-  ),
-  communityPickerStore: t.irreducible(
-    'default communityPickerStore',
-    _isEqual({ chat: null, calendar: null }),
-  ),
-  windowDimensions: t.irreducible(
-    'default windowDimensions',
-    _isEqual({ width: 0, height: 0 }),
-  ),
-  notifPermissionAlertInfo: t.irreducible(
-    'default notifPermissionAlertInfo',
-    _isEqual(defaultNotifPermissionAlertInfo),
-  ),
-  actualizedCalendarQuery: tShape({
-    startDate: t.String,
-    endDate: t.String,
-    filters: t.irreducible('default filters', _isEqual(defaultCalendarFilters)),
-  }),
-  watchedThreadIDs: t.irreducible('default watchedThreadIDs', _isEqual([])),
-  lifecycleState: tString('active'),
-  enabledApps: t.irreducible(
-    'defaultWebEnabledApps',
-    _isEqual(defaultWebEnabledApps),
-  ),
-  reportStore: t.irreducible(
-    'default reportStore',
-    _isEqual({
-      enabledReports: defaultEnabledReports,
-      queuedReports: [],
-    }),
-  ),
-  nextLocalID: tNumber(0),
-  deviceToken: t.Nil,
-  dataLoaded: t.Boolean,
-  windowActive: tBool(true),
-  userPolicies: t.irreducible('default userPolicies', _isEqual({})),
-  cryptoStore: t.irreducible(
-    'default cryptoStore',
-    _isEqual({
-      primaryIdentityKeys: null,
-      notificationIdentityKeys: null,
-    }),
-  ),
-  pushApiPublicKey: t.maybe(t.String),
-  _persist: t.Nil,
-  commServicesAccessToken: t.Nil,
-  inviteLinksStore: inviteLinksStoreValidator,
-  keyserverStore: keyserverStoreValidator,
-  initialStateLoaded: tBool(false),
-});
-
 async function websiteResponder(
   viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {
-  const appURLFacts = getAppURLFactsFromRequestURL(req.originalUrl);
-  const { basePath, baseDomain } = appURLFacts;
+  const { basePath } = getAppURLFactsFromRequestURL(req.originalUrl);
   const baseURL = basePath.replace(/\/$/, '');
-  const urlPrefix = baseDomain + baseURL;
 
   const loadingPromise = getWebpackCompiledRootComponentForSSR();
-  const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
-    viewer.id,
-    baseLegalPolicies,
-  );
-
-  const initialNavInfoPromise = (async () => {
-    try {
-      let urlInfo = infoFromURL(decodeURI(req.url));
-
-      try {
-        urlInfo = await validateInput(viewer, urlInfoValidator, urlInfo, true);
-      } catch (exc) {
-        // We should still be able to handle older links
-        if (exc.message !== 'invalid_client_id_prefix') {
-          throw exc;
-        }
-      }
-
-      let backupInfo = {
-        now: currentDateInTimeZone(viewer.timeZone),
-      };
-      // Some user ids in selectedUserList might not exist in the userStore
-      // (e.g. they were included in the results of the user search endpoint)
-      // Because of that we keep their userInfos inside the navInfo.
-      if (urlInfo.selectedUserList) {
-        const fetchedUserInfos = await fetchUserInfos(urlInfo.selectedUserList);
-        const userInfos = {};
-        for (const userID in fetchedUserInfos) {
-          const userInfo = fetchedUserInfos[userID];
-          if (userInfo.username) {
-            userInfos[userID] = userInfo;
-          }
-        }
-        backupInfo = { userInfos, ...backupInfo };
-      }
-      return navInfoFromURL(urlInfo, backupInfo);
-    } catch (e) {
-      throw new ServerError(e.message);
-    }
-  })();
-
-  const calendarQueryPromise = (async () => {
-    const initialNavInfo = await initialNavInfoPromise;
-    return {
-      startDate: initialNavInfo.startDate,
-      endDate: initialNavInfo.endDate,
-      filters: defaultCalendarFilters,
-    };
-  })();
-  const messageSelectionCriteria = { joinedThreads: true };
-  const initialTime = Date.now();
 
   const assetInfoPromise = getAssetInfo();
-  const threadInfoPromise = fetchThreadInfos(viewer);
-  const messageInfoPromise = fetchMessageInfos(
-    viewer,
-    messageSelectionCriteria,
-    defaultNumberPerThread,
-  );
-  const entryInfoPromise = (async () => {
-    const calendarQuery = await calendarQueryPromise;
-    return await fetchEntryInfos(viewer, [calendarQuery]);
-  })();
-  const currentUserInfoPromise = fetchCurrentUserInfo(viewer);
-  const userInfoPromise = fetchKnownUserInfos(viewer);
-
-  const sessionIDPromise = (async () => {
-    const calendarQuery = await calendarQueryPromise;
-    if (viewer.loggedIn) {
-      await setNewSession(viewer, calendarQuery, initialTime);
-    }
-    return viewer.sessionID;
-  })();
-
-  const threadStorePromise = (async () => {
-    const [{ threadInfos }, hasNotAcknowledgedPolicies] = await Promise.all([
-      threadInfoPromise,
-      hasNotAcknowledgedPoliciesPromise,
-    ]);
-    return { threadInfos: hasNotAcknowledgedPolicies ? {} : threadInfos };
-  })();
-  const messageStorePromise = (async () => {
-    const [
-      { threadInfos },
-      { rawMessageInfos, truncationStatuses },
-      hasNotAcknowledgedPolicies,
-    ] = await Promise.all([
-      threadInfoPromise,
-      messageInfoPromise,
-      hasNotAcknowledgedPoliciesPromise,
-    ]);
-    if (hasNotAcknowledgedPolicies) {
-      return {
-        messages: {},
-        threads: {},
-        local: {},
-        currentAsOf: { [ashoatKeyserverID]: 0 },
-      };
-    }
-    const { messageStore: freshStore } = freshMessageStore(
-      rawMessageInfos,
-      truncationStatuses,
-      mostRecentMessageTimestamp(rawMessageInfos, initialTime),
-      threadInfos,
-    );
-    return freshStore;
-  })();
-  const entryStorePromise = (async () => {
-    const [{ rawEntryInfos }, hasNotAcknowledgedPolicies] = await Promise.all([
-      entryInfoPromise,
-      hasNotAcknowledgedPoliciesPromise,
-    ]);
-    if (hasNotAcknowledgedPolicies) {
-      return {
-        entryInfos: {},
-        daysToEntries: {},
-        lastUserInteractionCalendar: 0,
-      };
-    }
-    return {
-      entryInfos: _keyBy('id')(rawEntryInfos),
-      daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
-      lastUserInteractionCalendar: initialTime,
-    };
-  })();
-  const userStorePromise = (async () => {
-    const [userInfos, hasNotAcknowledgedPolicies] = await Promise.all([
-      userInfoPromise,
-      hasNotAcknowledgedPoliciesPromise,
-    ]);
-    return {
-      userInfos: hasNotAcknowledgedPolicies ? {} : userInfos,
-      inconsistencyReports: [],
-    };
-  })();
-
-  const navInfoPromise = (async () => {
-    const [
-      { threadInfos },
-      messageStore,
-      currentUserInfo,
-      userStore,
-      finalNavInfo,
-    ] = await Promise.all([
-      threadInfoPromise,
-      messageStorePromise,
-      currentUserInfoPromise,
-      userStorePromise,
-      initialNavInfoPromise,
-    ]);
-
-    const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;
-    if (
-      requestedActiveChatThreadID &&
-      !threadIsPending(requestedActiveChatThreadID) &&
-      !threadHasPermission(
-        threadInfos[requestedActiveChatThreadID],
-        threadPermissions.VISIBLE,
-      )
-    ) {
-      finalNavInfo.activeChatThreadID = null;
-    }
-
-    if (!finalNavInfo.activeChatThreadID) {
-      const mostRecentThread = mostRecentlyReadThread(
-        messageStore,
-        threadInfos,
-      );
-      if (mostRecentThread) {
-        finalNavInfo.activeChatThreadID = mostRecentThread;
-      }
-    }
-
-    if (
-      finalNavInfo.activeChatThreadID &&
-      threadIsPending(finalNavInfo.activeChatThreadID) &&
-      finalNavInfo.pendingThread?.id !== finalNavInfo.activeChatThreadID
-    ) {
-      const pendingThreadData = parsePendingThreadID(
-        finalNavInfo.activeChatThreadID,
-      );
-      if (
-        pendingThreadData &&
-        pendingThreadData.threadType !== threadTypes.SIDEBAR &&
-        currentUserInfo.id
-      ) {
-        const { userInfos } = userStore;
-        const members = [...pendingThreadData.memberIDs, currentUserInfo.id]
-          .map(id => {
-            const userInfo = userInfos[id];
-            if (!userInfo || !userInfo.username) {
-              return undefined;
-            }
-            const { username } = userInfo;
-            return { id, username };
-          })
-          .filter(Boolean);
-        const newPendingThread = createPendingThread({
-          viewerID: currentUserInfo.id,
-          threadType: pendingThreadData.threadType,
-          members,
-        });
-        finalNavInfo.activeChatThreadID = newPendingThread.id;
-        finalNavInfo.pendingThread = newPendingThread;
-      }
-    }
-
-    return finalNavInfo;
-  })();
-  const currentAsOfPromise = (async () => {
-    const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
-    return hasNotAcknowledgedPolicies ? 0 : initialTime;
-  })();
-
-  const pushApiPublicKeyPromise = (async () => {
-    const pushConfig = await getWebPushConfig();
-    if (!pushConfig) {
-      if (process.env.NODE_ENV !== 'development') {
-        console.warn('keyserver/secrets/web_push_config.json should exist');
-      }
-      return null;
-    }
-    return pushConfig.publicKey;
-  })();
-
-  const inviteLinksStorePromise = (async () => {
-    const primaryInviteLinks = await fetchPrimaryInviteLinks(viewer);
-    const links = {};
-    for (const link of primaryInviteLinks) {
-      if (link.primary) {
-        links[link.communityID] = {
-          primaryLink: link,
-        };
-      }
-    }
-    return {
-      links,
-    };
-  })();
-
-  const keyserverStorePromise = (async () => {
-    const { sessionID, updatesCurrentAsOf } = await promiseAll({
-      sessionID: sessionIDPromise,
-      updatesCurrentAsOf: currentAsOfPromise,
-    });
-
-    return {
-      keyserverInfos: {
-        [ashoatKeyserverID]: {
-          cookie: undefined,
-          sessionID,
-          updatesCurrentAsOf,
-          urlPrefix,
-          connection: defaultConnectionInfo,
-          lastCommunicatedPlatformDetails: null,
-        },
-      },
-    };
-  })();
-
   const {
     jsURL,
     fontsURL,
@@ -562,61 +173,9 @@ async function websiteResponder(
   reactStream.pipe(res, { end: false });
 
   await waitForStream(reactStream);
-  res.write(html`
+  res.end(html`
     </div>
     <script>
-      var preloadedState =
-  `);
-
-  const initialReduxState = await promiseAll({
-    navInfo: navInfoPromise,
-    deviceID: null,
-    currentUserInfo: currentUserInfoPromise,
-    draftStore: { drafts: {} },
-    entryStore: entryStorePromise,
-    threadStore: threadStorePromise,
-    userStore: userStorePromise,
-    messageStore: messageStorePromise,
-    loadingStatuses: {},
-    calendarFilters: defaultCalendarFilters,
-    communityPickerStore: { chat: null, calendar: null },
-    windowDimensions: { width: 0, height: 0 },
-    notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-    actualizedCalendarQuery: calendarQueryPromise,
-    watchedThreadIDs: [],
-    lifecycleState: 'active',
-    enabledApps: defaultWebEnabledApps,
-    reportStore: {
-      enabledReports: defaultEnabledReports,
-      queuedReports: [],
-    },
-    nextLocalID: 0,
-    deviceToken: null,
-    dataLoaded: viewer.loggedIn,
-    windowActive: true,
-    userPolicies: {},
-    cryptoStore: {
-      primaryIdentityKeys: null,
-      notificationIdentityKeys: null,
-    },
-    pushApiPublicKey: pushApiPublicKeyPromise,
-    _persist: null,
-    commServicesAccessToken: null,
-    inviteLinksStore: inviteLinksStorePromise,
-    keyserverStore: keyserverStorePromise,
-    initialStateLoaded: false,
-  });
-  const validatedInitialReduxState = validateOutput(
-    viewer.platformDetails,
-    initialReduxStateValidator,
-    initialReduxState,
-    true,
-  );
-  const jsonStream = streamJSON(res, validatedInitialReduxState);
-
-  await waitForStream(jsonStream);
-  res.end(html`
-    ;
           var baseURL = "${baseURL}";
           var olmFilename = "${olmFilename}";
           var commQueryExecutorFilename = "${commQueryExecutorFilename}";

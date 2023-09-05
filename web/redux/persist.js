@@ -35,8 +35,6 @@ import { getDatabaseModule } from '../database/database-module-provider.js';
 import { isSQLiteSupported } from '../database/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
-declare var preloadedState: AppState;
-
 const migrations = {
   [1]: async state => {
     const {
@@ -169,9 +167,7 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
   // the transform might change in the future, but we need to treat
   // this code like migration code (it shouldn't change).
   if (oldStorage?._persist?.version === 4) {
-    const { connection, updatesCurrentAsOf, sessionID } =
-      preloadedState.keyserverStore.keyserverInfos[ashoatKeyserverID];
-
+    const defaultConnection = defaultConnectionInfo;
     oldStorage = {
       ...oldStorage,
       keyserverStore: {
@@ -180,9 +176,9 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
           ...oldStorage.keyserverStore.keyserverInfos,
           [ashoatKeyserverID]: {
             ...oldStorage.keyserverStore.keyserverInfos[ashoatKeyserverID],
-            connection,
-            updatesCurrentAsOf,
-            sessionID,
+            connection: { ...defaultConnection },
+            updatesCurrentAsOf: 0,
+            sessionID: null,
           },
         },
       },
@@ -223,9 +219,8 @@ const keyserverStoreTransform: Transform = createTransform(
       keyserverInfos[key] = {
         ...state.keyserverInfos[key],
         connection: { ...defaultConnection },
-        updatesCurrentAsOf:
-          preloadedState.keyserverStore.keyserverInfos[key].updatesCurrentAsOf,
-        sessionID: preloadedState.keyserverStore.keyserverInfos[key].sessionID,
+        updatesCurrentAsOf: 0,
+        sessionID: null,
       };
     }
     return {
