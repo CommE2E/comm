@@ -32,11 +32,7 @@ import {
   type RawUpdateInfo,
   type CreateUpdatesResult,
 } from 'lib/types/update-types.js';
-import type {
-  UserInfos,
-  LoggedInUserInfo,
-  OldLoggedInUserInfo,
-} from 'lib/types/user-types.js';
+import type { UserInfos, LoggedInUserInfo } from 'lib/types/user-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import createIDs from './id-creator.js';
@@ -527,7 +523,7 @@ export type UpdateInfosRawData = {
   messageInfosResult: ?FetchMessageInfosResult,
   calendarResult: ?FetchEntryInfosBase,
   entryInfosResult: ?RawEntryInfos,
-  currentUserInfoResult: ?OldLoggedInUserInfo | LoggedInUserInfo,
+  currentUserInfoResult: LoggedInUserInfo,
 };
 async function updateInfosFromRawUpdateInfos(
   viewer: Viewer,
