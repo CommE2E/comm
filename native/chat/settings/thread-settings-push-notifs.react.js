@@ -19,7 +19,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
-import { SingleLine } from '../../components/single-line.react.js';
+import SingleLine from '../../components/single-line.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import { CommAndroidNotifications } from '../../push/android.js';
 import { useSelector } from '../../redux/redux-utils.js';
