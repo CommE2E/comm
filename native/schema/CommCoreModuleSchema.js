@@ -27,6 +27,13 @@ type ClientPublicKeys = {
   +signature: string,
 };
 
+type SignedPrekeys = {
+  +contentPrekey: string,
+  +contentPrekeySignature: string,
+  +notifPrekey: string,
+  +notifPrekeySignature: string,
+};
+
 interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
   +updateDraft: (key: string, text: string) => Promise<boolean>;
@@ -61,7 +68,7 @@ interface Spec extends TurboModule {
   +getPrimaryOneTimeKeys: (
     oneTimeKeysAmount: number,
   ) => Promise<OLMOneTimeKeys>;
-  +generateAndGetPrekey: () => Promise<string>;
+  +generateAndGetPrekeys: () => Promise<SignedPrekeys>;
   +initializeNotificationsSession: (
     identityKeys: string,
     prekey: string,
