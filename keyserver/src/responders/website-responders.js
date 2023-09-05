@@ -237,6 +237,7 @@ const initialReduxStateValidator = tShape({
   commServicesAccessToken: t.Nil,
   inviteLinksStore: inviteLinksStoreValidator,
   keyserverStore: keyserverStoreValidator,
+  initialStateLoaded: tBool(false),
 });
 
 async function websiteResponder(
@@ -603,6 +604,7 @@ async function websiteResponder(
     commServicesAccessToken: null,
     inviteLinksStore: inviteLinksStorePromise,
     keyserverStore: keyserverStorePromise,
+    initialStateLoaded: false,
   });
   const validatedInitialReduxState = validateOutput(
     viewer.platformDetails,
