@@ -202,6 +202,18 @@ std::string NotificationsCryptoModule::generateAndGetNotificationsPrekey(
   return prekey;
 }
 
+std::string NotificationsCryptoModule::getNotificationsOneTimeKeys(
+    const size_t oneTimeKeysAmount,
+    const std::string &callingProcessName) {
+  std::string oneTimeKeys;
+  auto caller = [&oneTimeKeys,
+                 oneTimeKeysAmount](crypto::CryptoModule cryptoModule) {
+    oneTimeKeys = cryptoModule.getOneTimeKeys(oneTimeKeysAmount);
+  };
+  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+  return oneTimeKeys;
+}
+
 crypto::EncryptedData NotificationsCryptoModule::initializeNotificationsSession(
     const std::string &identityKeys,
     const std::string &prekey,
