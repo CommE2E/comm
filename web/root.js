@@ -15,6 +15,7 @@ import App from './app.react.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import { localforageConfig } from './database/utils/constants.js';
 import ErrorBoundary from './error-boundary.react.js';
+import { defaultWebState } from './redux/default-state.js';
 import InitialReduxStateGate from './redux/initial-state-gate.js';
 import { persistConfig } from './redux/persist.js';
 import { type AppState, type Action, reducer } from './redux/redux-setup.js';
@@ -23,12 +24,10 @@ import Socket from './socket.react.js';
 
 localforage.config(localforageConfig);
 
-declare var preloadedState: AppState;
-
 const persistedReducer = persistReducer(persistConfig, reducer);
 const store: Store<AppState, Action> = createStore(
   persistedReducer,
-  preloadedState,
+  defaultWebState,
   composeWithDevTools({})(applyMiddleware(thunk, reduxLoggerMiddleware)),
 );
 const persistor = persistStore(store);
