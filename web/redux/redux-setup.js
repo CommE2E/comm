@@ -41,6 +41,7 @@ import {
   setDeviceIDActionType,
   updateNavInfoActionType,
   updateWindowDimensionsActionType,
+  setInitialReduxState,
 } from './action-types.js';
 import { reduceCommunityPickerStore } from './community-picker-reducer.js';
 import {
@@ -56,6 +57,7 @@ import { getVisibility } from './visibility.js';
 import { getDatabaseModule } from '../database/database-module-provider.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
 import { type NavInfo } from '../types/nav-types.js';
+import type { InitialReduxState } from '../types/redux-types.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 export type WindowDimensions = { width: number, height: number };
@@ -115,13 +117,31 @@ export type Action =
   | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | { +type: 'SET_NOTIFICATION_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | { +type: 'SET_PICKLED_PRIMARY_ACCOUNT', payload: ?PickledOLMAccount }
-  | { +type: 'SET_PICKLED_NOTIFICATION_ACCOUNT', payload: ?PickledOLMAccount };
+  | { +type: 'SET_PICKLED_NOTIFICATION_ACCOUNT', payload: ?PickledOLMAccount }
+  | { +type: 'SET_INITIAL_REDUX_STATE', payload: InitialReduxState };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
   let state = oldState;
 
-  if (action.type === updateWindowDimensionsActionType) {
+  if (action.type === setInitialReduxState) {
+    const { userInfos, keyserverInfo, ...rest } = action.payload;
+    return validateState(oldState, {
+      ...state,
+      ...rest,
+      userStore: { userInfos, inconsistencyReports: [] },
+      keyserverStore: {
+        ...state.keyserverStore,
+        keyserverInfos: {
+          ...state.keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+            ...keyserverInfo,
+          },
+        },
+      },
+    });
+  } else if (action.type === updateWindowDimensionsActionType) {
     return validateState(oldState, {
       ...state,
       windowDimensions: action.payload,
