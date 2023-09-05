@@ -65,6 +65,7 @@
     "natural": "^6.2.0",
     "node-schedule": "^2.1.0",
     "nodemailer": "^6.6.1",
+    "qrcode": "^1.5.3",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "react-html-email": "^3.0.0",
