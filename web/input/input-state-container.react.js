@@ -7,11 +7,9 @@ import _omit from 'lodash/fp/omit.js';
 import _partition from 'lodash/fp/partition.js';
 import _sortBy from 'lodash/fp/sortBy.js';
 import _memoize from 'lodash/memoize.js';
-import _throttle from 'lodash/throttle.js';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
-import uuid from 'uuid';
 
 import {
   createLocalMessageActionType,
@@ -27,8 +25,10 @@ import {
   uploadMediaMetadata,
   updateMultimediaMessageMediaActionType,
   deleteUpload,
+  blobServiceUpload,
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
+  type BlobServiceUploadAction,
 } from 'lib/actions/upload-actions.js';
 import {
   useModalContext,
@@ -60,7 +60,6 @@ import type {
   MediaMissionFailure,
   MediaMissionResult,
   MediaMission,
-  Dimensions,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -86,17 +85,14 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
-import { toBase64URL } from 'lib/utils/base64.js';
 import {
   makeBlobServiceEndpointURL,
   isBlobServiceURI,
   blobHashFromBlobServiceURI,
 } from 'lib/utils/blob-service.js';
-import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { generateReportID } from 'lib/utils/report-utils.js';
-import { handleHTTPResponseError } from 'lib/utils/services-utils.js';
 
 import {
   type PendingMultimediaUpload,
@@ -134,6 +130,7 @@ type Props = {
     extras: MultimediaUploadExtras,
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
+  +blobServiceUpload: BlobServiceUploadAction,
   +uploadMediaMetadata: (
     input: UploadMediaMetadataRequest,
   ) => Promise<UploadMultimediaResult>,
@@ -879,17 +876,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           encryptionKey && blobHash && dimensions,
           'incomplete encrypted upload',
         );
-        uploadResult = await this.blobServiceUpload(
-          {
-            file: upload.file,
+        uploadResult = await this.props.blobServiceUpload({
+          input: {
+            blobData: {
+              type: 'file',
+              file: upload.file,
+            },
             blobHash,
             encryptionKey,
             dimensions,
             loop: false,
-            ...(thumbHash ? { thumbHash } : undefined),
+            thumbHash,
           },
-          { ...callbacks },
-        );
+          callbacks,
+        });
       } else {
         let uploadExtras = {
           ...upload.dimensions,
@@ -1063,128 +1063,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         },
       };
     });
-  }
-
-  async blobServiceUpload(
-    input: {
-      +file: File,
-      +blobHash: string,
-      +encryptionKey: string,
-      +dimensions: Dimensions,
-      +loop?: boolean,
-      +thumbHash?: string,
-    },
-    options?: ?CallServerEndpointOptions,
-  ): Promise<{
-    ...UploadMultimediaResult,
-    +blobHolder: string,
-  }> {
-    const blobHolder = uuid.v4();
-    const blobHash = toBase64URL(input.blobHash);
-
-    // 1. Assign new holder for blob with given blobHash
-    let blobAlreadyExists: boolean;
-    try {
-      const assignHolderEndpoint = blobService.httpEndpoints.ASSIGN_HOLDER;
-      const assignHolderResponse = await fetch(
-        makeBlobServiceEndpointURL(assignHolderEndpoint),
-        {
-          method: assignHolderEndpoint.method,
-          body: JSON.stringify({
-            holder: blobHolder,
-            blob_hash: blobHash,
-          }),
-          headers: {
-            'content-type': 'application/json',
-          },
-        },
-      );
-
-      handleHTTPResponseError(assignHolderResponse);
-
-      const { data_exists: dataExistsResponse } =
-        await assignHolderResponse.json();
-      blobAlreadyExists = dataExistsResponse;
-    } catch (e) {
-      throw new Error(
-        `Failed to assign holder: ${
-          getMessageForException(e) ?? 'unknown error'
-        }`,
-      );
-    }
-
-    // 2. Upload blob contents if blob doesn't exist
-    if (!blobAlreadyExists) {
-      const formData = new FormData();
-      formData.append('blob_hash', blobHash);
-      formData.append('blob_data', input.file);
-
-      const xhr = new XMLHttpRequest();
-      const uploadEndpoint = blobService.httpEndpoints.UPLOAD_BLOB;
-      xhr.open(
-        uploadEndpoint.method,
-        makeBlobServiceEndpointURL(uploadEndpoint),
-      );
-      if (options?.timeout) {
-        xhr.timeout = options.timeout;
-      }
-      if (options && options.onProgress) {
-        const { onProgress } = options;
-        xhr.upload.onprogress = _throttle(
-          ({ loaded, total }) => onProgress(loaded / total),
-          50,
-        );
-      }
-
-      let failed = false;
-      const responsePromise = new Promise((resolve, reject) => {
-        xhr.onload = () => {
-          if (failed) {
-            return;
-          }
-          resolve();
-        };
-        xhr.onabort = () => {
-          failed = true;
-          reject(new Error('request aborted'));
-        };
-        xhr.onerror = event => {
-          failed = true;
-          reject(event);
-        };
-        if (options && options.timeout) {
-          xhr.ontimeout = event => {
-            failed = true;
-            reject(event);
-          };
-        }
-        if (options && options.abortHandler) {
-          options.abortHandler(() => {
-            failed = true;
-            reject(new Error('request aborted'));
-            xhr.abort();
-          });
-        }
-      });
-
-      if (!failed) {
-        xhr.send(formData);
-      }
-      await responsePromise;
-    }
-
-    // 3. Send upload metadata to the keyserver, return response
-    const result = await this.props.uploadMediaMetadata({
-      ...input.dimensions,
-      loop: input.loop ?? false,
-      blobHolder,
-      blobHash,
-      encryptionKey: input.encryptionKey,
-      mimeType: input.file.type,
-      filename: input.file.name,
-      thumbHash: input.thumbHash,
-    });
-    return { ...result, blobHolder };
   }
 
   handleAbortCallback(
@@ -1736,6 +1614,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const callUploadMultimedia = useServerCall(uploadMultimedia);
+    const callBlobServiceUpload = useServerCall(blobServiceUpload);
     const callUploadMediaMetadata = useServerCall(uploadMediaMetadata);
     const callDeleteUpload = useServerCall(deleteUpload);
     const callSendMultimediaMessage = useServerCall(
@@ -1776,6 +1655,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         calendarQuery={calendarQuery}
         uploadMultimedia={callUploadMultimedia}
         uploadMediaMetadata={callUploadMediaMetadata}
+        blobServiceUpload={callBlobServiceUpload}
         deleteUpload={callDeleteUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
