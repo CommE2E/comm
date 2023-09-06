@@ -5,9 +5,10 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import {
-  convertNotificationThreadIDToNewIDSchema,
+  convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 type CommAndroidNotificationsConstants = {
   +NOTIFICATIONS_IMPORTANCE_HIGH: number,
@@ -50,7 +51,10 @@ export type ParsedAndroidMessage = {
 function parseAndroidMessage(message: AndroidMessage): ParsedAndroidMessage {
   return {
     ...message,
-    threadID: convertNotificationThreadIDToNewIDSchema(message.threadID),
+    threadID: convertNonPendingIDToNewSchema(
+      message.threadID,
+      ashoatKeyserverID,
+    ),
     messageInfos: convertNotificationMessageInfoToNewIDSchema(
       message.messageInfos,
     ),

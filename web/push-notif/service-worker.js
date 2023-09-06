@@ -1,7 +1,8 @@
 // @flow
 
 import type { WebNotification } from 'lib/types/notif-types.js';
-import { convertNotificationThreadIDToNewIDSchema } from 'lib/utils/migration-utils.js';
+import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 declare class PushMessageData {
   json(): Object;
@@ -55,8 +56,9 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
       const selectedClient =
         clientList.find(client => client.focused) ?? clientList[0];
 
-      const threadID = convertNotificationThreadIDToNewIDSchema(
+      const threadID = convertNonPendingIDToNewSchema(
         event.notification.data.threadID,
+        ashoatKeyserverID,
       );
 
       if (selectedClient) {
