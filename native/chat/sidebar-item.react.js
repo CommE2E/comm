@@ -15,19 +15,44 @@ type Props = {
 };
 function SidebarItem(props: Props): React.Node {
   const { lastUpdatedTime } = props.sidebarInfo;
-  const lastActivity = shortAbsoluteDate(lastUpdatedTime);
+
+  const lastActivity = React.useMemo(
+    () => shortAbsoluteDate(lastUpdatedTime),
+    [lastUpdatedTime],
+  );
 
   const { threadInfo } = props.sidebarInfo;
   const { uiName } = useResolvedThreadInfo(threadInfo);
   const styles = useStyles(unboundStyles);
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;
 
-  return (
-    <View style={styles.itemContainer}>
-      <SingleLine style={[styles.name, unreadStyle]}>{uiName}</SingleLine>
-      <Text style={[styles.lastActivity, unreadStyle]}>{lastActivity}</Text>
-    </View>
+  const singleLineStyle = React.useMemo(
+    () => [styles.name, unreadStyle],
+    [styles.name, unreadStyle],
   );
+
+  const lastActivityStyle = React.useMemo(
+    () => [styles.lastActivity, unreadStyle],
+    [styles.lastActivity, unreadStyle],
+  );
+
+  const sidebarItem = React.useMemo(
+    () => (
+      <View style={styles.itemContainer}>
+        <SingleLine style={singleLineStyle}>{uiName}</SingleLine>
+        <Text style={lastActivityStyle}>{lastActivity}</Text>
+      </View>
+    ),
+    [
+      lastActivity,
+      lastActivityStyle,
+      singleLineStyle,
+      styles.itemContainer,
+      uiName,
+    ],
+  );
+
+  return sidebarItem;
 }
 
 const sidebarHeight = 30;
