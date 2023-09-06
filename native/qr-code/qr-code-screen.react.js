@@ -9,16 +9,27 @@ import { qrCodeLinkUrl } from 'lib/facts/links.js';
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
+import * as AES from '../utils/aes-crypto-module.js';
 
 type QRCodeScreenProps = {
   +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
-const qrCodeValue = qrCodeLinkUrl('random_aes256_key', 'device_ed25519_key');
+const defaultDeviceEd25519Key = 'device_ed25519_key';
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
+  const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
+
+  React.useEffect(() => {
+    (async () => {
+      const aes256Key: Uint8Array = await AES.generateKey();
+      const url = qrCodeLinkUrl(aes256Key, defaultDeviceEd25519Key);
+      setQrCodeValue(url);
+    })();
+  }, []);
+
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.container}>
