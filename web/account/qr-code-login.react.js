@@ -6,10 +6,27 @@ import * as React from 'react';
 import { qrCodeLinkUrl } from 'lib/facts/links.js';
 
 import css from './qr-code-login.css';
+import { generateKey } from '../media/aes-crypto-utils.js';
 
-const qrCodeValue = qrCodeLinkUrl('random_aes256_key', 'device_ed25519_key');
+const defaultDeviceEd25519Key = 'device_ed25519_key';
 
 function QrCodeLogin(): React.Node {
+  const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
+
+  const generateQRCode = React.useCallback(async () => {
+    try {
+      const aes256Key: Uint8Array = await generateKey();
+      const url = qrCodeLinkUrl(aes256Key, defaultDeviceEd25519Key);
+      setQrCodeValue(url);
+    } catch (err) {
+      console.error('Failed to generate QR Code:', err);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    generateQRCode();
+  }, [generateQRCode]);
+
   return (
     <div className={css.qrContainer}>
       <div className={css.title}>Log in to Comm</div>
