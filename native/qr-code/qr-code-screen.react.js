@@ -7,6 +7,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { qrCodeLinkUrl } from 'lib/facts/links.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
@@ -16,8 +17,6 @@ type QRCodeScreenProps = {
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
-const defaultDeviceEd25519Key = 'device_ed25519_key';
-
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
@@ -25,7 +24,13 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   React.useEffect(() => {
     (async () => {
       const aes256Key: Uint8Array = await AES.generateKey();
-      const url = qrCodeLinkUrl(aes256Key, defaultDeviceEd25519Key);
+
+      await commCoreModule.initializeCryptoAccount();
+      const {
+        primaryIdentityPublicKeys: { ed25519: ed25519Key },
+      } = await commCoreModule.getUserPublicKey();
+
+      const url = qrCodeLinkUrl(aes256Key, ed25519Key);
       setQrCodeValue(url);
     })();
   }, []);
