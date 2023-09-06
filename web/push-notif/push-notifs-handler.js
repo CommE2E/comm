@@ -13,11 +13,12 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
-import { convertNotificationThreadIDToNewIDSchema } from 'lib/utils/migration-utils.js';
+import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import {
   shouldSkipPushPermissionAlert,
   recordNotifPermissionAlertActionType,
 } from 'lib/utils/push-alerts.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
@@ -44,8 +45,10 @@ function useCreateDesktopPushSubscription() {
   React.useEffect(
     () =>
       electron?.onNotificationClicked?.(({ threadID }) => {
-        const convertedThreadID =
-          convertNotificationThreadIDToNewIDSchema(threadID);
+        const convertedThreadID = convertNonPendingIDToNewSchema(
+          threadID,
+          ashoatKeyserverID,
+        );
 
         const payload = {
           chatMode: 'view',
