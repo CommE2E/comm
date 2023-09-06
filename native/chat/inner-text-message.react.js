@@ -81,19 +81,28 @@ function InnerTextMessage(props: Props): React.Node {
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const boundColors = useColors();
 
-  const messageStyle = {};
-  let darkColor;
-  if (isViewer) {
-    const threadColor = item.threadInfo.color;
-    messageStyle.backgroundColor =
-      props.threadColorOverride ?? `#${threadColor}`;
-    darkColor = props.isThreadColorDarkOverride ?? colorIsDark(threadColor);
-  } else {
-    messageStyle.backgroundColor = boundColors.listChatBubble;
-    darkColor = activeTheme === 'dark';
-  }
+  const darkColor = !isViewer
+    ? activeTheme === 'dark'
+    : props.isThreadColorDarkOverride ?? colorIsDark(item.threadInfo.color);
 
-  const cornerStyle = getRoundedContainerStyle(filterCorners(allCorners, item));
+  const messageStyle = React.useMemo(
+    () => ({
+      backgroundColor: !isViewer
+        ? boundColors.listChatBubble
+        : props.threadColorOverride ?? `#${item.threadInfo.color}`,
+    }),
+    [
+      boundColors.listChatBubble,
+      isViewer,
+      item.threadInfo.color,
+      props.threadColorOverride,
+    ],
+  );
+
+  const cornerStyle = React.useMemo(
+    () => getRoundedContainerStyle(filterCorners(allCorners, item)),
+    [item],
+  );
 
   const rules = useTextMessageMarkdownRules(darkColor);
   const textMessageMarkdown = useTextMessageMarkdown(item.messageInfo);
@@ -118,54 +127,82 @@ function InnerTextMessage(props: Props): React.Node {
   // around the text, and to have the Texts inside ALL implement an onPress prop
   // that will default to the message touch gesture. Luckily, Text with onPress
   // plays nice with the message swipe gesture.
-  let secondMessage;
-  if (textMessageMarkdown.markdownHasPressable) {
-    secondMessage = (
-      <View
-        style={[StyleSheet.absoluteFill, styles.message]}
-        pointerEvents="box-none"
-      >
+  const secondMessageStyle = React.useMemo(
+    () => [StyleSheet.absoluteFill, styles.message],
+    [],
+  );
+  const secondMessage = React.useMemo(() => {
+    if (!textMessageMarkdown.markdownHasPressable) {
+      return undefined;
+    }
+    return (
+      <View style={secondMessageStyle} pointerEvents="box-none">
         <Markdown style={markdownStyles} rules={rules}>
           {text}
         </Markdown>
       </View>
     );
-  }
+  }, [
+    markdownStyles,
+    rules,
+    secondMessageStyle,
+    text,
+    textMessageMarkdown.markdownHasPressable,
+  ]);
 
-  const message = (
-    <TextMessageMarkdownContext.Provider value={textMessageMarkdown}>
-      <TouchableWithoutFeedback>
-        <View>
-          <GestureTouchableOpacity
-            onPress={props.onPress}
-            onLongPress={props.onPress}
-            activeOpacity={0.6}
-            style={[styles.message, cornerStyle]}
-            animatedStyle={messageStyle}
-          >
-            <Markdown style={markdownStyles} rules={rules}>
-              {text}
-            </Markdown>
-          </GestureTouchableOpacity>
-          {secondMessage}
-        </View>
-      </TouchableWithoutFeedback>
-    </TextMessageMarkdownContext.Provider>
+  const gestureTouchableOpacityStyle = React.useMemo(
+    () => [styles.message, cornerStyle],
+    [cornerStyle],
+  );
+  const message = React.useMemo(
+    () => (
+      <TextMessageMarkdownContext.Provider value={textMessageMarkdown}>
+        <TouchableWithoutFeedback>
+          <View>
+            <GestureTouchableOpacity
+              onPress={props.onPress}
+              onLongPress={props.onPress}
+              activeOpacity={0.6}
+              style={gestureTouchableOpacityStyle}
+              animatedStyle={messageStyle}
+            >
+              <Markdown style={markdownStyles} rules={rules}>
+                {text}
+              </Markdown>
+            </GestureTouchableOpacity>
+            {secondMessage}
+          </View>
+        </TouchableWithoutFeedback>
+      </TextMessageMarkdownContext.Provider>
+    ),
+    [
+      gestureTouchableOpacityStyle,
+      markdownStyles,
+      messageStyle,
+      props.onPress,
+      rules,
+      secondMessage,
+      text,
+      textMessageMarkdown,
+    ],
   );
 
   // We need to set onLayout in order to allow .measure() to be on the ref
   const onLayout = React.useCallback(() => {}, []);
-
   const { messageRef } = props;
-  if (!messageRef) {
-    return message;
-  }
 
-  return (
-    <View onLayout={onLayout} ref={messageRef}>
-      {message}
-    </View>
-  );
+  const innerTextMessage = React.useMemo(() => {
+    if (!messageRef) {
+      return message;
+    }
+    return (
+      <View onLayout={onLayout} ref={messageRef}>
+        {message}
+      </View>
+    );
+  }, [message, messageRef, onLayout]);
+
+  return innerTextMessage;
 }
 
 const styles = StyleSheet.create({
