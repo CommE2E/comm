@@ -13,18 +13,27 @@ function UnreadDot(props: Props): React.Node {
   const { unread } = props;
   const colors = useColors();
 
-  const unreadDotStyle = React.useMemo(() => {
-    return { opacity: unread ? 1 : 0 };
-  }, [unread]);
-
-  return (
-    <View style={unreadDotStyle}>
+  const colorSplotch = React.useMemo(
+    () => (
       <ColorSplotch
         color={`${colors.listForegroundSecondaryLabel.slice(1)}`}
         size="micro"
       />
-    </View>
+    ),
+    [colors.listForegroundSecondaryLabel],
   );
+
+  const unreadDotStyle = React.useMemo(
+    () => ({ opacity: unread ? 1 : 0 }),
+    [unread],
+  );
+
+  const unreadDot = React.useMemo(
+    () => <View style={unreadDotStyle}>{colorSplotch}</View>,
+    [colorSplotch, unreadDotStyle],
+  );
+
+  return unreadDot;
 }
 
 export default UnreadDot;
