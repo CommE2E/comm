@@ -8,6 +8,7 @@
 @property(readonly) NSString *filePrefix;
 
 - (instancetype)initForRescinds;
+- (instancetype)initForBlobs;
 - (void)writeMessage:(NSString *)message;
 - (NSArray<NSString *> *)readAndClearMessages;
 @end
