@@ -24,6 +24,12 @@
   return self;
 }
 
+- (instancetype)initForBlobs {
+  self = [self _initAtDirectory:@"TemporaryMessageStorageBlobs"
+                 withFilePrefix:@"blb"];
+  return self;
+}
+
 - (instancetype)_initAtDirectory:(NSString *)directoryName
                   withFilePrefix:(NSString *)filePrefix {
   self = [super init];

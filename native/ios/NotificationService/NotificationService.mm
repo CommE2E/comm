@@ -9,6 +9,9 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
 NSString *const encryptedPayloadKey = @"encryptedPayload";
 NSString *const encryptionFailureKey = @"encryptionFailure";
+NSString *const blobHashKey = @"blobHash";
+NSString *const requestBlobHashKey = @"blob_hash";
+NSString *const holderKey = @"holder";
 const std::string callingProcessName = "NSE";
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
@@ -54,8 +57,8 @@ CFStringRef newMessageInfosDarwinNotification =
     comm::Logger::log("NSE: Received erroneously unencrypted notitication.");
   }
 
-  if (self.bestAttemptContent.userInfo[@"blobHash"]) {
-    NSString *blobHash = self.bestAttemptContent.userInfo[@"blobHash"];
+  if ([self isBlobNotification:self.bestAttemptContent.userInfo]) {
+    NSString *blobHash = self.bestAttemptContent.userInfo[blobHashKey];
     NSData *encryptionKey = [[NSData alloc]
         initWithBase64EncodedString:self.bestAttemptContent
                                         .userInfo[@"encryptionKey"]
@@ -77,6 +80,8 @@ CFStringRef newMessageInfosDarwinNotification =
           }
         }];
 
+    [NotificationService
+        persistBlobMetadataForDeletion:self.bestAttemptContent.userInfo];
     self.contentHandler(self.bestAttemptContent);
     return;
   }
@@ -191,6 +196,24 @@ CFStringRef newMessageInfosDarwinNotification =
   [temporaryRescindsStorage writeMessage:serializedRescindPayload];
 }
 
++ (void)persistBlobMetadataForDeletion:(NSDictionary *)payload {
+  NSString *blobHash = payload[blobHashKey];
+  NSString *holder = payload[holderKey];
+
+  TemporaryMessageStorage *temporaryMessageStorageBlobs =
+      [[TemporaryMessageStorage alloc] initForBlobs];
+
+  [temporaryMessageStorageBlobs
+      writeMessage:[[NSString alloc]
+                       initWithData:[NSJSONSerialization dataWithJSONObject:@{
+                         requestBlobHashKey : blobHash,
+                         holderKey : holder
+                       }
+                                                                    options:0
+                                                                      error:nil]
+                           encoding:NSUTF8StringEncoding]];
+}
+
 + (BOOL)isRescind:(NSDictionary *)payload {
   return payload[backgroundNotificationTypeKey] &&
       [payload[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"];
@@ -200,6 +223,10 @@ CFStringRef newMessageInfosDarwinNotification =
   // TODO: refactor this check by introducing
   // badgeOnly property in iOS notification payload
   return !payload[@"threadID"];
+}
+
+- (BOOL)isBlobNotification:(NSDictionary *)payload {
+  return payload[blobHashKey] && payload[holderKey];
 }
 
 + (void)sendNewMessageInfosNotification {

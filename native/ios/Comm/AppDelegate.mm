@@ -40,6 +40,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 #import "CommConstants.h"
 #import "CommCoreModule.h"
+#import "CommIOSNotificationsBlobClient.h"
 #import "CommRustModule.h"
 #import "CommUtilsModule.h"
 #import "GlobalDBSingleton.h"
@@ -95,7 +96,7 @@ void didReceiveNewMessageInfosDarwinNotification(
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   RCTAppSetupPrepareApp(application);
 
-  [self moveMessagesToDatabase:NO];
+  [self processNSETemporaryStorage];
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient
                                          error:nil];
 
@@ -398,6 +399,43 @@ using Runtime = facebook::jsi::Runtime;
       newMessageInfosDarwinNotification,
       NULL,
       CFNotificationSuspensionBehaviorDeliverImmediately);
+}
+
+// NSE has limited time to process notifications. Therefore
+// deferable and low priority networking such as fetched
+// blob deletion from blob service should be handled by the
+// main app on a low priority background thread.
+
+- (void)scheduleNSEBlobsDeletion {
+  dispatch_async(
+      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        TemporaryMessageStorage *temporaryMessageStorage =
+            [[TemporaryMessageStorage alloc] initForBlobs];
+
+        NSArray<NSString *> *blobsData =
+            [temporaryMessageStorage readAndClearMessages];
+
+        if (!blobsData.count) {
+          return;
+        }
+
+        [[CommIOSNotificationsBlobClient sharedInstance]
+                   deleteBlobs:blobsData
+            withFailureHandler:^(NSString *_Nonnull blobData) {
+              // If blob deletion failed we write it back to the storage
+              // so that its deletion can be attampted again.
+              [temporaryMessageStorage writeMessage:blobData];
+            }];
+      });
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+  [[CommIOSNotificationsBlobClient sharedInstance] cancelOnGoingRequests];
+}
+
+- (void)processNSETemporaryStorage {
+  [self moveMessagesToDatabase:NO];
+  [self scheduleNSEBlobsDeletion];
 }
 
 // Copied from
