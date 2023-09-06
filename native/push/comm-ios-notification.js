@@ -4,9 +4,10 @@ import { NativeModules } from 'react-native';
 
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import {
-  convertNotificationThreadIDToNewIDSchema,
+  convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 const { CommIOSNotifications } = NativeModules;
 
@@ -50,7 +51,10 @@ export class CommIOSNotification {
 
     this.data = {
       ...notification,
-      threadID: convertNotificationThreadIDToNewIDSchema(notification.threadID),
+      threadID: convertNonPendingIDToNewSchema(
+        notification.threadID,
+        ashoatKeyserverID,
+      ),
       messageInfos: convertNotificationMessageInfoToNewIDSchema(
         notification.messageInfos,
       ),

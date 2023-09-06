@@ -33,7 +33,7 @@ import {
 } from 'lib/utils/action-utils.js';
 import {
   convertNotificationMessageInfoToNewIDSchema,
-  convertNotificationThreadIDToNewIDSchema,
+  convertNonPendingIDToNewSchema,
 } from 'lib/utils/migration-utils.js';
 import {
   type NotifPermissionAlertInfo,
@@ -41,6 +41,7 @@ import {
   shouldSkipPushPermissionAlert,
 } from 'lib/utils/push-alerts.js';
 import sleep from 'lib/utils/sleep.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   parseAndroidMessage,
@@ -594,8 +595,10 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   androidNotificationOpened = async (threadID: string) => {
-    const convertedThreadID =
-      convertNotificationThreadIDToNewIDSchema(threadID);
+    const convertedThreadID = convertNonPendingIDToNewSchema(
+      threadID,
+      ashoatKeyserverID,
+    );
     this.onPushNotifBootsApp();
     this.onPressNotificationForThread(convertedThreadID, true);
   };
