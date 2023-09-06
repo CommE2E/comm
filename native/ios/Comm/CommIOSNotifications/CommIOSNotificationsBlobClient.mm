@@ -84,6 +84,61 @@ int const blobServiceQueryTimeLimit = 15;
           (int64_t)(blobServiceQueryTimeLimit * NSEC_PER_SEC)));
 }
 
+- (void)deleteBlobs:(NSArray<NSString *> *)blobsData
+    withFailureHandler:(void (^_Nonnull)(NSString *_Nonnull))failureHandler {
+  NSError *authTokenError = nil;
+  NSString *authToken =
+      [CommIOSNotificationsBlobClient _getAuthToken:&authTokenError];
+
+  if (authTokenError) {
+    comm::Logger::log(
+        "Failed to create blob service auth token. Reason: " +
+        std::string([authTokenError.localizedDescription UTF8String]));
+    return;
+  }
+
+  NSString *blobUrlStr = [blobServiceAddress stringByAppendingString:@"/blob"];
+  NSURL *blobUrl = [NSURL URLWithString:blobUrlStr];
+
+  for (NSString *blobData in blobsData) {
+    NSMutableURLRequest *deleteRequest =
+        [NSMutableURLRequest requestWithURL:blobUrl];
+
+    [deleteRequest setValue:authToken forHTTPHeaderField:@"Authorization"];
+    [deleteRequest setValue:@"application/json"
+         forHTTPHeaderField:@"content-type"];
+
+    deleteRequest.HTTPMethod = @"DELETE";
+    deleteRequest.HTTPBody = [blobData dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSURLSessionDataTask *task = [self.sharedBlobServiceSession
+        dataTaskWithRequest:deleteRequest
+          completionHandler:^(
+              NSData *_Nullable data,
+              NSURLResponse *_Nullable response,
+              NSError *_Nullable error) {
+            if (error) {
+              comm::Logger::log(
+                  "COMM: Failed to delete blob from blob service. Reason: " +
+                  std::string([error.localizedDescription UTF8String]));
+              failureHandler(blobData);
+            }
+          }];
+
+    [task resume];
+  }
+}
+
+- (void)cancelOngoingRequests {
+  [self.sharedBlobServiceSession
+      getAllTasksWithCompletionHandler:^(
+          NSArray<__kindof NSURLSessionTask *> *_Nonnull tasks) {
+        for (NSURLSessionTask *task in tasks) {
+          [task cancel];
+        }
+      }];
+}
+
 + (NSString *)_getAuthToken:(NSError **)error {
   // Authentication data are retrieved on every request
   // since they might change while NSE process is running
