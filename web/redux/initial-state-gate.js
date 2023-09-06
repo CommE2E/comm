@@ -6,7 +6,9 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
 import { useServerCall } from 'lib/utils/action-utils.js';
+import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { getInitialReduxState, setInitialReduxState } from './action-types.js';
 import { useSelector } from './redux-utils.js';
@@ -35,7 +37,14 @@ function InitialReduxStateGate(props: Props): React.Node {
       prevIsRehydrated.current = isRehydrated;
       (async () => {
         try {
-          const urlInfo = infoFromURL(decodeURI(window.location.href));
+          let urlInfo = infoFromURL(decodeURI(window.location.href));
+          // Handle older links
+          if (urlInfo.thread) {
+            urlInfo = {
+              ...urlInfo,
+              thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
+            };
+          }
           const payload = await callGetInitialReduxState(urlInfo);
           dispatch({ type: setInitialReduxState, payload });
         } catch (err) {
