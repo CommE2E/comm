@@ -140,44 +140,6 @@ describe('findTooltipPosition', () => {
   );
 
   it(
-    'should return bottom position on left ' +
-      'to prevent covering element below source',
-    () =>
-      expect(
-        findTooltipPosition({
-          sourcePositionInfo: tooltipSourcePositionCenter,
-          tooltipSize: tooltipSizeBig,
-          availablePositions: onlyLeftTooltipPositions,
-          defaultPosition: onlyLeftTooltipPositions[0],
-          preventDisplayingBelowSource: true,
-        }),
-      ).toMatch(tooltipPositions.LEFT_BOTTOM),
-  );
-
-  it(
-    'should return first position ' +
-      'that does not cover element below source ',
-    () =>
-      expect(
-        findTooltipPosition({
-          sourcePositionInfo: tooltipSourcePositionCenter,
-          tooltipSize: tooltipSizeBig,
-          availablePositions: [
-            tooltipPositions.BOTTOM,
-            tooltipPositions.RIGHT,
-            tooltipPositions.RIGHT_TOP,
-            tooltipPositions.LEFT,
-            tooltipPositions.LEFT_TOP,
-            tooltipPositions.TOP,
-            tooltipPositions.LEFT_BOTTOM,
-          ],
-          defaultPosition: tooltipPositions.BOTTOM,
-          preventDisplayingBelowSource: true,
-        }),
-      ).toMatch(tooltipPositions.TOP),
-  );
-
-  it(
     'should return default position ' +
       'if an empty array of available is provided',
     () =>
@@ -191,14 +153,13 @@ describe('findTooltipPosition', () => {
       ).toMatch(tooltipPositions.LEFT_BOTTOM),
   );
 
-  it('should return default position if an no position is available', () =>
+  it('should return default position if no position is available', () =>
     expect(
       findTooltipPosition({
-        sourcePositionInfo: tooltipSourcePositionTopRight,
+        sourcePositionInfo: tooltipSourcePositionBottomLeft,
         tooltipSize: tooltipSizeBig,
         availablePositions: allTooltipPositions,
         defaultPosition: tooltipPositions.BOTTOM,
-        preventDisplayingBelowSource: true,
       }),
     ).toMatch(tooltipPositions.BOTTOM));
 });
