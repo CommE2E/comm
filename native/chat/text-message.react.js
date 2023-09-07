@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
@@ -25,12 +24,13 @@ import { getMessageTooltipKey } from './utils.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
 import { MarkdownContext } from '../markdown/markdown-context.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import { useCanEditMessageNative } from '../navigation/nav-selectors.js';
 import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
@@ -270,7 +270,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     const isThisMessageEdited = editMessageID === props.item.messageInfo.id;
 
     const canEditMessage =
-      useCanEditMessage(props.item.threadInfo, props.item.messageInfo) &&
+      useCanEditMessageNative(props.item.threadInfo, props.item.messageInfo) &&
       !isThisMessageEdited;
 
     const canTogglePins = threadHasPermission(
