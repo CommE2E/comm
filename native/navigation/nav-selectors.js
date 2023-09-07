@@ -1,14 +1,21 @@
 // @flow
 
 import type { PossiblyStaleNavigationState } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { createSelector } from 'reselect';
 
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors.js';
+import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
+import type {
+  ComposableMessageInfo,
+  RobotextMessageInfo,
+} from 'lib/types/message-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { NavContextType } from './navigation-context.js';
 import { NavContext } from './navigation-context.js';
@@ -30,6 +37,8 @@ import {
   chatRootModals,
   threadRoutes,
   CommunityDrawerNavigatorRouteName,
+  MessageResultsScreenRouteName,
+  MessageSearchRouteName,
 } from './route-names.js';
 import type { RemoveEditMode } from '../chat/message-list-types';
 import { useSelector } from '../redux/redux-utils.js';
@@ -389,6 +398,26 @@ function useCurrentLeafRouteName(): ?string {
   }, [navContext]);
 }
 
+function useCanEditMessageNative(
+  threadInfo: ThreadInfo,
+  targetMessageInfo: ComposableMessageInfo | RobotextMessageInfo,
+): boolean {
+  const route = useRoute();
+
+  const screenKey = route.key;
+  const threadCreationTime = threadInfo.creationTime;
+  const messageCreationTime = targetMessageInfo.time;
+
+  const canEditInThisScreen =
+    !screenKey.startsWith(MessageSearchRouteName) &&
+    !screenKey.startsWith(MessageResultsScreenRouteName) &&
+    messageCreationTime >= threadCreationTime;
+
+  return (
+    useCanEditMessage(threadInfo, targetMessageInfo) && canEditInThisScreen
+  );
+}
+
 export {
   createIsForegroundSelector,
   useIsAppLoggedIn,
@@ -408,4 +437,5 @@ export {
   getRemoveEditMode,
   getTabNavState,
   getChatNavStateFromTabNavState,
+  useCanEditMessageNative,
 };
