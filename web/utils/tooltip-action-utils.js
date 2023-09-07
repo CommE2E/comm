@@ -48,7 +48,6 @@ type UseTooltipArgs = {
   +createTooltip: (tooltipPositionStyle: TooltipPositionStyle) => React.Node,
   +tooltipSize: TooltipSize,
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
-  +preventDisplayingBelowSource?: boolean,
 };
 type UseTooltipResult = {
   +onMouseEnter: (event: SyntheticEvent<HTMLElement>) => mixed,
@@ -59,7 +58,6 @@ function useTooltip({
   createTooltip,
   tooltipSize,
   availablePositions,
-  preventDisplayingBelowSource,
 }: UseTooltipArgs): UseTooltipResult {
   const [onMouseLeave, setOnMouseLeave] = React.useState<?() => mixed>(null);
   const [tooltipSourcePosition, setTooltipSourcePosition] = React.useState();
@@ -81,7 +79,6 @@ function useTooltip({
         tooltipSourcePosition: sourcePosition,
         tooltipSize,
         availablePositions,
-        preventDisplayingBelowSource,
       });
       if (!tooltipPositionStyle) {
         return;
@@ -99,13 +96,7 @@ function useTooltip({
         updateTooltip.current = renderTooltipResult.updateTooltip;
       }
     },
-    [
-      availablePositions,
-      createTooltip,
-      preventDisplayingBelowSource,
-      renderTooltip,
-      tooltipSize,
-    ],
+    [availablePositions, createTooltip, renderTooltip, tooltipSize],
   );
 
   React.useEffect(() => {
@@ -117,7 +108,6 @@ function useTooltip({
       tooltipSourcePosition,
       tooltipSize,
       availablePositions,
-      preventDisplayingBelowSource,
     });
     if (!tooltipPositionStyle) {
       return;
@@ -125,13 +115,7 @@ function useTooltip({
 
     const tooltip = createTooltip(tooltipPositionStyle);
     updateTooltip.current?.(tooltip);
-  }, [
-    availablePositions,
-    createTooltip,
-    preventDisplayingBelowSource,
-    tooltipSize,
-    tooltipSourcePosition,
-  ]);
+  }, [availablePositions, createTooltip, tooltipSize, tooltipSourcePosition]);
 
   return {
     onMouseEnter,
@@ -411,8 +395,6 @@ function useMessageTooltip({
 }: UseMessageTooltipArgs): UseTooltipResult {
   const tooltipActions = useMessageTooltipActions(item, threadInfo);
 
-  const containsInlineEngagement = !!item.threadCreatedFromMessage;
-
   const messageTimestamp = React.useMemo(() => {
     const time = item.messageInfo.time;
     return longAbsoluteDate(time);
@@ -447,7 +429,6 @@ function useMessageTooltip({
     createTooltip: createMessageTooltip,
     tooltipSize,
     availablePositions,
-    preventDisplayingBelowSource: containsInlineEngagement,
   });
 
   return {
