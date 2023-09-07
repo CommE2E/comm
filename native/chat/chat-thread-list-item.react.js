@@ -61,32 +61,45 @@ function ChatThreadListItem({
     data.sidebars.filter(sidebarItem => sidebarItem.type === 'sidebar').length -
     1;
 
-  const sidebars = data.sidebars.map((sidebarItem, index) => {
-    if (sidebarItem.type === 'sidebar') {
-      const { type, ...sidebarInfo } = sidebarItem;
-      return (
-        <ChatThreadListSidebar
-          sidebarInfo={sidebarInfo}
-          onPressItem={onPressItem}
-          onSwipeableWillOpen={onSwipeableWillOpen}
-          currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
-          key={sidebarItem.threadInfo.id}
-          extendArrow={index < numOfSidebarsWithExtendedArrow}
-        />
-      );
-    } else if (sidebarItem.type === 'seeMore') {
-      return (
-        <ChatThreadListSeeMoreSidebars
-          threadInfo={data.threadInfo}
-          unread={sidebarItem.unread}
-          onPress={onPressSeeMoreSidebars}
-          key="seeMore"
-        />
-      );
-    } else {
-      return <View style={styles.spacer} key="spacer" />;
-    }
-  });
+  const sidebars = React.useMemo(
+    () =>
+      data.sidebars.map((sidebarItem, index) => {
+        if (sidebarItem.type === 'sidebar') {
+          const { type, ...sidebarInfo } = sidebarItem;
+          return (
+            <ChatThreadListSidebar
+              sidebarInfo={sidebarInfo}
+              onPressItem={onPressItem}
+              onSwipeableWillOpen={onSwipeableWillOpen}
+              currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
+              key={sidebarItem.threadInfo.id}
+              extendArrow={index < numOfSidebarsWithExtendedArrow}
+            />
+          );
+        } else if (sidebarItem.type === 'seeMore') {
+          return (
+            <ChatThreadListSeeMoreSidebars
+              threadInfo={data.threadInfo}
+              unread={sidebarItem.unread}
+              onPress={onPressSeeMoreSidebars}
+              key="seeMore"
+            />
+          );
+        } else {
+          return <View style={styles.spacer} key="spacer" />;
+        }
+      }),
+    [
+      currentlyOpenedSwipeableId,
+      data.sidebars,
+      data.threadInfo,
+      numOfSidebarsWithExtendedArrow,
+      onPressItem,
+      onPressSeeMoreSidebars,
+      onSwipeableWillOpen,
+      styles.spacer,
+    ],
+  );
 
   const onPress = React.useCallback(() => {
     onPressItem(data.threadInfo, data.pendingPersonalThreadUserInfo);
