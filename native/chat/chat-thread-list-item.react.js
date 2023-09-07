@@ -130,8 +130,80 @@ function ChatThreadListItem({
 
   const resolvedThreadInfo = useResolvedThreadInfo(data.threadInfo);
 
-  return (
-    <>
+  const unreadDot = React.useMemo(
+    () => (
+      <View style={styles.avatarContainer}>
+        <UnreadDot unread={data.threadInfo.currentUser.unread} />
+      </View>
+    ),
+    [data.threadInfo.currentUser.unread, styles.avatarContainer],
+  );
+
+  const threadAvatar = React.useMemo(
+    () => (
+      <View style={styles.avatarContainer}>
+        <ThreadAvatar size="large" threadInfo={data.threadInfo} />
+      </View>
+    ),
+    [data.threadInfo, styles.avatarContainer],
+  );
+
+  const threadDetails = React.useMemo(
+    () => (
+      <View style={styles.threadDetails}>
+        <ThreadAncestorsLabel threadInfo={data.threadInfo} />
+        <View style={styles.row}>
+          <SingleLine style={threadNameStyle}>
+            {resolvedThreadInfo.uiName}
+          </SingleLine>
+        </View>
+        <View style={styles.row}>
+          {lastMessage}
+          <Text style={lastActivityStyle}>{lastActivity}</Text>
+        </View>
+      </View>
+    ),
+    [
+      data.threadInfo,
+      lastActivity,
+      lastActivityStyle,
+      lastMessage,
+      resolvedThreadInfo.uiName,
+      styles.row,
+      styles.threadDetails,
+      threadNameStyle,
+    ],
+  );
+
+  const swipeableThreadContent = React.useMemo(
+    () => (
+      <Button
+        onPress={onPress}
+        iosFormat="highlight"
+        iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
+        iosActiveOpacity={0.85}
+        style={styles.container}
+      >
+        <View style={styles.content}>
+          {unreadDot}
+          {threadAvatar}
+          {threadDetails}
+        </View>
+      </Button>
+    ),
+    [
+      colors.listIosHighlightUnderlay,
+      onPress,
+      styles.container,
+      styles.content,
+      threadAvatar,
+      threadDetails,
+      unreadDot,
+    ],
+  );
+
+  const swipeableThread = React.useMemo(
+    () => (
       <SwipeableThread
         threadInfo={data.threadInfo}
         mostRecentNonLocalMessage={data.mostRecentNonLocalMessage}
@@ -139,38 +211,29 @@ function ChatThreadListItem({
         currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
         iconSize={24}
       >
-        <Button
-          onPress={onPress}
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
-          iosActiveOpacity={0.85}
-          style={styles.container}
-        >
-          <View style={styles.content}>
-            <View style={styles.avatarContainer}>
-              <UnreadDot unread={data.threadInfo.currentUser.unread} />
-            </View>
-            <View style={styles.avatarContainer}>
-              <ThreadAvatar size="large" threadInfo={data.threadInfo} />
-            </View>
-            <View style={styles.threadDetails}>
-              <ThreadAncestorsLabel threadInfo={data.threadInfo} />
-              <View style={styles.row}>
-                <SingleLine style={threadNameStyle}>
-                  {resolvedThreadInfo.uiName}
-                </SingleLine>
-              </View>
-              <View style={styles.row}>
-                {lastMessage}
-                <Text style={lastActivityStyle}>{lastActivity}</Text>
-              </View>
-            </View>
-          </View>
-        </Button>
+        {swipeableThreadContent}
       </SwipeableThread>
-      {sidebars}
-    </>
+    ),
+    [
+      currentlyOpenedSwipeableId,
+      data.mostRecentNonLocalMessage,
+      data.threadInfo,
+      onSwipeableWillOpen,
+      swipeableThreadContent,
+    ],
   );
+
+  const chatThreadListItem = React.useMemo(
+    () => (
+      <>
+        {swipeableThread}
+        {sidebars}
+      </>
+    ),
+    [sidebars, swipeableThread],
+  );
+
+  return chatThreadListItem;
 }
 
 const chatThreadListItemHeight = 70;
