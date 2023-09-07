@@ -388,7 +388,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
         params: {
           threadInfo,
         },
-        key: `PinnedMessages${threadInfo.id}`,
+        key: `MessageResultsScreen${threadInfo.id}`,
       });
     }, [props.navigation, threadInfo]);
 
