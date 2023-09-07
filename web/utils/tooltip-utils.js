@@ -75,7 +75,6 @@ type FindTooltipPositionArgs = {
   +tooltipSize: TooltipSize,
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
   +defaultPosition: TooltipPosition,
-  +preventDisplayingBelowSource?: boolean,
 };
 
 function findTooltipPosition({
@@ -83,7 +82,6 @@ function findTooltipPosition({
   tooltipSize,
   availablePositions,
   defaultPosition,
-  preventDisplayingBelowSource,
 }: FindTooltipPositionArgs): TooltipPosition {
   const appContainerPositionInfo = getAppContainerPositionInfo();
 
@@ -106,14 +104,9 @@ function findTooltipPosition({
   const canBeDisplayedOnRight =
     tooltipWidth + pointingTo.right <= containerRight;
 
-  const willCoverSidebarOnTopSideways =
-    preventDisplayingBelowSource &&
-    pointingTo.top + tooltipHeight > pointingTo.bottom;
-
   const canBeDisplayedOnTopSideways =
     pointingTo.top >= containerTop &&
-    pointingTo.top + tooltipHeight <= containerBottom &&
-    !willCoverSidebarOnTopSideways;
+    pointingTo.top + tooltipHeight <= containerBottom;
 
   const canBeDisplayedOnBottomSideways =
     pointingTo.bottom <= containerBottom &&
@@ -122,14 +115,9 @@ function findTooltipPosition({
   const verticalCenterOfPointingTo = pointingTo.top + pointingTo.height / 2;
   const horizontalCenterOfPointingTo = pointingTo.left + pointingTo.width / 2;
 
-  const willCoverSidebarInTheMiddleSideways =
-    preventDisplayingBelowSource &&
-    verticalCenterOfPointingTo + tooltipHeight / 2 > pointingTo.bottom;
-
   const canBeDisplayedInTheMiddleSideways =
     verticalCenterOfPointingTo - tooltipHeight / 2 >= containerTop &&
-    verticalCenterOfPointingTo + tooltipHeight / 2 <= containerBottom &&
-    !willCoverSidebarInTheMiddleSideways;
+    verticalCenterOfPointingTo + tooltipHeight / 2 <= containerBottom;
 
   const canBeDisplayedOnTop =
     pointingTo.top - tooltipHeight >= containerTop &&
@@ -139,8 +127,7 @@ function findTooltipPosition({
   const canBeDisplayedOnBottom =
     pointingTo.bottom + tooltipHeight <= containerBottom &&
     horizontalCenterOfPointingTo - tooltipWidth / 2 >= containerLeft &&
-    horizontalCenterOfPointingTo + tooltipWidth / 2 <= containerRight &&
-    !preventDisplayingBelowSource;
+    horizontalCenterOfPointingTo + tooltipWidth / 2 <= containerRight;
 
   for (const tooltipPosition of availablePositions) {
     if (
@@ -317,18 +304,12 @@ type GetTooltipPositionStyleParams = {
   +tooltipSourcePosition: ?PositionInfo,
   +tooltipSize: TooltipSize,
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
-  +preventDisplayingBelowSource?: boolean,
 };
 
 function getTooltipPositionStyle(
   params: GetTooltipPositionStyleParams,
 ): ?TooltipPositionStyle {
-  const {
-    tooltipSourcePosition,
-    tooltipSize,
-    availablePositions,
-    preventDisplayingBelowSource,
-  } = params;
+  const { tooltipSourcePosition, tooltipSize, availablePositions } = params;
   if (!tooltipSourcePosition) {
     return undefined;
   }
@@ -337,7 +318,6 @@ function getTooltipPositionStyle(
     tooltipSize,
     availablePositions,
     defaultPosition: availablePositions[0],
-    preventDisplayingBelowSource,
   });
   if (!tooltipPosition) {
     return undefined;
