@@ -30,7 +30,7 @@ import { firstLine } from 'lib/utils/string-utils.js';
 
 import SaveSettingButton from './save-setting-button.react.js';
 import EditSettingButton from '../../components/edit-setting-button.react.js';
-import { SingleLine } from '../../components/single-line.react.js';
+import SingleLine from '../../components/single-line.react.js';
 import TextInput from '../../components/text-input.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../../themes/colors.js';

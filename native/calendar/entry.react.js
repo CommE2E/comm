@@ -67,7 +67,7 @@ import {
   useNavigateToThread,
 } from '../chat/message-list-types.js';
 import Button from '../components/button.react.js';
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import TextInput from '../components/text-input.react.js';
 import Markdown from '../markdown/markdown.react.js';
 import { inlineMarkdownRules } from '../markdown/rules.react.js';

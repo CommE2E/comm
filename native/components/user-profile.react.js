@@ -9,7 +9,7 @@ import sleep from 'lib/utils/sleep.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
-import { SingleLine } from '../components/single-line.react.js';
+import SingleLine from '../components/single-line.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
