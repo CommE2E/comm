@@ -29,8 +29,12 @@ import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context.js';
+import {
+  MessageResultsScreenRouteName,
+  MessageSearchRouteName,
+  TextMessageTooltipModalRouteName,
+} from '../navigation/route-names.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { TextMessageTooltipModalRouteName } from '../navigation/route-names.js';
 import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
@@ -269,9 +273,16 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     const editMessageID = messageEditingContext?.editState.editedMessage?.id;
     const isThisMessageEdited = editMessageID === props.item.messageInfo.id;
 
+    const screenName = props.route.key;
+    const threadCreationTime = props.item.threadInfo.creationTime;
+    const messageCreationTime = props.item.messageInfo.time;
+
     const canEditMessage =
       useCanEditMessage(props.item.threadInfo, props.item.messageInfo) &&
-      !isThisMessageEdited;
+      !isThisMessageEdited &&
+      !screenName.startsWith(MessageSearchRouteName) &&
+      !screenName.startsWith(MessageResultsScreenRouteName) &&
+      messageCreationTime > threadCreationTime;
 
     const canTogglePins = threadHasPermission(
       props.item.threadInfo,
