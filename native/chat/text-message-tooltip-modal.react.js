@@ -126,6 +126,25 @@ function TooltipMenu(
     [],
   );
 
+  const screenName = route.params.presentedFrom;
+  const threadCreationTime = route.params.item.threadInfo.creationTime;
+  const messageCreationTime = route.params.item.messageInfo.time;
+
+  const canEdit =
+    !screenName.startsWith('MessageSearch') &&
+    !screenName.startsWith('PinnedMessages') &&
+    messageCreationTime > threadCreationTime;
+
+  const edit = canEdit ? (
+    <TooltipItem
+      id="edit"
+      text="Edit"
+      onPress={onPressEdit}
+      renderIcon={renderEditIcon}
+      key="edit"
+    />
+  ) : null;
+
   return (
     <>
       <TooltipItem
@@ -142,13 +161,7 @@ function TooltipMenu(
         renderIcon={renderSidebarIcon}
         key="sidebar"
       />
-      <TooltipItem
-        id="edit"
-        text="Edit"
-        onPress={onPressEdit}
-        renderIcon={renderEditIcon}
-        key="edit"
-      />
+      {edit}
       <TooltipItem
         id="pin"
         text="Pin"
