@@ -66,6 +66,11 @@ function ChatThreadListSidebar(props: Props): React.Node {
     ],
   );
 
+  const sidebarItem = React.useMemo(
+    () => <SidebarItem sidebarInfo={sidebarInfo} />,
+    [sidebarInfo],
+  );
+
   const swipeableThread = React.useMemo(
     () => (
       <View style={styles.swipeableThreadContainer}>
@@ -76,14 +81,16 @@ function ChatThreadListSidebar(props: Props): React.Node {
           currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
           iconSize={16}
         >
-          <SidebarItem sidebarInfo={sidebarInfo} />
+          {sidebarItem}
         </SwipeableThread>
       </View>
     ),
     [
       currentlyOpenedSwipeableId,
       onSwipeableWillOpen,
-      sidebarInfo,
+      sidebarInfo.mostRecentNonLocalMessage,
+      sidebarInfo.threadInfo,
+      sidebarItem,
       styles.swipeableThreadContainer,
     ],
   );
