@@ -2,8 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
-/// The workflow when establishing a tunnelbroker connection:
-///   - Client sends SessionRequest
+/// The workflow when estabilishing a tunnelbroker connection:
+///   - Client sends ConnectionInitializationMessage
 ///   - Tunnelbroker validates access_token with identity service
 ///   - Tunnelbroker emits an AMQP message declaring that it has opened a new
 ///     connection with a given device, so that the respective tunnelbroker
@@ -32,9 +32,9 @@ pub enum DeviceTypes {
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub struct ConnectionInitializationMessage {
-  pub user_id: String,
   pub device_id: String,
   pub access_token: String,
+  pub user_id: String,
   pub notify_token: Option<String>,
   pub device_type: DeviceTypes,
   pub device_app_version: Option<String>,
@@ -42,7 +42,7 @@ pub struct ConnectionInitializationMessage {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct SessionResponse {
+pub struct ConnectionInitializationResponse {
   pub session_id: String,
 }
 
