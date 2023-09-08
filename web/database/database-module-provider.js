@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import localforage from 'localforage';
 
 import {
@@ -33,26 +34,41 @@ const databaseStatuses = Object.freeze({
 type DatabaseStatus = $Values<typeof databaseStatuses>;
 
 class DatabaseModule {
-  worker: SharedWorker;
-  workerProxy: WorkerConnectionProxy;
-  initPromise: Promise<void>;
-  status: DatabaseStatus;
+  worker: ?SharedWorker;
+  workerProxy: ?WorkerConnectionProxy;
+  initPromise: ?Promise<void>;
+  status: DatabaseStatus = databaseStatuses.notSupported;
 
-  constructor() {
-    const currentLoggedInUserID = preloadedState.currentUserInfo?.anonymous
-      ? undefined
-      : preloadedState.currentUserInfo?.id;
-    const isSupported = isSQLiteSupported(currentLoggedInUserID);
-
-    if (!isSupported || isDesktopSafari) {
-      this.status = databaseStatuses.notSupported;
-    } else {
-      this.init();
+  async init(currentLoggedInUserID: ?string): Promise<void> {
+    if (!currentLoggedInUserID) {
+      return;
     }
-  }
 
-  init(encryptionKey?: ?SubtleCrypto$JsonWebKey) {
+    if (!isSQLiteSupported(currentLoggedInUserID)) {
+      console.warn('Sqlite is not supported');
+      this.status = databaseStatuses.notSupported;
+      return;
+    }
+
+    if (this.status === databaseStatuses.initInProgress) {
+      await this.initPromise;
+      return;
+    }
+
+    if (
+      this.status === databaseStatuses.initSuccess ||
+      this.status === databaseStatuses.initError
+    ) {
+      return;
+    }
+
     this.status = databaseStatuses.initInProgress;
+
+    let encryptionKey = null;
+    if (isDesktopSafari) {
+      encryptionKey = await getSafariEncryptionKey();
+    }
+
     this.worker = new SharedWorker(DATABASE_WORKER_PATH);
     this.worker.onerror = console.error;
     this.workerProxy = new WorkerConnectionProxy(
@@ -64,6 +80,7 @@ class DatabaseModule {
 
     this.initPromise = (async () => {
       try {
+        invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
           databaseModuleFilePath: `${origin}${DATABASE_MODULE_FILE_PATH}`,
@@ -77,28 +94,13 @@ class DatabaseModule {
         console.error(`Database initialization failure`, error);
       }
     })();
-  }
 
-  async initDBForLoggedInUser(currentLoggedInUserID: ?string) {
-    if (this.status === databaseStatuses.initSuccess) {
-      return;
-    }
-
-    if (
-      this.status === databaseStatuses.notSupported &&
-      isSQLiteSupported(currentLoggedInUserID)
-    ) {
-      let encryptionKey = null;
-      if (isDesktopSafari) {
-        encryptionKey = await getSafariEncryptionKey();
-      }
-
-      this.init(encryptionKey);
-    }
+    await this.initPromise;
   }
 
   async clearSensitiveData(): Promise<void> {
     this.status = databaseStatuses.notSupported;
+    invariant(this.workerProxy, 'Worker proxy should exist');
     await this.workerProxy.scheduleOnWorker({
       type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
     });
@@ -126,6 +128,7 @@ class DatabaseModule {
       throw new Error('Database could not be initialized');
     }
 
+    invariant(this.workerProxy, 'Worker proxy should exist');
     return this.workerProxy.scheduleOnWorker(payload);
   }
 }
@@ -146,6 +149,10 @@ let databaseModule: ?DatabaseModule = null;
 async function getDatabaseModule(): Promise<DatabaseModule> {
   if (!databaseModule) {
     databaseModule = new DatabaseModule();
+    const currentLoggedInUserID = preloadedState.currentUserInfo?.anonymous
+      ? undefined
+      : preloadedState.currentUserInfo?.id;
+    await databaseModule.init(currentLoggedInUserID);
   }
   return databaseModule;
 }
