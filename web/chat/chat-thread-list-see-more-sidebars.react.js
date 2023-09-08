@@ -31,7 +31,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   );
   return (
     <a className={classNames(css.thread, css.sidebar)} onClick={onClick}>
-      <a className={css.threadButton}>
+      <div className={css.threadButton}>
         <div
           className={classNames({
             [css.sidebarTitle]: true,
@@ -42,7 +42,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
           <IoIosMore size="22px" />
           <div className={css.seeMoreText}>See more...</div>
         </div>
-      </a>
+      </div>
     </a>
   );
 }

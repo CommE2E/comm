@@ -8,10 +8,7 @@ import type { SidebarInfo } from 'lib/types/thread-types.js';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react.js';
 import css from './chat-thread-list.css';
 import SidebarItem from './sidebar-item.react.js';
-import {
-  useOnClickThread,
-  useThreadIsActive,
-} from '../selectors/thread-selectors.js';
+import { useThreadIsActive } from '../selectors/thread-selectors.js';
 
 type Props = {
   +sidebarInfo: SidebarInfo,
@@ -26,18 +23,16 @@ function ChatThreadListSidebar(props: Props): React.Node {
   } = threadInfo;
   const active = useThreadIsActive(threadID);
 
-  const onClick = useOnClickThread(threadInfo);
   let unreadDot;
   if (unread) {
     unreadDot = <div className={css.unreadDot} />;
   }
 
   return (
-    <a
+    <div
       className={classNames(css.threadListSidebar, css.sidebar, {
         [css.activeThread]: active,
       })}
-      onClick={onClick}
     >
       <div className={css.dotContainer}>{unreadDot}</div>
       <SidebarItem sidebarInfo={sidebarInfo} extendArrow={isSubsequentItem} />
@@ -46,7 +41,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
         mostRecentNonLocalMessage={mostRecentNonLocalMessage}
         renderStyle="thread"
       />
-    </a>
+    </div>
   );
 }
 
