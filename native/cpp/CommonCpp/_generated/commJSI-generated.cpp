@@ -66,6 +66,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getPrimaryOneTimeKeys(rt, args[0].asNumber());
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getNotificationsOneTimeKeys(rt, args[0].asNumber());
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndGetPrekeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->generateAndGetPrekeys(rt);
 }
@@ -136,6 +139,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["initializeCryptoAccount"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
   methodMap_["getPrimaryOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTimeKeys};
+  methodMap_["getNotificationsOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys};
   methodMap_["generateAndGetPrekeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndGetPrekeys};
   methodMap_["initializeNotificationsSession"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeNotificationsSession};
   methodMap_["isNotificationsSessionInitialized"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitialized};

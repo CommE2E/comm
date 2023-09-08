@@ -37,6 +37,7 @@ public:
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
   virtual jsi::Value getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
+  virtual jsi::Value getNotificationsOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
@@ -209,6 +210,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getPrimaryOneTimeKeys, jsInvoker_, instance_, std::move(oneTimeKeysAmount));
+    }
+    jsi::Value getNotificationsOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override {
+      static_assert(
+          bridging::getParameterCount(&T::getNotificationsOneTimeKeys) == 2,
+          "Expected getNotificationsOneTimeKeys(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getNotificationsOneTimeKeys, jsInvoker_, instance_, std::move(oneTimeKeysAmount));
     }
     jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) override {
       static_assert(
