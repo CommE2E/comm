@@ -27,17 +27,16 @@ function SQLiteDataHandler(): React.Node {
       });
       const currentDBUserID = currentUserData?.userID;
 
-      if (currentDBUserID && currentDBUserID !== currentLoggedInUserID) {
-        await databaseModule.clearSensitiveData();
-      }
-      if (
-        currentLoggedInUserID &&
-        (currentDBUserID || currentDBUserID !== currentLoggedInUserID)
-      ) {
-        await databaseModule.schedule({
-          type: workerRequestMessageTypes.SET_CURRENT_USER_ID,
-          userID: currentLoggedInUserID,
-        });
+      if (currentDBUserID !== currentLoggedInUserID) {
+        if (currentDBUserID) {
+          await databaseModule.init({ clearDatabase: true });
+        }
+        if (currentLoggedInUserID) {
+          await databaseModule.schedule({
+            type: workerRequestMessageTypes.SET_CURRENT_USER_ID,
+            userID: currentLoggedInUserID,
+          });
+        }
       }
     } catch (error) {
       console.error(error);
@@ -48,10 +47,6 @@ function SQLiteDataHandler(): React.Node {
   React.useEffect(() => {
     (async () => {
       const databaseModule = await getDatabaseModule();
-
-      if (currentLoggedInUserID) {
-        await databaseModule.init(currentLoggedInUserID);
-      }
 
       if (!rehydrateConcluded) {
         return;
