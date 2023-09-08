@@ -13,7 +13,6 @@ import {
   generateDatabaseCryptoKey,
 } from './utils/worker-crypto-utils.js';
 import WorkerConnectionProxy from './utils/WorkerConnectionProxy.js';
-import type { AppState } from '../redux/redux-setup.js';
 import {
   workerRequestMessageTypes,
   type WorkerRequestMessage,
@@ -21,10 +20,8 @@ import {
 } from '../types/worker-types.js';
 
 declare var commQueryExecutorFilename: string;
-declare var preloadedState: AppState;
-
 const databaseStatuses = Object.freeze({
-  notSupported: 'NOT_SUPPORTED',
+  notRunning: 'NOT_RUNNING',
   initSuccess: 'INIT_SUCCESS',
   initInProgress: 'INIT_IN_PROGRESS',
   initError: 'INIT_ERROR',
@@ -36,17 +33,20 @@ class DatabaseModule {
   worker: SharedWorker;
   workerProxy: WorkerConnectionProxy;
   initPromise: Promise<void>;
-  status: DatabaseStatus = databaseStatuses.notSupported;
+  status: DatabaseStatus = databaseStatuses.notRunning;
 
-  async init(currentLoggedInUserID: ?string): Promise<void> {
-    if (!currentLoggedInUserID) {
-      return;
-    }
-
-    if (!isSQLiteSupported(currentLoggedInUserID)) {
+  async init({ shouldRestart }: { shouldRestart: boolean }): Promise<void> {
+    if (!isSQLiteSupported()) {
       console.warn('Sqlite is not supported');
       this.status = databaseStatuses.initError;
       return;
+    }
+
+    if (shouldRestart && this.status === databaseStatuses.initSuccess) {
+      await this.workerProxy.scheduleOnWorker({
+        type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
+      });
+      this.status = databaseStatuses.notRunning;
     }
 
     if (this.status === databaseStatuses.initInProgress) {
@@ -95,13 +95,6 @@ class DatabaseModule {
     await this.initPromise;
   }
 
-  async clearSensitiveData(): Promise<void> {
-    this.status = databaseStatuses.notSupported;
-    await this.workerProxy.scheduleOnWorker({
-      type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
-    });
-  }
-
   async isDatabaseSupported(): Promise<boolean> {
     if (this.status === databaseStatuses.initInProgress) {
       await this.initPromise;
@@ -112,8 +105,8 @@ class DatabaseModule {
   async schedule(
     payload: WorkerRequestMessage,
   ): Promise<?WorkerResponseMessage> {
-    if (this.status === databaseStatuses.notSupported) {
-      throw new Error('Database not supported');
+    if (this.status === databaseStatuses.notRunning) {
+      throw new Error('Database not running');
     }
 
     if (this.status === databaseStatuses.initInProgress) {
@@ -144,10 +137,7 @@ let databaseModule: ?DatabaseModule = null;
 async function getDatabaseModule(): Promise<DatabaseModule> {
   if (!databaseModule) {
     databaseModule = new DatabaseModule();
-    const currentLoggedInUserID = preloadedState.currentUserInfo?.anonymous
-      ? undefined
-      : preloadedState.currentUserInfo?.id;
-    await databaseModule.init(currentLoggedInUserID);
+    await databaseModule.init({ shouldRestart: false });
   }
   return databaseModule;
 }
