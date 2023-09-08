@@ -1,11 +1,7 @@
 // @flow
 
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
-
-type UserLoginResponse = {
-  +userId: string,
-  +accessToken: string,
-};
+import type { UserLoginResponse } from 'lib/types/identity-service-types.js';
 
 type InboundKeyInfoResponse = {
   +payload: string,
