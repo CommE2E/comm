@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { inviteLinkUrl } from 'lib/facts/links.js';
+import { inviteLinkURL } from 'lib/facts/links.js';
 import { useResettingState } from 'lib/hooks/use-resetting-state.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 
@@ -17,7 +17,7 @@ type Props = {
 const copiedMessageDurationMs = 2000;
 function CopyInviteLinkButton(props: Props): React.Node {
   const { inviteLink } = props;
-  const url = inviteLinkUrl(inviteLink.name);
+  const url = inviteLinkURL(inviteLink.name);
   const [copied, setCopied] = useResettingState(false, copiedMessageDurationMs);
   const copyLink = React.useCallback(async () => {
     try {

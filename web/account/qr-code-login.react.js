@@ -3,11 +3,11 @@
 import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
-import { qrCodeLinkUrl } from 'lib/facts/links.js';
+import { qrCodeLinkURL } from 'lib/facts/links.js';
 
 import css from './qr-code-login.css';
 
-const qrCodeValue = qrCodeLinkUrl('random_aes256_key', 'device_ed25519_key');
+const qrCodeValue = qrCodeLinkURL('random_aes256_key', 'device_ed25519_key');
 
 function QrCodeLogin(): React.Node {
   return (

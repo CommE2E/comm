@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { inviteLinkUrl } from 'lib/facts/links.js';
+import { inviteLinkURL } from 'lib/facts/links.js';
 import { useInviteLinksActions } from 'lib/hooks/invite-links.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import {
@@ -107,7 +107,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
       <Text style={styles.sectionTitle}>INVITE URL</Text>
       <View style={styles.section}>
         <View style={styles.inviteLink}>
-          <Text style={styles.inviteLinkPrefix}>{inviteLinkUrl('')}</Text>
+          <Text style={styles.inviteLinkPrefix}>{inviteLinkURL('')}</Text>
           <TextInput
             style={styles.input}
             value={name}
