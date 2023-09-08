@@ -79,16 +79,20 @@ function SwipeableThread(props: Props): React.Node {
     iconSize,
   ]);
 
-  return (
-    <Swipeable
-      buttonWidth={60}
-      innerRef={swipeable}
-      onSwipeableRightWillOpen={onSwipeableRightWillOpen}
-      rightActions={swipeableActions}
-    >
-      {props.children}
-    </Swipeable>
+  const swipeableThread = React.useMemo(
+    () => (
+      <Swipeable
+        buttonWidth={60}
+        innerRef={swipeable}
+        onSwipeableRightWillOpen={onSwipeableRightWillOpen}
+        rightActions={swipeableActions}
+      >
+        {props.children}
+      </Swipeable>
+    ),
+    [onSwipeableRightWillOpen, props.children, swipeableActions],
   );
+  return swipeableThread;
 }
 
 export default SwipeableThread;
