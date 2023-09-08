@@ -1,10 +1,17 @@
 // @flow
 
+import localforage from 'localforage';
+
 import {
   DATABASE_WORKER_PATH,
   DATABASE_MODULE_FILE_PATH,
+  SQLITE_ENCRYPTION_KEY,
 } from './utils/constants.js';
 import { isDesktopSafari, isSQLiteSupported } from './utils/db-utils.js';
+import {
+  exportKeyToJWK,
+  generateDatabaseCryptoKey,
+} from './utils/worker-crypto-utils.js';
 import WorkerConnectionProxy from './utils/WorkerConnectionProxy.js';
 import type { AppState } from '../redux/redux-setup.js';
 import {
@@ -72,10 +79,7 @@ class DatabaseModule {
     })();
   }
 
-  initDBForLoggedInUser(
-    currentLoggedInUserID: ?string,
-    encryptionKey?: ?SubtleCrypto$JsonWebKey,
-  ) {
+  async initDBForLoggedInUser(currentLoggedInUserID: ?string) {
     if (this.status === databaseStatuses.initSuccess) {
       return;
     }
@@ -84,6 +88,11 @@ class DatabaseModule {
       this.status === databaseStatuses.notSupported &&
       isSQLiteSupported(currentLoggedInUserID)
     ) {
+      let encryptionKey = null;
+      if (isDesktopSafari) {
+        encryptionKey = await getSafariEncryptionKey();
+      }
+
       this.init(encryptionKey);
     }
   }
@@ -119,6 +128,18 @@ class DatabaseModule {
 
     return this.workerProxy.scheduleOnWorker(payload);
   }
+}
+
+async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
+  const encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
+  if (encryptionKey) {
+    return await exportKeyToJWK(encryptionKey);
+  }
+  const newEncryptionKey = await generateDatabaseCryptoKey({
+    extractable: true,
+  });
+  await localforage.setItem(SQLITE_ENCRYPTION_KEY, newEncryptionKey);
+  return await exportKeyToJWK(newEncryptionKey);
 }
 
 let databaseModule: ?DatabaseModule = null;
