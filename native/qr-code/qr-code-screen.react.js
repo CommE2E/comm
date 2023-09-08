@@ -4,7 +4,7 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { qrCodeLinkUrl } from 'lib/facts/links.js';
+import { qrCodeLinkURL } from 'lib/facts/links.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -15,7 +15,7 @@ type QRCodeScreenProps = {
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
-const qrCodeValue = qrCodeLinkUrl('random_aes256_key', 'device_ed25519_key');
+const qrCodeValue = qrCodeLinkURL('random_aes256_key', 'device_ed25519_key');
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {

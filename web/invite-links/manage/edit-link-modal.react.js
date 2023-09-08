@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { inviteLinkUrl } from 'lib/facts/links.js';
+import { inviteLinkURL } from 'lib/facts/links.js';
 import { useInviteLinksActions } from 'lib/hooks/invite-links.js';
 import {
   defaultErrorMessage,
@@ -88,7 +88,7 @@ function EditLinkModal(props: Props): React.Node {
         <div className={css.linkSection}>
           Invite URL
           <div className={css.linkRow}>
-            {inviteLinkUrl('')}
+            {inviteLinkURL('')}
             <Input type="text" value={name} onChange={onChangeName} />
           </div>
           {errorComponent}

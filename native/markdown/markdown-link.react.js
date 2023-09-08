@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, Linking } from 'react-native';
 
-import { inviteLinkUrl } from 'lib/facts/links.js';
+import { inviteLinkURL } from 'lib/facts/links.js';
 
 import {
   MarkdownContext,
@@ -40,7 +40,7 @@ function useHandleLinkClick(
 
   const deepLinksContext = React.useContext(DeepLinksContext);
   return React.useCallback(() => {
-    if (url.startsWith(inviteLinkUrl(''))) {
+    if (url.startsWith(inviteLinkURL(''))) {
       deepLinksContext?.setCurrentLinkUrl(url);
       return;
     }
