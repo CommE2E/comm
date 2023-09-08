@@ -45,6 +45,7 @@ import {
   setStoreLoadedActionType,
   type Action,
   setLocalSettingsActionType,
+  setAccessTokenType,
 } from './action-types.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { defaultDimensionsInfo } from './dimensions-updater.react.js';
@@ -308,6 +309,11 @@ function reducer(state: AppState = defaultState, action: Action) {
     return {
       ...state,
       localSettings: { ...state.localSettings, ...action.payload },
+    };
+  } else if (action.type === setAccessTokenType) {
+    return {
+      ...state,
+      commServicesAccessToken: action.payload,
     };
   } else if (
     action.type === logOutActionTypes.started ||

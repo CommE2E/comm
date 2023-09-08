@@ -23,6 +23,7 @@ export const updateThreadLastNavigatedActionType =
 export const setStoreLoadedActionType = 'SET_STORE_LOADED';
 export const setReduxStateActionType = 'SET_REDUX_STATE';
 export const setLocalSettingsActionType = 'SET_LOCAL_SETTINGS';
+export const setAccessTokenType = 'SET_ACCESS_TOKEN';
 
 export const backgroundActionTypes: Set<string> = new Set([
   saveMessagesActionType,
@@ -65,4 +66,8 @@ export type Action =
   | {
       +type: 'SET_STORE_LOADED',
     }
-  | { +type: 'SET_LOCAL_SETTINGS', +payload: LocalSettings };
+  | { +type: 'SET_LOCAL_SETTINGS', +payload: LocalSettings }
+  | {
+      +type: 'SET_ACCESS_TOKEN',
+      +payload: string,
+    };
