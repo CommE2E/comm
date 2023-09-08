@@ -68,6 +68,9 @@ interface Spec extends TurboModule {
   +getPrimaryOneTimeKeys: (
     oneTimeKeysAmount: number,
   ) => Promise<OLMOneTimeKeys>;
+  +getNotificationsOneTimeKeys: (
+    oneTimeKeysAmount: number,
+  ) => Promise<OLMOneTimeKeys>;
   +generateAndGetPrekeys: () => Promise<SignedPrekeys>;
   +initializeNotificationsSession: (
     identityKeys: string,

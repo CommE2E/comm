@@ -528,6 +528,32 @@ jsi::Value CommCoreModule::getPrimaryOneTimeKeys(
       });
 }
 
+jsi::Value CommCoreModule::getNotificationsOneTimeKeys(
+    jsi::Runtime &rt,
+    double oneTimeKeysAmount) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string result;
+          try {
+            result = NotificationsCryptoModule::getNotificationsOneTimeKeys(
+                oneTimeKeysAmount, "Comm");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(parseOLMOneTimeKeys(innerRt, result));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::generateAndGetPrekeys(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {

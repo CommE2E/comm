@@ -63,6 +63,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value
   getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override;
+  virtual jsi::Value getNotificationsOneTimeKeys(
+      jsi::Runtime &rt,
+      double oneTimeKeysAmount) override;
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) override;
   virtual jsi::Value initializeNotificationsSession(
       jsi::Runtime &rt,
