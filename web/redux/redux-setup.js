@@ -53,7 +53,7 @@ import {
 import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import { getVisibility } from './visibility.js';
-import { databaseModule } from '../database/database-module-provider.js';
+import { getDatabaseModule } from '../database/database-module-provider.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
 import { type NavInfo } from '../types/nav-types.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
@@ -188,6 +188,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     } = baseReducerResult;
     if (draftStoreOperations.length > 0 || reportStoreOperations.length > 0) {
       (async () => {
+        const databaseModule = await getDatabaseModule();
         const isSupported = await databaseModule.isDatabaseSupported();
         if (!isSupported) {
           return;
