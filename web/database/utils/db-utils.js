@@ -2,9 +2,6 @@
 
 import { detect as detectBrowser } from 'detect-browser';
 
-import { isStaff } from 'lib/shared/staff-utils.js';
-import { isDev } from 'lib/utils/dev-utils.js';
-
 import { DB_SUPPORTED_BROWSERS, DB_SUPPORTED_OS } from './constants.js';
 import type { EmscriptenModule } from '../types/module.js';
 import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
@@ -39,14 +36,7 @@ function exportDatabaseContent(
   });
 }
 
-function isSQLiteSupported(currentLoggedInUserID: ?string): boolean {
-  if (!currentLoggedInUserID) {
-    return false;
-  }
-  if (!isDev && (!currentLoggedInUserID || !isStaff(currentLoggedInUserID))) {
-    return false;
-  }
-
+function isSQLiteSupported(): boolean {
   return (
     DB_SUPPORTED_OS.includes(browser.os) &&
     DB_SUPPORTED_BROWSERS.includes(browser.name)
