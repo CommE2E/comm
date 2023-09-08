@@ -154,7 +154,7 @@ async function publishNewPrekeys(
     return;
   }
 
-  await rustAPI.publish_prekeys(
+  await rustAPI.publishPrekeys(
     identityInfo.userId,
     deviceID,
     identityInfo.accessToken,
