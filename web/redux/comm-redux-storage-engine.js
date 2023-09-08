@@ -2,11 +2,12 @@
 
 import storage from 'redux-persist/es/storage/index.js';
 
-import { databaseModule } from '../database/database-module-provider.js';
+import { getDatabaseModule } from '../database/database-module-provider.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 const commReduxStorageEngine = {
   getItem: async (key: string): Promise<string> => {
+    const databaseModule = await getDatabaseModule();
     const isSupported = await databaseModule.isDatabaseSupported();
     if (!isSupported) {
       return await storage.getItem(key);
@@ -22,6 +23,7 @@ const commReduxStorageEngine = {
     return result.item;
   },
   setItem: async (key: string, item: string): Promise<void> => {
+    const databaseModule = await getDatabaseModule();
     const isSupported = await databaseModule.isDatabaseSupported();
     if (!isSupported) {
       await storage.setItem(key, item);
@@ -35,6 +37,7 @@ const commReduxStorageEngine = {
     });
   },
   removeItem: async (key: string): Promise<void> => {
+    const databaseModule = await getDatabaseModule();
     const isSupported = await databaseModule.isDatabaseSupported();
     if (!isSupported) {
       await storage.removeItem(key);
