@@ -1,6 +1,5 @@
 // @flow
 
-import localforage from 'localforage';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -51,7 +50,7 @@ function SQLiteDataHandler(): React.Node {
       const databaseModule = await getDatabaseModule();
 
       if (currentLoggedInUserID) {
-        await databaseModule.initDBForLoggedInUser(currentLoggedInUserID);
+        await databaseModule.init(currentLoggedInUserID);
       }
 
       if (!rehydrateConcluded) {

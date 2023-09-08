@@ -38,20 +38,30 @@ class DatabaseModule {
   initPromise: Promise<void>;
   status: DatabaseStatus;
 
-  constructor() {
-    const currentLoggedInUserID = preloadedState.currentUserInfo?.anonymous
-      ? undefined
-      : preloadedState.currentUserInfo?.id;
-    const isSupported = isSQLiteSupported(currentLoggedInUserID);
-
-    if (!isSupported || isDesktopSafari) {
-      this.status = databaseStatuses.notSupported;
-    } else {
-      this.init();
+  async init(currentLoggedInUserID: ?string): Promise<void> {
+    if (!isSQLiteSupported(currentLoggedInUserID)) {
+      console.warn('Sqlite is not supported');
+      this.status = databaseStatuses.initError;
+      return;
     }
-  }
 
-  init(encryptionKey?: ?SubtleCrypto$JsonWebKey) {
+    if (this.status === databaseStatuses.initInProgress) {
+      await this.initPromise;
+      return;
+    }
+
+    if (
+      status === databaseStatuses.initSuccess ||
+      status === databaseStatuses.initError
+    ) {
+      return;
+    }
+
+    let encryptionKey = null;
+    if (isDesktopSafari) {
+      encryptionKey = await getSafariEncryptionKey();
+    }
+
     this.status = databaseStatuses.initInProgress;
     this.worker = new SharedWorker(DATABASE_WORKER_PATH);
     this.worker.onerror = console.error;
@@ -77,24 +87,8 @@ class DatabaseModule {
         console.error(`Database initialization failure`, error);
       }
     })();
-  }
 
-  async initDBForLoggedInUser(currentLoggedInUserID: ?string) {
-    if (this.status === databaseStatuses.initSuccess) {
-      return;
-    }
-
-    if (
-      this.status === databaseStatuses.notSupported &&
-      isSQLiteSupported(currentLoggedInUserID)
-    ) {
-      let encryptionKey = null;
-      if (isDesktopSafari) {
-        encryptionKey = await getSafariEncryptionKey();
-      }
-
-      this.init(encryptionKey);
-    }
+    await this.initPromise;
   }
 
   async clearSensitiveData(): Promise<void> {
@@ -146,6 +140,10 @@ let databaseModule: ?DatabaseModule = null;
 async function getDatabaseModule(): Promise<DatabaseModule> {
   if (!databaseModule) {
     databaseModule = new DatabaseModule();
+    const currentLoggedInUserID = preloadedState.currentUserInfo?.anonymous
+      ? undefined
+      : preloadedState.currentUserInfo?.id;
+    await databaseModule.init(currentLoggedInUserID);
   }
   return databaseModule;
 }
