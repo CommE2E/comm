@@ -5,6 +5,7 @@ pub mod login;
 pub mod prekey;
 pub mod register_user;
 pub mod remove_reserved_usernames;
+pub mod upload_one_time_keys;
 pub mod identity_client {
   tonic::include_proto!("identity.client");
 }
