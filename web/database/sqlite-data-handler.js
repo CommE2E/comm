@@ -1,6 +1,5 @@
 // @flow
 
-import localforage from 'localforage';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -8,26 +7,8 @@ import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 
 import { getDatabaseModule } from './database-module-provider.js';
-import { SQLITE_ENCRYPTION_KEY } from './utils/constants.js';
-import { isDesktopSafari } from './utils/db-utils.js';
-import {
-  exportKeyToJWK,
-  generateDatabaseCryptoKey,
-} from './utils/worker-crypto-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
-
-async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
-  const encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
-  if (encryptionKey) {
-    return await exportKeyToJWK(encryptionKey);
-  }
-  const newEncryptionKey = await generateDatabaseCryptoKey({
-    extractable: true,
-  });
-  await localforage.setItem(SQLITE_ENCRYPTION_KEY, newEncryptionKey);
-  return await exportKeyToJWK(newEncryptionKey);
-}
 
 function SQLiteDataHandler(): React.Node {
   const dispatch = useDispatch();
@@ -69,14 +50,7 @@ function SQLiteDataHandler(): React.Node {
       const databaseModule = await getDatabaseModule();
 
       if (currentLoggedInUserID) {
-        let databaseEncryptionKeyJWK = null;
-        if (isDesktopSafari) {
-          databaseEncryptionKeyJWK = await getSafariEncryptionKey();
-        }
-        await databaseModule.initDBForLoggedInUser(
-          currentLoggedInUserID,
-          databaseEncryptionKeyJWK,
-        );
+        await databaseModule.initDBForLoggedInUser(currentLoggedInUserID);
       }
 
       if (!rehydrateConcluded) {
