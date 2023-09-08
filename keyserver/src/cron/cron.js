@@ -1,5 +1,6 @@
 // @flow
 
+import type { Account as OlmAccount } from '@commapp/olm';
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
@@ -25,7 +26,7 @@ import { deleteInaccessibleThreads } from '../deleters/thread-deleters.js';
 import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import { validateAccountPrekey } from '../utils/olm-utils.js';
+import { revalidateAccountPrekeys } from '../utils/olm-utils.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
@@ -111,8 +112,15 @@ if (cluster.isMaster) {
     '0 0 * * *', // every day at midnight in the keyserver's timezone
     async () => {
       try {
-        await fetchCallUpdateOlmAccount('content', validateAccountPrekey);
-        await fetchCallUpdateOlmAccount('notifications', validateAccountPrekey);
+        await fetchCallUpdateOlmAccount(
+          'content',
+          (contentAccount: OlmAccount) =>
+            fetchCallUpdateOlmAccount(
+              'notifications',
+              (notifAccount: OlmAccount) =>
+                revalidateAccountPrekeys(contentAccount, notifAccount),
+            ),
+        );
       } catch (e) {
         console.warn('encountered error while trying to validate prekeys', e);
       }
