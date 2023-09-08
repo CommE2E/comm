@@ -3,6 +3,7 @@ pub mod login;
 pub mod prekey;
 pub mod register_user;
 pub mod remove_reserved_usernames;
+pub mod upload_one_time_keys;
 
 use grpc_clients::identity::authenticated::AuthLayer;
 use grpc_clients::identity::protos::unauthenticated as client_proto;
@@ -11,7 +12,7 @@ use client_proto::identity_client_service_client::IdentityClientServiceClient;
 use client_proto::{
   AddReservedUsernamesRequest, DeviceKeyUpload, IdentityKeyInfo, PreKey,
   RegistrationFinishRequest, RegistrationStartRequest, DeviceType,
-  RemoveReservedUsernameRequest, InboundKeyInfo
+  RemoveReservedUsernameRequest, InboundKeyInfo, UploadOneTimeKeysRequest
 };
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
