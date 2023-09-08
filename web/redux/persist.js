@@ -37,11 +37,6 @@ import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 declare var preloadedState: AppState;
 
-const initiallyLoggedInUserID = preloadedState.currentUserInfo?.anonymous
-  ? undefined
-  : preloadedState.currentUserInfo?.id;
-const isDatabaseSupported = isSQLiteSupported(initiallyLoggedInUserID);
-
 const migrations = {
   [1]: async state => {
     const {
@@ -60,6 +55,7 @@ const migrations = {
   },
   [2]: async state => {
     const databaseModule = await getDatabaseModule();
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
     if (!isDatabaseSupported) {
       return state;
     }
@@ -91,6 +87,7 @@ const migrations = {
     }
 
     const databaseModule = await getDatabaseModule();
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
 
     if (!isDatabaseSupported) {
       return newState;
@@ -148,7 +145,7 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
     return undefined;
   }
 
-  const oldStorage = await getStoredState({ storage, key: rootKey });
+  let oldStorage = await getStoredState({ storage, key: rootKey });
   if (!oldStorage) {
     return undefined;
   }
@@ -156,6 +153,33 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
   purgeStoredState({ storage, key: rootKey });
   if (debug) {
     console.log('redux-persist: migrating state to SQLite storage');
+  }
+
+  // We need to simulate the keyserverStoreTransform for data stored in the
+  // old local storage (because redux persist will only run it for the
+  // sqlite storage which is empty in this case).
+  // We don't just use keyserverStoreTransform.out(oldStorage) because
+  // the transform might change in the future, but we need to treat
+  // this code like migration code (it shouldn't change).
+  if (oldStorage?._persist?.version === 4) {
+    const { connection, updatesCurrentAsOf, sessionID } =
+      preloadedState.keyserverStore.keyserverInfos[ashoatKeyserverID];
+
+    oldStorage = {
+      ...oldStorage,
+      keyserverStore: {
+        ...oldStorage.keyserverStore,
+        keyserverInfos: {
+          ...oldStorage.keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...oldStorage.keyserverStore.keyserverInfos[ashoatKeyserverID],
+            connection,
+            updatesCurrentAsOf,
+            sessionID,
+          },
+        },
+      },
+    };
   }
 
   return oldStorage;
@@ -208,7 +232,7 @@ const keyserverStoreTransform: Transform = createTransform(
 const persistConfig: PersistConfig = {
   key: rootKey,
   storage: commReduxStorageEngine,
-  whitelist: isDatabaseSupported
+  whitelist: isSQLiteSupported()
     ? persistWhitelist
     : [...persistWhitelist, 'draftStore'],
   migrate: (createAsyncMigrate(
