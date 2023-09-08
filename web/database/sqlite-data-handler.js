@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 
-import { databaseModule } from './database-module-provider.js';
+import { getDatabaseModule } from './database-module-provider.js';
 import { SQLITE_ENCRYPTION_KEY } from './utils/constants.js';
 import { isDesktopSafari } from './utils/db-utils.js';
 import {
@@ -39,6 +39,7 @@ function SQLiteDataHandler(): React.Node {
   );
 
   const handleSensitiveData = React.useCallback(async () => {
+    const databaseModule = await getDatabaseModule();
     try {
       const currentUserData = await databaseModule.schedule({
         type: workerRequestMessageTypes.GET_CURRENT_USER_ID,
@@ -65,6 +66,8 @@ function SQLiteDataHandler(): React.Node {
 
   React.useEffect(() => {
     (async () => {
+      const databaseModule = await getDatabaseModule();
+
       if (currentLoggedInUserID) {
         let databaseEncryptionKeyJWK = null;
         if (isDesktopSafari) {
