@@ -5,6 +5,7 @@ use super::{Error, Status};
 use napi::Result;
 use tracing::warn;
 
+#[napi]
 pub async fn publish_prekeys(
   user_id: String,
   device_id: String,
