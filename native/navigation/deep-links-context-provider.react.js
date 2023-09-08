@@ -10,7 +10,7 @@ import {
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
 import {
-  parseInstallReferrerFromInviteLinkURL,
+  parseInstallReferrerFromInviteLinkUrl,
   parseDataFromDeepLink,
   type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
@@ -75,7 +75,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
     if (!installReferrer) {
       return;
     }
-    const linkSecret = parseInstallReferrerFromInviteLinkURL(installReferrer);
+    const linkSecret = parseInstallReferrerFromInviteLinkUrl(installReferrer);
     if (linkSecret) {
       setCurrentLink(linkSecret);
     }
