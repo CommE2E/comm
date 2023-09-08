@@ -50,7 +50,7 @@ function SQLiteDataHandler(): React.Node {
       const databaseModule = await getDatabaseModule();
 
       if (currentLoggedInUserID) {
-        await databaseModule.initDBForLoggedInUser(currentLoggedInUserID);
+        await databaseModule.init(currentLoggedInUserID);
       }
 
       if (!rehydrateConcluded) {
