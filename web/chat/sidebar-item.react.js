@@ -41,15 +41,15 @@ function SidebarItem(props: Props): React.Node {
   }
   const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
-    <>
+    <a className={css.sidebarItem} onClick={onClick}>
       {arrow}
       <div className={css.spacer} />
-      <a className={css.threadButtonSidebar} onClick={onClick}>
+      <div className={css.threadButtonSidebar}>
         <div className={css.threadRow}>
           <div className={unreadCls}>{uiName}</div>
         </div>
-      </a>
-    </>
+      </div>
+    </a>
   );
 }
 
