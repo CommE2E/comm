@@ -14,6 +14,7 @@ import { emailSubscriptionResponder } from './responders/comm-landing-responders
 import {
   jsonHandler,
   downloadHandler,
+  handleAsyncPromise,
   htmlHandler,
   uploadHandler,
 } from './responders/handlers.js';
@@ -25,6 +26,7 @@ import {
 } from './responders/website-responders.js';
 import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
+import { createAndMaintainTunnelbrokerWebsocket } from './socket/tunnelbroker.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
@@ -62,7 +64,13 @@ import {
 
     // Allow login to be optional until staging environment is available
     try {
-      await verifyUserLoggedIn();
+      // We await here to ensure that the keyserver has been provisioned a
+      // commServicesAccessToken. In the future, this will be necessary for
+      // many keyserver operations.
+      const identityInfo = await verifyUserLoggedIn();
+      // normal keyserver behavior yet. In addition, this doesn't return
+      // information useful for other keyserver functions.
+      handleAsyncPromise(createAndMaintainTunnelbrokerWebsocket(identityInfo));
     } catch (e) {
       console.warn('failed_identity_login');
     }
