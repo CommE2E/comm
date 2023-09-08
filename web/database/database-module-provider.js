@@ -121,6 +121,12 @@ class DatabaseModule {
   }
 }
 
-const databaseModule: DatabaseModule = new DatabaseModule();
+let databaseModule: ?DatabaseModule = null;
+async function getDatabaseModule(): Promise<DatabaseModule> {
+  if (!databaseModule) {
+    databaseModule = new DatabaseModule();
+  }
+  return databaseModule;
+}
 
-export { databaseModule };
+export { getDatabaseModule };

@@ -31,7 +31,7 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
 import type { AppState } from './redux-setup.js';
-import { databaseModule } from '../database/database-module-provider.js';
+import { getDatabaseModule } from '../database/database-module-provider.js';
 import { isSQLiteSupported } from '../database/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
@@ -59,6 +59,7 @@ const migrations = {
     };
   },
   [2]: async state => {
+    const databaseModule = await getDatabaseModule();
     if (!isDatabaseSupported) {
       return state;
     }
@@ -88,6 +89,8 @@ const migrations = {
         draftStore: convertDraftStoreToNewIDSchema(state.draftStore),
       };
     }
+
+    const databaseModule = await getDatabaseModule();
 
     if (!isDatabaseSupported) {
       return newState;
@@ -139,6 +142,7 @@ const persistWhitelist = [
 const rootKey = 'root';
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
+  const databaseModule = await getDatabaseModule();
   const isSupported = await databaseModule.isDatabaseSupported();
   if (!isSupported) {
     return undefined;
