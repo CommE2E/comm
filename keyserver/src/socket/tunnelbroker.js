@@ -3,6 +3,7 @@
 import WebSocket from 'ws';
 
 import {
+  refreshKeysTBMessageValidator,
   type TBKeyserverConnectionInitializationMessage,
   type TBMessage,
   tunnelbrokerMessageTypes,
@@ -28,7 +29,11 @@ async function createAndMaintainTunnelbrokerWebsocket(
 }
 
 function handleTBMessageEvent(event: ArrayBuffer): Promise<void> {
-  const message: TBMessage = JSON.parse(event.toString());
+  const rawMessage = JSON.parse(event.toString());
+  if (!refreshKeysTBMessageValidator.is(rawMessage)) {
+    throw new ServerError('unsupported_tunnelbroker_message');
+  }
+  const message: TBMessage = rawMessage;
 
   if (message.type === tunnelbrokerMessageTypes.REFRESH_KEYS_REQUEST) {
     return uploadNewOneTimeKeys(message.numberOfKeys);
