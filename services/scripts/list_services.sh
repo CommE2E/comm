@@ -9,7 +9,6 @@ find . -maxdepth 1 \
   ! -name "scripts" \
   ! -name "node_modules" \
   ! -name "commtest" \
-  ! -name "lib" \
   ! -name "terraform" \
   ! -name "comm-services-lib" \
   ! -name ".*" \
