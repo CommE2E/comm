@@ -79,9 +79,9 @@ function openTunnelbrokerConnection(
       const message: TBKeyserverConnectionInitializationMessage = {
         type: 'sessionRequest',
         accessToken,
-        deviceId: deviceID,
+        deviceID,
         deviceType: 'keyserver',
-        userId: userID,
+        userID,
       };
 
       tunnelbrokerSocket.send(JSON.stringify(message));

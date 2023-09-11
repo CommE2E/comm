@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub struct RefreshKeyRequest {
+  #[serde(rename = "deviceID")]
   pub device_id: String,
   pub number_of_keys: u32,
 }
@@ -17,7 +18,7 @@ mod key_tests {
   fn test_refresh_deserialization() {
     let example_payload = r#"{
       "type": "RefreshKeyRequest",
-      "deviceId": "adfjEDFS",
+      "deviceID": "adfjEDFS",
       "numberOfKeys": 6
     }"#;
 
