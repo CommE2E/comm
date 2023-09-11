@@ -122,17 +122,13 @@ type Props = {
   +setThreadsSearchResults: SetState<Set<string>>,
   +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
   +setUsersSearchResults: SetState<$ReadOnlyArray<GlobalAccountUserInfo>>,
-};
-type State = {
-  +openedSwipeableId: string,
+  +openedSwipeableID: string,
+  +setOpenedSwipeableID: SetState<string>,
   +numItemsToDisplay: number,
+  +setNumItemsToDisplay: SetState<number>,
 };
-type PropsAndState = { ...Props, ...State };
-class ChatThreadList extends React.PureComponent<Props, State> {
-  state: State = {
-    openedSwipeableId: '',
-    numItemsToDisplay: 25,
-  };
+
+class ChatThreadList extends React.PureComponent<Props> {
   searchInput: ?React.ElementRef<typeof TextInput>;
   flatList: ?FlatList<Item>;
   scrollPos = 0;
@@ -157,7 +153,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     this.clearNavigationBlurListener = this.props.navigation.addListener(
       'blur',
       () => {
-        this.setState({ numItemsToDisplay: 25 });
+        this.props.setNumItemsToDisplay(25);
       },
     );
 
@@ -332,7 +328,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         onPressItem={this.onPressItem}
         onPressSeeMoreSidebars={this.onPressSeeMoreSidebars}
         onSwipeableWillOpen={this.onSwipeableWillOpen}
-        currentlyOpenedSwipeableId={this.state.openedSwipeableId}
+        currentlyOpenedSwipeableId={this.props.openedSwipeableID}
       />
     );
   };
@@ -384,14 +380,14 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   }
 
   listDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.chatListData,
-    (propsAndState: PropsAndState) => propsAndState.searchStatus,
-    (propsAndState: PropsAndState) => propsAndState.searchText,
-    (propsAndState: PropsAndState) => propsAndState.threadsSearchResults,
-    (propsAndState: PropsAndState) => propsAndState.emptyItem,
-    (propsAndState: PropsAndState) => propsAndState.usersSearchResults,
-    (propsAndState: PropsAndState) => propsAndState.filterThreads,
-    (propsAndState: PropsAndState) => propsAndState.loggedInUserInfo,
+    (props: Props) => props.chatListData,
+    (props: Props) => props.searchStatus,
+    (props: Props) => props.searchText,
+    (props: Props) => props.threadsSearchResults,
+    (props: Props) => props.emptyItem,
+    (props: Props) => props.usersSearchResults,
+    (props: Props) => props.filterThreads,
+    (props: Props) => props.loggedInUserInfo,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchStatus: SearchStatus,
@@ -427,7 +423,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   partialListDataSelector = createSelector(
     this.listDataSelector,
-    (propsAndState: PropsAndState) => propsAndState.numItemsToDisplay,
+    (props: Props) => props.numItemsToDisplay,
     (items: $ReadOnlyArray<Item>, numItemsToDisplay: number) =>
       items.slice(0, numItemsToDisplay),
   );
@@ -444,9 +440,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (this.listData.length === this.fullListData.length) {
       return;
     }
-    this.setState(prevState => ({
-      numItemsToDisplay: prevState.numItemsToDisplay + 25,
-    }));
+    this.props.setNumItemsToDisplay(prevNumItems => prevNumItems + 25);
   };
 
   render() {
@@ -471,7 +465,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     // viewerID is in extraData since it's used by MessagePreview
     // within ChatThreadListItem
     const viewerID = this.props.loggedInUserInfo?.id;
-    const extraData = `${viewerID || ''} ${this.state.openedSwipeableId}`;
+    const extraData = `${viewerID || ''} ${this.props.openedSwipeableID}`;
     return (
       <View style={this.props.styles.container}>
         {fixedSearch}
@@ -528,9 +522,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     const results = this.props.threadSearchIndex.getSearchResults(searchText);
     this.props.setSearchText(searchText);
     this.props.setThreadsSearchResults(new Set(results));
-    this.setState({
-      numItemsToDisplay: 25,
-    });
+    this.props.setNumItemsToDisplay(25);
     const usersSearchResults = await this.searchUsers(searchText);
     this.props.setUsersSearchResults(usersSearchResults);
   };
@@ -558,7 +550,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   onSwipeableWillOpen = (threadInfo: ThreadInfo) => {
-    this.setState(state => ({ ...state, openedSwipeableId: threadInfo.id }));
+    this.props.setOpenedSwipeableID(threadInfo.id);
   };
 
   composeThread = () => {
@@ -641,6 +633,9 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     $ReadOnlyArray<GlobalAccountUserInfo>,
   >([]);
 
+  const [openedSwipeableID, setOpenedSwipeableID] = React.useState<string>('');
+  const [numItemsToDisplay, setNumItemsToDisplay] = React.useState<number>(25);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -663,6 +658,10 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       setThreadsSearchResults={setThreadsSearchResults}
       usersSearchResults={usersSearchResults}
       setUsersSearchResults={setUsersSearchResults}
+      openedSwipeableID={openedSwipeableID}
+      setOpenedSwipeableID={setOpenedSwipeableID}
+      numItemsToDisplay={numItemsToDisplay}
+      setNumItemsToDisplay={setNumItemsToDisplay}
     />
   );
 }
