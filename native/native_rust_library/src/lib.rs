@@ -211,7 +211,9 @@ struct PasswordUserInfo {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct UserIDAndDeviceAccessToken {
+  #[serde(rename = "userID")]
   user_id: String,
   access_token: String,
 }
