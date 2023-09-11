@@ -18,6 +18,7 @@ import { values } from 'lib/utils/objects.js';
 
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { fetchIdentityInfo } from '../user/identity.js';
+import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 
 type PickledOlmAccount = {
   +picklingKey: string,
@@ -108,12 +109,6 @@ function validateAccountPrekey(account: OlmAccount) {
   }
 }
 
-function getOneTimeKeyValues(keyBlob: string): $ReadOnlyArray<string> {
-  const content: OLMOneTimeKeys = JSON.parse(keyBlob);
-  const keys: $ReadOnlyArray<string> = values(content.curve25519);
-  return keys;
-}
-
 async function uploadNewOneTimeKeys(numberOfKeys: number) {
   const [rustAPI, identityInfo] = await Promise.all([
     getRustAPI(),
@@ -126,7 +121,7 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
 
   await fetchCallUpdateOlmAccount('content', (contentAccount: OlmAccount) => {
     contentAccount.generate_one_time_keys(numberOfKeys);
-    const contentOneTimeKeys = getOneTimeKeyValues(
+    const contentOneTimeKeys = getOneTimeKeyValuesFromBlob(
       contentAccount.one_time_keys(),
     );
     const deviceID = JSON.parse(contentAccount.identity_keys()).curve25519;
@@ -135,7 +130,7 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
       'notifications',
       async (notifAccount: OlmAccount) => {
         notifAccount.generate_one_time_keys(numberOfKeys);
-        const notifOneTimeKeys = getOneTimeKeyValues(
+        const notifOneTimeKeys = getOneTimeKeyValuesFromBlob(
           notifAccount.one_time_keys(),
         );
         await rustAPI.uploadOneTimeKeys(
@@ -160,6 +155,5 @@ export {
   unpickleOlmAccount,
   unpickleOlmSession,
   validateAccountPrekey,
-  getOneTimeKeyValues,
   uploadNewOneTimeKeys,
 };
