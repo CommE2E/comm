@@ -32,8 +32,10 @@ pub enum DeviceTypes {
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub struct ConnectionInitializationMessage {
+  #[serde(rename = "deviceID")]
   pub device_id: String,
   pub access_token: String,
+  #[serde(rename = "userID")]
   pub user_id: String,
   pub notify_token: Option<String>,
   pub device_type: DeviceTypes,
@@ -55,8 +57,8 @@ mod session_tests {
     let example_payload = r#"{
       "type": "sessionRequest",
       "accessToken": "xkdeifjsld",
-      "deviceId": "foo",
-      "userId": "alice",
+      "deviceID": "foo",
+      "userID": "alice",
       "deviceType": "keyserver"
     }"#;
 

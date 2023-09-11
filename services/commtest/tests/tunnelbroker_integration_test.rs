@@ -19,8 +19,8 @@ async fn send_refresh_request() {
   let session_request = r#"{
       "type": "sessionRequest",
       "accessToken": "xkdeifjsld",
-      "deviceId": "foo",
-      "userId": "alice",
+      "deviceID": "foo",
+      "userID": "alice",
       "deviceType": "keyserver"
     }"#;
 
@@ -101,7 +101,7 @@ async fn presist_messages() {
   let session_request = r#"{
       "type": "sessionRequest",
       "accessToken": "xkdexfjsld",
-      "deviceId": "bar",
+      "deviceID": "bar",
       "deviceType": "keyserver"
     }"#;
 
