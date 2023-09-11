@@ -125,12 +125,12 @@ type Props = {
     usernamePrefix: string,
   ) => Promise<$ReadOnlyArray<GlobalAccountUserInfo>>,
   +onChangeSearchText: (searchText: string) => Promise<void>,
+  +scrollPos: { current: number },
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
   searchInput: ?React.ElementRef<typeof TextInput>;
   flatList: ?FlatList<Item>;
-  scrollPos = 0;
   clearNavigationBlurListener: ?() => mixed;
 
   constructor(props: Props) {
@@ -219,7 +219,7 @@ class ChatThreadList extends React.PureComponent<Props> {
     if (!this.props.navigation.isFocused()) {
       return;
     }
-    if (this.scrollPos > 0 && this.flatList) {
+    if (this.props.scrollPos.current > 0 && this.flatList) {
       this.flatList.scrollToOffset({ offset: 0, animated: true });
     } else if (this.props.route.name === BackgroundChatThreadListRouteName) {
       this.props.navigation.navigate({ name: HomeChatThreadListRouteName });
@@ -230,7 +230,7 @@ class ChatThreadList extends React.PureComponent<Props> {
     if (this.props.searchStatus !== 'inactive') {
       return;
     }
-    if (this.scrollPos === 0) {
+    if (this.props.scrollPos.current === 0) {
       this.props.setSearchStatus('active');
     } else {
       this.props.setSearchStatus('activating');
@@ -437,9 +437,9 @@ class ChatThreadList extends React.PureComponent<Props> {
   };
 
   onScroll = (event: ScrollEvent) => {
-    const oldScrollPos = this.scrollPos;
-    this.scrollPos = event.nativeEvent.contentOffset.y;
-    if (this.scrollPos !== 0 || oldScrollPos === 0) {
+    const oldScrollPos = this.props.scrollPos.current;
+    this.props.scrollPos.current = event.nativeEvent.contentOffset.y;
+    if (this.props.scrollPos.current !== 0 || oldScrollPos === 0) {
       return;
     }
     if (this.props.searchStatus === 'activating') {
@@ -598,6 +598,8 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     [searchUsers, threadSearchIndex],
   );
 
+  const scrollPos = React.useRef(0);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -628,6 +630,7 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       searchCancelButtonOffset={searchCancelButtonOffset}
       searchUsers={searchUsers}
       onChangeSearchText={onChangeSearchText}
+      scrollPos={scrollPos}
     />
   );
 }
