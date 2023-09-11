@@ -2,7 +2,6 @@
 
 import IonIcon from '@expo/vector-icons/Ionicons.js';
 import invariant from 'invariant';
-import _sum from 'lodash/fp/sum.js';
 import * as React from 'react';
 import {
   View,
@@ -39,11 +38,8 @@ import type {
 } from 'lib/types/user-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
-import {
-  ChatThreadListItem,
-  chatThreadListItemHeight,
-  spacerHeight,
-} from './chat-thread-list-item.react.js';
+import { ChatThreadListItem } from './chat-thread-list-item.react.js';
+import { getItemLayout, keyExtractor } from './chat-thread-list-utils.js';
 import type {
   ChatTopTabsNavigationProp,
   ChatNavigationProp,
@@ -52,7 +48,6 @@ import {
   type MessageListParams,
   useNavigateToThread,
 } from './message-list-types.js';
-import { sidebarHeight } from './sidebar-item.react.js';
 import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import {
@@ -85,7 +80,7 @@ const floatingActions = [
 const { Value, Node, interpolateNode, useValue } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Item =
+export type Item =
   | ChatThreadItem
   | { +type: 'search', +searchText: string }
   | { +type: 'empty', +emptyItem: React.ComponentType<{}> };
@@ -326,52 +321,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     );
   };
 
-  static keyExtractor = (item: Item) => {
-    if (item.type === 'chatThreadItem') {
-      return item.threadInfo.id;
-    } else if (item.type === 'empty') {
-      return 'empty';
-    } else {
-      return 'search';
-    }
-  };
-
-  static getItemLayout = (data: ?$ReadOnlyArray<Item>, index: number) => {
-    if (!data) {
-      return { length: 0, offset: 0, index };
-    }
-    const offset = ChatThreadList.heightOfItems(
-      data.filter((_, i) => i < index),
-    );
-    const item = data[index];
-    const length = item ? ChatThreadList.itemHeight(item) : 0;
-    return { length, offset, index };
-  };
-
-  static itemHeight = (item: Item) => {
-    if (item.type === 'search') {
-      return Platform.OS === 'ios' ? 54.5 : 55;
-    }
-
-    // itemHeight for emptyItem might be wrong because of line wrapping
-    // but we don't care because we'll only ever be rendering this item
-    // by itself and it should always be on-screen
-    if (item.type === 'empty') {
-      return 123;
-    }
-
-    let height = chatThreadListItemHeight;
-    height += item.sidebars.length * sidebarHeight;
-    if (item.sidebars.length > 0) {
-      height += spacerHeight;
-    }
-    return height;
-  };
-
-  static heightOfItems(data: $ReadOnlyArray<Item>): number {
-    return _sum(data.map(ChatThreadList.itemHeight));
-  }
-
   listDataSelector = createSelector(
     (props: Props) => props.chatListData,
     (props: Props) => props.searchStatus,
@@ -465,8 +414,8 @@ class ChatThreadList extends React.PureComponent<Props> {
         <FlatList
           data={this.listData}
           renderItem={this.renderItem}
-          keyExtractor={ChatThreadList.keyExtractor}
-          getItemLayout={ChatThreadList.getItemLayout}
+          keyExtractor={keyExtractor}
+          getItemLayout={getItemLayout}
           extraData={extraData}
           initialNumToRender={11}
           keyboardShouldPersistTaps="handled"
