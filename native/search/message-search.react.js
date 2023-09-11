@@ -7,7 +7,10 @@ import { FlatList } from 'react-native-gesture-handler';
 
 import { messageListData } from 'lib/selectors/chat-selectors.js';
 import { createMessageInfo } from 'lib/shared/message-utils.js';
-import { useSearchMessages } from 'lib/shared/search-utils.js';
+import {
+  useSearchMessages,
+  filterChatMessageInfosForSearch,
+} from 'lib/shared/search-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -98,35 +101,14 @@ function MessageSearch(props: MessageSearchProps): React.Node {
   );
 
   const filteredChatMessageInfos = React.useMemo(() => {
-    if (!chatMessageInfos) {
-      return null;
-    }
-
-    const idSet = new Set(translatedSearchResults.map(item => item.id));
-
-    const chatMessageInfoItems = chatMessageInfos.filter(
-      item => item.messageInfo && idSet.has(item.messageInfo.id),
+    const result = filterChatMessageInfosForSearch(
+      chatMessageInfos,
+      translatedSearchResults,
     );
-
-    const uniqueChatMessageInfoItemsMap = new Map();
-    chatMessageInfoItems.forEach(
-      item =>
-        item.messageInfo &&
-        item.messageInfo.id &&
-        uniqueChatMessageInfoItemsMap.set(item.messageInfo.id, item),
-    );
-
-    const sortedChatMessageInfoItems = [];
-    for (let i = 0; i < translatedSearchResults.length; i++) {
-      sortedChatMessageInfoItems.push(
-        uniqueChatMessageInfoItemsMap.get(translatedSearchResults[i].id),
-      );
+    if (result && !endReached) {
+      return [...result, { itemType: 'loader' }];
     }
-    if (!endReached) {
-      sortedChatMessageInfoItems.push({ itemType: 'loader' });
-    }
-
-    return sortedChatMessageInfoItems.filter(Boolean);
+    return result;
   }, [chatMessageInfos, endReached, translatedSearchResults]);
 
   const [measuredMessages, setMeasuredMessages] = React.useState([]);
