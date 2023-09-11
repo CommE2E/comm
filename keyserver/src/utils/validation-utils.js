@@ -31,9 +31,8 @@ async function validateInput<T>(
   viewer: Viewer,
   inputValidator: TType<T>,
   input: mixed,
-  ignoreViewerVersion?: boolean,
 ): Promise<T> {
-  if (!ignoreViewerVersion && !viewer.isSocket) {
+  if (!viewer.isSocket) {
     await checkClientSupported(viewer, inputValidator, input);
   }
   const convertedInput = checkInputValidator(inputValidator, input);
@@ -42,8 +41,7 @@ async function validateInput<T>(
     hasMinStateVersion(viewer.platformDetails, {
       native: 43,
       web: 3,
-    }) ||
-    ignoreViewerVersion
+    })
   ) {
     try {
       return convertClientIDsToServerIDs(
@@ -63,7 +61,6 @@ function validateOutput<T>(
   platformDetails: ?PlatformDetails,
   outputValidator: TType<T>,
   data: T,
-  alwaysConvertSchema?: boolean,
 ): T {
   if (!outputValidator.is(data)) {
     console.trace(
@@ -77,8 +74,7 @@ function validateOutput<T>(
     hasMinStateVersion(platformDetails, {
       native: 43,
       web: 3,
-    }) ||
-    alwaysConvertSchema
+    })
   ) {
     return convertServerIDsToClientIDs(
       ashoatKeyserverID,
