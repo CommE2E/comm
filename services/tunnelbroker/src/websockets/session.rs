@@ -7,10 +7,13 @@ use lapin::options::{BasicConsumeOptions, QueueDeclareOptions};
 use lapin::types::FieldTable;
 use tokio::net::TcpStream;
 use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
+use tracing::info;
 use tracing::{debug, error};
 use tunnelbroker_messages::{session::DeviceTypes, Messages};
 
 use crate::database::{self, DatabaseClient, DeviceMessage};
+use crate::error::Error;
+use crate::identity;
 
 pub struct DeviceInfo {
   pub device_id: String,
@@ -28,12 +31,16 @@ pub struct WebsocketSession {
   amqp_consumer: lapin::Consumer,
 }
 
-#[derive(Debug, derive_more::Display, derive_more::From)]
+#[derive(
+  Debug, derive_more::Display, derive_more::From, derive_more::Error,
+)]
 pub enum SessionError {
   InvalidMessage,
   SerializationError(serde_json::Error),
   MessageError(database::MessageErrors),
   AmqpError(lapin::Error),
+  InternalError,
+  UnauthorizedDevice,
 }
 
 pub fn consume_error<T>(result: Result<T, SessionError>) {
@@ -43,9 +50,9 @@ pub fn consume_error<T>(result: Result<T, SessionError>) {
 }
 
 // Parse a session request and retrieve the device information
-pub fn handle_first_message_from_device(
+pub async fn handle_first_message_from_device(
   message: &str,
-) -> Result<DeviceInfo, SessionError> {
+) -> Result<DeviceInfo, Error> {
   let serialized_message = serde_json::from_str::<Messages>(message)?;
 
   match serialized_message {
@@ -58,11 +65,37 @@ pub fn handle_first_message_from_device(
         device_os: session_info.device_os.take(),
       };
 
+      // Authenticate device
+      debug!("Authenticating device: {}", &session_info.device_id);
+      let auth_request = identity::verify_user_access_token(
+        &session_info.user_id,
+        &device_info.device_id,
+        &session_info.access_token,
+      )
+      .await;
+
+      match auth_request {
+        Err(e) => {
+          debug!("Failed to complete request to identity service: {:?}", e);
+          return Err(SessionError::InternalError.into());
+        }
+        Ok(false) => {
+          info!("Device failed authentication: {}", &session_info.device_id);
+          return Err(SessionError::UnauthorizedDevice.into());
+        }
+        Ok(true) => {
+          debug!(
+            "Successfully authenticated device: {}",
+            &session_info.device_id
+          );
+        }
+      }
+
       return Ok(device_info);
     }
     _ => {
       debug!("Received invalid request");
-      return Err(SessionError::InvalidMessage);
+      return Err(SessionError::InvalidMessage.into());
     }
   }
 }
@@ -73,12 +106,14 @@ impl WebsocketSession {
     db_client: DatabaseClient,
     frame: Message,
     amqp_channel: &lapin::Channel,
-  ) -> Result<WebsocketSession, SessionError> {
+  ) -> Result<WebsocketSession, Error> {
     let device_info = match frame {
-      Message::Text(payload) => handle_first_message_from_device(&payload)?,
+      Message::Text(payload) => {
+        handle_first_message_from_device(&payload).await?
+      }
       _ => {
         error!("Client sent wrong frame type for establishing connection");
-        return Err(SessionError::InvalidMessage);
+        return Err(SessionError::InvalidMessage.into());
       }
     };
 
