@@ -143,15 +143,16 @@ function MessageSearchStateProvider(props: Props): React.Node {
       }
       queryIDRef.current += 1;
       loading.current = true;
+      const query = getQuery(threadID);
       searchMessagesCall(
-        queries.current[threadID],
+        query,
         threadID,
         appendResults,
         queryIDRef.current,
         lastIDs.current[threadID],
       );
     },
-    [appendResults, endsReached, searchMessagesCall],
+    [appendResults, getQuery, searchMessagesCall],
   );
 
   const state = React.useMemo(
