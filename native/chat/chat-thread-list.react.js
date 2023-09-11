@@ -83,7 +83,7 @@ const floatingActions = [
 ];
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, Node, interpolateNode } = Animated;
+const { Value, Node, interpolateNode, useValue } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Item =
@@ -126,6 +126,9 @@ type Props = {
   +setOpenedSwipeableID: SetState<string>,
   +numItemsToDisplay: number,
   +setNumItemsToDisplay: SetState<number>,
+  +searchCancelButtonOpen: Value,
+  +searchCancelButtonProgress: Node,
+  +searchCancelButtonOffset: Node,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -133,20 +136,9 @@ class ChatThreadList extends React.PureComponent<Props> {
   flatList: ?FlatList<Item>;
   scrollPos = 0;
   clearNavigationBlurListener: ?() => mixed;
-  searchCancelButtonOpen: Value = new Value(0);
-  searchCancelButtonProgress: Node;
-  searchCancelButtonOffset: Node;
 
   constructor(props: Props) {
     super(props);
-    this.searchCancelButtonProgress = animateTowards(
-      this.searchCancelButtonOpen,
-      100,
-    );
-    this.searchCancelButtonOffset = interpolateNode(
-      this.searchCancelButtonProgress,
-      { inputRange: [0, 1], outputRange: [0, 56] },
-    );
   }
 
   componentDidMount() {
@@ -207,9 +199,9 @@ class ChatThreadList extends React.PureComponent<Props> {
     const wasActiveOrActivating =
       prevSearchStatus === 'active' || prevSearchStatus === 'activating';
     if (isActiveOrActivating && !wasActiveOrActivating) {
-      this.searchCancelButtonOpen.setValue(1);
+      this.props.searchCancelButtonOpen.setValue(1);
     } else if (!isActiveOrActivating && wasActiveOrActivating) {
-      this.searchCancelButtonOpen.setValue(0);
+      this.props.searchCancelButtonOpen.setValue(0);
     }
 
     const { flatList } = this;
@@ -269,7 +261,7 @@ class ChatThreadList extends React.PureComponent<Props> {
 
   renderSearch(additionalProps?: $Shape<React.ElementConfig<typeof Search>>) {
     const animatedSearchBoxStyle: AnimatedStyleObj = {
-      marginRight: this.searchCancelButtonOffset,
+      marginRight: this.props.searchCancelButtonOffset,
     };
     const searchBoxStyle = [
       this.props.styles.searchBox,
@@ -277,7 +269,7 @@ class ChatThreadList extends React.PureComponent<Props> {
     ];
     const buttonStyle = [
       this.props.styles.cancelSearchButtonText,
-      { opacity: this.searchCancelButtonProgress },
+      { opacity: this.props.searchCancelButtonProgress },
     ];
     return (
       <View style={this.props.styles.searchContainer}>
@@ -636,6 +628,20 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
   const [openedSwipeableID, setOpenedSwipeableID] = React.useState<string>('');
   const [numItemsToDisplay, setNumItemsToDisplay] = React.useState<number>(25);
 
+  const searchCancelButtonOpen: Value = useValue(0);
+  const searchCancelButtonProgress: Node = React.useMemo(
+    () => animateTowards(searchCancelButtonOpen, 100),
+    [searchCancelButtonOpen],
+  );
+  const searchCancelButtonOffset: Node = React.useMemo(
+    () =>
+      interpolateNode(searchCancelButtonProgress, {
+        inputRange: [0, 1],
+        outputRange: [0, 56],
+      }),
+    [searchCancelButtonProgress],
+  );
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -662,6 +668,9 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       setOpenedSwipeableID={setOpenedSwipeableID}
       numItemsToDisplay={numItemsToDisplay}
       setNumItemsToDisplay={setNumItemsToDisplay}
+      searchCancelButtonOpen={searchCancelButtonOpen}
+      searchCancelButtonProgress={searchCancelButtonProgress}
+      searchCancelButtonOffset={searchCancelButtonOffset}
     />
   );
 }
