@@ -13,16 +13,25 @@ export type IdentityInfo = { +userId: string, +accessToken: string };
 
 async function fetchIdentityInfo(): Promise<?IdentityInfo> {
   const versionQuery = SQL`
-    SELECT data
+    SELECT name, data
     FROM metadata
     WHERE name IN (${userIDMetadataKey}, ${accessTokenMetadataKey})
   `;
 
-  const [[userID, accessToken]] = await dbQuery(versionQuery);
+  const [result] = await dbQuery(versionQuery);
+  let userID, accessToken;
+  for (const row of result) {
+    if (row.name === userIDMetadataKey) {
+      userID = row.data;
+    } else if (row.name === accessTokenMetadataKey) {
+      accessToken = row.data;
+    }
+  }
+
   if (!userID || !accessToken) {
     return null;
   }
-  return { userId: userID.data, accessToken: accessToken.data };
+  return { userId: userID, accessToken };
 }
 
 function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
