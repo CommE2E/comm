@@ -3,6 +3,7 @@
 import type { Account as OlmAccount } from '@commapp/olm';
 import { getRustAPI } from 'rust-node-addon';
 
+import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -14,10 +15,7 @@ import {
 } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import {
-  getOneTimeKeyValues,
-  validateAccountPrekey,
-} from '../utils/olm-utils.js';
+import { validateAccountPrekey } from '../utils/olm-utils.js';
 
 type UserCredentials = { +username: string, +password: string };
 
@@ -25,7 +23,7 @@ export type AccountKeysSet = {
   +identityKeys: string,
   +prekey: string,
   +prekeySignature: string,
-  +oneTimeKey: $ReadOnlyArray<string>,
+  +oneTimeKeys: $ReadOnlyArray<string>,
 };
 
 function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
@@ -40,13 +38,14 @@ function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
     throw new ServerError('invalid_prekey');
   }
 
-  if (getOneTimeKeyValues(account.one_time_keys()).length < 10) {
+  let oneTimeKeys = getOneTimeKeyValuesFromBlob(account.one_time_keys());
+
+  if (oneTimeKeys.length < 10) {
     account.generate_one_time_keys(10);
+    oneTimeKeys = getOneTimeKeyValuesFromBlob(account.one_time_keys());
   }
 
-  const oneTimeKey = getOneTimeKeyValues(account.one_time_keys());
-
-  return { identityKeys, oneTimeKey, prekey, prekeySignature };
+  return { identityKeys, oneTimeKeys, prekey, prekeySignature };
 }
 
 // After register or login is successful
@@ -83,13 +82,13 @@ async function registerOrLogin(): Promise<IdentityInfo> {
     identityKeys: notificationsIdentityKeys,
     prekey: notificationsPrekey,
     prekeySignature: notificationsPrekeySignature,
-    oneTimeKey: notificationsOneTimeKey,
+    oneTimeKeys: notificationsOneTimeKeys,
   } = await fetchCallUpdateOlmAccount('notifications', retrieveAccountKeysSet);
 
   const contentAccountCallback = async (account: OlmAccount) => {
     const {
       identityKeys: contentIdentityKeys,
-      oneTimeKey,
+      oneTimeKeys,
       prekey,
       prekeySignature,
     } = await retrieveAccountKeysSet(account);
@@ -106,7 +105,7 @@ async function registerOrLogin(): Promise<IdentityInfo> {
 
     return {
       signedIdentityKeysBlob,
-      oneTimeKey,
+      oneTimeKeys,
       prekey,
       prekeySignature,
     };
@@ -118,7 +117,7 @@ async function registerOrLogin(): Promise<IdentityInfo> {
       signedIdentityKeysBlob,
       prekey: contentPrekey,
       prekeySignature: contentPrekeySignature,
-      oneTimeKey: contentOneTimeKey,
+      oneTimeKeys: contentOneTimeKeys,
     },
   ] = await Promise.all([
     rustAPIPromise,
@@ -134,8 +133,8 @@ async function registerOrLogin(): Promise<IdentityInfo> {
       contentPrekeySignature,
       notificationsPrekey,
       notificationsPrekeySignature,
-      contentOneTimeKey,
-      notificationsOneTimeKey,
+      contentOneTimeKeys,
+      notificationsOneTimeKeys,
     );
     await Promise.all([
       fetchCallUpdateOlmAccount('content', markKeysAsPublished),
@@ -153,8 +152,8 @@ async function registerOrLogin(): Promise<IdentityInfo> {
         contentPrekeySignature,
         notificationsPrekey,
         notificationsPrekeySignature,
-        contentOneTimeKey,
-        notificationsOneTimeKey,
+        contentOneTimeKeys,
+        notificationsOneTimeKeys,
       );
       await Promise.all([
         fetchCallUpdateOlmAccount('content', markKeysAsPublished),
