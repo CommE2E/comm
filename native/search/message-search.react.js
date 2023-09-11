@@ -105,7 +105,10 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     const idSet = new Set(translatedSearchResults.map(item => item.id));
 
     const chatMessageInfoItems = chatMessageInfos.filter(
-      item => item.messageInfo && idSet.has(item.messageInfo.id),
+      item =>
+        item.messageInfo &&
+        idSet.has(item.messageInfo.id) &&
+        item.messageInfoType === 'composable',
     );
 
     const uniqueChatMessageInfoItemsMap = new Map();
