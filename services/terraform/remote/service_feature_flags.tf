@@ -1,7 +1,7 @@
 locals {
   feature_flags_image_tag      = "0.1"
   feature_flags_container_name = "feature-flags-server"
-  feature_flags_container_port = 50051
+  feature_flags_container_port = 50055
   feature_flags_server_image   = "commapp/feature-flags:${local.feature_flags_image_tag}"
   feature_flags_domain_name    = "feature-flags.${local.root_domain}"
 }
@@ -17,7 +17,7 @@ resource "aws_ecs_task_definition" "feature_flags" {
       essential = true
       portMappings = [
         {
-          name          = "feature-flags-50051-http"
+          name          = "feature-flags-http"
           containerPort = local.feature_flags_container_port
           protocol      = "tcp"
           appProtocol   = "http"
