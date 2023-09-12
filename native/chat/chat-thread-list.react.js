@@ -29,6 +29,7 @@ import {
   createPendingThread,
   getThreadListSearchResults,
 } from 'lib/shared/thread-utils.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import type { UserSearchResult } from 'lib/types/search-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
@@ -100,6 +101,7 @@ type BaseProps = {
   +filterThreads: (threadItem: ThreadInfo) => boolean,
   +emptyItem?: React.ComponentType<{}>,
 };
+type SearchStatus = 'inactive' | 'activating' | 'active';
 type Props = {
   ...BaseProps,
   // Redux state
@@ -112,11 +114,12 @@ type Props = {
   +navigateToThread: (params: MessageListParams) => void,
   // async functions that hit server APIs
   +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
-};
-type SearchStatus = 'inactive' | 'activating' | 'active';
-type State = {
-  +searchStatus: SearchStatus,
   +searchText: string,
+  +setSearchText: SetState<string>,
+  +searchStatus: SearchStatus,
+  +setSearchStatus: SetState<SearchStatus>,
+};
+type State = {
   +threadsSearchResults: Set<string>,
   +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
   +openedSwipeableId: string,
@@ -125,8 +128,6 @@ type State = {
 type PropsAndState = { ...Props, ...State };
 class ChatThreadList extends React.PureComponent<Props, State> {
   state: State = {
-    searchStatus: 'inactive',
-    searchText: '',
     threadsSearchResults: new Set(),
     usersSearchResults: [],
     openedSwipeableId: '',
@@ -190,7 +191,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       return false;
     }
 
-    const { searchStatus } = this.state;
+    const { searchStatus } = this.props;
     const isActiveOrActivating =
       searchStatus === 'active' || searchStatus === 'activating';
     if (!isActiveOrActivating) {
@@ -201,9 +202,9 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     return true;
   };
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    const { searchStatus } = this.state;
-    const prevSearchStatus = prevState.searchStatus;
+  componentDidUpdate(prevProps: Props) {
+    const { searchStatus } = this.props;
+    const prevSearchStatus = prevProps.searchStatus;
 
     const isActiveOrActivating =
       searchStatus === 'active' || searchStatus === 'activating';
@@ -220,7 +221,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       return;
     }
 
-    if (this.state.searchText !== prevState.searchText) {
+    if (this.props.searchText !== prevProps.searchText) {
       flatList.scrollToOffset({ offset: 0, animated: false });
       return;
     }
@@ -242,24 +243,24 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   };
 
   onSearchFocus = () => {
-    if (this.state.searchStatus !== 'inactive') {
+    if (this.props.searchStatus !== 'inactive') {
       return;
     }
     if (this.scrollPos === 0) {
-      this.setState({ searchStatus: 'active' });
+      this.props.setSearchStatus('active');
     } else {
-      this.setState({ searchStatus: 'activating' });
+      this.props.setSearchStatus('activating');
     }
   };
 
   clearSearch() {
     const { flatList } = this;
     flatList && flatList.scrollToOffset({ offset: 0, animated: false });
-    this.setState({ searchStatus: 'inactive' });
+    this.props.setSearchStatus('inactive');
   }
 
   onSearchBlur = () => {
-    if (this.state.searchStatus !== 'active') {
+    if (this.props.searchStatus !== 'active') {
       return;
     }
     this.clearSearch();
@@ -286,7 +287,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       <View style={this.props.styles.searchContainer}>
         <Button
           onPress={this.onSearchCancel}
-          disabled={this.state.searchStatus !== 'active'}
+          disabled={this.props.searchStatus !== 'active'}
           style={this.props.styles.cancelSearchButton}
         >
           {/* eslint-disable react-native/no-raw-text */}
@@ -295,7 +296,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
         </Button>
         <AnimatedView style={searchBoxStyle}>
           <Search
-            searchText={this.state.searchText}
+            searchText={this.props.searchText}
             onChangeText={this.onChangeSearchText}
             containerStyle={this.props.styles.search}
             onBlur={this.onSearchBlur}
@@ -461,7 +462,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       );
     }
     let fixedSearch;
-    const { searchStatus } = this.state;
+    const { searchStatus } = this.props;
     if (searchStatus === 'active') {
       fixedSearch = this.renderSearch({ autoFocus: true });
     }
@@ -505,8 +506,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (this.scrollPos !== 0 || oldScrollPos === 0) {
       return;
     }
-    if (this.state.searchStatus === 'activating') {
-      this.setState({ searchStatus: 'active' });
+    if (this.props.searchStatus === 'activating') {
+      this.props.setSearchStatus('active');
     }
   };
 
@@ -525,8 +526,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
   onChangeSearchText = async (searchText: string) => {
     const results = this.props.threadSearchIndex.getSearchResults(searchText);
+    this.props.setSearchText(searchText);
     this.setState({
-      searchText,
       threadsSearchResults: new Set(results),
       numItemsToDisplay: 25,
     });
@@ -615,33 +616,43 @@ const unboundStyles = {
   },
 };
 
-const ConnectedChatThreadList: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedChatThreadList(props: BaseProps) {
-    const boundChatListData = useFlattenedChatListData();
-    const loggedInUserInfo = useLoggedInUserInfo();
-    const threadSearchIndex = useGlobalThreadSearchIndex();
-    const styles = useStyles(unboundStyles);
-    const indicatorStyle = useSelector(indicatorStyleSelector);
-    const callSearchUsers = useServerCall(searchUsers);
-    const usersWithPersonalThread = useSelector(
-      usersWithPersonalThreadSelector,
-    );
+function ConnectedChatThreadList(props: BaseProps): React.Node {
+  const boundChatListData = useFlattenedChatListData();
+  const loggedInUserInfo = useLoggedInUserInfo();
+  const threadSearchIndex = useGlobalThreadSearchIndex();
+  const styles = useStyles(unboundStyles);
+  const indicatorStyle = useSelector(indicatorStyleSelector);
+  const callSearchUsers = useServerCall(searchUsers);
+  const usersWithPersonalThread = useSelector(usersWithPersonalThreadSelector);
 
-    const navigateToThread = useNavigateToThread();
+  const navigateToThread = useNavigateToThread();
 
-    return (
-      <ChatThreadList
-        {...props}
-        chatListData={boundChatListData}
-        loggedInUserInfo={loggedInUserInfo}
-        threadSearchIndex={threadSearchIndex}
-        styles={styles}
-        indicatorStyle={indicatorStyle}
-        searchUsers={callSearchUsers}
-        usersWithPersonalThread={usersWithPersonalThread}
-        navigateToThread={navigateToThread}
-      />
-    );
-  });
+  const { navigation, route, filterThreads, emptyItem } = props;
+
+  const [searchText, setSearchText] = React.useState<string>('');
+  const [searchStatus, setSearchStatus] =
+    React.useState<SearchStatus>('inactive');
+
+  return (
+    <ChatThreadList
+      navigation={navigation}
+      route={route}
+      filterThreads={filterThreads}
+      emptyItem={emptyItem}
+      chatListData={boundChatListData}
+      loggedInUserInfo={loggedInUserInfo}
+      threadSearchIndex={threadSearchIndex}
+      styles={styles}
+      indicatorStyle={indicatorStyle}
+      searchUsers={callSearchUsers}
+      usersWithPersonalThread={usersWithPersonalThread}
+      navigateToThread={navigateToThread}
+      searchText={searchText}
+      setSearchText={setSearchText}
+      searchStatus={searchStatus}
+      setSearchStatus={setSearchStatus}
+    />
+  );
+}
 
 export default ConnectedChatThreadList;
