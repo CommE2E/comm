@@ -71,7 +71,7 @@ function EditUserAvatarMenu(): React.Node {
   const onImageSelected = React.useCallback(
     async event => {
       const uploadResult = await uploadAvatarMedia(event.target.files[0]);
-      baseSetUserAvatar({ type: 'image', uploadID: uploadResult.id });
+      baseSetUserAvatar(uploadResult);
     },
     [baseSetUserAvatar, uploadAvatarMedia],
   );

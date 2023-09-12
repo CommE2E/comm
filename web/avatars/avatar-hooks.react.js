@@ -2,16 +2,25 @@
 
 import * as React from 'react';
 
-import { uploadMultimedia } from 'lib/actions/upload-actions.js';
-import type { UploadMultimediaResult } from 'lib/types/media-types.js';
+import {
+  uploadMultimedia,
+  blobServiceUpload,
+} from 'lib/actions/upload-actions.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
+import { encryptFile } from '../media/encryption-utils.js';
+import { generateThumbHash } from '../media/image-utils.js';
 import { validateFile } from '../media/media-utils.js';
 
-function useUploadAvatarMedia(): File => Promise<UploadMultimediaResult> {
+// TODO: flip the switch
+const useBlobServiceUploads = false;
+
+function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
   const callUploadMultimedia = useServerCall(uploadMultimedia);
+  const callBlobServiceUpload = useServerCall(blobServiceUpload);
   const uploadAvatarMedia = React.useCallback(
-    async (file: File): Promise<UploadMultimediaResult> => {
+    async file => {
       const validatedFile = await validateFile(file);
       const { result } = validatedFile;
       if (!result.success) {
@@ -22,9 +31,47 @@ function useUploadAvatarMedia(): File => Promise<UploadMultimediaResult> {
         ...dimensions,
         loop: false,
       };
-      return await callUploadMultimedia(fixedFile, uploadExtras);
+      if (!useBlobServiceUploads) {
+        const { id } = await callUploadMultimedia(fixedFile, uploadExtras);
+        return { type: 'image', uploadID: id };
+      }
+      const encryptionResponse = await encryptFile(fixedFile);
+      const { result: encryptionResult } = encryptionResponse;
+      if (!encryptionResult.success) {
+        throw new Error('Avatar media encryption failed.');
+      }
+      const {
+        file: encryptedFile,
+        sha256Hash: blobHash,
+        encryptionKey,
+      } = encryptionResult;
+
+      const { result: thumbHashResult } = await generateThumbHash(
+        fixedFile,
+        encryptionResult?.encryptionKey,
+      );
+      const thumbHash = thumbHashResult.success
+        ? thumbHashResult.thumbHash
+        : null;
+
+      const { id } = await callBlobServiceUpload({
+        input: {
+          blobData: {
+            type: 'file',
+            file: encryptedFile,
+          },
+          blobHash,
+          encryptionKey,
+          dimensions,
+          loop: false,
+          thumbHash,
+        },
+        callbacks: {},
+      });
+
+      return { type: 'encrypted-image', uploadID: id };
     },
-    [callUploadMultimedia],
+    [callBlobServiceUpload, callUploadMultimedia],
   );
   return uploadAvatarMedia;
 }

@@ -59,10 +59,7 @@ function EditThreadAvatarMenu(props: Props): React.Node {
   const onImageSelected = React.useCallback(
     async event => {
       const uploadResult = await uploadAvatarMedia(event.target.files[0]);
-      baseSetThreadAvatar(threadInfo.id, {
-        type: 'image',
-        uploadID: uploadResult.id,
-      });
+      baseSetThreadAvatar(threadInfo.id, uploadResult);
     },
     [baseSetThreadAvatar, threadInfo.id, uploadAvatarMedia],
   );
