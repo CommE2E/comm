@@ -4,9 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as React from 'react';
 import { Platform } from 'react-native';
 
+import { useIsCurrentUserStaff } from 'lib/shared/staff-utils.js';
 import { fetchFeatureFlags } from 'lib/utils/feature-flags-utils.js';
 import sleep from 'lib/utils/sleep.js';
-import { useIsCurrentUserStaff } from 'native/utils/staff-utils.js';
 
 import { codeVersion } from '../redux/persist.js';
 
