@@ -7,6 +7,7 @@ use futures_util::stream::SplitSink;
 use futures_util::StreamExt;
 use std::net::SocketAddr;
 use std::{env, io::Error};
+use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::WebSocketStream;
@@ -106,12 +107,12 @@ async fn accept_connection(
   session.close().await
 }
 
-async fn initiate_session(
-  outgoing: SplitSink<WebSocketStream<TcpStream>, Message>,
+async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
+  outgoing: SplitSink<WebSocketStream<S>, Message>,
   frame: Message,
   db_client: DatabaseClient,
   amqp_channel: lapin::Channel,
-) -> Result<WebsocketSession, session::SessionError> {
+) -> Result<WebsocketSession<S>, session::SessionError> {
   let mut session = session::WebsocketSession::from_frame(
     outgoing,
     db_client.clone(),
