@@ -34,4 +34,7 @@ const unboundStyles = {
   },
 };
 
-export default BottomSheetHandle;
+const MemoizedBottomSheetHandle: React.ComponentType<{}> =
+  React.memo(BottomSheetHandle);
+
+export default MemoizedBottomSheetHandle;
