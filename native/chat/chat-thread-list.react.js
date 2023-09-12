@@ -126,6 +126,7 @@ type Props = {
   ) => Promise<$ReadOnlyArray<GlobalAccountUserInfo>>,
   +onChangeSearchText: (searchText: string) => Promise<void>,
   +scrollPos: { current: number },
+  +onScroll: (event: ScrollEvent) => void,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -419,7 +420,7 @@ class ChatThreadList extends React.PureComponent<Props> {
           extraData={extraData}
           initialNumToRender={11}
           keyboardShouldPersistTaps="handled"
-          onScroll={this.onScroll}
+          onScroll={this.props.onScroll}
           style={this.props.styles.flatList}
           indicatorStyle={this.props.indicatorStyle}
           scrollEnabled={scrollEnabled}
@@ -434,17 +435,6 @@ class ChatThreadList extends React.PureComponent<Props> {
 
   flatListRef = (flatList: ?FlatList<Item>) => {
     this.flatList = flatList;
-  };
-
-  onScroll = (event: ScrollEvent) => {
-    const oldScrollPos = this.props.scrollPos.current;
-    this.props.scrollPos.current = event.nativeEvent.contentOffset.y;
-    if (this.props.scrollPos.current !== 0 || oldScrollPos === 0) {
-      return;
-    }
-    if (this.props.searchStatus === 'activating') {
-      this.props.setSearchStatus('active');
-    }
   };
 
   onPressItem = (
@@ -600,6 +590,20 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
 
   const scrollPos = React.useRef(0);
 
+  const onScroll = React.useCallback(
+    (event: ScrollEvent) => {
+      const oldScrollPos = scrollPos.current;
+      scrollPos.current = event.nativeEvent.contentOffset.y;
+      if (scrollPos.current !== 0 || oldScrollPos === 0) {
+        return;
+      }
+      if (searchStatus === 'activating') {
+        setSearchStatus('active');
+      }
+    },
+    [searchStatus],
+  );
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -631,6 +635,7 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       searchUsers={searchUsers}
       onChangeSearchText={onChangeSearchText}
       scrollPos={scrollPos}
+      onScroll={onScroll}
     />
   );
 }
