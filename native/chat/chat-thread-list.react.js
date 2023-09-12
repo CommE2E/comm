@@ -118,18 +118,18 @@ type Props = {
   +setSearchText: SetState<string>,
   +searchStatus: SearchStatus,
   +setSearchStatus: SetState<SearchStatus>,
+  +threadsSearchResults: Set<string>,
+  +setThreadsSearchResults: SetState<Set<string>>,
+  +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
+  +setUsersSearchResults: SetState<$ReadOnlyArray<GlobalAccountUserInfo>>,
 };
 type State = {
-  +threadsSearchResults: Set<string>,
-  +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
   +openedSwipeableId: string,
   +numItemsToDisplay: number,
 };
 type PropsAndState = { ...Props, ...State };
 class ChatThreadList extends React.PureComponent<Props, State> {
   state: State = {
-    threadsSearchResults: new Set(),
-    usersSearchResults: [],
     openedSwipeableId: '',
     numItemsToDisplay: 25,
   };
@@ -527,12 +527,12 @@ class ChatThreadList extends React.PureComponent<Props, State> {
   onChangeSearchText = async (searchText: string) => {
     const results = this.props.threadSearchIndex.getSearchResults(searchText);
     this.props.setSearchText(searchText);
+    this.props.setThreadsSearchResults(new Set(results));
     this.setState({
-      threadsSearchResults: new Set(results),
       numItemsToDisplay: 25,
     });
     const usersSearchResults = await this.searchUsers(searchText);
-    this.setState({ usersSearchResults });
+    this.props.setUsersSearchResults(usersSearchResults);
   };
 
   onPressItem = (
@@ -633,6 +633,14 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
   const [searchStatus, setSearchStatus] =
     React.useState<SearchStatus>('inactive');
 
+  const [threadsSearchResults, setThreadsSearchResults] = React.useState<
+    Set<string>,
+  >(new Set());
+
+  const [usersSearchResults, setUsersSearchResults] = React.useState<
+    $ReadOnlyArray<GlobalAccountUserInfo>,
+  >([]);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -651,6 +659,10 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       setSearchText={setSearchText}
       searchStatus={searchStatus}
       setSearchStatus={setSearchStatus}
+      threadsSearchResults={threadsSearchResults}
+      setThreadsSearchResults={setThreadsSearchResults}
+      usersSearchResults={usersSearchResults}
+      setUsersSearchResults={setUsersSearchResults}
     />
   );
 }
