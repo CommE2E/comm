@@ -1,0 +1,27 @@
+.container {
+  padding: 16px 32px 24px;
+}
+
+.header {
+  font-size: var(--l-font-18);
+  color: var(--fg);
+  font-weight: var(--normal);
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.button {
+  color: var(--fg);
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.selectedButton {
+  border-bottom: 1px solid var(--fg);
+}
