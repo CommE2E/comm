@@ -2,12 +2,12 @@ use derive_more;
 use futures_util::stream::SplitSink;
 use futures_util::SinkExt;
 use futures_util::StreamExt;
+use hyper_tungstenite::{tungstenite::Message, WebSocketStream};
 use lapin::message::Delivery;
 use lapin::options::{BasicConsumeOptions, QueueDeclareOptions};
 use lapin::types::FieldTable;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
-use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
 use tracing::{debug, error};
 use tunnelbroker_messages::{session::DeviceTypes, Messages};
 
