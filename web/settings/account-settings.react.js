@@ -14,6 +14,7 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import css from './account-settings.css';
+import AppearanceChangeModal from './appearance-change-modal.react.js';
 import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
@@ -60,9 +61,10 @@ function AccountSettings(): React.Node {
 
   const staffCanSee = useStaffCanSee();
 
-  const showAppearanceModal = React.useCallback(() => {
-    // TODO
-  }, []);
+  const showAppearanceModal = React.useCallback(
+    () => pushModal(<AppearanceChangeModal />),
+    [pushModal],
+  );
 
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
