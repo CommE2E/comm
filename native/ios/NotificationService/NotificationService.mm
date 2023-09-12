@@ -9,6 +9,7 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
 NSString *const encryptedPayloadKey = @"encryptedPayload";
 NSString *const encryptionFailureKey = @"encryptionFailure";
+NSString *const collapseIDKey = @"collapseID";
 const std::string callingProcessName = "NSE";
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
@@ -118,9 +119,11 @@ size_t getMemoryUsageInBytes() {
     std::string rescindErrorMessage;
     try {
       @try {
-        [self
-            removeNotificationWithIdentifier:content
-                                                 .userInfo[@"notificationId"]];
+        [self removeNotificationsWithCondition:^BOOL(
+                  UNNotification *_Nonnull notif) {
+          return [content.userInfo[@"notificationId"]
+              isEqualToString:notif.request.content.userInfo[@"id"]];
+        }];
       } @catch (NSException *e) {
         rescindErrorMessage =
             "Obj-C exception: " + std::string([e.name UTF8String]) +
@@ -140,6 +143,32 @@ size_t getMemoryUsageInBytes() {
     publicUserContent = [[UNNotificationContent alloc] init];
   }
 
+  // Step 4: (optional) execute notification coalescing
+  if ([self isCollapsible:content.userInfo]) {
+    std::string coalescingErrorMessage;
+    try {
+      @try {
+        [self removeNotificationsWithCondition:^BOOL(
+                  UNNotification *_Nonnull notif) {
+          return [content.userInfo[collapseIDKey]
+                     isEqualToString:notif.request.content
+                                         .userInfo[collapseIDKey]] ||
+              [content.userInfo[collapseIDKey]
+                     isEqualToString:notif.request.identifier];
+        }];
+      } @catch (NSException *e) {
+        coalescingErrorMessage =
+            "Obj-C exception: " + std::string([e.name UTF8String]) +
+            " during notification coalescing.";
+      }
+    } catch (const std::exception &e) {
+      coalescingErrorMessage = "C++ exception: " + std::string(e.what()) +
+          " during notification coalescing.";
+    }
+  }
+
+  // Step 5: (optional) create empty notification that
+  // only provides badge count.
   if ([self isBadgeOnly:content.userInfo]) {
     UNMutableNotificationContent *badgeOnlyContent =
         [[UNMutableNotificationContent alloc] init];
@@ -242,7 +271,8 @@ size_t getMemoryUsageInBytes() {
   }
 }
 
-- (void)removeNotificationWithIdentifier:(NSString *)identifier {
+- (void)removeNotificationsWithCondition:
+    (BOOL (^)(UNNotification *_Nonnull))condition {
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
   void (^delayedSemaphorePostCallback)() = ^() {
@@ -256,14 +286,15 @@ size_t getMemoryUsageInBytes() {
   [UNUserNotificationCenter.currentNotificationCenter
       getDeliveredNotificationsWithCompletionHandler:^(
           NSArray<UNNotification *> *_Nonnull notifications) {
+        NSMutableArray<NSString *> *notificationsToRemove =
+            [[NSMutableArray alloc] init];
         for (UNNotification *notif in notifications) {
-          if ([identifier isEqual:notif.request.content.userInfo[@"id"]]) {
-            [UNUserNotificationCenter.currentNotificationCenter
-                removeDeliveredNotificationsWithIdentifiers:@[
-                  notif.request.identifier
-                ]];
+          if (condition(notif)) {
+            [notificationsToRemove addObject:notif.request.identifier];
           }
         }
+        [UNUserNotificationCenter.currentNotificationCenter
+            removeDeliveredNotificationsWithIdentifiers:notificationsToRemove];
         delayedSemaphorePostCallback();
       }];
 
@@ -312,6 +343,10 @@ size_t getMemoryUsageInBytes() {
   // TODO: refactor this check by introducing
   // badgeOnly property in iOS notification payload
   return !payload[@"threadID"];
+}
+
+- (BOOL)isCollapsible:(NSDictionary *)payload {
+  return payload[collapseIDKey];
 }
 
 - (UNNotificationContent *)getBadgeOnlyContentFor:
