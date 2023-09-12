@@ -139,6 +139,7 @@ type Props = {
   ) => void,
   +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
   +hardwareBack: () => boolean,
+  +renderItem: (row: { item: Item, ... }) => React.Node,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -223,30 +224,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     } else if (this.props.route.name === BackgroundChatThreadListRouteName) {
       this.props.navigation.navigate({ name: HomeChatThreadListRouteName });
     }
-  };
-
-  renderItem = (row: { item: Item, ... }) => {
-    const item = row.item;
-    if (item.type === 'search') {
-      return (
-        <TouchableWithoutFeedback onPress={this.props.onSearchFocus}>
-          {this.props.renderSearch({ active: false })}
-        </TouchableWithoutFeedback>
-      );
-    }
-    if (item.type === 'empty') {
-      const EmptyItem = item.emptyItem;
-      return <EmptyItem />;
-    }
-    return (
-      <ChatThreadListItem
-        data={item}
-        onPressItem={this.props.onPressItem}
-        onPressSeeMoreSidebars={this.props.onPressSeeMoreSidebars}
-        onSwipeableWillOpen={this.props.onSwipeableWillOpen}
-        currentlyOpenedSwipeableId={this.props.openedSwipeableID}
-      />
-    );
   };
 
   listDataSelector = createSelector(
@@ -341,7 +318,7 @@ class ChatThreadList extends React.PureComponent<Props> {
         {fixedSearch}
         <FlatList
           data={this.listData}
-          renderItem={this.renderItem}
+          renderItem={this.props.renderItem}
           keyExtractor={keyExtractor}
           getItemLayout={getItemLayout}
           extraData={extraData}
@@ -636,6 +613,40 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     return true;
   }, [navigation, onSearchCancel, searchStatus]);
 
+  const renderItem = React.useCallback(
+    (row: { item: Item, ... }) => {
+      const item = row.item;
+      if (item.type === 'search') {
+        return (
+          <TouchableWithoutFeedback onPress={onSearchFocus}>
+            {renderSearch({ active: false })}
+          </TouchableWithoutFeedback>
+        );
+      }
+      if (item.type === 'empty') {
+        const EmptyItem = item.emptyItem;
+        return <EmptyItem />;
+      }
+      return (
+        <ChatThreadListItem
+          data={item}
+          onPressItem={onPressItem}
+          onPressSeeMoreSidebars={onPressSeeMoreSidebars}
+          onSwipeableWillOpen={onSwipeableWillOpen}
+          currentlyOpenedSwipeableId={openedSwipeableID}
+        />
+      );
+    },
+    [
+      onPressItem,
+      onPressSeeMoreSidebars,
+      onSearchFocus,
+      onSwipeableWillOpen,
+      openedSwipeableID,
+      renderSearch,
+    ],
+  );
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -676,6 +687,7 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       onPressItem={onPressItem}
       onPressSeeMoreSidebars={onPressSeeMoreSidebars}
       hardwareBack={hardwareBack}
+      renderItem={renderItem}
     />
   );
 }
