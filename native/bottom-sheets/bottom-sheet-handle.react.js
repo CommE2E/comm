@@ -8,14 +8,19 @@ import { useStyles } from '../themes/colors.js';
 function BottomSheetHandle(): React.Node {
   const styles = useStyles(unboundStyles);
 
-  return (
-    <>
-      <View style={styles.knobHandleContainer}>
-        <View style={styles.knobHandle} />
-      </View>
-      <View style={styles.gap} />
-    </>
+  const bottomSheetHanlde = React.useMemo(
+    () => (
+      <>
+        <View style={styles.knobHandleContainer}>
+          <View style={styles.knobHandle} />
+        </View>
+        <View style={styles.gap} />
+      </>
+    ),
+    [styles.gap, styles.knobHandle, styles.knobHandleContainer],
   );
+
+  return bottomSheetHanlde;
 }
 
 const unboundStyles = {
