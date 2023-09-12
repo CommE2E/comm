@@ -6,14 +6,15 @@ use crate::CONFIG;
 use futures_util::stream::SplitSink;
 use futures_util::StreamExt;
 use hyper::{Body, Request, Response, StatusCode};
+use hyper_tungstenite::tungstenite::Message;
+use hyper_tungstenite::HyperWebsocket;
+use hyper_tungstenite::WebSocketStream;
+use std::env;
 use std::future::Future;
 use std::net::SocketAddr;
 use std::pin::Pin;
-use std::{env, io::Error};
 use tokio::io::{AsyncRead, AsyncWrite};
-use tokio::net::{TcpListener, TcpStream};
-use tokio_tungstenite::tungstenite::Message;
-use tokio_tungstenite::WebSocketStream;
+use tokio::net::TcpListener;
 use tracing::{debug, error, info};
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
@@ -57,7 +58,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
         // Spawn a task to handle the websocket connection.
         tokio::spawn(async move {
-          // TODO: Accept connection here - call accept_connection()
+          accept_connection(websocket, addr, db_client, channel).await;
         });
 
         // Return the response so the spawned future can continue.
@@ -86,19 +87,38 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 pub async fn run_server(
   db_client: DatabaseClient,
   amqp_connection: &lapin::Connection,
-) -> Result<(), Error> {
+) -> Result<(), BoxedError> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
     .unwrap_or_else(|_| format!("0.0.0.0:{}", &CONFIG.http_port));
 
   let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
   info!("WebSocket listening on: {}", addr);
 
+  let mut http = hyper::server::conn::Http::new();
+  http.http1_only(true);
+  http.http1_keep_alive(true);
+
   while let Ok((stream, addr)) = listener.accept().await {
     let channel = amqp_connection
       .create_channel()
       .await
-      .expect("Unable to create amqp channel");
-    tokio::spawn(accept_connection(stream, addr, db_client.clone(), channel));
+      .expect("Failed to create AMQP channel");
+    let connection = http
+      .serve_connection(
+        stream,
+        WebsocketService {
+          channel,
+          db_client: db_client.clone(),
+          addr,
+        },
+      )
+      .with_upgrades();
+
+    tokio::spawn(async move {
+      if let Err(err) = connection.await {
+        error!("Error serving HTTP/WebSocket connection: {:?}", err);
+      }
+    });
   }
 
   Ok(())
@@ -106,14 +126,14 @@ pub async fn run_server(
 
 /// Handler for any incoming websocket connections
 async fn accept_connection(
-  raw_stream: TcpStream,
+  hyper_ws: HyperWebsocket,
   addr: SocketAddr,
   db_client: DatabaseClient,
   amqp_channel: lapin::Channel,
 ) {
   debug!("Incoming connection from: {}", addr);
 
-  let ws_stream = match tokio_tungstenite::accept_async(raw_stream).await {
+  let ws_stream = match hyper_ws.await {
     Ok(stream) => stream,
     Err(e) => {
       info!(
