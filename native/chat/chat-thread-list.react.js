@@ -138,6 +138,7 @@ type Props = {
     pendingPersonalThreadUserInfo?: UserInfo,
   ) => void,
   +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
+  +hardwareBack: () => boolean,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -164,7 +165,7 @@ class ChatThreadList extends React.PureComponent<Props> {
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
 
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.addEventListener('hardwareBackPress', this.props.hardwareBack);
   }
 
   componentWillUnmount() {
@@ -178,24 +179,11 @@ class ChatThreadList extends React.PureComponent<Props> {
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
 
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.removeEventListener(
+      'hardwareBackPress',
+      this.props.hardwareBack,
+    );
   }
-
-  hardwareBack = () => {
-    if (!this.props.navigation.isFocused()) {
-      return false;
-    }
-
-    const { searchStatus } = this.props;
-    const isActiveOrActivating =
-      searchStatus === 'active' || searchStatus === 'activating';
-    if (!isActiveOrActivating) {
-      return false;
-    }
-
-    this.props.onSearchCancel();
-    return true;
-  };
 
   componentDidUpdate(prevProps: Props) {
     const { searchStatus } = this.props;
@@ -634,6 +622,20 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     [navigation, onChangeSearchText],
   );
 
+  const hardwareBack = React.useCallback(() => {
+    if (!navigation.isFocused()) {
+      return false;
+    }
+    const isActiveOrActivating =
+      searchStatus === 'active' || searchStatus === 'activating';
+    if (!isActiveOrActivating) {
+      return false;
+    }
+
+    onSearchCancel();
+    return true;
+  }, [navigation, onSearchCancel, searchStatus]);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -673,6 +675,7 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       renderSearch={renderSearch}
       onPressItem={onPressItem}
       onPressSeeMoreSidebars={onPressSeeMoreSidebars}
+      hardwareBack={hardwareBack}
     />
   );
 }
