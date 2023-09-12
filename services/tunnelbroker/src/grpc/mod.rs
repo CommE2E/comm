@@ -73,7 +73,7 @@ pub async fn run_server(
   client: DatabaseClient,
   ampq_connection: &lapin::Connection,
 ) -> Result<(), tonic::transport::Error> {
-  let addr = format!("[::1]:{}", CONFIG.grpc_port)
+  let addr = format!("[::]:{}", CONFIG.grpc_port)
     .parse()
     .expect("Unable to parse gRPC address");
 
@@ -82,7 +82,7 @@ pub async fn run_server(
     .await
     .expect("Unable to create amqp channel");
 
-  tracing::info!("Websocket server listening on {}", &addr);
+  tracing::info!("gRPC server listening on {}", &addr);
   Server::builder()
     .http2_keepalive_interval(Some(constants::GRPC_KEEP_ALIVE_PING_INTERVAL))
     .http2_keepalive_timeout(Some(constants::GRPC_KEEP_ALIVE_PING_TIMEOUT))
