@@ -1,7 +1,9 @@
 use super::*;
 
 use comm_opaque2::client::Login;
-use identity_client::{OpaqueLoginFinishRequest, OpaqueLoginStartRequest};
+use grpc_clients::identity::protos::unauthenticated::{
+  OpaqueLoginFinishRequest, OpaqueLoginStartRequest,
+};
 use tracing::debug;
 
 #[napi]
@@ -20,8 +22,7 @@ pub async fn login_user(
   debug!("Attempting to login user: {}", username);
 
   // Set up the gRPC client that will be used to talk to the Identity service
-  let channel = get_identity_service_channel().await?;
-  let mut identity_client = IdentityClientServiceClient::new(channel);
+  let mut identity_client = get_identity_client_service_channel().await?;
 
   // Start OPAQUE registration and send initial registration request
   let mut client_login = Login::new();

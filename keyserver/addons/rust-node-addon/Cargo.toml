@@ -14,22 +14,19 @@ napi = { version = "2.10.1", default-features = false, features = [
   "tokio_rt",
 ] }
 napi-derive = { version = "2.9.1", default-features = false }
-opaque-ke = "1.2"
-rand = "0.8"
 tonic = { version = "0.9.1", features = ["tls"]}
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
-prost = "0.11"
 comm-opaque2 = {path = "../../../shared/comm-opaque2"}
+grpc_clients = { path = "../../../shared/grpc_clients" }
 lazy_static = "1.4"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
 napi-build = "2.0.1"
-tonic-build = "0.9.1"
 
 [profile.release]
 lto = true
