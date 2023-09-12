@@ -5,7 +5,8 @@ use futures_util::StreamExt;
 use lapin::message::Delivery;
 use lapin::options::{BasicConsumeOptions, QueueDeclareOptions};
 use lapin::types::FieldTable;
-use tokio::net::TcpStream;
+use tokio::io::AsyncRead;
+use tokio::io::AsyncWrite;
 use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
 use tracing::{debug, error};
 use tunnelbroker_messages::{session::DeviceTypes, Messages};
@@ -20,8 +21,8 @@ pub struct DeviceInfo {
   pub device_os: Option<String>,
 }
 
-pub struct WebsocketSession {
-  tx: SplitSink<WebSocketStream<TcpStream>, Message>,
+pub struct WebsocketSession<S> {
+  tx: SplitSink<WebSocketStream<S>, Message>,
   db_client: DatabaseClient,
   pub device_info: DeviceInfo,
   // Stream of messages from AMQP endpoint
@@ -58,22 +59,22 @@ pub fn handle_first_message_from_device(
         device_os: session_info.device_os.take(),
       };
 
-      return Ok(device_info);
+      Ok(device_info)
     }
     _ => {
       debug!("Received invalid request");
-      return Err(SessionError::InvalidMessage);
+      Err(SessionError::InvalidMessage)
     }
   }
 }
 
-impl WebsocketSession {
+impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
   pub async fn from_frame(
-    tx: SplitSink<WebSocketStream<TcpStream>, Message>,
+    tx: SplitSink<WebSocketStream<S>, Message>,
     db_client: DatabaseClient,
     frame: Message,
     amqp_channel: &lapin::Channel,
-  ) -> Result<WebsocketSession, SessionError> {
+  ) -> Result<WebsocketSession<S>, SessionError> {
     let device_info = match frame {
       Message::Text(payload) => handle_first_message_from_device(&payload)?,
       _ => {
