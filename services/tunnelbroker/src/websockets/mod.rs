@@ -19,10 +19,10 @@ pub async fn run_server(
   amqp_connection: &lapin::Connection,
 ) -> Result<(), Error> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
-    .unwrap_or_else(|_| format!("127.0.0.1:{}", &CONFIG.http_port));
+    .unwrap_or_else(|_| format!("0.0.0.0:{}", &CONFIG.http_port));
 
   let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
-  info!("Listening on: {}", addr);
+  info!("WebSocket listening on: {}", addr);
 
   while let Ok((stream, addr)) = listener.accept().await {
     let channel = amqp_connection
