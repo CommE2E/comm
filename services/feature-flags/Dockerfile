@@ -32,5 +32,4 @@ USER comm
 
 ENV RUST_LOG=info
 
-# For compatibility with the existing Terraform config
-CMD ["feature-flags", "--http-port", "50051"]
+CMD ["feature-flags"]
