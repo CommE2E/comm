@@ -134,6 +134,11 @@ type Props = {
   +renderSearch: (
     additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
   ) => React.Node,
+  +onPressItem: (
+    threadInfo: ThreadInfo,
+    pendingPersonalThreadUserInfo?: UserInfo,
+  ) => void,
+  +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -234,10 +239,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     }
   };
 
-  searchInputRef = (searchInput: ?React.ElementRef<typeof TextInput>) => {
-    this.searchInput = searchInput;
-  };
-
   renderItem = (row: { item: Item, ... }) => {
     const item = row.item;
     if (item.type === 'search') {
@@ -254,8 +255,8 @@ class ChatThreadList extends React.PureComponent<Props> {
     return (
       <ChatThreadListItem
         data={item}
-        onPressItem={this.onPressItem}
-        onPressSeeMoreSidebars={this.onPressSeeMoreSidebars}
+        onPressItem={this.props.onPressItem}
+        onPressSeeMoreSidebars={this.props.onPressSeeMoreSidebars}
         onSwipeableWillOpen={this.props.onSwipeableWillOpen}
         currentlyOpenedSwipeableId={this.props.openedSwipeableID}
       />
@@ -375,28 +376,6 @@ class ChatThreadList extends React.PureComponent<Props> {
 
   flatListRef = (flatList: ?FlatList<Item>) => {
     this.flatList = flatList;
-  };
-
-  onPressItem = (
-    threadInfo: ThreadInfo,
-    pendingPersonalThreadUserInfo?: UserInfo,
-  ) => {
-    this.props.onChangeSearchText('');
-    if (this.searchInput) {
-      this.searchInput.blur();
-    }
-    this.props.navigateToThread({ threadInfo, pendingPersonalThreadUserInfo });
-  };
-
-  onPressSeeMoreSidebars = (threadInfo: ThreadInfo) => {
-    this.props.onChangeSearchText('');
-    if (this.searchInput) {
-      this.searchInput.blur();
-    }
-    this.props.navigation.navigate<'SidebarListModal'>({
-      name: SidebarListModalRouteName,
-      params: { threadInfo },
-    });
   };
 }
 
@@ -632,6 +611,31 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     ],
   );
 
+  const onPressItem = React.useCallback(
+    (threadInfo: ThreadInfo, pendingPersonalThreadUserInfo?: UserInfo) => {
+      onChangeSearchText('');
+      if (searchInputRef.current) {
+        searchInputRef.current.blur();
+      }
+      navigateToThread({ threadInfo, pendingPersonalThreadUserInfo });
+    },
+    [navigateToThread, onChangeSearchText],
+  );
+
+  const onPressSeeMoreSidebars = React.useCallback(
+    (threadInfo: ThreadInfo) => {
+      onChangeSearchText('');
+      if (searchInputRef.current) {
+        this.searchInputRef.current.blur();
+      }
+      navigation.navigate<'SidebarListModal'>({
+        name: SidebarListModalRouteName,
+        params: { threadInfo },
+      });
+    },
+    [navigation, onChangeSearchText],
+  );
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -669,6 +673,8 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       onSearchCancel={onSearchCancel}
       onSearchFocus={onSearchFocus}
       renderSearch={renderSearch}
+      onPressItem={onPressItem}
+      onPressSeeMoreSidebars={onPressSeeMoreSidebars}
     />
   );
 }
