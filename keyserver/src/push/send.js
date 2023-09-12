@@ -23,6 +23,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
+import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -770,16 +771,22 @@ async function prepareAPNsNotification(
     platformDetails,
   } = convertedData;
 
-  const isTextNotification = newRawMessageInfos.every(
-    newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
-  );
+  const canDecryptNonCollapsibleTextNotifs =
+    platformDetails.codeVersion && platformDetails.codeVersion > 222;
+
+  const isNonCollapsibleTextNotification =
+    newRawMessageInfos.every(
+      newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
+    ) && !collapseKey;
+
+  const canDecryptAllNotifTypes =
+    platformDetails.codeVersion &&
+    platformDetails.codeVersion >= NEXT_CODE_VERSION;
 
   const shouldBeEncrypted =
     platformDetails.platform === 'ios' &&
-    !collapseKey &&
-    isTextNotification &&
-    platformDetails.codeVersion &&
-    platformDetails.codeVersion > 222;
+    (canDecryptAllNotifTypes ||
+      (isNonCollapsibleTextNotification && canDecryptNonCollapsibleTextNotifs));
 
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
@@ -808,7 +815,9 @@ async function prepareAPNsNotification(
   if (platformDetails.codeVersion && platformDetails.codeVersion > 198) {
     notification.mutableContent = true;
   }
-  if (collapseKey) {
+  if (collapseKey && canDecryptAllNotifTypes) {
+    notification.payload.collapseID = collapseKey;
+  } else if (collapseKey) {
     notification.collapseId = collapseKey;
   }
   const messageInfos = JSON.stringify(newRawMessageInfos);
