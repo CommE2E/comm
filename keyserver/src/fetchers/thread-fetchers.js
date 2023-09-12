@@ -18,7 +18,7 @@ import {
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
-import { getUploadURL } from './upload-fetchers.js';
+import { getUploadURL, makeUploadURI } from './upload-fetchers.js';
 import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
 import type { Viewer } from '../session/viewer.js';
@@ -113,7 +113,7 @@ async function fetchServerThreadInfos(
       t.source_message, t.replies_count, t.avatar, t.pinned_count, m.user,
       m.role, m.permissions, m.subscription,
       m.last_read_message < m.last_message AS unread, m.sender,
-      up.id AS upload_id, up.secret AS upload_secret
+      up.id AS upload_id, up.secret AS upload_secret, up.extra AS upload_extra
   `
     .append(primaryFetchClause)
     .append(
@@ -158,11 +158,15 @@ async function fetchServerThreadInfos(
       if (threadsRow.avatar) {
         const avatar: AvatarDBContent = JSON.parse(threadsRow.avatar);
         let clientAvatar: ?ClientAvatar;
-        if (avatar && avatar.type !== 'image') {
+        if (
+          avatar &&
+          avatar.type !== 'image' &&
+          avatar.type !== 'encrypted-image'
+        ) {
           clientAvatar = avatar;
         } else if (
           avatar &&
-          avatar.type === 'image' &&
+          (avatar.type === 'image' || avatar.type === 'encrypted-image') &&
           threadsRow.upload_id &&
           threadsRow.upload_secret
         ) {
@@ -171,10 +175,23 @@ async function fetchServerThreadInfos(
             uploadID === avatar.uploadID,
             `uploadID of upload should match uploadID of image avatar`,
           );
-          clientAvatar = {
-            type: 'image',
-            uri: getUploadURL(uploadID, threadsRow.upload_secret),
-          };
+          if (avatar.type === 'encrypted-image' && threadsRow.upload_extra) {
+            const uploadExtra = JSON.parse(threadsRow.upload_extra);
+            clientAvatar = {
+              type: 'encrypted-image',
+              blobURI: makeUploadURI(
+                uploadExtra.blobHash,
+                uploadID,
+                threadsRow.upload_secret,
+              ),
+              encryptionKey: uploadExtra.encryptionKey,
+            };
+          } else {
+            clientAvatar = {
+              type: 'image',
+              uri: getUploadURL(uploadID, threadsRow.upload_secret),
+            };
+          }
         }
 
         threadInfos[threadID] = {
