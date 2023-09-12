@@ -243,3 +243,19 @@
   --modal-separator: var(--shades-black-80);
   --create-roles-text-color: var(--shades-white-100);
 }
+
+/* Dark theme (default theme) */
+:root {
+  --test: var(--shades-white-100);
+  /* Button */
+  --buton-primary-background-default: var(--shades-black-100);
+
+  /* Seperator */
+  --spearator-primary-background-default: var(--shades-black-70);
+}
+
+/* Light theme */
+[data-theme='light'] {
+  --test: var(--shades-black-100);
+  --buton-primary-background-default: var(--shades-white-100);
+}
