@@ -20,6 +20,7 @@ import FriendListModal from './relationship/friend-list-modal.react.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
 import Button from '../components/button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useServerCall(logOut);
@@ -57,6 +58,12 @@ function AccountSettings(): React.Node {
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const stringForUser = useStringForUser(currentUserInfo);
 
+  const staffCanSee = useStaffCanSee();
+
+  const showAppearanceModal = React.useCallback(() => {
+    // TODO
+  }, []);
+
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
@@ -73,6 +80,25 @@ function AccountSettings(): React.Node {
           </a>
         </span>
       </li>
+    );
+  }
+
+  let preferences;
+  if (staffCanSee) {
+    preferences = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Preferences</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>Appearance</span>
+              <a className={css.editPasswordLink} onClick={showAppearanceModal}>
+                <SWMansionIcon icon="edit-1" size={22} />
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
     );
   }
 
@@ -106,6 +132,7 @@ function AccountSettings(): React.Node {
           </li>
         </ul>
       </div>
+      {preferences}
     </div>
   );
 }
