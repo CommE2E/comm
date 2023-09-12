@@ -635,7 +635,9 @@ async function updateThread(
 
     if (avatarUpdate !== undefined) {
       const avatarUploadID =
-        avatar && avatar.type === 'image' ? avatar.uploadID : null;
+        avatar && (avatar.type === 'image' || avatar.type === 'encrypted_image')
+          ? avatar.uploadID
+          : null;
 
       const avatarUpdateQuery = SQL`
         START TRANSACTION;
