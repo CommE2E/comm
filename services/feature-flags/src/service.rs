@@ -5,6 +5,7 @@ use actix_web::{web, App, HttpResponse, HttpServer};
 use comm_services_lib::database::Error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use tracing::info;
 
 pub struct FeatureFlagsService {
   db: DatabaseClient,
@@ -16,6 +17,11 @@ impl FeatureFlagsService {
   }
 
   pub async fn start(&self) -> std::io::Result<()> {
+    info!(
+      "Starting HTTP server listening at port {}",
+      CONFIG.http_port
+    );
+
     let db_clone = self.db.clone();
     HttpServer::new(move || {
       App::new()
