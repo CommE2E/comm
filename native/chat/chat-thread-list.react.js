@@ -129,6 +129,11 @@ type Props = {
   +onScroll: (event: ScrollEvent) => void,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +composeThread: () => void,
+  +onSearchCancel: () => void,
+  +onSearchFocus: () => void,
+  +renderSearch: (
+    additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
+  ) => React.Node,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -185,7 +190,7 @@ class ChatThreadList extends React.PureComponent<Props> {
       return false;
     }
 
-    this.onSearchCancel();
+    this.props.onSearchCancel();
     return true;
   };
 
@@ -229,73 +234,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     }
   };
 
-  onSearchFocus = () => {
-    if (this.props.searchStatus !== 'inactive') {
-      return;
-    }
-    if (this.props.scrollPos.current === 0) {
-      this.props.setSearchStatus('active');
-    } else {
-      this.props.setSearchStatus('activating');
-    }
-  };
-
-  clearSearch() {
-    const { flatList } = this;
-    flatList && flatList.scrollToOffset({ offset: 0, animated: false });
-    this.props.setSearchStatus('inactive');
-  }
-
-  onSearchBlur = () => {
-    if (this.props.searchStatus !== 'active') {
-      return;
-    }
-    this.clearSearch();
-  };
-
-  onSearchCancel = () => {
-    this.props.onChangeSearchText('');
-    this.clearSearch();
-  };
-
-  renderSearch(additionalProps?: $Shape<React.ElementConfig<typeof Search>>) {
-    const animatedSearchBoxStyle: AnimatedStyleObj = {
-      marginRight: this.props.searchCancelButtonOffset,
-    };
-    const searchBoxStyle = [
-      this.props.styles.searchBox,
-      animatedSearchBoxStyle,
-    ];
-    const buttonStyle = [
-      this.props.styles.cancelSearchButtonText,
-      { opacity: this.props.searchCancelButtonProgress },
-    ];
-    return (
-      <View style={this.props.styles.searchContainer}>
-        <Button
-          onPress={this.onSearchCancel}
-          disabled={this.props.searchStatus !== 'active'}
-          style={this.props.styles.cancelSearchButton}
-        >
-          {/* eslint-disable react-native/no-raw-text */}
-          <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
-          {/* eslint-enable react-native/no-raw-text */}
-        </Button>
-        <AnimatedView style={searchBoxStyle}>
-          <Search
-            searchText={this.props.searchText}
-            onChangeText={this.props.onChangeSearchText}
-            containerStyle={this.props.styles.search}
-            onBlur={this.onSearchBlur}
-            placeholder="Search chats"
-            ref={this.searchInputRef}
-            {...additionalProps}
-          />
-        </AnimatedView>
-      </View>
-    );
-  }
-
   searchInputRef = (searchInput: ?React.ElementRef<typeof TextInput>) => {
     this.searchInput = searchInput;
   };
@@ -304,8 +242,8 @@ class ChatThreadList extends React.PureComponent<Props> {
     const item = row.item;
     if (item.type === 'search') {
       return (
-        <TouchableWithoutFeedback onPress={this.onSearchFocus}>
-          {this.renderSearch({ active: false })}
+        <TouchableWithoutFeedback onPress={this.props.onSearchFocus}>
+          {this.props.renderSearch({ active: false })}
         </TouchableWithoutFeedback>
       );
     }
@@ -403,7 +341,7 @@ class ChatThreadList extends React.PureComponent<Props> {
     let fixedSearch;
     const { searchStatus } = this.props;
     if (searchStatus === 'active') {
-      fixedSearch = this.renderSearch({ autoFocus: true });
+      fixedSearch = this.props.renderSearch({ autoFocus: true });
     }
     const scrollEnabled =
       searchStatus === 'inactive' || searchStatus === 'active';
@@ -606,6 +544,94 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     navigateToThread({ threadInfo, searching: true });
   }, [loggedInUserInfo, navigateToThread]);
 
+  const onSearchFocus = React.useCallback(() => {
+    if (searchStatus !== 'inactive') {
+      return;
+    }
+    if (scrollPos.current === 0) {
+      setSearchStatus('active');
+    } else {
+      setSearchStatus('activating');
+    }
+  }, [searchStatus]);
+
+  const clearSearch = React.useCallback(() => {
+    // TODO (atul): Scroll to top of flatList (animated: false)
+    setSearchStatus('inactive');
+  }, []);
+
+  const onSearchBlur = React.useCallback(() => {
+    if (searchStatus !== 'active') {
+      return;
+    }
+    clearSearch();
+  }, [clearSearch, searchStatus]);
+
+  const onSearchCancel = React.useCallback(() => {
+    onChangeSearchText('');
+    clearSearch();
+  }, [clearSearch, onChangeSearchText]);
+
+  const animatedSearchBoxStyle: AnimatedStyleObj = React.useMemo(
+    () => ({
+      marginRight: searchCancelButtonOffset,
+    }),
+    [searchCancelButtonOffset],
+  );
+
+  const searchBoxStyle = React.useMemo(
+    () => [styles.searchBox, animatedSearchBoxStyle],
+    [animatedSearchBoxStyle, styles.searchBox],
+  );
+
+  const buttonStyle = React.useMemo(
+    () => [
+      styles.cancelSearchButtonText,
+      { opacity: searchCancelButtonProgress },
+    ],
+    [searchCancelButtonProgress, styles.cancelSearchButtonText],
+  );
+
+  const searchInputRef = React.useRef();
+  const renderSearch = React.useCallback(
+    (additionalProps?: $Shape<React.ElementConfig<typeof Search>>) => (
+      <View style={styles.searchContainer}>
+        <Button
+          onPress={onSearchCancel}
+          disabled={searchStatus !== 'active'}
+          style={styles.cancelSearchButton}
+        >
+          {/* eslint-disable react-native/no-raw-text */}
+          <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
+          {/* eslint-enable react-native/no-raw-text */}
+        </Button>
+        <AnimatedView style={searchBoxStyle}>
+          <Search
+            searchText={searchText}
+            onChangeText={onChangeSearchText}
+            containerStyle={styles.search}
+            onBlur={onSearchBlur}
+            placeholder="Search chats"
+            ref={searchInputRef}
+            {...additionalProps}
+          />
+        </AnimatedView>
+      </View>
+    ),
+    [
+      buttonStyle,
+      onChangeSearchText,
+      onSearchBlur,
+      onSearchCancel,
+      searchBoxStyle,
+      searchStatus,
+      searchText,
+      styles.cancelSearchButton,
+      styles.search,
+      styles.searchContainer,
+    ],
+  );
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -640,6 +666,9 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       onScroll={onScroll}
       onSwipeableWillOpen={onSwipeableWillOpen}
       composeThread={composeThread}
+      onSearchCancel={onSearchCancel}
+      onSearchFocus={onSearchFocus}
+      renderSearch={renderSearch}
     />
   );
 }
