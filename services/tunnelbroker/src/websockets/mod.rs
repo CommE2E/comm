@@ -5,7 +5,10 @@ use crate::websockets::session::SessionError;
 use crate::CONFIG;
 use futures_util::stream::SplitSink;
 use futures_util::StreamExt;
+use hyper::{Body, Request, Response, StatusCode};
+use std::future::Future;
 use std::net::SocketAddr;
+use std::pin::Pin;
 use std::{env, io::Error};
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::{TcpListener, TcpStream};
@@ -13,7 +16,72 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::WebSocketStream;
 use tracing::{debug, error, info};
 
+type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
+
 use self::session::WebsocketSession;
+
+/// Hyper HTTP service that handles incoming HTTP and websocket connections
+/// It handles the initial websocket upgrade request and spawns a task to
+/// handle the websocket connection.
+/// It also handles regular HTTP requests (currently health check)
+struct WebsocketService {
+  addr: SocketAddr,
+  channel: lapin::Channel,
+  db_client: DatabaseClient,
+}
+
+impl hyper::service::Service<Request<Body>> for WebsocketService {
+  type Response = Response<Body>;
+  type Error = BoxedError;
+  type Future =
+    Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;
+
+  // This function is called to check if the service is ready to accept
+  // connections. Since we don't have any state to check, we're always ready.
+  fn poll_ready(
+    &mut self,
+    _: &mut std::task::Context<'_>,
+  ) -> std::task::Poll<Result<(), Self::Error>> {
+    std::task::Poll::Ready(Ok(()))
+  }
+
+  fn call(&mut self, mut req: Request<Body>) -> Self::Future {
+    let addr = self.addr;
+    let db_client = self.db_client.clone();
+    let channel = self.channel.clone();
+
+    let future = async move {
+      // Check if the request is a websocket upgrade request.
+      if hyper_tungstenite::is_upgrade_request(&req) {
+        let (response, websocket) = hyper_tungstenite::upgrade(&mut req, None)?;
+
+        // Spawn a task to handle the websocket connection.
+        tokio::spawn(async move {
+          // TODO: Accept connection here - call accept_connection()
+        });
+
+        // Return the response so the spawned future can continue.
+        return Ok(response);
+      }
+
+      debug!(
+        "Incoming HTTP request on WebSocket port: {} {}",
+        req.method(),
+        req.uri().path()
+      );
+
+      // A simple router for regular HTTP requests
+      let response = match req.uri().path() {
+        "/health" => Response::new(Body::from("OK")),
+        _ => Response::builder()
+          .status(StatusCode::NOT_FOUND)
+          .body(Body::from("Not found"))?,
+      };
+      Ok(response)
+    };
+    Box::pin(future)
+  }
+}
 
 pub async fn run_server(
   db_client: DatabaseClient,
