@@ -30,7 +30,7 @@ import { values } from 'lib/utils/objects.js';
 
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { getUploadURL } from '../fetchers/upload-fetchers.js';
+import { getUploadURL, makeUploadURI } from '../fetchers/upload-fetchers.js';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 
@@ -131,7 +131,10 @@ async function updateUserAvatar(
   const newAvatarValue =
     request.type === 'remove' ? null : JSON.stringify(request);
 
-  const mediaID = request.type === 'image' ? request.uploadID : null;
+  const mediaID =
+    request.type === 'image' || request.type === 'encrypted-image'
+      ? request.uploadID
+      : null;
 
   const query = SQL`
     START TRANSACTION;
@@ -176,7 +179,7 @@ async function updateUserAvatar(
 
     COMMIT;
 
-    SELECT id AS upload_id, secret AS upload_secret
+    SELECT id AS upload_id, secret AS upload_secret, extra AS upload_extra
     FROM uploads
       WHERE id = ${mediaID}
         AND uploader = ${viewer.userID}
@@ -201,16 +204,23 @@ async function updateUserAvatar(
 
   if (request.type === 'remove') {
     return null;
-  } else if (request.type !== 'image') {
+  } else if (request.type !== 'image' && request.type !== 'encrypted-image') {
     return request;
   } else {
-    const [{ upload_id, upload_secret }] = selectResult;
+    const [{ upload_id, upload_secret, upload_extra }] = selectResult;
     const uploadID = upload_id.toString();
     invariant(
       uploadID === request.uploadID,
       'uploadID of upload should match uploadID of UpdateUserAvatarRequest',
     );
-
+    if (request.type === 'encrypted-image') {
+      const uploadExtra = JSON.parse(upload_extra);
+      return {
+        type: 'encrypted-image',
+        blobURI: makeUploadURI(uploadExtra.blobHash, uploadID, upload_secret),
+        encryptionKey: uploadExtra.encryptionKey,
+      };
+    }
     return {
       type: 'image',
       uri: getUploadURL(uploadID, upload_secret),

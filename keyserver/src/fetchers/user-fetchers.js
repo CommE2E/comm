@@ -24,7 +24,7 @@ import type {
 } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
-import { getUploadURL } from './upload-fetchers.js';
+import { getUploadURL, makeUploadURI } from './upload-fetchers.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { Viewer } from '../session/viewer.js';
 
@@ -37,7 +37,7 @@ async function fetchUserInfos(
 
   const query = SQL`
     SELECT u.id, u.username, u.avatar,
-      up.id AS upload_id, up.secret AS upload_secret
+      up.id AS upload_id, up.secret AS upload_secret, up.extra AS upload_extra
     FROM users u
     LEFT JOIN uploads up
       ON up.container = u.id
@@ -51,11 +51,15 @@ async function fetchUserInfos(
     const avatar: ?AvatarDBContent = row.avatar ? JSON.parse(row.avatar) : null;
 
     let clientAvatar: ?ClientAvatar;
-    if (avatar && avatar.type !== 'image') {
+    if (
+      avatar &&
+      avatar.type !== 'image' &&
+      avatar.type !== 'encrypted-image'
+    ) {
       clientAvatar = avatar;
     } else if (
       avatar &&
-      avatar.type === 'image' &&
+      (avatar.type === 'image' || avatar.type === 'encrypted-image') &&
       row.upload_id &&
       row.upload_secret
     ) {
@@ -64,10 +68,23 @@ async function fetchUserInfos(
         uploadID === avatar.uploadID,
         'uploadID of upload should match uploadID of image avatar',
       );
-      clientAvatar = {
-        type: 'image',
-        uri: getUploadURL(uploadID, row.upload_secret),
-      };
+      if (avatar.type === 'encrypted-image' && row.upload_extra) {
+        const uploadExtra = JSON.parse(row.upload_extra);
+        clientAvatar = {
+          type: 'encrypted-image',
+          blobURI: makeUploadURI(
+            uploadExtra.blobHash,
+            uploadID,
+            row.upload_secret,
+          ),
+          encryptionKey: uploadExtra.encryptionKey,
+        };
+      } else {
+        clientAvatar = {
+          type: 'image',
+          uri: getUploadURL(uploadID, row.upload_secret),
+        };
+      }
     }
 
     userInfos[id] = clientAvatar
@@ -108,8 +125,8 @@ async function fetchKnownUserInfos(
   const query = SQL`
     SELECT ru.user1, ru.user2, u.username, u.avatar, ru.status AS undirected_status,
       rd1.status AS user1_directed_status, rd2.status AS user2_directed_status,
-      up1.id AS user1_upload_id, up1.secret AS user1_upload_secret,
-      up2.id AS user2_upload_id, up2.secret AS user2_upload_secret
+      up1.id AS user1_upload_id, up1.secret AS user1_upload_secret, up1.extra AS user1_upload_extra,
+      up2.id AS user2_upload_id, up2.secret AS user2_upload_secret, up2.extra AS user2_upload_extra
     FROM relationships_undirected ru
     LEFT JOIN relationships_directed rd1
       ON rd1.user1 = ru.user1 AND rd1.user2 = ru.user2
@@ -137,8 +154,8 @@ async function fetchKnownUserInfos(
       CAST(NULL AS UNSIGNED) AS undirected_status,
       CAST(NULL AS UNSIGNED) AS user1_directed_status,
       CAST(NULL AS UNSIGNED) AS user2_directed_status,
-      up.id AS user1_upload_id, up.secret AS user1_upload_secret,
-      NULL AS user2_upload_id, NULL AS user2_upload_secret
+      up.id AS user1_upload_id, up.secret AS user1_upload_secret, up.extra AS user1_upload_extra,
+      NULL AS user2_upload_id, NULL AS user2_upload_secret, NULL AS user2_upload_extra
     FROM users u
     LEFT JOIN uploads up
       ON up.container = u.id
@@ -155,11 +172,15 @@ async function fetchKnownUserInfos(
     const avatar: ?AvatarDBContent = row.avatar ? JSON.parse(row.avatar) : null;
 
     let clientAvatar: ?ClientAvatar;
-    if (avatar && avatar.type !== 'image') {
+    if (
+      avatar &&
+      avatar.type !== 'image' &&
+      avatar.type !== 'encrypted-image'
+    ) {
       clientAvatar = avatar;
     } else if (
       avatar &&
-      avatar.type === 'image' &&
+      (avatar.type === 'image' || avatar.type === 'encrypted-image') &&
       row.user1_upload_id &&
       row.user1_upload_secret
     ) {
@@ -168,13 +189,26 @@ async function fetchKnownUserInfos(
         uploadID === avatar.uploadID,
         'uploadID of upload should match uploadID of image avatar',
       );
-      clientAvatar = {
-        type: 'image',
-        uri: getUploadURL(uploadID, row.user1_upload_secret),
-      };
+      if (avatar.type === 'encrypted-image' && row.user1_upload_extra) {
+        const uploadExtra = JSON.parse(row.user1_upload_extra);
+        clientAvatar = {
+          type: 'encrypted-image',
+          blobURI: makeUploadURI(
+            uploadExtra.blobHash,
+            uploadID,
+            row.user1_upload_secret,
+          ),
+          encryptionKey: uploadExtra.encryptionKey,
+        };
+      } else {
+        clientAvatar = {
+          type: 'image',
+          uri: getUploadURL(uploadID, row.user1_upload_secret),
+        };
+      }
     } else if (
       avatar &&
-      avatar.type === 'image' &&
+      (avatar.type === 'image' || avatar.type === 'encrypted-image') &&
       row.user2_upload_id &&
       row.user2_upload_secret
     ) {
@@ -183,10 +217,23 @@ async function fetchKnownUserInfos(
         uploadID === avatar.uploadID,
         'uploadID of upload should match uploadID of image avatar',
       );
-      clientAvatar = {
-        type: 'image',
-        uri: getUploadURL(uploadID, row.user2_upload_secret),
-      };
+      if (avatar.type === 'encrypted-image' && row.user2_upload_extra) {
+        const uploadExtra = JSON.parse(row.user2_upload_extra);
+        clientAvatar = {
+          type: 'encrypted-image',
+          blobURI: makeUploadURI(
+            uploadExtra.blobHash,
+            uploadID,
+            row.user2_upload_secret,
+          ),
+          encryptionKey: uploadExtra.encryptionKey,
+        };
+      } else {
+        clientAvatar = {
+          type: 'image',
+          uri: getUploadURL(uploadID, row.user2_upload_secret),
+        };
+      }
     }
 
     const userInfo = clientAvatar
@@ -294,7 +341,7 @@ async function fetchLoggedInUserInfo(
 ): Promise<OldLoggedInUserInfo | LoggedInUserInfo> {
   const userQuery = SQL`
     SELECT u.id, u.username, u.avatar,
-      up.id AS upload_id, up.secret AS upload_secret
+      up.id AS upload_id, up.secret AS upload_secret, up.extra AS upload_extra
     FROM users u
     LEFT JOIN uploads up
       ON up.container = u.id
@@ -318,7 +365,7 @@ async function fetchLoggedInUserInfo(
   }
 
   const id = userRow.id.toString();
-  const { username, upload_id, upload_secret } = userRow;
+  const { username, upload_id, upload_secret, upload_extra } = userRow;
 
   let loggedInUserInfo: LoggedInUserInfo = {
     id,
@@ -330,18 +377,32 @@ async function fetchLoggedInUserInfo(
     : null;
 
   let clientAvatar: ?ClientAvatar;
-  if (avatar && avatar.type !== 'image') {
+  if (avatar && avatar.type !== 'image' && avatar.type !== 'encrypted-image') {
     clientAvatar = avatar;
-  } else if (avatar && avatar.type === 'image' && upload_id && upload_secret) {
+  } else if (
+    avatar &&
+    (avatar.type === 'image' || avatar.type === 'encrypted-image') &&
+    upload_id &&
+    upload_secret
+  ) {
     const uploadID = upload_id.toString();
     invariant(
       uploadID === avatar.uploadID,
       'uploadID of upload should match uploadID of image avatar',
     );
-    clientAvatar = {
-      type: 'image',
-      uri: getUploadURL(uploadID, upload_secret),
-    };
+    if (avatar.type === 'encrypted-image' && upload_extra) {
+      const uploadExtra = JSON.parse(upload_extra);
+      clientAvatar = {
+        type: 'encrypted-image',
+        blobURI: makeUploadURI(uploadExtra.blobHash, uploadID, upload_secret),
+        encryptionKey: uploadExtra.encryptionKey,
+      };
+    } else {
+      clientAvatar = {
+        type: 'image',
+        uri: getUploadURL(uploadID, upload_secret),
+      };
+    }
   }
 
   if (avatar) {
