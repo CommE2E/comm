@@ -21,7 +21,6 @@ import {
 } from 'lib/selectors/chat-selectors.js';
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors.js';
-import SearchIndex from 'lib/shared/search-index.js';
 import {
   createPendingThread,
   getThreadListSearchResults,
@@ -42,10 +41,7 @@ import type {
   ChatTopTabsNavigationProp,
   ChatNavigationProp,
 } from './chat.react.js';
-import {
-  type MessageListParams,
-  useNavigateToThread,
-} from './message-list-types.js';
+import { useNavigateToThread } from './message-list-types.js';
 import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import {
@@ -97,50 +93,24 @@ type SearchStatus = 'inactive' | 'activating' | 'active';
 type Props = {
   ...BaseProps,
   // Redux state
-  +chatListData: $ReadOnlyArray<ChatThreadItem>,
   +loggedInUserInfo: ?LoggedInUserInfo,
-  +threadSearchIndex: SearchIndex,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
-  +usersWithPersonalThread: $ReadOnlySet<string>,
-  +navigateToThread: (params: MessageListParams) => void,
   +searchText: string,
-  +setSearchText: SetState<string>,
   +searchStatus: SearchStatus,
-  +setSearchStatus: SetState<SearchStatus>,
-  +threadsSearchResults: Set<string>,
-  +setThreadsSearchResults: SetState<Set<string>>,
-  +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
-  +setUsersSearchResults: SetState<$ReadOnlyArray<GlobalAccountUserInfo>>,
   +openedSwipeableID: string,
-  +setOpenedSwipeableID: SetState<string>,
-  +numItemsToDisplay: number,
   +setNumItemsToDisplay: SetState<number>,
   +searchCancelButtonOpen: Value,
-  +searchCancelButtonProgress: Node,
-  +searchCancelButtonOffset: Node,
-  +searchUsers: (
-    usernamePrefix: string,
-  ) => Promise<$ReadOnlyArray<GlobalAccountUserInfo>>,
-  +onChangeSearchText: (searchText: string) => Promise<void>,
   +scrollPos: { current: number },
   +onScroll: (event: ScrollEvent) => void,
-  +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
-  +composeThread: () => void,
-  +onSearchCancel: () => void,
-  +onSearchFocus: () => void,
   +renderSearch: (
     additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
   ) => React.Node,
-  +onPressItem: (
-    threadInfo: ThreadInfo,
-    pendingPersonalThreadUserInfo?: UserInfo,
-  ) => void,
-  +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
   +hardwareBack: () => boolean,
   +renderItem: (row: { item: Item, ... }) => React.Node,
   +partialListData: Item[],
   +onEndReached: () => void,
+  +floatingAction: React.Node,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -228,17 +198,6 @@ class ChatThreadList extends React.PureComponent<Props> {
   };
 
   render() {
-    let floatingAction;
-    if (Platform.OS === 'android') {
-      floatingAction = (
-        <FloatingAction
-          actions={floatingActions}
-          overrideWithAction
-          onPressItem={this.props.composeThread}
-          color="#7e57c2"
-        />
-      );
-    }
     let fixedSearch;
     const { searchStatus } = this.props;
     if (searchStatus === 'active') {
@@ -269,7 +228,7 @@ class ChatThreadList extends React.PureComponent<Props> {
           onEndReachedThreshold={1}
           ref={this.flatListRef}
         />
-        {floatingAction}
+        {this.props.floatingAction}
       </View>
     );
   }
@@ -278,47 +237,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     this.flatList = flatList;
   };
 }
-
-const unboundStyles = {
-  icon: {
-    fontSize: 28,
-  },
-  container: {
-    flex: 1,
-  },
-  searchContainer: {
-    backgroundColor: 'listBackground',
-    display: 'flex',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  searchBox: {
-    flex: 1,
-  },
-  search: {
-    marginBottom: 8,
-    marginHorizontal: 18,
-    marginTop: 16,
-  },
-  cancelSearchButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  cancelSearchButtonText: {
-    color: 'link',
-    fontSize: 16,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  flatList: {
-    flex: 1,
-    backgroundColor: 'listBackground',
-  },
-};
 
 function ConnectedChatThreadList(props: BaseProps): React.Node {
   const boundChatListData = useFlattenedChatListData();
@@ -628,51 +546,86 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     setNumItemsToDisplay(prevNumItems => prevNumItems + 25);
   }, [listData.length, partialListData.length]);
 
+  const floatingAction = React.useMemo(() => {
+    let node;
+    if (Platform.OS === 'android') {
+      node = (
+        <FloatingAction
+          actions={floatingActions}
+          overrideWithAction
+          onPressItem={composeThread}
+          color="#7e57c2"
+        />
+      );
+    }
+    return node;
+  }, [composeThread]);
+
   return (
     <ChatThreadList
       navigation={navigation}
       route={route}
       filterThreads={filterThreads}
       emptyItem={emptyItem}
-      chatListData={boundChatListData}
       loggedInUserInfo={loggedInUserInfo}
-      threadSearchIndex={threadSearchIndex}
       styles={styles}
       indicatorStyle={indicatorStyle}
-      usersWithPersonalThread={usersWithPersonalThread}
-      navigateToThread={navigateToThread}
       searchText={searchText}
-      setSearchText={setSearchText}
       searchStatus={searchStatus}
-      setSearchStatus={setSearchStatus}
-      threadsSearchResults={threadsSearchResults}
-      setThreadsSearchResults={setThreadsSearchResults}
-      usersSearchResults={usersSearchResults}
-      setUsersSearchResults={setUsersSearchResults}
       openedSwipeableID={openedSwipeableID}
-      setOpenedSwipeableID={setOpenedSwipeableID}
-      numItemsToDisplay={numItemsToDisplay}
       setNumItemsToDisplay={setNumItemsToDisplay}
       searchCancelButtonOpen={searchCancelButtonOpen}
-      searchCancelButtonProgress={searchCancelButtonProgress}
-      searchCancelButtonOffset={searchCancelButtonOffset}
-      searchUsers={searchUsers}
-      onChangeSearchText={onChangeSearchText}
       scrollPos={scrollPos}
       onScroll={onScroll}
-      onSwipeableWillOpen={onSwipeableWillOpen}
-      composeThread={composeThread}
-      onSearchCancel={onSearchCancel}
-      onSearchFocus={onSearchFocus}
       renderSearch={renderSearch}
-      onPressItem={onPressItem}
-      onPressSeeMoreSidebars={onPressSeeMoreSidebars}
       hardwareBack={hardwareBack}
       renderItem={renderItem}
       partialListData={partialListData}
       onEndReached={onEndReached}
+      floatingAction={floatingAction}
     />
   );
 }
+
+const unboundStyles = {
+  icon: {
+    fontSize: 28,
+  },
+  container: {
+    flex: 1,
+  },
+  searchContainer: {
+    backgroundColor: 'listBackground',
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  searchBox: {
+    flex: 1,
+  },
+  search: {
+    marginBottom: 8,
+    marginHorizontal: 18,
+    marginTop: 16,
+  },
+  cancelSearchButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  cancelSearchButtonText: {
+    color: 'link',
+    fontSize: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  flatList: {
+    flex: 1,
+    backgroundColor: 'listBackground',
+  },
+};
 
 export default ConnectedChatThreadList;
