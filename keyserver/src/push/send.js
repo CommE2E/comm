@@ -794,9 +794,10 @@ async function prepareAPNsNotification(
 
   if (devicesWithExcessiveSize.length === 0) {
     return notifsWithMessageInfos.map(
-      ({ notification: notif, deviceToken }) => ({
+      ({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
         notification: notif,
         deviceToken,
+        encryptedPayloadHash,
       }),
     );
   }
@@ -809,15 +810,17 @@ async function prepareAPNsNotification(
 
   const targetedNotifsWithMessageInfos = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
-    .map(({ notification: notif, deviceToken }) => ({
+    .map(({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
       notification: notif,
       deviceToken,
+      encryptedPayloadHash,
     }));
 
   const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
-    ({ notification: notif, deviceToken }) => ({
+    ({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
       notification: notif,
       deviceToken,
+      encryptedPayloadHash,
     }),
   );
 
@@ -1053,6 +1056,7 @@ type APNsDelivery = {
   codeVersion: number,
   stateVersion: number,
   errors?: $ReadOnlyArray<ResponseFailure>,
+  encryptedPayloadHashes?: $ReadOnlyArray<string>,
 };
 type APNsResult = {
   info: NotificationInfo,
@@ -1090,6 +1094,17 @@ async function sendAPNsNotification(
   if (response.errors) {
     delivery.errors = response.errors;
   }
+
+  const encryptedPayloadHashes = [];
+  for (const targetedNotification of targetedNotifications) {
+    if (targetedNotification.encryptedPayloadHash) {
+      encryptedPayloadHashes.push(targetedNotification.encryptedPayloadHash);
+    }
+  }
+  if (encryptedPayloadHashes.length !== 0) {
+    delivery.encryptedPayloadHashes = encryptedPayloadHashes;
+  }
+
   const result: APNsResult = {
     info: notificationInfo,
     delivery,

@@ -11,13 +11,18 @@ import type {
   NotificationTargetDevice,
 } from './types.js';
 import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
+import { getOlmUtility } from '../utils/olm-utils.js';
 
 async function encryptIOSNotification(
   cookieID: string,
   notification: apn.Notification,
   codeVersion?: ?number,
   notificationSizeValidator?: apn.Notification => boolean,
-): Promise<{ +notification: apn.Notification, +payloadSizeExceeded: boolean }> {
+): Promise<{
+  +notification: apn.Notification,
+  +payloadSizeExceeded: boolean,
+  +encryptedPayloadHash?: string,
+}> {
   invariant(
     !notification.collapseId,
     'Collapsible notifications encryption currently not implemented',
@@ -71,9 +76,11 @@ async function encryptIOSNotification(
       };
     }
 
+    const encryptedPayloadHash = getOlmUtility().sha256(serializedPayload.body);
     return {
       notification: encryptedNotification,
       payloadSizeExceeded: !!dbPersistConditionViolated,
+      encryptedPayloadHash,
     };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
@@ -217,6 +224,7 @@ function prepareEncryptedIOSNotifications(
     +deviceToken: string,
     +notification: apn.Notification,
     +payloadSizeExceeded: boolean,
+    +encryptedPayloadHash?: string,
   }>,
 > {
   const notificationPromises = devices.map(
