@@ -127,6 +127,8 @@ type Props = {
   +onChangeSearchText: (searchText: string) => Promise<void>,
   +scrollPos: { current: number },
   +onScroll: (event: ScrollEvent) => void,
+  +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
+  +composeThread: () => void,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -316,7 +318,7 @@ class ChatThreadList extends React.PureComponent<Props> {
         data={item}
         onPressItem={this.onPressItem}
         onPressSeeMoreSidebars={this.onPressSeeMoreSidebars}
-        onSwipeableWillOpen={this.onSwipeableWillOpen}
+        onSwipeableWillOpen={this.props.onSwipeableWillOpen}
         currentlyOpenedSwipeableId={this.props.openedSwipeableID}
       />
     );
@@ -393,7 +395,7 @@ class ChatThreadList extends React.PureComponent<Props> {
         <FloatingAction
           actions={floatingActions}
           overrideWithAction
-          onPressItem={this.composeThread}
+          onPressItem={this.props.composeThread}
           color="#7e57c2"
         />
       );
@@ -457,23 +459,6 @@ class ChatThreadList extends React.PureComponent<Props> {
       name: SidebarListModalRouteName,
       params: { threadInfo },
     });
-  };
-
-  onSwipeableWillOpen = (threadInfo: ThreadInfo) => {
-    this.props.setOpenedSwipeableID(threadInfo.id);
-  };
-
-  composeThread = () => {
-    const { loggedInUserInfo } = this.props;
-    if (!loggedInUserInfo) {
-      return;
-    }
-    const threadInfo = createPendingThread({
-      viewerID: loggedInUserInfo.id,
-      threadType: threadTypes.PRIVATE,
-      members: [loggedInUserInfo],
-    });
-    this.props.navigateToThread({ threadInfo, searching: true });
   };
 }
 
@@ -604,6 +589,23 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     [searchStatus],
   );
 
+  const onSwipeableWillOpen = React.useCallback(
+    (threadInfo: ThreadInfo) => setOpenedSwipeableID(threadInfo.id),
+    [],
+  );
+
+  const composeThread = React.useCallback(() => {
+    if (!loggedInUserInfo) {
+      return;
+    }
+    const threadInfo = createPendingThread({
+      viewerID: loggedInUserInfo.id,
+      threadType: threadTypes.PRIVATE,
+      members: [loggedInUserInfo],
+    });
+    navigateToThread({ threadInfo, searching: true });
+  }, [loggedInUserInfo, navigateToThread]);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -636,6 +638,8 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       onChangeSearchText={onChangeSearchText}
       scrollPos={scrollPos}
       onScroll={onScroll}
+      onSwipeableWillOpen={onSwipeableWillOpen}
+      composeThread={composeThread}
     />
   );
 }
