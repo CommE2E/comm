@@ -8,7 +8,11 @@ import type {
 } from '@commapp/olm';
 import uuid from 'uuid';
 
-import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
+import {
+  olmEncryptedMessageTypes,
+  type OLMOneTimeKeys,
+} from 'lib/types/crypto-types.js';
+import { values } from 'lib/utils/objects.js';
 
 type PickledOlmAccount = {
   +picklingKey: string,
@@ -99,6 +103,12 @@ function validateAccountPrekey(account: OlmAccount) {
   }
 }
 
+function getOneTimeKeyValues(keyBlob: string): $ReadOnlyArray<string> {
+  const content: OLMOneTimeKeys = JSON.parse(keyBlob);
+  const keys: $ReadOnlyArray<string> = values(content.curve25519);
+  return keys;
+}
+
 export {
   createPickledOlmAccount,
   createPickledOlmSession,
@@ -106,4 +116,5 @@ export {
   unpickleOlmAccount,
   unpickleOlmSession,
   validateAccountPrekey,
+  getOneTimeKeyValues,
 };
