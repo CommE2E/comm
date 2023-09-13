@@ -274,9 +274,11 @@ std::string NotificationsCryptoModule::decrypt(
     const std::string &callingProcessName) {
   std::string decryptedData;
   auto caller = [&](crypto::CryptoModule &cryptoModule) {
+    crypto::EncryptedData encryptedData{
+        std::vector<uint8_t>(data.begin(), data.end()), messageType};
     decryptedData = cryptoModule.decrypt(
         NotificationsCryptoModule::keyserverHostedNotificationsID,
-        {std::vector<uint8_t>(data.begin(), data.end()), messageType});
+        encryptedData);
   };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
   return decryptedData;
