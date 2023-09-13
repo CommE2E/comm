@@ -39,7 +39,7 @@ let
     name = "db-config";
     text = ''
       {
-        "host": "localhost",
+        "host": "127.0.0.1",
         "user": "comm",
         "password": "PASS",
         "database": "comm",

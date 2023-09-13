@@ -413,7 +413,7 @@ The DB config file should look like this:
 
 ```json
 {
-  "host": "localhost",
+  "host": "127.0.0.1",
   "user": "comm",
   "password": "password",
   "database": "comm",
