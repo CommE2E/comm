@@ -25,7 +25,6 @@ import {
   createPendingThread,
   getThreadListSearchResults,
 } from 'lib/shared/thread-utils.js';
-import type { SetState } from 'lib/types/hook-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types.js';
@@ -87,56 +86,15 @@ type Props = {
   // Redux state
   +searchText: string,
   +searchStatus: SearchStatus,
-  +setNumItemsToDisplay: SetState<number>,
   +searchCancelButtonOpen: Value,
-  +scrollPos: { current: number },
-  +hardwareBack: () => boolean,
   +chatThreadList: React.Node,
-  +onTabPress: () => void,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
   flatList: ?FlatList<Item>;
-  clearNavigationBlurListener: ?() => mixed;
 
   constructor(props: Props) {
     super(props);
-  }
-
-  componentDidMount() {
-    this.clearNavigationBlurListener = this.props.navigation.addListener(
-      'blur',
-      () => {
-        this.props.setNumItemsToDisplay(25);
-      },
-    );
-
-    const chatNavigation: ?ChatNavigationProp<'ChatThreadList'> =
-      this.props.navigation.getParent();
-    invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      chatNavigation.getParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.addListener('tabPress', this.props.onTabPress);
-
-    BackHandler.addEventListener('hardwareBackPress', this.props.hardwareBack);
-  }
-
-  componentWillUnmount() {
-    this.clearNavigationBlurListener && this.clearNavigationBlurListener();
-
-    const chatNavigation: ?ChatNavigationProp<'ChatThreadList'> =
-      this.props.navigation.getParent();
-    invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      chatNavigation.getParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.removeListener('tabPress', this.props.onTabPress);
-
-    BackHandler.removeEventListener(
-      'hardwareBackPress',
-      this.props.hardwareBack,
-    );
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -563,6 +521,31 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     }
   }, [navigation, route.name]);
 
+  React.useEffect(() => {
+    const clearNavigationBlurListener = navigation.addListener('blur', () => {
+      setNumItemsToDisplay(25);
+    });
+
+    const chatNavigation: ?ChatNavigationProp<'ChatThreadList'> =
+      navigation.getParent();
+    invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
+    const tabNavigation: ?TabNavigationProp<'Chat'> =
+      chatNavigation.getParent();
+    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
+
+    tabNavigation.addListener('tabPress', onTabPress);
+    BackHandler.addEventListener('hardwareBackPress', hardwareBack);
+
+    return () => {
+      // `.addListener` returns function that can be called to unsubscribe.
+      // https://reactnavigation.org/docs/navigation-events/#navigationaddlistener
+      clearNavigationBlurListener();
+
+      tabNavigation.removeListener('tabPress', onTabPress);
+      BackHandler.removeEventListener('hardwareBackPress', hardwareBack);
+    };
+  }, [hardwareBack, navigation, onTabPress]);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -571,12 +554,8 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       emptyItem={emptyItem}
       searchText={searchText}
       searchStatus={searchStatus}
-      setNumItemsToDisplay={setNumItemsToDisplay}
       searchCancelButtonOpen={searchCancelButtonOpen}
-      scrollPos={scrollPos}
-      hardwareBack={hardwareBack}
       chatThreadList={chatThreadList}
-      onTabPress={onTabPress}
     />
   );
 }
