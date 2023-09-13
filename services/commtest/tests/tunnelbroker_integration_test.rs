@@ -3,11 +3,14 @@ use tokio_tungstenite::{connect_async, tungstenite::Message};
 mod proto {
   tonic::include_proto!("tunnelbroker");
 }
+use commtest::identity::device::create_device;
 use futures_util::StreamExt;
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
 use proto::MessageToDevice;
 use tunnelbroker_messages as messages;
-use tunnelbroker_messages::RefreshKeyRequest;
+use tunnelbroker_messages::{
+  ConnectionInitializationMessage, DeviceTypes, RefreshKeyRequest,
+};
 
 #[tokio::test]
 async fn send_refresh_request() {
@@ -16,16 +19,22 @@ async fn send_refresh_request() {
     .await
     .expect("Can't connect");
 
-  let session_request = r#"{
-      "type": "sessionRequest",
-      "accessToken": "xkdeifjsld",
-      "deviceID": "foo",
-      "userID": "alice",
-      "deviceType": "keyserver"
-    }"#;
+  let device_info = create_device().await;
+  let session_request = ConnectionInitializationMessage {
+    device_id: device_info.device_id.to_string(),
+    access_token: device_info.access_token.to_string(),
+    user_id: device_info.user_id.to_string(),
+    notify_token: None,
+    device_type: DeviceTypes::Keyserver,
+    device_app_version: None,
+    device_os: None,
+  };
+
+  let serialized_request = serde_json::to_string(&session_request)
+    .expect("Failed to serialize connection request");
 
   socket
-    .send(Message::Text(session_request.to_string()))
+    .send(Message::Text(serialized_request))
     .await
     .expect("Failed to send message");
 
@@ -36,13 +45,13 @@ async fn send_refresh_request() {
       .unwrap();
 
   let refresh_request = messages::RefreshKeyRequest {
-    device_id: "foo".to_string(),
+    device_id: device_info.device_id.clone(),
     number_of_keys: 5,
   };
 
   let payload = serde_json::to_string(&refresh_request).unwrap();
   let request = MessageToDevice {
-    device_id: "foo".to_string(),
+    device_id: device_info.device_id.clone(),
     payload,
   };
   let grpc_message = tonic::Request::new(request);
