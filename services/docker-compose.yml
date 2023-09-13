@@ -39,7 +39,7 @@ services:
     build:
       dockerfile: services/blob/Dockerfile
       context: ../
-    image: commapp/blob-server:0.1
+    image: commapp/blob-server:0.2.0
     ports:
       - '${COMM_SERVICES_PORT_BLOB}:50053'
     volumes:
@@ -53,7 +53,7 @@ services:
     build:
       dockerfile: services/identity/Dockerfile
       context: ../
-    image: commapp/identity-server:0.1
+    image: commapp/identity-server:0.3
     ports:
       - '${COMM_SERVICES_PORT_IDENTITY}:50054'
   # feature-flags
@@ -78,7 +78,7 @@ services:
     build:
       dockerfile: services/reports/Dockerfile
       context: ../
-    image: commapp/reports-server:0.1
+    image: commapp/reports-server:0.1.0
     ports:
       - '${COMM_SERVICES_PORT_REPORTS}:50056'
     volumes:
