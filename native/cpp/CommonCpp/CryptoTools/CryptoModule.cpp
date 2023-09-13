@@ -340,19 +340,37 @@ EncryptedData CryptoModule::encrypt(
 
 std::string CryptoModule::decrypt(
     const std::string &targetUserId,
-    EncryptedData encryptedData) {
+    EncryptedData &encryptedData) {
   if (!this->hasSessionFor(targetUserId)) {
     throw std::runtime_error{"error decrypt => uninitialized session"};
   }
   OlmSession *session = this->sessions.at(targetUserId)->getOlmSession();
 
-  OlmBuffer tmpEncryptedMessage(encryptedData.message);
+  OlmBuffer utilityBuffer(::olm_utility_size());
+  OlmUtility *olmUtility = ::olm_utility(utilityBuffer.data());
 
+  OlmBuffer messageHashBuffer(::olm_sha256_length(olmUtility));
+  ::olm_sha256(
+      olmUtility,
+      encryptedData.message.data(),
+      encryptedData.message.size(),
+      messageHashBuffer.data(),
+      messageHashBuffer.size());
+
+  OlmBuffer tmpEncryptedMessage(encryptedData.message);
   size_t maxSize = ::olm_decrypt_max_plaintext_length(
       session,
       encryptedData.messageType,
       tmpEncryptedMessage.data(),
       tmpEncryptedMessage.size());
+
+  if (maxSize == -1) {
+    throw std::runtime_error{
+        "error decrypt_max_plaintext_length => " +
+        std::string{::olm_session_last_error(session)} + ". Hash: " +
+        std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
+  }
+
   OlmBuffer decryptedMessage(maxSize);
   size_t decryptedSize = ::olm_decrypt(
       session,
@@ -363,7 +381,9 @@ std::string CryptoModule::decrypt(
       decryptedMessage.size());
   if (decryptedSize == -1) {
     throw std::runtime_error{
-        "error decrypt => " + std::string{::olm_session_last_error(session)}};
+        "error decrypt => " + std::string{::olm_session_last_error(session)} +
+        ". Hash: " +
+        std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
   }
   return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
