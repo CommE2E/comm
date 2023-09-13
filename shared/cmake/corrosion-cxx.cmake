@@ -116,4 +116,18 @@ function(add_library_rust)
 
   # For end-user to link into project
   add_library(${namespace}::${_LIB_PATH_STEM} ALIAS ${_LIB_PATH_STEM}-total)
+
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CARGO_BUILD_TYPE "debug")
+  elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(CARGO_BUILD_TYPE "release")
+  endif()
+
+  if(CI STREQUAL "true" AND (NOT "${CARGO_BUILD_TYPE}" STREQUAL ""))
+    add_custom_command(TARGET ${_LIB_PATH_STEM}_cxxbridge POST_BUILD
+      COMMAND rm -rf cargo/build/${CARGO_BUILD_TYPE}
+        cargo/build/${Rust_CARGO_TARGET}/${CARGO_BUILD_TYPE}
+      COMMENT "Deleting Cargo artifacts for CI build"
+    )
+  endif()
 endfunction(add_library_rust)

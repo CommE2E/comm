@@ -616,7 +616,8 @@ android {
                     "-DOPENSSL_VERSION=" + OPENSSL_VERSION,
                     "-DNDK_VERSION=" + rootProject.ext.ndkVersion,
                     "-DREACT_NATIVE_SO_DIR=${REACT_NATIVE_SO_DIR}",
-                    "-DBOOST_VERSION=${BOOST_VERSION}"
+                    "-DBOOST_VERSION=${BOOST_VERSION}",
+                    "-DCI=${System.getenv('CI')}"
                 targets "comm_jni_module", "turbomodulejsijni"
             }
         }
