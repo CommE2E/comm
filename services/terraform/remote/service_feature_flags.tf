@@ -164,29 +164,13 @@ resource "aws_lb_listener" "feature_flags_https" {
   certificate_arn   = data.aws_acm_certificate.feature_flags.arn
 
   default_action {
-    type = "forward"
-
-    forward {
-      # ECS target group
-      target_group {
-        arn    = aws_lb_target_group.feature_flags_ecs.arn
-        weight = 10
-      }
-
-      # Legacy EC2 Target
-      dynamic "target_group" {
-        for_each = data.aws_lb_target_group.feature_flags_legacy_ec2
-        content {
-          arn    = target_group.value["arn"]
-          weight = 0
-        }
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.feature_flags_ecs.arn
   }
 
   lifecycle {
-    # Required only for existing resources to avoid plan difference
-    ignore_changes = [default_action[0].forward[0].stickiness[0].duration]
+    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
+    replace_triggered_by = [aws_lb_target_group.feature_flags_ecs]
   }
 }
 
@@ -194,13 +178,6 @@ resource "aws_lb_listener" "feature_flags_https" {
 data "aws_acm_certificate" "feature_flags" {
   domain   = local.feature_flags_domain_name
   statuses = ["ISSUED"]
-}
-
-# Legacy EC2 instance target
-data "aws_lb_target_group" "feature_flags_legacy_ec2" {
-  # We don't have legacy EC2 services in staging
-  count = local.is_staging ? 0 : 1
-  name  = "feature-flags-service-tg"
 }
 
 # Required for Route53 DNS record

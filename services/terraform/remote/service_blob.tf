@@ -173,26 +173,8 @@ resource "aws_lb_listener" "blob_service_https" {
   certificate_arn   = data.aws_acm_certificate.blob_service.arn
 
   default_action {
-    type = "forward"
-
-    # TODO: Currently weights are set to direct 100% traffic
-    # to the legacy instance
-    forward {
-      # ECS target group
-      target_group {
-        arn    = aws_lb_target_group.blob_service_http.arn
-        weight = 1
-      }
-
-      # Legacy EC2 Target
-      dynamic "target_group" {
-        for_each = data.aws_lb_target_group.blob_service_legacy_ec2
-        content {
-          arn    = target_group.value["arn"]
-          weight = 0
-        }
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.blob_service_http.arn
   }
 
   lifecycle {
@@ -208,13 +190,6 @@ resource "aws_lb_listener" "blob_service_https" {
 data "aws_acm_certificate" "blob_service" {
   domain   = local.blob_service_domain_name
   statuses = ["ISSUED"]
-}
-
-# Legacy EC2 instance target
-data "aws_lb_target_group" "blob_service_legacy_ec2" {
-  # We don't have legacy EC2 services in staging
-  count = local.is_staging ? 0 : 1
-  name  = "blob-service-http-tg"
 }
 
 # Required for Route53 DNS record

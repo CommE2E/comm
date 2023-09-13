@@ -185,22 +185,8 @@ resource "aws_lb_listener" "identity_service_grpc" {
   certificate_arn   = data.aws_acm_certificate.identity_service.arn
 
   default_action {
-    type = "forward"
-    forward {
-      # ECS target group
-      target_group {
-        arn    = aws_lb_target_group.identity_service_grpc.arn
-        weight = 1
-      }
-      # Legacy EC2 Target
-      dynamic "target_group" {
-        for_each = data.aws_lb_target_group.identity_service_legacy_ec2
-        content {
-          arn    = target_group.value["arn"]
-          weight = 0
-        }
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.identity_service_grpc.arn
   }
 
   lifecycle {
@@ -216,13 +202,6 @@ resource "aws_lb_listener" "identity_service_grpc" {
 data "aws_acm_certificate" "identity_service" {
   domain   = local.identity_service_domain_name
   statuses = ["ISSUED"]
-}
-
-# Legacy EC2 instance target
-data "aws_lb_target_group" "identity_service_legacy_ec2" {
-  # We don't have legacy EC2 services in staging
-  count = local.is_staging ? 0 : 1
-  name  = "identity-service-tg"
 }
 
 # Required for Route53 DNS record
