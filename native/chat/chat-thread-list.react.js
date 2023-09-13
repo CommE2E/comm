@@ -81,32 +81,8 @@ type BaseProps = {
   +emptyItem?: React.ComponentType<{}>,
 };
 type SearchStatus = 'inactive' | 'activating' | 'active';
-type Props = {
-  ...BaseProps,
-  // Redux state
-  +searchText: string,
-  +searchStatus: SearchStatus,
-  +searchCancelButtonOpen: Value,
-  +chatThreadList: React.Node,
-};
 
-class ChatThreadList extends React.PureComponent<Props> {
-  flatList: ?FlatList<Item>;
-
-  constructor(props: Props) {
-    super(props);
-  }
-
-  render() {
-    return this.props.chatThreadList;
-  }
-
-  flatListRef = (flatList: ?FlatList<Item>) => {
-    this.flatList = flatList;
-  };
-}
-
-function ConnectedChatThreadList(props: BaseProps): React.Node {
+function ChatThreadList(props: BaseProps): React.Node {
   const boundChatListData = useFlattenedChatListData();
   const loggedInUserInfo = useLoggedInUserInfo();
   const threadSearchIndex = useGlobalThreadSearchIndex();
@@ -177,6 +153,7 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
   );
 
   const scrollPos = React.useRef(0);
+  const flatListRef = React.useRef();
 
   const onScroll = React.useCallback(
     (event: ScrollEvent) => {
@@ -221,7 +198,9 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
   }, [searchStatus]);
 
   const clearSearch = React.useCallback(() => {
-    // TODO (atul): Scroll to top of flatList (animated: false)
+    if (scrollPos.current > 0 && flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: false });
+    }
     setSearchStatus('inactive');
   }, []);
 
@@ -442,7 +421,6 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
   const viewerID = loggedInUserInfo?.id;
   const extraData = `${viewerID || ''} ${openedSwipeableID}`;
 
-  const flatListRef = React.useRef();
   const chatThreadList = React.useMemo(
     () => (
       <View style={styles.container}>
@@ -552,18 +530,7 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     }
   }, [searchStatus]);
 
-  return (
-    <ChatThreadList
-      navigation={navigation}
-      route={route}
-      filterThreads={filterThreads}
-      emptyItem={emptyItem}
-      searchText={searchText}
-      searchStatus={searchStatus}
-      searchCancelButtonOpen={searchCancelButtonOpen}
-      chatThreadList={chatThreadList}
-    />
-  );
+  return chatThreadList;
 }
 
 const unboundStyles = {
@@ -607,4 +574,4 @@ const unboundStyles = {
   },
 };
 
-export default ConnectedChatThreadList;
+export default ChatThreadList;
