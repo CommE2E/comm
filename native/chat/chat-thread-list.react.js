@@ -28,11 +28,7 @@ import {
 import type { SetState } from 'lib/types/hook-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import type {
-  GlobalAccountUserInfo,
-  UserInfo,
-  LoggedInUserInfo,
-} from 'lib/types/user-types.js';
+import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
@@ -52,11 +48,7 @@ import {
 } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import {
-  type IndicatorStyle,
-  indicatorStyleSelector,
-  useStyles,
-} from '../themes/colors.js';
+import { indicatorStyleSelector, useStyles } from '../themes/colors.js';
 import type { ScrollEvent } from '../types/react-native.js';
 import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
 import { animateTowards } from '../utils/animation-utils.js';
@@ -93,24 +85,13 @@ type SearchStatus = 'inactive' | 'activating' | 'active';
 type Props = {
   ...BaseProps,
   // Redux state
-  +loggedInUserInfo: ?LoggedInUserInfo,
-  +styles: typeof unboundStyles,
-  +indicatorStyle: IndicatorStyle,
   +searchText: string,
   +searchStatus: SearchStatus,
-  +openedSwipeableID: string,
   +setNumItemsToDisplay: SetState<number>,
   +searchCancelButtonOpen: Value,
   +scrollPos: { current: number },
-  +onScroll: (event: ScrollEvent) => void,
-  +renderSearch: (
-    additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
-  ) => React.Node,
   +hardwareBack: () => boolean,
-  +renderItem: (row: { item: Item, ... }) => React.Node,
-  +partialListData: $ReadOnlyArray<Item>,
-  +onEndReached: () => void,
-  +floatingAction: React.Node,
+  +chatThreadList: React.Node,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -198,39 +179,7 @@ class ChatThreadList extends React.PureComponent<Props> {
   };
 
   render() {
-    let fixedSearch;
-    const { searchStatus } = this.props;
-    if (searchStatus === 'active') {
-      fixedSearch = this.props.renderSearch({ autoFocus: true });
-    }
-    const scrollEnabled =
-      searchStatus === 'inactive' || searchStatus === 'active';
-    // viewerID is in extraData since it's used by MessagePreview
-    // within ChatThreadListItem
-    const viewerID = this.props.loggedInUserInfo?.id;
-    const extraData = `${viewerID || ''} ${this.props.openedSwipeableID}`;
-    return (
-      <View style={this.props.styles.container}>
-        {fixedSearch}
-        <FlatList
-          data={this.props.partialListData}
-          renderItem={this.props.renderItem}
-          keyExtractor={keyExtractor}
-          getItemLayout={getItemLayout}
-          extraData={extraData}
-          initialNumToRender={11}
-          keyboardShouldPersistTaps="handled"
-          onScroll={this.props.onScroll}
-          style={this.props.styles.flatList}
-          indicatorStyle={this.props.indicatorStyle}
-          scrollEnabled={scrollEnabled}
-          onEndReached={this.props.onEndReached}
-          onEndReachedThreshold={1}
-          ref={this.flatListRef}
-        />
-        {this.props.floatingAction}
-      </View>
-    );
+    return this.props.chatThreadList;
   }
 
   flatListRef = (flatList: ?FlatList<Item>) => {
@@ -561,28 +510,71 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     return node;
   }, [composeThread]);
 
+  const fixedSearch = React.useMemo(
+    () =>
+      searchStatus === 'active' ? renderSearch({ autoFocus: true }) : null,
+    [renderSearch, searchStatus],
+  );
+
+  const scrollEnabled =
+    searchStatus === 'inactive' || searchStatus === 'active';
+  // viewerID is in extraData since it's used by MessagePreview
+  // within ChatThreadListItem
+  const viewerID = loggedInUserInfo?.id;
+  const extraData = `${viewerID || ''} ${openedSwipeableID}`;
+
+  const flatListRef = React.useRef();
+  const chatThreadList = React.useMemo(
+    () => (
+      <View style={styles.container}>
+        {fixedSearch}
+        <FlatList
+          data={partialListData}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          getItemLayout={getItemLayout}
+          extraData={extraData}
+          initialNumToRender={11}
+          keyboardShouldPersistTaps="handled"
+          onScroll={onScroll}
+          style={styles.flatList}
+          indicatorStyle={indicatorStyle}
+          scrollEnabled={scrollEnabled}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={1}
+          ref={flatListRef}
+        />
+        {floatingAction}
+      </View>
+    ),
+    [
+      extraData,
+      fixedSearch,
+      floatingAction,
+      indicatorStyle,
+      onEndReached,
+      onScroll,
+      partialListData,
+      renderItem,
+      scrollEnabled,
+      styles.container,
+      styles.flatList,
+    ],
+  );
+
   return (
     <ChatThreadList
       navigation={navigation}
       route={route}
       filterThreads={filterThreads}
       emptyItem={emptyItem}
-      loggedInUserInfo={loggedInUserInfo}
-      styles={styles}
-      indicatorStyle={indicatorStyle}
       searchText={searchText}
       searchStatus={searchStatus}
-      openedSwipeableID={openedSwipeableID}
       setNumItemsToDisplay={setNumItemsToDisplay}
       searchCancelButtonOpen={searchCancelButtonOpen}
       scrollPos={scrollPos}
-      onScroll={onScroll}
-      renderSearch={renderSearch}
       hardwareBack={hardwareBack}
-      renderItem={renderItem}
-      partialListData={partialListData}
-      onEndReached={onEndReached}
-      floatingAction={floatingAction}
+      chatThreadList={chatThreadList}
     />
   );
 }
