@@ -158,23 +158,8 @@ resource "aws_lb_listener" "electron_update_https" {
   certificate_arn   = data.aws_acm_certificate.electron_update.arn
 
   default_action {
-    type = "forward"
-    forward {
-      # ECS target group
-      target_group {
-        arn    = aws_lb_target_group.electron_update_ecs.arn
-        weight = 10
-      }
-
-      # Legacy EC2 Target
-      dynamic "target_group" {
-        for_each = data.aws_lb_target_group.electron_update_legacy_ec2
-        content {
-          arn    = target_group.value["arn"]
-          weight = 0
-        }
-      }
-    }
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.electron_update_ecs.arn
   }
 
   lifecycle {
@@ -187,13 +172,6 @@ resource "aws_lb_listener" "electron_update_https" {
 data "aws_acm_certificate" "electron_update" {
   domain   = local.electron_update_domain_name
   statuses = ["ISSUED"]
-}
-
-# Legacy EC2 instance target
-data "aws_lb_target_group" "electron_update_legacy_ec2" {
-  # We don't have legacy EC2 services in staging
-  count = local.is_staging ? 0 : 1
-  name  = "electron-update-tg"
 }
 
 # Required for Route53 DNS record
