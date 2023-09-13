@@ -846,9 +846,10 @@ async function prepareAPNsNotification(
 
   if (devicesWithExcessiveSize.length === 0) {
     return notifsWithMessageInfos.map(
-      ({ notification: notif, deviceToken }) => ({
+      ({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
         notification: notif,
         deviceToken,
+        encryptedPayloadHash,
       }),
     );
   }
@@ -861,15 +862,17 @@ async function prepareAPNsNotification(
 
   const targetedNotifsWithMessageInfos = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
-    .map(({ notification: notif, deviceToken }) => ({
+    .map(({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
       notification: notif,
       deviceToken,
+      encryptedPayloadHash,
     }));
 
   const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
-    ({ notification: notif, deviceToken }) => ({
+    ({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
       notification: notif,
       deviceToken,
+      encryptedPayloadHash,
     }),
   );
 
@@ -1098,13 +1101,17 @@ type NotificationInfo =
     };
 
 type APNsDelivery = {
-  source: $PropertyType<NotificationInfo, 'source'>,
-  deviceType: 'ios' | 'macos',
-  iosID: string,
-  deviceTokens: $ReadOnlyArray<string>,
-  codeVersion: number,
-  stateVersion: number,
-  errors?: $ReadOnlyArray<ResponseFailure>,
+  +source: $PropertyType<NotificationInfo, 'source'>,
+  +deviceType: 'ios' | 'macos',
+  +iosID: string,
+  +deviceTokens: $ReadOnlyArray<string>,
+  +codeVersion: number,
+  +stateVersion: number,
+  +errors?: $ReadOnlyArray<ResponseFailure>,
+  +encryptedPayloadHashes?: $ReadOnlyArray<string>,
+  +deviceTokensToPayloadHash?: {
+    +[deviceToken: string]: string,
+  },
 };
 type APNsResult = {
   info: NotificationInfo,
@@ -1131,7 +1138,7 @@ async function sendAPNsNotification(
   const deviceTokens = targetedNotifications.map(
     ({ deviceToken }) => deviceToken,
   );
-  const delivery: APNsDelivery = {
+  let delivery: APNsDelivery = {
     source,
     deviceType: platform,
     iosID,
@@ -1140,8 +1147,26 @@ async function sendAPNsNotification(
     stateVersion,
   };
   if (response.errors) {
-    delivery.errors = response.errors;
+    delivery = {
+      ...delivery,
+      errors: response.errors,
+    };
   }
+
+  const deviceTokensToPayloadHash = {};
+  for (const targetedNotification of targetedNotifications) {
+    if (targetedNotification.encryptedPayloadHash) {
+      deviceTokensToPayloadHash[targetedNotification.deviceToken] =
+        targetedNotification.encryptedPayloadHash;
+    }
+  }
+  if (Object.keys(deviceTokensToPayloadHash).length !== 0) {
+    delivery = {
+      ...delivery,
+      deviceTokensToPayloadHash,
+    };
+  }
+
   const result: APNsResult = {
     info: notificationInfo,
     delivery,
