@@ -82,6 +82,7 @@ import {
   createUpdateDBOpsForMessageStoreMessages,
   createUpdateDBOpsForMessageStoreThreads,
 } from './client-db-utils.js';
+import { defaultState } from './default-state.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import type { AppState } from './state-types.js';
@@ -641,6 +642,9 @@ const migrations = {
       return { ...state, cookie: null };
     }
 
+    const inviteLinksStore =
+      state.inviteLinksStore ?? defaultState.inviteLinksStore;
+
     return {
       ...state,
       entryStore: convertEntryStoreToNewIDSchema(state.entryStore),
@@ -652,9 +656,7 @@ const migrations = {
       watchedThreadIDs: state.watchedThreadIDs.map(
         id => `${ashoatKeyserverID}|${id}`,
       ),
-      inviteLinksStore: convertInviteLinksStoreToNewIDSchema(
-        state.inviteLinksStore,
-      ),
+      inviteLinksStore: convertInviteLinksStoreToNewIDSchema(inviteLinksStore),
     };
   },
   [44]: async state => {
