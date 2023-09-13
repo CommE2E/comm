@@ -3,6 +3,7 @@
 import olm from '@commapp/olm';
 import cluster from 'cluster';
 import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
 import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
@@ -83,7 +84,7 @@ const shouldDisplayQRCodeInTerminal = false;
 
     if (shouldDisplayQRCodeInTerminal) {
       try {
-        const aes256Key = new Uint8Array([]);
+        const aes256Key = crypto.randomBytes(32);
         const ed25519Key = 'ed25519Key';
 
         const url = qrCodeLinkURL(aes256Key, ed25519Key);
