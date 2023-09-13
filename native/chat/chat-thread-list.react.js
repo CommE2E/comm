@@ -97,35 +97,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     super(props);
   }
 
-  componentDidUpdate(prevProps: Props) {
-    const { searchStatus } = this.props;
-    const prevSearchStatus = prevProps.searchStatus;
-
-    const isActiveOrActivating =
-      searchStatus === 'active' || searchStatus === 'activating';
-    const wasActiveOrActivating =
-      prevSearchStatus === 'active' || prevSearchStatus === 'activating';
-    if (isActiveOrActivating && !wasActiveOrActivating) {
-      this.props.searchCancelButtonOpen.setValue(1);
-    } else if (!isActiveOrActivating && wasActiveOrActivating) {
-      this.props.searchCancelButtonOpen.setValue(0);
-    }
-
-    const { flatList } = this;
-    if (!flatList) {
-      return;
-    }
-
-    if (this.props.searchText !== prevProps.searchText) {
-      flatList.scrollToOffset({ offset: 0, animated: false });
-      return;
-    }
-
-    if (searchStatus === 'activating' && prevSearchStatus === 'inactive') {
-      flatList.scrollToOffset({ offset: 0, animated: true });
-    }
-  }
-
   render() {
     return this.props.chatThreadList;
   }
@@ -545,6 +516,32 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       BackHandler.removeEventListener('hardwareBackPress', hardwareBack);
     };
   }, [hardwareBack, navigation, onTabPress]);
+
+  const isActiveOrActivating =
+    searchStatus === 'active' || searchStatus === 'activating';
+  React.useEffect(() => {
+    if (isActiveOrActivating) {
+      searchCancelButtonOpen.setValue(1);
+    } else {
+      searchCancelButtonOpen.setValue(0);
+    }
+  }, [isActiveOrActivating, searchCancelButtonOpen]);
+
+  React.useEffect(() => {
+    if (scrollPos.current > 0 && flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: false });
+    }
+  }, [searchText]);
+
+  React.useEffect(() => {
+    if (
+      searchStatus === 'activating' &&
+      scrollPos.current > 0 &&
+      flatListRef.current
+    ) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  }, [searchStatus]);
 
   return (
     <ChatThreadList
