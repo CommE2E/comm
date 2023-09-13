@@ -92,6 +92,7 @@ type Props = {
   +scrollPos: { current: number },
   +hardwareBack: () => boolean,
   +chatThreadList: React.Node,
+  +onTabPress: () => void,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -116,7 +117,7 @@ class ChatThreadList extends React.PureComponent<Props> {
     const tabNavigation: ?TabNavigationProp<'Chat'> =
       chatNavigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.addListener('tabPress', this.onTabPress);
+    tabNavigation.addListener('tabPress', this.props.onTabPress);
 
     BackHandler.addEventListener('hardwareBackPress', this.props.hardwareBack);
   }
@@ -130,7 +131,7 @@ class ChatThreadList extends React.PureComponent<Props> {
     const tabNavigation: ?TabNavigationProp<'Chat'> =
       chatNavigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.removeListener('tabPress', this.onTabPress);
+    tabNavigation.removeListener('tabPress', this.props.onTabPress);
 
     BackHandler.removeEventListener(
       'hardwareBackPress',
@@ -166,17 +167,6 @@ class ChatThreadList extends React.PureComponent<Props> {
       flatList.scrollToOffset({ offset: 0, animated: true });
     }
   }
-
-  onTabPress = () => {
-    if (!this.props.navigation.isFocused()) {
-      return;
-    }
-    if (this.props.scrollPos.current > 0 && this.flatList) {
-      this.flatList.scrollToOffset({ offset: 0, animated: true });
-    } else if (this.props.route.name === BackgroundChatThreadListRouteName) {
-      this.props.navigation.navigate({ name: HomeChatThreadListRouteName });
-    }
-  };
 
   render() {
     return this.props.chatThreadList;
@@ -561,6 +551,17 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     ],
   );
 
+  const onTabPress = React.useCallback(() => {
+    if (!navigation.isFocused()) {
+      return;
+    }
+    if (scrollPos.current > 0 && flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    } else if (route.name === BackgroundChatThreadListRouteName) {
+      navigation.navigate({ name: HomeChatThreadListRouteName });
+    }
+  }, [navigation, route.name]);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -574,6 +575,7 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       scrollPos={scrollPos}
       hardwareBack={hardwareBack}
       chatThreadList={chatThreadList}
+      onTabPress={onTabPress}
     />
   );
 }
