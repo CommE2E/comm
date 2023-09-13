@@ -8,22 +8,48 @@ import {
   type MessageFromTunnelbroker,
   tunnelbrokerMessageTypes,
 } from 'lib/types/tunnelbroker-messages.js';
+import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { type IdentityInfo } from '../user/identity.js';
 import { uploadNewOneTimeKeys } from '../utils/olm-utils.js';
 
+type TBConnectionInfo = {
+  +url: string,
+};
+
+async function getTBConnectionInfo(): Promise<TBConnectionInfo> {
+  const tbConfig = await getCommConfig<TBConnectionInfo>({
+    folder: 'facts',
+    name: 'tunnelbroker',
+  });
+
+  if (tbConfig) {
+    return tbConfig;
+  }
+
+  console.warn('Defaulting to local Tunnelbroker instance');
+  return {
+    url: 'ws://127.0.0.1:51001',
+  };
+}
+
 async function createAndMaintainTunnelbrokerWebsocket(
   identityInfo: IdentityInfo,
 ) {
-  const accountInfo = await fetchOlmAccount('content');
+  const [accountInfo, tbConnectionInfo] = await Promise.all([
+    fetchOlmAccount('content'),
+    getTBConnectionInfo(),
+  ]);
+
   const deviceID = JSON.parse(accountInfo.account.identity_keys()).ed25519;
 
   openTunnelbrokerConnection(
     deviceID,
     identityInfo.userId,
     identityInfo.accessToken,
+    tbConnectionInfo.url,
   );
 }
 
@@ -44,9 +70,10 @@ function openTunnelbrokerConnection(
   deviceID: string,
   userID: string,
   accessToken: string,
+  tbUrl: string,
 ) {
   try {
-    const tunnelbrokerSocket = new WebSocket('ws://127.0.0.1:51001');
+    const tunnelbrokerSocket = new WebSocket(tbUrl);
 
     tunnelbrokerSocket.on('open', () => {
       const message: TBKeyserverConnectionInitializationMessage = {
