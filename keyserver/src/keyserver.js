@@ -6,8 +6,11 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
+import qrcode from 'qrcode';
 
 import './cron/cron.js';
+import { qrCodeLinkURL } from 'lib/facts/links.js';
+
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
@@ -40,6 +43,8 @@ import {
   getLandingURLFacts,
   getCommAppURLFacts,
 } from './utils/urls.js';
+
+const shouldDisplayQRCodeInTerminal = false;
 
 (async () => {
   await Promise.all([olm.init(), prefetchAllURLFacts(), initENSCache()]);
@@ -74,6 +79,18 @@ import {
       handleAsyncPromise(createAndMaintainTunnelbrokerWebsocket(identityInfo));
     } catch (e) {
       console.warn('failed_identity_login');
+    }
+
+    if (shouldDisplayQRCodeInTerminal) {
+      try {
+        const aes256Key = new Uint8Array([]);
+        const ed25519Key = 'ed25519Key';
+
+        const url = qrCodeLinkURL(aes256Key, ed25519Key);
+        qrcode.toString(url, (error, encodedURL) => console.log(encodedURL));
+      } catch (e) {
+        console.log('Error generating QR code', e);
+      }
     }
 
     const cpuCount = os.cpus().length;
