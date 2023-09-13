@@ -185,8 +185,8 @@ resource "aws_lb_listener" "feature_flags_https" {
   }
 
   lifecycle {
-    # Required only for existing resources to avoid plan difference
-    ignore_changes = [default_action[0].forward[0].stickiness[0].duration]
+    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
+    replace_triggered_by = [aws_lb_target_group.feature_flags_ecs]
   }
 }
 
