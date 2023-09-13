@@ -1,7 +1,6 @@
 // @flow
 
 import { AppState as NativeAppState, Platform, Alert } from 'react-native';
-import Orientation from 'react-native-orientation-locker';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
@@ -21,17 +20,11 @@ import {
   invalidSessionRecovery,
 } from 'lib/shared/session-utils.js';
 import { isStaff } from 'lib/shared/staff-utils.js';
-import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
-import { defaultCalendarQuery } from 'lib/types/entry-types.js';
-import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
-import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
-import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateDimensionsActiveType,
@@ -46,95 +39,17 @@ import {
   type Action,
   setLocalSettingsActionType,
 } from './action-types.js';
+import { defaultState } from './default-state.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
-import { defaultDimensionsInfo } from './dimensions-updater.react.js';
 import { persistConfig, setPersistor } from './persist.js';
 import { processDBStoreOperations } from './redux-utils.js';
 import type { AppState } from './state-types.js';
 import reduceGlobalThemeInfo from './theme-reducer.js';
-import { defaultNavInfo } from '../navigation/default-state.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import reactotron from '../reactotron.js';
-import { defaultDeviceCameraInfo } from '../types/camera.js';
-import { defaultConnectivityInfo } from '../types/connectivity.js';
-import { defaultGlobalThemeInfo } from '../types/themes.js';
 import { isStaffRelease } from '../utils/staff-utils.js';
-import {
-  defaultURLPrefix,
-  natNodeServer,
-  setCustomServer,
-  getDevServerHostname,
-} from '../utils/url-utils.js';
-
-const defaultState = ({
-  navInfo: defaultNavInfo,
-  currentUserInfo: null,
-  draftStore: { drafts: {} },
-  entryStore: {
-    entryInfos: {},
-    daysToEntries: {},
-    lastUserInteractionCalendar: 0,
-  },
-  threadStore: {
-    threadInfos: {},
-  },
-  userStore: {
-    userInfos: {},
-    inconsistencyReports: [],
-  },
-  messageStore: {
-    messages: {},
-    threads: {},
-    local: {},
-    currentAsOf: { [ashoatKeyserverID]: 0 },
-  },
-  storeLoaded: false,
-  loadingStatuses: {},
-  calendarFilters: defaultCalendarFilters,
-  deviceToken: null,
-  dataLoaded: false,
-  customServer: natNodeServer,
-  notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-  actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
-  watchedThreadIDs: [],
-  lifecycleState: 'active',
-  enabledApps: defaultEnabledApps,
-  reportStore: {
-    enabledReports: {
-      crashReports: __DEV__,
-      inconsistencyReports: __DEV__,
-      mediaReports: __DEV__,
-    },
-    queuedReports: [],
-  },
-  nextLocalID: 0,
-  _persist: null,
-  dimensions: defaultDimensionsInfo,
-  connectivity: defaultConnectivityInfo,
-  globalThemeInfo: defaultGlobalThemeInfo,
-  deviceCameraInfo: defaultDeviceCameraInfo,
-  deviceOrientation: Orientation.getInitialOrientation(),
-  frozen: false,
-  userPolicies: {},
-  commServicesAccessToken: null,
-  inviteLinksStore: {
-    links: {},
-  },
-  keyserverStore: {
-    keyserverInfos: {
-      [ashoatKeyserverID]: {
-        updatesCurrentAsOf: 0,
-        urlPrefix: defaultURLPrefix,
-        connection: defaultConnectionInfo,
-        lastCommunicatedPlatformDetails: null,
-      },
-    },
-  },
-  localSettings: {
-    isBackupEnabled: false,
-  },
-}: AppState);
+import { setCustomServer, getDevServerHostname } from '../utils/url-utils.js';
 
 function reducer(state: AppState = defaultState, action: Action) {
   if (action.type === setReduxStateActionType) {
