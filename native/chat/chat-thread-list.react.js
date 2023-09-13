@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
 import Animated from 'react-native-reanimated';
-import { createSelector } from 'reselect';
 
 import { searchUsers as searchUsersEndpoint } from 'lib/actions/user-actions.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
@@ -140,6 +139,8 @@ type Props = {
   +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
   +hardwareBack: () => boolean,
   +renderItem: (row: { item: Item, ... }) => React.Node,
+  +partialListData: $ReadOnlyArray<Item>,
+  +onEndReached: () => void,
 };
 
 class ChatThreadList extends React.PureComponent<Props> {
@@ -226,70 +227,6 @@ class ChatThreadList extends React.PureComponent<Props> {
     }
   };
 
-  listDataSelector = createSelector(
-    (props: Props) => props.chatListData,
-    (props: Props) => props.searchStatus,
-    (props: Props) => props.searchText,
-    (props: Props) => props.threadsSearchResults,
-    (props: Props) => props.emptyItem,
-    (props: Props) => props.usersSearchResults,
-    (props: Props) => props.filterThreads,
-    (props: Props) => props.loggedInUserInfo,
-    (
-      reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
-      searchStatus: SearchStatus,
-      searchText: string,
-      threadsSearchResults: Set<string>,
-      emptyItem?: React.ComponentType<{}>,
-      usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
-      filterThreads: ThreadInfo => boolean,
-      loggedInUserInfo: ?LoggedInUserInfo,
-    ): $ReadOnlyArray<Item> => {
-      const chatThreadItems = getThreadListSearchResults(
-        reduxChatListData,
-        searchText,
-        filterThreads,
-        threadsSearchResults,
-        usersSearchResults,
-        loggedInUserInfo,
-      );
-
-      const chatItems: Item[] = [...chatThreadItems];
-
-      if (emptyItem && chatItems.length === 0) {
-        chatItems.push({ type: 'empty', emptyItem });
-      }
-
-      if (searchStatus === 'inactive' || searchStatus === 'activating') {
-        chatItems.unshift({ type: 'search', searchText });
-      }
-
-      return chatItems;
-    },
-  );
-
-  partialListDataSelector = createSelector(
-    this.listDataSelector,
-    (props: Props) => props.numItemsToDisplay,
-    (items: $ReadOnlyArray<Item>, numItemsToDisplay: number) =>
-      items.slice(0, numItemsToDisplay),
-  );
-
-  get fullListData() {
-    return this.listDataSelector({ ...this.props, ...this.state });
-  }
-
-  get listData() {
-    return this.partialListDataSelector({ ...this.props, ...this.state });
-  }
-
-  onEndReached = () => {
-    if (this.listData.length === this.fullListData.length) {
-      return;
-    }
-    this.props.setNumItemsToDisplay(prevNumItems => prevNumItems + 25);
-  };
-
   render() {
     let floatingAction;
     if (Platform.OS === 'android') {
@@ -317,7 +254,7 @@ class ChatThreadList extends React.PureComponent<Props> {
       <View style={this.props.styles.container}>
         {fixedSearch}
         <FlatList
-          data={this.listData}
+          data={this.props.partialListData}
           renderItem={this.props.renderItem}
           keyExtractor={keyExtractor}
           getItemLayout={getItemLayout}
@@ -328,7 +265,7 @@ class ChatThreadList extends React.PureComponent<Props> {
           style={this.props.styles.flatList}
           indicatorStyle={this.props.indicatorStyle}
           scrollEnabled={scrollEnabled}
-          onEndReached={this.onEndReached}
+          onEndReached={this.props.onEndReached}
           onEndReachedThreshold={1}
           ref={this.flatListRef}
         />
@@ -647,6 +584,50 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
     ],
   );
 
+  const listData: $ReadOnlyArray<Item> = React.useMemo(() => {
+    const chatThreadItems = getThreadListSearchResults(
+      boundChatListData,
+      searchText,
+      filterThreads,
+      threadsSearchResults,
+      usersSearchResults,
+      loggedInUserInfo,
+    );
+
+    const chatItems: Item[] = [...chatThreadItems];
+
+    if (emptyItem && chatItems.length === 0) {
+      chatItems.push({ type: 'empty', emptyItem });
+    }
+
+    if (searchStatus === 'inactive' || searchStatus === 'activating') {
+      chatItems.unshift({ type: 'search', searchText });
+    }
+
+    return chatItems;
+  }, [
+    boundChatListData,
+    emptyItem,
+    filterThreads,
+    loggedInUserInfo,
+    searchStatus,
+    searchText,
+    threadsSearchResults,
+    usersSearchResults,
+  ]);
+
+  const partialListData: $ReadOnlyArray<Item> = React.useMemo(
+    () => listData.slice(0, numItemsToDisplay),
+    [listData, numItemsToDisplay],
+  );
+
+  const onEndReached = React.useCallback(() => {
+    if (partialListData.length === listData.length) {
+      return;
+    }
+    setNumItemsToDisplay(prevNumItems => prevNumItems + 25);
+  }, [listData.length, partialListData.length]);
+
   return (
     <ChatThreadList
       navigation={navigation}
@@ -688,6 +669,8 @@ function ConnectedChatThreadList(props: BaseProps): React.Node {
       onPressSeeMoreSidebars={onPressSeeMoreSidebars}
       hardwareBack={hardwareBack}
       renderItem={renderItem}
+      partialListData={partialListData}
+      onEndReached={onEndReached}
     />
   );
 }
