@@ -60,18 +60,19 @@ size_t getMemoryUsageInBytes() {
   // Step 1: notification decryption.
   if ([self shouldBeDecrypted:content.userInfo]) {
     std::string decryptErrorMessage;
+    std::string notifID = std::string([content.userInfo[@"id"] UTF8String]);
     try {
       @try {
         [self decryptContentInPlace:content];
       } @catch (NSException *e) {
         decryptErrorMessage = "NSE: Received Obj-C exception: " +
             std::string([e.name UTF8String]) +
-            " during notification decryption.";
+            " during notification decryption. Notif ID: " + notifID;
       }
     } catch (const std::exception &e) {
       decryptErrorMessage =
           "NSE: Received C++ exception: " + std::string(e.what()) +
-          " during notification decryption.";
+          " during notification decryption. Notif ID: " + notifID;
     }
 
     if (decryptErrorMessage.size()) {
