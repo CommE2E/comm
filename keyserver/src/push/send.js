@@ -36,8 +36,9 @@ import type {
   ResolvedNotifTexts,
 } from 'lib/types/notif-types.js';
 import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
-import type { ServerThreadInfo } from 'lib/types/thread-types.js';
+import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
+import { type GlobalUserInfo } from 'lib/types/user-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
@@ -132,255 +133,18 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       _pickBy(threadInfo => threadInfo),
     )(serverThreadInfos);
     for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
-      const hydrateMessageInfo = (rawMessageInfo: RawMessageInfo) =>
-        createMessageInfo(rawMessageInfo, userID, userInfos, threadInfos);
-      const newMessageInfos = [];
-      const newRawMessageInfos = [];
-      for (const newRawMessageInfo of notifInfo.newMessageInfos) {
-        const newMessageInfo = hydrateMessageInfo(newRawMessageInfo);
-        if (newMessageInfo) {
-          newMessageInfos.push(newMessageInfo);
-          newRawMessageInfos.push(newRawMessageInfo);
-        }
-      }
-      if (newMessageInfos.length === 0) {
-        continue;
-      }
-      const existingMessageInfos = notifInfo.existingMessageInfos
-        .map(hydrateMessageInfo)
-        .filter(Boolean);
-      const allMessageInfos = sortMessageInfoList([
-        ...newMessageInfos,
-        ...existingMessageInfos,
-      ]);
-      const [firstNewMessageInfo, ...remainingNewMessageInfos] =
-        newMessageInfos;
-      const { threadID } = firstNewMessageInfo;
-
-      const threadInfo = threadInfos[threadID];
-      const updateBadge = threadInfo.currentUser.subscription.home;
-      const displayBanner = threadInfo.currentUser.subscription.pushNotifs;
-      const username = userInfos[userID] && userInfos[userID].username;
-      const userWasMentioned =
-        username &&
-        threadInfo.currentUser.role &&
-        oldValidUsernameRegex.test(username) &&
-        newMessageInfos.some(newMessageInfo => {
-          const unwrappedMessageInfo =
-            newMessageInfo.type === messageTypes.SIDEBAR_SOURCE
-              ? newMessageInfo.sourceMessage
-              : newMessageInfo;
-          return (
-            unwrappedMessageInfo.type === messageTypes.TEXT &&
-            isMentioned(username, unwrappedMessageInfo.text)
-          );
-        });
-      if (!updateBadge && !displayBanner && !userWasMentioned) {
-        continue;
-      }
-      const badgeOnly = !displayBanner && !userWasMentioned;
-
-      const notifTargetUserInfo = { id: userID, username };
-      const notifTexts = await notifTextsForMessageInfo(
-        allMessageInfos,
-        threadInfo,
-        notifTargetUserInfo,
-        getENSNames,
-      );
-      if (!notifTexts) {
-        continue;
-      }
-
-      const dbID = dbIDs.shift();
-      invariant(dbID, 'should have sufficient DB IDs');
-      const byPlatform = getDevicesByPlatform(pushInfo[userID].devices);
-      const firstMessageID = firstNewMessageInfo.id;
-      invariant(firstMessageID, 'RawMessageInfo.id should be set on server');
-      const notificationInfo = {
-        source: 'new_message',
-        dbID,
-        userID,
-        threadID,
-        messageID: firstMessageID,
-        collapseKey: notifInfo.collapseKey,
-      };
-
-      const iosVersionsToTokens = byPlatform.get('ios');
-      if (iosVersionsToTokens) {
-        for (const [versionKey, devices] of iosVersionsToTokens) {
-          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
-
-          const platformDetails: PlatformDetails = {
-            platform: 'ios',
-            codeVersion,
-            stateVersion,
-          };
-          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
-            newRawMessageInfos,
-            platformDetails,
-          );
-          const deliveryPromise = (async () => {
-            const targetedNotifications = await prepareAPNsNotification(
-              {
-                notifTexts,
-                newRawMessageInfos: shimmedNewRawMessageInfos,
-                threadID: threadInfo.id,
-                collapseKey: notifInfo.collapseKey,
-                badgeOnly,
-                unreadCount: unreadCounts[userID],
-                platformDetails,
-              },
-              devices,
-            );
-            return await sendAPNsNotification('ios', targetedNotifications, {
-              ...notificationInfo,
-              codeVersion,
-              stateVersion,
-            });
-          })();
-          deliveryPromises.push(deliveryPromise);
-        }
-      }
-      const androidVersionsToTokens = byPlatform.get('android');
-      if (androidVersionsToTokens) {
-        for (const [versionKey, devices] of androidVersionsToTokens) {
-          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
-          const platformDetails = {
-            platform: 'android',
-            codeVersion,
-            stateVersion,
-          };
-          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
-            newRawMessageInfos,
-            platformDetails,
-          );
-          const deliveryPromise = (async () => {
-            const targetedNotifications = await prepareAndroidNotification(
-              {
-                notifTexts,
-                newRawMessageInfos: shimmedNewRawMessageInfos,
-                threadID: threadInfo.id,
-                collapseKey: notifInfo.collapseKey,
-                badgeOnly,
-                unreadCount: unreadCounts[userID],
-                platformDetails,
-                dbID,
-              },
-              devices,
-            );
-            return await sendAndroidNotification(targetedNotifications, {
-              ...notificationInfo,
-              codeVersion,
-              stateVersion,
-            });
-          })();
-          deliveryPromises.push(deliveryPromise);
-        }
-      }
-      const webVersionsToTokens = byPlatform.get('web');
-      if (webVersionsToTokens) {
-        for (const [versionKey, devices] of webVersionsToTokens) {
-          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
-          const platformDetails = {
-            platform: 'web',
-            codeVersion,
-            stateVersion,
-          };
-
-          const deliveryPromise = (async () => {
-            const notification = await prepareWebNotification({
-              notifTexts,
-              threadID: threadInfo.id,
-              unreadCount: unreadCounts[userID],
-              platformDetails,
-            });
-            const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
-            return await sendWebNotification(notification, deviceTokens, {
-              ...notificationInfo,
-              codeVersion,
-              stateVersion,
-            });
-          })();
-          deliveryPromises.push(deliveryPromise);
-        }
-      }
-      const macosVersionsToTokens = byPlatform.get('macos');
-      if (macosVersionsToTokens) {
-        for (const [versionKey, devices] of macosVersionsToTokens) {
-          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
-          const platformDetails = {
-            platform: 'macos',
-            codeVersion,
-            stateVersion,
-          };
-          const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
-            newRawMessageInfos,
-            platformDetails,
-          );
-          const deliveryPromise = (async () => {
-            const targetedNotifications = await prepareAPNsNotification(
-              {
-                notifTexts,
-                newRawMessageInfos: shimmedNewRawMessageInfos,
-                threadID: threadInfo.id,
-                collapseKey: notifInfo.collapseKey,
-                badgeOnly,
-                unreadCount: unreadCounts[userID],
-                platformDetails,
-              },
-              devices,
-            );
-            return await sendAPNsNotification('macos', targetedNotifications, {
-              ...notificationInfo,
-              codeVersion,
-              stateVersion,
-            });
-          })();
-          deliveryPromises.push(deliveryPromise);
-        }
-      }
-      const windowsVersionsToTokens = byPlatform.get('windows');
-      if (windowsVersionsToTokens) {
-        for (const [versionKey, devices] of windowsVersionsToTokens) {
-          const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
-          const platformDetails = {
-            platform: 'windows',
-            codeVersion,
-            stateVersion,
-          };
-
-          const deliveryPromise = (async () => {
-            const notification = await prepareWNSNotification({
-              notifTexts,
-              threadID: threadInfo.id,
-              unreadCount: unreadCounts[userID],
-              platformDetails,
-            });
-            const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
-            return await sendWNSNotification(notification, deviceTokens, {
-              ...notificationInfo,
-              codeVersion,
-              stateVersion,
-            });
-          })();
-          deliveryPromises.push(deliveryPromise);
-        }
-      }
-
-      for (const newMessageInfo of remainingNewMessageInfos) {
-        const newDBID = dbIDs.shift();
-        invariant(newDBID, 'should have sufficient DB IDs');
-        const messageID = newMessageInfo.id;
-        invariant(messageID, 'RawMessageInfo.id should be set on server');
-        notifications.set(newDBID, {
-          dbID: newDBID,
+      deliveryPromises.push(
+        sendPushNotif({
+          notifInfo,
           userID,
-          threadID: newMessageInfo.threadID,
-          messageID,
-          collapseKey: notifInfo.collapseKey,
-          deliveries: [{ collapsedInto: dbID }],
-        });
-      }
+          pushUserInfo: pushInfo[userID],
+          unreadCount: unreadCounts[userID],
+          threadInfos,
+          userInfos,
+          dbIDs,
+          rowsToSave: notifications,
+        }),
+      );
     }
   }
 
@@ -394,7 +158,292 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     Promise.all(cleanUpPromises),
   ]);
 
-  await saveNotifResults(deliveryResults, notifications, true);
+  const flattenedDeliveryResults = [];
+  for (const innerDeliveryResults of deliveryResults) {
+    if (!innerDeliveryResults) {
+      continue;
+    }
+    for (const deliveryResult of innerDeliveryResults) {
+      flattenedDeliveryResults.push(deliveryResult);
+    }
+  }
+
+  await saveNotifResults(flattenedDeliveryResults, notifications, true);
+}
+
+async function sendPushNotif(input: {
+  notifInfo: CollapsableNotifInfo,
+  userID: string,
+  pushUserInfo: PushUserInfo,
+  unreadCount: number,
+  threadInfos: { +[threadID: string]: ThreadInfo },
+  userInfos: { +[userID: string]: GlobalUserInfo },
+  dbIDs: string[], // mutable
+  rowsToSave: Map<string, NotificationRow>, // mutable
+}): Promise<?(PushResult[])> {
+  const {
+    notifInfo,
+    userID,
+    pushUserInfo,
+    unreadCount,
+    threadInfos,
+    userInfos,
+    dbIDs,
+    rowsToSave,
+  } = input;
+
+  const hydrateMessageInfo = (rawMessageInfo: RawMessageInfo) =>
+    createMessageInfo(rawMessageInfo, userID, userInfos, threadInfos);
+  const newMessageInfos = [];
+  const newRawMessageInfos = [];
+  for (const newRawMessageInfo of notifInfo.newMessageInfos) {
+    const newMessageInfo = hydrateMessageInfo(newRawMessageInfo);
+    if (newMessageInfo) {
+      newMessageInfos.push(newMessageInfo);
+      newRawMessageInfos.push(newRawMessageInfo);
+    }
+  }
+  if (newMessageInfos.length === 0) {
+    return null;
+  }
+  const existingMessageInfos = notifInfo.existingMessageInfos
+    .map(hydrateMessageInfo)
+    .filter(Boolean);
+  const allMessageInfos = sortMessageInfoList([
+    ...newMessageInfos,
+    ...existingMessageInfos,
+  ]);
+  const [firstNewMessageInfo, ...remainingNewMessageInfos] = newMessageInfos;
+  const { threadID } = firstNewMessageInfo;
+
+  const threadInfo = threadInfos[threadID];
+  const updateBadge = threadInfo.currentUser.subscription.home;
+  const displayBanner = threadInfo.currentUser.subscription.pushNotifs;
+  const username = userInfos[userID] && userInfos[userID].username;
+  const userWasMentioned =
+    username &&
+    threadInfo.currentUser.role &&
+    oldValidUsernameRegex.test(username) &&
+    newMessageInfos.some(newMessageInfo => {
+      const unwrappedMessageInfo =
+        newMessageInfo.type === messageTypes.SIDEBAR_SOURCE
+          ? newMessageInfo.sourceMessage
+          : newMessageInfo;
+      return (
+        unwrappedMessageInfo.type === messageTypes.TEXT &&
+        isMentioned(username, unwrappedMessageInfo.text)
+      );
+    });
+  if (!updateBadge && !displayBanner && !userWasMentioned) {
+    return null;
+  }
+  const badgeOnly = !displayBanner && !userWasMentioned;
+
+  const notifTargetUserInfo = { id: userID, username };
+  const notifTexts = await notifTextsForMessageInfo(
+    allMessageInfos,
+    threadInfo,
+    notifTargetUserInfo,
+    getENSNames,
+  );
+  if (!notifTexts) {
+    return null;
+  }
+
+  const dbID = dbIDs.shift();
+  invariant(dbID, 'should have sufficient DB IDs');
+  const byPlatform = getDevicesByPlatform(pushUserInfo.devices);
+  const firstMessageID = firstNewMessageInfo.id;
+  invariant(firstMessageID, 'RawMessageInfo.id should be set on server');
+  const notificationInfo = {
+    source: 'new_message',
+    dbID,
+    userID,
+    threadID,
+    messageID: firstMessageID,
+    collapseKey: notifInfo.collapseKey,
+  };
+
+  const deliveryPromises = [];
+
+  const iosVersionsToTokens = byPlatform.get('ios');
+  if (iosVersionsToTokens) {
+    for (const [versionKey, devices] of iosVersionsToTokens) {
+      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+
+      const platformDetails: PlatformDetails = {
+        platform: 'ios',
+        codeVersion,
+        stateVersion,
+      };
+      const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
+        newRawMessageInfos,
+        platformDetails,
+      );
+      const deliveryPromise: Promise<PushResult> = (async () => {
+        const targetedNotifications = await prepareAPNsNotification(
+          {
+            notifTexts,
+            newRawMessageInfos: shimmedNewRawMessageInfos,
+            threadID: threadInfo.id,
+            collapseKey: notifInfo.collapseKey,
+            badgeOnly,
+            unreadCount,
+            platformDetails,
+          },
+          devices,
+        );
+        return await sendAPNsNotification('ios', targetedNotifications, {
+          ...notificationInfo,
+          codeVersion,
+          stateVersion,
+        });
+      })();
+      deliveryPromises.push(deliveryPromise);
+    }
+  }
+  const androidVersionsToTokens = byPlatform.get('android');
+  if (androidVersionsToTokens) {
+    for (const [versionKey, devices] of androidVersionsToTokens) {
+      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+      const platformDetails = {
+        platform: 'android',
+        codeVersion,
+        stateVersion,
+      };
+      const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
+        newRawMessageInfos,
+        platformDetails,
+      );
+      const deliveryPromise: Promise<PushResult> = (async () => {
+        const targetedNotifications = await prepareAndroidNotification(
+          {
+            notifTexts,
+            newRawMessageInfos: shimmedNewRawMessageInfos,
+            threadID: threadInfo.id,
+            collapseKey: notifInfo.collapseKey,
+            badgeOnly,
+            unreadCount,
+            platformDetails,
+            dbID,
+          },
+          devices,
+        );
+        return await sendAndroidNotification(targetedNotifications, {
+          ...notificationInfo,
+          codeVersion,
+          stateVersion,
+        });
+      })();
+      deliveryPromises.push(deliveryPromise);
+    }
+  }
+  const webVersionsToTokens = byPlatform.get('web');
+  if (webVersionsToTokens) {
+    for (const [versionKey, devices] of webVersionsToTokens) {
+      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+      const platformDetails = {
+        platform: 'web',
+        codeVersion,
+        stateVersion,
+      };
+
+      const deliveryPromise: Promise<PushResult> = (async () => {
+        const notification = await prepareWebNotification({
+          notifTexts,
+          threadID: threadInfo.id,
+          unreadCount,
+          platformDetails,
+        });
+        const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
+        return await sendWebNotification(notification, deviceTokens, {
+          ...notificationInfo,
+          codeVersion,
+          stateVersion,
+        });
+      })();
+      deliveryPromises.push(deliveryPromise);
+    }
+  }
+  const macosVersionsToTokens = byPlatform.get('macos');
+  if (macosVersionsToTokens) {
+    for (const [versionKey, devices] of macosVersionsToTokens) {
+      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+      const platformDetails = {
+        platform: 'macos',
+        codeVersion,
+        stateVersion,
+      };
+      const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
+        newRawMessageInfos,
+        platformDetails,
+      );
+      const deliveryPromise: Promise<PushResult> = (async () => {
+        const targetedNotifications = await prepareAPNsNotification(
+          {
+            notifTexts,
+            newRawMessageInfos: shimmedNewRawMessageInfos,
+            threadID: threadInfo.id,
+            collapseKey: notifInfo.collapseKey,
+            badgeOnly,
+            unreadCount,
+            platformDetails,
+          },
+          devices,
+        );
+        return await sendAPNsNotification('macos', targetedNotifications, {
+          ...notificationInfo,
+          codeVersion,
+          stateVersion,
+        });
+      })();
+      deliveryPromises.push(deliveryPromise);
+    }
+  }
+  const windowsVersionsToTokens = byPlatform.get('windows');
+  if (windowsVersionsToTokens) {
+    for (const [versionKey, devices] of windowsVersionsToTokens) {
+      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+      const platformDetails = {
+        platform: 'windows',
+        codeVersion,
+        stateVersion,
+      };
+
+      const deliveryPromise: Promise<PushResult> = (async () => {
+        const notification = await prepareWNSNotification({
+          notifTexts,
+          threadID: threadInfo.id,
+          unreadCount,
+          platformDetails,
+        });
+        const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
+        return await sendWNSNotification(notification, deviceTokens, {
+          ...notificationInfo,
+          codeVersion,
+          stateVersion,
+        });
+      })();
+      deliveryPromises.push(deliveryPromise);
+    }
+  }
+
+  for (const newMessageInfo of remainingNewMessageInfos) {
+    const newDBID = dbIDs.shift();
+    invariant(newDBID, 'should have sufficient DB IDs');
+    const messageID = newMessageInfo.id;
+    invariant(messageID, 'RawMessageInfo.id should be set on server');
+    rowsToSave.set(newDBID, {
+      dbID: newDBID,
+      userID,
+      threadID: newMessageInfo.threadID,
+      messageID,
+      collapseKey: notifInfo.collapseKey,
+      deliveries: [{ collapsedInto: dbID }],
+    });
+  }
+
+  return await Promise.all(deliveryPromises);
 }
 
 async function sendRescindNotifs(rescindInfo: PushInfo) {
@@ -1350,7 +1399,7 @@ async function updateBadgeCount(
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
-      const deliveryPromise = (async () => {
+      const deliveryPromise: Promise<PushResult> = (async () => {
         let targetedNotifications;
         if (codeVersion > 222) {
           const notificationsArray = await prepareEncryptedIOSNotifications(
@@ -1392,7 +1441,7 @@ async function updateBadgeCount(
           ? { badge: unreadCount.toString() }
           : { badge: unreadCount.toString(), badgeOnly: '1' };
       const notification = { data: notificationData };
-      const deliveryPromise = (async () => {
+      const deliveryPromise: Promise<PushResult> = (async () => {
         let targetedNotifications;
         if (codeVersion > 222) {
           const notificationsArray = await prepareEncryptedAndroidNotifications(
