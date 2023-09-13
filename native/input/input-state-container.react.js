@@ -1,9 +1,9 @@
 // @flow
 
+import * as FileSystem from 'expo-file-system';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform } from 'react-native';
-import * as Upload from 'react-native-background-upload';
 import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as uuid from 'uuid';
@@ -1210,38 +1210,34 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       const uploadEndpoint = blobService.httpEndpoints.UPLOAD_BLOB;
       const { method } = uploadEndpoint;
-      const uploadID = await Upload.startUpload({
-        url: makeBlobServiceEndpointURL(uploadEndpoint),
-        method,
+      const uploadTask = FileSystem.createUploadTask(
+        makeBlobServiceEndpointURL(uploadEndpoint),
         path,
-        type: 'multipart',
-        field: 'blob_data',
-        parameters: {
-          blob_hash: blobHash,
+        {
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: 'blob_data',
+          httpMethod: method,
+          parameters: { blob_hash: blobHash },
         },
-      });
+        uploadProgress => {
+          if (options && options.onProgress) {
+            const { totalByteSent, totalBytesExpectedToSend } = uploadProgress;
+            options.onProgress(totalByteSent / totalBytesExpectedToSend);
+          }
+        },
+      );
       if (options && options.abortHandler) {
-        options.abortHandler(() => {
-          Upload.cancelUpload(uploadID);
-        });
+        options.abortHandler(() => uploadTask.cancelAsync());
       }
-      await new Promise((resolve, reject) => {
-        Upload.addListener('error', uploadID, data => {
-          reject(data.error);
-        });
-        Upload.addListener('cancelled', uploadID, () => {
-          reject(new Error('request aborted'));
-        });
-        Upload.addListener('completed', uploadID, data => {
-          resolve(data);
-        });
-        if (options && options.onProgress) {
-          const { onProgress } = options;
-          Upload.addListener('progress', uploadID, data =>
-            onProgress(data.progress / 100),
-          );
-        }
-      });
+      try {
+        await uploadTask.uploadAsync();
+      } catch (e) {
+        throw new Error(
+          `Failed to upload blob: ${
+            getMessageForException(e) ?? 'unknown error'
+          }`,
+        );
+      }
     }
 
     // 3. Send upload metadata to the keyserver, return response
@@ -1311,42 +1307,37 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         path = resolvedPath;
       }
     }
-    const uploadID = await Upload.startUpload({
+    const uploadTask = FileSystem.createUploadTask(
       url,
       path,
-      type: 'multipart',
-      headers: {
-        Accept: 'application/json',
+      {
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        fieldName: 'multimedia',
+        headers: {
+          Accept: 'application/json',
+        },
+        parameters,
       },
-      field: 'multimedia',
-      parameters,
-    });
-    if (options && options.abortHandler) {
-      options.abortHandler(() => {
-        Upload.cancelUpload(uploadID);
-      });
-    }
-    return await new Promise((resolve, reject) => {
-      Upload.addListener('error', uploadID, data => {
-        reject(data.error);
-      });
-      Upload.addListener('cancelled', uploadID, () => {
-        reject(new Error('request aborted'));
-      });
-      Upload.addListener('completed', uploadID, data => {
-        try {
-          resolve(JSON.parse(data.responseBody));
-        } catch (e) {
-          reject(e);
+      uploadProgress => {
+        if (options && options.onProgress) {
+          const { totalByteSent, totalBytesExpectedToSend } = uploadProgress;
+          options.onProgress(totalByteSent / totalBytesExpectedToSend);
         }
-      });
-      if (options && options.onProgress) {
-        const { onProgress } = options;
-        Upload.addListener('progress', uploadID, data =>
-          onProgress(data.progress / 100),
-        );
-      }
-    });
+      },
+    );
+    if (options && options.abortHandler) {
+      options.abortHandler(() => uploadTask.cancelAsync());
+    }
+    try {
+      const response = await uploadTask.uploadAsync();
+      return JSON.parse(response.body);
+    } catch (e) {
+      throw new Error(
+        `Failed to upload blob: ${
+          getMessageForException(e) ?? 'unknown error'
+        }`,
+      );
+    }
   };
 
   handleUploadFailure(localMessageID: string, localUploadID: string) {
