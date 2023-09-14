@@ -17,7 +17,7 @@ const { Node, Value, interpolateNode, useValue } = Animated;
 
 type Props = {
   +searchText: string,
-  +onChangeText: (updatedSearchText: string) => Promise<void>,
+  +onChangeText: (updatedSearchText: string) => void,
   +onBlur: () => void,
   +onSearchCancel: () => void,
   +searchStatus: SearchStatus,

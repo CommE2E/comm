@@ -12,22 +12,19 @@ import {
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
 
-import { searchUsers as searchUsersEndpoint } from 'lib/actions/user-actions.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
 } from 'lib/selectors/chat-selectors.js';
-import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
-import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors.js';
 import {
   createPendingThread,
   getThreadListSearchResults,
+  useThreadListSearch,
 } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import type { UserInfo } from 'lib/types/user-types.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
 import ChatThreadListSearch from './chat-thread-list-search.react.js';
@@ -77,11 +74,8 @@ export type SearchStatus = 'inactive' | 'activating' | 'active';
 function ChatThreadList(props: BaseProps): React.Node {
   const boundChatListData = useFlattenedChatListData();
   const loggedInUserInfo = useLoggedInUserInfo();
-  const threadSearchIndex = useGlobalThreadSearchIndex();
   const styles = useStyles(unboundStyles);
   const indicatorStyle = useSelector(indicatorStyleSelector);
-  const callSearchUsers = useServerCall(searchUsersEndpoint);
-  const usersWithPersonalThread = useSelector(usersWithPersonalThreadSelector);
 
   const navigateToThread = useNavigateToThread();
 
@@ -91,44 +85,19 @@ function ChatThreadList(props: BaseProps): React.Node {
   const [searchStatus, setSearchStatus] =
     React.useState<SearchStatus>('inactive');
 
-  const [threadsSearchResults, setThreadsSearchResults] = React.useState<
-    Set<string>,
-  >(new Set());
-
-  const [usersSearchResults, setUsersSearchResults] = React.useState<
-    $ReadOnlyArray<GlobalAccountUserInfo>,
-  >([]);
+  const { threadSearchResults, usersSearchResults } = useThreadListSearch(
+    boundChatListData,
+    searchText,
+    loggedInUserInfo?.id,
+  );
 
   const [openedSwipeableID, setOpenedSwipeableID] = React.useState<string>('');
   const [numItemsToDisplay, setNumItemsToDisplay] = React.useState<number>(25);
 
-  const searchUsers = React.useCallback(
-    async (usernamePrefix: string) => {
-      if (usernamePrefix.length === 0) {
-        return [];
-      }
-
-      const { userInfos } = await callSearchUsers(usernamePrefix);
-      return userInfos.filter(
-        info =>
-          !usersWithPersonalThread.has(info.id) &&
-          info.id !== loggedInUserInfo?.id,
-      );
-    },
-    [callSearchUsers, loggedInUserInfo?.id, usersWithPersonalThread],
-  );
-
-  const onChangeSearchText = React.useCallback(
-    async (updatedSearchText: string) => {
-      const results = threadSearchIndex.getSearchResults(updatedSearchText);
-      setSearchText(updatedSearchText);
-      setThreadsSearchResults(new Set(results));
-      setNumItemsToDisplay(25);
-      const searchResults = await searchUsers(updatedSearchText);
-      setUsersSearchResults(searchResults);
-    },
-    [searchUsers, threadSearchIndex],
-  );
+  const onChangeSearchText = React.useCallback((updatedSearchText: string) => {
+    setSearchText(updatedSearchText);
+    setNumItemsToDisplay(25);
+  }, []);
 
   const scrollPos = React.useRef(0);
   const flatListRef = React.useRef();
@@ -296,7 +265,7 @@ function ChatThreadList(props: BaseProps): React.Node {
       boundChatListData,
       searchText,
       filterThreads,
-      threadsSearchResults,
+      threadSearchResults,
       usersSearchResults,
       loggedInUserInfo,
     );
@@ -319,7 +288,7 @@ function ChatThreadList(props: BaseProps): React.Node {
     loggedInUserInfo,
     searchStatus,
     searchText,
-    threadsSearchResults,
+    threadSearchResults,
     usersSearchResults,
   ]);
 
