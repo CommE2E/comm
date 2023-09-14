@@ -930,13 +930,13 @@ jsi::Value CommCoreModule::computeBackupKey(
 
 jsi::Value CommCoreModule::generateRandomString(jsi::Runtime &rt, double size) {
   return createPromiseAsJSIValue(
-      rt,
-      [this, &size](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this, &innerRt, &size, promise]() {
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
           std::string error;
           std::string randomString;
           try {
-            randomString = crypto::Tools::generateRandomString(size);
+            randomString =
+                crypto::Tools::generateRandomString(static_cast<size_t>(size));
           } catch (const std::exception &e) {
             error = "Failed to generate random string for size " +
                 std::to_string(size) + ": " + e.what();
