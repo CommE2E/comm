@@ -8,14 +8,70 @@ use auth_proto::identity_client_service_client::IdentityClientServiceClient as A
 use client::identity_client_service_client::IdentityClientServiceClient;
 use client::UploadOneTimeKeysRequest;
 use commtest::identity::device::create_device;
-use futures_util::SinkExt;
 use futures_util::StreamExt;
+use futures_util::{SinkExt, TryStreamExt};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use tonic::transport::Endpoint;
 use tonic::Request;
 use tunnelbroker_messages::{
   ConnectionInitializationMessage, DeviceTypes, RefreshKeyRequest,
 };
+
+#[tokio::test]
+#[should_panic]
+async fn test_tunnelbroker_invalid_auth() {
+  let (mut socket, _) = connect_async("ws://localhost:51001")
+    .await
+    .expect("Can't connect");
+
+  let session_request = ConnectionInitializationMessage {
+    device_id: "".to_string(),
+    access_token: "".to_string(),
+    user_id: "".to_string(),
+    notify_token: None,
+    device_type: DeviceTypes::Keyserver,
+    device_app_version: None,
+    device_os: None,
+  };
+
+  let serialized_request = serde_json::to_string(&session_request)
+    .expect("Failed to serialize connection request");
+
+  socket
+    .send(Message::Text(serialized_request))
+    .await
+    .expect("Failed to send message");
+
+  socket.next().await.unwrap().unwrap();
+}
+
+#[tokio::test]
+async fn test_tunnelbroker_valid_auth() {
+  let (mut socket, _) = connect_async("ws://localhost:51001")
+    .await
+    .expect("Can't connect");
+
+  let device_info = create_device().await;
+  let session_request = ConnectionInitializationMessage {
+    device_id: device_info.device_id.to_string(),
+    access_token: device_info.access_token.to_string(),
+    user_id: device_info.user_id.to_string(),
+    notify_token: None,
+    device_type: DeviceTypes::Keyserver,
+    device_app_version: None,
+    device_os: None,
+  };
+
+  let serialized_request = serde_json::to_string(&session_request)
+    .expect("Failed to serialize connection request");
+
+  socket
+    .send(Message::Text(serialized_request))
+    .await
+    .expect("Failed to send message");
+
+  socket.next().await.unwrap().unwrap();
+}
 
 #[tokio::test]
 async fn test_refresh_keys_request_upon_depletion() {
