@@ -40,6 +40,7 @@ import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/rout
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { VerticalBounds } from '../../types/layout-types.js';
+import { useNavigateToUserProfileBottomSheet } from '../../user-profile/user-profile-utils.js';
 
 type BaseProps = {
   +memberInfo: RelativeMemberInfo,
@@ -62,6 +63,7 @@ type Props = {
   +keyboardState: ?KeyboardState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
+  +navigateToUserProfileBottomSheet: (userID: string) => mixed,
 };
 class ThreadSettingsMember extends React.PureComponent<Props> {
   editButton: ?React.ElementRef<typeof View>;
@@ -133,7 +135,10 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       ? this.props.styles.lastContainer
       : null;
     return (
-      <View style={[this.props.styles.container, firstItem, lastItem]}>
+      <TouchableOpacity
+        onPress={this.onPressUser}
+        style={[this.props.styles.container, firstItem, lastItem]}
+      >
         <View style={this.props.styles.row}>
           <View style={this.props.styles.userInfoContainer}>
             <UserAvatar size="S" userID={this.props.memberInfo.id} />
@@ -142,9 +147,13 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           {editButton}
         </View>
         {roleInfo}
-      </View>
+      </TouchableOpacity>
     );
   }
+
+  onPressUser = () => {
+    this.props.navigateToUserProfileBottomSheet(this.props.memberInfo.id);
+  };
 
   editButtonRef = (editButton: ?React.ElementRef<typeof View>) => {
     this.editButton = editButton;
@@ -268,6 +277,9 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
     const keyboardState = React.useContext(KeyboardContext);
     const overlayContext = React.useContext(OverlayContext);
 
+    const navigateToUserProfileBottomSheet =
+      useNavigateToUserProfileBottomSheet();
+
     return (
       <ThreadSettingsMember
         {...props}
@@ -278,6 +290,7 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
         styles={styles}
         keyboardState={keyboardState}
         overlayContext={overlayContext}
+        navigateToUserProfileBottomSheet={navigateToUserProfileBottomSheet}
       />
     );
   });
