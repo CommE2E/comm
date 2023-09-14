@@ -79,8 +79,38 @@ function ForwardedChatThreadListSearch(props: Props, ref): React.Node {
     ],
     [searchCancelButtonProgress, styles.cancelSearchButtonText],
   );
-  return (
-    <>
+
+  const innerSearchNode = React.useMemo(
+    () => (
+      <Search
+        searchText={searchText}
+        onChangeText={onChangeText}
+        containerStyle={styles.search}
+        onBlur={onBlur}
+        placeholder="Search chats"
+        ref={ref}
+        autoFocus={innerSearchAutoFocus}
+        active={innerSearchActive}
+      />
+    ),
+    [
+      innerSearchActive,
+      innerSearchAutoFocus,
+      onBlur,
+      onChangeText,
+      ref,
+      searchText,
+      styles.search,
+    ],
+  );
+
+  const searchContainer = React.useMemo(
+    () => <AnimatedView style={searchBoxStyle}>{innerSearchNode}</AnimatedView>,
+    [innerSearchNode, searchBoxStyle],
+  );
+
+  const cancelButton = React.useMemo(
+    () => (
       <Button
         onPress={onSearchCancel}
         disabled={searchStatus !== 'active'}
@@ -90,35 +120,24 @@ function ForwardedChatThreadListSearch(props: Props, ref): React.Node {
         <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
         {/* eslint-enable react-native/no-raw-text */}
       </Button>
-      <AnimatedView style={searchBoxStyle}>
-        <Search
-          searchText={searchText}
-          onChangeText={onChangeText}
-          containerStyle={styles.search}
-          onBlur={onBlur}
-          placeholder="Search chats"
-          ref={ref}
-          autoFocus={innerSearchAutoFocus}
-          active={innerSearchActive}
-        />
-      </AnimatedView>
-    </>
+    ),
+    [buttonStyle, onSearchCancel, searchStatus, styles.cancelSearchButton],
   );
+
+  const chatThreadListSearch = React.useMemo(
+    () => (
+      <>
+        {cancelButton}
+        {searchContainer}
+      </>
+    ),
+    [cancelButton, searchContainer],
+  );
+
+  return chatThreadListSearch;
 }
 
 const unboundStyles = {
-  icon: {
-    fontSize: 28,
-  },
-  container: {
-    flex: 1,
-  },
-  searchContainer: {
-    backgroundColor: 'listBackground',
-    display: 'flex',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
   searchBox: {
     flex: 1,
   },
@@ -140,10 +159,6 @@ const unboundStyles = {
     fontSize: 16,
     paddingHorizontal: 16,
     paddingTop: 8,
-  },
-  flatList: {
-    flex: 1,
-    backgroundColor: 'listBackground',
   },
 };
 
