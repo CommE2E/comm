@@ -11,7 +11,6 @@ import {
   BackHandler,
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
-import Animated from 'react-native-reanimated';
 
 import { searchUsers as searchUsersEndpoint } from 'lib/actions/user-actions.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
@@ -49,7 +48,6 @@ import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { indicatorStyleSelector, useStyles } from '../themes/colors.js';
 import type { ScrollEvent } from '../types/react-native.js';
-import { animateTowards } from '../utils/animation-utils.js';
 
 const floatingActions = [
   {
@@ -59,10 +57,6 @@ const floatingActions = [
     position: 1,
   },
 ];
-
-/* eslint-disable import/no-named-as-default-member */
-const { Value, Node, interpolateNode, useValue } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 export type Item =
   | ChatThreadItem
@@ -108,20 +102,6 @@ function ChatThreadList(props: BaseProps): React.Node {
 
   const [openedSwipeableID, setOpenedSwipeableID] = React.useState<string>('');
   const [numItemsToDisplay, setNumItemsToDisplay] = React.useState<number>(25);
-
-  const searchCancelButtonOpen: Value = useValue(0);
-  const searchCancelButtonProgress: Node = React.useMemo(
-    () => animateTowards(searchCancelButtonOpen, 100),
-    [searchCancelButtonOpen],
-  );
-  const searchCancelButtonOffset: Node = React.useMemo(
-    () =>
-      interpolateNode(searchCancelButtonProgress, {
-        inputRange: [0, 1],
-        outputRange: [0, 56],
-      }),
-    [searchCancelButtonProgress],
-  );
 
   const searchUsers = React.useCallback(
     async (usernamePrefix: string) => {
@@ -224,9 +204,7 @@ function ChatThreadList(props: BaseProps): React.Node {
           onChangeText={onChangeSearchText}
           onBlur={onSearchBlur}
           additionalProps={additionalProps}
-          searchCancelButtonOffset={searchCancelButtonOffset}
           searchStatus={searchStatus}
-          searchCancelButtonProgress={searchCancelButtonProgress}
           onSearchCancel={onSearchCancel}
         />
       </View>
@@ -235,8 +213,6 @@ function ChatThreadList(props: BaseProps): React.Node {
       onChangeSearchText,
       onSearchBlur,
       onSearchCancel,
-      searchCancelButtonOffset,
-      searchCancelButtonProgress,
       searchStatus,
       searchText,
       styles.searchContainer,
@@ -469,16 +445,6 @@ function ChatThreadList(props: BaseProps): React.Node {
       BackHandler.removeEventListener('hardwareBackPress', hardwareBack);
     };
   }, [hardwareBack]);
-
-  const isActiveOrActivating =
-    searchStatus === 'active' || searchStatus === 'activating';
-  React.useEffect(() => {
-    if (isActiveOrActivating) {
-      searchCancelButtonOpen.setValue(1);
-    } else {
-      searchCancelButtonOpen.setValue(0);
-    }
-  }, [isActiveOrActivating, searchCancelButtonOpen]);
 
   React.useEffect(() => {
     if (scrollPos.current > 0 && flatListRef.current) {

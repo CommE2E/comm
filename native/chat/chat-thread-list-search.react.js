@@ -8,9 +8,10 @@ import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import { useStyles } from '../themes/colors.js';
 import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
+import { animateTowards } from '../utils/animation-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Node } = Animated;
+const { Node, Value, interpolateNode, useValue } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Props = {
@@ -18,8 +19,6 @@ type Props = {
   +onChangeText: (updatedSearchText: string) => Promise<void>,
   +onBlur: () => void,
   +additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
-  +searchCancelButtonOffset: Node,
-  +searchCancelButtonProgress: Node,
   +onSearchCancel: () => void,
   +searchStatus: SearchStatus,
 };
@@ -29,12 +28,34 @@ function ChatThreadListSearch(props: Props): React.Node {
     onChangeText,
     onBlur,
     additionalProps,
-    searchCancelButtonOffset,
-    searchCancelButtonProgress,
     onSearchCancel,
     searchStatus,
   } = props;
   const styles = useStyles(unboundStyles);
+
+  const searchCancelButtonOpen: Value = useValue(0);
+  const searchCancelButtonProgress: Node = React.useMemo(
+    () => animateTowards(searchCancelButtonOpen, 100),
+    [searchCancelButtonOpen],
+  );
+  const searchCancelButtonOffset: Node = React.useMemo(
+    () =>
+      interpolateNode(searchCancelButtonProgress, {
+        inputRange: [0, 1],
+        outputRange: [0, 56],
+      }),
+    [searchCancelButtonProgress],
+  );
+
+  const isActiveOrActivating =
+    searchStatus === 'active' || searchStatus === 'activating';
+  React.useEffect(() => {
+    if (isActiveOrActivating) {
+      searchCancelButtonOpen.setValue(1);
+    } else {
+      searchCancelButtonOpen.setValue(0);
+    }
+  }, [isActiveOrActivating, searchCancelButtonOpen]);
 
   const animatedSearchBoxStyle: AnimatedStyleObj = React.useMemo(
     () => ({
