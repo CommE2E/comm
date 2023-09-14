@@ -13,7 +13,7 @@ pub struct DeviceMessage {
   pub payload: String,
 }
 
-#[derive(Debug, derive_more::Display)]
+#[derive(Debug, derive_more::Display, derive_more::Error)]
 pub enum MessageErrors {
   SerializationError,
 }
