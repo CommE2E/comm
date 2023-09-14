@@ -1,4 +1,4 @@
-mod session;
+pub mod session;
 
 use crate::database::DatabaseClient;
 use crate::websockets::session::SessionError;
