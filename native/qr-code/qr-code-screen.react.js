@@ -5,6 +5,7 @@ import { View, Text } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { uintArrayToHexString } from 'lib/media/data-utils.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -23,7 +24,9 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
   const generateQRCode = React.useCallback(async () => {
     try {
-      const aes256Key: Uint8Array = await AES.generateKey();
+      const aes256: Uint8Array = await AES.generateKey();
+      const aes256Key: string = uintArrayToHexString(aes256);
+
       const ed25519Key: string = await getContentSigningKey();
 
       const url = qrCodeLinkURL(aes256Key, ed25519Key);
