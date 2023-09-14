@@ -381,42 +381,46 @@ function ChatThreadList(props: BaseProps): React.Node {
   const viewerID = loggedInUserInfo?.id;
   const extraData = `${viewerID || ''} ${openedSwipeableID}`;
 
-  const chatThreadList = React.useMemo(
+  const flatList = React.useMemo(
     () => (
-      <View style={styles.container}>
-        {fixedSearch}
-        <FlatList
-          data={partialListData}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          getItemLayout={getItemLayout}
-          extraData={extraData}
-          initialNumToRender={11}
-          keyboardShouldPersistTaps="handled"
-          onScroll={onScroll}
-          style={styles.flatList}
-          indicatorStyle={indicatorStyle}
-          scrollEnabled={scrollEnabled}
-          onEndReached={onEndReached}
-          onEndReachedThreshold={1}
-          ref={flatListRef}
-        />
-        {floatingAction}
-      </View>
+      <FlatList
+        data={partialListData}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        getItemLayout={getItemLayout}
+        extraData={extraData}
+        initialNumToRender={11}
+        keyboardShouldPersistTaps="handled"
+        onScroll={onScroll}
+        style={styles.flatList}
+        indicatorStyle={indicatorStyle}
+        scrollEnabled={scrollEnabled}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={1}
+        ref={flatListRef}
+      />
     ),
     [
       extraData,
-      fixedSearch,
-      floatingAction,
       indicatorStyle,
       onEndReached,
       onScroll,
       partialListData,
       renderItem,
       scrollEnabled,
-      styles.container,
       styles.flatList,
     ],
+  );
+
+  const chatThreadList = React.useMemo(
+    () => (
+      <View style={styles.container}>
+        {fixedSearch}
+        {flatList}
+        {floatingAction}
+      </View>
+    ),
+    [fixedSearch, flatList, floatingAction, styles.container],
   );
 
   const onTabPress = React.useCallback(() => {
