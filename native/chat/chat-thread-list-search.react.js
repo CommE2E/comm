@@ -18,18 +18,20 @@ type Props = {
   +searchText: string,
   +onChangeText: (updatedSearchText: string) => Promise<void>,
   +onBlur: () => void,
-  +additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
   +onSearchCancel: () => void,
   +searchStatus: SearchStatus,
+  +innerSearchAutoFocus?: boolean,
+  +innerSearchActive?: boolean,
 };
 function ChatThreadListSearch(props: Props): React.Node {
   const {
     searchText,
     onChangeText,
     onBlur,
-    additionalProps,
     onSearchCancel,
     searchStatus,
+    innerSearchActive,
+    innerSearchAutoFocus,
   } = props;
   const styles = useStyles(unboundStyles);
 
@@ -96,7 +98,8 @@ function ChatThreadListSearch(props: Props): React.Node {
           onBlur={onBlur}
           placeholder="Search chats"
           ref={searchInputRef}
-          {...additionalProps}
+          autoFocus={innerSearchAutoFocus}
+          active={innerSearchActive}
         />
       </AnimatedView>
     </>
