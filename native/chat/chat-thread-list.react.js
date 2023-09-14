@@ -37,7 +37,6 @@ import type {
   ChatNavigationProp,
 } from './chat.react.js';
 import { useNavigateToThread } from './message-list-types.js';
-import Search from '../components/search.react.js';
 import {
   SidebarListModalRouteName,
   HomeChatThreadListRouteName,
@@ -196,28 +195,6 @@ function ChatThreadList(props: BaseProps): React.Node {
   }, [clearSearch, onChangeSearchText]);
 
   const searchInputRef = React.useRef();
-  const renderSearch = React.useCallback(
-    (additionalProps?: $Shape<React.ElementConfig<typeof Search>>) => (
-      <View style={styles.searchContainer}>
-        <ChatThreadListSearch
-          searchText={searchText}
-          onChangeText={onChangeSearchText}
-          onBlur={onSearchBlur}
-          additionalProps={additionalProps}
-          searchStatus={searchStatus}
-          onSearchCancel={onSearchCancel}
-        />
-      </View>
-    ),
-    [
-      onChangeSearchText,
-      onSearchBlur,
-      onSearchCancel,
-      searchStatus,
-      searchText,
-      styles.searchContainer,
-    ],
-  );
 
   const onPressItem = React.useCallback(
     (threadInfo: ThreadInfo, pendingPersonalThreadUserInfo?: UserInfo) => {
@@ -264,7 +241,16 @@ function ChatThreadList(props: BaseProps): React.Node {
       if (item.type === 'search') {
         return (
           <TouchableWithoutFeedback onPress={onSearchFocus}>
-            {renderSearch({ active: false })}
+            <View style={styles.searchContainer}>
+              <ChatThreadListSearch
+                searchText={searchText}
+                onChangeText={onChangeSearchText}
+                onBlur={onSearchBlur}
+                searchStatus={searchStatus}
+                onSearchCancel={onSearchCancel}
+                innerSearchActive={false}
+              />
+            </View>
           </TouchableWithoutFeedback>
         );
       }
@@ -283,12 +269,17 @@ function ChatThreadList(props: BaseProps): React.Node {
       );
     },
     [
+      onChangeSearchText,
       onPressItem,
       onPressSeeMoreSidebars,
+      onSearchBlur,
+      onSearchCancel,
       onSearchFocus,
       onSwipeableWillOpen,
       openedSwipeableID,
-      renderSearch,
+      searchStatus,
+      searchText,
+      styles.searchContainer,
     ],
   );
 
@@ -352,8 +343,26 @@ function ChatThreadList(props: BaseProps): React.Node {
 
   const fixedSearch = React.useMemo(
     () =>
-      searchStatus === 'active' ? renderSearch({ autoFocus: true }) : null,
-    [renderSearch, searchStatus],
+      searchStatus === 'active' ? (
+        <View style={styles.searchContainer}>
+          <ChatThreadListSearch
+            searchText={searchText}
+            onChangeText={onChangeSearchText}
+            onBlur={onSearchBlur}
+            searchStatus={searchStatus}
+            onSearchCancel={onSearchCancel}
+            innerSearchAutoFocus={true}
+          />
+        </View>
+      ) : null,
+    [
+      onChangeSearchText,
+      onSearchBlur,
+      onSearchCancel,
+      searchStatus,
+      searchText,
+      styles.searchContainer,
+    ],
   );
 
   const scrollEnabled =
