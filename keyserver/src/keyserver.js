@@ -84,7 +84,7 @@ const shouldDisplayQRCodeInTerminal = false;
 
     if (shouldDisplayQRCodeInTerminal) {
       try {
-        const aes256Key = crypto.randomBytes(32);
+        const aes256Key = crypto.randomBytes(32).toString('hex');
         const ed25519Key = 'ed25519Key';
 
         const url = qrCodeLinkURL(aes256Key, ed25519Key);
