@@ -48,6 +48,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 import Alert from '../utils/alert.js';
 
 type BaseProps = {
@@ -74,6 +75,7 @@ type Props = {
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
+  +navigateToUserProfileBottomSheet: (userID: string) => mixed,
 };
 class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<React.ElementRef<typeof View>>();
@@ -166,15 +168,22 @@ class RelationshipListItem extends React.PureComponent<Props> {
     }
 
     return (
-      <View style={[this.props.styles.container, borderBottom]}>
+      <TouchableOpacity
+        onPress={this.onPressUser}
+        style={[this.props.styles.container, borderBottom]}
+      >
         <UserAvatar size="S" userID={this.props.userInfo.id} />
         <SingleLine style={this.props.styles.username}>
           {this.props.userInfo.username}
         </SingleLine>
         {editButton}
-      </View>
+      </TouchableOpacity>
     );
   }
+
+  onPressUser = () => {
+    this.props.navigateToUserProfileBottomSheet(this.props.userInfo.id);
+  };
 
   onSelect = () => {
     const { id, username } = this.props.userInfo;
@@ -323,6 +332,9 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
 
+    const navigateToUserProfileBottomSheet =
+      useNavigateToUserProfileBottomSheet();
+
     return (
       <RelationshipListItem
         {...props}
@@ -333,6 +345,7 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
         updateRelationships={boundUpdateRelationships}
         overlayContext={overlayContext}
         keyboardState={keyboardState}
+        navigateToUserProfileBottomSheet={navigateToUserProfileBottomSheet}
       />
     );
   });
