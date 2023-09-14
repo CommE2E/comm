@@ -148,15 +148,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     }
   }
 
-  const cleanUpPromises = [];
-  if (dbIDs.length > 0) {
-    const query = SQL`DELETE FROM ids WHERE id IN (${dbIDs})`;
-    cleanUpPromises.push(dbQuery(query));
-  }
-  const [deliveryResults] = await Promise.all([
-    Promise.all(deliveryPromises),
-    Promise.all(cleanUpPromises),
-  ]);
+  const deliveryResults = await Promise.all(deliveryPromises);
 
   const flattenedDeliveryResults = [];
   for (const innerDeliveryResults of deliveryResults) {
@@ -168,7 +160,18 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     }
   }
 
-  await saveNotifResults(flattenedDeliveryResults, notifications, true);
+  const cleanUpPromise = (async () => {
+    if (dbIDs.length === 0) {
+      return;
+    }
+    const query = SQL`DELETE FROM ids WHERE id IN (${dbIDs})`;
+    await dbQuery(query);
+  })();
+
+  await Promise.all([
+    cleanUpPromise,
+    saveNotifResults(flattenedDeliveryResults, notifications, true),
+  ]);
 }
 
 async function sendPushNotif(input: {
