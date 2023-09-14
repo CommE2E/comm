@@ -166,14 +166,12 @@ class RelationshipListItem extends React.PureComponent<Props> {
     }
 
     return (
-      <View style={this.props.styles.container}>
-        <View style={[this.props.styles.innerContainer, borderBottom]}>
-          <UserAvatar size="small" userID={this.props.userInfo.id} />
-          <SingleLine style={this.props.styles.username}>
-            {this.props.userInfo.username}
-          </SingleLine>
-          {editButton}
-        </View>
+      <View style={[this.props.styles.container, borderBottom]}>
+        <UserAvatar size="small" userID={this.props.userInfo.id} />
+        <SingleLine style={this.props.styles.username}>
+          {this.props.userInfo.username}
+        </SingleLine>
+        {editButton}
       </View>
     );
   }
@@ -268,19 +266,13 @@ class RelationshipListItem extends React.PureComponent<Props> {
 }
 
 const unboundStyles = {
-  editButton: {
-    paddingLeft: 10,
-  },
   container: {
     flex: 1,
-    paddingHorizontal: 12,
-    backgroundColor: 'panelForeground',
-  },
-  innerContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderColor: 'panelForegroundBorder',
     flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
   },
   borderBottom: {
     borderBottomWidth: 1,
@@ -297,6 +289,9 @@ const unboundStyles = {
     fontSize: 16,
     lineHeight: 20,
     marginLeft: 8,
+  },
+  editButton: {
+    paddingLeft: 10,
   },
   blueAction: {
     color: 'link',
