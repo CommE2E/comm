@@ -246,6 +246,7 @@ function ChatThreadList(props: BaseProps): React.Node {
             searchStatus={searchStatus}
             onSearchCancel={onSearchCancel}
             innerSearchActive={false}
+            ref={searchInputRef}
           />
         </View>
       </TouchableWithoutFeedback>
@@ -359,6 +360,7 @@ function ChatThreadList(props: BaseProps): React.Node {
             searchStatus={searchStatus}
             onSearchCancel={onSearchCancel}
             innerSearchAutoFocus={true}
+            ref={searchInputRef}
           />
         </View>
       ) : null,
