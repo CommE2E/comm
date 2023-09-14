@@ -44,6 +44,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String ENCRYPTED_PAYLOAD_KEY = "encryptedPayload";
   private static final String ENCRYPTION_FAILED_KEY = "encryptionFailed";
   private static final String GROUP_NOTIF_IDS_KEY = "groupNotifIDs";
+  private static final String COLLAPSE_ID_KEY = "collapseKey";
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
   private Bitmap displayableNotificationLargeIcon;
@@ -263,6 +264,13 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       return;
     }
     String id = message.getData().get(NOTIF_ID_KEY);
+    String collapseKey = message.getData().get(COLLAPSE_ID_KEY);
+    String notificationID = id;
+
+    if (collapseKey != null) {
+      notificationID = collapseKey;
+    }
+
     String title = message.getData().get(TITLE_KEY);
     String prefix = message.getData().get(PREFIX_KEY);
     String body = message.getData().get(BODY_KEY);
@@ -297,10 +305,13 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
     if (!this.notificationGroupingSupported() || threadID == null) {
       notificationManager.notify(
-          id, id.hashCode(), notificationBuilder.build());
+          notificationID,
+          notificationID.hashCode(),
+          notificationBuilder.build());
       return;
     }
-    this.addToThreadGroupAndDisplay(id, notificationBuilder, threadID);
+    this.addToThreadGroupAndDisplay(
+        notificationID, notificationBuilder, threadID);
   }
 
   private PendingIntent
