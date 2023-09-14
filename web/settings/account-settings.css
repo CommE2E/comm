@@ -1,6 +1,7 @@
 .container {
   padding: 40px;
   width: 456px;
+  overflow-y: auto;
 }
 
 .header {
@@ -62,4 +63,14 @@
 .editPasswordLink {
   color: var(--account-settings-label);
   cursor: pointer;
+}
+
+.preferencesContainer {
+  padding-top: 24px;
+}
+
+.preferencesHeader {
+  color: var(--fg);
+  font-weight: var(--semi-bold);
+  line-height: var(--line-height-display);
 }
