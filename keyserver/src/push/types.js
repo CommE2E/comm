@@ -14,6 +14,7 @@ type AndroidNotificationPayloadBase = {
   +title?: string,
   +prefix?: string,
   +threadID?: string,
+  +collapseKey?: string,
   +encryptionFailed?: '1',
 };
 
