@@ -1,31 +1,84 @@
 // @flow
 
 import * as React from 'react';
+import Animated from 'react-native-reanimated';
 
+import type { SearchStatus } from './chat-thread-list.react.js';
+import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import { useStyles } from '../themes/colors.js';
+import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
+
+/* eslint-disable import/no-named-as-default-member */
+const { Node } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 type Props = {
   +searchText: string,
   +onChangeText: (updatedSearchText: string) => mixed,
   +onBlur: () => mixed,
   +additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
+  +searchCancelButtonOffset: Node,
+  +searchCancelButtonProgress: Node,
+  +onSearchCancel: () => void,
+  +searchStatus: SearchStatus,
 };
 function ChatThreadListSearch(props: Props): React.Node {
-  const { searchText, onChangeText, onBlur, additionalProps } = props;
+  const {
+    searchText,
+    onChangeText,
+    onBlur,
+    additionalProps,
+    searchCancelButtonOffset,
+    searchCancelButtonProgress,
+    onSearchCancel,
+    searchStatus,
+  } = props;
   const styles = useStyles(unboundStyles);
 
+  const animatedSearchBoxStyle: AnimatedStyleObj = React.useMemo(
+    () => ({
+      marginRight: searchCancelButtonOffset,
+    }),
+    [searchCancelButtonOffset],
+  );
+
+  const searchBoxStyle = React.useMemo(
+    () => [styles.searchBox, animatedSearchBoxStyle],
+    [animatedSearchBoxStyle, styles.searchBox],
+  );
+
+  const buttonStyle = React.useMemo(
+    () => [
+      styles.cancelSearchButtonText,
+      { opacity: searchCancelButtonProgress },
+    ],
+    [searchCancelButtonProgress, styles.cancelSearchButtonText],
+  );
   const searchInputRef = React.useRef();
   return (
-    <Search
-      searchText={searchText}
-      onChangeText={onChangeText}
-      containerStyle={styles.search}
-      onBlur={onBlur}
-      placeholder="Search chats"
-      ref={searchInputRef}
-      {...additionalProps}
-    />
+    <>
+      <Button
+        onPress={onSearchCancel}
+        disabled={searchStatus !== 'active'}
+        style={styles.cancelSearchButton}
+      >
+        {/* eslint-disable react-native/no-raw-text */}
+        <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
+        {/* eslint-enable react-native/no-raw-text */}
+      </Button>
+      <AnimatedView style={searchBoxStyle}>
+        <Search
+          searchText={searchText}
+          onChangeText={onChangeText}
+          containerStyle={styles.search}
+          onBlur={onBlur}
+          placeholder="Search chats"
+          ref={searchInputRef}
+          {...additionalProps}
+        />
+      </AnimatedView>
+    </>
   );
 }
 
