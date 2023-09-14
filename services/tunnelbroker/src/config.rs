@@ -21,6 +21,10 @@ pub struct AppConfig {
   #[arg(env = "LOCALSTACK_ENDPOINT")]
   #[arg(long)]
   pub localstack_endpoint: Option<String>,
+  /// Comm Identity service URL
+  #[arg(env = "COMM_TUNNELBROKER_IDENTITY_ENDPOINT")]
+  #[arg(long, default_value = "http://localhost:50054")]
+  pub identity_endpoint: String,
 }
 
 /// Stores configuration parsed from command-line arguments
