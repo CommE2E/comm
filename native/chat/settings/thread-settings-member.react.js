@@ -130,20 +130,18 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       ? null
       : this.props.styles.topBorder;
     const lastItem = this.props.lastListItem
-      ? this.props.styles.lastInnerContainer
+      ? this.props.styles.lastContainer
       : null;
     return (
-      <View style={this.props.styles.container}>
-        <View style={[this.props.styles.innerContainer, firstItem, lastItem]}>
-          <View style={this.props.styles.row}>
-            <View style={this.props.styles.userInfoContainer}>
-              <UserAvatar size="S" userID={this.props.memberInfo.id} />
-              {usernameInfo}
-            </View>
-            {editButton}
+      <View style={[this.props.styles.container, firstItem, lastItem]}>
+        <View style={this.props.styles.row}>
+          <View style={this.props.styles.userInfoContainer}>
+            <UserAvatar size="S" userID={this.props.memberInfo.id} />
+            {usernameInfo}
           </View>
-          {roleInfo}
+          {editButton}
         </View>
+        {roleInfo}
       </View>
     );
   }
@@ -201,14 +199,11 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 }
 
 const unboundStyles = {
-  anonymous: {
-    color: 'panelForegroundTertiaryLabel',
-    fontStyle: 'italic',
-  },
   container: {
     backgroundColor: 'panelForeground',
     flex: 1,
-    paddingHorizontal: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
   },
   editButton: {
     paddingLeft: 10,
@@ -217,12 +212,7 @@ const unboundStyles = {
     borderColor: 'panelForegroundBorder',
     borderTopWidth: 1,
   },
-  innerContainer: {
-    flex: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  lastInnerContainer: {
+  lastContainer: {
     paddingBottom: Platform.OS === 'ios' ? 12 : 10,
   },
   role: {
@@ -246,6 +236,10 @@ const unboundStyles = {
     fontSize: 16,
     lineHeight: 20,
     marginLeft: 8,
+  },
+  anonymous: {
+    color: 'panelForegroundTertiaryLabel',
+    fontStyle: 'italic',
   },
 };
 
