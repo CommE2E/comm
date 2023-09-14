@@ -911,15 +911,20 @@ async function prepareAndroidNotification(
     platformDetails: { codeVersion },
     dbID,
   } = convertedData;
+  const canDecryptNonCollapsibleTextNotifs = codeVersion && codeVersion > 228;
 
-  const isTextNotification = newRawMessageInfos.every(
-    newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
-  );
+  const isNonCollapsibleTextNotif =
+    newRawMessageInfos.every(
+      newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
+    ) && !collapseKey;
+
+  const canDecryptAllNotifTypes =
+    codeVersion && codeVersion > FUTURE_CODE_VERSION;
 
   const shouldBeEncrypted =
-    isTextNotification && !collapseKey && codeVersion && codeVersion > 228;
+    canDecryptAllNotifTypes ||
+    (canDecryptNonCollapsibleTextNotifs && isNonCollapsibleTextNotif);
 
-  const notifID = collapseKey ? collapseKey : dbID;
   const { merged, ...rest } = notifTexts;
   const notification = {
     data: {
@@ -928,6 +933,19 @@ async function prepareAndroidNotification(
       threadID,
     },
   };
+
+  let notifID;
+  if (collapseKey && canDecryptAllNotifTypes) {
+    notifID = dbID;
+    notification.data = {
+      ...notification.data,
+      collapseKey,
+    };
+  } else if (collapseKey) {
+    notifID = collapseKey;
+  } else {
+    notifID = dbID;
+  }
 
   // The reason we only include `badgeOnly` for newer clients is because older
   // clients don't know how to parse it. The reason we only include `id` for
