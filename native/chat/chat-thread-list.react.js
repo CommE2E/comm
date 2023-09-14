@@ -38,7 +38,6 @@ import type {
   ChatNavigationProp,
 } from './chat.react.js';
 import { useNavigateToThread } from './message-list-types.js';
-import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import {
   SidebarListModalRouteName,
@@ -50,7 +49,6 @@ import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { indicatorStyleSelector, useStyles } from '../themes/colors.js';
 import type { ScrollEvent } from '../types/react-native.js';
-import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
 import { animateTowards } from '../utils/animation-utils.js';
 
 const floatingActions = [
@@ -81,7 +79,7 @@ type BaseProps = {
   +filterThreads: (threadItem: ThreadInfo) => boolean,
   +emptyItem?: React.ComponentType<{}>,
 };
-type SearchStatus = 'inactive' | 'activating' | 'active';
+export type SearchStatus = 'inactive' | 'activating' | 'active';
 
 function ChatThreadList(props: BaseProps): React.Node {
   const boundChatListData = useFlattenedChatListData();
@@ -217,58 +215,30 @@ function ChatThreadList(props: BaseProps): React.Node {
     clearSearch();
   }, [clearSearch, onChangeSearchText]);
 
-  const animatedSearchBoxStyle: AnimatedStyleObj = React.useMemo(
-    () => ({
-      marginRight: searchCancelButtonOffset,
-    }),
-    [searchCancelButtonOffset],
-  );
-
-  const searchBoxStyle = React.useMemo(
-    () => [styles.searchBox, animatedSearchBoxStyle],
-    [animatedSearchBoxStyle, styles.searchBox],
-  );
-
-  const buttonStyle = React.useMemo(
-    () => [
-      styles.cancelSearchButtonText,
-      { opacity: searchCancelButtonProgress },
-    ],
-    [searchCancelButtonProgress, styles.cancelSearchButtonText],
-  );
-
   const searchInputRef = React.useRef();
   const renderSearch = React.useCallback(
     (additionalProps?: $Shape<React.ElementConfig<typeof Search>>) => (
       <View style={styles.searchContainer}>
-        <Button
-          onPress={onSearchCancel}
-          disabled={searchStatus !== 'active'}
-          style={styles.cancelSearchButton}
-        >
-          {/* eslint-disable react-native/no-raw-text */}
-          <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
-          {/* eslint-enable react-native/no-raw-text */}
-        </Button>
-        <AnimatedView style={searchBoxStyle}>
-          <ChatThreadListSearch
-            searchText={searchText}
-            onChangeText={onChangeSearchText}
-            onBlur={onSearchBlur}
-            additionalProps={additionalProps}
-          />
-        </AnimatedView>
+        <ChatThreadListSearch
+          searchText={searchText}
+          onChangeText={onChangeSearchText}
+          onBlur={onSearchBlur}
+          additionalProps={additionalProps}
+          searchCancelButtonOffset={searchCancelButtonOffset}
+          searchStatus={searchStatus}
+          searchCancelButtonProgress={searchCancelButtonProgress}
+          onSearchCancel={onSearchCancel}
+        />
       </View>
     ),
     [
-      buttonStyle,
       onChangeSearchText,
       onSearchBlur,
       onSearchCancel,
-      searchBoxStyle,
+      searchCancelButtonOffset,
+      searchCancelButtonProgress,
       searchStatus,
       searchText,
-      styles.cancelSearchButton,
       styles.searchContainer,
     ],
   );
