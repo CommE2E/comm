@@ -30,15 +30,22 @@ function MessageHeader(props: Props): React.Node {
   const shouldShowUsername = !isViewer && (modalDisplay || item.startsCluster);
   const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
 
-  let authorName = null;
-  if (stringForUser) {
+  const authorNameStyle = React.useMemo(() => {
     const style = [styles.authorName];
     if (modalDisplay) {
       style.push(styles.modal);
     }
 
-    authorName = <SingleLine style={style}>{stringForUser}</SingleLine>;
-  }
+    return style;
+  }, [modalDisplay, styles.authorName, styles.modal]);
+
+  const authorName = React.useMemo(() => {
+    if (!stringForUser) {
+      return null;
+    }
+
+    return <SingleLine style={authorNameStyle}>{stringForUser}</SingleLine>;
+  }, [authorNameStyle, stringForUser]);
 
   // We only want to render the top-placed timestamp for a message if it's
   // rendered in the message list, and not any separate screens (i.e.
@@ -50,13 +57,25 @@ function MessageHeader(props: Props): React.Node {
   const messageInMessageList =
     route.name === MessageListRouteName || presentedFromMessageList;
 
-  const timestamp =
-    messageInMessageList && (modalDisplay || item.startsConversation) ? (
-      <Timestamp time={time} display={display} />
-    ) : null;
+  const timestamp = React.useMemo(() => {
+    if (!messageInMessageList || (!modalDisplay && !item.startsConversation)) {
+      return null;
+    }
 
-  let style = null;
-  if (focused && !modalDisplay) {
+    return <Timestamp time={time} display={display} />;
+  }, [
+    display,
+    item.startsConversation,
+    messageInMessageList,
+    modalDisplay,
+    time,
+  ]);
+
+  const containerStyle = React.useMemo(() => {
+    if (!focused || modalDisplay) {
+      return null;
+    }
+
     let topMargin = 0;
     if (!item.startsCluster && !item.messageInfo.creator.isViewer) {
       topMargin += authorNameHeight + clusterEndHeight;
@@ -64,11 +83,18 @@ function MessageHeader(props: Props): React.Node {
     if (!item.startsConversation) {
       topMargin += timestampHeight;
     }
-    style = { marginTop: topMargin };
-  }
+
+    return { marginTop: topMargin };
+  }, [
+    focused,
+    item.messageInfo.creator.isViewer,
+    item.startsCluster,
+    item.startsConversation,
+    modalDisplay,
+  ]);
 
   return (
-    <View style={style}>
+    <View style={containerStyle}>
       {timestamp}
       {authorName}
     </View>
