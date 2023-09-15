@@ -2,7 +2,7 @@
 
 import { useRoute } from '@react-navigation/native';
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 
@@ -13,6 +13,7 @@ import SingleLine from '../components/single-line.react.js';
 import { MessageListRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 
 type Props = {
   +item: ChatMessageInfoItemWithHeight,
@@ -24,11 +25,20 @@ function MessageHeader(props: Props): React.Node {
   const { item, focused, display } = props;
   const { creator, time } = item.messageInfo;
   const { isViewer } = creator;
+
   const route = useRoute();
   const modalDisplay = display === 'modal';
 
   const shouldShowUsername = !isViewer && (modalDisplay || item.startsCluster);
   const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
+
+  const navigateToUserProfileBottomSheet =
+    useNavigateToUserProfileBottomSheet();
+
+  const onPressAuthorName = React.useCallback(
+    () => navigateToUserProfileBottomSheet(item.messageInfo.creator.id),
+    [item.messageInfo.creator.id, navigateToUserProfileBottomSheet],
+  );
 
   const authorNameStyle = React.useMemo(() => {
     const style = [styles.authorName];
@@ -44,8 +54,12 @@ function MessageHeader(props: Props): React.Node {
       return null;
     }
 
-    return <SingleLine style={authorNameStyle}>{stringForUser}</SingleLine>;
-  }, [authorNameStyle, stringForUser]);
+    return (
+      <TouchableOpacity onPress={onPressAuthorName}>
+        <SingleLine style={authorNameStyle}>{stringForUser}</SingleLine>
+      </TouchableOpacity>
+    );
+  }, [authorNameStyle, onPressAuthorName, stringForUser]);
 
   // We only want to render the top-placed timestamp for a message if it's
   // rendered in the message list, and not any separate screens (i.e.
