@@ -3,7 +3,7 @@
 import Icon from '@expo/vector-icons/Feather.js';
 import invariant from 'invariant';
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import {
   useDerivedValue,
   withTiming,
@@ -34,6 +34,7 @@ import { InputStateContext } from '../input/input-state.js';
 import { useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles.js';
+import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 
 type SwipeOptions = 'reply' | 'sidebar' | 'both' | 'none';
 type Props = {
@@ -166,19 +167,35 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
         ? navigateToSidebar
         : undefined;
 
+    const navigateToUserProfileBottomSheet =
+      useNavigateToUserProfileBottomSheet();
+
+    const onPressAvatar = React.useCallback(
+      () => navigateToUserProfileBottomSheet(item.messageInfo.creator.id),
+      [item.messageInfo.creator.id, navigateToUserProfileBottomSheet],
+    );
+
     const avatar = React.useMemo(() => {
       if (!isViewer && item.endsCluster) {
         return (
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity
+            onPress={onPressAvatar}
+            style={styles.avatarContainer}
+          >
             <UserAvatar size="S" userID={item.messageInfo.creator.id} />
-          </View>
+          </TouchableOpacity>
         );
       } else if (!isViewer) {
         return <View style={styles.avatarOffset} />;
       } else {
         return undefined;
       }
-    }, [isViewer, item.endsCluster, item.messageInfo.creator.id]);
+    }, [
+      isViewer,
+      item.endsCluster,
+      item.messageInfo.creator.id,
+      onPressAvatar,
+    ]);
 
     const pinIconPositioning = isViewer ? 'left' : 'right';
     const pinIconName = pinIconPositioning === 'left' ? 'pin-mirror' : 'pin';
@@ -364,7 +381,8 @@ const styles = StyleSheet.create({
     marginRight: composedMessageStyle.marginRight,
   },
   avatarContainer: {
-    marginRight: 8,
+    paddingRight: 8,
+    paddingTop: 4,
   },
   avatarOffset: {
     width: avatarOffset,
