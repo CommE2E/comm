@@ -80,9 +80,6 @@ resource "aws_dynamodb_table" "blob-service-blobs" {
 }
 
 resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
-  # This table doesnt exist in prod
-  count = var.is_dev ? 1 : 0
-
   name         = "tunnelbroker-undelivered-messages"
   hash_key     = "deviceID"
   range_key    = "createdAt"
