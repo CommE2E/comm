@@ -69,6 +69,10 @@ function RobotextMessage(props: Props): React.Node {
       // eslint-disable-next-line react/display-name
       renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
       // eslint-disable-next-line react/display-name
+      renderUser: ({ userID, usernameText }) => (
+        <UserEntity userID={userID} usernameText={usernameText} />
+      ),
+      // eslint-disable-next-line react/display-name
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
   }, [robotextWithENSNames, threadID]);
@@ -133,6 +137,16 @@ const ThreadEntity = React.memo<BaseInnerThreadEntityProps>(
     );
   },
 );
+
+type UserEntityProps = {
+  userID: string,
+  usernameText: string,
+};
+function UserEntity(props: UserEntityProps) {
+  const { usernameText } = props;
+
+  return usernameText;
+}
 
 function ColorEntity(props: { color: string }) {
   const colorStyle = { color: props.color };
