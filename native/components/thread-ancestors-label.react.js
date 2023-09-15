@@ -50,11 +50,16 @@ function ThreadAncestorsLabel(props: Props): React.Node {
     return unread ? [styles.pathText, styles.unread] : styles.pathText;
   }, [styles.pathText, styles.unread, unread]);
 
-  return (
-    <Text numberOfLines={1} style={ancestorPathStyle}>
-      {ancestorPath}
-    </Text>
+  const threadAncestorsLabel = React.useMemo(
+    () => (
+      <Text numberOfLines={1} style={ancestorPathStyle}>
+        {ancestorPath}
+      </Text>
+    ),
+    [ancestorPath, ancestorPathStyle],
   );
+
+  return threadAncestorsLabel;
 }
 
 const unboundStyles = {
