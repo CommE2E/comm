@@ -86,7 +86,6 @@ function ChatThreadList(props: BaseProps): React.Node {
     React.useState<SearchStatus>('inactive');
 
   const { threadSearchResults, usersSearchResults } = useThreadListSearch(
-    boundChatListData,
     searchText,
     loggedInUserInfo?.id,
   );

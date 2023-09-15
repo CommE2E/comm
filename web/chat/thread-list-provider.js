@@ -174,7 +174,6 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   const viewerID = loggedInUserInfo?.id;
 
   const { threadSearchResults, usersSearchResults } = useThreadListSearch(
-    chatListData,
     searchText,
     viewerID,
   );
