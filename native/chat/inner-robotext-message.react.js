@@ -21,6 +21,7 @@ import { inlineMarkdownRules } from '../markdown/rules.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOverlayStyles } from '../themes/colors.js';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: EntityText,
@@ -75,6 +76,10 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
       // eslint-disable-next-line react/display-name
       renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
       // eslint-disable-next-line react/display-name
+      renderUser: ({ userID, usernameText }) => (
+        <UserEntity userID={userID} usernameText={usernameText} />
+      ),
+      // eslint-disable-next-line react/display-name
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
   }, [robotextWithENSNames, activeTheme, threadID, styles.robotext]);
@@ -110,6 +115,30 @@ function ThreadEntity(props: ThreadEntityProps) {
   return (
     <Text style={styles.link} onPress={onPressThread}>
       {props.name}
+    </Text>
+  );
+}
+
+type UserEntityProps = {
+  userID: string,
+  usernameText: string,
+};
+function UserEntity(props: UserEntityProps) {
+  const { userID, usernameText } = props;
+
+  const styles = useOverlayStyles(unboundStyles);
+
+  const navigateToUserProfileBottomSheet =
+    useNavigateToUserProfileBottomSheet();
+
+  const onPressUser = React.useCallback(
+    () => navigateToUserProfileBottomSheet(userID),
+    [navigateToUserProfileBottomSheet, userID],
+  );
+
+  return (
+    <Text style={styles.link} onPress={onPressUser}>
+      {usernameText}
     </Text>
   );
 }
