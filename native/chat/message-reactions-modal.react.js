@@ -1,9 +1,14 @@
 // @flow
 
 import Icon from '@expo/vector-icons/FontAwesome.js';
-import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { View, Text, FlatList, TouchableHighlight } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableHighlight,
+  TouchableOpacity,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
@@ -12,8 +17,9 @@ import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import Modal from '../components/modal.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
+import { type NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 
 export type MessageReactionsModalParams = {
   +reactions: ReactionInfo,
@@ -24,30 +30,61 @@ type Props = {
   +route: NavigationRoute<'MessageReactionsModal'>,
 };
 function MessageReactionsModal(props: Props): React.Node {
-  const { reactions } = props.route.params;
+  const { navigation, route } = props;
+
+  const { navigate, goBackOnce } = navigation;
+  const { reactions } = route.params;
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const navigation = useNavigation();
 
   const modalSafeAreaEdges = React.useMemo(() => ['top'], []);
   const modalContainerSafeAreaEdges = React.useMemo(() => ['bottom'], []);
 
-  const close = React.useCallback(() => navigation.goBack(), [navigation]);
-
   const reactionsListData = useMessageReactionsList(reactions);
+
+  const navigateToUserProfileBottomSheet =
+    useNavigateToUserProfileBottomSheet();
+
+  const [selectedUserID, setSelectedUserID] = React.useState();
+
+  // This useEffect will call navigateToUserProfileBottomSheet whenever the
+  //  MessageReactionsModal is unmounting and there is a selectedUserID.
+  // This will make sure that the user profile bottom sheet slides in only
+  // after MessageReactionsModal has finished sliding out.
+  React.useEffect(() => {
+    return () => {
+      if (!selectedUserID) {
+        return;
+      }
+      navigateToUserProfileBottomSheet(selectedUserID);
+    };
+  }, [navigate, navigateToUserProfileBottomSheet, selectedUserID]);
+
+  const onPressUser = React.useCallback(
+    (userID: string) => {
+      setSelectedUserID(userID);
+      goBackOnce();
+    },
+    [goBackOnce, setSelectedUserID],
+  );
 
   const renderItem = React.useCallback(
     ({ item }) => (
-      <View key={item.id} style={styles.reactionsListRowContainer}>
+      <TouchableOpacity
+        onPress={() => onPressUser(item.id)}
+        key={item.id}
+        style={styles.reactionsListRowContainer}
+      >
         <View style={styles.reactionsListUserInfoContainer}>
           <UserAvatar size="S" userID={item.id} />
           <Text style={styles.reactionsListUsernameText}>{item.username}</Text>
         </View>
         <Text style={styles.reactionsListReactionText}>{item.reaction}</Text>
-      </View>
+      </TouchableOpacity>
     ),
     [
+      onPressUser,
       styles.reactionsListReactionText,
       styles.reactionsListRowContainer,
       styles.reactionsListUserInfoContainer,
@@ -69,7 +106,7 @@ function MessageReactionsModal(props: Props): React.Node {
         <View style={styles.modalContentContainer}>
           <Text style={styles.reactionsListTitleText}>All reactions</Text>
           <TouchableHighlight
-            onPress={close}
+            onPress={goBackOnce}
             style={styles.closeButton}
             underlayColor={colors.modalIosHighlightUnderlay}
           >
