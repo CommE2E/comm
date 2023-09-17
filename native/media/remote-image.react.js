@@ -67,13 +67,37 @@ class RemoteImage extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedRemoteImage: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedRemoteImage(props: BaseProps) {
-    const connection = useSelector(connectionSelector);
-    invariant(connection, 'keyserver missing from keyserverStore');
-    const connectionStatus = connection.status;
+function ConnectedRemoteImage(props: BaseProps): React.Node {
+  const connection = useSelector(connectionSelector);
+  invariant(connection, 'keyserver missing from keyserverStore');
+  const connectionStatus = connection.status;
 
-    return <RemoteImage {...props} connectionStatus={connectionStatus} />;
-  });
+  const { uri, onLoad, spinnerColor, style, invisibleLoad, placeholder } =
+    props;
+
+  const connectedRemoteImage = React.useMemo(
+    () => (
+      <RemoteImage
+        uri={uri}
+        onLoad={onLoad}
+        spinnerColor={spinnerColor}
+        style={style}
+        invisibleLoad={invisibleLoad}
+        placeholder={placeholder}
+        connectionStatus={connectionStatus}
+      />
+    ),
+    [
+      connectionStatus,
+      invisibleLoad,
+      onLoad,
+      placeholder,
+      spinnerColor,
+      style,
+      uri,
+    ],
+  );
+  return connectedRemoteImage;
+}
 
 export default ConnectedRemoteImage;
