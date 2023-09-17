@@ -31,6 +31,7 @@ import type { GlobalAccountUserInfo, UserInfo } from 'lib/types/user-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
+import ChatThreadListSearch from './chat-thread-list-search.react.js';
 import { getItemLayout, keyExtractor } from './chat-thread-list-utils.js';
 import type {
   ChatTopTabsNavigationProp,
@@ -250,14 +251,11 @@ function ChatThreadList(props: BaseProps): React.Node {
           {/* eslint-enable react-native/no-raw-text */}
         </Button>
         <AnimatedView style={searchBoxStyle}>
-          <Search
+          <ChatThreadListSearch
             searchText={searchText}
             onChangeText={onChangeSearchText}
-            containerStyle={styles.search}
             onBlur={onSearchBlur}
-            placeholder="Search chats"
-            ref={searchInputRef}
-            {...additionalProps}
+            additionalProps={additionalProps}
           />
         </AnimatedView>
       </View>
@@ -271,7 +269,6 @@ function ChatThreadList(props: BaseProps): React.Node {
       searchStatus,
       searchText,
       styles.cancelSearchButton,
-      styles.search,
       styles.searchContainer,
     ],
   );
