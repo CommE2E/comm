@@ -22,15 +22,6 @@ function ForwardedBottomSheet(
 
   const snapPoints = React.useMemo(() => ['25%', '50%'], []);
 
-  const onChange = React.useCallback(
-    (index: number) => {
-      if (index === -1) {
-        onClosed();
-      }
-    },
-    [onClosed],
-  );
-
   return (
     <BottomSheetModal
       ref={ref}
@@ -38,7 +29,7 @@ function ForwardedBottomSheet(
       snapPoints={snapPoints}
       handleComponent={BottomSheetHandle}
       backdropComponent={BottomSheetBackdrop}
-      onChange={onChange}
+      onDismiss={onClosed}
     >
       {children}
     </BottomSheetModal>
