@@ -24,6 +24,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   CommSecureStore secureStore;
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
   const std::string publicCryptoAccountID = "publicCryptoAccountID";
+  const std::string commServicesAccessToken = "commServicesAccessToken";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
   DraftStore draftStore;
   ThreadStore threadStore;
@@ -95,6 +96,11 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String backupID) override;
   virtual jsi::Value
   generateRandomString(jsi::Runtime &rt, double size) override;
+  virtual jsi::Value setCommServicesAccessToken(
+      jsi::Runtime &rt,
+      jsi::String accessToken) override;
+  virtual jsi::Value getCommServicesAccessToken(jsi::Runtime &rt) override;
+  virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

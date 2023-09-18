@@ -92,6 +92,9 @@ interface Spec extends TurboModule {
   +reportDBOperationsFailure: () => void;
   +computeBackupKey: (password: string, backupID: string) => Promise<Object>;
   +generateRandomString: (size: number) => Promise<string>;
+  +setCommServicesAccessToken: (accessToken: string) => Promise<void>;
+  +getCommServicesAccessToken: () => Promise<string>;
+  +clearCommServicesAccessToken: () => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {

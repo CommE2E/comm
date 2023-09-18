@@ -957,4 +957,91 @@ jsi::Value CommCoreModule::generateRandomString(jsi::Runtime &rt, double size) {
       });
 }
 
+jsi::Value CommCoreModule::setCommServicesAccessToken(
+    jsi::Runtime &rt,
+    jsi::String accessToken) {
+  auto accessTokenStr{accessToken.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt,
+      [this, accessTokenStr](
+          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, promise, accessTokenStr]() {
+          std::string error;
+          try {
+            this->secureStore.set(
+                this->commServicesAccessToken, accessTokenStr);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::getCommServicesAccessToken(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise]() {
+          std::string error;
+          std::string accessToken;
+          try {
+            folly::Optional<std::string> accessTokenOpt =
+                this->secureStore.get(this->commServicesAccessToken);
+            if (!accessTokenOpt.hasValue()) {
+              error = "Comm services access token not found";
+            } else {
+              accessToken = accessTokenOpt.value();
+              if (accessToken.empty()) {
+                error = "Comm services access token not set";
+              }
+            }
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, error, accessToken, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                } else {
+                  promise->resolve(
+                      jsi::String::createFromUtf8(innerRt, accessToken));
+                }
+              });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::clearCommServicesAccessToken(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, promise]() {
+          std::string error;
+          try {
+            this->secureStore.set(this->commServicesAccessToken, "");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm
