@@ -18,10 +18,12 @@ import type {
   KeyserverInfo,
   KeyserverStore,
 } from 'lib/types/keyserver-types.js';
+import { cookieTypes } from 'lib/types/session-types.js';
 import {
   defaultConnectionInfo,
   type ConnectionInfo,
 } from 'lib/types/socket-types.js';
+import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
@@ -129,6 +131,29 @@ const migrations = {
     });
 
     return state;
+  },
+  [6]: async (state: AppState): Promise<AppState> => {
+    const params = parseCookies(document.cookie);
+    let cookie = null;
+    if (params[cookieTypes.USER]) {
+      cookie = `${cookieTypes.USER}=${params[cookieTypes.USER]}`;
+    } else if (params[cookieTypes.ANONYMOUS]) {
+      cookie = `${cookieTypes.ANONYMOUS}=${params[cookieTypes.ANONYMOUS]}`;
+    }
+
+    return {
+      ...state,
+      keyserverStore: {
+        ...state.keyserverStore,
+        keyserverInfos: {
+          ...state.keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+            cookie,
+          },
+        },
+      },
+    };
   },
 };
 
@@ -242,7 +267,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 5,
+  version: 6,
   transforms: [keyserverStoreTransform],
 };
 
