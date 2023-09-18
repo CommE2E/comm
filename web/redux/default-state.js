@@ -78,6 +78,7 @@ const defaultWebState: AppState = Object.freeze({
   keyserverStore: {
     keyserverInfos: {
       [ashoatKeyserverID]: {
+        cookie: null,
         updatesCurrentAsOf: 0,
         urlPrefix: isDev
           ? 'http://localhost:3000/comm'
