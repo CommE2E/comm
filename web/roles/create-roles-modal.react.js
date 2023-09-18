@@ -53,6 +53,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   const { pushModal, popModal } = useModalContext();
   const { threadInfo, action, existingRoleID, roleName, rolePermissions } =
     props;
+  const modalName = action === 'create_role' ? 'Create role' : 'Edit role';
 
   const callModifyCommunityRole = useServerCall(modifyCommunityRole);
   const dispatchActionPromise = useDispatchActionPromise();
@@ -247,9 +248,9 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
   }, [createRolesLoadingStatus, createButtonText]);
 
   return (
-    <Modal name="Create Role" onClose={onCloseModal} size="large">
+    <Modal name={modalName} onClose={onCloseModal} size="large">
       <form method="POST" className={css.formContainer}>
-        <div className={css.roleNameLabel}>Role Name</div>
+        <div className={css.roleNameLabel}>Role name</div>
         <div className={css.roleNameInput}>
           <Input
             type="text"
