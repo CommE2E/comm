@@ -76,10 +76,10 @@ in writeShellApplication {
       "${mariadb-entrypoint}/bin/mariadb-init" \
       "$MARIADB_PIDFILE"
 
-    if [[ ! -S "$MYSQL_UNIX_PORT" ]]; then
-      echo "Waiting for MariaDB to come up"
-      while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do sleep 1; done
-    fi
+    while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do
+      echo "Waiting for MariaDB socket"
+      sleep 3
+    done
 
     # Assume this was run from git repository
     PRJ_ROOT=$(git rev-parse --show-toplevel)
