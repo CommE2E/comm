@@ -22,7 +22,6 @@ import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
 import { serverRequestTypes } from 'lib/types/request-types.js';
 import {
-  cookieSources,
   sessionCheckFrequency,
   stateCheckInactivityActivationInterval,
 } from 'lib/types/session-types.js';
@@ -74,7 +73,6 @@ import { handleAsyncPromise } from '../responders/handlers.js';
 import {
   fetchViewerForSocket,
   extendCookieLifespan,
-  createNewAnonymousCookie,
   isCookieMissingSignedIdentityKeysBlob,
   isCookieMissingOlmNotificationsSession,
 } from '../session/cookies.js';
@@ -209,12 +207,6 @@ class Socket {
           this.httpRequest,
           clientSocketMessage,
         );
-        if (!this.viewer) {
-          // This indicates that the cookie was invalid, but the client is using
-          // cookieSources.HEADER and thus can't accept a new cookie over
-          // WebSockets. See comment under catch block for socket_deauthorized.
-          throw new ServerError('socket_deauthorized');
-        }
       }
       const { viewer } = this;
       if (!viewer) {
@@ -284,61 +276,32 @@ class Socket {
       invariant(clientSocketMessage, 'should be set');
       const responseTo = clientSocketMessage.id;
       if (error.message === 'socket_deauthorized') {
+        invariant(this.viewer, 'should be set');
         const authErrorMessage: AuthErrorServerSocketMessage = {
           type: serverSocketMessageTypes.AUTH_ERROR,
           responseTo,
           message: error.message,
-        };
-        if (this.viewer) {
-          // viewer should only be falsey for cookieSources.HEADER (web)
-          // clients. Usually if the cookie is invalid we construct a new
-          // anonymous Viewer with a new cookie, and then pass the cookie down
-          // in the error. But we can't pass HTTP cookies in WebSocket messages.
-          authErrorMessage.sessionChange = {
+          sessionChange: {
             cookie: this.viewer.cookiePairString,
             currentUserInfo: {
               id: this.viewer.cookieID,
               anonymous: true,
             },
-          };
-        }
+          },
+        };
+
         await this.sendMessage(authErrorMessage);
         this.ws.close(4100, error.message);
         return;
       } else if (error.message === 'client_version_unsupported') {
         const { viewer } = this;
         invariant(viewer, 'should be set');
-        const promises = {};
-        promises.deleteCookie = deleteCookie(viewer.cookieID);
-        if (viewer.cookieSource !== cookieSources.BODY) {
-          promises.anonymousViewerData = createNewAnonymousCookie({
-            platformDetails: error.platformDetails,
-            deviceToken: viewer.deviceToken,
-          });
-        }
-        const { anonymousViewerData } = await promiseAll(promises);
+        await deleteCookie(viewer.cookieID);
         const authErrorMessage: AuthErrorServerSocketMessage = {
           type: serverSocketMessageTypes.AUTH_ERROR,
           responseTo,
           message: error.message,
         };
-        if (anonymousViewerData) {
-          // It is normally not safe to pass the result of
-          // createNewAnonymousCookie to the Viewer constructor. That is because
-          // createNewAnonymousCookie leaves several fields of
-          // AnonymousViewerData unset, and consequently Viewer will throw when
-          // access is attempted. It is only safe here because we can guarantee
-          // that only cookiePairString and cookieID are accessed on anonViewer
-          // below.
-          const anonViewer = new Viewer(anonymousViewerData);
-          authErrorMessage.sessionChange = {
-            cookie: anonViewer.cookiePairString,
-            currentUserInfo: {
-              id: anonViewer.cookieID,
-              anonymous: true,
-            },
-          };
-        }
         await this.sendMessage(authErrorMessage);
         this.ws.close(4101, error.message);
         return;
