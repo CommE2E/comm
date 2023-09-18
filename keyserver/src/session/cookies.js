@@ -558,7 +558,6 @@ function addSessionChangeInfoToResult(
   viewer: Viewer,
   res: $Response,
   result: Object,
-  appURLFacts: AppURLFacts,
 ) {
   let threadInfos = {},
     userInfos = {};
@@ -585,8 +584,6 @@ function addSessionChangeInfoToResult(
   }
   if (viewer.cookieSource === cookieSources.BODY) {
     sessionChange.cookie = viewer.cookiePairString;
-  } else {
-    addActualHTTPCookie(viewer, res, appURLFacts);
   }
   if (viewer.sessionIdentifierType === sessionIdentifierTypes.BODY_SESSION_ID) {
     sessionChange.sessionID = viewer.sessionID ? viewer.sessionID : null;
@@ -755,7 +752,6 @@ function addCookieToJSONResponse(
   res: $Response,
   result: Object,
   expectCookieInvalidation: boolean,
-  appURLFacts: AppURLFacts,
 ) {
   if (expectCookieInvalidation) {
     viewer.cookieInvalidated = false;
@@ -764,21 +760,22 @@ function addCookieToJSONResponse(
     handleAsyncPromise(updateCookie(viewer));
   }
   if (viewer.sessionChanged) {
-    addSessionChangeInfoToResult(viewer, res, result, appURLFacts);
-  } else if (viewer.cookieSource !== cookieSources.BODY) {
-    addActualHTTPCookie(viewer, res, appURLFacts);
+    addSessionChangeInfoToResult(viewer, res, result);
   }
 }
 
 function addCookieToHomeResponse(
-  viewer: Viewer,
+  req: $Request,
   res: $Response,
   appURLFacts: AppURLFacts,
 ) {
-  if (!viewer.getData().cookieInsertedThisRequest) {
-    handleAsyncPromise(updateCookie(viewer));
+  const { user, anonymous } = req.cookies;
+  if (user) {
+    res.cookie(cookieTypes.USER, user, getCookieOptions(appURLFacts));
   }
-  addActualHTTPCookie(viewer, res, appURLFacts);
+  if (anonymous) {
+    res.cookie(cookieTypes.ANONYMOUS, anonymous, getCookieOptions(appURLFacts));
+  }
 }
 
 function getCookieOptions(appURLFacts: AppURLFacts) {
@@ -792,21 +789,6 @@ function getCookieOptions(appURLFacts: AppURLFacts) {
     maxAge: cookieLifetime,
     sameSite: 'Strict',
   };
-}
-
-function addActualHTTPCookie(
-  viewer: Viewer,
-  res: $Response,
-  appURLFacts: AppURLFacts,
-) {
-  res.cookie(
-    viewer.cookieName,
-    viewer.cookieString,
-    getCookieOptions(appURLFacts),
-  );
-  if (viewer.cookieName !== viewer.initialCookieName) {
-    res.clearCookie(viewer.initialCookieName, getCookieOptions(appURLFacts));
-  }
 }
 
 async function setCookieSignedIdentityKeysBlob(
