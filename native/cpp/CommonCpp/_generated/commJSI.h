@@ -54,6 +54,10 @@ public:
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) = 0;
   virtual jsi::Value computeBackupKey(jsi::Runtime &rt, jsi::String password, jsi::String backupID) = 0;
   virtual jsi::Value generateRandomString(jsi::Runtime &rt, double size) = 0;
+  virtual jsi::Value setCommServicesAuthMetadata(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
+  virtual jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) = 0;
+  virtual jsi::Value setCommServicesAccessToken(jsi::Runtime &rt, jsi::String accessToken) = 0;
+  virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) = 0;
 
 };
 
@@ -346,6 +350,38 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::generateRandomString, jsInvoker_, instance_, std::move(size));
+    }
+    jsi::Value setCommServicesAuthMetadata(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) override {
+      static_assert(
+          bridging::getParameterCount(&T::setCommServicesAuthMetadata) == 4,
+          "Expected setCommServicesAuthMetadata(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::setCommServicesAuthMetadata, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken));
+    }
+    jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::getCommServicesAuthMetadata) == 1,
+          "Expected getCommServicesAuthMetadata(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getCommServicesAuthMetadata, jsInvoker_, instance_);
+    }
+    jsi::Value setCommServicesAccessToken(jsi::Runtime &rt, jsi::String accessToken) override {
+      static_assert(
+          bridging::getParameterCount(&T::setCommServicesAccessToken) == 2,
+          "Expected setCommServicesAccessToken(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::setCommServicesAccessToken, jsInvoker_, instance_, std::move(accessToken));
+    }
+    jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::clearCommServicesAccessToken) == 1,
+          "Expected clearCommServicesAccessToken(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::clearCommServicesAccessToken, jsInvoker_, instance_);
     }
 
   private:
