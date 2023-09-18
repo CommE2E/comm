@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import { TextInput as BaseTextInput } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import type { SearchStatus } from './chat-thread-list.react.js';
@@ -24,7 +25,7 @@ type Props = {
   +innerSearchAutoFocus?: boolean,
   +innerSearchActive?: boolean,
 };
-function ChatThreadListSearch(props: Props): React.Node {
+function ForwardedChatThreadListSearch(props: Props, ref): React.Node {
   const {
     searchText,
     onChangeText,
@@ -79,7 +80,6 @@ function ChatThreadListSearch(props: Props): React.Node {
     ],
     [searchCancelButtonProgress, styles.cancelSearchButtonText],
   );
-  const searchInputRef = React.useRef();
   return (
     <>
       <Button
@@ -98,7 +98,7 @@ function ChatThreadListSearch(props: Props): React.Node {
           containerStyle={styles.search}
           onBlur={onBlur}
           placeholder="Search chats"
-          ref={searchInputRef}
+          ref={ref}
           autoFocus={innerSearchAutoFocus}
           active={innerSearchActive}
         />
@@ -147,4 +147,13 @@ const unboundStyles = {
     backgroundColor: 'listBackground',
   },
 };
+
+const ChatThreadListSearch: React.AbstractComponent<
+  Props,
+  React.ElementRef<typeof BaseTextInput>,
+> = React.forwardRef<Props, React.ElementRef<typeof BaseTextInput>>(
+  ForwardedChatThreadListSearch,
+);
+ChatThreadListSearch.displayName = 'ChatThreadListSearch';
+
 export default ChatThreadListSearch;
