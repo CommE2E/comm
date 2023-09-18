@@ -787,7 +787,7 @@ function getCookieOptions(appURLFacts: AppURLFacts) {
   return {
     domain: domainAsURL.hostname,
     path: basePath,
-    httpOnly: true,
+    httpOnly: false,
     secure: https,
     maxAge: cookieLifetime,
     sameSite: 'Strict',
