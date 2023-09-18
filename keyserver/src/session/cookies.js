@@ -7,7 +7,6 @@ import url from 'url';
 
 import type { Shape } from 'lib/types/core.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
-import { isWebPlatform } from 'lib/types/device-types.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
@@ -287,51 +286,6 @@ async function fetchSessionInfo(
   };
 }
 
-// This function is meant to consume a cookie that has already been processed.
-// That means it doesn't have any logic to handle an invalid cookie, and it
-// doesn't update the cookie's last_used timestamp.
-async function fetchViewerFromCookieData(
-  req: $Request,
-  sessionParameterInfo: SessionParameterInfo,
-): Promise<FetchViewerResult> {
-  let viewerResult;
-  const { user, anonymous } = req.cookies;
-  if (user) {
-    viewerResult = await fetchUserViewer(
-      user,
-      cookieSources.HEADER,
-      sessionParameterInfo,
-    );
-  } else if (anonymous) {
-    viewerResult = await fetchAnonymousViewer(
-      anonymous,
-      cookieSources.HEADER,
-      sessionParameterInfo,
-    );
-  } else {
-    return {
-      type: 'nonexistant',
-      cookieName: null,
-      cookieSource: null,
-      sessionParameterInfo,
-    };
-  }
-
-  // We protect against CSRF attacks by making sure that on web,
-  // non-GET requests cannot use a bare cookie for session identification
-  if (viewerResult.type === 'valid') {
-    const { viewer } = viewerResult;
-    invariant(
-      req.method === 'GET' ||
-        viewer.sessionIdentifierType !== sessionIdentifierTypes.COOKIE_ID ||
-        !isWebPlatform(viewer.platform),
-      'non-GET request from web using sessionIdentifierTypes.COOKIE_ID',
-    );
-  }
-
-  return viewerResult;
-}
-
 async function fetchViewerFromRequestBody(
   body: mixed,
   sessionParameterInfo: SessionParameterInfo,
@@ -422,22 +376,11 @@ function getSessionParameterInfoFromRequestBody(
 async function fetchViewerForJSONRequest(req: $Request): Promise<Viewer> {
   assertSecureRequest(req);
   const sessionParameterInfo = getSessionParameterInfoFromRequestBody(req);
-  let result = await fetchViewerFromRequestBody(req.body, sessionParameterInfo);
-  if (
-    result.type === 'nonexistant' &&
-    (result.cookieSource === null || result.cookieSource === undefined)
-  ) {
-    result = await fetchViewerFromCookieData(req, sessionParameterInfo);
-  }
+  const result = await fetchViewerFromRequestBody(
+    req.body,
+    sessionParameterInfo,
+  );
   return await handleFetchViewerResult(result);
-}
-
-const webPlatformDetails = { platform: 'web' };
-async function fetchViewerForHomeRequest(req: $Request): Promise<Viewer> {
-  assertSecureRequest(req);
-  const sessionParameterInfo = getSessionParameterInfoFromRequestBody(req);
-  const result = await fetchViewerFromCookieData(req, sessionParameterInfo);
-  return await handleFetchViewerResult(result, webPlatformDetails);
 }
 
 async function fetchViewerForSocket(
@@ -458,16 +401,10 @@ async function fetchViewerForSocket(
     userAgent: req.get('User-Agent'),
   };
 
-  let result = await fetchViewerFromRequestBody(
+  const result = await fetchViewerFromRequestBody(
     clientMessage.payload.sessionIdentification,
     sessionParameterInfo,
   );
-  if (
-    result.type === 'nonexistant' &&
-    (result.cookieSource === null || result.cookieSource === undefined)
-  ) {
-    result = await fetchViewerFromCookieData(req, sessionParameterInfo);
-  }
   if (result.type === 'valid') {
     return result.viewer;
   }
@@ -873,7 +810,6 @@ async function setCookiePlatformDetails(
 
 export {
   fetchViewerForJSONRequest,
-  fetchViewerForHomeRequest,
   fetchViewerForSocket,
   createNewAnonymousCookie,
   createNewUserCookie,
