@@ -31,6 +31,7 @@ import {
 import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
 import { createAndMaintainTunnelbrokerWebsocket } from './socket/tunnelbroker.js';
+import { fetchOlmAccount } from './updaters/olm-account-updater.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
@@ -85,7 +86,19 @@ const shouldDisplayQRCodeInTerminal = false;
     if (shouldDisplayQRCodeInTerminal) {
       try {
         const aes256Key = crypto.randomBytes(32).toString('hex');
-        const ed25519Key = 'ed25519Key';
+
+        const accountInfo = await fetchOlmAccount('content');
+        const ed25519Key = JSON.parse(
+          accountInfo.account.identity_keys(),
+        ).ed25519;
+
+        console.log(
+          '\nOpen the Comm app on your phone and scan the QR code below\n',
+        );
+        console.log('How to find the scanner:\n');
+        console.log('Go to \x1b[1mProfile\x1b[0m');
+        console.log('Select \x1b[1mLinked devices\x1b[0m');
+        console.log('Click \x1b[1mAdd\x1b[0m on the top right');
 
         const url = qrCodeLinkURL(aes256Key, ed25519Key);
         qrcode.toString(url, (error, encodedURL) => console.log(encodedURL));
