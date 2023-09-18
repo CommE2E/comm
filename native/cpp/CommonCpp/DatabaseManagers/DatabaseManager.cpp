@@ -30,6 +30,10 @@ const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
 }
 
 void DatabaseManager::clearSensitiveData() {
+  comm::CommSecureStore commSecureStore{};
+  commSecureStore.set(commSecureStore.userID, "");
+  commSecureStore.set(commSecureStore.deviceID, "");
+  commSecureStore.set(commSecureStore.commServicesAccessToken, "");
   SQLiteQueryExecutor::clearSensitiveData();
   NotificationsCryptoModule::clearSensitiveData();
   DatabaseManager::setDatabaseStatusAsWorkable();
