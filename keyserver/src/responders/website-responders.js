@@ -13,7 +13,6 @@ import { inviteLinkURL } from 'lib/facts/links.js';
 import stores from 'lib/facts/stores.js';
 import getTitle from 'web/title/getTitle.js';
 
-import { Viewer } from '../session/viewer.js';
 import { waitForStream } from '../utils/json-stream.js';
 import {
   getAppURLFactsFromRequestURL,
@@ -111,11 +110,7 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
-async function websiteResponder(
-  viewer: Viewer,
-  req: $Request,
-  res: $Response,
-): Promise<void> {
+async function websiteResponder(req: $Request, res: $Response): Promise<void> {
   const { basePath } = getAppURLFactsFromRequestURL(req.originalUrl);
   const baseURL = basePath.replace(/\/$/, '');
 
