@@ -6,7 +6,6 @@ import invariant from 'invariant';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
-  type CookieSource,
   type SessionIdentifierType,
   cookieTypes,
   type CookieType,
@@ -21,7 +20,6 @@ export type UserViewerData = {
   +deviceToken: ?string,
   +userID: string,
   +cookieID: ?string,
-  +cookieSource?: CookieSource,
   +cookiePassword: ?string,
   +cookieInsertedThisRequest?: boolean,
   +sessionIdentifierType?: SessionIdentifierType,
@@ -38,7 +36,6 @@ export type AnonymousViewerData = {
   +id: string,
   +platformDetails: ?PlatformDetails,
   +deviceToken: ?string,
-  +cookieSource?: CookieSource,
   +cookieID: string,
   +cookiePassword: ?string,
   +cookieInsertedThisRequest?: boolean,
@@ -80,14 +77,6 @@ class Viewer {
   }
 
   setNewCookie(data: ViewerData) {
-    if (data.cookieSource === null || data.cookieSource === undefined) {
-      if (data.loggedIn) {
-        data = { ...data, cookieSource: this.cookieSource };
-      } else {
-        // This is a separate condition because of Flow
-        data = { ...data, cookieSource: this.cookieSource };
-      }
-    }
     if (
       data.sessionIdentifierType === null ||
       data.sessionIdentifierType === undefined
@@ -180,15 +169,6 @@ class Viewer {
 
   get loggedIn(): boolean {
     return this.data.loggedIn;
-  }
-
-  get cookieSource(): CookieSource {
-    const { cookieSource } = this.data;
-    invariant(
-      cookieSource !== null && cookieSource !== undefined,
-      'Viewer.cookieSource should be set',
-    );
-    return cookieSource;
   }
 
   get cookieID(): string {
