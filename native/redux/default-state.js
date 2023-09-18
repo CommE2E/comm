@@ -74,6 +74,7 @@ const defaultState = ({
   keyserverStore: {
     keyserverInfos: {
       [ashoatKeyserverID]: {
+        cookie: null,
         updatesCurrentAsOf: 0,
         urlPrefix: defaultURLPrefix,
         connection: defaultConnectionInfo,
