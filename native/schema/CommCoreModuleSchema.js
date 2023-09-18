@@ -34,6 +34,12 @@ type SignedPrekeys = {
   +notifPrekeySignature: string,
 };
 
+type CommServicesAuthMetadata = {
+  +userID?: ?string,
+  +deviceID?: ?string,
+  +commServicesAccessToken?: ?string,
+};
+
 interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
   +updateDraft: (key: string, text: string) => Promise<boolean>;
@@ -92,6 +98,14 @@ interface Spec extends TurboModule {
   +reportDBOperationsFailure: () => void;
   +computeBackupKey: (password: string, backupID: string) => Promise<Object>;
   +generateRandomString: (size: number) => Promise<string>;
+  +setCommServicesAuthMetadata: (
+    userID: string,
+    deviceID: string,
+    accessToken: string,
+  ) => Promise<void>;
+  +getCommServicesAuthMetadata: () => Promise<CommServicesAuthMetadata>;
+  +setCommServicesAccessToken: (accessToken: string) => Promise<void>;
+  +clearCommServicesAccessToken: () => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {
