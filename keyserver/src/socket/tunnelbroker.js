@@ -11,9 +11,11 @@ import {
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 
-import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { type IdentityInfo } from '../user/identity.js';
-import { uploadNewOneTimeKeys } from '../utils/olm-utils.js';
+import {
+  uploadNewOneTimeKeys,
+  getContentSigningKey,
+} from '../utils/olm-utils.js';
 
 type TBConnectionInfo = {
   +url: string,
@@ -38,12 +40,10 @@ async function getTBConnectionInfo(): Promise<TBConnectionInfo> {
 async function createAndMaintainTunnelbrokerWebsocket(
   identityInfo: IdentityInfo,
 ) {
-  const [accountInfo, tbConnectionInfo] = await Promise.all([
-    fetchOlmAccount('content'),
+  const [deviceID, tbConnectionInfo] = await Promise.all([
+    getContentSigningKey(),
     getTBConnectionInfo(),
   ]);
-
-  const deviceID = JSON.parse(accountInfo.account.identity_keys()).ed25519;
 
   openTunnelbrokerConnection(
     deviceID,

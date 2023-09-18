@@ -13,7 +13,10 @@ import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
-import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
+import {
+  fetchCallUpdateOlmAccount,
+  fetchOlmAccount,
+} from '../updaters/olm-account-updater.js';
 import { fetchIdentityInfo } from '../user/identity.js';
 
 type PickledOlmAccount = {
@@ -144,6 +147,11 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
   });
 }
 
+async function getContentSigningKey(): Promise<string> {
+  const accountInfo = await fetchOlmAccount('content');
+  return JSON.parse(accountInfo.account.identity_keys()).ed25519;
+}
+
 export {
   createPickledOlmAccount,
   createPickledOlmSession,
@@ -152,4 +160,5 @@ export {
   unpickleOlmSession,
   validateAccountPrekey,
   uploadNewOneTimeKeys,
+  getContentSigningKey,
 };
