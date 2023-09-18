@@ -494,28 +494,6 @@ const unboundStyles = {
     justifyContent: 'center',
     flexDirection: 'row',
   },
-  searchBox: {
-    flex: 1,
-  },
-  search: {
-    marginBottom: 8,
-    marginHorizontal: 18,
-    marginTop: 16,
-  },
-  cancelSearchButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  cancelSearchButtonText: {
-    color: 'link',
-    fontSize: 16,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
   flatList: {
     flex: 1,
     backgroundColor: 'listBackground',
