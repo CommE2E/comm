@@ -119,6 +119,18 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_computeBackupKey
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateRandomString(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->generateRandomString(rt, args[0].asNumber());
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCommServicesAuthMetadata(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setCommServicesAuthMetadata(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCommServicesAuthMetadata(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getCommServicesAuthMetadata(rt);
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCommServicesAccessToken(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setCommServicesAccessToken(rt, args[0].asString(rt));
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearCommServicesAccessToken(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->clearCommServicesAccessToken(rt);
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -156,6 +168,10 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["reportDBOperationsFailure"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_reportDBOperationsFailure};
   methodMap_["computeBackupKey"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_computeBackupKey};
   methodMap_["generateRandomString"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateRandomString};
+  methodMap_["setCommServicesAuthMetadata"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCommServicesAuthMetadata};
+  methodMap_["getCommServicesAuthMetadata"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCommServicesAuthMetadata};
+  methodMap_["setCommServicesAccessToken"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCommServicesAccessToken};
+  methodMap_["clearCommServicesAccessToken"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearCommServicesAccessToken};
 }
 
 
