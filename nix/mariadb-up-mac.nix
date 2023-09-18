@@ -78,7 +78,10 @@ in writeShellApplication {
 
     if [[ ! -S "$MYSQL_UNIX_PORT" ]]; then
       echo "Waiting for MariaDB to come up"
-      while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do sleep 1; done
+      while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do
+          sleep 1
+          echo "Still waiting for MariaDB socket"
+      done
     fi
 
     # Assume this was run from git repository
