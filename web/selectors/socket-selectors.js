@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import {
   sessionIDSelector,
   urlPrefixSelector,
+  cookieSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import {
   getClientResponsesSelector,
@@ -42,8 +43,12 @@ const openSocketSelector: (state: AppState) => ?() => WebSocket =
 const sessionIdentificationSelector: (
   state: AppState,
 ) => SessionIdentification = createSelector(
+  cookieSelector,
   sessionIDSelector,
-  (sessionID: ?string): SessionIdentification => ({ sessionID }),
+  (cookie: ?string, sessionID: ?string): SessionIdentification => ({
+    cookie,
+    sessionID,
+  }),
 );
 
 const getSignedIdentityKeysBlobSelector: (
