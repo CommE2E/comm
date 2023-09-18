@@ -15,16 +15,12 @@ import type { PolicyType } from '../lib/facts/policies.js';
 import {
   fetchViewerForJSONRequest,
   addCookieToJSONResponse,
-  fetchViewerForHomeRequest,
   addCookieToHomeResponse,
   createNewAnonymousCookie,
   setCookiePlatformDetails,
 } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
-import {
-  type AppURLFacts,
-  getAppURLFactsFromRequestURL,
-} from '../utils/urls.js';
+import { getAppURLFactsFromRequestURL } from '../utils/urls.js';
 import {
   policiesValidator,
   validateInput,
@@ -59,8 +55,8 @@ export type DownloadResponder = (
   req: $Request,
   res: $Response,
 ) => Promise<void>;
-export type HTMLResponder = DownloadResponder;
 export type HTTPGetResponder = DownloadResponder;
+export type HTMLResponder = (req: $Request, res: $Response) => Promise<void>;
 
 function jsonHandler(
   responder: JSONResponder,
@@ -96,22 +92,10 @@ function jsonHandler(
         return;
       }
       const result = { ...responderResult };
-      addCookieToJSONResponse(
-        viewer,
-        res,
-        result,
-        expectCookieInvalidation,
-        getAppURLFactsFromRequestURL(req.originalUrl),
-      );
+      addCookieToJSONResponse(viewer, res, result, expectCookieInvalidation);
       res.json({ success: true, ...result });
     } catch (e) {
-      await handleException(
-        e,
-        res,
-        getAppURLFactsFromRequestURL(req.originalUrl),
-        viewer,
-        expectCookieInvalidation,
-      );
+      await handleException(e, res, viewer, expectCookieInvalidation);
     }
   };
 }
@@ -125,12 +109,7 @@ function httpGetHandler(
       viewer = await fetchViewerForJSONRequest(req);
       await responder(viewer, req, res);
     } catch (e) {
-      await handleException(
-        e,
-        res,
-        getAppURLFactsFromRequestURL(req.originalUrl),
-        viewer,
-      );
+      await handleException(e, res, viewer);
     }
   };
 }
@@ -145,11 +124,7 @@ function downloadHandler(
     } catch (e) {
       // Passing viewer in only makes sense if we want to handle failures as
       // JSON. We don't, and presume all download handlers avoid ServerError.
-      await handleException(
-        e,
-        res,
-        getAppURLFactsFromRequestURL(req.originalUrl),
-      );
+      await handleException(e, res);
     }
   };
 }
@@ -157,7 +132,6 @@ function downloadHandler(
 async function handleException(
   error: Error,
   res: $Response,
-  appURLFacts: AppURLFacts,
   viewer?: ?Viewer,
   expectCookieInvalidation?: boolean,
 ) {
@@ -187,13 +161,7 @@ async function handleException(
       viewer.cookieInvalidated = true;
     }
     // This can mutate the result object
-    addCookieToJSONResponse(
-      viewer,
-      res,
-      result,
-      !!expectCookieInvalidation,
-      appURLFacts,
-    );
+    addCookieToJSONResponse(viewer, res, result, !!expectCookieInvalidation);
   }
   res.json(result);
 }
@@ -203,14 +171,13 @@ function htmlHandler(
 ): (req: $Request, res: $Response) => Promise<void> {
   return async (req: $Request, res: $Response) => {
     try {
-      const viewer = await fetchViewerForHomeRequest(req);
       addCookieToHomeResponse(
-        viewer,
+        req,
         res,
         getAppURLFactsFromRequestURL(req.originalUrl),
       );
       res.type('html');
-      await responder(viewer, req, res);
+      await responder(req, res);
     } catch (e) {
       console.warn(e);
       if (!res.headersSent) {
@@ -252,21 +219,10 @@ function uploadHandler(
         return;
       }
       const result = { ...responderResult };
-      addCookieToJSONResponse(
-        viewer,
-        res,
-        result,
-        false,
-        getAppURLFactsFromRequestURL(req.originalUrl),
-      );
+      addCookieToJSONResponse(viewer, res, result, false);
       res.json({ success: true, ...result });
     } catch (e) {
-      await handleException(
-        e,
-        res,
-        getAppURLFactsFromRequestURL(req.originalUrl),
-        viewer,
-      );
+      await handleException(e, res, viewer);
     }
   };
 }
