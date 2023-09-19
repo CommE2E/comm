@@ -197,7 +197,8 @@ async function createThread(
   if (
     sourceMessage &&
     (sourceMessage.type === messageTypes.REACTION ||
-      sourceMessage.type === messageTypes.EDIT_MESSAGE)
+      sourceMessage.type === messageTypes.EDIT_MESSAGE ||
+      sourceMessage.type === messageTypes.SIDEBAR_SOURCE)
   ) {
     throw new ServerError('invalid_parameters');
   }
@@ -419,7 +420,7 @@ async function createThread(
     });
   } else {
     invariant(parentThreadID, 'parentThreadID should be set for sidebar');
-    if (!sourceMessage || sourceMessage.type === messageTypes.SIDEBAR_SOURCE) {
+    if (!sourceMessage) {
       throw new ServerError('invalid_parameters');
     }
 
