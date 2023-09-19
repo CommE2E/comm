@@ -420,6 +420,7 @@ makeRuntimeConfig(::hermes::vm::gcheapsize_t heapSizeMB) {
 
   return vm::RuntimeConfig::Builder()
       .withGCConfig(gcConfigBuilder.build())
+      .withEnableSampleProfiling(true)
       .build();
 }
 
