@@ -8,6 +8,53 @@ use std::{str::FromStr, string::FromUtf8Error};
 /// # Example
 /// ```ignore
 /// pub async fn request_handler(
+///   principal: AuthorizationCredential,
+/// ) -> Result<HttpResponse> {
+///   Ok(HttpResponse::Ok().finish())
+/// }
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum AuthorizationCredential {
+  UserToken(UserIdentity),
+  ServicesToken(ServicesAuthToken),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ServicesAuthToken {
+  #[serde(rename = "servicesToken")]
+  token_value: String,
+}
+
+impl ServicesAuthToken {
+  /// Gets the raw token value
+  pub fn into_inner(self) -> String {
+    self.token_value
+  }
+
+  /// Gets the raw token value
+  pub fn as_str(&self) -> &str {
+    self.token_value.as_str()
+  }
+
+  /// Gets the access token value, usable in bearer authorization
+  ///
+  /// # Example
+  /// ```ignore
+  /// reqwest::get("url").beaerer_auth(token.as_authorization_token()?).send().await?;
+  /// ```
+  pub fn as_authorization_token(&self) -> Result<String, serde_json::Error> {
+    let json = serde_json::to_string(self)?;
+    let base64_str = BASE64_STANDARD.encode(json);
+    Ok(base64_str)
+  }
+}
+
+/// This implements [`actix_web::FromRequest`], so it can be used to extract user
+/// identity information from HTTP requests.
+/// # Example
+/// ```ignore
+/// pub async fn request_handler(
 ///  user: UserIdentity,
 /// ) -> Result<HttpResponse> {
 ///   Ok(HttpResponse::Ok().finish())
@@ -38,7 +85,7 @@ impl UserIdentity {
 }
 
 #[derive(Debug, Display, Error, From)]
-pub enum UserIdentityParseError {
+pub enum AuthorizationCredentialParseError {
   Base64DecodeError(base64::DecodeError),
   Utf8DecodeError(FromUtf8Error),
   JsonParseError(serde_json::Error),
@@ -46,13 +93,25 @@ pub enum UserIdentityParseError {
 
 /// Parsing of [UserIdentity] from bearer token
 impl FromStr for UserIdentity {
-  type Err = UserIdentityParseError;
+  type Err = AuthorizationCredentialParseError;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
     let bytes = BASE64_STANDARD.decode(s)?;
     let text = String::from_utf8(bytes)?;
     let user = serde_json::from_str(&text)?;
     Ok(user)
+  }
+}
+
+/// Parsing of [AuthorizationCredential] from bearer token
+impl FromStr for AuthorizationCredential {
+  type Err = AuthorizationCredentialParseError;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    let bytes = BASE64_STANDARD.decode(s)?;
+    let text = String::from_utf8(bytes)?;
+    let credential = serde_json::from_str(&text)?;
+    Ok(credential)
   }
 }
 
@@ -75,5 +134,40 @@ mod tests {
     assert!(parsed_identity.is_ok(), "Parse error: {parsed_identity:?}");
 
     assert_eq!(parsed_identity.unwrap(), identity);
+  }
+
+  #[test]
+  fn test_user_credential_parsing() {
+    let identity = UserIdentity {
+      user_id: "user".to_string(),
+      access_token: "token".to_string(),
+      device_id: "device".to_string(),
+    };
+    let json =
+      r#"{"userID": "user", "accessToken": "token", "deviceID": "device"}"#;
+    let encoded = BASE64_STANDARD.encode(json);
+
+    let parsed_identity = encoded.parse::<AuthorizationCredential>();
+    assert!(parsed_identity.is_ok(), "Parse error: {parsed_identity:?}");
+
+    assert_eq!(
+      parsed_identity.unwrap(),
+      AuthorizationCredential::UserToken(identity)
+    );
+  }
+
+  #[test]
+  fn test_services_token_parsing() {
+    let token = ServicesAuthToken::new("hello".to_string());
+    let json = r#"{"servicesToken": "hello"}"#;
+    let encoded = BASE64_STANDARD.encode(json);
+
+    let parsed_identity = encoded.parse::<AuthorizationCredential>();
+    assert!(parsed_identity.is_ok(), "Parse error: {parsed_identity:?}");
+
+    assert_eq!(
+      parsed_identity.unwrap(),
+      AuthorizationCredential::ServicesToken(token)
+    );
   }
 }
