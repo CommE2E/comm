@@ -1,4 +1,5 @@
 use base64::{prelude::BASE64_STANDARD, Engine};
+use constant_time_eq::constant_time_eq;
 use derive_more::{Display, Error, From};
 use serde::{Deserialize, Serialize};
 use std::{str::FromStr, string::FromUtf8Error};
@@ -20,7 +21,7 @@ pub enum AuthorizationCredential {
   ServicesToken(ServicesAuthToken),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, derive_more::Constructor)]
 pub struct ServicesAuthToken {
   #[serde(rename = "servicesToken")]
   token_value: String,
@@ -47,6 +48,12 @@ impl ServicesAuthToken {
     let json = serde_json::to_string(self)?;
     let base64_str = BASE64_STANDARD.encode(json);
     Ok(base64_str)
+  }
+}
+
+impl PartialEq for ServicesAuthToken {
+  fn eq(&self, other: &Self) -> bool {
+    constant_time_eq(self.token_value.as_bytes(), other.token_value.as_bytes())
   }
 }
 
