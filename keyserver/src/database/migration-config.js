@@ -9,6 +9,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
+import { deleteThread } from '../deleters/thread-deleters.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
 import { updateThread } from '../updaters/thread-updaters.js';
@@ -513,6 +514,30 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
           )
         `,
       ),
+  ],
+  [
+    44,
+    async () => {
+      const { SIDEBAR_SOURCE, TOGGLE_PIN } = messageTypes;
+      const [result] = await dbQuery(SQL`
+        SELECT m1.thread
+        FROM messages m1
+        LEFT JOIN messages m2
+          ON m2.id = m1.target_message
+        WHERE m1.type = ${SIDEBAR_SOURCE} AND m2.type = ${TOGGLE_PIN}
+      `);
+
+      const threadIDs = new Set();
+      for (const row of result) {
+        threadIDs.add(row.thread.toString());
+      }
+
+      await Promise.all(
+        [...threadIDs].map(threadID =>
+          deleteThread(botViewer, { threadID }, { ignorePermissions: true }),
+        ),
+      );
+    },
   ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
