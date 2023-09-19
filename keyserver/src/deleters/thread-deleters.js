@@ -38,7 +38,7 @@ async function deleteThread(
 
   const permissionsBlob = await fetchThreadPermissionsBlob(viewer, threadID);
 
-  if (!permissionsBlob) {
+  if (!permissionsBlob && !ignorePermissions) {
     // This should only occur if the first request goes through but the client
     // never receives the response
     const { updateInfos } = await fetchUpdateInfoForThreadDeletion(
