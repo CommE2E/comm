@@ -8,15 +8,18 @@ use actix_web_httpauth::{
   headers::www_authenticate::bearer::Bearer,
   middleware::HttpAuthentication,
 };
+use http::StatusCode;
 use std::{
-  future::{ready, Ready},
+  boxed::Box,
+  future::{ready, Future, Ready},
+  pin::Pin,
   str::FromStr,
 };
 use tracing::debug;
 
-use crate::auth::UserIdentity;
+use crate::auth::{AuthorizationCredential, UserIdentity};
 
-impl FromRequest for UserIdentity {
+impl FromRequest for AuthorizationCredential {
   type Error = actix_web::Error;
   type Future = Ready<Result<Self, Self::Error>>;
 
@@ -24,24 +27,53 @@ impl FromRequest for UserIdentity {
     req: &actix_web::HttpRequest,
     _: &mut actix_web::dev::Payload,
   ) -> Self::Future {
-    if let Some(user) = req.extensions().get::<UserIdentity>() {
-      return ready(Ok(user.clone()));
+    if let Some(credential) = req.extensions().get::<AuthorizationCredential>()
+    {
+      return ready(Ok(credential.clone()));
     }
 
     let f = || {
       let bearer = BearerAuth::extract(req).into_inner()?;
-      let user = match UserIdentity::from_str(bearer.token()) {
-        Ok(user) => user,
+      let credential = match AuthorizationCredential::from_str(bearer.token()) {
+        Ok(credential) => credential,
         Err(err) => {
           debug!("HTTP authorization error: {err}");
           return Err(AuthenticationError::new(Bearer::default()).into());
         }
       };
 
-      Ok(user)
+      Ok(credential)
     };
 
     ready(f())
+  }
+}
+
+impl FromRequest for UserIdentity {
+  type Error = actix_web::Error;
+  type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
+
+  fn from_request(
+    req: &actix_web::HttpRequest,
+    payload: &mut actix_web::dev::Payload,
+  ) -> Self::Future {
+    // NOTE: If ever `Ready<T>.into_inner()` gets stable, we can use it here
+    // to get rid of the async block. Feature name: "ready_into_inner".
+    // Tracking issue: https://github.com/rust-lang/rust/issues/101196
+    let credential_fut = AuthorizationCredential::from_request(req, payload);
+    let fut = async move {
+      match credential_fut.await {
+        Ok(AuthorizationCredential::UserToken(user)) => Ok(user.clone()),
+        Ok(_) => {
+          debug!("Authorization provided, but it's not UserIdentity");
+          let mut error = AuthenticationError::new(Bearer::default());
+          *error.status_code_mut() = StatusCode::FORBIDDEN;
+          Err(error.into())
+        }
+        Err(err) => Err(err),
+      }
+    };
+    Box::pin(fut)
   }
 }
 
@@ -49,8 +81,8 @@ pub async fn validation_function(
   req: ServiceRequest,
   bearer: BearerAuth,
 ) -> Result<ServiceRequest, (actix_web::Error, ServiceRequest)> {
-  let user = match UserIdentity::from_str(bearer.token()) {
-    Ok(user) => user,
+  let credential = match AuthorizationCredential::from_str(bearer.token()) {
+    Ok(credential) => credential,
     Err(err) => {
       debug!("HTTP authorization error: {err}");
       return Err((AuthenticationError::new(Bearer::default()).into(), req));
@@ -58,7 +90,7 @@ pub async fn validation_function(
   };
 
   // TODO: call identity service, for now just allow every request
-  req.extensions_mut().insert(user);
+  req.extensions_mut().insert(credential);
 
   Ok(req)
 }
