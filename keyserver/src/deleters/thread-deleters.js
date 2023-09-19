@@ -20,13 +20,20 @@ import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers.js
 import { rescindPushNotifs } from '../push/rescind.js';
 import type { Viewer } from '../session/viewer.js';
 
+type DeleteThreadOptions = $Shape<{
+  +ignorePermissions: boolean,
+}>;
 async function deleteThread(
   viewer: Viewer,
   threadDeletionRequest: ThreadDeletionRequest,
+  options?: DeleteThreadOptions,
 ): Promise<LeaveThreadResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
+  const ignorePermissions =
+    (options?.ignorePermissions && viewer.isScriptViewer) ?? false;
+
   const { threadID } = threadDeletionRequest;
 
   const permissionsBlob = await fetchThreadPermissionsBlob(viewer, threadID);
@@ -45,7 +52,7 @@ async function deleteThread(
     permissionsBlob,
     threadPermissions.DELETE_THREAD,
   );
-  if (!hasPermission) {
+  if (!hasPermission && !ignorePermissions) {
     throw new ServerError('invalid_credentials');
   }
 
