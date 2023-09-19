@@ -198,7 +198,9 @@ async function createThread(
     sourceMessage &&
     (sourceMessage.type === messageTypes.REACTION ||
       sourceMessage.type === messageTypes.EDIT_MESSAGE ||
-      sourceMessage.type === messageTypes.SIDEBAR_SOURCE)
+      sourceMessage.type === messageTypes.SIDEBAR_SOURCE ||
+      sourceMessage.type === messageTypes.TOGGLE_PIN ||
+      sourceMessage.type === messageTypes.CHANGE_ROLE)
   ) {
     throw new ServerError('invalid_parameters');
   }
