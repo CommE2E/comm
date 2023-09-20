@@ -985,7 +985,5 @@ export {
   fetchThreadMessagesCount,
   fetchLatestEditMessageContentByID,
   fetchPinnedMessageInfos,
-  fetchRelatedMessages,
-  rawMessageInfoForRowsAndRelatedMessages,
   searchMessagesInSingleChat,
 };
