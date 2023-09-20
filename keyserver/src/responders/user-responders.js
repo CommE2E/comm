@@ -15,7 +15,6 @@ import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   ResetPasswordRequest,
   LogOutResponse,
-  DeleteAccountRequest,
   RegisterResponse,
   RegisterRequest,
   LogInResponse,
@@ -222,16 +221,10 @@ async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
   };
 }
 
-export const deleteAccountRequestInputValidator: TInterface<DeleteAccountRequest> =
-  tShape<DeleteAccountRequest>({
-    password: t.maybe(tPassword),
-  });
-
 async function accountDeletionResponder(
   viewer: Viewer,
-  request: DeleteAccountRequest,
 ): Promise<LogOutResponse> {
-  const result = await deleteAccount(viewer, request);
+  const result = await deleteAccount(viewer);
   invariant(result, 'deleteAccount should return result if handed request');
   return result;
 }

@@ -170,7 +170,6 @@ import {
   updateUserAvatarResponder,
   registerRequestInputValidator,
   registerResponseValidator,
-  deleteAccountRequestInputValidator,
   logOutResponseValidator,
   logInRequestInputValidator,
   logInResponseValidator,
@@ -284,7 +283,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   ),
   delete_account: createJSONResponder(
     accountDeletionResponder,
-    deleteAccountRequestInputValidator,
+    ignoredArgumentValidator,
     logOutResponseValidator,
     [],
   ),
