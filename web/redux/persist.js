@@ -183,6 +183,25 @@ const migrations = {
       },
     },
   }),
+  [10]: async state => {
+    const { keyserverInfos } = state.keyserverStore;
+    const newKeyserverInfos = {};
+    for (const key in keyserverInfos) {
+      newKeyserverInfos[key] = {
+        ...keyserverInfos[key],
+        connection: { ...defaultConnectionInfo },
+        updatesCurrentAsOf: 0,
+        sessionID: null,
+      };
+    }
+    return {
+      ...state,
+      keyserverStore: {
+        ...state.keyserverStore,
+        keyserverInfos: newKeyserverInfos,
+      },
+    };
+  },
 };
 
 const persistWhitelist = [
@@ -267,11 +286,10 @@ const keyserverStoreTransform: Transform = createTransform(
   },
   (state: PersistedKeyserverStore): KeyserverStore => {
     const keyserverInfos = {};
-    const defaultConnection = defaultConnectionInfo;
     for (const key in state.keyserverInfos) {
       keyserverInfos[key] = {
         ...state.keyserverInfos[key],
-        connection: { ...defaultConnection },
+        connection: { ...defaultConnectionInfo },
         updatesCurrentAsOf: 0,
         sessionID: null,
       };
@@ -295,7 +313,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 9,
+  version: 10,
   transforms: [keyserverStoreTransform],
 };
 
