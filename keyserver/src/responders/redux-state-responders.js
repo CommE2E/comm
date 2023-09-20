@@ -8,6 +8,7 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
 import { freshMessageStore } from 'lib/reducers/message-reducer.js';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
+import { getThreadHashesFromThreadInfos } from 'lib/shared/thread-store-utils.js';
 import {
   threadHasPermission,
   threadIsPending,
@@ -33,6 +34,7 @@ import {
 } from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -149,7 +151,13 @@ async function getInitialReduxStateResponder(
       threadInfoPromise,
       hasNotAcknowledgedPoliciesPromise,
     ]);
-    return { threadInfos: hasNotAcknowledgedPolicies ? {} : threadInfos };
+    if (hasNotAcknowledgedPolicies) {
+      return { threadInfos: {}, threadHashes: {} };
+    }
+    return {
+      threadInfos,
+      threadHashes: getThreadHashesFromThreadInfos(values(threadInfos), false),
+    };
   })();
   const messageStorePromise = (async () => {
     const [
