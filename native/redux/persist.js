@@ -776,6 +776,23 @@ const migrations = {
       },
     };
   },
+  [52]: async state => {
+    const { keyserverInfos } = state.keyserverStore;
+    const newKeyserverInfos = {};
+    for (const key in keyserverInfos) {
+      newKeyserverInfos[key] = {
+        ...keyserverInfos[key],
+        connection: { ...defaultConnectionInfo },
+      };
+    }
+    return {
+      ...state,
+      keyserverStore: {
+        ...state.keyserverStore,
+        keyserverInfos: newKeyserverInfos,
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -876,11 +893,10 @@ const keyserverStoreTransform: Transform = createTransform(
   },
   (state: PersistedKeyserverStore): KeyserverStore => {
     const keyserverInfos = {};
-    const defaultConnection = defaultConnectionInfo;
     for (const key in state.keyserverInfos) {
       keyserverInfos[key] = {
         ...state.keyserverInfos[key],
-        connection: { ...defaultConnection },
+        connection: { ...defaultConnectionInfo },
       };
     }
     return {
@@ -907,7 +923,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 51,
+  version: 52,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
