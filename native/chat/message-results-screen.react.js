@@ -5,12 +5,11 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { fetchPinnedMessages } from 'lib/actions/message-actions.js';
+import { useFetchPinnedMessages } from 'lib/actions/message-actions.js';
 import { messageListData } from 'lib/selectors/chat-selectors.js';
 import { createMessageInfo } from 'lib/shared/message-utils.js';
 import { isComposableMessageType } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
 
 import { useHeightMeasurer } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react';
@@ -42,7 +41,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
   const [messageVerticalBounds, setMessageVerticalBounds] = React.useState();
   const scrollViewContainerRef = React.useRef();
 
-  const callFetchPinnedMessages = useServerCall(fetchPinnedMessages);
+  const callFetchPinnedMessages = useFetchPinnedMessages();
   const userInfos = useSelector(state => state.userStore.userInfos);
 
   React.useEffect(() => {

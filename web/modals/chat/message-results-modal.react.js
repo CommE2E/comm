@@ -3,8 +3,8 @@
 import * as React from 'react';
 
 import {
-  fetchPinnedMessages,
   fetchPinnedMessageActionTypes,
+  useFetchPinnedMessages,
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { messageListData } from 'lib/selectors/chat-selectors.js';
@@ -15,10 +15,7 @@ import {
 } from 'lib/shared/message-utils.js';
 import { isComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import css from './message-results-modal.css';
 import MessageResult from '../../components/message-result.react.js';
@@ -41,7 +38,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
   const { popModal } = useModalContext();
   const [rawMessageResults, setRawMessageResults] = React.useState([]);
 
-  const callFetchPinnedMessages = useServerCall(fetchPinnedMessages);
+  const callFetchPinnedMessages = useFetchPinnedMessages();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const userInfos = useSelector(state => state.userStore.userInfos);
