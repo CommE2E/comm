@@ -11,6 +11,7 @@ export const updateWindowActiveActionType = 'UPDATE_WINDOW_ACTIVE';
 export const setDeviceIDActionType = 'SET_DEVICE_ID';
 export const setInitialReduxState = 'SET_INITIAL_REDUX_STATE';
 
+const getInitialReduxStateCallServerEndpointOptions = { timeout: 300000 };
 const getInitialReduxState =
   (
     callServerEndpoint: CallServerEndpoint,
@@ -19,6 +20,7 @@ const getInitialReduxState =
     const response = await callServerEndpoint(
       'get_initial_redux_state',
       urlInfo,
+      getInitialReduxStateCallServerEndpointOptions,
     );
     return {
       navInfo: response.navInfo,
