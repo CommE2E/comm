@@ -418,9 +418,16 @@ makeRuntimeConfig(::hermes::vm::gcheapsize_t heapSizeMB) {
     gcConfigBuilder.withMaxHeapSize(heapSizeMB << 20);
   }
 
+#if DEBUG
+  return vm::RuntimeConfig::Builder()
+      .withGCConfig(gcConfigBuilder.build())
+      .withEnableSampleProfiling(true)
+      .build();
+#else
   return vm::RuntimeConfig::Builder()
       .withGCConfig(gcConfigBuilder.build())
       .build();
+#endif
 }
 
 @end
