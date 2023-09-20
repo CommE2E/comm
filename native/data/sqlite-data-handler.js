@@ -186,7 +186,7 @@ function SQLiteDataHandler(): React.Node {
           payload: {
             drafts,
             messages,
-            threadStore: { threadInfos: threadInfosFromDB },
+            threadInfos: threadInfosFromDB,
             currentUserID: currentLoggedInUserID,
             messageStoreThreads,
             reports: reportsFromDb,
