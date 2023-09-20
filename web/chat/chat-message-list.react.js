@@ -8,9 +8,13 @@ import * as React from 'react';
 
 import {
   fetchMessagesBeforeCursorActionTypes,
-  fetchMessagesBeforeCursor,
+  useFetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
-  fetchMostRecentMessages,
+  useFetchMostRecentMessages,
+} from 'lib/actions/message-actions.js';
+import type {
+  FetchMostRecentMessagesInput,
+  FetchMessagesBeforeCursorInput,
 } from 'lib/actions/message-actions.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
@@ -26,7 +30,6 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
@@ -62,11 +65,10 @@ type Props = {
   +startReached: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +fetchMessagesBeforeCursor: (
-    threadID: string,
-    beforeMessageID: string,
+    input: FetchMessagesBeforeCursorInput,
   ) => Promise<FetchMessageInfosPayload>,
   +fetchMostRecentMessages: (
-    threadID: string,
+    input: FetchMostRecentMessagesInput,
   ) => Promise<FetchMessageInfosPayload>,
   +inputState: ?InputState,
   +clearTooltip: () => mixed,
@@ -384,12 +386,15 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       if (oldestMessageServerID) {
         await this.props.dispatchActionPromise(
           fetchMessagesBeforeCursorActionTypes,
-          this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
+          this.props.fetchMessagesBeforeCursor({
+            threadID,
+            beforeMessageID: oldestMessageServerID,
+          }),
         );
       } else {
         await this.props.dispatchActionPromise(
           fetchMostRecentMessagesActionTypes,
-          this.props.fetchMostRecentMessages(threadID),
+          this.props.fetchMostRecentMessages({ threadID }),
         );
       }
     } finally {
@@ -429,10 +434,8 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
     });
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callFetchMessagesBeforeCursor = useServerCall(
-      fetchMessagesBeforeCursor,
-    );
-    const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
+    const callFetchMessagesBeforeCursor = useFetchMessagesBeforeCursor();
+    const callFetchMostRecentMessages = useFetchMostRecentMessages();
 
     const inputState = React.useContext(InputStateContext);
 

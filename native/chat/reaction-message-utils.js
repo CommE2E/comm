@@ -4,16 +4,13 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  sendReactionMessage,
+  useSendReactionMessage,
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { cloneError } from 'lib/utils/errors.js';
 
 import { useSelector } from '../redux/redux-utils.js';
@@ -33,7 +30,7 @@ function useSendReaction(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
 
-  const callSendReactionMessage = useServerCall(sendReactionMessage);
+  const callSendReactionMessage = useSendReactionMessage();
   const dispatchActionPromise = useDispatchActionPromise();
 
   return React.useCallback(
