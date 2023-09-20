@@ -11,9 +11,13 @@ import * as uuid from 'uuid';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
-  sendMultimediaMessage,
+  useSendMultimediaMessage,
   sendTextMessageActionTypes,
-  sendTextMessage,
+  useSendTextMessage,
+} from 'lib/actions/message-actions.js';
+import type {
+  SendMultimediaMessageInput,
+  SendTextMessageInput,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { newThread } from 'lib/actions/thread-actions.js';
@@ -67,10 +71,7 @@ import {
   type SendMessagePayload,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
-import type {
-  MediaMessageServerDBContent,
-  RawMediaMessageInfo,
-} from 'lib/types/messages/media.js';
+import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
 import { getMediaMessageServerDBContentsFromMedia } from 'lib/types/messages/media.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -151,17 +152,9 @@ type Props = {
     input: UploadMediaMetadataRequest,
   ) => Promise<UploadMultimediaResult>,
   +sendMultimediaMessage: (
-    threadID: string,
-    localID: string,
-    mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
-    sidebarCreation?: boolean,
+    input: SendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
-  +sendTextMessage: (
-    threadID: string,
-    localID: string,
-    text: string,
-    sidebarCreation?: boolean,
-  ) => Promise<SendMessageResult>,
+  +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
 };
@@ -377,12 +370,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       messageInfo.media,
     );
     try {
-      const result = await this.props.sendMultimediaMessage(
+      const result = await this.props.sendMultimediaMessage({
         threadID,
         localID,
         mediaMessageContents,
         sidebarCreation,
-      );
+      });
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return {
         localID,
@@ -576,12 +569,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       const sidebarCreation =
         this.pendingSidebarCreationMessageLocalIDs.has(localID);
-      const result = await this.props.sendTextMessage(
-        messageInfo.threadID,
+      const result = await this.props.sendTextMessage({
+        threadID: messageInfo.threadID,
         localID,
-        messageInfo.text,
+        text: messageInfo.text,
         sidebarCreation,
-      );
+      });
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return {
         localID,
@@ -1802,8 +1795,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const calendarQuery = useCalendarQuery();
     const callUploadMultimedia = useServerCall(uploadMultimedia);
     const callUploadMediaMetadata = useServerCall(uploadMediaMetadata);
-    const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
-    const callSendTextMessage = useServerCall(sendTextMessage);
+    const callSendMultimediaMessage = useSendMultimediaMessage();
+    const callSendTextMessage = useSendTextMessage();
     const callNewThread = useServerCall(newThread);
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
