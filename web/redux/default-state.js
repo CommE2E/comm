@@ -25,6 +25,7 @@ const defaultWebState: AppState = Object.freeze({
   },
   threadStore: {
     threadInfos: {},
+    threadHashes: {},
   },
   userStore: {
     userInfos: {},

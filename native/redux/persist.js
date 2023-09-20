@@ -30,6 +30,7 @@ import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
+import { getThreadHashesFromThreadInfos } from 'lib/shared/thread-store-utils.js';
 import {
   getContainingThreadID,
   getCommunity,
@@ -58,7 +59,11 @@ import {
   defaultConnectionInfo,
   type ConnectionInfo,
 } from 'lib/types/socket-types.js';
-import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  ClientDBThreadInfo,
+  RawThreadInfos,
+  ThreadStore,
+} from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
@@ -776,6 +781,20 @@ const migrations = {
       },
     };
   },
+  [52]: async state => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+
+    return {
+      ...state,
+      threadStore: {
+        ...state.threadStore,
+        threadHashes: getThreadHashesFromThreadInfos(rawThreadInfos, true),
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -891,6 +910,33 @@ const keyserverStoreTransform: Transform = createTransform(
   { whitelist: ['keyserverStore'] },
 );
 
+function transformAfterVersion<State, PersistState>(
+  version: number,
+  inbound: State => PersistState,
+) {
+  return (state, key, wholeState) => {
+    if (wholeState._persist?.version > version) {
+      return state;
+    }
+    return (inbound(state): any);
+  };
+}
+
+type PersistedThreadStore = $Diff<
+  ThreadStore,
+  { +threadInfos: RawThreadInfos },
+>;
+const threadStoreTransform: Transform = createTransform(
+  (state: ThreadStore): PersistedThreadStore => {
+    const { threadInfos, ...rest } = state;
+    return rest;
+  },
+  transformAfterVersion(51, (state: PersistedThreadStore): ThreadStore => {
+    return { ...state, threadInfos: {} };
+  }),
+  { whitelist: ['threadStore'] },
+);
+
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
@@ -902,16 +948,16 @@ const persistConfig = {
     'connectivity',
     'deviceOrientation',
     'frozen',
-    'threadStore',
     'storeLoaded',
     'connection',
   ],
   debug: __DEV__,
-  version: 51,
+  version: 52,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
     keyserverStoreTransform,
+    threadStoreTransform,
   ],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

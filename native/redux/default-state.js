@@ -29,6 +29,7 @@ const defaultState = ({
   },
   threadStore: {
     threadInfos: {},
+    threadHashes: {},
   },
   userStore: {
     userInfos: {},
