@@ -9,6 +9,7 @@ import {
   generatePendingThreadColor,
   generateRandomColor,
 } from 'lib/shared/color-utils.js';
+import { isInvalidSidebarSource } from 'lib/shared/message-utils.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
@@ -194,14 +195,7 @@ async function createThread(
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
-  if (
-    sourceMessage &&
-    (sourceMessage.type === messageTypes.REACTION ||
-      sourceMessage.type === messageTypes.EDIT_MESSAGE ||
-      sourceMessage.type === messageTypes.SIDEBAR_SOURCE ||
-      sourceMessage.type === messageTypes.TOGGLE_PIN ||
-      sourceMessage.type === messageTypes.CHANGE_ROLE)
-  ) {
+  if (sourceMessage && isInvalidSidebarSource(sourceMessage.type)) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -425,6 +419,14 @@ async function createThread(
     if (!sourceMessage) {
       throw new ServerError('invalid_parameters');
     }
+    invariant(
+      sourceMessage.type !== messageTypes.REACTION &&
+        sourceMessage.type !== messageTypes.EDIT_MESSAGE &&
+        sourceMessage.type !== messageTypes.SIDEBAR_SOURCE &&
+        sourceMessage.type !== messageTypes.TOGGLE_PIN &&
+        sourceMessage.type !== messageTypes.CHANGE_ROLE,
+      'Invalid sidebar source type',
+    );
 
     let editedSourceMessage = sourceMessage;
     if (sourceMessageID && sourceMessage.type === messageTypes.TEXT) {
