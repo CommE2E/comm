@@ -1,12 +1,8 @@
 // @flow
 
 import { getRustAPI } from 'rust-node-addon';
-import bcrypt from 'twin-bcrypt';
 
-import type {
-  LogOutResponse,
-  DeleteAccountRequest,
-} from 'lib/types/account-types.js';
+import type { LogOutResponse } from 'lib/types/account-types.js';
 import type { ReservedUsernameMessage } from 'lib/types/crypto-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
@@ -26,30 +22,9 @@ import { createNewAnonymousCookie } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 
-async function deleteAccount(
-  viewer: Viewer,
-  request?: DeleteAccountRequest,
-): Promise<?LogOutResponse> {
-  if (!viewer.loggedIn || (!request && !viewer.isScriptViewer)) {
+async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
+  if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
-  }
-
-  if (request) {
-    const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
-    const [result] = await dbQuery(hashQuery);
-    if (result.length === 0) {
-      throw new ServerError('internal_error');
-    }
-    const row = result[0];
-    const requestPasswordConsistentWithDB = !!row.hash === !!request.password;
-    const shouldValidatePassword = !!row.hash;
-    if (
-      !requestPasswordConsistentWithDB ||
-      (shouldValidatePassword &&
-        !bcrypt.compareSync(request.password, row.hash))
-    ) {
-      throw new ServerError('invalid_credentials');
-    }
   }
 
   const deletedUserID = viewer.userID;
@@ -99,7 +74,7 @@ async function deleteAccount(
 
   const promises = {};
   promises.deletion = dbQuery(deletionQuery, { multipleStatements: true });
-  if (request) {
+  if (!viewer.isScriptViewer) {
     promises.anonymousViewerData = createNewAnonymousCookie({
       platformDetails: viewer.platformDetails,
       deviceToken: viewer.deviceToken,
@@ -134,21 +109,21 @@ async function deleteAccount(
     usersToUpdate,
     deletedUserID,
   );
-  if (request) {
-    handleAsyncPromise(deletionUpdatesPromise);
-  } else {
+  if (viewer.isScriptViewer) {
     await deletionUpdatesPromise;
+  } else {
+    handleAsyncPromise(deletionUpdatesPromise);
   }
 
-  if (request) {
-    return {
-      currentUserInfo: {
-        id: viewer.id,
-        anonymous: true,
-      },
-    };
+  if (viewer.isScriptViewer) {
+    return null;
   }
-  return null;
+  return {
+    currentUserInfo: {
+      id: viewer.id,
+      anonymous: true,
+    },
+  };
 }
 
 async function createAccountDeletionUpdates(
