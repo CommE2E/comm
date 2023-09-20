@@ -220,6 +220,9 @@ async function sendPushNotif(input: {
   const { threadID } = firstNewMessageInfo;
 
   const threadInfo = threadInfos[threadID];
+  const parentThreadInfo = threadInfo.parentThreadID
+    ? threadInfos[threadInfo.parentThreadID]
+    : null;
   const updateBadge = threadInfo.currentUser.subscription.home;
   const displayBanner = threadInfo.currentUser.subscription.pushNotifs;
   const username = userInfos[userID] && userInfos[userID].username;
@@ -246,6 +249,7 @@ async function sendPushNotif(input: {
   const notifTexts = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
+    parentThreadInfo,
     notifTargetUserInfo,
     getENSNames,
   );
