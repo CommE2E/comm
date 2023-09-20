@@ -12,6 +12,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import { isComposableMessageType } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
@@ -870,7 +871,7 @@ async function toggleMessagePinForThread(
   const { messageID, action } = request;
 
   const targetMessage = await fetchMessageInfoByID(viewer, messageID);
-  if (!targetMessage) {
+  if (!targetMessage || !isComposableMessageType(targetMessage.type)) {
     throw new ServerError('invalid_parameters');
   }
 
