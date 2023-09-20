@@ -14,9 +14,13 @@ import { createSelector } from 'reselect';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
-  legacySendMultimediaMessage,
+  useLegacySendMultimediaMessage,
   sendTextMessageActionTypes,
-  sendTextMessage,
+  useSendTextMessage,
+} from 'lib/actions/message-actions.js';
+import type {
+  LegacySendMultimediaMessageInput,
+  SendTextMessageInput,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { newThread } from 'lib/actions/thread-actions.js';
@@ -136,17 +140,9 @@ type Props = {
   ) => Promise<UploadMultimediaResult>,
   +deleteUpload: (id: string) => Promise<void>,
   +sendMultimediaMessage: (
-    threadID: string,
-    localID: string,
-    mediaIDs: $ReadOnlyArray<string>,
-    sidebarCreation?: boolean,
+    input: LegacySendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
-  +sendTextMessage: (
-    threadID: string,
-    localID: string,
-    text: string,
-    sidebarCreation?: boolean,
-  ) => Promise<SendMessageResult>,
+  +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
   +pushModal: PushModal,
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
@@ -506,12 +502,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaIDs.push(id);
     }
     try {
-      const result = await this.props.sendMultimediaMessage(
+      const result = await this.props.sendMultimediaMessage({
         threadID,
         localID,
         mediaIDs,
         sidebarCreation,
-      );
+      });
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       this.setState(prevState => {
         const newThreadID = this.getRealizedOrPendingThreadID(threadID);
@@ -1315,12 +1311,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       const sidebarCreation =
         this.pendingSidebarCreationMessageLocalIDs.has(localID);
-      const result = await this.props.sendTextMessage(
-        messageInfo.threadID,
+      const result = await this.props.sendTextMessage({
+        threadID: messageInfo.threadID,
         localID,
-        messageInfo.text,
+        text: messageInfo.text,
         sidebarCreation,
-      );
+      });
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return {
         localID,
@@ -1618,10 +1614,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callBlobServiceUpload = useServerCall(blobServiceUpload);
     const callUploadMediaMetadata = useServerCall(uploadMediaMetadata);
     const callDeleteUpload = useServerCall(deleteUpload);
-    const callSendMultimediaMessage = useServerCall(
-      legacySendMultimediaMessage,
-    );
-    const callSendTextMessage = useServerCall(sendTextMessage);
+    const callSendMultimediaMessage = useLegacySendMultimediaMessage();
+    const callSendTextMessage = useSendTextMessage();
     const callNewThread = useServerCall(newThread);
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
