@@ -1,7 +1,6 @@
 // @flow
 
 import { getRustAPI } from 'rust-node-addon';
-import bcrypt from 'twin-bcrypt';
 
 import type {
   LogOutResponse,
@@ -32,24 +31,6 @@ async function deleteAccount(
 ): Promise<?LogOutResponse> {
   if (!viewer.loggedIn || (!request && !viewer.isScriptViewer)) {
     throw new ServerError('not_logged_in');
-  }
-
-  if (request) {
-    const hashQuery = SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`;
-    const [result] = await dbQuery(hashQuery);
-    if (result.length === 0) {
-      throw new ServerError('internal_error');
-    }
-    const row = result[0];
-    const requestPasswordConsistentWithDB = !!row.hash === !!request.password;
-    const shouldValidatePassword = !!row.hash;
-    if (
-      !requestPasswordConsistentWithDB ||
-      (shouldValidatePassword &&
-        !bcrypt.compareSync(request.password, row.hash))
-    ) {
-      throw new ServerError('invalid_credentials');
-    }
   }
 
   const deletedUserID = viewer.userID;
