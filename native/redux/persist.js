@@ -870,6 +870,28 @@ const migrations = {
       },
     };
   },
+  [57]: async state => {
+    const {
+      // eslint-disable-next-line no-unused-vars
+      connection,
+      keyserverStore: { keyserverInfos },
+      ...rest
+    } = state;
+    const newKeyserverInfos = {};
+    for (const key in keyserverInfos) {
+      newKeyserverInfos[key] = {
+        ...keyserverInfos[key],
+        connection: { ...defaultConnectionInfo },
+      };
+    }
+    return {
+      ...rest,
+      keyserverStore: {
+        ...state.keyserverStore,
+        keyserverInfos: newKeyserverInfos,
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -954,11 +976,10 @@ const keyserverStoreTransform: Transform = createTransform(
   },
   (state: PersistedKeyserverStore): KeyserverStore => {
     const keyserverInfos = {};
-    const defaultConnection = defaultConnectionInfo;
     for (const key in state.keyserverInfos) {
       keyserverInfos[key] = {
         ...state.keyserverInfos[key],
-        connection: { ...defaultConnection },
+        connection: { ...defaultConnectionInfo },
       };
     }
     return {
@@ -985,7 +1006,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 56,
+  version: 57,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
