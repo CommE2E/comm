@@ -8,9 +8,11 @@ import { createSelector } from 'reselect';
 
 import {
   fetchMessagesBeforeCursorActionTypes,
-  fetchMessagesBeforeCursor,
+  useFetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
-  fetchMostRecentMessages,
+  useFetchMostRecentMessages,
+  type FetchMostRecentMessagesInput,
+  type FetchMessagesBeforeCursorInput,
 } from 'lib/actions/message-actions.js';
 import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
@@ -21,7 +23,6 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
@@ -66,11 +67,10 @@ type Props = {
   +indicatorStyle: IndicatorStyle,
   +dispatchActionPromise: DispatchActionPromise,
   +fetchMessagesBeforeCursor: (
-    threadID: string,
-    beforeMessageID: string,
+    input: FetchMessagesBeforeCursorInput,
   ) => Promise<FetchMessageInfosPayload>,
   +fetchMostRecentMessages: (
-    threadID: string,
+    input: FetchMostRecentMessagesInput,
   ) => Promise<FetchMessageInfosPayload>,
   +overlayContext: ?OverlayContextType,
   +keyboardState: ?KeyboardState,
@@ -292,15 +292,15 @@ class MessageList extends React.PureComponent<Props, State> {
         if (oldestMessageServerID) {
           await this.props.dispatchActionPromise(
             fetchMessagesBeforeCursorActionTypes,
-            this.props.fetchMessagesBeforeCursor(
+            this.props.fetchMessagesBeforeCursor({
               threadID,
-              oldestMessageServerID,
-            ),
+              beforeMessageID: oldestMessageServerID,
+            }),
           );
         } else {
           await this.props.dispatchActionPromise(
             fetchMostRecentMessagesActionTypes,
-            this.props.fetchMostRecentMessages(threadID),
+            this.props.fetchMostRecentMessages({ threadID }),
           );
         }
       } finally {
@@ -344,10 +344,8 @@ const ConnectedMessageList: React.ComponentType<BaseProps> =
     const indicatorStyle = useIndicatorStyle();
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callFetchMessagesBeforeCursor = useServerCall(
-      fetchMessagesBeforeCursor,
-    );
-    const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
+    const callFetchMessagesBeforeCursor = useFetchMessagesBeforeCursor();
+    const callFetchMostRecentMessages = useFetchMostRecentMessages();
 
     const oldestMessageServerID = useOldestMessageServerID(threadID);
 
