@@ -35,6 +35,7 @@ const getInitialReduxState =
       commServicesAccessToken: response.commServicesAccessToken,
       inviteLinksStore: response.inviteLinksStore,
       keyserverInfo: response.keyserverInfo,
+      integrityStore: response.integrityStore,
     };
   };
 
