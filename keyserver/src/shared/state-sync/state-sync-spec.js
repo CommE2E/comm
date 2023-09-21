@@ -11,5 +11,7 @@ export type ServerStateSyncSpec<Infos, FullSocketSyncPayload, Info> = {
     viewer: Viewer,
     calendarQuery: $ReadOnlyArray<CalendarQuery>,
   ) => Promise<FullSocketSyncPayload>,
+  +getServerInfosHash: (infos: Infos) => number,
+  +getServerInfoHash: (info: Info) => number,
   ...StateSyncSpec<Infos, Info>,
 };

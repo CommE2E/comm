@@ -27,17 +27,13 @@ import {
 } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import {
-  threadStoreValidator,
-  rawThreadInfoValidator,
-} from 'lib/types/thread-types.js';
+import { threadStoreValidator } from 'lib/types/thread-types.js';
 import {
   currentUserInfoValidator,
   userInfosValidator,
 } from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
-import { hash } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -61,7 +57,7 @@ import {
 import { getWebPushConfig } from '../push/providers.js';
 import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
-import { validateOutput } from '../utils/validation-utils.js';
+import { serverStateSyncSpecs } from '../shared/state-sync/state-sync-specs.js';
 
 const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
   sessionID: t.maybe(t.String),
@@ -329,13 +325,9 @@ async function getInitialReduxStateResponder(
     const { threadInfos } = await threadStorePromise;
     const threadHashes = {};
     for (const id in threadInfos) {
-      const threadInfo = threadInfos[id];
-      const convertedThreadInfo = validateOutput(
-        viewer.platformDetails,
-        rawThreadInfoValidator,
-        threadInfo,
+      threadHashes[id] = serverStateSyncSpecs.threads.getServerInfoHash(
+        threadInfos[id],
       );
-      threadHashes[id] = hash(convertedThreadInfo);
     }
     return { threadHashes };
   })();

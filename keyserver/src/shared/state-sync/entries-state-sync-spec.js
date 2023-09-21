@@ -2,11 +2,13 @@
 
 import { serverEntryInfosObject } from 'lib/shared/entry-utils.js';
 import { entriesStateSyncSpec as libSpec } from 'lib/shared/state-sync/entries-state-sync-spec.js';
-import type {
-  CalendarQuery,
-  RawEntryInfo,
-  RawEntryInfos,
+import {
+  type CalendarQuery,
+  type RawEntryInfo,
+  type RawEntryInfos,
+  rawEntryInfoValidator,
 } from 'lib/types/entry-types.js';
+import { hash, combineUnorderedHashes, values } from 'lib/utils/objects.js';
 
 import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import {
@@ -14,6 +16,7 @@ import {
   fetchEntryInfosByID,
 } from '../../fetchers/entry-fetchers.js';
 import type { Viewer } from '../../session/viewer.js';
+import { validateOutput } from '../../utils/validation-utils.js';
 
 export const entriesStateSyncSpec: ServerStateSyncSpec<
   RawEntryInfos,
@@ -35,5 +38,13 @@ export const entriesStateSyncSpec: ServerStateSyncSpec<
     const result = await fetchEntryInfos(viewer, query);
     return result.rawEntryInfos;
   },
+  getServerInfosHash(infos: RawEntryInfos) {
+    return combineUnorderedHashes(values(infos).map(getServerInfoHash));
+  },
+  getServerInfoHash,
   ...libSpec,
 });
+
+function getServerInfoHash(info: RawEntryInfo) {
+  return hash(validateOutput(null, rawEntryInfoValidator, info));
+}
