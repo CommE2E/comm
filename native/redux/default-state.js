@@ -85,6 +85,7 @@ const defaultState = ({
   localSettings: {
     isBackupEnabled: false,
   },
+  threadActivityStore: {},
 }: AppState);
 
 export { defaultState };

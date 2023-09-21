@@ -30,6 +30,7 @@ import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
+import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
@@ -97,6 +98,7 @@ export type AppState = {
   +commServicesAccessToken: ?string,
   +inviteLinksStore: InviteLinksStore,
   +keyserverStore: KeyserverStore,
+  +threadActivityStore: ThreadActivityStore,
   +initialStateLoaded: boolean,
 };
 
