@@ -776,6 +776,13 @@ const migrations = {
       },
     };
   },
+  [52]: async state => ({
+    ...state,
+    integrityStore: {
+      threadHashes: {},
+      threadHashingStatus: 'data_not_loaded',
+    },
+  }),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -907,7 +914,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 51,
+  version: 52,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,

@@ -7,6 +7,7 @@ import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
+import type { IntegrityStore } from 'lib/types/integrity-types.js';
 import type { KeyserverStore } from 'lib/types/keyserver-types.js';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
 import type { InviteLinksStore } from 'lib/types/link-types.js';
@@ -60,4 +61,5 @@ export type AppState = {
   +keyserverStore: KeyserverStore,
   +threadActivityStore: ThreadActivityStore,
   +localSettings: LocalSettings,
+  +integrityStore: IntegrityStore,
 };
