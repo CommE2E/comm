@@ -1,7 +1,10 @@
 // @flow
 
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
-import type { RawThreadInfos } from 'lib/types/thread-types.js';
+import {
+  type RawThreadInfos,
+  type RawThreadInfo,
+} from 'lib/types/thread-types.js';
 
 import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import { fetchThreadInfos } from '../../fetchers/thread-fetchers.js';
@@ -10,6 +13,7 @@ import type { Viewer } from '../../session/viewer.js';
 export const threadsStateSyncSpec: ServerStateSyncSpec<
   RawThreadInfos,
   RawThreadInfos,
+  RawThreadInfo,
 > = Object.freeze({
   async fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     const filter = ids ? { threadIDs: ids } : undefined;

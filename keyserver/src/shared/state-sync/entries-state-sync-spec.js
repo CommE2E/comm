@@ -18,6 +18,7 @@ import type { Viewer } from '../../session/viewer.js';
 export const entriesStateSyncSpec: ServerStateSyncSpec<
   RawEntryInfos,
   $ReadOnlyArray<RawEntryInfo>,
+  RawEntryInfo,
 > = Object.freeze({
   async fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     if (ids) {
