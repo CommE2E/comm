@@ -6,11 +6,13 @@ import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import { threadsStateSyncSpec } from './threads-state-sync-spec.js';
 import { usersStateSyncSpec } from './users-state-sync-spec.js';
 
-export const serverStateSyncSpecs: {
-  +[string]: ServerStateSyncSpec<*, *, *>,
-} = Object.freeze({
+export const serverStateSyncSpecs = Object.freeze({
   threads: threadsStateSyncSpec,
   entries: entriesStateSyncSpec,
   currentUser: currentUserStateSyncSpec,
   users: usersStateSyncSpec,
+});
+
+(serverStateSyncSpecs: {
+  +[string]: ServerStateSyncSpec<any, any, any>,
 });
