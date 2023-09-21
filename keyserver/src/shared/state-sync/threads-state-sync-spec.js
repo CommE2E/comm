@@ -5,11 +5,14 @@ import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/r
 import {
   type RawThreadInfos,
   type RawThreadInfo,
+  rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
+import { hash, combineUnorderedHashes, values } from 'lib/utils/objects.js';
 
 import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import { fetchThreadInfos } from '../../fetchers/thread-fetchers.js';
 import type { Viewer } from '../../session/viewer.js';
+import { validateOutput } from '../../utils/validation-utils.js';
 
 export const threadsStateSyncSpec: ServerStateSyncSpec<
   RawThreadInfos,
@@ -17,14 +20,30 @@ export const threadsStateSyncSpec: ServerStateSyncSpec<
   RawThreadInfo,
   $ReadOnlyArray<ClientThreadInconsistencyReportCreationRequest>,
 > = Object.freeze({
-  async fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
-    const filter = ids ? { threadIDs: ids } : undefined;
-    const result = await fetchThreadInfos(viewer, filter);
-    return result.threadInfos;
-  },
+  fetch,
   async fetchFullSocketSyncPayload(viewer: Viewer) {
     const result = await fetchThreadInfos(viewer);
     return result.threadInfos;
   },
+  async fetchServerInfosHash(viewer: Viewer, ids?: $ReadOnlySet<string>) {
+    const infos = await fetch(viewer, ids);
+    return getServerInfosHash(infos);
+  },
+  getServerInfosHash,
+  getServerInfoHash,
   ...libSpec,
 });
+
+async function fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
+  const filter = ids ? { threadIDs: ids } : undefined;
+  const result = await fetchThreadInfos(viewer, filter);
+  return result.threadInfos;
+}
+
+function getServerInfosHash(infos: RawThreadInfos) {
+  return combineUnorderedHashes(values(infos).map(getServerInfoHash));
+}
+
+function getServerInfoHash(info: RawThreadInfo) {
+  return hash(validateOutput(null, rawThreadInfoValidator, info));
+}
