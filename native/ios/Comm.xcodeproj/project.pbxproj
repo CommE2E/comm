@@ -24,7 +24,7 @@
 		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
 		71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
 		724995D527B4103A00323FCE /* NotificationService.mm in Sources */ = {isa = PBXBuildFile; fileRef = 724995D427B4103A00323FCE /* NotificationService.mm */; };
-		724995D927B4103A00323FCE /* NotificationService.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 724995D127B4103A00323FCE /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		724995D927B4103A00323FCE /* NotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 724995D127B4103A00323FCE /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724995FA27BA9E8C00323FCE /* UserNotifications.framework */; };
 		75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75291F0328F9A0AE00F4C80E /* DeviceID.cpp */; };
 		7F0C6E31291C4468002AA2D9 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */; };
@@ -103,15 +103,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		724995DA27B4103A00323FCE /* Embed App Extensions */ = {
+		724995DA27B4103A00323FCE /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				724995D927B4103A00323FCE /* NotificationService.appex in Embed App Extensions */,
+				724995D927B4103A00323FCE /* NotificationService.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -736,7 +736,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */,
 				EA2E8897D838D7F3E680EACE /* [CP] Embed Pods Frameworks */,
-				724995DA27B4103A00323FCE /* Embed App Extensions */,
+				724995DA27B4103A00323FCE /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -791,7 +791,8 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1150;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
 				ORGANIZATIONNAME = "Comm Technologies, Inc.";
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
@@ -1631,6 +1632,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1640,6 +1642,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1696,6 +1699,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -1705,6 +1709,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
