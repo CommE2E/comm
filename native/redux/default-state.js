@@ -86,6 +86,7 @@ const defaultState = ({
     isBackupEnabled: false,
   },
   threadActivityStore: {},
+  integrityStore: { threadHashes: {}, threadHashingComplete: false },
 }: AppState);
 
 export { defaultState };
