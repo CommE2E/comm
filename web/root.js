@@ -9,6 +9,7 @@ import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProductio
 import { persistReducer, persistStore } from 'redux-persist';
 import thunk from 'redux-thunk';
 
+import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
 import App from './app.react.js';
@@ -41,6 +42,7 @@ const RootProvider = (): React.Node => (
         </Router>
         <Socket />
         <SQLiteDataHandler />
+        <IntegrityHandler />
       </InitialReduxStateGate>
     </ErrorBoundary>
   </Provider>
