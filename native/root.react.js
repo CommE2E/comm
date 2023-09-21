@@ -21,6 +21,7 @@ import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/re
 
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
+import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
@@ -243,6 +244,7 @@ function Root() {
       <ThemeHandler />
       <OrientationHandler />
       <BackupHandler />
+      <IntegrityHandler />
     </>
   );
   let navigation;
