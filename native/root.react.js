@@ -27,6 +27,7 @@ import { actionLogger } from 'lib/utils/action-logger.js';
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import BackupHandler from './backup/backup-handler.js';
+import { BottomSheetProvider } from './bottom-sheet/bottom-sheet-provider.react.js';
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
@@ -280,23 +281,25 @@ function Root() {
                             <NativeEditThreadAvatarProvider>
                               <MarkdownContextProvider>
                                 <MessageSearchProvider>
-                                  <RegistrationContextProvider>
-                                    <SQLiteDataHandler />
-                                    <ConnectedStatusBar />
-                                    <ReduxPersistGate
-                                      persistor={getPersistor()}
-                                    >
-                                      {gated}
-                                    </ReduxPersistGate>
-                                    <PersistedStateGate>
-                                      <Socket
-                                        detectUnsupervisedBackgroundRef={
-                                          detectUnsupervisedBackgroundRef
-                                        }
-                                      />
-                                    </PersistedStateGate>
-                                    {navigation}
-                                  </RegistrationContextProvider>
+                                  <BottomSheetProvider>
+                                    <RegistrationContextProvider>
+                                      <SQLiteDataHandler />
+                                      <ConnectedStatusBar />
+                                      <ReduxPersistGate
+                                        persistor={getPersistor()}
+                                      >
+                                        {gated}
+                                      </ReduxPersistGate>
+                                      <PersistedStateGate>
+                                        <Socket
+                                          detectUnsupervisedBackgroundRef={
+                                            detectUnsupervisedBackgroundRef
+                                          }
+                                        />
+                                      </PersistedStateGate>
+                                      {navigation}
+                                    </RegistrationContextProvider>
+                                  </BottomSheetProvider>
                                 </MessageSearchProvider>
                               </MarkdownContextProvider>
                             </NativeEditThreadAvatarProvider>
