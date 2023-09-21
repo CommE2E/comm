@@ -4,11 +4,14 @@ import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-s
 import {
   type RawThreadInfos,
   type RawThreadInfo,
+  rawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
+import { hash, combineUnorderedHashes, values } from 'lib/utils/objects.js';
 
 import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import { fetchThreadInfos } from '../../fetchers/thread-fetchers.js';
 import type { Viewer } from '../../session/viewer.js';
+import { validateOutput } from '../../utils/validation-utils.js';
 
 export const threadsStateSyncSpec: ServerStateSyncSpec<
   RawThreadInfos,
@@ -24,5 +27,13 @@ export const threadsStateSyncSpec: ServerStateSyncSpec<
     const result = await fetchThreadInfos(viewer);
     return result.threadInfos;
   },
+  getServerInfosHash(infos: RawThreadInfos) {
+    return combineUnorderedHashes(values(infos).map(getServerInfoHash));
+  },
+  getServerInfoHash,
   ...libSpec,
 });
+
+function getServerInfoHash(info: RawThreadInfo) {
+  return hash(validateOutput(null, rawThreadInfoValidator, info));
+}
