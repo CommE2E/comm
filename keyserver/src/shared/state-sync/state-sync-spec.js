@@ -13,5 +13,5 @@ export type ServerStateSyncSpec<Infos, FullSocketSyncPayload, Info> = {
   ) => Promise<FullSocketSyncPayload>,
   +getServerInfosHash: (infos: Infos) => number,
   +getServerInfoHash: (info: Info) => number,
-  ...StateSyncSpec<Infos, Info>,
+  ...StateSyncSpec<Info>,
 };
