@@ -85,6 +85,7 @@ const defaultState = ({
   localSettings: {
     isBackupEnabled: false,
   },
+  integrityStore: { threadHashes: {} },
 }: AppState);
 
 export { defaultState };

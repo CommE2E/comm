@@ -68,6 +68,7 @@ import {
   convertMessageStoreThreadsToNewIDSchema,
   convertThreadStoreThreadInfosToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { hash } from 'lib/utils/objects.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
@@ -776,6 +777,25 @@ const migrations = {
       },
     };
   },
+  [52]: async state => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+
+    const threadHashes = {};
+    for (const rawThreadInfo of rawThreadInfos) {
+      threadHashes[rawThreadInfo.id] = hash(rawThreadInfo);
+    }
+
+    return {
+      ...state,
+      integrityStore: {
+        ...state.integrityStore,
+        threadHashes,
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -907,7 +927,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 51,
+  version: 52,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,

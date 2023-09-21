@@ -19,6 +19,7 @@ import {
   calendarQueryValidator,
 } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
+import { integrityStoreValidator } from 'lib/types/integrity-types.js';
 import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
 import {
   defaultNumberPerThread,
@@ -26,13 +27,17 @@ import {
 } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { threadStoreValidator } from 'lib/types/thread-types.js';
+import {
+  threadStoreValidator,
+  rawThreadInfoValidator,
+} from 'lib/types/thread-types.js';
 import {
   currentUserInfoValidator,
   userInfosValidator,
 } from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { hash } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -56,6 +61,7 @@ import {
 import { getWebPushConfig } from '../push/providers.js';
 import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
+import { validateOutput } from '../utils/validation-utils.js';
 
 const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
   sessionID: t.maybe(t.String),
@@ -76,6 +82,7 @@ export const initialReduxStateValidator: TInterface<InitialReduxState> =
     commServicesAccessToken: t.Nil,
     inviteLinksStore: inviteLinksStoreValidator,
     keyserverInfo: initialKeyserverInfoValidator,
+    integrityStore: integrityStoreValidator,
   });
 
 async function getInitialReduxStateResponder(
@@ -318,6 +325,21 @@ async function getInitialReduxStateResponder(
     };
   })();
 
+  const integrityStorePromise = (async () => {
+    const { threadInfos } = await threadStorePromise;
+    const threadHashes = {};
+    for (const id in threadInfos) {
+      const threadInfo = threadInfos[id];
+      const convertedThreadInfo = validateOutput(
+        viewer.platformDetails,
+        rawThreadInfoValidator,
+        threadInfo,
+      );
+      threadHashes[id] = hash(convertedThreadInfo);
+    }
+    return { threadHashes };
+  })();
+
   const initialReduxState: InitialReduxState = await promiseAll({
     navInfo: navInfoPromise,
     currentUserInfo: currentUserInfoPromise,
@@ -331,6 +353,7 @@ async function getInitialReduxStateResponder(
     commServicesAccessToken: null,
     inviteLinksStore: inviteLinksStorePromise,
     keyserverInfo: keyserverInfoPromise,
+    integrityStore: integrityStorePromise,
   });
 
   return initialReduxState;

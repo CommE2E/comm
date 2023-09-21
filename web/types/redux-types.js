@@ -1,6 +1,7 @@
 // @flow
 
 import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
+import type { IntegrityStore } from 'lib/types/integrity-types.js';
 import type { InviteLinksStore } from 'lib/types/link-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { ThreadStore } from 'lib/types/thread-types.js';
@@ -21,6 +22,7 @@ export type InitialReduxState = {
   +commServicesAccessToken: null,
   +inviteLinksStore: InviteLinksStore,
   +keyserverInfo: InitialKeyserverInfo,
+  +integrityStore: IntegrityStore,
 };
 
 export type InitialKeyserverInfo = {
