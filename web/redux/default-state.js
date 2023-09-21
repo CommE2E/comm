@@ -89,6 +89,7 @@ const defaultWebState: AppState = Object.freeze({
   },
   threadActivityStore: {},
   initialStateLoaded: false,
+  integrityStore: { threadHashes: {}, threadHashingComplete: false },
 });
 
 export { defaultWebState };
