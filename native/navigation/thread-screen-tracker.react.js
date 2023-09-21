@@ -3,8 +3,9 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { updateThreadLastNavigatedActionType } from 'lib/reducers/thread-activity-reducer.js';
+
 import { useActiveMessageList } from './nav-selectors.js';
-import { updateThreadLastNavigatedActionType } from '../redux/action-types.js';
 
 const ThreadScreenTracker: React.ComponentType<{}> = React.memo<{}>(
   function ThreadScreenTracker() {
