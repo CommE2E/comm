@@ -130,6 +130,10 @@ const migrations = {
 
     return state;
   },
+  [6]: async state => ({
+    ...state,
+    integrityStore: { threadHashes: {}, threadHashingStatus: 'starting' },
+  }),
 };
 
 const persistWhitelist = [
@@ -242,7 +246,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 5,
+  version: 6,
   transforms: [keyserverStoreTransform],
 };
 
