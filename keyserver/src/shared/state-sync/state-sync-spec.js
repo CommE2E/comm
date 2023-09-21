@@ -5,7 +5,7 @@ import type { CalendarQuery } from 'lib/types/entry-types.js';
 
 import type { Viewer } from '../../session/viewer.js';
 
-export type ServerStateSyncSpec<Infos, FullSocketSyncPayload, Info = empty> = {
+export type ServerStateSyncSpec<Infos, FullSocketSyncPayload, Info> = {
   +fetch: (viewer: Viewer, ids?: $ReadOnlySet<string>) => Promise<Infos>,
   +fetchFullSocketSyncPayload: (
     viewer: Viewer,
