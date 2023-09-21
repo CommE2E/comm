@@ -4,6 +4,10 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import type { TUnion } from 'tcomb';
 
+import {
+  NEXT_CODE_VERSION,
+  hasMinCodeVersion,
+} from 'lib/shared/version-utils.js';
 import type { UpdateActivityResult } from 'lib/types/activity-types.js';
 import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isDeviceType } from 'lib/types/device-types.js';
@@ -385,9 +389,22 @@ async function checkState(
     const promises = Object.fromEntries(
       values(serverStateSyncSpecs).map(spec => [
         spec.hashKey,
+        // The FlowFixMes in the following function are needed because flow
+        // doesn't understand that `data` is of the generic Info type of the
+        // spec we are currently iterating on
         (async () => {
+          // $FlowFixMe
           const data = await spec.fetch(viewer);
-          return hash(data);
+          if (
+            !hasMinCodeVersion(viewer.platformDetails, {
+              native: NEXT_CODE_VERSION,
+              web: NEXT_CODE_VERSION,
+            })
+          ) {
+            return hash(data);
+          }
+          // $FlowFixMe
+          return spec.getServerInfosHash(data);
         })(),
       ]),
     );
@@ -452,7 +469,18 @@ async function checkState(
       // out which infos don't match first
       const infos = fetchedData[key];
       for (const infoID in infos) {
-        hashesToCheck[`${innerHashKey}|${infoID}`] = hash(infos[infoID]);
+        let hashValue;
+        if (
+          hasMinCodeVersion(viewer.platformDetails, {
+            native: NEXT_CODE_VERSION,
+            web: NEXT_CODE_VERSION,
+          })
+        ) {
+          hashValue = spec.getServerInfoHash(infos[infoID]);
+        } else {
+          hashValue = hash(infos[infoID]);
+        }
+        hashesToCheck[`${innerHashKey}|${infoID}`] = hashValue;
       }
       failUnmentioned[key] = true;
     } else if (isTopLevelKey) {
