@@ -38,6 +38,7 @@ import {
 } from './uploads/uploads.js';
 import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
+import { getContentPublicKey } from './utils/olm-utils.js';
 import {
   prefetchAllURLFacts,
   getSquadCalURLFacts,
@@ -85,7 +86,15 @@ const shouldDisplayQRCodeInTerminal = false;
     if (shouldDisplayQRCodeInTerminal) {
       try {
         const aes256Key = crypto.randomBytes(32).toString('hex');
-        const ed25519Key = 'ed25519Key';
+        const ed25519Key = await getContentPublicKey();
+
+        console.log(
+          '\nOpen the Comm app on your phone and scan the QR code below\n',
+        );
+        console.log('How to find the scanner:\n');
+        console.log('Go to \x1b[1mProfile\x1b[0m');
+        console.log('Select \x1b[1mLinked devices\x1b[0m');
+        console.log('Click \x1b[1mAdd\x1b[0m on the top right');
 
         const url = qrCodeLinkURL(aes256Key, ed25519Key);
         qrcode.toString(url, (error, encodedURL) => console.log(encodedURL));
