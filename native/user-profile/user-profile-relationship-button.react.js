@@ -34,6 +34,18 @@ function UserProfileRelationshipButton(props: Props): React.Node {
     pendingPersonalThreadUserInfo,
   );
 
+  const showNothing =
+    !otherUserInfo ||
+    !otherUserInfo.username ||
+    otherUserInfo.relationshipStatus === userRelationshipStatus.FRIEND;
+
+  const showIncomingFriendRequestButtons =
+    otherUserInfo?.relationshipStatus ===
+    userRelationshipStatus.REQUEST_RECEIVED;
+
+  const showWithdrawFriendRequestButton =
+    otherUserInfo?.relationshipStatus === userRelationshipStatus.REQUEST_SENT;
+
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
@@ -73,17 +85,11 @@ function UserProfileRelationshipButton(props: Props): React.Node {
     [styles.buttonContainer, styles.greenButton],
   );
 
-  if (
-    !otherUserInfo ||
-    !otherUserInfo.username ||
-    otherUserInfo.relationshipStatus === userRelationshipStatus.FRIEND
-  ) {
+  if (showNothing) {
     return null;
   }
 
-  if (
-    otherUserInfo.relationshipStatus === userRelationshipStatus.REQUEST_RECEIVED
-  ) {
+  if (showIncomingFriendRequestButtons) {
     return (
       <View style={styles.incomingFriendRequestContainer}>
         <Text style={styles.incomingFriendRequestLabel}>
@@ -114,9 +120,7 @@ function UserProfileRelationshipButton(props: Props): React.Node {
     );
   }
 
-  if (
-    otherUserInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT
-  ) {
+  if (showWithdrawFriendRequestButton) {
     return (
       <Button style={withdrawFriendRequestButtonStyle} onPress={unfriendUser}>
         <Icon
