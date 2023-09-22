@@ -9,7 +9,7 @@ import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
 
-import Button from './button.react.js';
+import Button from '../components/button.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
