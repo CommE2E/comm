@@ -34,12 +34,19 @@ void RustPromiseManager::resolvePromise(uint32_t id, folly::dynamic ret) {
   // Release the shared lock
   lock.unlock();
   auto promiseInfo = it->second;
-  if (promiseInfo.jsInvoker) {
-    promiseInfo.jsInvoker->invokeAsync([promiseInfo, ret]() {
+
+  auto resolveLogic = [&]() {
+    if (ret == nullptr) {
+      promiseInfo.promise->resolve(facebook::jsi::Value::undefined());
+    } else {
       promiseInfo.promise->resolve(valueFromDynamic(promiseInfo.rt, ret));
-    });
+    }
+  };
+
+  if (promiseInfo.jsInvoker) {
+    promiseInfo.jsInvoker->invokeAsync(resolveLogic);
   } else {
-    promiseInfo.promise->resolve(valueFromDynamic(promiseInfo.rt, ret));
+    resolveLogic();
   }
   removePromise(id);
 }
