@@ -1,10 +1,12 @@
 // @flow
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import invariant from 'invariant';
 import * as React from 'react';
 
 import BottomSheetBackdrop from './bottom-sheet-backdrop.react.js';
 import BottomSheetHandle from './bottom-sheet-handle.react.js';
+import { BottomSheetContext } from './bottom-sheet-provider.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -20,7 +22,12 @@ function ForwardedBottomSheet(
 
   const styles = useStyles(unboundStyles);
 
-  const snapPoints = React.useMemo(() => ['25%', '50%'], []);
+  const bottomSheetContext = React.useContext(BottomSheetContext);
+  invariant(bottomSheetContext, 'bottomSheetContext should be set');
+
+  const { contentHeight } = bottomSheetContext;
+
+  const snapPoints = React.useMemo(() => [contentHeight], [contentHeight]);
 
   return (
     <BottomSheetModal
