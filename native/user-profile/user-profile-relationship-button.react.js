@@ -5,6 +5,7 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
@@ -20,10 +21,15 @@ const onErrorCallback = () => {
 type Props = {
   +threadInfo: ThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
+  +setUserProfileRelationshipButtonHeight: SetState<number>,
 };
 
 function UserProfileRelationshipButton(props: Props): React.Node {
-  const { threadInfo, pendingPersonalThreadUserInfo } = props;
+  const {
+    threadInfo,
+    pendingPersonalThreadUserInfo,
+    setUserProfileRelationshipButtonHeight,
+  } = props;
 
   const {
     otherUserInfo,
@@ -45,6 +51,24 @@ function UserProfileRelationshipButton(props: Props): React.Node {
 
   const showWithdrawFriendRequestButton =
     otherUserInfo?.relationshipStatus === userRelationshipStatus.REQUEST_SENT;
+
+  React.useLayoutEffect(() => {
+    if (showNothing) {
+      setUserProfileRelationshipButtonHeight(0);
+    } else if (showIncomingFriendRequestButtons) {
+      const incomingFriendRequestButtonsContainerHeight = 88;
+      setUserProfileRelationshipButtonHeight(
+        incomingFriendRequestButtonsContainerHeight,
+      );
+    } else {
+      const relationshipButtonHeight = 54;
+      setUserProfileRelationshipButtonHeight(relationshipButtonHeight);
+    }
+  }, [
+    setUserProfileRelationshipButtonHeight,
+    showIncomingFriendRequestButtons,
+    showNothing,
+  ]);
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
