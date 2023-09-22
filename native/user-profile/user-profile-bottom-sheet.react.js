@@ -4,8 +4,8 @@ import * as React from 'react';
 
 import type { UserInfo } from 'lib/types/user-types';
 
-import BottomSheet from './bottom-sheet.react.js';
-import UserProfile from '../components/user-profile.react.js';
+import UserProfile from './user-profile.react.js';
+import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';

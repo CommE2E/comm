@@ -7,9 +7,9 @@ import { Text } from 'react-native';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
 
-import Button from './button.react.js';
-import SWMansionIcon from './swmansion-icon.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
+import Button from '../components/button.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
