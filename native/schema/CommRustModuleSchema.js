@@ -44,6 +44,12 @@ export interface Spec extends TurboModule {
     notifOneTimeKeys: $ReadOnlyArray<string>,
     socialProof: string,
   ) => Promise<string>;
+  +updatePassword: (
+    userID: string,
+    deviceID: string,
+    accessToken: string,
+    password: string,
+  ) => Promise<void>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

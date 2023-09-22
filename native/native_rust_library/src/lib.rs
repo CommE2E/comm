@@ -1,4 +1,4 @@
-use crate::ffi::string_callback;
+use crate::ffi::{string_callback, void_callback};
 use crate::identity::Empty;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
@@ -23,7 +23,8 @@ use identity::identity_client_service_client::IdentityClientServiceClient;
 use identity::{
   DeviceKeyUpload, DeviceType, IdentityKeyInfo, OpaqueLoginFinishRequest,
   OpaqueLoginStartRequest, PreKey, RegistrationFinishRequest,
-  RegistrationStartRequest, WalletLoginRequest,
+  RegistrationStartRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, WalletLoginRequest,
 };
 
 #[cfg(not(feature = "android"))]
@@ -104,6 +105,15 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityUpdateUserPassword"]
+    fn update_user_password(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      password: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityGenerateNonce"]
     fn generate_nonce(promise_id: u32);
 
@@ -119,6 +129,10 @@ mod ffi {
     #[namespace = "comm"]
     #[cxx_name = "stringCallback"]
     fn string_callback(error: String, promise_id: u32, ret: String);
+
+    #[namespace = "comm"]
+    #[cxx_name = "voidCallback"]
+    fn void_callback(error: String, promise_id: u32);
   }
 }
 
@@ -131,6 +145,16 @@ fn handle_string_result_as_callback<E>(
   match result {
     Err(e) => string_callback(e.to_string(), promise_id, "".to_string()),
     Ok(r) => string_callback("".to_string(), promise_id, r),
+  }
+}
+
+fn handle_void_result_as_callback<E>(result: Result<(), E>, promise_id: u32)
+where
+  E: std::fmt::Display,
+{
+  match result {
+    Err(e) => void_callback(e.to_string(), promise_id),
+    Ok(_) => void_callback("".to_string(), promise_id),
   }
 }
 
@@ -451,6 +475,70 @@ async fn login_wallet_user_helper(
     access_token: login_response.access_token,
   };
   Ok(serde_json::to_string(&user_id_and_access_token)?)
+}
+
+struct UpdatePasswordInfo {
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  password: String,
+}
+
+fn update_user_password(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  password: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let update_password_info = UpdatePasswordInfo {
+      access_token,
+      user_id,
+      device_id,
+      password,
+    };
+    let result = update_user_password_helper(update_password_info).await;
+    handle_void_result_as_callback(result, promise_id);
+  });
+}
+
+async fn update_user_password_helper(
+  update_password_info: UpdatePasswordInfo,
+) -> Result<(), Error> {
+  let mut client_registration = Registration::new();
+  let opaque_registration_request = client_registration
+    .start(&update_password_info.password)
+    .map_err(handle_error)?;
+  let update_password_start_request = UpdateUserPasswordStartRequest {
+    opaque_registration_request,
+    access_token: update_password_info.access_token,
+    user_id: update_password_info.user_id,
+    device_id_key: update_password_info.device_id,
+  };
+  let mut identity_client =
+    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let update_password_start_respone = identity_client
+    .update_user_password_start(update_password_start_request)
+    .await?
+    .into_inner();
+
+  let opaque_registration_upload = client_registration
+    .finish(
+      &update_password_info.password,
+      &update_password_start_respone.opaque_registration_response,
+    )
+    .map_err(handle_error)?;
+  let update_password_finish_request = UpdateUserPasswordFinishRequest {
+    session_id: update_password_start_respone.session_id,
+    opaque_registration_upload,
+  };
+
+  identity_client
+    .update_user_password_finish(update_password_finish_request)
+    .await?;
+
+  Ok(())
 }
 
 #[derive(
