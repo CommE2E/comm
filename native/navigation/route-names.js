@@ -13,7 +13,6 @@ import type { PasswordSelectionParams } from '../account/registration/password-s
 import type { RegistrationTermsParams } from '../account/registration/registration-terms.react.js';
 import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
-import type { UserProfileBottomSheetParams } from '../bottom-sheets/user-profile-bottom-sheet.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
 import type { FullScreenThreadMediaGalleryParams } from '../chat/fullscreen-thread-media-gallery.react.js';
@@ -47,6 +46,7 @@ import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react
 import type { CommunityRolesScreenParams } from '../roles/community-roles-screen.react.js';
 import type { CreateRolesScreenParams } from '../roles/create-roles-screen.react.js';
 import type { MessageSearchParams } from '../search/message-search.react.js';
+import type { UserProfileBottomSheetParams } from '../user-profile/user-profile-bottom-sheet.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
 export const AddUsersModalRouteName = 'AddUsersModal';

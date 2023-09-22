@@ -8,7 +8,7 @@ import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
 
-import RelationshipButton from './relationship-button.react.js';
+import RelationshipButton from '../components/relationship-button.react.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
