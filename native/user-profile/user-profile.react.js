@@ -10,11 +10,11 @@ import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
-import SWMansionIcon from './swmansion-icon.react.js';
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import UserProfileRelationshipButton from './user-profile-relationship-button.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import SingleLine from '../components/single-line.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
