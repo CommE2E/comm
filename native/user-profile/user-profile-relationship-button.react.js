@@ -33,21 +33,26 @@ function UserProfileRelationshipButton(props: Props): React.Node {
     pendingPersonalThreadUserInfo,
   );
 
+  const otherUserIsFriend =
+    !otherUserInfo ||
+    !otherUserInfo.username ||
+    otherUserInfo.relationshipStatus === userRelationshipStatus.FRIEND;
+
+  const otherUserSentFriendRequest =
+    otherUserInfo?.relationshipStatus ===
+    userRelationshipStatus.REQUEST_RECEIVED;
+
+  const viewerSentFriendRequest =
+    otherUserInfo?.relationshipStatus === userRelationshipStatus.REQUEST_SENT;
+
   const styles = useStyles(unboundStyles);
 
   const userProfileRelationshipButton = React.useMemo(() => {
-    if (
-      !otherUserInfo ||
-      !otherUserInfo.username ||
-      otherUserInfo.relationshipStatus === userRelationshipStatus.FRIEND
-    ) {
+    if (otherUserIsFriend) {
       return null;
     }
 
-    if (
-      otherUserInfo.relationshipStatus ===
-      userRelationshipStatus.REQUEST_RECEIVED
-    ) {
+    if (otherUserSentFriendRequest) {
       return (
         <View style={styles.incomingFriendRequestContainer}>
           <Text style={styles.incomingFriendRequestLabel}>
@@ -65,9 +70,7 @@ function UserProfileRelationshipButton(props: Props): React.Node {
       );
     }
 
-    if (
-      otherUserInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT
-    ) {
+    if (viewerSentFriendRequest) {
       return (
         <View style={styles.singleButtonContainer}>
           <RelationshipButton type="withdraw" onPress={unfriendUser} />
@@ -81,14 +84,16 @@ function UserProfileRelationshipButton(props: Props): React.Node {
       </View>
     );
   }, [
-    friendUser,
-    otherUserInfo,
-    styles.acceptFriendRequestButtonContainer,
-    styles.incomingFriendRequestButtonsContainer,
+    otherUserIsFriend,
+    otherUserSentFriendRequest,
+    viewerSentFriendRequest,
+    styles.singleButtonContainer,
     styles.incomingFriendRequestContainer,
     styles.incomingFriendRequestLabel,
+    styles.incomingFriendRequestButtonsContainer,
+    styles.acceptFriendRequestButtonContainer,
     styles.rejectFriendRequestButtonContainer,
-    styles.singleButtonContainer,
+    friendUser,
     unfriendUser,
   ]);
 
