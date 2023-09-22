@@ -173,4 +173,30 @@ jsi::Value CommRustModule::loginWalletUser(
       });
 }
 
+jsi::Value CommRustModule::updatePassword(
+    jsi::Runtime &rt,
+    jsi::String userID,
+    jsi::String deviceID,
+    jsi::String accessToken,
+    jsi::String password) {
+  return createPromiseAsJSIValue(
+      rt,
+      [this, &userID, &deviceID, &accessToken, &password](
+          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityUpdateUserPassword(
+              jsiStringToRustString(userID, innerRt),
+              jsiStringToRustString(deviceID, innerRt),
+              jsiStringToRustString(accessToken, innerRt),
+              jsiStringToRustString(password, innerRt),
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
+}
+
 } // namespace comm

@@ -24,6 +24,9 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_loginPasswordUse
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_loginWalletUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->loginWalletUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt), args[10].asString(rt));
 }
+static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->updatePassword(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
+}
 
 CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommRustTurboModule", jsInvoker) {
@@ -31,6 +34,7 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["registerUser"] = MethodMetadata {10, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerUser};
   methodMap_["loginPasswordUser"] = MethodMetadata {10, __hostFunction_CommRustModuleSchemaCxxSpecJSI_loginPasswordUser};
   methodMap_["loginWalletUser"] = MethodMetadata {11, __hostFunction_CommRustModuleSchemaCxxSpecJSI_loginWalletUser};
+  methodMap_["updatePassword"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword};
 }
 
 
