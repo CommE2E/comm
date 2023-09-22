@@ -271,6 +271,7 @@ export type QRCodeSignInParamList = {
 export type UserProfileBottomSheetParamList = {
   +UserProfileBottomSheet: UserProfileBottomSheetParams,
   +UserProfileAvatarModal: UserProfileAvatarModalParams,
+  +UserRelationshipTooltipModal: UserRelationshipTooltipModalParams,
 };
 
 export type ScreenParamList = {
