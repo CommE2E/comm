@@ -109,9 +109,10 @@ function validateAccountPrekey(account: OlmAccount) {
 }
 
 async function uploadNewOneTimeKeys(numberOfKeys: number) {
-  const [rustAPI, identityInfo] = await Promise.all([
+  const [rustAPI, identityInfo, deviceID] = await Promise.all([
     getRustAPI(),
     fetchIdentityInfo(),
+    getContentPublicKey(),
   ]);
 
   if (!identityInfo) {
@@ -123,7 +124,6 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
     const contentOneTimeKeys = getOneTimeKeyValuesFromBlob(
       contentAccount.one_time_keys(),
     );
-    const deviceID = JSON.parse(contentAccount.identity_keys()).curve25519;
 
     return fetchCallUpdateOlmAccount(
       'notifications',
