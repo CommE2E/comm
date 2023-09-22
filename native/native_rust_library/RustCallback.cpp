@@ -23,4 +23,18 @@ void stringCallback(rust::String error, uint32_t promiseID, rust::String ret) {
   }
 }
 
+void voidCallback(rust::String error, uint32_t promiseID) {
+  auto it = RustPromiseManager::instance.promises.find(promiseID);
+  if (it == RustPromiseManager::instance.promises.end()) {
+    return;
+  }
+
+  if (error.size()) {
+    RustPromiseManager::instance.rejectPromise(promiseID, std::string(error));
+  } else {
+    RustPromiseManager::instance.resolvePromise(
+        promiseID, folly::dynamic(nullptr));
+  }
+}
+
 } // namespace comm
