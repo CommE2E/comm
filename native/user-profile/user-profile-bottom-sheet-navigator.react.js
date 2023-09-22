@@ -13,9 +13,11 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   UserProfileBottomSheetRouteName,
   UserProfileAvatarModalRouteName,
+  UserRelationshipTooltipModalRouteName,
   type ScreenParamList,
   type UserProfileBottomSheetParamList,
 } from '../navigation/route-names.js';
+import UserRelationshipTooltipModal from '../profile/user-relationship-tooltip-modal.react.js';
 
 export type UserProfileBottomSheetNavigationProp<
   RouteName: $Keys<UserProfileBottomSheetParamList>,
@@ -43,6 +45,10 @@ function UserProfileBottomSheetNavigator(props: Props): React.Node {
       <UserProfileBottomSheetOverlayNavigator.Screen
         name={UserProfileAvatarModalRouteName}
         component={UserProfileAvatarModal}
+      />
+      <UserProfileBottomSheetOverlayNavigator.Screen
+        name={UserRelationshipTooltipModalRouteName}
+        component={UserRelationshipTooltipModal}
       />
     </UserProfileBottomSheetOverlayNavigator.Navigator>
   );

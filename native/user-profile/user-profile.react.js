@@ -19,6 +19,7 @@ import {
   userProfileMenuButtonHeight,
   userProfileActionButtonHeight,
 } from './user-profile-constants.js';
+import UserProfileMenuButton from './user-profile-menu-button.react.js';
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import UserProfileRelationshipButton from './user-profile-relationship-button.react.js';
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
@@ -80,6 +81,20 @@ function UserProfile(props: Props): React.Node {
   ]);
 
   const styles = useStyles(unboundStyles);
+
+  const menuButton = React.useMemo(() => {
+    if (!userProfileThreadInfo) {
+      return null;
+    }
+
+    const { threadInfo, pendingPersonalThreadUserInfo } = userProfileThreadInfo;
+    return (
+      <UserProfileMenuButton
+        threadInfo={threadInfo}
+        pendingPersonalThreadUserInfo={pendingPersonalThreadUserInfo}
+      />
+    );
+  }, [userProfileThreadInfo]);
 
   const onPressCopyUsername = React.useCallback(async () => {
     Clipboard.setString(usernameText);
@@ -158,7 +173,7 @@ function UserProfile(props: Props): React.Node {
 
   return (
     <View style={styles.container}>
-      <SWMansionIcon name="menu-vertical" size={24} style={styles.moreIcon} />
+      {menuButton}
       <View style={styles.userInfoContainer}>
         <UserProfileAvatar userID={userInfo?.id} />
         <View style={styles.usernameContainer}>
@@ -175,10 +190,6 @@ function UserProfile(props: Props): React.Node {
 const unboundStyles = {
   container: {
     paddingHorizontal: 16,
-  },
-  moreIcon: {
-    color: 'modalButtonLabel',
-    alignSelf: 'flex-end',
   },
   userInfoContainer: {
     flexDirection: 'row',
