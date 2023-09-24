@@ -13,7 +13,7 @@ pub use reqwest::Error as ReqwestError;
 pub use reqwest::StatusCode;
 pub use reqwest::Url;
 
-use crate::auth::UserIdentity;
+use crate::auth::{AuthorizationCredential, UserIdentity};
 
 #[derive(From, Error, Debug, Display)]
 pub enum BlobServiceError {
@@ -75,7 +75,7 @@ pub enum BlobServiceError {
 pub struct BlobServiceClient {
   http_client: reqwest::Client,
   blob_service_url: reqwest::Url,
-  user_identity: Option<UserIdentity>,
+  auth_credential: Option<AuthorizationCredential>,
 }
 
 impl BlobServiceClient {
@@ -92,16 +92,30 @@ impl BlobServiceClient {
     Self {
       http_client: reqwest::Client::new(),
       blob_service_url,
-      user_identity: None,
+      auth_credential: None,
     }
   }
 
   /// Clones the client and sets the [`UserIdentity`] for the new instance.
   /// This allows the client to reuse the same connection pool for different users.
+  ///
+  /// This is the same as calling
+  /// ```ignore
+  /// client.with_authentication(AuthorizationCredential::UserToken(user_identity))
+  /// ````
   pub fn with_user_identity(&self, user_identity: UserIdentity) -> Self {
-    trace!("Set user_identity: {:?}", &user_identity);
+    self.with_authentication(AuthorizationCredential::UserToken(user_identity))
+  }
+
+  /// Clones the client and sets the [`AuthorizationCredential`] for the new instance.
+  /// This allows the client to reuse the same connection pool for different users.
+  pub fn with_authentication(
+    &self,
+    auth_credential: AuthorizationCredential,
+  ) -> Self {
+    trace!("Set auth_credential: {:?}", &auth_credential);
     let mut this = self.clone();
-    this.user_identity = Some(user_identity);
+    this.auth_credential = Some(auth_credential);
     this
   }
 
@@ -355,9 +369,9 @@ impl BlobServiceClient {
     url: Url,
   ) -> BlobResult<RequestBuilder> {
     let request = self.http_client.request(http_method, url);
-    match &self.user_identity {
-      Some(user) => {
-        let token = user.as_authorization_token().map_err(|e| {
+    match &self.auth_credential {
+      Some(credential) => {
+        let token = credential.as_authorization_token().map_err(|e| {
           error!("Failed to parse authorization token: {}", e);
           BlobServiceError::UnexpectedError
         })?;
