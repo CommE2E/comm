@@ -21,6 +21,23 @@ pub enum AuthorizationCredential {
   ServicesToken(ServicesAuthToken),
 }
 
+impl AuthorizationCredential {
+  /// Gets the access token value, usable in bearer authorization
+  ///
+  /// # Example
+  /// ```ignore
+  /// reqwest::get("url").beaerer_auth(credential.as_authorization_token()?).send().await?;
+  /// ```
+  pub fn as_authorization_token(&self) -> Result<String, serde_json::Error> {
+    match self {
+      AuthorizationCredential::UserToken(user) => user.as_authorization_token(),
+      AuthorizationCredential::ServicesToken(token) => {
+        token.as_authorization_token()
+      }
+    }
+  }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, derive_more::Constructor)]
 pub struct ServicesAuthToken {
   #[serde(rename = "servicesToken")]
