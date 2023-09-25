@@ -38,6 +38,7 @@ import {
 } from './selectors/socket-selectors.js';
 import Alert from './utils/alert.js';
 import { useInitialNotificationsEncryptedMessage } from './utils/crypto-utils.js';
+import { decompressMessage } from './utils/decompress.js';
 
 const NativeSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function NativeSocket(props: BaseSocketProps) {
@@ -165,6 +166,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
           getInitialNotificationsEncryptedMessage
         }
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
+        decompressSocketMessage={decompressMessage}
       />
     );
   });

@@ -9,11 +9,16 @@ import WebSocket from 'ws';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
+import { isStaff } from 'lib/shared/staff-utils.js';
 import {
   serverRequestSocketTimeout,
   serverResponseTimeout,
 } from 'lib/shared/timeouts.js';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
@@ -79,6 +84,7 @@ import {
 import { Viewer } from '../session/viewer.js';
 import { serverStateSyncSpecs } from '../shared/state-sync/state-sync-specs.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
+import { compressMessage } from '../utils/compress.js';
 import { assertSecureRequest } from '../utils/security-utils.js';
 import {
   checkInputValidator,
@@ -156,6 +162,11 @@ function onConnection(ws: WebSocket, req: $Request) {
 type StateCheckConditions = {
   activityRecentlyOccurred: boolean,
   stateCheckOngoing: boolean,
+};
+
+const minVersionsForCompression = {
+  native: NEXT_CODE_VERSION,
+  web: NEXT_CODE_VERSION,
 };
 
 class Socket {
@@ -373,15 +384,45 @@ class Socket {
       this.ws.readyState > 0,
       "shouldn't send message until connection established",
     );
-    if (this.ws.readyState === 1) {
-      const { viewer } = this;
-      const validatedMessage = validateOutput(
-        viewer?.platformDetails,
-        serverServerSocketMessageValidator,
-        message,
-      );
-      this.ws.send(JSON.stringify(validatedMessage));
+    if (this.ws.readyState !== 1) {
+      return;
     }
+
+    const { viewer } = this;
+    const validatedMessage = validateOutput(
+      viewer?.platformDetails,
+      serverServerSocketMessageValidator,
+      message,
+    );
+    const stringMessage = JSON.stringify(validatedMessage);
+
+    if (
+      !viewer?.platformDetails ||
+      !hasMinCodeVersion(viewer.platformDetails, minVersionsForCompression) ||
+      !isStaff(viewer.id)
+    ) {
+      this.ws.send(stringMessage);
+      return;
+    }
+
+    const compressionResult = compressMessage(stringMessage);
+    if (!compressionResult.compressed) {
+      this.ws.send(stringMessage);
+      return;
+    }
+
+    const compressedMessage = {
+      type: serverSocketMessageTypes.COMPRESSED_MESSAGE,
+      payload: compressionResult.result,
+    };
+
+    const validatedCompressedMessage = validateOutput(
+      viewer?.platformDetails,
+      serverServerSocketMessageValidator,
+      compressedMessage,
+    );
+    const stringCompressedMessage = JSON.stringify(validatedCompressedMessage);
+    this.ws.send(stringCompressedMessage);
   };
 
   async handleClientSocketMessage(
