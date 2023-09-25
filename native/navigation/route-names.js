@@ -41,7 +41,7 @@ import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camera-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
-import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react.js';
+import type { UserRelationshipTooltipModalParams } from '../profile/user-relationship-tooltip-modal.react.js';
 import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react.js';
 import type { CommunityRolesScreenParams } from '../roles/community-roles-screen.react.js';
 import type { CreateRolesScreenParams } from '../roles/create-roles-screen.react.js';
@@ -94,8 +94,8 @@ export const MultimediaMessageTooltipModalRouteName =
 export const PrivacyPreferencesRouteName = 'PrivacyPreferences';
 export const ProfileRouteName = 'Profile';
 export const ProfileScreenRouteName = 'ProfileScreen';
-export const RelationshipListItemTooltipModalRouteName =
-  'RelationshipListItemTooltipModal';
+export const UserRelationshipTooltipModalRouteName =
+  'UserRelationshipTooltipModal';
 export const RobotextMessageTooltipModalRouteName =
   'RobotextMessageTooltipModal';
 export const SecondaryDeviceQRCodeScannerRouteName =
@@ -176,7 +176,7 @@ export type TooltipModalParamList = {
   +MultimediaMessageTooltipModal: MultimediaMessageTooltipModalParams,
   +TextMessageTooltipModal: TextMessageTooltipModalParams,
   +ThreadSettingsMemberTooltipModal: ThreadSettingsMemberTooltipModalParams,
-  +RelationshipListItemTooltipModal: RelationshipListItemTooltipModalParams,
+  +UserRelationshipTooltipModal: UserRelationshipTooltipModalParams,
   +RobotextMessageTooltipModal: RobotextMessageTooltipModalParams,
 };
 
@@ -303,7 +303,7 @@ export const scrollBlockingModals = [
   MultimediaMessageTooltipModalRouteName,
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
-  RelationshipListItemTooltipModalRouteName,
+  UserRelationshipTooltipModalRouteName,
   RobotextMessageTooltipModalRouteName,
   VideoPlaybackModalRouteName,
 ];

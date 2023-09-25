@@ -41,7 +41,7 @@ import {
 } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
-  RelationshipListItemTooltipModalRouteName,
+  UserRelationshipTooltipModalRouteName,
   FriendListRouteName,
   BlockListRouteName,
 } from '../navigation/route-names.js';
@@ -218,8 +218,8 @@ class RelationshipListItem extends React.PureComponent<Props> {
     };
     editButton.current.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
-      this.props.navigate<'RelationshipListItemTooltipModal'>({
-        name: RelationshipListItemTooltipModalRouteName,
+      this.props.navigate<'UserRelationshipTooltipModal'>({
+        name: UserRelationshipTooltipModalRouteName,
         params: {
           presentedFrom: this.props.relationshipListRoute.key,
           initialCoordinates: coordinates,
