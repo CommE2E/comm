@@ -20,6 +20,10 @@ pub struct AppConfig {
   #[arg(env = S3_BUCKET_ENV_VAR)]
   #[arg(long, default_value_t = DEFAULT_S3_BUCKET_NAME.to_string())]
   pub s3_bucket_name: String,
+  /// Identity service endpoint
+  #[arg(env = "IDENTITY_SERVICE_ENDPOINT")]
+  #[arg(long, default_value = "http://localhost:50054")]
+  pub identity_endpoint: String,
 }
 
 /// Stores configuration parsed from command-line arguments
