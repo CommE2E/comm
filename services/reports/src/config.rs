@@ -31,6 +31,11 @@ pub struct AppConfig {
   #[arg(long, default_value = "http://localhost:50053")]
   pub blob_service_url: Url,
 
+  /// Identity service endpoint
+  #[arg(env = "IDENTITY_SERVICE_ENDPOINT")]
+  #[arg(long, default_value = "http://localhost:50054")]
+  pub identity_endpoint: String,
+
   /// Should reports be encrypted? Note that this flag disables encryption
   /// which is enabled by default.
   #[arg(long = "no-encrypt", action = ArgAction::SetFalse)]
