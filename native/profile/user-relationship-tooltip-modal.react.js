@@ -26,12 +26,12 @@ import Alert from '../utils/alert.js';
 
 type Action = 'unfriend' | 'block' | 'unblock';
 
-export type RelationshipListItemTooltipModalParams = TooltipParams<{
+export type UserRelationshipTooltipModalParams = TooltipParams<{
   +relativeUserInfo: RelativeUserInfo,
 }>;
 
 type OnRemoveUserProps = {
-  ...RelationshipListItemTooltipModalParams,
+  ...UserRelationshipTooltipModalParams,
   +action: Action,
 };
 function useRelationshipAction(input: OnRemoveUserProps) {
@@ -84,7 +84,7 @@ function useRelationshipAction(input: OnRemoveUserProps) {
 }
 
 function TooltipMenu(
-  props: TooltipMenuProps<'RelationshipListItemTooltipModal'>,
+  props: TooltipMenuProps<'UserRelationshipTooltipModal'>,
 ): React.Node {
   const { route, tooltipItem: TooltipItem } = props;
 
@@ -123,10 +123,11 @@ function TooltipMenu(
 }
 
 type Props = {
-  +navigation: AppNavigationProp<'RelationshipListItemTooltipModal'>,
+  +navigation: AppNavigationProp<'UserRelationshipTooltipModal'>,
   ...
 };
-class RelationshipListItemTooltipButton extends React.PureComponent<Props> {
+
+class UserRelationshipTooltipButton extends React.PureComponent<Props> {
   render() {
     return (
       <TouchableOpacity onPress={this.onPress}>
@@ -140,11 +141,11 @@ class RelationshipListItemTooltipButton extends React.PureComponent<Props> {
   };
 }
 
-const RelationshipListItemTooltipModal: React.ComponentType<
-  BaseTooltipProps<'RelationshipListItemTooltipModal'>,
-> = createTooltip<'RelationshipListItemTooltipModal'>(
-  RelationshipListItemTooltipButton,
+const UserRelationshipTooltipModal: React.ComponentType<
+  BaseTooltipProps<'UserRelationshipTooltipModal'>,
+> = createTooltip<'UserRelationshipTooltipModal'>(
+  UserRelationshipTooltipButton,
   TooltipMenu,
 );
 
-export default RelationshipListItemTooltipModal;
+export default UserRelationshipTooltipModal;

@@ -21,7 +21,7 @@ import {
   ActionResultModalRouteName,
   TextMessageTooltipModalRouteName,
   ThreadSettingsMemberTooltipModalRouteName,
-  RelationshipListItemTooltipModalRouteName,
+  UserRelationshipTooltipModalRouteName,
   RobotextMessageTooltipModalRouteName,
   ChatCameraModalRouteName,
   VideoPlaybackModalRouteName,
@@ -41,7 +41,7 @@ import ImageModal from '../media/image-modal.react.js';
 import ThreadAvatarCameraModal from '../media/thread-avatar-camera-modal.react.js';
 import UserAvatarCameraModal from '../media/user-avatar-camera-modal.react.js';
 import VideoPlaybackModal from '../media/video-playback-modal.react.js';
-import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react.js';
+import UserRelationshipTooltipModal from '../profile/user-relationship-tooltip-modal.react.js';
 import PushHandler from '../push/push-handler.react.js';
 import { getPersistor } from '../redux/persist.js';
 import { RootContext } from '../root-context.js';
@@ -130,8 +130,8 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
           component={ThreadSettingsMemberTooltipModal}
         />
         <App.Screen
-          name={RelationshipListItemTooltipModalRouteName}
-          component={RelationshipListItemTooltipModal}
+          name={UserRelationshipTooltipModalRouteName}
+          component={UserRelationshipTooltipModal}
         />
         <App.Screen
           name={RobotextMessageTooltipModalRouteName}
