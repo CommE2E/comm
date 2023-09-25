@@ -29,6 +29,7 @@ import {
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
 } from './selectors/socket-selectors.js';
+import { decompressMessage } from './utils/decompress.js';
 
 const WebSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function WebSocket(props) {
@@ -89,6 +90,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         dispatchActionPromise={dispatchActionPromise}
         logOut={callLogOut}
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
+        decompressSocketMessage={decompressMessage}
       />
     );
   });
