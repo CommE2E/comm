@@ -9,7 +9,6 @@ import { persistConfig, codeVersion } from './redux/persist.js';
 
 registerConfig({
   resolveInvalidatedCookie,
-  setCookieOnRequest: true,
   setSessionIDOnRequest: false,
   calendarRangeInactivityLimit: 15 * 60 * 1000,
   platformDetails: {
