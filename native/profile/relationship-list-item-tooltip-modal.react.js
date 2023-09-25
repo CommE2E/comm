@@ -24,7 +24,7 @@ import {
 } from '../tooltip/tooltip.react.js';
 import Alert from '../utils/alert.js';
 
-type Action = 'unfriend' | 'unblock';
+type Action = 'unfriend' | 'block' | 'unblock';
 
 export type RelationshipListItemTooltipModalParams = TooltipParams<{
   +relativeUserInfo: RelativeUserInfo,
@@ -63,10 +63,12 @@ function useRelationshipAction(input: OnRemoveUserProps) {
     };
     const action = {
       unfriend: 'removal',
+      block: 'block',
       unblock: 'unblock',
     }[input.action];
     const message = {
       unfriend: `remove ${userText} from friends?`,
+      block: `block ${userText}`,
       unblock: `unblock ${userText}?`,
     }[input.action];
     Alert.alert(
@@ -90,6 +92,12 @@ function TooltipMenu(
     ...route.params,
     action: 'unfriend',
   });
+
+  const onBlockUser = useRelationshipAction({
+    ...route.params,
+    action: 'block',
+  });
+
   const onUnblockUser = useRelationshipAction({
     ...route.params,
     action: 'unblock',
@@ -103,6 +111,7 @@ function TooltipMenu(
         onPress={onRemoveUser}
         key="unfriend"
       />
+      <TooltipItem id="block" text="Block" onPress={onBlockUser} key="block" />
       <TooltipItem
         id="unblock"
         text="Unblock"
