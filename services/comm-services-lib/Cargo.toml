@@ -28,6 +28,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 aws-config = "0.55"
 aws-sdk-dynamodb = "0.27"
+aws-sdk-secretsmanager = "0.27"
 aws-types = "0.55"
 base64 = "0.21"
 chrono = "0.4"
