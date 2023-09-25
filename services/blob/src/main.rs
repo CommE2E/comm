@@ -7,6 +7,7 @@ pub mod service;
 pub mod tools;
 
 use anyhow::Result;
+use comm_services_lib::auth::AuthService;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
 use crate::service::BlobServiceConfig;
@@ -25,13 +26,14 @@ fn configure_logging() -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
   configure_logging()?;
-  config::parse_cmdline_args()?;
+  let config = config::parse_cmdline_args()?;
 
   let aws_config = config::load_aws_config().await;
   let db = database::DatabaseClient::new(&aws_config);
   let s3 = s3::S3Client::new(&aws_config);
+  let auth_service = AuthService::new(&aws_config, &config.identity_endpoint);
 
-  let service = service::BlobService::new(
+  let blob_service = service::BlobService::new(
     db,
     s3,
     BlobServiceConfig {
@@ -40,5 +42,5 @@ async fn main() -> Result<()> {
     },
   );
 
-  crate::http::run_http_server(service).await
+  crate::http::run_http_server(blob_service, auth_service).await
 }

@@ -4,6 +4,7 @@ use actix_web::error::{
 };
 use actix_web::{web, App, HttpResponse, HttpServer, ResponseError};
 use anyhow::Result;
+use comm_services_lib::auth::AuthService;
 use http::StatusCode;
 use tracing::{debug, error, info, trace, warn};
 
@@ -13,7 +14,10 @@ use crate::service::{ReportsService, ReportsServiceError};
 
 mod handlers;
 
-pub async fn run_http_server(service: ReportsService) -> Result<()> {
+pub async fn run_http_server(
+  reports_service: ReportsService,
+  auth_service: AuthService,
+) -> Result<()> {
   use actix_web::middleware::{Logger, NormalizePath};
   use comm_services_lib::http::cors_config;
   use tracing_actix_web::TracingLogger;
@@ -27,7 +31,8 @@ pub async fn run_http_server(service: ReportsService) -> Result<()> {
       web::JsonConfig::default().limit(REQUEST_BODY_JSON_SIZE_LIMIT);
     App::new()
       .app_data(json_cfg)
-      .app_data(service.to_owned())
+      .app_data(reports_service.to_owned())
+      .app_data(auth_service.to_owned())
       .wrap(Logger::default())
       .wrap(TracingLogger::default())
       .wrap(NormalizePath::trim())
