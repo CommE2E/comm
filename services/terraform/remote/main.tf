@@ -8,6 +8,7 @@ terraform {
   }
 }
 
+provider "random" {}
 provider "sops" {}
 
 data "sops_file" "secrets_json" {
