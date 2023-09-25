@@ -26,15 +26,17 @@ provider "aws" {
   dynamic "endpoints" {
     for_each = local.aws_settings.override_endpoint[*]
     content {
-      dynamodb = endpoints.value
-      s3       = endpoints.value
+      dynamodb       = endpoints.value
+      s3             = endpoints.value
+      secretsmanager = endpoints.value
     }
   }
 }
+
+provider "random" {}
 
 # Shared resources between local dev environment and remote AWS
 module "shared" {
   source = "../modules/shared"
   is_dev = true
 }
-

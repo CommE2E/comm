@@ -9,5 +9,10 @@ terraform {
       source  = "carlpett/sops"
       version = "0.7.2"
     }
+
+    random = {
+      source  = "hashicorp/random"
+      version = "3.5.1"
+    }
   }
 }
