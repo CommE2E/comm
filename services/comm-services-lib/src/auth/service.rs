@@ -1,5 +1,6 @@
 use aws_sdk_secretsmanager::Client as SecretsManagerClient;
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use grpc_clients::identity::unauthenticated::client as identity_client;
 
 use super::{AuthorizationCredential, ServicesAuthToken, UserIdentity};
 
@@ -11,6 +12,87 @@ const ROTATION_PROTECTION_PERIOD: i64 = 3; // seconds
 // AWS managed version tags for secrets
 const AWSCURRENT: &str = "AWSCURRENT";
 const AWSPREVIOUS: &str = "AWSPREVIOUS";
+
+#[derive(
+  Debug, derive_more::Display, derive_more::Error, derive_more::From,
+)]
+pub enum AuthServiceError {
+  SecretManagerError(aws_sdk_secretsmanager::Error),
+  GrpcError(grpc_clients::error::Error),
+  Unexpected,
+}
+
+type AuthServiceResult<T> = Result<T, AuthServiceError>;
+
+/// This service is responsible for handling request authentication.
+/// For HTTP services, it should be added as app data to the server:
+/// ```ignore
+/// let auth_service = AuthService::new(&aws_config, &config.identity_endpoint);
+/// let auth_middleware = get_comm_authentication_middleware();
+/// App::new()
+///   .app_data(auth_service.clone())
+///   .wrap(auth_middleware)
+///   // ...
+/// ```
+#[derive(Clone)]
+pub struct AuthService {
+  secrets_manager: SecretsManagerClient,
+  identity_service_url: String,
+}
+
+impl AuthService {
+  pub fn new(
+    aws_cfg: &aws_config::SdkConfig,
+    identity_service_url: impl Into<String>,
+  ) -> Self {
+    let secrets_client = SecretsManagerClient::new(aws_cfg);
+    AuthService {
+      secrets_manager: secrets_client,
+      identity_service_url: identity_service_url.into(),
+    }
+  }
+
+  /// Obtains a service-to-service token which can be used to authenticate
+  /// when calling other services endpoints. It should be only used when
+  /// no [`UserIdentity`] is provided from client
+  pub async fn get_services_token(
+    &self,
+  ) -> AuthServiceResult<ServicesAuthToken> {
+    get_services_token_version(&self.secrets_manager, AWSCURRENT)
+      .await
+      .map_err(AuthServiceError::from)
+  }
+
+  /// Verifies the provided [`AuthorizationCredential`]. Returns `true` if
+  /// authentication was successful.
+  pub async fn verify_auth_credential(
+    &self,
+    credential: &AuthorizationCredential,
+  ) -> AuthServiceResult<bool> {
+    match credential {
+      AuthorizationCredential::UserToken(user) => {
+        let UserIdentity {
+          user_id,
+          device_id,
+          access_token,
+        } = user;
+        identity_client::verify_user_access_token(
+          &self.identity_service_url,
+          user_id,
+          device_id,
+          access_token,
+        )
+        .await
+        .map_err(AuthServiceError::from)
+      }
+      AuthorizationCredential::ServicesToken(token) => {
+        verify_services_token(&self.secrets_manager, token)
+          .await
+          .map_err(AuthServiceError::from)
+      }
+    }
+  }
+}
 
 async fn get_services_token_version(
   client: &SecretsManagerClient,
