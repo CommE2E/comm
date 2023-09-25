@@ -2,6 +2,7 @@ use crate::{config::CONFIG, service::BlobService};
 
 use actix_web::{web, App, HttpServer};
 use anyhow::Result;
+use comm_services_lib::auth::AuthService;
 use tracing::info;
 
 mod errors;
@@ -11,7 +12,10 @@ mod handlers {
   pub(super) mod blob;
 }
 
-pub async fn run_http_server(blob_service: BlobService) -> Result<()> {
+pub async fn run_http_server(
+  blob_service: BlobService,
+  auth_service: AuthService,
+) -> Result<()> {
   info!(
     "Starting HTTP server listening at port {}",
     CONFIG.http_port
@@ -22,6 +26,7 @@ pub async fn run_http_server(blob_service: BlobService) -> Result<()> {
       .wrap(comm_services_lib::http::cors_config(
         CONFIG.localstack_endpoint.is_some(),
       ))
+      .app_data(auth_service.to_owned())
       .app_data(web::Data::new(blob_service.to_owned()))
       .service(
         web::resource("/blob/{holder}")

@@ -8,7 +8,7 @@ pub mod report_utils;
 pub mod service;
 
 use anyhow::Result;
-use comm_services_lib::blob::client::BlobServiceClient;
+use comm_services_lib::{auth::AuthService, blob::client::BlobServiceClient};
 use service::ReportsService;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
@@ -36,7 +36,8 @@ async fn main() -> Result<()> {
 
   let db = database::client::DatabaseClient::new(&aws_config);
   let blob_client = BlobServiceClient::new(cfg.blob_service_url.clone());
-  let service = ReportsService::new(db, blob_client, email_config);
+  let reports_service = ReportsService::new(db, blob_client, email_config);
+  let auth_service = AuthService::new(&aws_config, &cfg.identity_endpoint);
 
-  crate::http::run_http_server(service).await
+  crate::http::run_http_server(reports_service, auth_service).await
 }
