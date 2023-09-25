@@ -38,6 +38,19 @@ impl AuthorizationCredential {
   }
 }
 
+impl std::fmt::Display for AuthorizationCredential {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      AuthorizationCredential::UserToken(UserIdentity { user_id, .. }) => {
+        write!(f, "UserTokenCredential(user_id={})", user_id)
+      }
+      AuthorizationCredential::ServicesToken(_) => {
+        write!(f, "ServicesTokenCredential")
+      }
+    }
+  }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, derive_more::Constructor)]
 pub struct ServicesAuthToken {
   #[serde(rename = "servicesToken")]
