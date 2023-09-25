@@ -660,6 +660,7 @@ dependencies = [
  "chrono",
  "constant_time_eq",
  "derive_more",
+ "grpc_clients",
  "rand",
  "serde",
  "serde_json",

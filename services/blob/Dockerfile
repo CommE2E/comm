@@ -14,6 +14,7 @@ ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 
 # Copy actual application sources
+COPY shared ../../shared/
 COPY services/comm-services-lib ../comm-services-lib
 COPY services/blob ./
 
