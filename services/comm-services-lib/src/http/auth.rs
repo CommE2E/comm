@@ -1,6 +1,7 @@
 use actix_web::{
   body::{EitherBody, MessageBody},
   dev::{Service, ServiceRequest, ServiceResponse, Transform},
+  error::ErrorInternalServerError,
   FromRequest, HttpMessage,
 };
 use actix_web_httpauth::{
@@ -15,9 +16,9 @@ use std::{
   pin::Pin,
   str::FromStr,
 };
-use tracing::debug;
+use tracing::{debug, error, trace};
 
-use crate::auth::{AuthorizationCredential, UserIdentity};
+use crate::auth::{AuthService, AuthorizationCredential, UserIdentity};
 
 impl FromRequest for AuthorizationCredential {
   type Error = actix_web::Error;
@@ -89,7 +90,22 @@ pub async fn validation_function(
     }
   };
 
-  // TODO: call identity service, for now just allow every request
+  let auth_service = req
+    .app_data::<AuthService>()
+    .expect("FATAL: missing AuthService app data. Check HTTP server config.");
+
+  match auth_service.verify_auth_credential(&credential).await {
+    Ok(true) => trace!("Request is authenticated with {credential}"),
+    Ok(false) => {
+      // TODO: Return 401 here when we're ready to reject unauthenticated requests
+      trace!("Request is not authenticated. Token: {credential:?}");
+    }
+    Err(err) => {
+      error!("Error verifying auth credential: {err}");
+      return Err((ErrorInternalServerError("internal error"), req));
+    }
+  };
+
   req.extensions_mut().insert(credential);
 
   Ok(req)
