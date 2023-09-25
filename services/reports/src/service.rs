@@ -1,7 +1,7 @@
 use actix_web::FromRequest;
 use chrono::Utc;
 use comm_services_lib::{
-  auth::UserIdentity,
+  auth::{AuthService, AuthorizationCredential},
   blob::client::{BlobServiceClient, BlobServiceError},
   crypto::aes256,
   database,
@@ -9,10 +9,11 @@ use comm_services_lib::{
 use derive_more::{Display, Error, From};
 use std::{
   collections::HashMap,
-  future::{ready, Ready},
+  future::{ready, Future},
+  pin::Pin,
   sync::Arc,
 };
-use tracing::{error, trace};
+use tracing::{error, trace, warn};
 
 use crate::{
   config::CONFIG,
@@ -71,13 +72,20 @@ impl ReportsService {
     }
   }
 
-  pub fn authenticated(&self, user: UserIdentity) -> Self {
-    let user_id = user.user_id.to_string();
+  /// Clones the service with a new auth identity. When the credential is
+  /// a service-to-service, the `user_id` is None.
+  pub fn with_authentication(&self, token: AuthorizationCredential) -> Self {
+    let requesting_user_id = match &token {
+      AuthorizationCredential::ServicesToken(_) => None,
+      AuthorizationCredential::UserToken(user) => {
+        Some(user.user_id.to_string())
+      }
+    };
     Self {
       db: self.db.clone(),
       email_config: self.email_config.clone(),
-      blob_client: self.blob_client.with_user_identity(user),
-      requesting_user_id: Some(user_id),
+      blob_client: self.blob_client.with_authentication(token),
+      requesting_user_id,
     }
   }
 
@@ -195,35 +203,62 @@ impl ReportsService {
 
 impl FromRequest for ReportsService {
   type Error = actix_web::Error;
-  type Future = Ready<Result<Self, actix_web::Error>>;
+  type Future = Pin<Box<dyn Future<Output = Result<Self, actix_web::Error>>>>;
 
   #[inline]
   fn from_request(
     req: &actix_web::HttpRequest,
     _payload: &mut actix_web::dev::Payload,
   ) -> Self::Future {
+    use actix_web::error::{ErrorForbidden, ErrorInternalServerError};
     use actix_web::HttpMessage;
 
-    let Some(service) = req.app_data::<ReportsService>() else {
-      tracing::error!(
-        "FATAL! Failed to extract ReportsService from actix app_data. \
-        Check HTTP server configuration"
-      );
-      return ready(Err(actix_web::error::ErrorInternalServerError("Internal server error")));
-    };
+    let base_service =
+      req.app_data::<ReportsService>().cloned().ok_or_else(|| {
+        tracing::error!(
+          "FATAL! Failed to extract ReportsService from actix app_data. \
+      Check HTTP server configuration"
+        );
+        ErrorInternalServerError("Internal server error")
+      });
 
     let auth_service =
-      if let Some(user_identity) = req.extensions().get::<UserIdentity>() {
-        tracing::trace!("Found user identity. Creating authenticated service");
-        service.authenticated(user_identity.clone())
-      } else {
-        tracing::trace!(
-          "No user identity found. Leaving unauthenticated service"
+      req.app_data::<AuthService>().cloned().ok_or_else(|| {
+        tracing::error!(
+          "FATAL! Failed to extract AuthService from actix app_data. \
+      Check HTTP server configuration"
         );
-        service.clone()
-      };
+        ErrorInternalServerError("Internal server error")
+      });
 
-    ready(Ok(auth_service))
+    let request_auth_value =
+      req.extensions().get::<AuthorizationCredential>().cloned();
+
+    Box::pin(async move {
+      let auth_service = auth_service?;
+      let base_service = base_service?;
+
+      // This is Some for endpoints hidden behind auth validation middleware
+      let auth_token = match request_auth_value {
+        Some(token @ AuthorizationCredential::UserToken(_)) => token,
+        Some(_) => {
+          // Reports service shouldn't be called by other services
+          warn!("Reports service requires user authorization");
+          return Err(ErrorForbidden("Forbidden"));
+        }
+        None => {
+          // Unauthenticated requests get a service-to-service token
+          let services_token =
+            auth_service.get_services_token().await.map_err(|err| {
+              error!("Failed to get services token: {err}");
+              ErrorInternalServerError("Internal server error")
+            })?;
+          AuthorizationCredential::ServicesToken(services_token)
+        }
+      };
+      let service = base_service.with_authentication(auth_token);
+      Ok(service)
+    })
   }
 }
 
