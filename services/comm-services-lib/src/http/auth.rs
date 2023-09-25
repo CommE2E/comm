@@ -98,11 +98,15 @@ pub async fn validation_function(
 /// Use this to add Authentication Middleware. It's going to parse Authorization
 /// header and call the identity service to check if the provided credentials
 /// are correct. If not it's going to reject the request.
+/// Note that this requires `AuthService` to be present in the app data.
 ///
 /// # Example
 /// ```ignore
+/// let auth_service = AuthService::new(&aws_config, &config.identity_endpoint);
 /// let auth_middleware = get_comm_authentication_middleware();
-/// App::new().wrap(auth_middleware);
+/// App::new()
+///   .app_data(auth_service.clone())
+///   .wrap(auth_middleware)
 /// ```
 /// If you don't want all of the routes to require authentication you can wrap
 /// individual resources or scopes:

@@ -34,6 +34,7 @@ base64 = "0.21"
 chrono = "0.4"
 constant_time_eq = "0.3"
 derive_more = "0.99"
+grpc_clients = { path = "../../shared/grpc_clients" }
 rand = "0.8"
 tokio = "1.32"
 tracing = "0.1"
