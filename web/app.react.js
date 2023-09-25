@@ -84,7 +84,6 @@ registerConfig({
   // We can't securely cache credentials on web, so we have no way to recover
   // from a cookie invalidation
   resolveInvalidatedCookie: null,
-  setCookieOnRequest: true,
   setSessionIDOnRequest: true,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,
