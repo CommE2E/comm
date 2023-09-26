@@ -238,7 +238,8 @@ async function fetchMediaForThread(
       };
     }
 
-    const { thumbnailID, thumbnailUploadSecret, thumbnailUploadExtra } = upload;
+    const { thumbnailUploadSecret, thumbnailUploadExtra } = upload;
+    const thumbnailID = upload.thumbnailID?.toString();
     const {
       encryptionKey: thumbnailEncryptionKey,
       blobHash: thumbnailBlobHash,
