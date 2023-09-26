@@ -204,7 +204,7 @@ async function policiesValidator(
   viewer: Viewer,
   policies: $ReadOnlyArray<PolicyType>,
 ) {
-  if (!policies.length) {
+  if (!policies.length || !viewer.loggedIn) {
     return;
   }
   if (!hasMinCodeVersion(viewer.platformDetails, { native: 181 })) {
