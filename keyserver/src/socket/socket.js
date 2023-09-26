@@ -15,10 +15,7 @@ import {
   serverResponseTimeout,
 } from 'lib/shared/timeouts.js';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
@@ -165,8 +162,8 @@ type StateCheckConditions = {
 };
 
 const minVersionsForCompression = {
-  native: NEXT_CODE_VERSION,
-  web: NEXT_CODE_VERSION,
+  native: 265,
+  web: 30,
 };
 
 class Socket {
