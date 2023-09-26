@@ -260,7 +260,7 @@ class Socket {
         handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
       }
       for (const response of serverResponses) {
-        this.sendMessage(response);
+        await this.sendMessage(response);
       }
       if (clientSocketMessage.type === clientSocketMessageTypes.INITIAL) {
         this.onSuccessfulConnection();
@@ -277,7 +277,7 @@ class Socket {
           errorMessage.responseTo = responseTo;
         }
         this.markActivityOccurred();
-        this.sendMessage(errorMessage);
+        await this.sendMessage(errorMessage);
         return;
       }
       invariant(clientSocketMessage, 'should be set');
@@ -301,7 +301,7 @@ class Socket {
             },
           };
         }
-        this.sendMessage(authErrorMessage);
+        await this.sendMessage(authErrorMessage);
         this.ws.close(4100, error.message);
         return;
       } else if (error.message === 'client_version_unsupported') {
@@ -338,19 +338,19 @@ class Socket {
             },
           };
         }
-        this.sendMessage(authErrorMessage);
+        await this.sendMessage(authErrorMessage);
         this.ws.close(4101, error.message);
         return;
       }
       if (error.payload) {
-        this.sendMessage({
+        await this.sendMessage({
           type: serverSocketMessageTypes.ERROR,
           responseTo,
           message: error.message,
           payload: error.payload,
         });
       } else {
-        this.sendMessage({
+        await this.sendMessage({
           type: serverSocketMessageTypes.ERROR,
           responseTo,
           message: error.message,
@@ -379,7 +379,7 @@ class Socket {
     }
   };
 
-  sendMessage = (message: ServerServerSocketMessage) => {
+  sendMessage = async (message: ServerServerSocketMessage) => {
     invariant(
       this.ws.readyState > 0,
       "shouldn't send message until connection established",
@@ -405,7 +405,7 @@ class Socket {
       return;
     }
 
-    const compressionResult = compressMessage(stringMessage);
+    const compressionResult = await compressMessage(stringMessage);
     if (!compressionResult.compressed) {
       this.ws.send(stringMessage);
       return;
@@ -870,7 +870,7 @@ class Socket {
     });
     invariant(checkStateRequest, 'should be set');
 
-    this.sendMessage({
+    await this.sendMessage({
       type: serverSocketMessageTypes.REQUESTS,
       payload: { serverRequests: [checkStateRequest] },
     });
