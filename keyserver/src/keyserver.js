@@ -60,6 +60,8 @@ const shouldDisplayQRCodeInTerminal = false;
       ? undefined
       : { maxAge: '1y', immutable: true };
 
+  const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
+
   if (cluster.isMaster) {
     const didMigrationsSucceed: boolean = await migrate();
     if (!didMigrationsSucceed) {
@@ -103,12 +105,16 @@ const shouldDisplayQRCodeInTerminal = false;
       }
     }
 
-    const cpuCount = os.cpus().length;
-    for (let i = 0; i < cpuCount; i++) {
-      cluster.fork();
+    if (!isCPUProfilingEnabled) {
+      const cpuCount = os.cpus().length;
+      for (let i = 0; i < cpuCount; i++) {
+        cluster.fork();
+      }
+      cluster.on('exit', () => cluster.fork());
     }
-    cluster.on('exit', () => cluster.fork());
-  } else {
+  }
+
+  if (!cluster.isMaster || isCPUProfilingEnabled) {
     const server = express();
     expressWs(server);
     server.use(express.json({ limit: '250mb' }));
