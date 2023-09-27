@@ -6,7 +6,6 @@ use commtest::tunnelbroker::socket::create_socket;
 use futures_util::StreamExt;
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
 use proto::MessageToDevice;
-use tunnelbroker_messages as messages;
 use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
@@ -21,7 +20,7 @@ async fn send_refresh_request() {
       .await
       .unwrap();
 
-  let refresh_request = messages::RefreshKeyRequest {
+  let refresh_request = RefreshKeyRequest {
     device_id: device_info.device_id.clone(),
     number_of_keys: 5,
   };
@@ -51,7 +50,7 @@ async fn send_refresh_request() {
 /// Test that a message to an offline device gets pushed to dynamodb
 /// then recalled once a device connects
 #[tokio::test]
-async fn presist_messages() {
+async fn persist_messages() {
   let device_info = create_device().await;
 
   // Send request for keyserver to refresh keys (identity service)
@@ -60,7 +59,7 @@ async fn presist_messages() {
       .await
       .unwrap();
 
-  let refresh_request = messages::RefreshKeyRequest {
+  let refresh_request = RefreshKeyRequest {
     device_id: device_info.device_id.to_string(),
     number_of_keys: 5,
   };

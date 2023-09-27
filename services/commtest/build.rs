@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::Error;
 
-const PROTO_DIR: &'static str = "../../shared/protos";
+const PROTO_DIR: &str = "../../shared/protos";
 
 fn main() -> Result<(), Error> {
   let proto_files = fs::read_dir(PROTO_DIR)?;

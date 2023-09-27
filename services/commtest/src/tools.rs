@@ -9,7 +9,7 @@ pub fn generate_stable_nbytes(
   predefined_byte_value: Option<u8>,
 ) -> Vec<u8> {
   let byte_value = predefined_byte_value.unwrap_or(b'A');
-  return vec![byte_value; number_of_bytes];
+  vec![byte_value; number_of_bytes]
 }
 
 #[derive(
@@ -40,7 +40,7 @@ pub fn obtain_number_of_threads() -> usize {
   if number_of_threads_str.is_empty() {
     return num_cpus::get();
   }
-  return number_of_threads_str.parse::<usize>().unwrap();
+  number_of_threads_str.parse::<usize>().unwrap()
 }
 
 pub struct DataHasher {
@@ -49,9 +49,9 @@ pub struct DataHasher {
 
 impl DataHasher {
   pub fn new() -> DataHasher {
-    return DataHasher {
+    DataHasher {
       hasher: Sha512::new(),
-    };
+    }
   }
 
   pub fn update(data_hasher: &mut DataHasher, bytes: Vec<u8>) {
@@ -59,6 +59,12 @@ impl DataHasher {
   }
   pub fn get_hash(self) -> String {
     let hash = self.hasher.finalize();
-    return hash.encode_hex::<String>();
+    hash.encode_hex::<String>()
+  }
+}
+
+impl Default for DataHasher {
+  fn default() -> Self {
+    Self::new()
   }
 }

@@ -1,8 +1,8 @@
-// Messages sent between tunnelbroker and a device
+// Messages sent between Tunnelbroker and a device
 
 use serde::{Deserialize, Serialize};
 
-/// The workflow when estabilishing a tunnelbroker connection:
+/// The workflow when estabilishing a Tunnelbroker connection:
 ///   - Client sends ConnectionInitializationMessage
 ///   - Tunnelbroker validates access_token with identity service
 ///   - Tunnelbroker emits an AMQP message declaring that it has opened a new
@@ -26,7 +26,7 @@ pub enum DeviceTypes {
   Keyserver,
 }
 
-/// Message sent by a client to tunnelbroker to initiate a websocket
+/// Message sent by a client to Tunnelbroker to initiate a websocket
 /// session. Tunnelbroker will then validate the access token with identity
 /// service before continuing with the request.
 #[derive(Serialize, Deserialize)]
