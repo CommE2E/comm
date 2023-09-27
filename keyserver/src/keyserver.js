@@ -2,6 +2,7 @@
 
 import olm from '@commapp/olm';
 import cluster from 'cluster';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import express from 'express';
@@ -110,6 +111,7 @@ const shouldDisplayQRCodeInTerminal = false;
     cluster.on('exit', () => cluster.fork());
   } else {
     const server = express();
+    server.use(compression());
     expressWs(server);
     server.use(express.json({ limit: '250mb' }));
     server.use(cookieParser());
