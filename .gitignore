@@ -21,6 +21,7 @@ keyserver/secrets
 keyserver/facts
 keyserver/*.env
 keyserver/*.env.*
+keyserver/cpu_profiling_logs
 
 services/tunnelbroker/target
 services/tunnelbroker/src/libcpp/test/build
