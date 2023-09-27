@@ -33,6 +33,7 @@ services:
     expose:
       - '3306'
     command: >
+      --performance-schema
       --max-allowed-packet=256M
       --local-infile=0
       --sql-mode=STRICT_ALL_TABLES
