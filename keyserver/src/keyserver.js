@@ -60,7 +60,9 @@ const shouldDisplayQRCodeInTerminal = false;
       ? undefined
       : { maxAge: '1y', immutable: true };
 
-  if (cluster.isMaster) {
+  const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
+
+  if (cluster.isMaster || isCPUProfilingEnabled) {
     const didMigrationsSucceed: boolean = await migrate();
     if (!didMigrationsSucceed) {
       // The following line uses exit code 2 to ensure nodemon exits
@@ -103,12 +105,16 @@ const shouldDisplayQRCodeInTerminal = false;
       }
     }
 
-    const cpuCount = os.cpus().length;
-    for (let i = 0; i < cpuCount; i++) {
-      cluster.fork();
+    if (!isCPUProfilingEnabled) {
+      const cpuCount = os.cpus().length;
+      for (let i = 0; i < cpuCount; i++) {
+        cluster.fork();
+      }
+      cluster.on('exit', () => cluster.fork());
     }
-    cluster.on('exit', () => cluster.fork());
-  } else {
+  }
+
+  if (!cluster.isMaster || isCPUProfilingEnabled) {
     const server = express();
     expressWs(server);
     server.use(express.json({ limit: '250mb' }));
