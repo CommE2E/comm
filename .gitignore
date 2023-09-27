@@ -44,6 +44,9 @@ shared/tunnelbroker-client/target
 result*
 .direnv
 
+# MariaDB
+.comm.cnf
+
 # Electron
 desktop/out/
 desktop/assets/

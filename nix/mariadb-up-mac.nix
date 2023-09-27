@@ -13,6 +13,9 @@ let
     text = ''
       MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
 
+      # Create .comm.cnf
+      printf "[mysqld]\nperformance_schema=ON\n" > ".comm.cnf"
+
       echo "View MariaDB logs: tail -f $MARIADB_DIR/logs" >&2
       echo "Kill MariaDB server: pkill mariadbd" >&2
 
@@ -22,6 +25,7 @@ let
 
       # 'exec' allows for us to replace bash process with MariaDB
       exec "${mariadb}/bin/mariadbd" \
+        --defaults-extra-file=.comm.cnf \
         --socket "$MARIADB_DIR"/mysql.sock \
         --datadir "$MARIADB_DIR" \
         --innodb-ft-min-token-size=1 \
