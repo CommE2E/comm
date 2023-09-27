@@ -13,6 +13,9 @@ let
     text = ''
       MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
 
+      # Enable performance_schema
+      printf "[mysqld]\nperformance_schema=ON\n" > "$HOME/.my.cnf"
+
       echo "View MariaDB logs: tail -f $MARIADB_DIR/logs" >&2
       echo "Kill MariaDB server: pkill mariadbd" >&2
 
