@@ -7,6 +7,7 @@
 .*/Libraries/Utilities/LoadingView.js
 
 .*/node_modules/resolve/test/resolver/malformed_package_json/package\.json$
+.*/node_modules/module-deps/test/invalid_pkg/package.json
 
 .*/comm/web/.*
 .*/comm/keyserver/.*
