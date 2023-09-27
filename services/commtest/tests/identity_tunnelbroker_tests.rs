@@ -83,7 +83,7 @@ async fn test_refresh_keys_request_upon_depletion() {
   };
 
   println!("Getting keyserver info for user, {}", device_info.user_id);
-  let first_reponse = client
+  let _first_reponse = client
     .get_keyserver_keys(keyserver_request.clone())
     .await
     .expect("Second keyserver keys request failed")
@@ -92,7 +92,7 @@ async fn test_refresh_keys_request_upon_depletion() {
     .unwrap();
 
   // The current threshold is 5, but we only upload two. Should receive request
-  // from tunnelbroker to refresh keys
+  // from Tunnelbroker to refresh keys
   // Create session as a keyserver
 
   let device_info = create_device().await;
