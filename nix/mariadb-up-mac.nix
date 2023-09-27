@@ -22,6 +22,7 @@ let
 
       # 'exec' allows for us to replace bash process with MariaDB
       exec "${mariadb}/bin/mariadbd" \
+        --performance-schema \
         --socket "$MARIADB_DIR"/mysql.sock \
         --datadir "$MARIADB_DIR" \
         --innodb-ft-min-token-size=1 \
