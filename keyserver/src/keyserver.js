@@ -15,6 +15,7 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
+import { logEndpointMetrics } from './middleware/endpoint_profiling.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
 import {
   jsonHandler,
@@ -62,6 +63,8 @@ const shouldDisplayQRCodeInTerminal = false;
       : { maxAge: '1y', immutable: true };
 
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
+  const areEndpointMetricsEnabled =
+    process.env.KEYSERVER_ENDPOINT_METRICS_ENABLED;
 
   if (cluster.isMaster) {
     const didMigrationsSucceed: boolean = await migrate();
@@ -123,6 +126,9 @@ const shouldDisplayQRCodeInTerminal = false;
     server.use(cookieParser());
 
     const setupAppRouter = router => {
+      if (areEndpointMetricsEnabled) {
+        router.use(logEndpointMetrics);
+      }
       router.use('/images', express.static('images'));
       router.use('/fonts', express.static('fonts'));
       router.use('/misc', express.static('misc'));
