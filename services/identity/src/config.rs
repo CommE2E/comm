@@ -32,12 +32,12 @@ impl Config {
     let localstack_endpoint = env::var(LOCALSTACK_ENDPOINT).ok();
     let tunnelbroker_endpoint = match env::var(TUNNELBROKER_GRPC_ENDPOINT) {
       Ok(val) => {
-        info!("Using tunnelbroker endpoint from env var: {}", val);
+        info!("Using Tunnelbroker endpoint from env var: {}", val);
         val
       }
       Err(std::env::VarError::NotPresent) => {
         let val = DEFAULT_TUNNELBROKER_ENDPOINT;
-        info!("Falling back to default tunnelbroker endpoint: {}", val);
+        info!("Falling back to default Tunnelbroker endpoint: {}", val);
         val.to_string()
       }
       Err(e) => {

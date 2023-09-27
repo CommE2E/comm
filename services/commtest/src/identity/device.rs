@@ -31,7 +31,7 @@ pub async fn create_device() -> DeviceInfo {
 
   let mut client_registration = Registration::new();
   let opaque_registration_request =
-    client_registration.start(&password).unwrap();
+    client_registration.start(password).unwrap();
   let registration_start_request = RegistrationStartRequest {
     opaque_registration_request,
     username: username.to_string(),
@@ -69,7 +69,7 @@ pub async fn create_device() -> DeviceInfo {
 
   let opaque_registration_upload = client_registration
     .finish(
-      &password,
+      password,
       &registration_start_response.opaque_registration_response,
     )
     .unwrap();
@@ -84,10 +84,10 @@ pub async fn create_device() -> DeviceInfo {
     .unwrap()
     .into_inner();
 
-  return DeviceInfo {
+  DeviceInfo {
     username: username.to_string(),
     device_id: device_id.to_string(),
     user_id: registration_finish_response.user_id,
     access_token: registration_finish_response.access_token,
-  };
+  }
 }
