@@ -1,11 +1,16 @@
+use aws_sdk_dynamodb::error::SdkError;
+use aws_sdk_dynamodb::operation::put_item::PutItemError;
 use derive_more;
 use futures_util::stream::SplitSink;
 use futures_util::SinkExt;
 use futures_util::StreamExt;
 use hyper_tungstenite::{tungstenite::Message, WebSocketStream};
 use lapin::message::Delivery;
-use lapin::options::{BasicConsumeOptions, QueueDeclareOptions};
+use lapin::options::{
+  BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions,
+};
 use lapin::types::FieldTable;
+use lapin::BasicProperties;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tracing::{debug, error, info};
@@ -27,6 +32,7 @@ pub struct WebsocketSession<S> {
   tx: SplitSink<WebSocketStream<S>, Message>,
   db_client: DatabaseClient,
   pub device_info: DeviceInfo,
+  amqp_channel: lapin::Channel,
   // Stream of messages from AMQP endpoint
   amqp_consumer: lapin::Consumer,
 }
@@ -41,6 +47,7 @@ pub enum SessionError {
   AmqpError(lapin::Error),
   InternalError,
   UnauthorizedDevice,
+  PersistenceError(SdkError<PutItemError>),
 }
 
 pub fn consume_error<T>(result: Result<T, SessionError>) {
@@ -140,6 +147,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       tx,
       db_client,
       device_info,
+      amqp_channel: amqp_channel.clone(),
       amqp_consumer,
     })
   }
@@ -148,7 +156,43 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     &self,
     msg: Message,
   ) -> Result<(), SessionError> {
-    debug!("Received frame: {:?}", msg);
+    let text_msg = match msg {
+      Message::Text(payload) => payload,
+      _ => {
+        error!("Client sent invalid message type");
+        return Err(SessionError::InvalidMessage);
+      }
+    };
+
+    let serialized_message = serde_json::from_str::<Messages>(&text_msg)?;
+
+    match serialized_message {
+      Messages::MessageToDevice(message_to_device) => {
+        debug!("Received message for {}", message_to_device.device_id);
+        self
+          .db_client
+          .persist_message(
+            message_to_device.device_id.as_str(),
+            message_to_device.payload.as_str(),
+          )
+          .await?;
+
+        self
+          .amqp_channel
+          .basic_publish(
+            "",
+            &message_to_device.device_id,
+            BasicPublishOptions::default(),
+            message_to_device.payload.as_bytes(),
+            BasicProperties::default(),
+          )
+          .await?;
+      }
+      _ => {
+        error!("Client sent invalid message type");
+        return Err(SessionError::InvalidMessage);
+      }
+    }
 
     Ok(())
   }
