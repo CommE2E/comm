@@ -3,6 +3,9 @@ use rand::{distributions::Alphanumeric, Rng};
 mod proto {
   tonic::include_proto!("identity.client");
 }
+use crate::identity::olm_account_infos::{
+  ClientPublicKeys, DEFAULT_CLIENT_KEYS,
+};
 use proto as client;
 use proto::{
   identity_client_service_client::IdentityClientServiceClient, DeviceKeyUpload,
@@ -16,7 +19,7 @@ pub struct DeviceInfo {
   pub access_token: String,
 }
 
-pub async fn create_device() -> DeviceInfo {
+pub async fn create_device(keys: Option<ClientPublicKeys>) -> DeviceInfo {
   let password = "pass";
   let username: String = rand::thread_rng()
     .sample_iter(&Alphanumeric)
@@ -25,9 +28,14 @@ pub async fn create_device() -> DeviceInfo {
     .collect();
 
   // TODO: Generate dynamic valid olm account info
-  let example_payload = r#"{\"notificationIdentityPublicKeys\":{\"curve25519\":\"DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo\",\"ed25519\":\"D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk\"},\"primaryIdentityPublicKeys\":{\"curve25519\":\"Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk\",\"ed25519\":\"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg\"}}"#;
+  let keys = match keys {
+    Some(keys) => keys,
+    None => DEFAULT_CLIENT_KEYS.clone(),
+  };
+  let example_payload =
+    serde_json::to_string(&keys).expect("Failed to serialize example payload");
   // The ed25519 value from the olm payload
-  let device_id = r#"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg"#;
+  let device_id = keys.primary_identity_public_keys.ed25519;
 
   let mut client_registration = Registration::new();
   let opaque_registration_request =

@@ -11,7 +11,7 @@ use tunnelbroker_messages::RefreshKeyRequest;
 #[tokio::test]
 async fn send_refresh_request() {
   // Create session as a keyserver
-  let device_info = create_device().await;
+  let device_info = create_device(None).await;
   let mut socket = create_socket(&device_info).await;
 
   // Send request for keyserver to refresh keys (identity service)
@@ -51,7 +51,7 @@ async fn send_refresh_request() {
 /// then recalled once a device connects
 #[tokio::test]
 async fn persist_messages() {
-  let device_info = create_device().await;
+  let device_info = create_device(None).await;
 
   // Send request for keyserver to refresh keys (identity service)
   let mut tunnelbroker_client =
