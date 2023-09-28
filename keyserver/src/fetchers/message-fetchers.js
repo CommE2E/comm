@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
-  isInvalidSidebarSource,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
@@ -15,6 +14,10 @@ import {
   type MessageType,
   assertMessageType,
 } from 'lib/types/message-types-enum.js';
+import {
+  isInvalidSidebarSource,
+  defaultNumberPerThread,
+} from 'lib/types/message-types.js';
 import {
   type RawMessageInfo,
   type RawComposableMessageInfo,
@@ -29,7 +32,6 @@ import {
   type FetchPinnedMessagesResult,
   type SearchMessagesResponse,
 } from 'lib/types/message-types.js';
-import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
