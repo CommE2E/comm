@@ -7,7 +7,8 @@ use futures_util::StreamExt;
 use hyper_tungstenite::{tungstenite::Message, WebSocketStream};
 use lapin::message::Delivery;
 use lapin::options::{
-  BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions,
+  BasicCancelOptions, BasicConsumeOptions, BasicPublishOptions,
+  QueueDeclareOptions, QueueDeleteOptions,
 };
 use lapin::types::FieldTable;
 use lapin::BasicProperties;
@@ -242,10 +243,32 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     }
   }
 
-  // Release websocket and remove from active connections
+  // Release WebSocket and remove from active connections
   pub async fn close(&mut self) {
     if let Err(e) = self.tx.close().await {
-      debug!("Failed to close session: {}", e);
+      debug!("Failed to close WebSocket session: {}", e);
+    }
+
+    if let Err(e) = self
+      .amqp_channel
+      .basic_cancel(
+        self.amqp_consumer.tag().as_str(),
+        BasicCancelOptions::default(),
+      )
+      .await
+    {
+      debug!("Failed to cancel consumer: {}", e);
+    }
+
+    if let Err(e) = self
+      .amqp_channel
+      .queue_delete(
+        self.device_info.device_id.as_str(),
+        QueueDeleteOptions::default(),
+      )
+      .await
+    {
+      debug!("Failed to delete queue: {}", e);
     }
   }
 }
