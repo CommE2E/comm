@@ -13,7 +13,7 @@ use tonic::{transport::Endpoint, Request};
 
 #[tokio::test]
 async fn set_prekey() {
-  let device_info = create_device().await;
+  let device_info = create_device(None).await;
 
   let channel = Endpoint::from_static("http://[::1]:50054")
     .connect()
