@@ -17,7 +17,7 @@ use tunnelbroker_messages::RefreshKeyRequest;
 #[tokio::test]
 #[should_panic]
 async fn test_tunnelbroker_invalid_auth() {
-  let mut device_info = create_device().await;
+  let mut device_info = create_device(None).await;
   device_info.access_token = "".to_string();
   let mut socket = create_socket(&device_info).await;
 
@@ -30,7 +30,7 @@ async fn test_tunnelbroker_invalid_auth() {
 
 #[tokio::test]
 async fn test_tunnelbroker_valid_auth() {
-  let device_info = create_device().await;
+  let device_info = create_device(None).await;
   let mut socket = create_socket(&device_info).await;
 
   socket
@@ -42,7 +42,7 @@ async fn test_tunnelbroker_valid_auth() {
 
 #[tokio::test]
 async fn test_refresh_keys_request_upon_depletion() {
-  let device_info = create_device().await;
+  let device_info = create_device(None).await;
 
   let mut identity_client =
     IdentityClientServiceClient::connect("http://127.0.0.1:50054")
@@ -95,7 +95,7 @@ async fn test_refresh_keys_request_upon_depletion() {
   // from Tunnelbroker to refresh keys
   // Create session as a keyserver
 
-  let device_info = create_device().await;
+  let device_info = create_device(None).await;
   let mut socket = create_socket(&device_info).await;
 
   // Have keyserver receive any websocket messages

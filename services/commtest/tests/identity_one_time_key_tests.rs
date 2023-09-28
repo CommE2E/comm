@@ -10,7 +10,7 @@ use commtest::identity::device::create_device;
 
 #[tokio::test]
 async fn verify_access_token() {
-  let device_info = create_device().await;
+  let device_info = create_device(None).await;
 
   let mut identity_client =
     IdentityClientServiceClient::connect("http://127.0.0.1:50054")
