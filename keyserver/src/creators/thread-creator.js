@@ -9,10 +9,10 @@ import {
   generatePendingThreadColor,
   generateRandomColor,
 } from 'lib/shared/color-utils.js';
+import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { isInvalidSidebarSource } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   threadTypes,
@@ -195,8 +195,11 @@ async function createThread(
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
-  if (sourceMessage && isInvalidSidebarSource(sourceMessage)) {
-    throw new ServerError('invalid_parameters');
+  if (sourceMessage) {
+    const messageSpec = messageSpecs[sourceMessage.type];
+    if (!messageSpec.canBeSidebarSource(sourceMessage)) {
+      throw new ServerError('invalid_parameters');
+    }
   }
 
   let { id } = request;
