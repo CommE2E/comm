@@ -195,7 +195,7 @@ async function createThread(
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
-  if (sourceMessage && isInvalidSidebarSource(sourceMessage.type)) {
+  if (sourceMessage && isInvalidSidebarSource(sourceMessage)) {
     throw new ServerError('invalid_parameters');
   }
 

@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
+  isInvalidSidebarSource,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
@@ -26,7 +27,6 @@ import {
   defaultMaxMessageAge,
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
-  isMessageSidebarSourceReactionEditOrPin,
   type SearchMessagesResponse,
 } from 'lib/types/message-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
@@ -745,7 +745,7 @@ async function fetchDerivedMessages(
   for (const message of messages) {
     let { rawMessageInfo } = message;
     invariant(
-      !isMessageSidebarSourceReactionEditOrPin(rawMessageInfo),
+      !isInvalidSidebarSource(rawMessageInfo),
       'SIDEBAR_SOURCE or TOGGLE_PIN should not point to a ' +
         'SIDEBAR_SOURCE, REACTION, EDIT_MESSAGE or TOGGLE_PIN',
     );
@@ -890,7 +890,7 @@ async function rawMessageInfoForRowsAndRelatedMessages(
   >();
   for (const message of parsedResults) {
     const { rawMessageInfo } = message;
-    if (isMessageSidebarSourceReactionEditOrPin(rawMessageInfo)) {
+    if (isInvalidSidebarSource(rawMessageInfo)) {
       continue;
     }
     invariant(rawMessageInfo.id, 'rawMessageInfo.id should not be null');
