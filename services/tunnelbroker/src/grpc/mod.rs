@@ -49,7 +49,7 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
         "",
         &message.device_id,
         BasicPublishOptions::default(),
-        &message.payload.as_bytes(),
+        message.payload.as_bytes(),
         BasicProperties::default(),
       )
       .await
