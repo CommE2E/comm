@@ -24,6 +24,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   CommSecureStore secureStore;
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
   const std::string publicCryptoAccountID = "publicCryptoAccountID";
+  const std::string keyserverHostedContentID = "keyserverHostedContentID";
+  const std::string initialEncryptedMessageContent = "{\"type\": \"init\"}";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
   DraftStore draftStore;
   ThreadStore threadStore;
@@ -68,6 +70,12 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       double oneTimeKeysAmount) override;
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) override;
   virtual jsi::Value initializeNotificationsSession(
+      jsi::Runtime &rt,
+      jsi::String identityKeys,
+      jsi::String prekey,
+      jsi::String prekeySignature,
+      jsi::String oneTimeKeys) override;
+  virtual jsi::Value initializeContentSession(
       jsi::Runtime &rt,
       jsi::String identityKeys,
       jsi::String prekey,

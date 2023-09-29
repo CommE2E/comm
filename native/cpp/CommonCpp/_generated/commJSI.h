@@ -40,6 +40,7 @@ public:
   virtual jsi::Value getNotificationsOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) = 0;
+  virtual jsi::Value initializeContentSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
@@ -238,6 +239,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::initializeNotificationsSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKeys));
+    }
+    jsi::Value initializeContentSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) override {
+      static_assert(
+          bridging::getParameterCount(&T::initializeContentSession) == 5,
+          "Expected initializeContentSession(...) to have 5 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::initializeContentSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKeys));
     }
     jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) override {
       static_assert(
