@@ -4,6 +4,7 @@ import olm from '@commapp/olm';
 import cluster from 'cluster';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import crypto from 'crypto';
 import express from 'express';
 import expressWs from 'express-ws';
@@ -55,12 +56,17 @@ const shouldDisplayQRCodeInTerminal = false;
 
   const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
   const landingBaseRoutePath = getLandingURLFacts()?.baseRoutePath;
-  const commAppBaseRoutePath = getCommAppURLFacts()?.baseRoutePath;
+  const commAppURLFacts = getCommAppURLFacts();
+  const commAppBaseRoutePath = commAppURLFacts?.baseRoutePath;
 
   const compiledFolderOptions =
     process.env.NODE_ENV === 'development'
       ? undefined
       : { maxAge: '1y', immutable: true };
+
+  const corsOptions = commAppURLFacts
+    ? { origin: commAppURLFacts.baseDomain, methods: ['GET', 'POST'] }
+    : null;
 
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
   const areEndpointMetricsEnabled =
@@ -130,6 +136,9 @@ const shouldDisplayQRCodeInTerminal = false;
     const setupAppRouter = router => {
       if (areEndpointMetricsEnabled) {
         router.use(logEndpointMetrics);
+      }
+      if (corsOptions) {
+        router.use(cors(corsOptions));
       }
       router.use('/images', express.static('images'));
       router.use('/fonts', express.static('fonts'));
