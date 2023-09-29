@@ -48,6 +48,14 @@ async function testThreadStoreReductions() {
     "after improving encoding, Ashoat's ThreadStore is " +
       `${improvedEncodingBytes} bytes large`,
   );
+
+  const afterIsAdminRole = introduceIsAdminRole(threadInfos);
+  const afterIsAdminRoleString = JSON.stringify(afterIsAdminRole);
+  const afterIsAdminRoleBytes = new Blob([afterIsAdminRoleString]).size;
+  console.log(
+    "after introducing isAdminRole, Ashoat's ThreadStore is " +
+      `${afterIsAdminRoleBytes} bytes large`,
+  );
 }
 
 function filterOutOldSidebars(
@@ -198,6 +206,39 @@ function improveThreadRolePermissionsBlobEncoding(
     newBlob[newKey] = 1;
   }
   return newBlob;
+}
+
+function introduceIsAdminRole(threadInfos: RawThreadInfos) {
+  const newThreadStore = {};
+  for (const threadID in threadInfos) {
+    const threadInfo = threadInfos[threadID];
+    const newRoles = {};
+    for (const roleID in threadInfo.roles) {
+      const role = threadInfo.roles[roleID];
+      let newRole = role;
+      if (!newRole.isDefault) {
+        const { isDefault, ...rest } = newRole;
+        newRole = rest;
+      }
+      if (role.name === 'Admins') {
+        newRole = {
+          ...newRole,
+          isAdmin: true,
+        };
+      }
+      newRoles[roleID] = newRole;
+    }
+    const newThreadInfo = {
+      ...threadInfo,
+      roles: newRoles,
+      members: threadInfo.members.map(member => {
+        const { permissions, ...rest } = member;
+        return rest;
+      }),
+    };
+    newThreadStore[threadID] = newThreadInfo;
+  }
+  return newThreadStore;
 }
 
 main([testThreadStoreReductions]);
