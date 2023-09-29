@@ -35,20 +35,53 @@ async function testThreadStoreReductions() {
   );
 
   const withoutOldSidebars = filterOutOldSidebars(threadInfos, rawMessageInfos);
-  testSolution(withoutOldSidebars, 'Ashoat', 'filtering out old sidebars');
+  testSolution(withoutOldSidebars, 'Ashoat', '[A] filtering out old sidebars');
 
   const improvedEncoding = improveEncoding(threadInfos);
-  testSolution(improvedEncoding, 'Ashoat', 'improving encoding');
+  testSolution(improvedEncoding, 'Ashoat', '[B] improving encoding');
 
   const afterIsAdminRole = introduceIsAdminRole(threadInfos);
-  testSolution(afterIsAdminRole, 'Ashoat', 'introducing isAdminRole');
+  testSolution(afterIsAdminRole, 'Ashoat', '[C] introducing isAdminRole');
 
   const afterRoleStore = introduceThreadRolePermissionsStore(threadInfos);
   testSolution(
     afterRoleStore,
     'Ashoat',
-    'introducing ThreadRolePermissionsStore',
+    '[D] introducing ThreadRolePermissionsStore',
   );
+
+  const testAB = improveEncoding(withoutOldSidebars);
+  testSolution(testAB, 'Ashoat', '[A] and [B]');
+
+  const testAC = introduceIsAdminRole(withoutOldSidebars);
+  testSolution(testAC, 'Ashoat', '[A] and [C]');
+
+  const testAD = introduceThreadRolePermissionsStore(withoutOldSidebars);
+  testSolution(testAD, 'Ashoat', '[A] and [D]');
+
+  const testBC = introduceIsAdminRole(improvedEncoding);
+  testSolution(testBC, 'Ashoat', '[B] and [C]');
+
+  const testBD = introduceThreadRolePermissionsStore(improvedEncoding);
+  testSolution(testBD, 'Ashoat', '[B] and [D]');
+
+  const testCD = introduceThreadRolePermissionsStore(afterIsAdminRole);
+  testSolution(testCD, 'Ashoat', '[C] and [D]');
+
+  const testABC = introduceIsAdminRole(testAB);
+  testSolution(testABC, 'Ashoat', '[A], [B], and [C]');
+
+  const testABD = introduceThreadRolePermissionsStore(testAB);
+  testSolution(testABD, 'Ashoat', '[A], [B], and [D]');
+
+  const testACD = introduceThreadRolePermissionsStore(testAC);
+  testSolution(testACD, 'Ashoat', '[A], [C], and [D]');
+
+  const testBCD = introduceThreadRolePermissionsStore(testBC);
+  testSolution(testBCD, 'Ashoat', '[B], [C], and [D]');
+
+  const testABCD = introduceThreadRolePermissionsStore(testABC);
+  testSolution(testABCD, 'Ashoat', '[A], [B], [C], and [D]');
 }
 
 function testSolution(blob: mixed, person: string, descriptor: string) {
