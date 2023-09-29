@@ -17,6 +17,7 @@ import { main } from './utils.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import { createScriptViewer } from '../session/scripts.js';
+import { compressMessage } from '../utils/compress.js';
 
 const viewer = createScriptViewer(ashoat.id);
 
@@ -30,65 +31,78 @@ async function testThreadStoreReductions() {
   ]);
   const beforeReductions = JSON.stringify(threadInfos);
   const beforeBytes = new Blob([beforeReductions]).size;
+  const beforeCompressed = await compressMessage(beforeReductions);
+  invariant(beforeCompressed.compressed, 'should be compressed');
+  const beforeCompressedBytes = new Blob([beforeCompressed.result.data]).size;
   console.log(
-    `before reductions, Ashoat's ThreadStore is ${beforeBytes} bytes large`,
+    `before reductions, Ashoat's ThreadStore is ${beforeBytes} bytes large ` +
+      `(${beforeCompressedBytes} bytes compressed)`,
   );
 
   const withoutOldSidebars = filterOutOldSidebars(threadInfos, rawMessageInfos);
-  testSolution(withoutOldSidebars, 'Ashoat', '[A] filtering out old sidebars');
+  await testSolution(
+    withoutOldSidebars,
+    'Ashoat',
+    '[A] filtering out old sidebars',
+  );
 
   const improvedEncoding = improveEncoding(threadInfos);
-  testSolution(improvedEncoding, 'Ashoat', '[B] improving encoding');
+  await testSolution(improvedEncoding, 'Ashoat', '[B] improving encoding');
 
   const afterIsAdminRole = introduceIsAdminRole(threadInfos);
-  testSolution(afterIsAdminRole, 'Ashoat', '[C] introducing isAdminRole');
+  await testSolution(afterIsAdminRole, 'Ashoat', '[C] introducing isAdminRole');
 
   const afterRoleStore = introduceThreadRolePermissionsStore(threadInfos);
-  testSolution(
+  await testSolution(
     afterRoleStore,
     'Ashoat',
     '[D] introducing ThreadRolePermissionsStore',
   );
 
   const testAB = improveEncoding(withoutOldSidebars);
-  testSolution(testAB, 'Ashoat', '[A] and [B]');
+  await testSolution(testAB, 'Ashoat', '[A] and [B]');
 
   const testAC = introduceIsAdminRole(withoutOldSidebars);
-  testSolution(testAC, 'Ashoat', '[A] and [C]');
+  await testSolution(testAC, 'Ashoat', '[A] and [C]');
 
   const testAD = introduceThreadRolePermissionsStore(withoutOldSidebars);
-  testSolution(testAD, 'Ashoat', '[A] and [D]');
+  await testSolution(testAD, 'Ashoat', '[A] and [D]');
 
   const testBC = introduceIsAdminRole(improvedEncoding);
-  testSolution(testBC, 'Ashoat', '[B] and [C]');
+  await testSolution(testBC, 'Ashoat', '[B] and [C]');
 
   const testBD = introduceThreadRolePermissionsStore(improvedEncoding);
-  testSolution(testBD, 'Ashoat', '[B] and [D]');
+  await testSolution(testBD, 'Ashoat', '[B] and [D]');
 
   const testCD = introduceThreadRolePermissionsStore(afterIsAdminRole);
-  testSolution(testCD, 'Ashoat', '[C] and [D]');
+  await testSolution(testCD, 'Ashoat', '[C] and [D]');
 
   const testABC = introduceIsAdminRole(testAB);
-  testSolution(testABC, 'Ashoat', '[A], [B], and [C]');
+  await testSolution(testABC, 'Ashoat', '[A], [B], and [C]');
 
   const testABD = introduceThreadRolePermissionsStore(testAB);
-  testSolution(testABD, 'Ashoat', '[A], [B], and [D]');
+  await testSolution(testABD, 'Ashoat', '[A], [B], and [D]');
 
   const testACD = introduceThreadRolePermissionsStore(testAC);
-  testSolution(testACD, 'Ashoat', '[A], [C], and [D]');
+  await testSolution(testACD, 'Ashoat', '[A], [C], and [D]');
 
   const testBCD = introduceThreadRolePermissionsStore(testBC);
-  testSolution(testBCD, 'Ashoat', '[B], [C], and [D]');
+  await testSolution(testBCD, 'Ashoat', '[B], [C], and [D]');
 
   const testABCD = introduceThreadRolePermissionsStore(testABC);
-  testSolution(testABCD, 'Ashoat', '[A], [B], [C], and [D]');
+  await testSolution(testABCD, 'Ashoat', '[A], [B], [C], and [D]');
 }
 
-function testSolution(blob: mixed, person: string, descriptor: string) {
+async function testSolution(blob: mixed, person: string, descriptor: string) {
   const stringified = JSON.stringify(blob);
+  invariant(stringified, 'stringified result should be truthy');
   const numBytes = new Blob([stringified]).size;
+  const compressed = await compressMessage(stringified);
+  invariant(compressed.compressed, 'should be compressed');
+  const compressedBytes = new Blob([compressed.result.data]).size;
   console.log(
-    `after ${descriptor}, ${person}'s ThreadStore is ${numBytes} bytes large`,
+    `after ${descriptor}, ${person}'s ThreadStore is ${numBytes} bytes ` +
+      `large (${compressedBytes} bytes compressed)`,
   );
 }
 
