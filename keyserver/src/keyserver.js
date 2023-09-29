@@ -4,6 +4,7 @@ import olm from '@commapp/olm';
 import cluster from 'cluster';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import crypto from 'crypto';
 import express from 'express';
 import expressWs from 'express-ws';
@@ -46,12 +47,18 @@ import {
   getSquadCalURLFacts,
   getLandingURLFacts,
   getCommAppURLFacts,
+  getWebAppCorsConfig,
 } from './utils/urls.js';
 
 const shouldDisplayQRCodeInTerminal = false;
 
 (async () => {
-  await Promise.all([olm.init(), prefetchAllURLFacts(), initENSCache()]);
+  const [webAppCorsConfig] = await Promise.all([
+    getWebAppCorsConfig(),
+    olm.init(),
+    prefetchAllURLFacts(),
+    initENSCache(),
+  ]);
 
   const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
   const landingBaseRoutePath = getLandingURLFacts()?.baseRoutePath;
@@ -61,6 +68,14 @@ const shouldDisplayQRCodeInTerminal = false;
     process.env.NODE_ENV === 'development'
       ? undefined
       : { maxAge: '1y', immutable: true };
+
+  let corsOptions = null;
+  if (webAppCorsConfig) {
+    corsOptions = {
+      origin: webAppCorsConfig.domain,
+      methods: ['GET', 'POST'],
+    };
+  }
 
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
   const areEndpointMetricsEnabled =
@@ -226,6 +241,9 @@ const shouldDisplayQRCodeInTerminal = false;
 
     if (squadCalBaseRoutePath) {
       const squadCalRouter = express.Router();
+      if (corsOptions) {
+        squadCalRouter.use(cors(corsOptions));
+      }
       setupAppRouter(squadCalRouter);
       server.use(squadCalBaseRoutePath, squadCalRouter);
     }

@@ -14,6 +14,7 @@ COMM_DATABASE_PASSWORD=<MariaDB password>
 COMM_JSONCONFIG_secrets_user_credentials='{"username":"<user>","password":"<password>"}'
 COMM_JSONCONFIG_facts_landing_url='{"baseDomain":"http://localhost","basePath":"/commlanding/","baseRoutePath":"/commlanding/","https":false}'
 COMM_JSONCONFIG_facts_commapp_url='{"baseDomain":"http://localhost:3000","basePath":"/comm/","https":false,"baseRoutePath":"/comm/","proxy":"none"}'
+COMM_JSONCONFIG_facts_webapp_cors='{"domain": "http://localhost:3000"}'
 
 # Required to connect to production Identity service
 COMM_JSONCONFIG_secrets_identity_service_config="{\"identitySocketAddr\":\"https://identity.commtechnologies.org:50054\"}"
@@ -50,6 +51,11 @@ COMM_JSONCONFIG_facts_backups='{"enabled":true,"directory":"/home/comm/backups",
   - `baseRoutePath`: Internally-facing path. Same as basePath if no proxy. If there’s a proxy, this is the local path (e.g. http://localhost:3000/landing would correspond with /landing/)
   - `proxy`: `"none" | "apache"` Determines which request headers to use for HTTPS validation and IP address timezone detection.
   - `https`: If true, checks request headers to validate that HTTPS is in use.
+
+### CORS configuration
+
+- `COMM_JSONCONFIG_facts_webapp_cors`: Your keyserver needs to be able to include CORS headers with the domain where the comm web application is hosted.
+  - `domain`: Domain where the web application is hosted.
 
 ### Backup configuration
 
