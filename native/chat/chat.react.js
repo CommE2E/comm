@@ -25,10 +25,7 @@ import { useSelector } from 'react-redux';
 
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import {
-  threadIsPending,
-  threadMembersWithoutAddedAshoat,
-} from 'lib/shared/thread-utils.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
 import ChatHeader from './chat-header.react.js';
@@ -219,8 +216,7 @@ const headerRightStyle = { flexDirection: 'row' };
 
 const messageListOptions = ({ navigation, route }) => {
   const isSearchEmpty =
-    !!route.params.searching &&
-    threadMembersWithoutAddedAshoat(route.params.threadInfo).length === 1;
+    !!route.params.searching && route.params.threadInfo.length === 1;
 
   const areSettingsEnabled =
     !threadIsPending(route.params.threadInfo.id) && !isSearchEmpty;
