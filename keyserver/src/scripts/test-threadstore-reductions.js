@@ -35,35 +35,27 @@ async function testThreadStoreReductions() {
   );
 
   const withoutOldSidebars = filterOutOldSidebars(threadInfos, rawMessageInfos);
-  const withoutOldSidebarsString = JSON.stringify(withoutOldSidebars);
-  const withoutOldSidebarsBytes = new Blob([withoutOldSidebarsString]).size;
-  console.log(
-    "after filtering out old sidebars, Ashoat's ThreadStore is " +
-      `${withoutOldSidebarsBytes} bytes large`,
-  );
+  testSolution(withoutOldSidebars, 'Ashoat', 'filtering out old sidebars');
 
   const improvedEncoding = improveEncoding(threadInfos);
-  const improvedEncodingString = JSON.stringify(improvedEncoding);
-  const improvedEncodingBytes = new Blob([improvedEncodingString]).size;
-  console.log(
-    "after improving encoding, Ashoat's ThreadStore is " +
-      `${improvedEncodingBytes} bytes large`,
-  );
+  testSolution(improvedEncoding, 'Ashoat', 'improving encoding');
 
   const afterIsAdminRole = introduceIsAdminRole(threadInfos);
-  const afterIsAdminRoleString = JSON.stringify(afterIsAdminRole);
-  const afterIsAdminRoleBytes = new Blob([afterIsAdminRoleString]).size;
-  console.log(
-    "after introducing isAdminRole, Ashoat's ThreadStore is " +
-      `${afterIsAdminRoleBytes} bytes large`,
-  );
+  testSolution(afterIsAdminRole, 'Ashoat', 'introducing isAdminRole');
 
   const afterRoleStore = introduceThreadRolePermissionsStore(threadInfos);
-  const afterRoleStoreString = JSON.stringify(afterRoleStore);
-  const afterRoleStoreBytes = new Blob([afterRoleStoreString]).size;
+  testSolution(
+    afterRoleStore,
+    'Ashoat',
+    'introducing ThreadRolePermissionsStore',
+  );
+}
+
+function testSolution(blob: mixed, person: string, descriptor: string) {
+  const stringified = JSON.stringify(blob);
+  const numBytes = new Blob([stringified]).size;
   console.log(
-    "after introducing ThreadRolePermissionsStore, Ashoat's ThreadStore is " +
-      `${afterRoleStoreBytes} bytes large`,
+    `after ${descriptor}, ${person}'s ThreadStore is ${numBytes} bytes large`,
   );
 }
 
