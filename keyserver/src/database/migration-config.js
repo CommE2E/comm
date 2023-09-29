@@ -578,6 +578,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       }
     },
   ],
+  [
+    47,
+    async () => {
+      if (process.env.COMM_DATABASE_HOST) {
+        return;
+      }
+      const defaultCorsConfig = {
+        domain: 'http://localhost:3000',
+      };
+      writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
