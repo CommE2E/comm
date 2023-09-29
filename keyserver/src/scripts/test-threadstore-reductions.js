@@ -11,6 +11,7 @@ import type {
 } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { RawThreadInfos } from 'lib/types/thread-types.js';
+import { hash } from 'lib/utils/objects.js';
 
 import { main } from './utils.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
@@ -55,6 +56,14 @@ async function testThreadStoreReductions() {
   console.log(
     "after introducing isAdminRole, Ashoat's ThreadStore is " +
       `${afterIsAdminRoleBytes} bytes large`,
+  );
+
+  const afterRoleStore = introduceThreadRolePermissionsStore(threadInfos);
+  const afterRoleStoreString = JSON.stringify(afterRoleStore);
+  const afterRoleStoreBytes = new Blob([afterRoleStoreString]).size;
+  console.log(
+    "after introducing ThreadRolePermissionsStore, Ashoat's ThreadStore is " +
+      `${afterRoleStoreBytes} bytes large`,
   );
 }
 
@@ -239,6 +248,40 @@ function introduceIsAdminRole(threadInfos: RawThreadInfos) {
     newThreadStore[threadID] = newThreadInfo;
   }
   return newThreadStore;
+}
+
+function introduceThreadRolePermissionsStore(threadInfos: RawThreadInfos) {
+  const newThreadStore = {};
+  const threadRolePermissionsStore = {};
+  for (const threadID in threadInfos) {
+    const threadInfo = threadInfos[threadID];
+    const newRoles = {};
+    for (const roleID in threadInfo.roles) {
+      const role = threadInfo.roles[roleID];
+      const rolePermissionsHash = hash(role.permissions);
+      threadRolePermissionsStore[rolePermissionsHash] = role.permissions;
+      newRoles[roleID] = {
+        ...role,
+        permissions: rolePermissionsHash,
+      };
+    }
+    const { permissions: currentUserPermissions, ...restCurrentUser } =
+      threadInfo.currentUser;
+    const newThreadInfo = {
+      ...threadInfo,
+      currentUser: restCurrentUser,
+      roles: newRoles,
+      members: threadInfo.members.map(member => {
+        const { permissions, ...rest } = member;
+        return rest;
+      }),
+    };
+    newThreadStore[threadID] = newThreadInfo;
+  }
+  return {
+    threadInfos: newThreadStore,
+    rolePermissions: threadRolePermissionsStore,
+  };
 }
 
 main([testThreadStoreReductions]);
