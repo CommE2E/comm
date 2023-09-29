@@ -21,6 +21,7 @@
     "test": "jest"
   },
   "devDependencies": {
+    "0x": "^5.7.0",
     "@babel/cli": "^7.13.14",
     "@babel/core": "^7.13.14",
     "@babel/node": "^7.13.13",
@@ -41,8 +42,7 @@
     "flow-typed": "^3.2.1",
     "internal-ip": "4.3.0",
     "jest": "^26.6.3",
-    "nodemon": "^2.0.4",
-    "0x": "^5.7.0"
+    "nodemon": "^2.0.4"
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
@@ -54,6 +54,7 @@
     "common-tags": "^1.7.2",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.3",
+    "cors": "^2.8.5",
     "dateformat": "^3.0.3",
     "detect-browser": "^4.0.4",
     "ethers": "^5.7.2",

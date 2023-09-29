@@ -615,6 +615,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       await dbQuery(query);
     },
   ],
+  [
+    49,
+    async () => {
+      if (isDockerEnvironment()) {
+        return;
+      }
+      const defaultCorsConfig = {
+        domain: 'http://localhost:3000',
+      };
+      writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
@@ -680,7 +692,7 @@ async function moveToNonApacheConfig(
   filePath: string,
   routePath: string,
 ): Promise<void> {
-  if (process.env.COMM_DATABASE_HOST) {
+  if (isDockerEnvironment()) {
     return;
   }
   // Since the non-Apache config is so opinionated, just write expected config
@@ -696,7 +708,7 @@ async function moveToNonApacheConfig(
 }
 
 async function writeSquadCalRoute(filePath: string): Promise<void> {
-  if (process.env.COMM_DATABASE_HOST) {
+  if (isDockerEnvironment()) {
     return;
   }
   // Since the non-Apache config is so opinionated, just write expected config
@@ -734,6 +746,10 @@ async function createOlmAccounts() {
       );
     `,
   );
+}
+
+function isDockerEnvironment(): boolean {
+  return !!process.env.COMM_DATABASE_HOST;
 }
 
 export { migrations, newDatabaseVersion, createOlmAccounts };
