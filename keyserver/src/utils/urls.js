@@ -84,6 +84,15 @@ function getAndAssertLandingURLFacts(): AppURLFacts {
   return urlFacts;
 }
 
+export type WebAppCorsConfig = { +domain: string };
+async function getWebAppCorsConfig(): Promise<?WebAppCorsConfig> {
+  const config = await getCommConfig<WebAppCorsConfig>({
+    folder: 'facts',
+    name: 'webapp_cors',
+  });
+  return config;
+}
+
 export {
   prefetchAllURLFacts,
   getSquadCalURLFacts,
@@ -92,4 +101,5 @@ export {
   getLandingURLFacts,
   getAndAssertLandingURLFacts,
   getAppURLFactsFromRequestURL,
+  getWebAppCorsConfig,
 };
