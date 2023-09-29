@@ -78,6 +78,12 @@ interface Spec extends TurboModule {
     prekeySignature: string,
     oneTimeKeys: string,
   ) => Promise<string>;
+  +initializeContentSession: (
+    identityKeys: string,
+    prekey: string,
+    prekeySignature: string,
+    oneTimeKeys: string,
+  ) => Promise<string>;
   +isNotificationsSessionInitialized: () => Promise<boolean>;
   +getCodeVersion: () => number;
   +terminate: () => void;

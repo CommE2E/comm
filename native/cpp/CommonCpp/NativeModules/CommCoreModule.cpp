@@ -650,6 +650,51 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
       });
 }
 
+jsi::Value CommCoreModule::initializeContentSession(
+    jsi::Runtime &rt,
+    jsi::String identityKeys,
+    jsi::String prekey,
+    jsi::String prekeySignature,
+    jsi::String oneTimeKeys) {
+  auto identityKeysCpp{identityKeys.utf8(rt)};
+  auto prekeyCpp{prekey.utf8(rt)};
+  auto prekeySignatureCpp{prekeySignature.utf8(rt)};
+  auto oneTimeKeysCpp{oneTimeKeys.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          crypto::EncryptedData result;
+          try {
+            this->cryptoModule->initializeOutboundForSendingSession(
+                this->keyserverHostedContentID,
+                std::vector<uint8_t>(
+                    identityKeysCpp.begin(), identityKeysCpp.end()),
+                std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
+                std::vector<uint8_t>(
+                    prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
+                std::vector<uint8_t>(
+                    oneTimeKeysCpp.begin(), oneTimeKeysCpp.end()));
+            result = this->cryptoModule->encrypt(
+                this->keyserverHostedContentID,
+                this->initialEncryptedMessageContent);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::String::createFromUtf8(
+                innerRt,
+                std::string{result.message.begin(), result.message.end()}));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
