@@ -17,14 +17,21 @@ import { main } from './utils.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import { createScriptViewer } from '../session/scripts.js';
+import type { Viewer } from '../session/viewer.js';
 import { compressMessage } from '../utils/compress.js';
 
-const viewer = createScriptViewer(ashoat.id);
+const ashoatViewer = createScriptViewer(ashoat.id);
+const atulViewer = createScriptViewer('518252');
 
 const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 const messageSelectionCriteria = { joinedThreads: true, newerThan: oneWeekAgo };
 
 async function testThreadStoreReductions() {
+  await testUserThreadStoreReductions(ashoatViewer, 'Ashoat');
+  await testUserThreadStoreReductions(atulViewer, 'Atul');
+}
+
+async function testUserThreadStoreReductions(viewer: Viewer, name: string) {
   const [{ threadInfos }, { rawMessageInfos }] = await Promise.all([
     fetchThreadInfos(viewer),
     fetchMessageInfos(viewer, messageSelectionCriteria, 1),
@@ -35,62 +42,62 @@ async function testThreadStoreReductions() {
   invariant(beforeCompressed.compressed, 'should be compressed');
   const beforeCompressedBytes = new Blob([beforeCompressed.result.data]).size;
   console.log(
-    `before reductions, Ashoat's ThreadStore is ${beforeBytes} bytes large ` +
+    `before reductions, ${name}'s ThreadStore is ${beforeBytes} bytes large ` +
       `(${beforeCompressedBytes} bytes compressed)`,
   );
 
   const withoutOldSidebars = filterOutOldSidebars(threadInfos, rawMessageInfos);
   await testSolution(
     withoutOldSidebars,
-    'Ashoat',
+    name,
     '[A] filtering out old sidebars',
   );
 
   const improvedEncoding = improveEncoding(threadInfos);
-  await testSolution(improvedEncoding, 'Ashoat', '[B] improving encoding');
+  await testSolution(improvedEncoding, name, '[B] improving encoding');
 
   const afterIsAdminRole = introduceIsAdminRole(threadInfos);
-  await testSolution(afterIsAdminRole, 'Ashoat', '[C] introducing isAdminRole');
+  await testSolution(afterIsAdminRole, name, '[C] introducing isAdminRole');
 
   const afterRoleStore = introduceThreadRolePermissionsStore(threadInfos);
   await testSolution(
     afterRoleStore,
-    'Ashoat',
+    name,
     '[D] introducing ThreadRolePermissionsStore',
   );
 
   const testAB = improveEncoding(withoutOldSidebars);
-  await testSolution(testAB, 'Ashoat', '[A] and [B]');
+  await testSolution(testAB, name, '[A] and [B]');
 
   const testAC = introduceIsAdminRole(withoutOldSidebars);
-  await testSolution(testAC, 'Ashoat', '[A] and [C]');
+  await testSolution(testAC, name, '[A] and [C]');
 
   const testAD = introduceThreadRolePermissionsStore(withoutOldSidebars);
-  await testSolution(testAD, 'Ashoat', '[A] and [D]');
+  await testSolution(testAD, name, '[A] and [D]');
 
   const testBC = introduceIsAdminRole(improvedEncoding);
-  await testSolution(testBC, 'Ashoat', '[B] and [C]');
+  await testSolution(testBC, name, '[B] and [C]');
 
   const testBD = introduceThreadRolePermissionsStore(improvedEncoding);
-  await testSolution(testBD, 'Ashoat', '[B] and [D]');
+  await testSolution(testBD, name, '[B] and [D]');
 
   const testCD = introduceThreadRolePermissionsStore(afterIsAdminRole);
-  await testSolution(testCD, 'Ashoat', '[C] and [D]');
+  await testSolution(testCD, name, '[C] and [D]');
 
   const testABC = introduceIsAdminRole(testAB);
-  await testSolution(testABC, 'Ashoat', '[A], [B], and [C]');
+  await testSolution(testABC, name, '[A], [B], and [C]');
 
   const testABD = introduceThreadRolePermissionsStore(testAB);
-  await testSolution(testABD, 'Ashoat', '[A], [B], and [D]');
+  await testSolution(testABD, name, '[A], [B], and [D]');
 
   const testACD = introduceThreadRolePermissionsStore(testAC);
-  await testSolution(testACD, 'Ashoat', '[A], [C], and [D]');
+  await testSolution(testACD, name, '[A], [C], and [D]');
 
   const testBCD = introduceThreadRolePermissionsStore(testBC);
-  await testSolution(testBCD, 'Ashoat', '[B], [C], and [D]');
+  await testSolution(testBCD, name, '[B], [C], and [D]');
 
   const testABCD = introduceThreadRolePermissionsStore(testABC);
-  await testSolution(testABCD, 'Ashoat', '[A], [B], [C], and [D]');
+  await testSolution(testABCD, name, '[A], [B], [C], and [D]');
 }
 
 async function testSolution(blob: mixed, person: string, descriptor: string) {
