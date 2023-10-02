@@ -35,6 +35,7 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors.js';
 import type { NativeMethods } from '../types/react-native.js';
+import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import {
   clamp,
   gestureJustStarted,
@@ -138,8 +139,12 @@ type TouchableOpacityInstance = React.AbstractComponent<
 >;
 
 type BaseProps = {
-  +navigation: AppNavigationProp<'ImageModal'>,
-  +route: NavigationRoute<'ImageModal'>,
+  +navigation:
+    | AppNavigationProp<'ImageModal'>
+    | UserProfileBottomSheetNavigationProp<'UserProfileAvatarModal'>,
+  +route:
+    | NavigationRoute<'ImageModal'>
+    | NavigationRoute<'UserProfileAvatarModal'>,
   +children: React.Node,
   +contentDimensions: Dimensions,
   +saveContentCallback?: () => Promise<mixed>,
