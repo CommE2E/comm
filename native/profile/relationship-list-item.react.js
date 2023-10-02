@@ -226,6 +226,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
           verticalBounds,
           visibleEntryIDs: this.visibleEntryIDs(),
           relativeUserInfo,
+          tooltipButtonIcon: 'pencil',
         },
       });
     });
