@@ -127,18 +127,16 @@ type Props = {
   ...
 };
 
-class UserRelationshipTooltipButton extends React.PureComponent<Props> {
-  render() {
-    return (
-      <TouchableOpacity onPress={this.onPress}>
-        <PencilIcon />
-      </TouchableOpacity>
-    );
-  }
+function UserRelationshipTooltipButton(props: Props): React.Node {
+  const { navigation } = props;
 
-  onPress = () => {
-    this.props.navigation.goBackOnce();
-  };
+  const { goBackOnce } = navigation;
+
+  return (
+    <TouchableOpacity onPress={goBackOnce}>
+      <PencilIcon />
+    </TouchableOpacity>
+  );
 }
 
 const UserRelationshipTooltipModal: React.ComponentType<
