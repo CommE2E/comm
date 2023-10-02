@@ -15,18 +15,23 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import PencilIcon from '../components/pencil-icon.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
+import { useColors } from '../themes/colors.js';
 import {
   createTooltip,
   type TooltipParams,
   type BaseTooltipProps,
   type TooltipMenuProps,
+  type TooltipRoute,
 } from '../tooltip/tooltip.react.js';
 import Alert from '../utils/alert.js';
 
 type Action = 'unfriend' | 'block' | 'unblock';
+type TooltipButtonIcon = 'pencil' | 'menu';
 
 export type UserRelationshipTooltipModalParams = TooltipParams<{
+  +tooltipButtonIcon: TooltipButtonIcon,
   +relativeUserInfo: RelativeUserInfo,
 }>;
 
@@ -124,19 +129,32 @@ function TooltipMenu(
 
 type Props = {
   +navigation: AppNavigationProp<'UserRelationshipTooltipModal'>,
+  +route: TooltipRoute<'UserRelationshipTooltipModal'>,
   ...
 };
 
 function UserRelationshipTooltipButton(props: Props): React.Node {
-  const { navigation } = props;
+  const { navigation, route } = props;
 
   const { goBackOnce } = navigation;
+  const { tooltipButtonIcon } = route.params;
 
-  return (
-    <TouchableOpacity onPress={goBackOnce}>
-      <PencilIcon />
-    </TouchableOpacity>
-  );
+  const colors = useColors();
+
+  const icon = React.useMemo(() => {
+    if (tooltipButtonIcon === 'pencil') {
+      return <PencilIcon />;
+    }
+    return (
+      <SWMansionIcon
+        name="menu-vertical"
+        size={24}
+        color={colors.modalBackgroundLabel}
+      />
+    );
+  }, [colors.modalBackgroundLabel, tooltipButtonIcon]);
+
+  return <TouchableOpacity onPress={goBackOnce}>{icon}</TouchableOpacity>;
 }
 
 const UserRelationshipTooltipModal: React.ComponentType<
