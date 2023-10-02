@@ -46,6 +46,7 @@ import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react
 import type { CommunityRolesScreenParams } from '../roles/community-roles-screen.react.js';
 import type { CreateRolesScreenParams } from '../roles/create-roles-screen.react.js';
 import type { MessageSearchParams } from '../search/message-search.react.js';
+import type { UserProfileAvatarModalParams } from '../user-profile/user-profile-avatar-modal.react.js';
 import type { UserProfileBottomSheetParams } from '../user-profile/user-profile-bottom-sheet.react.js';
 
 export const ActionResultModalRouteName = 'ActionResultModal';
@@ -137,6 +138,7 @@ export const QRCodeScreenRouteName = 'QRCodeScreen';
 export const UserProfileBottomSheetNavigatorRouteName =
   'UserProfileBottomSheetNavigator';
 export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
+export const UserProfileAvatarModalRouteName = 'UserProfileAvatarModal';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -268,6 +270,7 @@ export type QRCodeSignInParamList = {
 
 export type UserProfileBottomSheetParamList = {
   +UserProfileBottomSheet: UserProfileBottomSheetParams,
+  +UserProfileAvatarModal: UserProfileAvatarModalParams,
 };
 
 export type ScreenParamList = {
