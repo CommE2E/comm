@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import UserProfileAvatarModal from './user-profile-avatar-modal.react.js';
 import UserProfileBottomSheet from './user-profile-bottom-sheet.react.js';
 import { createOverlayNavigator } from '../navigation/overlay-navigator.react.js';
 import type {
@@ -11,6 +12,7 @@ import type {
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import {
   UserProfileBottomSheetRouteName,
+  UserProfileAvatarModalRouteName,
   type ScreenParamList,
   type UserProfileBottomSheetParamList,
 } from '../navigation/route-names.js';
@@ -37,6 +39,10 @@ function UserProfileBottomSheetNavigator(props: Props): React.Node {
       <UserProfileBottomSheetOverlayNavigator.Screen
         name={UserProfileBottomSheetRouteName}
         component={UserProfileBottomSheet}
+      />
+      <UserProfileBottomSheetOverlayNavigator.Screen
+        name={UserProfileAvatarModalRouteName}
+        component={UserProfileAvatarModal}
       />
     </UserProfileBottomSheetOverlayNavigator.Navigator>
   );
