@@ -34,7 +34,7 @@ import {
   tPlatformDetails,
 } from 'lib/utils/validation-utils.js';
 
-import { createOlmSession } from '../creators/olm-session-creator.js';
+import { createAndStoreOlmSession } from '../creators/olm-session-creator.js';
 import { saveOneTimeKeys } from '../creators/one-time-keys-creator.js';
 import createReport from '../creators/report-creator.js';
 import { fetchEntriesForSession } from '../fetchers/entry-fetchers.js';
@@ -231,7 +231,7 @@ async function processClientResponses(
       );
       const { initialNotificationsEncryptedMessage } = clientResponse;
       try {
-        await createOlmSession(
+        await createAndStoreOlmSession(
           initialNotificationsEncryptedMessage,
           'notifications',
           viewer.cookieID,

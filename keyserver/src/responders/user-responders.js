@@ -101,7 +101,7 @@ import {
   createAccount,
   processSIWEAccountCreation,
 } from '../creators/account-creator.js';
-import { createOlmSession } from '../creators/olm-session-creator.js';
+import { createAndStoreOlmSession } from '../creators/olm-session-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteAccount } from '../deleters/account-deleters.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
@@ -363,7 +363,7 @@ async function processSuccessfulLogin(
       initialNotificationsEncryptedMessage &&
       signedIdentityKeysBlob
     ) {
-      await createOlmSession(
+      await createAndStoreOlmSession(
         initialNotificationsEncryptedMessage,
         'notifications',
         userViewerData.cookieID,

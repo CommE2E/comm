@@ -31,7 +31,7 @@ import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import createIDs from './id-creator.js';
 import createMessages from './message-creator.js';
-import { createOlmSession } from './olm-session-creator.js';
+import { createAndStoreOlmSession } from './olm-session-creator.js';
 import {
   createThread,
   createPrivateThread,
@@ -125,7 +125,7 @@ async function createAccount(
 
   const olmSessionPromise = (async () => {
     if (userViewerData.cookieID && initialNotificationsEncryptedMessage) {
-      await createOlmSession(
+      await createAndStoreOlmSession(
         initialNotificationsEncryptedMessage,
         'notifications',
         userViewerData.cookieID,
