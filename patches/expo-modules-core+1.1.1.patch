@@ -1,0 +1,21 @@
+diff --git a/node_modules/expo-modules-core/ios/EXDefines.h b/node_modules/expo-modules-core/ios/EXDefines.h
+index 33b4d72..91b639f 100644
+--- a/node_modules/expo-modules-core/ios/EXDefines.h
++++ b/node_modules/expo-modules-core/ios/EXDefines.h
+@@ -10,6 +10,8 @@
+ #define EX_EXTERN_C_END
+ #endif
+ 
++#import <Foundation/Foundation.h>
++
+ EX_EXTERN_C_BEGIN
+ 
+ #define EX_EXPORTED_METHODS_PREFIX __ex_export__
+@@ -79,7 +81,6 @@ if (var == nil) { return; }
+ #define EXNullIfNil(value) (value ?: [NSNull null])
+ 
+ #import <UIKit/UIKit.h>
+-#import <Foundation/Foundation.h>
+ 
+ typedef struct EXMethodInfo {
+   const char *const jsName;
