@@ -21,10 +21,12 @@ use argon2_tools::compute_backup_key;
 use crypto_tools::generate_device_id;
 use identity::identity_client_service_client::IdentityClientServiceClient;
 use identity::{
-  DeviceKeyUpload, DeviceType, IdentityKeyInfo, OpaqueLoginFinishRequest,
-  OpaqueLoginStartRequest, PreKey, RegistrationFinishRequest,
-  RegistrationStartRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, WalletLoginRequest,
+  outbound_keys_for_user_request::Identifier, DeviceKeyUpload, DeviceType,
+  IdentityKeyInfo, OpaqueLoginFinishRequest, OpaqueLoginStartRequest,
+  OutboundKeyInfo, OutboundKeysForUserRequest, PreKey,
+  RegistrationFinishRequest, RegistrationStartRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  WalletLoginRequest,
 };
 
 #[cfg(not(feature = "android"))]
@@ -111,6 +113,14 @@ mod ffi {
       device_id: String,
       access_token: String,
       password: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityGetOutboundKeysForUserDevice"]
+    fn get_outbound_keys_for_user_device(
+      identifier_type: String,
+      identifier_value: String,
+      device_id: String,
       promise_id: u32,
     );
 
@@ -518,7 +528,7 @@ async fn update_user_password_helper(
   };
   let mut identity_client =
     IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
-  let update_password_start_respone = identity_client
+  let update_password_start_response = identity_client
     .update_user_password_start(update_password_start_request)
     .await?
     .into_inner();
@@ -526,11 +536,11 @@ async fn update_user_password_helper(
   let opaque_registration_upload = client_registration
     .finish(
       &update_password_info.password,
-      &update_password_start_respone.opaque_registration_response,
+      &update_password_start_response.opaque_registration_response,
     )
     .map_err(handle_error)?;
   let update_password_finish_request = UpdateUserPasswordFinishRequest {
-    session_id: update_password_start_respone.session_id,
+    session_id: update_password_start_response.session_id,
     opaque_registration_upload,
   };
 
@@ -539,6 +549,118 @@ async fn update_user_password_helper(
     .await?;
 
   Ok(())
+}
+
+struct GetOutboundKeysRequestInfo {
+  identifier_type: String,
+  identifier_value: String,
+  device_id: String,
+}
+
+#[derive(Serialize)]
+struct OutboundKeyInfoResponse {
+  pub payload: String,
+  pub payload_signature: String,
+  pub social_proof: Option<String>,
+  pub content_prekey: String,
+  pub content_prekey_signature: String,
+  pub notif_prekey: String,
+  pub notif_prekey_signature: String,
+}
+
+impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
+  type Error = Error;
+
+  fn try_from(key_info: OutboundKeyInfo) -> Result<Self, Error> {
+    let identity_info =
+      key_info.identity_info.ok_or(Error::MissingResponseData)?;
+
+    let IdentityKeyInfo {
+      payload,
+      payload_signature,
+      social_proof,
+    } = identity_info;
+
+    let content_prekey =
+      key_info.content_prekey.ok_or(Error::MissingResponseData)?;
+
+    let PreKey {
+      pre_key: content_prekey_value,
+      pre_key_signature: content_prekey_signature,
+    } = content_prekey;
+
+    let notif_prekey =
+      key_info.notif_prekey.ok_or(Error::MissingResponseData)?;
+
+    let PreKey {
+      pre_key: notif_prekey_value,
+      pre_key_signature: notif_prekey_signature,
+    } = notif_prekey;
+
+    Ok(Self {
+      payload,
+      payload_signature,
+      social_proof,
+      content_prekey: content_prekey_value,
+      content_prekey_signature,
+      notif_prekey: notif_prekey_value,
+      notif_prekey_signature,
+    })
+  }
+}
+
+fn get_outbound_keys_for_user_device(
+  identifier_type: String,
+  identifier_value: String,
+  device_id: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let get_outbound_keys_request_info = GetOutboundKeysRequestInfo {
+      identifier_type,
+      identifier_value,
+      device_id,
+    };
+    let result =
+      get_outbound_keys_for_user_device_helper(get_outbound_keys_request_info)
+        .await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn get_outbound_keys_for_user_device_helper(
+  get_outbound_keys_request_info: GetOutboundKeysRequestInfo,
+) -> Result<String, Error> {
+  let identifier = match get_outbound_keys_request_info.identifier_type.as_str()
+  {
+    "walletAddress" => Some(Identifier::WalletAddress(
+      get_outbound_keys_request_info.identifier_value,
+    )),
+    "username" => Some(Identifier::Username(
+      get_outbound_keys_request_info.identifier_value,
+    )),
+    _ => {
+      return Err(Error::TonicGRPC(tonic::Status::invalid_argument(
+        "invalid identifier",
+      )))
+    }
+  };
+
+  let mut identity_client =
+    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let mut response = identity_client
+    .get_outbound_keys_for_user(OutboundKeysForUserRequest { identifier })
+    .await?
+    .into_inner();
+
+  let outbound_key_info = OutboundKeyInfoResponse::try_from(
+    response
+      .devices
+      .remove(&get_outbound_keys_request_info.device_id)
+      .ok_or(Error::MissingResponseData)?,
+  )?;
+
+  Ok(serde_json::to_string(&outbound_key_info)?)
 }
 
 #[derive(
@@ -551,4 +673,6 @@ pub enum Error {
   TonicTransport(tonic::transport::Error),
   #[display(...)]
   SerdeJson(serde_json::Error),
+  #[display(...)]
+  MissingResponseData,
 }
