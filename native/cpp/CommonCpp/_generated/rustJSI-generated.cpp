@@ -27,6 +27,9 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_loginWalletUser(
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->updatePassword(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
 }
+static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_getOutboundKeysForUserDevice(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->getOutboundKeysForUserDevice(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
+}
 
 CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommRustTurboModule", jsInvoker) {
@@ -35,6 +38,7 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["loginPasswordUser"] = MethodMetadata {10, __hostFunction_CommRustModuleSchemaCxxSpecJSI_loginPasswordUser};
   methodMap_["loginWalletUser"] = MethodMetadata {11, __hostFunction_CommRustModuleSchemaCxxSpecJSI_loginWalletUser};
   methodMap_["updatePassword"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword};
+  methodMap_["getOutboundKeysForUserDevice"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getOutboundKeysForUserDevice};
 }
 
 
