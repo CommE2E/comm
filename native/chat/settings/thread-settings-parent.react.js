@@ -26,7 +26,7 @@ function ParentButton(props: ParentButtonProps): React.Node {
   return (
     <Button onPress={onPressParentThread} style={styles.parentContainer}>
       <View style={styles.avatarContainer}>
-        <ThreadAvatar size="small" threadInfo={props.parentThreadInfo} />
+        <ThreadAvatar size="S" threadInfo={props.parentThreadInfo} />
       </View>
       <ThreadPill threadInfo={props.parentThreadInfo} />
     </Button>

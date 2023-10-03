@@ -47,7 +47,7 @@ class UserListUser extends React.PureComponent<Props> {
         iosActiveOpacity={0.85}
         style={this.props.styles.button}
       >
-        <UserAvatar size="small" userID={this.props.userInfo.id} />
+        <UserAvatar size="S" userID={this.props.userInfo.id} />
         <SingleLine style={[this.props.styles.text, this.props.textStyle]}>
           {this.props.userInfo.username}
         </SingleLine>
