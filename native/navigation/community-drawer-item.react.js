@@ -86,7 +86,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           onLongPress={onExpandToggled}
         >
           <View style={styles.avatarContainer}>
-            <ThreadAvatar size="micro" threadInfo={threadInfo} />
+            <ThreadAvatar size="XS" threadInfo={threadInfo} />
           </View>
           <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>

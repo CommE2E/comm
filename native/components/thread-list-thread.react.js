@@ -38,7 +38,7 @@ class ThreadListThread extends React.PureComponent<Props> {
         iosActiveOpacity={0.85}
         style={[this.props.styles.button, this.props.style]}
       >
-        <ThreadAvatar size="small" threadInfo={this.props.threadInfo} />
+        <ThreadAvatar size="S" threadInfo={this.props.threadInfo} />
         <SingleLine style={[this.props.styles.text, this.props.textStyle]}>
           {this.props.threadInfo.uiName}
         </SingleLine>

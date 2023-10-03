@@ -168,7 +168,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
     return (
       <View style={this.props.styles.container}>
         <View style={[this.props.styles.innerContainer, borderBottom]}>
-          <UserAvatar size="small" userID={this.props.userInfo.id} />
+          <UserAvatar size="S" userID={this.props.userInfo.id} />
           <SingleLine style={this.props.styles.username}>
             {this.props.userInfo.username}
           </SingleLine>

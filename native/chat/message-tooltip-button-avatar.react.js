@@ -19,7 +19,7 @@ function MessageTooltipButtonAvatar(props: Props): React.Node {
   }
   return (
     <View style={styles.avatarContainer}>
-      <UserAvatar size="small" userID={item.messageInfo.creator.id} />
+      <UserAvatar size="S" userID={item.messageInfo.creator.id} />
     </View>
   );
 }

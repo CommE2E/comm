@@ -24,16 +24,13 @@ function MentionTypeaheadTooltipButton(props: Props): React.Node {
   let typeaheadTooltipButtonText = null;
   if (item.actionButtonContent.type === 'user') {
     avatarComponent = (
-      <UserAvatar size="small" userID={item.actionButtonContent.userInfo.id} />
+      <UserAvatar size="S" userID={item.actionButtonContent.userInfo.id} />
     );
     typeaheadTooltipButtonText = item.actionButtonContent.userInfo.username;
   } else if (item.actionButtonContent.type === 'chat') {
     typeaheadTooltipButtonText = item.actionButtonContent.threadInfo.uiName;
     avatarComponent = (
-      <ThreadAvatar
-        size="small"
-        threadInfo={item.actionButtonContent.threadInfo}
-      />
+      <ThreadAvatar size="S" threadInfo={item.actionButtonContent.threadInfo} />
     );
   }
 
