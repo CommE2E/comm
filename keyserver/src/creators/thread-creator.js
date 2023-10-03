@@ -9,10 +9,10 @@ import {
   generatePendingThreadColor,
   generateRandomColor,
 } from 'lib/shared/color-utils.js';
-import { isInvalidSidebarSource } from 'lib/shared/message-utils.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import { isInvalidSidebarSource } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   threadTypes,
