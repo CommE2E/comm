@@ -50,6 +50,11 @@ export interface Spec extends TurboModule {
     accessToken: string,
     password: string,
   ) => Promise<void>;
+  +getOutboundKeysForUserDevice: (
+    identifierType: string,
+    identifierValue: string,
+    deviceID: string,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

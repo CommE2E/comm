@@ -199,4 +199,28 @@ jsi::Value CommRustModule::updatePassword(
       });
 }
 
+jsi::Value CommRustModule::getOutboundKeysForUserDevice(
+    jsi::Runtime &rt,
+    jsi::String identifierType,
+    jsi::String identifierValue,
+    jsi::String deviceID) {
+  return createPromiseAsJSIValue(
+      rt,
+      [this, &identifierType, &identifierValue, &deviceID](
+          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityGetOutboundKeysForUserDevice(
+              jsiStringToRustString(identifierType, innerRt),
+              jsiStringToRustString(identifierValue, innerRt),
+              jsiStringToRustString(deviceID, innerRt),
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
+}
+
 } // namespace comm
