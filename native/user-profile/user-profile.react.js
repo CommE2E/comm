@@ -12,6 +12,12 @@ import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
+import {
+  userProfileUserInfoContainerHeight,
+  userProfileBottomPadding,
+  userProfileMenuButtonHeight,
+  userProfileActionButtonHeight,
+} from './user-profile-constants.js';
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import UserProfileRelationshipButton from './user-profile-relationship-button.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
@@ -46,22 +52,22 @@ function UserProfile(props: Props): React.Node {
   const insets = useSafeAreaInsets();
 
   React.useLayoutEffect(() => {
-    const userInfoContainerHeight = 90;
-    const bottomPadding = 40;
-
-    let height = insets.bottom + userInfoContainerHeight + bottomPadding;
+    let height =
+      insets.bottom +
+      userProfileUserInfoContainerHeight +
+      userProfileBottomPadding;
 
     if (userProfileThreadInfo) {
-      const menuButtonHeight = 24;
-      height += menuButtonHeight;
+      height += userProfileMenuButtonHeight;
     }
 
     if (
       userProfileThreadInfo &&
       !relationshipBlockedInEitherDirection(userInfo?.relationshipStatus)
     ) {
-      const messageButtonHeight = 54;
-      height += messageButtonHeight + userProfileRelationshipButtonHeight;
+      // message button height + relationship button height
+      height +=
+        userProfileActionButtonHeight + userProfileRelationshipButtonHeight;
     }
 
     setContentHeight(height);
