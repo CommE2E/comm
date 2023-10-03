@@ -41,7 +41,7 @@ function MessageReactionsModal(props: Props): React.Node {
     ({ item }) => (
       <View key={item.id} style={styles.reactionsListRowContainer}>
         <View style={styles.reactionsListUserInfoContainer}>
-          <UserAvatar size="small" userID={item.id} />
+          <UserAvatar size="S" userID={item.id} />
           <Text style={styles.reactionsListUsernameText}>{item.username}</Text>
         </View>
         <Text style={styles.reactionsListReactionText}>{item.reaction}</Text>

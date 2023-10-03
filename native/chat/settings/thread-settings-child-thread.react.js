@@ -35,7 +35,7 @@ function ThreadSettingsChildThread(props: Props): React.Node {
       <Button onPress={onPress} style={[styles.button, firstItem, lastItem]}>
         <View style={styles.leftSide}>
           <View style={styles.avatarContainer}>
-            <ThreadAvatar size="small" threadInfo={threadInfo} />
+            <ThreadAvatar size="S" threadInfo={threadInfo} />
           </View>
           <ThreadPill threadInfo={threadInfo} />
         </View>

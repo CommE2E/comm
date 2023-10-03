@@ -45,7 +45,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
     if (!isSearchEmpty) {
       avatar = (
         <View style={styles.avatarContainer}>
-          <ThreadAvatar size="small" threadInfo={threadInfo} />
+          <ThreadAvatar size="S" threadInfo={threadInfo} />
         </View>
       );
     }

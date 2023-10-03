@@ -127,9 +127,9 @@ function EditUserAvatar(props: Props): React.Node {
 
   const { userID } = props;
   const userAvatar = userID ? (
-    <UserAvatar userID={userID} size="profileLarge" />
+    <UserAvatar userID={userID} size="XL" />
   ) : (
-    <UserAvatar userInfo={userInfo} size="profileLarge" />
+    <UserAvatar userInfo={userInfo} size="XL" />
   );
 
   const { disabled } = props;

@@ -7,12 +7,7 @@ import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
 
 import Multimedia from '../media/multimedia.react.js';
 
-export type AvatarSize =
-  | 'micro'
-  | 'small'
-  | 'large'
-  | 'profile'
-  | 'profileLarge';
+export type AvatarSize = 'XS' | 'S' | 'M' | 'L' | 'XL';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
@@ -23,16 +18,16 @@ function Avatar(props: Props): React.Node {
   const { avatarInfo, size } = props;
 
   const containerSizeStyle = React.useMemo(() => {
-    if (size === 'micro') {
-      return styles.micro;
-    } else if (size === 'small') {
+    if (size === 'XS') {
+      return styles.xSmall;
+    } else if (size === 'S') {
       return styles.small;
-    } else if (size === 'large') {
+    } else if (size === 'M') {
+      return styles.medium;
+    } else if (size === 'L') {
       return styles.large;
-    } else if (size === 'profile') {
-      return styles.profile;
     }
-    return styles.profileLarge;
+    return styles.xLarge;
   }, [size]);
 
   const emojiContainerStyle = React.useMemo(() => {
@@ -46,16 +41,16 @@ function Avatar(props: Props): React.Node {
   }, [avatarInfo, containerSizeStyle]);
 
   const emojiSizeStyle = React.useMemo(() => {
-    if (size === 'micro') {
-      return styles.emojiMicro;
-    } else if (size === 'small') {
+    if (size === 'XS') {
+      return styles.emojiXSmall;
+    } else if (size === 'S') {
       return styles.emojiSmall;
-    } else if (size === 'large') {
+    } else if (size === 'M') {
+      return styles.emojiMedium;
+    } else if (size === 'L') {
       return styles.emojiLarge;
-    } else if (size === 'profile') {
-      return styles.emojiProfile;
     }
-    return styles.emojiProfileLarge;
+    return styles.emojiXLarge;
   }, [size]);
 
   const avatar = React.useMemo(() => {
@@ -95,52 +90,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emojiLarge: {
-    fontSize: 28,
-    textAlign: 'center',
-  },
-  emojiMicro: {
-    fontSize: 9,
-    textAlign: 'center',
-  },
-  emojiProfile: {
     fontSize: 64,
     textAlign: 'center',
   },
-  emojiProfileLarge: {
-    fontSize: 80,
+  emojiMedium: {
+    fontSize: 28,
     textAlign: 'center',
   },
   emojiSmall: {
     fontSize: 14,
     textAlign: 'center',
   },
+  emojiXLarge: {
+    fontSize: 80,
+    textAlign: 'center',
+  },
+  emojiXSmall: {
+    fontSize: 9,
+    textAlign: 'center',
+  },
   imageContainer: {
     overflow: 'hidden',
   },
   large: {
-    borderRadius: 20,
-    height: 40,
-    width: 40,
-  },
-  micro: {
-    borderRadius: 8,
-    height: 16,
-    width: 16,
-  },
-  profile: {
     borderRadius: 45,
     height: 90,
     width: 90,
   },
-  profileLarge: {
-    borderRadius: 56,
-    height: 112,
-    width: 112,
+  medium: {
+    borderRadius: 20,
+    height: 40,
+    width: 40,
   },
   small: {
     borderRadius: 12,
     height: 24,
     width: 24,
+  },
+  xLarge: {
+    borderRadius: 56,
+    height: 112,
+    width: 112,
+  },
+  xSmall: {
+    borderRadius: 8,
+    height: 16,
+    width: 16,
   },
 });
 
