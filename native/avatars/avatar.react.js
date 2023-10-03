@@ -3,11 +3,12 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
+import type {
+  ResolvedClientAvatar,
+  AvatarSize,
+} from 'lib/types/avatar-types.js';
 
 import Multimedia from '../media/multimedia.react.js';
-
-export type AvatarSize = 'XS' | 'S' | 'M' | 'L' | 'XL';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
