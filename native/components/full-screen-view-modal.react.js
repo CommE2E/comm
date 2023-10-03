@@ -22,9 +22,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type Dimensions } from 'lib/types/media-types.js';
 
-import SWMansionIcon from './swmansion-icon.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
-import Multimedia from '../media/multimedia.react.js';
 import {
   useIntentionalSaveMedia,
   type IntentionalSaveMedia,
@@ -147,6 +146,7 @@ type TouchableOpacityInstance = React.AbstractComponent<
 type BaseProps = {
   +navigation: AppNavigationProp<'ImageModal'>,
   +route: NavigationRoute<'ImageModal'>,
+  +children: React.Node,
 };
 type Props = {
   ...BaseProps,
@@ -1009,7 +1009,6 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { mediaInfo } = this.props.route.params;
     const statusBar = FullScreenViewModal.isActive(this.props) ? (
       <ConnectedStatusBar hidden />
     ) : null;
@@ -1041,7 +1040,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
         <Animated.View style={[styles.backdrop, backdropStyle]} />
         <View style={this.contentContainerStyle}>
           <Animated.View style={this.imageContainerStyle}>
-            <Multimedia mediaInfo={mediaInfo} spinnerColor="white" />
+            {this.props.children}
           </Animated.View>
         </View>
         <SafeAreaView style={styles.buttonsOverlay}>
@@ -1127,6 +1126,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     this.props.navigation.goBackOnce();
   };
 
+  // this can be lifted and optional
   save = () => {
     const { mediaInfo, item } = this.props.route.params;
     invariant(
@@ -1140,6 +1140,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     return this.props.intentionalSaveMedia(uri, ids);
   };
 
+  // this can be lifted and optional
   copy = () => {
     const { uri } = this.props.route.params.mediaInfo;
     Clipboard.setImageFromURL(uri, success => {
