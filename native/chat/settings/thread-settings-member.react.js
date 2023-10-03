@@ -137,7 +137,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
         <View style={[this.props.styles.innerContainer, firstItem, lastItem]}>
           <View style={this.props.styles.row}>
             <View style={this.props.styles.userInfoContainer}>
-              <UserAvatar size="small" userID={this.props.memberInfo.id} />
+              <UserAvatar size="S" userID={this.props.memberInfo.id} />
               {usernameInfo}
             </View>
             {editButton}

@@ -142,7 +142,7 @@ function ChatThreadListItem({
   const threadAvatar = React.useMemo(
     () => (
       <View style={styles.avatarContainer}>
-        <ThreadAvatar size="large" threadInfo={data.threadInfo} />
+        <ThreadAvatar size="M" threadInfo={data.threadInfo} />
       </View>
     ),
     [data.threadInfo, styles.avatarContainer],

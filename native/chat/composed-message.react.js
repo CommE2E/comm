@@ -170,7 +170,7 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       if (!isViewer && item.endsCluster) {
         return (
           <View style={styles.avatarContainer}>
-            <UserAvatar size="small" userID={item.messageInfo.creator.id} />
+            <UserAvatar size="S" userID={item.messageInfo.creator.id} />
           </View>
         );
       } else if (!isViewer) {
