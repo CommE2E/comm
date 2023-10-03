@@ -12,6 +12,7 @@ import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
+import UserProfileAvatar from './user-profile-avatar.react.js';
 import {
   userProfileUserInfoContainerHeight,
   userProfileBottomPadding,
@@ -20,7 +21,6 @@ import {
 } from './user-profile-constants.js';
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import UserProfileRelationshipButton from './user-profile-relationship-button.react.js';
-import UserAvatar from '../avatars/user-avatar.react.js';
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -160,7 +160,7 @@ function UserProfile(props: Props): React.Node {
     <View style={styles.container}>
       <SWMansionIcon name="menu-vertical" size={24} style={styles.moreIcon} />
       <View style={styles.userInfoContainer}>
-        <UserAvatar size="L" userID={userInfo?.id} />
+        <UserProfileAvatar userID={userInfo?.id} />
         <View style={styles.usernameContainer}>
           <SingleLine style={styles.usernameText}>{usernameText}</SingleLine>
           {copyUsernameButton}
