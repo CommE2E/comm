@@ -6,9 +6,12 @@ import {
   getAvatarForUser,
   useENSResolvedAvatar,
 } from 'lib/shared/avatar-utils.js';
-import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
+import type {
+  GenericUserInfoWithAvatar,
+  AvatarSize,
+} from 'lib/types/avatar-types.js';
 
-import Avatar, { type AvatarSize } from './avatar.react.js';
+import Avatar from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props =
