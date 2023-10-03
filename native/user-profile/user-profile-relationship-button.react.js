@@ -9,6 +9,7 @@ import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
 
+import { userProfileActionButtonHeight } from './user-profile-constants.js';
 import RelationshipButton from '../components/relationship-button.react.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -52,9 +53,7 @@ function UserProfileRelationshipButton(props: Props): React.Node {
         incomingFriendRequestButtonsContainerHeight,
       );
     } else {
-      const relationshipButtonHeight = 54;
-
-      setUserProfileRelationshipButtonHeight(relationshipButtonHeight);
+      setUserProfileRelationshipButtonHeight(userProfileActionButtonHeight);
     }
   }, [
     otherUserInfo?.relationshipStatus,
