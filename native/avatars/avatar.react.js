@@ -27,8 +27,10 @@ function Avatar(props: Props): React.Node {
       return styles.medium;
     } else if (size === 'L') {
       return styles.large;
+    } else if (size === 'XL') {
+      return styles.xLarge;
     }
-    return styles.xLarge;
+    return styles.xxLarge;
   }, [size]);
 
   const emojiContainerStyle = React.useMemo(() => {
@@ -50,8 +52,10 @@ function Avatar(props: Props): React.Node {
       return styles.emojiMedium;
     } else if (size === 'L') {
       return styles.emojiLarge;
+    } else if (size === 'XL') {
+      return styles.emojiXLarge;
     }
-    return styles.emojiXLarge;
+    return styles.emojiXXLarge;
   }, [size]);
 
   const avatar = React.useMemo(() => {
@@ -110,6 +114,10 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: 'center',
   },
+  emojiXXLarge: {
+    fontSize: 176,
+    textAlign: 'center',
+  },
   imageContainer: {
     overflow: 'hidden',
   },
@@ -137,6 +145,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 16,
     width: 16,
+  },
+  xxLarge: {
+    borderRadius: 112,
+    height: 224,
+    width: 224,
   },
 });
 
