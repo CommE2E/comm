@@ -86,7 +86,9 @@ const shouldDisplayQRCodeInTerminal = false;
       // information useful for other keyserver functions.
       handleAsyncPromise(createAndMaintainTunnelbrokerWebsocket(identityInfo));
     } catch (e) {
-      console.warn('failed_identity_login');
+      console.warn(
+        'Failed identity login. Login optional until staging environment is available',
+      );
     }
 
     if (shouldDisplayQRCodeInTerminal) {
