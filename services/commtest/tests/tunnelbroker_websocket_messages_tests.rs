@@ -1,0 +1,45 @@
+use commtest::identity::device::create_device;
+use commtest::identity::olm_account_infos::MOCK_CLIENT_KEYS_1;
+use commtest::tunnelbroker::socket::create_socket;
+use futures_util::{SinkExt, StreamExt};
+use tokio_tungstenite::tungstenite::{Error, Message, Message::Close};
+
+/// Tests for message types defined in tungstenite crate
+
+#[tokio::test]
+async fn test_ping_pong() {
+  let device = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
+
+  let ping_message = vec![1, 2, 3, 4, 5];
+
+  let mut socket = create_socket(&device).await;
+  socket
+    .send(Message::Ping(ping_message.clone()))
+    .await
+    .expect("Failed to send message");
+
+  if let Some(Ok(response)) = socket.next().await {
+    let Message::Pong(received_payload) = response else {
+      panic!("Unexpected message type or result. Expected Pong. ")
+    };
+    assert_eq!(ping_message.clone(), received_payload);
+  };
+}
+
+#[tokio::test]
+async fn test_close_message() {
+  let device = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
+
+  let mut socket = create_socket(&device).await;
+  socket
+    .send(Close(None))
+    .await
+    .expect("Failed to send message");
+
+  if let Some(response) = socket.next().await {
+    assert!(matches!(
+      response,
+      Err(Error::AlreadyClosed | Error::ConnectionClosed) | Ok(Close(None))
+    ));
+  };
+}
