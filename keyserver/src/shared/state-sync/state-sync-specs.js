@@ -14,5 +14,5 @@ export const serverStateSyncSpecs = Object.freeze({
 });
 
 (serverStateSyncSpecs: {
-  +[string]: ServerStateSyncSpec<any, any, any>,
+  +[string]: ServerStateSyncSpec<any, any, any, any>,
 });
