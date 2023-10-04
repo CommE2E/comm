@@ -6,7 +6,7 @@ import * as React from 'react';
 
 import {
   restoreEntryActionTypes,
-  restoreEntry,
+  useRestoreEntry,
 } from 'lib/actions/entry-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -24,7 +24,6 @@ import type { UserInfo } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
-  useServerCall,
 } from 'lib/utils/action-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -165,7 +164,7 @@ const ConnectedHistoryEntry: React.ComponentType<BaseProps> =
       ),
     );
     const calenderQuery = useSelector(nonThreadCalendarQuery);
-    const callRestoreEntry = useServerCall(restoreEntry);
+    const callRestoreEntry = useRestoreEntry();
     const dispatchActionPromise = useDispatchActionPromise();
 
     const { creator } = props.entryInfo;
