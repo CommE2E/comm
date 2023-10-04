@@ -155,17 +155,9 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
   pub async fn handle_websocket_frame_from_device(
     &self,
-    msg: Message,
+    msg: String,
   ) -> Result<(), SessionError> {
-    let text_msg = match msg {
-      Message::Text(payload) => payload,
-      _ => {
-        error!("Client sent invalid message type");
-        return Err(SessionError::InvalidMessage);
-      }
-    };
-
-    let serialized_message = serde_json::from_str::<Messages>(&text_msg)?;
+    let serialized_message = serde_json::from_str::<Messages>(&msg)?;
 
     match serialized_message {
       Messages::MessageToDevice(message_to_device) => {
@@ -220,7 +212,9 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
     for message in messages {
       let device_message = DeviceMessage::from_hashmap(message)?;
-      self.send_message_to_device(device_message.payload).await;
+      self
+        .send_message_to_device(Message::Text(device_message.payload))
+        .await;
       if let Err(e) = self
         .db_client
         .delete_message(&self.device_info.device_id, &device_message.message_id)
@@ -238,8 +232,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     Ok(())
   }
 
-  pub async fn send_message_to_device(&mut self, incoming_payload: String) {
-    if let Err(e) = self.tx.send(Message::Text(incoming_payload)).await {
+  pub async fn send_message_to_device(&mut self, message: Message) {
+    if let Err(e) = self.tx.send(message).await {
       error!("Failed to send message to device: {}", e);
     }
   }
