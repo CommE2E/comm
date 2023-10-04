@@ -15,7 +15,7 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
-import { logEndpointMetrics } from './middleware/endpoint_profiling.js';
+import { logEndpointMetrics } from './middleware/endpoint-profiling.js';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
 import {
   jsonHandler,
