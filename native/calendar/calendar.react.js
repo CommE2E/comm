@@ -22,8 +22,9 @@ import {
 
 import {
   updateCalendarQueryActionTypes,
-  updateCalendarQuery,
+  useUpdateCalendarQuery,
 } from 'lib/actions/entry-actions.js';
+import type { UpdateCalendarQueryInput } from 'lib/actions/entry-actions.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
@@ -37,7 +38,6 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ConnectionStatus } from 'lib/types/socket-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
@@ -143,8 +143,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +updateCalendarQuery: (
-    calendarQuery: CalendarQuery,
-    reduxAlreadyUpdated?: boolean,
+    input: UpdateCalendarQueryInput,
   ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {
@@ -954,7 +953,7 @@ class Calendar extends React.PureComponent<Props, State> {
   dispatchCalendarQueryUpdate(calendarQuery: CalendarQuery) {
     this.props.dispatchActionPromise(
       updateCalendarQueryActionTypes,
-      this.props.updateCalendarQuery(calendarQuery),
+      this.props.updateCalendarQuery({ calendarQuery }),
     );
   }
 
@@ -1077,7 +1076,7 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const indicatorStyle = useIndicatorStyle();
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
+    const callUpdateCalendarQuery = useUpdateCalendarQuery();
 
     return (
       <Calendar

@@ -7,11 +7,11 @@ import { useDispatch } from 'react-redux';
 
 import {
   createEntryActionTypes,
-  createEntry,
+  useCreateEntry,
   saveEntryActionTypes,
-  saveEntry,
+  useSaveEntry,
   deleteEntryActionTypes,
-  deleteEntry,
+  useDeleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions.js';
 import {
@@ -41,7 +41,6 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 import { dateString } from 'lib/utils/date-utils.js';
@@ -476,9 +475,9 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const connection = useSelector(connectionSelector);
     invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
-    const callCreateEntry = useServerCall(createEntry);
-    const callSaveEntry = useServerCall(saveEntry);
-    const callDeleteEntry = useServerCall(deleteEntry);
+    const callCreateEntry = useCreateEntry();
+    const callSaveEntry = useSaveEntry();
+    const callDeleteEntry = useDeleteEntry();
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
 
