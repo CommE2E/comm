@@ -303,6 +303,85 @@ trait CleanupOperations {
   fn into_primary_keys(self) -> Vec<PrimaryKey>;
 }
 
+impl CleanupOperations for UncheckedCollection {
+  /// Retains only items that should remain unchecked
+  /// (missing blob hash or holders).
+  ///
+  /// Returns removed items - these items are checked
+  /// (contain both blob hash and at least one holder).
+  fn filter_out_checked(&mut self) -> Vec<PrimaryKey> {
+    let mut checked = Vec::new();
+
+    self.retain(|blob_hash, item| {
+      if !item.has_blob_hash() || !item.has_holders() {
+        // blob hash or holder missing, leave unchecked
+        return true;
+      }
+
+      checked.extend(item.as_primary_keys(blob_hash));
+      false
+    });
+    checked
+  }
+
+  /// Returns list of blob hashes for which we need to query if they contain
+  /// at least one holder
+  fn blobs_to_find_holders(&self) -> Vec<String> {
+    self
+      .iter()
+      .filter_map(|(blob_hash, item)| {
+        if item.has_blob_hash() && !item.has_holders() {
+          Some(blob_hash.clone())
+        } else {
+          None
+        }
+      })
+      .collect()
+  }
+
+  /// Returns primary keys for blob items that need to be checked if they exist
+  ///
+  /// Technically, this returns all blob items that have holders but no hash.
+  fn blobs_to_check_existence(&self) -> Vec<PrimaryKey> {
+    self
+      .iter()
+      .filter_map(|(blob_hash, item)| {
+        if item.has_holders() && !item.has_blob_hash() {
+          Some(PrimaryKey::for_blob_item(blob_hash))
+        } else {
+          None
+        }
+      })
+      .collect()
+  }
+
+  /// Updates the structure after fetching additional data from database.
+  fn feed_with_query_results(
+    &mut self,
+    fetched_items: impl IntoIterator<Item = PrimaryKey>,
+  ) {
+    for pk in fetched_items.into_iter() {
+      let Some(item) = self.get_mut(&pk.blob_hash) else {
+        warn!("Got fetched item that was not requested: {:?}", pk);
+        continue;
+      };
+
+      if pk.is_blob_item() {
+        item.blob_hash = Some(pk.blob_hash)
+      } else {
+        item.holders.push(pk.holder);
+      }
+    }
+  }
+
+  fn into_primary_keys(self) -> Vec<PrimaryKey> {
+    self
+      .into_iter()
+      .flat_map(|(blob_hash, item)| item.as_primary_keys(&blob_hash))
+      .collect()
+  }
+}
+
 pub struct BlobDownloadObject {
   /// Size of the whole blob object in bytes.
   pub blob_size: u64,
