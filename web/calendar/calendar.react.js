@@ -6,8 +6,9 @@ import * as React from 'react';
 
 import {
   updateCalendarQueryActionTypes,
-  updateCalendarQuery,
+  useUpdateCalendarQuery,
 } from 'lib/actions/entry-actions.js';
+import type { UpdateCalendarQueryInput } from 'lib/actions/entry-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -20,7 +21,6 @@ import {
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
-  useServerCall,
 } from 'lib/utils/action-utils.js';
 import {
   getDate,
@@ -54,8 +54,7 @@ type Props = {
   +loggedIn: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +updateCalendarQuery: (
-    calendarQuery: CalendarQuery,
-    reduxAlreadyUpdated?: boolean,
+    input: UpdateCalendarQueryInput,
   ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {
@@ -230,7 +229,10 @@ class Calendar extends React.PureComponent<Props, State> {
     };
     this.props.dispatchActionPromise(
       updateCalendarQueryActionTypes,
-      this.props.updateCalendarQuery(newCalendarQuery, true),
+      this.props.updateCalendarQuery({
+        calendarQuery: newCalendarQuery,
+        reduxAlreadyUpdated: true,
+      }),
       undefined,
       ({ calendarQuery: newCalendarQuery }: CalendarQueryUpdateStartingPayload),
     );
@@ -245,7 +247,10 @@ class Calendar extends React.PureComponent<Props, State> {
     };
     this.props.dispatchActionPromise(
       updateCalendarQueryActionTypes,
-      this.props.updateCalendarQuery(newCalendarQuery, true),
+      this.props.updateCalendarQuery({
+        calendarQuery: newCalendarQuery,
+        reduxAlreadyUpdated: true,
+      }),
       undefined,
       ({ calendarQuery: newCalendarQuery }: CalendarQueryUpdateStartingPayload),
     );
@@ -260,7 +265,7 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const navInfo = useSelector(state => state.navInfo);
     const currentCalendarQuery = useSelector(webCalendarQuery);
     const loggedIn = useSelector(isLoggedIn);
-    const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
+    const callUpdateCalendarQuery = useUpdateCalendarQuery();
     const dispatchActionPromise = useDispatchActionPromise();
 
     return (
