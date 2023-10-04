@@ -150,7 +150,7 @@ impl TryFrom<RawAttributes> for HolderAssignmentRow {
 ///
 /// It implements `TryFrom` and `Into` traits to conveniently use it
 /// in DynamoDB queries
-#[derive(Clone, Constructor, Debug)]
+#[derive(Clone, Constructor, Debug, Hash, Eq, PartialEq)]
 pub struct PrimaryKey {
   pub blob_hash: String,
   pub holder: String,
@@ -165,6 +165,10 @@ impl PrimaryKey {
       blob_hash: blob_hash.into(),
       holder: BLOB_ITEM_ROW_HOLDER_VALUE.to_string(),
     }
+  }
+
+  pub fn is_blob_item(&self) -> bool {
+    self.holder == BLOB_ITEM_ROW_HOLDER_VALUE
   }
 }
 
