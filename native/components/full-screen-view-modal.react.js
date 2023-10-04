@@ -141,6 +141,7 @@ type BaseProps = {
   +navigation: AppNavigationProp<'ImageModal'>,
   +route: NavigationRoute<'ImageModal'>,
   +children: React.Node,
+  +contentDimensions: Dimensions,
   +saveContentCallback?: () => Promise<mixed>,
   +copyContentCallback?: () => mixed,
 };
@@ -891,7 +892,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
       this.centerY = new Value(centerY);
     }
 
-    const { width, height } = this.imageDimensions;
+    const { width, height } = this.props.contentDimensions;
     if (this.imageWidth) {
       this.imageWidth.setValue(width);
     } else {
@@ -935,37 +936,8 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     return { width, height: safeAreaHeight };
   }
 
-  get imageDimensions(): Dimensions {
-    // Make space for the close button
-    let { height: maxHeight, width: maxWidth } = this.frame;
-    if (maxHeight > maxWidth) {
-      maxHeight -= 100;
-    } else {
-      maxWidth -= 100;
-    }
-
-    const { dimensions } = this.props.route.params.mediaInfo;
-    if (dimensions.height < maxHeight && dimensions.width < maxWidth) {
-      return dimensions;
-    }
-
-    const heightRatio = maxHeight / dimensions.height;
-    const widthRatio = maxWidth / dimensions.width;
-    if (heightRatio < widthRatio) {
-      return {
-        height: maxHeight,
-        width: dimensions.width * heightRatio,
-      };
-    } else {
-      return {
-        width: maxWidth,
-        height: dimensions.height * widthRatio,
-      };
-    }
-  }
-
-  get imageContainerStyle() {
-    const { height, width } = this.imageDimensions;
+  get contentViewContainerStyle() {
+    const { height, width } = this.props.contentDimensions;
     const { height: frameHeight, width: frameWidth } = this.frame;
     const top = (frameHeight - height) / 2 + this.props.dimensions.topInset;
     const left = (frameWidth - width) / 2;
@@ -1068,7 +1040,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
         {statusBar}
         <Animated.View style={[styles.backdrop, backdropStyle]} />
         <View style={this.contentContainerStyle}>
-          <Animated.View style={this.imageContainerStyle}>
+          <Animated.View style={this.contentViewContainerStyle}>
             {children}
           </Animated.View>
         </View>
