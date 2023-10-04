@@ -1,8 +1,10 @@
 // @flow
 
 import Clipboard from '@react-native-clipboard/clipboard';
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
@@ -13,6 +15,7 @@ import sleep from 'lib/utils/sleep.js';
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import UserProfileRelationshipButton from './user-profile-relationship-button.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
+import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -29,6 +32,46 @@ function UserProfile(props: Props): React.Node {
   const usernameText = stringForUserExplicit(userInfo);
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
+
+  const [
+    userProfileRelationshipButtonHeight,
+    setUserProfileRelationshipButtonHeight,
+  ] = React.useState<number>(0);
+
+  const bottomSheetContext = React.useContext(BottomSheetContext);
+  invariant(bottomSheetContext, 'bottomSheetContext should be set');
+
+  const { setContentHeight } = bottomSheetContext;
+
+  const insets = useSafeAreaInsets();
+
+  React.useLayoutEffect(() => {
+    const userInfoContainerHeight = 90;
+    const bottomPadding = 40;
+
+    let height = insets.bottom + userInfoContainerHeight + bottomPadding;
+
+    if (userProfileThreadInfo) {
+      const menuButtonHeight = 24;
+      height += menuButtonHeight;
+    }
+
+    if (
+      userProfileThreadInfo &&
+      !relationshipBlockedInEitherDirection(userInfo?.relationshipStatus)
+    ) {
+      const messageButtonHeight = 54;
+      height += messageButtonHeight + userProfileRelationshipButtonHeight;
+    }
+
+    setContentHeight(height);
+  }, [
+    insets.bottom,
+    setContentHeight,
+    userInfo?.relationshipStatus,
+    userProfileRelationshipButtonHeight,
+    userProfileThreadInfo,
+  ]);
 
   const styles = useStyles(unboundStyles);
 
@@ -100,6 +143,9 @@ function UserProfile(props: Props): React.Node {
       <UserProfileRelationshipButton
         threadInfo={threadInfo}
         pendingPersonalThreadUserInfo={pendingPersonalThreadUserInfo}
+        setUserProfileRelationshipButtonHeight={
+          setUserProfileRelationshipButtonHeight
+        }
       />
     );
   }, [userInfo?.relationshipStatus, userProfileThreadInfo]);
