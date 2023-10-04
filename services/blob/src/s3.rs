@@ -1,7 +1,7 @@
 use aws_sdk_s3::{
   operation::create_multipart_upload::CreateMultipartUploadOutput,
   primitives::ByteStream,
-  types::{CompletedMultipartUpload, CompletedPart},
+  types::{CompletedMultipartUpload, CompletedPart, Delete, ObjectIdentifier},
   Error as S3Error,
 };
 use std::ops::{Bound, RangeBounds};
@@ -192,6 +192,33 @@ impl S3Client {
       .await
       .map_err(|e| {
         error!("S3 failed to delete object");
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
+  }
+
+  pub async fn batch_delete_objects(&self, paths: Vec<S3Path>) -> S3Result<()> {
+    let Some(first_path) = paths.first() else {
+      debug!("No S3 objects to delete");
+      return Ok(());
+    };
+
+    let bucket_name = &first_path.bucket_name;
+    let objects = paths
+      .iter()
+      .map(|path| ObjectIdentifier::builder().key(&path.object_name).build())
+      .collect();
+
+    self
+      .client
+      .delete_objects()
+      .bucket(bucket_name)
+      .delete(Delete::builder().set_objects(Some(objects)).build())
+      .send()
+      .await
+      .map_err(|e| {
+        error!("S3 failed to batch delete objects");
         Error::AwsSdk(e.into())
       })?;
 
