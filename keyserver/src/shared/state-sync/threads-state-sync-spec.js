@@ -1,6 +1,7 @@
 // @flow
 
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
+import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
 import {
   type RawThreadInfos,
   type RawThreadInfo,
@@ -14,6 +15,7 @@ export const threadsStateSyncSpec: ServerStateSyncSpec<
   RawThreadInfos,
   RawThreadInfos,
   RawThreadInfo,
+  $ReadOnlyArray<ClientThreadInconsistencyReportCreationRequest>,
 > = Object.freeze({
   async fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     const filter = ids ? { threadIDs: ids } : undefined;

@@ -1,6 +1,7 @@
 // @flow
 
 import { usersStateSyncSpec as libSpec } from 'lib/shared/state-sync/users-state-sync-spec.js';
+import type { UserInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
 import type { UserInfos, UserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -12,6 +13,7 @@ export const usersStateSyncSpec: ServerStateSyncSpec<
   UserInfos,
   $ReadOnlyArray<UserInfo>,
   UserInfo,
+  $ReadOnlyArray<UserInconsistencyReportCreationRequest>,
 > = Object.freeze({
   fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     if (ids) {
