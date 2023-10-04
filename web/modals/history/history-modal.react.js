@@ -10,10 +10,11 @@ import * as React from 'react';
 
 import {
   fetchEntriesActionTypes,
-  fetchEntries,
+  useFetchEntries,
   fetchRevisionsForEntryActionTypes,
-  fetchRevisionsForEntry,
+  useFetchRevisionsForEntry,
 } from 'lib/actions/entry-actions.js';
+import type { FetchRevisionsForEntryInput } from 'lib/actions/entry-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -30,7 +31,6 @@ import type {
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 import { prettyDateWithoutDay } from 'lib/utils/date-utils.js';
@@ -59,7 +59,7 @@ type Props = {
     calendarQuery: CalendarQuery,
   ) => Promise<FetchEntryInfosResult>,
   +fetchRevisionsForEntry: (
-    entryID: string,
+    input: FetchRevisionsForEntryInput,
   ) => Promise<$ReadOnlyArray<HistoryRevisionInfo>>,
   +onClose: () => void,
 };
@@ -212,7 +212,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
   }
 
   async fetchRevisionsForEntryAction(entryID: string) {
-    const result = await this.props.fetchRevisionsForEntry(entryID);
+    const result = await this.props.fetchRevisionsForEntry({ entryID });
     this.setState(prevState => {
       // This merge here will preserve time ordering correctly
       const revisions = _unionBy('id')(result)(prevState.revisions);
@@ -261,8 +261,8 @@ const ConnectedHistoryModal: React.ComponentType<BaseProps> =
     const calendarFilters = useSelector(
       nonExcludeDeletedCalendarFiltersSelector,
     );
-    const callFetchEntries = useServerCall(fetchEntries);
-    const callFetchRevisionsForEntry = useServerCall(fetchRevisionsForEntry);
+    const callFetchEntries = useFetchEntries();
+    const callFetchRevisionsForEntry = useFetchRevisionsForEntry();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
 
