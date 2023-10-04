@@ -24,11 +24,12 @@ use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
-  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
+  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, CONTENT_ONE_TIME_KEY, NONCE_TABLE,
   NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
   NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
-  RESERVED_USERNAMES_TABLE, RESERVED_USERNAMES_TABLE_PARTITION_KEY,
-  USERS_TABLE, USERS_TABLE_DEVICES_ATTRIBUTE,
+  NOTIF_ONE_TIME_KEY, RESERVED_USERNAMES_TABLE,
+  RESERVED_USERNAMES_TABLE_PARTITION_KEY, USERS_TABLE,
+  USERS_TABLE_DEVICES_ATTRIBUTE,
   USERS_TABLE_DEVICES_MAP_CONTENT_ONE_TIME_KEYS_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
@@ -325,12 +326,12 @@ impl DatabaseClient {
       .await?;
 
     debug!(
-      "Able to get notif key for keyserver {}: {}",
+      "Able to get notif one-time key for keyserver {}: {}",
       keyserver_id,
       notif_one_time_key.is_some()
     );
     debug!(
-      "Able to get content key for keyserver {}: {}",
+      "Able to get content one-time key for keyserver {}: {}",
       keyserver_id,
       content_one_time_key.is_some()
     );
@@ -382,8 +383,8 @@ impl DatabaseClient {
     Ok(Some(outbound_payload))
   }
 
-  /// Will "mint" a single one time key by attempting to successfully deleting
-  /// a key
+  /// Will "mint" a single one-time key by attempting to successfully delete a
+  /// key
   pub async fn get_one_time_key(
     &self,
     device_id: &str,
@@ -395,14 +396,8 @@ impl DatabaseClient {
     let query_result = self.get_one_time_keys(device_id, account_type).await?;
     let items = query_result.items();
 
-    // If no one time keys exists, return none early
-    let Some(item_vec) = items else {
-      debug!("Unable to find {:?} one time key", account_type);
-      return Ok(None);
-    };
-
-    if item_vec.len() < ONE_TIME_KEY_MINIMUM_THRESHOLD {
-      // Avoid device_id being moved out-of-scope by "move"
+    fn spawn_refresh_keys_task(device_id: &str) {
+      // Clone the string slice to move into the async block
       let device_id = device_id.to_string();
       tokio::spawn(async move {
         debug!("Attempting to request more keys for device: {}", &device_id);
@@ -412,9 +407,22 @@ impl DatabaseClient {
       });
     }
 
+    // If no one-time keys exist, or if there aren't enough, request more.
+    // Additionally, if no one-time keys exist, return early.
+    let item_vec = if let Some(items_list) = items {
+      if items_list.len() < ONE_TIME_KEY_MINIMUM_THRESHOLD {
+        spawn_refresh_keys_task(device_id);
+      }
+      items_list
+    } else {
+      debug!("Unable to find {:?} one-time key", account_type);
+      spawn_refresh_keys_task(device_id);
+      return Ok(None);
+    };
+
     let mut result = None;
-    // Attempt to delete the one time keys individually, a successful delete
-    // mints the one time key to the requester
+    // Attempt to delete the one-time keys individually, a successful delete
+    // mints the one-time key to the requester
     for item in item_vec {
       let pk = item.get_string(otk_table::PARTITION_KEY)?;
       let otk = item.get_string(otk_table::SORT_KEY)?;
@@ -956,6 +964,7 @@ impl DatabaseClient {
     &self,
     user_info: String,
     auth_type: &AuthType,
+    get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
     let Some(mut user) =
       self.get_user_from_user_info(user_info, auth_type).await?
@@ -987,6 +996,23 @@ impl DatabaseClient {
         let attribute_value_str =
           parse_string_attribute(&attribute_name, Some(attribute_value))?;
         device_info_string_map.insert(attribute_name, attribute_value_str);
+      }
+
+      if get_one_time_keys {
+        if let Some(notif_one_time_key) = self
+          .get_one_time_key(&device_id_key, OlmAccountType::Notification)
+          .await?
+        {
+          device_info_string_map
+            .insert(NOTIF_ONE_TIME_KEY.to_string(), notif_one_time_key);
+        }
+        if let Some(content_one_time_key) = self
+          .get_one_time_key(&device_id_key, OlmAccountType::Content)
+          .await?
+        {
+          device_info_string_map
+            .insert(CONTENT_ONE_TIME_KEY.to_string(), content_one_time_key);
+        }
       }
 
       devices_response.insert(device_id_key, device_info_string_map);
