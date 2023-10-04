@@ -160,7 +160,7 @@ type State = {
   +closeButtonEnabled: boolean,
   +actionLinksEnabled: boolean,
 };
-class ImageModal extends React.PureComponent<Props, State> {
+class FullScreenViewModal extends React.PureComponent<Props, State> {
   state: State = {
     closeButtonEnabled: true,
     actionLinksEnabled: true,
@@ -232,7 +232,7 @@ class ImageModal extends React.PureComponent<Props, State> {
     );
 
     const { overlayContext } = props;
-    invariant(overlayContext, 'ImageModal should have OverlayContext');
+    invariant(overlayContext, 'FullScreenViewModal should have OverlayContext');
     const navigationProgress = overlayContext.position;
 
     // The inputs we receive from PanGestureHandler
@@ -910,13 +910,13 @@ class ImageModal extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    if (ImageModal.isActive(this.props)) {
+    if (FullScreenViewModal.isActive(this.props)) {
       Orientation.unlockAllOrientations();
     }
   }
 
   componentWillUnmount() {
-    if (ImageModal.isActive(this.props)) {
+    if (FullScreenViewModal.isActive(this.props)) {
       Orientation.lockToPortrait();
     }
   }
@@ -926,8 +926,8 @@ class ImageModal extends React.PureComponent<Props, State> {
       this.updateDimensions();
     }
 
-    const isActive = ImageModal.isActive(this.props);
-    const wasActive = ImageModal.isActive(prevProps);
+    const isActive = FullScreenViewModal.isActive(this.props);
+    const wasActive = FullScreenViewModal.isActive(prevProps);
     if (isActive && !wasActive) {
       Orientation.unlockAllOrientations();
     } else if (!isActive && wasActive) {
@@ -991,7 +991,7 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   static isActive(props) {
     const { overlayContext } = props;
-    invariant(overlayContext, 'ImageModal should have OverlayContext');
+    invariant(overlayContext, 'FullScreenViewModal should have OverlayContext');
     return !overlayContext.isDismissing;
   }
 
@@ -1002,7 +1002,7 @@ class ImageModal extends React.PureComponent<Props, State> {
     const bottom = fullScreenHeight - verticalBounds.y - verticalBounds.height;
 
     // margin will clip, but padding won't
-    const verticalStyle = ImageModal.isActive(this.props)
+    const verticalStyle = FullScreenViewModal.isActive(this.props)
       ? { paddingTop: top, paddingBottom: bottom }
       : { marginTop: top, marginBottom: bottom };
     return [styles.contentContainer, verticalStyle];
@@ -1010,7 +1010,7 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   render() {
     const { mediaInfo } = this.props.route.params;
-    const statusBar = ImageModal.isActive(this.props) ? (
+    const statusBar = FullScreenViewModal.isActive(this.props) ? (
       <ConnectedStatusBar hidden />
     ) : null;
     const backdropStyle = { opacity: this.backdropOpacity };
@@ -1270,13 +1270,15 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedImageModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedImageModal(props: BaseProps) {
+const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedFullScreenViewModal(
+    props: BaseProps,
+  ) {
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const overlayContext = React.useContext(OverlayContext);
     const intentionalSaveMedia = useIntentionalSaveMedia();
     return (
-      <ImageModal
+      <FullScreenViewModal
         {...props}
         dimensions={dimensions}
         overlayContext={overlayContext}
@@ -1285,4 +1287,4 @@ const ConnectedImageModal: React.ComponentType<BaseProps> =
     );
   });
 
-export default ConnectedImageModal;
+export default ConnectedFullScreenViewModal;
