@@ -1,4 +1,5 @@
 #![allow(unused)]
+use std::collections::BTreeMap;
 use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 use std::sync::Arc;
 
@@ -223,6 +224,84 @@ impl BlobService {
     }
     Ok(())
   }
+}
+
+// A B-tree map performs well for both random and sequential access.
+type BlobHash = String;
+type UncheckedCollection = BTreeMap<BlobHash, UncheckedItem>;
+
+/// Represents an "unchecked" blob entity. It might miss either
+/// blob hash or holders.
+#[derive(Debug)]
+struct UncheckedItem {
+  blob_hash: Option<BlobHash>,
+  holders: Vec<String>,
+}
+
+impl UncheckedItem {
+  fn has_blob_hash(&self) -> bool {
+    self.blob_hash.is_some()
+  }
+
+  fn has_holders(&self) -> bool {
+    !self.holders.is_empty()
+  }
+
+  /// Returns primary keys for this item. It contains primary heys for holders
+  /// and for blob item (if it has hash).
+  /// A fallback hash is required for holders if item's blob hash is None.
+  fn as_primary_keys(&self, fallback_blob_hash: &str) -> Vec<PrimaryKey> {
+    if !self.has_holders() && !self.has_blob_hash() {
+      warn!(
+        fallback_blob_hash,
+        "Item has no hash and no holders, this should never happen!"
+      );
+      return Vec::new();
+    }
+
+    let hash_for_holders =
+      self.blob_hash.as_deref().unwrap_or(fallback_blob_hash);
+    let mut keys = self
+      .holders
+      .iter()
+      .map(|holder| PrimaryKey {
+        blob_hash: hash_for_holders.to_string(),
+        holder: holder.to_string(),
+      })
+      .collect::<Vec<_>>();
+
+    if let Some(blob_hash) = &self.blob_hash {
+      keys.push(PrimaryKey::for_blob_item(blob_hash.to_string()));
+    }
+    keys
+  }
+}
+
+trait CleanupOperations {
+  /// Retains only items that should remain unchecked
+  /// (missing blob hash or holders).
+  ///
+  /// Returns removed items - these items are checked
+  /// (contain both blob hash and at least one holder).
+  fn filter_out_checked(&mut self) -> Vec<PrimaryKey>;
+
+  /// Returns list of blob hashes for which we need to query if they contain
+  /// at least one holder
+  fn blobs_to_find_holders(&self) -> Vec<&BlobHash>;
+
+  /// Returns primary keys for blob items that need to be checked if they exist
+  ///
+  /// Technically, this returns all items that have holders but no hash.
+  fn blobs_to_check_existence(&self) -> Vec<PrimaryKey>;
+
+  /// Updates the structure after fetching additional data from database.
+  fn feed_with_query_results(
+    &mut self,
+    fetched_items: impl IntoIterator<Item = PrimaryKey>,
+  );
+
+  /// Turns this collection into a list of DB primary keys
+  fn into_primary_keys(self) -> Vec<PrimaryKey>;
 }
 
 pub struct BlobDownloadObject {
