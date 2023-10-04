@@ -2,11 +2,13 @@
 pub mod keys;
 pub mod message_to_device;
 pub mod message_to_device_request;
+pub mod send_confirmation;
 pub mod session;
 
 pub use keys::*;
 pub use message_to_device::*;
 pub use message_to_device_request::*;
+pub use send_confirmation::*;
 pub use session::*;
 
 use serde::{Deserialize, Serialize};
@@ -21,4 +23,5 @@ pub enum Messages {
   // the first matching pattern it encounters.
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageToDevice(MessageToDevice),
+  MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
 }
