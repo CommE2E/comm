@@ -18,6 +18,18 @@ pub enum Error {
   Blob(BlobDBError),
   #[display(...)]
   ItemAlreadyExists,
+  MaxRetriesExceeded,
+}
+
+impl From<comm_services_lib::database::Error> for Error {
+  fn from(value: comm_services_lib::database::Error) -> Self {
+    use comm_services_lib::database::Error as E;
+    match value {
+      E::AwsSdk(err) => Self::AwsSdk(err),
+      E::Attribute(err) => Self::Attribute(err),
+      E::MaxRetriesExceeded => Self::MaxRetriesExceeded,
+    }
+  }
 }
 
 #[derive(Debug)]
