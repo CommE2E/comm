@@ -166,6 +166,10 @@ impl PrimaryKey {
       holder: BLOB_ITEM_ROW_HOLDER_VALUE.to_string(),
     }
   }
+
+  pub fn is_blob_item(&self) -> bool {
+    self.holder == BLOB_ITEM_ROW_HOLDER_VALUE
+  }
 }
 
 impl TryFrom<RawAttributes> for PrimaryKey {
