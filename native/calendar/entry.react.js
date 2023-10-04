@@ -20,11 +20,11 @@ import tinycolor from 'tinycolor2';
 
 import {
   createEntryActionTypes,
-  createEntry,
+  useCreateEntry,
   saveEntryActionTypes,
-  saveEntry,
+  useSaveEntry,
   deleteEntryActionTypes,
-  deleteEntry,
+  useDeleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
@@ -51,7 +51,6 @@ import {
   type ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
@@ -793,9 +792,9 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callCreateEntry = useServerCall(createEntry);
-    const callSaveEntry = useServerCall(saveEntry);
-    const callDeleteEntry = useServerCall(deleteEntry);
+    const callCreateEntry = useCreateEntry();
+    const callSaveEntry = useSaveEntry();
+    const callDeleteEntry = useDeleteEntry();
 
     const { threadInfo: unresolvedThreadInfo, ...restProps } = props;
     const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
