@@ -11,6 +11,7 @@ export const currentUserStateSyncSpec: ServerStateSyncSpec<
   CurrentUserInfo,
   CurrentUserInfo,
   CurrentUserInfo,
+  void,
 > = Object.freeze({
   fetch(viewer: Viewer) {
     return fetchCurrentUserInfo(viewer);

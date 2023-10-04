@@ -7,6 +7,7 @@ import type {
   RawEntryInfo,
   RawEntryInfos,
 } from 'lib/types/entry-types.js';
+import type { ClientEntryInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
 
 import type { ServerStateSyncSpec } from './state-sync-spec.js';
 import {
@@ -19,6 +20,7 @@ export const entriesStateSyncSpec: ServerStateSyncSpec<
   RawEntryInfos,
   $ReadOnlyArray<RawEntryInfo>,
   RawEntryInfo,
+  Array<ClientEntryInconsistencyReportCreationRequest>,
 > = Object.freeze({
   async fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     if (ids) {
