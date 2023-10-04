@@ -100,6 +100,10 @@ pub mod one_time_keys_table {
   pub const ONE_TIME_KEY: &str = SORT_KEY;
 }
 
+// One-time key constants for device info map
+pub const CONTENT_ONE_TIME_KEY: &str = "contentOneTimeKey";
+pub const NOTIF_ONE_TIME_KEY: &str = "notifOneTimeKey";
+
 // Tokio
 
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
