@@ -11,6 +11,7 @@ use tokio_stream::StreamExt;
 use tonic::codegen::futures_core::Stream;
 use tracing::{debug, error, trace, warn};
 
+use crate::config::CONFIG;
 use crate::constants::S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE;
 use crate::database::types::{
   BlobItemInput, BlobItemRow, PrimaryKey, UncheckedKind,
@@ -295,15 +296,28 @@ impl BlobService {
     unchecked_items.feed_with_query_results(fetch_results);
     checked.extend(unchecked_items.filter_out_checked());
 
-    /// 7. Make changes to database
+    // 7. Perform actual cleanup
     orphans.extend(unchecked_items.into_primary_keys());
+    let s3_paths: Vec<S3Path> = orphans
+      .iter()
+      .map(|item| &item.blob_hash)
+      // remove duplicates (they come from holders having the same blob hash)
+      .collect::<HashSet<_>>()
+      .into_iter()
+      .map(|blob_hash| S3Path {
+        bucket_name: CONFIG.s3_bucket_name.clone(),
+        object_name: blob_hash.to_string(),
+      })
+      .collect();
 
+    /// 7a. Make changes to database
     tokio::try_join!(
       self.db.batch_delete_rows(orphans),
       self.db.batch_mark_checked(checked)
     )?;
 
-    // TODO: Delete orphaned blobs from S3
+    // 7b. Delete orphaned blobs from S3
+    self.s3.batch_delete_objects(s3_paths).await?;
 
     Ok(())
   }
