@@ -1,6 +1,5 @@
 // @flow
 
-import Clipboard from '@react-native-clipboard/clipboard';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
@@ -24,11 +23,6 @@ import { type Dimensions } from 'lib/types/media-types.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
-import {
-  useIntentionalSaveMedia,
-  type IntentionalSaveMedia,
-} from '../media/save-media.js';
-import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   OverlayContext,
@@ -147,12 +141,13 @@ type BaseProps = {
   +navigation: AppNavigationProp<'ImageModal'>,
   +route: NavigationRoute<'ImageModal'>,
   +children: React.Node,
+  +saveContentCallback?: () => Promise<mixed>,
+  +copyContentCallback?: () => mixed,
 };
 type Props = {
   ...BaseProps,
   // Redux state
   +dimensions: DerivedDimensionsInfo,
-  +intentionalSaveMedia: IntentionalSaveMedia,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
 };
@@ -1009,6 +1004,8 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const { children, saveContentCallback, copyContentCallback } = this.props;
+
     const statusBar = FullScreenViewModal.isActive(this.props) ? (
       <ConnectedStatusBar hidden />
     ) : null;
@@ -1020,11 +1017,25 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
       opacity: this.actionLinksOpacity,
     };
 
+    let saveButton;
+    if (saveContentCallback) {
+      saveButton = (
+        <TouchableOpacity
+          onPress={saveContentCallback}
+          disabled={!this.state.actionLinksEnabled}
+          style={styles.mediaIconButtons}
+        >
+          <SWMansionIcon name="save" style={styles.mediaIcon} />
+          <Text style={styles.mediaIconText}>Save</Text>
+        </TouchableOpacity>
+      );
+    }
+
     let copyButton;
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' && copyContentCallback) {
       copyButton = (
         <TouchableOpacity
-          onPress={this.copy}
+          onPress={copyContentCallback}
           disabled={!this.state.actionLinksEnabled}
           style={styles.mediaIconButtons}
         >
@@ -1034,13 +1045,31 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
       );
     }
 
+    let mediaActionButtons;
+    if (saveContentCallback || copyContentCallback) {
+      mediaActionButtons = (
+        <Animated.View
+          style={[styles.mediaIconsContainer, mediaIconsButtonStyle]}
+        >
+          <View
+            style={styles.mediaIconsRow}
+            onLayout={this.onMediaIconsLayout}
+            ref={this.mediaIconsRef}
+          >
+            {saveButton}
+            {copyButton}
+          </View>
+        </Animated.View>
+      );
+    }
+
     const view = (
       <Animated.View style={styles.container}>
         {statusBar}
         <Animated.View style={[styles.backdrop, backdropStyle]} />
         <View style={this.contentContainerStyle}>
           <Animated.View style={this.imageContainerStyle}>
-            {this.props.children}
+            {children}
           </Animated.View>
         </View>
         <SafeAreaView style={styles.buttonsOverlay}>
@@ -1057,25 +1086,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
                 <Text style={styles.closeButton}>×</Text>
               </TouchableOpacity>
             </Animated.View>
-            <Animated.View
-              style={[styles.mediaIconsContainer, mediaIconsButtonStyle]}
-            >
-              <View
-                style={styles.mediaIconsRow}
-                onLayout={this.onMediaIconsLayout}
-                ref={this.mediaIconsRef}
-              >
-                <TouchableOpacity
-                  onPress={this.save}
-                  disabled={!this.state.actionLinksEnabled}
-                  style={styles.mediaIconButtons}
-                >
-                  <SWMansionIcon name="save" style={styles.mediaIcon} />
-                  <Text style={styles.mediaIconText}>Save</Text>
-                </TouchableOpacity>
-                {copyButton}
-              </View>
-            </Animated.View>
+            {mediaActionButtons}
           </View>
         </SafeAreaView>
       </Animated.View>
@@ -1124,26 +1135,6 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
 
   close = () => {
     this.props.navigation.goBackOnce();
-  };
-
-  save = () => {
-    const { mediaInfo, item } = this.props.route.params;
-    invariant(
-      mediaInfo.type === 'photo' || mediaInfo.type === 'video',
-      'saving media of type ' + mediaInfo.type + ' is not supported',
-    );
-
-    const { id: uploadID, uri } = mediaInfo;
-    const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
-    const ids = { uploadID, messageServerID, messageLocalID };
-    return this.props.intentionalSaveMedia(uri, ids);
-  };
-
-  copy = () => {
-    const { uri } = this.props.route.params.mediaInfo;
-    Clipboard.setImageFromURL(uri, success => {
-      displayActionResultModal(success ? 'copied!' : 'failed to copy :(');
-    });
   };
 
   setCloseButtonEnabled = ([enabledNum]: [number]) => {
@@ -1275,13 +1266,11 @@ const ConnectedFullScreenViewModal: React.ComponentType<BaseProps> =
   ) {
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const overlayContext = React.useContext(OverlayContext);
-    const intentionalSaveMedia = useIntentionalSaveMedia();
     return (
       <FullScreenViewModal
         {...props}
         dimensions={dimensions}
         overlayContext={overlayContext}
-        intentionalSaveMedia={intentionalSaveMedia}
       />
     );
   });
