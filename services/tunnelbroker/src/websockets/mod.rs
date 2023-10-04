@@ -168,19 +168,36 @@ async fn accept_connection(
     tokio::select! {
       Some(Ok(delivery)) = session.next_amqp_message() => {
         if let Ok(message) = std::str::from_utf8(&delivery.data) {
-          session.send_message_to_device(message.to_string()).await;
+          session.send_message_to_device(Message::Text(message.to_string())).await;
         } else {
           error!("Invalid payload");
         }
       },
       device_message = incoming.next() => {
-        match device_message {
-          Some(Ok(msg)) => {
-            session::consume_error(session.handle_websocket_frame_from_device(msg).await);
-          }
+        let message: Message = match device_message {
+          Some(Ok(msg)) => msg,
           _ => {
             debug!("Connection to {} closed remotely.", addr);
             break;
+          }
+        };
+        match message {
+          Message::Close(_) => {
+            debug!("Connection to {} closed.", addr);
+            break;
+          }
+          Message::Pong(_) => {
+            debug!("Received Pong message from {}", addr);
+          }
+          Message::Ping(msg) => {
+            debug!("Received Ping message from {}", addr);
+            session.send_message_to_device(Message::Pong(msg)).await;
+          }
+          Message::Text(msg) => {
+            session::consume_error(session.handle_websocket_frame_from_device(msg).await);
+          }
+          _ => {
+            error!("Client sent invalid message type");
           }
         }
       },
