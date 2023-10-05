@@ -4,17 +4,14 @@ import * as React from 'react';
 
 import {
   deleteThreadActionTypes,
-  deleteThread,
+  useDeleteThread,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { containedThreadInfos } from 'lib/selectors/thread-selectors.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import ThreadDeleteConfirmationModal from './thread-settings-delete-confirmation-modal.react.js';
@@ -41,7 +38,7 @@ function ThreadSettingsDeleteTab(
 
   const modalContext = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
-  const callDeleteThread = useServerCall(deleteThread);
+  const callDeleteThread = useDeleteThread();
   const containedThreads = useSelector(
     state => containedThreadInfos(state)[threadInfo.id],
   );
@@ -58,7 +55,7 @@ function ThreadSettingsDeleteTab(
   const deleteThreadAction = React.useCallback(async () => {
     try {
       setErrorMessage('');
-      const response = await callDeleteThread(threadInfo.id);
+      const response = await callDeleteThread({ threadID: threadInfo.id });
       popThreadDeleteConfirmationModal();
       modalContext.popModal();
       return response;

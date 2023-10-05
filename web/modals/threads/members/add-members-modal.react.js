@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import {
   changeThreadSettingsActionTypes,
-  changeThreadSettings,
+  useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -14,10 +14,7 @@ import {
 } from 'lib/selectors/user-selectors.js';
 import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import AddMembersListContent from './add-members-list-content.react.js';
 import css from './members-modal.css';
@@ -95,7 +92,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
   );
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const callChangeThreadSettings = useChangeThreadSettings();
 
   const addUsers = React.useCallback(() => {
     dispatchActionPromise(

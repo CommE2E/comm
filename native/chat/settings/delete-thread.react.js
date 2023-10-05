@@ -12,8 +12,9 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import {
   deleteThreadActionTypes,
-  deleteThread,
+  useDeleteThread,
 } from 'lib/actions/thread-actions.js';
+import type { DeleteThreadInput } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   threadInfoSelector,
@@ -30,7 +31,6 @@ import type {
   LeaveThreadPayload,
 } from 'lib/types/thread-types.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
@@ -69,7 +69,7 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +deleteThread: (threadID: string) => Promise<LeaveThreadPayload>,
+  +deleteThread: (input: DeleteThreadInput) => Promise<LeaveThreadPayload>,
   // withNavContext
   +navDispatch: (action: NavAction) => void,
 };
@@ -163,7 +163,7 @@ class DeleteThread extends React.PureComponent<Props> {
       payload: { threadIDs: [threadInfo.id] },
     });
     try {
-      const result = await this.props.deleteThread(threadInfo.id);
+      const result = await this.props.deleteThread({ threadID: threadInfo.id });
       const invalidated = identifyInvalidatedThreads(
         result.updatesResult.newUpdates,
       );
@@ -275,7 +275,7 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callDeleteThread = useServerCall(deleteThread);
+    const callDeleteThread = useDeleteThread();
 
     const navContext = React.useContext(NavContext);
     invariant(navContext, 'NavContext should be set in DeleteThread');
