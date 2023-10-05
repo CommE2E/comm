@@ -3,11 +3,12 @@
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
-import { isDev } from 'lib/utils/dev-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type { AppState } from './redux-setup.js';
+
+declare var keyserverURL: string;
 
 const defaultWebState: AppState = Object.freeze({
   navInfo: {
@@ -80,9 +81,7 @@ const defaultWebState: AppState = Object.freeze({
       [ashoatKeyserverID]: {
         cookie: null,
         updatesCurrentAsOf: 0,
-        urlPrefix: isDev
-          ? 'http://localhost:3000/comm'
-          : 'https://web.comm.app',
+        urlPrefix: keyserverURL,
         connection: { ...defaultConnectionInfo },
         lastCommunicatedPlatformDetails: null,
       },

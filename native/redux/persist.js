@@ -92,6 +92,7 @@ import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultGlobalThemeInfo } from '../types/themes.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
+import { defaultURLPrefix } from '../utils/url-utils.js';
 
 const migrations = {
   [1]: (state: AppState) => ({
@@ -783,6 +784,22 @@ const migrations = {
       threadHashingStatus: 'data_not_loaded',
     },
   }),
+  [53]: async (state: AppState): Promise<AppState> =>
+    __DEV__
+      ? {
+          ...state,
+          keyserverStore: {
+            ...state.keyserverStore,
+            keyserverInfos: {
+              ...state.keyserverStore.keyserverInfos,
+              [ashoatKeyserverID]: {
+                ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+                urlPrefix: defaultURLPrefix,
+              },
+            },
+          },
+        }
+      : state,
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -914,7 +931,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 52,
+  version: 53,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,

@@ -32,7 +32,7 @@ function getDevServerHostname(): string {
 }
 
 function getDevNodeServerURLFromHostname(hostname: string): string {
-  return `http://${hostname}:3000/comm`;
+  return `http://${hostname}:3000/keyserver`;
 }
 
 function getDevLandingURLFromHostname(hostname: string): string {
