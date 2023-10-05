@@ -283,6 +283,7 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={UserProfileBottomSheetRouteName}
         component={UserProfileBottomSheet}
+        options={modalOverlayScreenOptions}
       />
     </Root.Navigator>
   );
