@@ -20,6 +20,7 @@ import {
   type WorkerResponseMessage,
 } from '../types/worker-types.js';
 
+declare var baseURL: string;
 declare var commQueryExecutorFilename: string;
 const databaseStatuses = Object.freeze({
   notRunning: 'NOT_RUNNING',
@@ -87,7 +88,7 @@ class DatabaseModule {
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
-          databaseModuleFilePath: `${origin}${DATABASE_MODULE_FILE_PATH}`,
+          databaseModuleFilePath: `${origin}${baseURL}${DATABASE_MODULE_FILE_PATH}`,
           encryptionKey,
           commQueryExecutorFilename,
         });
