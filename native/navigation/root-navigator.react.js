@@ -45,7 +45,7 @@ import {
   CommunityCreationRouteName,
   RolesNavigatorRouteName,
   QRCodeSignInNavigatorRouteName,
-  UserProfileBottomSheetRouteName,
+  UserProfileBottomSheetNavigatorRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
@@ -63,7 +63,7 @@ import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.j
 import CustomServerModal from '../profile/custom-server-modal.react.js';
 import QRCodeSignInNavigator from '../qr-code/qr-code-sign-in-navigator.react.js';
 import RolesNavigator from '../roles/roles-navigator.react.js';
-import UserProfileBottomSheet from '../user-profile/user-profile-bottom-sheet.react.js';
+import UserProfileBottomSheetNavigator from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 
 enableScreens();
 
@@ -281,8 +281,8 @@ function RootComponent(): React.Node {
       />
       <Root.Screen name={RolesNavigatorRouteName} component={RolesNavigator} />
       <Root.Screen
-        name={UserProfileBottomSheetRouteName}
-        component={UserProfileBottomSheet}
+        name={UserProfileBottomSheetNavigatorRouteName}
+        component={UserProfileBottomSheetNavigator}
         options={modalOverlayScreenOptions}
       />
     </Root.Navigator>
