@@ -4,20 +4,17 @@ import * as React from 'react';
 
 import {
   fetchPrimaryInviteLinkActionTypes,
-  fetchPrimaryInviteLinks,
+  useFetchPrimaryInviteLinks,
 } from 'lib/actions/link-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 
 function InviteLinksRefresher(): React.Node {
   const isActive = useSelector(state => state.windowActive);
   const loggedIn = useSelector(isLoggedIn);
-  const callFetchPrimaryLinks = useServerCall(fetchPrimaryInviteLinks);
+  const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
   const dispatchActionPromise = useDispatchActionPromise();
 
   React.useEffect(() => {
