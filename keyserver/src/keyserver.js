@@ -7,12 +7,14 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import crypto from 'crypto';
 import express from 'express';
+import type { $Request, $Response } from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
 import qrcode from 'qrcode';
 
 import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
@@ -44,9 +46,9 @@ import { initENSCache } from './utils/ens-cache.js';
 import { getContentSigningKey } from './utils/olm-utils.js';
 import {
   prefetchAllURLFacts,
-  getSquadCalURLFacts,
+  getKeyserverURLFacts,
   getLandingURLFacts,
-  getCommAppURLFacts,
+  getWebAppURLFacts,
 } from './utils/urls.js';
 
 const shouldDisplayQRCodeInTerminal = false;
@@ -54,18 +56,18 @@ const shouldDisplayQRCodeInTerminal = false;
 (async () => {
   await Promise.all([olm.init(), prefetchAllURLFacts(), initENSCache()]);
 
-  const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
+  const keyserverBaseRoutePath = getKeyserverURLFacts()?.baseRoutePath;
   const landingBaseRoutePath = getLandingURLFacts()?.baseRoutePath;
-  const commAppURLFacts = getCommAppURLFacts();
-  const commAppBaseRoutePath = commAppURLFacts?.baseRoutePath;
+  const webAppURLFacts = getWebAppURLFacts();
+  const webAppBaseRoutePath = webAppURLFacts?.baseRoutePath;
 
   const compiledFolderOptions =
     process.env.NODE_ENV === 'development'
       ? undefined
       : { maxAge: '1y', immutable: true };
 
-  const corsOptions = commAppURLFacts
-    ? { origin: commAppURLFacts.baseDomain, methods: ['GET', 'POST'] }
+  const corsOptions = webAppURLFacts
+    ? { origin: webAppURLFacts.baseDomain, methods: ['GET', 'POST'] }
     : null;
 
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
@@ -227,16 +229,25 @@ const shouldDisplayQRCodeInTerminal = false;
       server.use(landingBaseRoutePath, landingRouter);
     }
 
-    if (commAppBaseRoutePath) {
+    if (webAppBaseRoutePath) {
       const commAppRouter = express.Router();
       setupAppRouter(commAppRouter);
-      server.use(commAppBaseRoutePath, commAppRouter);
+      server.use(webAppBaseRoutePath, commAppRouter);
     }
 
-    if (squadCalBaseRoutePath) {
+    if (keyserverBaseRoutePath) {
       const squadCalRouter = express.Router();
       setupAppRouter(squadCalRouter);
-      server.use(squadCalBaseRoutePath, squadCalRouter);
+      server.use(keyserverBaseRoutePath, squadCalRouter);
+    }
+
+    if (isDev && webAppURLFacts) {
+      const oldPath = '/comm/';
+      server.all(`${oldPath}*`, (req: $Request, res: $Response) => {
+        const endpoint = req.url.slice(oldPath.length);
+        const newURL = `${webAppURLFacts.baseDomain}${webAppURLFacts.basePath}${endpoint}`;
+        res.redirect(newURL);
+      });
     }
 
     const listenAddress = (() => {
