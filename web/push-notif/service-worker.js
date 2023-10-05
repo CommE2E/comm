@@ -72,7 +72,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
         const url =
           (process.env.NODE_ENV === 'production'
             ? 'https://web.comm.app'
-            : 'http://localhost:3000/comm') + `/chat/thread/${threadID}/`;
+            : 'http://localhost:3000/webapp') + `/chat/thread/${threadID}/`;
         clients.openWindow(url);
       }
     })(),

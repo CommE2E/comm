@@ -37,6 +37,8 @@ import { getDatabaseModule } from '../database/database-module-provider.js';
 import { isSQLiteSupported } from '../database/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
+declare var keyserverURL: string;
+
 const migrations = {
   [1]: async state => {
     const {
@@ -159,6 +161,19 @@ const migrations = {
       },
     };
   },
+  [8]: async state => ({
+    ...state,
+    keyserverStore: {
+      ...state.keyserverStore,
+      keyserverInfos: {
+        ...state.keyserverStore.keyserverInfos,
+        [ashoatKeyserverID]: {
+          ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+          urlPrefix: keyserverURL,
+        },
+      },
+    },
+  }),
 };
 
 const persistWhitelist = [
@@ -271,7 +286,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 7,
+  version: 8,
   transforms: [keyserverStoreTransform],
 };
 
