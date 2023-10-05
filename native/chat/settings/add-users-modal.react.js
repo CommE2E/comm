@@ -5,7 +5,7 @@ import { View, Text, ActivityIndicator } from 'react-native';
 
 import {
   changeThreadSettingsActionTypes,
-  changeThreadSettings,
+  useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -18,10 +18,7 @@ import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import Button from '../../components/button.react.js';
 import Modal from '../../components/modal.react.js';
@@ -71,7 +68,7 @@ function AddUsersModal(props: Props): React.Node {
     goBackOnce();
   }, [goBackOnce]);
 
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const callChangeThreadSettings = useChangeThreadSettings();
   const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
   const { route } = props;
   const { threadInfo } = route.params;
