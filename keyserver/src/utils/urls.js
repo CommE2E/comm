@@ -15,8 +15,8 @@ export type AppURLFacts = {
 const validProxies = new Set(['apache', 'none']);
 const sitesObj = Object.freeze({
   a: 'landing',
-  b: 'commapp',
-  c: 'squadcal',
+  b: 'webapp',
+  c: 'keyserver',
 });
 export type Site = $Values<typeof sitesObj>;
 const sites: $ReadOnlyArray<Site> = values(sitesObj);
@@ -46,30 +46,30 @@ async function prefetchAllURLFacts() {
   await Promise.all(sites.map(fetchURLFacts));
 }
 
-function getSquadCalURLFacts(): ?AppURLFacts {
-  return cachedURLFacts.get('squadcal');
+function getKeyserverURLFacts(): ?AppURLFacts {
+  return cachedURLFacts.get('keyserver');
 }
 
-function getCommAppURLFacts(): ?AppURLFacts {
-  return cachedURLFacts.get('commapp');
+function getWebAppURLFacts(): ?AppURLFacts {
+  return cachedURLFacts.get('webapp');
 }
 
-function getAndAssertCommAppURLFacts(): AppURLFacts {
-  const urlFacts = getCommAppURLFacts();
-  invariant(urlFacts, 'keyserver/facts/commapp_url.json missing');
+function getAndAssertKeyserverURLFacts(): AppURLFacts {
+  const urlFacts = getKeyserverURLFacts();
+  invariant(urlFacts, 'keyserver/facts/keyserver_url.json missing');
   return urlFacts;
 }
 
 // ESLint doesn't recognize that invariant always throws
 // eslint-disable-next-line consistent-return
 function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
-  const commURLFacts = getCommAppURLFacts();
-  if (commURLFacts && url.startsWith(commURLFacts.baseRoutePath)) {
-    return commURLFacts;
+  const webAppURLFacts = getWebAppURLFacts();
+  if (webAppURLFacts && url.startsWith(webAppURLFacts.baseRoutePath)) {
+    return webAppURLFacts;
   }
-  const squadCalURLFacts = getSquadCalURLFacts();
-  if (squadCalURLFacts) {
-    return squadCalURLFacts;
+  const keyserverURLFacts = getKeyserverURLFacts();
+  if (keyserverURLFacts && url.startsWith(keyserverURLFacts.baseRoutePath)) {
+    return keyserverURLFacts;
   }
   invariant(false, 'request received but no URL facts are present');
 }
@@ -86,9 +86,9 @@ function getAndAssertLandingURLFacts(): AppURLFacts {
 
 export {
   prefetchAllURLFacts,
-  getSquadCalURLFacts,
-  getCommAppURLFacts,
-  getAndAssertCommAppURLFacts,
+  getKeyserverURLFacts,
+  getWebAppURLFacts,
+  getAndAssertKeyserverURLFacts,
   getLandingURLFacts,
   getAndAssertLandingURLFacts,
   getAppURLFactsFromRequestURL,
