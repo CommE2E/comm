@@ -4,17 +4,14 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  joinThread,
+  useJoinThread,
   joinThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { type InviteLinkVerificationResponse } from 'lib/types/link-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import css from './accept-invite-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
@@ -39,7 +36,7 @@ function AcceptInviteModal(props: Props): React.Node {
     }
   }, [popModal, verificationResponse.status]);
 
-  const callJoinThread = useServerCall(joinThread);
+  const callJoinThread = useJoinThread();
   const calendarQuery = useSelector(nonThreadCalendarQuery);
   const communityID = verificationResponse.community?.id;
   const createJoinCommunityAction = React.useCallback(async () => {

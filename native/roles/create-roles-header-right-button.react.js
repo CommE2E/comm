@@ -6,13 +6,10 @@ import * as React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
 
 import {
-  modifyCommunityRole,
+  useModifyCommunityRole,
   modifyCommunityRoleActionTypes,
 } from 'lib/actions/thread-actions.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 
 import type { NavigationRoute } from '../navigation/route-names';
@@ -30,7 +27,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
   const navigation = useNavigation();
   const styles = useStyles(unboundStyles);
 
-  const callModifyCommunityRole = useServerCall(modifyCommunityRole);
+  const callModifyCommunityRole = useModifyCommunityRole();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const threadRoleNames = React.useMemo(

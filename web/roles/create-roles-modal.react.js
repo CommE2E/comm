@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  modifyCommunityRole,
+  useModifyCommunityRole,
   modifyCommunityRoleActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -19,10 +19,7 @@ import type {
   ThreadInfo,
   RoleModificationRequest,
 } from 'lib/types/thread-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 import { useFilterPermissionOptionsByThreadType } from 'lib/utils/role-utils.js';
 
@@ -55,7 +52,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
     props;
   const modalName = action === 'create_role' ? 'Create role' : 'Edit role';
 
-  const callModifyCommunityRole = useServerCall(modifyCommunityRole);
+  const callModifyCommunityRole = useModifyCommunityRole();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const createRolesLoadingStatus: LoadingStatus = useSelector(

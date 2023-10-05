@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import {
+  useNewThread,
+  newThreadActionTypes,
+} from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { trimText } from 'lib/utils/text-utils.js';
 
@@ -78,7 +78,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
   const calendarQuery = useSelector(nonThreadCalendarQuery);
-  const callNewThread = useServerCall(newThread);
+  const callNewThread = useNewThread();
 
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();

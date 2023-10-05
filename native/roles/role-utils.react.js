@@ -3,14 +3,11 @@
 import * as React from 'react';
 
 import {
-  deleteCommunityRole,
+  useDeleteCommunityRole,
   deleteCommunityRoleActionTypes,
 } from 'lib/actions/thread-actions.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { constructRoleDeletionMessagePrompt } from 'lib/utils/role-utils.js';
 
 import Alert from '../utils/alert.js';
@@ -22,7 +19,7 @@ function useDisplayDeleteRoleAlert(
   memberCount: number,
 ): () => void {
   const defaultRoleName = threadInfo.roles[defaultRoleID].name;
-  const callDeleteCommunityRole = useServerCall(deleteCommunityRole);
+  const callDeleteCommunityRole = useDeleteCommunityRole();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const onDeleteRole = React.useCallback(() => {

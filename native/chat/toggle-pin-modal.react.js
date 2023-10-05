@@ -5,15 +5,12 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import {
-  toggleMessagePin,
+  useToggleMessagePin,
   toggleMessagePinActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/message-actions.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import MessageResult from './message-result.react.js';
 import Button from '../components/button.react.js';
@@ -39,7 +36,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const { messageInfo, isPinned } = item;
   const styles = useStyles(unboundStyles);
 
-  const callToggleMessagePin = useServerCall(toggleMessagePin);
+  const callToggleMessagePin = useToggleMessagePin();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const modalInfo = React.useMemo(() => {
