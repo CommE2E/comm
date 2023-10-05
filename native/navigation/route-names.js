@@ -134,7 +134,10 @@ export const CommunityRolesScreenRouteName = 'CommunityRolesScreen';
 export const CreateRolesScreenRouteName = 'CreateRolesScreen';
 export const QRCodeSignInNavigatorRouteName = 'QRCodeSignInNavigator';
 export const QRCodeScreenRouteName = 'QRCodeScreen';
+export const UserProfileBottomSheetNavigatorRouteName =
+  'UserProfileBottomSheetNavigator';
 export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
+export const UserProfileAvatarModalRouteName = 'UserProfileAvatarModal';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -155,7 +158,7 @@ export type RootParamList = {
   +InviteLinkNavigator: void,
   +RolesNavigator: void,
   +QRCodeSignInNavigator: void,
-  +UserProfileBottomSheet: UserProfileBottomSheetParams,
+  +UserProfileBottomSheetNavigator: void,
 };
 
 export type MessageTooltipRouteNames =
@@ -264,7 +267,7 @@ export type QRCodeSignInParamList = {
   +QRCodeScreen: void,
 };
 
-export type BottomSheetParamList = {
+export type UserProfileBottomSheetParamList = {
   +UserProfileBottomSheet: UserProfileBottomSheetParams,
 };
 
@@ -281,7 +284,7 @@ export type ScreenParamList = {
   ...CommunityCreationParamList,
   ...RolesParamList,
   ...QRCodeSignInParamList,
-  ...BottomSheetParamList,
+  ...UserProfileBottomSheetParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
