@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import {
-  leaveThread,
+  useLeaveThread,
   leaveThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -18,10 +18,7 @@ import {
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import css from './thread-menu.css';
 import MenuItem from '../components/menu-item.react.js';
@@ -195,12 +192,12 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   }, [canCreateSubchannels, onClickCreateSubchannel]);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callLeaveThread = useServerCall(leaveThread);
+  const callLeaveThread = useLeaveThread();
 
   const onConfirmLeaveThread = React.useCallback(() => {
     dispatchActionPromise(
       leaveThreadActionTypes,
-      callLeaveThread(threadInfo.id),
+      callLeaveThread({ threadID: threadInfo.id }),
     );
     popModal();
   }, [callLeaveThread, popModal, dispatchActionPromise, threadInfo.id]);

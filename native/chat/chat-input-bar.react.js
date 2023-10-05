@@ -28,7 +28,7 @@ import {
 } from 'lib/actions/draft-actions.js';
 import {
   joinThreadActionTypes,
-  joinThread,
+  useJoinThread,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -81,7 +81,6 @@ import type {
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
@@ -1262,7 +1261,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
-  const callJoinThread = useServerCall(joinThread);
+  const callJoinThread = useJoinThread();
 
   const userSearchIndex = useSelector(userStoreMentionSearchIndex);
 
