@@ -4,7 +4,7 @@ import * as React from 'react';
 import { ActivityIndicator } from 'react-native';
 
 import {
-  changeThreadSettings,
+  useChangeThreadSettings,
   changeThreadSettingsActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -17,10 +17,7 @@ import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import CommunityCreationContentContainer from './community-creation-content-container.react.js';
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
@@ -59,7 +56,7 @@ function CommunityCreationMembers(props: Props): React.Node {
   const { announcement, threadID } = props.route.params;
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const callChangeThreadSettings = useChangeThreadSettings();
   const changeThreadSettingsLoadingStatus: LoadingStatus = useSelector(
     changeThreadSettingsLoadingStatusSelector,
   );

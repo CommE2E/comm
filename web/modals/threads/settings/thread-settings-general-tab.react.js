@@ -5,16 +5,13 @@ import tinycolor from 'tinycolor2';
 
 import {
   changeThreadSettingsActionTypes,
-  changeThreadSettings,
+  useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
 
@@ -48,7 +45,7 @@ function ThreadSettingsGeneralTab(
   } = props;
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const callChangeThreadSettings = useChangeThreadSettings();
 
   const nameInputRef = React.useRef();
 
