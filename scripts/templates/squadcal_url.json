@@ -1,7 +1,0 @@
-{
-  "baseDomain": "http://localhost:3000",
-  "basePath": "/comm/",
-  "https": false,
-  "baseRoutePath": "/",
-  "proxy": "apache"
-}
