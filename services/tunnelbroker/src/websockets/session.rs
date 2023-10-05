@@ -15,7 +15,10 @@ use lapin::BasicProperties;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tracing::{debug, error, info};
-use tunnelbroker_messages::{session::DeviceTypes, Messages};
+use tunnelbroker_messages::{
+  send_confirmation::Failure, send_confirmation::MessageSentStatus,
+  session::DeviceTypes, MessageToDeviceRequest, Messages, SendConfirmation,
+};
 
 use crate::database::{self, DatabaseClient, DeviceMessage};
 use crate::error::Error;
@@ -153,45 +156,68 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     })
   }
 
-  pub async fn handle_websocket_frame_from_device(
+  pub async fn handle_message_to_device(
     &self,
-    msg: String,
+    message_request: &MessageToDeviceRequest,
   ) -> Result<(), SessionError> {
-    let serialized_message = serde_json::from_str::<Messages>(&msg)?;
+    let message_id = self
+      .db_client
+      .persist_message(
+        message_request.device_id.as_str(),
+        message_request.payload.as_str(),
+        message_request.client_message_id.as_str(),
+      )
+      .await?;
+
+    let publish_result = self
+      .amqp_channel
+      .basic_publish(
+        "",
+        &message_request.device_id,
+        BasicPublishOptions::default(),
+        message_request.payload.as_bytes(),
+        BasicProperties::default(),
+      )
+      .await;
+
+    if let Err(publish_error) = publish_result {
+      self
+        .db_client
+        .delete_message(&self.device_info.device_id, &message_id)
+        .await
+        .expect("Error deleting message");
+      return Err(SessionError::AmqpError(publish_error));
+    }
+    Ok(())
+  }
+
+  pub async fn handle_websocket_frame_from_device(
+    &mut self,
+    msg: String,
+  ) -> SendConfirmation {
+    let serialized_message = match serde_json::from_str::<Messages>(&msg) {
+      Ok(message) => message,
+      Err(_) => {
+        return SendConfirmation {
+          client_message_ids: vec![MessageSentStatus::SerializationError(msg)],
+        };
+      }
+    };
 
     match serialized_message {
-      Messages::MessageToDeviceRequest(message_to_device_request) => {
-        debug!(
-          "Received message for {}",
-          message_to_device_request.device_id
-        );
-        self
-          .db_client
-          .persist_message(
-            message_to_device_request.device_id.as_str(),
-            message_to_device_request.payload.as_str(),
-            message_to_device_request.client_message_id.as_str(),
-          )
-          .await?;
+      Messages::MessageToDeviceRequest(message_request) => {
+        debug!("Received message for {}", message_request.device_id);
 
-        self
-          .amqp_channel
-          .basic_publish(
-            "",
-            &message_to_device_request.device_id,
-            BasicPublishOptions::default(),
-            message_to_device_request.payload.as_bytes(),
-            BasicProperties::default(),
-          )
-          .await?;
+        let result = self.handle_message_to_device(&message_request).await;
+        self.get_send_confirmation(&message_request.client_message_id, result)
       }
       _ => {
         error!("Client sent invalid message type");
-        return Err(SessionError::InvalidMessage);
+        SendConfirmation {
+          client_message_ids: vec![MessageSentStatus::InvalidRequest],
+        }
       }
     }
-
-    Ok(())
   }
 
   pub async fn next_amqp_message(
@@ -267,6 +293,23 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       .await
     {
       error!("Failed to delete queue: {}", e);
+    }
+  }
+
+  pub fn get_send_confirmation(
+    &mut self,
+    client_message_id: &str,
+    result: Result<(), SessionError>,
+  ) -> SendConfirmation {
+    let status = match result {
+      Ok(_) => MessageSentStatus::Success(client_message_id.to_string()),
+      Err(err) => MessageSentStatus::Error(Failure {
+        id: client_message_id.to_string(),
+        error: err.to_string(),
+      }),
+    };
+    SendConfirmation {
+      client_message_ids: vec![status],
     }
   }
 }
