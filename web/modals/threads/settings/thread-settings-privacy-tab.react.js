@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import {
-  changeThreadSettings,
+  useChangeThreadSettings,
   changeThreadSettingsActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -12,10 +12,7 @@ import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-privacy-tab.css';
@@ -61,7 +58,7 @@ function ThreadSettingsPrivacyTab(
 
   const modalContext = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const callChangeThreadSettings = useChangeThreadSettings();
 
   const changeQueued: boolean = React.useMemo(
     () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
