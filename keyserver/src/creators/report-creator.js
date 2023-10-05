@@ -29,7 +29,7 @@ import { fetchUsername } from '../fetchers/user-fetchers.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import { createBotViewer } from '../session/bots.js';
 import type { Viewer } from '../session/viewer.js';
-import { getAndAssertCommAppURLFacts } from '../utils/urls.js';
+import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 const { commbot } = bots;
 
@@ -144,7 +144,7 @@ function getCommbotMessage(
   const { platform, codeVersion } = platformDetails;
   const platformString = codeVersion ? `${platform} v${codeVersion}` : platform;
   if (request.type === reportTypes.ERROR) {
-    const { baseDomain, basePath } = getAndAssertCommAppURLFacts();
+    const { baseDomain, basePath } = getAndAssertKeyserverURLFacts();
     return (
       `${name} got an error :(\n` +
       `using ${platformString}\n` +

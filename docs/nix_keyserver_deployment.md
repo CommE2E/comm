@@ -13,7 +13,8 @@ COMM_DATABASE_USER=<MariaDB user>
 COMM_DATABASE_PASSWORD=<MariaDB password>
 COMM_JSONCONFIG_secrets_user_credentials='{"username":"<user>","password":"<password>"}'
 COMM_JSONCONFIG_facts_landing_url='{"baseDomain":"http://localhost","basePath":"/commlanding/","baseRoutePath":"/commlanding/","https":false}'
-COMM_JSONCONFIG_facts_commapp_url='{"baseDomain":"http://localhost:3000","basePath":"/comm/","https":false,"baseRoutePath":"/comm/","proxy":"none"}'
+COMM_JSONCONFIG_facts_webapp_url='{"baseDomain":"http://localhost:3000","basePath":"/webapp/","https":false,"baseRoutePath":"/webapp/","proxy":"none"}'
+COMM_JSONCONFIG_facts_keyserver_url='{"baseDomain":"http://localhost:3000","basePath":"/keyserver/","baseRoutePath":"/keyserver/","https":false,"proxy":"none"}'
 COMM_JSONCONFIG_facts_webapp_cors='{"domain": "http://localhost:3000"}'
 
 # Required to connect to production Identity service
@@ -45,7 +46,7 @@ COMM_JSONCONFIG_facts_backups='{"enabled":true,"directory":"/home/comm/backups",
 
 ### URL configuration
 
-- `COMM_JSONCONFIG_facts_commapp_url`: Your keyserver needs to know what its externally-facing URL is in order to construct links. It also needs to know if it’s being proxied to that externally-facing URL, and what the internal route path is.
+- `COMM_JSONCONFIG_facts_keyserver_url`: Your keyserver needs to know what its externally-facing URL is in order to construct links. It also needs to know if it’s being proxied to that externally-facing URL, and what the internal route path is.
   - `baseDomain`: Externally-facing domain. Used for constructing links.
   - `basePath`: Externally-facing path. Used for constructing links.
   - `baseRoutePath`: Internally-facing path. Same as basePath if no proxy. If there’s a proxy, this is the local path (e.g. http://localhost:3000/landing would correspond with /landing/)
