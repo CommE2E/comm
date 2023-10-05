@@ -1,40 +1,37 @@
 // @flow
 
-import { BottomSheetBackdrop as Backdrop } from '@gorhom/bottom-sheet';
+import { useBottomSheet } from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import type { SharedValue } from 'react-native-reanimated';
-
-type BackdropPressBehavior = 'none' | 'close' | 'collapse';
+import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { type SharedValue } from 'react-native-reanimated';
 
 type Props = {
   +animatedIndex: SharedValue<number>,
-  +animatedPosition: SharedValue<number>,
-  +opacity?: number,
-  +appearsOnIndex?: number,
-  +disappearsOnIndex?: number,
-  +enableTouchThrough?: boolean,
-  +pressBehavior?: BackdropPressBehavior | number,
+  +onPress: () => mixed,
 };
 
 function BottomSheetBackdrop(props: Props): React.Node {
-  const {
-    opacity,
-    appearsOnIndex,
-    disappearsOnIndex,
-    enableTouchThrough,
-    pressBehavior,
-  } = props;
+  const { animatedIndex } = props;
+
+  const { close } = useBottomSheet();
+
+  const onPressBackdrop = React.useCallback(() => {
+    if (animatedIndex.value >= 0) {
+      close();
+    }
+  }, [animatedIndex.value, close]);
 
   return (
-    <Backdrop
-      {...props}
-      opacity={opacity ?? 0.5}
-      appearsOnIndex={appearsOnIndex ?? 0}
-      disappearsOnIndex={disappearsOnIndex ?? -1}
-      enableTouchThrough={enableTouchThrough ?? false}
-      pressBehavior={pressBehavior ?? 'close'}
-    />
+    <TouchableWithoutFeedback onPress={onPressBackdrop}>
+      <View style={styles.backdropContainer} />
+    </TouchableWithoutFeedback>
   );
 }
+
+const styles = StyleSheet.create({
+  backdropContainer: {
+    flex: 1,
+  },
+});
 
 export default BottomSheetBackdrop;
