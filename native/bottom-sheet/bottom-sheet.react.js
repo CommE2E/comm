@@ -1,6 +1,6 @@
 // @flow
 
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { default as GorhomBottomSheet } from '@gorhom/bottom-sheet';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -16,7 +16,7 @@ type Props = {
 
 function ForwardedBottomSheet(
   props: Props,
-  ref: React.Ref<typeof BottomSheetModal>,
+  ref: React.Ref<typeof GorhomBottomSheet>,
 ): React.Node {
   const { children, onClosed } = props;
 
@@ -29,17 +29,27 @@ function ForwardedBottomSheet(
 
   const snapPoints = React.useMemo(() => [contentHeight], [contentHeight]);
 
+  const onChange = React.useCallback(
+    (index: number) => {
+      if (index === -1) {
+        onClosed();
+      }
+    },
+    [onClosed],
+  );
+
   return (
-    <BottomSheetModal
+    <GorhomBottomSheet
       ref={ref}
       backgroundStyle={styles.background}
       snapPoints={snapPoints}
       handleComponent={BottomSheetHandle}
       backdropComponent={BottomSheetBackdrop}
-      onDismiss={onClosed}
+      onChange={onChange}
+      enablePanDownToClose={true}
     >
       {children}
-    </BottomSheetModal>
+    </GorhomBottomSheet>
   );
 }
 
@@ -51,15 +61,15 @@ const unboundStyles = {
 
 const BottomSheet: React.AbstractComponent<
   Props,
-  React.ElementRef<typeof BottomSheetModal>,
-> = React.forwardRef<Props, React.ElementRef<typeof BottomSheetModal>>(
+  React.ElementRef<typeof GorhomBottomSheet>,
+> = React.forwardRef<Props, React.ElementRef<typeof GorhomBottomSheet>>(
   ForwardedBottomSheet,
 );
 BottomSheet.displayName = 'BottomSheet';
 
 const MemoizedBottomSheet: typeof BottomSheet = React.memo<
   Props,
-  React.ElementRef<typeof BottomSheetModal>,
+  React.ElementRef<typeof GorhomBottomSheet>,
 >(BottomSheet);
 
 export default MemoizedBottomSheet;
