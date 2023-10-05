@@ -6,8 +6,9 @@ import { Text, ActivityIndicator, View } from 'react-native';
 
 import {
   leaveThreadActionTypes,
-  leaveThread,
+  useLeaveThread,
 } from 'lib/actions/thread-actions.js';
+import type { LeaveThreadInput } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
@@ -15,7 +16,6 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
@@ -44,7 +44,7 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
+  +leaveThread: (input: LeaveThreadInput) => Promise<LeaveThreadPayload>,
   // withNavContext
   +navContext: ?NavContextType,
 };
@@ -113,7 +113,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       payload: { threadIDs: [threadID] },
     });
     try {
-      const result = await this.props.leaveThread(threadID);
+      const result = await this.props.leaveThread({ threadID });
       const invalidated = identifyInvalidatedThreads(
         result.updatesResult.newUpdates,
       );
@@ -165,7 +165,7 @@ const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> =
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLeaveThread = useServerCall(leaveThread);
+    const callLeaveThread = useLeaveThread();
     const navContext = React.useContext(NavContext);
     return (
       <ThreadSettingsLeaveThread
