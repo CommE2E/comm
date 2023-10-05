@@ -27,7 +27,7 @@ function UserProfileBottomSheet(props: Props): React.Node {
     },
   } = props;
 
-  const { goBackOnce } = navigation;
+  const { goBack } = navigation;
 
   const userInfo: ?UserInfo = useSelector(
     state => state.userStore.userInfos[userID],
@@ -35,12 +35,8 @@ function UserProfileBottomSheet(props: Props): React.Node {
 
   const bottomSheetRef = React.useRef();
 
-  const onClosed = React.useCallback(() => {
-    goBackOnce();
-  }, [goBackOnce]);
-
   return (
-    <BottomSheet ref={bottomSheetRef} onClosed={onClosed}>
+    <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
       <UserProfile userInfo={userInfo} />
     </BottomSheet>
   );
