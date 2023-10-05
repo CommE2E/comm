@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import {
-  deleteCommunityRole,
+  useDeleteCommunityRole,
   deleteCommunityRoleActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -11,10 +11,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { useRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { constructRoleDeletionMessagePrompt } from 'lib/utils/role-utils.js';
 
 import css from './delete-role-modal.css';
@@ -37,7 +34,7 @@ function DeleteRoleModal(props: DeleteRoleModalProps): React.Node {
   const { threadInfo, defaultRoleID, roleID } = props;
   const { popModal } = useModalContext();
 
-  const callDeleteCommunityRole = useServerCall(deleteCommunityRole);
+  const callDeleteCommunityRole = useDeleteCommunityRole();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const deleteRoleLoadingStatus: LoadingStatus = useSelector(

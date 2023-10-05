@@ -4,18 +4,15 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  toggleMessagePin,
+  useToggleMessagePin,
   toggleMessagePinActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import css from './toggle-pin-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
@@ -32,7 +29,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   const { messageInfo, isPinned } = item;
   const { popModal } = useModalContext();
 
-  const callToggleMessagePin = useServerCall(toggleMessagePin);
+  const callToggleMessagePin = useToggleMessagePin();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const modalInfo = React.useMemo(() => {

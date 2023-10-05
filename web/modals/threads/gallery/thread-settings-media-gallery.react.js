@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
+import { useFetchThreadMedia } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import {
   encryptedMediaBlobURI,
@@ -10,7 +10,6 @@ import {
 } from 'lib/media/media-utils.js';
 import type { Media } from 'lib/types/media-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
 
 import GalleryItem from './thread-settings-media-gallery-item.react.js';
 import css from './thread-settings-media-gallery.css';
@@ -35,7 +34,7 @@ function ThreadSettingsMediaGalleryModal(
   const { id: threadID } = parentThreadInfo;
   const modalName = 'Media';
 
-  const callFetchThreadMedia = useServerCall(fetchThreadMedia);
+  const callFetchThreadMedia = useFetchThreadMedia();
   const [mediaInfos, setMediaInfos] = React.useState([]);
   const [tab, setTab] = React.useState<MediaGalleryTab>(activeTab);
 

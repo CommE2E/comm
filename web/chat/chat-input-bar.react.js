@@ -6,7 +6,7 @@ import * as React from 'react';
 
 import {
   joinThreadActionTypes,
-  joinThread,
+  useJoinThread,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
@@ -45,7 +45,6 @@ import {
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
@@ -582,7 +581,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const threadCreationInProgress = createThreadLoadingStatus === 'loading';
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const dispatchActionPromise = useDispatchActionPromise();
-    const callJoinThread = useServerCall(joinThread);
+    const callJoinThread = useJoinThread();
     const userSearchIndex = useSelector(userStoreMentionSearchIndex);
     const { getChatMentionSearchIndex } = useChatMentionContext();
     const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
