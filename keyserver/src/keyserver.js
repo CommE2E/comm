@@ -56,7 +56,8 @@ const shouldDisplayQRCodeInTerminal = false;
 (async () => {
   await Promise.all([olm.init(), prefetchAllURLFacts(), initENSCache()]);
 
-  const keyserverBaseRoutePath = getKeyserverURLFacts()?.baseRoutePath;
+  const keyserverURLFacts = getKeyserverURLFacts();
+  const keyserverBaseRoutePath = keyserverURLFacts?.baseRoutePath;
   const landingBaseRoutePath = getLandingURLFacts()?.baseRoutePath;
   const webAppURLFacts = getWebAppURLFacts();
   const webAppBaseRoutePath = webAppURLFacts?.baseRoutePath;
@@ -136,71 +137,11 @@ const shouldDisplayQRCodeInTerminal = false;
     server.use(express.json({ limit: '250mb' }));
     server.use(cookieParser());
 
-    const setupAppRouter = router => {
-      if (areEndpointMetricsEnabled) {
-        router.use(logEndpointMetrics);
-      }
-      if (corsOptions) {
-        router.use(cors(corsOptions));
-      }
-      router.use('/images', express.static('images'));
-      router.use('/fonts', express.static('fonts'));
-      router.use('/misc', express.static('misc'));
-      router.use(
-        '/.well-known',
-        express.static(
-          '.well-known',
-          // Necessary for apple-app-site-association file
-          {
-            setHeaders: res =>
-              res.setHeader('Content-Type', 'application/json'),
-          },
-        ),
-      );
-      router.use(
-        '/compiled',
-        express.static('app_compiled', compiledFolderOptions),
-      );
-      router.use('/', express.static('icons'));
-
-      for (const endpoint in jsonEndpoints) {
-        // $FlowFixMe Flow thinks endpoint is string
-        const responder = jsonEndpoints[endpoint];
-        const expectCookieInvalidation = endpoint === 'log_out';
-        router.post(
-          `/${endpoint}`,
-          jsonHandler(responder, expectCookieInvalidation),
-        );
-      }
-
-      router.get(
-        '/download_error_report/:reportID',
-        downloadHandler(errorReportDownloadResponder),
-      );
-      router.get(
-        '/upload/:uploadID/:secret',
-        downloadHandler(uploadDownloadResponder),
-      );
-
-      router.get('/invite/:secret', inviteResponder);
-
-      // $FlowFixMe express-ws has side effects that can't be typed
-      router.ws('/ws', onConnection);
-      router.get('/worker/:worker', webWorkerResponder);
-      router.get('*', htmlHandler(websiteResponder));
-
-      router.post(
-        '/upload_multimedia',
-        multerProcessor,
-        uploadHandler(multimediaUploadResponder),
-      );
-    };
-
     // Note - the order of router declarations matters. On prod we have
     // squadCalBaseRoutePath configured to '/', which means it's a catch-all. If
-    // we call server.use on squadCalRouter first, it will catch all requests
-    // and prevent commAppRouter and landingRouter from working correctly. So we
-    // make sure that squadCalRouter goes last
+    // we call server.use on keyserverRouter first, it will catch all requests
+    // and prevent webAppRouter and landingRouter from working correctly. So we
+    // make sure that keyserverRouter goes last
 
     server.get('/invite/:secret', inviteResponder);
 
@@ -231,15 +172,85 @@ const shouldDisplayQRCodeInTerminal = false;
     }
 
     if (webAppBaseRoutePath) {
-      const commAppRouter = express.Router();
-      setupAppRouter(commAppRouter);
-      server.use(webAppBaseRoutePath, commAppRouter);
+      const webAppRouter = express.Router();
+      webAppRouter.use('/images', express.static('images'));
+      webAppRouter.use('/fonts', express.static('fonts'));
+      webAppRouter.use('/misc', express.static('misc'));
+      webAppRouter.use(
+        '/.well-known',
+        express.static(
+          '.well-known',
+          // Necessary for apple-app-site-association file
+          {
+            setHeaders: res =>
+              res.setHeader('Content-Type', 'application/json'),
+          },
+        ),
+      );
+      webAppRouter.use(
+        '/compiled',
+        express.static('app_compiled', compiledFolderOptions),
+      );
+      webAppRouter.use('/', express.static('icons'));
+
+      webAppRouter.get('/invite/:secret', inviteResponder);
+
+      webAppRouter.get('/worker/:worker', webWorkerResponder);
+
+      if (keyserverURLFacts) {
+        webAppRouter.get(
+          '/upload/:uploadID/:secret',
+          (req: $Request, res: $Response) => {
+            const { uploadID, secret } = req.params;
+            const url = `${keyserverURLFacts.baseDomain}${keyserverURLFacts.basePath}upload/${uploadID}/${secret}`;
+            res.redirect(url);
+          },
+        );
+      }
+
+      webAppRouter.get('*', htmlHandler(websiteResponder));
+
+      server.use(webAppBaseRoutePath, webAppRouter);
     }
 
     if (keyserverBaseRoutePath) {
-      const squadCalRouter = express.Router();
-      setupAppRouter(squadCalRouter);
-      server.use(keyserverBaseRoutePath, squadCalRouter);
+      const keyserverRouter = express.Router();
+      if (areEndpointMetricsEnabled) {
+        keyserverRouter.use(logEndpointMetrics);
+      }
+      if (corsOptions) {
+        keyserverRouter.use(cors(corsOptions));
+      }
+
+      for (const endpoint in jsonEndpoints) {
+        // $FlowFixMe Flow thinks endpoint is string
+        const responder = jsonEndpoints[endpoint];
+        const expectCookieInvalidation = endpoint === 'log_out';
+        keyserverRouter.post(
+          `/${endpoint}`,
+          jsonHandler(responder, expectCookieInvalidation),
+        );
+      }
+
+      keyserverRouter.get(
+        '/download_error_report/:reportID',
+        downloadHandler(errorReportDownloadResponder),
+      );
+      keyserverRouter.get(
+        '/upload/:uploadID/:secret',
+        downloadHandler(uploadDownloadResponder),
+      );
+
+      // $FlowFixMe express-ws has side effects that can't be typed
+      keyserverRouter.ws('/ws', onConnection);
+
+      keyserverRouter.post(
+        '/upload_multimedia',
+        multerProcessor,
+        uploadHandler(multimediaUploadResponder),
+      );
+
+      server.use(keyserverBaseRoutePath, keyserverRouter);
     }
 
     if (isDev && webAppURLFacts) {
