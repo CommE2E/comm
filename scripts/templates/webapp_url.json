@@ -1,0 +1,7 @@
+{
+  "baseDomain": "http://localhost:3000",
+  "basePath": "/webapp/",
+  "baseRoutePath": "/webapp/",
+  "https": false,
+  "proxy": "none"
+}
