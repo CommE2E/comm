@@ -3,13 +3,10 @@
 import * as React from 'react';
 
 import {
-  sendMessageReport,
+  useSendMessageReport,
   sendMessageReportActionTypes,
 } from 'lib/actions/message-report-actions.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
@@ -24,7 +21,7 @@ function useOnPressReport(
 ): () => mixed {
   const messageID = route.params.item.messageInfo.id;
   const dispatchActionPromise = useDispatchActionPromise();
-  const callSendMessageReport = useServerCall(sendMessageReport);
+  const callSendMessageReport = useSendMessageReport();
   return React.useCallback(() => {
     if (!messageID) {
       Alert.alert(
