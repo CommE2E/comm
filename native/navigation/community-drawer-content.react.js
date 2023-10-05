@@ -9,17 +9,14 @@ import { useSelector } from 'react-redux';
 
 import {
   fetchPrimaryInviteLinkActionTypes,
-  fetchPrimaryInviteLinks,
+  useFetchPrimaryInviteLinks,
 } from 'lib/actions/link-actions.js';
 import {
   childThreadInfos,
   communityThreadSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import {
   createRecursiveDrawerItemsData,
   appendSuffix,
@@ -51,7 +48,7 @@ function CommunityDrawerContent(): React.Node {
   );
   const styles = useStyles(unboundStyles);
 
-  const callFetchPrimaryLinks = useServerCall(fetchPrimaryInviteLinks);
+  const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
   const dispatchActionPromise = useDispatchActionPromise();
   const drawerStatus = useDrawerStatus();
   React.useEffect(() => {
