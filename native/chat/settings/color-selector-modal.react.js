@@ -6,7 +6,7 @@ import { TouchableHighlight } from 'react-native';
 
 import {
   changeThreadSettingsActionTypes,
-  changeThreadSettings,
+  useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import {
   type ThreadInfo,
@@ -14,10 +14,7 @@ import {
   type UpdateThreadRequest,
 } from 'lib/types/thread-types.js';
 import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import ColorSelector from '../../components/color-selector.react.js';
 import Modal from '../../components/modal.react.js';
@@ -176,7 +173,7 @@ const ConnectedColorSelectorModal: React.ComponentType<BaseProps> =
     const windowWidth = useSelector(state => state.dimensions.width);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useServerCall(changeThreadSettings);
+    const callChangeThreadSettings = useChangeThreadSettings();
 
     return (
       <ColorSelectorModal

@@ -11,7 +11,7 @@ import {
 
 import {
   changeThreadSettingsActionTypes,
-  changeThreadSettings,
+  useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
@@ -24,7 +24,6 @@ import {
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
@@ -307,7 +306,7 @@ const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useServerCall(changeThreadSettings);
+    const callChangeThreadSettings = useChangeThreadSettings();
     return (
       <ThreadSettingsDescription
         {...props}

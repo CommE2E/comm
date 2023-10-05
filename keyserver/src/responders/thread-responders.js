@@ -66,7 +66,6 @@ import {
 export const threadDeletionRequestInputValidator: TInterface<ThreadDeletionRequest> =
   tShape<ThreadDeletionRequest>({
     threadID: tID,
-    accountPassword: t.maybe(tPassword),
   });
 
 export const leaveThreadResultValidator: TInterface<LeaveThreadResult> =
