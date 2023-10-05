@@ -5,15 +5,12 @@ import * as React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 
 import {
-  joinThread,
+  useJoinThread,
   joinThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import { nonThreadCalendarQuery } from './nav-selectors.js';
 import { NavContext } from './navigation-context.js';
@@ -72,7 +69,7 @@ function InviteLinkModal(props: Props): React.Node {
     styles.invitation,
   ]);
 
-  const callJoinThread = useServerCall(joinThread);
+  const callJoinThread = useJoinThread();
   const navContext = React.useContext(NavContext);
   const calendarQuery = useSelector(state =>
     nonThreadCalendarQuery({

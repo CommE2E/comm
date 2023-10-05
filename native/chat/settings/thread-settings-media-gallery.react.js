@@ -6,9 +6,8 @@ import { View, useWindowDimensions } from 'react-native';
 import type { ViewStyleProp } from 'react-native/Libraries/StyleSheet/StyleSheet';
 import { FlatList } from 'react-native-gesture-handler';
 
-import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
+import { useFetchThreadMedia } from 'lib/actions/thread-actions.js';
 import type { MediaInfo, Media } from 'lib/types/media-types';
-import { useServerCall } from 'lib/utils/action-utils.js';
 
 import GestureTouchableOpacity from '../../components/gesture-touchable-opacity.react.js';
 import Multimedia from '../../media/multimedia.react.js';
@@ -50,7 +49,7 @@ function ThreadSettingsMediaGallery(
     (width - 32 - (numColumns - 1) * galleryItemGap) / numColumns;
   const { threadID, limit, verticalBounds, offset, activeTab } = props;
   const [mediaInfos, setMediaInfos] = React.useState([]);
-  const callFetchThreadMedia = useServerCall(fetchThreadMedia);
+  const callFetchThreadMedia = useFetchThreadMedia();
 
   React.useEffect(() => {
     const fetchData = async () => {

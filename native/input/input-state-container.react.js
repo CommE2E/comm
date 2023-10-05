@@ -19,7 +19,7 @@ import type {
   SendTextMessageInput,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
-import { newThread } from 'lib/actions/thread-actions.js';
+import { useNewThread } from 'lib/actions/thread-actions.js';
 import {
   uploadMultimedia,
   uploadMediaMetadata,
@@ -1697,7 +1697,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callBlobServiceUpload = useServerCall(blobServiceUpload);
     const callSendMultimediaMessage = useSendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
-    const callNewThread = useServerCall(newThread);
+    const callNewThread = useNewThread();
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');
