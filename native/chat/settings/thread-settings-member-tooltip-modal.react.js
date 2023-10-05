@@ -2,14 +2,11 @@
 
 import * as React from 'react';
 
-import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
+import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { removeMemberFromThread } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
 import type { AppNavigationProp } from '../../navigation/app-navigator.react';
@@ -32,7 +29,7 @@ function useOnRemoveUser(
   route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
 ) {
   const { memberInfo, threadInfo } = route.params;
-  const boundRemoveUsersFromThread = useServerCall(removeUsersFromThread);
+  const boundRemoveUsersFromThread = useRemoveUsersFromThread();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const onConfirmRemoveUser = React.useCallback(

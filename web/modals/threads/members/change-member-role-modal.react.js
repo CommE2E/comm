@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  changeThreadMemberRoles,
+  useChangeThreadMemberRoles,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -12,10 +12,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 
 import css from './change-member-role-modal.css';
@@ -35,7 +32,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
   const { memberInfo, threadInfo } = props;
   const { pushModal, popModal } = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
+  const callChangeThreadMemberRoles = useChangeThreadMemberRoles();
   const otherUsersButNoOtherAdminsValue = useSelector(
     otherUsersButNoOtherAdmins(threadInfo.id),
   );
@@ -89,7 +86,11 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
     }
 
     const createChangeThreadMemberRolesPromise = () =>
-      callChangeThreadMemberRoles(threadInfo.id, [memberInfo.id], selectedRole);
+      callChangeThreadMemberRoles({
+        threadID: threadInfo.id,
+        memberIDs: [memberInfo.id],
+        newRole: selectedRole,
+      });
 
     dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
