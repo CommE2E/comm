@@ -18,7 +18,7 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import type { Viewer } from '../session/viewer.js';
-import { getAndAssertCommAppURLFacts } from '../utils/urls.js';
+import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 type UploadInfo = {
   content: Buffer,
@@ -104,7 +104,7 @@ async function getUploadSize(id: string, secret: string): Promise<number> {
 }
 
 function getUploadURL(id: string, secret: string): string {
-  const { baseDomain, basePath } = getAndAssertCommAppURLFacts();
+  const { baseDomain, basePath } = getAndAssertKeyserverURLFacts();
   const uploadPath = `${basePath}upload/${id}/${secret}`;
   if (isDev) {
     const ipV4 = ip.v4.sync() || 'localhost';
