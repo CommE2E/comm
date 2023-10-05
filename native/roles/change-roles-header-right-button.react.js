@@ -7,13 +7,10 @@ import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import {
-  changeThreadMemberRoles,
+  useChangeThreadMemberRoles,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import type { NavigationRoute } from '../navigation/route-names';
 import { useColors } from '../themes/colors.js';
@@ -31,7 +28,7 @@ function ChangeRolesHeaderRightButton(props: Props): React.Node {
   invariant(selectedRole, 'Expected selected role to be defined');
   const navigation = useNavigation();
 
-  const callChangeThreadMemberRoles = useServerCall(changeThreadMemberRoles);
+  const callChangeThreadMemberRoles = useChangeThreadMemberRoles();
   const dispatchActionPromise = useDispatchActionPromise();
 
   const { disabledButton, purpleLink } = useColors();
@@ -51,7 +48,11 @@ function ChangeRolesHeaderRightButton(props: Props): React.Node {
 
     dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
-      callChangeThreadMemberRoles(threadInfo.id, [memberInfo.id], selectedRole),
+      callChangeThreadMemberRoles({
+        threadID: threadInfo.id,
+        memberIDs: [memberInfo.id],
+        newRole: selectedRole,
+      }),
     );
 
     navigation.goBack();

@@ -3,15 +3,15 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import {
+  useNewThread,
+  newThreadActionTypes,
+} from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResult } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
@@ -50,7 +50,7 @@ function CommunityConfiguration(props: Props): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
 
-  const callNewThread = useServerCall(newThread);
+  const callNewThread = useNewThread();
   const calendarQueryFunc = useCalendarQuery();
 
   const createNewCommunityLoadingStatus: LoadingStatus = useSelector(
