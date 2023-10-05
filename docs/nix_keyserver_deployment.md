@@ -13,7 +13,7 @@ COMM_DATABASE_USER=<MariaDB user>
 COMM_DATABASE_PASSWORD=<MariaDB password>
 COMM_JSONCONFIG_secrets_user_credentials='{"username":"<user>","password":"<password>"}'
 COMM_JSONCONFIG_facts_landing_url='{"baseDomain":"http://localhost","basePath":"/commlanding/","baseRoutePath":"/commlanding/","https":false}'
-COMM_JSONCONFIG_facts_commapp_url='{"baseDomain":"http://localhost:3000","basePath":"/comm/","https":false,"baseRoutePath":"/comm/","proxy":"none"}'
+COMM_JSONCONFIG_facts_commapp_url='{"baseDomain":"http://localhost:3000","basePath":"/webapp/","https":false,"baseRoutePath":"/webapp/","proxy":"none"}'
 COMM_JSONCONFIG_facts_webapp_cors='{"domain": "http://localhost:3000"}'
 
 # Required to connect to production Identity service

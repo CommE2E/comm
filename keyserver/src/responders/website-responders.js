@@ -15,8 +15,9 @@ import getTitle from 'web/title/getTitle.js';
 
 import { waitForStream } from '../utils/json-stream.js';
 import {
+  getAndAssertKeyserverURLFacts,
   getAppURLFactsFromRequestURL,
-  getCommAppURLFacts,
+  getWebAppURLFacts,
 } from '../utils/urls.js';
 
 const { renderToNodeStream } = ReactDOMServer;
@@ -110,9 +111,18 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
+function stripLastSlash(input: string): string {
+  return input.replace(/\/$/, '');
+}
+
 async function websiteResponder(req: $Request, res: $Response): Promise<void> {
   const { basePath } = getAppURLFactsFromRequestURL(req.originalUrl);
-  const baseURL = basePath.replace(/\/$/, '');
+  const baseURL = stripLastSlash(basePath);
+
+  const keyserverURLFacts = getAndAssertKeyserverURLFacts();
+  const keyserverURL = `${keyserverURLFacts.baseDomain}${stripLastSlash(
+    keyserverURLFacts.basePath,
+  )}`;
 
   const loadingPromise = getWebpackCompiledRootComponentForSSR();
 
@@ -171,6 +181,7 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
   res.end(html`
     </div>
     <script>
+          var keyserverURL = "${keyserverURL}";
           var baseURL = "${baseURL}";
           var olmFilename = "${olmFilename}";
           var commQueryExecutorFilename = "${commQueryExecutorFilename}";
@@ -202,7 +213,7 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
     res.end();
     return;
   } else if (detectionResult.os !== 'iOS') {
-    const urlFacts = getCommAppURLFacts();
+    const urlFacts = getWebAppURLFacts();
     const baseDomain = urlFacts?.baseDomain ?? '';
     const basePath = urlFacts?.basePath ?? '/';
     const redirectUrl = `${baseDomain}${basePath}handle/invite/${secret}`;

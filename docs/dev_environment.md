@@ -366,16 +366,16 @@ The keyserver needs to know some info about paths in order to properly construct
 
 ```
 mkdir -p keyserver/facts
-vim keyserver/facts/commapp_url.json
+vim keyserver/facts/webapp_url.json
 ```
 
-Your `commapp_url.json` file should look like this:
+Your `webapp_url.json` file should look like this:
 
 ```json
 {
   "baseDomain": "http://localhost:3000",
-  "basePath": "/comm/",
-  "baseRoutePath": "/comm/",
+  "basePath": "/webapp/",
+  "baseRoutePath": "/webapp/",
   "https": false,
   "proxy": "none"
 }
@@ -506,7 +506,7 @@ cd web
 yarn dev
 ```
 
-You should now be able to load the web app in your web browser at http://localhost/comm/.
+You should now be able to load the web app in your web browser at http://localhost/webapp/.
 
 This command will start two processes. One is `webpack-dev-server`, which will serve the JS files. `webpack-dev-server` also makes sure the website automatically hot-reloads whenever any of the source files change. The other process is `webpack --watch`, which will build the `app.build.cjs` file, as well as rebuilding it whenever any of the source files change. The `app.build.cjs` file is consumed by the Node server in order to pre-render the initial HTML from the web source (“Server-Side Rendering”).
 
@@ -675,7 +675,7 @@ Finally, we need to direct the mobile app to use your local keyserver instance. 
   3.  Finally, you should be able to navigate to Profile → Developer tools in the app and set the address of the local server. It should look something like this:
 
       ```
-      http://w.x.y.z/comm
+      http://w.x.y.z/webapp
       ```
 
       Where `w.x.y.z` is the local IP address you found earlier.
