@@ -35,14 +35,6 @@ function UserProfileBottomSheet(props: Props): React.Node {
 
   const bottomSheetRef = React.useRef();
 
-  React.useEffect(() => {
-    if (!bottomSheetRef.current) {
-      return;
-    }
-
-    bottomSheetRef.current.present();
-  }, []);
-
   const onClosed = React.useCallback(() => {
     goBackOnce();
   }, [goBackOnce]);
