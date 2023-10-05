@@ -16,6 +16,7 @@ use std::pin::Pin;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info};
+use tunnelbroker_messages::{MessageSentStatus, SendConfirmation};
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -194,10 +195,15 @@ async fn accept_connection(
             session.send_message_to_device(Message::Pong(msg)).await;
           }
           Message::Text(msg) => {
-            session::consume_error(session.handle_websocket_frame_from_device(msg).await);
+            let confirmation = session.handle_websocket_frame_from_device(msg).await;
+            let response = serde_json::to_string(&confirmation).unwrap();
+            session.send_message_to_device(Message::text(response)).await;
           }
           _ => {
             error!("Client sent invalid message type");
+            let confirmation = SendConfirmation {client_message_ids:  vec![MessageSentStatus::InvalidRequest]};
+            let response = serde_json::to_string(&confirmation).unwrap();
+            session.send_message_to_device(Message::text(response)).await;
           }
         }
       },
