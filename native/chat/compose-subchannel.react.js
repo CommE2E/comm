@@ -7,7 +7,10 @@ import _sortBy from 'lodash/fp/sortBy.js';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions.js';
+import {
+  newThreadActionTypes,
+  useNewThread,
+} from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
@@ -19,10 +22,7 @@ import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import { useNavigateToThread } from './message-list-types.js';
@@ -74,7 +74,7 @@ function ComposeSubchannel(props: Props): React.Node {
 
   const { threadType, parentThreadInfo } = props.route.params;
   const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
-  const callNewThread = useServerCall(newThread);
+  const callNewThread = useNewThread();
   const calendarQuery = useCalendarQuery();
   const newChatThreadAction = React.useCallback(async () => {
     try {

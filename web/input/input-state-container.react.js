@@ -23,7 +23,7 @@ import type {
   SendTextMessageInput,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
-import { newThread } from 'lib/actions/thread-actions.js';
+import { useNewThread } from 'lib/actions/thread-actions.js';
 import {
   uploadMultimedia,
   uploadMediaMetadata,
@@ -1616,7 +1616,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callDeleteUpload = useServerCall(deleteUpload);
     const callSendMultimediaMessage = useLegacySendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
-    const callNewThread = useServerCall(newThread);
+    const callNewThread = useNewThread();
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
