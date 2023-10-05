@@ -111,7 +111,7 @@ function PushNotificationsHandler(): React.Node {
         return;
       }
 
-      await navigator.serviceWorker.register('/worker/notif', { scope: '/' });
+      await navigator.serviceWorker.register('worker/notif', { scope: '/' });
 
       if (Notification.permission === 'granted') {
         // Make sure the subscription is current if we have the permissions
