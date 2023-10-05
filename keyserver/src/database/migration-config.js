@@ -590,6 +590,13 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
     },
   ],
+  [
+    48,
+    async () => {
+      moveToNonApacheConfig('facts/webapp_url.json', '/webapp/');
+      moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
