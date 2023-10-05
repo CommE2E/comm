@@ -3,16 +3,16 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions.js';
+import {
+  useNewThread,
+  newThreadActionTypes,
+} from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResult } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import CommunityCreationMembersModal from './community-creation-members-modal.react.js';
@@ -48,7 +48,7 @@ function CommunityCreationModal(): React.Node {
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
 
-  const callNewThread = useServerCall(newThread);
+  const callNewThread = useNewThread();
   const calendarQueryFunc = useSelector(nonThreadCalendarQuery);
 
   const [errorMessage, setErrorMessage] = React.useState<?string>();

@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
+import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
@@ -16,10 +16,7 @@ import {
   type RelativeMemberInfo,
   type ThreadInfo,
 } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import ChangeMemberRoleModal from './change-member-role-modal.react.js';
 import css from './members-modal.css';
@@ -57,7 +54,7 @@ function ThreadMember(props: Props): React.Node {
   );
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const boundRemoveUsersFromThread = useServerCall(removeUsersFromThread);
+  const boundRemoveUsersFromThread = useRemoveUsersFromThread();
 
   const onClickRemoveUser = React.useCallback(
     () =>
