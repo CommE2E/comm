@@ -93,6 +93,7 @@ import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
+import { defaultURLPrefix } from '../utils/url-utils.js';
 
 const migrations = {
   [1]: (state: AppState) => ({
@@ -836,6 +837,22 @@ const migrations = {
       },
     };
   },
+  [55]: async state =>
+    __DEV__
+      ? {
+          ...state,
+          keyserverStore: {
+            ...state.keyserverStore,
+            keyserverInfos: {
+              ...state.keyserverStore.keyserverInfos,
+              [ashoatKeyserverID]: {
+                ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+                urlPrefix: defaultURLPrefix,
+              },
+            },
+          },
+        }
+      : state,
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -965,7 +982,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 54,
+  version: 55,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,

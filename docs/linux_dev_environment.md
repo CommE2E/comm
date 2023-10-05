@@ -91,8 +91,9 @@ Add the content below, but make sure to replace “ashoat” with your username.
 
 <VirtualHost *:80>
   ProxyRequests on
-  ProxyPass /comm/ws ws://localhost:3000/ws
-  ProxyPass /comm/ http://localhost:3000/
+  ProxyPass /keyserver/ http://localhost:3000/keyserver/
+  ProxyPass /keyserver/ws ws://localhost:3000/keyserver/ws
+  ProxyPass /webapp/ http://localhost:3000/webapp/
   ProxyPass /commlanding/ http://localhost:3000/commlanding/
 
   RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
