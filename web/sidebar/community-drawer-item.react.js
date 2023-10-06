@@ -94,7 +94,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
       <div className={css.threadEntry} style={style}>
         {itemExpandButton}
         <a onClick={handler.onClick} className={css.titleWrapper}>
-          <ThreadAvatar size="micro" threadInfo={threadInfo} />
+          <ThreadAvatar size="XS" threadInfo={threadInfo} />
           <div className={titleLabel}>{uiName}</div>
         </a>
       </div>

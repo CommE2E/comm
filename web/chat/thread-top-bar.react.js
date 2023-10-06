@@ -82,7 +82,7 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
     <>
       <div className={css.topBarContainer}>
         <div className={css.topBarThreadInfo}>
-          <ThreadAvatar size="small" threadInfo={threadInfo} />
+          <ThreadAvatar size="S" threadInfo={threadInfo} />
           <div className={css.threadTitle}>{uiName}</div>
         </div>
         <div className={css.buttons}>

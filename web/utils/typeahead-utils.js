@@ -186,16 +186,13 @@ function getMentionTypeaheadTooltipButtons(
     if (actionButtonContent.type === 'user') {
       const suggestedUser = actionButtonContent.userInfo;
       avatarComponent = (
-        <UserAvatar size="small" userID={actionButtonContent.userInfo.id} />
+        <UserAvatar size="S" userID={actionButtonContent.userInfo.id} />
       );
       typeaheadButtonText = `@${stringForUserExplicit(suggestedUser)}`;
     } else if (actionButtonContent.type === 'chat') {
       const suggestedChat = actionButtonContent.threadInfo;
       avatarComponent = (
-        <ThreadAvatar
-          size="small"
-          threadInfo={actionButtonContent.threadInfo}
-        />
+        <ThreadAvatar size="S" threadInfo={actionButtonContent.threadInfo} />
       );
       typeaheadButtonText = `@${suggestedChat.uiName}`;
     }
