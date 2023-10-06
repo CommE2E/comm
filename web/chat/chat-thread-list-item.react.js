@@ -130,7 +130,7 @@ function ChatThreadListItem(props: Props): React.Node {
         <div className={css.colorContainer}>
           <div className={css.avatarContainer}>
             <div className={css.dotContainer}>{unreadDot}</div>
-            <ThreadAvatar size="large" threadInfo={threadInfo} />
+            <ThreadAvatar size="M" threadInfo={threadInfo} />
           </div>
         </div>
         <div className={css.threadButton}>
