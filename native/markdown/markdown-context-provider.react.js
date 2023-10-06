@@ -13,6 +13,11 @@ function MarkdownContextProvider(props: Props): React.Node {
     [key: string]: boolean,
   }>({});
 
+  const [userProfileBottomSheetActive, setUserProfileBottomSheetActive] =
+    React.useState<{
+      [key: string]: boolean,
+    }>({});
+
   const [spoilerRevealed, setSpoilerRevealed] = React.useState<{
     [key: string]: {
       [key: number]: boolean,
@@ -21,6 +26,7 @@ function MarkdownContextProvider(props: Props): React.Node {
 
   const clearMarkdownContextData = React.useCallback(() => {
     setLinkModalActive({});
+    setUserProfileBottomSheetActive({});
     setSpoilerRevealed({});
   }, []);
 
@@ -28,6 +34,8 @@ function MarkdownContextProvider(props: Props): React.Node {
     () => ({
       setLinkModalActive,
       linkModalActive,
+      userProfileBottomSheetActive,
+      setUserProfileBottomSheetActive,
       setSpoilerRevealed,
       spoilerRevealed,
       clearMarkdownContextData,
@@ -35,6 +43,8 @@ function MarkdownContextProvider(props: Props): React.Node {
     [
       setLinkModalActive,
       linkModalActive,
+      setUserProfileBottomSheetActive,
+      userProfileBottomSheetActive,
       setSpoilerRevealed,
       spoilerRevealed,
       clearMarkdownContextData,
