@@ -8,6 +8,14 @@ import type {
   AvatarSize,
 } from 'lib/types/avatar-types.js';
 
+import {
+  xSmallAvatarSize,
+  smallAvatarSize,
+  mediumAvatarSize,
+  largeAvatarSize,
+  xLargeAvatarSize,
+  xxLargeAvatarSize,
+} from './avatar-constants.js';
 import Multimedia from '../media/multimedia.react.js';
 
 type Props = {
@@ -122,34 +130,34 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   large: {
-    borderRadius: 45,
-    height: 90,
-    width: 90,
+    borderRadius: largeAvatarSize / 2,
+    height: largeAvatarSize,
+    width: largeAvatarSize,
   },
   medium: {
-    borderRadius: 20,
-    height: 40,
-    width: 40,
+    borderRadius: mediumAvatarSize / 2,
+    height: mediumAvatarSize,
+    width: mediumAvatarSize,
   },
   small: {
-    borderRadius: 12,
-    height: 24,
-    width: 24,
+    borderRadius: smallAvatarSize / 2,
+    height: smallAvatarSize,
+    width: smallAvatarSize,
   },
   xLarge: {
-    borderRadius: 56,
-    height: 112,
-    width: 112,
+    borderRadius: xLargeAvatarSize / 2,
+    height: xLargeAvatarSize,
+    width: xLargeAvatarSize,
   },
   xSmall: {
-    borderRadius: 8,
-    height: 16,
-    width: 16,
+    borderRadius: xSmallAvatarSize / 2,
+    height: xSmallAvatarSize,
+    width: xSmallAvatarSize,
   },
   xxLarge: {
-    borderRadius: 112,
-    height: 224,
-    width: 224,
+    borderRadius: xxLargeAvatarSize / 2,
+    height: xxLargeAvatarSize,
+    width: xxLargeAvatarSize,
   },
 });
 
