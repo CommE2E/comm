@@ -10,4 +10,6 @@ pub enum Error {
   InvalidUri(InvalidUri),
   #[display(...)]
   GrpcStatus(Status),
+  #[display(fmt = "Invalid Device Type")]
+  InvalidDeviceType,
 }
