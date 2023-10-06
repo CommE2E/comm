@@ -5,6 +5,7 @@ import * as React from 'react';
 import type { Dimensions } from 'lib/types/media-types.js';
 
 import type { UserProfileBottomSheetNavigationProp } from './user-profile-bottom-sheet-navigator.react.js';
+import { xxLargeAvatarSize } from '../avatars/avatar-constants.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import FullScreenViewModal from '../components/full-screen-view-modal.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -14,8 +15,8 @@ import {
 } from '../types/layout-types.js';
 
 const avatarDimensions: Dimensions = {
-  width: 224,
-  height: 224,
+  width: xxLargeAvatarSize,
+  height: xxLargeAvatarSize,
 };
 
 export type UserProfileAvatarModalParams = {
