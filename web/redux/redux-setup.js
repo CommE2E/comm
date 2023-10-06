@@ -328,7 +328,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
     oldActiveThread !== activeThread &&
     state.messageStore.threads[activeThread]
   ) {
-    // Update messageStore.threads[activeThread].lastNavigatedTo
+    const now = Date.now();
     state = {
       ...state,
       messageStore: {
@@ -337,8 +337,15 @@ function validateState(oldState: AppState, state: AppState): AppState {
           ...state.messageStore.threads,
           [activeThread]: {
             ...state.messageStore.threads[activeThread],
-            lastNavigatedTo: Date.now(),
+            lastNavigatedTo: now,
           },
+        },
+      },
+      threadActivityStore: {
+        ...state.threadActivityStore,
+        [activeThread]: {
+          ...state.threadActivityStore[activeThread],
+          lastNavigatedTo: now,
         },
       },
     };
