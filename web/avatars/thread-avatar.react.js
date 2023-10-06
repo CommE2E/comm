@@ -7,6 +7,7 @@ import {
   useENSResolvedAvatar,
 } from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
+import type { AvatarSize } from 'lib/types/avatar-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type RawThreadInfo, type ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -15,7 +16,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +threadInfo: RawThreadInfo | ThreadInfo,
-  +size: 'micro' | 'small' | 'large' | 'profile',
+  +size: AvatarSize,
   +showSpinner?: boolean,
 };
 

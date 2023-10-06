@@ -156,7 +156,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     if (!isViewer && item.endsCluster) {
       avatar = (
         <div className={css.avatarContainer}>
-          <UserAvatar size="small" userID={creator.id} />
+          <UserAvatar size="S" userID={creator.id} />
         </div>
       );
     } else if (!isViewer) {

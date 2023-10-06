@@ -44,7 +44,7 @@ function AddMemberItem(props: AddMembersItemProps): React.Node {
       disabled={!canBeAdded}
     >
       <div className={css.userInfoContainer}>
-        <UserAvatar size="small" userID={userInfo.id} />
+        <UserAvatar size="S" userID={userInfo.id} />
         <div className={css.username}>{userInfo.username}</div>
       </div>
       <div className={css.label}>{action}</div>

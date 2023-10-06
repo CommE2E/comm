@@ -18,7 +18,7 @@ function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
   return (
     <>
       <div className={css.avatarContainer}>
-        <ThreadAvatar size="small" threadInfo={threadInfo} />
+        <ThreadAvatar size="S" threadInfo={threadInfo} />
       </div>
       <ThreadAncestors threadInfo={threadInfo} />
     </>
