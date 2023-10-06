@@ -4,10 +4,12 @@ use tonic::{codegen::http::uri::InvalidUri, Status};
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
 pub enum Error {
-  #[display(...)]
+  #[display(fmt = "Transport Error: {:?}", _0)]
   TransportError(tonic::transport::Error),
-  #[display(...)]
+  #[display(fmt = "Invalid Uri: {:?}", _0)]
   InvalidUri(InvalidUri),
-  #[display(...)]
+  #[display(fmt = "Grpc Status: {:?}", _0)]
   GrpcStatus(Status),
+  #[display(fmt = "Invalid Device Type")]
+  InvalidDeviceType,
 }
