@@ -183,14 +183,14 @@ async function createTables() {
         thread bigint(20) DEFAULT NULL,
         uploader varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         container bigint(20) DEFAULT NULL,
-        type varchar(255) NOT NULL,
+        type varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
         filename varchar(255) NOT NULL,
-        mime varchar(255) NOT NULL,
+        mime varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
         content longblob NOT NULL,
-        secret varchar(255) NOT NULL,
+        secret varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
         creation_time bigint(20) NOT NULL,
         extra json DEFAULT NULL
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
       CREATE TABLE users (
         id varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
