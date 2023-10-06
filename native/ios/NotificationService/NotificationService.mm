@@ -195,7 +195,6 @@ size_t getMemoryUsageInBytes() {
     UNMutableNotificationContent *badgeOnlyContent =
         [[UNMutableNotificationContent alloc] init];
     badgeOnlyContent.badge = content.badge;
-    content = badgeOnlyContent;
     publicUserContent = badgeOnlyContent;
   }
 
@@ -279,7 +278,7 @@ size_t getMemoryUsageInBytes() {
     }
 
     if ([self shouldBeDecrypted:content.userInfo] &&
-        !content.userInfo[@"succesfullyDecrypted"]) {
+        !content.userInfo[@"successfullyDecrypted"]) {
       // If we get to this place it means we were unable to
       // decrypt encrypted notification content in time
       // given to NSE to process notification.
@@ -525,6 +524,7 @@ size_t getMemoryUsageInBytes() {
     mutableUserInfo[@"aps"] = mutableAps;
   }
   [mutableUserInfo removeObjectForKey:encryptedPayloadKey];
+  mutableUserInfo[@"successfullyDecrypted"] = @(YES);
   content.userInfo = mutableUserInfo;
 }
 
