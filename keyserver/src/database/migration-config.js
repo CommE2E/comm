@@ -539,6 +539,24 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    45,
+    () =>
+      dbQuery(
+        SQL`
+          ALTER TABLE uploads
+            CHARSET utf8mb4 COLLATE utf8mb4_bin,
+            MODIFY COLUMN type varchar(255)
+              CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
+            MODIFY COLUMN filename varchar(255)
+              CHARSET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+            MODIFY COLUMN mime varchar(255)
+              CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
+            MODIFY COLUMN secret varchar(255)
+              CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL;
+        `,
+      ),
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
