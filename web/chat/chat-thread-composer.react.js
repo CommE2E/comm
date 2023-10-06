@@ -173,7 +173,7 @@ function ChatThreadComposer(props: Props): React.Node {
               className={css.searchResultsButton}
             >
               <div className={css.userContainer}>
-                <UserAvatar size="small" userID={userSearchResult.id} />
+                <UserAvatar size="S" userID={userSearchResult.id} />
                 <div className={css.userName}>{userSearchResult.username}</div>
               </div>
               <div className={css.userInfo}>{userSearchResult.notice}</div>

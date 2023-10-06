@@ -24,7 +24,7 @@ function MessageReactionsModal(props: Props): React.Node {
       messageReactionsList.map(messageReactionUser => (
         <div key={messageReactionUser.id} className={css.userRowContainer}>
           <div className={css.userInfoContainer}>
-            <UserAvatar size="small" userID={messageReactionUser.id} />
+            <UserAvatar size="S" userID={messageReactionUser.id} />
             <div className={css.username}>{messageReactionUser.username}</div>
           </div>
           <div>{messageReactionUser.reaction}</div>

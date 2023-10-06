@@ -3,14 +3,17 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import type { ResolvedClientAvatar } from 'lib/types/avatar-types.js';
+import type {
+  ResolvedClientAvatar,
+  AvatarSize,
+} from 'lib/types/avatar-types.js';
 
 import css from './avatar.css';
 import LoadingIndicator from '../loading-indicator.react.js';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
-  +size: 'micro' | 'small' | 'large' | 'profile',
+  +size: AvatarSize,
   +showSpinner?: boolean,
 };
 
@@ -19,18 +22,18 @@ function Avatar(props: Props): React.Node {
 
   const containerSizeClassName = classnames({
     [css.imgContainer]: avatarInfo.type === 'image',
-    [css.micro]: size === 'micro',
-    [css.small]: size === 'small',
-    [css.large]: size === 'large',
-    [css.profile]: size === 'profile',
+    [css.xSmall]: size === 'XS',
+    [css.small]: size === 'S',
+    [css.medium]: size === 'M',
+    [css.large]: size === 'L',
   });
 
   const emojiSizeClassName = classnames({
     [css.emojiContainer]: true,
-    [css.emojiMicro]: size === 'micro',
-    [css.emojiSmall]: size === 'small',
-    [css.emojiLarge]: size === 'large',
-    [css.emojiProfile]: size === 'profile',
+    [css.emojiXSmall]: size === 'XS',
+    [css.emojiSmall]: size === 'S',
+    [css.emojiMedium]: size === 'M',
+    [css.emojiLarge]: size === 'L',
   });
 
   const emojiContainerColorStyle = React.useMemo(() => {
@@ -66,11 +69,11 @@ function Avatar(props: Props): React.Node {
   ]);
 
   let loadingIndicatorSize;
-  if (size === 'micro') {
+  if (size === 'XS') {
     loadingIndicatorSize = 'small';
-  } else if (size === 'small') {
+  } else if (size === 'S') {
     loadingIndicatorSize = 'small';
-  } else if (size === 'large') {
+  } else if (size === 'M') {
     loadingIndicatorSize = 'medium';
   } else {
     loadingIndicatorSize = 'large';
