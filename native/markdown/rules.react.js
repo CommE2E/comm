@@ -17,6 +17,7 @@ import MarkdownChatMention from './markdown-chat-mention.react.js';
 import MarkdownLink from './markdown-link.react.js';
 import MarkdownParagraph from './markdown-paragraph.react.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
+import MarkdownUserMention from './markdown-user-mention.react.js';
 import { getMarkdownStyles } from './styles.js';
 
 export type MarkdownRules = {
@@ -376,7 +377,6 @@ function textMessageRules(
   chatMentionCandidates: ChatMentionCandidates,
   useDarkStyle: boolean,
 ): MarkdownRules {
-  const styles = getMarkdownStyles(useDarkStyle ? 'dark' : 'light');
   const baseRules = fullMarkdownRules(useDarkStyle);
   const membersMap = SharedMarkdown.createMemberMapForUserMentions(members);
 
@@ -395,9 +395,13 @@ function textMessageRules(
           output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
           state: SharedMarkdown.State,
         ) => (
-          <Text key={state.key} style={styles.bold}>
+          <MarkdownUserMention
+            key={state.key}
+            userID={node.userID}
+            useDarkStyle={useDarkStyle}
+          >
             {node.content}
-          </Text>
+          </MarkdownUserMention>
         ),
       },
       chatMention: {
