@@ -82,7 +82,7 @@ function FriendListRow(props: UserRowProps): React.Node {
   return (
     <div className={css.container}>
       <div className={css.userInfoContainer}>
-        <UserAvatar size="small" userID={userInfo.id} />
+        <UserAvatar size="S" userID={userInfo.id} />
         <div className={css.usernameContainer}>{userInfo.username}</div>
       </div>
       <div className={css.buttons}>{buttons}</div>

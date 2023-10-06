@@ -127,7 +127,7 @@ function CommunityCreationModal(): React.Node {
   if (avatarNodeEnabled) {
     avatarNode = (
       <div className={css.avatarContainer}>
-        <UserAvatar userID="256" size="profile" />
+        <UserAvatar userID="256" size="L" />
       </div>
     );
   }
