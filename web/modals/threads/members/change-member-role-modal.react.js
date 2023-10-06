@@ -114,7 +114,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
       </div>
       <div className={css.roleModalMember}>
         <div className={css.roleModalMemberAvatar}>
-          <UserAvatar userID={memberInfo.id} size="large" />
+          <UserAvatar userID={memberInfo.id} size="M" />
         </div>
         <div className={css.roleModalMemberName}>{memberInfo.username}</div>
       </div>

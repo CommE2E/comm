@@ -78,7 +78,7 @@ function Subchannel(props: Props): React.Node {
 
   return (
     <Button className={css.subchannelContainer} onClick={onClickThread}>
-      <ThreadAvatar size="small" threadInfo={threadInfo} />
+      <ThreadAvatar size="S" threadInfo={threadInfo} />
       <div className={subchannelTitleClassName}>
         <div className={css.longTextEllipsis}>{uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
