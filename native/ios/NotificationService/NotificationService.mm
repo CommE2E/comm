@@ -63,6 +63,10 @@ size_t getMemoryUsageInBytes() {
   UNNotificationContent *publicUserContent = content;
 
   // Step 1: notification decryption.
+  std::unique_ptr<comm::NotificationsCryptoModule::CryptoModuleStateHolder>
+      cryptoModuleStatePtr;
+  BOOL decryptionExecuted = NO;
+
   if ([self shouldBeDecrypted:content.userInfo]) {
     std::optional<std::string> notifID;
     NSString *objcNotifID = content.userInfo[@"id"];
@@ -73,7 +77,8 @@ size_t getMemoryUsageInBytes() {
     std::string decryptErrorMessage;
     try {
       @try {
-        [self decryptContentInPlace:content];
+        cryptoModuleStatePtr = [self decryptContentInPlace:content];
+        decryptionExecuted = YES;
       } @catch (NSException *e) {
         decryptErrorMessage = "NSE: Received Obj-C exception: " +
             std::string([e.name UTF8String]) +
@@ -215,8 +220,14 @@ size_t getMemoryUsageInBytes() {
              withPublicUserContent:publicUserContent];
     return;
   }
+
   [self callContentHandlerForKey:contentHandlerKey
                      withContent:publicUserContent];
+
+  if (decryptionExecuted) {
+    comm::NotificationsCryptoModule::flushState(
+        std::move(cryptoModuleStatePtr), callingProcessName);
+  }
 }
 
 - (void)serviceExtensionTimeWillExpire {
@@ -456,20 +467,17 @@ size_t getMemoryUsageInBytes() {
       [payload[encryptionFailureKey] isEqualToNumber:@(1)];
 }
 
-- (NSString *)singleDecrypt:(NSString *)data {
-  std::string encryptedData = std::string([data UTF8String]);
-  return [NSString
-      stringWithUTF8String:
-          (comm::NotificationsCryptoModule::decrypt(
-               encryptedData,
-               comm::NotificationsCryptoModule::olmEncryptedTypeMessage,
-               callingProcessName))
-              .c_str()];
-}
+- (std::unique_ptr<comm::NotificationsCryptoModule::CryptoModuleStateHolder>)
+    decryptContentInPlace:(UNMutableNotificationContent *)content {
+  std::string encryptedData =
+      std::string([content.userInfo[encryptedPayloadKey] UTF8String]);
 
-- (void)decryptContentInPlace:(UNMutableNotificationContent *)content {
+  auto decryptResult = comm::NotificationsCryptoModule::statefulDecrypt(
+      encryptedData, comm::NotificationsCryptoModule::olmEncryptedTypeMessage);
+
   NSString *decryptedSerializedPayload =
-      [self singleDecrypt:content.userInfo[encryptedPayloadKey]];
+      [NSString stringWithUTF8String:decryptResult.first.c_str()];
+
   NSDictionary *decryptedPayload = [NSJSONSerialization
       JSONObjectWithData:[decryptedSerializedPayload
                              dataUsingEncoding:NSUTF8StringEncoding]
@@ -526,6 +534,8 @@ size_t getMemoryUsageInBytes() {
   [mutableUserInfo removeObjectForKey:encryptedPayloadKey];
   mutableUserInfo[@"successfullyDecrypted"] = @(YES);
   content.userInfo = mutableUserInfo;
+
+  return std::move(decryptResult.second);
 }
 
 // Apple documentation for NSE does not explicitly state
