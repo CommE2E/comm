@@ -124,7 +124,7 @@ function ThreadMember(props: Props): React.Node {
   return (
     <div className={memberContainerClasses}>
       <div className={css.memberInfo}>
-        <UserAvatar size="small" userID={memberInfo.id} />
+        <UserAvatar size="S" userID={memberInfo.id} />
         {userName}
         {label}
       </div>

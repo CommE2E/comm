@@ -37,7 +37,7 @@ function EditThreadAvatar(props: Props): React.Node {
     <div className={css.editThreadAvatarContainer}>
       <ThreadAvatar
         threadInfo={threadInfo}
-        size="profile"
+        size="L"
         showSpinner={threadAvatarSaveInProgress}
       />
       {editThreadAvatarMenu}
