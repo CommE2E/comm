@@ -387,9 +387,8 @@ function textMessageRules(
       userMention: {
         ...SimpleMarkdown.defaultRules.strong,
         match: SharedMarkdown.matchUserMentions(membersMap),
-        parse: (capture: SharedMarkdown.Capture) => ({
-          content: capture[0],
-        }),
+        parse: (capture: SharedMarkdown.Capture) =>
+          SharedMarkdown.parseUserMentions(membersMap, capture),
         // eslint-disable-next-line react/display-name
         react: (
           node: SharedMarkdown.SingleASTNode,
