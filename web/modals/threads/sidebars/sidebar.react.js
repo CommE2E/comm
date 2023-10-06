@@ -91,7 +91,7 @@ function Sidebar(props: Props): React.Node {
       />
       <div className={sidebarInfoClassName}>
         <div className={css.avatarContainer}>
-          <ThreadAvatar size="micro" threadInfo={threadInfo} />
+          <ThreadAvatar size="XS" threadInfo={threadInfo} />
           <div className={css.longTextEllipsis}>{uiName}</div>
         </div>
         <div className={css.lastMessage}>{lastMessage}</div>
