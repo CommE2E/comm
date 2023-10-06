@@ -41,7 +41,10 @@ function UserProfileRelationshipButton(props: Props): React.Node {
   );
 
   React.useLayoutEffect(() => {
-    if (otherUserInfo?.relationshipStatus === userRelationshipStatus.FRIEND) {
+    if (
+      !otherUserInfo ||
+      otherUserInfo.relationshipStatus === userRelationshipStatus.FRIEND
+    ) {
       setUserProfileRelationshipButtonHeight(0);
     } else if (
       otherUserInfo?.relationshipStatus ===
@@ -56,6 +59,7 @@ function UserProfileRelationshipButton(props: Props): React.Node {
       setUserProfileRelationshipButtonHeight(userProfileActionButtonHeight);
     }
   }, [
+    otherUserInfo,
     otherUserInfo?.relationshipStatus,
     setUserProfileRelationshipButtonHeight,
   ]);
