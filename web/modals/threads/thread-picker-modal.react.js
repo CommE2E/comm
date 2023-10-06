@@ -38,7 +38,7 @@ function ThreadPickerOption(props: OptionProps) {
         className={css.threadPickerOptionButton}
         onClick={onClickThreadOption}
       >
-        <ThreadAvatar size="large" threadInfo={threadInfo} />
+        <ThreadAvatar size="M" threadInfo={threadInfo} />
         <div className={css.threadNameText}>{uiName}</div>
       </Button>
     </div>
