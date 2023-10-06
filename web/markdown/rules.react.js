@@ -183,13 +183,15 @@ function textMessageRules(
   useDarkStyle: boolean,
 ): MarkdownRules {
   const baseRules = markdownRules(useDarkStyle);
+  const membersMap = SharedMarkdown.createMemberMapForUserMentions(members);
+
   return {
     ...baseRules,
     simpleMarkdownRules: {
       ...baseRules.simpleMarkdownRules,
       userMention: {
         ...SimpleMarkdown.defaultRules.strong,
-        match: SharedMarkdown.matchUserMentions(members),
+        match: SharedMarkdown.matchUserMentions(membersMap),
         parse: (capture: SharedMarkdown.Capture) => ({
           content: capture[0],
         }),
