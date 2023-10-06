@@ -26,13 +26,13 @@ import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { useNewThread } from 'lib/actions/thread-actions.js';
 import {
   uploadMultimedia,
-  uploadMediaMetadata,
   updateMultimediaMessageMediaActionType,
-  deleteUpload,
-  blobServiceUpload,
+  useDeleteUpload,
+  useBlobServiceUpload,
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
   type BlobServiceUploadAction,
+  type DeleteUploadInput,
 } from 'lib/actions/upload-actions.js';
 import {
   useModalContext,
@@ -59,7 +59,6 @@ import {
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   UploadMultimediaResult,
-  UploadMediaMetadataRequest,
   MediaMissionStep,
   MediaMissionFailure,
   MediaMissionResult,
@@ -135,10 +134,7 @@ type Props = {
     callbacks: MultimediaUploadCallbacks,
   ) => Promise<UploadMultimediaResult>,
   +blobServiceUpload: BlobServiceUploadAction,
-  +uploadMediaMetadata: (
-    input: UploadMediaMetadataRequest,
-  ) => Promise<UploadMultimediaResult>,
-  +deleteUpload: (id: string) => Promise<void>,
+  +deleteUpload: (input: DeleteUploadInput) => Promise<void>,
   +sendMultimediaMessage: (
     input: LegacySendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
@@ -874,7 +870,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           'incomplete encrypted upload',
         );
         uploadResult = await this.props.blobServiceUpload({
-          input: {
+          uploadInput: {
             blobInput: {
               type: 'file',
               file: upload.file,
@@ -885,6 +881,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             loop: false,
             thumbHash,
           },
+          threadID,
           callbacks,
         });
       } else {
@@ -1162,7 +1159,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           abortRequest = pendingUpload.abort;
         }
         if (pendingUpload.serverID) {
-          this.props.deleteUpload(pendingUpload.serverID);
+          this.props.deleteUpload({ id: pendingUpload.serverID, threadID });
           if (isBlobServiceURI(pendingUpload.uri)) {
             invariant(
               pendingUpload.blobHolder,
@@ -1611,9 +1608,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const callUploadMultimedia = useServerCall(uploadMultimedia);
-    const callBlobServiceUpload = useServerCall(blobServiceUpload);
-    const callUploadMediaMetadata = useServerCall(uploadMediaMetadata);
-    const callDeleteUpload = useServerCall(deleteUpload);
+    const callBlobServiceUpload = useBlobServiceUpload();
+    const callDeleteUpload = useDeleteUpload();
     const callSendMultimediaMessage = useLegacySendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
     const callNewThread = useNewThread();
@@ -1649,7 +1645,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
         calendarQuery={calendarQuery}
         uploadMultimedia={callUploadMultimedia}
-        uploadMediaMetadata={callUploadMediaMetadata}
         blobServiceUpload={callBlobServiceUpload}
         deleteUpload={callDeleteUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
