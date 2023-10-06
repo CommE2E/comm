@@ -22,9 +22,8 @@ import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { useNewThread } from 'lib/actions/thread-actions.js';
 import {
   uploadMultimedia,
-  uploadMediaMetadata,
   updateMultimediaMessageMediaActionType,
-  blobServiceUpload,
+  useBlobServiceUpload,
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
   type BlobServiceUploadAction,
@@ -60,7 +59,6 @@ import type {
   NativeMediaSelection,
   MediaMissionResult,
   MediaMission,
-  UploadMediaMetadataRequest,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -144,9 +142,6 @@ type Props = {
     multimedia: Object,
     extras: MultimediaUploadExtras,
     callbacks: MultimediaUploadCallbacks,
-  ) => Promise<UploadMultimediaResult>,
-  +uploadMediaMetadata: (
-    input: UploadMediaMetadataRequest,
   ) => Promise<UploadMultimediaResult>,
   +blobServiceUpload: BlobServiceUploadAction,
   +sendMultimediaMessage: (
@@ -827,7 +822,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       ) {
         uploadPromises.push(
           this.props.blobServiceUpload({
-            input: {
+            uploadInput: {
               blobInput: {
                 type: 'uri',
                 uri: uploadURI,
@@ -842,6 +837,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                   ? processedMedia.thumbHash
                   : null,
             },
+            threadID: threadInfo.id,
             callbacks: {
               blobServiceUploadHandler,
               onProgress: (percent: number) => {
@@ -859,7 +855,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         if (processedMedia.mediaType === 'encrypted_video') {
           uploadPromises.push(
             this.props.blobServiceUpload({
-              input: {
+              uploadInput: {
                 blobInput: {
                   type: 'uri',
                   uri: processedMedia.uploadThumbnailURI,
@@ -872,6 +868,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 dimensions: processedMedia.dimensions,
                 thumbHash: processedMedia.thumbHash,
               },
+              threadID: threadInfo.id,
               callbacks: {
                 blobServiceUploadHandler,
               },
@@ -1693,8 +1690,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
     const calendarQuery = useCalendarQuery();
     const callUploadMultimedia = useServerCall(uploadMultimedia);
-    const callUploadMediaMetadata = useServerCall(uploadMediaMetadata);
-    const callBlobServiceUpload = useServerCall(blobServiceUpload);
+    const callBlobServiceUpload = useBlobServiceUpload();
     const callSendMultimediaMessage = useSendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
     const callNewThread = useNewThread();
@@ -1708,7 +1704,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     return (
       <InputStateContainer
         {...props}
-        uploadMediaMetadata={callUploadMediaMetadata}
         viewerID={viewerID}
         nextLocalID={nextLocalID}
         messageStoreMessages={messageStoreMessages}
