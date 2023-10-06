@@ -63,6 +63,7 @@ type Props = {
   +chatContext: ?ChatContextType,
   // MarkdownContext
   +isLinkModalActive: boolean,
+  +isUserProfileBottomSheetActive: boolean,
   +canEditMessage: boolean,
   +canTogglePins: boolean,
 };
@@ -89,6 +90,7 @@ class TextMessage extends React.PureComponent<Props> {
       overlayContext,
       chatContext,
       isLinkModalActive,
+      isUserProfileBottomSheetActive,
       canCreateSidebarFromMessage,
       canEditMessage,
       canTogglePins,
@@ -185,9 +187,19 @@ class TextMessage extends React.PureComponent<Props> {
 
     const {
       message,
-      props: { verticalBounds, isLinkModalActive },
+      props: {
+        verticalBounds,
+        isLinkModalActive,
+        isUserProfileBottomSheetActive,
+      },
     } = this;
-    if (!message || !verticalBounds || isLinkModalActive) {
+
+    if (
+      !message ||
+      !verticalBounds ||
+      isLinkModalActive ||
+      isUserProfileBottomSheetActive
+    ) {
       return;
     }
 
@@ -251,7 +263,11 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     const markdownContext = React.useContext(MarkdownContext);
     invariant(markdownContext, 'markdownContext should be set');
 
-    const { linkModalActive, clearMarkdownContextData } = markdownContext;
+    const {
+      linkModalActive,
+      userProfileBottomSheetActive,
+      clearMarkdownContextData,
+    } = markdownContext;
 
     const key = messageKey(props.item.messageInfo);
 
@@ -259,6 +275,8 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
     // default to false. The likely situation where the former statement
     // evaluates to null is when the thread is opened for the first time.
     const isLinkModalActive = linkModalActive[key] ?? false;
+    const isUserProfileBottomSheetActive =
+      userProfileBottomSheetActive[key] ?? false;
 
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
@@ -287,6 +305,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         overlayContext={overlayContext}
         chatContext={chatContext}
         isLinkModalActive={isLinkModalActive}
+        isUserProfileBottomSheetActive={isUserProfileBottomSheetActive}
         canEditMessage={canEditMessage}
         canTogglePins={canTogglePins}
       />
