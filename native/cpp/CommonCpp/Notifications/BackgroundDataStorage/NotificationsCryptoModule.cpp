@@ -132,9 +132,7 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
   remove(temporaryPath.c_str());
 }
 
-void NotificationsCryptoModule::callCryptoModule(
-    std::function<void(crypto::CryptoModule &cryptoModule)> caller,
-    const std::string &callingProcessName) {
+std::string NotificationsCryptoModule::getPicklingKey() {
   CommSecureStore secureStore{};
   folly::Optional<std::string> picklingKey = secureStore.get(
       NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
@@ -143,15 +141,20 @@ void NotificationsCryptoModule::callCryptoModule(
         "Attempt to retrieve notifications crypto account before it was "
         "correctly initialized.");
   }
+  return picklingKey.value();
+}
 
+void NotificationsCryptoModule::callCryptoModule(
+    std::function<void(crypto::CryptoModule &cryptoModule)> caller,
+    const std::string &callingProcessName) {
+  const std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
   const std::string path =
       PlatformSpecificTools::getNotificationsCryptoAccountPath();
   crypto::CryptoModule cryptoModule =
-      NotificationsCryptoModule::deserializeCryptoModule(
-          path, picklingKey.value());
+      NotificationsCryptoModule::deserializeCryptoModule(path, picklingKey);
   caller(cryptoModule);
   NotificationsCryptoModule::serializeAndFlushCryptoModule(
-      cryptoModule, path, picklingKey.value(), callingProcessName);
+      cryptoModule, path, picklingKey, callingProcessName);
 }
 
 void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
@@ -282,5 +285,29 @@ std::string NotificationsCryptoModule::decrypt(
   };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
   return decryptedData;
+}
+
+// Stateful methods implementations
+NotificationsCryptoModule::NotificationsCryptoModule()
+    : statefulCryptoModule(NotificationsCryptoModule::deserializeCryptoModule(
+          std::move(PlatformSpecificTools::getNotificationsCryptoAccountPath()),
+          std::move(NotificationsCryptoModule::getPicklingKey()))) {
+}
+
+std::string NotificationsCryptoModule::statefulDecrypt(
+    const std::string &data,
+    const size_t messageType) {
+  crypto::EncryptedData encryptedData{
+      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  return this->statefulCryptoModule.decrypt(
+      NotificationsCryptoModule::keyserverHostedNotificationsID, encryptedData);
+}
+
+void NotificationsCryptoModule::flushState(
+    const std::string &callingProcessName) {
+  std::string path = PlatformSpecificTools::getNotificationsCryptoAccountPath();
+  std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
+  NotificationsCryptoModule::serializeAndFlushCryptoModule(
+      this->statefulCryptoModule, path, picklingKey, callingProcessName);
 }
 } // namespace comm

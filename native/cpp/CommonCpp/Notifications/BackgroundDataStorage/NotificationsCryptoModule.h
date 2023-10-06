@@ -11,6 +11,12 @@ class NotificationsCryptoModule {
   const static std::string keyserverHostedNotificationsID;
   const static std::string initialEncryptedMessageContent;
 
+  // Stateful NotificationsCryptoModule is
+  // intended to be used when updated CryptoModule
+  // state persistence needs to be deferred.
+  crypto::CryptoModule statefulCryptoModule;
+
+  static std::string getPicklingKey();
   static void serializeAndFlushCryptoModule(
       crypto::CryptoModule &cryptoModule,
       const std::string &path,
@@ -49,5 +55,11 @@ public:
       const std::string &data,
       const size_t messageType,
       const std::string &callingProcessName);
+
+  // Stateful methods declarations
+  NotificationsCryptoModule();
+  std::string
+  statefulDecrypt(const std::string &data, const size_t messageType);
+  void flushState(const std::string &callingProcessName);
 };
 } // namespace comm
