@@ -30,7 +30,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { registerConfig } from 'lib/utils/config.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import { WagmiENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
+import { AlchemyENSCacheProvider, wagmiClient } from 'lib/utils/wagmi-utils.js';
 
 import QrCodeLogin from './account/qr-code-login.react.js';
 import WebEditThreadAvatarProvider from './avatars/web-edit-thread-avatar-provider.react.js';
@@ -191,7 +191,7 @@ class App extends React.PureComponent<Props> {
           <TooltipProvider>
             <MenuProvider>
               <WagmiConfig client={wagmiClient}>
-                <WagmiENSCacheProvider>
+                <AlchemyENSCacheProvider>
                   <MessageSearchStateProvider>
                     <FocusHandler />
                     <VisibilityHandler />
@@ -202,7 +202,7 @@ class App extends React.PureComponent<Props> {
                     <InviteLinksRefresher />
                     {content}
                   </MessageSearchStateProvider>
-                </WagmiENSCacheProvider>
+                </AlchemyENSCacheProvider>
               </WagmiConfig>
             </MenuProvider>
           </TooltipProvider>
