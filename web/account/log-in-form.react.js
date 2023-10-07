@@ -5,7 +5,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
-import { useSigner } from 'wagmi';
+import { useWalletClient } from 'wagmi';
 
 import { isDev } from 'lib/utils/dev-utils.js';
 
@@ -27,7 +27,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 function LoginForm(): React.Node {
   const { openConnectModal } = useConnectModal();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
   const dispatch = useDispatch();
 
   const primaryIdentityPublicKeys = useSelector(

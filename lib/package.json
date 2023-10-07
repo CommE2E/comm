@@ -34,7 +34,7 @@
     "webpack": "^5.76.0"
   },
   "dependencies": {
-    "@rainbow-me/rainbowkit": "^0.12.18",
+    "@rainbow-me/rainbowkit": "^1.1.1",
     "dateformat": "^3.0.3",
     "emoji-regex": "^10.2.1",
     "eth-ens-namehash": "^2.0.8",
@@ -60,7 +60,8 @@
     "util-inspect": "^0.1.8",
     "utils-copy-error": "^1.0.1",
     "uuid": "^3.4.0",
-    "wagmi": "^0.12.19"
+    "viem": "^1.15.4",
+    "wagmi": "^1.4.3"
   },
   "jest": {
     "transform": {
