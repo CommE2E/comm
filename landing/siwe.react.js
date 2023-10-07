@@ -10,7 +10,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
-import { useAccount, useSigner, WagmiConfig } from 'wagmi';
+import { useAccount, useWalletClient, WagmiConfig } from 'wagmi';
 
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
@@ -21,7 +21,7 @@ import {
 } from 'lib/utils/siwe-utils.js';
 import {
   AlchemyENSCacheProvider,
-  wagmiClient,
+  wagmiConfig,
   wagmiChains,
 } from 'lib/utils/wagmi-utils.js';
 
@@ -41,7 +41,7 @@ async function signInWithEthereum(
 ) {
   invariant(nonce, 'nonce must be present in signInWithEthereum');
   const message = createSIWEMessage(address, statement, nonce);
-  const signature = await signer.signMessage(message);
+  const signature = await signer.signMessage({ message });
   postMessageToNativeWebView({
     type: 'siwe_success',
     address,
@@ -52,7 +52,7 @@ async function signInWithEthereum(
 
 function SIWE(): React.Node {
   const { address } = useAccount();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
   const { siweNonce, siwePrimaryIdentityPublicKey } =
     React.useContext(SIWEContext);
   const onClick = React.useCallback(() => {
@@ -160,7 +160,7 @@ function SIWEWrapper(): React.Node {
     });
   }, []);
   return (
-    <WagmiConfig client={wagmiClient}>
+    <WagmiConfig config={wagmiConfig}>
       <AlchemyENSCacheProvider>
         <RainbowKitProvider
           theme={theme}
