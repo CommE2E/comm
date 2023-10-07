@@ -20,7 +20,7 @@ import {
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
 import {
-  WagmiENSCacheProvider,
+  AlchemyENSCacheProvider,
   wagmiClient,
   wagmiChains,
 } from 'lib/utils/wagmi-utils.js';
@@ -161,7 +161,7 @@ function SIWEWrapper(): React.Node {
   }, []);
   return (
     <WagmiConfig client={wagmiClient}>
-      <WagmiENSCacheProvider>
+      <AlchemyENSCacheProvider>
         <RainbowKitProvider
           theme={theme}
           modalSize="compact"
@@ -169,7 +169,7 @@ function SIWEWrapper(): React.Node {
         >
           <SIWE />
         </RainbowKitProvider>
-      </WagmiENSCacheProvider>
+      </AlchemyENSCacheProvider>
     </WagmiConfig>
   );
 }
