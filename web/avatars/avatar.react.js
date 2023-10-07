@@ -26,6 +26,8 @@ function Avatar(props: Props): React.Node {
     [css.small]: size === 'S',
     [css.medium]: size === 'M',
     [css.large]: size === 'L',
+    [css.xLarge]: size === 'XL',
+    [css.xxLarge]: size === 'XXL',
   });
 
   const emojiSizeClassName = classnames({
@@ -34,6 +36,8 @@ function Avatar(props: Props): React.Node {
     [css.emojiSmall]: size === 'S',
     [css.emojiMedium]: size === 'M',
     [css.emojiLarge]: size === 'L',
+    [css.emojiXLarge]: size === 'XL',
+    [css.emojiXXLarge]: size === 'XXL',
   });
 
   const emojiContainerColorStyle = React.useMemo(() => {
