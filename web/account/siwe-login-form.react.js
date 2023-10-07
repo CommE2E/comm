@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
-import { useAccount, useSigner } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import {
@@ -56,7 +56,7 @@ const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
 function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
-  const { data: signer } = useSigner();
+  const { data: signer } = useWalletClient();
   const dispatchActionPromise = useDispatchActionPromise();
   const getSIWENonceCall = useServerCall(getSIWENonce);
   const getSIWENonceCallLoadingStatus = useSelector(
@@ -143,7 +143,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       primaryIdentityPublicKeys.ed25519,
     );
     const message = createSIWEMessage(address, statement, siweNonce);
-    const signature = await signer.signMessage(message);
+    const signature = await signer.signMessage({ message });
     await attemptSIWEAuth(message, signature);
     dispatch({
       type: setDataLoadedActionType,
