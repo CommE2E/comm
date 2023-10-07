@@ -25,7 +25,7 @@ function EditUserAvatar(props: Props): React.Node {
     <div className={css.editUserAvatarContainer}>
       <UserAvatar
         userID={userID}
-        size="L"
+        size="XL"
         showSpinner={userAvatarSaveInProgress}
       />
       {!userAvatarSaveInProgress ? <EditUserAvatarMenu /> : null}
