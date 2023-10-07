@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  align-items: center;
+  padding: 0 32px 32px;
+  width: 552px;
+  max-width: 80vw;
+}
+
+.usernameContainer {
+  padding-left: 16px;
+}
+
+.usernameText {
+  font-size: var(--xxl-font-24);
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.copyUsernameContainer {
+  display: flex;
+  align-items: center;
+  color: var(--purple-link);
+  margin-top: 8px;
+}
+
+.copyUsernameContainer:hover {
+  cursor: pointer;
+}
+
+.copyUsernameText {
+  font-size: var(--xs-font-12);
+  margin-left: 4px;
+}
