@@ -5,16 +5,8 @@ import {
   RainbowKitProvider,
   darkTheme,
   useModalState,
-  connectorsForWallets,
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import {
-  injectedWallet,
-  rainbowWallet,
-  metaMaskWallet,
-  walletConnectWallet,
-  // eslint-disable-next-line import/extensions
-} from '@rainbow-me/rainbowkit/wallets';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
@@ -29,31 +21,13 @@ import {
 } from 'lib/utils/siwe-utils.js';
 import {
   WagmiENSCacheProvider,
-  configureWagmiChains,
-  createWagmiClient,
+  wagmiClient,
+  wagmiChains,
 } from 'lib/utils/wagmi-utils.js';
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
 import { useMonitorForWalletConnectModal } from './walletconnect-hooks.js';
-
-const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
-
-const wallets = [injectedWallet({ chains })];
-const projectId = process.env.COMM_WALLETCONNECT_KEY;
-if (projectId) {
-  wallets.push(
-    rainbowWallet({ chains, projectId }),
-    metaMaskWallet({ chains, projectId }),
-    walletConnectWallet({ chains, projectId }),
-  );
-}
-
-const connectors = connectorsForWallets([
-  { groupName: 'Recommended', wallets },
-]);
-
-const wagmiClient = createWagmiClient({ connectors, provider });
 
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
@@ -188,7 +162,11 @@ function SIWEWrapper(): React.Node {
   return (
     <WagmiConfig client={wagmiClient}>
       <WagmiENSCacheProvider>
-        <RainbowKitProvider theme={theme} modalSize="compact" chains={chains}>
+        <RainbowKitProvider
+          theme={theme}
+          modalSize="compact"
+          chains={wagmiChains}
+        >
           <SIWE />
         </RainbowKitProvider>
       </WagmiENSCacheProvider>
