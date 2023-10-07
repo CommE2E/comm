@@ -34,9 +34,21 @@
 }
 
 .emojiLarge {
+  font-size: 70px;
+  height: 100px;
+  line-height: 100px;
+}
+
+.emojiXLarge {
   font-size: 80px;
   height: 112px;
   line-height: 112px;
+}
+
+.emojiXXLarge {
+  font-size: 336px;
+  height: 480px;
+  line-height: 480px;
 }
 
 .xSmall {
@@ -61,10 +73,24 @@
 }
 
 .large {
+  border-radius: 50px;
+  height: 100px;
+  width: 100px;
+  min-width: 100px;
+}
+
+.xLarge {
   border-radius: 56px;
   height: 112px;
   width: 112px;
   min-width: 112px;
+}
+
+.xxLarge {
+  border-radius: 240px;
+  height: 480px;
+  width: 480px;
+  min-width: 224px;
 }
 
 .imgContainer {
