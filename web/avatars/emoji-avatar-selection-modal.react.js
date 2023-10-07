@@ -106,7 +106,7 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
         <div className={css.avatarContainer}>
           <Avatar
             avatarInfo={pendingEmojiAvatar}
-            size="L"
+            size="XL"
             showSpinner={avatarSaveInProgress}
           />
         </div>
