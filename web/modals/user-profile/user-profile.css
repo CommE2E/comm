@@ -1,9 +1,12 @@
 .container {
-  display: flex;
-  align-items: center;
   padding: 0 32px 32px;
   width: 552px;
   max-width: 80vw;
+}
+
+.userInfoContainer {
+  display: flex;
+  align-items: center;
 }
 
 .usernameContainer {
@@ -30,4 +33,14 @@
 .copyUsernameText {
   font-size: var(--xs-font-12);
   margin-left: 4px;
+}
+
+.buttonsContainer {
+  margin-top: 24px;
+  display: flex;
+}
+
+.actionButton {
+  column-gap: 8px;
+  flex-grow: 1;
 }
