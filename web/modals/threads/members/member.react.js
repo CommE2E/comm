@@ -20,6 +20,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
+import { useRoleNamesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import ChangeMemberRoleModal from './change-member-role-modal.react.js';
 import css from './members-modal.css';
@@ -42,8 +43,11 @@ function ThreadMember(props: Props): React.Node {
   const { memberInfo, threadInfo, setOpenMenu, isMenuOpen } = props;
   const { pushModal } = useModalContext();
   const userName = stringForUser(memberInfo);
-  const { roles } = threadInfo;
-  const { role } = memberInfo;
+
+  const roleNames = useRoleNamesFromCommunityThreadInfo(threadInfo, [
+    memberInfo,
+  ]);
+  const roleName = roleNames.get(memberInfo.id);
 
   const onMenuChange = React.useCallback(
     menuOpen => {
@@ -109,8 +113,6 @@ function ThreadMember(props: Props): React.Node {
     () => <SWMansionIcon icon="edit-1" size={17} />,
     [],
   );
-
-  const roleName = role && roles[role].name;
 
   const label = React.useMemo(
     () => <Label variant="grey">{roleName}</Label>,
