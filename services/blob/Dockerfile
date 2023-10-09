@@ -38,5 +38,5 @@ USER comm
 
 ENV RUST_LOG=info
 
-CMD ["blob"]
+CMD ["blob", "server"]
 
