@@ -46,7 +46,6 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +deleteAccount: (
-    password: ?string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
 };
@@ -158,7 +157,6 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     try {
       await deleteNativeCredentialsFor();
       const result = await this.props.deleteAccount(
-        this.state.password,
         this.props.preRequestUserState,
       );
       return result;
