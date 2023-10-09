@@ -540,11 +540,11 @@ class PushHandler extends React.PureComponent<Props, State> {
   };
 
   iosBackgroundNotificationReceived = backgroundData => {
-    const convertedMessageInfos = convertNotificationMessageInfoToNewIDSchema(
-      backgroundData.messageInfos,
-    );
+    const convertedMessageInfos = backgroundData.messageInfosArray
+      .flatMap(convertNotificationMessageInfoToNewIDSchema)
+      .filter(Boolean);
 
-    if (!convertedMessageInfos) {
+    if (!convertedMessageInfos.length) {
       return;
     }
 
