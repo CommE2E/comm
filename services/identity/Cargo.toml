@@ -30,6 +30,7 @@ tunnelbroker_messages = { path = "../../shared/tunnelbroker_messages" }
 moka = { version = "0.10", features = ["future"] }
 uuid = { version = "1.3", features = [ "v4" ] }
 base64 = "0.21.2"
+regex = "1"
 
 [build-dependencies]
 tonic-build = "0.9.1"
