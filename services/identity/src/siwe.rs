@@ -1,12 +1,12 @@
 use chrono::Utc;
-use siwe::{eip55, Message};
+use siwe::Message;
 use tonic::Status;
 use tracing::error;
 
 pub fn parse_and_verify_siwe_message(
   siwe_message: &str,
   siwe_signature: &str,
-) -> Result<String, Status> {
+) -> Result<Message, Status> {
   let siwe_message: Message = siwe_message.parse().map_err(|e| {
     error!("Failed to parse SIWE message: {}", e);
     Status::invalid_argument("invalid message")
@@ -30,5 +30,5 @@ pub fn parse_and_verify_siwe_message(
       Status::unauthenticated("message not authenticated")
     })?;
 
-  Ok(eip55(&siwe_message.address))
+  Ok(siwe_message)
 }
