@@ -10,14 +10,7 @@
   font-weight: var(--bold);
   margin-bottom: 16px;
 }
-.confirm_password {
-  margin-bottom: 10px;
-}
 
-.form_title {
-  font-weight: var(--bold);
-  margin-bottom: 8px;
-}
 .form_footer {
   display: flex;
   flex-direction: row-reverse;
