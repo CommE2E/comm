@@ -68,12 +68,3 @@ body > div > :global(div.iekbcc0) > div {
 body > div > :global(div.iekbcc0) > div > div > div > div {
   border: 0 !important;
 }
-
-:global(div#walletconnect-wrapper) {
-  word-break: initial;
-  color: initial;
-}
-:global(div.walletconnect-modal__footer) {
-  overflow: hidden;
-  justify-content: flex-start;
-}
