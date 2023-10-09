@@ -28,7 +28,6 @@ const defaultWebState: AppState = Object.freeze({
   },
   userStore: {
     userInfos: {},
-    inconsistencyReports: [],
   },
   messageStore: {
     messages: {},

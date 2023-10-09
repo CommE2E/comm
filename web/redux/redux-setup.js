@@ -134,7 +134,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     return validateState(oldState, {
       ...state,
       ...rest,
-      userStore: { userInfos, inconsistencyReports: [] },
+      userStore: { userInfos },
       keyserverStore: {
         ...state.keyserverStore,
         keyserverInfos: {
