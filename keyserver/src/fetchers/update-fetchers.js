@@ -1,7 +1,6 @@
 // @flow
 
-import invariant from 'invariant';
-
+import { updateSpecs } from 'lib/shared/updates/update-specs.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { updateTypes, assertUpdateType } from 'lib/types/update-types-enum.js';
 import { type RawUpdateInfo } from 'lib/types/update-types.js';
@@ -52,83 +51,9 @@ function fetchUpdateInfos(
   return fetchUpdateInfosWithQuery({ viewer, calendarQuery }, query);
 }
 
-// ESLint doesn't recognize that invariant always throws
-// eslint-disable-next-line consistent-return
 function rawUpdateInfoFromRow(row: Object): RawUpdateInfo {
   const type = assertUpdateType(row.type);
-  if (type === updateTypes.DELETE_ACCOUNT) {
-    const content = JSON.parse(row.content);
-    return {
-      type: updateTypes.DELETE_ACCOUNT,
-      id: row.id.toString(),
-      time: row.time,
-      deletedUserID: content.deletedUserID,
-    };
-  } else if (type === updateTypes.UPDATE_THREAD) {
-    const { threadID } = JSON.parse(row.content);
-    return {
-      type: updateTypes.UPDATE_THREAD,
-      id: row.id.toString(),
-      time: row.time,
-      threadID,
-    };
-  } else if (type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-    const { threadID, unread } = JSON.parse(row.content);
-    return {
-      type: updateTypes.UPDATE_THREAD_READ_STATUS,
-      id: row.id.toString(),
-      time: row.time,
-      threadID,
-      unread,
-    };
-  } else if (type === updateTypes.DELETE_THREAD) {
-    const { threadID } = JSON.parse(row.content);
-    return {
-      type: updateTypes.DELETE_THREAD,
-      id: row.id.toString(),
-      time: row.time,
-      threadID,
-    };
-  } else if (type === updateTypes.JOIN_THREAD) {
-    const { threadID } = JSON.parse(row.content);
-    return {
-      type: updateTypes.JOIN_THREAD,
-      id: row.id.toString(),
-      time: row.time,
-      threadID,
-    };
-  } else if (type === updateTypes.BAD_DEVICE_TOKEN) {
-    const { deviceToken } = JSON.parse(row.content);
-    return {
-      type: updateTypes.BAD_DEVICE_TOKEN,
-      id: row.id.toString(),
-      time: row.time,
-      deviceToken,
-    };
-  } else if (type === updateTypes.UPDATE_ENTRY) {
-    const { entryID } = JSON.parse(row.content);
-    return {
-      type: updateTypes.UPDATE_ENTRY,
-      id: row.id.toString(),
-      time: row.time,
-      entryID,
-    };
-  } else if (type === updateTypes.UPDATE_CURRENT_USER) {
-    return {
-      type: updateTypes.UPDATE_CURRENT_USER,
-      id: row.id.toString(),
-      time: row.time,
-    };
-  } else if (type === updateTypes.UPDATE_USER) {
-    const content = JSON.parse(row.content);
-    return {
-      type: updateTypes.UPDATE_USER,
-      id: row.id.toString(),
-      time: row.time,
-      updatedUserID: content.updatedUserID,
-    };
-  }
-  invariant(false, `unrecognized updateType ${type}`);
+  return updateSpecs[type].rawUpdateInfoFromRow(row);
 }
 
 const entryIDExtractString = '$.entryID';
