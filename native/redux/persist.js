@@ -776,6 +776,35 @@ const migrations = {
       },
     };
   },
+  [52]: state => {
+    const reportStoreOperations = convertReportsToReplaceReportOps(
+      state.userStore.inconsistencyReports,
+    );
+    const dbOperations: $ReadOnlyArray<ClientDBReportStoreOperation> =
+      reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
+    try {
+      commCoreModule.processReportStoreOperationsSync(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return { ...state, cookie: null };
+    }
+
+    const { inconsistencyReports, ...newUserStore } = state.userStore;
+    const queuedReports = reportStoreOpsHandlers.processStoreOperations(
+      state.reportStore.queuedReports,
+      reportStoreOperations,
+    );
+    return {
+      ...state,
+      userStore: newUserStore,
+      reportStore: {
+        ...state.reportStore,
+        queuedReports,
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -907,7 +936,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 51,
+  version: 52,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
