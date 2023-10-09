@@ -14,10 +14,7 @@ import {
 } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import {
-  getAccountPrekeysSet,
-  validateAccountPrekey,
-} from '../utils/olm-utils.js';
+import { getAccountPrekeysSet } from '../utils/olm-utils.js';
 
 type UserCredentials = { +username: string, +password: string };
 
@@ -31,7 +28,6 @@ export type AccountKeysSet = {
 function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
   const identityKeys = account.identity_keys();
 
-  validateAccountPrekey(account);
   const { prekey, prekeySignature } = getAccountPrekeysSet(account);
 
   if (!prekeySignature || !prekey) {

@@ -19,7 +19,6 @@ import { fetchSessionPublicKeys } from '../fetchers/key-fetchers.js';
 import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import { validateAccountPrekey } from '../utils/olm-utils.js';
 
 type AccountKeysSet = {
   +identityKeys: string,
@@ -50,7 +49,6 @@ async function retrieveAccountKeysSet(
 ): Promise<AccountKeysSet> {
   const identityKeys = account.identity_keys();
 
-  await validateAccountPrekey(account);
   const prekey = account.prekey();
   const prekeySignature = account.prekey_signature();
 
