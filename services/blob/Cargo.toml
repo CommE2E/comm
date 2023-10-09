@@ -3,7 +3,7 @@ name = "blob"
 description = "Blob service"
 homepage = "https://comm.app"
 license = "BSD-3-Clause"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
