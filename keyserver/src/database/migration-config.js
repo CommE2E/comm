@@ -11,10 +11,14 @@ import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
 import { createScriptViewer } from '../session/scripts.js';
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { ensureUserCredentials } from '../user/checks.js';
-import { createPickledOlmAccount } from '../utils/olm-utils.js';
+import {
+  createPickledOlmAccount,
+  publishPrekeysToIdentity,
+} from '../utils/olm-utils.js';
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 
@@ -556,6 +560,23 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
               CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL;
         `,
       ),
+  ],
+  [
+    46,
+    async () => {
+      try {
+        const [content, notif] = await Promise.all([
+          fetchOlmAccount('content'),
+          fetchOlmAccount('notifications'),
+        ]);
+        await publishPrekeysToIdentity(content.account, notif.account);
+      } catch (e) {
+        console.warn('Encountered error while trying to publish prekeys', e);
+        if (process.env.ENV === 'prod') {
+          throw e;
+        }
+      }
+    },
   ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());

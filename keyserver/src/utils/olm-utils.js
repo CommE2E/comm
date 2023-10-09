@@ -203,7 +203,11 @@ async function validateAndUploadAccountPrekeys(
 ): Promise<void> {
   // Since keys are rotated synchronously, only check validity of one
   if (shouldRotatePrekey(contentAccount)) {
-    await publishNewPrekeys(contentAccount, notifAccount);
+    contentAccount.generate_prekey();
+    notifAccount.generate_prekey();
+    await publishPrekeysToIdentity(contentAccount, notifAccount);
+    contentAccount.mark_prekey_as_published();
+    notifAccount.mark_prekey_as_published();
   }
   if (shouldForgetPrekey(contentAccount)) {
     contentAccount.forget_old_prekey();
@@ -211,20 +215,16 @@ async function validateAndUploadAccountPrekeys(
   }
 }
 
-async function publishNewPrekeys(
+async function publishPrekeysToIdentity(
   contentAccount: OlmAccount,
   notifAccount: OlmAccount,
 ): Promise<void> {
   const rustAPIPromise = getRustAPI();
   const fetchIdentityInfoPromise = fetchIdentityInfo();
-
   const deviceID = JSON.parse(contentAccount.identity_keys()).ed25519;
 
-  contentAccount.generate_prekey();
   const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
     getAccountPrekeysSet(contentAccount);
-
-  notifAccount.generate_prekey();
   const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
     getAccountPrekeysSet(notifAccount);
 
@@ -254,9 +254,6 @@ async function publishNewPrekeys(
     notifPrekey,
     notifPrekeySignature,
   );
-
-  contentAccount.mark_prekey_as_published();
-  notifAccount.mark_prekey_as_published();
 }
 
 export {
@@ -270,4 +267,5 @@ export {
   getContentSigningKey,
   getAccountPrekeysSet,
   validateAndUploadAccountPrekeys,
+  publishPrekeysToIdentity,
 };
