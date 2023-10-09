@@ -32,7 +32,6 @@ type Props = {
   +inputDisabled: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +deleteAccount: (
-    password: ?string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
   +popModal: () => void,
@@ -151,7 +150,6 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
   async deleteAction() {
     try {
       const response = await this.props.deleteAccount(
-        this.state.currentPassword,
         this.props.preRequestUserState,
       );
       this.props.popModal();
