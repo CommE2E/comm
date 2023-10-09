@@ -24,6 +24,15 @@ pub struct AppConfig {
   #[arg(env = "IDENTITY_SERVICE_ENDPOINT")]
   #[arg(long, default_value = "http://localhost:50054")]
   pub identity_endpoint: String,
+
+  #[clap(subcommand)]
+  pub command: Option<Command>,
+}
+
+#[derive(clap::Subcommand)]
+pub enum Command {
+  Server,
+  Cleanup,
 }
 
 /// Stores configuration parsed from command-line arguments
