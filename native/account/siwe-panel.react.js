@@ -18,6 +18,7 @@ import {
   type BindServerCallsParams,
 } from 'lib/utils/action-utils.js';
 
+import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
 import Alert from '../utils/alert.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
@@ -88,21 +89,24 @@ function SIWEPanel(props: Props): React.Node {
   const [walletConnectModalHeight, setWalletConnectModalHeight] =
     React.useState(0);
   const insets = useSafeAreaInsets();
+  const keyboardHeight = useKeyboardHeight();
   const bottomInset = insets.bottom;
   const snapPoints = React.useMemo(() => {
     if (isLoading) {
       return [1];
     } else if (walletConnectModalHeight) {
-      const baseHeight = bottomInset + walletConnectModalHeight;
+      const baseHeight =
+        bottomInset + walletConnectModalHeight + keyboardHeight;
       if (baseHeight < 400) {
-        return [baseHeight + 3];
+        return [baseHeight - 10];
       } else {
-        return [baseHeight - 17];
+        return [baseHeight + 5];
       }
     } else {
-      return [bottomInset + 435, bottomInset + 600];
+      const baseHeight = bottomInset + keyboardHeight;
+      return [baseHeight + 435, baseHeight + 600];
     }
-  }, [isLoading, walletConnectModalHeight, bottomInset]);
+  }, [isLoading, walletConnectModalHeight, bottomInset, keyboardHeight]);
 
   const bottomSheetRef = React.useRef();
   const snapToIndex = bottomSheetRef.current?.snapToIndex;
