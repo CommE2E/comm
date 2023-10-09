@@ -81,7 +81,9 @@ function getCommIOSNotificationsEventEmitter(): NativeEventEmitter<
     remoteNotificationsRegistrationFailed: [void],
     notificationReceivedForeground: [CoreIOSNotificationData],
     notificationOpened: [CoreIOSNotificationData],
-    notificationReceivedBackground: [{ +messageInfos: ?string }],
+    notificationReceivedBackground: [
+      { +messageInfosArray: $ReadOnlyArray<string> },
+    ],
   }>,
 > {
   return new NativeEventEmitter(CommIOSNotifications);
