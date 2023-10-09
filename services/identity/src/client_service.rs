@@ -7,6 +7,7 @@ use aws_sdk_dynamodb::Error as DynamoDBError;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use rand::rngs::OsRng;
+use siwe::eip55;
 use tonic::Response;
 use tracing::{debug, error};
 
@@ -587,10 +588,26 @@ impl IdentityClientService for ClientService {
   ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
     let message = request.into_inner();
 
-    let wallet_address = parse_and_verify_siwe_message(
+    let parsed_message = parse_and_verify_siwe_message(
       &message.siwe_message,
       &message.siwe_signature,
     )?;
+
+    match self
+      .client
+      .get_nonce_from_nonces_table(&parsed_message.nonce)
+      .await
+      .map_err(handle_db_error)?
+    {
+      None => return Err(tonic::Status::invalid_argument("invalid nonce")),
+      Some(_) => self
+        .client
+        .remove_nonce_from_nonces_table(&parsed_message.nonce)
+        .await
+        .map_err(handle_db_error)?,
+    };
+
+    let wallet_address = eip55(&parsed_message.address);
 
     let (flattened_device_key_upload, social_proof) =
       if let client_proto::WalletLoginRequest {
