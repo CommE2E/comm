@@ -134,15 +134,6 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
-function validateAccountPrekey(account: OlmAccount) {
-  if (shouldRotatePrekey(account)) {
-    account.generate_prekey();
-  }
-  if (shouldForgetPrekey(account)) {
-    account.forget_old_prekey();
-  }
-}
-
 async function uploadNewOneTimeKeys(numberOfKeys: number) {
   const [rustAPI, identityInfo, deviceID] = await Promise.all([
     getRustAPI(),
@@ -266,7 +257,6 @@ export {
   getOlmUtility,
   unpickleOlmAccount,
   unpickleOlmSession,
-  validateAccountPrekey,
   uploadNewOneTimeKeys,
   getContentSigningKey,
   getAccountPrekeysSet,
