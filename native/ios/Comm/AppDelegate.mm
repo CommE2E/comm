@@ -337,11 +337,13 @@ using Runtime = facebook::jsi::Runtime;
   TemporaryMessageStorage *temporaryStorage =
       [[TemporaryMessageStorage alloc] init];
   NSArray<NSString *> *messages = [temporaryStorage readAndClearMessages];
+
+  if (sendBackgroundMessagesInfosToJS && messages.count) {
+    [CommIOSNotifications
+        didReceiveBackgroundMessageInfos:@{@"messageInfosArray" : messages}];
+  }
+
   for (NSString *message in messages) {
-    if (sendBackgroundMessagesInfosToJS) {
-      [CommIOSNotifications
-          didReceiveBackgroundMessageInfos:@{@"messageInfos" : message}];
-    }
     std::string messageInfos = std::string([message UTF8String]);
     comm::GlobalDBSingleton::instance.scheduleOrRun([messageInfos]() mutable {
       comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
