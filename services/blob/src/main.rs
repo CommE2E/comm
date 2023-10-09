@@ -8,6 +8,7 @@ pub mod tools;
 
 use anyhow::Result;
 use comm_services_lib::auth::AuthService;
+use config::Command;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
 use crate::service::BlobServiceConfig;
@@ -33,14 +34,15 @@ async fn main() -> Result<()> {
   let s3 = s3::S3Client::new(&aws_config);
   let auth_service = AuthService::new(&aws_config, &config.identity_endpoint);
 
-  let blob_service = service::BlobService::new(
-    db,
-    s3,
-    BlobServiceConfig {
-      instant_delete_orphaned_blobs: true,
-      ..Default::default()
-    },
-  );
+  let blob_service =
+    service::BlobService::new(db, s3, BlobServiceConfig::default());
 
-  crate::http::run_http_server(blob_service, auth_service).await
+  match &config.command {
+    Some(Command::Cleanup) => blob_service.perform_cleanup().await?,
+    None | Some(Command::Server) => {
+      crate::http::run_http_server(blob_service, auth_service).await?
+    }
+  };
+
+  Ok(())
 }
