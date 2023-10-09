@@ -3,6 +3,14 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+const walletConnectCSSOverride = `
+  div.wcm-overlay {
+    --wcm-background-border-radius: 0;
+    align-items: flex-start;
+    padding: 0;
+  }
+`;
+
 type WalletConnectModalUpdate =
   | { +state: 'closed' }
   | { +state: 'open', +height: number };
@@ -27,6 +35,10 @@ function useMonitorForWalletConnectModal(
           // root", so instead we implement a second-layer MutationObserver once
           // we see the shadow root.
           setWCShadowRoot(shadowRoot);
+          // We want to customize the style of the WalletConnect modal
+          const styleOverride = document.createElement('style');
+          styleOverride.textContent = walletConnectCSSOverride;
+          shadowRoot.appendChild(styleOverride);
         }
       }
     }
