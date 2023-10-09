@@ -9,7 +9,7 @@ import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
-import UserProfileMessageButton from './user-profile-message-button.react.js';
+import UserProfileActionButtons from './user-profile-action-buttons.react.js';
 import css from './user-profile.css';
 import UserAvatar from '../../avatars/user-avatar.react.js';
 
@@ -37,7 +37,7 @@ function UserProfile(props: Props): React.Node {
     setUsernameCopied(false);
   }, [usernameCopied, usernameText]);
 
-  const messageButton = React.useMemo(() => {
+  const actionButtons = React.useMemo(() => {
     if (
       !userProfileThreadInfo ||
       relationshipBlockedInEitherDirection(userInfo?.relationshipStatus)
@@ -46,7 +46,7 @@ function UserProfile(props: Props): React.Node {
     }
 
     return (
-      <UserProfileMessageButton threadInfo={userProfileThreadInfo.threadInfo} />
+      <UserProfileActionButtons threadInfo={userProfileThreadInfo.threadInfo} />
     );
   }, [userInfo?.relationshipStatus, userProfileThreadInfo]);
 
@@ -70,7 +70,7 @@ function UserProfile(props: Props): React.Node {
           </div>
         </div>
       </div>
-      <div className={css.buttonsContainer}>{messageButton}</div>
+      {actionButtons}
     </div>
   );
 }
