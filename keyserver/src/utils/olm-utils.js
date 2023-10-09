@@ -27,6 +27,41 @@ type PickledOlmAccount = {
 const maxPublishedPrekeyAge = 30 * 24 * 60 * 60 * 1000;
 const maxOldPrekeyAge = 24 * 60 * 60 * 1000;
 
+function getLastPrekeyPublishTime(account: OlmAccount): Date {
+  const olmLastPrekeyPublishTime = account.last_prekey_publish_time();
+
+  // olm uses seconds, while in Node we need milliseconds
+  return new Date(olmLastPrekeyPublishTime * 1000);
+}
+
+function shouldRotatePrekey(account: OlmAccount): boolean {
+  // Our fork of Olm only remembers two prekeys at a time.
+  // If the new one hasn't been published, then the old one is still active.
+  // In that scenario, we need to avoid rotating the prekey because it will
+  // result in the old active prekey being discarded.
+  if (account.unpublished_prekey()) {
+    return false;
+  }
+
+  const currentDate = new Date();
+  const lastPrekeyPublishDate = getLastPrekeyPublishTime(account);
+
+  return currentDate - lastPrekeyPublishDate >= maxPublishedPrekeyAge;
+}
+
+function shouldForgetPrekey(account: OlmAccount): boolean {
+  // Our fork of Olm only remembers two prekeys at a time.
+  // We have to hold onto the old one until the new one is published.
+  if (account.unpublished_prekey()) {
+    return false;
+  }
+
+  const currentDate = new Date();
+  const lastPrekeyPublishDate = getLastPrekeyPublishTime(account);
+
+  return currentDate - lastPrekeyPublishDate >= maxOldPrekeyAge;
+}
+
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
   await olm.init();
   const account = new olm.Account();
@@ -89,6 +124,7 @@ async function unpickleOlmSession(
 }
 
 let cachedOLMUtility: OlmUtility;
+
 function getOlmUtility(): OlmUtility {
   if (cachedOLMUtility) {
     return cachedOLMUtility;
@@ -98,23 +134,10 @@ function getOlmUtility(): OlmUtility {
 }
 
 function validateAccountPrekey(account: OlmAccount) {
-  const currentDate = new Date();
-  const lastPrekeyPublishDate = new Date(account.last_prekey_publish_time());
-
-  const prekeyPublished = !account.unpublished_prekey();
-  if (
-    prekeyPublished &&
-    currentDate - lastPrekeyPublishDate > maxPublishedPrekeyAge
-  ) {
-    // If there is no prekey or the current prekey is older than month
-    // we need to generate new one.
+  if (shouldRotatePrekey(account)) {
     account.generate_prekey();
   }
-
-  if (
-    prekeyPublished &&
-    currentDate - lastPrekeyPublishDate >= maxOldPrekeyAge
-  ) {
+  if (shouldForgetPrekey(account)) {
     account.forget_old_prekey();
   }
 }
