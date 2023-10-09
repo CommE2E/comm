@@ -32,7 +32,6 @@ const defaultState = ({
   },
   userStore: {
     userInfos: {},
-    inconsistencyReports: [],
   },
   messageStore: {
     messages: {},
