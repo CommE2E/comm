@@ -11,7 +11,7 @@ use crate::constants::{
 #[command(version, about, long_about = None)]
 pub struct AppConfig {
   /// HTTP server listening port
-  #[arg(long, default_value_t = DEFAULT_HTTP_PORT)]
+  #[arg(long, default_value_t = DEFAULT_HTTP_PORT, global = true)]
   pub http_port: u16,
   /// AWS Localstack service URL
   #[arg(env = "LOCALSTACK_ENDPOINT")]
@@ -24,6 +24,15 @@ pub struct AppConfig {
   #[arg(env = "IDENTITY_SERVICE_ENDPOINT")]
   #[arg(long, default_value = "http://localhost:50054")]
   pub identity_endpoint: String,
+
+  #[clap(subcommand)]
+  pub command: Option<Command>,
+}
+
+#[derive(clap::Subcommand)]
+pub enum Command {
+  Server,
+  Cleanup,
 }
 
 /// Stores configuration parsed from command-line arguments
