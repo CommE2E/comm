@@ -12,6 +12,7 @@ import uuid from 'uuid';
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
 
 import {
   fetchCallUpdateOlmAccount,
@@ -186,6 +187,16 @@ async function getContentSigningKey(): Promise<string> {
   return JSON.parse(accountInfo.account.identity_keys()).ed25519;
 }
 
+function getAccountPrekeysSet(account: OlmAccount): {
+  +prekey: string,
+  +prekeySignature: ?string,
+} {
+  const prekeyMap = JSON.parse(account.prekey()).curve25519;
+  const [prekey] = values(prekeyMap);
+  const prekeySignature = account.prekey_signature();
+  return { prekey, prekeySignature };
+}
+
 export {
   createPickledOlmAccount,
   createPickledOlmSession,
@@ -195,4 +206,5 @@ export {
   validateAccountPrekey,
   uploadNewOneTimeKeys,
   getContentSigningKey,
+  getAccountPrekeysSet,
 };
