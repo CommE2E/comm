@@ -39,7 +39,7 @@ services:
     build:
       dockerfile: services/blob/Dockerfile
       context: ../
-    image: commapp/blob-server:0.2.0
+    image: commapp/blob-server:1.0.0
     ports:
       - '${COMM_SERVICES_PORT_BLOB}:50053'
     volumes:
