@@ -17,7 +17,7 @@ function useMonitorForWalletConnectModal(
       for (const addedNode of mutation.addedNodes) {
         if (
           addedNode instanceof HTMLElement &&
-          addedNode.localName === 'w3m-modal' &&
+          addedNode.localName === 'wcm-modal' &&
           addedNode.shadowRoot
         ) {
           const { shadowRoot } = addedNode;
@@ -63,7 +63,7 @@ function useMonitorForWalletConnectModal(
       if (
         node instanceof HTMLElement &&
         node.localName === 'div' &&
-        node.className === 'w3m-container'
+        node.className === 'wcm-container'
       ) {
         setWCResizableContainer(node);
       }
@@ -80,9 +80,9 @@ function useMonitorForWalletConnectModal(
     // wcShadowRoot as React state so that we can properly "clean up" the
     // associated observer below in an effect, but it means we have to deal with
     // the associated delay in updated React state, which is unpredictable.
-    const modal = wcShadowRoot.getElementById('w3m-modal');
+    const modal = wcShadowRoot.getElementById('wcm-modal');
     if (modal) {
-      const container = wcShadowRoot.querySelector('div.w3m-container');
+      const container = wcShadowRoot.querySelector('div.wcm-container');
       if (container) {
         setWCResizableContainer(container);
         return undefined;
