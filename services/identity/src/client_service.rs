@@ -33,7 +33,7 @@ use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
-  validate_add_reserved_usernames_message,
+  is_valid_ethereum_address, validate_add_reserved_usernames_message,
   validate_remove_reserved_username_message,
   validate_signed_account_ownership_message,
 };
@@ -116,7 +116,9 @@ impl IdentityClientService for ClientService {
       return Err(tonic::Status::already_exists("username already exists"));
     }
 
-    if CONFIG.reserved_usernames.contains(&message.username) {
+    if CONFIG.reserved_usernames.contains(&message.username)
+      || is_valid_ethereum_address(&message.username)
+    {
       return Err(tonic::Status::invalid_argument("username reserved"));
     }
 
