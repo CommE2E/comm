@@ -6,7 +6,6 @@ import { getRustAPI } from 'rust-node-addon';
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
-import { values } from 'lib/utils/objects.js';
 
 import {
   saveIdentityInfo,
@@ -15,7 +14,10 @@ import {
 } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import { validateAccountPrekey } from '../utils/olm-utils.js';
+import {
+  getAccountPrekeysSet,
+  validateAccountPrekey,
+} from '../utils/olm-utils.js';
 
 type UserCredentials = { +username: string, +password: string };
 
@@ -30,9 +32,7 @@ function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
   const identityKeys = account.identity_keys();
 
   validateAccountPrekey(account);
-  const prekeyMap = JSON.parse(account.prekey()).curve25519;
-  const [prekey] = values(prekeyMap);
-  const prekeySignature = account.prekey_signature();
+  const { prekey, prekeySignature } = getAccountPrekeysSet(account);
 
   if (!prekeySignature || !prekey) {
     throw new ServerError('invalid_prekey');
