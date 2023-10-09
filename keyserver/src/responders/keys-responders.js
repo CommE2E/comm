@@ -52,11 +52,6 @@ async function retrieveAccountKeysSet(
 
   await validateAccountPrekey(account);
   const prekey = account.prekey();
-  // Until transfer of prekeys to the identity service is implemented
-  // prekeys will be marked as published each time it is accessed
-  // to establish olm notifs session to mitigate the risk of prekeys
-  // being in use for long enough to cause security concerns
-  account.mark_prekey_as_published();
   const prekeySignature = account.prekey_signature();
 
   if (!prekeySignature) {
