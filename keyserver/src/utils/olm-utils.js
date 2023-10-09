@@ -197,6 +197,68 @@ function getAccountPrekeysSet(account: OlmAccount): {
   return { prekey, prekeySignature };
 }
 
+async function revalidateAccountPrekeys(
+  contentAccount: OlmAccount,
+  notifAccount: OlmAccount,
+): Promise<void> {
+  // Since keys are rotated synchronously, only check validity of one
+  if (shouldRotatePrekey(contentAccount)) {
+    await publishNewPrekeys(contentAccount, notifAccount);
+  }
+  if (shouldForgetPrekey(contentAccount)) {
+    contentAccount.forget_old_prekey();
+    notifAccount.forget_old_prekey();
+  }
+}
+
+async function publishNewPrekeys(
+  contentAccount: OlmAccount,
+  notifAccount: OlmAccount,
+): Promise<void> {
+  const rustAPIPromise = getRustAPI();
+  const fetchIdentityInfoPromise = fetchIdentityInfo();
+
+  const deviceID = JSON.parse(contentAccount.identity_keys()).ed25519;
+
+  contentAccount.generate_prekey();
+  const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
+    getAccountPrekeysSet(contentAccount);
+
+  notifAccount.generate_prekey();
+  const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
+    getAccountPrekeysSet(notifAccount);
+
+  if (!contentPrekeySignature || !notifPrekeySignature) {
+    console.warn('Unable to create valid signature for a prekey');
+    return;
+  }
+
+  const [rustAPI, identityInfo] = await Promise.all([
+    rustAPIPromise,
+    fetchIdentityInfoPromise,
+  ]);
+
+  if (!identityInfo) {
+    console.warn(
+      'Attempted to refresh prekeys before registering with Identity service',
+    );
+    return;
+  }
+
+  await rustAPI.publishPrekeys(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    contentPrekey,
+    contentPrekeySignature,
+    notifPrekey,
+    notifPrekeySignature,
+  );
+
+  contentAccount.mark_prekey_as_published();
+  notifAccount.mark_prekey_as_published();
+}
+
 export {
   createPickledOlmAccount,
   createPickledOlmSession,
@@ -207,4 +269,5 @@ export {
   uploadNewOneTimeKeys,
   getContentSigningKey,
   getAccountPrekeysSet,
+  revalidateAccountPrekeys,
 };
