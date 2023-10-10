@@ -1,9 +1,12 @@
 use crate::identity::device::DeviceInfo;
-use futures_util::SinkExt;
+use futures_util::{SinkExt, StreamExt};
 use tokio::net::TcpStream;
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
-use tunnelbroker_messages::{ConnectionInitializationMessage, DeviceTypes};
+use tunnelbroker_messages::{
+  ConnectionInitializationMessage, DeviceTypes, MessageSentStatus,
+  MessageToDevice, MessageToDeviceRequest, MessageToDeviceRequestStatus,
+};
 
 pub async fn create_socket(
   device_info: &DeviceInfo,
@@ -31,4 +34,32 @@ pub async fn create_socket(
     .expect("Failed to send message");
 
   socket
+}
+
+pub async fn send_message(
+  socket: &mut WebSocketStream<MaybeTlsStream<TcpStream>>,
+  message: MessageToDevice,
+) -> Result<String, Box<dyn std::error::Error>> {
+  let client_message_id = uuid::Uuid::new_v4().to_string();
+  let request = MessageToDeviceRequest {
+    client_message_id: client_message_id.clone(),
+    device_id: message.device_id,
+    payload: message.payload,
+  };
+
+  let serialized_request = serde_json::to_string(&request)?;
+
+  socket.send(Message::Text(serialized_request)).await?;
+
+  if let Some(Ok(response)) = socket.next().await {
+    let confirmation: MessageToDeviceRequestStatus =
+      serde_json::from_str(response.to_text().unwrap())?;
+    if confirmation
+      .client_message_ids
+      .contains(&MessageSentStatus::Success(client_message_id.clone()))
+    {
+      return Ok(client_message_id);
+    }
+  }
+  Err("Failed to confirm sent message".into())
 }
