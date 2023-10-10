@@ -82,7 +82,7 @@ resource "aws_dynamodb_table" "blob-service-blobs" {
 resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
   name         = "tunnelbroker-undelivered-messages"
   hash_key     = "deviceID"
-  range_key    = "createdAt"
+  range_key    = "messageID"
   billing_mode = "PAY_PER_REQUEST"
 
   attribute {
@@ -91,8 +91,8 @@ resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
   }
 
   attribute {
-    name = "createdAt"
-    type = "N"
+    name = "messageID"
+    type = "S"
   }
 }
 

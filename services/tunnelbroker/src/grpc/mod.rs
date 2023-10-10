@@ -39,7 +39,7 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
 
     self
       .client
-      .persist_message(&message.device_id, &message.payload)
+      .persist_message(&message.device_id, &message.payload, "message_id")
       .await
       .map_err(handle_ddb_error)?;
 

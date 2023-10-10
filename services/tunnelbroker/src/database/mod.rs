@@ -3,12 +3,11 @@ use aws_sdk_dynamodb::error::SdkError;
 use aws_sdk_dynamodb::operation::delete_item::{
   DeleteItemError, DeleteItemOutput,
 };
-use aws_sdk_dynamodb::operation::put_item::{PutItemError, PutItemOutput};
+use aws_sdk_dynamodb::operation::put_item::PutItemError;
 use aws_sdk_dynamodb::operation::query::QueryError;
 use aws_sdk_dynamodb::{types::AttributeValue, Client};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::{debug, error};
 
 use crate::constants::dynamodb::undelivered_messages::{
@@ -18,18 +17,12 @@ use crate::constants::dynamodb::undelivered_messages::{
 pub mod message;
 pub mod message_id;
 
+use crate::database::message_id::MessageID;
 pub use message::*;
 
 #[derive(Clone)]
 pub struct DatabaseClient {
   client: Arc<Client>,
-}
-
-pub fn unix_timestamp() -> u64 {
-  SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .expect("System time is misconfigured")
-    .as_secs()
 }
 
 pub fn handle_ddb_error<E>(db_error: SdkError<E>) -> tonic::Status {
@@ -57,22 +50,27 @@ impl DatabaseClient {
     &self,
     device_id: &str,
     payload: &str,
-  ) -> Result<PutItemOutput, SdkError<PutItemError>> {
+    client_message_id: &str,
+  ) -> Result<String, SdkError<PutItemError>> {
+    let message_id: String =
+      MessageID::new(client_message_id.to_string()).into();
+
     let device_av = AttributeValue::S(device_id.to_string());
     let payload_av = AttributeValue::S(payload.to_string());
-    let created_av = AttributeValue::N(unix_timestamp().to_string());
+    let message_id_av = AttributeValue::S(message_id.clone());
 
     let request = self
       .client
       .put_item()
       .table_name(TABLE_NAME)
       .item(PARTITION_KEY, device_av)
-      .item(SORT_KEY, created_av)
+      .item(SORT_KEY, message_id_av)
       .item(PAYLOAD, payload_av);
 
     debug!("Persisting message to device: {}", &device_id);
 
-    request.send().await
+    request.send().await?;
+    Ok(message_id)
   }
 
   pub async fn retrieve_messages(
@@ -104,7 +102,7 @@ impl DatabaseClient {
   pub async fn delete_message(
     &self,
     device_id: &str,
-    created_at: &str,
+    message_id: &str,
   ) -> Result<DeleteItemOutput, SdkError<DeleteItemError>> {
     debug!("Deleting message for device: {}", device_id);
 
@@ -115,7 +113,7 @@ impl DatabaseClient {
       ),
       (
         SORT_KEY.to_string(),
-        AttributeValue::N(created_at.to_string()),
+        AttributeValue::S(message_id.to_string()),
       ),
     ]);
 
