@@ -6,15 +6,16 @@ use commtest::identity::device::create_device;
 use commtest::identity::olm_account_infos::{
   MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
 };
-use commtest::tunnelbroker::socket::create_socket;
-use futures_util::{SinkExt, StreamExt};
+use commtest::tunnelbroker::socket::{create_socket, send_message};
+use futures_util::StreamExt;
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
 use proto::MessageToDevice;
 use std::time::Duration;
 use tokio::time::sleep;
-use tokio_tungstenite::tungstenite::Message;
 
-use tunnelbroker_messages::{MessageToDeviceRequest, RefreshKeyRequest};
+use tunnelbroker_messages::{
+  MessageToDevice as WebSocketMessageToDevice, RefreshKeyRequest,
+};
 
 #[tokio::test]
 async fn send_refresh_request() {
@@ -61,39 +62,24 @@ async fn test_messages_order() {
   let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
 
   let messages = vec![
-    MessageToDeviceRequest {
-      client_message_id: "5".to_string(),
+    WebSocketMessageToDevice {
       device_id: receiver.device_id.clone(),
       payload: "first message".to_string(),
     },
-    MessageToDeviceRequest {
-      client_message_id: "2".to_string(),
+    WebSocketMessageToDevice {
       device_id: receiver.device_id.clone(),
       payload: "second message".to_string(),
     },
-    MessageToDeviceRequest {
-      client_message_id: "7".to_string(),
+    WebSocketMessageToDevice {
       device_id: receiver.device_id.clone(),
       payload: "third message".to_string(),
     },
   ];
 
-  let serialized_messages: Vec<_> = messages
-    .iter()
-    .map(|message| {
-      serde_json::to_string(message)
-        .expect("Failed to serialize message to device")
-    })
-    .map(Message::text)
-    .collect();
+  let mut sender_socket = create_socket(&sender).await;
 
-  let (mut sender_socket, _) = create_socket(&sender).await.split();
-
-  for msg in serialized_messages.clone() {
-    sender_socket
-      .send(msg)
-      .await
-      .expect("Failed to send the message over WebSocket");
+  for msg in messages.clone() {
+    send_message(&mut sender_socket, msg).await.unwrap();
   }
 
   // Wait a specified duration to ensure that message had time to persist
