@@ -1,19 +1,19 @@
 mod proto {
   tonic::include_proto!("tunnelbroker");
 }
-
 use commtest::identity::device::create_device;
 use commtest::identity::olm_account_infos::{
   MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
 };
-use commtest::tunnelbroker::socket::create_socket;
-use futures_util::{SinkExt, StreamExt};
+use commtest::tunnelbroker::socket::{create_socket, send_message};
+use futures_util::StreamExt;
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
 use proto::MessageToDevice;
 use std::time::Duration;
 use tokio::time::sleep;
-use tokio_tungstenite::tungstenite::Message;
-use tunnelbroker_messages::{MessageToDeviceRequest, RefreshKeyRequest};
+use tunnelbroker_messages::{
+  MessageToDevice as WebSocketMessageToDevice, RefreshKeyRequest,
+};
 
 /// Tests that a message to an offline device gets pushed to dynamodb
 /// then recalled once a device connects
@@ -64,21 +64,15 @@ async fn persist_websocket_messages() {
   let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
 
   // Send message to not connected client
-  let payload = "persisted message";
-  let request = MessageToDeviceRequest {
-    client_message_id: "mockID".to_string(),
-    device_id: receiver.device_id.clone(),
-    payload: payload.to_string(),
-  };
-
-  let serialized_request = serde_json::to_string(&request)
-    .expect("Failed to serialize message to device");
-
   let mut sender_socket = create_socket(&sender).await;
-  sender_socket
-    .send(Message::Text(serialized_request))
+
+  let request = WebSocketMessageToDevice {
+    device_id: receiver.device_id.clone(),
+    payload: "persisted message".to_string(),
+  };
+  send_message(&mut sender_socket, request.clone())
     .await
-    .expect("Failed to send message");
+    .unwrap();
 
   // Wait a specified duration to ensure that message had time to persist
   sleep(Duration::from_millis(100)).await;
@@ -89,6 +83,6 @@ async fn persist_websocket_messages() {
   // Receive message
   if let Some(Ok(response)) = receiver_socket.next().await {
     let received_payload = response.to_text().unwrap();
-    assert_eq!(payload, received_payload);
+    assert_eq!(request.payload, received_payload);
   };
 }
