@@ -13,9 +13,7 @@ use proto::MessageToDevice;
 use std::time::Duration;
 use tokio::time::sleep;
 use tokio_tungstenite::tungstenite::Message;
-use tunnelbroker_messages::{
-  MessageToDevice as WebsocketMessageToDevice, RefreshKeyRequest,
-};
+use tunnelbroker_messages::{MessageToDeviceRequest, RefreshKeyRequest};
 
 /// Tests that a message to an offline device gets pushed to dynamodb
 /// then recalled once a device connects
@@ -67,7 +65,8 @@ async fn persist_websocket_messages() {
 
   // Send message to not connected client
   let payload = "persisted message";
-  let request = WebsocketMessageToDevice {
+  let request = MessageToDeviceRequest {
+    client_message_id: "mockID".to_string(),
     device_id: receiver.device_id.clone(),
     payload: payload.to_string(),
   };
