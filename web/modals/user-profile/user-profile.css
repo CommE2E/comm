@@ -7,6 +7,7 @@
 .userInfoContainer {
   display: flex;
   align-items: center;
+  margin-bottom: 24px;
 }
 
 .usernameContainer {
@@ -35,12 +36,17 @@
   margin-left: 4px;
 }
 
-.buttonsContainer {
-  margin-top: 24px;
+.multiButtonRowContainer {
   display: flex;
+  column-gap: 8px;
 }
 
 .actionButton {
   column-gap: 8px;
-  flex-grow: 1;
+  flex: 1;
+}
+
+.incomingFriendRequestText {
+  color: var(--fg);
+  margin: 24px 0 8px 0;
 }
