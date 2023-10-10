@@ -23,7 +23,7 @@ function UserProfileModal(props: Props): React.Node {
   );
 
   return (
-    <Modal size="large" onClose={popModal} name="">
+    <Modal size="fit-content" onClose={popModal} name="">
       <UserProfile userInfo={userInfo} />
     </Modal>
   );

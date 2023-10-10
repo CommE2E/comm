@@ -33,12 +33,26 @@
   margin-left: 4px;
 }
 
-.buttonsContainer {
+.buttonContainer {
   margin-top: 24px;
+}
+
+.multiButtonRowContainer {
   display: flex;
+  column-gap: 8px;
+}
+
+.singleButtonRowContainer {
+  min-width: 432px;
 }
 
 .actionButton {
   column-gap: 8px;
-  flex-grow: 1;
+  width: 100%;
+  min-width: 272px;
+}
+
+.incomingFriendRequestText {
+  color: var(--fg);
+  margin: 24px 0 8px 0;
 }
