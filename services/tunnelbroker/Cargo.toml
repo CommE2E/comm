@@ -28,6 +28,7 @@ tunnelbroker_messages = { path = "../../shared/tunnelbroker_messages" }
 derive_more = "0.99.17"
 lapin = "2.2.1"
 chrono = "0.4.31"
+uuid = { version = "1.2", features = ["v4"] }
 
 [build-dependencies]
 tonic-build = "0.8"
