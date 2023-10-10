@@ -14,9 +14,7 @@ use std::time::Duration;
 use tokio::time::sleep;
 use tokio_tungstenite::tungstenite::Message;
 
-use tunnelbroker_messages::{
-  MessageToDevice as WebsocketMessageToDevice, RefreshKeyRequest,
-};
+use tunnelbroker_messages::{MessageToDeviceRequest, RefreshKeyRequest};
 
 #[tokio::test]
 async fn send_refresh_request() {
@@ -63,15 +61,18 @@ async fn test_messages_order() {
   let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
 
   let messages = vec![
-    WebsocketMessageToDevice {
+    MessageToDeviceRequest {
+      client_message_id: "5".to_string(),
       device_id: receiver.device_id.clone(),
       payload: "first message".to_string(),
     },
-    WebsocketMessageToDevice {
+    MessageToDeviceRequest {
+      client_message_id: "2".to_string(),
       device_id: receiver.device_id.clone(),
       payload: "second message".to_string(),
     },
-    WebsocketMessageToDevice {
+    MessageToDeviceRequest {
+      client_message_id: "7".to_string(),
       device_id: receiver.device_id.clone(),
       payload: "third message".to_string(),
     },
