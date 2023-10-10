@@ -7,8 +7,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { fetchPinnedMessages } from 'lib/actions/message-actions.js';
 import { messageListData } from 'lib/selectors/chat-selectors.js';
-import { createMessageInfo } from 'lib/shared/message-utils.js';
-import { isComposableMessageType } from 'lib/types/message-types.js';
+import {
+  createMessageInfo,
+  isInvalidPinSource,
+} from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
@@ -75,7 +77,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
       item =>
         item.itemType === 'message' &&
         item.isPinned &&
-        isComposableMessageType(item.messageInfo.type),
+        !isInvalidPinSource(item.messageInfo),
     );
 
     // By the nature of using messageListData and passing in
