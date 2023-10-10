@@ -160,14 +160,17 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     let serialized_message = serde_json::from_str::<Messages>(&msg)?;
 
     match serialized_message {
-      Messages::MessageToDevice(message_to_device) => {
-        debug!("Received message for {}", message_to_device.device_id);
+      Messages::MessageToDeviceRequest(message_to_device_request) => {
+        debug!(
+          "Received message for {}",
+          message_to_device_request.device_id
+        );
         self
           .db_client
           .persist_message(
-            message_to_device.device_id.as_str(),
-            message_to_device.payload.as_str(),
-            "message_id",
+            &message_to_device_request.device_id,
+            &message_to_device_request.payload,
+            &message_to_device_request.client_message_id,
           )
           .await?;
 
@@ -175,9 +178,9 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           .amqp_channel
           .basic_publish(
             "",
-            &message_to_device.device_id,
+            &message_to_device_request.device_id,
             BasicPublishOptions::default(),
-            message_to_device.payload.as_bytes(),
+            message_to_device_request.payload.as_bytes(),
             BasicProperties::default(),
           )
           .await?;
