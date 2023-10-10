@@ -29,7 +29,7 @@ pub enum DeviceTypes {
 /// Message sent by a client to Tunnelbroker to initiate a websocket
 /// session. Tunnelbroker will then validate the access token with identity
 /// service before continuing with the request.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub struct ConnectionInitializationMessage {
   #[serde(rename = "deviceID")]
