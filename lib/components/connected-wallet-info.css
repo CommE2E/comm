@@ -31,6 +31,7 @@ div.avatar {
 
 div.avatar img {
   border-radius: 18px;
+  max-width: initial;
 }
 
 div.address p {
