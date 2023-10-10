@@ -175,6 +175,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           .persist_message(
             message_to_device.device_id.as_str(),
             message_to_device.payload.as_str(),
+            "message_id",
           )
           .await?;
 
@@ -222,7 +223,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       self.send_message_to_device(device_message.payload).await;
       if let Err(e) = self
         .db_client
-        .delete_message(&self.device_info.device_id, &device_message.created_at)
+        .delete_message(&self.device_info.device_id, &device_message.message_id)
         .await
       {
         error!("Failed to delete message: {}:", e);
