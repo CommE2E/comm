@@ -37,9 +37,11 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
 
     debug!("Received message for {}", &message.device_id);
 
+    let client_message_id = uuid::Uuid::new_v4().to_string();
+
     self
       .client
-      .persist_message(&message.device_id, &message.payload, "message_id")
+      .persist_message(&message.device_id, &message.payload, &client_message_id)
       .await
       .map_err(handle_ddb_error)?;
 
