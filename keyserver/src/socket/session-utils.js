@@ -4,10 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import type { TUnion } from 'tcomb';
 
-import {
-  NEXT_CODE_VERSION,
-  hasMinCodeVersion,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { UpdateActivityResult } from 'lib/types/activity-types.js';
 import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isDeviceType } from 'lib/types/device-types.js';
@@ -392,8 +389,8 @@ async function checkState(
         (async () => {
           if (
             !hasMinCodeVersion(viewer.platformDetails, {
-              native: NEXT_CODE_VERSION,
-              web: NEXT_CODE_VERSION,
+              native: 267,
+              web: 32,
             })
           ) {
             const data = await spec.fetch(viewer);
@@ -468,8 +465,8 @@ async function checkState(
         let hashValue;
         if (
           hasMinCodeVersion(viewer.platformDetails, {
-            native: NEXT_CODE_VERSION,
-            web: NEXT_CODE_VERSION,
+            native: 267,
+            web: 32,
           })
         ) {
           hashValue = spec.getServerInfoHash(infos[infoID]);

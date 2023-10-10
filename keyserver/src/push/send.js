@@ -23,7 +23,6 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import { NEXT_CODE_VERSION } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -780,8 +779,7 @@ async function prepareAPNsNotification(
     ) && !collapseKey;
 
   const canDecryptAllNotifTypes =
-    platformDetails.codeVersion &&
-    platformDetails.codeVersion >= NEXT_CODE_VERSION;
+    platformDetails.codeVersion && platformDetails.codeVersion >= 267;
 
   const shouldBeEncrypted =
     platformDetails.platform === 'ios' &&
@@ -929,8 +927,7 @@ async function prepareAndroidNotification(
       newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
     ) && !collapseKey;
 
-  const canDecryptAllNotifTypes =
-    codeVersion && codeVersion >= NEXT_CODE_VERSION;
+  const canDecryptAllNotifTypes = codeVersion && codeVersion >= 267;
 
   const shouldBeEncrypted =
     canDecryptAllNotifTypes ||
