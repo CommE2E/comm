@@ -1,12 +1,12 @@
 use chrono::{DateTime, Utc};
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]
-enum ParseMessageIdError {
+pub enum ParseMessageIdError {
   InvalidTimestamp(chrono::ParseError),
   InvalidFormat,
 }
 #[derive(Debug)]
-struct MessageID {
+pub struct MessageID {
   timestamp: DateTime<Utc>,
   client_message_id: String,
 }

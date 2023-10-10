@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use aws_sdk_dynamodb::types::AttributeValue;
 
 use crate::constants::dynamodb::undelivered_messages::{
-  CREATED_AT, DEVICE_ID, PAYLOAD,
+  DEVICE_ID, MESSAGE_ID, PAYLOAD,
 };
 
 #[derive(Debug)]
 pub struct DeviceMessage {
   pub device_id: String,
-  pub created_at: String,
+  pub message_id: String,
   pub payload: String,
 }
 
@@ -28,10 +28,10 @@ impl DeviceMessage {
       .as_s()
       .map_err(|_| MessageErrors::SerializationError)?
       .to_string();
-    let created_at: String = hashmap
-      .get(CREATED_AT)
+    let message_id: String = hashmap
+      .get(MESSAGE_ID)
       .ok_or(MessageErrors::SerializationError)?
-      .as_n()
+      .as_s()
       .map_err(|_| MessageErrors::SerializationError)?
       .to_string();
     let payload: String = hashmap
@@ -43,7 +43,7 @@ impl DeviceMessage {
 
     Ok(DeviceMessage {
       device_id,
-      created_at,
+      message_id,
       payload,
     })
   }

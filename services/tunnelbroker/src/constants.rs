@@ -15,14 +15,17 @@ pub mod dynamodb {
   // - (primary key) = (deviceID: Partition Key, createdAt: Sort Key)
   // - deviceID: The public key of a device's olm identity key
   // - payload: Message to be delivered. See shared/tunnelbroker_messages.
-  // - createdAt: UNIX timestamp of when the item was inserted.
-  //     Timestamp is needed to order the messages correctly to the device.
+  // - messageID = [createdAt]#[clientMessageID]
+  //    - createdAd:  UNIX timestamp of when the item was inserted.
+  //      Timestamp is needed to order the messages correctly to the device.
+  //      Timestamp format is ISO 8601 to handle lexicographical sorting.
+  //    - clientMessageID: Message ID generated on client using UUID Version 4.
   pub mod undelivered_messages {
     pub const TABLE_NAME: &str = "tunnelbroker-undelivered-messages";
     pub const PARTITION_KEY: &str = "deviceID";
     pub const DEVICE_ID: &str = "deviceID";
     pub const PAYLOAD: &str = "payload";
-    pub const CREATED_AT: &str = "createdAt";
-    pub const SORT_KEY: &str = "createdAt";
+    pub const MESSAGE_ID: &str = "messageID";
+    pub const SORT_KEY: &str = "messageID";
   }
 }
