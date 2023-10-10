@@ -407,6 +407,11 @@ class Socket {
     }
 
     const compressionResult = await compressMessage(stringMessage);
+
+    if (this.ws.readyState !== 1) {
+      return;
+    }
+
     if (!compressionResult.compressed) {
       this.ws.send(stringMessage);
       return;
