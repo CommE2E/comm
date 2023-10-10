@@ -11,9 +11,9 @@ import { messageListData } from 'lib/selectors/chat-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   createMessageInfo,
+  isInvalidPinSource,
   modifyItemForResultScreen,
 } from 'lib/shared/message-utils.js';
-import { isComposableMessageType } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -80,7 +80,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
       item =>
         item.itemType === 'message' &&
         item.isPinned &&
-        isComposableMessageType(item.messageInfo.type),
+        !isInvalidPinSource(item.messageInfo),
     );
 
     // By the nature of using messageListData and passing in
