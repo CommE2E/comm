@@ -7,14 +7,24 @@ use identity::protos::unauthenticated as client_proto;
 use crate::config::CONFIG;
 use crate::error::Error;
 
+// Identity service gRPC clients require a code version and device type.
+// We can supply some placeholder values for services for the time being, since
+// this metadata is only relevant for devices.
+const PLACEHOLDER_CODE_VERSION: u64 = 0;
+const DEVICE_TYPE: &str = "service";
+
 /// Returns true if access token is valid
 pub async fn verify_user_access_token(
   user_id: &str,
   device_id: &str,
   access_token: &str,
 ) -> Result<bool, Error> {
-  let mut grpc_client =
-    get_unauthenticated_client(&CONFIG.identity_endpoint).await?;
+  let mut grpc_client = get_unauthenticated_client(
+    &CONFIG.identity_endpoint,
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await?;
   let message = VerifyUserAccessTokenRequest {
     user_id: user_id.to_string(),
     signing_public_key: device_id.to_string(),

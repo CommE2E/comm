@@ -12,8 +12,11 @@ pub async fn verify_user_access_token(
   user_id: &str,
   device_id: &str,
   access_token: &str,
+  code_version: u64,
+  device_type: String,
 ) -> Result<bool, Error> {
-  let mut grpc_client = get_unauthenticated_client(identity_url).await?;
+  let mut grpc_client =
+    get_unauthenticated_client(identity_url, code_version, device_type).await?;
 
   let message = VerifyUserAccessTokenRequest {
     user_id: user_id.to_string(),
@@ -23,5 +26,5 @@ pub async fn verify_user_access_token(
 
   let request = Request::new(message);
   let response = grpc_client.verify_user_access_token(request).await?;
-  return Ok(response.into_inner().token_valid);
+  Ok(response.into_inner().token_valid)
 }

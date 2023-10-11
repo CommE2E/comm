@@ -6,6 +6,7 @@ pub mod remove_reserved_usernames;
 pub mod upload_one_time_keys;
 
 use grpc_clients::identity::authenticated::AuthLayer;
+use grpc_clients::identity::shared::{ChainedInterceptor, CodeVersionLayer};
 use grpc_clients::identity::protos::unauthenticated as client_proto;
 use grpc_clients::identity::protos::authenticated::identity_client_service_client::IdentityClientServiceClient as AuthClient;
 use client_proto::identity_client_service_client::IdentityClientServiceClient;
@@ -22,6 +23,10 @@ use std::env::var;
 use tonic::{transport::Channel, Request};
 use tracing::{self, info, instrument, warn, Level};
 use tracing_subscriber::EnvFilter;
+
+// This value should not be changed without also changing lib/facts/version.js
+pub const CODE_VERSION: u64 = 33;
+pub const DEVICE_TYPE: &str = "keyserver";
 
 lazy_static! {
   static ref IDENTITY_SERVICE_CONFIG: IdentityServiceConfig = {
@@ -58,12 +63,15 @@ impl Default for IdentityServiceConfig {
   }
 }
 
-async fn get_identity_client_service_channel(
-) -> Result<IdentityClientServiceClient<Channel>> {
+async fn get_identity_client_service_channel() -> Result<
+  IdentityClientServiceClient<InterceptedService<Channel, CodeVersionLayer>>,
+> {
   info!("Connecting to identity service");
 
   grpc_clients::identity::get_unauthenticated_client(
     &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
+    CODE_VERSION,
+    DEVICE_TYPE.to_string(),
   )
   .await
   .map_err(|_| {
@@ -78,7 +86,14 @@ async fn get_identity_authenticated_service_channel(
   user_id: String,
   device_id: String,
   access_token: String,
-) -> Result<AuthClient<InterceptedService<Channel, AuthLayer>>> {
+) -> Result<
+  AuthClient<
+    InterceptedService<
+      Channel,
+      ChainedInterceptor<AuthLayer, CodeVersionLayer>,
+    >,
+  >,
+> {
   info!("Connecting to identity service");
 
   grpc_clients::identity::get_auth_client(
@@ -86,6 +101,8 @@ async fn get_identity_authenticated_service_channel(
     user_id,
     device_id,
     access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.to_string(),
   )
   .await
   .map_err(|_| {
