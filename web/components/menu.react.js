@@ -10,7 +10,8 @@ type MenuVariant =
   | 'thread-actions'
   | 'member-actions'
   | 'community-actions'
-  | 'role-actions';
+  | 'role-actions'
+  | 'user-profile';
 
 type MenuProps = {
   +icon: React.Node,
@@ -35,6 +36,7 @@ function Menu(props: MenuProps): React.Node {
     [css.menuActionListMemberActions]: variant === 'member-actions',
     [css.menuActionListCommunityActions]: variant === 'community-actions',
     [css.menuActionListRoleActions]: variant === 'role-actions',
+    [css.userProfileActions]: variant === 'user-profile',
   });
 
   const menuActionList = React.useMemo(
