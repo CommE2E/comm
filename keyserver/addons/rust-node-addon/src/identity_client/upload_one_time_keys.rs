@@ -23,7 +23,10 @@ pub async fn upload_one_time_keys(
   };
 
   debug!("Sending one time keys to Identity service");
-  let result = identity_client.upload_one_time_keys(upload_request).await;
+  identity_client
+    .upload_one_time_keys(upload_request)
+    .await
+    .map_err(handle_grpc_error)?;
 
   Ok(true)
 }

@@ -10,7 +10,7 @@ use std::path::Path;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig};
 use tracing::info;
 
-const CERT_PATHS: &'static [&'static str] = &[
+const CERT_PATHS: &[&str] = &[
   // MacOS and newer Ubuntu
   "/etc/ssl/cert.pem",
   // Common CA cert paths

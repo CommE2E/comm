@@ -7,16 +7,13 @@ use tonic::{
   Request, Status,
 };
 
-use crate::error::Error;
+use crate::identity::shared::{ChainedInterceptor, ToMetadataValueAscii};
+use crate::{error::Error, identity::shared::CodeVersionLayer};
 
 pub struct AuthLayer {
   user_id: String,
   device_id: String,
   access_token: String,
-}
-
-trait ToMetadataValueAscii {
-  fn parse_to_ascii(&self) -> Result<MetadataValue<Ascii>, Status>;
 }
 
 impl ToMetadataValueAscii for str {
@@ -40,21 +37,38 @@ impl Interceptor for AuthLayer {
     Ok(request)
   }
 }
+
+pub type ChainedInterceptedAuthClient = AuthClient<
+  InterceptedService<Channel, ChainedInterceptor<AuthLayer, CodeVersionLayer>>,
+>;
+
 pub async fn get_auth_client(
   url: &str,
   user_id: String,
   device_id: String,
   access_token: String,
-) -> Result<AuthClient<InterceptedService<Channel, AuthLayer>>, Error> {
+  code_version: u64,
+  device_type: String,
+) -> Result<ChainedInterceptedAuthClient, Error> {
   use crate::get_grpc_service_channel;
 
   let channel = get_grpc_service_channel(url).await?;
 
-  let interceptor = AuthLayer {
+  let auth_interceptor = AuthLayer {
     user_id,
     device_id,
     access_token,
   };
 
-  Ok(AuthClient::with_interceptor(channel, interceptor))
+  let version_interceptor = CodeVersionLayer {
+    version: code_version,
+    device_type,
+  };
+
+  let chained = ChainedInterceptor {
+    first: auth_interceptor,
+    second: version_interceptor,
+  };
+
+  Ok(AuthClient::with_interceptor(channel, chained))
 }

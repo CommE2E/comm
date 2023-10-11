@@ -1,5 +1,6 @@
 pub mod authenticated;
 pub mod device;
+pub mod shared;
 pub mod unauthenticated;
 
 pub mod protos {
