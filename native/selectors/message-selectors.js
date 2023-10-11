@@ -4,6 +4,8 @@ import { createSelector } from 'reselect';
 
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadMessageInfo } from 'lib/types/message-types.js';
+import { defaultNumberPerThread } from 'lib/types/message-types.js';
+import type { ThreadActivityStore } from 'lib/types/thread-activity-types.js';
 
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
@@ -33,9 +35,11 @@ const nextMessagePruneTimeSelector: (state: AppState) => ?number =
 const pruneThreadIDsSelector: (
   input: NavPlusRedux,
 ) => () => $ReadOnlyArray<string> = createSelector(
+  (input: NavPlusRedux): ThreadActivityStore => input.redux.threadActivityStore,
   (input: NavPlusRedux) => input.redux.messageStore.threads,
   (input: NavPlusRedux) => activeThreadSelector(input.navContext),
   (
+      threadActivityStore: ThreadActivityStore,
       threadMessageInfos: { +[id: string]: ThreadMessageInfo },
       activeThread: ?string,
     ) =>
@@ -48,8 +52,9 @@ const pruneThreadIDsSelector: (
         }
         const threadMessageInfo = threadMessageInfos[threadID];
         if (
-          threadMessageInfo.lastNavigatedTo + msInHour < now &&
-          threadMessageInfo.lastPruned + msInHour * 6 < now
+          (threadActivityStore?.[threadID]?.lastNavigatedTo ?? 0) + msInHour <
+            now &&
+          threadMessageInfo.messageIDs.length > defaultNumberPerThread
         ) {
           threadIDsToPrune.push(threadID);
         }
