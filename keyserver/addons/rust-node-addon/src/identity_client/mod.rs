@@ -5,23 +5,31 @@ pub mod register_user;
 pub mod remove_reserved_usernames;
 pub mod upload_one_time_keys;
 
-use grpc_clients::identity::authenticated::AuthLayer;
-use grpc_clients::identity::protos::unauthenticated as client_proto;
-use grpc_clients::identity::protos::authenticated::identity_client_service_client::IdentityClientServiceClient as AuthClient;
 use client_proto::identity_client_service_client::IdentityClientServiceClient;
 use client_proto::{
-  AddReservedUsernamesRequest, DeviceKeyUpload, IdentityKeyInfo, PreKey,
-  RegistrationFinishRequest, RegistrationStartRequest, DeviceType,
-  RemoveReservedUsernameRequest, InboundKeyInfo, UploadOneTimeKeysRequest
+  AddReservedUsernamesRequest, DeviceKeyUpload, DeviceType, IdentityKeyInfo,
+  InboundKeyInfo, PreKey, RegistrationFinishRequest, RegistrationStartRequest,
+  RemoveReservedUsernameRequest, UploadOneTimeKeysRequest,
 };
+use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
+use grpc_clients::identity::protos::unauthenticated as client_proto;
+use grpc_clients::identity::shared::CodeVersionLayer;
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
-use tonic::codegen::InterceptedService;
 use std::env::var;
+use tonic::codegen::InterceptedService;
 use tonic::{transport::Channel, Request};
 use tracing::{self, info, instrument, warn, Level};
 use tracing_subscriber::EnvFilter;
+
+mod generated {
+  // We get the CODE_VERSION from this generated file
+  include!(concat!(env!("OUT_DIR"), "/version.rs"));
+}
+
+pub use generated::CODE_VERSION;
+pub const DEVICE_TYPE: &str = "keyserver";
 
 lazy_static! {
   static ref IDENTITY_SERVICE_CONFIG: IdentityServiceConfig = {
@@ -58,12 +66,15 @@ impl Default for IdentityServiceConfig {
   }
 }
 
-async fn get_identity_client_service_channel(
-) -> Result<IdentityClientServiceClient<Channel>> {
+async fn get_identity_client_service_channel() -> Result<
+  IdentityClientServiceClient<InterceptedService<Channel, CodeVersionLayer>>,
+> {
   info!("Connecting to identity service");
 
   grpc_clients::identity::get_unauthenticated_client(
     &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
+    CODE_VERSION,
+    DEVICE_TYPE.to_string(),
   )
   .await
   .map_err(|_| {
@@ -78,7 +89,7 @@ async fn get_identity_authenticated_service_channel(
   user_id: String,
   device_id: String,
   access_token: String,
-) -> Result<AuthClient<InterceptedService<Channel, AuthLayer>>> {
+) -> Result<ChainedInterceptedAuthClient> {
   info!("Connecting to identity service");
 
   grpc_clients::identity::get_auth_client(
@@ -86,6 +97,8 @@ async fn get_identity_authenticated_service_channel(
     user_id,
     device_id,
     access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.to_string(),
   )
   .await
   .map_err(|_| {
@@ -166,4 +179,14 @@ impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
 pub fn handle_grpc_error(error: tonic::Status) -> napi::Error {
   warn!("Received error: {}", error.message());
   Error::new(Status::GenericFailure, error.message())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::CODE_VERSION;
+
+  #[test]
+  fn test_code_version_exists() {
+    assert!(CODE_VERSION > 0);
+  }
 }

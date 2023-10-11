@@ -13,6 +13,12 @@ const ROTATION_PROTECTION_PERIOD: i64 = 3; // seconds
 const AWSCURRENT: &str = "AWSCURRENT";
 const AWSPREVIOUS: &str = "AWSPREVIOUS";
 
+// Identity service gRPC clients require a code version and device type.
+// We can supply some placeholder values for services for the time being, since
+// this metadata is only relevant for devices.
+const PLACEHOLDER_CODE_VERSION: u64 = 0;
+const DEVICE_TYPE: &str = "service";
+
 #[derive(
   Debug, derive_more::Display, derive_more::Error, derive_more::From,
 )]
@@ -81,6 +87,8 @@ impl AuthService {
           user_id,
           device_id,
           access_token,
+          PLACEHOLDER_CODE_VERSION,
+          DEVICE_TYPE.to_string(),
         )
         .await
         .map_err(AuthServiceError::from)
