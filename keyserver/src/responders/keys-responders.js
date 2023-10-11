@@ -20,7 +20,7 @@ import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 
-type AccountKeysSet = {
+type SessionInitializationKeysSet = {
   +identityKeys: string,
   ...OlmSessionInitializationInfo,
 };
@@ -44,16 +44,16 @@ async function getSessionPublicKeysResponder(
   return await fetchSessionPublicKeys(request.session);
 }
 
-async function retrieveAccountKeysSet(
+function retrieveSessionInitializationKeysSet(
   account: OlmAccount,
-): Promise<AccountKeysSet> {
+): SessionInitializationKeysSet {
   const identityKeys = account.identity_keys();
 
   const prekey = account.prekey();
   const prekeySignature = account.prekey_signature();
 
   if (!prekeySignature) {
-    throw new ServerError('prekey_validation_failure');
+    throw new ServerError('invalid_prekey');
   }
 
   account.generate_one_time_keys(1);
@@ -73,7 +73,10 @@ async function getOlmSessionInitializationDataResponder(
     prekey: notificationsPrekey,
     prekeySignature: notificationsPrekeySignature,
     oneTimeKey: notificationsOneTimeKey,
-  } = await fetchCallUpdateOlmAccount('notifications', retrieveAccountKeysSet);
+  } = await fetchCallUpdateOlmAccount(
+    'notifications',
+    retrieveSessionInitializationKeysSet,
+  );
 
   const contentAccountCallback = async (account: OlmAccount) => {
     const {
@@ -81,7 +84,7 @@ async function getOlmSessionInitializationDataResponder(
       oneTimeKey,
       prekey,
       prekeySignature,
-    } = await retrieveAccountKeysSet(account);
+    } = await retrieveSessionInitializationKeysSet(account);
 
     const identityKeysBlob = {
       primaryIdentityPublicKeys: JSON.parse(contentIdentityKeys),
