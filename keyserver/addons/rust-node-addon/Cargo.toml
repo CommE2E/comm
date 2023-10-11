@@ -27,6 +27,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
 napi-build = "2.0.1"
+regex = "1"
 
 [profile.release]
 lto = true
