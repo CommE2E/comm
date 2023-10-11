@@ -50,6 +50,15 @@ div.menuActionListRoleActions {
   margin-top: 20px;
 }
 
+div.userProfileActions {
+  font-size: var(--s-font-14);
+  background-color: var(--menu-bg-light);
+  color: var(--menu-color);
+  stroke: var(--menu-color);
+  top: 24px;
+  right: -16px;
+}
+
 button.menuAction {
   color: inherit;
   z-index: 1;
