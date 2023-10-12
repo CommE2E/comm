@@ -32,7 +32,7 @@ pub async fn login_user(
 
   let login_start_request = OpaqueLoginStartRequest {
     opaque_login_request,
-    username: username,
+    username,
     device_key_upload: Some(DeviceKeyUpload {
       device_key_info: Some(IdentityKeyInfo {
         payload: signed_identity_keys_blob.payload,
