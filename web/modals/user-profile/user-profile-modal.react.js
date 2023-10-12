@@ -24,7 +24,7 @@ function UserProfileModal(props: Props): React.Node {
 
   const userProfileModal = React.useMemo(
     () => (
-      <Modal size="fit-content" onClose={popModal} name="">
+      <Modal size="fit-content" onClose={popModal}>
         <UserProfile userInfo={userInfo} />
       </Modal>
     ),
