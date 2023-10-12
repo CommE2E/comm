@@ -18,6 +18,15 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/local/share/boost
 
+      - name: Clear unused NDKs
+        run: |
+          ls -1 "$ANDROID_SDK_ROOT/ndk" |
+            awk '{
+              if (system("git grep " $0 " > /dev/null")) {
+                system("rm -rf '"$ANDROID_SDK_ROOT/ndk/"'" $0);
+              }
+            }'
+
       - name: rustup target add aarch64-linux-android arm-linux-androideabi x86_64-linux-android
         run: rustup target add aarch64-linux-android arm-linux-androideabi x86_64-linux-android
 
