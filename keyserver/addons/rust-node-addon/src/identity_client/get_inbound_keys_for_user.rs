@@ -1,3 +1,7 @@
+use grpc_clients::identity::protos::client::{
+  inbound_keys_for_user_request::Identifier, InboundKeysForUserRequest,
+};
+
 use super::*;
 
 #[napi]
@@ -8,8 +12,7 @@ pub async fn get_inbound_keys_for_user_device(
   device_id: String,
 ) -> Result<InboundKeyInfoResponse> {
   // Set up the gRPC client that will be used to talk to the Identity service
-  let channel = get_identity_service_channel().await?;
-  let mut identity_client = IdentityClientServiceClient::new(channel);
+  let mut identity_client = get_identity_client().await?;
 
   let identifier = match identifier_type.as_str() {
     "walletAddress" => Some(Identifier::WalletAddress(identifier_value)),
