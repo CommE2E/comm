@@ -1,4 +1,4 @@
-use tonic::{codegen::http::uri::InvalidUri, Status};
+use tonic::{codegen::http::uri::InvalidUri, Code, Status};
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -12,4 +12,13 @@ pub enum Error {
   GrpcStatus(Status),
   #[display(fmt = "Invalid Device Type")]
   InvalidDeviceType,
+}
+
+pub fn unsupported_version() -> Status {
+  Status::unimplemented("Unsupported version")
+}
+
+pub fn is_version_unsupported(status: Status) -> bool {
+  status.code() == Code::Unimplemented
+    && status.message() == "Unsupported version"
 }
