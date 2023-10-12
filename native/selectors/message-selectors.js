@@ -6,6 +6,7 @@ import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadMessageInfo } from 'lib/types/message-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types.js';
+import { type RawThreadInfo } from 'lib/types/thread-types.js';
 
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
@@ -15,14 +16,17 @@ const msInHour = 60 * 60 * 1000;
 
 const nextMessagePruneTimeSelector: (state: AppState) => ?number =
   createSelector(
-    (state: AppState) => state.messageStore.threads,
-    (threadMessageInfos: { +[id: string]: ThreadMessageInfo }): ?number => {
+    (state: AppState) => state.threadStore.threadInfos,
+    (state: AppState) => state.threadActivityStore,
+    (
+      threadInfos: { +[id: string]: RawThreadInfo },
+      threadActivityStore: ThreadActivityStore,
+    ): ?number => {
       let nextTime;
-      for (const threadID in threadMessageInfos) {
-        const threadMessageInfo = threadMessageInfos[threadID];
+      for (const threadID in threadInfos) {
         const threadPruneTime = Math.max(
-          threadMessageInfo.lastNavigatedTo + msInHour,
-          threadMessageInfo.lastPruned + msInHour * 6,
+          (threadActivityStore?.[threadID]?.lastNavigatedTo ?? 0) + msInHour,
+          (threadActivityStore?.[threadID]?.lastPruned ?? 0) + msInHour * 6,
         );
         if (nextTime === undefined || threadPruneTime < nextTime) {
           nextTime = threadPruneTime;
