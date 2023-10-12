@@ -4,8 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
+import { useThreadChatMentionCandidates } from 'lib/components/chat-mention-context.react.js';
 import { useMessagePreview } from 'lib/shared/message-utils.js';
-import { useThreadChatMentionCandidates } from 'lib/shared/thread-utils.js';
 import { type MessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 

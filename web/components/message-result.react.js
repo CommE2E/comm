@@ -3,9 +3,9 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import { useThreadChatMentionCandidates } from 'lib/components/chat-mention-context.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
-import { useThreadChatMentionCandidates } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 

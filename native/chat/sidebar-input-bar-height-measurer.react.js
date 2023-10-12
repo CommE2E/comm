@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
+import { useThreadChatMentionCandidates } from 'lib/components/chat-mention-context.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
-import { useThreadChatMentionCandidates } from 'lib/shared/thread-utils.js';
 
 import { DummyChatInputBar } from './chat-input-bar.react.js';
 import { useMessageListScreenWidth } from './composed-message-width.js';

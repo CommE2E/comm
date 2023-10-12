@@ -9,6 +9,10 @@ import {
   joinThread,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
+import {
+  useChatMentionContext,
+  useThreadChatMentionCandidates,
+} from 'lib/components/chat-mention-context.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -28,8 +32,6 @@ import {
   threadFrozenDueToViewerBlock,
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
-  useThreadChatMentionCandidates,
-  useThreadChatMentionSearchIndex,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -581,9 +583,8 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callJoinThread = useServerCall(joinThread);
     const userSearchIndex = useSelector(userStoreMentionSearchIndex);
-    const chatMentionSearchIndex = useThreadChatMentionSearchIndex(
-      props.threadInfo,
-    );
+    const { getChatMentionSearchIndex } = useChatMentionContext();
+    const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
 
     const { parentThreadID } = props.threadInfo;
     const parentThreadInfo = useSelector(state =>

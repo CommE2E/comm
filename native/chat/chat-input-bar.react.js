@@ -31,6 +31,10 @@ import {
   joinThread,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
+import {
+  useChatMentionContext,
+  useThreadChatMentionCandidates,
+} from 'lib/components/chat-mention-context.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userStoreMentionSearchIndex } from 'lib/selectors/user-selectors.js';
@@ -58,8 +62,6 @@ import {
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
-  useThreadChatMentionCandidates,
-  useThreadChatMentionSearchIndex,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -1266,9 +1268,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const userSearchIndex = useSelector(userStoreMentionSearchIndex);
 
-  const chatMentionSearchIndex = useThreadChatMentionSearchIndex(
-    props.threadInfo,
-  );
+  const { getChatMentionSearchIndex } = useChatMentionContext();
+  const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
 
   const { parentThreadID } = props.threadInfo;
   const parentThreadInfo = useSelector(state =>

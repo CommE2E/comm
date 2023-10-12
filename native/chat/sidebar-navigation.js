@@ -3,12 +3,12 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useThreadChatMentionCandidates } from 'lib/components/chat-mention-context.react.js';
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import {
   createPendingSidebar,
   createUnresolvedPendingSidebar,
-  useThreadChatMentionCandidates,
 } from 'lib/shared/thread-utils.js';
 import type {
   ThreadInfo,
