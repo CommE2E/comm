@@ -14,13 +14,14 @@ import Button from '../components/button.react.js';
 export type ModalSize = 'small' | 'large' | 'fit-content';
 
 export type ModalOverridableProps = {
-  +name: string,
+  +name?: string,
   +subtitle?: string,
   +icon?: Icon,
   +onClose: () => void,
   +withCloseButton?: boolean,
   +size?: ModalSize,
   +modalHeaderCentered?: boolean,
+  +secondaryHeaderButton?: React.Node,
 };
 
 type ModalProps = {
@@ -38,6 +39,7 @@ function Modal(props: ModalProps): React.Node {
     icon,
     withCloseButton = true,
     modalHeaderCentered = false,
+    secondaryHeaderButton,
   } = props;
 
   const modalContainerClasses = classNames(css.modalContainer, {
@@ -50,16 +52,27 @@ function Modal(props: ModalProps): React.Node {
     [css.modalHeaderCentered]: modalHeaderCentered,
   });
 
-  const cornerCloseButton = React.useMemo(() => {
-    if (!withCloseButton) {
+  const headerButtons = React.useMemo(() => {
+    if (!withCloseButton && !secondaryHeaderButton) {
       return null;
     }
+
+    let closeButton;
+    if (withCloseButton) {
+      closeButton = (
+        <Button className={css.modalButton} onClick={onClose}>
+          <SWMansionIcon size={24} icon="cross" />
+        </Button>
+      );
+    }
+
     return (
-      <Button className={css.modalClose} onClick={onClose}>
-        <SWMansionIcon size={24} icon="cross" />
-      </Button>
+      <div className={css.modalHeaderButtonsContainer}>
+        <div className={css.modalButton}>{secondaryHeaderButton}</div>
+        {closeButton}
+      </div>
     );
-  }, [onClose, withCloseButton]);
+  }, [onClose, secondaryHeaderButton, withCloseButton]);
 
   const headerIcon = React.useMemo(() => {
     if (!icon) {
@@ -68,27 +81,44 @@ function Modal(props: ModalProps): React.Node {
     return <SWMansionIcon size={24} icon={icon} />;
   }, [icon]);
 
-  let subtitleNode;
-  if (subtitle) {
-    subtitleNode = <h2 className={css.subtitle}>{subtitle}</h2>;
-  }
-  return (
-    <ModalOverlay onClose={onClose}>
-      <div className={modalContainerClasses}>
-        <div className={modalHeader}>
-          <div className={css.modalHeaderTitle}>
-            <h2 className={css.title}>
-              {headerIcon}
-              {name}
-            </h2>
-            {cornerCloseButton}
+  const subtitleNode = React.useMemo(() => {
+    if (!subtitle) {
+      return null;
+    }
+    return <h2 className={css.subtitle}>{subtitle}</h2>;
+  }, [subtitle]);
+
+  const modal = React.useMemo(
+    () => (
+      <ModalOverlay onClose={onClose}>
+        <div className={modalContainerClasses}>
+          <div className={modalHeader}>
+            <div className={css.modalHeaderTitle}>
+              <h2 className={css.title}>
+                {headerIcon}
+                {name}
+              </h2>
+              {headerButtons}
+            </div>
+            {subtitleNode}
           </div>
-          {subtitleNode}
+          {children}
         </div>
-        {children}
-      </div>
-    </ModalOverlay>
+      </ModalOverlay>
+    ),
+    [
+      children,
+      headerButtons,
+      headerIcon,
+      modalContainerClasses,
+      modalHeader,
+      name,
+      onClose,
+      subtitleNode,
+    ],
   );
+
+  return modal;
 }
 
 export default Modal;
