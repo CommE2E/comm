@@ -16,13 +16,16 @@ const msInHour = 60 * 60 * 1000;
 const nextMessagePruneTimeSelector: (state: AppState) => ?number =
   createSelector(
     (state: AppState) => state.messageStore.threads,
-    (threadMessageInfos: { +[id: string]: ThreadMessageInfo }): ?number => {
+    (state: AppState) => state.threadActivityStore,
+    (
+      threadMessageInfos: { +[id: string]: ThreadMessageInfo },
+      threadActivityStore: ThreadActivityStore,
+    ): ?number => {
       let nextTime;
       for (const threadID in threadMessageInfos) {
-        const threadMessageInfo = threadMessageInfos[threadID];
         const threadPruneTime = Math.max(
-          threadMessageInfo.lastNavigatedTo + msInHour,
-          threadMessageInfo.lastPruned + msInHour * 6,
+          (threadActivityStore?.[threadID]?.lastNavigatedTo ?? 0) + msInHour,
+          (threadActivityStore?.[threadID]?.lastPruned ?? 0) + msInHour * 6,
         );
         if (nextTime === undefined || threadPruneTime < nextTime) {
           nextTime = threadPruneTime;
