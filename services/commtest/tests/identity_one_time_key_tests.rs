@@ -1,21 +1,21 @@
-mod client {
-  tonic::include_proto!("identity.client");
-}
-mod auth_proto {
-  tonic::include_proto!("identity.authenticated");
-}
-use client::identity_client_service_client::IdentityClientServiceClient;
-use client::UploadOneTimeKeysRequest;
-use commtest::identity::device::create_device;
+use commtest::identity::device::{
+  create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
+};
+use grpc_clients::identity::{
+  get_unauthenticated_client, protos::client::UploadOneTimeKeysRequest,
+};
 
 #[tokio::test]
 async fn verify_access_token() {
   let device_info = create_device(None).await;
 
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
-      .await
-      .expect("Couldn't connect to identity service");
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
     user_id: device_info.user_id,

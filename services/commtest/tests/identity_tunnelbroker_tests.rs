@@ -1,17 +1,11 @@
-mod client {
-  tonic::include_proto!("identity.client");
-}
-mod auth_proto {
-  tonic::include_proto!("identity.authenticated");
-}
-use auth_proto::identity_client_service_client::IdentityClientServiceClient as AuthClient;
-use client::identity_client_service_client::IdentityClientServiceClient;
-use client::UploadOneTimeKeysRequest;
-use commtest::identity::device::create_device;
+use commtest::identity::device::{
+  create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
+};
 use commtest::tunnelbroker::socket::create_socket;
 use futures_util::StreamExt;
-use tonic::transport::Endpoint;
-use tonic::Request;
+use grpc_clients::identity::protos::authenticated::OutboundKeysForUserRequest;
+use grpc_clients::identity::protos::client::UploadOneTimeKeysRequest;
+use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
 use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
@@ -44,10 +38,13 @@ async fn test_tunnelbroker_valid_auth() {
 async fn test_refresh_keys_request_upon_depletion() {
   let device_info = create_device(None).await;
 
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
-      .await
-      .expect("Couldn't connect to identitiy service");
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
     user_id: device_info.user_id.clone(),
@@ -63,22 +60,18 @@ async fn test_refresh_keys_request_upon_depletion() {
     .unwrap();
 
   // Request outbound keys, which should trigger identity service to ask for more keys
-  let channel = Endpoint::from_static("http://[::1]:50054")
-    .connect()
-    .await
-    .unwrap();
+  let mut client = get_auth_client(
+    "http://[::1]:50054",
+    device_info.user_id.clone(),
+    device_info.device_id,
+    device_info.access_token,
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
 
-  let mut client =
-    AuthClient::with_interceptor(channel, |mut inter_request: Request<()>| {
-      let metadata = inter_request.metadata_mut();
-      metadata.insert("user_id", device_info.user_id.parse().unwrap());
-      metadata.insert("device_id", device_info.device_id.parse().unwrap());
-      metadata
-        .insert("access_token", device_info.access_token.parse().unwrap());
-      Ok(inter_request)
-    });
-
-  let keyserver_request = auth_proto::OutboundKeysForUserRequest {
+  let keyserver_request = OutboundKeysForUserRequest {
     user_id: device_info.user_id.clone(),
   };
 

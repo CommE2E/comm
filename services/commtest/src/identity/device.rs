@@ -1,16 +1,18 @@
 use comm_opaque2::client::Registration;
+use grpc_clients::identity::get_unauthenticated_client;
 use rand::{distributions::Alphanumeric, Rng};
-mod proto {
-  tonic::include_proto!("identity.client");
-}
+
 use crate::identity::olm_account_infos::{
   ClientPublicKeys, DEFAULT_CLIENT_KEYS,
 };
-use proto as client;
-use proto::{
-  identity_client_service_client::IdentityClientServiceClient, DeviceKeyUpload,
-  IdentityKeyInfo, PreKey, RegistrationFinishRequest, RegistrationStartRequest,
+
+use grpc_clients::identity::protos::client::{
+  DeviceKeyUpload, DeviceType, IdentityKeyInfo, PreKey,
+  RegistrationFinishRequest, RegistrationStartRequest,
 };
+
+pub const PLACEHOLDER_CODE_VERSION: u64 = 0;
+pub const DEVICE_TYPE: &str = "service";
 
 pub struct DeviceInfo {
   pub username: String,
@@ -56,15 +58,18 @@ pub async fn create_device(keys: Option<&ClientPublicKeys>) -> DeviceInfo {
       }),
       one_time_content_prekeys: Vec::new(),
       one_time_notif_prekeys: Vec::new(),
-      device_type: client::DeviceType::Keyserver.into(),
+      device_type: DeviceType::Keyserver.into(),
     }),
   };
 
   // TODO: allow endpoint to be configured
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
-      .await
-      .expect("Couldn't connect to identitiy service");
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
 
   let registration_start_response = identity_client
     .register_password_user_start(registration_start_request)
