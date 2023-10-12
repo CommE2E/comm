@@ -8,8 +8,9 @@ fn main() -> Result<(), Error> {
   for path in proto_files {
     let filename: String = path?.file_name().to_string_lossy().to_string();
 
-    // Avoid passing non protobuf files to tonic
-    if !filename.ends_with(".proto") {
+    // Avoid passing non protobuf files to tonic. Also avoid passing identity
+    // protobuf files since they are already compiled in shared/grpc_clients.
+    if !filename.ends_with(".proto") || filename.starts_with("identity") {
       continue;
     }
 
