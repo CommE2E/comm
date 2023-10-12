@@ -1,4 +1,5 @@
 pub mod add_reserved_usernames;
+pub mod get_inbound_keys_for_user;
 pub mod login;
 pub mod prekey;
 pub mod register_user;
@@ -66,7 +67,7 @@ impl Default for IdentityServiceConfig {
   }
 }
 
-async fn get_identity_client_service_channel() -> Result<
+async fn get_identity_client() -> Result<
   IdentityClientServiceClient<InterceptedService<Channel, CodeVersionLayer>>,
 > {
   info!("Connecting to identity service");
@@ -85,7 +86,7 @@ async fn get_identity_client_service_channel() -> Result<
   })
 }
 
-async fn get_identity_authenticated_service_channel(
+async fn get_authenticated_identity_client(
   user_id: String,
   device_id: String,
   access_token: String,

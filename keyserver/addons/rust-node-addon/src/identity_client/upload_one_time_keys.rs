@@ -12,7 +12,7 @@ pub async fn upload_one_time_keys(
   notif_one_time_pre_keys: Vec<String>,
 ) -> Result<bool> {
   // Set up the gRPC client that will be used to talk to the Identity service
-  let mut identity_client = get_identity_client_service_channel().await?;
+  let mut identity_client = get_identity_client().await?;
 
   let upload_request = UploadOneTimeKeysRequest {
     user_id,
