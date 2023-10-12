@@ -4,8 +4,8 @@ import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
-import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
+import type { UserProfileThreadInfo } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 import sleep from 'lib/utils/sleep.js';
 
@@ -15,12 +15,11 @@ import UserAvatar from '../../avatars/user-avatar.react.js';
 
 type Props = {
   +userInfo: ?UserInfo,
+  +userProfileThreadInfo: ?UserProfileThreadInfo,
 };
 
 function UserProfile(props: Props): React.Node {
-  const { userInfo } = props;
-
-  const userProfileThreadInfo = useUserProfileThreadInfo(userInfo);
+  const { userInfo, userProfileThreadInfo } = props;
 
   const usernameText = stringForUserExplicit(userInfo);
 
