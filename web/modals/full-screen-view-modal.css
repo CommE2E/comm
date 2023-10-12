@@ -1,4 +1,4 @@
-div.multimediaModalOverlay .loadingIndicator {
+div.fullScreenModalOverlay .loadingIndicator {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -9,7 +9,7 @@ div.multimediaModalOverlay .loadingIndicator {
   height: 25px;
 }
 
-div.multimediaModalOverlay {
+div.fullScreenModalOverlay {
   position: fixed;
   left: 0;
   top: 0;
@@ -24,18 +24,21 @@ div.multimediaModalOverlay {
   justify-content: center;
   -webkit-app-region: no-drag;
 }
-div.multimediaModalOverlay > .mediaContainer {
+
+div.fullScreenModalOverlay > .contentContainer {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
 }
-div.multimediaModalOverlay > .mediaContainer:focus {
+
+div.fullScreenModalOverlay > .contentContainer:focus {
   outline: none;
 }
-div.mediaContainer > img,
-div.mediaContainer > video {
+
+div.contentContainer > img,
+div.contentContainer > video {
   width: auto;
   height: auto;
   max-width: 100%;
@@ -46,7 +49,8 @@ div.mediaContainer > video {
   background-size: cover;
   background-repeat: no-repeat;
 }
-svg.closeMultimediaModal {
+
+svg.closeFullScreenModal {
   position: absolute;
   cursor: pointer;
   top: 15px;
