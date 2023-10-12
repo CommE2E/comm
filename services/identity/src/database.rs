@@ -1,6 +1,5 @@
 use constant_time_eq::constant_time_eq;
 use std::collections::{HashMap, HashSet};
-use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -48,6 +47,7 @@ use crate::error::{AttributeValueFromHashMap, FromAttributeValue};
 use crate::id::generate_uuid;
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
+pub use grpc_clients::identity::DeviceType;
 
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
@@ -72,49 +72,22 @@ impl FromStr for KeyPayload {
   }
 }
 
-#[derive(Clone, Copy)]
-#[allow(non_camel_case_types)]
-pub enum Device {
-  // Numeric values should match the protobuf definition
-  Keyserver = 0,
-  Web,
-  Ios,
-  Android,
-  Windows,
-  MacOS,
-}
+pub struct DBDeviceTypeInt(pub i32);
 
-impl TryFrom<i32> for Device {
+impl TryFrom<DBDeviceTypeInt> for DeviceType {
   type Error = crate::error::Error;
 
-  fn try_from(value: i32) -> Result<Self, Self::Error> {
-    match value {
-      0 => Ok(Device::Keyserver),
-      1 => Ok(Device::Web),
-      2 => Ok(Device::Ios),
-      3 => Ok(Device::Android),
-      4 => Ok(Device::Windows),
-      5 => Ok(Device::MacOS),
-      _ => Err(Error::Attribute(DBItemError {
+  fn try_from(value: DBDeviceTypeInt) -> Result<Self, Self::Error> {
+    let device_result = DeviceType::try_from(value.0);
+
+    device_result.map_err(|_| {
+      Error::Attribute(DBItemError {
         attribute_name: USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME
           .to_string(),
-        attribute_value: Some(AttributeValue::N(value.to_string())),
+        attribute_value: Some(AttributeValue::N(value.0.to_string())),
         attribute_error: DBItemAttributeError::InvalidValue,
-      })),
-    }
-  }
-}
-
-impl Display for Device {
-  fn fmt(&self, f: &mut Formatter) -> FmtResult {
-    match self {
-      Device::Keyserver => write!(f, "keyserver"),
-      Device::Web => write!(f, "web"),
-      Device::Ios => write!(f, "ios"),
-      Device::Android => write!(f, "android"),
-      Device::Windows => write!(f, "windows"),
-      Device::MacOS => write!(f, "macos"),
-    }
+      })
+    })
   }
 }
 
@@ -1585,5 +1558,15 @@ mod tests {
         .curve25519,
       "DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo"
     );
+  }
+
+  #[test]
+  fn test_int_to_device_type() {
+    let valid_result = DeviceType::try_from(3);
+    assert!(valid_result.is_ok());
+    assert_eq!(valid_result.unwrap(), DeviceType::Android);
+
+    let invalid_result = DeviceType::try_from(6);
+    assert!(invalid_result.is_err());
   }
 }
