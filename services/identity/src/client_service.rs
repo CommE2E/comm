@@ -28,7 +28,9 @@ use crate::client_service::client_proto::{
   VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
 };
 use crate::config::CONFIG;
-use crate::database::{DatabaseClient, Device, KeyPayload};
+use crate::database::{
+  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
+};
 use crate::error::Error as DBError;
 use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::id::generate_uuid;
@@ -84,7 +86,7 @@ pub struct FlattenedDeviceKeyUpload {
   pub notif_prekey: String,
   pub notif_prekey_signature: String,
   pub notif_one_time_keys: Vec<String>,
-  pub device_type: Device,
+  pub device_type: DeviceType,
 }
 
 #[derive(derive_more::Constructor)]
@@ -168,7 +170,7 @@ impl IdentityClientService for ClientService {
           notif_prekey,
           notif_prekey_signature,
           notif_one_time_keys: one_time_notif_prekeys,
-          device_type: Device::try_from(device_type)
+          device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
             .map_err(handle_db_error)?,
         },
       };
@@ -271,7 +273,7 @@ impl IdentityClientService for ClientService {
           notif_prekey,
           notif_prekey_signature,
           notif_one_time_keys: one_time_notif_prekeys,
-          device_type: Device::try_from(device_type)
+          device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
             .map_err(handle_db_error)?,
         },
       };
@@ -508,7 +510,7 @@ impl IdentityClientService for ClientService {
           notif_prekey,
           notif_prekey_signature,
           notif_one_time_keys: one_time_notif_prekeys,
-          device_type: Device::try_from(device_type)
+          device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
             .map_err(handle_db_error)?,
         },
       };
@@ -650,7 +652,7 @@ impl IdentityClientService for ClientService {
             notif_prekey,
             notif_prekey_signature,
             notif_one_time_keys: one_time_notif_prekeys,
-            device_type: Device::try_from(device_type)
+            device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
               .map_err(handle_db_error)?,
           },
           social_proof,
