@@ -22,7 +22,7 @@ pub async fn login_user(
   debug!("Attempting to login user: {}", username);
 
   // Set up the gRPC client that will be used to talk to the Identity service
-  let mut identity_client = get_identity_client_service_channel().await?;
+  let mut identity_client = get_identity_client().await?;
 
   // Start OPAQUE registration and send initial registration request
   let mut client_login = Login::new();

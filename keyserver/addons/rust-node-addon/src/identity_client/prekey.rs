@@ -1,4 +1,4 @@
-use super::get_identity_authenticated_service_channel;
+use super::get_authenticated_identity_client;
 use super::{Error, Status};
 use grpc_clients::identity::protos::{
   authenticated::RefreshUserPreKeysRequest, unauthenticated::PreKey,
@@ -18,12 +18,8 @@ pub async fn publish_prekeys(
 ) -> Result<bool> {
   // Once this rust addon can do getCommConfig, remove explicit passing of user
   // credentials within this scope
-  let mut client = get_identity_authenticated_service_channel(
-    user_id,
-    device_id,
-    access_token,
-  )
-  .await?;
+  let mut client =
+    get_authenticated_identity_client(user_id, device_id, access_token).await?;
 
   let message = RefreshUserPreKeysRequest {
     new_content_pre_keys: Some(PreKey {
