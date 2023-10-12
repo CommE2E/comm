@@ -62,8 +62,7 @@ span.multimedia > svg.progressIndicator {
   height: 50px;
 }
 
-span.multimedia .loadingIndicator,
-div.multimediaModalOverlay .loadingIndicator {
+span.multimedia .loadingIndicator {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -85,54 +84,4 @@ div.multimediaModalOverlay .loadingIndicator {
 }
 :global(.CircularProgressbar-trail) {
   stroke: transparent !important;
-}
-
-div.multimediaModalOverlay {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 4;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  overflow: auto;
-  padding: 10px;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  -webkit-app-region: no-drag;
-}
-div.multimediaModalOverlay > .mediaContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
-div.multimediaModalOverlay > .mediaContainer:focus {
-  outline: none;
-}
-div.mediaContainer > img,
-div.mediaContainer > video {
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  display: block;
-  margin: auto;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-svg.closeMultimediaModal {
-  position: absolute;
-  cursor: pointer;
-  top: 15px;
-  right: 15px;
-  color: white;
-  border-radius: 50%;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-  background-color: rgba(34, 34, 34, 0.67);
-  height: 36px;
-  width: 36px;
 }
