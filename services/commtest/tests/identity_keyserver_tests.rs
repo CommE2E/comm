@@ -1,47 +1,43 @@
-mod proto {
-  tonic::include_proto!("identity.client");
-}
-use proto as client;
-mod auth_proto {
-  tonic::include_proto!("identity.authenticated");
-}
-use auth_proto::identity_client_service_client::IdentityClientServiceClient as AuthClient;
-use auth_proto::OutboundKeysForUserRequest;
-use client::UploadOneTimeKeysRequest;
-use commtest::identity::device::create_device;
-use tonic::{transport::Endpoint, Request};
+use commtest::identity::device::{
+  create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
+};
+use grpc_clients::identity::{
+  get_auth_client, get_unauthenticated_client,
+  protos::{
+    authenticated::OutboundKeysForUserRequest, client::UploadOneTimeKeysRequest,
+  },
+};
 
 #[tokio::test]
 async fn set_prekey() {
   let device_info = create_device(None).await;
 
-  let channel = Endpoint::from_static("http://[::1]:50054")
-    .connect()
-    .await
-    .unwrap();
-
-  let mut client =
-    AuthClient::with_interceptor(channel, |mut request: Request<()>| {
-      let metadata = request.metadata_mut();
-      metadata.insert("user_id", device_info.user_id.parse().unwrap());
-      metadata.insert("device_id", device_info.device_id.parse().unwrap());
-      metadata
-        .insert("access_token", device_info.access_token.parse().unwrap());
-      Ok(request)
-    });
+  let mut client = get_auth_client(
+    "http://[::1]:50054",
+    device_info.user_id.clone(),
+    device_info.device_id.clone(),
+    device_info.access_token.clone(),
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
-    user_id: device_info.user_id.to_string(),
-    device_id: device_info.device_id.to_string(),
-    access_token: device_info.access_token.to_string(),
+    user_id: device_info.user_id.clone(),
+    device_id: device_info.device_id,
+    access_token: device_info.access_token,
     content_one_time_pre_keys: vec!["content1".to_string()],
     notif_one_time_pre_keys: vec!["notif1".to_string()],
   };
 
-  let mut unauthenticated_client =
-    proto::identity_client_service_client::IdentityClientServiceClient::connect("http://127.0.0.1:50054")
-      .await
-      .expect("Couldn't connect to identitiy service");
+  let mut unauthenticated_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
 
   unauthenticated_client
     .upload_one_time_keys(upload_request)

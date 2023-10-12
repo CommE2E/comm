@@ -515,12 +515,6 @@ checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "base64"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ea22880d78093b0cbe17c89f64a7d457941e65759157ec6cb31a31d652b05e5"
-
-[[package]]
-name = "base64"
 version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "414dcefbc63d77c526a76b3afcf6fbb9b5e2791c19c3aa2297733208750c6e53"
@@ -672,20 +666,16 @@ dependencies = [
 name = "commtest"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-stream",
- "base64 0.20.0",
  "bytesize",
  "comm-opaque2",
  "comm-services-lib",
  "derive_more",
- "futures",
  "futures-util",
  "grpc_clients",
  "hex",
  "lazy_static",
  "num_cpus",
- "openssl",
  "prost",
  "rand",
  "reqwest",
@@ -969,12 +959,6 @@ checksum = "a62bc1cf6f830c2ec14a513a9fb124d0a213a629668a4186f329db21fe045652"
 dependencies = [
  "percent-encoding",
 ]
-
-[[package]]
-name = "futures"
-version = "0.1.31"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a471a38ef8ed83cd6e40aa59c1ffe17db6855c18e3604d9c4ed8c08ebc28678"
 
 [[package]]
 name = "futures-channel"
