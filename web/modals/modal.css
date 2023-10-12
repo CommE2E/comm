@@ -15,11 +15,18 @@ div.modalContainerLarge {
   width: 500px;
 }
 
-.modalClose {
+.modalHeaderButtonsContainer {
+  margin-left: 24px;
+  display: flex;
+  column-gap: 8px;
+  align-items: center;
+}
+
+.modalButton {
   color: var(--modal-close-color);
 }
 
-.modalClose:hover {
+.modalButton:hover {
   color: var(--modal-close-color-hover);
 }
 
