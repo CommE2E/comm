@@ -1,31 +1,33 @@
 use crate::ffi::{string_callback, void_callback};
-use crate::identity::Empty;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
+use grpc_clients::identity::get_unauthenticated_client;
+use grpc_clients::identity::protos::client::{
+  DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
+  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, PreKey,
+  RegistrationFinishRequest, RegistrationStartRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  WalletLoginRequest,
+};
 use lazy_static::lazy_static;
 use serde::Serialize;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
-use tonic::{transport::Channel, Status};
+use tonic::Status;
 use tracing::instrument;
 
 mod argon2_tools;
 mod crypto_tools;
-mod identity_client;
-
-mod identity {
-  tonic::include_proto!("identity.client");
-}
 
 use argon2_tools::compute_backup_key;
 use crypto_tools::generate_device_id;
-use identity::identity_client_service_client::IdentityClientServiceClient;
-use identity::{
-  DeviceKeyUpload, DeviceType, IdentityKeyInfo, OpaqueLoginFinishRequest,
-  OpaqueLoginStartRequest, PreKey, RegistrationFinishRequest,
-  RegistrationStartRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, WalletLoginRequest,
-};
+
+mod generated {
+  // We get the CODE_VERSION from this generated file
+  include!(concat!(env!("OUT_DIR"), "/version.rs"));
+}
+
+pub use generated::CODE_VERSION;
 
 #[cfg(not(feature = "android"))]
 pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
@@ -53,12 +55,6 @@ mod ffi {
   }
 
   extern "Rust" {
-    // Identity Service Client
-    type IdentityClient;
-
-    #[cxx_name = "identityInitializeClient"]
-    fn initialize_identity_client(addr: String) -> Box<IdentityClient>;
-
     #[cxx_name = "identityRegisterUser"]
     fn register_user(
       username: String,
@@ -166,27 +162,18 @@ fn generate_nonce(promise_id: u32) {
 }
 
 async fn fetch_nonce() -> Result<String, Error> {
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
   let nonce = identity_client
     .generate_nonce(Empty {})
     .await?
     .into_inner()
     .nonce;
   Ok(nonce)
-}
-
-#[derive(Debug)]
-pub struct IdentityClient {
-  identity_client: IdentityClientServiceClient<Channel>,
-}
-
-fn initialize_identity_client(addr: String) -> Box<IdentityClient> {
-  Box::new(IdentityClient {
-    identity_client: RUNTIME
-      .block_on(IdentityClientServiceClient::connect(addr))
-      .unwrap(),
-  })
 }
 
 #[instrument]
@@ -272,8 +259,12 @@ async fn register_user_helper(
     }),
   };
 
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
   let registration_start_response = identity_client
     .register_password_user_start(registration_start_request)
     .await?
@@ -363,8 +354,13 @@ async fn login_password_user_helper(
     }),
   };
 
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
   let login_start_response = identity_client
     .login_password_user_start(login_start_request)
     .await?
@@ -463,8 +459,13 @@ async fn login_wallet_user_helper(
     }),
   };
 
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
   let login_response = identity_client
     .login_wallet_user(login_request)
     .await?
@@ -516,8 +517,13 @@ async fn update_user_password_helper(
     user_id: update_password_info.user_id,
     device_id_key: update_password_info.device_id,
   };
-  let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
   let update_password_start_respone = identity_client
     .update_user_password_start(update_password_start_request)
     .await?
@@ -548,7 +554,17 @@ pub enum Error {
   #[display(...)]
   TonicGRPC(Status),
   #[display(...)]
-  TonicTransport(tonic::transport::Error),
-  #[display(...)]
   SerdeJson(serde_json::Error),
+  #[display(...)]
+  GRPClient(grpc_clients::error::Error),
+}
+
+#[cfg(test)]
+mod tests {
+  use super::CODE_VERSION;
+
+  #[test]
+  fn test_code_version_exists() {
+    assert!(CODE_VERSION > 0);
+  }
 }
