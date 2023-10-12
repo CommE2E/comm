@@ -5,57 +5,24 @@ import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { fetchableMediaURI } from 'lib/media/media-utils.js';
-import type {
-  EncryptedMediaType,
-  MediaType,
-  Dimensions,
-} from 'lib/types/media-types.js';
+import type { SetState } from 'lib/types/hook-types.js';
+import type { Dimensions } from 'lib/types/media-types.js';
 
 import css from './full-screen-view-modal.css';
-import EncryptedMultimedia from '../media/encrypted-multimedia.react.js';
-import LoadableVideo from '../media/loadable-video.react.js';
-import { usePlaceholder } from '../media/media-utils.js';
-
-type MediaInfo =
-  | {
-      +type: MediaType,
-      +uri: string,
-      +dimensions: ?Dimensions,
-      +thumbHash: ?string,
-      +thumbnailURI: ?string,
-    }
-  | {
-      +type: EncryptedMediaType,
-      +blobURI: string,
-      +encryptionKey: string,
-      +dimensions: ?Dimensions,
-      +thumbHash: ?string,
-      +thumbnailBlobURI: ?string,
-      +thumbnailEncryptionKey: ?string,
-    };
 
 type BaseProps = {
-  +media: MediaInfo,
+  +children: React.Node,
+  +contentDimensions: ?Dimensions,
+  +setContentDimensions: SetState<?Dimensions>,
 };
 
 type Props = {
   ...BaseProps,
   +popModal: (modal: ?React.Node) => void,
-  +placeholderImage: ?string,
 };
 
-type State = {
-  +dimensions: ?Dimensions,
-};
-
-class MultimediaModal extends React.PureComponent<Props, State> {
+class FullScreenModal extends React.PureComponent<Props> {
   overlay: ?HTMLDivElement;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { dimensions: null };
-  }
 
   componentDidMount() {
     invariant(this.overlay, 'overlay ref unset');
@@ -69,75 +36,22 @@ class MultimediaModal extends React.PureComponent<Props, State> {
   }
 
   render(): React.Node {
-    let mediaModalItem;
-    const { media, placeholderImage } = this.props;
-    const style = {
-      backgroundImage: placeholderImage
-        ? `url(${placeholderImage})`
-        : undefined,
-    };
-    if (media.type === 'photo') {
-      const uri = fetchableMediaURI(media.uri);
-      mediaModalItem = <img src={uri} style={style} />;
-    } else if (media.type === 'video') {
-      const uri = fetchableMediaURI(media.uri);
-      const { thumbnailURI } = media;
-      invariant(thumbnailURI, 'video missing thumbnail');
-      mediaModalItem = (
-        <LoadableVideo
-          uri={uri}
-          thumbnailSource={{ thumbnailURI }}
-          thumbHashDataURL={placeholderImage}
-        />
-      );
-    } else {
-      invariant(
-        media.type === 'encrypted_photo' || media.type === 'encrypted_video',
-        'invalid media type',
-      );
-      const {
-        type,
-        blobURI,
-        encryptionKey,
-        thumbnailBlobURI,
-        thumbnailEncryptionKey,
-      } = media;
-      const dimensions = this.state.dimensions ?? media.dimensions;
-      const elementStyle = dimensions
-        ? {
-            width: `${dimensions.width}px`,
-            height: `${dimensions.height}px`,
-          }
-        : undefined;
-      mediaModalItem = (
-        <EncryptedMultimedia
-          type={type}
-          blobURI={blobURI}
-          encryptionKey={encryptionKey}
-          thumbnailBlobURI={thumbnailBlobURI}
-          thumbnailEncryptionKey={thumbnailEncryptionKey}
-          placeholderSrc={placeholderImage}
-          elementStyle={elementStyle}
-        />
-      );
-    }
-
     return (
       <div
-        className={css.multimediaModalOverlay}
+        className={css.fullScreenModalOverlay}
         onClick={this.onBackgroundClick}
       >
         <div
           ref={this.overlayRef}
-          className={css.mediaContainer}
+          className={css.contentContainer}
           tabIndex={0}
           onKeyDown={this.onKeyDown}
         >
-          {mediaModalItem}
+          {this.props.children}
         </div>
         <XCircleIcon
           onClick={this.props.popModal}
-          className={css.closeMultimediaModal}
+          className={css.closeFullScreenModal}
         />
       </div>
     );
@@ -162,7 +76,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     };
 
   calculateMediaDimensions: () => void = () => {
-    if (!this.overlay || !this.props.media.dimensions) {
+    if (!this.overlay || !this.props.contentDimensions) {
       return;
     }
     const containerWidth = this.overlay.clientWidth;
@@ -170,7 +84,7 @@ class MultimediaModal extends React.PureComponent<Props, State> {
     const containerAspectRatio = containerWidth / containerHeight;
 
     const { width: mediaWidth, height: mediaHeight } =
-      this.props.media.dimensions;
+      this.props.contentDimensions;
     const mediaAspectRatio = mediaWidth / mediaHeight;
 
     let newWidth, newHeight;
@@ -181,28 +95,17 @@ class MultimediaModal extends React.PureComponent<Props, State> {
       newHeight = Math.min(mediaHeight, containerWidth / mediaAspectRatio);
       newWidth = newHeight * mediaAspectRatio;
     }
-    this.setState({
-      dimensions: {
-        width: newWidth,
-        height: newHeight,
-      },
+    this.props.setContentDimensions({
+      width: newWidth,
+      height: newHeight,
     });
   };
 }
 
-function ConnectedMultiMediaModal(props: BaseProps): React.Node {
+function ConnectedFullScreenModal(props: BaseProps): React.Node {
   const modalContext = useModalContext();
-  const { thumbHash, encryptionKey, thumbnailEncryptionKey } = props.media;
-  const thumbHashEncryptionKey = thumbnailEncryptionKey ?? encryptionKey;
-  const placeholderImage = usePlaceholder(thumbHash, thumbHashEncryptionKey);
 
-  return (
-    <MultimediaModal
-      {...props}
-      popModal={modalContext.popModal}
-      placeholderImage={placeholderImage}
-    />
-  );
+  return <FullScreenModal {...props} popModal={modalContext.popModal} />;
 }
 
-export default ConnectedMultiMediaModal;
+export default ConnectedFullScreenModal;
