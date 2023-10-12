@@ -4,7 +4,7 @@ import { useNavigation, useNavigationState } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useThreadChatMentionCandidates } from 'lib/shared/thread-utils.js';
+import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type UserInfo } from 'lib/types/user-types.js';
 
