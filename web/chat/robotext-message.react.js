@@ -17,6 +17,7 @@ import InlineEngagement from './inline-engagement.react.js';
 import css from './robotext-message.css';
 import Markdown from '../markdown/markdown.react.js';
 import { linkRules } from '../markdown/rules.react.js';
+import { usePushUserProfileModal } from '../modals/user-profile/user-profile-utils.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useMessageTooltip } from '../utils/tooltip-action-utils.js';
@@ -142,13 +143,13 @@ type UserEntityProps = {
   userID: string,
   usernameText: string,
 };
-// Since entityTextToReact lives in lib I created this dummy UserEntity
-// component for web that will be used temporarily to appease flow
-// https://phab.comm.dev/D9389
-function UserEntity(props: UserEntityProps) {
-  const { usernameText } = props;
 
-  return usernameText;
+function UserEntity(props: UserEntityProps) {
+  const { userID, usernameText } = props;
+
+  const pushUserProfileModal = usePushUserProfileModal(userID);
+
+  return <a onClick={pushUserProfileModal}>{usernameText}</a>;
 }
 
 function ColorEntity(props: { color: string }) {
