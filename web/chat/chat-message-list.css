@@ -87,7 +87,12 @@ div.emojiOnlyTextMessage {
 span.authorName {
   color: #777777;
   font-size: 14px;
-  padding: 4px 56px;
+  margin: 4px 56px;
+  align-self: baseline;
+}
+
+span.authorName:hover {
+  cursor: pointer;
 }
 
 div.darkTextMessage {
@@ -221,9 +226,12 @@ svg.inlineEngagementIcon {
 
 div.avatarContainer {
   display: flex;
-  height: 100%;
-  align-items: flex-end;
+  align-self: flex-end;
   margin: 0 4px 0 12px;
+}
+
+div.avatarContainer:hover {
+  cursor: pointer;
 }
 
 div.avatarOffset {
