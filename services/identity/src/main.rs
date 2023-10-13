@@ -76,13 +76,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       let workflow_cache = Cache::builder()
         .time_to_live(Duration::from_secs(10))
         .build();
-      let client_service = IdentityClientServiceServer::new(
-        ClientService::new(database_client.clone(), workflow_cache),
+      let raw_client_service =
+        ClientService::new(database_client.clone(), workflow_cache);
+      let client_service = IdentityClientServiceServer::with_interceptor(
+        raw_client_service,
+        grpc_services::shared::version_intercept,
       );
       let raw_auth_service = AuthenticatedService::new(database_client.clone());
       let auth_service =
         AuthServer::with_interceptor(raw_auth_service, move |req| {
           grpc_services::authenticated::auth_intercept(req, &database_client)
+            .and_then(grpc_services::shared::version_intercept)
         });
 
       info!("Listening to gRPC traffic on {}", addr);

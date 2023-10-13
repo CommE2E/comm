@@ -19,13 +19,13 @@ use crate::client_service::client_proto::{
   LogoutRequest, OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
   OpaqueLoginStartRequest, OpaqueLoginStartResponse, OutboundKeyInfo,
   OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RefreshUserPreKeysRequest, RegistrationFinishRequest,
-  RegistrationFinishResponse, RegistrationStartRequest,
-  RegistrationStartResponse, RemoveReservedUsernameRequest,
-  ReservedRegistrationStartRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
-  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+  RegistrationFinishRequest, RegistrationFinishResponse,
+  RegistrationStartRequest, RegistrationStartResponse,
+  RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
+  WalletLoginRequest, WalletLoginResponse,
 };
 use crate::config::CONFIG;
 use crate::database::{DatabaseClient, Device, KeyPayload};
@@ -939,13 +939,6 @@ impl IdentityClientService for ClientService {
     Ok(tonic::Response::new(Empty {}))
   }
 
-  async fn refresh_user_pre_keys(
-    &self,
-    _request: tonic::Request<RefreshUserPreKeysRequest>,
-  ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    unimplemented!();
-  }
-
   async fn verify_user_access_token(
     &self,
     request: tonic::Request<VerifyUserAccessTokenRequest>,
@@ -1015,6 +1008,14 @@ impl IdentityClientService for ClientService {
       .await
       .map_err(handle_db_error)?;
 
+    let response = Response::new(Empty {});
+    Ok(response)
+  }
+
+  async fn ping(
+    &self,
+    _request: tonic::Request<Empty>,
+  ) -> Result<Response<Empty>, tonic::Status> {
     let response = Response::new(Empty {});
     Ok(response)
   }

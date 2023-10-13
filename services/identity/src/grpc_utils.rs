@@ -33,7 +33,7 @@ impl TryFrom<DeviceInfoWithAuth<'_>> for InboundKeyInfo {
     let mut device_info = data.device_info;
 
     let identity_info =
-      extract_identity_info(&mut device_info, &data.auth_type)?;
+      extract_identity_info(&mut device_info, data.auth_type)?;
 
     Ok(InboundKeyInfo {
       identity_info: Some(identity_info),
@@ -58,7 +58,7 @@ impl TryFrom<DeviceInfoWithAuth<'_>> for OutboundKeyInfo {
     let mut device_info = data.device_info;
 
     let identity_info =
-      extract_identity_info(&mut device_info, &data.auth_type)?;
+      extract_identity_info(&mut device_info, data.auth_type)?;
 
     let content_one_time_key = device_info.remove(CONTENT_ONE_TIME_KEY);
     let notif_one_time_key = device_info.remove(NOTIF_ONE_TIME_KEY);

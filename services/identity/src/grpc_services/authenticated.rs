@@ -1,4 +1,7 @@
-use crate::{client_service::handle_db_error, database::DatabaseClient};
+use crate::{
+  client_service::handle_db_error, database::DatabaseClient,
+  grpc_services::shared::get_value,
+};
 use tonic::{Request, Response, Status};
 
 // This must be named client, because generated code from the authenticated
@@ -23,11 +26,6 @@ pub struct AuthenticatedService {
   db_client: DatabaseClient,
 }
 
-fn get_value<T>(req: &Request<T>, key: &str) -> Option<String> {
-  let raw_value = req.metadata().get(key)?;
-  raw_value.to_str().ok().map(|s| s.to_string())
-}
-
 fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
   debug!("Retrieving auth info for request: {:?}", req);
 
@@ -42,7 +40,7 @@ pub fn auth_intercept(
   req: Request<()>,
   db_client: &DatabaseClient,
 ) -> Result<Request<()>, Status> {
-  println!("Intercepting request: {:?}", req);
+  debug!("Intercepting request to check auth info: {:?}", req);
 
   let (user_id, device_id, access_token) = get_auth_info(&req)
     .ok_or_else(|| Status::unauthenticated("Missing credentials"))?;
