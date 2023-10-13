@@ -33,11 +33,9 @@ div.memberContainer {
 }
 
 div.memberContainer:hover {
-  color: var(--members-modal-member-text-hover);
-}
-
-div.memberContainerWithMenuOpen {
-  color: var(--members-modal-member-text-hover);
+  cursor: pointer;
+  background-color: var(--inline-engagement-bg-hover);
+  border-radius: 8px;
 }
 
 div.memberInfo {
