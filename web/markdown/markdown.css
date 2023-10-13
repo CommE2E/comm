@@ -70,12 +70,12 @@ div.markdown ul {
 div.markdown a {
   text-decoration: underline;
 }
-div.markdown a.chatMention {
+div.markdown a.mention {
   text-decoration: none;
   color: inherit;
   font-weight: bold;
 }
-div.lightBackground a.chatMention {
+div.lightBackground a.mention {
   color: black;
 }
 div.lightBackground a {
@@ -96,7 +96,7 @@ span.spoiler {
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 span.spoiler:not(.revealSpoilerAnimation) a,
-span.spoiler:not(.revealSpoilerAnimation) a.chatMention {
+span.spoiler:not(.revealSpoilerAnimation) a.mention {
   pointer-events: none;
   color: var(--spoiler-text-color);
 }
