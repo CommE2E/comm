@@ -333,16 +333,6 @@ function validateState(oldState: AppState, state: AppState): AppState {
     const now = Date.now();
     state = {
       ...state,
-      messageStore: {
-        ...state.messageStore,
-        threads: {
-          ...state.messageStore.threads,
-          [activeThread]: {
-            ...state.messageStore.threads[activeThread],
-            lastNavigatedTo: now,
-          },
-        },
-      },
       threadActivityStore: {
         ...state.threadActivityStore,
         [activeThread]: {
