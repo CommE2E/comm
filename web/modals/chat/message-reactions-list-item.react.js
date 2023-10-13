@@ -6,6 +6,7 @@ import { type MessageReactionListInfo } from 'lib/shared/reaction-utils.js';
 
 import css from './message-reactions-modal.css';
 import UserAvatar from '../../avatars/user-avatar.react.js';
+import { usePushUserProfileModal } from '../user-profile/user-profile-utils.js';
 
 type Props = {
   +messageReactionUser: MessageReactionListInfo,
@@ -14,9 +15,11 @@ type Props = {
 function MessageReactionsListItem(props: Props): React.Node {
   const { messageReactionUser } = props;
 
+  const pushUserProfileModal = usePushUserProfileModal(messageReactionUser.id);
+
   const messageReactionsListItem = React.useMemo(
     () => (
-      <div className={css.userRowContainer}>
+      <div className={css.userRowContainer} onClick={pushUserProfileModal}>
         <div className={css.userInfoContainer}>
           <UserAvatar size="S" userID={messageReactionUser.id} />
           <div className={css.username}>{messageReactionUser.username}</div>
@@ -28,6 +31,7 @@ function MessageReactionsListItem(props: Props): React.Node {
       messageReactionUser.id,
       messageReactionUser.reaction,
       messageReactionUser.username,
+      pushUserProfileModal,
     ],
   );
 
