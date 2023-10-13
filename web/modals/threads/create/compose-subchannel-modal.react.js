@@ -99,12 +99,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
 
       return result;
     } catch (e) {
-      await setErrorMessage(
-        e.message === 'invalid_parameters' && announcement
-          ? 'announcement channels currently not available'
-          : 'unknown error',
-      );
-
+      await setErrorMessage('unknown error');
       return null;
     }
   }, [
