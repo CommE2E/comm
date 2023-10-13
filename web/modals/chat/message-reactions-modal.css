@@ -1,12 +1,11 @@
 div.modalContentContainer {
-  padding: 24px 32px 32px 32px;
+  padding: 16px 24px 24px 24px;
   color: var(--fg);
   background-color: var(--modal-bg);
   flex: 1;
   display: flex;
   flex-direction: column;
   font-size: var(--l-font-18);
-  gap: 16px;
   overflow-y: auto;
 }
 
@@ -14,6 +13,13 @@ div.userRowContainer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding: 8px;
+}
+
+div.userRowContainer:hover {
+  cursor: pointer;
+  background-color: var(--drawer-open-community-bg);
+  border-radius: 8px;
 }
 
 div.userInfoContainer {
