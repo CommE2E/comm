@@ -21,6 +21,7 @@ import InlineEngagement from './inline-engagement.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
 import CommIcon from '../CommIcon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
+import { usePushUserProfileModal } from '../modals/user-profile/user-profile-utils.js';
 import { useMessageTooltip } from '../utils/tooltip-action-utils.js';
 import { tooltipPositions } from '../utils/tooltip-utils.js';
 
@@ -65,6 +66,7 @@ type Props = {
   +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
   +containsInlineEngagement: boolean,
   +stringForUser: ?string,
+  +onClickUser: () => mixed,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   static defaultProps: { +borderRadius: number } = {
@@ -103,7 +105,11 @@ class ComposedMessage extends React.PureComponent<Props> {
     let authorName = null;
     const { stringForUser } = this.props;
     if (stringForUser) {
-      authorName = <span className={css.authorName}>{stringForUser}</span>;
+      authorName = (
+        <span className={css.authorName} onClick={this.props.onClickUser}>
+          {stringForUser}
+        </span>
+      );
     }
 
     let deliveryIcon = null;
@@ -155,7 +161,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     let avatar;
     if (!isViewer && item.endsCluster) {
       avatar = (
-        <div className={css.avatarContainer}>
+        <div className={css.avatarContainer} onClick={this.props.onClickUser}>
           <UserAvatar size="S" userID={creator.id} />
         </div>
       );
@@ -234,6 +240,8 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
     const shouldShowUsername = !isViewer && item.startsCluster;
     const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
 
+    const pushUserProfileModal = usePushUserProfileModal(creator.id);
+
     return (
       <ComposedMessage
         {...props}
@@ -242,6 +250,7 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
         onMouseEnter={onMouseEnter}
         containsInlineEngagement={containsInlineEngagement}
         stringForUser={stringForUser}
+        onClickUser={pushUserProfileModal}
       />
     );
   });
