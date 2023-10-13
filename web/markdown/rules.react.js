@@ -14,6 +14,7 @@ import type {
 
 import MarkdownChatMention from './markdown-chat-mention.react.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
+import MarkdownUserMention from './markdown-user-mention.react.js';
 
 export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,
@@ -192,15 +193,20 @@ function textMessageRules(
       userMention: {
         ...SimpleMarkdown.defaultRules.strong,
         match: SharedMarkdown.matchUserMentions(membersMap),
-        parse: (capture: SharedMarkdown.Capture) => ({
-          content: capture[0],
-        }),
+        parse: (capture: SharedMarkdown.Capture) =>
+          SharedMarkdown.parseUserMentions(membersMap, capture),
         // eslint-disable-next-line react/display-name
         react: (
           node: SharedMarkdown.SingleASTNode,
           output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
           state: SharedMarkdown.State,
-        ) => <strong key={state.key}>{node.content}</strong>,
+        ) => (
+          <MarkdownUserMention
+            key={state.key}
+            text={node.content}
+            userID={node.userID}
+          />
+        ),
       },
       chatMention: {
         ...SimpleMarkdown.defaultRules.strong,
