@@ -9,6 +9,10 @@
   margin-bottom: 24px;
 }
 
+.userAvatarContainer:hover {
+  cursor: pointer;
+}
+
 .usernameContainer {
   padding-left: 16px;
 }
