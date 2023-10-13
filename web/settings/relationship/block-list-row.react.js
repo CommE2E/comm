@@ -10,14 +10,17 @@ import type { UserRowProps } from './user-list.react.js';
 import UserAvatar from '../../avatars/user-avatar.react.js';
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
+import { usePushUserProfileModal } from '../../modals/user-profile/user-profile-utils.js';
 
 function BlockListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;
   const { unblockUser } = useRelationshipCallbacks(userInfo.id);
   const editIcon = <SWMansionIcon icon="edit-1" size={22} />;
 
+  const pushUserProfileModal = usePushUserProfileModal(userInfo.id);
+
   return (
-    <div className={css.container}>
+    <div className={css.container} onClick={pushUserProfileModal}>
       <div className={css.userInfoContainer}>
         <UserAvatar size="S" userID={userInfo.id} />
         <div className={css.usernameContainer}>{userInfo.username}</div>
