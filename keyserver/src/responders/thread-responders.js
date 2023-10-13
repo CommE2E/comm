@@ -180,6 +180,8 @@ const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
       threadTypes.LOCAL,
       threadTypes.COMMUNITY_ROOT,
       threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+      threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD,
+      threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD,
     ]),
     ...threadRequestValidationShape,
   }),
