@@ -22,7 +22,7 @@ function MarkdownChatMention(props: MarkdownChatMentionProps): React.Node {
   }
 
   return (
-    <a className={css.chatMention} onClick={onClick}>
+    <a className={css.mention} onClick={onClick}>
       {text}
     </a>
   );
