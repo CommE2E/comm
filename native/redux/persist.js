@@ -799,8 +799,6 @@ const migrations = {
 // eslint-disable-next-line no-unused-vars
 type PersistedThreadMessageInfo = {
   +startReached: boolean,
-  +lastNavigatedTo: number,
-  +lastPruned: number,
 };
 type PersistedMessageStore = {
   +local: { +[id: string]: LocalMessageInfo },
