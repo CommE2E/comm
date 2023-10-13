@@ -30,6 +30,15 @@ import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.j
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
+async function clearSensitiveData() {
+  await commCoreModule.clearSensitiveData();
+  try {
+    await filesystemMediaCache.clearCache();
+  } catch {
+    throw new Error('clear_media_cache_failed');
+  }
+}
+
 function SQLiteDataHandler(): React.Node {
   const storeLoaded = useSelector(state => state.storeLoaded);
 
@@ -85,12 +94,7 @@ function SQLiteDataHandler(): React.Node {
 
   const callClearSensitiveData = React.useCallback(
     async (triggeredBy: string) => {
-      await commCoreModule.clearSensitiveData();
-      try {
-        await filesystemMediaCache.clearCache();
-      } catch {
-        throw new Error('clear_media_cache_failed');
-      }
+      await clearSensitiveData();
       console.log(`SQLite database deletion was triggered by ${triggeredBy}`);
     },
     [],
@@ -220,4 +224,4 @@ function SQLiteDataHandler(): React.Node {
   return null;
 }
 
-export { SQLiteDataHandler };
+export { SQLiteDataHandler, clearSensitiveData };
