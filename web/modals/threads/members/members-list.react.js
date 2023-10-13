@@ -48,7 +48,6 @@ function ThreadMembersList(props: Props): React.Node {
                 memberInfo={user}
                 threadInfo={threadInfo}
                 setOpenMenu={setOpenMenu}
-                isMenuOpen={openMenu === user.id}
               />
             ));
           const letterHeader = (
@@ -63,7 +62,7 @@ function ThreadMembersList(props: Props): React.Node {
             </React.Fragment>
           );
         }),
-    [groupedByFirstLetterMembers, openMenu, threadInfo],
+    [groupedByFirstLetterMembers, threadInfo],
   );
   let content = groupedMembersList;
   if (!hasMembers) {
