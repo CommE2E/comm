@@ -171,6 +171,7 @@ impl DatabaseClient {
         Some((registration_state.username, Blob::new(password_file))),
         None,
         None,
+        registration_state.user_id,
       )
       .await
   }
@@ -187,6 +188,7 @@ impl DatabaseClient {
         None,
         Some(wallet_address),
         Some(social_proof),
+        None,
       )
       .await
   }
@@ -197,8 +199,9 @@ impl DatabaseClient {
     username_and_password_file: Option<(String, Blob)>,
     wallet_address: Option<String>,
     social_proof: Option<String>,
+    user_id: Option<String>,
   ) -> Result<String, Error> {
-    let user_id = generate_uuid();
+    let user_id = user_id.unwrap_or_else(generate_uuid);
     let device_info =
       create_device_info(flattened_device_key_upload.clone(), social_proof);
     let devices = HashMap::from([(
@@ -239,6 +242,9 @@ impl DatabaseClient {
       .put_item()
       .table_name(USERS_TABLE)
       .set_item(Some(user))
+      // make sure we don't accidentaly overwrite existing row
+      .condition_expression("attribute_not_exists(#pk)")
+      .expression_attribute_names("#pk", USERS_TABLE_PARTITION_KEY)
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;

@@ -34,9 +34,9 @@ use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
+  validate_account_ownership_message_and_get_user_id,
   validate_add_reserved_usernames_message,
   validate_remove_reserved_username_message,
-  validate_signed_account_ownership_message,
 };
 use crate::siwe::{is_valid_ethereum_address, parse_and_verify_siwe_message};
 use crate::token::{AccessTokenData, AuthType};
@@ -59,6 +59,7 @@ pub enum WorkflowInProgress {
 pub struct UserRegistrationInfo {
   pub username: String,
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
+  pub user_id: Option<String>,
 }
 
 #[derive(Clone)]
@@ -171,6 +172,7 @@ impl IdentityClientService for ClientService {
           device_type: Device::try_from(device_type)
             .map_err(handle_db_error)?,
         },
+        user_id: None,
       };
       let session_id = generate_uuid();
       self
@@ -215,15 +217,15 @@ impl IdentityClientService for ClientService {
       .username_in_reserved_usernames_table(&message.username)
       .await
       .map_err(handle_db_error)?;
-    if username_in_reserved_usernames_table {
-      validate_signed_account_ownership_message(
-        &message.username,
-        &message.keyserver_message,
-        &message.keyserver_signature,
-      )?;
-    } else {
+    if !username_in_reserved_usernames_table {
       return Err(tonic::Status::permission_denied("username not reserved"));
     }
+
+    let user_id = validate_account_ownership_message_and_get_user_id(
+      &message.username,
+      &message.keyserver_message,
+      &message.keyserver_signature,
+    )?;
 
     if let client_proto::ReservedRegistrationStartRequest {
       opaque_registration_request: register_message,
@@ -274,6 +276,7 @@ impl IdentityClientService for ClientService {
           device_type: Device::try_from(device_type)
             .map_err(handle_db_error)?,
         },
+        user_id: Some(user_id),
       };
 
       let session_id = generate_uuid();
