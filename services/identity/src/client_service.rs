@@ -36,11 +36,11 @@ use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
-  is_valid_ethereum_address, validate_add_reserved_usernames_message,
+  validate_add_reserved_usernames_message,
   validate_remove_reserved_username_message,
   validate_signed_account_ownership_message,
 };
-use crate::siwe::parse_and_verify_siwe_message;
+use crate::siwe::{is_valid_ethereum_address, parse_and_verify_siwe_message};
 use crate::token::{AccessTokenData, AuthType};
 pub use client_proto::identity_client_service_server::{
   IdentityClientService, IdentityClientServiceServer,
