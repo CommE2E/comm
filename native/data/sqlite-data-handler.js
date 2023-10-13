@@ -30,6 +30,15 @@ import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.j
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
+async function clearSensitiveData() {
+  await commCoreModule.clearSensitiveData();
+  try {
+    await filesystemMediaCache.clearCache();
+  } catch {
+    throw new Error('clear_media_cache_failed');
+  }
+}
+
 function SQLiteDataHandler(): React.Node {
   const storeLoaded = useSelector(state => state.storeLoaded);
 
@@ -88,12 +97,7 @@ function SQLiteDataHandler(): React.Node {
       if (staffCanSee || staffUserHasBeenLoggedIn) {
         Alert.alert('Starting SQLite database deletion process');
       }
-      await commCoreModule.clearSensitiveData();
-      try {
-        await filesystemMediaCache.clearCache();
-      } catch {
-        throw new Error('clear_media_cache_failed');
-      }
+      await clearSensitiveData();
       if (staffCanSee || staffUserHasBeenLoggedIn) {
         Alert.alert(
           'SQLite database successfully deleted',
@@ -228,4 +232,4 @@ function SQLiteDataHandler(): React.Node {
   return null;
 }
 
-export { SQLiteDataHandler };
+export { SQLiteDataHandler, clearSensitiveData };
