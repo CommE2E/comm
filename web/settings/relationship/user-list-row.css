@@ -7,6 +7,12 @@
   line-height: var(--line-height-display);
 }
 
+.container:hover {
+  cursor: pointer;
+  background-color: var(--inline-engagement-bg-hover);
+  border-radius: 8px;
+}
+
 .usernameContainer {
   white-space: nowrap;
   text-overflow: ellipsis;

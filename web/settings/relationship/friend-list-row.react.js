@@ -12,6 +12,7 @@ import UserAvatar from '../../avatars/user-avatar.react.js';
 import Button from '../../components/button.react.js';
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
+import { usePushUserProfileModal } from '../../modals/user-profile/user-profile-utils.js';
 
 const dangerButtonColor = {
   color: 'var(--btn-bg-danger)',
@@ -79,8 +80,10 @@ function FriendListRow(props: UserRowProps): React.Node {
     onMenuVisibilityChange,
   ]);
 
+  const pushUserProfileModal = usePushUserProfileModal(userInfo.id);
+
   return (
-    <div className={css.container}>
+    <div className={css.container} onClick={pushUserProfileModal}>
       <div className={css.userInfoContainer}>
         <UserAvatar size="S" userID={userInfo.id} />
         <div className={css.usernameContainer}>{userInfo.username}</div>
