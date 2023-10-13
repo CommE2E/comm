@@ -1,6 +1,5 @@
 // @flow
 
-import classNames from 'classnames';
 import * as React from 'react';
 
 import { removeUsersFromThread } from 'lib/actions/thread-actions.js';
@@ -28,6 +27,7 @@ import CommIcon from '../../../CommIcon.react.js';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
+import { usePushUserProfileModal } from '../../user-profile/user-profile-utils.js';
 
 const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
@@ -35,11 +35,10 @@ type Props = {
   +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo,
   +setOpenMenu: SetState<?string>,
-  +isMenuOpen: boolean,
 };
 
 function ThreadMember(props: Props): React.Node {
-  const { memberInfo, threadInfo, setOpenMenu, isMenuOpen } = props;
+  const { memberInfo, threadInfo, setOpenMenu } = props;
   const { pushModal } = useModalContext();
   const userName = stringForUser(memberInfo);
   const { roles } = threadInfo;
@@ -117,12 +116,10 @@ function ThreadMember(props: Props): React.Node {
     [roleName],
   );
 
-  const memberContainerClasses = classNames(css.memberContainer, {
-    [css.memberContainerWithMenuOpen]: isMenuOpen,
-  });
+  const pushUserProfileModal = usePushUserProfileModal(memberInfo.id);
 
   return (
-    <div className={memberContainerClasses}>
+    <div className={css.memberContainer} onClick={pushUserProfileModal}>
       <div className={css.memberInfo}>
         <UserAvatar size="S" userID={memberInfo.id} />
         {userName}
