@@ -17,6 +17,16 @@ struct Message<T> {
   issued_at: String,
 }
 
+// This type should not be changed without making equivalent changes to
+// `ReservedUsernameMessage` in lib/types/crypto-types.js
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct UsernameAndID {
+  username: String,
+  #[serde(rename = "userID")]
+  user_id: String,
+}
+
 fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
   keyserver_message: &str,
   keyserver_signature: &str,
@@ -69,22 +79,25 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
   Ok(deserialized_message)
 }
 
-pub fn validate_signed_account_ownership_message(
+pub fn validate_account_ownership_message_and_get_user_id(
   username: &str,
   keyserver_message: &str,
   keyserver_signature: &str,
-) -> Result<(), Status> {
-  let deserialized_message = validate_and_decode_message::<String>(
+) -> Result<String, Status> {
+  const EXPECTED_STATEMENT: &[u8; 60] =
+    b"This user is the owner of the following username and user ID";
+
+  let deserialized_message = validate_and_decode_message::<UsernameAndID>(
     keyserver_message,
     keyserver_signature,
-    b"This user is the owner of the following username",
+    EXPECTED_STATEMENT,
   )?;
 
-  if deserialized_message.payload != username {
+  if deserialized_message.payload.username != username {
     return Err(Status::invalid_argument("message invalid"));
   }
 
-  Ok(())
+  Ok(deserialized_message.payload.user_id)
 }
 
 pub fn validate_add_reserved_usernames_message(

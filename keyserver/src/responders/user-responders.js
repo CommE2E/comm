@@ -740,8 +740,11 @@ async function claimUsernameResponder(
 
   const issuedAt = new Date().toISOString();
   const reservedUsernameMessage: ReservedUsernameMessage = {
-    statement: 'This user is the owner of the following username',
-    payload: username,
+    statement: 'This user is the owner of the following username and user ID',
+    payload: {
+      username,
+      userID: viewer.userID,
+    },
     issuedAt,
   };
   const message = JSON.stringify(reservedUsernameMessage);
