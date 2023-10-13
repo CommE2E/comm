@@ -10,7 +10,8 @@
     "prod": "yarn workspace keyserver babel-build-comm-config && yarn webpack --config webpack.config.cjs --env prod --progress",
     "test": "jest",
     "build-db-wasm": "./scripts/run_emscripten.sh",
-    "clean-db-wasm": "rm -rf database/_generated/ && rm -rf database/sqlite/"
+    "clean-db-wasm": "rm -rf database/_generated/ && rm -rf database/sqlite/",
+    "codegen-identity-grpc": "./scripts/codegen-identity-grpc.sh"
   },
   "devDependencies": {
     "@babel/core": "^7.13.14",
