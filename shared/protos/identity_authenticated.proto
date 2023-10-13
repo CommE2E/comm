@@ -14,7 +14,7 @@ service IdentityClientService {
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest)
     returns (identity.client.Empty) {}
-  // Rotate a devices preKey and preKey signature
+  // Rotate a device's preKey and preKey signature
   // Rotated for deniability of older messages
   rpc RefreshUserPreKeys(RefreshUserPreKeysRequest)
     returns (identity.client.Empty) {}
@@ -62,5 +62,3 @@ message KeyserverKeysResponse {
 message OutboundKeysForUserRequest {
   string userID = 1;
 }
-
-
