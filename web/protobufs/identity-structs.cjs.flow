@@ -68,25 +68,28 @@ declare export class DeviceKeyUpload extends Message {
   hasDevicekeyinfo(): boolean;
   clearDevicekeyinfo(): DeviceKeyUpload;
 
-  getIdentityupload(): PreKey | void;
-  setIdentityupload(value?: PreKey): DeviceKeyUpload;
-  hasIdentityupload(): boolean;
-  clearIdentityupload(): DeviceKeyUpload;
+  getContentupload(): PreKey | void;
+  setContentupload(value?: PreKey): DeviceKeyUpload;
+  hasContentupload(): boolean;
+  clearContentupload(): DeviceKeyUpload;
 
   getNotifupload(): PreKey | void;
   setNotifupload(value?: PreKey): DeviceKeyUpload;
   hasNotifupload(): boolean;
   clearNotifupload(): DeviceKeyUpload;
 
-  getOnetimeidentityprekeysList(): Array<string>;
-  setOnetimeidentityprekeysList(value: Array<string>): DeviceKeyUpload;
-  clearOnetimeidentityprekeysList(): DeviceKeyUpload;
-  addOnetimeidentityprekeys(value: string, index?: number): DeviceKeyUpload;
+  getOnetimecontentprekeysList(): Array<string>;
+  setOnetimecontentprekeysList(value: Array<string>): DeviceKeyUpload;
+  clearOnetimecontentprekeysList(): DeviceKeyUpload;
+  addOnetimecontentprekeys(value: string, index?: number): DeviceKeyUpload;
 
   getOnetimenotifprekeysList(): Array<string>;
   setOnetimenotifprekeysList(value: Array<string>): DeviceKeyUpload;
   clearOnetimenotifprekeysList(): DeviceKeyUpload;
   addOnetimenotifprekeys(value: string, index?: number): DeviceKeyUpload;
+
+  getDevicetype(): DeviceType;
+  setDevicetype(value: DeviceType): DeviceKeyUpload;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): DeviceKeyUploadObject;
@@ -130,6 +133,42 @@ export type RegistrationStartRequestObject = {
   opaqueregistrationrequest: Uint8Array | string,
   username: string,
   devicekeyupload?: DeviceKeyUploadObject,
+};
+
+declare export class ReservedRegistrationStartRequest extends Message {
+  getOpaqueregistrationrequest(): Uint8Array | string;
+  getOpaqueregistrationrequest_asU8(): Uint8Array;
+  getOpaqueregistrationrequest_asB64(): string;
+  setOpaqueregistrationrequest(value: Uint8Array | string): ReservedRegistrationStartRequest;
+
+  getUsername(): string;
+  setUsername(value: string): ReservedRegistrationStartRequest;
+
+  getDevicekeyupload(): DeviceKeyUpload | void;
+  setDevicekeyupload(value?: DeviceKeyUpload): ReservedRegistrationStartRequest;
+  hasDevicekeyupload(): boolean;
+  clearDevicekeyupload(): ReservedRegistrationStartRequest;
+
+  getKeyservermessage(): string;
+  setKeyservermessage(value: string): ReservedRegistrationStartRequest;
+
+  getKeyserversignature(): string;
+  setKeyserversignature(value: string): ReservedRegistrationStartRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ReservedRegistrationStartRequestObject;
+  static toObject(includeInstance: boolean, msg: ReservedRegistrationStartRequest): ReservedRegistrationStartRequestObject;
+  static serializeBinaryToWriter(message: ReservedRegistrationStartRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ReservedRegistrationStartRequest;
+  static deserializeBinaryFromReader(message: ReservedRegistrationStartRequest, reader: BinaryReader): ReservedRegistrationStartRequest;
+}
+
+export type ReservedRegistrationStartRequestObject = {
+  opaqueregistrationrequest: Uint8Array | string,
+  username: string,
+  devicekeyupload?: DeviceKeyUploadObject,
+  keyservermessage: string,
+  keyserversignature: string,
 };
 
 declare export class RegistrationFinishRequest extends Message {
@@ -177,6 +216,9 @@ export type RegistrationStartResponseObject = {
 };
 
 declare export class RegistrationFinishResponse extends Message {
+  getUserid(): string;
+  setUserid(value: string): RegistrationFinishResponse;
+
   getAccesstoken(): string;
   setAccesstoken(value: string): RegistrationFinishResponse;
 
@@ -189,6 +231,7 @@ declare export class RegistrationFinishResponse extends Message {
 }
 
 export type RegistrationFinishResponseObject = {
+  userid: string,
   accesstoken: string,
 };
 
@@ -201,6 +244,12 @@ declare export class UpdateUserPasswordStartRequest extends Message {
   getAccesstoken(): string;
   setAccesstoken(value: string): UpdateUserPasswordStartRequest;
 
+  getUserid(): string;
+  setUserid(value: string): UpdateUserPasswordStartRequest;
+
+  getDeviceidkey(): string;
+  setDeviceidkey(value: string): UpdateUserPasswordStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserPasswordStartRequestObject;
   static toObject(includeInstance: boolean, msg: UpdateUserPasswordStartRequest): UpdateUserPasswordStartRequestObject;
@@ -212,6 +261,8 @@ declare export class UpdateUserPasswordStartRequest extends Message {
 export type UpdateUserPasswordStartRequestObject = {
   opaqueregistrationrequest: Uint8Array | string,
   accesstoken: string,
+  userid: string,
+  deviceidkey: string,
 };
 
 declare export class UpdateUserPasswordFinishRequest extends Message {
@@ -256,22 +307,6 @@ declare export class UpdateUserPasswordStartResponse extends Message {
 export type UpdateUserPasswordStartResponseObject = {
   sessionid: string,
   opaqueregistrationresponse: Uint8Array | string,
-};
-
-declare export class UpdateUserPasswordFinishResponse extends Message {
-  getAccesstoken(): string;
-  setAccesstoken(value: string): UpdateUserPasswordFinishResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): UpdateUserPasswordFinishResponseObject;
-  static toObject(includeInstance: boolean, msg: UpdateUserPasswordFinishResponse): UpdateUserPasswordFinishResponseObject;
-  static serializeBinaryToWriter(message: UpdateUserPasswordFinishResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): UpdateUserPasswordFinishResponse;
-  static deserializeBinaryFromReader(message: UpdateUserPasswordFinishResponse, reader: BinaryReader): UpdateUserPasswordFinishResponse;
-}
-
-export type UpdateUserPasswordFinishResponseObject = {
-  accesstoken: string,
 };
 
 declare export class OpaqueLoginStartRequest extends Message {
@@ -347,6 +382,9 @@ export type OpaqueLoginStartResponseObject = {
 };
 
 declare export class OpaqueLoginFinishResponse extends Message {
+  getUserid(): string;
+  setUserid(value: string): OpaqueLoginFinishResponse;
+
   getAccesstoken(): string;
   setAccesstoken(value: string): OpaqueLoginFinishResponse;
 
@@ -359,6 +397,7 @@ declare export class OpaqueLoginFinishResponse extends Message {
 }
 
 export type OpaqueLoginFinishResponseObject = {
+  userid: string,
   accesstoken: string,
 };
 
@@ -389,6 +428,9 @@ export type WalletLoginRequestObject = {
 };
 
 declare export class WalletLoginResponse extends Message {
+  getUserid(): string;
+  setUserid(value: string): WalletLoginResponse;
+
   getAccesstoken(): string;
   setAccesstoken(value: string): WalletLoginResponse;
 
@@ -401,12 +443,43 @@ declare export class WalletLoginResponse extends Message {
 }
 
 export type WalletLoginResponseObject = {
+  userid: string,
   accesstoken: string,
+};
+
+declare export class LogoutRequest extends Message {
+  getAccesstoken(): string;
+  setAccesstoken(value: string): LogoutRequest;
+
+  getUserid(): string;
+  setUserid(value: string): LogoutRequest;
+
+  getDeviceidkey(): string;
+  setDeviceidkey(value: string): LogoutRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LogoutRequestObject;
+  static toObject(includeInstance: boolean, msg: LogoutRequest): LogoutRequestObject;
+  static serializeBinaryToWriter(message: LogoutRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LogoutRequest;
+  static deserializeBinaryFromReader(message: LogoutRequest, reader: BinaryReader): LogoutRequest;
+}
+
+export type LogoutRequestObject = {
+  accesstoken: string,
+  userid: string,
+  deviceidkey: string,
 };
 
 declare export class DeleteUserRequest extends Message {
   getAccesstoken(): string;
   setAccesstoken(value: string): DeleteUserRequest;
+
+  getUserid(): string;
+  setUserid(value: string): DeleteUserRequest;
+
+  getDeviceidkey(): string;
+  setDeviceidkey(value: string): DeleteUserRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): DeleteUserRequestObject;
@@ -418,6 +491,8 @@ declare export class DeleteUserRequest extends Message {
 
 export type DeleteUserRequestObject = {
   accesstoken: string,
+  userid: string,
+  deviceidkey: string,
 };
 
 declare export class GenerateNonceResponse extends Message {
@@ -436,234 +511,176 @@ export type GenerateNonceResponseObject = {
   nonce: string,
 };
 
-declare export class ReceiverKeyInfo extends Message {
+declare export class OutboundKeyInfo extends Message {
   getIdentityinfo(): IdentityKeyInfo | void;
-  setIdentityinfo(value?: IdentityKeyInfo): ReceiverKeyInfo;
+  setIdentityinfo(value?: IdentityKeyInfo): OutboundKeyInfo;
   hasIdentityinfo(): boolean;
-  clearIdentityinfo(): ReceiverKeyInfo;
+  clearIdentityinfo(): OutboundKeyInfo;
 
-  getIdentityprekey(): PreKey | void;
-  setIdentityprekey(value?: PreKey): ReceiverKeyInfo;
-  hasIdentityprekey(): boolean;
-  clearIdentityprekey(): ReceiverKeyInfo;
+  getContentprekey(): PreKey | void;
+  setContentprekey(value?: PreKey): OutboundKeyInfo;
+  hasContentprekey(): boolean;
+  clearContentprekey(): OutboundKeyInfo;
 
   getNotifprekey(): PreKey | void;
-  setNotifprekey(value?: PreKey): ReceiverKeyInfo;
+  setNotifprekey(value?: PreKey): OutboundKeyInfo;
   hasNotifprekey(): boolean;
-  clearNotifprekey(): ReceiverKeyInfo;
+  clearNotifprekey(): OutboundKeyInfo;
 
-  getOnetimeidentityprekey(): string;
-  setOnetimeidentityprekey(value: string): ReceiverKeyInfo;
-  hasOnetimeidentityprekey(): boolean;
-  clearOnetimeidentityprekey(): ReceiverKeyInfo;
+  getOnetimecontentprekey(): string;
+  setOnetimecontentprekey(value: string): OutboundKeyInfo;
+  hasOnetimecontentprekey(): boolean;
+  clearOnetimecontentprekey(): OutboundKeyInfo;
 
   getOnetimenotifprekey(): string;
-  setOnetimenotifprekey(value: string): ReceiverKeyInfo;
+  setOnetimenotifprekey(value: string): OutboundKeyInfo;
   hasOnetimenotifprekey(): boolean;
-  clearOnetimenotifprekey(): ReceiverKeyInfo;
+  clearOnetimenotifprekey(): OutboundKeyInfo;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ReceiverKeyInfoObject;
-  static toObject(includeInstance: boolean, msg: ReceiverKeyInfo): ReceiverKeyInfoObject;
-  static serializeBinaryToWriter(message: ReceiverKeyInfo, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ReceiverKeyInfo;
-  static deserializeBinaryFromReader(message: ReceiverKeyInfo, reader: BinaryReader): ReceiverKeyInfo;
+  toObject(includeInstance?: boolean): OutboundKeyInfoObject;
+  static toObject(includeInstance: boolean, msg: OutboundKeyInfo): OutboundKeyInfoObject;
+  static serializeBinaryToWriter(message: OutboundKeyInfo, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): OutboundKeyInfo;
+  static deserializeBinaryFromReader(message: OutboundKeyInfo, reader: BinaryReader): OutboundKeyInfo;
 }
 
-export type ReceiverKeyInfoObject = {
+export type OutboundKeyInfoObject = {
   identityinfo?: IdentityKeyInfoObject,
-  identityprekey?: PreKeyObject,
+  contentprekey?: PreKeyObject,
   notifprekey?: PreKeyObject,
-  onetimeidentityprekey?: string,
+  onetimecontentprekey?: string,
   onetimenotifprekey?: string,
 };
 
 export type IdentifierCase = 0 | 1 | 2;
 
-declare export class ReceiverKeysForUserRequest extends Message {
+declare export class OutboundKeysForUserRequest extends Message {
   getUsername(): string;
-  setUsername(value: string): ReceiverKeysForUserRequest;
+  setUsername(value: string): OutboundKeysForUserRequest;
 
   getWalletaddress(): string;
-  setWalletaddress(value: string): ReceiverKeysForUserRequest;
+  setWalletaddress(value: string): OutboundKeysForUserRequest;
 
   getIdentifierCase(): IdentifierCase;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ReceiverKeysForUserRequestObject;
-  static toObject(includeInstance: boolean, msg: ReceiverKeysForUserRequest): ReceiverKeysForUserRequestObject;
-  static serializeBinaryToWriter(message: ReceiverKeysForUserRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ReceiverKeysForUserRequest;
-  static deserializeBinaryFromReader(message: ReceiverKeysForUserRequest, reader: BinaryReader): ReceiverKeysForUserRequest;
+  toObject(includeInstance?: boolean): OutboundKeysForUserRequestObject;
+  static toObject(includeInstance: boolean, msg: OutboundKeysForUserRequest): OutboundKeysForUserRequestObject;
+  static serializeBinaryToWriter(message: OutboundKeysForUserRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): OutboundKeysForUserRequest;
+  static deserializeBinaryFromReader(message: OutboundKeysForUserRequest, reader: BinaryReader): OutboundKeysForUserRequest;
 }
 
-export type ReceiverKeysForUserRequestObject = {
+export type OutboundKeysForUserRequestObject = {
   username: string,
   walletaddress: string,
 };
 
-declare export class ReceiverKeysForUserResponse extends Message {
-  getDevicesMap(): ProtoMap<string, ReceiverKeyInfo>;
-  clearDevicesMap(): ReceiverKeysForUserResponse;
+declare export class OutboundKeysForUserResponse extends Message {
+  getDevicesMap(): ProtoMap<string, OutboundKeyInfo>;
+  clearDevicesMap(): OutboundKeysForUserResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ReceiverKeysForUserResponseObject;
-  static toObject(includeInstance: boolean, msg: ReceiverKeysForUserResponse): ReceiverKeysForUserResponseObject;
-  static serializeBinaryToWriter(message: ReceiverKeysForUserResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ReceiverKeysForUserResponse;
-  static deserializeBinaryFromReader(message: ReceiverKeysForUserResponse, reader: BinaryReader): ReceiverKeysForUserResponse;
+  toObject(includeInstance?: boolean): OutboundKeysForUserResponseObject;
+  static toObject(includeInstance: boolean, msg: OutboundKeysForUserResponse): OutboundKeysForUserResponseObject;
+  static serializeBinaryToWriter(message: OutboundKeysForUserResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): OutboundKeysForUserResponse;
+  static deserializeBinaryFromReader(message: OutboundKeysForUserResponse, reader: BinaryReader): OutboundKeysForUserResponse;
 }
 
-export type ReceiverKeysForUserResponseObject = {
-  devicesMap: Array<[string, ReceiverKeyInfoObject]>,
+export type OutboundKeysForUserResponseObject = {
+  devicesMap: Array<[string, OutboundKeyInfoObject]>,
 };
 
-declare export class SenderKeyInfo extends Message {
+declare export class InboundKeyInfo extends Message {
   getIdentityinfo(): IdentityKeyInfo | void;
-  setIdentityinfo(value?: IdentityKeyInfo): SenderKeyInfo;
+  setIdentityinfo(value?: IdentityKeyInfo): InboundKeyInfo;
   hasIdentityinfo(): boolean;
-  clearIdentityinfo(): SenderKeyInfo;
+  clearIdentityinfo(): InboundKeyInfo;
 
-  getIdentityprekey(): PreKey | void;
-  setIdentityprekey(value?: PreKey): SenderKeyInfo;
-  hasIdentityprekey(): boolean;
-  clearIdentityprekey(): SenderKeyInfo;
+  getContentprekey(): PreKey | void;
+  setContentprekey(value?: PreKey): InboundKeyInfo;
+  hasContentprekey(): boolean;
+  clearContentprekey(): InboundKeyInfo;
 
   getNotifprekey(): PreKey | void;
-  setNotifprekey(value?: PreKey): SenderKeyInfo;
+  setNotifprekey(value?: PreKey): InboundKeyInfo;
   hasNotifprekey(): boolean;
-  clearNotifprekey(): SenderKeyInfo;
+  clearNotifprekey(): InboundKeyInfo;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SenderKeyInfoObject;
-  static toObject(includeInstance: boolean, msg: SenderKeyInfo): SenderKeyInfoObject;
-  static serializeBinaryToWriter(message: SenderKeyInfo, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SenderKeyInfo;
-  static deserializeBinaryFromReader(message: SenderKeyInfo, reader: BinaryReader): SenderKeyInfo;
+  toObject(includeInstance?: boolean): InboundKeyInfoObject;
+  static toObject(includeInstance: boolean, msg: InboundKeyInfo): InboundKeyInfoObject;
+  static serializeBinaryToWriter(message: InboundKeyInfo, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): InboundKeyInfo;
+  static deserializeBinaryFromReader(message: InboundKeyInfo, reader: BinaryReader): InboundKeyInfo;
 }
 
-export type SenderKeyInfoObject = {
+export type InboundKeyInfoObject = {
   identityinfo?: IdentityKeyInfoObject,
-  identityprekey?: PreKeyObject,
+  contentprekey?: PreKeyObject,
   notifprekey?: PreKeyObject,
 };
 
-declare export class SenderKeysForUserRequest extends Message {
+
+declare export class InboundKeysForUserRequest extends Message {
   getUsername(): string;
-  setUsername(value: string): SenderKeysForUserRequest;
+  setUsername(value: string): InboundKeysForUserRequest;
 
   getWalletaddress(): string;
-  setWalletaddress(value: string): SenderKeysForUserRequest;
+  setWalletaddress(value: string): InboundKeysForUserRequest;
 
   getIdentifierCase(): IdentifierCase;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SenderKeysForUserRequestObject;
-  static toObject(includeInstance: boolean, msg: SenderKeysForUserRequest): SenderKeysForUserRequestObject;
-  static serializeBinaryToWriter(message: SenderKeysForUserRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SenderKeysForUserRequest;
-  static deserializeBinaryFromReader(message: SenderKeysForUserRequest, reader: BinaryReader): SenderKeysForUserRequest;
+  toObject(includeInstance?: boolean): InboundKeysForUserRequestObject;
+  static toObject(includeInstance: boolean, msg: InboundKeysForUserRequest): InboundKeysForUserRequestObject;
+  static serializeBinaryToWriter(message: InboundKeysForUserRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): InboundKeysForUserRequest;
+  static deserializeBinaryFromReader(message: InboundKeysForUserRequest, reader: BinaryReader): InboundKeysForUserRequest;
 }
 
-export type SenderKeysForUserRequestObject = {
+export type InboundKeysForUserRequestObject = {
   username: string,
   walletaddress: string,
 };
 
-declare export class SenderKeysForUserResponse extends Message {
-  getDevicesMap(): ProtoMap<string, SenderKeyInfo>;
-  clearDevicesMap(): SenderKeysForUserResponse;
+declare export class InboundKeysForUserResponse extends Message {
+  getDevicesMap(): ProtoMap<string, InboundKeyInfo>;
+  clearDevicesMap(): InboundKeysForUserResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SenderKeysForUserResponseObject;
-  static toObject(includeInstance: boolean, msg: SenderKeysForUserResponse): SenderKeysForUserResponseObject;
-  static serializeBinaryToWriter(message: SenderKeysForUserResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SenderKeysForUserResponse;
-  static deserializeBinaryFromReader(message: SenderKeysForUserResponse, reader: BinaryReader): SenderKeysForUserResponse;
+  toObject(includeInstance?: boolean): InboundKeysForUserResponseObject;
+  static toObject(includeInstance: boolean, msg: InboundKeysForUserResponse): InboundKeysForUserResponseObject;
+  static serializeBinaryToWriter(message: InboundKeysForUserResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): InboundKeysForUserResponse;
+  static deserializeBinaryFromReader(message: InboundKeysForUserResponse, reader: BinaryReader): InboundKeysForUserResponse;
 }
 
-export type SenderKeysForUserResponseObject = {
-  devicesMap: Array<[string, SenderKeyInfoObject]>,
+export type InboundKeysForUserResponseObject = {
+  devicesMap: Array<[string, InboundKeyInfoObject]>,
 }
-
-declare export class KeyserverSessionInfo extends Message {
-  getIdentityinfo(): IdentityKeyInfo | void;
-  setIdentityinfo(value?: IdentityKeyInfo): KeyserverSessionInfo;
-  hasIdentityinfo(): boolean;
-  clearIdentityinfo(): KeyserverSessionInfo;
-
-  getIdentityprekeys(): PreKey | void;
-  setIdentityprekeys(value?: PreKey): KeyserverSessionInfo;
-  hasIdentityprekeys(): boolean;
-  clearIdentityprekeys(): KeyserverSessionInfo;
-
-  getOnetimeidentityprekey(): string;
-  setOnetimeidentityprekey(value: string): KeyserverSessionInfo;
-  hasOnetimeidentityprekey(): boolean;
-  clearOnetimeidentityprekey(): KeyserverSessionInfo;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): KeyserverSessionInfoObject;
-  static toObject(includeInstance: boolean, msg: KeyserverSessionInfo): KeyserverSessionInfoObject;
-  static serializeBinaryToWriter(message: KeyserverSessionInfo, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): KeyserverSessionInfo;
-  static deserializeBinaryFromReader(message: KeyserverSessionInfo, reader: BinaryReader): KeyserverSessionInfo;
-}
-
-export type KeyserverSessionInfoObject = {
-  identityinfo?: IdentityKeyInfoObject,
-  identityprekeys?: PreKeyObject,
-  onetimeidentityprekey?: string,
-};
-
-declare export class KeyserverKeysRequest extends Message {
-  getUsername(): string;
-  setUsername(value: string): KeyserverKeysRequest;
-
-  getWalletaddress(): string;
-  setWalletaddress(value: string): KeyserverKeysRequest;
-
-  getIdentifierCase(): IdentifierCase;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): KeyserverKeysRequestObject;
-  static toObject(includeInstance: boolean, msg: KeyserverKeysRequest): KeyserverKeysRequestObject;
-  static serializeBinaryToWriter(message: KeyserverKeysRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): KeyserverKeysRequest;
-  static deserializeBinaryFromReader(message: KeyserverKeysRequest, reader: BinaryReader): KeyserverKeysRequest;
-}
-
-export type KeyserverKeysRequestObject = {
-  username: string,
-  walletaddress: string,
-};
-
-declare export class KeyserverKeysResponse extends Message {
-  getKeyserverinfo(): KeyserverSessionInfo | void;
-  setKeyserverinfo(value?: KeyserverSessionInfo): KeyserverKeysResponse;
-  hasKeyserverinfo(): boolean;
-  clearKeyserverinfo(): KeyserverKeysResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): KeyserverKeysResponseObject;
-  static toObject(includeInstance: boolean, msg: KeyserverKeysResponse): KeyserverKeysResponseObject;
-  static serializeBinaryToWriter(message: KeyserverKeysResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): KeyserverKeysResponse;
-  static deserializeBinaryFromReader(message: KeyserverKeysResponse, reader: BinaryReader): KeyserverKeysResponse;
-}
-
-export type KeyserverKeysResponseObject = {
-  keyserverinfo?: KeyserverSessionInfoObject,
-};
 
 declare export class UploadOneTimeKeysRequest extends Message {
+  getUserid(): string;
+  setUserid(value: string): UploadOneTimeKeysRequest;
+
+  getDeviceid(): string;
+  setDeviceid(value: string): UploadOneTimeKeysRequest;
+
   getAccesstoken(): string;
   setAccesstoken(value: string): UploadOneTimeKeysRequest;
 
-  getOnetimeprekeysList(): Array<string>;
-  setOnetimeprekeysList(value: Array<string>): UploadOneTimeKeysRequest;
-  clearOnetimeprekeysList(): UploadOneTimeKeysRequest;
-  addOnetimeprekeys(value: string, index?: number): UploadOneTimeKeysRequest;
+  getContentonetimeprekeysList(): Array<string>;
+  setContentonetimeprekeysList(value: Array<string>): UploadOneTimeKeysRequest;
+  clearContentonetimeprekeysList(): UploadOneTimeKeysRequest;
+  addContentonetimeprekeys(value: string, index?: number): UploadOneTimeKeysRequest;
+
+  getNotifonetimeprekeysList(): Array<string>;
+  setNotifonetimeprekeysList(value: Array<string>): UploadOneTimeKeysRequest;
+  clearNotifonetimeprekeysList(): UploadOneTimeKeysRequest;
+  addNotifonetimeprekeys(value: string, index?: number): UploadOneTimeKeysRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UploadOneTimeKeysRequestObject;
@@ -674,8 +691,11 @@ declare export class UploadOneTimeKeysRequest extends Message {
 }
 
 export type UploadOneTimeKeysRequestObject = {
+  userid: string,
+  deviceid: string,
   accesstoken: string,
-  onetimeprekeysList: Array<string>,
+  contentonetimeprekeysList: Array<string>,
+  notifonetimeprekeysList: Array<string>,
 };
 
 declare export class RefreshUserPreKeysRequest extends Message {
@@ -699,3 +719,85 @@ export type RefreshUserPreKeysRequestObject = {
   accesstoken: string,
   newprekeys?: PreKeyObject,
 };
+
+declare export class VerifyUserAccessTokenRequest extends Message {
+  getUserid(): string;
+  setUserid(value: string): VerifyUserAccessTokenRequest;
+
+  getSigningpublickey(): string;
+  setSigningpublickey(value: string): VerifyUserAccessTokenRequest;
+
+  getAccesstoken(): string;
+  setAccesstoken(value: string): VerifyUserAccessTokenRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): VerifyUserAccessTokenRequestObject;
+  static toObject(includeInstance: boolean, msg: VerifyUserAccessTokenRequest): VerifyUserAccessTokenRequestObject;
+  static serializeBinaryToWriter(message: VerifyUserAccessTokenRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): VerifyUserAccessTokenRequest;
+  static deserializeBinaryFromReader(message: VerifyUserAccessTokenRequest, reader: BinaryReader): VerifyUserAccessTokenRequest;
+}
+
+export type VerifyUserAccessTokenRequestObject = {
+  userid: string,
+  signingpublickey: string,
+  accesstoken: string,
+};
+
+declare export class VerifyUserAccessTokenResponse extends Message {
+  getTokenvalid(): boolean;
+  setTokenvalid(value: boolean): VerifyUserAccessTokenResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): VerifyUserAccessTokenResponseObject;
+  static toObject(includeInstance: boolean, msg: VerifyUserAccessTokenResponse): VerifyUserAccessTokenResponseObject;
+  static serializeBinaryToWriter(message: VerifyUserAccessTokenResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): VerifyUserAccessTokenResponse;
+  static deserializeBinaryFromReader(message: VerifyUserAccessTokenResponse, reader: BinaryReader): VerifyUserAccessTokenResponse;
+}
+
+export type VerifyUserAccessTokenResponseObject = {
+  tokenvalid: boolean,
+};
+
+declare export class AddReservedUsernamesRequest extends Message {
+  getMessage(): string;
+  setMessage(value: string): AddReservedUsernamesRequest;
+
+  getSignature(): string;
+  setSignature(value: string): AddReservedUsernamesRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddReservedUsernamesRequestObject;
+  static toObject(includeInstance: boolean, msg: AddReservedUsernamesRequest): AddReservedUsernamesRequestObject;
+  static serializeBinaryToWriter(message: AddReservedUsernamesRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddReservedUsernamesRequest;
+  static deserializeBinaryFromReader(message: AddReservedUsernamesRequest, reader: BinaryReader): AddReservedUsernamesRequest;
+}
+
+export type AddReservedUsernamesRequestObject = {
+  message: string,
+  signature: string,
+};
+
+declare export class RemoveReservedUsernameRequest extends Message {
+  getMessage(): string;
+  setMessage(value: string): RemoveReservedUsernameRequest;
+
+  getSignature(): string;
+  setSignature(value: string): RemoveReservedUsernameRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RemoveReservedUsernameRequestObject;
+  static toObject(includeInstance: boolean, msg: RemoveReservedUsernameRequest): RemoveReservedUsernameRequestObject;
+  static serializeBinaryToWriter(message: RemoveReservedUsernameRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RemoveReservedUsernameRequest;
+  static deserializeBinaryFromReader(message: RemoveReservedUsernameRequest, reader: BinaryReader): RemoveReservedUsernameRequest;
+}
+
+export type RemoveReservedUsernameRequestObject = {
+  message: string,
+  signature: string,
+};
+
+export type DeviceType = 0 | 1 | 2 | 3 | 4 | 5;
