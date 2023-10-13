@@ -55,9 +55,6 @@ service IdentityClientService {
     (InboundKeysForUserResponse) {}
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest) returns (Empty) {}
-  // Rotate a devices preKey and preKey signature
-  // Rotated for deniability of older messages
-  rpc RefreshUserPreKeys(RefreshUserPreKeysRequest) returns (Empty) {}
 
   // Service actions
 
@@ -73,6 +70,11 @@ service IdentityClientService {
   // Called by Ashoat's keyserver to remove usernames from the Identity
   // service's reserved list
   rpc RemoveReservedUsername(RemoveReservedUsernameRequest) returns (Empty) {}
+
+  // Miscellaneous actions
+
+  // Called by users periodically to check if their code version is supported
+  rpc Ping(Empty) returns (Empty) {}
 }
 
 // Helper types
@@ -329,13 +331,6 @@ message UploadOneTimeKeysRequest {
   string accessToken = 3;
   repeated string contentOneTimePreKeys = 4;
   repeated string notifOneTimePreKeys = 5;
-}
-
-// RefreshUserPreKeys
-
-message RefreshUserPreKeysRequest {
-  string accessToken = 1;
-  PreKey newPreKeys = 2;
 }
 
 // VerifyUserAccessToken

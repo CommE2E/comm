@@ -141,3 +141,7 @@ pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";
 pub const ONE_TIME_KEY_MINIMUM_THRESHOLD: usize = 5;
 // Number of keys to be refreshed when below the threshold
 pub const ONE_TIME_KEY_REFRESH_NUMBER: u32 = 5;
+
+// Minimum supported code versions
+
+pub const MIN_SUPPORTED_NATIVE_VERSION: u64 = 270;
