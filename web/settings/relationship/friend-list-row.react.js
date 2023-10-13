@@ -12,6 +12,7 @@ import UserAvatar from '../../avatars/user-avatar.react.js';
 import Button from '../../components/button.react.js';
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
+import { usePushUserProfileModal } from '../../modals/user-profile/user-profile-utils.js';
 
 const dangerButtonColor = {
   color: 'var(--btn-bg-danger)',
@@ -21,6 +22,23 @@ function FriendListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;
 
   const { friendUser, unfriendUser } = useRelationshipCallbacks(userInfo.id);
+
+  const friendUserCallback = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.stopPropagation();
+      friendUser();
+    },
+    [friendUser],
+  );
+
+  const unfriendUserCallback = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.stopPropagation();
+      unfriendUser();
+    },
+    [unfriendUser],
+  );
+
   const buttons = React.useMemo(() => {
     if (userInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT) {
       return (
@@ -28,7 +46,7 @@ function FriendListRow(props: UserRowProps): React.Node {
           variant="text"
           className={css.button}
           buttonColor={dangerButtonColor}
-          onClick={unfriendUser}
+          onClick={unfriendUserCallback}
         >
           Cancel request
         </Button>
@@ -39,14 +57,18 @@ function FriendListRow(props: UserRowProps): React.Node {
     ) {
       return (
         <>
-          <Button variant="text" className={css.button} onClick={friendUser}>
+          <Button
+            variant="text"
+            className={css.button}
+            onClick={friendUserCallback}
+          >
             Accept
           </Button>
           <Button
             variant="text"
             className={css.button}
             buttonColor={dangerButtonColor}
-            onClick={unfriendUser}
+            onClick={unfriendUserCallback}
           >
             Reject
           </Button>
@@ -73,14 +95,17 @@ function FriendListRow(props: UserRowProps): React.Node {
     }
     return undefined;
   }, [
-    friendUser,
-    unfriendUser,
     userInfo.relationshipStatus,
+    unfriendUserCallback,
+    friendUserCallback,
     onMenuVisibilityChange,
+    unfriendUser,
   ]);
 
+  const pushUserProfileModal = usePushUserProfileModal(userInfo.id);
+
   return (
-    <div className={css.container}>
+    <div className={css.container} onClick={pushUserProfileModal}>
       <div className={css.userInfoContainer}>
         <UserAvatar size="S" userID={userInfo.id} />
         <div className={css.usernameContainer}>{userInfo.username}</div>
