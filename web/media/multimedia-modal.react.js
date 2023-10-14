@@ -130,8 +130,8 @@ function MultimediaModal(props: Props): React.Node {
   const multimediaModal = React.useMemo(
     () => (
       <FullScreenViewModal
-        contentDimensions={dimensions}
-        setContentDimensions={setDimensions}
+        dynamicContentDimensions={dimensions}
+        setDynamicContentDimensions={setDimensions}
       >
         {mediaModalItem}
       </FullScreenViewModal>
