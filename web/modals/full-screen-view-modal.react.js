@@ -12,8 +12,8 @@ import css from './full-screen-view-modal.css';
 
 type BaseProps = {
   +children: React.Node,
-  +contentDimensions: ?Dimensions,
-  +setContentDimensions: SetState<?Dimensions>,
+  +dynamicContentDimensions?: ?Dimensions,
+  +setDynamicContentDimensions?: SetState<?Dimensions>,
 };
 
 type Props = {
@@ -27,12 +27,15 @@ class FullScreenViewModal extends React.PureComponent<Props> {
   componentDidMount() {
     invariant(this.overlay, 'overlay ref unset');
     this.overlay.focus();
-    this.calculateMediaDimensions();
-    window.addEventListener('resize', this.calculateMediaDimensions);
+    this.calculateDynamicContentDimensions();
+    window.addEventListener('resize', this.calculateDynamicContentDimensions);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.calculateMediaDimensions);
+    window.removeEventListener(
+      'resize',
+      this.calculateDynamicContentDimensions,
+    );
   }
 
   render(): React.Node {
@@ -75,27 +78,36 @@ class FullScreenViewModal extends React.PureComponent<Props> {
       }
     };
 
-  calculateMediaDimensions: () => void = () => {
-    if (!this.overlay || !this.props.contentDimensions) {
+  calculateDynamicContentDimensions: () => mixed = () => {
+    const { dynamicContentDimensions, setDynamicContentDimensions } =
+      this.props;
+
+    if (
+      !this.overlay ||
+      !dynamicContentDimensions ||
+      !setDynamicContentDimensions
+    ) {
       return;
     }
+
     const containerWidth = this.overlay.clientWidth;
     const containerHeight = this.overlay.clientHeight;
     const containerAspectRatio = containerWidth / containerHeight;
 
-    const { width: mediaWidth, height: mediaHeight } =
-      this.props.contentDimensions;
-    const mediaAspectRatio = mediaWidth / mediaHeight;
+    const { width: contentWidth, height: contentHeight } =
+      dynamicContentDimensions;
+    const contentAspectRatio = contentWidth / contentHeight;
 
     let newWidth, newHeight;
-    if (containerAspectRatio > mediaAspectRatio) {
-      newWidth = Math.min(mediaWidth, containerHeight * mediaAspectRatio);
-      newHeight = newWidth / mediaAspectRatio;
+    if (containerAspectRatio > contentAspectRatio) {
+      newWidth = Math.min(contentWidth, containerHeight * contentAspectRatio);
+      newHeight = newWidth / contentAspectRatio;
     } else {
-      newHeight = Math.min(mediaHeight, containerWidth / mediaAspectRatio);
-      newWidth = newHeight * mediaAspectRatio;
+      newHeight = Math.min(contentHeight, containerWidth / contentAspectRatio);
+      newWidth = newHeight * contentAspectRatio;
     }
-    this.props.setContentDimensions({
+
+    setDynamicContentDimensions({
       width: newWidth,
       height: newHeight,
     });
