@@ -572,7 +572,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         await publishPrekeysToIdentity(content.account, notif.account);
       } catch (e) {
         console.warn('Encountered error while trying to publish prekeys', e);
-        if (process.env.ENV === 'prod') {
+        if (process.env.NODE_ENV !== 'development') {
           throw e;
         }
       }
