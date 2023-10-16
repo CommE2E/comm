@@ -5,7 +5,7 @@ import { View, Switch } from 'react-native';
 
 import {
   updateSubscriptionActionTypes,
-  updateSubscription,
+  useUpdateSubscription,
 } from 'lib/actions/user-actions.js';
 import type {
   SubscriptionUpdateRequest,
@@ -13,10 +13,7 @@ import type {
 } from 'lib/types/subscription-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import SingleLine from '../../components/single-line.react.js';
 import { useStyles } from '../../themes/colors.js';
@@ -105,7 +102,7 @@ const ConnectedThreadSettingsHomeNotifs: React.ComponentType<BaseProps> =
   ) {
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
-    const callUpdateSubscription = useServerCall(updateSubscription);
+    const callUpdateSubscription = useUpdateSubscription();
     return (
       <ThreadSettingsHomeNotifs
         {...props}
