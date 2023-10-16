@@ -120,8 +120,8 @@ function ThreadEntity(props: ThreadEntityProps) {
 }
 
 type UserEntityProps = {
-  userID: string,
-  usernameText: string,
+  +userID: string,
+  +usernameText: string,
 };
 function UserEntity(props: UserEntityProps) {
   const { userID, usernameText } = props;
