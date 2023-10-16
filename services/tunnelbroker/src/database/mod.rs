@@ -16,6 +16,8 @@ use crate::constants::dynamodb::undelivered_messages::{
 };
 
 pub mod message;
+pub mod message_id;
+
 pub use message::*;
 
 #[derive(Clone)]
