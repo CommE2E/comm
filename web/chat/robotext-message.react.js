@@ -140,8 +140,8 @@ const ThreadEntity = React.memo<BaseInnerThreadEntityProps>(
 );
 
 type UserEntityProps = {
-  userID: string,
-  usernameText: string,
+  +userID: string,
+  +usernameText: string,
 };
 
 function UserEntity(props: UserEntityProps) {
