@@ -9,7 +9,7 @@ use std::path::Path;
 fn main() {
   napi_build::setup();
 
-  const VERSIONS_JS_PATH: &str = "../../../lib/facts/version.js";
+  const VERSIONS_JS_PATH: &str = "../../src/version.js";
   println!("cargo:rerun-if-changed={}", VERSIONS_JS_PATH);
   let js_path = Path::new(VERSIONS_JS_PATH);
 
@@ -17,15 +17,15 @@ fn main() {
 
   let version_line = content
     .lines()
-    .find(|line| line.contains("webAndKeyserverCodeVersion"))
-    .expect("Failed to find webAndKeyserverCodeVersion line");
+    .find(|line| line.contains("keyserverCodeVersion"))
+    .expect("Failed to find keyserverCodeVersion line");
 
   // Find a sequence in the input string that starts with
-  // 'webAndKeyserverCodeVersion', followed by any number of whitespace
+  // 'keyserverCodeVersion', followed by any number of whitespace
   // characters, an equals sign, any number of additional whitespace characters,
   // a series of one or more digits (and capture these digits), and finally a
   // semicolon.
-  let re = Regex::new(r"webAndKeyserverCodeVersion\s*=\s*(\d+);").unwrap();
+  let re = Regex::new(r"keyserverCodeVersion\s*=\s*(\d+);").unwrap();
   let version: u64 = re
     .captures(version_line)
     .and_then(|cap| cap.get(1))
