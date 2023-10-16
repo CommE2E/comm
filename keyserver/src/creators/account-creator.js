@@ -189,23 +189,7 @@ async function createAccount(
     ...messageInfos,
   ];
 
-  const issuedAt = new Date().toISOString();
-  const payload: $ReadOnlyArray<string> = [request.username];
-  const reservedUsernameMessage: ReservedUsernameMessage = {
-    statement: 'Add the following usernames to reserved list',
-    payload,
-    issuedAt,
-  };
-  const stringifiedMessage = JSON.stringify(reservedUsernameMessage);
-
-  handleAsyncPromise(
-    (async () => {
-      const rustAPI = await getRustAPI();
-      const accountInfo = await fetchOlmAccount('content');
-      const signature = accountInfo.account.sign(stringifiedMessage);
-      await rustAPI.addReservedUsernames(stringifiedMessage, signature);
-    })(),
-  );
+  handleAsyncPromise(createAndSendReservedUsernameMessage([request.username]));
 
   return {
     id,
@@ -302,7 +286,30 @@ async function processSIWEAccountCreation(
   }));
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
   await Promise.all([createMessages(viewer, messageDatas)]);
+
+  handleAsyncPromise(createAndSendReservedUsernameMessage([request.address]));
+
   return id;
+}
+
+async function createAndSendReservedUsernameMessage(
+  payload: $ReadOnlyArray<string>,
+) {
+  const issuedAt = new Date().toISOString();
+  const reservedUsernameMessage: ReservedUsernameMessage = {
+    statement: 'Add the following usernames to reserved list',
+    payload,
+    issuedAt,
+  };
+  const stringifiedMessage = JSON.stringify(reservedUsernameMessage);
+
+  const [rustAPI, accountInfo] = await Promise.all([
+    getRustAPI(),
+    fetchOlmAccount('content'),
+  ]);
+  const signature = accountInfo.account.sign(stringifiedMessage);
+
+  await rustAPI.addReservedUsernames(stringifiedMessage, signature);
 }
 
 export { createAccount, processSIWEAccountCreation };
