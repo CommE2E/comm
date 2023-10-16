@@ -21,7 +21,6 @@ import {
   ModalProvider,
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
-import { webAndKeyserverCodeVersion } from 'lib/facts/version.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -89,7 +88,7 @@ registerConfig({
   calendarRangeInactivityLimit: null,
   platformDetails: {
     platform: electron?.platform ?? 'web',
-    codeVersion: webAndKeyserverCodeVersion,
+    codeVersion: 38,
     stateVersion: persistConfig.version,
   },
 });
