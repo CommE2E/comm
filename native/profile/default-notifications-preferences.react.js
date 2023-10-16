@@ -5,7 +5,7 @@ import { View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
-  setUserSettings,
+  useSetUserSettings,
   setUserSettingsActionTypes,
 } from 'lib/actions/user-actions.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
@@ -18,7 +18,6 @@ import {
 } from 'lib/types/account-types.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
@@ -185,7 +184,7 @@ const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> =
   ) {
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
-    const changeNotificationSettings = useServerCall(setUserSettings);
+    const changeNotificationSettings = useSetUserSettings();
     const defaultNotification = userSettingsTypes.DEFAULT_NOTIFICATIONS;
 
     const selectedDefaultNotification = useSelector<NotificationTypes>(
