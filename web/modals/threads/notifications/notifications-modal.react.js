@@ -3,16 +3,13 @@
 import * as React from 'react';
 
 import {
-  updateSubscription,
+  useUpdateSubscription,
   updateSubscriptionActionTypes,
 } from 'lib/actions/user-actions.js';
 import { canPromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { threadIsSidebar } from 'lib/shared/thread-utils.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import css from './notifications-modal.css';
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
@@ -169,7 +166,7 @@ function NotificationsModal(props: Props): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
 
-  const callUpdateSubscription = useServerCall(updateSubscription);
+  const callUpdateSubscription = useUpdateSubscription();
 
   const onClickSave = React.useCallback(() => {
     dispatchActionPromise(
