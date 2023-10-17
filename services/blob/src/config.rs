@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::Parser;
+use clap::{ArgAction, Parser};
 use once_cell::sync::Lazy;
 use tracing::info;
 
@@ -24,6 +24,10 @@ pub struct AppConfig {
   #[arg(env = "IDENTITY_SERVICE_ENDPOINT")]
   #[arg(long, default_value = "http://localhost:50054")]
   pub identity_endpoint: String,
+
+  /// If set, blobs will be deleted instantly after revoking last holder
+  #[arg(long, global = true, action = ArgAction::SetTrue)]
+  pub instant_delete: bool,
 
   #[clap(subcommand)]
   pub command: Option<Command>,

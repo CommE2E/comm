@@ -34,8 +34,15 @@ async fn main() -> Result<()> {
   let s3 = s3::S3Client::new(&aws_config);
   let auth_service = AuthService::new(&aws_config, &config.identity_endpoint);
 
-  let blob_service =
-    service::BlobService::new(db, s3, BlobServiceConfig::default());
+  let blob_service = service::BlobService::new(
+    db,
+    s3,
+    BlobServiceConfig {
+      instant_delete_orphaned_blobs: config.instant_delete,
+      // orphan_protection_period: chrono::Duration::milliseconds(1),
+      ..Default::default()
+    },
+  );
 
   match &config.command {
     Some(Command::Cleanup) => blob_service.perform_cleanup().await?,
