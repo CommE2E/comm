@@ -137,10 +137,6 @@ jsi::Array MessageStore::parseDBMessageStoreThreads(
     jsiThread.setProperty(rt, "id", thread.id);
     jsiThread.setProperty(
         rt, "start_reached", std::to_string(thread.start_reached));
-    jsiThread.setProperty(
-        rt, "last_navigated_to", std::to_string(thread.last_navigated_to));
-    jsiThread.setProperty(
-        rt, "last_pruned", std::to_string(thread.last_pruned));
 
     jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
   }
