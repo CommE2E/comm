@@ -1,4 +1,5 @@
 use crate::identity::device::DeviceInfo;
+use crate::service_addr;
 use futures_util::SinkExt;
 use tokio::net::TcpStream;
 use tokio_tungstenite::tungstenite::Message;
@@ -8,7 +9,7 @@ use tunnelbroker_messages::{ConnectionInitializationMessage, DeviceTypes};
 pub async fn create_socket(
   device_info: &DeviceInfo,
 ) -> WebSocketStream<MaybeTlsStream<TcpStream>> {
-  let (mut socket, _) = connect_async("ws://localhost:51001")
+  let (mut socket, _) = connect_async(service_addr::TUNNELBROKER_WS)
     .await
     .expect("Can't connect");
 

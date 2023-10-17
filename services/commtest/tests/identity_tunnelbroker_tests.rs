@@ -8,6 +8,7 @@ use auth_proto::identity_client_service_client::IdentityClientServiceClient as A
 use client::identity_client_service_client::IdentityClientServiceClient;
 use client::UploadOneTimeKeysRequest;
 use commtest::identity::device::create_device;
+use commtest::service_addr;
 use commtest::tunnelbroker::socket::create_socket;
 use futures_util::StreamExt;
 use tonic::transport::Endpoint;
@@ -45,7 +46,7 @@ async fn test_refresh_keys_request_upon_depletion() {
   let device_info = create_device(None).await;
 
   let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
+    IdentityClientServiceClient::connect(service_addr::IDENTITY_GRPC)
       .await
       .expect("Couldn't connect to identitiy service");
 
@@ -63,7 +64,8 @@ async fn test_refresh_keys_request_upon_depletion() {
     .unwrap();
 
   // Request outbound keys, which should trigger identity service to ask for more keys
-  let channel = Endpoint::from_static("http://[::1]:50054")
+  let channel = Endpoint::try_from(service_addr::IDENTITY_GRPC)
+    .expect("failed to parse identity service endpoint")
     .connect()
     .await
     .unwrap();
@@ -103,7 +105,7 @@ async fn test_refresh_keys_request_upon_depletion() {
     // Check that message received by keyserver matches what identity server
     // issued
     let serialized_response: RefreshKeyRequest =
-      serde_json::from_str(&response.to_text().unwrap()).unwrap();
+      serde_json::from_str(response.to_text().unwrap()).unwrap();
 
     let expected_response = RefreshKeyRequest {
       device_id: device_info.device_id.to_string(),

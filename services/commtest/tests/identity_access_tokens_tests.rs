@@ -1,6 +1,7 @@
 mod proto {
   tonic::include_proto!("identity.client");
 }
+use commtest::service_addr;
 use proto as client;
 mod auth_proto {
   tonic::include_proto!("identity.authenticated");
@@ -14,7 +15,7 @@ async fn verify_access_token() {
   let device_info = create_device(None).await;
 
   let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
+    IdentityClientServiceClient::connect(service_addr::IDENTITY_GRPC)
       .await
       .expect("Couldn't connect to identitiy service");
 
@@ -29,7 +30,7 @@ async fn verify_access_token() {
     .await
     .unwrap();
 
-  assert_eq!(response.into_inner().token_valid, true);
+  assert!(response.into_inner().token_valid);
 }
 
 #[tokio::test]
@@ -37,7 +38,7 @@ async fn upload_one_time_keys() {
   let device_info = create_device(None).await;
 
   let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
+    IdentityClientServiceClient::connect(service_addr::IDENTITY_GRPC)
       .await
       .expect("Couldn't connect to identitiy service");
 
