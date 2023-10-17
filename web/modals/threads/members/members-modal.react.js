@@ -5,13 +5,10 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
-import {
-  memberHasAdminPowers,
-  memberIsAdmin,
-  threadHasPermission,
-} from 'lib/shared/thread-utils.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { type RelativeMemberInfo } from 'lib/types/thread-types.js';
+import { useRoleNamesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import { AddMembersModal } from './add-members-modal.react.js';
 import ThreadMembersList from './members-list.react.js';
@@ -47,13 +44,14 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
       ),
     [searchText.length, threadMembersNotFiltered, userIDs],
   );
+
+  const roleNames = useRoleNamesFromCommunityThreadInfo(threadInfo, allMembers);
   const adminMembers = React.useMemo(
     () =>
       allMembers.filter(
-        (member: RelativeMemberInfo) =>
-          memberIsAdmin(member, threadInfo) || memberHasAdminPowers(member),
+        (member: RelativeMemberInfo) => roleNames.get(member.id) === 'Admins',
       ),
-    [allMembers, threadInfo],
+    [roleNames, allMembers],
   );
 
   const allUsersTab = React.useMemo(
