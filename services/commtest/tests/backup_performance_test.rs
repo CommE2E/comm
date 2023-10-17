@@ -6,20 +6,15 @@ use commtest::{
     create_new_backup,
     pull_backup::{self, BackupDescriptor},
   },
+  service_addr,
   tools::{generate_stable_nbytes, obtain_number_of_threads, Error},
 };
-use std::env;
 use tokio::{runtime::Runtime, task::JoinSet};
 
 #[tokio::test]
 async fn backup_performance_test() -> Result<(), Error> {
-  let port = env::var("COMM_SERVICES_PORT_BACKUP")
-    .expect("port env var expected but not received")
-    .parse()
-    .expect("port env var should be a number");
-
-  let mut url = reqwest::Url::parse("http://localhost")?;
-  url.set_port(Some(port)).expect("failed to set port");
+  let url = reqwest::Url::try_from(service_addr::BACKUP_SERVICE_HTTP)
+    .expect("failed to parse backup service url");
 
   let number_of_threads = obtain_number_of_threads();
 

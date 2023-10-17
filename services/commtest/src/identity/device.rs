@@ -6,6 +6,7 @@ use crate::identity::olm_account_infos::{
   ClientPublicKeys, DEFAULT_CLIENT_KEYS,
 };
 
+use crate::service_addr;
 use grpc_clients::identity::protos::client::{
   DeviceKeyUpload, DeviceType, IdentityKeyInfo, PreKey,
   RegistrationFinishRequest, RegistrationStartRequest,
@@ -62,9 +63,8 @@ pub async fn create_device(keys: Option<&ClientPublicKeys>) -> DeviceInfo {
     }),
   };
 
-  // TODO: allow endpoint to be configured
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    &service_addr::IDENTITY_GRPC.to_string(),
     PLACEHOLDER_CODE_VERSION,
     DEVICE_TYPE.to_string(),
   )

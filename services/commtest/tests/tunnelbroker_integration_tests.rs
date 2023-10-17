@@ -6,6 +6,7 @@ use commtest::identity::device::create_device;
 use commtest::identity::olm_account_infos::{
   MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
 };
+use commtest::service_addr;
 use commtest::tunnelbroker::socket::{create_socket, send_message};
 use futures_util::StreamExt;
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
@@ -25,7 +26,7 @@ async fn send_refresh_request() {
 
   // Send request for keyserver to refresh keys (identity service)
   let mut tunnelbroker_client =
-    TunnelbrokerServiceClient::connect("http://localhost:50051")
+    TunnelbrokerServiceClient::connect(service_addr::TUNNELBROKER_GRPC)
       .await
       .unwrap();
 
@@ -52,7 +53,7 @@ async fn send_refresh_request() {
   // Check that message received by keyserver matches what identity server
   // issued
   let serialized_response: RefreshKeyRequest =
-    serde_json::from_str(&response.to_text().unwrap()).unwrap();
+    serde_json::from_str(response.to_text().unwrap()).unwrap();
   assert_eq!(serialized_response, refresh_request);
 }
 

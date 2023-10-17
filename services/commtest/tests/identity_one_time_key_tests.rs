@@ -1,6 +1,7 @@
 use commtest::identity::device::{
   create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
+use commtest::service_addr;
 use grpc_clients::identity::{
   get_unauthenticated_client, protos::client::UploadOneTimeKeysRequest,
 };
@@ -10,7 +11,7 @@ async fn verify_access_token() {
   let device_info = create_device(None).await;
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    &service_addr::IDENTITY_GRPC.to_string(),
     PLACEHOLDER_CODE_VERSION,
     DEVICE_TYPE.to_string(),
   )
