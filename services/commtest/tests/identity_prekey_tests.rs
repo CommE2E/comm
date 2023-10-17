@@ -8,14 +8,15 @@ mod auth_proto {
 use auth_proto::identity_client_service_client::IdentityClientServiceClient as AuthClient;
 use auth_proto::RefreshUserPreKeysRequest;
 use client::PreKey;
-use commtest::identity::device::create_device;
+use commtest::{identity::device::create_device, service_addr};
 use tonic::{transport::Endpoint, Request};
 
 #[tokio::test]
 async fn set_prekey() {
   let device_info = create_device(None).await;
 
-  let channel = Endpoint::from_static("http://[::1]:50054")
+  let channel = Endpoint::try_from(service_addr::IDENTITY_GRPC)
+    .expect("failed to parse identity service endpoint")
     .connect()
     .await
     .unwrap();

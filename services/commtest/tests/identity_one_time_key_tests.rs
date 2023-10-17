@@ -7,13 +7,14 @@ mod auth_proto {
 use client::identity_client_service_client::IdentityClientServiceClient;
 use client::UploadOneTimeKeysRequest;
 use commtest::identity::device::create_device;
+use commtest::service_addr;
 
 #[tokio::test]
 async fn verify_access_token() {
   let device_info = create_device(None).await;
 
   let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
+    IdentityClientServiceClient::connect(service_addr::IDENTITY_GRPC)
       .await
       .expect("Couldn't connect to identity service");
 

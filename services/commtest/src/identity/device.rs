@@ -6,6 +6,7 @@ mod proto {
 use crate::identity::olm_account_infos::{
   ClientPublicKeys, DEFAULT_CLIENT_KEYS,
 };
+use crate::service_addr;
 use proto as client;
 use proto::{
   identity_client_service_client::IdentityClientServiceClient, DeviceKeyUpload,
@@ -62,7 +63,7 @@ pub async fn create_device(keys: Option<&ClientPublicKeys>) -> DeviceInfo {
 
   // TODO: allow endpoint to be configured
   let mut identity_client =
-    IdentityClientServiceClient::connect("http://127.0.0.1:50054")
+    IdentityClientServiceClient::connect(service_addr::IDENTITY_GRPC)
       .await
       .expect("Couldn't connect to identitiy service");
 
