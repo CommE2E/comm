@@ -396,6 +396,66 @@ bool create_persist_storage_table(sqlite3 *db) {
   return create_table(db, query, "persist_storage");
 }
 
+bool recreate_message_store_threads_table(sqlite3 *db) {
+  char *errMsg = 0;
+
+  // 1. Create table without `last_navigated_to` or `last_pruned`.
+  std::string create_new_table_query =
+      "CREATE TABLE IF NOT EXISTS temp_message_store_threads ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  start_reached INTEGER NOT NULL"
+      ");";
+
+  if (sqlite3_exec(db, create_new_table_query.c_str(), NULL, NULL, &errMsg) !=
+      SQLITE_OK) {
+    Logger::log(
+        "Error creating temp_message_store_threads: " + std::string{errMsg});
+    sqlite3_free(errMsg);
+    return false;
+  }
+
+  // 2. Dump data from existing `message_store_threads` table into temp table.
+  std::string copy_data_query =
+      "INSERT INTO temp_message_store_threads (id, start_reached)"
+      "SELECT id, start_reached FROM message_store_threads;";
+
+  if (sqlite3_exec(db, copy_data_query.c_str(), NULL, NULL, &errMsg) !=
+      SQLITE_OK) {
+    Logger::log(
+        "Error dumping data from existing message_store_threads to "
+        "temp_message_store_threads: " +
+        std::string{errMsg});
+    sqlite3_free(errMsg);
+    return false;
+  }
+
+  // 3. Drop the existing `message_store_threads` table.
+  std::string drop_old_table_query = "DROP TABLE message_store_threads;";
+
+  if (sqlite3_exec(db, drop_old_table_query.c_str(), NULL, NULL, &errMsg) !=
+      SQLITE_OK) {
+    Logger::log(
+        "Error dropping message_store_threads table: " + std::string{errMsg});
+    sqlite3_free(errMsg);
+    return false;
+  }
+
+  // 4. Rename the temp table back to `message_store_threads`.
+  std::string rename_table_query =
+      "ALTER TABLE temp_message_store_threads RENAME TO message_store_threads;";
+
+  if (sqlite3_exec(db, rename_table_query.c_str(), NULL, NULL, &errMsg) !=
+      SQLITE_OK) {
+    Logger::log(
+        "Error renaming temp_message_store_threads to message_store_threads: " +
+        std::string{errMsg});
+    sqlite3_free(errMsg);
+    return false;
+  }
+
+  return true;
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -461,9 +521,7 @@ bool create_schema(sqlite3 *db) {
 
       "CREATE TABLE IF NOT EXISTS message_store_threads ("
       "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 start_reached INTEGER NOT NULL,"
-      "	 last_navigated_to BIGINT NOT NULL,"
-      "	 last_pruned BIGINT NOT NULL"
+      "	 start_reached INTEGER NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS reports ("
@@ -715,7 +773,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {27, {add_pinned_count_column_to_threads, true}},
      {28, {create_message_store_threads_table, true}},
      {29, {create_reports_table, true}},
-     {30, {create_persist_storage_table, true}}}};
+     {30, {create_persist_storage_table, true}},
+     {31, {recreate_message_store_threads_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -917,10 +976,7 @@ auto &SQLiteQueryExecutor::getStorage() {
       make_table(
           "message_store_threads",
           make_column("id", &MessageStoreThread::id, unique(), primary_key()),
-          make_column("start_reached", &MessageStoreThread::start_reached),
-          make_column(
-              "last_navigated_to", &MessageStoreThread::last_navigated_to),
-          make_column("last_pruned", &MessageStoreThread::last_pruned)),
+          make_column("start_reached", &MessageStoreThread::start_reached)),
       make_table(
           "reports",
           make_column("id", &Report::id, unique(), primary_key()),
