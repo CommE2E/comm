@@ -1,6 +1,7 @@
 resource "aws_secretsmanager_secret" "services_token" {
-  name        = "servicesToken"
-  description = "Service-to-service access token"
+  name                    = "servicesToken"
+  description             = "Service-to-service access token"
+  recovery_window_in_days = var.is_dev ? 0 : 30
 }
 resource "aws_secretsmanager_secret_version" "services_token" {
   secret_id      = aws_secretsmanager_secret.services_token.id
