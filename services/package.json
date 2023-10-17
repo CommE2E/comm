@@ -14,6 +14,7 @@
     "run-performance-tests": "./scripts/run_performance_tests.sh",
     "init-local-cloud": "./scripts/init_local_cloud.sh",
     "delete-local-cloud": "docker-compose down -v",
-    "reset-local-cloud": "yarn delete-local-cloud && yarn init-local-cloud"
+    "reset-local-cloud": "yarn delete-local-cloud && yarn init-local-cloud",
+    "run-commtest-in-docker": "PLATFORM=$(docker system info --format '{{.OSType}}/{{.Architecture}}') docker compose -f docker-compose.yml -f docker-compose.tests.yml up commtest --build"
   }
 }
