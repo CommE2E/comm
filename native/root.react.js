@@ -19,6 +19,7 @@ import {
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/react.js';
 
+import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
@@ -259,7 +260,9 @@ function Root() {
         <BottomSheetModalProvider>
           <ChatContextProvider>
             <DeepLinksContextProvider>
-              <RootNavigator />
+              <ChatMentionContextProvider>
+                <RootNavigator />
+              </ChatMentionContextProvider>
             </DeepLinksContextProvider>
           </ChatContextProvider>
           <NavigationHandler />

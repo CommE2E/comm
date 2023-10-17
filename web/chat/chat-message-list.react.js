@@ -12,6 +12,7 @@ import {
   fetchMostRecentMessagesActionTypes,
   fetchMostRecentMessages,
 } from 'lib/actions/message-actions.js';
+import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import {
@@ -19,10 +20,7 @@ import {
   useMessageListData,
 } from 'lib/selectors/chat-selectors.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import {
-  threadIsPending,
-  useThreadChatMentionCandidates,
-} from 'lib/shared/thread-utils.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
