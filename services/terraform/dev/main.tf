@@ -1,3 +1,8 @@
+variable "localstack_endpoint" {
+  type    = string
+  default = "http://localhost:4566"
+}
+
 locals {
   aws_settings = ({
     region     = "us-east-2"
@@ -9,7 +14,7 @@ locals {
     skip_requesting_account_id  = true
     s3_use_path_style           = true
 
-    override_endpoint = "http://localhost:4566"
+    override_endpoint = var.localstack_endpoint
   })
 }
 
