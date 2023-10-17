@@ -1,0 +1,74 @@
+version: '3.9'
+volumes:
+  localstack:
+  commtest_build_artifacts:
+
+services:
+  commtest:
+    depends_on:
+      - tunnelbroker-server
+      - backup-server
+      - blob-server
+      - identity-server
+      # There are no tests for these services:
+      # - feature-flags-server
+      # - reports-server
+    build:
+      dockerfile: services/commtest/Dockerfile
+      context: ../
+    platform: '${PLATFORM:-linux/amd64}'
+    volumes:
+      # This one caches build directory and allows to run tests multiple times without rebuilding
+      - commtest_build_artifacts:/home/root/app/commtest/target
+    env_file: test-commons.env
+    environment:
+      # tested services endpoints
+      TUNNELBROKER_WS_ENDPOINT: 'ws://tunnelbroker-server:51001'
+      TUNNELBROKER_GRPC_ENDPOINT: 'http://tunnelbroker-server:${COMM_SERVICES_PORT_TUNNELBROKER}'
+      BACKUP_SERVICE_URL: 'http://backup-server:${COMM_SERVICES_PORT_BACKUP}'
+      BLOB_SERVICE_URL: 'http://blob-server:${COMM_SERVICES_PORT_BLOB}'
+      IDENTITY_GRPC_ENDPOINT: 'http://identity-server:${COMM_SERVICES_PORT_IDENTITY}'
+      # override localstack endpoint in terraform setup
+      TF_VAR_localstack_endpoint: 'http://localstack:4566'
+      # others
+      COMM_NUMBER_OF_THREADS: '4'
+      BLOB_SERVICE_EXECUTABLE: /shared/bin/blob
+      RUST_LOG: blob=trace,comm_services_lib=debug
+
+  tunnelbroker-server:
+    image: tunnelbroker
+    pull_policy: build
+    platform: '${PLATFORM:-linux/amd64}'
+    restart: on-failure
+    env_file: test-commons.env
+    environment:
+      COMM_TUNNELBROKER_IDENTITY_ENDPOINT: 'http://identity-server:50054'
+      AMQP_URI: 'amqp://comm:comm@rabbitmq:5672'
+
+  backup-server:
+    image: backup
+    pull_policy: build
+    platform: '${PLATFORM:-linux/amd64}'
+    env_file: test-commons.env
+    environment:
+      BLOB_SERVICE_URL: 'http://blob-server:50053'
+
+  blob-server:
+    image: blob
+    # Until blob cleanup is supported in tests, enable auto-deletion
+    command: ['blob', 'server', '--instant-delete']
+    platform: '${PLATFORM:-linux/amd64}'
+    env_file: test-commons.env
+    environment:
+      RUST_LOG: blob=trace,comm_services_lib=debug
+
+  identity-server:
+    image: identity
+    pull_policy: build
+    platform: '${PLATFORM:-linux/amd64}'
+    env_file: test-commons.env
+    environment:
+      TUNNELBROKER_GRPC_ENDPOINT: 'http://tunnelbroker-server:50051'
+    build:
+      args:
+        - generate_keypair=true
