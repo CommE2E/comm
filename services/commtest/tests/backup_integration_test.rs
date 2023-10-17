@@ -6,20 +6,15 @@ use commtest::{
     create_new_backup,
     pull_backup::{self, BackupDescriptor, RequestedData},
   },
+  service_addr,
   tools::{generate_stable_nbytes, Error},
 };
 use reqwest::StatusCode;
-use std::env;
 
 #[tokio::test]
 async fn backup_integration_test() -> Result<(), Error> {
-  let port = env::var("COMM_SERVICES_PORT_BACKUP")
-    .expect("port env var expected but not received")
-    .parse()
-    .expect("port env var should be a number");
-
-  let mut url = reqwest::Url::parse("http://localhost")?;
-  url.set_port(Some(port)).expect("failed to set port");
+  let url = reqwest::Url::try_from(service_addr::BACKUP_SERVICE_HTTP)
+    .expect("failed to parse backup service url");
 
   let backup_datas = [
     BackupData {

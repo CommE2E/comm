@@ -1,6 +1,7 @@
 use commtest::identity::device::{
   create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
+use commtest::service_addr;
 use grpc_clients::identity::{
   get_auth_client,
   protos::{authenticated::RefreshUserPreKeysRequest, client::PreKey},
@@ -11,7 +12,7 @@ async fn set_prekey() {
   let device_info = create_device(None).await;
 
   let mut client = get_auth_client(
-    "http://[::1]:50054",
+    &service_addr::IDENTITY_GRPC.to_string(),
     device_info.user_id,
     device_info.device_id,
     device_info.access_token,

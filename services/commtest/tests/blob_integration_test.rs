@@ -1,20 +1,18 @@
 use bytesize::ByteSize;
-use commtest::blob::{
-  blob_utils::{BlobData, BlobServiceClient},
-  get, put, remove,
-};
 use commtest::constants;
 use commtest::tools::Error;
-use std::env;
+use commtest::{
+  blob::{
+    blob_utils::{BlobData, BlobServiceClient},
+    get, put, remove,
+  },
+  service_addr,
+};
 
 #[tokio::test]
 async fn blob_integration_test() -> Result<(), Error> {
-  let port = env::var("COMM_SERVICES_PORT_BLOB")
-    .expect("port env var expected but not received")
-    .parse()
-    .expect("port env var should be a number");
-  let mut url = reqwest::Url::parse("http://localhost")?;
-  url.set_port(Some(port)).expect("failed to set port");
+  let url = reqwest::Url::try_from(service_addr::BLOB_SERVICE_HTTP)
+    .expect("failed to parse blob service url");
   let client = BlobServiceClient::new(url);
 
   let blob_data = vec![
@@ -48,12 +46,12 @@ async fn blob_integration_test() -> Result<(), Error> {
   ];
 
   for item in &blob_data {
-    let data_exists: bool = put::run(&client, &item).await?;
+    let data_exists: bool = put::run(&client, item).await?;
     assert!(!data_exists, "test data should not exist");
   }
 
   for (i, blob_item) in blob_data.iter().enumerate() {
-    let received_sizes = get::run(&client, &blob_item).await?;
+    let received_sizes = get::run(&client, blob_item).await?;
     let expected_data_size = blob_item.chunks_sizes.iter().sum::<usize>();
     let received_data_size = received_sizes.iter().sum::<usize>();
     assert_eq!(
@@ -64,9 +62,9 @@ async fn blob_integration_test() -> Result<(), Error> {
   }
 
   for item in &blob_data {
-    remove::run(&client, &item).await?;
+    remove::run(&client, item).await?;
     assert!(
-      get::run(&client, &item).await.is_err(),
+      get::run(&client, item).await.is_err(),
       "item should no longer be available"
     );
   }

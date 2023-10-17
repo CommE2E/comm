@@ -1,6 +1,7 @@
 use commtest::identity::device::{
   create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
+use commtest::service_addr;
 use commtest::tunnelbroker::socket::create_socket;
 use futures_util::StreamExt;
 use grpc_clients::identity::protos::authenticated::OutboundKeysForUserRequest;
@@ -36,10 +37,11 @@ async fn test_tunnelbroker_valid_auth() {
 
 #[tokio::test]
 async fn test_refresh_keys_request_upon_depletion() {
+  let identity_grpc_endpoint = service_addr::IDENTITY_GRPC.to_string();
   let device_info = create_device(None).await;
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    &identity_grpc_endpoint,
     PLACEHOLDER_CODE_VERSION,
     DEVICE_TYPE.to_string(),
   )
@@ -61,7 +63,7 @@ async fn test_refresh_keys_request_upon_depletion() {
 
   // Request outbound keys, which should trigger identity service to ask for more keys
   let mut client = get_auth_client(
-    "http://[::1]:50054",
+    &identity_grpc_endpoint,
     device_info.user_id.clone(),
     device_info.device_id,
     device_info.access_token,
@@ -96,7 +98,7 @@ async fn test_refresh_keys_request_upon_depletion() {
     // Check that message received by keyserver matches what identity server
     // issued
     let serialized_response: RefreshKeyRequest =
-      serde_json::from_str(&response.to_text().unwrap()).unwrap();
+      serde_json::from_str(response.to_text().unwrap()).unwrap();
 
     let expected_response = RefreshKeyRequest {
       device_id: device_info.device_id.to_string(),

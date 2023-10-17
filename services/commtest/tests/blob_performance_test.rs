@@ -1,20 +1,18 @@
 use bytesize::ByteSize;
-use commtest::blob::{
-  blob_utils::{BlobData, BlobServiceClient},
-  get, put, remove,
-};
 use commtest::tools::{obtain_number_of_threads, Error};
-use std::env;
+use commtest::{
+  blob::{
+    blob_utils::{BlobData, BlobServiceClient},
+    get, put, remove,
+  },
+  service_addr,
+};
 use tokio::runtime::Runtime;
 
 #[tokio::test]
 async fn blob_performance_test() -> Result<(), Error> {
-  let port = env::var("COMM_SERVICES_PORT_BLOB")
-    .expect("port env var expected but not received")
-    .parse()
-    .expect("port env var should be a number");
-  let mut url = reqwest::Url::parse("http://localhost")?;
-  url.set_port(Some(port)).expect("failed to set port");
+  let url = reqwest::Url::try_from(service_addr::BLOB_SERVICE_HTTP)
+    .expect("failed to parse blob service url");
   let client = BlobServiceClient::new(url);
 
   let number_of_threads = obtain_number_of_threads();
