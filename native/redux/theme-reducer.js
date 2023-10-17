@@ -7,13 +7,11 @@ import {
   logInActionTypes,
   registerActionTypes,
 } from 'lib/actions/user-actions.js';
+import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
 import { updateThemeInfoActionType, type Action } from './action-types.js';
-import {
-  type GlobalThemeInfo,
-  defaultGlobalThemeInfo,
-} from '../types/themes.js';
+import { defaultGlobalThemeInfo } from '../types/themes.js';
 
 export default function reduceGlobalThemeInfo(
   state: GlobalThemeInfo,

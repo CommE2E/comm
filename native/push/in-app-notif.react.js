@@ -4,8 +4,9 @@ import * as React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { GlobalTheme } from 'lib/types/theme-types.js';
+
 import SingleLine from '../components/single-line.react.js';
-import type { GlobalTheme } from '../types/themes.js';
 
 const edges = ['top'];
 
