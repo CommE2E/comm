@@ -11,9 +11,10 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type {
-  UserSurfacedPermission,
-  UserSurfacedPermissionOption,
+import {
+  type UserSurfacedPermission,
+  type UserSurfacedPermissionOption,
+  userSurfacedPermissionOptions,
 } from 'lib/types/thread-permission-types.js';
 import type {
   ThreadInfo,
@@ -24,7 +25,6 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
-import { useFilterPermissionOptionsByThreadType } from 'lib/utils/role-utils.js';
 
 import css from './create-roles-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
@@ -144,12 +144,9 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
     [],
   );
 
-  const filteredUserSurfacedPermissionOptions =
-    useFilterPermissionOptionsByThreadType(threadInfo.type);
-
   const permissionsList = React.useMemo(
     () =>
-      [...filteredUserSurfacedPermissionOptions].map(permission => (
+      [...userSurfacedPermissionOptions].map(permission => (
         <EnumSettingsOption
           key={permission.userSurfacedPermission}
           selected={isUserSurfacedPermissionSelected(permission)}
@@ -160,11 +157,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
           statements={[{ statement: permission.description }]}
         />
       )),
-    [
-      filteredUserSurfacedPermissionOptions,
-      isUserSurfacedPermissionSelected,
-      onEnumValuePress,
-    ],
+    [isUserSurfacedPermissionSelected, onEnumValuePress],
   );
 
   const errorMessageClassNames = classNames({
