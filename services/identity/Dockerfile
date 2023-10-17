@@ -38,6 +38,10 @@ WORKDIR /home/comm/app/identity
 COPY --from=builder /usr/local/cargo/bin/identity \
   /usr/local/bin/identity
 
+# For test/debug builds, optionally generate OPAQUE keypair file
+ARG generate_keypair
+RUN if [ "$generate_keypair" = "true" ]; then identity keygen; fi
+
 USER comm
 
 CMD ["identity", "server"]
