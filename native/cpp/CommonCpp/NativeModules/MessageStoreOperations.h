@@ -170,13 +170,8 @@ public:
       auto thread_id = thread.getProperty(rt, "id").asString(rt).utf8(rt);
       auto start_reached = std::stoi(
           thread.getProperty(rt, "start_reached").asString(rt).utf8(rt));
-      auto last_navigated_to = std::stoll(
-          thread.getProperty(rt, "last_navigated_to").asString(rt).utf8(rt));
-      auto last_pruned = std::stoll(
-          thread.getProperty(rt, "last_pruned").asString(rt).utf8(rt));
-
-      MessageStoreThread msg_thread = MessageStoreThread{
-          thread_id, start_reached, last_navigated_to, last_pruned};
+      MessageStoreThread msg_thread =
+          MessageStoreThread{thread_id, start_reached};
       this->msg_threads.push_back(msg_thread);
     }
   }
