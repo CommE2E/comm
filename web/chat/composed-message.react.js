@@ -240,7 +240,9 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> =
     const shouldShowUsername = !isViewer && item.startsCluster;
     const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
 
-    const pushUserProfileModal = usePushUserProfileModal(creator.id);
+    const pushUserProfileModal = usePushUserProfileModal({
+      userID: creator.id,
+    });
 
     return (
       <ComposedMessage

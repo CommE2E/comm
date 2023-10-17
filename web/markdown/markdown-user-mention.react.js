@@ -13,7 +13,7 @@ type MarkdownChatMentionProps = {
 function MarkdownUserMention(props: MarkdownChatMentionProps): React.Node {
   const { text, userID } = props;
 
-  const pushUserProfileModal = usePushUserProfileModal(userID);
+  const pushUserProfileModal = usePushUserProfileModal({ userID });
 
   return (
     <a className={css.mention} onClick={pushUserProfileModal}>

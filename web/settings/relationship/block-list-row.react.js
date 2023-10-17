@@ -17,7 +17,7 @@ function BlockListRow(props: UserRowProps): React.Node {
   const { unblockUser } = useRelationshipCallbacks(userInfo.id);
   const editIcon = <SWMansionIcon icon="edit-1" size={22} />;
 
-  const pushUserProfileModal = usePushUserProfileModal(userInfo.id);
+  const pushUserProfileModal = usePushUserProfileModal({ userID: userInfo.id });
 
   return (
     <div className={css.container} onClick={pushUserProfileModal}>

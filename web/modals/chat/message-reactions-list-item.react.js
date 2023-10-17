@@ -15,7 +15,9 @@ type Props = {
 function MessageReactionsListItem(props: Props): React.Node {
   const { messageReactionUser } = props;
 
-  const pushUserProfileModal = usePushUserProfileModal(messageReactionUser.id);
+  const pushUserProfileModal = usePushUserProfileModal({
+    userID: messageReactionUser.id,
+  });
 
   return (
     <div className={css.userRowContainer} onClick={pushUserProfileModal}>

@@ -147,7 +147,7 @@ type UserEntityProps = {
 function UserEntity(props: UserEntityProps) {
   const { userID, usernameText } = props;
 
-  const pushUserProfileModal = usePushUserProfileModal(userID);
+  const pushUserProfileModal = usePushUserProfileModal({ userID });
 
   return <a onClick={pushUserProfileModal}>{usernameText}</a>;
 }

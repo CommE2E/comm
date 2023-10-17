@@ -102,7 +102,7 @@ function FriendListRow(props: UserRowProps): React.Node {
     unfriendUser,
   ]);
 
-  const pushUserProfileModal = usePushUserProfileModal(userInfo.id);
+  const pushUserProfileModal = usePushUserProfileModal({ userID: userInfo.id });
 
   return (
     <div className={css.container} onClick={pushUserProfileModal}>

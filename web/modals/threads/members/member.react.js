@@ -116,7 +116,9 @@ function ThreadMember(props: Props): React.Node {
     [roleName],
   );
 
-  const pushUserProfileModal = usePushUserProfileModal(memberInfo.id);
+  const pushUserProfileModal = usePushUserProfileModal({
+    userID: memberInfo.id,
+  });
 
   return (
     <div className={css.memberContainer} onClick={pushUserProfileModal}>
