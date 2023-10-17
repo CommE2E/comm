@@ -7,10 +7,10 @@ import { createSelector } from 'reselect';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import {
   createPendingSidebar,
   threadInHomeChatList,
-  useThreadChatMentionCandidates,
 } from 'lib/shared/thread-utils.js';
 import type {
   ComposableMessageInfo,

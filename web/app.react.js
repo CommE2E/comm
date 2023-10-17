@@ -15,6 +15,7 @@ import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
 } from 'lib/actions/entry-actions.js';
+import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import {
   ModalProvider,
@@ -193,14 +194,16 @@ class App extends React.PureComponent<Props> {
               <WagmiConfig config={wagmiConfig}>
                 <AlchemyENSCacheProvider>
                   <MessageSearchStateProvider>
-                    <FocusHandler />
-                    <VisibilityHandler />
-                    <DeviceIDUpdater />
-                    <PolicyAcknowledgmentHandler />
-                    <PushNotificationsHandler />
-                    <InviteLinkHandler />
-                    <InviteLinksRefresher />
-                    {content}
+                    <ChatMentionContextProvider>
+                      <FocusHandler />
+                      <VisibilityHandler />
+                      <DeviceIDUpdater />
+                      <PolicyAcknowledgmentHandler />
+                      <PushNotificationsHandler />
+                      <InviteLinkHandler />
+                      <InviteLinksRefresher />
+                      {content}
+                    </ChatMentionContextProvider>
                   </MessageSearchStateProvider>
                 </AlchemyENSCacheProvider>
               </WagmiConfig>

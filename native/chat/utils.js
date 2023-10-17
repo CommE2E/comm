@@ -5,12 +5,10 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import {
-  viewerIsMember,
-  useThreadChatMentionCandidates,
-} from 'lib/shared/thread-utils.js';
+import { viewerIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { clusterEndHeight } from './chat-constants.js';
