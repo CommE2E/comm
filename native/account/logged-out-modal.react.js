@@ -24,6 +24,7 @@ import {
   urlPrefixSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
@@ -69,7 +70,7 @@ import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils.js';
-import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
+import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import {
   type StateContainer,
   type StateChange,
@@ -819,7 +820,9 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
 
     const dispatch = useDispatch();
     const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage();
+      useInitialNotificationsEncryptedMessage(
+        nativeNotificationsSessionCreator,
+      );
     return (
       <LoggedOutModal
         {...props}

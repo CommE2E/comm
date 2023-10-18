@@ -18,6 +18,7 @@ import {
   validEmailRegex,
   oldValidUsernameRegex,
 } from 'lib/shared/account-utils.js';
+import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import {
   type LogInInfo,
   type LogInExtraInfo,
@@ -44,7 +45,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
 import Alert from '../utils/alert.js';
-import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
+import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import type { StateContainer } from '../utils/state-container.js';
 
 export type LogInState = {
@@ -387,7 +388,9 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogIn = useLogIn();
     const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage();
+      useInitialNotificationsEncryptedMessage(
+        nativeNotificationsSessionCreator,
+      );
 
     return (
       <LogInPanel
