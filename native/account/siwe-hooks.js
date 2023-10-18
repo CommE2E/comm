@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { siweAuth, siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
+import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
   useServerCall,
@@ -13,7 +14,7 @@ import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.j
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
+import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 
 type SIWEServerCallParams = {
   +message: string,
@@ -58,7 +59,7 @@ function useSIWEServerCall(
   );
 
   const getInitialNotificationsEncryptedMessage =
-    useInitialNotificationsEncryptedMessage();
+    useInitialNotificationsEncryptedMessage(nativeNotificationsSessionCreator);
 
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
