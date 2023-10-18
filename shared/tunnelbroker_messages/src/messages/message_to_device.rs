@@ -1,4 +1,4 @@
-// Messages sent between Tunnelbroker and a device via WebSocket
+//! Messages sent between Tunnelbroker and a device via WebSocket.
 
 use serde::{Deserialize, Serialize};
 
