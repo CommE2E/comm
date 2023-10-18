@@ -12,6 +12,7 @@ import thunk from 'redux-thunk';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
+import { CryptoStoreProvider } from './account/account-hooks.js';
 import App from './app.react.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import { localforageConfig } from './database/utils/constants.js';
@@ -37,12 +38,14 @@ const RootProvider = (): React.Node => (
   <Provider store={store}>
     <ErrorBoundary>
       <InitialReduxStateGate persistor={persistor}>
-        <Router history={history.getHistoryObject()}>
-          <Route path="*" component={App} />
-        </Router>
-        <Socket />
-        <SQLiteDataHandler />
-        <IntegrityHandler />
+        <CryptoStoreProvider>
+          <Router history={history.getHistoryObject()}>
+            <Route path="*" component={App} />
+          </Router>
+          <Socket />
+          <SQLiteDataHandler />
+          <IntegrityHandler />
+        </CryptoStoreProvider>
       </InitialReduxStateGate>
     </ErrorBoundary>
   </Provider>
