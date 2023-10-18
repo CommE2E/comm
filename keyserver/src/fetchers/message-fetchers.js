@@ -6,6 +6,7 @@ import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
   isInvalidSidebarSource,
+  isUnableToBeRenderedIndependently,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
@@ -890,10 +891,17 @@ async function rawMessageInfoForRowsAndRelatedMessages(
   >();
   for (const message of parsedResults) {
     const { rawMessageInfo } = message;
-    if (isInvalidSidebarSource(rawMessageInfo)) {
+    if (isUnableToBeRenderedIndependently(rawMessageInfo)) {
       continue;
     }
     invariant(rawMessageInfo.id, 'rawMessageInfo.id should not be null');
+    // Flow fails to refine types correctly since
+    // isUnableToBeRenderedIndependently introspects into a message spec
+    // instead of directly checking message types. We use "continue" to avoid
+    // invalid messages, but Flow doesn't recognize this. The
+    // alternative is to check against every message type, but that defeats
+    // the purpose of a 'single source of truth.'
+    // $FlowFixMe
     rawMessageInfoMap.set(rawMessageInfo.id, rawMessageInfo);
   }
 
