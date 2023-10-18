@@ -49,6 +49,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type LocalMessageInfo,
   type MessageStore,
+  type MessageStoreThreads,
 } from 'lib/types/message-types.js';
 import type {
   ReportStore,
@@ -815,6 +816,26 @@ const migrations = {
       },
     };
   },
+  [54]: state => {
+    let updatedMessageStoreThreads: MessageStoreThreads = {};
+    for (const threadID: string in state.messageStore.threads) {
+      const { lastNavigatedTo, lastPruned, ...rest } =
+        state.messageStore.threads[threadID];
+
+      updatedMessageStoreThreads = {
+        ...updatedMessageStoreThreads,
+        [threadID]: rest,
+      };
+    }
+
+    return {
+      ...state,
+      messageStore: {
+        ...state.messageStore,
+        threads: updatedMessageStoreThreads,
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -944,7 +965,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 53,
+  version: 54,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
