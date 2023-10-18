@@ -15,6 +15,7 @@ import type {
   ComposableMessageInfo,
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
+import type { GlobalTheme } from 'lib/types/theme-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { NavContextType } from './navigation-context.js';
@@ -43,7 +44,6 @@ import {
 import type { RemoveEditMode } from '../chat/message-list-types';
 import { useSelector } from '../redux/redux-utils.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
-import type { GlobalTheme } from '../types/themes.js';
 
 const baseCreateIsForegroundSelector = (routeName: string) =>
   createSelector(

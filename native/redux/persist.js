@@ -58,6 +58,7 @@ import {
   defaultConnectionInfo,
   type ConnectionInfo,
 } from 'lib/types/socket-types.js';
+import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -90,7 +91,6 @@ import { unshimClientDB } from './unshim-utils.js';
 import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
-import { defaultGlobalThemeInfo } from '../types/themes.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 
 const migrations = {

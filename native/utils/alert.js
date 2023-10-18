@@ -2,8 +2,12 @@
 
 import { Alert } from 'react-native';
 
+import {
+  defaultGlobalThemeInfo,
+  type GlobalTheme,
+} from 'lib/types/theme-types.js';
+
 import { store } from '../redux/redux-setup.js';
-import { type GlobalTheme, defaultGlobalThemeInfo } from '../types/themes.js';
 
 type AlertWrapper = {
   +alert: typeof Alert.alert,

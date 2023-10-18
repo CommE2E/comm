@@ -6,17 +6,17 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 
 import type { Dispatch } from 'lib/types/redux-types.js';
+import type {
+  GlobalThemeInfo,
+  GlobalThemePreference,
+} from 'lib/types/theme-types.js';
 
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { updateThemeInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
-import {
-  type GlobalThemePreference,
-  type GlobalThemeInfo,
-  osCanTheme,
-} from '../types/themes.js';
+import { osCanTheme } from '../types/themes.js';
 
 const CheckIcon = () => (
   <SWMansionIcon
