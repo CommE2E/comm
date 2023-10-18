@@ -1,6 +1,7 @@
 // @flow
 
 import { logInActionTypes, logInRawAction } from 'lib/actions/user-actions.js';
+import type { InitialNotifMessageOptions } from 'lib/shared/crypto-utils.js';
 import type { LogInActionSource } from 'lib/types/account-types.js';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils.js';
 import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
@@ -10,7 +11,6 @@ import { fetchNativeKeychainCredentials } from './native-credentials.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { store } from '../redux/redux-setup.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import type { InitialNotifMessageOptions } from '../utils/crypto-utils.js';
 
 async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,
