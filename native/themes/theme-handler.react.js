@@ -10,7 +10,7 @@ import type { GlobalTheme, GlobalThemeInfo } from 'lib/types/theme-types.js';
 
 import { updateThemeInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { osCanTheme } from '../types/themes.js';
+import { osCanTheme } from '../themes/theme-utils.js';
 
 function ThemeHandler(): null {
   const globalThemeInfo = useSelector(state => state.globalThemeInfo);
