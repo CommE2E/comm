@@ -5,6 +5,7 @@ import { View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 
+import { updateThemeInfoActionType } from 'lib/actions/theme-actions.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import type {
   GlobalThemeInfo,
@@ -13,7 +14,6 @@ import type {
 
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { updateThemeInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import { osCanTheme } from '../themes/theme-utils.js';

@@ -5,10 +5,10 @@ import * as React from 'react';
 import { Appearance } from 'react-native';
 import { useDispatch } from 'react-redux';
 
+import { updateThemeInfoActionType } from 'lib/actions/theme-actions.js';
 import type { Shape } from 'lib/types/core.js';
 import type { GlobalTheme, GlobalThemeInfo } from 'lib/types/theme-types.js';
 
-import { updateThemeInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { osCanTheme } from '../themes/theme-utils.js';
 
