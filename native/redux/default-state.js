@@ -7,6 +7,7 @@ import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
@@ -15,7 +16,6 @@ import type { AppState } from './state-types.js';
 import { defaultNavInfo } from '../navigation/default-state.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { defaultConnectivityInfo } from '../types/connectivity.js';
-import { defaultGlobalThemeInfo } from '../types/themes.js';
 import { defaultURLPrefix, natNodeServer } from '../utils/url-utils.js';
 
 const defaultState = ({
