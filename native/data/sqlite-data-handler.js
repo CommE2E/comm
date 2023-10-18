@@ -13,6 +13,7 @@ import {
   urlPrefixSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import {
   logInActionSources,
   type LogInActionSource,
@@ -27,7 +28,7 @@ import { setStoreLoadedActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { StaffContext } from '../staff/staff-context.js';
 import Alert from '../utils/alert.js';
-import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
+import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
@@ -58,7 +59,7 @@ function SQLiteDataHandler(): React.Node {
   );
   const mediaCacheContext = React.useContext(MediaCacheContext);
   const getInitialNotificationsEncryptedMessage =
-    useInitialNotificationsEncryptedMessage();
+    useInitialNotificationsEncryptedMessage(nativeNotificationsSessionCreator);
 
   const callFetchNewCookieFromNativeCredentials = React.useCallback(
     async (source: LogInActionSource) => {
