@@ -4,7 +4,7 @@ import '@ethersproject/shims';
 
 import { ethers } from 'ethers';
 
-import type { EthersProvider } from 'lib/utils/ens-cache.js';
+import type { EthersProvider } from 'lib/types/ethers-types.js';
 
 let alchemyKey;
 try {
