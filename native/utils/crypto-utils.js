@@ -1,54 +1,21 @@
 // @flow
 
-import * as React from 'react';
-
-import {
-  getOlmSessionInitializationData,
-  getOlmSessionInitializationDataActionTypes,
-} from 'lib/actions/user-actions.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
-import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
+import type { OLMIdentityKeys } from 'lib/types/crypto-types';
+import type { OlmSessionInitializationInfo } from 'lib/types/request-types';
 
 import { commCoreModule } from '../native-modules.js';
 
-function useInitialNotificationsEncryptedMessage(): (
-  callServerEndpointOptions?: ?CallServerEndpointOptions,
-) => Promise<string> {
-  const callGetOlmSessionInitializationData = useServerCall(
-    getOlmSessionInitializationData,
-  );
-  const dispatchActionPromise = useDispatchActionPromise();
-
-  return React.useCallback(
-    async callServerEndpointOptions => {
-      const olmSessionDataPromise = callGetOlmSessionInitializationData(
-        callServerEndpointOptions,
-      );
-
-      dispatchActionPromise(
-        getOlmSessionInitializationDataActionTypes,
-        olmSessionDataPromise,
-      );
-
-      const { signedIdentityKeysBlob, notifInitializationInfo } =
-        await olmSessionDataPromise;
-
-      const { notificationIdentityPublicKeys } = JSON.parse(
-        signedIdentityKeysBlob.payload,
-      );
-
-      const { prekey, prekeySignature, oneTimeKey } = notifInitializationInfo;
-      return await commCoreModule.initializeNotificationsSession(
-        JSON.stringify(notificationIdentityPublicKeys),
-        prekey,
-        prekeySignature,
-        oneTimeKey,
-      );
-    },
-    [callGetOlmSessionInitializationData, dispatchActionPromise],
+function nativeNotificationsSessionCreator(
+  notificationsIdentityKeys: OLMIdentityKeys,
+  notificationsInitializationInfo: OlmSessionInitializationInfo,
+): Promise<string> {
+  const { prekey, prekeySignature, oneTimeKey } =
+    notificationsInitializationInfo;
+  return commCoreModule.initializeNotificationsSession(
+    JSON.stringify(notificationsIdentityKeys),
+    prekey,
+    prekeySignature,
+    oneTimeKey,
   );
 }
 
@@ -60,4 +27,4 @@ async function getContentSigningKey(): Promise<string> {
   return ed25519;
 }
 
-export { useInitialNotificationsEncryptedMessage, getContentSigningKey };
+export { getContentSigningKey, nativeNotificationsSessionCreator };

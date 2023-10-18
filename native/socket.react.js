@@ -14,6 +14,7 @@ import {
 } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import {
@@ -37,7 +38,7 @@ import {
   nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors.js';
 import Alert from './utils/alert.js';
-import { useInitialNotificationsEncryptedMessage } from './utils/crypto-utils.js';
+import { nativeNotificationsSessionCreator } from './utils/crypto-utils.js';
 import { decompressMessage } from './utils/decompress.js';
 
 const NativeSocket: React.ComponentType<BaseSocketProps> =
@@ -65,7 +66,9 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const preRequestUserState = useSelector(preRequestUserStateSelector);
 
     const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage();
+      useInitialNotificationsEncryptedMessage(
+        nativeNotificationsSessionCreator,
+      );
 
     const getClientResponses = useSelector(state =>
       nativeGetClientResponsesSelector({
