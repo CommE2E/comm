@@ -85,23 +85,15 @@ function SQLiteDataHandler(): React.Node {
 
   const callClearSensitiveData = React.useCallback(
     async (triggeredBy: string) => {
-      if (staffCanSee || staffUserHasBeenLoggedIn) {
-        Alert.alert('Starting SQLite database deletion process');
-      }
       await commCoreModule.clearSensitiveData();
       try {
         await filesystemMediaCache.clearCache();
       } catch {
         throw new Error('clear_media_cache_failed');
       }
-      if (staffCanSee || staffUserHasBeenLoggedIn) {
-        Alert.alert(
-          'SQLite database successfully deleted',
-          `SQLite database deletion was triggered by ${triggeredBy}`,
-        );
-      }
+      console.log(`SQLite database deletion was triggered by ${triggeredBy}`);
     },
-    [staffCanSee, staffUserHasBeenLoggedIn],
+    [],
   );
 
   const handleSensitiveData = React.useCallback(async () => {
