@@ -5,7 +5,8 @@ use tracing::error;
 
 use crate::{
   client_service::client_proto::{
-    IdentityKeyInfo, InboundKeyInfo, OutboundKeyInfo, PreKey,
+    DeviceKeyUpload, IdentityKeyInfo, InboundKeyInfo, OutboundKeyInfo, PreKey,
+    RegistrationStartRequest, ReservedRegistrationStartRequest,
   },
   constants::{
     CONTENT_ONE_TIME_KEY, NOTIF_ONE_TIME_KEY,
@@ -126,4 +127,114 @@ fn create_prekey(
     pre_key: extract_key(device_info, key_attr)?,
     pre_key_signature: extract_key(device_info, signature_attr)?,
   })
+}
+
+pub trait DeviceKeyUploadData {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload>;
+  fn username(&self) -> &str;
+}
+
+impl DeviceKeyUploadData for RegistrationStartRequest {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
+    self.device_key_upload.as_ref()
+  }
+  fn username(&self) -> &str {
+    &self.username
+  }
+}
+
+impl DeviceKeyUploadData for ReservedRegistrationStartRequest {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
+    self.device_key_upload.as_ref()
+  }
+  fn username(&self) -> &str {
+    &self.username
+  }
+}
+
+pub trait DeviceKeyUploadActions {
+  fn username(&self) -> String;
+  fn payload(&self) -> Result<String, Status>;
+  fn payload_signature(&self) -> Result<String, Status>;
+  fn content_prekey(&self) -> Result<String, Status>;
+  fn content_prekey_signature(&self) -> Result<String, Status>;
+  fn notif_prekey(&self) -> Result<String, Status>;
+  fn notif_prekey_signature(&self) -> Result<String, Status>;
+  fn one_time_content_prekeys(&self) -> Result<Vec<String>, Status>;
+  fn one_time_notif_prekeys(&self) -> Result<Vec<String>, Status>;
+  fn device_type(&self) -> Result<i32, Status>;
+}
+
+impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
+  fn username(&self) -> String {
+    self.username().to_string()
+  }
+
+  fn payload(&self) -> Result<String, Status> {
+    self
+      .device_key_upload()
+      .and_then(|upload| upload.device_key_info.as_ref())
+      .map(|info| info.payload.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+
+  fn payload_signature(&self) -> Result<String, Status> {
+    self
+      .device_key_upload()
+      .and_then(|upload| upload.device_key_info.as_ref())
+      .map(|info| info.payload_signature.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+
+  fn content_prekey(&self) -> Result<String, Status> {
+    self
+      .device_key_upload()
+      .and_then(|upload| upload.content_upload.as_ref())
+      .map(|prekey| prekey.pre_key.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+
+  fn content_prekey_signature(&self) -> Result<String, Status> {
+    self
+      .device_key_upload()
+      .and_then(|upload| upload.content_upload.as_ref())
+      .map(|prekey| prekey.pre_key_signature.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+
+  fn notif_prekey(&self) -> Result<String, Status> {
+    self
+      .device_key_upload()
+      .and_then(|upload| upload.notif_upload.as_ref())
+      .map(|prekey| prekey.pre_key.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+
+  fn notif_prekey_signature(&self) -> Result<String, Status> {
+    self
+      .device_key_upload()
+      .and_then(|upload| upload.notif_upload.as_ref())
+      .map(|prekey| prekey.pre_key_signature.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+
+  fn one_time_content_prekeys(&self) -> Result<Vec<String>, Status> {
+    self
+      .device_key_upload()
+      .map(|upload| upload.one_time_content_prekeys.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+
+  fn one_time_notif_prekeys(&self) -> Result<Vec<String>, Status> {
+    self
+      .device_key_upload()
+      .map(|upload| upload.one_time_notif_prekeys.clone())
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+  fn device_type(&self) -> Result<i32, Status> {
+    self
+      .device_key_upload()
+      .map(|upload| upload.device_type)
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
 }
