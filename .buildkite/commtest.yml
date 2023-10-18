@@ -1,0 +1,13 @@
+steps:
+  - label: ':docker: Run Commtest'
+    plugins:
+      - docker-compose#v4.14.0:
+          run: commtest
+          command: ['bash', 'run-tests-ci.sh']
+          config:
+            - services/docker-compose.yml
+            - services/docker-compose.tests.yml
+          upload-container-logs: always
+          build-parallel: true
+    agents:
+      - 'autoscaling=true'
