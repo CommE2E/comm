@@ -32,7 +32,7 @@ use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
 };
 use crate::error::Error as DBError;
-use crate::grpc_utils::DeviceInfoWithAuth;
+use crate::grpc_utils::{DeviceInfoWithAuth, DeviceKeyUploadActions};
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
@@ -105,18 +105,14 @@ impl IdentityClientService for ClientService {
     let message = request.into_inner();
     debug!("Received registration request for: {}", message.username);
 
-    let username_taken = self
-      .client
-      .username_taken(message.username.clone())
-      .await
-      .map_err(handle_db_error)?;
+    self.check_username_taken(&message.username).await?;
     let username_in_reserved_usernames_table = self
       .client
       .username_in_reserved_usernames_table(&message.username)
       .await
       .map_err(handle_db_error)?;
 
-    if username_taken || username_in_reserved_usernames_table {
+    if username_in_reserved_usernames_table {
       return Err(tonic::Status::already_exists("username already exists"));
     }
 
@@ -126,73 +122,26 @@ impl IdentityClientService for ClientService {
       return Err(tonic::Status::invalid_argument("username reserved"));
     }
 
-    if let client_proto::RegistrationStartRequest {
-      opaque_registration_request: register_message,
-      username,
-      device_key_upload:
-        Some(client_proto::DeviceKeyUpload {
-          device_key_info:
-            Some(client_proto::IdentityKeyInfo {
-              payload,
-              payload_signature,
-              social_proof: _social_proof,
-            }),
-          content_upload:
-            Some(client_proto::PreKey {
-              pre_key: content_prekey,
-              pre_key_signature: content_prekey_signature,
-            }),
-          notif_upload:
-            Some(client_proto::PreKey {
-              pre_key: notif_prekey,
-              pre_key_signature: notif_prekey_signature,
-            }),
-          one_time_content_prekeys,
-          one_time_notif_prekeys,
-          device_type,
-        }),
-    } = message
-    {
-      let server_registration = comm_opaque2::server::Registration::new();
-      let server_message = server_registration
-        .start(&CONFIG.server_setup, &register_message, username.as_bytes())
-        .map_err(protocol_error_to_grpc_status)?;
-      let key_info = KeyPayload::from_str(&payload)
-        .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
-      let registration_state = UserRegistrationInfo {
-        username,
-        flattened_device_key_upload: FlattenedDeviceKeyUpload {
-          device_id_key: key_info.primary_identity_public_keys.ed25519,
-          key_payload: payload,
-          key_payload_signature: payload_signature,
-          content_prekey,
-          content_prekey_signature,
-          content_one_time_keys: one_time_content_prekeys,
-          notif_prekey,
-          notif_prekey_signature,
-          notif_one_time_keys: one_time_notif_prekeys,
-          device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
-            .map_err(handle_db_error)?,
-        },
-        user_id: None,
-      };
-      let session_id = generate_uuid();
-      self
-        .cache
-        .insert(
-          session_id.clone(),
-          WorkflowInProgress::Registration(Box::new(registration_state)),
-        )
-        .await;
+    let registration_state = construct_user_registration_info(&message, None)?;
+    let server_registration = comm_opaque2::server::Registration::new();
+    let server_message = server_registration
+      .start(
+        &CONFIG.server_setup,
+        &message.opaque_registration_request,
+        message.username.as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
+    let session_id = self
+      .insert_into_cache(WorkflowInProgress::Registration(Box::new(
+        registration_state,
+      )))
+      .await;
 
-      let response = RegistrationStartResponse {
-        session_id,
-        opaque_registration_response: server_message,
-      };
-      Ok(Response::new(response))
-    } else {
-      Err(tonic::Status::invalid_argument("unexpected message data"))
-    }
+    let response = RegistrationStartResponse {
+      session_id,
+      opaque_registration_response: server_message,
+    };
+    Ok(Response::new(response))
   }
 
   async fn register_reserved_password_user_start(
@@ -200,15 +149,7 @@ impl IdentityClientService for ClientService {
     request: tonic::Request<ReservedRegistrationStartRequest>,
   ) -> Result<tonic::Response<RegistrationStartResponse>, tonic::Status> {
     let message = request.into_inner();
-    let username_taken = self
-      .client
-      .username_taken(message.username.clone())
-      .await
-      .map_err(handle_db_error)?;
-
-    if username_taken {
-      return Err(tonic::Status::already_exists("username already exists"));
-    }
+    self.check_username_taken(&message.username).await?;
 
     if CONFIG.reserved_usernames.contains(&message.username) {
       return Err(tonic::Status::invalid_argument("username reserved"));
@@ -229,75 +170,28 @@ impl IdentityClientService for ClientService {
       &message.keyserver_signature,
     )?;
 
-    if let client_proto::ReservedRegistrationStartRequest {
-      opaque_registration_request: register_message,
-      username,
-      device_key_upload:
-        Some(client_proto::DeviceKeyUpload {
-          device_key_info:
-            Some(client_proto::IdentityKeyInfo {
-              payload,
-              payload_signature,
-              social_proof: _social_proof,
-            }),
-          content_upload:
-            Some(client_proto::PreKey {
-              pre_key: content_prekey,
-              pre_key_signature: content_prekey_signature,
-            }),
-          notif_upload:
-            Some(client_proto::PreKey {
-              pre_key: notif_prekey,
-              pre_key_signature: notif_prekey_signature,
-            }),
-          one_time_content_prekeys,
-          one_time_notif_prekeys,
-          device_type,
-        }),
-      ..
-    } = message
-    {
-      let server_registration = comm_opaque2::server::Registration::new();
-      let server_message = server_registration
-        .start(&CONFIG.server_setup, &register_message, username.as_bytes())
-        .map_err(protocol_error_to_grpc_status)?;
-      let key_info = KeyPayload::from_str(&payload)
-        .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
-      let registration_state = UserRegistrationInfo {
-        username,
-        flattened_device_key_upload: FlattenedDeviceKeyUpload {
-          device_id_key: key_info.primary_identity_public_keys.ed25519,
-          key_payload: payload,
-          key_payload_signature: payload_signature,
-          content_prekey,
-          content_prekey_signature,
-          content_one_time_keys: one_time_content_prekeys,
-          notif_prekey,
-          notif_prekey_signature,
-          notif_one_time_keys: one_time_notif_prekeys,
-          device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
-            .map_err(handle_db_error)?,
-        },
-        user_id: Some(user_id),
-      };
+    let registration_state =
+      construct_user_registration_info(&message, Some(user_id))?;
+    let server_registration = comm_opaque2::server::Registration::new();
+    let server_message = server_registration
+      .start(
+        &CONFIG.server_setup,
+        &message.opaque_registration_request,
+        message.username.as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
 
-      let session_id = generate_uuid();
-      self
-        .cache
-        .insert(
-          session_id.clone(),
-          WorkflowInProgress::Registration(Box::new(registration_state)),
-        )
-        .await;
+    let session_id = self
+      .insert_into_cache(WorkflowInProgress::Registration(Box::new(
+        registration_state,
+      )))
+      .await;
 
-      let response = RegistrationStartResponse {
-        session_id,
-        opaque_registration_response: server_message,
-      };
-      Ok(Response::new(response))
-    } else {
-      Err(tonic::Status::invalid_argument("unexpected message data"))
-    }
+    let response = RegistrationStartResponse {
+      session_id,
+      opaque_registration_response: server_message,
+    };
+    Ok(Response::new(response))
   }
 
   async fn register_password_user_finish(
@@ -382,10 +276,8 @@ impl IdentityClientService for ClientService {
     let update_state = UpdateState {
       user_id: message.user_id,
     };
-    let session_id = generate_uuid();
-    self
-      .cache
-      .insert(session_id.clone(), WorkflowInProgress::Update(update_state))
+    let session_id = self
+      .insert_into_cache(WorkflowInProgress::Update(update_state))
       .await;
 
     let response = UpdateUserPasswordStartResponse {
@@ -517,13 +409,8 @@ impl IdentityClientService for ClientService {
             .map_err(handle_db_error)?,
         },
       };
-      let session_id = generate_uuid();
-      self
-        .cache
-        .insert(
-          session_id.clone(),
-          WorkflowInProgress::Login(Box::new(login_state)),
-        )
+      let session_id = self
+        .insert_into_cache(WorkflowInProgress::Login(Box::new(login_state)))
         .await;
 
       let response = Response::new(OpaqueLoginStartResponse {
@@ -1026,6 +913,29 @@ impl IdentityClientService for ClientService {
   }
 }
 
+impl ClientService {
+  async fn check_username_taken(
+    &self,
+    username: &str,
+  ) -> Result<(), tonic::Status> {
+    let username_taken = self
+      .client
+      .username_taken(username.to_string())
+      .await
+      .map_err(handle_db_error)?;
+    if username_taken {
+      return Err(tonic::Status::already_exists("username already exists"));
+    }
+    Ok(())
+  }
+
+  async fn insert_into_cache(&self, workflow: WorkflowInProgress) -> String {
+    let session_id = generate_uuid();
+    self.cache.insert(session_id.clone(), workflow).await;
+    session_id
+  }
+}
+
 pub fn handle_db_error(db_error: DBError) -> tonic::Status {
   match db_error {
     DBError::AwsSdk(DynamoDBError::InternalServerError(_))
@@ -1040,4 +950,32 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
       tonic::Status::failed_precondition("unexpected error")
     }
   }
+}
+
+fn construct_user_registration_info(
+  message: &impl DeviceKeyUploadActions,
+  user_id: Option<String>,
+) -> Result<UserRegistrationInfo, tonic::Status> {
+  let key_info = KeyPayload::from_str(&message.payload()?)
+    .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
+
+  Ok(UserRegistrationInfo {
+    username: message.username(),
+    flattened_device_key_upload: FlattenedDeviceKeyUpload {
+      device_id_key: key_info.primary_identity_public_keys.ed25519,
+      key_payload: message.payload()?,
+      key_payload_signature: message.payload_signature()?,
+      content_prekey: message.content_prekey()?,
+      content_prekey_signature: message.content_prekey_signature()?,
+      content_one_time_keys: message.one_time_content_prekeys()?,
+      notif_prekey: message.notif_prekey()?,
+      notif_prekey_signature: message.notif_prekey_signature()?,
+      notif_one_time_keys: message.one_time_notif_prekeys()?,
+      device_type: DeviceType::try_from(DBDeviceTypeInt(
+        message.device_type()?,
+      ))
+      .map_err(handle_db_error)?,
+    },
+    user_id,
+  })
 }
