@@ -15,6 +15,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
+import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
@@ -25,7 +26,6 @@ import type { NavInfo } from '../navigation/default-state.js';
 import type { DeviceCameraInfo } from '../types/camera.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
 import type { LocalSettings } from '../types/local-settings-types.js';
-import type { GlobalThemeInfo } from '../types/themes.js';
 
 export type AppState = {
   +navInfo: NavInfo,

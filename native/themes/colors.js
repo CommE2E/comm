@@ -4,11 +4,12 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
 
+import type { GlobalTheme } from 'lib/types/theme-types.js';
+
 import { selectBackgroundIsDark } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { AppState } from '../redux/state-types.js';
-import type { GlobalTheme } from '../types/themes.js';
 
 const designSystemColors = Object.freeze({
   shadesWhite100: '#ffffff',

@@ -3,8 +3,9 @@
 import _memoize from 'lodash/memoize.js';
 import { Platform } from 'react-native';
 
+import { type GlobalTheme } from 'lib/types/theme-types.js';
+
 import { getStylesForTheme } from '../themes/colors.js';
-import type { GlobalTheme } from '../types/themes.js';
 
 const unboundStyles = {
   link: {
