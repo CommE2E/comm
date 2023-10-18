@@ -1,12 +1,12 @@
-// Messages sent between Tunnelbroker and a device
+//! The first message sent from WebSocket client to Tunnelbroker.
 
 use serde::{Deserialize, Serialize};
 
-/// The workflow when estabilishing a Tunnelbroker connection:
+/// The workflow when establishing a Tunnelbroker connection:
 ///   - Client sends ConnectionInitializationMessage
 ///   - Tunnelbroker validates access_token with identity service
 ///   - Tunnelbroker emits an AMQP message declaring that it has opened a new
-///     connection with a given device, so that the respective tunnelbroker
+///     connection with a given device, so that the respective Tunnelbroker
 ///     instance can close the existing connection.
 ///   - Tunnelbroker returns a session_id representing that the connection was
 ///     accepted

@@ -1,5 +1,5 @@
-// Message sent from Tunnelbroker to WebSocket clients to inform that message
-// was processed, saved in DDB and will be delivered.
+//! Message sent from Tunnelbroker to WebSocket clients to inform that message
+//! was processed, saved in DDB, and will be delivered.
 
 use serde::{Deserialize, Serialize};
 

@@ -1,4 +1,4 @@
-// Messages sent between Tunnelbroker and a device
+//! Messages sent from Tunnelbroker to a device.
 
 use serde::{Deserialize, Serialize};
 
