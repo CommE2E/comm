@@ -45,6 +45,7 @@ import {
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import type { GlobalTheme } from '../../types/themes.js';
 import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
@@ -62,6 +63,7 @@ type Props = {
   +threadInfo: ResolvedThreadInfo,
   +shouldUseDeleteConfirmationAlert: boolean,
   +loadingStatus: LoadingStatus,
+  +activeTheme: ?GlobalTheme,
   +colors: Colors,
   +styles: typeof unboundStyles,
   // Redux dispatch functions
@@ -267,6 +269,7 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> =
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
     const loadingStatus = useSelector(loadingStatusSelector);
+    const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
 
     const colors = useColors();
     const styles = useStyles(unboundStyles);
@@ -287,6 +290,7 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> =
         threadInfo={resolvedThreadInfo}
         shouldUseDeleteConfirmationAlert={shouldUseDeleteConfirmationAlert}
         loadingStatus={loadingStatus}
+        activeTheme={activeTheme}
         colors={colors}
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}

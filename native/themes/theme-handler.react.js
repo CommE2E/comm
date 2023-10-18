@@ -6,11 +6,14 @@ import { Appearance } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import type { Shape } from 'lib/types/core.js';
-import type { GlobalTheme, GlobalThemeInfo } from 'lib/types/theme-types.js';
 
 import { updateThemeInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { osCanTheme } from '../types/themes.js';
+import {
+  type GlobalTheme,
+  type GlobalThemeInfo,
+  osCanTheme,
+} from '../types/themes.js';
 
 function ThemeHandler(): null {
   const globalThemeInfo = useSelector(state => state.globalThemeInfo);

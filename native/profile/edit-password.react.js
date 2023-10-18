@@ -31,6 +31,7 @@ import TextInput from '../components/text-input.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { GlobalTheme } from '../types/themes.js';
 import Alert from '../utils/alert.js';
 
 type BaseProps = {
@@ -42,6 +43,7 @@ type Props = {
   // Redux state
   +loadingStatus: LoadingStatus,
   +username: ?string,
+  +activeTheme: ?GlobalTheme,
   +colors: Colors,
   +styles: typeof unboundStyles,
   // Redux dispatch functions
@@ -349,6 +351,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> =
       }
       return undefined;
     });
+    const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
     const colors = useColors();
     const styles = useStyles(unboundStyles);
 
@@ -360,6 +363,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> =
         {...props}
         loadingStatus={loadingStatus}
         username={username}
+        activeTheme={activeTheme}
         colors={colors}
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}

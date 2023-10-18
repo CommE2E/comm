@@ -25,7 +25,6 @@ import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
-import type { GlobalTheme } from 'lib/types/theme-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
@@ -79,6 +78,7 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { RootContext, type RootContextType } from '../root-context.js';
 import type { EventSubscription } from '../types/react-native.js';
+import { type GlobalTheme } from '../types/themes.js';
 import Alert from '../utils/alert.js';
 
 LogBox.ignoreLogs([
