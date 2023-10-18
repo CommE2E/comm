@@ -16,8 +16,9 @@ use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tracing::{debug, error, info};
 use tunnelbroker_messages::{
-  send_confirmation::Failure, send_confirmation::MessageSentStatus,
-  session::DeviceTypes, MessageToDeviceRequest, Messages,
+  message_to_device_request_status::Failure,
+  message_to_device_request_status::MessageSentStatus, session::DeviceTypes,
+  MessageToDeviceRequest, Messages,
 };
 
 use crate::database::{self, DatabaseClient, DeviceMessage};
