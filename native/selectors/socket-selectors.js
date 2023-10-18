@@ -106,7 +106,7 @@ const nativeGetClientResponsesSelector: (
       getClientResponsesFunc: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-        getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
+        getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
         getInitialNotificationsEncryptedMessage: ?() => Promise<string>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
       ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
