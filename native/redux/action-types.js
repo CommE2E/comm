@@ -5,7 +5,6 @@ import type { Orientations } from 'react-native-orientation-locker';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
 import type { Shape } from 'lib/types/core.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
-import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 
 import type { DimensionsInfo } from './dimensions-updater.react.js';
 import type { AppState } from './state-types.js';
@@ -15,7 +14,6 @@ import type { LocalSettings } from '../types/local-settings-types.js';
 
 export const updateDimensionsActiveType = 'UPDATE_DIMENSIONS';
 export const updateConnectivityActiveType = 'UPDATE_CONNECTIVITY';
-export const updateThemeInfoActionType = 'UPDATE_THEME_INFO';
 export const updateDeviceCameraInfoActionType = 'UPDATE_DEVICE_CAMERA_INFO';
 export const updateDeviceOrientationActionType = 'UPDATE_DEVICE_ORIENTATION';
 export const setStoreLoadedActionType = 'SET_STORE_LOADED';
@@ -43,10 +41,6 @@ export type Action =
   | {
       +type: 'UPDATE_CONNECTIVITY',
       +payload: ConnectivityInfo,
-    }
-  | {
-      +type: 'UPDATE_THEME_INFO',
-      +payload: Shape<GlobalThemeInfo>,
     }
   | {
       +type: 'UPDATE_DEVICE_CAMERA_INFO',
