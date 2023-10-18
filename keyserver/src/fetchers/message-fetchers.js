@@ -6,6 +6,7 @@ import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
   isInvalidSidebarSource,
+  isUnableToBeRenderedOnItsOwn,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
@@ -890,10 +891,11 @@ async function rawMessageInfoForRowsAndRelatedMessages(
   >();
   for (const message of parsedResults) {
     const { rawMessageInfo } = message;
-    if (isInvalidSidebarSource(rawMessageInfo)) {
+    if (isUnableToBeRenderedOnItsOwn(rawMessageInfo)) {
       continue;
     }
     invariant(rawMessageInfo.id, 'rawMessageInfo.id should not be null');
+    // $FlowFixMe
     rawMessageInfoMap.set(rawMessageInfo.id, rawMessageInfo);
   }
 
