@@ -3,6 +3,7 @@
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -89,6 +90,7 @@ const defaultWebState: AppState = Object.freeze({
   threadActivityStore: {},
   initialStateLoaded: false,
   integrityStore: { threadHashes: {}, threadHashingStatus: 'starting' },
+  globalThemeInfo: defaultGlobalThemeInfo,
 });
 
 export { defaultWebState };
