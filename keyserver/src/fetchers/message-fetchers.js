@@ -246,6 +246,8 @@ function rawMessageInfoFromRows(
 
   const type = mostRecentRowType(rows);
   const messageSpec = messageSpecs[type];
+  const requiresDerivedMessages =
+    messageSpec.parseDerivedMessages !== undefined;
 
   if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
     let media;
@@ -260,27 +262,44 @@ function rawMessageInfoFromRows(
     }
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
+
+    let rawMessageInfoFromServerDBRowParams = { localID, media };
+    if (requiresDerivedMessages) {
+      rawMessageInfoFromServerDBRowParams = {
+        ...rawMessageInfoFromServerDBRowParams,
+        derivedMessages,
+      };
+    }
+
     invariant(
       messageSpec.rawMessageInfoFromServerDBRow,
       `multimedia message spec should have rawMessageInfoFromServerDBRow`,
     );
-    return messageSpec.rawMessageInfoFromServerDBRow(row, {
-      media,
-      derivedMessages,
-      localID,
-    });
+    return messageSpec.rawMessageInfoFromServerDBRow(
+      row,
+      rawMessageInfoFromServerDBRowParams,
+    );
   }
 
   const row = assertSingleRow(rows);
   const localID = localIDFromCreationString(viewer, row.creation);
+
+  let rawMessageInfoFromServerDBRowParams = { localID };
+  if (requiresDerivedMessages) {
+    rawMessageInfoFromServerDBRowParams = {
+      ...rawMessageInfoFromServerDBRowParams,
+      derivedMessages,
+    };
+  }
+
   invariant(
     messageSpec.rawMessageInfoFromServerDBRow,
     `message spec ${type} should have rawMessageInfoFromServerDBRow`,
   );
-  return messageSpec.rawMessageInfoFromServerDBRow(row, {
-    derivedMessages,
-    localID,
-  });
+  return messageSpec.rawMessageInfoFromServerDBRow(
+    row,
+    rawMessageInfoFromServerDBRowParams,
+  );
 }
 
 async function fetchMessageInfos(
