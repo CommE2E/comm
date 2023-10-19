@@ -5,6 +5,11 @@ import type { $Response, $Request } from 'express';
 import invariant from 'invariant';
 import url from 'url';
 
+import { isStaff } from 'lib/shared/staff-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isWebPlatform } from 'lib/types/device-types.js';
@@ -22,6 +27,7 @@ import {
 import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
@@ -822,12 +828,16 @@ async function isCookieMissingSignedIdentityKeysBlob(
 async function isCookieMissingOlmNotificationsSession(
   viewer: Viewer,
 ): Promise<boolean> {
+  const isStaffOrDev = isStaff(viewer.userID) || isDev;
   if (
     !viewer.platformDetails ||
     (viewer.platformDetails.platform !== 'ios' &&
-      viewer.platformDetails.platform !== 'android') ||
-    !viewer.platformDetails.codeVersion ||
-    viewer.platformDetails.codeVersion <= 222
+      viewer.platformDetails.platform !== 'android' &&
+      !(viewer.platformDetails.platform === 'web' && isStaffOrDev)) ||
+    !hasMinCodeVersion(viewer.platformDetails, {
+      native: 222,
+      web: NEXT_CODE_VERSION,
+    })
   ) {
     return false;
   }
