@@ -1,16 +1,27 @@
 // @flow
 
 import olm from '@commapp/olm';
+import invariant from 'invariant';
+import localforage from 'localforage';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
 
+import {
+  initialEncryptedMessageContent,
+  getOneTimeKeyValuesFromBlob,
+  getPrekeyValueFromBlob,
+} from 'lib/shared/crypto-utils.js';
 import type {
   SignedIdentityKeysBlob,
   CompleteCryptoStore,
   IdentityKeysBlob,
+  OLMIdentityKeys,
+  PickledOLMAccount,
 } from 'lib/types/crypto-types.js';
+import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
+import { NOTIFICATIONS_OLM_SESSION_KEY } from '../database/utils/constants.js';
 import { initOlm } from '../olm/olm-utils.js';
 import {
   setPrimaryIdentityKeys,
@@ -140,4 +151,74 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
   }, [getOrCreateCryptoStore]);
 }
 
-export { useGetSignedIdentityKeysBlob, useGetOrCreateCryptoStore };
+function useWebNotificationsSessionCreator(): (
+  notificationsIdentityKeys: OLMIdentityKeys,
+  notificationsInitializationInfo: OlmSessionInitializationInfo,
+) => Promise<string> {
+  const notificationsAccount = useSelector(
+    state => state.cryptoStore.notificationAccount,
+  );
+  const dispatch = useDispatch();
+
+  return React.useCallback(
+    async (
+      notificationsIdentityKeys: OLMIdentityKeys,
+      notificationsInitializationInfo: OlmSessionInitializationInfo,
+    ) => {
+      invariant(
+        notificationsAccount,
+        'SignedIdentityKeysBlob must be uploaded to the keyserver.',
+      );
+
+      await initOlm();
+      const account = new olm.Account();
+      account.unpickle(
+        notificationsAccount.picklingKey,
+        notificationsAccount.pickledAccount,
+      );
+
+      const notificationsPrekey = getPrekeyValueFromBlob(
+        notificationsInitializationInfo.prekey,
+      );
+      const [notificationsOneTimeKey] = getOneTimeKeyValuesFromBlob(
+        notificationsInitializationInfo.oneTimeKey,
+      );
+
+      const session = new olm.Session();
+      session.create_outbound(
+        account,
+        notificationsIdentityKeys.curve25519,
+        notificationsIdentityKeys.ed25519,
+        notificationsPrekey,
+        notificationsInitializationInfo.prekeySignature,
+        notificationsOneTimeKey,
+      );
+
+      const { body: initialNotificationsEncryptedMessage } = session.encrypt(
+        JSON.stringify(initialEncryptedMessageContent),
+      );
+
+      const updatedNotificationsAccount: PickledOLMAccount = {
+        pickledAccount: account.pickle(notificationsAccount.picklingKey),
+        picklingKey: notificationsAccount.picklingKey,
+      };
+
+      await dispatch({
+        type: setPickledNotificationAccount,
+        payload: updatedNotificationsAccount,
+      });
+
+      const pickledSession = session.pickle(notificationsAccount.picklingKey);
+      await localforage.setItem(NOTIFICATIONS_OLM_SESSION_KEY, pickledSession);
+
+      return initialNotificationsEncryptedMessage;
+    },
+    [notificationsAccount, dispatch],
+  );
+}
+
+export {
+  useGetSignedIdentityKeysBlob,
+  useGetOrCreateCryptoStore,
+  useWebNotificationsSessionCreator,
+};
