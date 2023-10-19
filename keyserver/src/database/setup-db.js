@@ -32,7 +32,7 @@ async function createTables() {
     SQL`
       CREATE TABLE cookies (
         id bigint(20) NOT NULL,
-        hash char(60) NOT NULL,
+        hash char(64) NOT NULL,
         user varchar(255) CHARSET latin1 COLLATE latin1_bin DEFAULT NULL,
         platform varchar(255) DEFAULT NULL,
         creation_time bigint(20) NOT NULL,
