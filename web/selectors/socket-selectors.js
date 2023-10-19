@@ -61,6 +61,7 @@ const sessionIdentificationSelector: (
 type WebGetClientResponsesSelectorInputType = {
   +state: AppState,
   +getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
+  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 
 const webGetClientResponsesSelector: (
@@ -74,23 +75,26 @@ const webGetClientResponsesSelector: (
     input.getSignedIdentityKeysBlob,
   (input: WebGetClientResponsesSelectorInputType) =>
     input.state.navInfo.tab === 'calendar',
+  (input: WebGetClientResponsesSelectorInputType) =>
+    input.getInitialNotificationsEncryptedMessage,
   (
       getClientResponsesFunc: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
         getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
-        getInitialNotificationsEncryptedMessage: ?() => Promise<string>,
+        getInitialNotificationsEncryptedMessage: () => Promise<string>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
       ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
       getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
       calendarActive: boolean,
+      getInitialNotificationsEncryptedMessage: () => Promise<string>,
     ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
         null,
         getSignedIdentityKeysBlob,
-        null,
+        getInitialNotificationsEncryptedMessage,
         serverRequests,
       ),
 );
