@@ -7,7 +7,6 @@ import thunk from 'redux-thunk';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
-import { updateThemeInfoActionType } from 'lib/actions/theme-actions.js';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
@@ -43,7 +42,6 @@ import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { persistConfig, setPersistor } from './persist.js';
 import { processDBStoreOperations } from './redux-utils.js';
 import type { AppState } from './state-types.js';
-import reduceGlobalThemeInfo from './theme-reducer.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import reactotron from '../reactotron.js';
@@ -143,11 +141,6 @@ function reducer(state: AppState = defaultState, action: Action) {
     return state;
   }
 
-  state = {
-    ...state,
-    globalThemeInfo: reduceGlobalThemeInfo(state.globalThemeInfo, action),
-  };
-
   if (action.type === setCustomServer) {
     return {
       ...state,
@@ -166,9 +159,6 @@ function reducer(state: AppState = defaultState, action: Action) {
       ...state,
       connectivity: action.payload,
     };
-  } else if (action.type === updateThemeInfoActionType) {
-    // Handled above by reduceGlobalThemeInfo
-    return state;
   } else if (action.type === updateDeviceCameraInfoActionType) {
     return {
       ...state,
