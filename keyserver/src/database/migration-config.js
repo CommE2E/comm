@@ -578,6 +578,11 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       }
     },
   ],
+  [
+    47,
+    () =>
+      dbQuery(SQL`ALTER TABLE cookies MODIFY COLUMN hash char(64) NOT NULL`),
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
