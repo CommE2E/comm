@@ -721,13 +721,9 @@ async function fetchDerivedMessages(
 > {
   const requiredIDs = new Set<string>();
   for (const row of rows) {
-    if (row.type === messageTypes.SIDEBAR_SOURCE) {
-      const content = JSON.parse(row.content);
-      requiredIDs.add(content.sourceMessageID);
-    } else if (row.type === messageTypes.TOGGLE_PIN) {
-      const content = JSON.parse(row.content);
-      requiredIDs.add(content.targetMessageID);
-    }
+    // parseDerivedMessages should be defined for SIDEBAR_SOURCE and TOGGLE_PIN
+    const { parseDerivedMessages } = messageSpecs[row.type];
+    parseDerivedMessages?.(row, requiredIDs);
   }
 
   const messagesByID = new Map<
