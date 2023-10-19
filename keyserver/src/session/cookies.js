@@ -5,6 +5,10 @@ import type { $Response, $Request } from 'express';
 import invariant from 'invariant';
 import url from 'url';
 
+import {
+  hasMinCodeVersion,
+  FUTURE_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isWebPlatform } from 'lib/types/device-types.js';
@@ -826,9 +830,12 @@ async function isCookieMissingOlmNotificationsSession(
   if (
     !viewer.platformDetails ||
     (viewer.platformDetails.platform !== 'ios' &&
-      viewer.platformDetails.platform !== 'android') ||
-    !viewer.platformDetails.codeVersion ||
-    viewer.platformDetails.codeVersion <= 222
+      viewer.platformDetails.platform !== 'android' &&
+      viewer.platformDetails.platform !== 'web') ||
+    !hasMinCodeVersion(viewer.platformDetails, {
+      native: 222,
+      web: FUTURE_CODE_VERSION,
+    })
   ) {
     return false;
   }
