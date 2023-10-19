@@ -36,11 +36,11 @@ function ChatMessageListContainer(props: Props): React.Node {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    if (isChatCreation && activeChatThreadID !== threadInfo?.id) {
+    if (isChatCreation && activeChatThreadID !== threadInfo.id) {
       let payload = {
-        activeChatThreadID: threadInfo?.id,
+        activeChatThreadID: threadInfo.id,
       };
-      if (threadIsPending(threadInfo?.id)) {
+      if (threadIsPending(threadInfo.id)) {
         payload = {
           ...payload,
           pendingThread: threadInfo,
@@ -60,7 +60,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     drop: item => {
       const { files } = item;
       if (inputState && files.length > 0) {
-        inputState.appendFiles(files);
+        inputState.appendFiles(threadInfo, files);
       }
     },
     collect: monitor => ({
@@ -91,9 +91,9 @@ function ChatMessageListContainer(props: Props): React.Node {
         return;
       }
       e.preventDefault();
-      inputState.appendFiles([...files]);
+      inputState.appendFiles(threadInfo, [...files]);
     },
-    [inputState],
+    [inputState, threadInfo],
   );
 
   React.useEffect(() => {

@@ -528,9 +528,10 @@ class ChatInputBar extends React.PureComponent<Props> {
   onMultimediaFileChange = async (
     event: SyntheticInputEvent<HTMLInputElement>,
   ) => {
-    const result = await this.props.inputState.appendFiles([
-      ...event.target.files,
-    ]);
+    const result = await this.props.inputState.appendFiles(
+      this.props.threadInfo,
+      [...event.target.files],
+    );
     if (!result && this.multimediaInput) {
       this.multimediaInput.value = '';
     }
