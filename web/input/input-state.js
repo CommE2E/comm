@@ -41,6 +41,7 @@ export type PendingMultimediaUpload = {
   +abort: ?() => void,
   +steps: MediaMissionStep[],
   +selectTime: number,
+  +shouldEncrypt: boolean,
 };
 
 export type TypeaheadState = {
@@ -63,7 +64,10 @@ export type InputState = {
   +draft: string,
   +textCursorPosition: number,
   +typeaheadState: TypeaheadState,
-  +appendFiles: (files: $ReadOnlyArray<File>) => Promise<boolean>,
+  +appendFiles: (
+    threadInfo: ThreadInfo,
+    files: $ReadOnlyArray<File>,
+  ) => Promise<boolean>,
   +cancelPendingUpload: (localUploadID: string) => void,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,

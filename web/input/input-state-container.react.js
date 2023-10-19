@@ -78,7 +78,6 @@ import {
   type ClientNewThreadRequest,
   type NewThreadResult,
   type ThreadInfo,
-  type RawThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -120,7 +119,6 @@ type Props = {
   +drafts: { +[key: string]: string },
   +viewerID: ?string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
-  +threadStoreThreadInfos: { +[id: string]: RawThreadInfo },
   +pendingRealizedThreadIDs: $ReadOnlyMap<string, string>,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -292,10 +290,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         ) {
           continue;
         }
+        const { shouldEncrypt } = upload;
         let assignedUploads = newlyAssignedUploads.get(messageID);
         if (!assignedUploads) {
-          assignedUploads = { threadID, uploads: [] };
+          assignedUploads = { threadID, shouldEncrypt, uploads: [] };
           newlyAssignedUploads.set(messageID, assignedUploads);
+        }
+        if (shouldEncrypt !== assignedUploads.shouldEncrypt) {
+          console.warn(
+            `skipping upload ${localUploadID} ` +
+              "because shouldEncrypt doesn't match",
+          );
+          continue;
         }
         assignedUploads.uploads.push(upload);
       }
@@ -303,7 +309,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const newMessageInfos = new Map();
     for (const [messageID, assignedUploads] of newlyAssignedUploads) {
-      const { uploads, threadID } = assignedUploads;
+      const { uploads, threadID, shouldEncrypt } = assignedUploads;
       const creatorID = this.props.viewerID;
       invariant(creatorID, 'need viewer ID in order to send a message');
       const media = uploads.map(
@@ -358,7 +364,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           creatorID,
           media,
         },
-        { forceMultimediaMessageType: this.shouldEncryptMedia(threadID) },
+        { forceMultimediaMessageType: shouldEncrypt },
       );
       newMessageInfos.set(messageID, messageInfo);
     }
@@ -402,11 +408,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return rawMessageInfo;
   }
 
-  shouldEncryptMedia(threadID: ?string): boolean {
-    if (!threadID) {
-      return false;
-    }
-    const threadInfo = this.props.threadStoreThreadInfos[threadID];
+  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
     return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
   }
 
@@ -602,8 +604,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           assignedUploads,
           draft: draft ?? '',
           textCursorPosition: textCursorPosition ?? 0,
-          appendFiles: (files: $ReadOnlyArray<File>) =>
-            this.appendFiles(threadID, files),
+          appendFiles: (threadInfo: ThreadInfo, files: $ReadOnlyArray<File>) =>
+            this.appendFiles(threadInfo, files),
           cancelPendingUpload: (localUploadID: string) =>
             this.cancelPendingUpload(threadID, localUploadID),
           sendTextMessage: (
@@ -659,16 +661,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async appendFiles(
-    threadID: ?string,
+    threadInfo: ThreadInfo,
     files: $ReadOnlyArray<File>,
   ): Promise<boolean> {
-    invariant(threadID, 'threadID should be set in appendFiles');
-
     const selectionTime = Date.now();
     const { pushModal } = this.props;
 
     const appendResults = await Promise.all(
-      files.map(file => this.appendFile(threadID, file, selectionTime)),
+      files.map(file => this.appendFile(threadInfo, file, selectionTime)),
     );
 
     if (appendResults.some(({ result }) => !result.success)) {
@@ -700,7 +700,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const newUploadsObject = _keyBy('localID')(newUploads);
     this.setState(
       prevState => {
-        const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+        const newThreadID = this.getRealizedOrPendingThreadID(threadInfo.id);
         const prevUploads = prevState.pendingUploads[newThreadID];
         const mergedUploads = prevUploads
           ? { ...prevUploads, ...newUploadsObject }
@@ -712,13 +712,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           },
         };
       },
-      () => this.uploadFiles(threadID, newUploads),
+      () => this.uploadFiles(threadInfo.id, newUploads),
     );
     return true;
   }
 
   async appendFile(
-    threadID: ?string,
+    threadInfo: ThreadInfo,
     file: File,
     selectTime: number,
   ): Promise<{
@@ -759,8 +759,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     const { uri, file: fixedFile, mediaType, dimensions } = result;
 
+    const shouldEncrypt = this.shouldEncryptMedia(threadInfo);
+
     let encryptionResult;
-    if (this.shouldEncryptMedia(threadID)) {
+    if (shouldEncrypt) {
       let encryptionResponse;
       const encryptionStart = Date.now();
       try {
@@ -813,6 +815,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           abort: null,
           steps,
           selectTime,
+          shouldEncrypt,
         },
       },
     };
@@ -1607,9 +1610,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const messageStoreMessages = useSelector(
       state => state.messageStore.messages,
     );
-    const threadStoreThreadInfos = useSelector(
-      state => state.threadStore.threadInfos,
-    );
     const pendingToRealizedThreadIDs = useSelector(state =>
       pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
     );
@@ -1651,7 +1651,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         drafts={drafts}
         viewerID={viewerID}
         messageStoreMessages={messageStoreMessages}
-        threadStoreThreadInfos={threadStoreThreadInfos}
         pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
         calendarQuery={calendarQuery}
         uploadMultimedia={callUploadMultimedia}
