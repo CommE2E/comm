@@ -12,7 +12,10 @@ import thunk from 'redux-thunk';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
-import { GetOrCreateCryptoStoreProvider } from './account/account-hooks.js';
+import {
+  GetOrCreateCryptoStoreProvider,
+  WebNotificationsSessionCreatorProvider,
+} from './account/account-hooks.js';
 import App from './app.react.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import { localforageConfig } from './database/utils/constants.js';
@@ -39,12 +42,14 @@ const RootProvider = (): React.Node => (
     <ErrorBoundary>
       <InitialReduxStateGate persistor={persistor}>
         <GetOrCreateCryptoStoreProvider>
-          <Router history={history.getHistoryObject()}>
-            <Route path="*" component={App} />
-          </Router>
-          <Socket />
-          <SQLiteDataHandler />
-          <IntegrityHandler />
+          <WebNotificationsSessionCreatorProvider>
+            <Router history={history.getHistoryObject()}>
+              <Route path="*" component={App} />
+            </Router>
+            <Socket />
+            <SQLiteDataHandler />
+            <IntegrityHandler />
+          </WebNotificationsSessionCreatorProvider>
         </GetOrCreateCryptoStoreProvider>
       </InitialReduxStateGate>
     </ErrorBoundary>
