@@ -96,7 +96,6 @@ describe('user responder validators', () => {
                 role: '83796',
                 permissions: {
                   know_of: { value: true, source: '1' },
-                  membership: { value: false, source: null },
                   visible: { value: true, source: '1' },
                   voiced: { value: true, source: '1' },
                   edit_entries: { value: true, source: '1' },
@@ -136,7 +135,6 @@ describe('user responder validators', () => {
               role: '83795',
               permissions: {
                 know_of: { value: true, source: '1' },
-                membership: { value: false, source: null },
                 visible: { value: true, source: '1' },
                 voiced: { value: false, source: null },
                 edit_entries: { value: false, source: null },
@@ -227,7 +225,6 @@ describe('user responder validators', () => {
                 role: '83796',
                 permissions: {
                   know_of: { value: true, source: '1' },
-                  membership: { value: false, source: null },
                   visible: { value: true, source: '1' },
                   voiced: { value: true, source: '1' },
                   edit_entries: { value: true, source: '1' },
@@ -253,7 +250,6 @@ describe('user responder validators', () => {
                 role: '83795',
                 permissions: {
                   know_of: { value: true, source: '1' },
-                  membership: { value: false, source: null },
                   visible: { value: true, source: '1' },
                   voiced: { value: false, source: null },
                   edit_entries: { value: false, source: null },
@@ -331,7 +327,6 @@ describe('user responder validators', () => {
               role: '83795',
               permissions: {
                 know_of: { value: true, source: '1' },
-                membership: { value: false, source: null },
                 visible: { value: true, source: '1' },
                 voiced: { value: false, source: null },
                 edit_entries: { value: false, source: null },
