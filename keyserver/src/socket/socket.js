@@ -73,7 +73,7 @@ import {
 import { handleAsyncPromise } from '../responders/handlers.js';
 import {
   fetchViewerForSocket,
-  extendCookieLifespan,
+  updateCookie,
   createNewAnonymousCookie,
   isCookieMissingSignedIdentityKeysBlob,
   isCookieMissingOlmNotificationsSession,
@@ -254,7 +254,7 @@ class Socket {
         throw new ServerError('session_mutated_from_socket');
       }
       if (clientSocketMessage.type !== clientSocketMessageTypes.PING) {
-        handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
+        handleAsyncPromise(updateCookie(viewer));
       }
       for (const response of serverResponses) {
         // Normally it's an anti-pattern to await in sequence like this. But in

@@ -725,8 +725,9 @@ async function setNewSession(
   await createSession(viewer, calendarQuery, initialLastUpdate);
 }
 
-async function extendCookieLifespan(cookieID: string) {
+async function updateCookie(viewer: Viewer) {
   const time = Date.now();
+  const { cookieID } = viewer;
   const query = SQL`
     UPDATE cookies SET last_used = ${time} WHERE id = ${cookieID}
   `;
@@ -744,7 +745,7 @@ function addCookieToJSONResponse(
     viewer.cookieInvalidated = false;
   }
   if (!viewer.getData().cookieInsertedThisRequest) {
-    handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
+    handleAsyncPromise(updateCookie(viewer));
   }
   if (viewer.sessionChanged) {
     addSessionChangeInfoToResult(viewer, res, result, appURLFacts);
@@ -759,7 +760,7 @@ function addCookieToHomeResponse(
   appURLFacts: AppURLFacts,
 ) {
   if (!viewer.getData().cookieInsertedThisRequest) {
-    handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
+    handleAsyncPromise(updateCookie(viewer));
   }
   addActualHTTPCookie(viewer, res, appURLFacts);
 }
@@ -879,7 +880,7 @@ export {
   createNewAnonymousCookie,
   createNewUserCookie,
   setNewSession,
-  extendCookieLifespan,
+  updateCookie,
   addCookieToJSONResponse,
   addCookieToHomeResponse,
   setCookieSignedIdentityKeysBlob,
