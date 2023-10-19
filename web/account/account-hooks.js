@@ -2,22 +2,43 @@
 
 import olm from '@commapp/olm';
 import invariant from 'invariant';
+import localforage from 'localforage';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
 
+import {
+  initialEncryptedMessageContent,
+  getOneTimeKeyValuesFromBlob,
+  getPrekeyValueFromBlob,
+} from 'lib/shared/crypto-utils.js';
 import type {
   SignedIdentityKeysBlob,
   CryptoStore,
   IdentityKeysBlob,
   CryptoStoreContextType,
+  OLMIdentityKeys,
+  NotificationsSessionCreatorContextType,
+  PickledOLMSession,
 } from 'lib/types/crypto-types.js';
+import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
+import {
+  generateCryptoKey,
+  encryptData,
+} from '../crypto/aes-gcm-crypto-utils.js';
+import {
+  NOTIFICATIONS_OLM_SESSION_CONTENT,
+  NOTIFICATIONS_OLM_SESSION_ENCRYPTION_KEY,
+} from '../database/utils/constants.js';
 import { initOlm } from '../olm/olm-utils.js';
 import { setCryptoStore } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const CryptoStoreContext: React.Context<?CryptoStoreContextType> =
+  React.createContext(null);
+
+const WebNotificationsSessionCreatorContext: React.Context<?NotificationsSessionCreatorContextType> =
   React.createContext(null);
 
 type Props = {
@@ -154,8 +175,133 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
   }, [getOrCreateCryptoStore]);
 }
 
+function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
+  const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
+  const currentCryptoStore = useSelector(state => state.cryptoStore);
+
+  const createNewNotificationsSession = React.useCallback(
+    async (
+      notificationsIdentityKeys: OLMIdentityKeys,
+      notificationsInitializationInfo: OlmSessionInitializationInfo,
+    ) => {
+      const [{ notificationAccount }, encryptionKey] = await Promise.all([
+        getOrCreateCryptoStore(),
+        generateCryptoKey({ extractable: false }),
+        initOlm(),
+      ]);
+
+      const account = new olm.Account();
+      const { picklingKey, pickledAccount } = notificationAccount;
+      account.unpickle(picklingKey, pickledAccount);
+
+      const notificationsPrekey = getPrekeyValueFromBlob(
+        notificationsInitializationInfo.prekey,
+      );
+      const [notificationsOneTimeKey] = getOneTimeKeyValuesFromBlob(
+        notificationsInitializationInfo.oneTimeKey,
+      );
+
+      const session = new olm.Session();
+      session.create_outbound(
+        account,
+        notificationsIdentityKeys.curve25519,
+        notificationsIdentityKeys.ed25519,
+        notificationsPrekey,
+        notificationsInitializationInfo.prekeySignature,
+        notificationsOneTimeKey,
+      );
+      const { body: initialNotificationsEncryptedMessage } = session.encrypt(
+        JSON.stringify(initialEncryptedMessageContent),
+      );
+
+      const pickledOLMSession: PickledOLMSession = {
+        picklingKey,
+        pickledSession: session.pickle(picklingKey),
+      };
+      const encryptedOlmSession = await encryptData(
+        new TextEncoder().encode(JSON.stringify(pickledOLMSession)),
+        encryptionKey,
+      );
+
+      await Promise.all([
+        localforage.setItem(
+          NOTIFICATIONS_OLM_SESSION_CONTENT,
+          encryptedOlmSession,
+        ),
+        localforage.setItem(
+          NOTIFICATIONS_OLM_SESSION_ENCRYPTION_KEY,
+          encryptionKey,
+        ),
+      ]);
+
+      return initialNotificationsEncryptedMessage;
+    },
+    [getOrCreateCryptoStore],
+  );
+
+  const notificationsSessionPromise = React.useRef<?Promise<string>>(null);
+  const createNotificationsSession = React.useCallback(
+    async (
+      notificationsIdentityKeys: OLMIdentityKeys,
+      notificationsInitializationInfo: OlmSessionInitializationInfo,
+    ) => {
+      if (notificationsSessionPromise.current) {
+        return notificationsSessionPromise.current;
+      }
+
+      const newNotificationsSessionPromise = (async () => {
+        try {
+          return await createNewNotificationsSession(
+            notificationsIdentityKeys,
+            notificationsInitializationInfo,
+          );
+        } catch (e) {
+          notificationsSessionPromise.current = undefined;
+          throw e;
+        }
+      })();
+
+      notificationsSessionPromise.current = newNotificationsSessionPromise;
+      return newNotificationsSessionPromise;
+    },
+    [createNewNotificationsSession],
+  );
+
+  const isCryptoStoreSet = !!currentCryptoStore;
+  React.useEffect(() => {
+    if (!isCryptoStoreSet) {
+      notificationsSessionPromise.current = undefined;
+    }
+  }, [isCryptoStoreSet]);
+
+  const contextValue = React.useMemo(
+    () => ({
+      notificationsSessionCreator: createNotificationsSession,
+    }),
+    [createNotificationsSession],
+  );
+
+  return (
+    <WebNotificationsSessionCreatorContext.Provider value={contextValue}>
+      {props.children}
+    </WebNotificationsSessionCreatorContext.Provider>
+  );
+}
+
+function useWebNotificationsSessionCreator(): (
+  notificationsIdentityKeys: OLMIdentityKeys,
+  notificationsInitializationInfo: OlmSessionInitializationInfo,
+) => Promise<string> {
+  const context = React.useContext(WebNotificationsSessionCreatorContext);
+  invariant(context, 'WebNotificationsSessionCreator not found.');
+
+  return context.notificationsSessionCreator;
+}
+
 export {
   useGetSignedIdentityKeysBlob,
   useGetOrCreateCryptoStore,
+  WebNotificationsSessionCreatorProvider,
+  useWebNotificationsSessionCreator,
   GetOrCreateCryptoStoreProvider,
 };
