@@ -7,6 +7,7 @@ import {
   shimUnsupportedRawMessageInfos,
   isInvalidSidebarSource,
   isUnableToBeRenderedOnItsOwn,
+  isInvalidPinSource,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
@@ -745,11 +746,21 @@ async function fetchDerivedMessages(
 
   for (const message of messages) {
     let { rawMessageInfo } = message;
-    invariant(
-      !isInvalidSidebarSource(rawMessageInfo),
-      'SIDEBAR_SOURCE or TOGGLE_PIN should not point to a ' +
-        'SIDEBAR_SOURCE, REACTION, EDIT_MESSAGE or TOGGLE_PIN',
-    );
+
+    if (rawMessageInfo.type === messageTypes.SIDEBAR_SOURCE) {
+      invariant(
+        !isInvalidSidebarSource(rawMessageInfo),
+        'SIDEBAR_SOURCE should not point to a ' +
+          'SIDEBAR_SOURCE, REACTION, EDIT_MESSAGE or TOGGLE_PIN',
+      );
+    }
+    if (rawMessageInfo.type === messageTypes.TOGGLE_PIN) {
+      invariant(
+        !isInvalidPinSource(rawMessageInfo),
+        'TOGGLE_PIN should not point to a ' + 'non-composable message type',
+      );
+    }
+
     if (rawMessageInfo.id) {
       const editedContent = edits.get(rawMessageInfo.id);
       if (editedContent && rawMessageInfo.type === messageTypes.TEXT) {
@@ -759,6 +770,7 @@ async function fetchDerivedMessages(
         };
       }
       invariant(rawMessageInfo.id, 'rawMessageInfo.id should not be null');
+      // $FlowFixMe
       messagesByID.set(rawMessageInfo.id, rawMessageInfo);
     }
   }
