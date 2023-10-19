@@ -4,7 +4,7 @@ use commtest::{identity::device::create_device, service_addr};
 async fn verify_access_token() {
   use grpc_clients::identity::unauthenticated::client::verify_user_access_token;
   let device_info = create_device(None).await;
-  let code_version = 100;
+  let code_version = 1000;
   let device_type = "android";
 
   let token_valid = verify_user_access_token(
