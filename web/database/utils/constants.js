@@ -14,6 +14,11 @@ export const DEFAULT_COMM_QUERY_EXECUTOR_FILENAME = 'comm_query_executor.wasm';
 
 export const COMM_SQLITE_DATABASE_PATH = 'comm.sqlite';
 
+export const NOTIFICATIONS_OLM_DATA_CONTENT = 'notificationsOlmDataContent';
+
+export const NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY =
+  'notificationsOlmDataEncryptionKey';
+
 export const DB_SUPPORTED_OS: $ReadOnlyArray<string> = [
   'Windows 10',
   'Linux',

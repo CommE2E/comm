@@ -12,11 +12,15 @@ import {
   connectionSelector,
   lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
+import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
-import { useGetSignedIdentityKeysBlob } from './account/account-hooks.js';
+import {
+  useGetSignedIdentityKeysBlob,
+  useWebNotificationsSessionCreator,
+} from './account/account-hooks.js';
 import { useSelector } from './redux/redux-utils.js';
 import {
   activeThreadSelector,
@@ -53,8 +57,15 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
       preRequestUserStateForSingleKeyserverSelector(ashoatKeyserverID),
     );
     const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
+    const webNotificationsSessionCreator = useWebNotificationsSessionCreator();
+    const getInitialNotificationsEncryptedMessage =
+      useInitialNotificationsEncryptedMessage(webNotificationsSessionCreator);
     const getClientResponses = useSelector(state =>
-      webGetClientResponsesSelector({ state, getSignedIdentityKeysBlob }),
+      webGetClientResponsesSelector({
+        state,
+        getSignedIdentityKeysBlob,
+        getInitialNotificationsEncryptedMessage,
+      }),
     );
     const sessionStateFunc = useSelector(
       webSessionStateFuncSelector(ashoatKeyserverID),
