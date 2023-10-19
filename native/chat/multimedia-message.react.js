@@ -242,10 +242,11 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
       props.item.threadInfo,
       props.item.messageInfo,
     );
-    const canTogglePins = threadHasPermission(
-      props.item.threadInfo,
-      threadPermissions.MANAGE_PINS,
-    );
+    const canTogglePins =
+      threadHasPermission(
+        props.item.threadInfo,
+        threadPermissions.MANAGE_PINS,
+      ) && props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
 
     return (
       <MultimediaMessage

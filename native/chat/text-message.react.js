@@ -291,10 +291,11 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       useCanEditMessageNative(props.item.threadInfo, props.item.messageInfo) &&
       !isThisMessageEdited;
 
-    const canTogglePins = threadHasPermission(
-      props.item.threadInfo,
-      threadPermissions.MANAGE_PINS,
-    );
+    const canTogglePins =
+      threadHasPermission(
+        props.item.threadInfo,
+        threadPermissions.MANAGE_PINS,
+      ) && props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
 
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 

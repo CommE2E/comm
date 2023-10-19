@@ -276,7 +276,8 @@ function useMessageTogglePinAction(
 
   const canTogglePin =
     !isInvalidPinSource(messageInfo) &&
-    threadHasPermission(threadInfo, threadPermissions.MANAGE_PINS);
+    threadHasPermission(threadInfo, threadPermissions.MANAGE_PINS) &&
+    threadInfo.sourceMessageID !== item.messageInfo.id;
 
   const inputState = React.useContext(InputStateContext);
 
