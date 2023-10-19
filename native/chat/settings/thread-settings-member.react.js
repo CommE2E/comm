@@ -23,6 +23,7 @@ import {
   type ThreadInfo,
   type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
+import { useRoleNamesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 import UserAvatar from '../../avatars/user-avatar.react.js';
@@ -55,6 +56,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
+  +roleName: ?string,
   +removeUserLoadingStatus: LoadingStatus,
   +changeRoleLoadingStatus: LoadingStatus,
   +colors: Colors,
@@ -116,14 +118,10 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       );
     }
 
-    const roleName =
-      this.props.memberInfo.role &&
-      this.props.threadInfo.roles[this.props.memberInfo.role].name;
-
     const roleInfo = (
       <View style={this.props.styles.row}>
         <Text style={this.props.styles.role} numberOfLines={1}>
-          {roleName}
+          {this.props.roleName}
         </Text>
       </View>
     );
@@ -280,10 +278,16 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
     const navigateToUserProfileBottomSheet =
       useNavigateToUserProfileBottomSheet();
 
+    const roles = useRoleNamesFromCommunityThreadInfo(props.threadInfo, [
+      props.memberInfo,
+    ]);
+    const roleName = roles.get(props.memberInfo.id)?.name;
+
     return (
       <ThreadSettingsMember
         {...props}
         memberInfo={memberInfo}
+        roleName={roleName}
         removeUserLoadingStatus={removeUserLoadingStatus}
         changeRoleLoadingStatus={changeRoleLoadingStatus}
         colors={colors}
