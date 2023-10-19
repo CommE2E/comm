@@ -3,7 +3,6 @@
 import crypto from 'crypto';
 import type { $Response, $Request } from 'express';
 import invariant from 'invariant';
-import bcrypt from 'twin-bcrypt';
 import url from 'url';
 
 import type { Shape } from 'lib/types/core.js';
@@ -26,6 +25,7 @@ import type { UserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import { getCookieHash, verifyCookieHash } from './cookie-hash.js';
 import { Viewer } from './viewer.js';
 import type { AnonymousViewerData, UserViewerData } from './viewer.js';
 import createIDs from '../creators/id-creator.js';
@@ -127,7 +127,7 @@ async function fetchUserViewer(
   const deviceToken = cookieRow.device_token;
 
   if (
-    !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
+    !verifyCookieHash(cookiePassword, cookieRow.hash) ||
     cookieIsExpired(cookieRow.last_used)
   ) {
     return {
@@ -215,7 +215,7 @@ async function fetchAnonymousViewer(
   const deviceToken = cookieRow.device_token;
 
   if (
-    !bcrypt.compareSync(cookiePassword, cookieRow.hash) ||
+    !verifyCookieHash(cookiePassword, cookieRow.hash) ||
     cookieIsExpired(cookieRow.last_used)
   ) {
     return {
@@ -609,7 +609,7 @@ async function createNewAnonymousCookie(
 
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
-  const cookieHash = bcrypt.hashSync(cookiePassword);
+  const cookieHash = getCookieHash(cookiePassword);
   const [[id]] = await Promise.all([
     createIDs('cookies', 1),
     deviceToken ? clearDeviceToken(deviceToken) : undefined,
@@ -671,7 +671,7 @@ async function createNewUserCookie(
 
   const time = Date.now();
   const cookiePassword = crypto.randomBytes(32).toString('hex');
-  const cookieHash = bcrypt.hashSync(cookiePassword);
+  const cookieHash = getCookieHash(cookiePassword);
   const [[cookieID]] = await Promise.all([
     createIDs('cookies', 1),
     deviceToken ? clearDeviceToken(deviceToken) : undefined,
