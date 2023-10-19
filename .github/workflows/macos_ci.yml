@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build macOS app
-    runs-on: macos-12
+    runs-on: macos-13
 
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
           PROVISIONPROFILE_PATH=$GITHUB_WORKSPACE/desktop/macOS_App_Provisioning_Profile.provisionprofile
 
           # import certificate from secrets
-          echo -n "$MACOS_BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          echo -n "$MACOS_BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
           # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -45,7 +45,7 @@ jobs:
           security list-keychain -d user -s $KEYCHAIN_PATH
 
           # import provisioning profile from secrets
-          echo -n "$MACOS_PROVISIONPROFILE_BASE64" | base64 --decode --output $PROVISIONPROFILE_PATH
+          echo -n "$MACOS_PROVISIONPROFILE_BASE64" | base64 --decode -o $PROVISIONPROFILE_PATH
       - name: sudo ./install_protobuf.sh
         working-directory: ./scripts
         run: sudo ./install_protobuf.sh
