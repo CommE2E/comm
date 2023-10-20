@@ -23,6 +23,7 @@ import {
   defaultConnectionInfo,
   type ConnectionInfo,
 } from 'lib/types/socket-types.js';
+import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import {
@@ -163,6 +164,10 @@ const migrations = {
       },
     };
   },
+  [8]: async state => ({
+    ...state,
+    globalThemeInfo: defaultGlobalThemeInfo,
+  }),
 };
 
 const persistWhitelist = [
@@ -172,6 +177,7 @@ const persistWhitelist = [
   'notifPermissionAlertInfo',
   'commServicesAccessToken',
   'keyserverStore',
+  'globalThemeInfo',
 ];
 
 const rootKey = 'root';
@@ -275,7 +281,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 7,
+  version: 8,
   transforms: [keyserverStoreTransform],
 };
 
