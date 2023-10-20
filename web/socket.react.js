@@ -17,6 +17,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { useSelector } from './redux/redux-utils.js';
 import {
@@ -67,7 +68,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const callLogOut = useServerCall(logOut);
 
     const lastCommunicatedPlatformDetails = useSelector(
-      lastCommunicatedPlatformDetailsSelector,
+      lastCommunicatedPlatformDetailsSelector(ashoatKeyserverID),
     );
 
     return (
