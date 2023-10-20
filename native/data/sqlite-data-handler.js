@@ -108,10 +108,6 @@ function SQLiteDataHandler(): React.Node {
       if (currentLoggedInUserID) {
         await commCoreModule.setCurrentUserID(currentLoggedInUserID);
       }
-      const databaseDeviceID = await commCoreModule.getDeviceID();
-      if (!databaseDeviceID) {
-        await commCoreModule.setDeviceID('MOBILE');
-      }
     } catch (e) {
       if (isTaskCancelledError(e)) {
         return;

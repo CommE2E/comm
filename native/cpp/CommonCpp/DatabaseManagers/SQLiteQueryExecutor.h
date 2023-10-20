@@ -76,8 +76,6 @@ public:
   void clearNotifyToken() const override;
   void setCurrentUserID(std::string userID) const override;
   std::string getCurrentUserID() const override;
-  void setDeviceID(std::string deviceID) const override;
-  std::string getDeviceID() const override;
   void setMetadata(std::string entry_name, std::string data) const override;
   void clearMetadata(std::string entry_name) const override;
   std::string getMetadata(std::string entry_name) const override;
