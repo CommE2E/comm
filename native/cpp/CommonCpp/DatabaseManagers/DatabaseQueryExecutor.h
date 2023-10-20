@@ -72,8 +72,6 @@ public:
   virtual void clearNotifyToken() const = 0;
   virtual void setCurrentUserID(std::string userID) const = 0;
   virtual std::string getCurrentUserID() const = 0;
-  virtual void setDeviceID(std::string deviceID) const = 0;
-  virtual std::string getDeviceID() const = 0;
   virtual void setMetadata(std::string entry_name, std::string data) const = 0;
   virtual void clearMetadata(std::string entry_name) const = 0;
   virtual std::string getMetadata(std::string entry_name) const = 0;
