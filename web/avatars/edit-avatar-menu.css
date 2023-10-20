@@ -7,16 +7,19 @@
   right: 0;
   width: 34px;
   height: 34px;
-  color: var(--fg);
-  background-color: var(--edit-avatar-button);
-  border: 2px solid var(--bg);
+  color: var(--button-label-primary-default);
+  background-color: var(--button-background-primary-default);
+  /* We want the border color of the edit avatar badge to always 
+  match the panel background color */
+  border: 2px solid var(--panel-background-primary-default);
   border-radius: 50%;
   cursor: pointer;
   transition-duration: 200ms;
 }
 
 .editAvatarBadge:hover {
-  filter: brightness(0.8);
+  background-color: var(--button-background-primary-hover);
+  color: var(--button-label-primary-hover);
 }
 
 input[type='file'] {

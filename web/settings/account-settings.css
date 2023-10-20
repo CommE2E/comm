@@ -1,11 +1,16 @@
 .container {
+  flex: 1;
+  background-color: var(--panel-background-primary-default);
+}
+
+.contentContainer {
   padding: 40px;
   width: 456px;
   overflow-y: auto;
 }
 
 .header {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   font-weight: var(--semi-bold);
   line-height: var(--line-height-display);
   padding-bottom: 55px;
@@ -20,7 +25,7 @@
 }
 
 .content li {
-  color: var(--account-settings-label);
+  color: var(--text-background-tertiary-default);
   padding: 24px 16px 16px;
   display: flex;
   flex-direction: row;
@@ -28,26 +33,25 @@
 }
 
 .content li:not(:last-child) {
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--seperator-background-primary-default);
 }
 
 .logoutContainer {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--fg);
 }
 
 .logoutLabel {
-  color: var(--account-settings-label);
+  color: var(--text-background-tertiary-default);
 }
 
 .username {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
 }
 
 .buttonText {
-  color: var(--account-button-color);
+  color: var(--link-background-primary-default);
   line-height: var(--line-height-text);
 }
 
@@ -61,7 +65,7 @@
 }
 
 .editPasswordLink {
-  color: var(--account-settings-label);
+  color: var(--text-background-tertiary-default);
   cursor: pointer;
 }
 
@@ -70,7 +74,7 @@
 }
 
 .preferencesHeader {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   font-weight: var(--semi-bold);
   line-height: var(--line-height-display);
 }
