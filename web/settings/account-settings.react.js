@@ -106,35 +106,37 @@ function AccountSettings(): React.Node {
 
   return (
     <div className={css.container}>
-      <h4 className={css.header}>My Account</h4>
-      <EditUserAvatar userID={currentUserInfo.id} />
-      <div className={css.content}>
-        <ul>
-          <li>
-            <p className={css.logoutContainer}>
-              <span className={css.logoutLabel}>{'Logged in as '}</span>
-              <span className={css.username}>{stringForUser}</span>
-            </p>
-            <Button variant="text" onClick={logOutUser}>
-              <p className={css.buttonText}>Log out</p>
-            </Button>
-          </li>
-          {changePasswordSection}
-          <li>
-            <span>Friend List</span>
-            <Button variant="text" onClick={openFriendList}>
-              <p className={css.buttonText}>See List</p>
-            </Button>
-          </li>
-          <li>
-            <span>Block List</span>
-            <Button variant="text" onClick={openBlockList}>
-              <p className={css.buttonText}>See List</p>
-            </Button>
-          </li>
-        </ul>
+      <div className={css.contentContainer}>
+        <h4 className={css.header}>My Account</h4>
+        <EditUserAvatar userID={currentUserInfo.id} />
+        <div className={css.content}>
+          <ul>
+            <li>
+              <p className={css.logoutContainer}>
+                <span className={css.logoutLabel}>{'Logged in as '}</span>
+                <span className={css.username}>{stringForUser}</span>
+              </p>
+              <Button variant="text" onClick={logOutUser}>
+                <p className={css.buttonText}>Log out</p>
+              </Button>
+            </li>
+            {changePasswordSection}
+            <li>
+              <span>Friend List</span>
+              <Button variant="text" onClick={openFriendList}>
+                <p className={css.buttonText}>See List</p>
+              </Button>
+            </li>
+            <li>
+              <span>Block List</span>
+              <Button variant="text" onClick={openBlockList}>
+                <p className={css.buttonText}>See List</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+        {preferences}
       </div>
-      {preferences}
     </div>
   );
 }
