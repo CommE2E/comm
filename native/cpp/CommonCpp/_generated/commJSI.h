@@ -47,8 +47,6 @@ public:
   virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
   virtual jsi::Value setCurrentUserID(jsi::Runtime &rt, jsi::String userID) = 0;
   virtual jsi::Value getCurrentUserID(jsi::Runtime &rt) = 0;
-  virtual jsi::Value setDeviceID(jsi::Runtime &rt, jsi::String deviceType) = 0;
-  virtual jsi::Value getDeviceID(jsi::Runtime &rt) = 0;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) = 0;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) = 0;
@@ -294,22 +292,6 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getCurrentUserID, jsInvoker_, instance_);
-    }
-    jsi::Value setDeviceID(jsi::Runtime &rt, jsi::String deviceType) override {
-      static_assert(
-          bridging::getParameterCount(&T::setDeviceID) == 2,
-          "Expected setDeviceID(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::setDeviceID, jsInvoker_, instance_, std::move(deviceType));
-    }
-    jsi::Value getDeviceID(jsi::Runtime &rt) override {
-      static_assert(
-          bridging::getParameterCount(&T::getDeviceID) == 1,
-          "Expected getDeviceID(...) to have 1 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::getDeviceID, jsInvoker_, instance_);
     }
     jsi::Value clearSensitiveData(jsi::Runtime &rt) override {
       static_assert(

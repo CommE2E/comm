@@ -1,5 +1,4 @@
 #include "CommCoreModule.h"
-#include "../CryptoTools/DeviceID.h"
 #include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
 #include "BaseDataStore.h"
 #include "DatabaseManager.h"
@@ -775,72 +774,6 @@ jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
           std::string result;
           try {
             result = DatabaseManager::getQueryExecutor().getCurrentUserID();
-          } catch (const std::exception &e) {
-            error = e.what();
-          }
-          this->jsInvoker_->invokeAsync([&innerRt, error, result, promise]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::String::createFromUtf8(innerRt, result));
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
-jsi::Value
-CommCoreModule::setDeviceID(jsi::Runtime &rt, jsi::String deviceType) {
-  std::string type = deviceType.utf8(rt);
-  std::string deviceID;
-  std::string deviceIDGenerationError;
-
-  try {
-    deviceID = DeviceIDGenerator::generateDeviceID(type);
-  } catch (std::invalid_argument &e) {
-    deviceIDGenerationError =
-        "setDeviceID: incorrect function argument. Must be one of: KEYSERVER, "
-        "WEB, MOBILE.";
-  }
-
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this,
-                        &innerRt,
-                        promise,
-                        deviceIDGenerationError,
-                        deviceID]() {
-          std::string error = deviceIDGenerationError;
-          if (!error.size()) {
-            try {
-              DatabaseManager::getQueryExecutor().setDeviceID(deviceID);
-            } catch (const std::exception &e) {
-              error = e.what();
-            }
-          }
-          this->jsInvoker_->invokeAsync([&innerRt, promise, error, deviceID]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::String::createFromUtf8(innerRt, deviceID));
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
-jsi::Value CommCoreModule::getDeviceID(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this, &innerRt, promise]() {
-          std::string error;
-          std::string result;
-          try {
-            result = DatabaseManager::getQueryExecutor().getDeviceID();
           } catch (const std::exception &e) {
             error = e.what();
           }
