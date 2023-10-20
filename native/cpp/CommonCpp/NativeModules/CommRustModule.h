@@ -55,6 +55,11 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String deviceID,
       jsi::String accessToken,
       jsi::String password) override;
+  virtual jsi::Value deleteUser(
+      jsi::Runtime &rt,
+      jsi::String userID,
+      jsi::String deviceID,
+      jsi::String accessToken) override;
   virtual jsi::Value getOutboundKeysForUserDevice(
       jsi::Runtime &rt,
       jsi::String identifierType,
