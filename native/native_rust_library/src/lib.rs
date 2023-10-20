@@ -2,6 +2,7 @@ use crate::ffi::{string_callback, void_callback};
 use crate::identity::Empty;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
+use identity::DeleteUserRequest;
 use lazy_static::lazy_static;
 use serde::Serialize;
 use std::sync::Arc;
@@ -116,6 +117,14 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityDeleteUser"]
+    fn delete_user(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityGetOutboundKeysForUserDevice"]
     fn get_outbound_keys_for_user_device(
       identifier_type: String,
@@ -184,6 +193,12 @@ async fn fetch_nonce() -> Result<String, Error> {
     .into_inner()
     .nonce;
   Ok(nonce)
+}
+
+struct AuthInfo {
+  user_id: String,
+  device_id: String,
+  access_token: String,
 }
 
 #[derive(Debug)]
@@ -547,6 +562,36 @@ async fn update_user_password_helper(
   identity_client
     .update_user_password_finish(update_password_finish_request)
     .await?;
+
+  Ok(())
+}
+
+fn delete_user(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let auth_info = AuthInfo {
+      access_token,
+      user_id,
+      device_id,
+    };
+    let result = delete_user_helper(auth_info).await;
+    handle_void_result_as_callback(result, promise_id);
+  });
+}
+
+async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
+  let delete_user_request = DeleteUserRequest {
+    access_token: auth_info.access_token,
+    user_id: auth_info.user_id,
+    device_id_key: auth_info.device_id,
+  };
+  let mut identity_client =
+    IdentityClientServiceClient::connect("http://127.0.0.1:50054").await?;
+  identity_client.delete_user(delete_user_request).await?;
 
   Ok(())
 }
