@@ -3,38 +3,13 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { Appearance } from 'react-native';
-import { useDispatch } from 'react-redux';
 
-import { updateThemeInfoActionType } from 'lib/actions/theme-actions.js';
-import type { Shape } from 'lib/types/core.js';
-import type { GlobalTheme, GlobalThemeInfo } from 'lib/types/theme-types.js';
+import { useUpdateSystemTheme } from 'lib/hooks/theme.js';
 
-import { useSelector } from '../redux/redux-utils.js';
 import { osCanTheme } from '../themes/theme-utils.js';
 
 function ThemeHandler(): null {
-  const globalThemeInfo = useSelector(state => state.globalThemeInfo);
-  const dispatch = useDispatch();
-  const updateSystemTheme = React.useCallback(
-    (colorScheme: ?GlobalTheme) => {
-      if (globalThemeInfo.systemTheme === colorScheme) {
-        return;
-      }
-
-      let updateObject: Shape<GlobalThemeInfo> = {
-        systemTheme: colorScheme,
-      };
-      if (globalThemeInfo.preference === 'system') {
-        updateObject = { ...updateObject, activeTheme: colorScheme };
-      }
-
-      dispatch({
-        type: updateThemeInfoActionType,
-        payload: updateObject,
-      });
-    },
-    [globalThemeInfo, dispatch],
-  );
+  const updateSystemTheme = useUpdateSystemTheme();
 
   React.useEffect(() => {
     if (!osCanTheme) {
@@ -54,7 +29,9 @@ function ThemeHandler(): null {
   }, [updateSystemTheme]);
 
   React.useEffect(
-    () => updateSystemTheme(Appearance.getColorScheme()),
+    () => {
+      updateSystemTheme(Appearance.getColorScheme());
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
