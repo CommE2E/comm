@@ -22,6 +22,7 @@ import {
   defaultConnectionInfo,
   type ConnectionInfo,
 } from 'lib/types/socket-types.js';
+import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
@@ -134,6 +135,10 @@ const migrations = {
     ...state,
     integrityStore: { threadHashes: {}, threadHashingStatus: 'starting' },
   }),
+  [7]: async state => ({
+    ...state,
+    globalThemeInfo: defaultGlobalThemeInfo,
+  }),
 };
 
 const persistWhitelist = [
@@ -143,6 +148,7 @@ const persistWhitelist = [
   'notifPermissionAlertInfo',
   'commServicesAccessToken',
   'keyserverStore',
+  'globalThemeInfo',
 ];
 
 const rootKey = 'root';
@@ -246,7 +252,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 6,
+  version: 7,
   transforms: [keyserverStoreTransform],
 };
 
