@@ -102,7 +102,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     }, [active, navContext]);
 
     const lastCommunicatedPlatformDetails = useSelector(
-      lastCommunicatedPlatformDetailsSelector,
+      lastCommunicatedPlatformDetailsSelector(ashoatKeyserverID),
     );
 
     const dispatch = useDispatch();
