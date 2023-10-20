@@ -91,8 +91,6 @@ interface Spec extends TurboModule {
   +clearNotifyToken: () => Promise<void>;
   +setCurrentUserID: (userID: string) => Promise<void>;
   +getCurrentUserID: () => Promise<string>;
-  +setDeviceID: (deviceType: string) => Promise<string>;
-  +getDeviceID: () => Promise<string>;
   +clearSensitiveData: () => Promise<void>;
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;
