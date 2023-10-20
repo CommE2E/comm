@@ -3,10 +3,8 @@
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useDispatch } from 'react-redux';
 
-import { updateThemeInfoActionType } from 'lib/actions/theme-actions.js';
-import type { Dispatch } from 'lib/types/redux-types.js';
+import { useUpdateThemePreference } from 'lib/hooks/theme.js';
 import type {
   GlobalThemeInfo,
   GlobalThemePreference,
@@ -44,9 +42,9 @@ if (osCanTheme) {
 
 type Props = {
   +globalThemeInfo: GlobalThemeInfo,
+  +updateThemePreference: (themePreference: GlobalThemePreference) => mixed,
   +styles: typeof unboundStyles,
   +colors: Colors,
-  +dispatch: Dispatch,
   ...
 };
 class AppearancePreferences extends React.PureComponent<Props> {
@@ -62,7 +60,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
         ) : null;
       options.push(
         <Button
-          onPress={() => this.onSelectThemePreference(themePreference)}
+          onPress={() => this.props.updateThemePreference(themePreference)}
           style={this.props.styles.row}
           iosFormat="highlight"
           iosHighlightUnderlayColor={underlay}
@@ -90,23 +88,6 @@ class AppearancePreferences extends React.PureComponent<Props> {
       </ScrollView>
     );
   }
-
-  onSelectThemePreference = (themePreference: GlobalThemePreference) => {
-    if (themePreference === this.props.globalThemeInfo.preference) {
-      return;
-    }
-    const theme =
-      themePreference === 'system'
-        ? this.props.globalThemeInfo.systemTheme
-        : themePreference;
-    this.props.dispatch({
-      type: updateThemeInfoActionType,
-      payload: {
-        preference: themePreference,
-        activeTheme: theme,
-      },
-    });
-  };
 }
 
 const unboundStyles = {
@@ -154,17 +135,18 @@ const unboundStyles = {
 const ConnectedAppearancePreferences: React.ComponentType<{ ... }> =
   React.memo<{ ... }>(function ConnectedAppearancePreferences(props: { ... }) {
     const globalThemeInfo = useSelector(state => state.globalThemeInfo);
+    const updateThemePreference = useUpdateThemePreference();
+
     const styles = useStyles(unboundStyles);
     const colors = useColors();
-    const dispatch = useDispatch();
 
     return (
       <AppearancePreferences
         {...props}
         globalThemeInfo={globalThemeInfo}
+        updateThemePreference={updateThemePreference}
         styles={styles}
         colors={colors}
-        dispatch={dispatch}
       />
     );
   });
