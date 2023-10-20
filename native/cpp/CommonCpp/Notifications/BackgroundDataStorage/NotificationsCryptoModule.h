@@ -11,7 +11,6 @@ class NotificationsCryptoModule {
   const static std::string keyserverHostedNotificationsID;
   const static std::string initialEncryptedMessageContent;
 
-  static std::string getPicklingKey();
   static void serializeAndFlushCryptoModule(
       crypto::CryptoModule &cryptoModule,
       const std::string &path,
@@ -49,24 +48,6 @@ public:
   static std::string decrypt(
       const std::string &data,
       const size_t messageType,
-      const std::string &callingProcessName);
-
-  class StatefulDecryptResult {
-    StatefulDecryptResult(
-        crypto::CryptoModule cryptoModule,
-        std::string decryptedData);
-    std::unique_ptr<crypto::CryptoModule> cryptoModuleState;
-    std::string decryptedData;
-    friend NotificationsCryptoModule;
-
-  public:
-    std::string getDecryptedData();
-  };
-
-  static std::unique_ptr<StatefulDecryptResult>
-  statefulDecrypt(const std::string &data, const size_t messageType);
-  static void flushState(
-      std::unique_ptr<StatefulDecryptResult> statefulDecryptResult,
       const std::string &callingProcessName);
 };
 } // namespace comm
