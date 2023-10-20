@@ -25,7 +25,11 @@ import type { UserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
-import { getCookieHash, verifyCookieHash } from './cookie-hash.js';
+import {
+  isBcryptHash,
+  getCookieHash,
+  verifyCookieHash,
+} from './cookie-hash.js';
 import { Viewer } from './viewer.js';
 import type { AnonymousViewerData, UserViewerData } from './viewer.js';
 import createIDs from '../creators/id-creator.js';
@@ -733,9 +737,15 @@ async function setNewSession(
 
 async function updateCookie(viewer: Viewer) {
   const time = Date.now();
-  const { cookieID } = viewer;
+  const { cookieID, cookieHash, cookiePassword } = viewer;
+
+  const updateObj = {};
+  updateObj.last_used = time;
+  if (isBcryptHash(cookieHash)) {
+    updateObj.hash = getCookieHash(cookiePassword);
+  }
   const query = SQL`
-    UPDATE cookies SET last_used = ${time} WHERE id = ${cookieID}
+    UPDATE cookies SET ${updateObj} WHERE id = ${cookieID}
   `;
   await dbQuery(query);
 }
