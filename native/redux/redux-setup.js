@@ -7,6 +7,7 @@ import thunk from 'redux-thunk';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
+import { updateThemeInfoActionType } from 'lib/actions/theme-actions.js';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
@@ -29,7 +30,6 @@ import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import {
   updateDimensionsActiveType,
   updateConnectivityActiveType,
-  updateThemeInfoActionType,
   updateDeviceCameraInfoActionType,
   updateDeviceOrientationActionType,
   backgroundActionTypes,

@@ -1,6 +1,7 @@
 // @flow
 
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
+import { updateThemeInfoActionType } from 'lib/actions/theme-actions.js';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
@@ -13,7 +14,7 @@ import {
 } from 'lib/types/theme-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
-import { updateThemeInfoActionType, type Action } from './action-types.js';
+import type { Action } from './action-types.js';
 
 export default function reduceGlobalThemeInfo(
   state: GlobalThemeInfo,
