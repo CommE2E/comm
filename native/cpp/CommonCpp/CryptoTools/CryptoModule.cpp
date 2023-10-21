@@ -25,43 +25,49 @@ CryptoModule::CryptoModule(
   }
 }
 
+OlmAccount *CryptoModule::getOlmAccount() {
+  return reinterpret_cast<OlmAccount *>(this->accountBuffer.data());
+}
+
 void CryptoModule::createAccount() {
   this->accountBuffer.resize(::olm_account_size());
-  this->account = ::olm_account(this->accountBuffer.data());
+  ::olm_account(this->accountBuffer.data());
 
-  size_t randomSize = ::olm_create_account_random_length(this->account);
+  size_t randomSize = ::olm_create_account_random_length(this->getOlmAccount());
   OlmBuffer randomBuffer;
   PlatformSpecificTools::generateSecureRandomBytes(randomBuffer, randomSize);
 
   if (-1 ==
-      ::olm_create_account(this->account, randomBuffer.data(), randomSize)) {
+      ::olm_create_account(
+          this->getOlmAccount(), randomBuffer.data(), randomSize)) {
     throw std::runtime_error{
         "error createAccount => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   };
 }
 
 void CryptoModule::exposePublicIdentityKeys() {
-  size_t identityKeysSize = ::olm_account_identity_keys_length(this->account);
+  size_t identityKeysSize =
+      ::olm_account_identity_keys_length(this->getOlmAccount());
   if (this->keys.identityKeys.size() == identityKeysSize) {
     return;
   }
   this->keys.identityKeys.resize(
-      ::olm_account_identity_keys_length(this->account));
+      ::olm_account_identity_keys_length(this->getOlmAccount()));
   if (-1 ==
       ::olm_account_identity_keys(
-          this->account,
+          this->getOlmAccount(),
           this->keys.identityKeys.data(),
           this->keys.identityKeys.size())) {
     throw std::runtime_error{
         "error generateIdentityKeys => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 }
 
 void CryptoModule::generateOneTimeKeys(size_t oneTimeKeysAmount) {
   size_t oneTimeKeysSize = ::olm_account_generate_one_time_keys_random_length(
-      this->account, oneTimeKeysAmount);
+      this->getOlmAccount(), oneTimeKeysAmount);
   if (this->keys.oneTimeKeys.size() == oneTimeKeysSize) {
     return;
   }
@@ -70,27 +76,30 @@ void CryptoModule::generateOneTimeKeys(size_t oneTimeKeysAmount) {
 
   if (-1 ==
       ::olm_account_generate_one_time_keys(
-          this->account, oneTimeKeysAmount, random.data(), random.size())) {
+          this->getOlmAccount(),
+          oneTimeKeysAmount,
+          random.data(),
+          random.size())) {
     throw std::runtime_error{
         "error generateOneTimeKeys => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 }
 
 // returns number of published keys
 size_t CryptoModule::publishOneTimeKeys() {
   this->keys.oneTimeKeys.resize(
-      ::olm_account_one_time_keys_length(this->account));
+      ::olm_account_one_time_keys_length(this->getOlmAccount()));
   if (-1 ==
       ::olm_account_one_time_keys(
-          this->account,
+          this->getOlmAccount(),
           this->keys.oneTimeKeys.data(),
           this->keys.oneTimeKeys.size())) {
     throw std::runtime_error{
         "error publishOneTimeKeys => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
-  return ::olm_account_mark_keys_as_published(this->account);
+  return ::olm_account_mark_keys_as_published(this->getOlmAccount());
 }
 
 Keys CryptoModule::keysFromStrings(
@@ -123,33 +132,36 @@ std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
 }
 
 std::uint8_t CryptoModule::getNumPrekeys() {
-  return reinterpret_cast<olm::Account *>(this->account)->num_prekeys;
+  return reinterpret_cast<olm::Account *>(this->getOlmAccount())->num_prekeys;
 }
 
 std::string CryptoModule::getPrekey() {
   OlmBuffer prekey;
-  prekey.resize(::olm_account_prekey_length(this->account));
+  prekey.resize(::olm_account_prekey_length(this->getOlmAccount()));
 
-  if (-1 == ::olm_account_prekey(this->account, prekey.data(), prekey.size())) {
+  if (-1 ==
+      ::olm_account_prekey(
+          this->getOlmAccount(), prekey.data(), prekey.size())) {
     throw std::runtime_error{
         "error getPrekey => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 
   return std::string{std::string{prekey.begin(), prekey.end()}};
 }
 
 std::string CryptoModule::getPrekeySignature() {
-  size_t signatureSize = ::olm_account_signature_length(this->account);
+  size_t signatureSize = ::olm_account_signature_length(this->getOlmAccount());
 
   OlmBuffer signatureBuffer;
   signatureBuffer.resize(signatureSize);
 
   if (-1 ==
-      ::olm_account_prekey_signature(this->account, signatureBuffer.data())) {
+      ::olm_account_prekey_signature(
+          this->getOlmAccount(), signatureBuffer.data())) {
     throw std::runtime_error{
         "error getPrekeySignature => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 
   return std::string{signatureBuffer.begin(), signatureBuffer.end()};
@@ -157,17 +169,17 @@ std::string CryptoModule::getPrekeySignature() {
 
 folly::Optional<std::string> CryptoModule::getUnpublishedPrekey() {
   OlmBuffer prekey;
-  prekey.resize(::olm_account_prekey_length(this->account));
+  prekey.resize(::olm_account_prekey_length(this->getOlmAccount()));
 
   std::size_t retval = ::olm_account_unpublished_prekey(
-      this->account, prekey.data(), prekey.size());
+      this->getOlmAccount(), prekey.data(), prekey.size());
 
   if (0 == retval) {
     return folly::none;
   } else if (-1 == retval) {
     throw std::runtime_error{
         "error getUnpublishedPrekey => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 
   return std::string{prekey.begin(), prekey.end()};
@@ -175,37 +187,39 @@ folly::Optional<std::string> CryptoModule::getUnpublishedPrekey() {
 
 std::string CryptoModule::generateAndGetPrekey() {
   size_t prekeySize =
-      ::olm_account_generate_prekey_random_length(this->account);
+      ::olm_account_generate_prekey_random_length(this->getOlmAccount());
 
   OlmBuffer random;
   PlatformSpecificTools::generateSecureRandomBytes(random, prekeySize);
 
   if (-1 ==
       ::olm_account_generate_prekey(
-          this->account, random.data(), random.size())) {
+          this->getOlmAccount(), random.data(), random.size())) {
     throw std::runtime_error{
         "error generateAndGetPrekey => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 
   OlmBuffer prekey;
-  prekey.resize(::olm_account_prekey_length(this->account));
+  prekey.resize(::olm_account_prekey_length(this->getOlmAccount()));
 
-  if (-1 == ::olm_account_prekey(this->account, prekey.data(), prekey.size())) {
+  if (-1 ==
+      ::olm_account_prekey(
+          this->getOlmAccount(), prekey.data(), prekey.size())) {
     throw std::runtime_error{
         "error generateAndGetPrekey => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 
   return std::string{prekey.begin(), prekey.end()};
 }
 
 void CryptoModule::markPrekeyAsPublished() {
-  ::olm_account_mark_prekey_as_published(this->account);
+  ::olm_account_mark_prekey_as_published(this->getOlmAccount());
 }
 
 void CryptoModule::forgetOldPrekey() {
-  ::olm_account_forget_old_prekey(this->account);
+  ::olm_account_forget_old_prekey(this->getOlmAccount());
 }
 
 void CryptoModule::initializeInboundForReceivingSession(
@@ -223,7 +237,10 @@ void CryptoModule::initializeInboundForReceivingSession(
     }
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsResponder(
-      this->account, this->keys.identityKeys.data(), encryptedMessage, idKeys);
+      this->getOlmAccount(),
+      this->keys.identityKeys.data(),
+      encryptedMessage,
+      idKeys);
   this->sessions.insert(make_pair(targetUserId, std::move(newSession)));
 }
 
@@ -240,7 +257,7 @@ void CryptoModule::initializeOutboundForSendingSession(
     this->sessions.erase(this->sessions.find(targetUserId));
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsInitializer(
-      this->account,
+      this->getOlmAccount(),
       this->keys.identityKeys.data(),
       idKeys,
       preKeys,
@@ -261,18 +278,19 @@ CryptoModule::getSessionByUserId(const std::string &userId) {
 
 Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   Persist persist;
-  size_t accountPickleLength = ::olm_pickle_account_length(this->account);
+  size_t accountPickleLength =
+      ::olm_pickle_account_length(this->getOlmAccount());
   OlmBuffer accountPickleBuffer(accountPickleLength);
   if (accountPickleLength !=
       ::olm_pickle_account(
-          this->account,
+          this->getOlmAccount(),
           secretKey.data(),
           secretKey.size(),
           accountPickleBuffer.data(),
           accountPickleLength)) {
     throw std::runtime_error{
         "error storeAsB64 => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
   persist.account = accountPickleBuffer;
 
@@ -289,23 +307,26 @@ void CryptoModule::restoreFromB64(
     const std::string &secretKey,
     Persist persist) {
   this->accountBuffer.resize(::olm_account_size());
-  this->account = ::olm_account(this->accountBuffer.data());
+  ::olm_account(this->accountBuffer.data());
   if (-1 ==
       ::olm_unpickle_account(
-          this->account,
+          this->getOlmAccount(),
           secretKey.data(),
           secretKey.size(),
           persist.account.data(),
           persist.account.size())) {
     throw std::runtime_error{
         "error restoreFromB64 => " +
-        std::string{::olm_account_last_error(this->account)}};
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 
   std::unordered_map<std::string, OlmBuffer>::iterator it;
   for (it = persist.sessions.begin(); it != persist.sessions.end(); ++it) {
     std::unique_ptr<Session> session = session->restoreFromB64(
-        this->account, this->keys.identityKeys.data(), secretKey, it->second);
+        this->getOlmAccount(),
+        this->keys.identityKeys.data(),
+        secretKey,
+        it->second);
     this->sessions.insert(make_pair(it->first, move(session)));
   }
 }
@@ -390,16 +411,17 @@ std::string CryptoModule::decrypt(
 
 std::string CryptoModule::signMessage(const std::string &message) {
   OlmBuffer signature;
-  signature.resize(::olm_account_signature_length(this->account));
+  signature.resize(::olm_account_signature_length(this->getOlmAccount()));
   size_t signatureLength = ::olm_account_sign(
-      this->account,
+      this->getOlmAccount(),
       (uint8_t *)message.data(),
       message.length(),
       signature.data(),
       signature.size());
   if (signatureLength == -1) {
     throw std::runtime_error{
-        "olm error: " + std::string{::olm_account_last_error(this->account)}};
+        "olm error: " +
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
   return std::string{(char *)signature.data(), signatureLength};
 }
