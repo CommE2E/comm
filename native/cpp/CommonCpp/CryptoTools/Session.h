@@ -14,7 +14,6 @@ class Session {
   OlmAccount *ownerUserAccount;
   std::uint8_t *ownerIdentityKeys;
 
-  OlmSession *olmSession = nullptr;
   OlmBuffer olmSessionBuffer;
 
   Session(OlmAccount *account, std::uint8_t *ownerIdentityKeys)
