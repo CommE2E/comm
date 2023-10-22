@@ -23,6 +23,7 @@ export type UserViewerData = {
   +cookieID: ?string,
   +cookieSource?: CookieSource,
   +cookiePassword: ?string,
+  +cookieHash: ?string,
   +cookieInsertedThisRequest?: boolean,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
@@ -41,6 +42,7 @@ export type AnonymousViewerData = {
   +cookieSource?: CookieSource,
   +cookieID: string,
   +cookiePassword: ?string,
+  +cookieHash: ?string,
   +cookieInsertedThisRequest?: boolean,
   +sessionIdentifierType?: SessionIdentifierType,
   +sessionID: ?string,
@@ -207,6 +209,15 @@ class Viewer {
       'Viewer.cookieID should be set',
     );
     return cookiePassword;
+  }
+
+  get cookieHash(): string {
+    const { cookieHash } = this.data;
+    invariant(
+      cookieHash !== null && cookieHash !== undefined,
+      'Viewer.cookieHash should be set',
+    );
+    return cookieHash;
   }
 
   get sessionIdentifierType(): SessionIdentifierType {
