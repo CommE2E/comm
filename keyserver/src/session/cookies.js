@@ -125,9 +125,10 @@ async function fetchUserViewer(
     platformDetails = { platform: cookieRow.platform };
   }
   const deviceToken = cookieRow.device_token;
+  const cookieHash = cookieRow.hash;
 
   if (
-    !verifyCookieHash(cookiePassword, cookieRow.hash) ||
+    !verifyCookieHash(cookiePassword, cookieHash) ||
     cookieIsExpired(cookieRow.last_used)
   ) {
     return {
@@ -151,6 +152,7 @@ async function fetchUserViewer(
     cookieSource,
     cookieID,
     cookiePassword,
+    cookieHash,
     sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
     sessionID,
     sessionInfo,
@@ -213,9 +215,10 @@ async function fetchAnonymousViewer(
     platformDetails = { platform: cookieRow.platform };
   }
   const deviceToken = cookieRow.device_token;
+  const cookieHash = cookieRow.hash;
 
   if (
-    !verifyCookieHash(cookiePassword, cookieRow.hash) ||
+    !verifyCookieHash(cookiePassword, cookieHash) ||
     cookieIsExpired(cookieRow.last_used)
   ) {
     return {
@@ -237,6 +240,7 @@ async function fetchAnonymousViewer(
     cookieSource,
     cookieID,
     cookiePassword,
+    cookieHash,
     sessionIdentifierType: sessionParameterInfo.sessionIdentifierType,
     sessionID,
     sessionInfo,
@@ -638,6 +642,7 @@ async function createNewAnonymousCookie(
     deviceToken,
     cookieID: id,
     cookiePassword,
+    cookieHash,
     sessionID: undefined,
     sessionInfo: null,
     cookieInsertedThisRequest: true,
@@ -705,6 +710,7 @@ async function createNewUserCookie(
     sessionID: undefined,
     sessionInfo: null,
     cookiePassword,
+    cookieHash,
     cookieInsertedThisRequest: true,
     isScriptViewer: false,
   };
