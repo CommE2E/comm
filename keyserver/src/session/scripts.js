@@ -15,6 +15,7 @@ function createScriptViewer(userID: string): Viewer {
     userID,
     cookieID: null,
     cookiePassword: null,
+    cookieHash: null,
     sessionID: null,
     sessionInfo: null,
     isScriptViewer: true,
