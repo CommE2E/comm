@@ -13,15 +13,16 @@ class NotificationsCryptoModule {
 
   static std::string getPicklingKey();
   static void serializeAndFlushCryptoModule(
-      crypto::CryptoModule &cryptoModule,
+      std::unique_ptr<crypto::CryptoModule> cryptoModule,
       const std::string &path,
       const std::string &picklingKey,
       const std::string &callingProcessName);
-  static crypto::CryptoModule deserializeCryptoModule(
+  static std::unique_ptr<crypto::CryptoModule> deserializeCryptoModule(
       const std::string &path,
       const std::string &picklingKey);
   static void callCryptoModule(
-      std::function<void(crypto::CryptoModule &cryptoModule)> caller,
+      std::function<void(
+          const std::unique_ptr<crypto::CryptoModule> &cryptoModule)> caller,
       const std::string &callingProcessName);
 
 public:
@@ -53,7 +54,7 @@ public:
 
   class StatefulDecryptResult {
     StatefulDecryptResult(
-        crypto::CryptoModule cryptoModule,
+        std::unique_ptr<crypto::CryptoModule> cryptoModule,
         std::string decryptedData);
     std::unique_ptr<crypto::CryptoModule> cryptoModuleState;
     std::string decryptedData;

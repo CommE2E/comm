@@ -10,6 +10,7 @@
 #include <folly/json.h>
 #include <unistd.h>
 #include <fstream>
+#include <memory>
 #include <sstream>
 
 namespace comm {
@@ -26,7 +27,8 @@ const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
 const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
 const int temporaryFilePathRandomSuffixLength = 32;
 
-crypto::CryptoModule NotificationsCryptoModule::deserializeCryptoModule(
+std::unique_ptr<crypto::CryptoModule>
+NotificationsCryptoModule::deserializeCryptoModule(
     const std::string &path,
     const std::string &picklingKey) {
   std::ifstream pickledPersistStream(path, std::ifstream::in);
@@ -55,8 +57,10 @@ crypto::CryptoModule NotificationsCryptoModule::deserializeCryptoModule(
   std::unordered_map<std::string, crypto::OlmBuffer> sessions;
 
   if (persistJSON["sessions"].isNull()) {
-    return crypto::CryptoModule{
-        notificationsCryptoAccountID, picklingKey, {account, sessions}};
+    return std::make_unique<crypto::CryptoModule>(
+        notificationsCryptoAccountID,
+        picklingKey,
+        crypto::Persist({account, sessions}));
   }
   for (auto &sessionKeyValuePair : persistJSON["sessions"].items()) {
     std::string targetUserID = sessionKeyValuePair.first.asString();
@@ -64,16 +68,18 @@ crypto::CryptoModule NotificationsCryptoModule::deserializeCryptoModule(
     sessions[targetUserID] =
         std::vector<uint8_t>(sessionData.begin(), sessionData.end());
   }
-  return crypto::CryptoModule{
-      notificationsCryptoAccountID, picklingKey, {account, sessions}};
+  return std::make_unique<crypto::CryptoModule>(
+      notificationsCryptoAccountID,
+      picklingKey,
+      crypto::Persist({account, sessions}));
 }
 
 void NotificationsCryptoModule::serializeAndFlushCryptoModule(
-    crypto::CryptoModule &cryptoModule,
+    std::unique_ptr<crypto::CryptoModule> cryptoModule,
     const std::string &path,
     const std::string &picklingKey,
     const std::string &callingProcessName) {
-  crypto::Persist persist = cryptoModule.storeAsB64(picklingKey);
+  crypto::Persist persist = cryptoModule->storeAsB64(picklingKey);
 
   folly::dynamic sessions = folly::dynamic::object;
   for (auto &sessionKeyValuePair : persist.sessions) {
@@ -145,16 +151,17 @@ std::string NotificationsCryptoModule::getPicklingKey() {
 }
 
 void NotificationsCryptoModule::callCryptoModule(
-    std::function<void(crypto::CryptoModule &cryptoModule)> caller,
+    std::function<
+        void(const std::unique_ptr<crypto::CryptoModule> &cryptoModule)> caller,
     const std::string &callingProcessName) {
   const std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
   const std::string path =
       PlatformSpecificTools::getNotificationsCryptoAccountPath();
-  crypto::CryptoModule cryptoModule =
+  std::unique_ptr<crypto::CryptoModule> cryptoModule =
       NotificationsCryptoModule::deserializeCryptoModule(path, picklingKey);
   caller(cryptoModule);
   NotificationsCryptoModule::serializeAndFlushCryptoModule(
-      cryptoModule, path, picklingKey, callingProcessName);
+      std::move(cryptoModule), path, picklingKey, callingProcessName);
 }
 
 void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
@@ -177,10 +184,11 @@ void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
       NotificationsCryptoModule::secureStoreNotificationsAccountDataKey,
       picklingKey);
 
-  crypto::CryptoModule cryptoModule{
-      NotificationsCryptoModule::notificationsCryptoAccountID};
+  std::unique_ptr<crypto::CryptoModule> cryptoModule =
+      std::make_unique<crypto::CryptoModule>(
+          NotificationsCryptoModule::notificationsCryptoAccountID);
   NotificationsCryptoModule::serializeAndFlushCryptoModule(
-      cryptoModule,
+      std::move(cryptoModule),
       notificationsCryptoAccountPath,
       picklingKey,
       callingProcessName);
@@ -189,8 +197,9 @@ void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
 std::string NotificationsCryptoModule::getNotificationsIdentityKeys(
     const std::string &callingProcessName) {
   std::string identityKeys;
-  auto caller = [&identityKeys](crypto::CryptoModule cryptoModule) {
-    identityKeys = cryptoModule.getIdentityKeys();
+  auto caller = [&identityKeys](
+                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
+    identityKeys = cryptoModule->getIdentityKeys();
   };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
   return identityKeys;
@@ -199,9 +208,10 @@ std::string NotificationsCryptoModule::getNotificationsIdentityKeys(
 std::string NotificationsCryptoModule::generateAndGetNotificationsPrekey(
     const std::string &callingProcessName) {
   std::string prekey;
-  auto caller = [&prekey](crypto::CryptoModule cryptoModule) {
-    prekey = cryptoModule.generateAndGetPrekey();
-  };
+  auto caller =
+      [&prekey](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
+        prekey = cryptoModule->generateAndGetPrekey();
+      };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
   return prekey;
 }
@@ -209,8 +219,9 @@ std::string NotificationsCryptoModule::generateAndGetNotificationsPrekey(
 std::string NotificationsCryptoModule::getNotificationsPrekeySignature(
     const std::string &callingProcessName) {
   std::string prekeySignature;
-  auto caller = [&prekeySignature](crypto::CryptoModule cryptoModule) {
-    prekeySignature = cryptoModule.getPrekeySignature();
+  auto caller = [&prekeySignature](
+                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
+    prekeySignature = cryptoModule->getPrekeySignature();
   };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
   return prekeySignature;
@@ -220,9 +231,9 @@ std::string NotificationsCryptoModule::getNotificationsOneTimeKeys(
     const size_t oneTimeKeysAmount,
     const std::string &callingProcessName) {
   std::string oneTimeKeys;
-  auto caller = [&oneTimeKeys,
-                 oneTimeKeysAmount](crypto::CryptoModule cryptoModule) {
-    oneTimeKeys = cryptoModule.getOneTimeKeys(oneTimeKeysAmount);
+  auto caller = [&oneTimeKeys, oneTimeKeysAmount](
+                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
+    oneTimeKeys = cryptoModule->getOneTimeKeys(oneTimeKeysAmount);
   };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
   return oneTimeKeys;
@@ -235,14 +246,14 @@ crypto::EncryptedData NotificationsCryptoModule::initializeNotificationsSession(
     const std::string &oneTimeKeys,
     const std::string &callingProcessName) {
   crypto::EncryptedData initialEncryptedMessage;
-  auto caller = [&](crypto::CryptoModule &cryptoModule) {
-    cryptoModule.initializeOutboundForSendingSession(
+  auto caller = [&](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
+    cryptoModule->initializeOutboundForSendingSession(
         NotificationsCryptoModule::keyserverHostedNotificationsID,
         std::vector<uint8_t>(identityKeys.begin(), identityKeys.end()),
         std::vector<uint8_t>(prekey.begin(), prekey.end()),
         std::vector<uint8_t>(prekeySignature.begin(), prekeySignature.end()),
         std::vector<uint8_t>(oneTimeKeys.begin(), oneTimeKeys.end()));
-    initialEncryptedMessage = cryptoModule.encrypt(
+    initialEncryptedMessage = cryptoModule->encrypt(
         NotificationsCryptoModule::keyserverHostedNotificationsID,
         NotificationsCryptoModule::initialEncryptedMessageContent);
   };
@@ -253,8 +264,9 @@ crypto::EncryptedData NotificationsCryptoModule::initializeNotificationsSession(
 bool NotificationsCryptoModule::isNotificationsSessionInitialized(
     const std::string &callingProcessName) {
   bool sessionInitialized;
-  auto caller = [&sessionInitialized](crypto::CryptoModule &cryptoModule) {
-    sessionInitialized = cryptoModule.hasSessionFor(
+  auto caller = [&sessionInitialized](
+                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
+    sessionInitialized = cryptoModule->hasSessionFor(
         NotificationsCryptoModule::keyserverHostedNotificationsID);
   };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
@@ -276,10 +288,10 @@ std::string NotificationsCryptoModule::decrypt(
     const size_t messageType,
     const std::string &callingProcessName) {
   std::string decryptedData;
-  auto caller = [&](crypto::CryptoModule &cryptoModule) {
+  auto caller = [&](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
     crypto::EncryptedData encryptedData{
         std::vector<uint8_t>(data.begin(), data.end()), messageType};
-    decryptedData = cryptoModule.decrypt(
+    decryptedData = cryptoModule->decrypt(
         NotificationsCryptoModule::keyserverHostedNotificationsID,
         encryptedData);
   };
@@ -288,10 +300,9 @@ std::string NotificationsCryptoModule::decrypt(
 }
 
 NotificationsCryptoModule::StatefulDecryptResult::StatefulDecryptResult(
-    crypto::CryptoModule cryptoModule,
+    std::unique_ptr<crypto::CryptoModule> cryptoModule,
     std::string decryptedData)
-    : cryptoModuleState(std::make_unique<crypto::CryptoModule>(cryptoModule)),
-      decryptedData(decryptedData) {
+    : cryptoModuleState(std::move(cryptoModule)), decryptedData(decryptedData) {
 }
 
 std::string
@@ -306,13 +317,14 @@ NotificationsCryptoModule::statefulDecrypt(
   std::string path = PlatformSpecificTools::getNotificationsCryptoAccountPath();
   std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
 
-  crypto::CryptoModule cryptoModule =
+  std::unique_ptr<crypto::CryptoModule> cryptoModule =
       NotificationsCryptoModule::deserializeCryptoModule(path, picklingKey);
   crypto::EncryptedData encryptedData{
       std::vector<uint8_t>(data.begin(), data.end()), messageType};
-  std::string decryptedData = cryptoModule.decrypt(
+  std::string decryptedData = cryptoModule->decrypt(
       NotificationsCryptoModule::keyserverHostedNotificationsID, encryptedData);
-  StatefulDecryptResult statefulDecryptResult(cryptoModule, decryptedData);
+  StatefulDecryptResult statefulDecryptResult(
+      std::move(cryptoModule), decryptedData);
 
   return std::make_unique<StatefulDecryptResult>(
       std::move(statefulDecryptResult));
@@ -325,9 +337,10 @@ void NotificationsCryptoModule::flushState(
   std::string path = PlatformSpecificTools::getNotificationsCryptoAccountPath();
   std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
 
-  crypto::CryptoModule cryptoModule = *statefulDecryptResult->cryptoModuleState;
-
   NotificationsCryptoModule::serializeAndFlushCryptoModule(
-      cryptoModule, path, picklingKey, callingProcessName);
+      std::move(statefulDecryptResult->cryptoModuleState),
+      path,
+      picklingKey,
+      callingProcessName);
 }
 } // namespace comm
