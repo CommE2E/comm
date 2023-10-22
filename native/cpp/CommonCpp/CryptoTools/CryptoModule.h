@@ -34,6 +34,10 @@ public:
   CryptoModule(std::string id);
   CryptoModule(std::string id, std::string secretKey, Persist persist);
 
+  // CryptoModule's accountBuffer cannot be safely copied
+  // See explanation in https://phab.comm.dev/D9562
+  CryptoModule(const CryptoModule &) = delete;
+
   static Keys keysFromStrings(
       const std::string &identityKeys,
       const std::string &oneTimeKeys);
