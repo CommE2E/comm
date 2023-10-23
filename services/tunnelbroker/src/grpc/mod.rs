@@ -9,6 +9,7 @@ use proto::tunnelbroker_service_server::{
 use proto::Empty;
 use tonic::transport::Server;
 use tracing::debug;
+use tunnelbroker_messages::MessageToDevice;
 
 use crate::constants::CLIENT_RMQ_MSG_PRIORITY;
 use crate::database::{handle_ddb_error, DatabaseClient};
@@ -40,11 +41,20 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
 
     let client_message_id = uuid::Uuid::new_v4().to_string();
 
-    self
+    let message_id = self
       .client
       .persist_message(&message.device_id, &message.payload, &client_message_id)
       .await
       .map_err(handle_ddb_error)?;
+
+    let message_to_device = MessageToDevice {
+      device_id: message.device_id.clone(),
+      payload: message.payload,
+      message_id,
+    };
+
+    let serialized_message = serde_json::to_string(&message_to_device)
+      .map_err(|_| tonic::Status::invalid_argument("Invalid argument"))?;
 
     self
       .amqp_channel
@@ -52,7 +62,7 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
         "",
         &message.device_id,
         BasicPublishOptions::default(),
-        message.payload.as_bytes(),
+        serialized_message.as_bytes(),
         BasicProperties::default().with_priority(CLIENT_RMQ_MSG_PRIORITY),
       )
       .await

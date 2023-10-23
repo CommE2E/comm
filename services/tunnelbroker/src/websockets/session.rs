@@ -22,10 +22,10 @@ use tracing::{debug, error, info};
 use tunnelbroker_messages::{
   message_to_device_request_status::Failure,
   message_to_device_request_status::MessageSentStatus, session::DeviceTypes,
-  MessageToDeviceRequest, Messages,
+  MessageToDevice, MessageToDeviceRequest, Messages,
 };
 
-use crate::database::{self, DatabaseClient, DeviceMessage};
+use crate::database::{self, DatabaseClient, MessageToDeviceExt};
 use crate::identity;
 
 pub struct DeviceInfo {
@@ -123,20 +123,22 @@ async fn publish_persisted_messages(
     });
 
   for message in messages {
-    let device_message = DeviceMessage::from_hashmap(message)?;
+    let message_to_device = MessageToDevice::from_hashmap(message)?;
+
+    let serialized_message = serde_json::to_string(&message_to_device)?;
 
     amqp_channel
       .basic_publish(
         "",
-        &device_message.device_id,
+        &message_to_device.device_id,
         BasicPublishOptions::default(),
-        device_message.payload.as_bytes(),
+        serialized_message.as_bytes(),
         BasicProperties::default().with_priority(DDB_RMQ_MSG_PRIORITY),
       )
       .await?;
 
     if let Err(e) = db_client
-      .delete_message(&device_info.device_id, &device_message.message_id)
+      .delete_message(&device_info.device_id, &message_to_device.message_id)
       .await
     {
       error!("Failed to delete message: {}:", e);
@@ -207,13 +209,21 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       )
       .await?;
 
+    let message_to_device = MessageToDevice {
+      device_id: message_request.device_id.clone(),
+      payload: message_request.payload.clone(),
+      message_id: message_id.clone(),
+    };
+
+    let serialized_message = serde_json::to_string(&message_to_device)?;
+
     let publish_result = self
       .amqp_channel
       .basic_publish(
         "",
         &message_request.device_id,
         BasicPublishOptions::default(),
-        message_request.payload.as_bytes(),
+        serialized_message.as_bytes(),
         BasicProperties::default().with_priority(CLIENT_RMQ_MSG_PRIORITY),
       )
       .await;
