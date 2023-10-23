@@ -10,6 +10,7 @@ use proto::Empty;
 use tonic::transport::Server;
 use tracing::debug;
 
+use crate::constants::CLIENT_RMQ_MSG_PRIORITY;
 use crate::database::{handle_ddb_error, DatabaseClient};
 use crate::{constants, CONFIG};
 
@@ -52,7 +53,7 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
         &message.device_id,
         BasicPublishOptions::default(),
         message.payload.as_bytes(),
-        BasicProperties::default(),
+        BasicProperties::default().with_priority(CLIENT_RMQ_MSG_PRIORITY),
       )
       .await
       .map_err(handle_amqp_error)?;

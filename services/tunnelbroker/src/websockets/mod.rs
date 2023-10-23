@@ -233,7 +233,7 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
   db_client: DatabaseClient,
   amqp_channel: lapin::Channel,
 ) -> Result<WebsocketSession<S>, session::SessionError> {
-  let mut session = session::WebsocketSession::from_frame(
+  let session = session::WebsocketSession::from_frame(
     outgoing,
     db_client.clone(),
     frame,
@@ -244,8 +244,6 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
     error!("Device failed to send valid connection request.");
     SessionError::InvalidMessage
   })?;
-
-  session::consume_error(session.deliver_persisted_messages().await);
 
   Ok(session)
 }
