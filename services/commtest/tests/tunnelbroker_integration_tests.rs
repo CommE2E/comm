@@ -7,16 +7,16 @@ use commtest::identity::olm_account_infos::{
   MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
 };
 use commtest::service_addr;
-use commtest::tunnelbroker::socket::{create_socket, send_message};
+use commtest::tunnelbroker::socket::{
+  create_socket, send_message, WebSocketMessageToDevice,
+};
 use futures_util::StreamExt;
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
 use proto::MessageToDevice;
 use std::time::Duration;
 use tokio::time::sleep;
 
-use tunnelbroker_messages::{
-  MessageToDevice as WebSocketMessageToDevice, RefreshKeyRequest,
-};
+use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
 async fn send_refresh_request() {
