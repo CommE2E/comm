@@ -6,7 +6,10 @@ import * as React from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { VariableSizeList } from 'react-window';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import genesis from 'lib/facts/genesis.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { emptyItemText } from 'lib/shared/thread-utils.js';
 
 import ChatThreadListItem from './chat-thread-list-item.react.js';
@@ -15,6 +18,7 @@ import css from './chat-thread-list.css';
 import { ThreadListContext } from './thread-list-provider.js';
 import BackgroundIllustration from '../assets/background-illustration.react.js';
 import Button from '../components/button.react.js';
+import ComposeSubchannelModal from '../modals/threads/create/compose-subchannel-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnClickNewThread } from '../selectors/thread-selectors.js';
 
@@ -67,6 +71,37 @@ function ChatThreadList(): React.Node {
   const isBackground = activeTab === 'Background';
 
   const communityID = useSelector(state => state.communityPickerStore.chat);
+
+  const communityThreadInfo = useSelector(state => {
+    if (!communityID) {
+      return null;
+    }
+    return threadInfoSelector(state)[communityID];
+  });
+
+  const { pushModal, popModal } = useModalContext();
+
+  const onClickCreateSubchannel = React.useCallback(() => {
+    if (!communityThreadInfo) {
+      return null;
+    }
+    return pushModal(
+      <ComposeSubchannelModal
+        parentThreadInfo={communityThreadInfo}
+        onClose={popModal}
+      />,
+    );
+  }, [popModal, pushModal, communityThreadInfo]);
+
+  const isChatCreation = !communityID || communityID === genesis.id;
+
+  const onClickCreate = isChatCreation
+    ? onClickNewThread
+    : onClickCreateSubchannel;
+
+  const createButtonText = isChatCreation
+    ? 'Create new chat'
+    : 'Create new channel';
 
   const threadListContainerRef = React.useRef();
 
@@ -132,9 +167,9 @@ function ChatThreadList(): React.Node {
         <Button
           variant="filled"
           disabled={isThreadCreation}
-          onClick={onClickNewThread}
+          onClick={onClickCreate}
         >
-          Create new chat
+          {createButtonText}
         </Button>
       </div>
     </>
