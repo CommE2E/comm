@@ -196,8 +196,11 @@ async fn accept_connection(
           }
           Message::Text(msg) => {
             let message_status = session.handle_websocket_frame_from_device(msg).await;
+            if message_status.is_none() {
+              continue;
+            }
             let request_status = MessageToDeviceRequestStatus {
-              client_message_ids: vec![message_status]
+              client_message_ids: vec![message_status.unwrap()]
             };
             if let Ok(response) = serde_json::to_string(&request_status) {
                 session.send_message_to_device(Message::text(response)).await;
