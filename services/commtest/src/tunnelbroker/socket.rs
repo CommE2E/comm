@@ -1,13 +1,22 @@
 use crate::identity::device::DeviceInfo;
 use crate::service_addr;
 use futures_util::{SinkExt, StreamExt};
+use serde::{Deserialize, Serialize};
 use tokio::net::TcpStream;
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use tunnelbroker_messages::{
   ConnectionInitializationMessage, DeviceTypes, MessageSentStatus,
-  MessageToDevice, MessageToDeviceRequest, MessageToDeviceRequestStatus,
+  MessageToDeviceRequest, MessageToDeviceRequestStatus,
 };
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub struct WebSocketMessageToDevice {
+  #[serde(rename = "deviceID")]
+  pub device_id: String,
+  pub payload: String,
+}
 
 pub async fn create_socket(
   device_info: &DeviceInfo,
@@ -39,7 +48,7 @@ pub async fn create_socket(
 
 pub async fn send_message(
   socket: &mut WebSocketStream<MaybeTlsStream<TcpStream>>,
-  message: MessageToDevice,
+  message: WebSocketMessageToDevice,
 ) -> Result<String, Box<dyn std::error::Error>> {
   let client_message_id = uuid::Uuid::new_v4().to_string();
   let request = MessageToDeviceRequest {
