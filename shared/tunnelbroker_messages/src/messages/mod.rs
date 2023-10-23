@@ -19,10 +19,10 @@ use serde::{Deserialize, Serialize};
 pub enum Messages {
   RefreshKeysRequest(RefreshKeyRequest),
   ConnectionInitializationMessage(ConnectionInitializationMessage),
-  // MessageToDeviceRequest must be placed before MessageToDevice.
+  // MessageToDeviceRequestStatus must be placed before MessageToDeviceRequest.
   // This is due to serde's pattern matching behavior where it prioritizes
   // the first matching pattern it encounters.
+  MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageToDevice(MessageToDevice),
-  MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
 }
