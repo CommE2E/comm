@@ -45,7 +45,8 @@ textarea {
 button svg {
   vertical-align: top;
 }
-:global(#react-root) {
+:global(#react-root),
+div.appThemeContainer {
   display: flex;
   flex-direction: column;
   height: 100%;
