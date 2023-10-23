@@ -2,7 +2,7 @@ use commtest::identity::device::{
   create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::service_addr;
-use commtest::tunnelbroker::socket::create_socket;
+use commtest::tunnelbroker::socket::{create_socket, receive_message};
 use futures_util::StreamExt;
 use grpc_clients::identity::protos::authenticated::OutboundKeysForUserRequest;
 use grpc_clients::identity::protos::client::UploadOneTimeKeysRequest;
@@ -92,18 +92,13 @@ async fn test_refresh_keys_request_upon_depletion() {
 
   let device_info = create_device(None).await;
   let mut socket = create_socket(&device_info).await;
+  let response = receive_message(&mut socket).await.unwrap();
+  let serialized_response: RefreshKeyRequest =
+    serde_json::from_str(&response).unwrap();
 
-  // Have keyserver receive any websocket messages
-  if let Some(Ok(response)) = socket.next().await {
-    // Check that message received by keyserver matches what identity server
-    // issued
-    let serialized_response: RefreshKeyRequest =
-      serde_json::from_str(response.to_text().unwrap()).unwrap();
-
-    let expected_response = RefreshKeyRequest {
-      device_id: device_info.device_id.to_string(),
-      number_of_keys: 5,
-    };
-    assert_eq!(serialized_response, expected_response);
+  let expected_response = RefreshKeyRequest {
+    device_id: device_info.device_id.to_string(),
+    number_of_keys: 5,
   };
+  assert_eq!(serialized_response, expected_response);
 }

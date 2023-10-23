@@ -2,7 +2,7 @@ use commtest::identity::device::create_device;
 use commtest::identity::olm_account_infos::{
   DEFAULT_CLIENT_KEYS, MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
 };
-use commtest::tunnelbroker::socket::create_socket;
+use commtest::tunnelbroker::socket::{create_socket, receive_message};
 use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::tungstenite::Message;
 use tunnelbroker_messages::{
@@ -47,10 +47,8 @@ async fn get_confirmation() {
 
   // Connect receiver to flush DDB and avoid polluting other tests
   let mut receiver_socket = create_socket(&receiver).await;
-  if let Some(Ok(response)) = receiver_socket.next().await {
-    let received_payload = response.to_text().unwrap();
-    assert_eq!(payload, received_payload);
-  };
+  let receiver_response = receive_message(&mut receiver_socket).await.unwrap();
+  assert_eq!(payload, receiver_response);
 }
 
 #[tokio::test]
