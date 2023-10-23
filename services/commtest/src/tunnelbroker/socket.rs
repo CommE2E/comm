@@ -81,6 +81,13 @@ pub async fn receive_message(
     let message = response.to_text().expect("Failed to get response content");
     let message_to_device = serde_json::from_str::<MessageToDevice>(message)
       .expect("Failed to parse MessageToDevice from response");
+
+    let confirmation = tunnelbroker_messages::MessageReceiveConfirmation {
+      message_ids: vec![message_to_device.message_id],
+    };
+    let serialized_confirmation = serde_json::to_string(&confirmation).unwrap();
+    socket.send(Message::Text(serialized_confirmation)).await?;
+
     return Ok(message_to_device.payload);
   }
 
