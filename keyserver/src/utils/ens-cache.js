@@ -19,7 +19,7 @@ async function initENSCache() {
   if (!alchemyKey) {
     return;
   }
-  const provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
+  const provider = new ethers.providers.AlchemyProvider('goerli', alchemyKey);
   const ensCache = new ENSCache(provider);
   getENSNames = baseGetENSNames.bind(null, ensCache);
 }
