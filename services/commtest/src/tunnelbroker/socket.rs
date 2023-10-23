@@ -7,7 +7,7 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use tunnelbroker_messages::{
   ConnectionInitializationMessage, DeviceTypes, MessageSentStatus,
-  MessageToDeviceRequest, MessageToDeviceRequestStatus,
+  MessageToDevice, MessageToDeviceRequest, MessageToDeviceRequestStatus,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -72,4 +72,17 @@ pub async fn send_message(
     }
   }
   Err("Failed to confirm sent message".into())
+}
+
+pub async fn receive_message(
+  socket: &mut WebSocketStream<MaybeTlsStream<TcpStream>>,
+) -> Result<String, Box<dyn std::error::Error>> {
+  if let Some(Ok(response)) = socket.next().await {
+    let message = response.to_text().expect("Failed to get response content");
+    let message_to_device = serde_json::from_str::<MessageToDevice>(message)
+      .expect("Failed to parse MessageToDevice from response");
+    return Ok(message_to_device.payload);
+  }
+
+  Err("Failed to receive message".into())
 }

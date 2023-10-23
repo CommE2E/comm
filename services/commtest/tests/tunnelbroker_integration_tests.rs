@@ -8,9 +8,9 @@ use commtest::identity::olm_account_infos::{
 };
 use commtest::service_addr;
 use commtest::tunnelbroker::socket::{
-  create_socket, send_message, WebSocketMessageToDevice,
+  create_socket, receive_message, send_message, WebSocketMessageToDevice,
 };
-use futures_util::StreamExt;
+
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
 use proto::MessageToDevice;
 use std::time::Duration;
@@ -48,12 +48,12 @@ async fn send_refresh_request() {
     .unwrap();
 
   // Have keyserver receive any websocket messages
-  let response = socket.next().await.unwrap().unwrap();
+  let response = receive_message(&mut socket).await.unwrap();
 
   // Check that message received by keyserver matches what identity server
   // issued
   let serialized_response: RefreshKeyRequest =
-    serde_json::from_str(response.to_text().unwrap()).unwrap();
+    serde_json::from_str(&response).unwrap();
   assert_eq!(serialized_response, refresh_request);
 }
 
@@ -89,11 +89,7 @@ async fn test_messages_order() {
   let mut receiver_socket = create_socket(&receiver).await;
 
   for msg in messages {
-    if let Some(Ok(response)) = receiver_socket.next().await {
-      let received_payload = response.to_text().unwrap();
-      assert_eq!(msg.payload, received_payload);
-    } else {
-      panic!("Unable to receive message");
-    }
+    let response = receive_message(&mut receiver_socket).await.unwrap();
+    assert_eq!(msg.payload, response);
   }
 }
