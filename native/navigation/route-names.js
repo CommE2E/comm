@@ -139,6 +139,7 @@ export const UserProfileBottomSheetNavigatorRouteName =
   'UserProfileBottomSheetNavigator';
 export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
 export const UserProfileAvatarModalRouteName = 'UserProfileAvatarModal';
+export const KeyserverSelectionListRouteName = 'KeyserverSelectionList';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -232,6 +233,7 @@ export type ProfileParamList = {
   +LinkedDevices: void,
   +SecondaryDeviceQRCodeScanner: void,
   +BackupMenu: void,
+  +KeyserverSelectionList: void,
 };
 
 export type CommunityDrawerParamList = { +TabNavigator: void };

@@ -37,6 +37,7 @@ import {
   DefaultNotificationsPreferencesRouteName,
   LinkedDevicesRouteName,
   BackupMenuRouteName,
+  KeyserverSelectionListRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -324,7 +325,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   };
 
   onPressKeyserverSelection = () => {
-    // TODO
+    this.navigateIfActive(KeyserverSelectionListRouteName);
   };
 }
 

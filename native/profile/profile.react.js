@@ -17,6 +17,7 @@ import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
 import EditPassword from './edit-password.react.js';
 import EmojiUserAvatarCreation from './emoji-user-avatar-creation.react.js';
+import KeyserverSelectionList from './keyserver-selection-list.react.js';
 import LinkedDevicesHeaderRightButton from './linked-devices-header-right-button.react.js';
 import LinkedDevices from './linked-devices.react.js';
 import PrivacyPreferences from './privacy-preferences.react.js';
@@ -43,6 +44,7 @@ import {
   LinkedDevicesRouteName,
   SecondaryDeviceQRCodeScannerRouteName,
   BackupMenuRouteName,
+  KeyserverSelectionListRouteName,
   type ScreenParamList,
   type ProfileParamList,
 } from '../navigation/route-names.js';
@@ -61,6 +63,7 @@ const linkedDevicesOptions = {
   // eslint-disable-next-line react/display-name
   headerRight: () => <LinkedDevicesHeaderRightButton />,
 };
+const keyserverSelectionListOptions = { headerTitle: 'Keyserver selection' };
 const backupMenuOptions = { headerTitle: 'Backup menu' };
 const secondaryDeviceQRCodeScannerOptions = {
   headerTitle: '',
@@ -150,6 +153,11 @@ function ProfileComponent(props: Props): React.Node {
             name={LinkedDevicesRouteName}
             component={LinkedDevices}
             options={linkedDevicesOptions}
+          />
+          <Profile.Screen
+            name={KeyserverSelectionListRouteName}
+            component={KeyserverSelectionList}
+            options={keyserverSelectionListOptions}
           />
           <Profile.Screen
             name={BackupMenuRouteName}
