@@ -7,9 +7,8 @@ use commtest::identity::olm_account_infos::{
 };
 use commtest::service_addr;
 use commtest::tunnelbroker::socket::{
-  create_socket, send_message, WebSocketMessageToDevice,
+  create_socket, receive_message, send_message, WebSocketMessageToDevice,
 };
-use futures_util::StreamExt;
 use proto::tunnelbroker_service_client::TunnelbrokerServiceClient;
 use proto::MessageToDevice;
 use std::time::Duration;
@@ -50,13 +49,13 @@ async fn persist_grpc_messages() {
 
   let mut socket = create_socket(&device_info).await;
   // Have keyserver receive any websocket messages
-  if let Some(Ok(response)) = socket.next().await {
-    // Check that message received by keyserver matches what identity server
-    // issued
-    let serialized_response: RefreshKeyRequest =
-      serde_json::from_str(response.to_text().unwrap()).unwrap();
-    assert_eq!(serialized_response, refresh_request);
-  };
+  let response = receive_message(&mut socket).await.unwrap();
+
+  // Check that message received by keyserver matches what identity server
+  // issued
+  let serialized_response: RefreshKeyRequest =
+    serde_json::from_str(&response).unwrap();
+  assert_eq!(serialized_response, refresh_request);
 }
 
 #[tokio::test]
@@ -78,12 +77,7 @@ async fn persist_websocket_messages() {
   // Wait a specified duration to ensure that message had time to persist
   sleep(Duration::from_millis(100)).await;
 
-  // Connect receiver
   let mut receiver_socket = create_socket(&receiver).await;
-
-  // Receive message
-  if let Some(Ok(response)) = receiver_socket.next().await {
-    let received_payload = response.to_text().unwrap();
-    assert_eq!(request.payload, received_payload);
-  };
+  let response = receive_message(&mut receiver_socket).await.unwrap();
+  assert_eq!(request.payload, response);
 }
