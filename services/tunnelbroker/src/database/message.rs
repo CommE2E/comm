@@ -1,27 +1,27 @@
 use std::collections::HashMap;
 
 use aws_sdk_dynamodb::types::AttributeValue;
+use tunnelbroker_messages::MessageToDevice;
 
 use crate::constants::dynamodb::undelivered_messages::{
   DEVICE_ID, MESSAGE_ID, PAYLOAD,
 };
-
-#[derive(Debug)]
-pub struct DeviceMessage {
-  pub device_id: String,
-  pub message_id: String,
-  pub payload: String,
-}
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]
 pub enum MessageErrors {
   SerializationError,
 }
 
-impl DeviceMessage {
-  pub fn from_hashmap(
+pub trait MessageToDeviceTrait {
+  fn from_hashmap(
     hashmap: HashMap<String, AttributeValue>,
-  ) -> Result<DeviceMessage, MessageErrors> {
+  ) -> Result<MessageToDevice, MessageErrors>;
+}
+
+impl MessageToDeviceTrait for MessageToDevice {
+  fn from_hashmap(
+    hashmap: HashMap<String, AttributeValue>,
+  ) -> Result<MessageToDevice, MessageErrors> {
     let device_id: String = hashmap
       .get(DEVICE_ID)
       .ok_or(MessageErrors::SerializationError)?
@@ -41,7 +41,7 @@ impl DeviceMessage {
       .map_err(|_| MessageErrors::SerializationError)?
       .to_string();
 
-    Ok(DeviceMessage {
+    Ok(MessageToDevice {
       device_id,
       message_id,
       payload,
