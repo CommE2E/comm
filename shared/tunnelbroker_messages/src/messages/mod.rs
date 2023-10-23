@@ -1,12 +1,14 @@
 //! Messages sent between Tunnelbroker and a device.
 
 pub mod keys;
+pub mod message_receive_confirmation;
 pub mod message_to_device;
 pub mod message_to_device_request;
 pub mod message_to_device_request_status;
 pub mod session;
 
 pub use keys::*;
+pub use message_receive_confirmation::*;
 pub use message_to_device::*;
 pub use message_to_device_request::*;
 pub use message_to_device_request_status::*;
@@ -25,4 +27,5 @@ pub enum Messages {
   MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageToDevice(MessageToDevice),
+  MessageReceiveConfirmation(MessageReceiveConfirmation),
 }
