@@ -136,13 +136,6 @@ async fn publish_persisted_messages(
         BasicProperties::default().with_priority(DDB_RMQ_MSG_PRIORITY),
       )
       .await?;
-
-    if let Err(e) = db_client
-      .delete_message(&device_info.device_id, &message_to_device.message_id)
-      .await
-    {
-      error!("Failed to delete message: {}:", e);
-    }
   }
 
   debug!("Flushed messages for device: {}", &device_info.device_id);
@@ -242,24 +235,37 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
   pub async fn handle_websocket_frame_from_device(
     &mut self,
     msg: String,
-  ) -> MessageSentStatus {
+  ) -> Option<MessageSentStatus> {
     let Ok(serialized_message) = serde_json::from_str::<Messages>(&msg) else {
-      return MessageSentStatus::SerializationError(msg);
+      return Option::from(MessageSentStatus::SerializationError(msg));
     };
 
     match serialized_message {
+      Messages::MessageReceiveConfirmation(confirmation) => {
+        for message_id in confirmation.message_ids {
+          if let Err(e) = self
+            .db_client
+            .delete_message(&self.device_info.device_id, &message_id)
+            .await
+          {
+            error!("Failed to delete message: {}:", e);
+          }
+        }
+
+        None
+      }
       Messages::MessageToDeviceRequest(message_request) => {
         debug!("Received message for {}", message_request.device_id);
 
         let result = self.handle_message_to_device(&message_request).await;
-        self.get_message_to_device_status(
+        Option::from(self.get_message_to_device_status(
           &message_request.client_message_id,
           result,
-        )
+        ))
       }
       _ => {
         error!("Client sent invalid message type");
-        MessageSentStatus::InvalidRequest
+        Option::from(MessageSentStatus::InvalidRequest)
       }
     }
   }
