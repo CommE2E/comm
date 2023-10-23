@@ -2,15 +2,13 @@
 
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
 
+import HeaderRightAddButton from '../navigation/header-right-add-button.react.js';
 import { SecondaryDeviceQRCodeScannerRouteName } from '../navigation/route-names.js';
-import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 import { deviceIsEmulator } from '../utils/url-utils.js';
 
 function LinkedDevicesHeaderRightButton(): React.Node {
-  const styles = useStyles(unboundStyles);
   const { navigate } = useNavigation();
 
   const navigateToQRCodeScanner = React.useCallback(() => {
@@ -26,19 +24,7 @@ function LinkedDevicesHeaderRightButton(): React.Node {
     navigate(SecondaryDeviceQRCodeScannerRouteName);
   }, [navigate]);
 
-  return (
-    <TouchableOpacity onPress={navigateToQRCodeScanner}>
-      <Text style={styles.textStyle}>Add</Text>
-    </TouchableOpacity>
-  );
+  return <HeaderRightAddButton onPress={navigateToQRCodeScanner} />;
 }
-
-const unboundStyles = {
-  textStyle: {
-    color: 'headerChevron',
-    fontSize: 16,
-    marginRight: 10,
-  },
-};
 
 export default LinkedDevicesHeaderRightButton;
