@@ -9,6 +9,7 @@ import {
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 
+import AddKeyserver from './add-keyserver.react.js';
 import AppearancePreferences from './appearance-preferences.react.js';
 import BackupMenu from './backup-menu.react.js';
 import BuildInfo from './build-info.react.js';
@@ -17,6 +18,7 @@ import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
 import EditPassword from './edit-password.react.js';
 import EmojiUserAvatarCreation from './emoji-user-avatar-creation.react.js';
+import KeyserverSelectionListHeaderRightButton from './keyserver-selection-list-header-right-button.react.js';
 import KeyserverSelectionList from './keyserver-selection-list.react.js';
 import LinkedDevicesHeaderRightButton from './linked-devices-header-right-button.react.js';
 import LinkedDevices from './linked-devices.react.js';
@@ -45,6 +47,7 @@ import {
   SecondaryDeviceQRCodeScannerRouteName,
   BackupMenuRouteName,
   KeyserverSelectionListRouteName,
+  AddKeyserverRouteName,
   type ScreenParamList,
   type ProfileParamList,
 } from '../navigation/route-names.js';
@@ -63,7 +66,12 @@ const linkedDevicesOptions = {
   // eslint-disable-next-line react/display-name
   headerRight: () => <LinkedDevicesHeaderRightButton />,
 };
-const keyserverSelectionListOptions = { headerTitle: 'Keyserver selection' };
+const keyserverSelectionListOptions = {
+  headerTitle: 'Keyserver selection',
+  // eslint-disable-next-line react/display-name
+  headerRight: () => <KeyserverSelectionListHeaderRightButton />,
+};
+const addKeyserverOptions = { headerTitle: 'Add keyserver' };
 const backupMenuOptions = { headerTitle: 'Backup menu' };
 const secondaryDeviceQRCodeScannerOptions = {
   headerTitle: '',
@@ -158,6 +166,11 @@ function ProfileComponent(props: Props): React.Node {
             name={KeyserverSelectionListRouteName}
             component={KeyserverSelectionList}
             options={keyserverSelectionListOptions}
+          />
+          <Profile.Screen
+            name={AddKeyserverRouteName}
+            component={AddKeyserver}
+            options={addKeyserverOptions}
           />
           <Profile.Screen
             name={BackupMenuRouteName}
