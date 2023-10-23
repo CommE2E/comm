@@ -1,17 +1,22 @@
 .container {
+  flex: 1;
+  background-color: var(--panel-background-primary-default);
+}
+
+.contentContainer {
   padding: 40px;
   width: 343px;
 }
 
 .header {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   font-weight: var(--semi-bold);
   line-height: var(--line-height-display);
   padding-bottom: 40px;
 }
 
 .subheading {
-  color: var(--danger-zone-subheading-color);
+  color: var(--text-background-secondary-default);
   font-size: var(--xl-font-20);
   font-weight: var(--semi-bold);
   line-height: var(--line-height-display);
@@ -24,5 +29,5 @@
 
 .explanation {
   padding-top: 8px;
-  color: var(--danger-zone-explanation-color);
+  color: var(--text-background-tertiary-default);
 }

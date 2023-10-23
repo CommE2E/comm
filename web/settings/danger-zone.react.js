@@ -17,20 +17,22 @@ function DangerZone(): React.Node {
 
   return (
     <div className={css.container}>
-      <h4 className={css.header}>Danger Zone</h4>
-      <h5 className={css.subheading}>Delete Account</h5>
-      <Button
-        onClick={onDeleteAccountClick}
-        variant="filled"
-        buttonColor={buttonThemes.danger}
-        className={css.button}
-      >
-        Delete Account
-      </Button>
-      <p className={css.explanation}>
-        Your account will be permanently deleted. There is no way to reverse
-        this.
-      </p>
+      <div className={css.contentContainer}>
+        <h4 className={css.header}>Danger Zone</h4>
+        <h5 className={css.subheading}>Delete Account</h5>
+        <Button
+          onClick={onDeleteAccountClick}
+          variant="filled"
+          buttonColor={buttonThemes.danger}
+          className={css.button}
+        >
+          Delete Account
+        </Button>
+        <p className={css.explanation}>
+          Your account will be permanently deleted. There is no way to reverse
+          this.
+        </p>
+      </div>
     </div>
   );
 }
