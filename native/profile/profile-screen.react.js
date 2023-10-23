@@ -87,7 +87,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    let developerTools, defaultNotifications;
+    let developerTools, defaultNotifications, keyserverSelection;
     const { staffCanSee, isAccountWithPassword } = this.props;
     if (staffCanSee) {
       developerTools = (
@@ -98,6 +98,13 @@ class ProfileScreen extends React.PureComponent<Props> {
         <ProfileRow
           content="Default Notifications"
           onPress={this.onPressDefaultNotifications}
+        />
+      );
+
+      keyserverSelection = (
+        <ProfileRow
+          content="Keyserver selection"
+          onPress={this.onPressKeyserverSelection}
         />
       );
     }
@@ -182,6 +189,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           </View>
           <View style={this.props.styles.section}>
             {linkedDevices}
+            {keyserverSelection}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
           </View>
@@ -313,6 +321,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressBackupMenu = () => {
     this.navigateIfActive(BackupMenuRouteName);
+  };
+
+  onPressKeyserverSelection = () => {
+    // TODO
   };
 }
 
