@@ -1,3 +1,7 @@
+use crate::constants::{
+  CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY, MAX_RMQ_MSG_PRIORITY,
+  RMQ_CONSUMER_TAG,
+};
 use aws_sdk_dynamodb::error::SdkError;
 use aws_sdk_dynamodb::operation::put_item::PutItemError;
 use derive_more;
@@ -22,7 +26,6 @@ use tunnelbroker_messages::{
 };
 
 use crate::database::{self, DatabaseClient, DeviceMessage};
-use crate::error::Error;
 use crate::identity;
 
 pub struct DeviceInfo {
@@ -55,16 +58,10 @@ pub enum SessionError {
   PersistenceError(SdkError<PutItemError>),
 }
 
-pub fn consume_error<T>(result: Result<T, SessionError>) {
-  if let Err(e) = result {
-    error!("{}", e)
-  }
-}
-
 // Parse a session request and retrieve the device information
 pub async fn handle_first_message_from_device(
   message: &str,
-) -> Result<DeviceInfo, Error> {
+) -> Result<DeviceInfo, SessionError> {
   let serialized_message = serde_json::from_str::<Messages>(message)?;
 
   match serialized_message {
@@ -89,11 +86,11 @@ pub async fn handle_first_message_from_device(
       match auth_request {
         Err(e) => {
           error!("Failed to complete request to identity service: {:?}", e);
-          return Err(SessionError::InternalError.into());
+          return Err(SessionError::InternalError);
         }
         Ok(false) => {
           info!("Device failed authentication: {}", &session_info.device_id);
-          return Err(SessionError::UnauthorizedDevice.into());
+          return Err(SessionError::UnauthorizedDevice);
         }
         Ok(true) => {
           debug!(
@@ -107,9 +104,47 @@ pub async fn handle_first_message_from_device(
     }
     _ => {
       debug!("Received invalid request");
-      Err(SessionError::InvalidMessage.into())
+      Err(SessionError::InvalidMessage)
     }
   }
+}
+
+async fn publish_persisted_messages(
+  db_client: &DatabaseClient,
+  amqp_channel: &lapin::Channel,
+  device_info: &DeviceInfo,
+) -> Result<(), SessionError> {
+  let messages = db_client
+    .retrieve_messages(&device_info.device_id)
+    .await
+    .unwrap_or_else(|e| {
+      error!("Error while retrieving messages: {}", e);
+      Vec::new()
+    });
+
+  for message in messages {
+    let device_message = DeviceMessage::from_hashmap(message)?;
+
+    amqp_channel
+      .basic_publish(
+        "",
+        &device_message.device_id,
+        BasicPublishOptions::default(),
+        device_message.payload.as_bytes(),
+        BasicProperties::default().with_priority(DDB_RMQ_MSG_PRIORITY),
+      )
+      .await?;
+
+    if let Err(e) = db_client
+      .delete_message(&device_info.device_id, &device_message.message_id)
+      .await
+    {
+      error!("Failed to delete message: {}:", e);
+    }
+  }
+
+  debug!("Flushed messages for device: {}", &device_info.device_id);
+  Ok(())
 }
 
 impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
@@ -118,31 +153,33 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     db_client: DatabaseClient,
     frame: Message,
     amqp_channel: &lapin::Channel,
-  ) -> Result<WebsocketSession<S>, Error> {
+  ) -> Result<WebsocketSession<S>, SessionError> {
     let device_info = match frame {
       Message::Text(payload) => {
         handle_first_message_from_device(&payload).await?
       }
       _ => {
         error!("Client sent wrong frame type for establishing connection");
-        return Err(SessionError::InvalidMessage.into());
+        return Err(SessionError::InvalidMessage);
       }
     };
 
-    // We don't currently have a use case to interact directly with the queue,
-    // however, we need to declare a queue for a given device
+    let mut args = FieldTable::default();
+    args.insert("x-max-priority".into(), MAX_RMQ_MSG_PRIORITY.into());
     amqp_channel
       .queue_declare(
         &device_info.device_id,
         QueueDeclareOptions::default(),
-        FieldTable::default(),
+        args,
       )
       .await?;
+
+    publish_persisted_messages(&db_client, amqp_channel, &device_info).await?;
 
     let amqp_consumer = amqp_channel
       .basic_consume(
         &device_info.device_id,
-        "tunnelbroker",
+        RMQ_CONSUMER_TAG,
         BasicConsumeOptions::default(),
         FieldTable::default(),
       )
@@ -177,7 +214,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         &message_request.device_id,
         BasicPublishOptions::default(),
         message_request.payload.as_bytes(),
-        BasicProperties::default(),
+        BasicProperties::default().with_priority(CLIENT_RMQ_MSG_PRIORITY),
       )
       .await;
 
@@ -221,41 +258,6 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     &mut self,
   ) -> Option<Result<Delivery, lapin::Error>> {
     self.amqp_consumer.next().await
-  }
-
-  pub async fn deliver_persisted_messages(
-    &mut self,
-  ) -> Result<(), SessionError> {
-    // Check for persisted messages
-    let messages = self
-      .db_client
-      .retrieve_messages(&self.device_info.device_id)
-      .await
-      .unwrap_or_else(|e| {
-        error!("Error while retrieving messages: {}", e);
-        Vec::new()
-      });
-
-    for message in messages {
-      let device_message = DeviceMessage::from_hashmap(message)?;
-      self
-        .send_message_to_device(Message::Text(device_message.payload))
-        .await;
-      if let Err(e) = self
-        .db_client
-        .delete_message(&self.device_info.device_id, &device_message.message_id)
-        .await
-      {
-        error!("Failed to delete message: {}:", e);
-      }
-    }
-
-    debug!(
-      "Flushed messages for device: {}",
-      &self.device_info.device_id
-    );
-
-    Ok(())
   }
 
   pub async fn send_message_to_device(&mut self, message: Message) {
