@@ -16,9 +16,7 @@ use std::pin::Pin;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info};
-use tunnelbroker_messages::{
-  MessageSentStatus, MessageToDevice, MessageToDeviceRequestStatus,
-};
+use tunnelbroker_messages::{MessageSentStatus, MessageToDeviceRequestStatus};
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -171,8 +169,7 @@ async fn accept_connection(
     tokio::select! {
       Some(Ok(delivery)) = session.next_amqp_message() => {
         if let Ok(message) = std::str::from_utf8(&delivery.data) {
-          let message_to_device = serde_json::from_str::<MessageToDevice>(message).unwrap();
-          session.send_message_to_device(Message::Text(message_to_device.payload)).await;
+          session.send_message_to_device(Message::Text(message.to_string())).await;
         } else {
           error!("Invalid payload");
         }
