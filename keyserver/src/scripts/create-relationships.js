@@ -50,7 +50,7 @@ async function createMembershipsForFormerMembers() {
     });
   }
 
-  await saveMemberships(rowsToSave);
+  await saveMemberships(rowsToSave, false);
 }
 
 async function createKnowOfRelationships() {

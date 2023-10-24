@@ -11,10 +11,12 @@ import {
   getRoleForPermissions,
 } from 'lib/permissions/thread-permissions.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
 import type {
   ThreadPermissionsBlob,
   ThreadRolePermissionsBlob,
 } from 'lib/types/thread-permission-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadType,
   assertThreadType,
@@ -881,7 +883,12 @@ const joinSubscriptionString = JSON.stringify({ home: true, pushNotifs: true });
 
 const membershipInsertBatchSize = 50;
 
-async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
+const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+
+async function saveMemberships(
+  toSave: $ReadOnlyArray<MembershipRowToSave>,
+  updateMembershipsLastMessage: boolean,
+) {
   if (toSave.length === 0) {
     return;
   }
@@ -933,6 +940,77 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
     `;
     await dbQuery(query);
   }
+
+  if (!updateMembershipsLastMessage) {
+    return;
+  }
+
+  const joinRows = toSave
+    .filter(row => row.intent === 'join')
+    .map(row => [row.userID, row.threadID, row.unread]);
+
+  if (joinRows.length === 0) {
+    return;
+  }
+
+  const joinedUserThreadPairs = joinRows.map(([user, thread]) => [
+    user,
+    thread,
+  ]);
+
+  const unreadUserThreadPairs = joinRows
+    .filter(([, , unread]) => !!unread)
+    .map(([user, thread]) => [user, thread]);
+
+  let lastReadMessageExpression;
+  if (unreadUserThreadPairs.length === 0) {
+    lastReadMessageExpression = SQL`
+      GREATEST(COALESCE(all_users_query.message, 0), 
+        COALESCE(last_subthread_message_for_user_query.message, 0))
+    `;
+  } else {
+    lastReadMessageExpression = SQL`
+      (CASE 
+        WHEN ((mm.user, mm.thread) in (${unreadUserThreadPairs})) THEN 0
+        ELSE GREATEST(COALESCE(all_users_query.message, 0), 
+          COALESCE(last_subthread_message_for_user_query.message, 0))
+      END)
+    `;
+  }
+
+  // We join two subqueries with the memeberships table:
+  // - the first subquery calculates the oldest non-CREATE_SUB_THREAD
+  //   message, which is the same for all users
+  // - the second subquery calculates the oldest CREATE_SUB_THREAD messages,
+  //   which can be different for each user because of visibility permissions
+  // Then we set the `last_message` column to the greater value of the two.
+  // For `last_read_message` we do the same but only if the user should have
+  // the "unread" status set for this thread.
+  const query = SQL`
+    UPDATE memberships mm
+    LEFT JOIN (
+      SELECT m.thread, MAX(m.id) AS message FROM messages m
+      WHERE m.type != ${messageTypes.CREATE_SUB_THREAD}
+      GROUP BY m.thread 
+    ) all_users_query ON mm.thread = all_users_query.thread
+    LEFT JOIN (
+      SELECT m.thread, stm.user, MAX(m.id) AS message FROM messages m
+      LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+        AND stm.thread = m.content
+      WHERE JSON_EXTRACT(stm.permissions, ${visibleExtractString}) IS TRUE
+      GROUP BY m.thread, stm.user
+    ) last_subthread_message_for_user_query 
+    ON mm.thread = last_subthread_message_for_user_query.thread 
+      AND mm.user = last_subthread_message_for_user_query.user
+    SET
+      mm.last_message = GREATEST(COALESCE(all_users_query.message, 0), 
+        COALESCE(last_subthread_message_for_user_query.message, 0)),
+      mm.last_read_message =
+  `;
+  query.append(lastReadMessageExpression);
+  query.append(SQL`WHERE (mm.user, mm.thread) IN (${joinedUserThreadPairs});`);
+
+  await dbQuery(query);
 }
 
 async function deleteMemberships(
@@ -989,10 +1067,12 @@ async function commitMembershipChangeset(
     changedThreadIDs = new Set(),
     calendarQuery,
     updatesForCurrentSession = 'return',
+    updateMembershipsLastMessage = false,
   }: {
     +changedThreadIDs?: Set<string>,
     +calendarQuery?: ?CalendarQuery,
     +updatesForCurrentSession?: UpdatesForCurrentSession,
+    +updateMembershipsLastMessage?: boolean,
   } = emptyCommitMembershipChangesetConfig,
 ): Promise<ChangesetCommitResult> {
   if (!viewer.loggedIn) {
@@ -1053,7 +1133,7 @@ async function commitMembershipChangeset(
 
   const [updateDatas] = await Promise.all([
     updateChangedUndirectedRelationships(relationshipRows),
-    saveMemberships(toSave),
+    saveMemberships(toSave, updateMembershipsLastMessage),
     deleteMemberships(toDelete),
     rescindPushNotifsForMemberDeletion(toRescindPushNotifs),
   ]);
