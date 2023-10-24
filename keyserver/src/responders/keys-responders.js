@@ -16,7 +16,6 @@ import { ServerError } from 'lib/utils/errors.js';
 import { tShape, tNull } from 'lib/utils/validation-utils.js';
 
 import { fetchSessionPublicKeys } from '../fetchers/key-fetchers.js';
-import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 
@@ -63,11 +62,7 @@ function retrieveSessionInitializationKeysSet(
   return { identityKeys, oneTimeKey, prekey, prekeySignature };
 }
 
-async function getOlmSessionInitializationDataResponder(
-  viewer: Viewer,
-): Promise<GetOlmSessionInitializationDataResponse> {
-  await verifyClientSupported(viewer);
-
+async function getOlmSessionInitializationDataResponder(): Promise<GetOlmSessionInitializationDataResponse> {
   const {
     identityKeys: notificationsIdentityKeys,
     prekey: notificationsPrekey,
