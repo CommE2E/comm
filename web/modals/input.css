@@ -1,5 +1,5 @@
 .label {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   font-weight: var(--bold);
   font-size: var(--xl-font-20);
   line-height: var(--line-height-text);
@@ -7,17 +7,17 @@
 
 .input {
   padding: 12px;
-  background: var(--modal-bg);
-  color: var(--fg);
+  background: var(--inputField-background-primary-default);
+  color: var(--inputField-label-primary-default);
 }
 
 .input[type='text'],
 .input[type='password'] {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--inputField-border-primary-default);
   box-sizing: border-box;
   width: 100%;
   font-size: var(--m-font-16);
   line-height: var(--line-height-text);
-  color: var(--fg);
+  color: var(--inputField-label-primary-default);
   border-radius: 4px;
 }

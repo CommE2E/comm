@@ -129,8 +129,6 @@
   --app-list-icon-read-only-color: var(--shades-black-60);
   --app-list-icon-enabled-color: var(--success-primary);
   --app-list-icon-disabled-color: var(--shades-white-80);
-  --account-settings-label: var(--shades-black-60);
-  --account-button-color: var(--violet-dark-100);
   --chat-thread-list-color-active: var(--shades-white-60);
   --chat-thread-list-menu-color: var(--shades-white-60);
   --chat-thread-list-menu-bg: var(--shades-black-80);
@@ -269,18 +267,32 @@
   --text-background-primary-default: var(--shades-white-100);
   --text-background-secondary-default: var(--shades-white-60);
   --text-background-tertiary-default: var(--shades-black-60);
+  --text-background-danger-default: var(--error-primary);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-primary-hover: var(--violet-dark-80);
+  --button-background-primary-disabled: var(--shades-black-80);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-primary-hover: var(--shades-white-90);
+  --button-label-primary-disabled: var(--shades-black-60);
 
   /* Link */
   --link-background-primary-default: var(--violet-dark-100);
 
   /* Separator */
   --separator-background-primary-default: var(--shades-black-80);
+
+  /* Modal */
+  --modal-background-primary-default: var(--shades-black-90);
+  --modal-header-primary-default: var(--shades-white-100);
+  --modal-close-primary-default: var(--shades-black-60);
+  --modal-close-primary-hover: var(--shades-white-100);
+
+  /* Input Field */
+  --inputField-background-primary-default: var(--shades-black-90);
+  --inputField-label-primary-default: var(--shades-white-100);
+  --inputField-border-primary-default: var(--shades-black-80);
 }
 
 /* Light theme */
@@ -292,16 +304,30 @@
   --text-background-primary-default: var(--shades-black-100);
   --text-background-secondary-default: var(--shades-black-70);
   --text-background-tertiary-default: var(--shades-black-60);
+  --text-background-danger-default: var(--error-primary);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-primary-hover: var(--violet-dark-80);
+  --button-background-primary-disabled: var(--shades-white-60);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-primary-hover: var(--shades-white-90);
+  --button-label-primary-disabled: var(--shades-black-60);
 
   /* Link */
   --link-background-primary-default: var(--violet-dark-100);
 
   /* Separator */
   --separator-background-primary-default: var(--shades-white-60);
+
+  /* Modal */
+  --modal-background-primary-default: var(--shades-white-100);
+  --modal-header-primary-default: var(--shades-black-100);
+  --modal-close-primary-default: var(--shades-black-60);
+  --modal-close-primary-hover: var(--shades-black-100);
+
+  /* Input Field */
+  --inputField-background-primary-default: var(--shades-white-100);
+  --inputField-label-primary-default: var(--shades-black-100);
+  --inputField-border-primary-default: var(--shades-white-60);
 }
