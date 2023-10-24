@@ -10,11 +10,15 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
-import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
+import type {
+  CallServerEndpoint,
+  CallServerEndpointOptions,
+} from 'lib/utils/call-server-endpoint.js';
 
 import { commCoreModule } from '../native-modules.js';
 
-type InitialNotifMessageOptions = {
+export type InitialNotifMessageOptions = {
+  +callServerEndpoint?: ?CallServerEndpoint,
   +callServerEndpointOptions?: ?CallServerEndpointOptions,
 };
 function useInitialNotificationsEncryptedMessage(): (
@@ -27,10 +31,13 @@ function useInitialNotificationsEncryptedMessage(): (
 
   return React.useCallback(
     async options => {
+      const callServerEndpoint = options?.callServerEndpoint;
       const callServerEndpointOptions = options?.callServerEndpointOptions;
-      const olmSessionDataPromise = callGetOlmSessionInitializationData(
-        callServerEndpointOptions,
-      );
+
+      const initDataAction = callServerEndpoint
+        ? getOlmSessionInitializationData(callServerEndpoint)
+        : callGetOlmSessionInitializationData;
+      const olmSessionDataPromise = initDataAction(callServerEndpointOptions);
 
       dispatchActionPromise(
         getOlmSessionInitializationDataActionTypes,

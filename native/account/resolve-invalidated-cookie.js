@@ -9,12 +9,15 @@ import { fetchNativeKeychainCredentials } from './native-credentials.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { store } from '../redux/redux-setup.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import type { InitialNotifMessageOptions } from '../utils/crypto-utils.js';
 
 async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
   logInActionSource: LogInActionSource,
-  getInitialNotificationsEncryptedMessage?: () => Promise<string>,
+  getInitialNotificationsEncryptedMessage?: (
+    ?InitialNotifMessageOptions,
+  ) => Promise<string>,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (!keychainCredentials) {
@@ -27,7 +30,7 @@ async function resolveInvalidatedCookie(
 
   if (getInitialNotificationsEncryptedMessage) {
     const initialNotificationsEncryptedMessage =
-      await getInitialNotificationsEncryptedMessage();
+      await getInitialNotificationsEncryptedMessage({ callServerEndpoint });
     extraInfo = { ...extraInfo, initialNotificationsEncryptedMessage };
   }
 
