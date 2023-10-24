@@ -7,6 +7,7 @@
 [options]
 module.name_mapper.extension='css' -> '<PROJECT_ROOT>/flow/CSSModule.js.flow'
 
+enums=true
 exact_by_default=true
 
 format.bracket_spacing=false
