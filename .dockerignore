@@ -5,6 +5,9 @@
 .vscode
 !.vscode/extensions.json
 
+Dockerfile
+docker-compose.yml
+
 node_modules
 
 desktop/node_modules
