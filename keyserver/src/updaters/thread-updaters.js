@@ -759,6 +759,9 @@ async function updateThread(
       Object.keys(sqlUpdate).length > 0
         ? new Set([request.threadID])
         : new Set(),
+    // last_message will be updated automatically if we send a message,
+    // so we only need to handle it here when we silence new messages
+    updateMembershipsLastMessage: silenceMessages,
   });
 
   let newMessageInfos = [];
