@@ -85,7 +85,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   }, [dispatchActionPromise, getSIWENonceCall, siweNonceShouldBeFetched]);
 
   const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
-    state => state.cryptoStore.primaryIdentityKeys,
+    state => state.cryptoStore?.primaryIdentityKeys,
   );
 
   const signedIdentityKeysBlob: ?SignedIdentityKeysBlob =
