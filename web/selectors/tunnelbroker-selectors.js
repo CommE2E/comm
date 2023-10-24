@@ -8,7 +8,7 @@ import type { AppState } from '../redux/redux-setup.js';
 
 export const createTunnelbrokerInitMessage: AppState => ?ConnectionInitializationMessage =
   createSelector(
-    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
+    state => state.cryptoStore?.primaryIdentityKeys.ed25519,
     state => state.commServicesAccessToken,
     state => state.currentUserInfo?.id,
     (
