@@ -120,7 +120,6 @@ import {
   createNewUserCookie,
   setNewSession,
 } from '../session/cookies.js';
-import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
 import {
   accountUpdater,
@@ -176,9 +175,6 @@ async function passwordUpdateResponder(
 }
 
 async function sendVerificationEmailResponder(viewer: Viewer): Promise<void> {
-  if (!viewer.isSocket) {
-    await verifyClientSupported(viewer, viewer.platformDetails);
-  }
   await checkAndSendVerificationEmail(viewer);
 }
 
@@ -200,9 +196,6 @@ export const logOutResponseValidator: TInterface<LogOutResponse> =
   });
 
 async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
-  if (!viewer.isSocket) {
-    await verifyClientSupported(viewer, viewer.platformDetails);
-  }
   if (viewer.loggedIn) {
     const [anonymousViewerData] = await Promise.all([
       createNewAnonymousCookie({
