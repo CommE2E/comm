@@ -13,11 +13,7 @@ import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.j
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { invalidSessionDowngrade } from 'lib/shared/session-utils.js';
 import type { Shape } from 'lib/types/core.js';
-import type {
-  CryptoStore,
-  OLMIdentityKeys,
-  PickledOLMAccount,
-} from 'lib/types/crypto-types.js';
+import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
@@ -46,13 +42,7 @@ import {
   setInitialReduxState,
 } from './action-types.js';
 import { reduceCommunityPickerStore } from './community-picker-reducer.js';
-import {
-  reduceCryptoStore,
-  setPrimaryIdentityKeys,
-  setNotificationIdentityKeys,
-  setPickledNotificationAccount,
-  setPickledPrimaryAccount,
-} from './crypto-store-reducer.js';
+import { reduceCryptoStore, setCryptoStore } from './crypto-store-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import { getVisibility } from './visibility.js';
 import { getDatabaseModule } from '../database/database-module-provider.js';
@@ -91,7 +81,7 @@ export type AppState = {
   +dataLoaded: boolean,
   +windowActive: boolean,
   +userPolicies: UserPolicies,
-  +cryptoStore: CryptoStore,
+  +cryptoStore: ?CryptoStore,
   +pushApiPublicKey: ?string,
   +_persist: ?PersistState,
   +commServicesAccessToken: ?string,
@@ -114,10 +104,7 @@ export type Action =
       type: 'UPDATE_WINDOW_ACTIVE',
       payload: boolean,
     }
-  | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
-  | { +type: 'SET_NOTIFICATION_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
-  | { +type: 'SET_PICKLED_PRIMARY_ACCOUNT', payload: ?PickledOLMAccount }
-  | { +type: 'SET_PICKLED_NOTIFICATION_ACCOUNT', payload: ?PickledOLMAccount }
+  | { +type: 'SET_CRYPTO_STORE', payload: CryptoStore }
   | { +type: 'SET_INITIAL_REDUX_STATE', payload: InitialReduxState };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
@@ -195,10 +182,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
 
   if (
     action.type !== updateNavInfoActionType &&
-    action.type !== setPrimaryIdentityKeys &&
-    action.type !== setNotificationIdentityKeys &&
-    action.type !== setPickledPrimaryAccount &&
-    action.type !== setPickledNotificationAccount
+    action.type !== setCryptoStore
   ) {
     const baseReducerResult = baseReducer(state, action);
     state = baseReducerResult.state;

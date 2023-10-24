@@ -17,12 +17,7 @@ import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import { initOlm } from '../olm/olm-utils.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
-import {
-  setPrimaryIdentityKeys,
-  setNotificationIdentityKeys,
-  setPickledPrimaryAccount,
-  setPickledNotificationAccount,
-} from '../redux/crypto-store-reducer.js';
+import { setCryptoStore } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function LoginForm(): React.Node {
@@ -30,21 +25,11 @@ function LoginForm(): React.Node {
   const { data: signer } = useWalletClient();
   const dispatch = useDispatch();
 
-  const primaryIdentityPublicKeys = useSelector(
-    state => state.cryptoStore.primaryIdentityKeys,
-  );
-  const notificationIdentityPublicKeys = useSelector(
-    state => state.cryptoStore.notificationIdentityKeys,
-  );
+  const cryptoStore = useSelector(state => state.cryptoStore);
 
   React.useEffect(() => {
     (async () => {
-      if (
-        primaryIdentityPublicKeys !== null &&
-        primaryIdentityPublicKeys !== undefined &&
-        notificationIdentityPublicKeys !== null &&
-        notificationIdentityPublicKeys !== undefined
-      ) {
+      if (cryptoStore !== null && cryptoStore !== undefined) {
         return;
       }
       await initOlm();
@@ -54,23 +39,10 @@ function LoginForm(): React.Node {
       const { ed25519: identityED25519, curve25519: identityCurve25519 } =
         JSON.parse(identityAccount.identity_keys());
 
-      dispatch({
-        type: setPrimaryIdentityKeys,
-        payload: { ed25519: identityED25519, curve25519: identityCurve25519 },
-      });
-
       const identityAccountPicklingKey = uuid.v4();
       const pickledIdentityAccount = identityAccount.pickle(
         identityAccountPicklingKey,
       );
-
-      dispatch({
-        type: setPickledPrimaryAccount,
-        payload: {
-          picklingKey: identityAccountPicklingKey,
-          pickledAccount: pickledIdentityAccount,
-        },
-      });
 
       const notificationAccount = new olm.Account();
       notificationAccount.create();
@@ -79,28 +51,34 @@ function LoginForm(): React.Node {
         curve25519: notificationCurve25519,
       } = JSON.parse(notificationAccount.identity_keys());
 
-      dispatch({
-        type: setNotificationIdentityKeys,
-        payload: {
-          ed25519: notificationED25519,
-          curve25519: notificationCurve25519,
-        },
-      });
-
       const notificationAccountPicklingKey = uuid.v4();
       const pickledNotificationAccount = notificationAccount.pickle(
         notificationAccountPicklingKey,
       );
 
       dispatch({
-        type: setPickledNotificationAccount,
+        type: setCryptoStore,
         payload: {
-          picklingKey: notificationAccountPicklingKey,
-          pickledAccount: pickledNotificationAccount,
+          primaryAccount: {
+            picklingKey: identityAccountPicklingKey,
+            pickledAccount: pickledIdentityAccount,
+          },
+          primaryIdentityKeys: {
+            ed25519: identityED25519,
+            curve25519: identityCurve25519,
+          },
+          notificationAccount: {
+            picklingKey: notificationAccountPicklingKey,
+            pickledAccount: pickledNotificationAccount,
+          },
+          notificationIdentityKeys: {
+            ed25519: notificationED25519,
+            curve25519: notificationCurve25519,
+          },
         },
       });
     })();
-  }, [dispatch, notificationIdentityPublicKeys, primaryIdentityPublicKeys]);
+  }, [dispatch, cryptoStore]);
 
   const onQRCodeLoginButtonClick = React.useCallback(() => {
     dispatch({
