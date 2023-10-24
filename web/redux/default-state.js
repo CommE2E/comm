@@ -39,12 +39,7 @@ const defaultWebState: AppState = Object.freeze({
   },
   windowActive: true,
   pushApiPublicKey: null,
-  cryptoStore: {
-    primaryAccount: null,
-    primaryIdentityKeys: null,
-    notificationAccount: null,
-    notificationIdentityKeys: null,
-  },
+  cryptoStore: null,
   windowDimensions: { width: window.width, height: window.height },
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,

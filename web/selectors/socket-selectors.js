@@ -15,10 +15,9 @@ import {
 } from 'lib/selectors/socket-selectors.js';
 import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
 import type {
-  OLMIdentityKeys,
-  PickledOLMAccount,
   SignedIdentityKeysBlob,
   IdentityKeysBlob,
+  CryptoStore,
 } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
@@ -68,20 +67,16 @@ const sessionIdentificationSelector: (
 const getSignedIdentityKeysBlobSelector: (
   state: AppState,
 ) => ?() => Promise<SignedIdentityKeysBlob> = createSelector(
-  (state: AppState) => state.cryptoStore.primaryAccount,
-  (state: AppState) => state.cryptoStore.primaryIdentityKeys,
-  (state: AppState) => state.cryptoStore.notificationIdentityKeys,
-  (
-    primaryAccount: ?PickledOLMAccount,
-    primaryIdentityKeys: ?OLMIdentityKeys,
-    notificationIdentityKeys: ?OLMIdentityKeys,
-  ) => {
-    if (!primaryAccount || !primaryIdentityKeys || !notificationIdentityKeys) {
+  (state: AppState) => state.cryptoStore,
+  (cryptoStore: ?CryptoStore) => {
+    if (!cryptoStore) {
       return null;
     }
 
     return async () => {
       await initOlm();
+      const { primaryAccount, primaryIdentityKeys, notificationIdentityKeys } =
+        cryptoStore;
       const primaryOLMAccount = new olm.Account();
       primaryOLMAccount.unpickle(
         primaryAccount.picklingKey,
