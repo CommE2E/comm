@@ -14,8 +14,11 @@ import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.j
 
 import { commCoreModule } from '../native-modules.js';
 
+type InitialNotifMessageOptions = {
+  +callServerEndpointOptions?: ?CallServerEndpointOptions,
+};
 function useInitialNotificationsEncryptedMessage(): (
-  callServerEndpointOptions?: ?CallServerEndpointOptions,
+  options?: ?InitialNotifMessageOptions,
 ) => Promise<string> {
   const callGetOlmSessionInitializationData = useServerCall(
     getOlmSessionInitializationData,
@@ -23,7 +26,8 @@ function useInitialNotificationsEncryptedMessage(): (
   const dispatchActionPromise = useDispatchActionPromise();
 
   return React.useCallback(
-    async callServerEndpointOptions => {
+    async options => {
+      const callServerEndpointOptions = options?.callServerEndpointOptions;
       const olmSessionDataPromise = callGetOlmSessionInitializationData(
         callServerEndpointOptions,
       );
