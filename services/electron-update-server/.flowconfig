@@ -1,4 +1,5 @@
 [options]
+enums=true
 exact_by_default=true
 format.bracket_spacing=false
 
