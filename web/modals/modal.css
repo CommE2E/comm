@@ -1,6 +1,6 @@
 div.modalContainer {
   display: flex;
-  background-color: var(--modal-bg);
+  background-color: var(--modal-background-primary-default);
   border-radius: 8px;
   flex-direction: column;
   margin: 20px;
@@ -23,11 +23,11 @@ div.modalContainerLarge {
 }
 
 .modalButton {
-  color: var(--modal-close-color);
+  color: var(--modal-close-primary-default);
 }
 
 .modalButton:hover {
-  color: var(--modal-close-color-hover);
+  color: var(--modal-close-primary-hover);
 }
 
 div.modalHeader {
@@ -50,7 +50,7 @@ h2.title {
   font-size: 20px;
   font-weight: 500;
   line-height: 32px;
-  color: var(--fg);
+  color: var(--modal-header-primary-default);
   display: flex;
   align-items: center;
   column-gap: 8px;

@@ -67,11 +67,11 @@
 
 .btn:disabled {
   cursor: not-allowed;
-  color: var(--btn-disabled-color);
+  color: var(--button-label-primary-disabled);
 }
 
 .btn:not(.outline):disabled::before {
-  background-color: var(--btn-bg-disabled);
+  background-color: var(--button-background-primary-disabled);
 }
 
 .text {
