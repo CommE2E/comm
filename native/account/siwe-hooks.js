@@ -31,7 +31,7 @@ function useSIWEServerCall(
   const siweAuthCall = useServerCall(siweAuth);
 
   const callSIWE = React.useCallback(
-    async (message, signature, extraInfo, options) => {
+    async (message, signature, extraInfo, callServerEndpointOptions) => {
       try {
         return await siweAuthCall(
           {
@@ -39,7 +39,7 @@ function useSIWEServerCall(
             signature,
             ...extraInfo,
           },
-          options,
+          callServerEndpointOptions,
         );
       } catch (e) {
         onFailure();
@@ -62,10 +62,12 @@ function useSIWEServerCall(
 
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
-    async ({ message, signature }, options) => {
+    async ({ message, signature }, callServerEndpointOptions) => {
       const extraInfo = await logInExtraInfo();
       const initialNotificationsEncryptedMessage =
-        await getInitialNotificationsEncryptedMessage(options);
+        await getInitialNotificationsEncryptedMessage({
+          callServerEndpointOptions,
+        });
 
       const siwePromise = callSIWE(
         message,
@@ -74,7 +76,7 @@ function useSIWEServerCall(
           ...extraInfo,
           initialNotificationsEncryptedMessage,
         },
-        options,
+        callServerEndpointOptions,
       );
 
       dispatchActionPromise(
