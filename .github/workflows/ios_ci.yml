@@ -2,7 +2,9 @@ name: iOS Build CI
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'debugci/*'
     paths-ignore:
       - 'landing/**'
       - 'web/**'
@@ -66,3 +68,7 @@ jobs:
       - name: Clean up keychain
         if: ${{ always() }}
         run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+
+      - name: Set up tmate session
+        if: failure() && startsWith(github.ref, 'refs/heads/debugci/')
+        uses: mxschmitt/action-tmate@v3
