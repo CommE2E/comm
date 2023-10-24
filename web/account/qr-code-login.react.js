@@ -13,7 +13,7 @@ import { useSelector } from '../redux/redux-utils.js';
 function QrCodeLogin(): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
   const ed25519Key = useSelector(
-    state => state.cryptoStore.primaryIdentityKeys?.ed25519,
+    state => state.cryptoStore?.primaryIdentityKeys.ed25519,
   );
 
   const generateQRCode = React.useCallback(async () => {
