@@ -196,7 +196,7 @@ size_t getMemoryUsageInBytes() {
 
   // Step 5: (optional) create empty notification that
   // only provides badge count.
-  if ([self isBadgeOnly:content.userInfo]) {
+  if ([self needsSilentBadgeUpdate:content.userInfo]) {
     UNMutableNotificationContent *badgeOnlyContent =
         [[UNMutableNotificationContent alloc] init];
     badgeOnlyContent.badge = content.badge;
@@ -309,7 +309,7 @@ size_t getMemoryUsageInBytes() {
     // At this point we know that the content is at least
     // correctly decrypted so we can display it to the user.
     // Another operation, like persistence, had failed.
-    if ([self isBadgeOnly:content.userInfo]) {
+    if ([self needsSilentBadgeUpdate:content.userInfo]) {
       UNNotificationContent *badgeOnlyContent =
           [self getBadgeOnlyContentFor:content];
       handler(badgeOnlyContent);
@@ -431,10 +431,19 @@ size_t getMemoryUsageInBytes() {
       [payload[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"];
 }
 
-- (BOOL)isBadgeOnly:(NSDictionary *)payload {
+- (BOOL)needsSilentBadgeUpdate:(NSDictionary *)payload {
   // TODO: refactor this check by introducing
   // badgeOnly property in iOS notification payload
-  return !payload[@"threadID"];
+  if (!payload[@"threadID"]) {
+    // This notif only contains a badge update. We could let it go through
+    // normally, but for internal builds we set the BODY to "ENCRYPTED" for
+    // debugging purposes. So instead of letting the badge-only notif go
+    // through, we construct another notif that doesn't have a body.
+    return true;
+  }
+  // If the notif is a rescind, then we'll filter it out. So we need another
+  // notif to update the badge count.
+  return [self isRescind:payload];
 }
 
 - (BOOL)isCollapsible:(NSDictionary *)payload {
