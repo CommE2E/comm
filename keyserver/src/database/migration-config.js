@@ -5,6 +5,7 @@ import fs from 'fs';
 import bots from 'lib/facts/bots.js';
 import { policyTypes } from 'lib/facts/policies.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { dbQuery, SQL } from '../database/database.js';
@@ -582,6 +583,35 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
     47,
     () =>
       dbQuery(SQL`ALTER TABLE cookies MODIFY COLUMN hash char(64) NOT NULL`),
+  ],
+  [
+    48,
+    async () => {
+      const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+      const query = SQL`
+        UPDATE memberships mm
+        LEFT JOIN (
+          SELECT m.thread, MAX(m.id) AS message FROM messages m
+          WHERE m.type != ${messageTypes.CREATE_SUB_THREAD} AND m.thread = 1
+          GROUP BY m.thread 
+        ) all_users_query ON mm.thread = all_users_query.thread
+        LEFT JOIN (
+          SELECT m.thread, stm.user, MAX(m.id) AS message FROM messages m
+          LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+            AND stm.thread = m.content
+          WHERE JSON_EXTRACT(stm.permissions, ${visibleExtractString}) IS TRUE
+            AND m.thread = 1
+          GROUP BY m.thread, stm.user
+        ) last_subthread_message_for_user_query 
+        ON mm.thread = last_subthread_message_for_user_query.thread 
+          AND mm.user = last_subthread_message_for_user_query.user
+        SET
+          mm.last_message = GREATEST(COALESCE(all_users_query.message, 0), 
+            COALESCE(last_subthread_message_for_user_query.message, 0))
+        WHERE mm.thread = 1;
+      `;
+      await dbQuery(query);
+    },
   ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
