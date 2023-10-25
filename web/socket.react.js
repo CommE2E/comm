@@ -18,6 +18,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
+import { useGetSignedIdentityKeysBlob } from './account/account-hooks.js';
 import { useSelector } from './redux/redux-utils.js';
 import {
   activeThreadSelector,
@@ -49,7 +50,10 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(sessionIdentificationSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
-    const getClientResponses = useSelector(webGetClientResponsesSelector);
+    const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
+    const getClientResponses = useSelector(state =>
+      webGetClientResponsesSelector({ state, getSignedIdentityKeysBlob }),
+    );
     const sessionStateFunc = useSelector(webSessionStateFuncSelector);
     const currentCalendarQuery = useSelector(webCalendarQuery);
 
