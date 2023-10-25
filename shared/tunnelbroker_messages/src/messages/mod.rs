@@ -18,6 +18,17 @@ pub use session::*;
 
 use serde::{Deserialize, Serialize};
 
+/*
+ * This file defines types and validation for messages exchanged
+ * with the Tunnelbroker. The definitions in this file should remain in sync
+ * with the structures defined in the corresponding
+ * JavaScript file at `lib/types/tunnelbroker/messages.js`.
+ *
+ * If you edit the definitions in one file,
+ * please make sure to update the corresponding definitions in the other.
+ *
+ */
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum Messages {
