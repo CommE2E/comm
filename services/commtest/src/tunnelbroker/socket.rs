@@ -6,7 +6,8 @@ use tokio::net::TcpStream;
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use tunnelbroker_messages::{
-  ConnectionInitializationMessage, DeviceTypes, MessageSentStatus,
+  ConnectionInitializationMessage, ConnectionInitializationResponse,
+  ConnectionInitializationStatus, DeviceTypes, MessageSentStatus,
   MessageToDevice, MessageToDeviceRequest, MessageToDeviceRequestStatus,
 };
 
@@ -20,7 +21,10 @@ pub struct WebSocketMessageToDevice {
 
 pub async fn create_socket(
   device_info: &DeviceInfo,
-) -> WebSocketStream<MaybeTlsStream<TcpStream>> {
+) -> Result<
+  WebSocketStream<MaybeTlsStream<TcpStream>>,
+  Box<dyn std::error::Error>,
+> {
   let (mut socket, _) = connect_async(service_addr::TUNNELBROKER_WS)
     .await
     .expect("Can't connect");
@@ -43,7 +47,16 @@ pub async fn create_socket(
     .await
     .expect("Failed to send message");
 
-  socket
+  if let Some(Ok(response)) = socket.next().await {
+    let response: ConnectionInitializationResponse =
+      serde_json::from_str(response.to_text().unwrap())?;
+    return match response.status {
+      ConnectionInitializationStatus::Success => Ok(socket),
+      ConnectionInitializationStatus::Error(err) => Err(err.into()),
+    };
+  }
+
+  Err("Failed to get response from Tunnelbroker".into())
 }
 
 pub async fn send_message(
