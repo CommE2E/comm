@@ -176,8 +176,6 @@
   --notification-settings-option-color: var(--shades-white-60);
   --notification-settings-option-invalid-color: var(--shades-black-80);
   --notification-settings-option-invalid-selected-color: var(--shades-black-60);
-  --danger-zone-subheading-color: var(--shades-white-60);
-  --danger-zone-explanation-color: var(--shades-black-60);
   --thread-creation-search-container-bg: var(--shades-black-90);
   --thread-creation-close-search-color: var(--shades-black-60);
   --thread-creation-search-item-bg-hover: var(--shades-black-80);
@@ -269,6 +267,7 @@
 
   /* Text */
   --text-background-primary-default: var(--shades-white-100);
+  --text-background-secondary-default: var(--shades-white-60);
   --text-background-tertiary-default: var(--shades-black-60);
 
   /* Button */
@@ -291,6 +290,7 @@
 
   /* Text */
   --text-background-primary-default: var(--shades-black-100);
+  --text-background-secondary-default: var(--shades-black-70);
   --text-background-tertiary-default: var(--shades-black-60);
 
   /* Button */
