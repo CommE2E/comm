@@ -43,11 +43,6 @@ pub struct ConnectionInitializationMessage {
   pub device_os: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct ConnectionInitializationResponse {
-  pub session_id: String,
-}
-
 #[cfg(test)]
 mod session_tests {
   use super::*;
