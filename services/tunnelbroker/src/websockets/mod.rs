@@ -1,7 +1,7 @@
 pub mod session;
 
 use crate::database::DatabaseClient;
-use crate::websockets::session::SessionError;
+use crate::websockets::session::initialize_amqp;
 use crate::CONFIG;
 use futures_util::stream::SplitSink;
 use futures_util::StreamExt;
@@ -19,6 +19,11 @@ use tracing::{debug, error, info};
 use tunnelbroker_messages::{MessageSentStatus, MessageToDeviceRequestStatus};
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
+
+pub type ErrorWithStreamHandle<S> = (
+  session::SessionError,
+  SplitSink<WebSocketStream<S>, Message>,
+);
 
 use self::session::WebsocketSession;
 
@@ -234,18 +239,18 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
   frame: Message,
   db_client: DatabaseClient,
   amqp_channel: lapin::Channel,
-) -> Result<WebsocketSession<S>, session::SessionError> {
-  let session = session::WebsocketSession::from_frame(
-    outgoing,
-    db_client.clone(),
-    frame,
-    &amqp_channel,
-  )
-  .await
-  .map_err(|_| {
-    error!("Device failed to send valid connection request.");
-    SessionError::InvalidMessage
-  })?;
+) -> Result<WebsocketSession<S>, ErrorWithStreamHandle<S>> {
+  let initialized_session =
+    initialize_amqp(db_client.clone(), frame, &amqp_channel).await;
 
-  Ok(session)
+  match initialized_session {
+    Ok((device_info, amqp_consumer)) => Ok(WebsocketSession::new(
+      outgoing,
+      db_client,
+      device_info,
+      amqp_channel,
+      amqp_consumer,
+    )),
+    Err(e) => Err((e, outgoing)),
+  }
 }
