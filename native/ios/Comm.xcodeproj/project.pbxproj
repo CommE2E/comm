@@ -1249,7 +1249,8 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
 					/usr/lib/swift,
-					"$(SRCROOT)/../native_rust_library/target/universal/release",
+					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
+					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DFOLLY_MOBILE=1",
@@ -1384,7 +1385,8 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
 					/usr/lib/swift,
-					"$(SRCROOT)/../native_rust_library/target/universal/release",
+					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
+					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
