@@ -21,7 +21,6 @@ jobs:
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
@@ -31,9 +30,9 @@ jobs:
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
           # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security create-keychain -p "123456" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security unlock-keychain -p "123456" $KEYCHAIN_PATH
 
           # import certificate to keychain
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
@@ -77,7 +76,3 @@ jobs:
           APPLE_USER_NAME: ${{secrets.APPLE_USER_NAME}}
           APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
         run: xcrun altool --upload-app --type ios --file output/Comm.ipa --username "$APPLE_USER_NAME" --password "$APPLE_APP_SPECIFIC_PASSWORD"
-
-      - name: Clean up keychain
-        if: ${{ always() }}
-        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
