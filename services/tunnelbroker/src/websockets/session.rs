@@ -142,51 +142,54 @@ async fn publish_persisted_messages(
   Ok(())
 }
 
+pub async fn initialize_amqp(
+  db_client: DatabaseClient,
+  frame: Message,
+  amqp_channel: &lapin::Channel,
+) -> Result<(DeviceInfo, lapin::Consumer), SessionError> {
+  let device_info = match frame {
+    Message::Text(payload) => {
+      handle_first_message_from_device(&payload).await?
+    }
+    _ => {
+      error!("Client sent wrong frame type for establishing connection");
+      return Err(SessionError::InvalidMessage);
+    }
+  };
+
+  let mut args = FieldTable::default();
+  args.insert("x-max-priority".into(), MAX_RMQ_MSG_PRIORITY.into());
+  amqp_channel
+    .queue_declare(&device_info.device_id, QueueDeclareOptions::default(), args)
+    .await?;
+
+  publish_persisted_messages(&db_client, amqp_channel, &device_info).await?;
+
+  let amqp_consumer = amqp_channel
+    .basic_consume(
+      &device_info.device_id,
+      RMQ_CONSUMER_TAG,
+      BasicConsumeOptions::default(),
+      FieldTable::default(),
+    )
+    .await?;
+  Ok((device_info, amqp_consumer))
+}
 impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
-  pub async fn from_frame(
+  pub fn new(
     tx: SplitSink<WebSocketStream<S>, Message>,
     db_client: DatabaseClient,
-    frame: Message,
-    amqp_channel: &lapin::Channel,
-  ) -> Result<WebsocketSession<S>, SessionError> {
-    let device_info = match frame {
-      Message::Text(payload) => {
-        handle_first_message_from_device(&payload).await?
-      }
-      _ => {
-        error!("Client sent wrong frame type for establishing connection");
-        return Err(SessionError::InvalidMessage);
-      }
-    };
-
-    let mut args = FieldTable::default();
-    args.insert("x-max-priority".into(), MAX_RMQ_MSG_PRIORITY.into());
-    amqp_channel
-      .queue_declare(
-        &device_info.device_id,
-        QueueDeclareOptions::default(),
-        args,
-      )
-      .await?;
-
-    publish_persisted_messages(&db_client, amqp_channel, &device_info).await?;
-
-    let amqp_consumer = amqp_channel
-      .basic_consume(
-        &device_info.device_id,
-        RMQ_CONSUMER_TAG,
-        BasicConsumeOptions::default(),
-        FieldTable::default(),
-      )
-      .await?;
-
-    Ok(WebsocketSession {
+    device_info: DeviceInfo,
+    amqp_channel: lapin::Channel,
+    amqp_consumer: lapin::Consumer,
+  ) -> Self {
+    Self {
       tx,
       db_client,
       device_info,
-      amqp_channel: amqp_channel.clone(),
+      amqp_channel,
       amqp_consumer,
-    })
+    }
   }
 
   pub async fn handle_message_to_device(
