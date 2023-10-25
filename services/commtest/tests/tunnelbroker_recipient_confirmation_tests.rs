@@ -18,7 +18,7 @@ async fn deliver_until_confirmation_not_connected() {
   let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
 
   // Send message to not connected client
-  let mut sender_socket = create_socket(&sender).await;
+  let mut sender_socket = create_socket(&sender).await.unwrap();
 
   let request = WebSocketMessageToDevice {
     device_id: receiver.device_id.clone(),
@@ -32,7 +32,7 @@ async fn deliver_until_confirmation_not_connected() {
   // Wait a specified duration to ensure that message had time to persist
   sleep(Duration::from_millis(100)).await;
 
-  let mut receiver_socket = create_socket(&receiver).await;
+  let mut receiver_socket = create_socket(&receiver).await.unwrap();
 
   // receive message for the first time (without confirmation)
   if let Some(Ok(response)) = receiver_socket.next().await {
@@ -49,7 +49,7 @@ async fn deliver_until_confirmation_not_connected() {
     .send(Close(None))
     .await
     .expect("Failed to send message");
-  receiver_socket = create_socket(&receiver).await;
+  receiver_socket = create_socket(&receiver).await.unwrap();
 
   // receive message for the second time
   let response = receive_message(&mut receiver_socket).await.unwrap();
@@ -62,8 +62,8 @@ async fn deliver_until_confirmation_connected() {
   let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
 
   // Send message to connected client
-  let mut receiver_socket = create_socket(&receiver).await;
-  let mut sender_socket = create_socket(&sender).await;
+  let mut receiver_socket = create_socket(&receiver).await.unwrap();
+  let mut sender_socket = create_socket(&sender).await.unwrap();
 
   let request = WebSocketMessageToDevice {
     device_id: receiver.device_id.clone(),
@@ -88,7 +88,7 @@ async fn deliver_until_confirmation_connected() {
     .send(Close(None))
     .await
     .expect("Failed to send message");
-  receiver_socket = create_socket(&receiver).await;
+  receiver_socket = create_socket(&receiver).await.unwrap();
 
   // receive message for the second time
   let response = receive_message(&mut receiver_socket).await.unwrap();

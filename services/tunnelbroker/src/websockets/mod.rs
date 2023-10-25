@@ -1,10 +1,11 @@
 pub mod session;
 
 use crate::database::DatabaseClient;
-use crate::websockets::session::initialize_amqp;
+use crate::websockets::session::{initialize_amqp, SessionError};
 use crate::CONFIG;
 use futures_util::stream::SplitSink;
-use futures_util::StreamExt;
+use futures_util::{SinkExt, StreamExt};
+use hyper::upgrade::Upgraded;
 use hyper::{Body, Request, Response, StatusCode};
 use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
@@ -16,7 +17,10 @@ use std::pin::Pin;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info};
-use tunnelbroker_messages::{MessageSentStatus, MessageToDeviceRequestStatus};
+use tunnelbroker_messages::{
+  ConnectionInitializationStatus, MessageSentStatus,
+  MessageToDeviceRequestStatus,
+};
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -125,6 +129,29 @@ pub async fn run_server(
   Ok(())
 }
 
+async fn send_error_init_response(
+  error: SessionError,
+  mut outgoing: SplitSink<WebSocketStream<Upgraded>, Message>,
+) {
+  let error_response =
+    tunnelbroker_messages::ConnectionInitializationResponse {
+      status: ConnectionInitializationStatus::Error(error.to_string()),
+    };
+
+  match serde_json::to_string(&error_response) {
+    Ok(serialized_response) => {
+      if let Err(send_error) =
+        outgoing.send(Message::Text(serialized_response)).await
+      {
+        error!("Failed to send init error response: {:?}", send_error);
+      }
+    }
+    Err(ser_error) => {
+      error!("Failed to serialize the error response: {:?}", ser_error);
+    }
+  }
+}
+
 /// Handler for any incoming websocket connections
 async fn accept_connection(
   hyper_ws: HyperWebsocket,
@@ -151,14 +178,27 @@ async fn accept_connection(
   // request over the websocket connection
   let mut session = if let Some(Ok(first_msg)) = incoming.next().await {
     match initiate_session(outgoing, first_msg, db_client, amqp_channel).await {
-      Ok(session) => session,
-      Err(_) => {
+      Ok(mut session) => {
+        let response =
+          tunnelbroker_messages::ConnectionInitializationResponse {
+            status: ConnectionInitializationStatus::Success,
+          };
+        let serialized_response = serde_json::to_string(&response).unwrap();
+
+        session
+          .send_message_to_device(Message::Text(serialized_response))
+          .await;
+        session
+      }
+      Err((err, tx)) => {
         error!("Failed to create session with device");
+        send_error_init_response(err, tx).await;
         return;
       }
     }
   } else {
     error!("Failed to create session with device");
+    send_error_init_response(SessionError::InvalidMessage, outgoing).await;
     return;
   };
 
