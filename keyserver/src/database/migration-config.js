@@ -583,6 +583,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
     () =>
       dbQuery(SQL`ALTER TABLE cookies MODIFY COLUMN hash char(64) NOT NULL`),
   ],
+  [
+    48,
+    async () => {
+      await dbQuery(SQL`
+        UPDATE roles
+        SET permissions = JSON_REMOVE(permissions, '$.descendant_open_voiced')
+        WHERE JSON_EXTRACT(permissions, '$.descendant_open_voiced') = 'true';
+      `);
+    },
+  ],
+  [49, updateRolesAndPermissionsForAllThreads],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
