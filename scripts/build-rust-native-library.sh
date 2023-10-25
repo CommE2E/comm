@@ -11,6 +11,16 @@ if [[ -f "$COMM_NIX_PATH" ]]; then
   source "$COMM_NIX_PATH"
 fi
 
+# Set the architecture based on Xcode's ARCHS variable
+if [[ "$ARCHS" == "arm64" ]]; then
+  TARGET="aarch64-apple-ios"
+elif [[ "$ARCHS" == "x86_64" ]]; then
+  TARGET="x86_64-apple-ios"
+else
+  echo "Unsupported architecture: $ARCHS"
+  exit 1
+fi
+
 # The $PATH used by Xcode likely won't contain Cargo, fix that.
 # In addition, the $PATH used by XCode has lots of Apple-specific
 # developer tools that your Cargo isn't expecting to use, fix that.
@@ -25,13 +35,12 @@ env PATH="${build_path}" "$PRJ_ROOT/scripts/ensure_rustup_setup.sh"
 
 # Set C++ standard and build cxx bridge
 export CXXFLAGS="-std=c++14"
-env PATH="${build_path}" cargo build --release
-# Build universal static library (works on simulator and iOS)
-env PATH="${build_path}" cargo lipo --release
+# Use the determined TARGET for the build
+env PATH="${build_path}" cargo build --release --target="$TARGET"
 # Unset the flag specifying C++ standard
 unset CXXFLAGS
 # Copy the CXX files to the cargo project root to make them
 # available to XCode
-cp "$(readlink target/cxxbridge/native_rust_library/src/lib.rs.cc)" .
-cp "$(readlink target/cxxbridge/native_rust_library/src/lib.rs.h)" .
-cp "$(readlink target/cxxbridge/rust/cxx.h)" .
+cp "$(readlink target/${TARGET}/cxxbridge/native_rust_library/src/lib.rs.cc)" .
+cp "$(readlink target/${TARGET}/cxxbridge/native_rust_library/src/lib.rs.h)" .
+cp "$(readlink target/${TARGET}/cxxbridge/rust/cxx.h)" .
