@@ -15,10 +15,9 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
-import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
-import { useSignedIdentityKeysBlob } from './account-hooks.js';
+import { useGetSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './log-in-form.css';
 import PasswordInput from './password-input.react.js';
@@ -36,8 +35,7 @@ function TraditionalLoginForm(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
-  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob =
-    useSignedIdentityKeysBlob();
+  const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
 
   const usernameInputRef = React.useRef();
   React.useEffect(() => {
@@ -64,6 +62,7 @@ function TraditionalLoginForm(): React.Node {
 
   const logInAction = React.useCallback(
     async (extraInfo: LogInExtraInfo) => {
+      const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
       try {
         invariant(
           signedIdentityKeysBlob,
@@ -91,7 +90,7 @@ function TraditionalLoginForm(): React.Node {
         throw e;
       }
     },
-    [callLogIn, modalContext, password, signedIdentityKeysBlob, username],
+    [callLogIn, modalContext, password, getSignedIdentityKeysBlob, username],
   );
 
   const onSubmit = React.useCallback(
@@ -171,11 +170,7 @@ function TraditionalLoginForm(): React.Node {
         <Button
           variant="filled"
           type="submit"
-          disabled={
-            signedIdentityKeysBlob === null ||
-            signedIdentityKeysBlob === undefined ||
-            inputDisabled
-          }
+          disabled={inputDisabled}
           onClick={onSubmit}
           buttonColor={signInButtonColor}
         >
