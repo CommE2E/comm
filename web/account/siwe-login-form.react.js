@@ -19,10 +19,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import stores from 'lib/facts/stores.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
-import type {
-  OLMIdentityKeys,
-  SignedIdentityKeysBlob,
-} from 'lib/types/crypto-types.js';
+import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -34,7 +31,7 @@ import {
   siweMessageSigningExplanationStatements,
 } from 'lib/utils/siwe-utils.js';
 
-import { useSignedIdentityKeysBlob } from './account-hooks.js';
+import { useGetSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './siwe.css';
 import Button from '../components/button.react.js';
@@ -88,11 +85,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     state => state.cryptoStore?.primaryIdentityKeys,
   );
 
-  const signedIdentityKeysBlob: ?SignedIdentityKeysBlob =
-    useSignedIdentityKeysBlob();
+  const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
 
   const callSIWEAuthEndpoint = React.useCallback(
     async (message: string, signature: string, extraInfo) => {
+      const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
       invariant(
         signedIdentityKeysBlob,
         'signedIdentityKeysBlob must be set in attemptSIWEAuth',
@@ -115,7 +112,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         throw e;
       }
     },
-    [signedIdentityKeysBlob, siweAuthCall],
+    [getSignedIdentityKeysBlob, siweAuthCall],
   );
 
   const attemptSIWEAuth = React.useCallback(
@@ -186,8 +183,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   if (
     siweAuthLoadingStatus === 'loading' ||
     !siweNonce ||
-    !primaryIdentityPublicKeys ||
-    !signedIdentityKeysBlob
+    !primaryIdentityPublicKeys
   ) {
     return (
       <div className={css.loadingIndicator}>
