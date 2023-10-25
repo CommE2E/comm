@@ -1,6 +1,5 @@
 // @flow
 
-import olm from '@commapp/olm';
 import _memoize from 'lodash/memoize.js';
 import { createSelector } from 'reselect';
 
@@ -14,11 +13,7 @@ import {
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors.js';
 import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
-import type {
-  SignedIdentityKeysBlob,
-  IdentityKeysBlob,
-  CryptoStore,
-} from 'lib/types/crypto-types.js';
+import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
   ClientClientResponse,
@@ -29,7 +24,6 @@ import type {
 } from 'lib/types/session-types.js';
 import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
-import { initOlm } from '../olm/olm-utils.js';
 import type { AppState } from '../redux/redux-setup.js';
 
 const baseOpenSocketSelector: (
@@ -64,58 +58,31 @@ const sessionIdentificationSelector: (
   baseSessionIdentificationSelector,
 );
 
-const getSignedIdentityKeysBlobSelector: (
-  state: AppState,
-) => ?() => Promise<SignedIdentityKeysBlob> = createSelector(
-  (state: AppState) => state.cryptoStore,
-  (cryptoStore: ?CryptoStore) => {
-    if (!cryptoStore) {
-      return null;
-    }
-
-    return async () => {
-      await initOlm();
-      const { primaryAccount, primaryIdentityKeys, notificationIdentityKeys } =
-        cryptoStore;
-      const primaryOLMAccount = new olm.Account();
-      primaryOLMAccount.unpickle(
-        primaryAccount.picklingKey,
-        primaryAccount.pickledAccount,
-      );
-
-      const identityKeysBlob: IdentityKeysBlob = {
-        primaryIdentityPublicKeys: primaryIdentityKeys,
-        notificationIdentityPublicKeys: notificationIdentityKeys,
-      };
-
-      const payloadToBeSigned: string = JSON.stringify(identityKeysBlob);
-      const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
-        payload: payloadToBeSigned,
-        signature: primaryOLMAccount.sign(payloadToBeSigned),
-      };
-
-      return signedIdentityKeysBlob;
-    };
-  },
-);
+type WebGetClientResponsesSelectorInputType = {
+  +state: AppState,
+  +getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
+};
 
 const webGetClientResponsesSelector: (
-  state: AppState,
+  input: WebGetClientResponsesSelectorInputType,
 ) => (
   serverRequests: $ReadOnlyArray<ClientServerRequest>,
 ) => Promise<$ReadOnlyArray<ClientClientResponse>> = createSelector(
-  getClientResponsesSelector,
-  getSignedIdentityKeysBlobSelector,
-  (state: AppState) => state.navInfo.tab === 'calendar',
+  (input: WebGetClientResponsesSelectorInputType) =>
+    getClientResponsesSelector(input.state),
+  (input: WebGetClientResponsesSelectorInputType) =>
+    input.getSignedIdentityKeysBlob,
+  (input: WebGetClientResponsesSelectorInputType) =>
+    input.state.navInfo.tab === 'calendar',
   (
       getClientResponsesFunc: (
         calendarActive: boolean,
         oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-        getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
+        getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
         getInitialNotificationsEncryptedMessage: ?() => Promise<string>,
         serverRequests: $ReadOnlyArray<ClientServerRequest>,
       ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
-      getSignedIdentityKeysBlob: ?() => Promise<SignedIdentityKeysBlob>,
+      getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
       calendarActive: boolean,
     ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
@@ -151,7 +118,6 @@ const webSessionStateFuncSelector: (
 export {
   openSocketSelector,
   sessionIdentificationSelector,
-  getSignedIdentityKeysBlobSelector,
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
 };
