@@ -1,11 +1,11 @@
 steps:
   - label: ':docker: Run Commtest'
+    retry:
+      automatic: true
     plugins:
       - docker-compose#v4.14.0:
           run: commtest
           command: ['bash', 'run-tests-ci.sh']
-          retry:
-            automatic: true
           config:
             - services/docker-compose.yml
             - services/docker-compose.tests.yml
