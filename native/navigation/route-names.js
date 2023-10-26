@@ -109,6 +109,7 @@ export const ThreadPickerModalRouteName = 'ThreadPickerModal';
 export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const ThreadSettingsRouteName = 'ThreadSettings';
+export const TunnelbrokerMenuRouteName = 'TunnelbrokerMenu';
 export const UserAvatarCameraModalRouteName = 'UserAvatarCameraModal';
 export const TogglePinModalRouteName = 'TogglePinModal';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
@@ -162,6 +163,7 @@ export type RootParamList = {
   +RolesNavigator: void,
   +QRCodeSignInNavigator: void,
   +UserProfileBottomSheetNavigator: void,
+  +TunnelbrokerMenu: void,
 };
 
 export type MessageTooltipRouteNames =
@@ -234,6 +236,7 @@ export type ProfileParamList = {
   +LinkedDevices: void,
   +SecondaryDeviceQRCodeScanner: void,
   +BackupMenu: void,
+  +TunnelbrokerMenu: void,
   +KeyserverSelectionList: void,
   +AddKeyserver: void,
 };
