@@ -41,7 +41,6 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateWindowActiveActionType,
-  setDeviceIDActionType,
   updateNavInfoActionType,
   updateWindowDimensionsActionType,
   setInitialReduxState,
@@ -54,7 +53,6 @@ import {
   setPickledNotificationAccount,
   setPickledPrimaryAccount,
 } from './crypto-store-reducer.js';
-import { reduceDeviceID } from './device-id-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import { getVisibility } from './visibility.js';
 import { getDatabaseModule } from '../database/database-module-provider.js';
@@ -72,7 +70,6 @@ export type CommunityPickerStore = {
 
 export type AppState = {
   +navInfo: NavInfo,
-  +deviceID: ?string,
   +currentUserInfo: ?CurrentUserInfo,
   +draftStore: DraftStore,
   +entryStore: EntryStore,
@@ -116,10 +113,6 @@ export type Action =
   | {
       type: 'UPDATE_WINDOW_ACTIVE',
       payload: boolean,
-    }
-  | {
-      type: 'SET_DEVICE_ID',
-      payload: string,
     }
   | { +type: 'SET_PRIMARY_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
   | { +type: 'SET_NOTIFICATION_IDENTITY_KEYS', payload: ?OLMIdentityKeys }
@@ -202,7 +195,6 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
 
   if (
     action.type !== updateNavInfoActionType &&
-    action.type !== setDeviceIDActionType &&
     action.type !== setPrimaryIdentityKeys &&
     action.type !== setNotificationIdentityKeys &&
     action.type !== setPickledPrimaryAccount &&
@@ -246,7 +238,6 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       action,
       state.threadStore.threadInfos,
     ),
-    deviceID: reduceDeviceID(state.deviceID, action),
     cryptoStore: reduceCryptoStore(state.cryptoStore, action),
     communityPickerStore,
   };

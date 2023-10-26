@@ -779,7 +779,6 @@ dependencies = [
  "derive_more",
  "grpc_clients",
  "lazy_static",
- "rand",
  "regex",
  "serde",
  "serde_json",

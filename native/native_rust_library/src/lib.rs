@@ -18,10 +18,8 @@ use tonic::Status;
 use tracing::instrument;
 
 mod argon2_tools;
-mod crypto_tools;
 
 use argon2_tools::compute_backup_key;
-use crypto_tools::generate_device_id;
 
 mod generated {
   // We get the CODE_VERSION from this generated file
@@ -48,12 +46,6 @@ lazy_static! {
 
 #[cxx::bridge]
 mod ffi {
-
-  enum DeviceType {
-    KEYSERVER,
-    WEB,
-    MOBILE,
-  }
 
   extern "Rust" {
     #[cxx_name = "identityRegisterUser"]
@@ -129,9 +121,6 @@ mod ffi {
 
     #[cxx_name = "identityGenerateNonce"]
     fn generate_nonce(promise_id: u32);
-
-    // Crypto Tools
-    fn generate_device_id(device_type: DeviceType) -> Result<String>;
 
     // Argon2
     fn compute_backup_key(password: &str, backup_id: &str) -> Result<[u8; 32]>;
