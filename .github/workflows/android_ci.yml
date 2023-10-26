@@ -2,7 +2,9 @@ name: Android Build CI
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'debugci/android_ci/*'
     paths-ignore:
       - 'landing/**'
       - 'web/**'
@@ -65,3 +67,7 @@ jobs:
 
       - name: Disk Usage
         run: df -h
+
+      - name: Set up tmate session
+        if: failure() && startsWith(github.ref, 'refs/heads/debugci/')
+        uses: mxschmitt/action-tmate@v3

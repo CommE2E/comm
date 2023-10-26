@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - 'debugci/*'
+      - 'debugci/ios_ci/*'
     paths-ignore:
       - 'landing/**'
       - 'web/**'
