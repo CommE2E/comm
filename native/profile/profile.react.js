@@ -27,6 +27,7 @@ import ProfileHeader from './profile-header.react.js';
 import ProfileScreen from './profile-screen.react.js';
 import RelationshipList from './relationship-list.react.js';
 import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.react.js';
+import TunnelbrokerMenu from './tunnelbroker-menu.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
@@ -50,6 +51,7 @@ import {
   AddKeyserverRouteName,
   type ScreenParamList,
   type ProfileParamList,
+  TunnelbrokerMenuRouteName,
 } from '../navigation/route-names.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
@@ -73,6 +75,7 @@ const keyserverSelectionListOptions = {
 };
 const addKeyserverOptions = { headerTitle: 'Add keyserver' };
 const backupMenuOptions = { headerTitle: 'Backup menu' };
+const tunnelbrokerMenuOptions = { headerTitle: 'Tunnelbroker menu' };
 const secondaryDeviceQRCodeScannerOptions = {
   headerTitle: '',
   headerBackTitleVisible: false,
@@ -98,6 +101,7 @@ type Props = {
   +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
   ...
 };
+
 function ProfileComponent(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
@@ -176,6 +180,11 @@ function ProfileComponent(props: Props): React.Node {
             name={BackupMenuRouteName}
             component={BackupMenu}
             options={backupMenuOptions}
+          />
+          <Profile.Screen
+            name={TunnelbrokerMenuRouteName}
+            component={TunnelbrokerMenu}
+            options={tunnelbrokerMenuOptions}
           />
           <Profile.Screen
             name={SecondaryDeviceQRCodeScannerRouteName}
