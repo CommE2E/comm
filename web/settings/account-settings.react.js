@@ -8,6 +8,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -18,6 +19,8 @@ import AppearanceChangeModal from './appearance-change-modal.react.js';
 import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
+import TunnelbrokerMessagesScreen from './tunnelbroker-message-list.react.js';
+import TunnelbrokerTestScreen from './tunnelbroker-test.react.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
 import Button from '../components/button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -60,6 +63,27 @@ function AccountSettings(): React.Node {
   const stringForUser = useStringForUser(currentUserInfo);
 
   const staffCanSee = useStaffCanSee();
+  const { sendMessage, connected, addListener, removeListener } =
+    useTunnelbroker();
+  const openTunnelbrokerModal = React.useCallback(
+    () =>
+      pushModal(
+        <TunnelbrokerTestScreen sendMessage={sendMessage} onClose={popModal} />,
+      ),
+    [popModal, pushModal, sendMessage],
+  );
+
+  const openTunnelbrokerMessagesModal = React.useCallback(
+    () =>
+      pushModal(
+        <TunnelbrokerMessagesScreen
+          addListener={addListener}
+          removeListener={removeListener}
+          onClose={popModal}
+        />,
+      ),
+    [addListener, popModal, pushModal, removeListener],
+  );
 
   const showAppearanceModal = React.useCallback(
     () => pushModal(<AppearanceChangeModal />),
@@ -103,6 +127,34 @@ function AccountSettings(): React.Node {
       </div>
     );
   }
+  let tunnelbroker;
+  if (staffCanSee) {
+    tunnelbroker = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Tunnerlbroker menu</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>Connected</span>
+              <span>{connected.toString()}</span>
+            </li>
+            <li>
+              <span>Send message to device</span>
+              <Button variant="text" onClick={openTunnelbrokerModal}>
+                <p className={css.buttonText}>Insert data</p>
+              </Button>
+            </li>
+            <li>
+              <span>Trace received messages</span>
+              <Button variant="text" onClick={openTunnelbrokerMessagesModal}>
+                <p className={css.buttonText}>Show list</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={css.container}>
@@ -136,6 +188,7 @@ function AccountSettings(): React.Node {
           </ul>
         </div>
         {preferences}
+        {tunnelbroker}
       </div>
     </div>
   );
