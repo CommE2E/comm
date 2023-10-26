@@ -26,6 +26,7 @@ import {
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { registerConfig } from 'lib/utils/config.js';
@@ -62,6 +63,7 @@ import { useSelector } from './redux/redux-utils.js';
 import VisibilityHandler from './redux/visibility-handler.react.js';
 import history from './router-history.js';
 import { MessageSearchStateProvider } from './search/message-search-state-provider.react.js';
+import { createTunnelbrokerInitMessage } from './selectors/tunnelbroker-selectors.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
 import CommunityPicker from './sidebar/community-picker.react.js';
@@ -77,6 +79,7 @@ initOpaque();
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every
 // icon flashes huge for a second before the CSS is loaded.
 import '@fortawesome/fontawesome-svg-core/styles.css';
+
 faConfig.autoAddCss = false;
 
 registerConfig({
@@ -110,6 +113,7 @@ type Props = {
   +dispatch: Dispatch,
   +modals: $ReadOnlyArray<React.Node>,
 };
+
 class App extends React.PureComponent<Props> {
   componentDidMount() {
     const {
@@ -363,17 +367,21 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       [modalContext.modals],
     );
 
+    const tunnelbrokerInitMessage = useSelector(createTunnelbrokerInitMessage);
+
     return (
       <AppThemeWrapper>
-        <App
-          {...props}
-          navInfo={navInfo}
-          entriesLoadingStatus={entriesLoadingStatus}
-          loggedIn={loggedIn}
-          activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-          dispatch={dispatch}
-          modals={modals}
-        />
+        <TunnelbrokerProvider initMessage={tunnelbrokerInitMessage}>
+          <App
+            {...props}
+            navInfo={navInfo}
+            entriesLoadingStatus={entriesLoadingStatus}
+            loggedIn={loggedIn}
+            activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+            dispatch={dispatch}
+            modals={modals}
+          />
+        </TunnelbrokerProvider>
       </AppThemeWrapper>
     );
   },
