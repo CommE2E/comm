@@ -1,6 +1,7 @@
 .container {
   flex: 1;
   background-color: var(--panel-background-primary-default);
+  overflow: auto;
 }
 
 .contentContainer {
