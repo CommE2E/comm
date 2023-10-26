@@ -1,8 +1,9 @@
 // @flow
 
 import type { RawThreadInfos } from 'lib/types/thread-types.js';
+import { permissionsToRemoveInMigration } from 'lib/utils/migration-utils.js';
 
-function persistMigrationToRemoveDescendantOpenVoiced(
+function persistMigrationToRemoveSelectRolePermissions(
   rawThreadInfos: RawThreadInfos,
 ): RawThreadInfos {
   // This is to handle the client being logged out and not having any threads
@@ -23,7 +24,7 @@ function persistMigrationToRemoveDescendantOpenVoiced(
       const { permissions: rolePermissions } = role;
       const updatedPermissions = {};
       for (const permission in rolePermissions) {
-        if (permission !== 'descendant_open_voiced') {
+        if (!permissionsToRemoveInMigration.includes(permission)) {
           updatedPermissions[permission] = rolePermissions[permission];
         }
       }
@@ -41,4 +42,4 @@ function persistMigrationToRemoveDescendantOpenVoiced(
   return updatedThreadInfos;
 }
 
-export { persistMigrationToRemoveDescendantOpenVoiced };
+export { persistMigrationToRemoveSelectRolePermissions };

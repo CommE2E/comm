@@ -87,7 +87,7 @@ import {
 import { defaultState } from './default-state.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
-import { persistMigrationToRemoveDescendantOpenVoiced } from './remove-select-role-permissions.js';
+import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
 import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
@@ -865,7 +865,7 @@ const migrations = {
     }, {});
 
     const migratedRawThreadInfos =
-      persistMigrationToRemoveDescendantOpenVoiced(rawThreadInfosObject);
+      persistMigrationToRemoveSelectRolePermissions(rawThreadInfosObject);
 
     const migratedThreadInfosArray = Object.keys(migratedRawThreadInfos).map(
       id => migratedRawThreadInfos[id],

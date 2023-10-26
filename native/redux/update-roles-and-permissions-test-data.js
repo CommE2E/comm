@@ -8593,7 +8593,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
     },
   };
 
-const threadStoreThreadsWithDescendantOpenVoiced: ThreadStoreThreadInfos = {
+const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
   '256|84852': {
     id: '256|84852',
     type: 9,
@@ -10027,5 +10027,5 @@ export {
   threadStoreThreadsWithEmptyRolePermissions,
   threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions,
   threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions,
-  threadStoreThreadsWithDescendantOpenVoiced,
+  threadStoreThreadsWithIncorrectPermissions,
 };
