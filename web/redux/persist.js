@@ -172,7 +172,6 @@ const migrations = {
 
 const persistWhitelist = [
   'enabledApps',
-  'deviceID',
   'cryptoStore',
   'notifPermissionAlertInfo',
   'commServicesAccessToken',
