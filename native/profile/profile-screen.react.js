@@ -38,6 +38,7 @@ import {
   LinkedDevicesRouteName,
   BackupMenuRouteName,
   KeyserverSelectionListRouteName,
+  TunnelbrokerMenuRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -88,7 +89,10 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    let developerTools, defaultNotifications, keyserverSelection;
+    let developerTools,
+      defaultNotifications,
+      keyserverSelection,
+      tunnelbrokerMenu;
     const { staffCanSee, isAccountWithPassword } = this.props;
     if (staffCanSee) {
       developerTools = (
@@ -106,6 +110,13 @@ class ProfileScreen extends React.PureComponent<Props> {
         <ProfileRow
           content="Keyserver selection"
           onPress={this.onPressKeyserverSelection}
+        />
+      );
+
+      tunnelbrokerMenu = (
+        <ProfileRow
+          content="Tunnelbroker menu"
+          onPress={this.onPressTunnelbrokerMenu}
         />
       );
     }
@@ -187,6 +198,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             <ProfileRow content="Privacy" onPress={this.onPressPrivacy} />
             {defaultNotifications}
             {backupMenu}
+            {tunnelbrokerMenu}
           </View>
           <View style={this.props.styles.section}>
             {linkedDevices}
@@ -322,6 +334,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressBackupMenu = () => {
     this.navigateIfActive(BackupMenuRouteName);
+  };
+
+  onPressTunnelbrokerMenu = () => {
+    this.navigateIfActive(TunnelbrokerMenuRouteName);
   };
 
   onPressKeyserverSelection = () => {
