@@ -14,6 +14,7 @@ import UserProfileActionButtons from './user-profile-action-buttons.react.js';
 import UserProfileAvatarModal from './user-profile-avatar-modal.react.js';
 import css from './user-profile.css';
 import UserAvatar from '../../avatars/user-avatar.react.js';
+import SingleLine from '../../components/single-line.react.js';
 
 type Props = {
   +userInfo: ?UserInfo,
@@ -65,7 +66,7 @@ function UserProfile(props: Props): React.Node {
             <UserAvatar userID={userInfo?.id} size="L" />
           </div>
           <div className={css.usernameContainer}>
-            <div className={css.usernameText}>{usernameText}</div>
+            <SingleLine className={css.usernameText}>{usernameText}</SingleLine>
             <div
               className={css.copyUsernameContainer}
               onClick={onClickCopyUsername}
