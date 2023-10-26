@@ -44,7 +44,6 @@ const defaultWebState: AppState = Object.freeze({
     notificationAccount: null,
     notificationIdentityKeys: null,
   },
-  deviceID: null,
   windowDimensions: { width: window.width, height: window.height },
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,

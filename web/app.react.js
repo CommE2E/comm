@@ -54,7 +54,6 @@ import Topbar from './navigation-panels/topbar.react.js';
 import useBadgeHandler from './push-notif/badge-handler.react.js';
 import { PushNotificationsHandler } from './push-notif/push-notifs-handler.js';
 import { updateNavInfoActionType } from './redux/action-types.js';
-import DeviceIDUpdater from './redux/device-id-updater.js';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler.js';
 import DisconnectedBar from './redux/disconnected-bar.js';
 import FocusHandler from './redux/focus-handler.react.js';
@@ -195,7 +194,6 @@ class App extends React.PureComponent<Props> {
                     <ChatMentionContextProvider>
                       <FocusHandler />
                       <VisibilityHandler />
-                      <DeviceIDUpdater />
                       <PolicyAcknowledgmentHandler />
                       <PushNotificationsHandler />
                       <InviteLinkHandler />
