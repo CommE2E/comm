@@ -71,6 +71,7 @@ import {
   convertThreadStoreThreadInfosToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
+import { persistMigrationToRemoveDescendantOpenVoiced } from 'lib/utils/role-utils.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -836,6 +837,44 @@ const migrations = {
       },
     };
   },
+  [55]: state => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+    const rawThreadInfosObject = rawThreadInfos.reduce((acc, threadInfo) => {
+      acc[threadInfo.id] = threadInfo;
+      return acc;
+    }, {});
+
+    const migratedRawThreadInfos =
+      persistMigrationToRemoveDescendantOpenVoiced(rawThreadInfosObject);
+
+    const migratedThreadInfosArray = Object.keys(migratedRawThreadInfos).map(
+      id => migratedRawThreadInfos[id],
+    );
+    const convertedClientDBThreadInfos = migratedThreadInfosArray.map(
+      convertRawThreadInfoToClientDBThreadInfo,
+    );
+    const operations: $ReadOnlyArray<ClientDBThreadStoreOperation> = [
+      {
+        type: 'remove_all',
+      },
+      ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
+        type: 'replace',
+        payload: thread,
+      })),
+    ];
+
+    try {
+      commCoreModule.processThreadStoreOperationsSync(operations);
+    } catch (exception) {
+      console.log(exception);
+      return { ...state, cookie: null };
+    }
+
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -965,7 +1004,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 54,
+  version: 55,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
