@@ -5,6 +5,11 @@ import invariant from 'invariant';
 import _cloneDeep from 'lodash/fp/cloneDeep.js';
 
 import type {
+  PlainTextWebNotification,
+  WebNotification,
+} from 'lib/types/notif-types.js';
+
+import type {
   AndroidNotification,
   AndroidNotificationPayload,
   AndroidNotificationRescind,
@@ -213,6 +218,31 @@ async function encryptAndroidNotificationRescind(
   };
 }
 
+async function encryptWebNotification(
+  cookieID: string,
+  notification: PlainTextWebNotification,
+): Promise<WebNotification> {
+  const { id, ...payloadSansId } = notification;
+  const unencryptedSerializedPayload = JSON.stringify(payloadSansId);
+
+  try {
+    const {
+      encryptedMessages: { serializedPayload },
+    } = await encryptAndUpdateOlmSession(cookieID, 'notifications', {
+      serializedPayload: unencryptedSerializedPayload,
+    });
+
+    return { id, encryptedPayload: serializedPayload.body };
+  } catch (e) {
+    console.log('Notification encryption failed: ' + e);
+    return {
+      id,
+      encryptionFailed: '1',
+      ...payloadSansId,
+    };
+  }
+}
+
 function prepareEncryptedIOSNotifications(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: apn.Notification,
@@ -312,9 +342,28 @@ function prepareEncryptedAndroidNotificationRescinds(
   return Promise.all(notificationPromises);
 }
 
+function prepareEncryptedWebNotifications(
+  devices: $ReadOnlyArray<NotificationTargetDevice>,
+  notification: PlainTextWebNotification,
+): Promise<
+  $ReadOnlyArray<{
+    +deviceToken: string,
+    +notification: WebNotification,
+  }>,
+> {
+  const notificationPromises = devices.map(
+    async ({ deviceToken, cookieID }) => {
+      const notif = await encryptWebNotification(cookieID, notification);
+      return { notification: notif, deviceToken };
+    },
+  );
+  return Promise.all(notificationPromises);
+}
+
 export {
   prepareEncryptedIOSNotifications,
   prepareEncryptedIOSNotificationRescind,
   prepareEncryptedAndroidNotifications,
   prepareEncryptedAndroidNotificationRescinds,
+  prepareEncryptedWebNotifications,
 };
