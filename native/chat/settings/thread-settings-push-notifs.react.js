@@ -8,13 +8,17 @@ import {
   updateSubscriptionActionTypes,
   useUpdateSubscription,
 } from 'lib/actions/user-actions.js';
+import { deviceTokenSelector } from 'lib/selectors/keyserver-selectors.js';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
 } from 'lib/types/subscription-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import {
+  useDispatchActionPromise,
+  extractKeyserverIDFromID,
+} from 'lib/utils/action-utils.js';
 
 import SingleLine from '../../components/single-line.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
@@ -171,12 +175,13 @@ const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsPushNotifs(
     props: BaseProps,
   ) {
+    const keyserverID = extractKeyserverIDFromID(props.threadInfo.id);
+    const deviceToken = useSelector(deviceTokenSelector(keyserverID));
+    const hasPushPermissions =
+      deviceToken !== null && deviceToken !== undefined;
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
     const callUpdateSubscription = useUpdateSubscription();
-    const hasPushPermissions = useSelector(
-      state => state.deviceToken !== null && state.deviceToken !== undefined,
-    );
     return (
       <ThreadSettingsPushNotifs
         {...props}
