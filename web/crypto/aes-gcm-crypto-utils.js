@@ -11,7 +11,7 @@ type EncryptedData = {
   +ciphertext: Uint8Array,
 };
 
-function generateDatabaseCryptoKey({
+function generateCryptoKey({
   extractable,
 }: {
   +extractable: boolean,
@@ -30,7 +30,7 @@ function generateIV(): BufferSource {
   return crypto.getRandomValues(new Uint8Array(12));
 }
 
-async function encryptDatabaseFile(
+async function encryptData(
   data: Uint8Array,
   key: CryptoKey,
 ): Promise<EncryptedData> {
@@ -49,7 +49,7 @@ async function encryptDatabaseFile(
   };
 }
 
-async function decryptDatabaseFile(
+async function decryptData(
   encryptedData: EncryptedData,
   key: CryptoKey,
 ): Promise<Uint8Array> {
@@ -84,9 +84,9 @@ async function importJWKKey(
 }
 
 export {
-  generateDatabaseCryptoKey,
-  encryptDatabaseFile,
-  decryptDatabaseFile,
+  generateCryptoKey,
+  encryptData,
+  decryptData,
   exportKeyToJWK,
   importJWKKey,
 };
