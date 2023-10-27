@@ -80,7 +80,6 @@ export type AppState = {
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
   +communityPickerStore: CommunityPickerStore,
   +windowDimensions: WindowDimensions,
-  +deviceToken: ?string,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +actualizedCalendarQuery: CalendarQuery,
   +watchedThreadIDs: $ReadOnlyArray<string>,
