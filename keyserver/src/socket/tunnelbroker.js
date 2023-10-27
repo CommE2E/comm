@@ -1,21 +1,11 @@
 // @flow
 
-import WebSocket from 'ws';
-
-import {
-  refreshKeysTBMessageValidator,
-  type TBKeyserverConnectionInitializationMessage,
-  type MessageFromTunnelbroker,
-  tunnelbrokerMessageTypes,
-} from 'lib/types/tunnelbroker-messages.js';
+import type { ConnectionInitializationMessage } from 'lib/types/tunnelbroker/session-types.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
-import { ServerError } from 'lib/utils/errors.js';
 
+import TunnelbrokerSocket from './tunnelbroker-socket.js';
 import { type IdentityInfo } from '../user/identity.js';
-import {
-  uploadNewOneTimeKeys,
-  getContentSigningKey,
-} from '../utils/olm-utils.js';
+import { getContentSigningKey } from '../utils/olm-utils.js';
 
 type TBConnectionInfo = {
   +url: string,
@@ -45,61 +35,15 @@ async function createAndMaintainTunnelbrokerWebsocket(
     getTBConnectionInfo(),
   ]);
 
-  openTunnelbrokerConnection(
-    deviceID,
-    identityInfo.userId,
-    identityInfo.accessToken,
-    tbConnectionInfo.url,
-  );
-}
+  const initMessage: ConnectionInitializationMessage = {
+    type: 'ConnectionInitializationMessage',
+    deviceID: deviceID,
+    accessToken: identityInfo.accessToken,
+    userID: identityInfo.userId,
+    deviceType: 'keyserver',
+  };
 
-function handleTBMessageEvent(event: ArrayBuffer): Promise<void> {
-  const rawMessage = JSON.parse(event.toString());
-  if (!refreshKeysTBMessageValidator.is(rawMessage)) {
-    throw new ServerError('unsupported_tunnelbroker_message');
-  }
-  const message: MessageFromTunnelbroker = rawMessage;
-
-  if (message.type === tunnelbrokerMessageTypes.REFRESH_KEYS_REQUEST) {
-    return uploadNewOneTimeKeys(message.numberOfKeys);
-  }
-  throw new ServerError('unsupported_tunnelbroker_message');
-}
-
-function openTunnelbrokerConnection(
-  deviceID: string,
-  userID: string,
-  accessToken: string,
-  tbUrl: string,
-) {
-  try {
-    const tunnelbrokerSocket = new WebSocket(tbUrl);
-
-    tunnelbrokerSocket.on('open', () => {
-      const message: TBKeyserverConnectionInitializationMessage = {
-        type: 'sessionRequest',
-        accessToken,
-        deviceID,
-        deviceType: 'keyserver',
-        userID,
-      };
-
-      tunnelbrokerSocket.send(JSON.stringify(message));
-      console.info('Connection to Tunnelbroker established');
-    });
-
-    tunnelbrokerSocket.on('close', async () => {
-      console.warn('Connection to Tunnelbroker closed');
-    });
-
-    tunnelbrokerSocket.on('error', (error: Error) => {
-      console.error('Tunnelbroker socket error', error.message);
-    });
-
-    tunnelbrokerSocket.on('message', handleTBMessageEvent);
-  } catch {
-    console.log('Failed to open connection with Tunnelbroker');
-  }
+  new TunnelbrokerSocket(tbConnectionInfo.url, initMessage);
 }
 
 export { createAndMaintainTunnelbrokerWebsocket };
