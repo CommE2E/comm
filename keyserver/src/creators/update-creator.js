@@ -386,31 +386,28 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
   viewerInfo: ViewerInfo,
 ): Promise<FetchUpdatesResult> {
-  const { viewer } = viewerInfo;
-
-  const threadIDsNeedingFetch = new Set();
-  const entryIDsNeedingFetch = new Set();
-  let currentUserNeedsFetch = false;
-  const threadIDsNeedingDetailedFetch = new Set(); // entries and messages
-  for (const rawUpdateInfo of rawUpdateInfos) {
-    if (
-      !viewerInfo.threadInfos &&
-      (rawUpdateInfo.type === updateTypes.UPDATE_THREAD ||
-        rawUpdateInfo.type === updateTypes.JOIN_THREAD)
-    ) {
-      threadIDsNeedingFetch.add(rawUpdateInfo.threadID);
-    }
-    if (rawUpdateInfo.type === updateTypes.JOIN_THREAD) {
-      threadIDsNeedingDetailedFetch.add(rawUpdateInfo.threadID);
-    } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
-      entryIDsNeedingFetch.add(rawUpdateInfo.entryID);
-    } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
-      currentUserNeedsFetch = true;
-    }
-  }
+  const entitiesToFetch = rawUpdateInfos
+    .map(info => updateSpecs[info.type].entitiesToFetch?.(info))
+    .filter(Boolean);
+  const currentUserNeedsFetch = entitiesToFetch.some(
+    ({ currentUser }) => currentUser,
+  );
+  const threadIDsNeedingFetch = viewerInfo.threadInfos
+    ? new Set()
+    : new Set(entitiesToFetch.map(({ threadID }) => threadID).filter(Boolean));
+  const entryIDsNeedingFetch = new Set(
+    entitiesToFetch.map(({ entryID }) => entryID).filter(Boolean),
+  );
+  // entries and messages
+  const threadIDsNeedingDetailedFetch = new Set(
+    entitiesToFetch
+      .map(({ detailedThreadID }) => detailedThreadID)
+      .filter(Boolean),
+  );
 
   const promises = {};
 
+  const { viewer } = viewerInfo;
   if (!viewerInfo.threadInfos && threadIDsNeedingFetch.size > 0) {
     promises.threadResult = fetchThreadInfos(viewer, {
       threadIDs: threadIDsNeedingFetch,
