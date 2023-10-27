@@ -38,7 +38,6 @@ export type AppState = {
   +storeLoaded: boolean,
   +loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
-  +deviceToken: ?string,
   +dataLoaded: boolean,
   +customServer: ?string,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
