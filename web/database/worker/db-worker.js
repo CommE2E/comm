@@ -7,6 +7,12 @@ import {
   processDBStoreOperations,
 } from './process-operations.js';
 import {
+  decryptData,
+  encryptData,
+  generateCryptoKey,
+  importJWKKey,
+} from '../../crypto/aes-gcm-crypto-utils.js';
+import {
   type SharedWorkerMessageEvent,
   type WorkerRequestMessage,
   type WorkerResponseMessage,
@@ -30,12 +36,6 @@ import {
   exportDatabaseContent,
   importDatabaseContent,
 } from '../utils/db-utils.js';
-import {
-  decryptDatabaseFile,
-  encryptDatabaseFile,
-  generateDatabaseCryptoKey,
-  importJWKKey,
-} from '../utils/worker-crypto-utils.js';
 
 localforage.config(localforageConfig);
 
@@ -69,7 +69,7 @@ async function initDatabase(
   } else {
     encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
     if (!encryptionKey) {
-      const cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
+      const cryptoKey = await generateCryptoKey({ extractable: false });
       await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
     }
   }
@@ -79,7 +79,7 @@ async function initDatabase(
   let dbContent = null;
   try {
     if (encryptionKey && encryptedContent) {
-      dbContent = await decryptDatabaseFile(encryptedContent, encryptionKey);
+      dbContent = await decryptData(encryptedContent, encryptionKey);
     }
   } catch (e) {
     console.error('Error while decrypting content, clearing database content');
@@ -118,7 +118,7 @@ async function persist() {
       persistInProgress = false;
       throw new Error('Encryption key is missing');
     }
-    const encryptedData = await encryptDatabaseFile(dbData, encryptionKey);
+    const encryptedData = await encryptData(dbData, encryptionKey);
     await localforage.setItem(SQLITE_CONTENT, encryptedData);
   }
   persistInProgress = false;
@@ -136,7 +136,7 @@ async function processAppRequest(
   } else if (
     message.type === workerRequestMessageTypes.GENERATE_DATABASE_ENCRYPTION_KEY
   ) {
-    const cryptoKey = await generateDatabaseCryptoKey({ extractable: false });
+    const cryptoKey = await generateCryptoKey({ extractable: false });
     await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
     return undefined;
   }
