@@ -25,7 +25,7 @@ import {
   redisMessageTypes,
   type NewUpdatesRedisMessage,
 } from 'lib/types/redis-types.js';
-import type { RawThreadInfo } from 'lib/types/thread-types.js';
+import type { RawThreadInfo, RawThreadInfos } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import {
   type ServerUpdateInfo,
@@ -45,10 +45,7 @@ import {
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
-import {
-  fetchThreadInfos,
-  type FetchThreadInfosResult,
-} from '../fetchers/thread-fetchers.js';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchKnownUserInfos,
   fetchCurrentUserInfo,
@@ -471,18 +468,15 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     currentUserInfoResult,
   } = await promiseAll(promises);
 
-  let threadInfosResult;
+  let threadInfos = {};
   if (viewerInfo.threadInfos) {
-    const { threadInfos } = viewerInfo;
-    threadInfosResult = { threadInfos };
+    threadInfos = viewerInfo.threadInfos;
   } else if (threadResult) {
-    threadInfosResult = threadResult;
-  } else {
-    threadInfosResult = { threadInfos: {} };
+    threadInfos = threadResult.threadInfos;
   }
 
   return await updateInfosFromRawUpdateInfos(viewer, rawUpdateInfos, {
-    threadInfosResult,
+    threadInfos,
     messageInfosResult,
     calendarResult,
     entryInfosResult,
@@ -491,7 +485,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
 }
 
 export type UpdateInfosRawData = {
-  threadInfosResult: FetchThreadInfosResult,
+  threadInfos: RawThreadInfos,
   messageInfosResult: ?FetchMessageInfosResult,
   calendarResult: ?FetchEntryInfosBase,
   entryInfosResult: ?RawEntryInfos,
@@ -503,7 +497,7 @@ async function updateInfosFromRawUpdateInfos(
   rawData: UpdateInfosRawData,
 ): Promise<FetchUpdatesResult> {
   const {
-    threadInfosResult,
+    threadInfos,
     messageInfosResult,
     calendarResult,
     entryInfosResult,
@@ -537,7 +531,7 @@ async function updateInfosFromRawUpdateInfos(
         deletedUserID: rawUpdateInfo.deletedUserID,
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD) {
-      const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
+      const threadInfo = threadInfos[rawUpdateInfo.threadID];
       if (!threadInfo) {
         console.warn(
           "failed to hydrate updateTypes.UPDATE_THREAD because we couldn't " +
@@ -567,7 +561,7 @@ async function updateInfosFromRawUpdateInfos(
         threadID: rawUpdateInfo.threadID,
       });
     } else if (rawUpdateInfo.type === updateTypes.JOIN_THREAD) {
-      const threadInfo = threadInfosResult.threadInfos[rawUpdateInfo.threadID];
+      const threadInfo = threadInfos[rawUpdateInfo.threadID];
       if (!threadInfo) {
         console.warn(
           "failed to hydrate updateTypes.JOIN_THREAD because we couldn't " +
