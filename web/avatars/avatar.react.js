@@ -10,6 +10,7 @@ import type {
 
 import css from './avatar.css';
 import LoadingIndicator from '../loading-indicator.react.js';
+import EncryptedMultimedia from '../media/encrypted-multimedia.react.js';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
@@ -19,6 +20,26 @@ type Props = {
 
 function Avatar(props: Props): React.Node {
   const { avatarInfo, size, showSpinner } = props;
+
+  let loadingIndicatorSize;
+  if (size === 'XS') {
+    loadingIndicatorSize = 'small';
+  } else if (size === 'S') {
+    loadingIndicatorSize = 'small';
+  } else if (size === 'M') {
+    loadingIndicatorSize = 'medium';
+  } else {
+    loadingIndicatorSize = 'large';
+  }
+
+  const loadingIndicator = React.useMemo(
+    () => (
+      <div className={css.editAvatarLoadingSpinner}>
+        <LoadingIndicator status="loading" size={loadingIndicatorSize} />
+      </div>
+    ),
+    [loadingIndicatorSize],
+  );
 
   const containerSizeClassName = classnames({
     [css.imgContainer]: avatarInfo.type === 'image',
@@ -56,6 +77,17 @@ function Avatar(props: Props): React.Node {
           className={containerSizeClassName}
         />
       );
+    } else if (avatarInfo.type === 'encrypted-image') {
+      return (
+        <EncryptedMultimedia
+          type="encrypted_photo"
+          blobURI={avatarInfo.blobURI}
+          encryptionKey={avatarInfo.encryptionKey}
+          multimediaClassName={containerSizeClassName}
+          loadingIndicatorComponent={loadingIndicator}
+          invisibleLoad={showSpinner}
+        />
+      );
     }
 
     return (
@@ -67,30 +99,14 @@ function Avatar(props: Props): React.Node {
     avatarInfo.emoji,
     avatarInfo.type,
     avatarInfo.uri,
+    avatarInfo.blobURI,
+    avatarInfo.encryptionKey,
+    showSpinner,
+    loadingIndicator,
     containerSizeClassName,
     emojiContainerColorStyle,
     emojiSizeClassName,
   ]);
-
-  let loadingIndicatorSize;
-  if (size === 'XS') {
-    loadingIndicatorSize = 'small';
-  } else if (size === 'S') {
-    loadingIndicatorSize = 'small';
-  } else if (size === 'M') {
-    loadingIndicatorSize = 'medium';
-  } else {
-    loadingIndicatorSize = 'large';
-  }
-
-  const loadingIndicator = React.useMemo(
-    () => (
-      <div className={css.editAvatarLoadingSpinner}>
-        <LoadingIndicator status="loading" size={loadingIndicatorSize} />
-      </div>
-    ),
-    [loadingIndicatorSize],
-  );
 
   return (
     <div className={css.avatarContainer}>
