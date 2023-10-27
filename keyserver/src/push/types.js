@@ -2,6 +2,8 @@
 
 import apn from '@parse/node-apn';
 
+import type { WebNotification } from 'lib/types/notif-types.js';
+
 export type TargetedAPNsNotification = {
   +notification: apn.Notification,
   +deviceToken: string,
@@ -52,6 +54,11 @@ export type AndroidNotificationRescind = {
 
 export type TargetedAndroidNotification = {
   +notification: AndroidNotification | AndroidNotificationRescind,
+  +deviceToken: string,
+};
+
+export type TargetedWebNotification = {
+  +notification: WebNotification,
   +deviceToken: string,
 };
 
