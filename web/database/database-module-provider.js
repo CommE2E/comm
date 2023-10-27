@@ -9,11 +9,11 @@ import {
   SQLITE_ENCRYPTION_KEY,
 } from './utils/constants.js';
 import { isDesktopSafari, isSQLiteSupported } from './utils/db-utils.js';
+import WorkerConnectionProxy from './utils/WorkerConnectionProxy.js';
 import {
   exportKeyToJWK,
-  generateDatabaseCryptoKey,
-} from './utils/worker-crypto-utils.js';
-import WorkerConnectionProxy from './utils/WorkerConnectionProxy.js';
+  generateCryptoKey,
+} from '../crypto/aes-gcm-crypto-utils.js';
 import {
   workerRequestMessageTypes,
   type WorkerRequestMessage,
@@ -134,7 +134,7 @@ async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
   if (encryptionKey) {
     return await exportKeyToJWK(encryptionKey);
   }
-  const newEncryptionKey = await generateDatabaseCryptoKey({
+  const newEncryptionKey = await generateCryptoKey({
     extractable: true,
   });
   await localforage.setItem(SQLITE_ENCRYPTION_KEY, newEncryptionKey);
