@@ -1,6 +1,6 @@
 // @flow
 
-import type { WebNotification } from 'lib/types/notif-types.js';
+import type { PlainTextWebNotification } from 'lib/types/notif-types.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
@@ -23,7 +23,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
 });
 
 self.addEventListener('push', (event: PushEvent) => {
-  const data: WebNotification = event.data.json();
+  const data: PlainTextWebNotification = event.data.json();
 
   event.waitUntil(
     (async () => {
