@@ -853,6 +853,23 @@ const migrations = {
           },
         }
       : state,
+  [56]: state => {
+    const { deviceToken, keyserverStore, ...rest } = state;
+
+    return {
+      ...rest,
+      keyserverStore: {
+        ...keyserverStore,
+        keyserverInfos: {
+          ...keyserverStore.keyserverInfos,
+          [ashoatKeyserverID]: {
+            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+            deviceToken,
+          },
+        },
+      },
+    };
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -982,7 +999,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 55,
+  version: 56,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
