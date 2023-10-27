@@ -8,6 +8,7 @@ import {
   keyForUpdateInfo,
   rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils.js';
+import { updateSpecs } from 'lib/shared/updates/update-specs.js';
 import {
   type RawEntryInfos,
   type FetchEntryInfosBase,
@@ -190,35 +191,6 @@ async function createUpdates(
   const earliestTime: Map<string, number> = new Map();
   for (let i = 0; i < filteredUpdateDatas.length; i++) {
     const updateData = filteredUpdateDatas[i];
-    let content;
-    if (updateData.type === updateTypes.DELETE_ACCOUNT) {
-      content = JSON.stringify({ deletedUserID: updateData.deletedUserID });
-    } else if (updateData.type === updateTypes.UPDATE_THREAD) {
-      content = JSON.stringify({ threadID: updateData.threadID });
-    } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-      const { threadID, unread } = updateData;
-      content = JSON.stringify({ threadID, unread });
-    } else if (
-      updateData.type === updateTypes.DELETE_THREAD ||
-      updateData.type === updateTypes.JOIN_THREAD
-    ) {
-      const { threadID } = updateData;
-      content = JSON.stringify({ threadID });
-    } else if (updateData.type === updateTypes.BAD_DEVICE_TOKEN) {
-      const { deviceToken } = updateData;
-      content = JSON.stringify({ deviceToken });
-    } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-      const { entryID } = updateData;
-      content = JSON.stringify({ entryID });
-    } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
-      // user column contains all the info we need to construct the UpdateInfo
-      content = null;
-    } else if (updateData.type === updateTypes.UPDATE_USER) {
-      const { updatedUserID } = updateData;
-      content = JSON.stringify({ updatedUserID });
-    } else {
-      invariant(false, `unrecognized updateType ${updateData.type}`);
-    }
 
     const target = getTargetFromUpdateData(updateData);
     const rawUpdateInfo = rawUpdateInfoFromUpdateData(updateData, ids[i]);
@@ -250,6 +222,9 @@ async function createUpdates(
       // session, there's no reason to insert a row into the updates table
       continue;
     }
+
+    const content =
+      updateSpecs[updateData.type].updateContentForServerDB(updateData);
 
     const key = keyForUpdateData(updateData);
     if (key) {
