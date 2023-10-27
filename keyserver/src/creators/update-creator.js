@@ -8,16 +8,14 @@ import {
   keyForUpdateInfo,
   rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils.js';
+import type { UpdateInfosRawData } from 'lib/shared/updates/update-spec.js';
 import { updateSpecs } from 'lib/shared/updates/update-specs.js';
 import {
-  type RawEntryInfos,
-  type FetchEntryInfosBase,
   type CalendarQuery,
   defaultCalendarQuery,
 } from 'lib/types/entry-types.js';
 import {
   defaultNumberPerThread,
-  type FetchMessageInfosResult,
   type MessageSelectionCriteria,
 } from 'lib/types/message-types.js';
 import {
@@ -25,7 +23,7 @@ import {
   redisMessageTypes,
   type NewUpdatesRedisMessage,
 } from 'lib/types/redis-types.js';
-import type { RawThreadInfo, RawThreadInfos } from 'lib/types/thread-types.js';
+import type { RawThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import {
   type ServerUpdateInfo,
@@ -33,7 +31,7 @@ import {
   type RawUpdateInfo,
   type CreateUpdatesResult,
 } from 'lib/types/update-types.js';
-import type { UserInfos, LoggedInUserInfo } from 'lib/types/user-types.js';
+import type { UserInfos } from 'lib/types/user-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import createIDs from './id-creator.js';
@@ -484,27 +482,12 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   });
 }
 
-export type UpdateInfosRawData = {
-  threadInfos: RawThreadInfos,
-  messageInfosResult: ?FetchMessageInfosResult,
-  calendarResult: ?FetchEntryInfosBase,
-  entryInfosResult: ?RawEntryInfos,
-  currentUserInfoResult: LoggedInUserInfo,
-};
 async function updateInfosFromRawUpdateInfos(
   viewer: Viewer,
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
   rawData: UpdateInfosRawData,
 ): Promise<FetchUpdatesResult> {
-  const {
-    threadInfos,
-    messageInfosResult,
-    calendarResult,
-    entryInfosResult,
-    currentUserInfoResult,
-  } = rawData;
-  const updateInfos = [];
-  const userIDsToFetch = new Set();
+  const { messageInfosResult, calendarResult } = rawData;
 
   const rawEntryInfosByThreadID = {};
   for (const entryInfo of calendarResult?.rawEntryInfos ?? []) {
@@ -522,114 +505,23 @@ async function updateInfosFromRawUpdateInfos(
     rawMessageInfosByThreadID[messageInfo.threadID].push(messageInfo);
   }
 
-  for (const rawUpdateInfo of rawUpdateInfos) {
-    if (rawUpdateInfo.type === updateTypes.DELETE_ACCOUNT) {
-      updateInfos.push({
-        type: updateTypes.DELETE_ACCOUNT,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        deletedUserID: rawUpdateInfo.deletedUserID,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD) {
-      const threadInfo = threadInfos[rawUpdateInfo.threadID];
-      if (!threadInfo) {
-        console.warn(
-          "failed to hydrate updateTypes.UPDATE_THREAD because we couldn't " +
-            `fetch RawThreadInfo for ${rawUpdateInfo.threadID}`,
-        );
-        continue;
-      }
-      updateInfos.push({
-        type: updateTypes.UPDATE_THREAD,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        threadInfo,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-      updateInfos.push({
-        type: updateTypes.UPDATE_THREAD_READ_STATUS,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        threadID: rawUpdateInfo.threadID,
-        unread: rawUpdateInfo.unread,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.DELETE_THREAD) {
-      updateInfos.push({
-        type: updateTypes.DELETE_THREAD,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        threadID: rawUpdateInfo.threadID,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.JOIN_THREAD) {
-      const threadInfo = threadInfos[rawUpdateInfo.threadID];
-      if (!threadInfo) {
-        console.warn(
-          "failed to hydrate updateTypes.JOIN_THREAD because we couldn't " +
-            `fetch RawThreadInfo for ${rawUpdateInfo.threadID}`,
-        );
-        continue;
-      }
-
-      invariant(calendarResult, 'should be set');
-      const rawEntryInfos =
-        rawEntryInfosByThreadID[rawUpdateInfo.threadID] ?? [];
-      invariant(messageInfosResult, 'should be set');
-      const rawMessageInfos =
-        rawMessageInfosByThreadID[rawUpdateInfo.threadID] ?? [];
-
-      updateInfos.push({
-        type: updateTypes.JOIN_THREAD,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        threadInfo,
-        rawMessageInfos,
-        truncationStatus:
-          messageInfosResult.truncationStatuses[rawUpdateInfo.threadID],
-        rawEntryInfos,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.BAD_DEVICE_TOKEN) {
-      updateInfos.push({
-        type: updateTypes.BAD_DEVICE_TOKEN,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        deviceToken: rawUpdateInfo.deviceToken,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
-      invariant(entryInfosResult, 'should be set');
-      const entryInfo = entryInfosResult[rawUpdateInfo.entryID];
-      if (!entryInfo) {
-        console.warn(
-          "failed to hydrate updateTypes.UPDATE_ENTRY because we couldn't " +
-            `fetch RawEntryInfo for ${rawUpdateInfo.entryID}`,
-        );
-        continue;
-      }
-      updateInfos.push({
-        type: updateTypes.UPDATE_ENTRY,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        entryInfo,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
-      invariant(currentUserInfoResult, 'should be set');
-      updateInfos.push({
-        type: updateTypes.UPDATE_CURRENT_USER,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        currentUserInfo: currentUserInfoResult,
-      });
-    } else if (rawUpdateInfo.type === updateTypes.UPDATE_USER) {
-      updateInfos.push({
-        type: updateTypes.UPDATE_USER,
-        id: rawUpdateInfo.id,
-        time: rawUpdateInfo.time,
-        updatedUserID: rawUpdateInfo.updatedUserID,
-      });
-      userIDsToFetch.add(rawUpdateInfo.updatedUserID);
-    } else {
-      invariant(false, `unrecognized updateType ${rawUpdateInfo.type}`);
-    }
-  }
+  const userIDsToFetch = new Set(
+    rawUpdateInfos
+      .map(update =>
+        update.type === updateTypes.UPDATE_USER ? update.updatedUserID : null,
+      )
+      .filter(Boolean),
+  );
+  const params = {
+    data: rawData,
+    rawEntryInfosByThreadID,
+    rawMessageInfosByThreadID,
+  };
+  const updateInfos = rawUpdateInfos
+    .map(update =>
+      updateSpecs[update.type].updateInfoFromRawInfo(update, params),
+    )
+    .filter(Boolean);
 
   let userInfos = {};
   if (userIDsToFetch.size > 0) {
