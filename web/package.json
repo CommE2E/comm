@@ -106,7 +106,7 @@
       "\\.js$": "babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!@babel/runtime)"
+      "/node_modules/(?!(@babel/runtime|thumbhash))"
     ],
     "moduleNameMapper": {
       "\\.(css)$": "identity-obj-proxy"
