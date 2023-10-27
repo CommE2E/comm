@@ -399,6 +399,9 @@ async function fetchUpdateInfosWithRawUpdateInfos(
       .map(({ detailedThreadID }) => detailedThreadID)
       .filter(Boolean),
   );
+  const userIDsToFetch = new Set(
+    entitiesToFetch.map(({ userID }) => userID).filter(Boolean),
+  );
 
   const promises = {};
 
@@ -458,12 +461,17 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     })();
   }
 
+  if (userIDsToFetch.size > 0) {
+    promises.userInfosResult = fetchKnownUserInfos(viewer, [...userIDsToFetch]);
+  }
+
   const {
     threadResult,
     messageInfosResult,
     calendarResult,
     entryInfosResult,
     currentUserInfoResult,
+    userInfosResult,
   } = await promiseAll(promises);
 
   let threadInfos = {};
@@ -479,6 +487,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     calendarResult,
     entryInfosResult,
     currentUserInfoResult,
+    userInfosResult,
   });
 }
 
@@ -487,7 +496,7 @@ async function updateInfosFromRawUpdateInfos(
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
   rawData: UpdateInfosRawData,
 ): Promise<FetchUpdatesResult> {
-  const { messageInfosResult, calendarResult } = rawData;
+  const { messageInfosResult, calendarResult, userInfosResult } = rawData;
 
   const rawEntryInfosByThreadID = {};
   for (const entryInfo of calendarResult?.rawEntryInfos ?? []) {
@@ -505,13 +514,6 @@ async function updateInfosFromRawUpdateInfos(
     rawMessageInfosByThreadID[messageInfo.threadID].push(messageInfo);
   }
 
-  const userIDsToFetch = new Set(
-    rawUpdateInfos
-      .map(update =>
-        update.type === updateTypes.UPDATE_USER ? update.updatedUserID : null,
-      )
-      .filter(Boolean),
-  );
   const params = {
     data: rawData,
     rawEntryInfosByThreadID,
@@ -522,11 +524,6 @@ async function updateInfosFromRawUpdateInfos(
       updateSpecs[update.type].updateInfoFromRawInfo(update, params),
     )
     .filter(Boolean);
-
-  let userInfos = {};
-  if (userIDsToFetch.size > 0) {
-    userInfos = await fetchKnownUserInfos(viewer, [...userIDsToFetch]);
-  }
 
   updateInfos.sort(sortFunction);
 
@@ -573,7 +570,7 @@ async function updateInfosFromRawUpdateInfos(
   }
   mergedUpdates.sort(sortFunction);
 
-  return { updateInfos: mergedUpdates, userInfos };
+  return { updateInfos: mergedUpdates, userInfos: userInfosResult ?? {} };
 }
 
 type PublishInfo = {
