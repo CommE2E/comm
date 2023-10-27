@@ -15,6 +15,7 @@ import { saveMessagesActionType } from 'lib/actions/message-actions.js';
 import {
   updatesCurrentAsOfSelector,
   connectionSelector,
+  deviceTokensSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import {
   unreadCount,
@@ -95,7 +96,9 @@ type Props = {
   +activeThread: ?string,
   // Redux state
   +unreadCount: number,
-  +deviceToken: ?string,
+  +deviceTokens: {
+    +[keyserverID: string]: ?string,
+  },
   +threadInfos: { +[id: string]: ThreadInfo },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
@@ -234,10 +237,15 @@ class PushHandler extends React.PureComponent<Props, State> {
   onForeground() {
     if (this.props.loggedIn) {
       this.ensurePushNotifsEnabled();
-    } else if (this.props.deviceToken) {
+    } else {
       // We do this in case there was a crash, so we can clear deviceToken from
       // any other cookies it might be set for
-      this.setDeviceToken(this.props.deviceToken);
+      for (const keyserverID in this.props.deviceTokens) {
+        const deviceToken = this.props.deviceTokens[keyserverID];
+        if (deviceToken) {
+          this.setDeviceToken(deviceToken);
+        }
+      }
     }
   }
 
@@ -263,11 +271,17 @@ class PushHandler extends React.PureComponent<Props, State> {
       }
     }
 
-    if (
-      (this.props.loggedIn && !prevProps.loggedIn) ||
-      (!this.props.deviceToken && prevProps.deviceToken)
-    ) {
+    if (this.props.loggedIn && !prevProps.loggedIn) {
       this.ensurePushNotifsEnabled();
+    } else {
+      for (const keyserverID in this.props.deviceTokens) {
+        const deviceToken = this.props.deviceTokens[keyserverID];
+        const prevDeviceToken = prevProps.deviceTokens[keyserverID];
+        if (!deviceToken && prevDeviceToken) {
+          this.ensurePushNotifsEnabled();
+          break;
+        }
+      }
     }
 
     if (!this.props.loggedIn && prevProps.loggedIn) {
@@ -339,8 +353,14 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     if (Platform.OS === 'ios') {
-      const missingDeviceToken =
-        this.props.deviceToken === null || this.props.deviceToken === undefined;
+      let missingDeviceToken = false;
+      for (const keyserverID in this.props.deviceTokens) {
+        const deviceToken = this.props.deviceTokens[keyserverID];
+        if (deviceToken === null || deviceToken === undefined) {
+          missingDeviceToken = true;
+          break;
+        }
+      }
       await requestIOSPushPermissions(missingDeviceToken);
     } else if (Platform.OS === 'android') {
       await this.ensureAndroidPushNotifsEnabled();
@@ -416,8 +436,11 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (deviceType === 'ios') {
       iosPushPermissionResponseReceived();
     }
-    if (deviceToken !== this.props.deviceToken) {
-      this.setDeviceToken(deviceToken);
+    for (const keyserverID in this.props.deviceTokens) {
+      const keyserverDeviceToken = this.props.deviceTokens[keyserverID];
+      if (deviceToken !== keyserverDeviceToken) {
+        this.setDeviceToken(deviceToken);
+      }
     }
   };
 
@@ -643,7 +666,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const navContext = React.useContext(NavContext);
     const activeThread = activeMessageListSelector(navContext);
     const boundUnreadCount = useSelector(unreadCount);
-    const deviceToken = useSelector(state => state.deviceToken);
+    const deviceTokens = useSelector(deviceTokensSelector);
     const threadInfos = useSelector(threadInfoSelector);
     const notifPermissionAlertInfo = useSelector(
       state => state.notifPermissionAlertInfo,
@@ -663,7 +686,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
         {...props}
         activeThread={activeThread}
         unreadCount={boundUnreadCount}
-        deviceToken={deviceToken}
+        deviceTokens={deviceTokens}
         threadInfos={threadInfos}
         notifPermissionAlertInfo={notifPermissionAlertInfo}
         connection={connection}
