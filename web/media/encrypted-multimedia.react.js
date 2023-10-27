@@ -23,6 +23,10 @@ type Props = {
   +placeholderSrc?: ?string,
   +multimediaClassName?: string,
   +elementStyle?: ?Shape<CSSStyle>,
+  // if provided, this component will be shown instead of the loading indicator
+  +loadingIndicatorComponent?: React.Node,
+  // if true, the loading indicator will not be shown
+  +invisibleLoad?: boolean,
 };
 
 function EncryptedMultimedia(props: Props): React.Node {
@@ -32,6 +36,7 @@ function EncryptedMultimedia(props: Props): React.Node {
     placeholderSrc,
     elementStyle,
     multimediaClassName,
+    invisibleLoad,
   } = props;
 
   const [source, setSource] = React.useState(null);
@@ -78,8 +83,8 @@ function EncryptedMultimedia(props: Props): React.Node {
 
   let loadingIndicator, errorIndicator;
 
-  if (!source) {
-    loadingIndicator = (
+  if (!source && !invisibleLoad) {
+    loadingIndicator = props.loadingIndicatorComponent ?? (
       <LoadingIndicator
         status="loading"
         size="large"
