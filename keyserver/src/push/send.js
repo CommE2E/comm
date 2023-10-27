@@ -23,6 +23,10 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
+import {
+  FUTURE_CODE_VERSION,
+  hasMinCodeVersion,
+} from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -31,7 +35,6 @@ import {
 } from 'lib/types/message-types.js';
 import { rawMessageInfoValidator } from 'lib/types/message-types.js';
 import type {
-  WebNotification,
   WNSNotification,
   ResolvedNotifTexts,
 } from 'lib/types/notif-types.js';
@@ -45,6 +48,7 @@ import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 import {
   prepareEncryptedIOSNotifications,
   prepareEncryptedAndroidNotifications,
+  prepareEncryptedWebNotifications,
 } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
@@ -52,6 +56,7 @@ import type {
   NotificationTargetDevice,
   TargetedAPNsNotification,
   TargetedAndroidNotification,
+  TargetedWebNotification,
 } from './types.js';
 import {
   apnPush,
@@ -356,14 +361,17 @@ async function sendPushNotif(input: {
       };
 
       const deliveryPromise: Promise<PushResult> = (async () => {
-        const notification = await prepareWebNotification({
-          notifTexts,
-          threadID: threadInfo.id,
-          unreadCount,
-          platformDetails,
-        });
-        const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
-        return await sendWebNotification(notification, deviceTokens, {
+        const targetedNotifications = await prepareWebNotification(
+          {
+            notifTexts,
+            threadID: threadInfo.id,
+            unreadCount,
+            platformDetails,
+          },
+          devices,
+        );
+
+        return await sendWebNotifications(targetedNotifications, {
           ...notificationInfo,
           codeVersion,
           stateVersion,
@@ -1054,7 +1062,8 @@ const webNotifInputDataValidator = tShape<WebNotifInputData>({
 });
 async function prepareWebNotification(
   inputData: WebNotifInputData,
-): Promise<WebNotification> {
+  devices: $ReadOnlyArray<NotificationTargetDevice>,
+): Promise<$ReadOnlyArray<TargetedWebNotification>> {
   const convertedData = validateOutput(
     inputData.platformDetails,
     webNotifInputDataValidator,
@@ -1069,7 +1078,16 @@ async function prepareWebNotification(
     id,
     threadID,
   };
-  return notification;
+
+  const shouldBeEncrypted = hasMinCodeVersion(convertedData.platformDetails, {
+    web: FUTURE_CODE_VERSION,
+  });
+
+  if (!shouldBeEncrypted) {
+    return devices.map(({ deviceToken }) => ({ deviceToken, notification }));
+  }
+
+  return prepareEncryptedWebNotifications(devices, notification);
 }
 
 type WNSNotifInputData = {
@@ -1272,18 +1290,17 @@ type WebResult = {
   +delivery: WebDelivery,
   +invalidTokens?: $ReadOnlyArray<string>,
 };
-async function sendWebNotification(
-  notification: WebNotification,
-  deviceTokens: $ReadOnlyArray<string>,
+async function sendWebNotifications(
+  targetedNotifications: $ReadOnlyArray<TargetedWebNotification>,
   notificationInfo: NotificationInfo,
 ): Promise<WebResult> {
   const { source, codeVersion, stateVersion } = notificationInfo;
 
-  const response = await webPush({
-    notification,
-    deviceTokens,
-  });
+  const response = await webPush(targetedNotifications);
 
+  const deviceTokens = targetedNotifications.map(
+    ({ deviceToken }) => deviceToken,
+  );
   const delivery: WebDelivery = {
     source,
     deviceType: 'web',
