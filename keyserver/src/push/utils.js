@@ -11,10 +11,7 @@ import webpush from 'web-push';
 
 import blobService from 'lib/facts/blob-service.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
-import type {
-  WebNotification,
-  WNSNotification,
-} from 'lib/types/notif-types.js';
+import type { WNSNotification } from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { toBase64URL } from 'lib/utils/base64.js';
@@ -32,6 +29,7 @@ import {
 import type {
   TargetedAPNsNotification,
   TargetedAndroidNotification,
+  TargetedWebNotification,
 } from './types.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { generateKey, encrypt } from '../utils/aes-crypto-utils.js';
@@ -239,30 +237,31 @@ type WebPushResult = {
   +errors?: $ReadOnlyArray<WebPushError>,
   +invalidTokens?: $ReadOnlyArray<string>,
 };
-async function webPush({
-  notification,
-  deviceTokens,
-}: {
-  +notification: WebNotification,
-  +deviceTokens: $ReadOnlyArray<string>,
-}): Promise<WebPushResult> {
+async function webPush(
+  targetedNotifications: $ReadOnlyArray<TargetedWebNotification>,
+): Promise<WebPushResult> {
   await ensureWebPushInitialized();
-  const notificationString = JSON.stringify(notification);
 
   const pushResults = await Promise.all(
-    deviceTokens.map(async deviceTokenString => {
-      const deviceToken: PushSubscriptionJSON = JSON.parse(deviceTokenString);
-      try {
-        await webpush.sendNotification(deviceToken, notificationString);
-      } catch (error) {
-        return { error };
-      }
-      return {};
-    }),
+    targetedNotifications.map(
+      async ({ notification, deviceToken: deviceTokenString }) => {
+        const deviceToken: PushSubscriptionJSON = JSON.parse(deviceTokenString);
+        const notificationString = JSON.stringify(notification);
+        try {
+          await webpush.sendNotification(deviceToken, notificationString);
+        } catch (error) {
+          return { error };
+        }
+        return {};
+      },
+    ),
   );
 
   const errors = [];
   const invalidTokens = [];
+  const deviceTokens = targetedNotifications.map(
+    ({ deviceToken }) => deviceToken,
+  );
   for (let i = 0; i < pushResults.length; i++) {
     const pushResult = pushResults[i];
     if (pushResult.error) {
