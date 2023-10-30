@@ -7,9 +7,11 @@ import { Platform, LogBox } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 import { useDispatch } from 'react-redux';
 
+import type { DeviceTokens } from 'lib/actions/device-actions.js';
 import {
   setDeviceTokenActionTypes,
   setDeviceToken,
+  setDeviceTokenFanout,
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
 import {
@@ -29,10 +31,10 @@ import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 import {
   convertNotificationMessageInfoToNewIDSchema,
   convertNonPendingIDToNewSchema,
@@ -110,7 +112,8 @@ type Props = {
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +setDeviceToken: (deviceToken: ?string) => Promise<?string>,
+  +setDeviceToken: (input: DeviceTokens) => Promise<DeviceTokens>,
+  +setDeviceTokenFanout: (deviceToken: ?string) => Promise<DeviceTokens>,
   // withRootContext
   +rootContext: ?RootContextType,
 };
@@ -240,12 +243,14 @@ class PushHandler extends React.PureComponent<Props, State> {
     } else {
       // We do this in case there was a crash, so we can clear deviceToken from
       // any other cookies it might be set for
+      const deviceTokensMap = {};
       for (const keyserverID in this.props.deviceTokens) {
         const deviceToken = this.props.deviceTokens[keyserverID];
         if (deviceToken) {
-          this.setDeviceToken(deviceToken);
+          deviceTokensMap[keyserverID] = deviceToken;
         }
       }
+      this.setDeviceToken(deviceTokensMap);
     }
   }
 
@@ -436,23 +441,32 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (deviceType === 'ios') {
       iosPushPermissionResponseReceived();
     }
+    const deviceTokensMap = {};
     for (const keyserverID in this.props.deviceTokens) {
       const keyserverDeviceToken = this.props.deviceTokens[keyserverID];
       if (deviceToken !== keyserverDeviceToken) {
-        this.setDeviceToken(deviceToken);
+        deviceTokensMap[keyserverID] = deviceToken;
       }
     }
+    this.setDeviceToken(deviceTokensMap);
   };
 
-  setDeviceToken(deviceToken: ?string) {
+  setDeviceToken(deviceTokens: DeviceTokens) {
     this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
-      this.props.setDeviceToken(deviceToken),
+      this.props.setDeviceToken(deviceTokens),
     );
   }
 
+  setAllDeviceTokensNull = () => {
+    this.props.dispatchActionPromise(
+      setDeviceTokenActionTypes,
+      this.props.setDeviceTokenFanout(null),
+    );
+  };
+
   failedToRegisterPushPermissionsIOS = () => {
-    this.setDeviceToken(null);
+    this.setAllDeviceTokensNull();
     if (!this.props.loggedIn) {
       return;
     }
@@ -462,7 +476,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   failedToRegisterPushPermissionsAndroid = (
     shouldShowAlertOnAndroid: boolean,
   ) => {
-    this.setDeviceToken(null);
+    this.setAllDeviceTokensNull();
     if (!this.props.loggedIn) {
       return;
     }
@@ -679,7 +693,8 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const navigateToThread = useNavigateToThread();
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const boundSetDeviceToken = useServerCall(setDeviceToken);
+    const callSetDeviceToken = useKeyserverCall(setDeviceToken);
+    const callSetDeviceTokenFanout = useKeyserverCall(setDeviceTokenFanout);
     const rootContext = React.useContext(RootContext);
     return (
       <PushHandler
@@ -696,7 +711,8 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
         navigateToThread={navigateToThread}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
-        setDeviceToken={boundSetDeviceToken}
+        setDeviceToken={callSetDeviceToken}
+        setDeviceTokenFanout={callSetDeviceTokenFanout}
         rootContext={rootContext}
       />
     );
