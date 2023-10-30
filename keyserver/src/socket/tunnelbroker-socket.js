@@ -3,7 +3,9 @@
 import uuid from 'uuid';
 import WebSocket from 'ws';
 
+import { tunnelbrokerHeartbeatTimeout } from 'lib/shared/timeouts.js';
 import type { ClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type { Heartbeat } from 'lib/types/tunnelbroker/heartbeat-types.js';
 import {
   type RefreshKeyRequest,
   refreshKeysRequestValidator,
@@ -30,6 +32,7 @@ class TunnelbrokerSocket {
   ws: WebSocket;
   connected: boolean;
   promises: Promises;
+  heartbeatTimeoutID: ?TimeoutID;
 
   constructor(socketURL: string, initMessage: ConnectionInitializationMessage) {
     this.connected = false;
@@ -42,6 +45,7 @@ class TunnelbrokerSocket {
     });
 
     socket.on('close', async () => {
+      this.stopHeartbeatTimeout();
       this.connected = false;
       console.error('Connection to Tunnelbroker closed');
     });
@@ -71,6 +75,8 @@ class TunnelbrokerSocket {
       return;
     }
     const message: TunnelbrokerMessage = rawMessage;
+
+    this.resetHeartbeatTimeout();
 
     if (
       message.type ===
@@ -126,6 +132,11 @@ class TunnelbrokerSocket {
           console.log('Tunnelbroker recorded InvalidRequest');
         }
       }
+    } else if (message.type === tunnelbrokerMessageTypes.HEARTBEAT) {
+      const heartbeat: Heartbeat = {
+        type: tunnelbrokerMessageTypes.HEARTBEAT,
+      };
+      this.ws.send(JSON.stringify(heartbeat));
     }
   };
 
@@ -151,6 +162,21 @@ class TunnelbrokerSocket {
       this.ws.send(JSON.stringify(messageToDevice));
     });
   };
+
+  stopHeartbeatTimeout() {
+    if (this.heartbeatTimeoutID) {
+      clearTimeout(this.heartbeatTimoeutID);
+      this.heartbeatTimeoutID = null;
+    }
+  }
+
+  resetHeartbeatTimeout() {
+    this.stopHeartbeatTimeout();
+    this.heartbeatTimeoutID = setTimeout(() => {
+      this.ws.close();
+      this.connected = false;
+    }, tunnelbrokerHeartbeatTimeout);
+  }
 }
 
 export default TunnelbrokerSocket;
