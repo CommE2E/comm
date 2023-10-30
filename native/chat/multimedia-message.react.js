@@ -9,7 +9,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils.js';
+import { isInvalidPinSource, messageKey } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
@@ -243,10 +243,12 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
       props.item.messageInfo,
     );
     const canTogglePins =
+      !isInvalidPinSource(props.item.messageInfo) &&
       threadHasPermission(
         props.item.threadInfo,
         threadPermissions.MANAGE_PINS,
-      ) && props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
+      ) &&
+      props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
 
     return (
       <MultimediaMessage

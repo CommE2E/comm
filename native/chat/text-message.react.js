@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils.js';
+import { isInvalidPinSource, messageKey } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
@@ -292,10 +292,12 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       !isThisMessageEdited;
 
     const canTogglePins =
+      !isInvalidPinSource(props.item.messageInfo) &&
       threadHasPermission(
         props.item.threadInfo,
         threadPermissions.MANAGE_PINS,
-      ) && props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
+      ) &&
+      props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
 
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
