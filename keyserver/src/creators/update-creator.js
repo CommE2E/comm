@@ -8,7 +8,10 @@ import {
   keyForUpdateInfo,
   rawUpdateInfoFromUpdateData,
 } from 'lib/shared/update-utils.js';
-import type { UpdateInfosRawData } from 'lib/shared/updates/update-spec.js';
+import type {
+  UpdateInfosRawData,
+  DeleteConditionType,
+} from 'lib/shared/updates/update-spec.js';
 import { updateSpecs } from 'lib/shared/updates/update-specs.js';
 import {
   type CalendarQuery,
@@ -69,7 +72,7 @@ export type UpdatesForCurrentSession =
 type DeleteCondition = {
   +userID: string,
   +target: ?string,
-  +types: 'all_types' | $ReadOnlySet<number>,
+  +types: DeleteConditionType,
 };
 
 export type ViewerInfo =
@@ -605,28 +608,8 @@ function getTargetFromUpdateData(updateData: UpdateData): ?string {
 }
 
 function getDeleteCondition(updateData: UpdateData): ?DeleteCondition {
-  let types;
-  if (updateData.type === updateTypes.DELETE_ACCOUNT) {
-    types = new Set([updateTypes.DELETE_ACCOUNT, updateTypes.UPDATE_USER]);
-  } else if (updateData.type === updateTypes.UPDATE_THREAD) {
-    types = new Set([
-      updateTypes.UPDATE_THREAD,
-      updateTypes.UPDATE_THREAD_READ_STATUS,
-    ]);
-  } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-    types = new Set([updateTypes.UPDATE_THREAD_READ_STATUS]);
-  } else if (
-    updateData.type === updateTypes.DELETE_THREAD ||
-    updateData.type === updateTypes.JOIN_THREAD
-  ) {
-    types = 'all_types';
-  } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-    types = 'all_types';
-  } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
-    types = new Set([updateTypes.UPDATE_CURRENT_USER]);
-  } else if (updateData.type === updateTypes.UPDATE_USER) {
-    types = new Set([updateTypes.UPDATE_USER]);
-  } else {
+  const types = updateSpecs[updateData.type].deleteCondition;
+  if (!types) {
     return null;
   }
 
