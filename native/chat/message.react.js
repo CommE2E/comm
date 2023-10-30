@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
+import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import MultimediaMessage from './multimedia-message.react.js';
@@ -91,6 +92,11 @@ function Message(props: Props): React.Node {
     [focused, item],
   );
 
+  const canTogglePins = React.useMemo(
+    () => canToggleMessagePin(props.item.messageInfo, props.item.threadInfo),
+    [props.item.messageInfo, props.item.threadInfo],
+  );
+
   const innerMessageNode = React.useMemo(() => {
     if (item.messageShapeType === 'text') {
       return (
@@ -101,6 +107,7 @@ function Message(props: Props): React.Node {
           focused={focused}
           toggleFocus={toggleFocus}
           verticalBounds={verticalBounds}
+          canTogglePins={canTogglePins}
           shouldDisplayPinIndicator={shouldDisplayPinIndicator}
         />
       );
@@ -111,6 +118,7 @@ function Message(props: Props): React.Node {
           focused={focused}
           toggleFocus={toggleFocus}
           verticalBounds={verticalBounds}
+          canTogglePins={canTogglePins}
           shouldDisplayPinIndicator={shouldDisplayPinIndicator}
         />
       );
@@ -134,6 +142,7 @@ function Message(props: Props): React.Node {
     shouldDisplayPinIndicator,
     toggleFocus,
     verticalBounds,
+    canTogglePins,
   ]);
 
   const message = React.useMemo(

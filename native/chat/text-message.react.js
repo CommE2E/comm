@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { isInvalidPinSource, messageKey } from 'lib/shared/message-utils.js';
+import { messageKey } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
@@ -51,6 +51,7 @@ type BaseProps = {
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
+  +canTogglePins: boolean,
   +shouldDisplayPinIndicator: boolean,
 };
 type Props = {
@@ -65,7 +66,6 @@ type Props = {
   +isLinkModalActive: boolean,
   +isUserProfileBottomSheetActive: boolean,
   +canEditMessage: boolean,
-  +canTogglePins: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -291,14 +291,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
       useCanEditMessageNative(props.item.threadInfo, props.item.messageInfo) &&
       !isThisMessageEdited;
 
-    const canTogglePins =
-      !isInvalidPinSource(props.item.messageInfo) &&
-      threadHasPermission(
-        props.item.threadInfo,
-        threadPermissions.MANAGE_PINS,
-      ) &&
-      props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
-
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
     return (
@@ -310,7 +302,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         isLinkModalActive={isLinkModalActive}
         isUserProfileBottomSheetActive={isUserProfileBottomSheetActive}
         canEditMessage={canEditMessage}
-        canTogglePins={canTogglePins}
       />
     );
   });

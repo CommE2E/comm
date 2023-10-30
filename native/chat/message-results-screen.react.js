@@ -9,7 +9,7 @@ import { fetchPinnedMessages } from 'lib/actions/message-actions.js';
 import { messageListData } from 'lib/selectors/chat-selectors.js';
 import {
   createMessageInfo,
-  isInvalidPinSource,
+  isInvalidPinSourceForThread,
 } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
@@ -77,7 +77,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
       item =>
         item.itemType === 'message' &&
         item.isPinned &&
-        !isInvalidPinSource(item.messageInfo),
+        !isInvalidPinSourceForThread(item.messageInfo, threadInfo),
     );
 
     // By the nature of using messageListData and passing in
@@ -102,7 +102,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     }
 
     return sortedChatMessageInfoItems.filter(Boolean);
-  }, [chatMessageInfos, rawMessageResults]);
+  }, [chatMessageInfos, rawMessageResults, threadInfo]);
 
   const measureCallback = React.useCallback(
     (listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>) => {
