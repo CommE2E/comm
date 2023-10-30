@@ -36,7 +36,15 @@ function KeyserverSelectionList(props: { ... }): React.Node {
 
   const renderKeyserverListItem = React.useCallback(
     ({ item }) => {
-      const { keyserverAdminUsername } = item;
+      const { keyserverAdminUsername, keyserverInfo } = item;
+
+      let connectionIndicatorOuterStyle = styles.offlineIndicatorOuter;
+      let connectionIndicatorInnerStyle = styles.offlineIndicatorInner;
+
+      if (keyserverInfo.connection.status === 'connected') {
+        connectionIndicatorOuterStyle = styles.onlineIndicatorOuter;
+        connectionIndicatorInnerStyle = styles.onlineIndicatorInner;
+      }
 
       return (
         <View style={styles.keyserverListItemContainer}>
@@ -45,10 +53,21 @@ function KeyserverSelectionList(props: { ... }): React.Node {
             backgroundColor={colors.codeBackground}
             icon={cloudIcon}
           />
+          <View style={connectionIndicatorOuterStyle}>
+            <View style={connectionIndicatorInnerStyle} />
+          </View>
         </View>
       );
     },
-    [cloudIcon, colors.codeBackground, styles.keyserverListItemContainer],
+    [
+      cloudIcon,
+      colors.codeBackground,
+      styles.keyserverListItemContainer,
+      styles.offlineIndicatorInner,
+      styles.offlineIndicatorOuter,
+      styles.onlineIndicatorInner,
+      styles.onlineIndicatorOuter,
+    ],
   );
 
   const keyserverListSeparatorComponent = React.useCallback(
@@ -113,6 +132,34 @@ const unboundStyles = {
     backgroundColor: 'panelForegroundBorder',
     height: 1,
     marginHorizontal: 16,
+  },
+  onlineIndicatorOuter: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'greenIndicatorOuter',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+  },
+  onlineIndicatorInner: {
+    backgroundColor: 'greenIndicatorInner',
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+  },
+  offlineIndicatorOuter: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'redIndicatorOuter',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+  },
+  offlineIndicatorInner: {
+    backgroundColor: 'redIndicatorInner',
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
   },
 };
 
