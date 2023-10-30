@@ -461,7 +461,7 @@ function parseMessageSelectionCriteria(
   if (criteria.newerThan) {
     globalTimeFilter = SQL`m.time > ${criteria.newerThan}`;
   } else if (!criteria.threadCursors && shouldApplyTimeFilter) {
-    globalTimeFilter = SQL`m.time > ${minMessageTime}`;
+    globalTimeFilter = SQL`(m.time > ${minMessageTime} OR m.id = mm.last_message)`;
   }
 
   const threadConditions = [];
@@ -470,7 +470,9 @@ function parseMessageSelectionCriteria(
     shouldApplyTimeFilter &&
     !globalTimeFilter
   ) {
-    threadConditions.push(SQL`(mm.role > 0 AND m.time > ${minMessageTime})`);
+    threadConditions.push(
+      SQL`(mm.role > 0 AND (m.time > ${minMessageTime} OR m.id = mm.last_message))`,
+    );
   } else if (criteria.joinedThreads === true) {
     threadConditions.push(SQL`mm.role > 0`);
   }
