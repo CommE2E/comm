@@ -19,7 +19,3 @@ fi
 
 ensure_target aarch64-apple-ios
 ensure_target x86_64-apple-ios
-
-if ! command -v cargo-lipo > /dev/null; then
-  cargo install cargo-lipo
-fi
