@@ -145,6 +145,14 @@ const devWebWorkersPlugins = [
       },
     ],
   }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from: 'node_modules/@commapp/olm/olm.wasm',
+        to: path.join(__dirname, 'dist', 'webworkers'),
+      },
+    ],
+  }),
 ];
 
 const prodWebWorkersPlugins = [
@@ -157,6 +165,19 @@ const prodWebWorkersPlugins = [
           'dist',
           'webworkers',
           'comm_query_executor.[contenthash:12].wasm',
+        ),
+      },
+    ],
+  }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from: 'node_modules/@commapp/olm/olm.wasm',
+        to: path.join(
+          __dirname,
+          'dist',
+          'webworkers',
+          'olm.[contenthash:12].wasm',
         ),
       },
     ],

@@ -1,5 +1,7 @@
 // @flow
 
+import olm from '@commapp/olm';
+
 import type { PlainTextWebNotification } from 'lib/types/notif-types.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -11,6 +13,10 @@ declare class PushEvent extends ExtendableEvent {
   +data: PushMessageData;
 }
 
+declare class CommAppMessage extends ExtendableEvent {
+  +data: { +olmFilePath?: string };
+}
+
 declare var clients: Clients;
 declare function skipWaiting(): Promise<void>;
 
@@ -20,6 +26,23 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(clients.claim());
+});
+
+self.addEventListener('message', (event: CommAppMessage) => {
+  event.waitUntil(
+    (async () => {
+      if (!event.data.olmFilePath) {
+        return;
+      }
+      try {
+        await olm.init({
+          locateFile: () => event.data.olmFilePath,
+        });
+      } catch (e) {
+        console.log('Failed to initialize olm', e);
+      }
+    })(),
+  );
 });
 
 self.addEventListener('push', (event: PushEvent) => {
