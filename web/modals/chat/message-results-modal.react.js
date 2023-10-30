@@ -11,7 +11,7 @@ import { messageListData } from 'lib/selectors/chat-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   createMessageInfo,
-  isInvalidPinSource,
+  isInvalidPinSourceForThread,
   modifyItemForResultScreen,
 } from 'lib/shared/message-utils.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
@@ -80,7 +80,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
       item =>
         item.itemType === 'message' &&
         item.isPinned &&
-        !isInvalidPinSource(item.messageInfo),
+        !isInvalidPinSourceForThread(item.messageInfo, threadInfo),
     );
 
     // By the nature of using messageListData and passing in
@@ -105,7 +105,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
     }
 
     return sortedChatMessageInfoItems;
-  }, [chatMessageInfos, rawMessageResults]);
+  }, [chatMessageInfos, rawMessageResults, threadInfo]);
 
   const modifiedItems = React.useMemo(
     () =>
