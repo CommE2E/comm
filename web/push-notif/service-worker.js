@@ -1,14 +1,23 @@
 // @flow
 
+import localforage from 'localforage';
+
 import type { PlainTextWebNotification } from 'lib/types/notif-types.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+
+import { OLM_WASM_PATH_KEY } from './notif-crypto-utils.js';
+import { localforageConfig } from '../database/utils/constants.js';
 
 declare class PushMessageData {
   json(): Object;
 }
 declare class PushEvent extends ExtendableEvent {
   +data: PushMessageData;
+}
+
+declare class CommAppMessage extends ExtendableEvent {
+  +data: { +olmFilePath?: string };
 }
 
 declare var clients: Clients;
@@ -20,6 +29,18 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(clients.claim());
+});
+
+self.addEventListener('message', (event: CommAppMessage) => {
+  localforage.config(localforageConfig);
+  event.waitUntil(
+    (async () => {
+      if (!event.data.olmFilePath) {
+        return;
+      }
+      await localforage.setItem(OLM_WASM_PATH_KEY, event.data.olmFilePath);
+    })(),
+  );
 });
 
 self.addEventListener('push', (event: PushEvent) => {
