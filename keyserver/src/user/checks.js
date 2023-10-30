@@ -1,7 +1,7 @@
 // @flow
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
-type UserCredentials = { +username: string, +password: string };
+export type UserCredentials = { +username: string, +password: string };
 
 async function ensureUserCredentials() {
   const userCredentials = await getCommConfig<UserCredentials>({
