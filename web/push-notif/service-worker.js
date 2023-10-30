@@ -1,14 +1,26 @@
 // @flow
 
+import localforage from 'localforage';
+
 import type { PlainTextWebNotification } from 'lib/types/notif-types.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+
+import {
+  WEB_NOTIFS_SERVICE_UTILS_KEY,
+  type WebNotifsServiceUtilsData,
+} from './notif-crypto-utils.js';
+import { localforageConfig } from '../database/utils/constants.js';
 
 declare class PushMessageData {
   json(): Object;
 }
 declare class PushEvent extends ExtendableEvent {
   +data: PushMessageData;
+}
+
+declare class CommAppMessage extends ExtendableEvent {
+  +data: { +olmWasmPath?: string, +staffCanSee?: boolean };
 }
 
 declare var clients: Clients;
@@ -20,6 +32,26 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(clients.claim());
+});
+
+self.addEventListener('message', (event: CommAppMessage) => {
+  localforage.config(localforageConfig);
+  event.waitUntil(
+    (async () => {
+      if (!event.data.olmWasmPath || event.data.staffCanSee === undefined) {
+        return;
+      }
+      const webNotifsServiceUtils: WebNotifsServiceUtilsData = {
+        olmWasmPath: event.data.olmWasmPath,
+        staffCanSee: event.data.staffCanSee,
+      };
+
+      await localforage.setItem(
+        WEB_NOTIFS_SERVICE_UTILS_KEY,
+        webNotifsServiceUtils,
+      );
+    })(),
+  );
 });
 
 self.addEventListener('push', (event: PushEvent) => {
