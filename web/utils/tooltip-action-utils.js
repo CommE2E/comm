@@ -10,10 +10,7 @@ import type {
   ChatMessageInfoItem,
 } from 'lib/selectors/chat-selectors.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
-import {
-  createMessageReply,
-  isInvalidPinSource,
-} from 'lib/shared/message-utils.js';
+import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import {
   threadHasPermission,
@@ -23,6 +20,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
+import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
 
 import {
   type MessageTooltipAction,
@@ -274,10 +272,7 @@ function useMessageTogglePinAction(
   const { pushModal } = useModalContext();
   const { messageInfo, isPinned } = item;
 
-  const canTogglePin =
-    !isInvalidPinSource(messageInfo) &&
-    threadHasPermission(threadInfo, threadPermissions.MANAGE_PINS) &&
-    threadInfo.sourceMessageID !== item.messageInfo.id;
+  const canTogglePin = canToggleMessagePin(messageInfo, threadInfo);
 
   const inputState = React.useContext(InputStateContext);
 
