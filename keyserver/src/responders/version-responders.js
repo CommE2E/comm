@@ -4,15 +4,32 @@ import t, { type TInterface } from 'tcomb';
 
 import { webAndKeyserverCodeVersion } from 'lib/facts/version.js';
 import type { VersionResponse } from 'lib/types/device-types.js';
+import { getCommConfig } from 'lib/utils/comm-config.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
-export const versionResponseValidator: TInterface<VersionResponse> =
-  tShape<VersionResponse>({ codeVersion: t.Number });
+import type { UserCredentials } from '../user/checks.js';
+import { fetchIdentityInfo } from '../user/identity.js';
 
-const versionResponse = { codeVersion: webAndKeyserverCodeVersion };
+export const versionResponseValidator: TInterface<VersionResponse> =
+  tShape<VersionResponse>({
+    codeVersion: t.Number,
+    ownerUsername: t.maybe(t.String),
+    ownerID: t.maybe(t.String),
+  });
 
 async function versionResponder(): Promise<VersionResponse> {
-  return versionResponse;
+  const userInfo = await getCommConfig<UserCredentials>({
+    folder: 'secrets',
+    name: 'user_credentials',
+  });
+
+  const identityInfo = await fetchIdentityInfo();
+
+  return {
+    codeVersion: webAndKeyserverCodeVersion,
+    ownerUsername: userInfo?.username,
+    ownerID: identityInfo?.userId,
+  };
 }
 
 export { versionResponder };
