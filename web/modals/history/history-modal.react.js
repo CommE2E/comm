@@ -218,10 +218,12 @@ class HistoryModal extends React.PureComponent<Props, State> {
       const revisions = _unionBy('id')(result)(prevState.revisions);
       return { ...prevState, revisions };
     });
+    const text: string = result[0].text;
+    const deleted: boolean = result[0].deleted;
     return {
       entryID,
-      text: result[0].text,
-      deleted: result[0].deleted,
+      text,
+      deleted,
     };
   }
 
