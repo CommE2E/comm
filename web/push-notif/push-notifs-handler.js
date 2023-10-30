@@ -4,15 +4,12 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
-  setDeviceToken,
+  useSetDeviceTokenFanout,
   setDeviceTokenActionTypes,
 } from 'lib/actions/device-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import {
   shouldSkipPushPermissionAlert,
@@ -27,7 +24,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 function useCreateDesktopPushSubscription() {
   const dispatchActionPromise = useDispatchActionPromise();
-  const callSetDeviceToken = useServerCall(setDeviceToken);
+  const callSetDeviceToken = useSetDeviceTokenFanout();
 
   React.useEffect(
     () =>
@@ -66,7 +63,7 @@ function useCreatePushSubscription(): () => Promise<void> {
   const publicKey = useSelector(state => state.pushApiPublicKey);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callSetDeviceToken = useServerCall(setDeviceToken);
+  const callSetDeviceToken = useSetDeviceTokenFanout();
 
   return React.useCallback(async () => {
     if (!publicKey) {
