@@ -5,14 +5,11 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import {
-  getVersion,
+  useGetVersion,
   getVersionActionTypes,
 } from 'lib/actions/device-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -112,11 +109,15 @@ function KeyserverSelection(props: Props): React.Node {
 
   const serverCallParamOverride = React.useMemo(
     () => ({
-      urlPrefix: keyserverURL,
+      keyserverInfos: {
+        [keyserverURL]: {
+          urlPrefix: keyserverURL,
+        },
+      },
     }),
     [keyserverURL],
   );
-  const getVersionCall = useServerCall(getVersion, serverCallParamOverride);
+  const getVersionCall = useGetVersion(serverCallParamOverride);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const { navigate } = props.navigation;
