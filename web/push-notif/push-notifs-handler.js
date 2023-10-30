@@ -20,10 +20,17 @@ import {
 } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
+import {
+  WORKERS_MODULES_FILE_PATH,
+  DEFAULT_OLM_FILENAME,
+} from '../database/utils/constants.js';
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
+
+declare var baseURL: string;
 
 function useCreateDesktopPushSubscription() {
   const dispatchActionPromise = useDispatchActionPromise();
@@ -67,6 +74,7 @@ function useCreatePushSubscription(): () => Promise<void> {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callSetDeviceToken = useServerCall(setDeviceToken);
+  const staffCanSee = useStaffCanSee();
 
   return React.useCallback(async () => {
     if (!publicKey) {
@@ -78,6 +86,11 @@ function useCreatePushSubscription(): () => Promise<void> {
       return;
     }
 
+    const origin = window.location.origin;
+    const olmWasmDirPath = `${origin}${baseURL}${WORKERS_MODULES_FILE_PATH}`;
+    const olmWasmPath = `${olmWasmDirPath}/${DEFAULT_OLM_FILENAME}`;
+    workerRegistration.active?.postMessage({ olmWasmPath, staffCanSee });
+
     const subscription = await workerRegistration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: publicKey,
@@ -87,7 +100,7 @@ function useCreatePushSubscription(): () => Promise<void> {
       setDeviceTokenActionTypes,
       callSetDeviceToken(JSON.stringify(subscription)),
     );
-  }, [callSetDeviceToken, dispatchActionPromise, publicKey]);
+  }, [callSetDeviceToken, dispatchActionPromise, publicKey, staffCanSee]);
 }
 
 function PushNotificationsHandler(): React.Node {
