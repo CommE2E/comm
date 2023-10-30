@@ -24,7 +24,7 @@ import {
   type NewUpdatesRedisMessage,
 } from 'lib/types/redis-types.js';
 import type { RawThreadInfo } from 'lib/types/thread-types.js';
-import { updateTypes } from 'lib/types/update-types-enum.js';
+import { updateTypes, type UpdateType } from 'lib/types/update-types-enum.js';
 import {
   type ServerUpdateInfo,
   type UpdateData,
@@ -69,7 +69,7 @@ export type UpdatesForCurrentSession =
 type DeleteCondition = {
   +userID: string,
   +target: ?string,
-  +types: 'all_types' | $ReadOnlySet<number>,
+  +types: 'all_types' | $ReadOnlySet<UpdateType>,
 };
 
 export type ViewerInfo =
@@ -605,28 +605,8 @@ function getTargetFromUpdateData(updateData: UpdateData): ?string {
 }
 
 function getDeleteCondition(updateData: UpdateData): ?DeleteCondition {
-  let types;
-  if (updateData.type === updateTypes.DELETE_ACCOUNT) {
-    types = new Set([updateTypes.DELETE_ACCOUNT, updateTypes.UPDATE_USER]);
-  } else if (updateData.type === updateTypes.UPDATE_THREAD) {
-    types = new Set([
-      updateTypes.UPDATE_THREAD,
-      updateTypes.UPDATE_THREAD_READ_STATUS,
-    ]);
-  } else if (updateData.type === updateTypes.UPDATE_THREAD_READ_STATUS) {
-    types = new Set([updateTypes.UPDATE_THREAD_READ_STATUS]);
-  } else if (
-    updateData.type === updateTypes.DELETE_THREAD ||
-    updateData.type === updateTypes.JOIN_THREAD
-  ) {
-    types = 'all_types';
-  } else if (updateData.type === updateTypes.UPDATE_ENTRY) {
-    types = 'all_types';
-  } else if (updateData.type === updateTypes.UPDATE_CURRENT_USER) {
-    types = new Set([updateTypes.UPDATE_CURRENT_USER]);
-  } else if (updateData.type === updateTypes.UPDATE_USER) {
-    types = new Set([updateTypes.UPDATE_USER]);
-  } else {
+  const types = updateSpecs[updateData.type].deleteCondition;
+  if (!types) {
     return null;
   }
 
