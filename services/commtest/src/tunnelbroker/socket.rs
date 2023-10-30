@@ -7,8 +7,8 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use tunnelbroker_messages::{
   ConnectionInitializationMessage, ConnectionInitializationResponse,
-  ConnectionInitializationStatus, DeviceTypes, MessageSentStatus,
-  MessageToDevice, MessageToDeviceRequest, MessageToDeviceRequestStatus,
+  ConnectionInitializationStatus, DeviceTypes, Heartbeat, MessageSentStatus,
+  MessageToDeviceRequest, MessageToDeviceRequestStatus, Messages,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -90,18 +90,28 @@ pub async fn send_message(
 pub async fn receive_message(
   socket: &mut WebSocketStream<MaybeTlsStream<TcpStream>>,
 ) -> Result<String, Box<dyn std::error::Error>> {
-  let Some(Ok(response)) = socket.next().await else {
-    return Err("Failed to receive message".into());
-  };
-  let message = response.to_text().expect("Failed to get response content");
-  let message_to_device = serde_json::from_str::<MessageToDevice>(message)
-    .expect("Failed to parse MessageToDevice from response");
+  while let Some(Ok(response)) = socket.next().await {
+    let message_str =
+      response.to_text().expect("Failed to get response content");
+    let message = serde_json::from_str::<Messages>(message_str).unwrap();
+    match message {
+      Messages::MessageToDevice(msg) => {
+        let confirmation = tunnelbroker_messages::MessageReceiveConfirmation {
+          message_ids: vec![msg.message_id],
+        };
+        let serialized_confirmation =
+          serde_json::to_string(&confirmation).unwrap();
+        socket.send(Message::Text(serialized_confirmation)).await?;
+        return Ok(msg.payload);
+      }
+      Messages::Heartbeat(_) => {
+        let msg = Heartbeat {};
+        let serialized = serde_json::to_string(&msg).unwrap();
+        socket.send(Message::Text(serialized)).await?;
+      }
+      _ => return Err("Not expected message type".into()),
+    }
+  }
 
-  let confirmation = tunnelbroker_messages::MessageReceiveConfirmation {
-    message_ids: vec![message_to_device.message_id],
-  };
-  let serialized_confirmation = serde_json::to_string(&confirmation).unwrap();
-  socket.send(Message::Text(serialized_confirmation)).await?;
-
-  Ok(message_to_device.payload)
+  Err("Failed to receive message".into())
 }

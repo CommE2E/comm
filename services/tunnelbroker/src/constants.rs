@@ -5,6 +5,8 @@ pub const GRPC_SERVER_PORT: u16 = 50051;
 pub const GRPC_KEEP_ALIVE_PING_INTERVAL: Duration = Duration::from_secs(3);
 pub const GRPC_KEEP_ALIVE_PING_TIMEOUT: Duration = Duration::from_secs(10);
 
+pub const SOCKET_HEARTBEAT_TIMOUT: Duration = Duration::from_secs(3);
+
 pub const MAX_RMQ_MSG_PRIORITY: u8 = 10;
 pub const DDB_RMQ_MSG_PRIORITY: u8 = 10;
 pub const CLIENT_RMQ_MSG_PRIORITY: u8 = 1;
