@@ -22,7 +22,7 @@ use tracing::{debug, error, info};
 use tunnelbroker_messages::{
   message_to_device_request_status::Failure,
   message_to_device_request_status::MessageSentStatus, session::DeviceTypes,
-  MessageToDevice, MessageToDeviceRequest, Messages,
+  Heartbeat, MessageToDevice, MessageToDeviceRequest, Messages,
 };
 
 use crate::database::{self, DatabaseClient, MessageToDeviceExt};
@@ -244,6 +244,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     };
 
     match serialized_message {
+      Messages::Heartbeat(Heartbeat {}) => {
+        debug!("Received heartbeat from: {}", self.device_info.device_id);
+        None
+      }
       Messages::MessageReceiveConfirmation(confirmation) => {
         for message_id in confirmation.message_ids {
           if let Err(e) = self

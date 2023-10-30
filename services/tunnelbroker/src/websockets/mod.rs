@@ -1,5 +1,6 @@
 pub mod session;
 
+use crate::constants::SOCKET_HEARTBEAT_TIMEOUT;
 use crate::database::DatabaseClient;
 use crate::websockets::session::{initialize_amqp, SessionError};
 use crate::CONFIG;
@@ -18,7 +19,7 @@ use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info};
 use tunnelbroker_messages::{
-  ConnectionInitializationStatus, MessageSentStatus,
+  ConnectionInitializationStatus, Heartbeat, MessageSentStatus,
   MessageToDeviceRequestStatus,
 };
 
@@ -207,6 +208,9 @@ async fn accept_connection(
     return;
   };
 
+  let mut ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
+  let mut got_heartbeat_response = true;
+
   // Poll for messages either being sent to the device (rx)
   // or messages being received from the device (incoming)
   loop {
@@ -240,6 +244,9 @@ async fn accept_connection(
             session.send_message_to_device(Message::Pong(msg)).await;
           }
           Message::Text(msg) => {
+            got_heartbeat_response = true;
+            ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
+
             let Some(message_status) = session.handle_websocket_frame_from_device(msg).await else {
               continue;
             };
@@ -263,6 +270,17 @@ async fn accept_connection(
           }
         }
       },
+      _ = &mut ping_timeout => {
+        if !got_heartbeat_response {
+          error!("Connection to {} died", addr);
+          break;
+        }
+        let serialized = serde_json::to_string(&Heartbeat {}).unwrap();
+        session.send_message_to_device(Message::text(serialized)).await;
+
+        got_heartbeat_response = false;
+        ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
+      }
       else => {
         debug!("Unhealthy connection for: {}", addr);
         break;
