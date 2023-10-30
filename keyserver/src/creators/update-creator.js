@@ -535,33 +535,23 @@ async function updateInfosFromRawUpdateInfos(
     if (!key) {
       mergedUpdates.push(updateInfo);
       continue;
-    } else if (
-      updateInfo.type === updateTypes.DELETE_THREAD ||
-      updateInfo.type === updateTypes.JOIN_THREAD ||
-      updateInfo.type === updateTypes.DELETE_ACCOUNT
-    ) {
-      updateForKey.set(key, updateInfo);
-      continue;
     }
     const currentUpdateInfo = updateForKey.get(key);
-    if (!currentUpdateInfo) {
+    if (
+      !currentUpdateInfo ||
+      updateInfo.type === updateTypes.DELETE_THREAD ||
+      updateInfo.type === updateTypes.JOIN_THREAD ||
+      updateInfo.type === updateTypes.DELETE_ACCOUNT ||
+      updateInfo.type === updateTypes.UPDATE_ENTRY ||
+      updateInfo.type === updateTypes.UPDATE_CURRENT_USER
+    ) {
       updateForKey.set(key, updateInfo);
     } else if (
-      updateInfo.type === updateTypes.UPDATE_THREAD &&
-      currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS
+      (updateInfo.type === updateTypes.UPDATE_THREAD &&
+        currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS) ||
+      (updateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS &&
+        currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS)
     ) {
-      // UPDATE_THREAD trumps UPDATE_THREAD_READ_STATUS
-      // Note that we keep the oldest UPDATE_THREAD
-      updateForKey.set(key, updateInfo);
-    } else if (
-      updateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS &&
-      currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS
-    ) {
-      // If we only have UPDATE_THREAD_READ_STATUS, keep the most recent
-      updateForKey.set(key, updateInfo);
-    } else if (updateInfo.type === updateTypes.UPDATE_ENTRY) {
-      updateForKey.set(key, updateInfo);
-    } else if (updateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
       updateForKey.set(key, updateInfo);
     }
   }
