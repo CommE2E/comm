@@ -244,6 +244,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     };
 
     match serialized_message {
+      Messages::Heartbeat(_) => {
+        debug!("Received heartbeat from: {}", self.device_info.device_id);
+        None
+      }
       Messages::MessageReceiveConfirmation(confirmation) => {
         for message_id in confirmation.message_ids {
           if let Err(e) = self
