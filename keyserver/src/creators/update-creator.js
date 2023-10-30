@@ -24,7 +24,7 @@ import {
   type NewUpdatesRedisMessage,
 } from 'lib/types/redis-types.js';
 import type { RawThreadInfo } from 'lib/types/thread-types.js';
-import { updateTypes, type UpdateType } from 'lib/types/update-types-enum.js';
+import type { UpdateType } from 'lib/types/update-types-enum.js';
 import {
   type ServerUpdateInfo,
   type UpdateData,
@@ -536,21 +536,13 @@ async function updateInfosFromRawUpdateInfos(
       mergedUpdates.push(updateInfo);
       continue;
     }
+    const typesOfReplacedUpdatesForMatchingKey =
+      updateSpecs[updateInfo.type].typesOfReplacedUpdatesForMatchingKey;
     const currentUpdateInfo = updateForKey.get(key);
     if (
       !currentUpdateInfo ||
-      updateInfo.type === updateTypes.DELETE_THREAD ||
-      updateInfo.type === updateTypes.JOIN_THREAD ||
-      updateInfo.type === updateTypes.DELETE_ACCOUNT ||
-      updateInfo.type === updateTypes.UPDATE_ENTRY ||
-      updateInfo.type === updateTypes.UPDATE_CURRENT_USER
-    ) {
-      updateForKey.set(key, updateInfo);
-    } else if (
-      (updateInfo.type === updateTypes.UPDATE_THREAD &&
-        currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS) ||
-      (updateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS &&
-        currentUpdateInfo.type === updateTypes.UPDATE_THREAD_READ_STATUS)
+      typesOfReplacedUpdatesForMatchingKey === 'all_types' ||
+      typesOfReplacedUpdatesForMatchingKey?.has(currentUpdateInfo.type)
     ) {
       updateForKey.set(key, updateInfo);
     }
