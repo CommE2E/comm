@@ -5,7 +5,7 @@ import localforage from 'localforage';
 
 import {
   DATABASE_WORKER_PATH,
-  DATABASE_MODULE_FILE_PATH,
+  WORKERS_MODULES_DIR_PATH,
   SQLITE_ENCRYPTION_KEY,
 } from './utils/constants.js';
 import { isDesktopSafari, isSQLiteSupported } from './utils/db-utils.js';
@@ -88,7 +88,7 @@ class DatabaseModule {
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
-          databaseModuleFilePath: `${origin}${baseURL}${DATABASE_MODULE_FILE_PATH}`,
+          databaseModuleFilePath: `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`,
           encryptionKey,
           commQueryExecutorFilename,
         });
