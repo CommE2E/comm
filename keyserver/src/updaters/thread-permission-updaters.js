@@ -992,10 +992,10 @@ async function saveMemberships({
   const query = SQL`
     UPDATE memberships mm
     LEFT JOIN (
-      SELECT messages.thread, MAX(messages.id) AS message
+      SELECT thread, MAX(id) AS message
       FROM messages
-      WHERE messages.type != ${messageTypes.CREATE_SUB_THREAD}
-      GROUP BY messages.thread 
+      WHERE type != ${messageTypes.CREATE_SUB_THREAD}
+      GROUP BY thread 
     ) all_users_query ON mm.thread = all_users_query.thread
     LEFT JOIN (
       SELECT m.thread, stm.user, MAX(m.id) AS message 
