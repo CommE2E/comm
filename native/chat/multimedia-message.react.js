@@ -9,13 +9,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { isInvalidPinSource, messageKey } from 'lib/shared/message-utils.js';
-import {
-  threadHasPermission,
-  useCanCreateSidebarFromMessage,
-} from 'lib/shared/thread-utils.js';
+import { messageKey } from 'lib/shared/message-utils.js';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
-import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import ComposedMessage from './composed-message.react.js';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
@@ -45,6 +41,7 @@ type BaseProps = {
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
+  +canTogglePins: boolean,
   +shouldDisplayPinIndicator: boolean,
 };
 type Props = {
@@ -54,7 +51,6 @@ type Props = {
   +overlayContext: ?OverlayContextType,
   +chatContext: ?ChatContextType,
   +canCreateSidebarFromMessage: boolean,
-  +canTogglePins: boolean,
 };
 type State = {
   +clickable: boolean,
@@ -242,13 +238,6 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
       props.item.threadInfo,
       props.item.messageInfo,
     );
-    const canTogglePins =
-      !isInvalidPinSource(props.item.messageInfo) &&
-      threadHasPermission(
-        props.item.threadInfo,
-        threadPermissions.MANAGE_PINS,
-      ) &&
-      props.item.threadInfo.sourceMessageID !== props.item.messageInfo.id;
 
     return (
       <MultimediaMessage
@@ -258,7 +247,6 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> =
         overlayContext={overlayContext}
         chatContext={chatContext}
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
-        canTogglePins={canTogglePins}
       />
     );
   });

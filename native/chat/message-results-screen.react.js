@@ -77,7 +77,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
       item =>
         item.itemType === 'message' &&
         item.isPinned &&
-        !isInvalidPinSource(item.messageInfo),
+        !isInvalidPinSource(item.messageInfo, threadInfo),
     );
 
     // By the nature of using messageListData and passing in
@@ -102,7 +102,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     }
 
     return sortedChatMessageInfoItems.filter(Boolean);
-  }, [chatMessageInfos, rawMessageResults]);
+  }, [chatMessageInfos, rawMessageResults, threadInfo]);
 
   const measureCallback = React.useCallback(
     (listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>) => {
