@@ -12,6 +12,7 @@ import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import type { CallServerEndpointResultInfoInterface } from 'lib/utils/call-server-endpoint.js';
 import { cloneError } from 'lib/utils/errors.js';
 
 import Alert from '../modals/alert.react.js';
@@ -59,12 +60,16 @@ function useSendReaction(
             reaction,
             action,
           });
+          const serverID: string = result.id;
+          const time: number = result.time;
+          const interfaceInfo: CallServerEndpointResultInfoInterface =
+            result.interface;
           return {
             localID,
-            serverID: result.id,
+            serverID,
             threadID,
-            time: result.time,
-            interface: result.interface,
+            time,
+            interface: interfaceInfo,
           };
         } catch (e) {
           pushModal(
