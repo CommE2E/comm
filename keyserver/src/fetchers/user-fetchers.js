@@ -279,7 +279,7 @@ async function verifyUserOrCookieIDs(
 
 async function fetchCurrentUserInfo(viewer: Viewer): Promise<CurrentUserInfo> {
   if (!viewer.loggedIn) {
-    return ({ id: viewer.cookieID, anonymous: true }: CurrentUserInfo);
+    return ({ anonymous: true }: CurrentUserInfo);
   }
   const currentUserInfo = await fetchLoggedInUserInfo(viewer);
   return currentUserInfo;
