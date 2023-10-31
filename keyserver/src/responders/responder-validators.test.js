@@ -46,7 +46,7 @@ import {
 
 describe('user responder validators', () => {
   it('should validate logout response', () => {
-    const response = { currentUserInfo: { id: '93078', anonymous: true } };
+    const response = { currentUserInfo: { anonymous: true } };
     expect(logOutResponseValidator.is(response)).toBe(true);
     response.currentUserInfo.anonymous = false;
     expect(logOutResponseValidator.is(response)).toBe(false);
