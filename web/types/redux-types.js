@@ -8,19 +8,32 @@ import type { CurrentUserInfo, UserInfos } from 'lib/types/user-types.js';
 
 import type { NavInfo } from '../types/nav-types.js';
 
+export type InitialReduxStateResponse = {
+  +navInfo: NavInfo,
+  +currentUserInfo: CurrentUserInfo,
+  +entryStore: EntryStore,
+  +threadStore: ThreadStore,
+  +userInfos: UserInfos,
+  +messageStore: MessageStore,
+  +pushApiPublicKey: ?string,
+  +commServicesAccessToken: null,
+  +inviteLinksStore: InviteLinksStore,
+  +keyserverInfo: InitialKeyserverInfo,
+};
+
 export type InitialReduxState = {
   +navInfo: NavInfo,
   +currentUserInfo: CurrentUserInfo,
   +entryStore: EntryStore,
   +threadStore: ThreadStore,
   +userInfos: UserInfos,
-  +actualizedCalendarQuery: CalendarQuery,
   +messageStore: MessageStore,
-  +dataLoaded: boolean,
   +pushApiPublicKey: ?string,
   +commServicesAccessToken: null,
   +inviteLinksStore: InviteLinksStore,
-  +keyserverInfo: InitialKeyserverInfo,
+  +dataLoaded: boolean,
+  +actualizedCalendarQuery: CalendarQuery,
+  +keyserverInfos: { [keyserverID: string]: InitialKeyserverInfo },
 };
 
 export type InitialKeyserverInfo = {

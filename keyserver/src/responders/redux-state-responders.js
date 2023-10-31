@@ -14,10 +14,7 @@ import {
   parsePendingThreadID,
   createPendingThread,
 } from 'lib/shared/thread-utils.js';
-import {
-  entryStoreValidator,
-  calendarQueryValidator,
-} from 'lib/types/entry-types.js';
+import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
 import {
@@ -38,7 +35,7 @@ import type { URLInfo } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 import { navInfoValidator } from 'web/types/nav-types.js';
 import type {
-  InitialReduxState,
+  InitialReduxStateResponse,
   InitialKeyserverInfo,
 } from 'web/types/redux-types.js';
 import { navInfoFromURL } from 'web/url-utils.js';
@@ -62,17 +59,15 @@ const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
   updatesCurrentAsOf: t.Number,
 });
 
-export const initialReduxStateValidator: TInterface<InitialReduxState> =
-  tShape<InitialReduxState>({
+export const initialReduxStateValidator: TInterface<InitialReduxStateResponse> =
+  tShape<InitialReduxStateResponse>({
     navInfo: navInfoValidator,
     currentUserInfo: currentUserInfoValidator,
     entryStore: entryStoreValidator,
     threadStore: threadStoreValidator,
     userInfos: userInfosValidator,
-    actualizedCalendarQuery: calendarQueryValidator,
     messageStore: messageStoreValidator,
     pushApiPublicKey: t.maybe(t.String),
-    dataLoaded: t.Boolean,
     commServicesAccessToken: t.Nil,
     inviteLinksStore: inviteLinksStoreValidator,
     keyserverInfo: initialKeyserverInfoValidator,
@@ -81,7 +76,7 @@ export const initialReduxStateValidator: TInterface<InitialReduxState> =
 async function getInitialReduxStateResponder(
   viewer: Viewer,
   urlInfo: URLInfo,
-): Promise<InitialReduxState> {
+): Promise<InitialReduxStateResponse> {
   const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
     viewer.id,
     baseLegalPolicies,
@@ -318,15 +313,13 @@ async function getInitialReduxStateResponder(
     };
   })();
 
-  const initialReduxState: InitialReduxState = await promiseAll({
+  const initialReduxState: InitialReduxStateResponse = await promiseAll({
     navInfo: navInfoPromise,
     currentUserInfo: currentUserInfoPromise,
     entryStore: entryStorePromise,
     threadStore: threadStorePromise,
     userInfos: userInfosPromise,
-    actualizedCalendarQuery: calendarQueryPromise,
     messageStore: messageStorePromise,
-    dataLoaded: viewer.loggedIn,
     pushApiPublicKey: pushApiPublicKeyPromise,
     commServicesAccessToken: null,
     inviteLinksStore: inviteLinksStorePromise,
