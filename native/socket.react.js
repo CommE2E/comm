@@ -128,6 +128,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         cookie,
         urlPrefix,
         logInActionSources.refetchUserDataAfterAcknowledgment,
+        ashoatKeyserverID,
         getInitialNotificationsEncryptedMessage,
       );
     }, [
