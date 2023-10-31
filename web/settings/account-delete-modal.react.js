@@ -3,17 +3,14 @@
 import * as React from 'react';
 
 import {
-  deleteAccount,
+  useDeleteAccount,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import css from './account-delete-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
@@ -30,7 +27,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     const inputDisabled = useSelector(
       state => deleteAccountLoadingStatusSelector(state) === 'loading',
     );
-    const callDeleteAccount = useServerCall(deleteAccount);
+    const callDeleteAccount = useDeleteAccount();
     const dispatchActionPromise = useDispatchActionPromise();
 
     const { popModal } = useModalContext();

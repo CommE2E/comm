@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { View, Text, Platform, ScrollView } from 'react-native';
 
-import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
+import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -14,7 +14,6 @@ import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
-  useServerCall,
 } from 'lib/utils/action-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -423,7 +422,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       useSelector(logOutLoadingStatusSelector) === 'loading';
     const colors = useColors();
     const styles = useStyles(unboundStyles);
-    const callLogOut = useServerCall(logOut);
+    const callLogOut = useLogOut();
     const dispatchActionPromise = useDispatchActionPromise();
     const staffCanSee = useStaffCanSee();
     const stringForUser = useStringForUser(currentUserInfo);

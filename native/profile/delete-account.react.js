@@ -6,14 +6,11 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import {
   deleteAccountActionTypes,
-  deleteAccount,
+  useDeleteAccount,
 } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Button from '../components/button.react.js';
@@ -32,7 +29,7 @@ const DeleteAccount: React.ComponentType<{ ... }> = React.memo<{ ... }>(
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callDeleteAccount = useServerCall(deleteAccount);
+    const callDeleteAccount = useDeleteAccount();
 
     const buttonContent =
       loadingStatus === 'loading' ? (
