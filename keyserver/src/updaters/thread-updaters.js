@@ -2,10 +2,7 @@
 
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
-import {
-  getPinnedContentFromMessage,
-  isInvalidPinSource,
-} from 'lib/shared/message-utils.js';
+import { getPinnedContentFromMessage } from 'lib/shared/message-utils.js';
 import {
   threadHasAdminRole,
   roleIsAdminRole,
@@ -32,6 +29,7 @@ import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';
+import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
 import { validChatNameRegex } from 'lib/utils/validation-utils.js';
 
 import { reportLinkUsage } from './link-updaters.js';
@@ -50,6 +48,7 @@ import {
   fetchThreadInfos,
   fetchServerThreadInfos,
   determineThreadAncestry,
+  rawThreadInfosFromServerThreadInfos,
 } from '../fetchers/thread-fetchers.js';
 import {
   checkThreadPermission,
@@ -876,18 +875,23 @@ async function toggleMessagePinForThread(
   const { messageID, action } = request;
 
   const targetMessage = await fetchMessageInfoByID(viewer, messageID);
-  if (!targetMessage || isInvalidPinSource(targetMessage)) {
+  if (!targetMessage) {
     throw new ServerError('invalid_parameters');
   }
 
   const { threadID } = targetMessage;
-  const hasPermission = await checkThreadPermission(
-    viewer,
+  const fetchServerThreadInfosResult = await fetchServerThreadInfos({
     threadID,
-    threadPermissions.MANAGE_PINS,
+  });
+  const { threadInfos: rawThreadInfos } = rawThreadInfosFromServerThreadInfos(
+    viewer,
+    fetchServerThreadInfosResult,
   );
-  if (!hasPermission) {
-    throw new ServerError('invalid_credentials');
+  const rawThreadInfo = rawThreadInfos[threadID];
+
+  const canTogglePin = canToggleMessagePin(targetMessage, rawThreadInfo);
+  if (!canTogglePin) {
+    throw new ServerError('invalid_parameters');
   }
 
   const pinnedValue = action === 'pin' ? 1 : 0;
@@ -929,9 +933,7 @@ async function toggleMessagePinForThread(
   };
 
   const createUpdatesAsync = async () => {
-    const { threadInfos: serverThreadInfos } = await fetchServerThreadInfos({
-      threadID,
-    });
+    const { threadInfos: serverThreadInfos } = fetchServerThreadInfosResult;
     const time = Date.now();
     const updates = [];
     for (const member of serverThreadInfos[threadID].members) {
