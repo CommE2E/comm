@@ -195,7 +195,9 @@ async fn accept_connection(
             session.send_message_to_device(Message::Pong(msg)).await;
           }
           Message::Text(msg) => {
-            let message_status = session.handle_websocket_frame_from_device(msg).await;
+            let Some(message_status) = session.handle_websocket_frame_from_device(msg).await else {
+              continue;
+            };
             let request_status = MessageToDeviceRequestStatus {
               client_message_ids: vec![message_status]
             };
