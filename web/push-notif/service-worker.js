@@ -2,11 +2,17 @@
 
 import localforage from 'localforage';
 
-import type { PlainTextWebNotification } from 'lib/types/notif-types.js';
+import type {
+  PlainTextWebNotification,
+  WebNotification,
+} from 'lib/types/notif-types.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
-import { OLM_WASM_PATH_KEY } from './notif-crypto-utils.js';
+import {
+  decryptWebNotification,
+  OLM_WASM_PATH_KEY,
+} from './notif-crypto-utils.js';
 import { localforageConfig } from '../database/utils/constants.js';
 
 declare class PushMessageData {
@@ -44,11 +50,30 @@ self.addEventListener('message', (event: CommAppMessage) => {
 });
 
 self.addEventListener('push', (event: PushEvent) => {
-  const data: PlainTextWebNotification = event.data.json();
+  localforage.config(localforageConfig);
+  const data: WebNotification = event.data.json();
 
   event.waitUntil(
     (async () => {
-      let body = data.body;
+      let plainTextData: PlainTextWebNotification;
+
+      if (data.encryptedPayload) {
+        try {
+          plainTextData = await decryptWebNotification(data);
+        } catch (e) {
+          console.log(`Failed to decrypt notification with id: ${data.id}`, e);
+          return;
+        }
+      } else if (data.body) {
+        plainTextData = data;
+      } else {
+        // We will never enter ths branch. It is
+        // necessary since flow doesn't differentiate
+        // between union types out-of-the-box.
+        return;
+      }
+
+      let body = plainTextData.body;
       if (data.prefix) {
         body = `${data.prefix} ${body}`;
       }
@@ -56,10 +81,10 @@ self.addEventListener('push', (event: PushEvent) => {
         body,
         badge: 'https://web.comm.app/favicon.ico',
         icon: 'https://web.comm.app/favicon.ico',
-        tag: data.id,
+        tag: plainTextData.id,
         data: {
-          unreadCount: data.unreadCount,
-          threadID: data.threadID,
+          unreadCount: plainTextData.unreadCount,
+          threadID: plainTextData.threadID,
         },
       });
     })(),
