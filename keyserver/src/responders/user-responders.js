@@ -208,7 +208,6 @@ async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
   }
   return {
     currentUserInfo: {
-      id: viewer.id,
       anonymous: true,
     },
   };
