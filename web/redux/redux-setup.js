@@ -124,20 +124,21 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
   let state = oldState;
 
   if (action.type === setInitialReduxState) {
-    const { userInfos, keyserverInfo, ...rest } = action.payload;
+    const { userInfos, keyserverInfos, ...rest } = action.payload;
+    const newKeyserverInfos = { ...state.keyserverStore.keyserverInfos };
+    for (const keyserverID in keyserverInfos) {
+      newKeyserverInfos[keyserverID] = {
+        ...newKeyserverInfos[keyserverID],
+        ...keyserverInfos[keyserverID],
+      };
+    }
     return validateState(oldState, {
       ...state,
       ...rest,
       userStore: { userInfos },
       keyserverStore: {
         ...state.keyserverStore,
-        keyserverInfos: {
-          ...state.keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
-            ...keyserverInfo,
-          },
-        },
+        keyserverInfos: newKeyserverInfos,
       },
       initialStateLoaded: true,
     });
