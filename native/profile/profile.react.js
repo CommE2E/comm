@@ -67,7 +67,7 @@ const linkedDevicesOptions = {
   headerRight: () => <LinkedDevicesHeaderRightButton />,
 };
 const keyserverSelectionListOptions = {
-  headerTitle: 'Keyserver selection',
+  headerTitle: 'Keyservers',
   // eslint-disable-next-line react/display-name
   headerRight: () => <KeyserverSelectionListHeaderRightButton />,
 };
