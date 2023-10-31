@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { logOut } from 'lib/actions/user-actions.js';
+import { useLogOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
@@ -13,10 +13,7 @@ import {
   lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import { useSelector } from './redux/redux-utils.js';
 import {
@@ -64,7 +61,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogOut = useServerCall(logOut);
+    const callLogOut = useLogOut();
 
     const lastCommunicatedPlatformDetails = useSelector(
       lastCommunicatedPlatformDetailsSelector,
