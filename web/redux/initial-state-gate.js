@@ -5,12 +5,14 @@ import { useDispatch } from 'react-redux';
 import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
-import { useServerCall } from 'lib/utils/action-utils.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
-import { getInitialReduxState, setInitialReduxState } from './action-types.js';
+import {
+  setInitialReduxState,
+  useGetInitialReduxState,
+} from './action-types.js';
 import { useSelector } from './redux-utils.js';
 import Loading from '../loading.react.js';
 
@@ -20,7 +22,7 @@ type Props = {
 };
 function InitialReduxStateGate(props: Props): React.Node {
   const { children, persistor } = props;
-  const callGetInitialReduxState = useServerCall(getInitialReduxState);
+  const callGetInitialReduxState = useGetInitialReduxState();
   const dispatch = useDispatch();
 
   const [initError, setInitError] = React.useState<?Error>(null);
