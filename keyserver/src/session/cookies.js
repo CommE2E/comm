@@ -571,7 +571,6 @@ function addSessionChangeInfoToResult(
       threadInfos,
       userInfos: (values(userInfos).map(a => a): UserInfo[]),
       currentUserInfo: {
-        id: viewer.cookieID,
         anonymous: true,
       },
     }: ServerSessionChange);
