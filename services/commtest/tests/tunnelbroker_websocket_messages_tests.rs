@@ -2,7 +2,7 @@ use commtest::identity::device::create_device;
 use commtest::identity::olm_account_infos::MOCK_CLIENT_KEYS_1;
 use commtest::tunnelbroker::socket::create_socket;
 use futures_util::{SinkExt, StreamExt};
-use tokio_tungstenite::tungstenite::{Error, Message, Message::Close};
+use tokio_tungstenite::tungstenite::{Message, Message::Close};
 
 /// Tests for message types defined in tungstenite crate
 
@@ -12,7 +12,7 @@ async fn test_ping_pong() {
 
   let ping_message = vec![1, 2, 3, 4, 5];
 
-  let mut socket = create_socket(&device).await;
+  let mut socket = create_socket(&device).await.unwrap();
   socket
     .send(Message::Ping(ping_message.clone()))
     .await
@@ -34,7 +34,7 @@ async fn test_ping_pong() {
 async fn test_close_message() {
   let device = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
 
-  let mut socket = create_socket(&device).await;
+  let mut socket = create_socket(&device).await.unwrap();
   socket
     .send(Close(None))
     .await
