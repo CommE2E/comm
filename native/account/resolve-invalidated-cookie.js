@@ -1,6 +1,6 @@
 // @flow
 
-import { logInActionTypes, logIn } from 'lib/actions/user-actions.js';
+import { logInActionTypes, logInRawAction } from 'lib/actions/user-actions.js';
 import type { LogInActionSource } from 'lib/types/account-types.js';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils.js';
 import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
@@ -37,7 +37,7 @@ async function resolveInvalidatedCookie(
   const { calendarQuery } = extraInfo;
   await dispatchRecoveryAttempt(
     logInActionTypes,
-    logIn(callServerEndpoint)({
+    logInRawAction(callServerEndpoint)({
       ...keychainCredentials,
       ...extraInfo,
       logInActionSource,
