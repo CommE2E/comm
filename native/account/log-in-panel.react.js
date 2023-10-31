@@ -7,7 +7,7 @@ import Animated from 'react-native-reanimated';
 
 import {
   logInActionTypes,
-  logIn,
+  useLogIn,
   getOlmSessionInitializationDataActionTypes,
 } from 'lib/actions/user-actions.js';
 import {
@@ -27,7 +27,6 @@ import {
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
@@ -386,7 +385,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
     );
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogIn = useServerCall(logIn);
+    const callLogIn = useLogIn();
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage();
 
