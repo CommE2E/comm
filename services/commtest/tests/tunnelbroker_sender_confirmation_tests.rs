@@ -30,7 +30,7 @@ async fn get_confirmation() {
   let serialized_request = serde_json::to_string(&request)
     .expect("Failed to serialize message to device");
 
-  let mut sender_socket = create_socket(&sender).await;
+  let mut sender_socket = create_socket(&sender).await.unwrap();
   sender_socket
     .send(Message::Text(serialized_request))
     .await
@@ -46,7 +46,7 @@ async fn get_confirmation() {
   };
 
   // Connect receiver to flush DDB and avoid polluting other tests
-  let mut receiver_socket = create_socket(&receiver).await;
+  let mut receiver_socket = create_socket(&receiver).await.unwrap();
   let receiver_response = receive_message(&mut receiver_socket).await.unwrap();
   assert_eq!(payload, receiver_response);
 }
@@ -56,7 +56,7 @@ async fn get_serialization_error() {
   let sender = create_device(Some(&DEFAULT_CLIENT_KEYS)).await;
   let message = "some bad json".to_string();
 
-  let mut sender_socket = create_socket(&sender).await;
+  let mut sender_socket = create_socket(&sender).await.unwrap();
   sender_socket
     .send(Message::Text(message.clone()))
     .await
@@ -76,7 +76,7 @@ async fn get_serialization_error() {
 async fn get_invalid_request_error() {
   let sender = create_device(Some(&DEFAULT_CLIENT_KEYS)).await;
 
-  let mut sender_socket = create_socket(&sender).await;
+  let mut sender_socket = create_socket(&sender).await.unwrap();
   sender_socket
     .send(Message::Binary(vec![]))
     .await
