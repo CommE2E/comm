@@ -27,6 +27,7 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
 import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
@@ -324,6 +325,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         cookie,
         urlPrefix,
         actionSource,
+        ashoatKeyserverID,
         this.props.getInitialNotificationsEncryptedMessage,
       );
       if (
