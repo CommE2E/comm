@@ -297,7 +297,6 @@ class Socket {
           authErrorMessage.sessionChange = {
             cookie: this.viewer.cookiePairString,
             currentUserInfo: {
-              id: this.viewer.cookieID,
               anonymous: true,
             },
           };
@@ -334,7 +333,6 @@ class Socket {
           authErrorMessage.sessionChange = {
             cookie: anonViewer.cookiePairString,
             currentUserInfo: {
-              id: anonViewer.cookieID,
               anonymous: true,
             },
           };
