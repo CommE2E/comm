@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { logIn, logInActionTypes } from 'lib/actions/user-actions.js';
+import { useLogIn, logInActionTypes } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
@@ -16,10 +16,7 @@ import type {
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import { useSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';
@@ -35,7 +32,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function TraditionalLoginForm(): React.Node {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
-  const callLogIn = useServerCall(logIn);
+  const callLogIn = useLogIn();
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
