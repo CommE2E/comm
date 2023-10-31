@@ -3,14 +3,24 @@
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, Text } from 'react-native';
+import { useDispatch } from 'react-redux';
+
+import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
+import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
+import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 
 import TextInput from '../components/text-input.react.js';
 import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
 // eslint-disable-next-line no-unused-vars
 function AddKeyserver(props: { ... }): React.Node {
-  const { setOptions } = useNavigation();
+  const { goBack, setOptions } = useNavigation();
+
+  const dispatch = useDispatch();
+
+  const currentUserID = useSelector(state => state.currentUserInfo?.id);
 
   const { panelForegroundTertiaryLabel } = useColors();
   const styles = useStyles(unboundStyles);
@@ -18,8 +28,29 @@ function AddKeyserver(props: { ... }): React.Node {
   const [urlInput, setUrlInput] = React.useState('');
 
   const onPressSave = React.useCallback(() => {
-    // TODO
-  }, []);
+    if (!currentUserID || !urlInput) {
+      return;
+    }
+
+    const newKeyserverInfo: KeyserverInfo = {
+      cookie: null,
+      updatesCurrentAsOf: 0,
+      urlPrefix: urlInput,
+      connection: defaultConnectionInfo,
+      lastCommunicatedPlatformDetails: null,
+      deviceToken: null,
+    };
+
+    dispatch({
+      type: addKeyserverActionType,
+      payload: {
+        keyserverAdminUserID: currentUserID,
+        newKeyserverInfo,
+      },
+    });
+
+    goBack();
+  }, [currentUserID, dispatch, goBack, urlInput]);
 
   React.useEffect(() => {
     setOptions({
