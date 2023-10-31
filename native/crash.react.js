@@ -18,7 +18,7 @@ import {
   sendReportActionTypes,
   sendReport,
 } from 'lib/actions/report-actions.js';
-import { logOutActionTypes, logOut } from 'lib/actions/user-actions.js';
+import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
 import { type ErrorData, reportTypes } from 'lib/types/report-types.js';
@@ -26,7 +26,6 @@ import type { PreRequestUserState } from 'lib/types/session-types.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 import {
   type DispatchActionPromise,
-  useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 import {
@@ -278,7 +277,7 @@ const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const preRequestUserState = useSelector(preRequestUserStateSelector);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogOut = useServerCall(logOut);
+    const callLogOut = useLogOut();
     const crashReportingEnabled = useIsReportEnabled('crashReports');
     return (
       <Crash
