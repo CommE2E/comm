@@ -1,9 +1,10 @@
 // @flow
 
-import { logInActionTypes, logIn } from 'lib/actions/user-actions.js';
+import { logInActionTypes, logInRawAction } from 'lib/actions/user-actions.js';
 import type { LogInActionSource } from 'lib/types/account-types.js';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils.js';
 import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
+import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
 
 import { fetchNativeKeychainCredentials } from './native-credentials.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
@@ -13,8 +14,10 @@ import type { InitialNotifMessageOptions } from '../utils/crypto-utils.js';
 
 async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,
+  callKeyserverEndpoint: CallKeyserverEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
   logInActionSource: LogInActionSource,
+  keyserverID: string,
   getInitialNotificationsEncryptedMessage?: (
     ?InitialNotifMessageOptions,
   ) => Promise<string>,
@@ -37,10 +40,11 @@ async function resolveInvalidatedCookie(
   const { calendarQuery } = extraInfo;
   await dispatchRecoveryAttempt(
     logInActionTypes,
-    logIn(callServerEndpoint)({
+    logInRawAction(callKeyserverEndpoint)({
       ...keychainCredentials,
       ...extraInfo,
       logInActionSource,
+      keyserverIDs: [keyserverID],
     }),
     { calendarQuery },
   );
