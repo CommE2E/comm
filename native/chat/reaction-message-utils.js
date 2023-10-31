@@ -55,13 +55,11 @@ function useSendReaction(
             reaction,
             action,
           });
-          const serverID: string = result.id;
-          const time: number = result.time;
           return {
             localID,
-            serverID,
+            serverID: result.id,
             threadID,
-            time,
+            time: result.time,
             interface: result.interface,
           };
         } catch (e) {
