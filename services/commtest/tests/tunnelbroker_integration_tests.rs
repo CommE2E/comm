@@ -22,7 +22,7 @@ use tunnelbroker_messages::RefreshKeyRequest;
 async fn send_refresh_request() {
   // Create session as a keyserver
   let device_info = create_device(None).await;
-  let mut socket = create_socket(&device_info).await;
+  let mut socket = create_socket(&device_info).await.unwrap();
 
   // Send request for keyserver to refresh keys (identity service)
   let mut tunnelbroker_client =
@@ -77,7 +77,7 @@ async fn test_messages_order() {
     },
   ];
 
-  let mut sender_socket = create_socket(&sender).await;
+  let mut sender_socket = create_socket(&sender).await.unwrap();
 
   for msg in messages.clone() {
     send_message(&mut sender_socket, msg).await.unwrap();
@@ -86,7 +86,7 @@ async fn test_messages_order() {
   // Wait a specified duration to ensure that message had time to persist
   sleep(Duration::from_millis(100)).await;
 
-  let mut receiver_socket = create_socket(&receiver).await;
+  let mut receiver_socket = create_socket(&receiver).await.unwrap();
 
   for msg in messages {
     let response = receive_message(&mut receiver_socket).await.unwrap();
