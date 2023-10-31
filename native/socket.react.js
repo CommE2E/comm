@@ -20,6 +20,7 @@ import {
   useDispatchActionPromise,
   fetchNewCookieFromNativeCredentials,
 } from 'lib/utils/action-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { InputStateContext } from './input/input-state.js';
 import {
@@ -127,6 +128,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         cookie,
         urlPrefix,
         logInActionSources.refetchUserDataAfterAcknowledgment,
+        ashoatKeyserverID,
         getInitialNotificationsEncryptedMessage,
       );
     }, [

@@ -19,6 +19,7 @@ import {
 } from 'lib/types/account-types.js';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { filesystemMediaCache } from '../media/media-cache.js';
 import { commCoreModule } from '../native-modules.js';
@@ -67,6 +68,7 @@ function SQLiteDataHandler(): React.Node {
           cookie,
           urlPrefix,
           source,
+          ashoatKeyserverID,
           getInitialNotificationsEncryptedMessage,
         );
         dispatch({ type: setStoreLoadedActionType });

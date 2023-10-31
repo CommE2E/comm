@@ -1157,7 +1157,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     url: string,
     cookie: ?string,
     sessionID: ?string,
-    input: { [key: string]: mixed },
+    input: { +[key: string]: mixed },
     options?: ?CallServerEndpointOptions,
   ): Promise<CallServerEndpointResponse> => {
     invariant(
