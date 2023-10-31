@@ -10,23 +10,17 @@ use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
 use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
-#[should_panic]
 async fn test_tunnelbroker_invalid_auth() {
   let mut device_info = create_device(None).await;
   device_info.access_token = "".to_string();
-  let mut socket = create_socket(&device_info).await;
-
-  socket
-    .next()
-    .await
-    .expect("Failed to receive response")
-    .expect("Failed to read the response");
+  let socket = create_socket(&device_info).await;
+  assert!(matches!(socket, Result::Err(_)))
 }
 
 #[tokio::test]
 async fn test_tunnelbroker_valid_auth() {
   let device_info = create_device(None).await;
-  let mut socket = create_socket(&device_info).await;
+  let mut socket = create_socket(&device_info).await.unwrap();
 
   socket
     .next()
@@ -91,7 +85,7 @@ async fn test_refresh_keys_request_upon_depletion() {
   // Create session as a keyserver
 
   let device_info = create_device(None).await;
-  let mut socket = create_socket(&device_info).await;
+  let mut socket = create_socket(&device_info).await.unwrap();
   for _ in 0..2 {
     let response = receive_message(&mut socket).await.unwrap();
     let serialized_response: RefreshKeyRequest =
