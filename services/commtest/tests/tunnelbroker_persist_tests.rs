@@ -47,7 +47,7 @@ async fn persist_grpc_messages() {
   // Wait a specified duration to ensure that message had time to persist
   sleep(Duration::from_millis(100)).await;
 
-  let mut socket = create_socket(&device_info).await;
+  let mut socket = create_socket(&device_info).await.unwrap();
   // Have keyserver receive any websocket messages
   let response = receive_message(&mut socket).await.unwrap();
 
@@ -64,7 +64,7 @@ async fn persist_websocket_messages() {
   let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
 
   // Send message to not connected client
-  let mut sender_socket = create_socket(&sender).await;
+  let mut sender_socket = create_socket(&sender).await.unwrap();
 
   let request = WebSocketMessageToDevice {
     device_id: receiver.device_id.clone(),
@@ -77,7 +77,7 @@ async fn persist_websocket_messages() {
   // Wait a specified duration to ensure that message had time to persist
   sleep(Duration::from_millis(100)).await;
 
-  let mut receiver_socket = create_socket(&receiver).await;
+  let mut receiver_socket = create_socket(&receiver).await.unwrap();
   let response = receive_message(&mut receiver_socket).await.unwrap();
   assert_eq!(request.payload, response);
 }
