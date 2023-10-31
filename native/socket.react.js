@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { logOut, logOutActionTypes } from 'lib/actions/user-actions.js';
+import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
@@ -17,7 +17,6 @@ import { accountHasPassword } from 'lib/shared/account-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   fetchNewCookieFromNativeCredentials,
 } from 'lib/utils/action-utils.js';
@@ -107,7 +106,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogOut = useServerCall(logOut);
+    const callLogOut = useLogOut();
 
     const socketCrashLoopRecovery = React.useCallback(async () => {
       if (!accountHasPassword(currentUserInfo)) {
