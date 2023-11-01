@@ -4,15 +4,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import {
-  getVersion,
-  getVersionActionTypes,
-} from 'lib/actions/device-actions.js';
+import { getVersionActionTypes } from 'lib/actions/device-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -110,30 +104,18 @@ function KeyserverSelection(props: Props): React.Node {
     buttonState = 'loading';
   }
 
-  const serverCallParamOverride = React.useMemo(
-    () => ({
-      urlPrefix: keyserverURL,
-    }),
-    [keyserverURL],
-  );
-  const getVersionCall = useServerCall(getVersion, serverCallParamOverride);
+  const isKeyserverURLValidPromiseCallback =
+    useIsKeyserverURLValid(keyserverURL);
 
-  const dispatchActionPromise = useDispatchActionPromise();
   const { navigate } = props.navigation;
   const { coolOrNerdMode } = props.route.params.userSelections;
+
   const onSubmit = React.useCallback(async () => {
     setError(undefined);
-    if (!keyserverURL) {
-      return;
-    }
 
-    const getVersionPromise = getVersionCall();
-    dispatchActionPromise(getVersionActionTypes, getVersionPromise);
+    const isKeyserverURLValid = await isKeyserverURLValidPromiseCallback();
 
-    // We don't care about the result; just need to make sure this doesn't throw
-    try {
-      await getVersionPromise;
-    } catch {
+    if (!isKeyserverURLValid) {
       setError('cant_reach_keyserver');
       return;
     }
@@ -147,12 +129,11 @@ function KeyserverSelection(props: Props): React.Node {
       params: { userSelections: { coolOrNerdMode, keyserverURL } },
     });
   }, [
+    keyserverURL,
+    isKeyserverURLValidPromiseCallback,
+    setCachedSelections,
     navigate,
     coolOrNerdMode,
-    keyserverURL,
-    setCachedSelections,
-    dispatchActionPromise,
-    getVersionCall,
   ]);
 
   const styles = useStyles(unboundStyles);
