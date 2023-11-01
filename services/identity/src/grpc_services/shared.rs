@@ -2,7 +2,10 @@ use grpc_clients::error::unsupported_version;
 use tonic::{Request, Status};
 use tracing::debug;
 
-use crate::constants::MIN_SUPPORTED_NATIVE_VERSION;
+use crate::constants::{
+  CODE_VERSION_METADATA_NAME, DEVICE_TYPE_METADATA_NAME,
+  MIN_SUPPORTED_NATIVE_VERSION,
+};
 
 pub fn version_interceptor(req: Request<()>) -> Result<Request<()>, Status> {
   debug!("Intercepting request to check version: {:?}", req);
@@ -21,8 +24,9 @@ pub fn version_interceptor(req: Request<()>) -> Result<Request<()>, Status> {
 fn get_version_info(req: &Request<()>) -> Option<(u64, String)> {
   debug!("Retrieving version info for request: {:?}", req);
 
-  let code_version: u64 = get_value(req, "code_version")?.parse().ok()?;
-  let device_type = get_value(req, "device_type")?;
+  let code_version: u64 =
+    get_value(req, CODE_VERSION_METADATA_NAME)?.parse().ok()?;
+  let device_type = get_value(req, DEVICE_TYPE_METADATA_NAME)?;
 
   Some((code_version, device_type))
 }
