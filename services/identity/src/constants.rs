@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 // Secrets
 
 pub const SECRETS_DIRECTORY: &str = "secrets";
@@ -145,3 +147,25 @@ pub const ONE_TIME_KEY_REFRESH_NUMBER: u32 = 5;
 // Minimum supported code versions
 
 pub const MIN_SUPPORTED_NATIVE_VERSION: u64 = 270;
+
+// Request metadata
+
+pub const CODE_VERSION_METADATA_NAME: &str = "code_version";
+pub const DEVICE_TYPE_METADATA_NAME: &str = "device_type";
+pub const USER_ID_METADATA_NAME: &str = "user_id";
+pub const DEVICE_ID_METADATA_NAME: &str = "device_id";
+pub const ACCESS_TOKEN_METADATA_NAME: &str = "access_token";
+
+// CORS
+
+pub const DEFAULT_MAX_AGE: Duration = Duration::from_secs(24 * 60 * 60);
+pub const DEFAULT_EXPOSED_HEADERS: [&str; 3] =
+  ["grpc-status", "grpc-message", "grpc-status-details-bin"];
+pub const DEFAULT_ALLOW_HEADERS: [&str; 6] = [
+  "x-grpc-web",
+  "content-type",
+  "x-user-agent",
+  "grpc-timeout",
+  CODE_VERSION_METADATA_NAME,
+  DEVICE_TYPE_METADATA_NAME,
+];
