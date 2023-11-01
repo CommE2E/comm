@@ -3,7 +3,7 @@
 
 declare module 'grpc-web' {
 
-  declare export type Metadata = { +[s: string]: string };
+  declare export type Metadata = { [s: string]: string };
 
   declare export type StatusCode =
     | 0   // OK
@@ -29,6 +29,41 @@ declare module 'grpc-web' {
     +details: string,
     +metadata?: Metadata,
   };
+
+  declare export class UnaryInterceptor<REQ, RESP> {
+    intercept(
+      request: Request<REQ, RESP>,
+      invoker: (request: Request<REQ, RESP>) => Promise<UnaryResponse<REQ, RESP>>
+    ): Promise<UnaryResponse<REQ, RESP>>;
+  }
+
+  declare export class Request<REQ, RESP> {
+    getRequestMessage(): REQ;
+    getMethodDescriptor(): MethodDescriptor<REQ, RESP>;
+    getMetadata(): Metadata;
+    getCallOptions(): CallOptions;
+  }
+
+  declare export class UnaryResponse<REQ, RESP> {
+    getResponseMessage(): RESP;
+    getMetadata(): Metadata;
+    getMethodDescriptor(): MethodDescriptor<REQ, RESP>;
+    getStatus(): Status;
+  }
+
+  declare export class CallOptions {
+    constructor(options: { [index: string]: any; }): void;
+  }
+
+  declare export class MethodDescriptor<REQ, RESP> {
+    constructor(name: string,
+                methodType: string,
+                requestType: (...args: mixed[]) => REQ,
+                responseType: (...args: mixed[]) => RESP,
+                requestSerializeFn: any,
+                responseDeserializeFn: any): void;
+    getName(): string;
+  }
 
   declare export class RpcError extends Error {
     constructor(code: StatusCode, message: string, metadata: Metadata): void;
