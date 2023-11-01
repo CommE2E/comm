@@ -8,6 +8,7 @@ import { policyTypes } from 'lib/facts/policies.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { permissionsToRemoveInMigration } from 'lib/utils/migration-utils.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
@@ -634,6 +635,32 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
     },
   ],
+  [
+    51,
+    async () => {
+      const setClause = `permissions = JSON_REMOVE(permissions, 
+        ${permissionsToRemoveInMigration.map(path => `'$.${path}'`).join(', ')}
+        )`;
+
+      const updateQuery = SQL`
+        UPDATE roles r
+        LEFT JOIN threads t ON t.id = r.thread
+      `;
+
+      if (permissionsToRemoveInMigration.length > 0) {
+        updateQuery.append(SQL`SET `.append(setClause));
+      }
+
+      updateQuery.append(SQL`
+        WHERE r.name != 'Admins'
+          AND (t.type = ${threadTypes.COMMUNITY_ROOT}
+            OR t.type = ${threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT})
+      `);
+
+      await dbQuery(updateQuery);
+    },
+  ],
+  [52, updateRolesAndPermissionsForAllThreads],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
