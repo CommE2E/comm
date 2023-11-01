@@ -4,10 +4,12 @@ use clap::{Parser, Subcommand};
 use database::DatabaseClient;
 use moka::future::Cache;
 use tonic::transport::Server;
+use tonic_web::GrpcWebLayer;
 
 mod client_service;
 mod config;
 pub mod constants;
+mod cors;
 mod database;
 pub mod ddb_utils;
 pub mod error;
@@ -23,6 +25,7 @@ mod tunnelbroker;
 
 use config::load_config;
 use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
+use cors::cors_layer;
 use keygen::generate_and_persist_keypair;
 use tracing::{self, info, Level};
 use tracing_subscriber::EnvFilter;
@@ -93,7 +96,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
       info!("Listening to gRPC traffic on {}", addr);
       Server::builder()
         .accept_http1(true)
-        .add_service(tonic_web::enable(client_service))
+        .layer(cors_layer())
+        .layer(GrpcWebLayer::new())
+        .add_service(client_service)
         .add_service(auth_service)
         .serve(addr)
         .await?;

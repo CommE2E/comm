@@ -145,3 +145,36 @@ pub const ONE_TIME_KEY_REFRESH_NUMBER: u32 = 5;
 // Minimum supported code versions
 
 pub const MIN_SUPPORTED_NATIVE_VERSION: u64 = 270;
+
+// Request metadata
+
+pub mod request_metadata {
+  pub const CODE_VERSION: &str = "code_version";
+  pub const DEVICE_TYPE: &str = "device_type";
+  pub const USER_ID: &str = "user_id";
+  pub const DEVICE_ID: &str = "device_id";
+  pub const ACCESS_TOKEN: &str = "access_token";
+}
+
+// CORS
+
+pub mod cors {
+  use std::time::Duration;
+
+  pub const DEFAULT_MAX_AGE: Duration = Duration::from_secs(24 * 60 * 60);
+  pub const DEFAULT_EXPOSED_HEADERS: [&str; 3] =
+    ["grpc-status", "grpc-message", "grpc-status-details-bin"];
+  pub const DEFAULT_ALLOW_HEADERS: [&str; 9] = [
+    "x-grpc-web",
+    "content-type",
+    "x-user-agent",
+    "grpc-timeout",
+    super::request_metadata::CODE_VERSION,
+    super::request_metadata::DEVICE_TYPE,
+    super::request_metadata::USER_ID,
+    super::request_metadata::DEVICE_ID,
+    super::request_metadata::ACCESS_TOKEN,
+  ];
+  pub const DEFAULT_ALLOW_ORIGIN: [&str; 2] =
+    ["https://web.comm.app", "http://localhost:3000"];
+}

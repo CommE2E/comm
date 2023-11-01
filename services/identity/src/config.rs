@@ -67,6 +67,10 @@ impl Config {
       tunnelbroker_endpoint,
     })
   }
+
+  pub fn is_dev(&self) -> bool {
+    self.localstack_endpoint.is_some()
+  }
 }
 
 impl fmt::Debug for Config {
