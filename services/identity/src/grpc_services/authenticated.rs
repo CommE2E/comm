@@ -1,6 +1,6 @@
 use crate::{
-  client_service::handle_db_error, database::DatabaseClient,
-  grpc_services::shared::get_value,
+  client_service::handle_db_error, constants::request_metadata,
+  database::DatabaseClient, grpc_services::shared::get_value,
 };
 use tonic::{Request, Response, Status};
 
@@ -29,9 +29,9 @@ pub struct AuthenticatedService {
 fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
   debug!("Retrieving auth info for request: {:?}", req);
 
-  let user_id = get_value(req, "user_id")?;
-  let device_id = get_value(req, "device_id")?;
-  let access_token = get_value(req, "access_token")?;
+  let user_id = get_value(req, request_metadata::USER_ID)?;
+  let device_id = get_value(req, request_metadata::DEVICE_ID)?;
+  let access_token = get_value(req, request_metadata::ACCESS_TOKEN)?;
 
   Some((user_id, device_id, access_token))
 }
@@ -70,9 +70,9 @@ pub fn auth_interceptor(
 pub fn get_user_and_device_id<T>(
   request: &Request<T>,
 ) -> Result<(String, String), Status> {
-  let user_id = get_value(request, "user_id")
+  let user_id = get_value(request, request_metadata::USER_ID)
     .ok_or_else(|| Status::unauthenticated("Missing user_id field"))?;
-  let device_id = get_value(request, "device_id")
+  let device_id = get_value(request, request_metadata::DEVICE_ID)
     .ok_or_else(|| Status::unauthenticated("Missing device_id field"))?;
 
   Ok((user_id, device_id))
