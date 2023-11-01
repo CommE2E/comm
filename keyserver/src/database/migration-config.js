@@ -634,6 +634,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
     },
   ],
+  [
+    51,
+    async () => {
+      await dbQuery(SQL`
+        UPDATE roles
+        SET permissions = JSON_REMOVE(permissions, '$.descendant_open_voiced')
+        WHERE JSON_EXTRACT(permissions, '$.descendant_open_voiced') = 'true'
+      `);
+    },
+  ],
+  [52, updateRolesAndPermissionsForAllThreads],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
