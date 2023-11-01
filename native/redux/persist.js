@@ -87,6 +87,7 @@ import {
 import { defaultState } from './default-state.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
+import { persistMigrationToRemoveDescendantOpenVoiced } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
 import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
@@ -853,6 +854,44 @@ const migrations = {
           },
         }
       : state,
+  [56]: state => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+    const rawThreadInfos = clientDBThreadInfos.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+    const rawThreadInfosObject = rawThreadInfos.reduce((acc, threadInfo) => {
+      acc[threadInfo.id] = threadInfo;
+      return acc;
+    }, {});
+
+    const migratedRawThreadInfos =
+      persistMigrationToRemoveDescendantOpenVoiced(rawThreadInfosObject);
+
+    const migratedThreadInfosArray = Object.keys(migratedRawThreadInfos).map(
+      id => migratedRawThreadInfos[id],
+    );
+    const convertedClientDBThreadInfos = migratedThreadInfosArray.map(
+      convertRawThreadInfoToClientDBThreadInfo,
+    );
+    const operations: $ReadOnlyArray<ClientDBThreadStoreOperation> = [
+      {
+        type: 'remove_all',
+      },
+      ...convertedClientDBThreadInfos.map((thread: ClientDBThreadInfo) => ({
+        type: 'replace',
+        payload: thread,
+      })),
+    ];
+
+    try {
+      commCoreModule.processThreadStoreOperationsSync(operations);
+    } catch (exception) {
+      console.log(exception);
+      return { ...state, cookie: null };
+    }
+
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
