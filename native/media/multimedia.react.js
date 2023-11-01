@@ -203,6 +203,14 @@ class Multimedia extends React.PureComponent<Props, State> {
         encryptionKey: mediaInfo.thumbnailEncryptionKey,
         thumbHash: mediaInfo.thumbnailThumbHash,
       };
+    } else if (mediaInfo.type === 'encrypted-image') {
+      const { blobURI, encryptionKey, thumbHash } = mediaInfo;
+      return {
+        kind: 'encrypted',
+        blobURI,
+        encryptionKey,
+        thumbHash,
+      };
     } else {
       invariant(false, 'Invalid mediaInfo type');
     }
