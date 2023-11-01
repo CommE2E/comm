@@ -67,32 +67,32 @@ function Avatar(props: Props): React.Node {
   }, [size]);
 
   const avatar = React.useMemo(() => {
-    if (avatarInfo.type === 'image') {
-      const avatarMediaInfo = {
-        type: 'photo',
-        uri: avatarInfo.uri,
-      };
-
+    if (avatarInfo.type !== 'image' && avatarInfo.type !== 'encrypted_image') {
       return (
-        <View style={[containerSizeStyle, styles.imageContainer]}>
-          <Multimedia mediaInfo={avatarMediaInfo} spinnerColor="white" />
+        <View style={emojiContainerStyle}>
+          <Text style={emojiSizeStyle}>{avatarInfo.emoji}</Text>
         </View>
       );
     }
 
+    let avatarMediaInfo;
+    if (avatarInfo.type === 'encrypted_image') {
+      avatarMediaInfo = avatarInfo;
+    } else if (avatarInfo.type === 'image') {
+      avatarMediaInfo = {
+        type: 'photo',
+        uri: avatarInfo.uri,
+      };
+    } else {
+      return null;
+    }
+
     return (
-      <View style={emojiContainerStyle}>
-        <Text style={emojiSizeStyle}>{avatarInfo.emoji}</Text>
+      <View style={[containerSizeStyle, styles.imageContainer]}>
+        <Multimedia mediaInfo={avatarMediaInfo} spinnerColor="white" />
       </View>
     );
-  }, [
-    avatarInfo.emoji,
-    avatarInfo.type,
-    avatarInfo.uri,
-    containerSizeStyle,
-    emojiContainerStyle,
-    emojiSizeStyle,
-  ]);
+  }, [avatarInfo, containerSizeStyle, emojiContainerStyle, emojiSizeStyle]);
 
   return avatar;
 }
