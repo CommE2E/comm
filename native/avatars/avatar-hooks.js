@@ -8,7 +8,10 @@ import { Platform } from 'react-native';
 import filesystem from 'react-native-fs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { uploadMultimedia } from 'lib/actions/upload-actions.js';
+import {
+  blobServiceUpload,
+  uploadMultimedia,
+} from 'lib/actions/upload-actions.js';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import {
@@ -16,26 +19,30 @@ import {
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
 import type {
-  ImageAvatarDBContent,
+  AvatarDBContent,
   UpdateUserAvatarRequest,
 } from 'lib/types/avatar-types.js';
 import type {
   NativeMediaSelection,
   MediaLibrarySelection,
   MediaMissionFailure,
-  UploadMultimediaResult,
 } from 'lib/types/media-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { encryptMedia } from '../media/encryption-utils.js';
 import { getCompatibleMediaURI } from '../media/identifier-utils.js';
 import type { MediaResult } from '../media/media-utils.js';
 import { processMedia } from '../media/media-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import blobServiceUploadHandler from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
+
+// TODO: flip the switch
+const useBlobServiceUploads = false;
 
 function displayAvatarUpdateFailureAlert(): void {
   Alert.alert(
@@ -46,22 +53,68 @@ function displayAvatarUpdateFailureAlert(): void {
   );
 }
 
-function useUploadProcessedMedia(): MediaResult => Promise<UploadMultimediaResult> {
+function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
   const callUploadMultimedia = useServerCall(uploadMultimedia);
-  const uploadProcessedMultimedia: MediaResult => Promise<UploadMultimediaResult> =
+  const callBlobServiceUpload = useServerCall(blobServiceUpload);
+  const uploadProcessedMultimedia: MediaResult => Promise<?AvatarDBContent> =
     React.useCallback(
-      processedMedia => {
-        const { uploadURI, filename, mime, dimensions } = processedMedia;
-        return callUploadMultimedia(
-          {
-            uri: uploadURI,
-            name: filename,
-            type: mime,
-          },
-          dimensions,
+      async processedMedia => {
+        if (!useBlobServiceUploads) {
+          const { uploadURI, filename, mime, dimensions } = processedMedia;
+          const { id } = await callUploadMultimedia(
+            {
+              uri: uploadURI,
+              name: filename,
+              type: mime,
+            },
+            dimensions,
+          );
+          if (!id) {
+            return undefined;
+          }
+          return { type: 'image', uploadID: id };
+        }
+
+        const { result: encryptionResult } = await encryptMedia(processedMedia);
+        if (!encryptionResult.success) {
+          throw new Error('Avatar media encryption failed.');
+        }
+
+        invariant(
+          encryptionResult.mediaType === 'encrypted_photo',
+          'Invalid mediaType after encrypting avatar',
         );
+        const {
+          uploadURI,
+          filename,
+          mime,
+          blobHash,
+          encryptionKey,
+          dimensions,
+          thumbHash,
+        } = encryptionResult;
+        const { id } = await callBlobServiceUpload({
+          input: {
+            blobInput: {
+              type: 'uri',
+              uri: uploadURI,
+              filename,
+              mimeType: mime,
+            },
+            blobHash,
+            encryptionKey,
+            dimensions,
+            thumbHash,
+            loop: false,
+          },
+          callbacks: { blobServiceUploadHandler },
+        });
+        if (!id) {
+          return undefined;
+        }
+        return { type: 'encrypted_image', uploadID: id };
       },
-      [callUploadMultimedia],
+      [callUploadMultimedia, callBlobServiceUpload],
     );
   return uploadProcessedMultimedia;
 }
@@ -130,7 +183,7 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
 
 function useUploadSelectedMedia(
   setProcessingOrUploadInProgress?: (inProgress: boolean) => mixed,
-): (selection: NativeMediaSelection) => Promise<?ImageAvatarDBContent> {
+): (selection: NativeMediaSelection) => Promise<?AvatarDBContent> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
 
@@ -165,7 +218,7 @@ function useUploadSelectedMedia(
         return undefined;
       }
 
-      let uploadedMedia: UploadMultimediaResult;
+      let uploadedMedia: ?AvatarDBContent;
       try {
         uploadedMedia = await uploadProcessedMedia(processedMedia);
         urisToBeDisposed.forEach(filesystem.unlink);
@@ -179,14 +232,7 @@ function useUploadSelectedMedia(
         return undefined;
       }
 
-      if (!uploadedMedia.id) {
-        return undefined;
-      }
-
-      return {
-        type: 'image',
-        uploadID: uploadedMedia.id,
-      };
+      return uploadedMedia;
     },
     [
       processSelectedMedia,
