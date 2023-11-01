@@ -5,6 +5,7 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 
 import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
+import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -32,9 +33,19 @@ function AddKeyserver(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const [urlInput, setUrlInput] = React.useState('');
+  const [showErrorMessage, setShowErrorMessage] = React.useState(false);
 
-  const onPressSave = React.useCallback(() => {
+  const isKeyserverURLValidCallback = useIsKeyserverURLValid(urlInput);
+
+  const onPressSave = React.useCallback(async () => {
+    setShowErrorMessage(false);
     if (!currentUserID || !urlInput) {
+      return;
+    }
+
+    const isKeyserverURLValid = await isKeyserverURLValidCallback();
+    if (!isKeyserverURLValid) {
+      setShowErrorMessage(true);
       return;
     }
 
@@ -56,7 +67,7 @@ function AddKeyserver(props: Props): React.Node {
     });
 
     goBack();
-  }, [currentUserID, dispatch, goBack, urlInput]);
+  }, [currentUserID, dispatch, goBack, isKeyserverURLValidCallback, urlInput]);
 
   React.useEffect(() => {
     setOptions({
@@ -71,6 +82,19 @@ function AddKeyserver(props: Props): React.Node {
     (text: string) => setUrlInput(text),
     [],
   );
+
+  const errorMessage = React.useMemo(() => {
+    if (!showErrorMessage) {
+      return null;
+    }
+
+    return (
+      <Text style={styles.errorMessage}>
+        Cannot connect to keyserver. Please check the URL or your connection and
+        try again.
+      </Text>
+    );
+  }, [showErrorMessage, styles.errorMessage]);
 
   return (
     <View style={styles.container}>
@@ -87,6 +111,7 @@ function AddKeyserver(props: Props): React.Node {
           autoCorrect={false}
         />
       </View>
+      {errorMessage}
     </View>
   );
 }
@@ -119,6 +144,11 @@ const unboundStyles = {
     fontSize: 16,
     paddingVertical: 0,
     borderBottomColor: 'transparent',
+  },
+  errorMessage: {
+    marginTop: 8,
+    marginHorizontal: 16,
+    color: 'redText',
   },
 };
 
