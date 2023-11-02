@@ -182,9 +182,11 @@ function reducer(state: AppState = defaultState, action: Action) {
     action.type === logOutActionTypes.success ||
     action.type === deleteAccountActionTypes.success
   ) {
-    return {
+    state = {
       ...state,
-      localSettings: { isBackupEnabled: false },
+      localSettings: {
+        isBackupEnabled: false,
+      },
     };
   }
 
@@ -290,6 +292,7 @@ type FixUnreadActiveThreadResult = {
   +state: AppState,
   +threadStoreOperations: $ReadOnlyArray<ThreadStoreOperation>,
 };
+
 function fixUnreadActiveThread(
   state: AppState,
   action: *,
@@ -336,6 +339,7 @@ function fixUnreadActiveThread(
 }
 
 let appLastBecameInactive = 0;
+
 function appBecameInactive() {
   appLastBecameInactive = Date.now();
 }
