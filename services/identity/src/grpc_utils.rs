@@ -5,8 +5,10 @@ use tracing::error;
 
 use crate::{
   client_service::client_proto::{
-    DeviceKeyUpload, IdentityKeyInfo, InboundKeyInfo, OutboundKeyInfo, PreKey,
-    RegistrationStartRequest, ReservedRegistrationStartRequest,
+    DeviceKeyUpload, IdentityKeyInfo, InboundKeyInfo, OpaqueLoginStartRequest,
+    OutboundKeyInfo, PreKey, RegistrationStartRequest,
+    ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
+    WalletLoginRequest,
   },
   constants::{
     CONTENT_ONE_TIME_KEY, NOTIF_ONE_TIME_KEY,
@@ -131,15 +133,11 @@ fn create_prekey(
 
 pub trait DeviceKeyUploadData {
   fn device_key_upload(&self) -> Option<&DeviceKeyUpload>;
-  fn username(&self) -> &str;
 }
 
 impl DeviceKeyUploadData for RegistrationStartRequest {
   fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
     self.device_key_upload.as_ref()
-  }
-  fn username(&self) -> &str {
-    &self.username
   }
 }
 
@@ -147,13 +145,27 @@ impl DeviceKeyUploadData for ReservedRegistrationStartRequest {
   fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
     self.device_key_upload.as_ref()
   }
-  fn username(&self) -> &str {
-    &self.username
+}
+
+impl DeviceKeyUploadData for OpaqueLoginStartRequest {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
+    self.device_key_upload.as_ref()
+  }
+}
+
+impl DeviceKeyUploadData for WalletLoginRequest {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
+    self.device_key_upload.as_ref()
+  }
+}
+
+impl DeviceKeyUploadData for ReservedWalletLoginRequest {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
+    self.device_key_upload.as_ref()
   }
 }
 
 pub trait DeviceKeyUploadActions {
-  fn username(&self) -> String;
   fn payload(&self) -> Result<String, Status>;
   fn payload_signature(&self) -> Result<String, Status>;
   fn content_prekey(&self) -> Result<String, Status>;
@@ -163,13 +175,10 @@ pub trait DeviceKeyUploadActions {
   fn one_time_content_prekeys(&self) -> Result<Vec<String>, Status>;
   fn one_time_notif_prekeys(&self) -> Result<Vec<String>, Status>;
   fn device_type(&self) -> Result<i32, Status>;
+  fn social_proof(&self) -> Result<Option<String>, Status>;
 }
 
 impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
-  fn username(&self) -> String {
-    self.username().to_string()
-  }
-
   fn payload(&self) -> Result<String, Status> {
     self
       .device_key_upload()
@@ -235,6 +244,13 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
     self
       .device_key_upload()
       .map(|upload| upload.device_type)
+      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+  fn social_proof(&self) -> Result<Option<String>, Status> {
+    self
+      .device_key_upload()
+      .and_then(|upload| upload.device_key_info.as_ref())
+      .map(|info| info.social_proof.clone())
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
   }
 }

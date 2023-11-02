@@ -84,6 +84,7 @@ pub fn validate_account_ownership_message_and_get_user_id(
   keyserver_message: &str,
   keyserver_signature: &str,
 ) -> Result<String, Status> {
+  // Note that username in this context includes wallet addresses, too.
   const EXPECTED_STATEMENT: &[u8; 60] =
     b"This user is the owner of the following username and user ID";
 
