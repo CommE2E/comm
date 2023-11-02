@@ -154,6 +154,7 @@ impl DatabaseClient {
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     wallet_address: String,
     social_proof: String,
+    user_id: Option<String>,
   ) -> Result<String, Error> {
     self
       .add_user_to_users_table(
@@ -161,7 +162,7 @@ impl DatabaseClient {
         None,
         Some(wallet_address),
         Some(social_proof),
-        None,
+        user_id,
       )
       .await
   }
@@ -841,6 +842,17 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))?;
 
     Ok(())
+  }
+
+  pub async fn wallet_address_taken(
+    &self,
+    wallet_address: String,
+  ) -> Result<bool, Error> {
+    let result = self
+      .get_user_id_from_user_info(wallet_address, &AuthType::Wallet)
+      .await?;
+
+    Ok(result.is_some())
   }
 
   pub async fn username_taken(&self, username: String) -> Result<bool, Error> {
