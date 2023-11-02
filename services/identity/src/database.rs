@@ -843,6 +843,17 @@ impl DatabaseClient {
     Ok(())
   }
 
+  pub async fn wallet_address_taken(
+    &self,
+    wallet_address: String,
+  ) -> Result<bool, Error> {
+    let result = self
+      .get_user_id_from_user_info(wallet_address, &AuthType::Wallet)
+      .await?;
+
+    Ok(result.is_some())
+  }
+
   pub async fn username_taken(&self, username: String) -> Result<bool, Error> {
     let result = self
       .get_user_id_from_user_info(username, &AuthType::Password)
