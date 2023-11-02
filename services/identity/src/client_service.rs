@@ -22,10 +22,10 @@ use crate::client_service::client_proto::{
   RegistrationFinishRequest, RegistrationFinishResponse,
   RegistrationStartRequest, RegistrationStartResponse,
   RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
-  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
-  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
-  WalletLoginRequest, WalletLoginResponse,
+  ReservedWalletLoginRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
+  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
 };
 use crate::config::CONFIG;
 use crate::database::{
@@ -122,7 +122,11 @@ impl IdentityClientService for ClientService {
       return Err(tonic::Status::invalid_argument("username reserved"));
     }
 
-    let registration_state = construct_user_registration_info(&message, None)?;
+    let registration_state = construct_user_registration_info(
+      &message,
+      None,
+      message.username.clone(),
+    )?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
       .start(
@@ -170,8 +174,11 @@ impl IdentityClientService for ClientService {
       &message.keyserver_signature,
     )?;
 
-    let registration_state =
-      construct_user_registration_info(&message, Some(user_id))?;
+    let registration_state = construct_user_registration_info(
+      &message,
+      Some(user_id),
+      message.username.clone(),
+    )?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
       .start(
@@ -353,74 +360,28 @@ impl IdentityClientService for ClientService {
         return Err(tonic::Status::not_found("user not found"));
       };
 
-    if let client_proto::OpaqueLoginStartRequest {
-      opaque_login_request: login_message,
-      username,
-      device_key_upload:
-        Some(client_proto::DeviceKeyUpload {
-          device_key_info:
-            Some(client_proto::IdentityKeyInfo {
-              payload,
-              payload_signature,
-              social_proof: _social_proof,
-            }),
-          content_upload:
-            Some(client_proto::PreKey {
-              pre_key: content_prekey,
-              pre_key_signature: content_prekey_signature,
-            }),
-          notif_upload:
-            Some(client_proto::PreKey {
-              pre_key: notif_prekey,
-              pre_key_signature: notif_prekey_signature,
-            }),
-          one_time_content_prekeys,
-          one_time_notif_prekeys,
-          device_type,
-        }),
-    } = message
-    {
-      let mut server_login = comm_opaque2::server::Login::new();
-      let server_response = server_login
-        .start(
-          &CONFIG.server_setup,
-          &password_file_bytes,
-          &login_message,
-          username.as_bytes(),
-        )
-        .map_err(protocol_error_to_grpc_status)?;
+    let mut server_login = comm_opaque2::server::Login::new();
+    let server_response = server_login
+      .start(
+        &CONFIG.server_setup,
+        &password_file_bytes,
+        &message.opaque_login_request,
+        message.username.as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
 
-      let key_info = KeyPayload::from_str(&payload)
-        .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
-      let login_state = UserLoginInfo {
-        user_id,
-        opaque_server_login: server_login,
-        flattened_device_key_upload: FlattenedDeviceKeyUpload {
-          device_id_key: key_info.primary_identity_public_keys.ed25519,
-          key_payload: payload,
-          key_payload_signature: payload_signature,
-          content_prekey,
-          content_prekey_signature,
-          content_one_time_keys: one_time_content_prekeys,
-          notif_prekey,
-          notif_prekey_signature,
-          notif_one_time_keys: one_time_notif_prekeys,
-          device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
-            .map_err(handle_db_error)?,
-        },
-      };
-      let session_id = self
-        .insert_into_cache(WorkflowInProgress::Login(Box::new(login_state)))
-        .await;
+    let login_state =
+      construct_user_login_info(&message, user_id, server_login)?;
 
-      let response = Response::new(OpaqueLoginStartResponse {
-        session_id,
-        opaque_login_response: server_response,
-      });
-      Ok(response)
-    } else {
-      Err(tonic::Status::invalid_argument("unexpected message data"))
-    }
+    let session_id = self
+      .insert_into_cache(WorkflowInProgress::Login(Box::new(login_state)))
+      .await;
+
+    let response = Response::new(OpaqueLoginStartResponse {
+      session_id,
+      opaque_login_response: server_response,
+    });
+    Ok(response)
   }
 
   async fn login_password_user_finish(
@@ -501,55 +462,12 @@ impl IdentityClientService for ClientService {
 
     let wallet_address = eip55(&parsed_message.address);
 
-    let (flattened_device_key_upload, social_proof) =
-      if let client_proto::WalletLoginRequest {
-        siwe_message: _,
-        siwe_signature: _,
-        device_key_upload:
-          Some(client_proto::DeviceKeyUpload {
-            device_key_info:
-              Some(client_proto::IdentityKeyInfo {
-                payload,
-                payload_signature,
-                social_proof: Some(social_proof),
-              }),
-            content_upload:
-              Some(client_proto::PreKey {
-                pre_key: content_prekey,
-                pre_key_signature: content_prekey_signature,
-              }),
-            notif_upload:
-              Some(client_proto::PreKey {
-                pre_key: notif_prekey,
-                pre_key_signature: notif_prekey_signature,
-              }),
-            one_time_content_prekeys,
-            one_time_notif_prekeys,
-            device_type,
-          }),
-      } = message
-      {
-        let key_info = KeyPayload::from_str(&payload)
-          .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
-        (
-          FlattenedDeviceKeyUpload {
-            device_id_key: key_info.primary_identity_public_keys.ed25519,
-            key_payload: payload,
-            key_payload_signature: payload_signature,
-            content_prekey,
-            content_prekey_signature,
-            content_one_time_keys: one_time_content_prekeys,
-            notif_prekey,
-            notif_prekey_signature,
-            notif_one_time_keys: one_time_notif_prekeys,
-            device_type: DeviceType::try_from(DBDeviceTypeInt(device_type))
-              .map_err(handle_db_error)?,
-          },
-          social_proof,
-        )
-      } else {
-        return Err(tonic::Status::invalid_argument("unexpected message data"));
-      };
+    let flattened_device_key_upload =
+      construct_flattened_device_key_upload(&message)?;
+
+    let social_proof = message
+      .social_proof()?
+      .ok_or_else(|| tonic::Status::invalid_argument("malformed payload"))?;
 
     let user_id = match self
       .client
@@ -578,6 +496,7 @@ impl IdentityClientService for ClientService {
             flattened_device_key_upload.clone(),
             wallet_address,
             social_proof,
+            None,
           )
           .await
           .map_err(handle_db_error)?
@@ -604,6 +523,93 @@ impl IdentityClientService for ClientService {
       user_id,
       access_token,
     };
+    Ok(Response::new(response))
+  }
+
+  async fn login_reserved_wallet_user(
+    &self,
+    request: tonic::Request<ReservedWalletLoginRequest>,
+  ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
+    let message = request.into_inner();
+
+    let parsed_message = parse_and_verify_siwe_message(
+      &message.siwe_message,
+      &message.siwe_signature,
+    )?;
+
+    match self
+      .client
+      .get_nonce_from_nonces_table(&parsed_message.nonce)
+      .await
+      .map_err(handle_db_error)?
+    {
+      None => return Err(tonic::Status::invalid_argument("invalid nonce")),
+      Some(_) => self
+        .client
+        .remove_nonce_from_nonces_table(&parsed_message.nonce)
+        .await
+        .map_err(handle_db_error)?,
+    };
+
+    let wallet_address = eip55(&parsed_message.address);
+
+    self.check_wallet_address_taken(&wallet_address).await?;
+
+    let wallet_address_in_reserved_usernames_table = self
+      .client
+      .username_in_reserved_usernames_table(&wallet_address)
+      .await
+      .map_err(handle_db_error)?;
+    if !wallet_address_in_reserved_usernames_table {
+      return Err(tonic::Status::permission_denied(
+        "wallet address not reserved",
+      ));
+    }
+
+    let user_id = validate_account_ownership_message_and_get_user_id(
+      &wallet_address,
+      &message.keyserver_message,
+      &message.keyserver_signature,
+    )?;
+
+    let flattened_device_key_upload =
+      construct_flattened_device_key_upload(&message)?;
+
+    let social_proof = message
+      .social_proof()?
+      .ok_or_else(|| tonic::Status::invalid_argument("malformed payload"))?;
+
+    self
+      .client
+      .add_wallet_user_to_users_table(
+        flattened_device_key_upload.clone(),
+        wallet_address,
+        social_proof,
+        Some(user_id.clone()),
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    let token = AccessTokenData::new(
+      user_id.clone(),
+      flattened_device_key_upload.device_id_key,
+      crate::token::AuthType::Password,
+      &mut OsRng,
+    );
+
+    let access_token = token.access_token.clone();
+
+    self
+      .client
+      .put_access_token_data(token)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = WalletLoginResponse {
+      user_id,
+      access_token,
+    };
+
     Ok(Response::new(response))
   }
 
@@ -929,6 +935,23 @@ impl ClientService {
     Ok(())
   }
 
+  async fn check_wallet_address_taken(
+    &self,
+    wallet_address: &str,
+  ) -> Result<(), tonic::Status> {
+    let wallet_address_taken = self
+      .client
+      .wallet_address_taken(wallet_address.to_string())
+      .await
+      .map_err(handle_db_error)?;
+    if wallet_address_taken {
+      return Err(tonic::Status::already_exists(
+        "wallet address already exists",
+      ));
+    }
+    Ok(())
+  }
+
   async fn insert_into_cache(&self, workflow: WorkflowInProgress) -> String {
     let session_id = generate_uuid();
     self.cache.insert(session_id.clone(), workflow).await;
@@ -955,27 +978,50 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
 fn construct_user_registration_info(
   message: &impl DeviceKeyUploadActions,
   user_id: Option<String>,
+  username: String,
 ) -> Result<UserRegistrationInfo, tonic::Status> {
+  Ok(UserRegistrationInfo {
+    username,
+    flattened_device_key_upload: construct_flattened_device_key_upload(
+      message,
+    )?,
+    user_id,
+  })
+}
+
+fn construct_user_login_info(
+  message: &impl DeviceKeyUploadActions,
+  user_id: String,
+  opaque_server_login: comm_opaque2::server::Login,
+) -> Result<UserLoginInfo, tonic::Status> {
+  Ok(UserLoginInfo {
+    user_id,
+    flattened_device_key_upload: construct_flattened_device_key_upload(
+      message,
+    )?,
+    opaque_server_login,
+  })
+}
+
+fn construct_flattened_device_key_upload(
+  message: &impl DeviceKeyUploadActions,
+) -> Result<FlattenedDeviceKeyUpload, tonic::Status> {
   let key_info = KeyPayload::from_str(&message.payload()?)
     .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
 
-  Ok(UserRegistrationInfo {
-    username: message.username(),
-    flattened_device_key_upload: FlattenedDeviceKeyUpload {
-      device_id_key: key_info.primary_identity_public_keys.ed25519,
-      key_payload: message.payload()?,
-      key_payload_signature: message.payload_signature()?,
-      content_prekey: message.content_prekey()?,
-      content_prekey_signature: message.content_prekey_signature()?,
-      content_one_time_keys: message.one_time_content_prekeys()?,
-      notif_prekey: message.notif_prekey()?,
-      notif_prekey_signature: message.notif_prekey_signature()?,
-      notif_one_time_keys: message.one_time_notif_prekeys()?,
-      device_type: DeviceType::try_from(DBDeviceTypeInt(
-        message.device_type()?,
-      ))
+  let flattened_device_key_upload = FlattenedDeviceKeyUpload {
+    device_id_key: key_info.primary_identity_public_keys.ed25519,
+    key_payload: message.payload()?,
+    key_payload_signature: message.payload_signature()?,
+    content_prekey: message.content_prekey()?,
+    content_prekey_signature: message.content_prekey_signature()?,
+    content_one_time_keys: message.one_time_content_prekeys()?,
+    notif_prekey: message.notif_prekey()?,
+    notif_prekey_signature: message.notif_prekey_signature()?,
+    notif_one_time_keys: message.one_time_notif_prekeys()?,
+    device_type: DeviceType::try_from(DBDeviceTypeInt(message.device_type()?))
       .map_err(handle_db_error)?,
-    },
-    user_id,
-  })
+  };
+
+  Ok(flattened_device_key_upload)
 }
