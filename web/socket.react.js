@@ -48,7 +48,9 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const sessionIdentification = useSelector(sessionIdentificationSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
     const getClientResponses = useSelector(webGetClientResponsesSelector);
-    const sessionStateFunc = useSelector(webSessionStateFuncSelector);
+    const sessionStateFunc = useSelector(
+      webSessionStateFuncSelector(ashoatKeyserverID),
+    );
     const currentCalendarQuery = useSelector(webCalendarQuery);
 
     const reduxActiveThread = useSelector(activeThreadSelector);

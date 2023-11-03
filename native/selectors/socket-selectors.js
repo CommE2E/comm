@@ -116,17 +116,24 @@ const nativeGetClientResponsesSelector: (
       ),
 );
 
+const baseNativeSessionStateFuncSelector: (
+  keyserverID: string,
+) => (input: NavPlusRedux) => () => SessionState = keyserverID =>
+  createSelector(
+    (input: NavPlusRedux) => sessionStateFuncSelector(keyserverID)(input.redux),
+    (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
+    (
+        sessionStateFunc: (calendarActive: boolean) => SessionState,
+        calendarActive: boolean,
+      ) =>
+      () =>
+        sessionStateFunc(calendarActive),
+  );
+
 const nativeSessionStateFuncSelector: (
-  input: NavPlusRedux,
-) => () => SessionState = createSelector(
-  (input: NavPlusRedux) => sessionStateFuncSelector(input.redux),
-  (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
-  (
-      sessionStateFunc: (calendarActive: boolean) => SessionState,
-      calendarActive: boolean,
-    ) =>
-    () =>
-      sessionStateFunc(calendarActive),
+  keyserverID: string,
+) => (input: NavPlusRedux) => () => SessionState = _memoize(
+  baseNativeSessionStateFuncSelector,
 );
 
 export {

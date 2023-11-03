@@ -1,5 +1,6 @@
 // @flow
 
+import _memoize from 'lodash/memoize.js';
 import { createSelector } from 'reselect';
 
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
@@ -41,10 +42,12 @@ const nativeLogInExtraInfoSelector: (
   },
 );
 
-const noDataAfterPolicyAcknowledgmentSelector: (state: AppState) => boolean =
+const baseNoDataAfterPolicyAcknowledgmentSelector: (
+  keyserverID: string,
+) => (state: AppState) => boolean = keyserverID =>
   createSelector(
     (state: AppState) => state.connectivity,
-    currentAsOfSelector,
+    currentAsOfSelector(keyserverID),
     (state: AppState) => state.userPolicies,
     (
       connectivity: ConnectivityInfo,
@@ -55,6 +58,12 @@ const noDataAfterPolicyAcknowledgmentSelector: (state: AppState) => boolean =
       currentAsOf === 0 &&
       values(userPolicies).every(policy => policy.isAcknowledged),
   );
+
+const noDataAfterPolicyAcknowledgmentSelector: (
+  keyserverID: string,
+) => (state: AppState) => boolean = _memoize(
+  baseNoDataAfterPolicyAcknowledgmentSelector,
+);
 
 export {
   nativeLogInExtraInfoSelector,
