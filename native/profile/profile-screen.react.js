@@ -104,7 +104,7 @@ class ProfileScreen extends React.PureComponent<Props> {
 
       keyserverSelection = (
         <ProfileRow
-          content="Keyserver selection"
+          content="Keyservers"
           onPress={this.onPressKeyserverSelection}
         />
       );
