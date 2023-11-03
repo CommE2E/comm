@@ -135,11 +135,6 @@
   --chat-thread-list-menu-bg: var(--shades-black-75);
   --chat-thread-list-menu-active-color: var(--shades-white-60);
   --chat-thread-list-menu-active-bg: var(--shades-black-85);
-  --search-clear-color: var(--shades-white-100);
-  --search-clear-bg: var(--shades-black-60);
-  --search-input-color: var(--shades-white-100);
-  --search-input-placeholder: var(--shades-black-50);
-  --search-icon-color: var(--shades-black-50);
   --tabs-header-active-color: var(--shades-white-100);
   --tabs-header-active-border: var(--violet-light-100);
   --tabs-header-active-background: var(--violet-dark-100);
@@ -289,11 +284,16 @@
   --modal-header-primary-default: var(--shades-white-100);
   --modal-close-primary-default: var(--shades-black-50);
   --modal-close-primary-hover: var(--shades-white-100);
+  --modal-listItem-primary-hover: var(--shades-black-90);
 
   /* Input Field */
   --inputField-background-primary-default: var(--shades-black-85);
+  --inputField-background-secondary-default: var(--shades-black-75);
   --inputField-label-primary-default: var(--shades-white-100);
+  --inputField-label-secondary-default: var(--shades-black-50);
   --inputField-border-primary-default: var(--shades-black-75);
+  --inputField-clearBackground-primary-default: var(--shades-black-60);
+  --inputField-clearIcon-primary-default: var(--shades-white-100);
 }
 
 /* Light theme */
@@ -326,9 +326,14 @@
   --modal-header-primary-default: var(--shades-black-95);
   --modal-close-primary-default: var(--shades-black-50);
   --modal-close-primary-hover: var(--shades-black-95);
+  --modal-listItem-primary-hover: var(--shades-white-70);
 
   /* Input Field */
   --inputField-background-primary-default: var(--shades-white-100);
+  --inputField-background-secondary-default: var(--shades-white-60);
   --inputField-label-primary-default: var(--shades-black-95);
+  --inputField-label-secondary-default: var(--shades-black-60);
   --inputField-border-primary-default: var(--shades-white-60);
+  --inputField-clearBackground-primary-default: var(--shades-black-50);
+  --inputField-clearIcon-primary-default: var(--shades-white-100);
 }

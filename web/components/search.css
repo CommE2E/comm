@@ -1,5 +1,5 @@
 div.searchContainer {
-  background-color: var(--text-input-bg);
+  background-color: var(--inputField-background-secondary-default);
   display: flex;
   align-items: center;
   margin: 1rem;
@@ -10,7 +10,7 @@ div.searchContainer {
 
 div.searchIcon {
   display: flex;
-  color: var(--search-icon-color);
+  color: var(--inputField-label-secondary-default);
 }
 
 input.searchInput,
@@ -21,18 +21,18 @@ input.searchInput,
   padding: 4px 12px;
   flex: 1;
   border: none;
-  color: var(--search-input-color);
+  color: var(--inputField-label-primary-default);
   outline: none;
 }
 
 input.searchInput::placeholder {
-  color: var(--search-input-placeholder);
+  color: var(--inputField-label-secondary-default);
 }
 
 button.clearSearch {
-  color: var(--search-clear-color);
+  color: var(--inputField-clearIcon-primary-default);
   transition: ease-in-out 0.15s;
-  background: var(--search-clear-bg);
+  background: var(--inputField-clearBackground-primary-default);
   border-radius: 50%;
   padding: 6px;
 }
