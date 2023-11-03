@@ -693,7 +693,9 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     );
     const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
-    const updatesCurrentAsOf = useSelector(updatesCurrentAsOfSelector);
+    const updatesCurrentAsOf = useSelector(
+      updatesCurrentAsOfSelector(ashoatKeyserverID),
+    );
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
     const loggedIn = useSelector(isLoggedIn);
     const navigateToThread = useNavigateToThread();
