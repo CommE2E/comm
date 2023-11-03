@@ -489,7 +489,25 @@ impl IdentityClientService for ClientService {
         id
       }
       None => {
-        // User doesn't exist yet, so we should add a new user in DDB
+        // It's possible that the user attempting login is already registered
+        // on Ashoat's keyserver. If they are, we should send back a gRPC status
+        // code instructing them to get a signed message from Ashoat's keyserver
+        // in order to claim their wallet address and register with the Identity
+        // service.
+        let username_in_reserved_usernames_table = self
+          .client
+          .username_in_reserved_usernames_table(&wallet_address)
+          .await
+          .map_err(handle_db_error)?;
+
+        if username_in_reserved_usernames_table {
+          return Err(tonic::Status::failed_precondition(
+            "need keyserver message to claim username",
+          ));
+        }
+
+        // User doesn't exist yet and wallet address isn't reserved, so we
+        // should add a new user in DDB
         self
           .client
           .add_wallet_user_to_users_table(
