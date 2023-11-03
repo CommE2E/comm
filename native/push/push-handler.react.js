@@ -691,7 +691,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const notifPermissionAlertInfo = useSelector(
       state => state.notifPermissionAlertInfo,
     );
-    const connection = useSelector(connectionSelector);
+    const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const updatesCurrentAsOf = useSelector(updatesCurrentAsOfSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
