@@ -884,34 +884,16 @@ const migrations = {
 // this transformation should be executed in the `whitelist` property of the
 // `config` object that's passed to `createTransform(...)`.
 // eslint-disable-next-line no-unused-vars
-type PersistedThreadMessageInfo = {
-  +startReached: boolean,
-};
 type PersistedMessageStore = {
   +local: { +[id: string]: LocalMessageInfo },
   +currentAsOf: { +[keyserverID: string]: number },
-  +threads: { +[threadID: string]: PersistedThreadMessageInfo },
 };
-
 const messageStoreMessagesBlocklistTransform: Transform = createTransform(
   (state: MessageStore): PersistedMessageStore => {
     const { messages, threads, ...messageStoreSansMessages } = state;
-    // We also do not want to persist `messageStore.threads[ID].messageIDs`
-    // because they can be deterministically computed based on messages we have
-    // from SQLite
-    const threadsToPersist = {};
-    for (const threadID in threads) {
-      const { messageIDs, ...threadsData } = threads[threadID];
-      threadsToPersist[threadID] = threadsData;
-    }
-    return { ...messageStoreSansMessages, threads: threadsToPersist };
+    return { ...messageStoreSansMessages };
   },
   (state: MessageStore): MessageStore => {
-    const { threads: persistedThreads, ...messageStore } = state;
-    const threads = {};
-    for (const threadID in persistedThreads) {
-      threads[threadID] = { ...persistedThreads[threadID], messageIDs: [] };
-    }
     // We typically expect `messageStore.messages` to be `undefined` because
     // messages are persisted in the SQLite `messages` table rather than via
     // `redux-persist`. In this case we want to set `messageStore.messages`
@@ -928,7 +910,11 @@ const messageStoreMessagesBlocklistTransform: Transform = createTransform(
     // `messageStore` before migrations are run, we need to make sure we aren't
     // inadvertently clearing `messageStore.messages` (by setting to {}) before
     // messages are stored in SQLite (https://linear.app/comm/issue/ENG-2377).
-    return { ...messageStore, threads, messages: messageStore.messages ?? {} };
+    return {
+      ...state,
+      threads: state.threads ?? {},
+      messages: state.messages ?? {},
+    };
   },
   { whitelist: ['messageStore'] },
 );
