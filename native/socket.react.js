@@ -55,7 +55,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       state => isLoggedIn(state) && state.lifecycleState !== 'background',
     );
     const noDataAfterPolicyAcknowledgment = useSelector(
-      noDataAfterPolicyAcknowledgmentSelector,
+      noDataAfterPolicyAcknowledgmentSelector(ashoatKeyserverID),
     );
     const currentUserInfo = useSelector(state => state.currentUserInfo);
 
@@ -75,7 +75,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       }),
     );
     const sessionStateFunc = useSelector(state =>
-      nativeSessionStateFuncSelector({
+      nativeSessionStateFuncSelector(ashoatKeyserverID)({
         redux: state,
         navContext,
       }),
