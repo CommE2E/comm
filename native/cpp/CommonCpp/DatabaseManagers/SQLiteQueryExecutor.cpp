@@ -456,6 +456,15 @@ bool recreate_message_store_threads_table(sqlite3 *db) {
   return true;
 }
 
+bool create_users_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS users ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 user_info TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "users");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -532,6 +541,11 @@ bool create_schema(sqlite3 *db) {
       "CREATE TABLE IF NOT EXISTS persist_storage ("
       "  key TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  item TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS users ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 user_info TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -774,7 +788,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {28, {create_message_store_threads_table, true}},
      {29, {create_reports_table, true}},
      {30, {create_persist_storage_table, true}},
-     {31, {recreate_message_store_threads_table, true}}}};
+     {31, {recreate_message_store_threads_table, true}},
+     {32, {create_users_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
