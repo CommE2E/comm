@@ -48,7 +48,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const cookie = useSelector(cookieSelector);
     const urlPrefix = useSelector(urlPrefixSelector);
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
-    const connection = useSelector(connectionSelector);
+    const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const frozen = useSelector(state => state.frozen);
     const active = useSelector(

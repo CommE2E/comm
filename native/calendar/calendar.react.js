@@ -47,6 +47,7 @@ import {
   dateFromString,
 } from 'lib/utils/date-utils.js';
 import sleep from 'lib/utils/sleep.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import CalendarInputBar from './calendar-input-bar.react.js';
 import {
@@ -1068,7 +1069,7 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const calendarFilters = useSelector(state => state.calendarFilters);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const loadingStatus = useSelector(loadingStatusSelector);
-    const connection = useSelector(connectionSelector);
+    const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const connectionStatus = connection.status;
     const colors = useColors();
