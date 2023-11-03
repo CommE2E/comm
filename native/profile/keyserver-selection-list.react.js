@@ -6,71 +6,24 @@ import { Text, View, FlatList } from 'react-native';
 import { selectedKeyserversSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { SelectedKeyserverInfo } from 'lib/types/keyserver-types.js';
 
-import CommIcon from '../components/comm-icon.react.js';
-import Pill from '../components/pill.react.js';
+import KeyserverSelectionListItem from './keyserver-selection-list-item.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useStyles, useColors } from '../themes/colors.js';
+import { useStyles } from '../themes/colors.js';
 
 function keyExtractor(item: SelectedKeyserverInfo) {
   return `${item.keyserverAdminUsername}${item.keyserverInfo.urlPrefix}`;
 }
 
+function renderKeyserverListItem({ item }) {
+  return <KeyserverSelectionListItem {...item} />;
+}
+
 // eslint-disable-next-line no-unused-vars
 function KeyserverSelectionList(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
-  const colors = useColors();
 
   const selectedKeyserverInfos: $ReadOnlyArray<SelectedKeyserverInfo> =
     useSelector(selectedKeyserversSelector);
-
-  const cloudIcon = React.useMemo(
-    () => (
-      <CommIcon
-        name="cloud-filled"
-        size={12}
-        color={colors.panelForegroundLabel}
-      />
-    ),
-    [colors.panelForegroundLabel],
-  );
-
-  const renderKeyserverListItem = React.useCallback(
-    ({ item }) => {
-      const { keyserverAdminUsername, keyserverInfo } = item;
-
-      const isConnected = keyserverInfo.connection.status === 'connected';
-
-      const connectionIndicatorOuterStyle = isConnected
-        ? styles.onlineIndicatorOuter
-        : styles.offlineIndicatorOuter;
-
-      const connectionIndicatorInnerStyle = isConnected
-        ? styles.onlineIndicatorInner
-        : styles.offlineIndicatorInner;
-
-      return (
-        <View style={styles.keyserverListItemContainer}>
-          <Pill
-            label={keyserverAdminUsername}
-            backgroundColor={colors.codeBackground}
-            icon={cloudIcon}
-          />
-          <View style={connectionIndicatorOuterStyle}>
-            <View style={connectionIndicatorInnerStyle} />
-          </View>
-        </View>
-      );
-    },
-    [
-      cloudIcon,
-      colors.codeBackground,
-      styles.keyserverListItemContainer,
-      styles.offlineIndicatorInner,
-      styles.offlineIndicatorOuter,
-      styles.onlineIndicatorInner,
-      styles.onlineIndicatorOuter,
-    ],
-  );
 
   const keyserverListSeparatorComponent = React.useCallback(
     () => <View style={styles.separator} />,
@@ -92,7 +45,6 @@ function KeyserverSelectionList(props: { ... }): React.Node {
     ),
     [
       keyserverListSeparatorComponent,
-      renderKeyserverListItem,
       selectedKeyserverInfos,
       styles.container,
       styles.header,
