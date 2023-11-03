@@ -32,7 +32,7 @@ import { decompressMessage } from './utils/decompress.js';
 const WebSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function WebSocket(props) {
     const cookie = useSelector(cookieSelector);
-    const urlPrefix = useSelector(urlPrefixSelector);
+    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
     const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
@@ -43,7 +43,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         state.lifecycleState !== 'background',
     );
 
-    const openSocket = useSelector(openSocketSelector);
+    const openSocket = useSelector(openSocketSelector(ashoatKeyserverID));
     invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(sessionIdentificationSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
