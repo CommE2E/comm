@@ -810,7 +810,7 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
     );
     const persistedStateLoaded = usePersistedStateLoaded();
     const cookie = useSelector(cookieSelector);
-    const urlPrefix = useSelector(urlPrefixSelector);
+    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
     invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const loggedIn = useSelector(isLoggedIn);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
