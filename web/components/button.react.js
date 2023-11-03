@@ -14,7 +14,7 @@ export type ButtonColor = {
 
 export const buttonThemes: { [string]: ButtonColor } = {
   standard: {
-    backgroundColor: 'var(--btn-bg-filled)',
+    backgroundColor: 'var(--button-background-primary-default)',
   },
   danger: {
     backgroundColor: 'var(--btn-bg-danger)',
