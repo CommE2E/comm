@@ -1,6 +1,7 @@
 // @flow
 
 import olm from '@commapp/olm';
+import _memoize from 'lodash/memoize.js';
 import { createSelector } from 'reselect';
 
 import {
@@ -32,13 +33,19 @@ import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 import { initOlm } from '../olm/olm-utils.js';
 import type { AppState } from '../redux/redux-setup.js';
 
-const openSocketSelector: (state: AppState) => ?() => WebSocket =
-  createSelector(urlPrefixSelector, (urlPrefix: ?string) => {
+const baseOpenSocketSelector: (
+  keyserverID: string,
+) => (state: AppState) => ?() => WebSocket = keyserverID =>
+  createSelector(urlPrefixSelector(keyserverID), (urlPrefix: ?string) => {
     if (!urlPrefix) {
       return null;
     }
     return createOpenSocketFunction(urlPrefix);
   });
+
+const openSocketSelector: (
+  keyserverID: string,
+) => (state: AppState) => ?() => WebSocket = _memoize(baseOpenSocketSelector);
 
 const sessionIdentificationSelector: (
   state: AppState,

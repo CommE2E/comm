@@ -1,5 +1,6 @@
 // @flow
 
+import _memoize from 'lodash/memoize.js';
 import { createSelector } from 'reselect';
 
 import {
@@ -27,9 +28,11 @@ import { calendarActiveSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
 
-const openSocketSelector: (state: AppState) => ?() => WebSocket =
+const baseOpenSocketSelector: (
+  keyserverID: string,
+) => (state: AppState) => ?() => WebSocket = keyserverID =>
   createSelector(
-    urlPrefixSelector,
+    urlPrefixSelector(keyserverID),
     // We don't actually use the cookie in the socket open function,
     // but we do use it in the initial message, and when the cookie changes
     // the socket needs to be reopened. By including the cookie here,
@@ -43,6 +46,10 @@ const openSocketSelector: (state: AppState) => ?() => WebSocket =
       return createOpenSocketFunction(urlPrefix);
     },
   );
+
+const openSocketSelector: (
+  keyserverID: string,
+) => (state: AppState) => ?() => WebSocket = _memoize(baseOpenSocketSelector);
 
 const sessionIdentificationSelector: (
   state: AppState,
