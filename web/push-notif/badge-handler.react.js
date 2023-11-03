@@ -4,13 +4,14 @@ import * as React from 'react';
 
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import electron from '../electron.js';
 import { useSelector } from '../redux/redux-utils.js';
 import getTitle from '../title/getTitle.js';
 
 function useBadgeHandler() {
-  const connection = useSelector(connectionSelector);
+  const connection = useSelector(connectionSelector(ashoatKeyserverID));
   const prevConnection = React.useRef();
 
   const boundUnreadCount = useSelector(unreadCount);
