@@ -58,6 +58,7 @@ import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type { EntryInfoWithHeight } from './calendar.react.js';
 import LoadingIndicator from './loading-indicator.react.js';
@@ -783,7 +784,7 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         navContext,
       }),
     );
-    const connection = useSelector(connectionSelector);
+    const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
     const styles = useStyles(unboundStyles);
