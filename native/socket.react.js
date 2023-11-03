@@ -46,7 +46,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const navContext = React.useContext(NavContext);
 
     const cookie = useSelector(cookieSelector);
-    const urlPrefix = useSelector(urlPrefixSelector);
+    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
     const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
@@ -59,7 +59,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     );
     const currentUserInfo = useSelector(state => state.currentUserInfo);
 
-    const openSocket = useSelector(openSocketSelector);
+    const openSocket = useSelector(openSocketSelector(ashoatKeyserverID));
     invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(sessionIdentificationSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
