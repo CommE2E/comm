@@ -46,6 +46,7 @@ import {
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import css from './calendar.css';
 import LoadingIndicator from '../loading-indicator.react.js';
@@ -472,7 +473,7 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const connection = useSelector(connectionSelector);
+    const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
     const callCreateEntry = useCreateEntry();

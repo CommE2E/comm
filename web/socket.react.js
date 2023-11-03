@@ -34,7 +34,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const cookie = useSelector(cookieSelector);
     const urlPrefix = useSelector(urlPrefixSelector);
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
-    const connection = useSelector(connectionSelector);
+    const connection = useSelector(connectionSelector(ashoatKeyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const active = useSelector(
       state =>
