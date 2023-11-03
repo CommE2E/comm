@@ -126,9 +126,11 @@ const webGetClientResponsesSelector: (
       ),
 );
 
-const webSessionStateFuncSelector: (state: AppState) => () => SessionState =
+const baseWebSessionStateFuncSelector: (
+  keyserverID: string,
+) => (state: AppState) => () => SessionState = keyserverID =>
   createSelector(
-    sessionStateFuncSelector,
+    sessionStateFuncSelector(keyserverID),
     (state: AppState) => state.navInfo.tab === 'calendar',
     (
         sessionStateFunc: (calendarActive: boolean) => SessionState,
@@ -137,6 +139,12 @@ const webSessionStateFuncSelector: (state: AppState) => () => SessionState =
       () =>
         sessionStateFunc(calendarActive),
   );
+
+const webSessionStateFuncSelector: (
+  keyserverID: string,
+) => (state: AppState) => () => SessionState = _memoize(
+  baseWebSessionStateFuncSelector,
+);
 
 export {
   openSocketSelector,
