@@ -1,5 +1,5 @@
-// flow-typed signature: b7d2ab903e09911c82af9bd300893dc7
-// flow-typed version: 56d59f6e77/express_v4.17.x/flow_>=v0.104.x
+// flow-typed signature: e325fc5832ca944b2b2735ebbebbab61
+// flow-typed version: 4cce735749/express_v4.17.x/flow_>=v0.104.x
 
 declare type express$RouterOptions = {
   caseSensitive?: boolean,
@@ -66,6 +66,7 @@ declare class express$Request extends http$IncomingMessage mixins express$Reques
   path: string;
   protocol: "https" | "http";
   query: { [name: string]: string | Array<string>, ... };
+  res?: express$Response;
   route: string;
   secure: boolean;
   signedCookies: { [signedCookie: string]: string, ... };
@@ -134,6 +135,10 @@ declare class express$Response extends http$ServerResponse mixins express$Reques
   render(
     view: string,
     locals?: { [name: string]: mixed, ... },
+    callback?: express$RenderCallback
+  ): this;
+  render(
+    view: string,
     callback?: express$RenderCallback
   ): this;
   send(body?: mixed): this;
