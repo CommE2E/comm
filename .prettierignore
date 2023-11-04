@@ -1,8 +1,6 @@
+flow-typed
 landing/dist
-landing/flow-typed
-lib/flow-typed
 web/dist
-web/flow-typed
 keyserver/app_compiled
 keyserver/landing_compiled
 keyserver/dist
@@ -10,10 +8,8 @@ keyserver/secrets
 keyserver/facts
 keyserver/images
 keyserver/fonts
-keyserver/flow-typed
 keyserver/src/landing
 keyserver/src/lib
 keyserver/src/web
 native/android
-native/flow-typed
 native/ios
