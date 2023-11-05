@@ -1,6 +1,7 @@
 // @flow
 
 import express from 'express';
+import type { $Request, $Response } from 'express';
 import hazel from 'hazel-server';
 
 const hazelServer = hazel({
@@ -11,7 +12,7 @@ const hazelServer = hazel({
 });
 
 const app = express();
-app.all('*', (req, res) => {
+app.all('*', (req: $Request, res: $Response) => {
   hazelServer(req, res);
 });
 
