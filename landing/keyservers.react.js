@@ -51,7 +51,7 @@ function Keyservers(): React.Node {
     });
   }, []);
 
-  const [eyeNode, setEyeNode] = React.useState(null);
+  const [eyeNode, setEyeNode] = React.useState<?HTMLElement>(null);
   useIsomorphicLayoutEffect(() => {
     if (!eyeNode) {
       return undefined;
@@ -60,7 +60,7 @@ function Keyservers(): React.Node {
     return () => eyeNode.removeEventListener('load', onEyeIllustrationLoad);
   }, [eyeNode, onEyeIllustrationLoad]);
 
-  const [cloudNode, setCloudNode] = React.useState(null);
+  const [cloudNode, setCloudNode] = React.useState<?HTMLElement>(null);
   useIsomorphicLayoutEffect(() => {
     if (!cloudNode) {
       return undefined;
