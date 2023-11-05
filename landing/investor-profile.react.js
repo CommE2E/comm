@@ -49,7 +49,10 @@ function InvestorProfile(props: Props): React.Node {
     css.involvement,
   ]);
 
-  const stopPropagation = React.useCallback(e => e.stopPropagation(), []);
+  const stopPropagation = React.useCallback(
+    (e: SyntheticEvent<HTMLAnchorElement>) => e.stopPropagation(),
+    [],
+  );
 
   let websiteIcon;
   if (website) {
