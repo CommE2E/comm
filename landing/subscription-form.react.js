@@ -1,6 +1,7 @@
 // @flow
 
 import classNames from 'classnames';
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { validEmailRegex } from 'lib/shared/account-utils.js';
@@ -83,9 +84,14 @@ function SubscriptionForm(): React.Node {
   const buttonClassName = classNames([typography.paragraph2, btnStyle]);
   const errorTextClassName = classNames([typography.paragraph2, css.errorText]);
 
-  const onEmailChange = React.useCallback(e => {
-    setEmail(e.target.value);
-  }, []);
+  const onEmailChange = React.useCallback(
+    (e: SyntheticEvent<HTMLInputElement>) => {
+      const { target } = e;
+      invariant(target instanceof HTMLInputElement, 'target not input');
+      setEmail(target.value);
+    },
+    [],
+  );
 
   let errorText;
   if (subscriptionFormStatus.status === 'error') {
