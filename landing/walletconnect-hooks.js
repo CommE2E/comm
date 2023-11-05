@@ -11,38 +11,42 @@ const walletConnectCSSOverride = `
   }
 `;
 
-type WalletConnectModalUpdate =
+export type WalletConnectModalUpdate =
   | { +state: 'closed' }
   | { +state: 'open', +height: number };
 function useMonitorForWalletConnectModal(
   callback: WalletConnectModalUpdate => mixed,
 ) {
-  const [wcShadowRoot, setWCShadowRoot] = React.useState();
-  const [wcResizableContainer, setWCResizableContainer] = React.useState();
+  const [wcShadowRoot, setWCShadowRoot] = React.useState<?ShadowRoot>();
+  const [wcResizableContainer, setWCResizableContainer] =
+    React.useState<?HTMLElement>();
 
-  const newShadowRootAppeared = React.useCallback(mutationList => {
-    for (const mutation of mutationList) {
-      for (const addedNode of mutation.addedNodes) {
-        if (
-          addedNode instanceof HTMLElement &&
-          addedNode.localName === 'wcm-modal' &&
-          addedNode.shadowRoot
-        ) {
-          const { shadowRoot } = addedNode;
-          // We actually are looking to track an element inside w3m-modal,
-          // rather than w3m-modal itself. Normally we could pass subtree: true
-          // to observer.observe, but this doesn't appear to work with a "shadow
-          // root", so instead we implement a second-layer MutationObserver once
-          // we see the shadow root.
-          setWCShadowRoot(shadowRoot);
-          // We want to customize the style of the WalletConnect modal
-          const styleOverride = document.createElement('style');
-          styleOverride.textContent = walletConnectCSSOverride;
-          shadowRoot.appendChild(styleOverride);
+  const newShadowRootAppeared = React.useCallback(
+    (mutationList: MutationRecord[]) => {
+      for (const mutation of mutationList) {
+        for (const addedNode of mutation.addedNodes) {
+          if (
+            addedNode instanceof HTMLElement &&
+            addedNode.localName === 'wcm-modal' &&
+            addedNode.shadowRoot
+          ) {
+            const { shadowRoot } = addedNode;
+            // We actually are looking to track an element inside w3m-modal,
+            // rather than w3m-modal itself. Normally we could pass subtree:
+            // true to observer.observe, but this doesn't appear to work with a
+            // "shadow root", so instead we implement a second-layer
+            // MutationObserver once we see the shadow root.
+            setWCShadowRoot(shadowRoot);
+            // We want to customize the style of the WalletConnect modal
+            const styleOverride = document.createElement('style');
+            styleOverride.textContent = walletConnectCSSOverride;
+            shadowRoot.appendChild(styleOverride);
+          }
         }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   React.useEffect(() => {
     const observer = new MutationObserver(newShadowRootAppeared);
@@ -53,34 +57,37 @@ function useMonitorForWalletConnectModal(
     };
   }, [newShadowRootAppeared]);
 
-  const newModalAppeared = React.useCallback(mutationList => {
-    // We pass subtree: true to the MutationObserver that calls this function.
-    // This means we monitor for changes all through the subtree, but if a child
-    // subtree is added, we only get the root of the subtree in addedNodes. As
-    // such we need to recursively scan the subtree to try and find the node
-    // that we're looking for.
-    const nodesToInspect = new Set();
-    const addNodesToInspect = node => {
-      nodesToInspect.add(node);
-      for (const childNode of node.childNodes) {
-        addNodesToInspect(childNode);
+  const newModalAppeared = React.useCallback(
+    (mutationList: MutationRecord[]) => {
+      // We pass subtree: true to the MutationObserver that calls this function.
+      // This means we monitor for changes all through the subtree, but if a
+      // child subtree is added, we only get the root of the subtree in
+      // addedNodes. As such we need to recursively scan the subtree to try and
+      // find the node that we're looking for.
+      const nodesToInspect = new Set<Node>();
+      const addNodesToInspect = (node: Node) => {
+        nodesToInspect.add(node);
+        for (const childNode of node.childNodes) {
+          addNodesToInspect(childNode);
+        }
+      };
+      for (const mutation of mutationList) {
+        for (const addedNode of mutation.addedNodes) {
+          addNodesToInspect(addedNode);
+        }
       }
-    };
-    for (const mutation of mutationList) {
-      for (const addedNode of mutation.addedNodes) {
-        addNodesToInspect(addedNode);
+      for (const node of nodesToInspect) {
+        if (
+          node instanceof HTMLElement &&
+          node.localName === 'div' &&
+          node.className === 'wcm-container'
+        ) {
+          setWCResizableContainer(node);
+        }
       }
-    }
-    for (const node of nodesToInspect) {
-      if (
-        node instanceof HTMLElement &&
-        node.localName === 'div' &&
-        node.className === 'wcm-container'
-      ) {
-        setWCResizableContainer(node);
-      }
-    }
-  }, []);
+    },
+    [],
+  );
 
   React.useEffect(() => {
     if (!wcShadowRoot) {
