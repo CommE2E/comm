@@ -10,6 +10,7 @@ import {
   autoUpdater,
   // eslint-disable-next-line import/extensions
 } from 'electron/main';
+import type { Event, MenuItemConstructorOptions } from 'electron';
 import contextMenu from 'electron-context-menu';
 import fs from 'fs';
 import path from 'path';
@@ -32,7 +33,7 @@ const scrollbarCSS = fs.promises.readFile(
 
 let mainWindow = null;
 const setApplicationMenu = () => {
-  let mainMenu = [];
+  let mainMenu: MenuItemConstructorOptions[] = [];
   if (isMac) {
     mainMenu = [
       {
@@ -157,7 +158,11 @@ const createMainWindow = (urlPath?: string) => {
   };
   ipcMain.on('double-click-top-bar', doubleClickTopBar);
 
-  const updateDownloaded = (event, releaseNotes, releaseName) => {
+  const updateDownloaded = (
+    event: Event,
+    releaseNotes?: string,
+    releaseName: string,
+  ) => {
     win.webContents.send('on-new-version-available', releaseName);
   };
   autoUpdater.on('update-downloaded', updateDownloaded);
