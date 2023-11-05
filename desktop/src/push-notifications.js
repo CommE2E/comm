@@ -1,5 +1,9 @@
 // @flow
 
+import type {
+  PushNotificationManager as PushNotificationManagerType,
+  PushNotificationReceivedEventArgs,
+} from '@commapp/windowspush';
 // eslint-disable-next-line import/extensions
 import { app, pushNotifications, Notification } from 'electron/main';
 import EventEmitter from 'events';
@@ -20,7 +24,10 @@ if (process.platform === 'win32' && app.isPackaged && isNormalStartup()) {
 
       windowsPushNotificationManager = PushNotificationManager.default;
 
-      const handleEvent = (manager, event) => {
+      const handleEvent = (
+        manager: PushNotificationManagerType,
+        event: PushNotificationReceivedEventArgs,
+      ) => {
         const byteArray = [];
         for (let i = 0; i < event.payload.length; i++) {
           byteArray.push(event.payload[i]);
@@ -62,7 +69,7 @@ async function registerForNotifications(): Promise<?string> {
     }
   } else if (process.platform === 'win32' && windowsPushNotificationManager) {
     try {
-      const token = await new Promise((resolvePromise, reject) => {
+      const token = await new Promise<string>((resolvePromise, reject) => {
         windowsPushNotificationManager.createChannelAsync(
           'f09f4211-a998-40c1-a515-689e3faecb62',
           (error, result) => {
