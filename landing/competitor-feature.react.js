@@ -13,8 +13,8 @@ import typography from './typography.css';
 
 function useDescriptionContent(
   description: string | $ReadOnlyArray<string>,
-  descriptionClassName,
-  descriptionMultiClassName,
+  descriptionClassName: string,
+  descriptionMultiClassName: string,
 ) {
   return React.useMemo(() => {
     if (typeof description === 'string') {
