@@ -3,15 +3,15 @@
 // eslint-disable-next-line import/extensions
 import { app, ipcMain, autoUpdater } from 'electron/main';
 
-const getUpdateUrl = version =>
+const getUpdateURL = (version: string) =>
   `https://electron-update.commtechnologies.org/update/${process.platform}/${version}`;
 
 export function initAutoUpdate(): void {
-  autoUpdater.setFeedURL({ url: getUpdateUrl(app.getVersion()) });
+  autoUpdater.setFeedURL({ url: getUpdateURL(app.getVersion()) });
 
   // Check for new updates every 10 minutes
   const updateIntervalMs = 10 * 60_000;
-  let currentTimeout = null;
+  let currentTimeout: ?TimeoutID = null;
   const scheduleCheckForUpdates = () => {
     if (!currentTimeout) {
       currentTimeout = setTimeout(() => {

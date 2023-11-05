@@ -16,7 +16,7 @@ export function handleSquirrelEvent(): boolean {
   const updateExe = path.resolve(process.execPath, '..', '..', 'Update.exe');
   const commExeName = path.basename(process.execPath);
 
-  const spawnUpdate = args => {
+  const spawnUpdate = (args: string[]) => {
     return spawn(updateExe, args, { detached: true }).on('close', app.quit);
   };
 
