@@ -27,15 +27,22 @@ import {
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
-import { useMonitorForWalletConnectModal } from './walletconnect-hooks.js';
+import {
+  useMonitorForWalletConnectModal,
+  type WalletConnectModalUpdate,
+} from './walletconnect-hooks.js';
 
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
 }
 
+type Signer = {
+  +signMessage: ({ +message: string, ... }) => Promise<string>,
+  ...
+};
 async function signInWithEthereum(
   address: string,
-  signer,
+  signer: Signer,
   nonce: string,
   statement: string,
 ) {
@@ -79,7 +86,7 @@ function SIWE(): React.Node {
 
   const prevConnectModalOpen = React.useRef(false);
   const modalState = useModalState();
-  const closeTimeoutRef = React.useRef();
+  const closeTimeoutRef = React.useRef<?TimeoutID>();
   const { connectModalOpen } = modalState;
   React.useEffect(() => {
     if (
@@ -99,21 +106,24 @@ function SIWE(): React.Node {
     prevConnectModalOpen.current = connectModalOpen;
   }, [connectModalOpen, wcModalOpen, signer]);
 
-  const onWalletConnectModalUpdate = React.useCallback(update => {
-    if (update.state === 'closed') {
-      setWCModalOpen(false);
-      postMessageToNativeWebView({
-        type: 'walletconnect_modal_update',
-        ...update,
-      });
-    } else {
-      setWCModalOpen(true);
-      postMessageToNativeWebView({
-        type: 'walletconnect_modal_update',
-        ...update,
-      });
-    }
-  }, []);
+  const onWalletConnectModalUpdate = React.useCallback(
+    (update: WalletConnectModalUpdate) => {
+      if (update.state === 'closed') {
+        setWCModalOpen(false);
+        postMessageToNativeWebView({
+          type: 'walletconnect_modal_update',
+          ...update,
+        });
+      } else {
+        setWCModalOpen(true);
+        postMessageToNativeWebView({
+          type: 'walletconnect_modal_update',
+          ...update,
+        });
+      }
+    },
+    [],
+  );
   useMonitorForWalletConnectModal(onWalletConnectModalUpdate);
 
   if (!hasNonce) {
