@@ -4,6 +4,8 @@
 // flow-typed version: <<STUB>>/hazel-server_v5.1.1/flow_v0.198.1
 
 declare module 'hazel-server' {
+  import type { $Response, $Request } from 'express';
+
   declare export default function hazel(options: {
     interval?: number,
     repository?: string,
@@ -11,5 +13,5 @@ declare module 'hazel-server' {
     pre?: boolean,
     token?: string,
     url?: string,
-  }): (Request, Response) => void;
+  }): ($Request, $Response) => void;
 }

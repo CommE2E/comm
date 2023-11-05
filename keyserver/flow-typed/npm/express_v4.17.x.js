@@ -357,7 +357,10 @@ declare module "express" {
 
   declare module.exports: {
     // If you try to call like a function, it will use this signature
-    <Req: express$Request, Res: express$Response>(): express$Application<Req, Res>,
+    <
+      Req: express$Request = express$Request,
+      Res: express$Response = express$Response,
+    >(): express$Application<Req, Res>,
     json: (opts: ?JsonOptions) => express$Middleware<>,
     // `static` property on the function
     static: <Req: express$Request, Res: express$Response>(root: string, options?: Object) => express$Middleware<Req, Res>,
