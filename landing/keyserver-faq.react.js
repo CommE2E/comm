@@ -15,7 +15,7 @@ function KeyserverFAQ(): React.Node {
     css.questionText,
   ]);
 
-  const [activeFAQIndex, setActiveFAQIndex] = React.useState(null);
+  const [activeFAQIndex, setActiveFAQIndex] = React.useState<?number>(null);
 
   const onClickFAQItem = React.useCallback(
     (index: number) => {
