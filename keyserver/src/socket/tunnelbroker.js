@@ -23,7 +23,7 @@ async function getTBConnectionInfo(): Promise<TBConnectionInfo> {
 
   console.warn('Defaulting to local Tunnelbroker instance');
   return {
-    url: 'ws://127.0.0.1:51001',
+    url: 'wss://tunnelbroker.staging.commtechnologies.org:51001',
   };
 }
 
