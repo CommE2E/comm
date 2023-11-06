@@ -121,11 +121,21 @@ class TunnelbrokerSocket {
     ) {
       for (const status: MessageSentStatus of message.clientMessageIDs) {
         if (status.type === 'Success') {
-          this.promises[status.data]?.resolve();
-          delete this.promises[status.data];
+          if (this.promises[status.data]) {
+            this.promises[status.data].resolve();
+            delete this.promises[status.data];
+          } else {
+            console.log(
+              'received successful response for a non-existent request',
+            );
+          }
         } else if (status.type === 'Error') {
-          this.promises[status.data.id]?.reject(status.data.error);
-          delete this.promises[status.data.id];
+          if (this.promises[status.data.id]) {
+            this.promises[status.data.id].reject(status.data.error);
+            delete this.promises[status.data.id];
+          } else {
+            console.log('received error response for a non-existent request');
+          }
         } else if (status.type === 'SerializationError') {
           console.error('SerializationError for message: ', status.data);
         } else if (status.type === 'InvalidRequest') {
