@@ -31,7 +31,7 @@ data "aws_ami" "al2_x86_ecs" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-ecs-hvm-2.0.20230705-x86_64-ebs"]
+    values = ["amzn2-ami-ecs-hvm-2.0.20231024-x86_64-ebs"]
   }
 }
 
