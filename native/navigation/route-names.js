@@ -41,6 +41,7 @@ import type { ImageModalParams } from '../media/image-modal.react.js';
 import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camera-modal.react.js';
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
+import type { KeyserverSelectionBottomSheetParams } from '../profile/keyserver-selection-bottom-sheet.react.js';
 import type { UserRelationshipTooltipModalParams } from '../profile/user-relationship-tooltip-modal.react.js';
 import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react.js';
 import type { CommunityRolesScreenParams } from '../roles/community-roles-screen.react.js';
@@ -141,6 +142,8 @@ export const UserProfileBottomSheetRouteName = 'UserProfileBottomSheet';
 export const UserProfileAvatarModalRouteName = 'UserProfileAvatarModal';
 export const KeyserverSelectionListRouteName = 'KeyserverSelectionList';
 export const AddKeyserverRouteName = 'AddKeyserver';
+export const KeyserverSelectionBottomSheetRouteName =
+  'KeyserverSelectionBottomSheet';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -162,6 +165,7 @@ export type RootParamList = {
   +RolesNavigator: void,
   +QRCodeSignInNavigator: void,
   +UserProfileBottomSheetNavigator: void,
+  +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
 };
 
 export type MessageTooltipRouteNames =
