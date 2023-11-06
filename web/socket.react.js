@@ -31,7 +31,7 @@ import { decompressMessage } from './utils/decompress.js';
 
 const WebSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function WebSocket(props) {
-    const cookie = useSelector(cookieSelector);
+    const cookie = useSelector(cookieSelector(ashoatKeyserverID));
     const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
     const connection = useSelector(connectionSelector(ashoatKeyserverID));

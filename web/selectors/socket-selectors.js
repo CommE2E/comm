@@ -51,7 +51,7 @@ const baseSessionIdentificationSelector: (
   keyserverID: string,
 ) => (state: AppState) => SessionIdentification = keyserverID =>
   createSelector(
-    cookieSelector,
+    cookieSelector(keyserverID),
     sessionIDSelector(keyserverID),
     (cookie: ?string, sessionID: ?string): SessionIdentification => ({
       cookie,

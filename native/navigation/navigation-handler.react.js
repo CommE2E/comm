@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
 import ModalPruner from './modal-pruner.react.js';
@@ -60,7 +61,7 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
 
   const hasCurrentUserInfo = useSelector(isLoggedIn);
 
-  const cookie = useSelector(cookieSelector);
+  const cookie = useSelector(cookieSelector(ashoatKeyserverID));
   const hasUserCookie = !!(cookie && cookie.startsWith('user='));
 
   const loggedIn = hasCurrentUserInfo && hasUserCookie;
