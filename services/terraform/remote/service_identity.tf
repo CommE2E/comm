@@ -8,9 +8,9 @@ locals {
   identity_sc_port_name                = "identity-service-ecs-grpc"
   identity_sc_dns_name                 = "identity-service"
 
-  # Endpoint name accessible by other services in the same Service Connect namespace
-  # This renders to e.g. 'identity-service:50054'
-  identity_local_endpoint = "${local.identity_sc_dns_name}:${local.identity_service_container_grpc_port}"
+  # URL accessible by other services in the same Service Connect namespace
+  # This renders to e.g. 'http://identity-service:50054'
+  identity_local_url = "http://${local.identity_sc_dns_name}:${local.identity_service_container_grpc_port}"
 
   # Port that is exposed to the public SSL endpoint (appended to domain name)
   identity_service_grpc_public_port = 50054
