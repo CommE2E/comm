@@ -45,7 +45,9 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
 
     const openSocket = useSelector(openSocketSelector(ashoatKeyserverID));
     invariant(openSocket, 'openSocket failed to be created');
-    const sessionIdentification = useSelector(sessionIdentificationSelector);
+    const sessionIdentification = useSelector(
+      sessionIdentificationSelector(ashoatKeyserverID),
+    );
     const preRequestUserState = useSelector(
       preRequestUserStateForSingleKeyserverSelector(ashoatKeyserverID),
     );
