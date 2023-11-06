@@ -809,7 +809,7 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       state => !!(state._persist && state._persist.rehydrated && navContext),
     );
     const persistedStateLoaded = usePersistedStateLoaded();
-    const cookie = useSelector(cookieSelector);
+    const cookie = useSelector(cookieSelector(ashoatKeyserverID));
     const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
     invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const loggedIn = useSelector(isLoggedIn);

@@ -38,7 +38,7 @@ const baseOpenSocketSelector: (
     // the socket needs to be reopened. By including the cookie here,
     // whenever the cookie changes this function will change,
     // which tells the Socket component to restart the connection.
-    cookieSelector,
+    cookieSelector(keyserverID),
     (urlPrefix: ?string) => {
       if (!urlPrefix) {
         return null;
@@ -51,11 +51,18 @@ const openSocketSelector: (
   keyserverID: string,
 ) => (state: AppState) => ?() => WebSocket = _memoize(baseOpenSocketSelector);
 
+const baseSessionIdentificationSelector: (
+  keyserverID: string,
+) => (state: AppState) => SessionIdentification = keyserverID =>
+  createSelector(
+    cookieSelector(keyserverID),
+    (cookie: ?string): SessionIdentification => ({ cookie }),
+  );
+
 const sessionIdentificationSelector: (
-  state: AppState,
-) => SessionIdentification = createSelector(
-  cookieSelector,
-  (cookie: ?string): SessionIdentification => ({ cookie }),
+  keyserverID: string,
+) => (state: AppState) => SessionIdentification = _memoize(
+  baseSessionIdentificationSelector,
 );
 
 function oneTimeKeyGenerator(inc: number): string {

@@ -47,7 +47,7 @@ function SQLiteDataHandler(): React.Node {
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated),
   );
-  const cookie = useSelector(cookieSelector);
+  const cookie = useSelector(cookieSelector(ashoatKeyserverID));
   const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
   invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
   const staffCanSee = useStaffCanSee();
