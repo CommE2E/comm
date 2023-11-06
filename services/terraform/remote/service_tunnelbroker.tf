@@ -75,6 +75,10 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
         {
           name  = "AMQP_PASSWORD"
           value = nonsensitive(local.rabbitmq_password)
+        },
+        {
+          name  = "COMM_TUNNELBROKER_IDENTITY_ENDPOINT",
+          value = local.identity_local_endpoint
         }
       ]
       logConfiguration = {
@@ -115,6 +119,10 @@ resource "aws_ecs_service" "tunnelbroker" {
   # We can freely specify replica count in AWS Console
   lifecycle {
     ignore_changes = [desired_count]
+  }
+
+  service_connect_configuration {
+    enabled = true
   }
 
   # Websocket
