@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
   urlPrefixSelector,
@@ -62,7 +62,9 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const openSocket = useSelector(openSocketSelector(ashoatKeyserverID));
     invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(sessionIdentificationSelector);
-    const preRequestUserState = useSelector(preRequestUserStateSelector);
+    const preRequestUserState = useSelector(
+      preRequestUserStateForSingleKeyserverSelector(ashoatKeyserverID),
+    );
 
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage();
