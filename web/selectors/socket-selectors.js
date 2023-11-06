@@ -47,15 +47,22 @@ const openSocketSelector: (
   keyserverID: string,
 ) => (state: AppState) => ?() => WebSocket = _memoize(baseOpenSocketSelector);
 
+const baseSessionIdentificationSelector: (
+  keyserverID: string,
+) => (state: AppState) => SessionIdentification = keyserverID =>
+  createSelector(
+    cookieSelector,
+    sessionIDSelector(keyserverID),
+    (cookie: ?string, sessionID: ?string): SessionIdentification => ({
+      cookie,
+      sessionID,
+    }),
+  );
+
 const sessionIdentificationSelector: (
-  state: AppState,
-) => SessionIdentification = createSelector(
-  cookieSelector,
-  sessionIDSelector,
-  (cookie: ?string, sessionID: ?string): SessionIdentification => ({
-    cookie,
-    sessionID,
-  }),
+  keyserverID: string,
+) => (state: AppState) => SessionIdentification = _memoize(
+  baseSessionIdentificationSelector,
 );
 
 const getSignedIdentityKeysBlobSelector: (
