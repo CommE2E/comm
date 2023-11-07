@@ -75,6 +75,9 @@ services:
       args:
         - generate_keypair=true
 
+  localstack:
+    environment:
+      - PERSISTENCE=0
   rabbitmq:
     healthcheck:
       test: rabbitmq-diagnostics -q ping

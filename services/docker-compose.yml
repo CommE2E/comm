@@ -92,10 +92,10 @@ services:
       - '4566:4566'
     environment:
       - SERVICES=s3,dynamodb
-      - DATA_DIR=/tmp/localstack
-      - HOSTNAME_EXTERNAL=localstack
+      - LOCALSTACK_HOST=localstack:4566
+      - PERSISTENCE=1
     volumes:
-      - localstack:/tmp/localstack
+      - localstack:/var/lib/localstack
   # RabbitMQ
   rabbitmq:
     # This version matches AWS MQ version (set in Terraform)
