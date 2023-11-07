@@ -3,7 +3,6 @@
 import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import {
   createEntryActionTypes,
@@ -47,6 +46,7 @@ import {
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import css from './calendar.css';

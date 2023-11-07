@@ -10,7 +10,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 import { ChevronsLeft } from 'react-feather';
-import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
 
 import {
@@ -30,6 +29,7 @@ import {
   setCalendarDeletedFilter,
 } from 'lib/types/filter-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './filter-panel.css';
 import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react.js';

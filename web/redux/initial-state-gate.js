@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
@@ -11,6 +10,7 @@ import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { RawThreadInfo } from 'lib/types/thread-types.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
