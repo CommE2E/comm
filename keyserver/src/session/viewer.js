@@ -158,7 +158,7 @@ class Viewer {
     }
   }
 
-  setDeviceToken(deviceToken: string) {
+  setDeviceToken(deviceToken: ?string) {
     if (this.data.loggedIn) {
       this.data = { ...this.data, deviceToken };
     } else {
