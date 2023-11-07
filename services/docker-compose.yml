@@ -91,7 +91,7 @@ services:
     ports:
       - '4566:4566'
     environment:
-      - SERVICES=s3,dynamodb
+      - SERVICES=s3,dynamodb,sts
       - DATA_DIR=/tmp/localstack
       - HOSTNAME_EXTERNAL=localstack
     volumes:
