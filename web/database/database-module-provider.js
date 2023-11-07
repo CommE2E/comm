@@ -29,49 +29,43 @@ const databaseStatuses = Object.freeze({
   initError: 'INIT_ERROR',
 });
 
-type DatabaseStatus = $Values<typeof databaseStatuses>;
+type DatabaseStatus =
+  | { type: 'NOT_RUNNING' | 'INIT_SUCCESS' | 'INIT_ERROR' }
+  | { type: 'INIT_IN_PROGRESS', initPromise: Promise<void> };
 
 type InitOptions = { +clearDatabase: boolean };
 
 class DatabaseModule {
   worker: ?SharedWorker;
   workerProxy: ?WorkerConnectionProxy;
-  initPromise: ?Promise<void>;
-  status: DatabaseStatus = databaseStatuses.notRunning;
+  status: DatabaseStatus = { type: databaseStatuses.notRunning };
 
   async init({ clearDatabase }: InitOptions): Promise<void> {
     if (!isSQLiteSupported()) {
       console.warn('SQLite is not supported');
-      this.status = databaseStatuses.initError;
+      this.status = { type: databaseStatuses.initError };
       return;
     }
 
-    if (clearDatabase && this.status === databaseStatuses.initSuccess) {
+    if (clearDatabase && this.status.type === databaseStatuses.initSuccess) {
       console.info('Clearing sensitive data');
       invariant(this.workerProxy, 'Worker proxy should exist');
       await this.workerProxy.scheduleOnWorker({
         type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
       });
-      this.status = databaseStatuses.notRunning;
+      this.status = { type: databaseStatuses.notRunning };
     }
 
-    if (this.status === databaseStatuses.initInProgress) {
-      await this.initPromise;
+    if (this.status.type === databaseStatuses.initInProgress) {
+      await this.status.initPromise;
       return;
     }
 
     if (
-      this.status === databaseStatuses.initSuccess ||
-      this.status === databaseStatuses.initError
+      this.status.type === databaseStatuses.initSuccess ||
+      this.status.type === databaseStatuses.initError
     ) {
       return;
-    }
-
-    this.status = databaseStatuses.initInProgress;
-
-    let encryptionKey = null;
-    if (isDesktopSafari) {
-      encryptionKey = await getSafariEncryptionKey();
     }
 
     this.worker = new SharedWorker(DATABASE_WORKER_PATH);
@@ -83,8 +77,12 @@ class DatabaseModule {
 
     const origin = window.location.origin;
 
-    this.initPromise = (async () => {
+    const initPromise = (async () => {
       try {
+        let encryptionKey = null;
+        if (isDesktopSafari) {
+          encryptionKey = await getSafariEncryptionKey();
+        }
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
@@ -92,36 +90,38 @@ class DatabaseModule {
           encryptionKey,
           commQueryExecutorFilename,
         });
-        this.status = databaseStatuses.initSuccess;
+        this.status = { type: databaseStatuses.initSuccess };
         console.info('Database initialization success');
       } catch (error) {
-        this.status = databaseStatuses.initError;
+        this.status = { type: databaseStatuses.initError };
         console.error(`Database initialization failure`, error);
       }
     })();
 
-    await this.initPromise;
+    this.status = { type: databaseStatuses.initInProgress, initPromise };
+
+    await initPromise;
   }
 
   async isDatabaseSupported(): Promise<boolean> {
-    if (this.status === databaseStatuses.initInProgress) {
-      await this.initPromise;
+    if (this.status.type === databaseStatuses.initInProgress) {
+      await this.status.initPromise;
     }
-    return this.status === databaseStatuses.initSuccess;
+    return this.status.type === databaseStatuses.initSuccess;
   }
 
   async schedule(
     payload: WorkerRequestMessage,
   ): Promise<?WorkerResponseMessage> {
-    if (this.status === databaseStatuses.notRunning) {
+    if (this.status.type === databaseStatuses.notRunning) {
       throw new Error('Database not running');
     }
 
-    if (this.status === databaseStatuses.initInProgress) {
-      await this.initPromise;
+    if (this.status.type === databaseStatuses.initInProgress) {
+      await this.status.initPromise;
     }
 
-    if (this.status === databaseStatuses.initError) {
+    if (this.status.type === databaseStatuses.initError) {
       throw new Error('Database could not be initialized');
     }
 
