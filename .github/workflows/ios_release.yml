@@ -41,6 +41,9 @@ jobs:
       - name: brew install protobuf
         run: brew install protobuf
 
+      - name: Fix node-gyp
+        run: python3 -m pip install packaging setuptools
+
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
