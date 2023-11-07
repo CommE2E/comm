@@ -41,6 +41,16 @@ function TunnelbrokerMenu(props: { ... }): React.Node {
     }
   }, [message, recipient, sendMessage]);
 
+  const messagesList = React.useMemo(
+    () =>
+      messages.map((msg, id) => (
+        <View key={`${id}-${msg.messageID}`} style={styles.section}>
+          <Text style={styles.submenuText}>{JSON.stringify(msg)}</Text>
+        </View>
+      )),
+    [messages, styles],
+  );
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollViewContentContainer}
@@ -85,11 +95,7 @@ function TunnelbrokerMenu(props: { ... }): React.Node {
       </View>
 
       <Text style={styles.header}>MESSAGES</Text>
-      {messages.map(msg => (
-        <View key={msg.messageID} style={styles.section}>
-          <Text style={styles.submenuText}>{JSON.stringify(msg)}</Text>
-        </View>
-      ))}
+      {messagesList}
     </ScrollView>
   );
 }
