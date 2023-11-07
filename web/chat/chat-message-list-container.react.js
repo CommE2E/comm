@@ -5,9 +5,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
-import { useDispatch } from 'react-redux';
 
 import { useWatchThread, threadIsPending } from 'lib/shared/thread-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import ChatInputBar from './chat-input-bar.react.js';
 import css from './chat-message-list-container.css';

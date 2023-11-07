@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { updateWindowActiveActionType } from './action-types.js';
 import { useSelector } from './redux-utils.js';

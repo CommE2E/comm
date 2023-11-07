@@ -1,10 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import NavigationPanel from './navigation-panel.react.js';
 import css from './topbar.css';
