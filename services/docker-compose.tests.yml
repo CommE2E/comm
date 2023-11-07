@@ -75,6 +75,11 @@ services:
       args:
         - generate_keypair=true
 
+  localstack:
+    image: localstack/localstack:2.3.2
+    environment:
+      - DATA_DIR=
+      - PERSISTENCE=0
   rabbitmq:
     healthcheck:
       test: rabbitmq-diagnostics -q ping
