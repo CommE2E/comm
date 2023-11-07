@@ -194,3 +194,25 @@ resource "aws_iam_role" "reports_service" {
     aws_iam_policy.manage_reports_ddb.arn
   ]
 }
+
+data "aws_iam_policy_document" "opensearch_domain_access" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "es:ESHttpHead",
+      "es:ESHttpPost",
+      "es:ESHttpGet",
+      "es:ESHttpDelete",
+      "es:ESHttpPut",
+    ]
+    resources = ["${module.shared.opensearch_domain_identity.arn}/*"]
+  }
+}
+
+resource "aws_iam_policy" "opensearch_domain_access" {
+  name        = "opensearch-domain-access"
+  path        = "/"
+  description = "IAM policy for accessing opensearch domain"
+  policy      = data.aws_iam_policy_document.opensearch_domain_access.json
+}
