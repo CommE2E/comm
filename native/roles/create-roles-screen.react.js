@@ -11,9 +11,9 @@ import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thr
 import {
   type UserSurfacedPermissionOption,
   type UserSurfacedPermission,
+  userSurfacedPermissionOptions,
 } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useFilterPermissionOptionsByThreadType } from 'lib/utils/role-utils.js';
 
 import CreateRolesHeaderRightButton from './create-roles-header-right-button.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
@@ -140,12 +140,9 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
     ],
   );
 
-  const filteredUserSurfacedPermissionOptions =
-    useFilterPermissionOptionsByThreadType(threadInfo.type);
-
   const permissionsList = React.useMemo(
     () =>
-      [...filteredUserSurfacedPermissionOptions].map(permission => (
+      [...userSurfacedPermissionOptions].map(permission => (
         <EnumSettingsOption
           key={permission.title}
           name={permission.title}
@@ -154,11 +151,7 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
           onEnumValuePress={() => onEnumValuePress(permission)}
         />
       )),
-    [
-      isUserSurfacedPermissionSelected,
-      filteredUserSurfacedPermissionOptions,
-      onEnumValuePress,
-    ],
+    [isUserSurfacedPermissionSelected, onEnumValuePress],
   );
 
   const onChangeRoleNameInput = React.useCallback((roleName: string) => {
