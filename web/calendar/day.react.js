@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import _some from 'lodash/fp/some.js';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import {
   createLocalEntry,
@@ -21,6 +20,7 @@ import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thr
 import type { Dispatch } from 'lib/types/redux-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { dateString, dateFromString } from 'lib/utils/date-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './calendar.css';
 import type { InnerEntry } from './entry.react.js';
