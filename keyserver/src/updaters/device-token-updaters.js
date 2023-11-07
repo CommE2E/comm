@@ -14,12 +14,15 @@ async function deviceTokenUpdater(
   if (deviceType === undefined) {
     throw new ServerError('invalid_parameters');
   }
+  const { deviceToken } = update;
 
-  viewer.setDeviceToken(update.deviceToken);
-  await clearDeviceToken(update.deviceToken);
+  viewer.setDeviceToken(deviceToken);
+  if (deviceToken) {
+    await clearDeviceToken(deviceToken);
+  }
 
   const setColumns = {};
-  setColumns.device_token = update.deviceToken;
+  setColumns.device_token = deviceToken;
   setColumns.platform = deviceType;
   if (update.platformDetails) {
     const { platform, ...versions } = update.platformDetails;
