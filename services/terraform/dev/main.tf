@@ -31,6 +31,7 @@ provider "aws" {
   dynamic "endpoints" {
     for_each = local.aws_settings.override_endpoint[*]
     content {
+      opensearch     = endpoints.value
       dynamodb       = endpoints.value
       s3             = endpoints.value
       secretsmanager = endpoints.value
@@ -44,4 +45,8 @@ provider "random" {}
 module "shared" {
   source = "../modules/shared"
   is_dev = true
+
+  vpc_id = null
+  cidr_block = null
+  subnet_ids = []
 }
