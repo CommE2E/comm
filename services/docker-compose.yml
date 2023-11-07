@@ -86,7 +86,7 @@ services:
       - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
   # localstack
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:2.3.2
     hostname: localstack
     ports:
       - '4566:4566'
