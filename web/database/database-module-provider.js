@@ -69,11 +69,6 @@ class DatabaseModule {
 
     this.status = databaseStatuses.initInProgress;
 
-    let encryptionKey = null;
-    if (isDesktopSafari) {
-      encryptionKey = await getSafariEncryptionKey();
-    }
-
     this.worker = new SharedWorker(DATABASE_WORKER_PATH);
     this.worker.onerror = console.error;
     this.workerProxy = new WorkerConnectionProxy(
@@ -85,6 +80,10 @@ class DatabaseModule {
 
     this.initPromise = (async () => {
       try {
+        let encryptionKey = null;
+        if (isDesktopSafari) {
+          encryptionKey = await getSafariEncryptionKey();
+        }
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
