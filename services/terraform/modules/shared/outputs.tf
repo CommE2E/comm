@@ -14,3 +14,10 @@ output "dynamodb_tables" {
     table.name => table
   }
 }
+<<<<<<< Updated upstream
+=======
+
+output "opensearch_domain_identity" {
+  value = aws_opensearch_domain.identity-search
+}
+>>>>>>> Stashed changes

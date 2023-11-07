@@ -194,3 +194,8 @@ resource "aws_iam_role" "reports_service" {
     aws_iam_policy.manage_reports_ddb.arn
   ]
 }
+
+resource "aws_opensearch_domain_policy" "identity-search" {
+  domain_name     = module.shared.opensearch_domain_identity.domain_name
+  access_policies = data.aws_iam_policy_document.identity-search.json
+}
