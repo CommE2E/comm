@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
@@ -18,6 +17,7 @@ import type {
 } from 'lib/types/message-types.js';
 import type { ThreadInfo, RawThreadInfo } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';

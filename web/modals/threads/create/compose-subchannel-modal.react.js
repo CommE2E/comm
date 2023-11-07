@@ -1,6 +1,6 @@
 // @flow
+
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import {
   useNewThread,
@@ -11,6 +11,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { trimText } from 'lib/utils/text-utils.js';
 
 import css from './compose-subchannel-modal.css';
@@ -19,6 +20,7 @@ import SubchannelSettings from './steps/subchannel-settings.react.js';
 import type { VisibilityType } from './steps/subchannel-settings.react.js';
 import Stepper from '../../../components/stepper.react.js';
 import { updateNavInfoActionType } from '../../../redux/action-types.js';
+import { useSelector } from '../../../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors.js';
 import Modal from '../../modal.react.js';
 
