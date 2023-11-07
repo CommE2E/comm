@@ -20,6 +20,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
       - name: Install Developer certificate
         env:
           MACOS_BUILD_CERTIFICATE_BASE64: ${{ secrets.MACOS_BUILD_CERTIFICATE_BASE64 }}
