@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -12,6 +11,7 @@ import {
   entityTextToReact,
   useENSNamesForEntityText,
 } from 'lib/utils/entity-text.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import InlineEngagement from './inline-engagement.react.js';
 import css from './robotext-message.css';

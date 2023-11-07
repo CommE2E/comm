@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import {
   verifyInviteLink,
@@ -13,6 +12,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import AcceptInviteModal from './accept-invite-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
