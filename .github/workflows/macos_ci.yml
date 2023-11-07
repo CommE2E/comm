@@ -20,6 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Fix node-gyp
+        run: python3 -m pip install packaging setuptools
+
       - name: Install Developer certificate
         env:
           MACOS_BUILD_CERTIFICATE_BASE64: ${{ secrets.MACOS_BUILD_CERTIFICATE_BASE64 }}
