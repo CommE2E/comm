@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
@@ -11,6 +10,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import MembersList from './subchannel-members-list.react.js';
 import css from './subchannel-members.css';
 import Search from '../../../../components/search.react.js';
+import { useSelector } from '../../../../redux/redux-utils.js';
 
 type SubchannelMembersProps = {
   +parentThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,

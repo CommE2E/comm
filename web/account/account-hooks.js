@@ -4,7 +4,6 @@ import olm from '@commapp/olm';
 import invariant from 'invariant';
 import localforage from 'localforage';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
 
 import {
@@ -22,6 +21,7 @@ import type {
   NotificationsOlmDataType,
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import {
   generateCryptoKey,

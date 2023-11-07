@@ -4,7 +4,6 @@ import '@rainbow-me/rainbowkit/styles.css';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import { useAccount, useWalletClient } from 'wagmi';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
@@ -25,6 +24,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   createSIWEMessage,
   getSIWEStatementForPublicKey,

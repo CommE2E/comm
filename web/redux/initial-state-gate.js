@@ -1,11 +1,11 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

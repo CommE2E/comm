@@ -8,7 +8,6 @@ import _partition from 'lodash/fp/partition.js';
 import _sortBy from 'lodash/fp/sortBy.js';
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import {
@@ -95,6 +94,7 @@ import {
 } from 'lib/utils/blob-service.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { generateReportID } from 'lib/utils/report-utils.js';
 
 import {
