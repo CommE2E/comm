@@ -5,7 +5,6 @@ import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classnames from 'classnames';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
@@ -13,6 +12,7 @@ import {
   enableAppActionType,
 } from 'lib/reducers/enabled-apps-reducer.js';
 import type { SupportedApps } from 'lib/types/enabled-apps.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './apps.css';
 import Button from '../../components/button.react.js';

@@ -8,7 +8,6 @@ import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useDispatch } from 'react-redux';
 import { WagmiConfig } from 'wagmi';
 
 import {
@@ -30,6 +29,7 @@ import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { registerConfig } from 'lib/utils/config.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { AlchemyENSCacheProvider, wagmiConfig } from 'lib/utils/wagmi-utils.js';
 

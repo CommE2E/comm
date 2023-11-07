@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
@@ -23,6 +22,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './chat-thread-composer.css';
 import UserAvatar from '../avatars/user-avatar.react.js';

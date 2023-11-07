@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import {
   useNewThread,
@@ -13,6 +12,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResult } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import CommunityCreationMembersModal from './community-creation-members-modal.react.js';
