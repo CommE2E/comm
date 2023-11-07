@@ -1,13 +1,15 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { View } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 
 import CommIcon from '../components/comm-icon.react.js';
 import Pill from '../components/pill.react.js';
 import StatusIndicator from '../components/status-indicator.react.js';
+import { KeyserverSelectionBottomSheetRouteName } from '../navigation/route-names.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
 type Props = {
@@ -20,6 +22,18 @@ function KeyserverSelectionListItem(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
+
+  const { navigate } = useNavigation();
+
+  const onPress = React.useCallback(() => {
+    navigate<'KeyserverSelectionBottomSheet'>({
+      name: KeyserverSelectionBottomSheetRouteName,
+      params: {
+        keyserverAdminUsername,
+        keyserverInfo,
+      },
+    });
+  }, [keyserverAdminUsername, keyserverInfo, navigate]);
 
   const cloudIcon = React.useMemo(
     () => (
@@ -34,20 +48,24 @@ function KeyserverSelectionListItem(props: Props): React.Node {
 
   const keyserverListItem = React.useMemo(
     () => (
-      <View style={styles.keyserverListItemContainer}>
+      <TouchableOpacity
+        style={styles.keyserverListItemContainer}
+        onPress={onPress}
+      >
         <Pill
           label={keyserverAdminUsername}
           backgroundColor={colors.codeBackground}
           icon={cloudIcon}
         />
         <StatusIndicator connectionInfo={keyserverInfo.connection} />
-      </View>
+      </TouchableOpacity>
     ),
     [
       cloudIcon,
       colors.codeBackground,
       keyserverAdminUsername,
       keyserverInfo.connection,
+      onPress,
       styles.keyserverListItemContainer,
     ],
   );
