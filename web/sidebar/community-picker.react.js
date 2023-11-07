@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import {
   clearCalendarCommunityFilter,
@@ -11,6 +10,7 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import CommunityCreationModal from './community-creation/community-creation-modal.react.js';
 import CommunityDrawer from './community-drawer.react.js';

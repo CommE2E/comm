@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { useLogOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
@@ -14,6 +13,7 @@ import {
 } from 'lib/selectors/keyserver-selectors.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { useSelector } from './redux/redux-utils.js';
