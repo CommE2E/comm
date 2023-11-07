@@ -1,10 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { getDatabaseModule } from './database-module-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
