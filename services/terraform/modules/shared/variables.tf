@@ -8,3 +8,9 @@ variable "bucket_name_suffix" {
   default     = ""
   description = "Suffix added to all bucket names"
 }
+
+variable "vpc_id" {}
+
+variable "cidr_block" {}
+
+variable "subnet_ids" {}
