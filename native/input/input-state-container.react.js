@@ -837,7 +837,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                   ? processedMedia.thumbHash
                   : null,
             },
-            threadID: threadInfo.id,
+            keyserverOrThreadID: threadInfo.id,
             callbacks: {
               blobServiceUploadHandler,
               onProgress: (percent: number) => {
@@ -868,7 +868,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 dimensions: processedMedia.dimensions,
                 thumbHash: processedMedia.thumbHash,
               },
-              threadID: threadInfo.id,
+              keyserverOrThreadID: threadInfo.id,
               callbacks: {
                 blobServiceUploadHandler,
               },

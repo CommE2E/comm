@@ -884,7 +884,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             loop: false,
             thumbHash,
           },
-          threadID,
+          keyserverOrThreadID: threadID,
           callbacks,
         });
       } else {
@@ -1162,7 +1162,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           abortRequest = pendingUpload.abort;
         }
         if (pendingUpload.serverID) {
-          this.props.deleteUpload({ id: pendingUpload.serverID, threadID });
+          this.props.deleteUpload({
+            id: pendingUpload.serverID,
+            keyserverOrThreadID: threadID,
+          });
           if (isBlobServiceURI(pendingUpload.uri)) {
             invariant(
               pendingUpload.blobHolder,
