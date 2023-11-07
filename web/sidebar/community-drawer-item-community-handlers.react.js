@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import {
   updateCalendarCommunityFilter,
@@ -9,6 +8,7 @@ import {
   clearChatCommunityFilter,
 } from 'lib/actions/community-actions.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { CommunityDrawerItemCommunityHandler } from './community-drawer-item-handler.react.js';
 import { useSelector } from '../redux/redux-utils.js';

@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import {
   useSetDeviceTokenFanout,
@@ -15,6 +14,7 @@ import {
   shouldSkipPushPermissionAlert,
   recordNotifPermissionAlertActionType,
 } from 'lib/utils/push-alerts.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import electron from '../electron.js';

@@ -3,11 +3,11 @@
 import olm from '@commapp/olm';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import uuid from 'uuid';
 import { useWalletClient } from 'wagmi';
 
 import { isDev } from 'lib/utils/dev-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './log-in-form.css';
 import SIWEButton from './siwe-button.react.js';
