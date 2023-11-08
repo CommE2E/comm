@@ -21,7 +21,7 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
   const callUploadMultimedia = useServerCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadAvatarMedia = React.useCallback(
-    async file => {
+    async (file: File): Promise<UpdateUserAvatarRequest> => {
       const validatedFile = await validateFile(file);
       const { result } = validatedFile;
       if (!result.success) {

@@ -108,7 +108,7 @@ type InnerThreadEntityProps = {
   +dispatch: Dispatch,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
-  render() {
+  render(): React.Node {
     return <a onClick={this.onClickThread}>{this.props.name}</a>;
   }
 

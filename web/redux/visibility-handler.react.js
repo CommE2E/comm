@@ -11,9 +11,12 @@ import { useVisibility } from './visibility.js';
 function VisibilityHandler(): React.Node {
   const visibility = useVisibility();
   const [visible, setVisible] = React.useState(!visibility.hidden());
-  const onVisibilityChange = React.useCallback((event, state: string) => {
-    setVisible(state === 'visible');
-  }, []);
+  const onVisibilityChange = React.useCallback(
+    (event: mixed, state: string) => {
+      setVisible(state === 'visible');
+    },
+    [],
+  );
   React.useEffect(() => {
     const listener = visibility.change(onVisibilityChange);
     return () => {
@@ -24,7 +27,7 @@ function VisibilityHandler(): React.Node {
   const dispatch = useDispatch();
   const curForeground = useIsAppForegrounded();
   const updateRedux = React.useCallback(
-    foreground => {
+    (foreground: boolean) => {
       if (foreground === curForeground) {
         return;
       }
