@@ -22,7 +22,7 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   const active = useThreadIsActive(threadInfo.id);
   const [menuVisible, setMenuVisible] = React.useState(false);
   const toggleMenu = React.useCallback(
-    event => {
+    (event: SyntheticEvent<HTMLButtonElement>) => {
       event.stopPropagation();
       setMenuVisible(!menuVisible);
     },
@@ -40,7 +40,7 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   );
 
   const onToggleUnreadStatusClicked = React.useCallback(
-    event => {
+    (event: SyntheticEvent<HTMLButtonElement>) => {
       event.stopPropagation();
       toggleUnreadStatus();
     },

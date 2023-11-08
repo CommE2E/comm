@@ -75,13 +75,20 @@ function getCaretOffsets(
     caretLeftOffset,
   };
 }
-export type GetTypeaheadTooltipActionsParams<SuggestionItemType> = {
+type MentionTypeaheadSharedParams = {
   +inputStateDraft: string,
   +inputStateSetDraft: (draft: string) => mixed,
   +inputStateSetTextCursorPosition: (newPosition: number) => mixed,
-  +suggestions: $ReadOnlyArray<SuggestionItemType>,
   +textBeforeAtSymbol: string,
   +query: string,
+};
+export type GetTypeaheadTooltipActionsParams<SuggestionItemType> = {
+  ...MentionTypeaheadSharedParams,
+  +suggestions: $ReadOnlyArray<SuggestionItemType>,
+};
+export type MentionTypeaheadTooltipActionExecuteHandlerParams = {
+  ...MentionTypeaheadSharedParams,
+  +mentionText: string,
 };
 function mentionTypeaheadTooltipActionExecuteHandler({
   textBeforeAtSymbol,
@@ -90,7 +97,7 @@ function mentionTypeaheadTooltipActionExecuteHandler({
   mentionText,
   inputStateSetDraft,
   inputStateSetTextCursorPosition,
-}) {
+}: MentionTypeaheadTooltipActionExecuteHandlerParams) {
   const { newText, newSelectionStart } = getNewTextAndSelection(
     textBeforeAtSymbol,
     inputStateDraft,

@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { useFetchThreadMedia } from 'lib/actions/thread-actions.js';
@@ -143,8 +144,9 @@ function ThreadSettingsMediaGalleryModal(
   }, [tab, mediaInfos, onClick]);
 
   const handleScroll = React.useCallback(
-    async event => {
+    async (event: SyntheticEvent<HTMLDivElement>) => {
       const container = event.target;
+      invariant(container instanceof HTMLDivElement, 'target not div');
       // Load more data when the user is within 1000 pixels of the end
       const buffer = 1000;
 

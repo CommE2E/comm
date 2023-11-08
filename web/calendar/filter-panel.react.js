@@ -77,7 +77,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
     return this.props.filteredCommunityThreadIDs.has(threadID);
   }
 
-  render() {
+  render(): React.Node {
     const filterThreadInfos = this.state.query
       ? this.state.searchResults
       : this.props.filterThreadInfos;
@@ -275,7 +275,7 @@ type ItemProps = {
   +selected: boolean,
 };
 class Item extends React.PureComponent<ItemProps> {
-  render() {
+  render(): React.Node {
     const threadInfo = this.props.filterThreadInfo.threadInfo;
     const beforeCheckStyles = { borderColor: `#${threadInfo.color}` };
     let afterCheck = null;
@@ -343,7 +343,7 @@ type CategoryProps = {
   +selected: boolean,
 };
 class Category extends React.PureComponent<CategoryProps> {
-  render() {
+  render(): React.Node {
     const beforeCheckStyles = { borderColor: 'white' };
     let afterCheck = null;
     if (this.props.selected) {

@@ -41,7 +41,7 @@ import { workerRequestMessageTypes } from '../types/worker-types.js';
 declare var keyserverURL: string;
 
 const migrations = {
-  [1]: async state => {
+  [1]: async (state: any) => {
     const {
       primaryIdentityPublicKey,
       ...stateWithoutPrimaryIdentityPublicKey
@@ -56,7 +56,7 @@ const migrations = {
       },
     };
   },
-  [2]: async state => {
+  [2]: async (state: AppState) => {
     return state;
   },
   [3]: async (state: AppState) => {
@@ -90,7 +90,7 @@ const migrations = {
 
     return newState;
   },
-  [4]: async state => {
+  [4]: async (state: any) => {
     const { lastCommunicatedPlatformDetails, keyserverStore, ...rest } = state;
 
     return {
@@ -107,7 +107,7 @@ const migrations = {
       },
     };
   },
-  [5]: async state => {
+  [5]: async (state: any) => {
     const databaseModule = await getDatabaseModule();
     const isDatabaseSupported = await databaseModule.isDatabaseSupported();
     if (!isDatabaseSupported) {
@@ -135,7 +135,7 @@ const migrations = {
 
     return state;
   },
-  [6]: async state => ({
+  [6]: async (state: AppState) => ({
     ...state,
     integrityStore: { threadHashes: {}, threadHashingStatus: 'starting' },
   }),
@@ -166,11 +166,11 @@ const migrations = {
       },
     };
   },
-  [8]: async state => ({
+  [8]: async (state: AppState) => ({
     ...state,
     globalThemeInfo: defaultGlobalThemeInfo,
   }),
-  [9]: async state => ({
+  [9]: async (state: AppState) => ({
     ...state,
     keyserverStore: {
       ...state.keyserverStore,
@@ -183,7 +183,7 @@ const migrations = {
       },
     },
   }),
-  [10]: async state => {
+  [10]: async (state: AppState) => {
     const { keyserverInfos } = state.keyserverStore;
     const newKeyserverInfos = {};
     for (const key in keyserverInfos) {

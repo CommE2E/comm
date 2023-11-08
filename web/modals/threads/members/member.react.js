@@ -48,7 +48,7 @@ function ThreadMember(props: Props): React.Node {
   const roleName = roles.get(memberInfo.id)?.name;
 
   const onMenuChange = React.useCallback(
-    menuOpen => {
+    (menuOpen: boolean) => {
       if (menuOpen) {
         setOpenMenu(() => memberInfo.id);
       } else {

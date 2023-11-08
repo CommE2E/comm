@@ -43,20 +43,26 @@ function TraditionalLoginForm(): React.Node {
   }, []);
 
   const [username, setUsername] = React.useState<string>('');
-  const onUsernameChange = React.useCallback(e => {
-    invariant(e.target instanceof HTMLInputElement, 'target not input');
-    setUsername(e.target.value);
-  }, []);
+  const onUsernameChange = React.useCallback(
+    (e: SyntheticEvent<HTMLInputElement>) => {
+      invariant(e.target instanceof HTMLInputElement, 'target not input');
+      setUsername(e.target.value);
+    },
+    [],
+  );
 
   const onUsernameBlur = React.useCallback(() => {
     setUsername(untrimmedUsername => untrimmedUsername.trim());
   }, []);
 
   const [password, setPassword] = React.useState<string>('');
-  const onPasswordChange = React.useCallback(e => {
-    invariant(e.target instanceof HTMLInputElement, 'target not input');
-    setPassword(e.target.value);
-  }, []);
+  const onPasswordChange = React.useCallback(
+    (e: SyntheticEvent<HTMLInputElement>) => {
+      invariant(e.target instanceof HTMLInputElement, 'target not input');
+      setPassword(e.target.value);
+    },
+    [],
+  );
 
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
