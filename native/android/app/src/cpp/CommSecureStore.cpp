@@ -28,13 +28,12 @@ public:
 
 namespace comm {
 
-void CommSecureStore::set(const std::string key, const std::string value)
-    const {
+void CommSecureStore::set(const std::string key, const std::string value) {
   NativeAndroidAccessProvider::runTask(
       [=]() { CommSecureStoreJavaClass::set(key, value); });
 }
 
-folly::Optional<std::string> CommSecureStore::get(const std::string key) const {
+folly::Optional<std::string> CommSecureStore::get(const std::string key) {
   folly::Optional<std::string> value;
   NativeAndroidAccessProvider::runTask(
       [=, &value]() { value = CommSecureStoreJavaClass::get(key); });
