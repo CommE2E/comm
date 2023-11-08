@@ -21,6 +21,7 @@ import {
   type ThreadType,
   assertThreadType,
 } from 'lib/types/thread-types-enum.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import {
   type ServerUpdateInfo,
@@ -377,12 +378,22 @@ async function changeRoleThreadQuery(
       rolePermissions: JSON.parse(row.permissions),
     };
   } else {
+    const openAnnouncementThread =
+      threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD;
+    const secretAnnouncementThread =
+      threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD;
+
     const query = SQL`
-      SELECT t.type, t.depth, t.parent_thread_id, t.containing_thread_id,
-        t.default_role, r.permissions
-      FROM threads t
-      INNER JOIN roles r ON r.thread = t.id AND r.id = t.default_role
-      WHERE t.id = ${threadID}
+    SELECT t.type, t.depth, t.parent_thread_id, t.containing_thread_id,
+    r.id, r.name, r.permissions
+    FROM threads t
+    INNER JOIN roles r ON
+      (CASE
+        WHEN t.type IN (${[openAnnouncementThread, secretAnnouncementThread]})
+        THEN r.name = 'Voiced'
+        ELSE r.id = t.default_role
+      END)
+    WHERE t.id = ${threadID}
     `;
     const [result] = await dbQuery(query);
     if (result.length === 0) {
@@ -390,7 +401,7 @@ async function changeRoleThreadQuery(
     }
     const row = result[0];
     return {
-      roleColumnValue: row.default_role.toString(),
+      roleColumnValue: row.id.toString(),
       depth: row.depth,
       threadType: assertThreadType(row.type),
       parentThreadID: row.parent_thread_id
