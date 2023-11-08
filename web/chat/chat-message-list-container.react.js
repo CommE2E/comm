@@ -75,7 +75,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     [css.activeContainer]: isActive,
   });
 
-  const containerRef = React.useRef();
+  const containerRef = React.useRef<?HTMLDivElement>();
 
   const onPaste = React.useCallback(
     (e: ClipboardEvent) => {

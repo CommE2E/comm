@@ -61,7 +61,7 @@ function EditUserAvatarMenu(): React.Node {
     [openEmojiSelectionModal],
   );
 
-  const imageInputRef = React.useRef();
+  const imageInputRef = React.useRef<?HTMLInputElement>();
   const onImageMenuItemClicked = React.useCallback(
     () => imageInputRef.current?.click(),
     [],
