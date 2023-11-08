@@ -6,7 +6,7 @@ const ENCRYPTION_KEY_USAGES: $ReadOnlyArray<CryptoKey$Usages> = [
   'decrypt',
 ];
 
-type EncryptedData = {
+export type EncryptedData = {
   +iv: BufferSource,
   +ciphertext: Uint8Array,
 };
