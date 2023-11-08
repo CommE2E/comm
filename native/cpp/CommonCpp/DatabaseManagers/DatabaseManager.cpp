@@ -30,17 +30,15 @@ const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
 }
 
 void DatabaseManager::clearSensitiveData() {
-  comm::CommSecureStore commSecureStore{};
-  commSecureStore.set(commSecureStore.userID, "");
-  commSecureStore.set(commSecureStore.deviceID, "");
-  commSecureStore.set(commSecureStore.commServicesAccessToken, "");
+  CommSecureStore::set(CommSecureStore::userID, "");
+  CommSecureStore::set(CommSecureStore::deviceID, "");
+  CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
   SQLiteQueryExecutor::clearSensitiveData();
   NotificationsCryptoModule::clearSensitiveData();
   DatabaseManager::setDatabaseStatusAsWorkable();
 }
 
 void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
-  comm::CommSecureStore commSecureStore{};
   try {
     SQLiteQueryExecutor::initialize(databasePath);
     DatabaseManager::getQueryExecutor();
@@ -48,16 +46,16 @@ void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
     Logger::log("Database manager initialized");
   } catch (...) {
     folly::Optional<std::string> databaseManagerStatus =
-        commSecureStore.get(DATABASE_MANAGER_STATUS_KEY);
+        CommSecureStore::get(DATABASE_MANAGER_STATUS_KEY);
     if (!databaseManagerStatus.hasValue() ||
         databaseManagerStatus.value() == DB_MANAGER_WORKABLE) {
-      commSecureStore.set(
+      CommSecureStore::set(
           DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_FIRST_FAILURE);
       Logger::log("Database manager initialization issue, terminating app");
       throw;
     }
     if (databaseManagerStatus.value() == DB_MANAGER_FIRST_FAILURE) {
-      commSecureStore.set(
+      CommSecureStore::set(
           DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_SECOND_FAILURE);
       Logger::log(
           "Database manager initialization issue, app proceeding, but "
@@ -68,35 +66,31 @@ void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
 }
 
 void DatabaseManager::setDatabaseStatusAsWorkable() {
-  comm::CommSecureStore commSecureStore{};
-  commSecureStore.set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
+  CommSecureStore::set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
 }
 
 void DatabaseManager::indicateQueryExecutorCreation() {
-  comm::CommSecureStore commSecureStore{};
   folly::Optional<std::string> databaseManagerStatus =
-      commSecureStore.get(DATABASE_MANAGER_STATUS_KEY);
+      CommSecureStore::get(DATABASE_MANAGER_STATUS_KEY);
   if (!databaseManagerStatus.hasValue() ||
       databaseManagerStatus.value() != DB_OPERATIONS_FAILURE) {
     // creating query executor means that schema was created without error,
     // but this doesn't imply that schema has a proper structure,
     // and operation will not crash, this case should not be overridden
-    commSecureStore.set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
+    CommSecureStore::set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
   }
 }
 
 bool DatabaseManager::checkIfDatabaseNeedsDeletion() {
-  comm::CommSecureStore commSecureStore{};
   folly::Optional<std::string> databaseManagerStatus =
-      commSecureStore.get(DATABASE_MANAGER_STATUS_KEY);
+      CommSecureStore::get(DATABASE_MANAGER_STATUS_KEY);
   return databaseManagerStatus.hasValue() &&
       (databaseManagerStatus.value() == DB_MANAGER_SECOND_FAILURE ||
        databaseManagerStatus.value() == DB_OPERATIONS_FAILURE);
 }
 
 void DatabaseManager::reportDBOperationsFailure() {
-  comm::CommSecureStore commSecureStore{};
-  commSecureStore.set(DATABASE_MANAGER_STATUS_KEY, DB_OPERATIONS_FAILURE);
+  CommSecureStore::set(DATABASE_MANAGER_STATUS_KEY, DB_OPERATIONS_FAILURE);
 }
 
 } // namespace comm

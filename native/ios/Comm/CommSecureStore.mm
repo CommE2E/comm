@@ -7,8 +7,7 @@
 
 namespace comm {
 
-void CommSecureStore::set(const std::string key, const std::string value)
-    const {
+void CommSecureStore::set(const std::string key, const std::string value) {
   NSString *nsKey =
       [NSString stringWithCString:key.c_str()
                          encoding:[NSString defaultCStringEncoding]];
@@ -18,7 +17,7 @@ void CommSecureStore::set(const std::string key, const std::string value)
   [[CommSecureStoreIOSWrapper sharedInstance] set:nsKey value:nsValue];
 }
 
-folly::Optional<std::string> CommSecureStore::get(const std::string key) const {
+folly::Optional<std::string> CommSecureStore::get(const std::string key) {
   NSString *nsKey =
       [NSString stringWithCString:key.c_str()
                          encoding:[NSString defaultCStringEncoding]];
