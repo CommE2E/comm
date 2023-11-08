@@ -139,8 +139,7 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
 }
 
 std::string NotificationsCryptoModule::getPicklingKey() {
-  CommSecureStore secureStore{};
-  folly::Optional<std::string> picklingKey = secureStore.get(
+  folly::Optional<std::string> picklingKey = CommSecureStore::get(
       NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
   if (!picklingKey.hasValue()) {
     throw std::runtime_error(
@@ -178,9 +177,8 @@ void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
   }
   // There is no reason to check if the key is already present since if we are
   // in this place in the code we are about to create new account
-  CommSecureStore secureStore{};
   std::string picklingKey = crypto::Tools::generateRandomString(64);
-  secureStore.set(
+  CommSecureStore::set(
       NotificationsCryptoModule::secureStoreNotificationsAccountDataKey,
       picklingKey);
 
