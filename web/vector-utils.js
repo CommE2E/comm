@@ -4,14 +4,16 @@ import invariant from 'invariant';
 
 declare class SVGElement extends Element {}
 
-function htmlTargetFromEvent(event: SyntheticEvent<*>): HTMLElement {
-  let target = event.target;
+function htmlTargetFromEvent(event: SyntheticEvent<EventTarget>): HTMLElement {
+  let target: EventTarget = event.target;
   while (!(target instanceof HTMLElement)) {
     invariant(
       target instanceof SVGElement,
-      'non-HTMLElements in typeahead should be SVGElements',
+      'non-HTMLElements in DOM should be SVGElements',
     );
-    target = target.parentNode;
+    const { parentNode } = target;
+    invariant(parentNode, 'non-HTMLElements in DOM should have parentNode');
+    target = parentNode;
   }
   return target;
 }
