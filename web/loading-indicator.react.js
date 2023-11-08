@@ -24,7 +24,7 @@ export default function LoadingIndicator(props: Props): React.Node {
   const size = props.size ? props.size : 'small';
   const color = props.color ? props.color : 'white';
   if (props.status === 'loading') {
-    const classNameInput = {
+    const classNameInput: { [string]: boolean } = {
       [css['loading-indicator-loading']]: true,
       [css['loading-indicator-loading-medium']]:
         hasRendered && size === 'medium',
@@ -38,7 +38,7 @@ export default function LoadingIndicator(props: Props): React.Node {
     }
     return <span className={classNames(classNameInput)} />;
   } else if (props.status === 'error') {
-    const classNameInput = {
+    const classNameInput: { [string]: boolean } = {
       [css['loading-indicator-error']]: true,
       [css['loading-indicator-error-black']]: tinycolor.equals(color, 'black'),
     };

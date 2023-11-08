@@ -14,7 +14,7 @@ async function initOlm(): Promise<void> {
   return await olm.init({ locateFile });
 }
 
-let olmUtilityInstance;
+let olmUtilityInstance: ?olm.Utility | Promise<olm.Utility>;
 function olmUtility(): Promise<Utility> {
   if (!olmUtilityInstance) {
     olmUtilityInstance = (async () => {

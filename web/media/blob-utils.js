@@ -38,7 +38,7 @@ async function probeFile(file: File): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProbeFileSuccess,
 }> {
-  const steps = [];
+  const steps: MediaMissionStep[] = [];
 
   let arrayBuffer, arrayBufferExceptionMessage;
   const arrayBufferStart = Date.now();

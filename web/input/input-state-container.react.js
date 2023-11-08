@@ -148,13 +148,14 @@ type Props = {
   +unregisterSendCallback: (() => mixed) => void,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
 };
-type State = {
-  +pendingUploads: {
+type WritableState = {
+  pendingUploads: {
     [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
   },
-  +textCursorPositions: { [threadID: string]: number },
-  +typeaheadState: TypeaheadState,
+  textCursorPositions: { [threadID: string]: number },
+  typeaheadState: TypeaheadState,
 };
+type State = $ReadOnly<WritableState>;
 
 type PropsAndState = {
   ...Props,
@@ -194,7 +195,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     state: { +[threadID: string]: T },
     props: Props,
   ): ?{ [threadID: string]: T } {
-    const newState = {};
+    const newState: { [string]: T } = {};
     let updated = false;
     for (const threadID in state) {
       const newThreadID =
@@ -221,7 +222,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const stateUpdate = {};
+    const stateUpdate: Partial<WritableState> = {};
     if (pendingUploads) {
       stateUpdate.pendingUploads = pendingUploads;
     }
@@ -519,7 +520,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       this.setState(prevState => {
         const newThreadID = this.getRealizedOrPendingThreadID(threadID);
         const prevUploads = prevState.pendingUploads[newThreadID];
-        const newUploads = {};
+        const newUploads: { [string]: PendingMultimediaUpload } = {};
         for (const localUploadID in prevUploads) {
           const upload = prevUploads[localUploadID];
           if (upload.messageID !== localID) {
@@ -591,8 +592,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           draft: ?string,
           textCursorPosition: ?number,
         ) => {
-          let threadPendingUploads = [];
-          const assignedUploads = {};
+          let threadPendingUploads: $ReadOnlyArray<PendingMultimediaUpload> =
+            [];
+          const assignedUploads: {
+            [string]: $ReadOnlyArray<PendingMultimediaUpload>,
+          } = {};
           if (pendingUploads) {
             const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] =
               _partition('messageID')(pendingUploads);
@@ -743,7 +747,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       | MediaMissionFailure
       | { success: true, pendingUpload: PendingMultimediaUpload },
   }> {
-    const steps = [
+    const steps: MediaMissionStep[] = [
       {
         step: 'web_selection',
         filename: file.name,
@@ -1167,7 +1171,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   cancelPendingUpload(threadID: ?string, localUploadID: string) {
     invariant(threadID, 'threadID should be set in cancelPendingUpload');
 
-    let revokeURL, abortRequest;
+    let revokeURL: ?string, abortRequest: ?() => void;
     this.setState(
       prevState => {
         const newThreadID = this.getRealizedOrPendingThreadID(threadID);
@@ -1385,7 +1389,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       if (!currentPendingUploads) {
         return {};
       }
-      const newPendingUploads = {};
+      const newPendingUploads: { [string]: PendingMultimediaUpload } = {};
       let uploadAssigned = false;
       for (const localUploadID in currentPendingUploads) {
         const upload = currentPendingUploads[localUploadID];
@@ -1553,7 +1557,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       if (!prevPendingUploads) {
         return {};
       }
-      const newPendingUploads = {};
+      const newPendingUploads: { [string]: PendingMultimediaUpload } = {};
       let pendingUploadChanged = false;
       for (const localID in prevPendingUploads) {
         const pendingUpload = prevPendingUploads[localID];
