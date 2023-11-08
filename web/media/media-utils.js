@@ -26,7 +26,7 @@ async function preloadImage(uri: string): Promise<{
   const start = Date.now();
   const imageURI = fetchableMediaURI(uri);
   try {
-    image = await new Promise((resolve, reject) => {
+    image = await new Promise<Image>((resolve, reject) => {
       const img = new Image();
       img.src = imageURI;
       img.onload = () => {
@@ -172,7 +172,7 @@ async function processFile(file: File): Promise<{
     }
 
     context.drawImage(image, 0, 0);
-    reorientedBlob = await new Promise(resolve =>
+    reorientedBlob = await new Promise<Blob>(resolve =>
       canvas.toBlob(blobResult => resolve(blobResult)),
     );
   } catch (e) {
