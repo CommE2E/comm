@@ -115,7 +115,8 @@ function AddUsersList(props: Props): React.Node {
         .filter(
           user =>
             user.id !== viewerID &&
-            !excludedStatuses.has(user.relationshipStatus),
+            (!user.relationshipStatus ||
+              !excludedStatuses.has(user.relationshipStatus)),
         )
         .sort((user1, user2) => user1.username.localeCompare(user2.username)),
     [excludedStatuses, mergedUserInfos, viewerID],
