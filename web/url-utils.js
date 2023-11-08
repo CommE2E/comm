@@ -90,7 +90,7 @@ function navInfoFromURL(
   const { navInfo } = backupInfo;
   const now = backupInfo.now ? backupInfo.now : new Date();
 
-  let year = urlInfo.year;
+  let year: ?number = urlInfo.year;
   if (!year && navInfo) {
     year = yearExtractor(navInfo.startDate, navInfo.endDate);
   }
@@ -98,7 +98,7 @@ function navInfoFromURL(
     year = now.getFullYear();
   }
 
-  let month = urlInfo.month;
+  let month: ?number = urlInfo.month;
   if (!month && navInfo) {
     month = monthExtractor(navInfo.startDate, navInfo.endDate);
   }

@@ -12,6 +12,7 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import css from './community-actions-menu.css';
 import MenuItem from '../components/menu-item.react.js';
+import type { MenuItemProps } from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 import ManageInviteLinksModal from '../invite-links/manage-invite-links-modal.react.js';
 import ViewInviteLinkModal from '../invite-links/view-invite-link-modal.react.js';
@@ -59,7 +60,7 @@ function CommunityActionsMenu(props: Props): React.Node {
   );
 
   const items = React.useMemo(() => {
-    const itemSpecs = [];
+    const itemSpecs: MenuItemProps[] = [];
 
     if (canManageLinks) {
       itemSpecs.push({

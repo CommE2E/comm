@@ -123,7 +123,7 @@ async function processFile(file: File): Promise<{
   ]);
   const { steps: preloadSteps, result: image } = preloadResponse;
 
-  const steps = [...preloadSteps, orientationStep];
+  const steps: MediaMissionStep[] = [...preloadSteps, orientationStep];
 
   if (!image) {
     return {

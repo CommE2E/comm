@@ -25,7 +25,7 @@ const getInitialReduxState =
     allKeyserverIDs: $ReadOnlyArray<string>,
   ): ((input: InitialReduxStateRequest) => Promise<InitialReduxState>) =>
   async input => {
-    const requests = {};
+    const requests: { [string]: InitialReduxStateRequest } = {};
     const { urlInfo, excludedData } = input;
     const { thread, inviteSecret, ...rest } = urlInfo;
     const threadKeyserverID = thread ? extractKeyserverIDFromID(thread) : null;
