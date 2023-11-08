@@ -25,7 +25,6 @@ import { filesystemMediaCache } from '../media/media-cache.js';
 import { commCoreModule } from '../native-modules.js';
 import { setStoreLoadedActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { StaffContext } from '../staff/staff-context.js';
 import Alert from '../utils/alert.js';
 import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
@@ -51,7 +50,6 @@ function SQLiteDataHandler(): React.Node {
   const urlPrefix = useSelector(urlPrefixSelector);
   invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
   const staffCanSee = useStaffCanSee();
-  const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
   const loggedIn = useSelector(isLoggedIn);
   const currentLoggedInUserID = useSelector(state =>
     state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
@@ -191,13 +189,6 @@ function SQLiteDataHandler(): React.Node {
           dispatch({ type: setStoreLoadedActionType });
           return;
         }
-        if (staffCanSee) {
-          Alert.alert(
-            'Error setting threadStore or messageStore',
-            getMessageForException(setStoreException) ??
-              '{no exception message}',
-          );
-        }
         await callFetchNewCookieFromNativeCredentials(
           logInActionSources.sqliteLoadFailure,
         );
@@ -210,10 +201,7 @@ function SQLiteDataHandler(): React.Node {
     cookie,
     dispatch,
     rehydrateConcluded,
-    staffCanSee,
     storeLoaded,
-    urlPrefix,
-    staffUserHasBeenLoggedIn,
     callFetchNewCookieFromNativeCredentials,
     callClearSensitiveData,
     mediaCacheContext,
