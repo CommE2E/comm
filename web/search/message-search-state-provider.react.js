@@ -37,7 +37,7 @@ function MessageSearchStateProvider(props: Props): React.Node {
     [threadID: string]: $ReadOnlyArray<RawMessageInfo>,
   }>({});
 
-  const endsReached = React.useRef(new Set());
+  const endsReached = React.useRef(new Set<string>());
 
   const lastIDs = React.useRef<{
     [threadID: string]: string,
