@@ -35,7 +35,7 @@ function FocusHandler(): React.Node {
   const dispatch = useDispatch();
   const curWindowActive = useSelector(state => state.windowActive);
   const updateRedux = React.useCallback(
-    windowActive => {
+    (windowActive: boolean) => {
       if (windowActive === curWindowActive) {
         return;
       }

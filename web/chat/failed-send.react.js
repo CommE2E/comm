@@ -79,7 +79,7 @@ class FailedSend extends React.PureComponent<Props> {
     }
   }
 
-  render() {
+  render(): React.Node {
     return (
       <div className={css.failedSend}>
         <span className={css.deliveryFailed}>Delivery failed.</span>
