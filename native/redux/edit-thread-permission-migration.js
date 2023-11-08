@@ -6,6 +6,7 @@ import type {
   ThreadCurrentUserInfo,
   RawThreadInfo,
   RoleInfo,
+  RawThreadInfos,
 } from 'lib/types/thread-types.js';
 
 function addDetailedThreadEditPermissionsToUser<
@@ -59,7 +60,7 @@ function addDetailedThreadEditPermissionsToRole(
 
 function migrateThreadStoreForEditThreadPermissions(threadInfos: {
   +[id: string]: RawThreadInfo,
-}): { +[id: string]: RawThreadInfo } {
+}): RawThreadInfos {
   const newThreadInfos = {};
   for (const threadID in threadInfos) {
     const threadInfo: RawThreadInfo = threadInfos[threadID];
