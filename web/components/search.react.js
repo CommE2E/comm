@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
@@ -30,8 +31,10 @@ function Search(
   }, [onChangeText, onClearText]);
 
   const onChange = React.useCallback(
-    event => {
-      onChangeText(event.target.value);
+    (event: SyntheticEvent<HTMLInputElement>) => {
+      const { target } = event;
+      invariant(target instanceof HTMLInputElement, 'target not input');
+      onChangeText(target.value);
     },
     [onChangeText],
   );

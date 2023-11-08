@@ -35,7 +35,7 @@ function useCreateDesktopPushSubscription() {
 
   React.useEffect(
     () =>
-      electron?.onDeviceTokenRegistered?.(token => {
+      electron?.onDeviceTokenRegistered?.((token: ?string) => {
         dispatchActionPromise(
           setDeviceTokenActionTypes,
           callSetDeviceToken(token),
@@ -48,20 +48,22 @@ function useCreateDesktopPushSubscription() {
 
   React.useEffect(
     () =>
-      electron?.onNotificationClicked?.(({ threadID }) => {
-        const convertedThreadID = convertNonPendingIDToNewSchema(
-          threadID,
-          ashoatKeyserverID,
-        );
+      electron?.onNotificationClicked?.(
+        ({ threadID }: { +threadID: string }) => {
+          const convertedThreadID = convertNonPendingIDToNewSchema(
+            threadID,
+            ashoatKeyserverID,
+          );
 
-        const payload = {
-          chatMode: 'view',
-          activeChatThreadID: convertedThreadID,
-          tab: 'chat',
-        };
+          const payload = {
+            chatMode: 'view',
+            activeChatThreadID: convertedThreadID,
+            tab: 'chat',
+          };
 
-        dispatch({ type: updateNavInfoActionType, payload });
-      }),
+          dispatch({ type: updateNavInfoActionType, payload });
+        },
+      ),
     [dispatch],
   );
 }

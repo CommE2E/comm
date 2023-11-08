@@ -78,7 +78,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
   const userSearchResultsWithENSNames = useENSNames(userSearchResults);
 
   const onSwitchUser = React.useCallback(
-    userID =>
+    (userID: string) =>
       setPendingUsersToAdd(users => {
         const newUsers = new Set(users);
         if (newUsers.has(userID)) {

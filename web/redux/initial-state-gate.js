@@ -61,7 +61,7 @@ function InitialReduxStateGate(props: Props): React.Node {
   const childFunction = React.useCallback(
     // This argument is passed from `PersistGate`. It means that the state is
     // rehydrated and we can start fetching the initial info.
-    bootstrapped => {
+    (bootstrapped: boolean) => {
       if (bootstrapped && initialStateLoaded) {
         return children;
       } else {

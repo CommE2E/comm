@@ -61,7 +61,7 @@ function Button(props: ButtonProps): React.Node {
     style = buttonThemes.standard;
   }
 
-  const wrappedChildren = React.Children.map(children, child => {
+  const wrappedChildren = React.Children.map(children, (child: React.Node) => {
     if (typeof child === 'string' || typeof child === 'number') {
       return <span>{child}</span>;
     }

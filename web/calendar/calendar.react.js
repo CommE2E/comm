@@ -41,6 +41,11 @@ import {
 import type { NavInfo } from '../types/nav-types.js';
 import { canonicalURLFromReduxState } from '../url-utils.js';
 
+type StartAndEndDates = {
+  +startDate: string,
+  +endDate: string,
+};
+
 type BaseProps = {
   +url: string,
 };
@@ -69,7 +74,7 @@ class Calendar extends React.PureComponent<Props, State> {
     dayOfMonth: number,
     monthInput: ?number = undefined,
     yearInput: ?number = undefined,
-  ) {
+  ): Date {
     return getDate(
       yearInput ? yearInput : this.props.year,
       monthInput ? monthInput : this.props.month,
@@ -77,7 +82,7 @@ class Calendar extends React.PureComponent<Props, State> {
     );
   }
 
-  prevMonthDates() {
+  prevMonthDates(): StartAndEndDates {
     const { year, month } = this.props;
     const lastMonthDate = getDate(year, month - 1, 1);
     const prevYear = lastMonthDate.getFullYear();
@@ -88,7 +93,7 @@ class Calendar extends React.PureComponent<Props, State> {
     };
   }
 
-  nextMonthDates() {
+  nextMonthDates(): StartAndEndDates {
     const { year, month } = this.props;
     const nextMonthDate = getDate(year, month + 1, 1);
     const nextYear = nextMonthDate.getFullYear();
@@ -99,7 +104,7 @@ class Calendar extends React.PureComponent<Props, State> {
     };
   }
 
-  render() {
+  render(): React.Node {
     const { year, month } = this.props;
     const monthName = dateFormat(getDate(year, month, 1), 'mmmm');
     const prevURL = canonicalURLFromReduxState(
