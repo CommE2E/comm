@@ -57,7 +57,7 @@ function MessageSearchModal(props: ContentProps): React.Node {
 
   const { clearTooltip } = useTooltipContext();
 
-  const messageContainer = React.useRef(null);
+  const messageContainer = React.useRef<?HTMLDivElement>(null);
 
   const possiblyLoadMoreMessages = React.useCallback(() => {
     if (!messageContainer.current) {

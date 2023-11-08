@@ -21,7 +21,7 @@ type MenuProps = {
 };
 
 function Menu(props: MenuProps): React.Node {
-  const buttonRef = React.useRef();
+  const buttonRef = React.useRef<?HTMLButtonElement>();
   const {
     renderMenu,
     setMenuPosition,

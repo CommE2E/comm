@@ -63,9 +63,10 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   // - emojiKeyboardRenderedNode, which will get set in that useEffect and will
   //   trigger the rerendering of this component with the correct height/width
 
-  const [emojiKeyboardNode, setEmojiKeyboardNode] = React.useState(null);
+  const [emojiKeyboardNode, setEmojiKeyboardNode] =
+    React.useState<?HTMLDivElement>(null);
   const [emojiKeyboardRenderedNode, setEmojiKeyboardRenderedNode] =
-    React.useState(null);
+    React.useState<?HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (emojiKeyboardNode) {
