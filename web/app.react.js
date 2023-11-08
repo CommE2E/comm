@@ -287,7 +287,7 @@ class App extends React.PureComponent<Props> {
 
   getMainContentWithSwitcher(): React.Node {
     const { tab, settingsSection } = this.props.navInfo;
-    let mainContent;
+    let mainContent: React.Node;
 
     if (tab === 'settings') {
       if (settingsSection === 'account') {
