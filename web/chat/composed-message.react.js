@@ -57,7 +57,8 @@ type BaseProps = {
   +fixedWidth?: boolean,
   +borderRadius: number,
 };
-type BaseConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
+type DefaultProps = { +borderRadius: number };
+type BaseConfig = React.Config<BaseProps, DefaultProps>;
 type Props = {
   ...BaseProps,
   // withInputState
@@ -69,9 +70,7 @@ type Props = {
   +onClickUser: () => mixed,
 };
 class ComposedMessage extends React.PureComponent<Props> {
-  static defaultProps: { +borderRadius: number } = {
-    borderRadius: 8,
-  };
+  static defaultProps: DefaultProps = { borderRadius: 8 };
 
   render(): React.Node {
     assertComposableMessageType(this.props.item.messageInfo.type);
