@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
+import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './community-roles-modal.css';
@@ -49,7 +50,10 @@ function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
     [roleNamesToMembers, threadInfo],
   );
 
-  const rolePermissionsForNewRole = React.useMemo(() => new Set(), []);
+  const rolePermissionsForNewRole = React.useMemo(
+    () => new Set<UserSurfacedPermission>(),
+    [],
+  );
 
   const onClickCreateRole = React.useCallback(
     () =>

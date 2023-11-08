@@ -90,7 +90,10 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
     // By the nature of using messageListData and passing in
     // the desired translatedMessageResults as additional
     // messages, we will have duplicate ChatMessageInfoItems.
-    const uniqueChatMessageInfoItemsMap = new Map();
+    const uniqueChatMessageInfoItemsMap = new Map<
+      string,
+      ChatMessageInfoItem,
+    >();
     chatMessageInfoItems.forEach(
       item =>
         item.messageInfo &&
@@ -103,8 +106,12 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
     // in the order of pin_time (newest first).
     const sortedChatMessageInfoItems = [];
     for (let i = 0; i < rawMessageResults.length; i++) {
+      const rawMessageID = rawMessageResults[i].id;
+      if (!rawMessageID) {
+        continue;
+      }
       sortedChatMessageInfoItems.push(
-        uniqueChatMessageInfoItemsMap.get(rawMessageResults[i].id),
+        uniqueChatMessageInfoItemsMap.get(rawMessageID),
       );
     }
 
