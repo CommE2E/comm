@@ -85,7 +85,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
       this.inCurrentCommunity(item.threadInfo.id),
     );
 
-    let filters = [];
+    let filters: React.Node[] = [];
     if (!this.state.query || filterThreadInfosInCurrentCommunity.length > 0) {
       filters.push(
         <Category

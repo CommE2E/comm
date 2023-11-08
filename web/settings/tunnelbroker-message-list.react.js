@@ -27,7 +27,7 @@ function TunnelbrokerMessagesScreen(props: Props): React.Node {
     return () => removeListener(listener);
   }, [addListener, listener, removeListener]);
 
-  let messageList = (
+  let messageList: React.Node = (
     <div className={css.messageRow}>
       <div className={css.messageCol}>No messages</div>
     </div>

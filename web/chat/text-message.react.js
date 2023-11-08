@@ -32,7 +32,7 @@ function TextMessage(props: Props): React.Node {
     creator: { isViewer },
   } = props.item.messageInfo;
 
-  const messageStyle = {};
+  const messageStyle: { backgroundColor?: string } = {};
   let darkColor = true;
   if (isViewer) {
     const threadColor = props.threadInfo.color;
