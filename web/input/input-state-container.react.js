@@ -100,6 +100,9 @@ import {
   type PendingMultimediaUpload,
   type TypeaheadState,
   InputStateContext,
+  type BaseInputState,
+  type TypeaheadInputState,
+  type InputState,
 } from './input-state.js';
 import { encryptFile } from '../media/encryption-utils.js';
 import { generateThumbHash } from '../media/image-utils.js';
@@ -172,7 +175,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     },
   };
   replyCallbacks: Array<(message: string) => void> = [];
-  pendingThreadCreations = new Map<string, Promise<string>>();
+  pendingThreadCreations: Map<string, Promise<string>> = new Map<
+    string,
+    Promise<string>,
+  >();
   // TODO: flip the switch
   // Note that this enables Blob service for encrypted media only
   useBlobServiceUploads = false;
@@ -181,7 +187,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   // sidebar, the sidebar gets created right away, but the message needs to wait
   // for the uploads to complete before sending. We use this Set to track the
   // message localIDs that need sidebarCreation: true.
-  pendingSidebarCreationMessageLocalIDs = new Set<string>();
+  pendingSidebarCreationMessageLocalIDs: Set<string> = new Set<string>();
 
   static reassignToRealizedThreads<T>(
     state: { +[threadID: string]: T },
@@ -200,7 +206,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return updated ? newState : null;
   }
 
-  static getDerivedStateFromProps(props: Props, state: State) {
+  static getDerivedStateFromProps(props: Props, state: State): ?Partial<State> {
     const pendingUploads = InputStateContainer.reassignToRealizedThreads(
       state.pendingUploads,
       props,
@@ -224,7 +230,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return stateUpdate;
   }
 
-  static completedMessageIDs(state: State) {
+  static completedMessageIDs(state: State): Set<string> {
     const completed = new Map();
     for (const threadID in state.pendingUploads) {
       const pendingUploads = state.pendingUploads[threadID];
@@ -404,7 +410,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
   }
 
-  async sendMultimediaMessage(messageInfo: RawMultimediaMessageInfo) {
+  async sendMultimediaMessage(
+    messageInfo: RawMultimediaMessageInfo,
+  ): Promise<void> {
     if (!threadIsPending(messageInfo.threadID)) {
       this.props.dispatchActionPromise(
         sendMultimediaMessageActionTypes,
@@ -564,74 +572,84 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return threadCreationPromise;
   }
 
-  inputBaseStateSelector = _memoize((threadID: ?string) =>
-    createSelector(
-      (propsAndState: PropsAndState) =>
-        threadID ? propsAndState.pendingUploads[threadID] : null,
-      (propsAndState: PropsAndState) =>
-        threadID ? propsAndState.drafts[draftKeyFromThreadID(threadID)] : null,
-      (propsAndState: PropsAndState) =>
-        threadID ? propsAndState.textCursorPositions[threadID] : null,
-      (
-        pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
-        draft: ?string,
-        textCursorPosition: ?number,
-      ) => {
-        let threadPendingUploads = [];
-        const assignedUploads = {};
-        if (pendingUploads) {
-          const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] =
-            _partition('messageID')(pendingUploads);
-          threadPendingUploads = _sortBy('localID')(uploadsWithoutMessageIDs);
-          const threadAssignedUploads = _groupBy('messageID')(
-            uploadsWithMessageIDs,
-          );
-          for (const messageID in threadAssignedUploads) {
-            // lodash libdefs don't return $ReadOnlyArray
-            assignedUploads[messageID] = [...threadAssignedUploads[messageID]];
+  inputBaseStateSelector: (?string) => PropsAndState => BaseInputState =
+    _memoize((threadID: ?string) =>
+      createSelector(
+        (propsAndState: PropsAndState) =>
+          threadID ? propsAndState.pendingUploads[threadID] : null,
+        (propsAndState: PropsAndState) =>
+          threadID
+            ? propsAndState.drafts[draftKeyFromThreadID(threadID)]
+            : null,
+        (propsAndState: PropsAndState) =>
+          threadID ? propsAndState.textCursorPositions[threadID] : null,
+        (
+          pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
+          draft: ?string,
+          textCursorPosition: ?number,
+        ) => {
+          let threadPendingUploads = [];
+          const assignedUploads = {};
+          if (pendingUploads) {
+            const [uploadsWithMessageIDs, uploadsWithoutMessageIDs] =
+              _partition('messageID')(pendingUploads);
+            threadPendingUploads = _sortBy('localID')(uploadsWithoutMessageIDs);
+            const threadAssignedUploads = _groupBy('messageID')(
+              uploadsWithMessageIDs,
+            );
+            for (const messageID in threadAssignedUploads) {
+              // lodash libdefs don't return $ReadOnlyArray
+              assignedUploads[messageID] = [
+                ...threadAssignedUploads[messageID],
+              ];
+            }
           }
-        }
-        return {
-          pendingUploads: threadPendingUploads,
-          assignedUploads,
-          draft: draft ?? '',
-          textCursorPosition: textCursorPosition ?? 0,
-          appendFiles: (threadInfo: ThreadInfo, files: $ReadOnlyArray<File>) =>
-            this.appendFiles(threadInfo, files),
-          cancelPendingUpload: (localUploadID: string) =>
-            this.cancelPendingUpload(threadID, localUploadID),
-          sendTextMessage: (
-            messageInfo: RawTextMessageInfo,
-            threadInfo: ThreadInfo,
-            parentThreadInfo: ?ThreadInfo,
-          ) => this.sendTextMessage(messageInfo, threadInfo, parentThreadInfo),
-          createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) =>
-            this.createMultimediaMessage(localID, threadInfo),
-          setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
-          setTextCursorPosition: (newPosition: number) =>
-            this.setTextCursorPosition(threadID, newPosition),
-          messageHasUploadFailure: (localMessageID: string) =>
-            this.messageHasUploadFailure(assignedUploads[localMessageID]),
-          retryMultimediaMessage: (
-            localMessageID: string,
-            threadInfo: ThreadInfo,
-          ) =>
-            this.retryMultimediaMessage(
-              localMessageID,
-              threadInfo,
-              assignedUploads[localMessageID],
-            ),
-          addReply: (message: string) => this.addReply(message),
-          addReplyListener: this.addReplyListener,
-          removeReplyListener: this.removeReplyListener,
-          registerSendCallback: this.props.registerSendCallback,
-          unregisterSendCallback: this.props.unregisterSendCallback,
-        };
-      },
-    ),
-  );
+          return {
+            pendingUploads: threadPendingUploads,
+            assignedUploads,
+            draft: draft ?? '',
+            textCursorPosition: textCursorPosition ?? 0,
+            appendFiles: (
+              threadInfo: ThreadInfo,
+              files: $ReadOnlyArray<File>,
+            ) => this.appendFiles(threadInfo, files),
+            cancelPendingUpload: (localUploadID: string) =>
+              this.cancelPendingUpload(threadID, localUploadID),
+            sendTextMessage: (
+              messageInfo: RawTextMessageInfo,
+              threadInfo: ThreadInfo,
+              parentThreadInfo: ?ThreadInfo,
+            ) =>
+              this.sendTextMessage(messageInfo, threadInfo, parentThreadInfo),
+            createMultimediaMessage: (
+              localID: number,
+              threadInfo: ThreadInfo,
+            ) => this.createMultimediaMessage(localID, threadInfo),
+            setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
+            setTextCursorPosition: (newPosition: number) =>
+              this.setTextCursorPosition(threadID, newPosition),
+            messageHasUploadFailure: (localMessageID: string) =>
+              this.messageHasUploadFailure(assignedUploads[localMessageID]),
+            retryMultimediaMessage: (
+              localMessageID: string,
+              threadInfo: ThreadInfo,
+            ) =>
+              this.retryMultimediaMessage(
+                localMessageID,
+                threadInfo,
+                assignedUploads[localMessageID],
+              ),
+            addReply: (message: string) => this.addReply(message),
+            addReplyListener: this.addReplyListener,
+            removeReplyListener: this.removeReplyListener,
+            registerSendCallback: this.props.registerSendCallback,
+            unregisterSendCallback: this.props.unregisterSendCallback,
+          };
+        },
+      ),
+    );
 
-  typeaheadStateSelector = createSelector(
+  typeaheadStateSelector: PropsAndState => TypeaheadInputState = createSelector(
     (propsAndState: PropsAndState) => propsAndState.typeaheadState,
     (typeaheadState: TypeaheadState) => ({
       typeaheadState,
@@ -639,7 +657,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }),
   );
 
-  inputStateSelector = createSelector(
+  inputStateSelector: ({
+    +inputBaseState: BaseInputState,
+    +typeaheadState: TypeaheadInputState,
+  }) => InputState = createSelector(
     state => state.inputBaseState,
     state => state.typeaheadState,
     (inputBaseState, typeaheadState) => ({
@@ -816,7 +837,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   uploadFiles(
     threadID: string,
     uploads: $ReadOnlyArray<PendingMultimediaUpload>,
-  ) {
+  ): Promise<mixed> {
     return Promise.all(
       uploads.map(upload => this.uploadFile(threadID, upload)),
     );
@@ -1447,7 +1468,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   messageHasUploadFailure(
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
-  ) {
+  ): boolean {
     if (!pendingUploads) {
       return false;
     }
@@ -1563,7 +1584,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  render() {
+  render(): React.Node {
     const { activeChatThreadID } = this.props;
 
     // we're going with two selectors as we want to avoid

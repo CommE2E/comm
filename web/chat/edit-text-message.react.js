@@ -98,7 +98,7 @@ function EditTextMessage(props: Props): React.Node {
   }, [background, updatePosition]);
 
   const preventCloseTab = React.useCallback(
-    event => {
+    (event: BeforeUnloadEvent) => {
       if (!isMessageEdited) {
         return null;
       }

@@ -102,7 +102,7 @@ function Menu(props: MenuProps): React.Node {
   }, [closeMenu]);
 
   const onClickMenuCallback = React.useCallback(
-    e => {
+    (e: SyntheticEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       setCurrentOpenMenu(ourSymbol.current);
     },
