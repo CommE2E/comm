@@ -6,6 +6,7 @@ import * as React from 'react';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
 import type { HandlerProps } from './community-drawer-item-handlers.react.js';
 import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react.js';
 import css from './community-drawer-item.css';
@@ -31,10 +32,11 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     handlerType,
   } = props;
 
-  const [handler, setHandler] = React.useState({
+  const [handler, setHandler] = React.useState<CommunityDrawerItemHandler>({
     onClick: () => {},
     expanded: false,
     toggleExpanded: () => {},
+    isActive: false,
   });
 
   const Handler = getCommunityDrawerItemHandler(handlerType);
