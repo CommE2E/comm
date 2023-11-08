@@ -56,7 +56,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
     this.newPasswordInput.focus();
   }
 
-  render() {
+  render(): React.Node {
     let errorMsg;
     if (this.state.errorMessage) {
       errorMsg = (
@@ -188,7 +188,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
     );
   };
 
-  async changeUserSettingsAction() {
+  async changeUserSettingsAction(): Promise<void> {
     try {
       await this.props.changeUserPassword({
         updatedFields: {
