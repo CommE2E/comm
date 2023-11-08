@@ -105,15 +105,15 @@ const unboundStyles = {
     paddingVertical: 2,
   },
   beginning: {
-    backgroundColor: 'drawerOpenCommunityBackground',
+    backgroundColor: 'panelBackgroundAccent',
     borderTopRightRadius: 8,
     paddingTop: 2,
   },
   middle: {
-    backgroundColor: 'drawerOpenCommunityBackground',
+    backgroundColor: 'panelBackgroundAccent',
   },
   end: {
-    backgroundColor: 'drawerOpenCommunityBackground',
+    backgroundColor: 'panelBackgroundAccent',
     borderBottomRightRadius: 8,
     paddingBottom: 2,
   },
