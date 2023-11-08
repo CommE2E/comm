@@ -48,7 +48,7 @@ function Dropdown(props: DropdownProps): React.Node {
   }, [disabled, isOpen]);
 
   const handleSelection = React.useCallback(
-    selection => {
+    (selection: DropdownOption) => {
       setActiveSelection(selection.id);
       setIsOpen(false);
     },

@@ -108,7 +108,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     this.props.removeScrollToMessageListener(this.scrollToMessage);
   }
 
-  getSnapshotBeforeUpdate(prevProps: Props) {
+  getSnapshotBeforeUpdate(prevProps: Props): ?Snapshot {
     if (
       ChatMessageList.hasNewMessage(this.props, prevProps) &&
       this.messageContainer
@@ -119,7 +119,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     return null;
   }
 
-  static hasNewMessage(props: Props, prevProps: Props) {
+  static hasNewMessage(props: Props, prevProps: Props): boolean {
     const { messageListData } = props;
     if (!messageListData || messageListData.length === 0) {
       return false;
@@ -134,7 +134,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps: Props, prevState, snapshot: ?Snapshot) {
+  componentDidUpdate(prevProps: Props, prevState: State, snapshot: ?Snapshot) {
     const { messageListData } = this.props;
     const prevMessageListData = prevProps.messageListData;
 
@@ -181,14 +181,14 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     }
   }
 
-  static keyExtractor(item: ChatMessageItem) {
+  static keyExtractor(item: ChatMessageItem): string {
     if (item.itemType === 'loader') {
       return 'loader';
     }
     return messageKey(item.messageInfo);
   }
 
-  renderItem = item => {
+  renderItem = (item: ChatMessageItem): React.Node => {
     if (item.itemType === 'loader') {
       return (
         <div key="loader" className={css.loading}>
@@ -272,7 +272,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     return maxHeight;
   };
 
-  willMessageEditWindowOverflow(composedMessageID: string) {
+  willMessageEditWindowOverflow(composedMessageID: string): boolean {
     const { messageContainer } = this;
     if (!messageContainer) {
       return false;
@@ -306,7 +306,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     return messageBottom > containerBottom || messageTop < containerTop;
   }
 
-  render() {
+  render(): React.Node {
     const { messageListData, threadInfo, inputState, isEditState } = this.props;
     if (!messageListData) {
       return <div className={css.container} />;
@@ -354,7 +354,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     this.debounceEditModeAfterScrollToMessage();
   };
 
-  debounceEditModeAfterScrollToMessage = _debounce(() => {
+  debounceEditModeAfterScrollToMessage: () => void = _debounce(() => {
     if (this.state.scrollingEndCallback) {
       this.state.scrollingEndCallback();
     }

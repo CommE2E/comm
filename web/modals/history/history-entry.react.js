@@ -17,6 +17,7 @@ import {
   type RestoreEntryInfo,
   type RestoreEntryResult,
   type CalendarQuery,
+  type RestoreEntryPayload,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -50,7 +51,7 @@ type Props = {
 };
 
 class HistoryEntry extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     let deleted = null;
     if (this.props.entryInfo.deleted) {
       let restore = null;
@@ -134,7 +135,7 @@ class HistoryEntry extends React.PureComponent<Props> {
     this.props.onClick(entryID);
   };
 
-  async restoreEntryAction() {
+  async restoreEntryAction(): Promise<RestoreEntryPayload> {
     const entryID = this.props.entryInfo.id;
     invariant(entryID, 'entry should have ID');
     const result = await this.props.restoreEntry({

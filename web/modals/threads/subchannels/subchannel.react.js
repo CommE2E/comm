@@ -40,7 +40,7 @@ function Subchannel(props: Props): React.Node {
   const navigateToThread = useOnClickThread(threadInfo);
 
   const onClickThread = React.useCallback(
-    event => {
+    (event: SyntheticEvent<HTMLButtonElement>) => {
       popModal();
       navigateToThread(event);
     },

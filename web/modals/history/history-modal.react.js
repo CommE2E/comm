@@ -71,7 +71,7 @@ type State = {
   +revisions: $ReadOnlyArray<HistoryRevisionInfo>,
 };
 class HistoryModal extends React.PureComponent<Props, State> {
-  static defaultProps = { currentEntryID: null };
+  static defaultProps: Partial<Props> = { currentEntryID: null };
 
   constructor(props: Props) {
     super(props);
@@ -91,7 +91,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
+  render(): React.Node {
     let allHistoryButton = null;
     if (this.state.mode === 'entry') {
       allHistoryButton = (
