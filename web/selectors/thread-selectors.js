@@ -16,7 +16,7 @@ import type {
   ComposableMessageInfo,
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
-import type { ThreadInfo, RawThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo, RawThreadInfos } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
@@ -140,10 +140,7 @@ const unreadCountInSelectedCommunity: (state: AppState) => number =
   createSelector(
     (state: AppState) => state.threadStore.threadInfos,
     (state: AppState) => state.communityPickerStore.chat,
-    (
-      threadInfos: { +[id: string]: RawThreadInfo },
-      communityID: ?string,
-    ): number =>
+    (threadInfos: RawThreadInfos, communityID: ?string): number =>
       values(threadInfos).filter(
         threadInfo =>
           threadInHomeChatList(threadInfo) &&

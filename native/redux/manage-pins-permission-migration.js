@@ -5,9 +5,10 @@ import type {
   MemberInfo,
   ThreadCurrentUserInfo,
   RoleInfo,
+  RawThreadInfos,
 } from 'lib/types/thread-types.js';
 
-type ThreadStoreThreadInfos = { +[id: string]: RawThreadInfo };
+type ThreadStoreThreadInfos = RawThreadInfos;
 type TargetMemberInfo = MemberInfo | ThreadCurrentUserInfo;
 
 const adminRoleName = 'Admins';

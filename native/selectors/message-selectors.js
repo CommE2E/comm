@@ -6,7 +6,7 @@ import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadMessageInfo } from 'lib/types/message-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types.js';
-import { type RawThreadInfo } from 'lib/types/thread-types.js';
+import { type RawThreadInfos } from 'lib/types/thread-types.js';
 
 import { activeThreadSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
@@ -19,7 +19,7 @@ const nextMessagePruneTimeSelector: (state: AppState) => ?number =
     (state: AppState) => state.threadStore.threadInfos,
     (state: AppState) => state.threadActivityStore,
     (
-      threadInfos: { +[id: string]: RawThreadInfo },
+      threadInfos: RawThreadInfos,
       threadActivityStore: ThreadActivityStore,
     ): ?number => {
       let nextTime;
