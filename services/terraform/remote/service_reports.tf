@@ -1,5 +1,5 @@
 locals {
-  reports_service_image_tag           = local.is_staging ? "latest" : "0.1.0"
+  reports_service_image_tag           = local.is_staging ? "0.1.1" : "0.1.1"
   reports_service_container_name      = "reports-service-server"
   reports_service_server_image        = "commapp/reports-server:${local.reports_service_image_tag}"
   reports_service_container_http_port = 50056
@@ -35,6 +35,10 @@ resource "aws_ecs_task_definition" "reports_service" {
           value = "info"
         },
         {
+          name  = "MAX_REPORT_SIZE"
+          value = "314572800" # 300MB
+        },
+        {
           name  = "PUBLIC_URL",
           value = "https://${local.reports_service_domain_name}"
         },
@@ -66,10 +70,10 @@ resource "aws_ecs_task_definition" "reports_service" {
   ])
   task_role_arn            = aws_iam_role.reports_service.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  network_mode             = "bridge"
-  cpu                      = "256"
-  memory                   = "256"
-  requires_compatibilities = ["EC2"]
+  network_mode             = "awsvpc"
+  cpu                      = "1024"
+  memory                   = "8192"
+  requires_compatibilities = ["EC2", "FARGATE"]
 
   # Set this to true if you want to keep old revisions
   # when this definition is changed
@@ -79,7 +83,7 @@ resource "aws_ecs_task_definition" "reports_service" {
 resource "aws_ecs_service" "reports_service" {
   name        = "reports-service"
   cluster     = aws_ecs_cluster.comm_services.id
-  launch_type = "EC2"
+  launch_type = "FARGATE"
 
   task_definition      = aws_ecs_task_definition.reports_service.arn
   force_new_deployment = true
@@ -99,6 +103,18 @@ resource "aws_ecs_service" "reports_service" {
     target_group_arn = aws_lb_target_group.reports_service_http.arn
     container_name   = local.reports_service_container_name
     container_port   = local.reports_service_container_http_port
+  }
+
+  network_configuration {
+    assign_public_ip = true
+    security_groups = [
+      aws_security_group.reports_service.id,
+    ]
+    subnets = [
+      aws_subnet.public_a.id,
+      aws_subnet.public_b.id,
+      aws_subnet.public_c.id,
+    ]
   }
 
   deployment_circuit_breaker {
@@ -143,7 +159,7 @@ resource "aws_lb_target_group" "reports_service_http" {
   vpc_id   = aws_vpc.default.id
 
   # ECS Fargate requires target type set to IP
-  target_type = "instance"
+  target_type = "ip"
 
   health_check {
     enabled             = true
@@ -155,6 +171,7 @@ resource "aws_lb_target_group" "reports_service_http" {
     matcher  = "200-204"
   }
 }
+
 
 # Load Balancer
 resource "aws_lb" "reports_service" {
@@ -181,9 +198,6 @@ resource "aws_lb_listener" "reports_service_https" {
   }
 
   lifecycle {
-    # Target group cannot be destroyed if it is used
-    replace_triggered_by = [aws_lb_target_group.reports_service_http]
-
     # Required to avoid no-op plan differences
     ignore_changes = [default_action[0].forward[0].stickiness[0].duration]
   }

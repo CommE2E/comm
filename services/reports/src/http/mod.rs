@@ -9,7 +9,7 @@ use http::StatusCode;
 use tracing::{debug, error, info, trace, warn};
 
 use crate::config::CONFIG;
-use crate::constants::REQUEST_BODY_JSON_SIZE_LIMIT;
+use crate::constants::max_report_size;
 use crate::service::{ReportsService, ReportsServiceError};
 
 mod handlers;
@@ -27,8 +27,7 @@ pub async fn run_http_server(
     CONFIG.http_port
   );
   HttpServer::new(move || {
-    let json_cfg =
-      web::JsonConfig::default().limit(REQUEST_BODY_JSON_SIZE_LIMIT);
+    let json_cfg = web::JsonConfig::default().limit(max_report_size());
     App::new()
       .app_data(json_cfg)
       .app_data(reports_service.to_owned())
