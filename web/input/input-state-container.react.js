@@ -232,7 +232,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   static completedMessageIDs(state: State): Set<string> {
-    const completed = new Map();
+    const completed = new Map<string, boolean>();
     for (const threadID in state.pendingUploads) {
       const pendingUploads = state.pendingUploads[threadID];
       for (const localUploadID in pendingUploads) {
@@ -250,7 +250,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         }
       }
     }
-    const messageIDs = new Set();
+    const messageIDs = new Set<string>();
     for (const [messageID, isCompleted] of completed) {
       if (isCompleted) {
         messageIDs.add(messageID);
@@ -265,7 +265,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return;
     }
 
-    const previouslyAssignedMessageIDs = new Set();
+    const previouslyAssignedMessageIDs = new Set<string>();
     for (const threadID in prevState.pendingUploads) {
       const pendingUploads = prevState.pendingUploads[threadID];
       for (const localUploadID in pendingUploads) {
@@ -276,7 +276,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
     }
 
-    const newlyAssignedUploads = new Map();
+    const newlyAssignedUploads = new Map<
+      string,
+      {
+        +threadID: string,
+        +shouldEncrypt: boolean,
+        +uploads: PendingMultimediaUpload[],
+      },
+    >();
     for (const threadID in this.state.pendingUploads) {
       const pendingUploads = this.state.pendingUploads[threadID];
       for (const localUploadID in pendingUploads) {
@@ -306,7 +313,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
     }
 
-    const newMessageInfos = new Map();
+    const newMessageInfos = new Map<string, RawMultimediaMessageInfo>();
     for (const [messageID, assignedUploads] of newlyAssignedUploads) {
       const { uploads, threadID, shouldEncrypt } = assignedUploads;
       const creatorID = this.props.viewerID;
@@ -1524,7 +1531,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       payload: newRawMessageInfo,
     });
 
-    const uploadIDsToRetry = new Set();
+    const uploadIDsToRetry = new Set<string>();
     const uploadsToRetry = [];
     for (const pendingUpload of pendingUploads) {
       const { serverID, messageID, localID, abort } = pendingUpload;
@@ -1657,7 +1664,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
       [],
     );
     const textMessageCreationSideEffectsFunc =
-      useMessageCreationSideEffectsFunc(messageTypes.TEXT);
+      useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
 
     return (
       <InputStateContainer
