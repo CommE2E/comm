@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import ClearSearchButton from './clear-search-button.react.js';
 import css from './search.css';
@@ -15,7 +16,10 @@ type Props = {
   +onClearText?: () => mixed,
 };
 
-function Search(props: Props, ref): React.Node {
+function Search(
+  props: Props,
+  ref: ReactRefSetter<HTMLInputElement>,
+): React.Node {
   const { searchText, onChangeText, placeholder, onClearText, ...rest } = props;
 
   const showClearButton = !!searchText;
