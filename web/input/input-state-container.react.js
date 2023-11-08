@@ -116,6 +116,11 @@ import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 
+type CombinedInputState = {
+  +inputBaseState: BaseInputState,
+  +typeaheadState: TypeaheadInputState,
+};
+
 type BaseProps = {
   +children: React.Node,
 };
@@ -668,13 +673,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }),
   );
 
-  inputStateSelector: ({
-    +inputBaseState: BaseInputState,
-    +typeaheadState: TypeaheadInputState,
-  }) => InputState = createSelector(
-    state => state.inputBaseState,
-    state => state.typeaheadState,
-    (inputBaseState, typeaheadState) => ({
+  inputStateSelector: CombinedInputState => InputState = createSelector(
+    (state: CombinedInputState) => state.inputBaseState,
+    (state: CombinedInputState) => state.typeaheadState,
+    (inputBaseState: BaseInputState, typeaheadState: TypeaheadInputState) => ({
       ...inputBaseState,
       ...typeaheadState,
     }),
