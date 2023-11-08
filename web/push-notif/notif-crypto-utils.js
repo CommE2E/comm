@@ -17,6 +17,7 @@ import {
   decryptData,
   encryptData,
   importJWKKey,
+  type EncryptedData,
 } from '../crypto/aes-gcm-crypto-utils.js';
 import {
   NOTIFICATIONS_OLM_DATA_CONTENT,
@@ -51,7 +52,7 @@ async function decryptWebNotification(
   const { id, encryptedPayload } = encryptedNotification;
 
   const retrieveEncryptionKeyPromise: Promise<?CryptoKey> = (async () => {
-    const persistedCryptoKey = await localforage.getItem(
+    const persistedCryptoKey = await localforage.getItem<CryptoKey>(
       NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
     );
     if (isDesktopSafari && persistedCryptoKey) {
@@ -63,9 +64,9 @@ async function decryptWebNotification(
   })();
 
   const [encryptedOlmData, encryptionKey, utilsData] = await Promise.all([
-    localforage.getItem(NOTIFICATIONS_OLM_DATA_CONTENT),
+    localforage.getItem<EncryptedData>(NOTIFICATIONS_OLM_DATA_CONTENT),
     retrieveEncryptionKeyPromise,
-    localforage.getItem(WEB_NOTIFS_SERVICE_UTILS_KEY),
+    localforage.getItem<WebNotifsServiceUtilsData>(WEB_NOTIFS_SERVICE_UTILS_KEY),
   ]);
 
   if (!utilsData) {

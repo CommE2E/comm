@@ -11,6 +11,7 @@ import {
   encryptData,
   generateCryptoKey,
   importJWKKey,
+  type EncryptedData,
 } from '../../crypto/aes-gcm-crypto-utils.js';
 import {
   type SharedWorkerMessageEvent,
@@ -74,7 +75,9 @@ async function initDatabase(
     }
   }
 
-  const encryptedContent = await localforage.getItem(SQLITE_CONTENT);
+  const encryptedContent = await localforage.getItem<EncryptedData>(
+    SQLITE_CONTENT,
+  );
 
   let dbContent = null;
   try {
