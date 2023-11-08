@@ -306,7 +306,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
         ...state.threadStore,
         threadInfos: {
           ...state.threadStore.threadInfos,
-          [activeThread]: {
+          [(activeThread: string)]: {
             ...state.threadStore.threadInfos[activeThread],
             currentUser: {
               ...state.threadStore.threadInfos[activeThread].currentUser,
@@ -329,7 +329,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       ...state,
       threadActivityStore: {
         ...state.threadActivityStore,
-        [activeThread]: {
+        [(activeThread: string)]: {
           ...state.threadActivityStore[activeThread],
           lastNavigatedTo: now,
         },
