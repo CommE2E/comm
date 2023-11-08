@@ -4,7 +4,7 @@ hr.separator {
   width: 100%;
   height: 2px;
   border: none;
-  border-top: var(--shades-black-70) solid 1px;
+  border-top: var(--shades-black-60) solid 1px;
 }
 
 .messageResultsContainer {
