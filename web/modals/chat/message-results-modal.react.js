@@ -7,7 +7,10 @@ import {
   useFetchPinnedMessages,
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { messageListData } from 'lib/selectors/chat-selectors.js';
+import {
+  messageListData,
+  type ChatMessageInfoItem,
+} from 'lib/selectors/chat-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   createMessageInfo,
@@ -73,7 +76,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
 
   const sortedUniqueChatMessageInfoItems = React.useMemo(() => {
     if (!chatMessageInfos) {
-      return [];
+      return ([]: ChatMessageInfoItem[]);
     }
 
     const chatMessageInfoItems = chatMessageInfos.filter(
