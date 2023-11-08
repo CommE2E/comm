@@ -22,7 +22,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   const int codeVersion{284};
   std::unique_ptr<WorkerThread> cryptoThread;
 
-  CommSecureStore secureStore;
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
   const std::string publicCryptoAccountID = "publicCryptoAccountID";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
