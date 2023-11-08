@@ -321,7 +321,7 @@ function validateStateAndProcessDBOperations(
       ...state,
       threadActivityStore: {
         ...state.threadActivityStore,
-        [activeThread]: {
+        [(activeThread: string)]: {
           ...state.threadActivityStore[activeThread],
           lastNavigatedTo: now,
         },
