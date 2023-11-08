@@ -41,7 +41,12 @@ const itemKey = (index: number, data: $ReadOnlyArray<Item>) => {
   }
 };
 
-const renderItem = ({ index, data, style }) => {
+type RenderItemInput = {
+  +index: number,
+  +data: $ReadOnlyArray<Item>,
+  +style: CSSStyleDeclaration,
+};
+const renderItem: RenderItemInput => React.Node = ({ index, data, style }) => {
   let item;
   if (data[index].type === 'search') {
     item = <ChatThreadListSearch />;
@@ -129,7 +134,7 @@ function ChatThreadList(): React.Node {
       items.push({ type: 'empty' });
     }
 
-    const itemSize = index => {
+    const itemSize = (index: number) => {
       if (items[index].type === 'search') {
         return sizes.search;
       } else if (items[index].type === 'empty') {

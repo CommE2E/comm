@@ -166,7 +166,7 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   static unassignedUploadIDs(
     pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
-  ) {
+  ): string[] {
     return pendingUploads
       .filter(
         (pendingUpload: PendingMultimediaUpload) => !pendingUpload.messageID,
@@ -199,7 +199,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     this.props.inputState.removeReplyListener(this.focusAndUpdateText);
   }
 
-  render() {
+  render(): React.Node {
     const isMember = viewerIsMember(this.props.threadInfo);
     const canJoin = threadHasPermission(
       this.props.threadInfo,
@@ -540,7 +540,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
   };
 
-  async joinAction() {
+  async joinAction(): Promise<ThreadJoinPayload> {
     const query = this.props.calendarQuery();
     return await this.props.joinThread({
       threadID: this.props.threadInfo.id,
