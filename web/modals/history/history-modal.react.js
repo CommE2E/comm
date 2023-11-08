@@ -22,6 +22,7 @@ import type {
   EntryInfo,
   CalendarQuery,
   FetchEntryInfosResult,
+  FetchRevisionsForEntryPayload,
 } from 'lib/types/entry-types.js';
 import { type CalendarFilter } from 'lib/types/filter-types.js';
 import type {
@@ -211,7 +212,9 @@ class HistoryModal extends React.PureComponent<Props, State> {
     );
   }
 
-  async fetchRevisionsForEntryAction(entryID: string) {
+  async fetchRevisionsForEntryAction(
+    entryID: string,
+  ): Promise<FetchRevisionsForEntryPayload> {
     const result = await this.props.fetchRevisionsForEntry({ entryID });
     this.setState(prevState => {
       // This merge here will preserve time ordering correctly
