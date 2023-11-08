@@ -73,7 +73,7 @@ function UpdateModalHandler(): React.Node {
 
   React.useEffect(
     () =>
-      electron?.onNewVersionAvailable?.(version => {
+      electron?.onNewVersionAvailable?.((version: string) => {
         // On these versions we want to update immediately because there's
         // an issue if the user decides to update 10min after showing the modal
         if (electron?.version === '1.0.0' || electron?.version === '2.0.0') {
