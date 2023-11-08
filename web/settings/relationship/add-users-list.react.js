@@ -14,7 +14,10 @@ import type {
   UserRelationshipStatus,
   RelationshipAction,
 } from 'lib/types/relationship-types.js';
-import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
+import type {
+  GlobalAccountUserInfo,
+  AccountUserInfo,
+} from 'lib/types/user-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -80,7 +83,8 @@ function AddUsersList(props: Props): React.Node {
   const searchTextPresent = searchText.length > 0;
   const userInfos = useSelector(state => state.userStore.userInfos);
   const mergedUserInfos = React.useMemo(() => {
-    const mergedInfos = {};
+    const mergedInfos: { [string]: GlobalAccountUserInfo | AccountUserInfo } =
+      {};
 
     for (const userInfo of serverSearchResults) {
       mergedInfos[userInfo.id] = userInfo;

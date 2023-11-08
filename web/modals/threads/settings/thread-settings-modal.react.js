@@ -17,6 +17,7 @@ import {
   threadUIName,
 } from 'lib/shared/thread-utils.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
@@ -89,7 +90,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
 
     const availableRelationshipActions = React.useMemo(() => {
       if (!otherUserInfo) {
-        return [];
+        return ([]: RelationshipButton[]);
       }
       return getAvailableRelationshipButtons(otherUserInfo);
     }, [otherUserInfo]);

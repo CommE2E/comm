@@ -15,7 +15,7 @@ type MenuItemPropsBase = {
   +text: string,
   +dangerous?: boolean,
 };
-type MenuItemProps =
+export type MenuItemProps =
   | {
       ...MenuItemPropsBase,
       +icon: Icon,
