@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -41,7 +42,7 @@ function MessageSearchModal(props: ContentProps): React.Node {
   }, [setQuery, input, searchMessages, threadInfo.id]);
 
   const onKeyDown = React.useCallback(
-    event => {
+    (event: SyntheticKeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
         onPressSearch();
       }
@@ -77,7 +78,7 @@ function MessageSearchModal(props: ContentProps): React.Node {
   }, [clearTooltip, possiblyLoadMoreMessages]);
 
   const renderItem = React.useCallback(
-    item => (
+    (item: ChatMessageInfoItem) => (
       <MessageResult
         key={item.messageInfo.id}
         item={item}

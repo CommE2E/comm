@@ -180,7 +180,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   );
 
   const onEmojiSelect = React.useCallback(
-    emoji => {
+    (emoji: { +native: string, ... }) => {
       const reactionInput = emoji.native;
       sendReaction(reactionInput);
     },

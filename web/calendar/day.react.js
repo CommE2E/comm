@@ -66,7 +66,7 @@ class Day extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const now = new Date();
     const isToday = dateString(now) === this.props.dayString;
     const tdClasses = classNames(css.day, { [css.currentDay]: isToday });

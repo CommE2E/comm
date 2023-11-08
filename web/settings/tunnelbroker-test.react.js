@@ -25,7 +25,7 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
   const messageInput = React.useRef(null);
 
   const onSubmit = React.useCallback(
-    async event => {
+    async (event: SyntheticEvent<HTMLButtonElement>) => {
       event.preventDefault();
 
       setLoading(true);

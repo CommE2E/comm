@@ -28,7 +28,7 @@ type Props = {
   +inputState: ?InputState,
 };
 class MultimediaMessage extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const { item, inputState } = this.props;
     invariant(
       item.messageInfo.type === messageTypes.IMAGES ||
