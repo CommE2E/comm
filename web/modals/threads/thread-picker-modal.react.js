@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { createSelector } from 'reselect';
 
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors.js';
@@ -81,26 +80,12 @@ function ThreadPickerModal(props: Props): React.Node {
     [searchIndex],
   );
 
-  const listDataSelector = createSelector(
-    state => state.onScreenThreadInfos,
-    state => state.searchText,
-    state => state.searchResults,
-    (
-      threadInfos: $ReadOnlyArray<ThreadInfo>,
-      text: string,
-      results: Set<string>,
-    ) =>
-      text
-        ? threadInfos.filter(threadInfo => results.has(threadInfo.id))
-        : [...threadInfos],
-  );
-
-  const threads = useSelector(() =>
-    listDataSelector({
-      onScreenThreadInfos,
-      searchText,
-      searchResults,
-    }),
+  const threads = React.useMemo(
+    () =>
+      searchText
+        ? onScreenThreadInfos.filter(thread => searchResults.has(thread.id))
+        : onScreenThreadInfos,
+    [searchText, onScreenThreadInfos, searchResults],
   );
 
   const threadPickerContent = React.useMemo(() => {
