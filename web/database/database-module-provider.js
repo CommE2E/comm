@@ -131,7 +131,9 @@ class DatabaseModule {
 }
 
 async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
-  const encryptionKey = await localforage.getItem(SQLITE_ENCRYPTION_KEY);
+  const encryptionKey = await localforage.getItem<CryptoKey>(
+    SQLITE_ENCRYPTION_KEY,
+  );
   if (encryptionKey) {
     return await exportKeyToJWK(encryptionKey);
   }
