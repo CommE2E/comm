@@ -54,6 +54,7 @@ import {
   setPickledPrimaryAccount,
 } from './crypto-store-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
+import { onStateDifference } from './redux-debug-utils.js';
 import { getVisibility } from './visibility.js';
 import { getDatabaseModule } from '../database/database-module-provider.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
@@ -200,7 +201,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     action.type !== setPickledPrimaryAccount &&
     action.type !== setPickledNotificationAccount
   ) {
-    const baseReducerResult = baseReducer(state, action);
+    const baseReducerResult = baseReducer(state, action, onStateDifference);
     state = baseReducerResult.state;
 
     const {
