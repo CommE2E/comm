@@ -3,6 +3,8 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import type { ReactRefSetter } from 'lib/types/react-types.js';
+
 import css from './input.css';
 
 export type BaseInputProps = {
@@ -22,7 +24,10 @@ export type InputProps = {
   +maxLength?: number,
 };
 
-function Input(props: InputProps, ref): React.Node {
+function Input(
+  props: InputProps,
+  ref: ReactRefSetter<HTMLInputElement>,
+): React.Node {
   const {
     label: labelProp,
     disabled = false,
