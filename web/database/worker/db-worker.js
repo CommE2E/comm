@@ -35,6 +35,7 @@ import {
   encryptDatabaseFile,
   generateDatabaseCryptoKey,
   importJWKKey,
+  type EncryptedData,
 } from '../utils/worker-crypto-utils.js';
 
 localforage.config(localforageConfig);
@@ -74,7 +75,9 @@ async function initDatabase(
     }
   }
 
-  const encryptedContent = await localforage.getItem(SQLITE_CONTENT);
+  const encryptedContent = await localforage.getItem<EncryptedData>(
+    SQLITE_CONTENT,
+  );
 
   let dbContent = null;
   try {
