@@ -17,7 +17,7 @@ const commReduxStorageEngine = {
       type: workerRequestMessageTypes.GET_PERSIST_STORAGE_ITEM,
       key,
     });
-    if (typeof result?.item !== 'string') {
+    if (!result || typeof result.item !== 'string') {
       throw new Error('Wrong type returned for storage item');
     }
     return result.item;
