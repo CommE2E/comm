@@ -166,7 +166,7 @@ class App extends React.PureComponent<Props> {
     });
   };
 
-  render() {
+  render(): React.Node {
     let content;
     if (this.props.loggedIn) {
       content = (
@@ -214,10 +214,11 @@ class App extends React.PureComponent<Props> {
     );
   }
 
-  onHeaderDoubleClick = () => electron?.doubleClickTopBar();
-  stopDoubleClickPropagation = electron ? e => e.stopPropagation() : null;
+  onHeaderDoubleClick = (): void => electron?.doubleClickTopBar();
+  stopDoubleClickPropagation: ?(SyntheticEvent<HTMLAnchorElement>) => void =
+    electron ? e => e.stopPropagation() : null;
 
-  renderLoginPage() {
+  renderLoginPage(): React.Node {
     const { loginMethod } = this.props.navInfo;
 
     if (loginMethod === 'qr-code') {
@@ -227,7 +228,7 @@ class App extends React.PureComponent<Props> {
     return <Splash />;
   }
 
-  renderMainContent() {
+  renderMainContent(): React.Node {
     const mainContent = this.getMainContentWithSwitcher();
 
     let navigationArrows = null;
@@ -285,7 +286,7 @@ class App extends React.PureComponent<Props> {
     );
   }
 
-  getMainContentWithSwitcher() {
+  getMainContentWithSwitcher(): React.Node {
     const { tab, settingsSection } = this.props.navInfo;
     let mainContent;
 

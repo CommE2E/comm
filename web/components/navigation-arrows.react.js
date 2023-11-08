@@ -9,7 +9,8 @@ import css from './navigation-arrows.css';
 import electron from '../electron.js';
 import history from '../router-history.js';
 
-const stopDoubleClickPropagation = e => e.stopPropagation();
+const stopDoubleClickPropagation = (e: SyntheticEvent<HTMLAnchorElement>) =>
+  e.stopPropagation();
 
 function NavigationArrows(): React.Node {
   const goBack = React.useCallback(

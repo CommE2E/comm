@@ -411,7 +411,7 @@ function useMessageTooltip({
   }, [messageTimestamp, tooltipActions]);
 
   const createMessageTooltip = React.useCallback(
-    tooltipPositionStyle => (
+    (tooltipPositionStyle: TooltipPositionStyle) => (
       <MessageTooltip
         actions={tooltipActions}
         messageTimestamp={messageTimestamp}

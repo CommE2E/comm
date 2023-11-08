@@ -53,10 +53,13 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
     [pendingAvatarColor, pendingAvatarEmoji],
   );
 
-  const onEmojiSelect = React.useCallback(selection => {
-    setUpdateAvatarStatus();
-    setPendingAvatarEmoji(selection.native);
-  }, []);
+  const onEmojiSelect = React.useCallback(
+    (selection: { +native: string, ... }) => {
+      setUpdateAvatarStatus();
+      setPendingAvatarEmoji(selection.native);
+    },
+    [],
+  );
 
   const onColorSelection = React.useCallback((hex: string) => {
     setUpdateAvatarStatus();

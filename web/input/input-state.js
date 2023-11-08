@@ -61,15 +61,13 @@ export type TypeaheadState = {
   +accept: ?() => void,
 };
 
-// This type represents the input state for a particular thread
-export type InputState = {
+export type BaseInputState = {
   +pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
   +assignedUploads: {
     [messageID: string]: $ReadOnlyArray<PendingMultimediaUpload>,
   },
   +draft: string,
   +textCursorPosition: number,
-  +typeaheadState: TypeaheadState,
   +appendFiles: (
     threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
     files: $ReadOnlyArray<File>,
@@ -86,7 +84,6 @@ export type InputState = {
   ) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
-  +setTypeaheadState: ($Shape<TypeaheadState>) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMultimediaMessage: (
     localMessageID: string,
@@ -97,6 +94,17 @@ export type InputState = {
   +removeReplyListener: ((message: string) => void) => void,
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,
+};
+
+export type TypeaheadInputState = {
+  +typeaheadState: TypeaheadState,
+  +setTypeaheadState: ($Shape<TypeaheadState>) => void,
+};
+
+// This type represents the input state for a particular thread
+export type InputState = {
+  ...BaseInputState,
+  ...TypeaheadInputState,
 };
 
 const InputStateContext: React.Context<?InputState> =
