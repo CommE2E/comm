@@ -19,11 +19,12 @@
   --shades-white-70: #e0e0e0;
   --shades-white-60: #cccccc;
 
-  --shades-black-100: #0a0a0a;
-  --shades-black-90: #1f1f1f;
-  --shades-black-80: #404040;
-  --shades-black-70: #666666;
-  --shades-black-60: #808080;
+  --shades-black-95: #0a0a0a;
+  --shades-black-90: #191919;
+  --shades-black-85: #1f1f1f;
+  --shades-black-75: #404040;
+  --shades-black-60: #666666;
+  --shades-black-50: #808080;
 
   --violet-dark-100: #7e57c2;
   --violet-dark-80: #6d49ab;
@@ -53,189 +54,189 @@
   --spoiler-color: #33332c;
   --loading-foreground: #1b0e38;
 
-  --bg: var(--shades-black-100);
+  --bg: var(--shades-black-95);
   --fg: var(--shades-white-100);
-  --color-disabled: var(--shades-black-60);
-  --text-input-bg: var(--shades-black-80);
+  --color-disabled: var(--shades-black-50);
+  --text-input-bg: var(--shades-black-75);
   --text-input-color: var(--shades-white-60);
   --text-input-placeholder: var(--shades-white-60);
-  --border: var(--shades-black-80);
+  --border: var(--shades-black-75);
   --error: var(--error-primary);
   --success: var(--success-dark-50);
 
   /* Color Theme */
 
   --btn-bg-filled: var(--violet-dark-100);
-  --btn-bg-outline: var(--shades-black-90);
+  --btn-bg-outline: var(--shades-black-85);
   --btn-bg-success: var(--success-dark-50);
   --btn-bg-danger: var(--error-primary);
-  --btn-bg-disabled: var(--shades-black-80);
-  --btn-disabled-color: var(--shades-black-60);
+  --btn-bg-disabled: var(--shades-black-75);
+  --btn-disabled-color: var(--shades-black-50);
   --chat-bg: var(--violet-dark-80);
   --chat-confirmation-icon: var(--violet-dark-100);
   --keyserver-selection: var(--violet-dark-60);
   --thread-selection: var(--violet-light-80);
-  --thread-hover-bg: var(--shades-black-80);
-  --thread-active-bg: var(--shades-black-80);
-  --chat-timestamp-color: var(--shades-black-60);
-  --tool-tip-bg: var(--shades-black-80);
+  --thread-hover-bg: var(--shades-black-75);
+  --thread-active-bg: var(--shades-black-75);
+  --chat-timestamp-color: var(--shades-black-50);
+  --tool-tip-bg: var(--shades-black-75);
   --tool-tip-color: var(--shades-white-60);
-  --border-color: var(--shades-black-80);
-  --calendar-chevron: var(--shades-black-60);
-  --calendar-day-bg: var(--shades-black-60);
+  --border-color: var(--shades-black-75);
+  --calendar-chevron: var(--shades-black-50);
+  --calendar-day-bg: var(--shades-black-50);
   --calendar-day-selected-color: var(--violet-dark-80);
-  --community-bg: var(--shades-black-90);
+  --community-bg: var(--shades-black-85);
   --community-settings-selected: var(--violet-dark-60);
   --unread-bg: var(--error-primary);
   --settings-btn-bg: var(--violet-dark-100);
-  --community-creation-btn-bg: var(--shades-black-80);
-  --community-creation-ancestry-bg: var(--shades-black-80);
-  --community-creation-ancestry-text: var(--shades-black-60);
+  --community-creation-btn-bg: var(--shades-black-75);
+  --community-creation-ancestry-bg: var(--shades-black-75);
+  --community-creation-ancestry-text: var(--shades-black-50);
   --community-creation-form-notice: var(--shades-white-60);
-  --community-creation-keyserver-container: var(--shades-black-100);
-  --modal-bg: var(--shades-black-90);
+  --community-creation-keyserver-container: var(--shades-black-95);
+  --modal-bg: var(--shades-black-85);
   --modal-fg: var(--shades-white-60);
-  --join-bg: var(--shades-black-90);
-  --help-color: var(--shades-black-60);
+  --join-bg: var(--shades-black-85);
+  --help-color: var(--shades-black-50);
   --breadcrumb-color: var(--shades-white-60);
   --breadcrumb-color-unread: var(--shades-white-60);
-  --btn-outline-border: var(--shades-black-60);
-  --thread-color-read: var(--shades-black-60);
-  --thread-preview-secondary: var(--shades-black-70);
+  --btn-outline-border: var(--shades-black-50);
+  --thread-color-read: var(--shades-black-50);
+  --thread-preview-secondary: var(--shades-black-60);
   --relationship-button-green: var(--success-dark-50);
   --relationship-button-red: var(--error-primary);
   --relationship-button-text: var(--fg);
   --disconnected-bar-alert-bg: var(--error-dark-50);
   --disconnected-bar-alert-color: var(--shades-white-100);
   --disconnected-bar-connecting-bg: var(--shades-white-70);
-  --disconnected-bar-connecting-color: var(--shades-black-100);
+  --disconnected-bar-connecting-color: var(--shades-black-95);
   --permission-color: var(--shades-white-60);
   --thread-top-bar-color: var(--shades-white-100);
-  --thread-top-bar-search-button-color: var(--shades-black-60);
-  --thread-ancestor-keyserver-border: var(--shades-black-70);
+  --thread-top-bar-search-button-color: var(--shades-black-50);
+  --thread-ancestor-keyserver-border: var(--shades-black-60);
   --thread-ancestor-color: var(--shades-white-100);
   --thread-ancestor-separator-color: var(--shades-white-60);
-  --text-message-default-background: var(--shades-black-80);
-  --message-action-tooltip-bg: var(--shades-black-90);
-  --message-action-tooltip-bg-light: var(--shades-black-80);
-  --menu-bg: var(--shades-black-90);
-  --menu-bg-light: var(--shades-black-80);
-  --menu-separator-color: var(--shades-black-80);
-  --menu-color: var(--shades-black-60);
+  --text-message-default-background: var(--shades-black-75);
+  --message-action-tooltip-bg: var(--shades-black-85);
+  --message-action-tooltip-bg-light: var(--shades-black-75);
+  --menu-bg: var(--shades-black-85);
+  --menu-bg-light: var(--shades-black-75);
+  --menu-separator-color: var(--shades-black-75);
+  --menu-color: var(--shades-black-50);
   --menu-color-light: var(--shades-white-60);
   --menu-color-hover: var(--shades-white-100);
   --menu-color-dangerous: var(--error-primary);
   --menu-color-dangerous-hover: var(--error-light-50);
-  --app-list-icon-read-only-color: var(--shades-black-60);
+  --app-list-icon-read-only-color: var(--shades-black-50);
   --app-list-icon-enabled-color: var(--success-primary);
   --app-list-icon-disabled-color: var(--shades-white-80);
   --chat-thread-list-color-active: var(--shades-white-60);
   --chat-thread-list-menu-color: var(--shades-white-60);
-  --chat-thread-list-menu-bg: var(--shades-black-80);
+  --chat-thread-list-menu-bg: var(--shades-black-75);
   --chat-thread-list-menu-active-color: var(--shades-white-60);
-  --chat-thread-list-menu-active-bg: var(--shades-black-90);
+  --chat-thread-list-menu-active-bg: var(--shades-black-85);
   --search-clear-color: var(--shades-white-100);
-  --search-clear-bg: var(--shades-black-70);
+  --search-clear-bg: var(--shades-black-60);
   --search-input-color: var(--shades-white-100);
-  --search-input-placeholder: var(--shades-black-60);
-  --search-icon-color: var(--shades-black-60);
+  --search-input-placeholder: var(--shades-black-50);
+  --search-icon-color: var(--shades-black-50);
   --tabs-header-active-color: var(--shades-white-100);
   --tabs-header-active-border: var(--violet-light-100);
   --tabs-header-active-background: var(--violet-dark-100);
-  --tabs-header-background-color: var(--shades-black-60);
+  --tabs-header-background-color: var(--shades-black-50);
   --tabs-header-background-color-pill: var(--shades-white-60);
-  --tabs-header-background-border: var(--shades-black-80);
+  --tabs-header-background-border: var(--shades-black-75);
   --tabs-header-background-color-hover: var(--shades-white-80);
-  --tabs-header-background-border-hover: var(--shades-black-70);
-  --members-modal-member-text: var(--shades-black-60);
+  --tabs-header-background-border-hover: var(--shades-black-60);
+  --members-modal-member-text: var(--shades-black-50);
   --members-modal-member-text-hover: var(--shades-white-100);
   --label-default-bg: var(--violet-dark-80);
   --label-default-color: var(--shades-white-80);
-  --label-grey-bg: var(--shades-black-80);
+  --label-grey-bg: var(--shades-black-75);
   --label-grey-color: var(--shades-white-80);
-  --subchannels-modal-color: var(--shades-black-60);
+  --subchannels-modal-color: var(--shades-black-50);
   --subchannels-modal-color-hover: var(--shades-white-100);
-  --color-selector-active-bg: var(--shades-black-80);
-  --relationship-modal-color: var(--shades-black-60);
-  --arrow-extension-color: var(--shades-black-60);
-  --modal-close-color: var(--shades-black-60);
+  --color-selector-active-bg: var(--shades-black-75);
+  --relationship-modal-color: var(--shades-black-50);
+  --arrow-extension-color: var(--shades-black-50);
+  --modal-close-color: var(--shades-black-50);
   --modal-close-color-hover: var(--shades-white-100);
-  --add-members-group-header-color: var(--shades-black-60);
-  --add-members-item-color: var(--shades-black-60);
+  --add-members-group-header-color: var(--shades-black-50);
+  --add-members-item-color: var(--shades-black-50);
   --add-members-item-color-hover: var(--shades-white-100);
-  --add-members-item-disabled-color: var(--shades-black-80);
-  --add-members-item-disabled-color-hover: var(--shades-black-60);
+  --add-members-item-disabled-color: var(--shades-black-75);
+  --add-members-item-disabled-color-hover: var(--shades-black-50);
   --add-members-remove-pending-color: var(--error-primary);
   --add-members-remove-pending-color-hover: var(--error-light-50);
-  --radio-border: var(--shades-black-70);
+  --radio-border: var(--shades-black-60);
   --radio-color: var(--shades-white-60);
-  --notification-settings-option-selected-bg: var(--shades-black-80);
+  --notification-settings-option-selected-bg: var(--shades-black-75);
   --notification-settings-option-title-color: var(--shades-white-90);
   --notification-settings-option-color: var(--shades-white-60);
-  --notification-settings-option-invalid-color: var(--shades-black-80);
-  --notification-settings-option-invalid-selected-color: var(--shades-black-60);
-  --thread-creation-search-container-bg: var(--shades-black-90);
-  --thread-creation-close-search-color: var(--shades-black-60);
-  --thread-creation-search-item-bg-hover: var(--shades-black-80);
-  --thread-creation-search-item-info-color: var(--shades-black-60);
+  --notification-settings-option-invalid-color: var(--shades-black-75);
+  --notification-settings-option-invalid-selected-color: var(--shades-black-50);
+  --thread-creation-search-container-bg: var(--shades-black-85);
+  --thread-creation-close-search-color: var(--shades-black-50);
+  --thread-creation-search-item-bg-hover: var(--shades-black-75);
+  --thread-creation-search-item-info-color: var(--shades-black-50);
   --chat-message-list-active-border: #5989d6;
-  --sidebars-modal-color: var(--shades-black-60);
+  --sidebars-modal-color: var(--shades-black-50);
   --sidebars-modal-color-hover: var(--shades-white-100);
-  --inline-engagement-bg: var(--shades-black-70);
-  --inline-engagement-bg-hover: var(--shades-black-80);
+  --inline-engagement-bg: var(--shades-black-60);
+  --inline-engagement-bg-hover: var(--shades-black-75);
   --inline-engagement-color: var(--fg);
-  --compose-subchannel-header-fg: var(--shades-black-60);
-  --compose-subchannel-header-bg: var(--shades-black-80);
-  --compose-subchannel-label-color: var(--shades-black-60);
+  --compose-subchannel-header-fg: var(--shades-black-50);
+  --compose-subchannel-header-bg: var(--shades-black-75);
+  --compose-subchannel-label-color: var(--shades-black-50);
   --compose-subchannel-mark-color: var(--violet-light-100);
   --enum-option-icon-color: var(--violet-dark-100);
-  --show-password-bg-hover: var(--shades-black-70);
-  --typeahead-overlay-light: var(--shades-black-80);
-  --typeahead-overlay-dark: var(--shades-black-90);
+  --show-password-bg-hover: var(--shades-black-60);
+  --typeahead-overlay-light: var(--shades-black-75);
+  --typeahead-overlay-dark: var(--shades-black-85);
   --typeahead-overlay-text: var(--shades-white-100);
   --typeahead-overlay-shadow-primary: rgba(0, 0, 0, 0.25);
   --typeahead-overlay-shadow-secondary: rgba(0, 0, 0, 0.4);
   --spoiler-text-color: var(--spoiler-color);
   --spoiler-background-color: var(--spoiler-color);
   --purple-link: var(--violet-light-100);
-  --drawer-expand-button: var(--shades-black-60);
-  --drawer-expand-button-disabled: var(--shades-black-80);
+  --drawer-expand-button: var(--shades-black-50);
+  --drawer-expand-button-disabled: var(--shades-black-75);
   --drawer-item-color: var(--shades-white-60);
   --drawer-active-item-color: var(--shades-white-100);
-  --drawer-open-community-bg: #191919;
+  --drawer-open-community-bg: var(--shades-black-90);
   --active-drawer-item-bg: rgba(0, 0, 0, 0.5);
   --community-drawer-lines: rgba(255, 255, 255, 0.08);
-  --topbar-button-bg: var(--shades-black-90);
-  --filters-button-bg: var(--shades-black-100);
-  --filters-button-border: var(--shades-black-80);
-  --filters-button-hover-bg: var(--shades-black-90);
-  --filter-panel-fg: var(--shades-black-60);
+  --topbar-button-bg: var(--shades-black-85);
+  --filters-button-bg: var(--shades-black-95);
+  --filters-button-border: var(--shades-black-75);
+  --filters-button-hover-bg: var(--shades-black-85);
+  --filter-panel-fg: var(--shades-black-50);
   --filter-panel-bg: #0d0d0d;
-  --topbar-button-bg-hover: var(--shades-black-80);
+  --topbar-button-bg-hover: var(--shades-black-75);
   --topbar-button-fg: var(--shades-white-60);
-  --message-label-color: var(--shades-black-60);
+  --message-label-color: var(--shades-black-50);
   --topbar-lines: rgba(255, 255, 255, 0.08);
   --pin-message-information-text-color: var(--shades-white-60);
-  --pin-message-modal-border-color: var(--shades-black-80);
-  --pinned-count-banner-color: var(--shades-black-90);
+  --pin-message-modal-border-color: var(--shades-black-75);
+  --pinned-count-banner-color: var(--shades-black-85);
   --pinned-count-text-color: var(--shades-white-90);
   --modal-overlay-background-90: rgba(0, 0, 0, 0.9);
   --modal-overlay-background-80: rgba(0, 0, 0, 0.8);
   --dropdown-text: var(--shades-white-100);
-  --dropdown-select-bg: var(--shades-black-90);
+  --dropdown-select-bg: var(--shades-black-85);
   --dropdown-select-border: var(--shades-white-60);
-  --dropdown-option-bg: var(--shades-black-80);
-  --dropdown-option-hover-bg: var(--shades-black-70);
+  --dropdown-option-bg: var(--shades-black-75);
+  --dropdown-option-hover-bg: var(--shades-black-60);
   --dropdown-selected-option-check-color: var(--violet-dark-100);
   --dropdown-chevron-color: var(--shades-white-100);
-  --dropdown-disabled-color: var(--shades-black-60);
+  --dropdown-disabled-color: var(--shades-black-50);
   --change-member-role-modal-description-text: var(--shades-white-60);
   --change-member-role-modal-generic-text: var(--shades-white-100);
-  --change-member-role-modal-disabled-background: var(--shades-black-80);
+  --change-member-role-modal-disabled-background: var(--shades-black-75);
   --unsaved-changes-modal-text-color: var(--shades-white-60);
-  --modal-secondary-label: var(--shades-black-60);
+  --modal-secondary-label: var(--shades-black-50);
   --community-roles-text-color: var(--shades-white-100);
-  --modal-separator: var(--shades-black-80);
+  --modal-separator: var(--shades-black-75);
   --create-roles-text-color: var(--shades-white-100);
 }
 
@@ -261,38 +262,38 @@
 /* Dark theme (default CSS theme) */
 :root {
   /* Panel */
-  --panel-background-primary-default: var(--shades-black-100);
+  --panel-background-primary-default: var(--shades-black-95);
 
   /* Text */
   --text-background-primary-default: var(--shades-white-100);
   --text-background-secondary-default: var(--shades-white-60);
-  --text-background-tertiary-default: var(--shades-black-60);
+  --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-primary-hover: var(--violet-dark-80);
-  --button-background-primary-disabled: var(--shades-black-80);
+  --button-background-primary-disabled: var(--shades-black-75);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-primary-hover: var(--shades-white-90);
-  --button-label-primary-disabled: var(--shades-black-60);
+  --button-label-primary-disabled: var(--shades-black-50);
 
   /* Link */
   --link-background-primary-default: var(--violet-dark-100);
 
   /* Separator */
-  --separator-background-primary-default: var(--shades-black-80);
+  --separator-background-primary-default: var(--shades-black-75);
 
   /* Modal */
-  --modal-background-primary-default: var(--shades-black-90);
+  --modal-background-primary-default: var(--shades-black-85);
   --modal-header-primary-default: var(--shades-white-100);
-  --modal-close-primary-default: var(--shades-black-60);
+  --modal-close-primary-default: var(--shades-black-50);
   --modal-close-primary-hover: var(--shades-white-100);
 
   /* Input Field */
-  --inputField-background-primary-default: var(--shades-black-90);
+  --inputField-background-primary-default: var(--shades-black-85);
   --inputField-label-primary-default: var(--shades-white-100);
-  --inputField-border-primary-default: var(--shades-black-80);
+  --inputField-border-primary-default: var(--shades-black-75);
 }
 
 /* Light theme */
@@ -301,9 +302,9 @@
   --panel-background-primary-default: var(--shades-white-100);
 
   /* Text */
-  --text-background-primary-default: var(--shades-black-100);
-  --text-background-secondary-default: var(--shades-black-70);
-  --text-background-tertiary-default: var(--shades-black-60);
+  --text-background-primary-default: var(--shades-black-95);
+  --text-background-secondary-default: var(--shades-black-60);
+  --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
 
   /* Button */
@@ -312,7 +313,7 @@
   --button-background-primary-disabled: var(--shades-white-60);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-primary-hover: var(--shades-white-90);
-  --button-label-primary-disabled: var(--shades-black-60);
+  --button-label-primary-disabled: var(--shades-black-50);
 
   /* Link */
   --link-background-primary-default: var(--violet-dark-100);
@@ -322,12 +323,12 @@
 
   /* Modal */
   --modal-background-primary-default: var(--shades-white-100);
-  --modal-header-primary-default: var(--shades-black-100);
-  --modal-close-primary-default: var(--shades-black-60);
-  --modal-close-primary-hover: var(--shades-black-100);
+  --modal-header-primary-default: var(--shades-black-95);
+  --modal-close-primary-default: var(--shades-black-50);
+  --modal-close-primary-hover: var(--shades-black-95);
 
   /* Input Field */
   --inputField-background-primary-default: var(--shades-white-100);
-  --inputField-label-primary-default: var(--shades-black-100);
+  --inputField-label-primary-default: var(--shades-black-95);
   --inputField-border-primary-default: var(--shades-white-60);
 }
