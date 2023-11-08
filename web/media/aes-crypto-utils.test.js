@@ -19,7 +19,7 @@ const testSealedData = new Uint8Array([
 ]);
 
 const randomData = new Uint8Array(
-  new Array(100).fill(0).map(() => Math.floor(Math.random() * 255)),
+  new Array<number>(100).fill(0).map(() => Math.floor(Math.random() * 255)),
 );
 
 describe('generateKey', () => {
