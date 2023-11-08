@@ -40,6 +40,7 @@ import {
 import { defaultState } from './default-state.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { persistConfig, setPersistor } from './persist.js';
+import { onStateDifference } from './redux-debug-utils.js';
 import { processDBStoreOperations } from './redux-utils.js';
 import type { AppState } from './state-types.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
@@ -220,7 +221,11 @@ function reducer(state: AppState = defaultState, action: Action) {
     }
   }
 
-  const baseReducerResult = baseReducer(state, (action: BaseAction));
+  const baseReducerResult = baseReducer(
+    state,
+    (action: BaseAction),
+    onStateDifference,
+  );
   state = baseReducerResult.state;
 
   const { storeOperations } = baseReducerResult;
