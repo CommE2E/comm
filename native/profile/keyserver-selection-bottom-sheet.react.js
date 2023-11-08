@@ -1,10 +1,13 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 
+import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import Button from '../components/button.react.js';
 import CommIcon from '../components/comm-icon.react.js';
@@ -34,10 +37,36 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
 
   const { goBack } = navigation;
 
+  const bottomSheetContext = React.useContext(BottomSheetContext);
+  invariant(bottomSheetContext, 'bottomSheetContext should be set');
+  const { setContentHeight } = bottomSheetContext;
+
+  const removeKeyserverContainerRef = React.useRef();
   const bottomSheetRef = React.useRef();
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);
+
+  const insets = useSafeAreaInsets();
+
+  const onLayout = React.useCallback(() => {
+    removeKeyserverContainerRef.current?.measure(
+      (x, y, width, height, pageX, pageY) => {
+        if (
+          height === null ||
+          height === undefined ||
+          pageY === null ||
+          pageY === undefined
+        ) {
+          return;
+        }
+        // header + paddingTop + paddingBottom + marginBottom
+        const keyserverHeaderHeight = 85 + 16 + 16 + 24;
+
+        setContentHeight(height + keyserverHeaderHeight + insets.bottom);
+      },
+    );
+  }, [insets.bottom, setContentHeight]);
 
   const cloudIcon = React.useMemo(
     () => (
@@ -120,7 +149,9 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
           </View>
           <Text style={styles.keyserverURLText}>{keyserverInfo.urlPrefix}</Text>
         </View>
-        {removeKeyserver}
+        <View ref={removeKeyserverContainerRef} onLayout={onLayout}>
+          {removeKeyserver}
+        </View>
       </View>
     </BottomSheet>
   );
