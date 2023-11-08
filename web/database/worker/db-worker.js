@@ -53,13 +53,14 @@ async function initDatabase(
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
-  dbModule = getDatabaseModule(
+  const newModule = getDatabaseModule(
     commQueryExecutorFilename,
     databaseModuleFilePath,
   );
+  dbModule = newModule;
 
   try {
-    const result = dbModule.CommQueryExecutor.testDBOperation();
+    const result = newModule.CommQueryExecutor.testDBOperation();
     console.log(result);
   } catch (e) {
     console.error(e);
@@ -90,7 +91,7 @@ async function initDatabase(
   }
 
   if (dbContent) {
-    importDatabaseContent(dbContent, dbModule, COMM_SQLITE_DATABASE_PATH);
+    importDatabaseContent(dbContent, newModule, COMM_SQLITE_DATABASE_PATH);
 
     console.info(
       'Database exists and is properly encrypted, using persisted data',
@@ -98,14 +99,15 @@ async function initDatabase(
   } else {
     console.info('Creating fresh database');
   }
-  sqliteQueryExecutor = new dbModule.SQLiteQueryExecutor(
+  sqliteQueryExecutor = new newModule.SQLiteQueryExecutor(
     COMM_SQLITE_DATABASE_PATH,
   );
 }
 
 async function persist() {
   persistInProgress = true;
-  if (!sqliteQueryExecutor || !dbModule) {
+  const module = dbModule;
+  if (!sqliteQueryExecutor || !module) {
     persistInProgress = false;
     throw new Error('Database not initialized');
   }
@@ -116,7 +118,7 @@ async function persist() {
 
   while (persistNeeded) {
     persistNeeded = false;
-    const dbData = exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH);
+    const dbData = exportDatabaseContent(module, COMM_SQLITE_DATABASE_PATH);
     if (!encryptionKey) {
       persistInProgress = false;
       throw new Error('Encryption key is missing');
