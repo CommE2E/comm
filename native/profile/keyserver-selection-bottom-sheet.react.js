@@ -54,6 +54,56 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
     // TODO
   }, []);
 
+  const removeKeyserver = React.useMemo(() => {
+    if (keyserverInfo.connection.status !== 'connected') {
+      return (
+        <>
+          <Text style={styles.keyserverRemoveText}>
+            You may delete offline keyservers from your keyserver list. When you
+            delete a keyserver, you will still remain in the associated
+            communities.
+          </Text>
+          <Text style={styles.keyserverRemoveText}>
+            Any messages or content you have previously sent will remain on the
+            keyserver&rsquo;s communities after disconnecting or deleting.
+          </Text>
+          <Button
+            style={styles.removeButtonContainer}
+            onPress={onPressRemoveKeyserver}
+          >
+            <Text style={styles.removeButtonText}>
+              Delete keyserver from list
+            </Text>
+          </Button>
+        </>
+      );
+    }
+    return (
+      <>
+        <Text style={styles.keyserverRemoveText}>
+          Disconnecting from this keyserver will remove you from its associated
+          communities.
+        </Text>
+        <Text style={styles.keyserverRemoveText}>
+          Any messages or content you have previously sent will remain on the
+          keyserver.
+        </Text>
+        <Button
+          style={styles.removeButtonContainer}
+          onPress={onPressRemoveKeyserver}
+        >
+          <Text style={styles.removeButtonText}>Disconnect keyserver</Text>
+        </Button>
+      </>
+    );
+  }, [
+    keyserverInfo.connection.status,
+    onPressRemoveKeyserver,
+    styles.keyserverRemoveText,
+    styles.removeButtonContainer,
+    styles.removeButtonText,
+  ]);
+
   return (
     <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
       <View style={styles.container}>
@@ -70,20 +120,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
           </View>
           <Text style={styles.keyserverURLText}>{keyserverInfo.urlPrefix}</Text>
         </View>
-        <Text style={styles.keyserverRemoveText}>
-          Disconnecting from this keyserver will remove you from its associated
-          communities.
-        </Text>
-        <Text style={styles.keyserverRemoveText}>
-          Any messages or content you have previously sent will remain on the
-          keyserver.
-        </Text>
-        <Button
-          style={styles.removeButtonContainer}
-          onPress={onPressRemoveKeyserver}
-        >
-          <Text style={styles.removeButtonText}>Disconnect keyserver</Text>
-        </Button>
+        {removeKeyserver}
       </View>
     </BottomSheet>
   );
