@@ -280,10 +280,10 @@ void CommCoreModule::terminate(jsi::Runtime &rt) {
 
 jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
   folly::Optional<std::string> storedSecretKey =
-      this->secureStore.get(this->secureStoreAccountDataKey);
+      CommSecureStore::get(this->secureStoreAccountDataKey);
   if (!storedSecretKey.hasValue()) {
     storedSecretKey = crypto::Tools::generateRandomString(64);
-    this->secureStore.set(
+    CommSecureStore::set(
         this->secureStoreAccountDataKey, storedSecretKey.value());
   }
 
@@ -906,10 +906,10 @@ jsi::Value CommCoreModule::setCommServicesAuthMetadata(
             [this, promise, userIDStr, deviceIDStr, accessTokenStr]() {
               std::string error;
               try {
-                this->secureStore.set(this->secureStore.userID, userIDStr);
-                this->secureStore.set(this->secureStore.deviceID, deviceIDStr);
-                this->secureStore.set(
-                    this->secureStore.commServicesAccessToken, accessTokenStr);
+                CommSecureStore::set(CommSecureStore::userID, userIDStr);
+                CommSecureStore::set(CommSecureStore::deviceID, deviceIDStr);
+                CommSecureStore::set(
+                    CommSecureStore::commServicesAccessToken, accessTokenStr);
               } catch (const std::exception &e) {
                 error = e.what();
               }
@@ -936,17 +936,17 @@ jsi::Value CommCoreModule::getCommServicesAuthMetadata(jsi::Runtime &rt) {
           std::string accessToken;
           try {
             folly::Optional<std::string> userIDOpt =
-                this->secureStore.get(this->secureStore.userID);
+                CommSecureStore::get(CommSecureStore::userID);
             if (userIDOpt.hasValue()) {
               userID = userIDOpt.value();
             }
             folly::Optional<std::string> deviceIDOpt =
-                this->secureStore.get(this->secureStore.deviceID);
+                CommSecureStore::get(CommSecureStore::deviceID);
             if (deviceIDOpt.hasValue()) {
               deviceID = deviceIDOpt.value();
             }
-            folly::Optional<std::string> accessTokenOpt = this->secureStore.get(
-                this->secureStore.commServicesAccessToken);
+            folly::Optional<std::string> accessTokenOpt =
+                CommSecureStore::get(CommSecureStore::commServicesAccessToken);
             if (accessTokenOpt.hasValue()) {
               accessToken = accessTokenOpt.value();
             }
@@ -997,8 +997,8 @@ jsi::Value CommCoreModule::setCommServicesAccessToken(
         taskType job = [this, promise, accessTokenStr]() {
           std::string error;
           try {
-            this->secureStore.set(
-                this->secureStore.commServicesAccessToken, accessTokenStr);
+            CommSecureStore::set(
+                CommSecureStore::commServicesAccessToken, accessTokenStr);
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1021,8 +1021,7 @@ jsi::Value CommCoreModule::clearCommServicesAccessToken(jsi::Runtime &rt) {
         taskType job = [this, promise]() {
           std::string error;
           try {
-            this->secureStore.set(
-                this->secureStore.commServicesAccessToken, "");
+            CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
           } catch (const std::exception &e) {
             error = e.what();
           }
