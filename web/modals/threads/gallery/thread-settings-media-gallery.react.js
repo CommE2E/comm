@@ -37,7 +37,7 @@ function ThreadSettingsMediaGalleryModal(
   const modalName = 'Media';
 
   const callFetchThreadMedia = useFetchThreadMedia();
-  const [mediaInfos, setMediaInfos] = React.useState([]);
+  const [mediaInfos, setMediaInfos] = React.useState<$ReadOnlyArray<Media>>([]);
   const [tab, setTab] = React.useState<MediaGalleryTab>(activeTab);
 
   React.useEffect(() => {

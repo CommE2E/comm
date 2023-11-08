@@ -45,7 +45,7 @@ function FocusHandler(): React.Node {
   );
 
   const prevFocusedRef = React.useRef(curWindowActive);
-  const timerRef = React.useRef();
+  const timerRef = React.useRef<?TimeoutID>();
   React.useEffect(() => {
     const prevFocused = prevFocusedRef.current;
     if (focused && !prevFocused) {

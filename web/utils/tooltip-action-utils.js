@@ -35,6 +35,7 @@ import {
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
 import MessageTooltip from '../chat/message-tooltip.react.js';
+import type { PositionInfo } from '../chat/position-types.js';
 import ReactionTooltip from '../chat/reaction-tooltip.react.js';
 import { useTooltipContext } from '../chat/tooltip-provider.js';
 import CommIcon from '../CommIcon.react.js';
@@ -61,10 +62,11 @@ function useTooltip({
   availablePositions,
 }: UseTooltipArgs): UseTooltipResult {
   const [onMouseLeave, setOnMouseLeave] = React.useState<?() => mixed>(null);
-  const [tooltipSourcePosition, setTooltipSourcePosition] = React.useState();
+  const [tooltipSourcePosition, setTooltipSourcePosition] =
+    React.useState<?PositionInfo>();
 
   const { renderTooltip } = useTooltipContext();
-  const updateTooltip = React.useRef();
+  const updateTooltip = React.useRef<?(React.Node) => mixed>();
 
   const onMouseEnter = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
