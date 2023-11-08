@@ -146,11 +146,13 @@ async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
 
 let databaseModule: ?DatabaseModule = null;
 async function getDatabaseModule(): Promise<DatabaseModule> {
-  if (!databaseModule) {
-    databaseModule = new DatabaseModule();
-    await databaseModule.init({ clearDatabase: false });
+  if (databaseModule) {
+    return databaseModule;
   }
-  return databaseModule;
+  const newModule = new DatabaseModule();
+  databaseModule = newModule;
+  await newModule.init({ clearDatabase: false });
+  return newModule;
 }
 // Start initializing the database immediately
 getDatabaseModule();
