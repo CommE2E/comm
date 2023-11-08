@@ -37,7 +37,7 @@ function TraditionalLoginForm(): React.Node {
 
   const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
 
-  const usernameInputRef = React.useRef();
+  const usernameInputRef = React.useRef<?HTMLInputElement>();
   React.useEffect(() => {
     usernameInputRef.current?.focus();
   }, []);

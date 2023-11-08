@@ -57,7 +57,7 @@ function EditThreadAvatarMenu(props: Props): React.Node {
     [removeThreadAvatar],
   );
 
-  const imageInputRef = React.useRef();
+  const imageInputRef = React.useRef<?HTMLInputElement>();
   const onImageMenuItemClicked = React.useCallback(
     () => imageInputRef.current?.click(),
     [],
