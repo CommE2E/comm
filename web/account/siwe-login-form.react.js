@@ -17,7 +17,10 @@ import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import stores from 'lib/facts/stores.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import type {
+  LogInStartingPayload,
+  LogInExtraInfo,
+} from 'lib/types/account-types.js';
 import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import {
   useDispatchActionPromise,
@@ -88,7 +91,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
 
   const callSIWEAuthEndpoint = React.useCallback(
-    async (message: string, signature: string, extraInfo) => {
+    async (message: string, signature: string, extraInfo: LogInExtraInfo) => {
       const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
       invariant(
         signedIdentityKeysBlob,
