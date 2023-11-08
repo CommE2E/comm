@@ -27,7 +27,7 @@ const ChatInputTextArea: React.ComponentType<Props> = React.memo<Props>(
       onChangePosition,
       maxHeight = defaultMaxTextAreaHeight,
     } = props;
-    const textareaRef = React.useRef(null);
+    const textareaRef = React.useRef<?HTMLTextAreaElement>(null);
 
     const focusAndUpdateText = React.useCallback(() => {
       if (!focus) {

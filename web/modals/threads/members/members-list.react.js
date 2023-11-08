@@ -23,7 +23,7 @@ type Props = {
 
 function ThreadMembersList(props: Props): React.Node {
   const { threadMembers, threadInfo } = props;
-  const [openMenu, setOpenMenu] = React.useState(null);
+  const [openMenu, setOpenMenu] = React.useState<?string>(null);
   const hasMembers = threadMembers.length > 0;
 
   const threadMembersWithENSNames = useENSNames(threadMembers);
