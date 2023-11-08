@@ -21,8 +21,8 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
   const [message, setMessage] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
-  const recipientInput = React.useRef(null);
-  const messageInput = React.useRef(null);
+  const recipientInput = React.useRef<?HTMLInputElement>(null);
+  const messageInput = React.useRef<?HTMLInputElement>(null);
 
   const onSubmit = React.useCallback(
     async (event: SyntheticEvent<HTMLButtonElement>) => {
