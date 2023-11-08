@@ -132,20 +132,21 @@ class ChatInputBar extends React.PureComponent<Props> {
     const prevUploadIDs = ChatInputBar.unassignedUploadIDs(
       prevInputState.pendingUploads,
     );
+    const { multimediaInput, textarea } = this;
     if (
-      this.multimediaInput &&
+      multimediaInput &&
       _difference(prevUploadIDs)(curUploadIDs).length > 0
     ) {
       // Whenever a pending upload is removed, we reset the file
       // HTMLInputElement's value field, so that if the same upload occurs again
       // the onChange call doesn't get filtered
-      this.multimediaInput.value = '';
+      multimediaInput.value = '';
     } else if (
-      this.textarea &&
+      textarea &&
       _difference(curUploadIDs)(prevUploadIDs).length > 0
     ) {
       // Whenever a pending upload is added, we focus the textarea
-      this.textarea.focus();
+      textarea.focus();
       return;
     }
 
