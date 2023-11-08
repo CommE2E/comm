@@ -48,7 +48,7 @@ function ThreadSettingsGeneralTab(
   const dispatchActionPromise = useDispatchActionPromise();
   const callChangeThreadSettings = useChangeThreadSettings();
 
-  const nameInputRef = React.useRef();
+  const nameInputRef = React.useRef<?HTMLInputElement>();
 
   React.useEffect(() => {
     nameInputRef.current?.focus();

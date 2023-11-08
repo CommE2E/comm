@@ -59,6 +59,11 @@ const renderItem: RenderItemInput => React.Node = ({ index, data, style }) => {
   return <div style={style}>{item}</div>;
 };
 
+type VariableSizeListRef = {
+  +resetAfterIndex: (index: number, shouldForceUpdate?: boolean) => void,
+  ...
+};
+
 function ChatThreadList(): React.Node {
   const threadListContext = React.useContext(ThreadListContext);
   invariant(
@@ -108,7 +113,7 @@ function ChatThreadList(): React.Node {
     ? 'Create new chat'
     : 'Create new channel';
 
-  const threadListContainerRef = React.useRef();
+  const threadListContainerRef = React.useRef<?VariableSizeListRef>();
 
   const threads = React.useMemo(
     () =>

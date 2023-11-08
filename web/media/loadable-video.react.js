@@ -36,7 +36,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
   const { thumbnailURI, thumbnailBlobURI, thumbnailEncryptionKey } =
     thumbnailSource;
 
-  const [thumbnailImage, setThumbnailImage] = React.useState(null);
+  const [thumbnailImage, setThumbnailImage] = React.useState<?string>(null);
 
   React.useEffect(() => {
     let isMounted = true,
