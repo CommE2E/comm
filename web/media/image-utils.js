@@ -17,7 +17,8 @@ import { base64EncodeBuffer } from '../utils/base64-utils.js';
 
 function getEXIFOrientation(file: File): Promise<?number> {
   return new Promise(resolve => {
-    EXIF.getData(file, function () {
+    // eslint-disable-next-line no-unused-vars
+    EXIF.getData(file, function (this: File) {
       resolve(EXIF.getTag(this, 'Orientation'));
     });
   });
