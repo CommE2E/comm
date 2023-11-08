@@ -1,13 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserListItem } from 'lib/types/user-types.js';
 
+import { useSelector } from '../../../../redux/redux-utils.js';
 import AddMembersList from '../../../components/add-members-list.react.js';
 
 type Props = {
@@ -34,7 +34,7 @@ function SubchannelMembersList(props: Props): React.Node {
   const { members: communityMembers, name: communityName } =
     communityThreadInfo;
 
-  const currentUserId = useSelector(state => state.currentUserInfo.id);
+  const currentUserId = useSelector(state => state.currentUserInfo?.id);
 
   const parentMembersSet = React.useMemo(
     () => new Set(parentThreadInfo.members.map(user => user.id)),
