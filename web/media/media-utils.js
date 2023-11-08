@@ -240,7 +240,7 @@ async function validateFile(file: File): Promise<{
 }
 
 function usePlaceholder(thumbHash: ?string, encryptionKey: ?string): ?string {
-  const [placeholder, setPlaceholder] = React.useState(null);
+  const [placeholder, setPlaceholder] = React.useState<?string>(null);
 
   React.useEffect(() => {
     if (!thumbHash) {

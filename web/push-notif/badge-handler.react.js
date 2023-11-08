@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
+import type { ConnectionInfo } from 'lib/types/socket-types.js';
 
 import electron from '../electron.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -11,7 +12,7 @@ import getTitle from '../title/getTitle.js';
 
 function useBadgeHandler() {
   const connection = useSelector(connectionSelector);
-  const prevConnection = React.useRef();
+  const prevConnection = React.useRef<?ConnectionInfo>();
 
   const boundUnreadCount = useSelector(unreadCount);
   const prevUnreadCount = React.useRef(boundUnreadCount);

@@ -66,7 +66,7 @@ function ThreadPickerModal(props: Props): React.Node {
     new Set(),
   );
 
-  const searchRef = React.useRef();
+  const searchRef = React.useRef<?HTMLInputElement>();
 
   React.useEffect(() => {
     searchRef.current?.focus();

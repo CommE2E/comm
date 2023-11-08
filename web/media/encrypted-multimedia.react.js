@@ -25,6 +25,8 @@ type Props = {
   +elementStyle?: ?Shape<CSSStyle>,
 };
 
+type Source = { +uri: string } | { +error: string };
+
 function EncryptedMultimedia(props: Props): React.Node {
   const {
     blobURI,
@@ -34,8 +36,8 @@ function EncryptedMultimedia(props: Props): React.Node {
     multimediaClassName,
   } = props;
 
-  const [source, setSource] = React.useState(null);
-  const videoRef = React.useRef(null);
+  const [source, setSource] = React.useState<?Source>(null);
+  const videoRef = React.useRef<?HTMLVideoElement>(null);
 
   React.useEffect(() => {
     let isMounted = true,
