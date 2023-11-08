@@ -12,7 +12,7 @@ function PolicyAcknowledgmentHandler(): null {
   const termsAndPrivacyState = useSelector(
     state => state.userPolicies?.[policyTypes.tosAndPrivacyPolicy],
   );
-  const [policyModalKey, setPolicyModalKey] = React.useState(null);
+  const [policyModalKey, setPolicyModalKey] = React.useState<?string>(null);
   const { pushModal, popModal, modals } = useModalContext();
 
   const policyModalVisible = React.useMemo(
