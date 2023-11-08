@@ -643,7 +643,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
 
     const suggestions = React.useMemo(() => {
       if (!typeaheadMatchedStrings) {
-        return [];
+        return ([]: $ReadOnlyArray<MentionTypeaheadSuggestionItem>);
       }
       const suggestedUsers = getMentionTypeaheadUserSuggestions(
         userSearchIndex,
@@ -656,7 +656,10 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         props.inputState.typeaheadState.frozenChatMentionsCandidates,
         typeaheadMatchedStrings.query,
       );
-      return [...suggestedUsers, ...suggestedChats];
+      return ([
+        ...suggestedUsers,
+        ...suggestedChats,
+      ]: $ReadOnlyArray<MentionTypeaheadSuggestionItem>);
     }, [
       typeaheadMatchedStrings,
       userSearchIndex,

@@ -61,7 +61,7 @@ async function generateThumbHash(
   +steps: $ReadOnlyArray<MediaMissionStep>,
   +result: GenerateThumbhashResult | MediaMissionFailure,
 }> {
-  const steps = [];
+  const steps: MediaMissionStep[] = [];
   const initialURI = URL.createObjectURL(file);
   const { steps: preloadSteps, result: image } = await preloadImage(initialURI);
   steps.push(...preloadSteps);
