@@ -1,4 +1,4 @@
-use crate::ffi::{string_callback, void_callback};
+use crate::ffi::{bool_callback, string_callback, void_callback};
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use grpc_clients::identity::get_unauthenticated_client;
@@ -122,6 +122,9 @@ mod ffi {
     #[cxx_name = "identityGenerateNonce"]
     fn generate_nonce(promise_id: u32);
 
+    #[cxx_name = "identityVersionSupported"]
+    fn version_supported(promise_id: u32);
+
     // Argon2
     fn compute_backup_key(password: &str, backup_id: &str) -> Result<[u8; 32]>;
   }
@@ -135,6 +138,10 @@ mod ffi {
     #[namespace = "comm"]
     #[cxx_name = "voidCallback"]
     fn void_callback(error: String, promise_id: u32);
+
+    #[namespace = "comm"]
+    #[cxx_name = "boolCallback"]
+    fn bool_callback(error: String, promise_id: u32, ret: bool);
   }
 }
 
@@ -160,6 +167,16 @@ where
   }
 }
 
+fn handle_bool_result_as_callback<E>(result: Result<bool, E>, promise_id: u32)
+where
+  E: std::fmt::Display,
+{
+  match result {
+    Err(e) => bool_callback(e.to_string(), promise_id, false),
+    Ok(r) => bool_callback("".to_string(), promise_id, r),
+  }
+}
+
 fn generate_nonce(promise_id: u32) {
   RUNTIME.spawn(async move {
     let result = fetch_nonce().await;
@@ -180,6 +197,33 @@ async fn fetch_nonce() -> Result<String, Error> {
     .into_inner()
     .nonce;
   Ok(nonce)
+}
+
+fn version_supported(promise_id: u32) {
+  RUNTIME.spawn(async move {
+    let result = version_supported_helper().await;
+    handle_bool_result_as_callback(result, promise_id);
+  });
+}
+
+async fn version_supported_helper() -> Result<bool, Error> {
+  let mut identity_client = get_unauthenticated_client(
+    "http://127.0.0.1:50054",
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+  let response = identity_client.ping(Empty {}).await;
+  match response {
+    Ok(_) => Ok(true),
+    Err(e) => {
+      if grpc_clients::error::is_version_unsupported(&e) {
+        Ok(false)
+      } else {
+        Err(e.into())
+      }
+    }
+  }
 }
 
 struct AuthInfo {
