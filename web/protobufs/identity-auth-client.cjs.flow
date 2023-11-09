@@ -1,0 +1,57 @@
+// @flow
+
+import * as grpcWeb from 'grpc-web';
+
+import * as identityAuthStructs from './identity-auth-structs.cjs';
+import * as identityStructs from './identity-structs.cjs';
+
+
+declare export class IdentityClientServiceClient {
+  constructor (hostname: string,
+               credentials?: null | { +[index: string]: string; },
+               options?: null | { +[index: string]: any; }): void;
+
+  uploadOneTimeKeys(
+    request: identityAuthStructs.UploadOneTimeKeysRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
+  refreshUserPreKeys(
+    request: identityAuthStructs.RefreshUserPreKeysRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
+  getKeyserverKeys(
+    request: identityAuthStructs.OutboundKeysForUserRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.KeyserverKeysResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.KeyserverKeysResponse>;
+
+}
+
+declare export class IdentityClientServicePromiseClient {
+  constructor (hostname: string,
+               credentials?: null | { +[index: string]: string; },
+               options?: null | { +[index: string]: any; }): void;
+
+  uploadOneTimeKeys(
+    request: identityAuthStructs.UploadOneTimeKeysRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  refreshUserPreKeys(
+    request: identityAuthStructs.RefreshUserPreKeysRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  getKeyserverKeys(
+    request: identityAuthStructs.OutboundKeysForUserRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.KeyserverKeysResponse>;
+
+}
