@@ -65,6 +65,13 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.WalletLoginResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.WalletLoginResponse>;
 
+  loginReservedWalletUser(
+    request: identityStructs.ReservedWalletLoginRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.WalletLoginResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.WalletLoginResponse>;
+
   logOutUser(
     request: identityStructs.LogoutRequest,
     metadata: grpcWeb.Metadata | void,
@@ -107,13 +114,6 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
-  refreshUserPreKeys(
-    request: identityStructs.RefreshUserPreKeysRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.Empty) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
-
   verifyUserAccessToken(
     request: identityStructs.VerifyUserAccessTokenRequest,
     metadata: grpcWeb.Metadata | void,
@@ -130,6 +130,13 @@ declare export class IdentityClientServiceClient {
 
   removeReservedUsername(
     request: identityStructs.RemoveReservedUsernameRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
+  ping(
+    request: identityStructs.Empty,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.Empty) => void
@@ -182,6 +189,11 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.WalletLoginResponse>;
 
+  loginReservedWalletUser(
+    request: identityStructs.ReservedWalletLoginRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.WalletLoginResponse>;
+
   logOutUser(
     request: identityStructs.LogoutRequest,
     metadata?: grpcWeb.Metadata
@@ -212,11 +224,6 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
-  refreshUserPreKeys(
-    request: identityStructs.RefreshUserPreKeysRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.Empty>;
-
   verifyUserAccessToken(
     request: identityStructs.VerifyUserAccessTokenRequest,
     metadata?: grpcWeb.Metadata
@@ -229,6 +236,11 @@ declare export class IdentityClientServicePromiseClient {
 
   removeReservedUsername(
     request: identityStructs.RemoveReservedUsernameRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  ping(
+    request: identityStructs.Empty,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 

@@ -427,6 +427,40 @@ export type WalletLoginRequestObject = {
   devicekeyupload?: DeviceKeyUploadObject,
 };
 
+declare export class ReservedWalletLoginRequest extends Message {
+  getSiwemessage(): string;
+  setSiwemessage(value: string): ReservedWalletLoginRequest;
+
+  getSiwesignature(): string;
+  setSiwesignature(value: string): ReservedWalletLoginRequest;
+
+  getDevicekeyupload(): DeviceKeyUpload | void;
+  setDevicekeyupload(value?: DeviceKeyUpload): ReservedWalletLoginRequest;
+  hasDevicekeyupload(): boolean;
+  clearDevicekeyupload(): ReservedWalletLoginRequest;
+
+  getKeyservermessage(): string;
+  setKeyservermessage(value: string): ReservedWalletLoginRequest;
+
+  getKeyserversignature(): string;
+  setKeyserversignature(value: string): ReservedWalletLoginRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ReservedWalletLoginRequestObject;
+  static toObject(includeInstance: boolean, msg: ReservedWalletLoginRequest): ReservedWalletLoginRequestObject;
+  static serializeBinaryToWriter(message: ReservedWalletLoginRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ReservedWalletLoginRequest;
+  static deserializeBinaryFromReader(message: ReservedWalletLoginRequest, reader: BinaryReader): ReservedWalletLoginRequest;
+}
+
+export type ReservedWalletLoginRequestObject = {
+  siwemessage: string,
+  siwesignature: string,
+  devicekeyupload?: DeviceKeyUploadObject,
+  keyservermessage: string,
+  keyserversignature: string,
+};
+
 declare export class WalletLoginResponse extends Message {
   getUserid(): string;
   setUserid(value: string): WalletLoginResponse;
@@ -696,28 +730,6 @@ export type UploadOneTimeKeysRequestObject = {
   accesstoken: string,
   contentonetimeprekeysList: Array<string>,
   notifonetimeprekeysList: Array<string>,
-};
-
-declare export class RefreshUserPreKeysRequest extends Message {
-  getAccesstoken(): string;
-  setAccesstoken(value: string): RefreshUserPreKeysRequest;
-
-  getNewprekeys(): PreKey | void;
-  setNewprekeys(value?: PreKey): RefreshUserPreKeysRequest;
-  hasNewprekeys(): boolean;
-  clearNewprekeys(): RefreshUserPreKeysRequest;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): RefreshUserPreKeysRequestObject;
-  static toObject(includeInstance: boolean, msg: RefreshUserPreKeysRequest): RefreshUserPreKeysRequestObject;
-  static serializeBinaryToWriter(message: RefreshUserPreKeysRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): RefreshUserPreKeysRequest;
-  static deserializeBinaryFromReader(message: RefreshUserPreKeysRequest, reader: BinaryReader): RefreshUserPreKeysRequest;
-}
-
-export type RefreshUserPreKeysRequestObject = {
-  accesstoken: string,
-  newprekeys?: PreKeyObject,
 };
 
 declare export class VerifyUserAccessTokenRequest extends Message {
