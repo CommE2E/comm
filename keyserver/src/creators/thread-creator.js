@@ -51,6 +51,7 @@ import {
   recalculateThreadPermissions,
   commitMembershipChangeset,
   getChangesetCommitResultForExistingThread,
+  type MembershipChangeset,
 } from '../updaters/thread-permission-updaters.js';
 import { joinThread } from '../updaters/thread-updaters.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
@@ -329,16 +330,12 @@ async function createThread(
     await dbQuery(query);
   }
 
-  let initialMemberPromise;
-  if (initialMemberIDs) {
-    initialMemberPromise = changeRole(id, initialMemberIDs, null, {
-      setNewMembersToUnread: true,
-    });
-  }
-  let ghostMemberPromise;
-  if (ghostMemberIDs) {
-    ghostMemberPromise = changeRole(id, ghostMemberIDs, -1);
-  }
+  const initialMemberPromise: Promise<?MembershipChangeset> = initialMemberIDs
+    ? changeRole(id, initialMemberIDs, null, { setNewMembersToUnread: true })
+    : Promise.resolve(undefined);
+  const ghostMemberPromise: Promise<?MembershipChangeset> = ghostMemberIDs
+    ? changeRole(id, ghostMemberIDs, -1)
+    : Promise.resolve(undefined);
 
   const [
     creatorChangeset,
