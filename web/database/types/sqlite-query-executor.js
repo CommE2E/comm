@@ -1,6 +1,7 @@
 // @flow
 
 import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
+import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
 
 declare export class SQLiteQueryExecutor {
@@ -23,6 +24,11 @@ declare export class SQLiteQueryExecutor {
   setPersistStorageItem(key: string, item: string): void;
   removePersistStorageItem(key: string): void;
   getPersistStorageItem(key: string): string;
+
+  replaceUser(user_info: ClientDBUserInfo): void;
+  removeUsers(ids: $ReadOnlyArray<string>): void;
+  removeAllUsers(): void;
+  getAllUsers(): ClientDBUserInfo[];
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
