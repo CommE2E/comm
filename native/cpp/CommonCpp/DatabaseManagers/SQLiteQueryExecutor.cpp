@@ -3,6 +3,7 @@
 #include "sqlite_orm.h"
 
 #include "entities/Metadata.h"
+#include "entities/UserInfo.h"
 #include <fstream>
 #include <iostream>
 #include <thread>
@@ -1003,7 +1004,13 @@ auto &SQLiteQueryExecutor::getStorage() {
       make_table(
           "persist_storage",
           make_column("key", &PersistItem::key, unique(), primary_key()),
-          make_column("item", &PersistItem::item))
+          make_column("item", &PersistItem::item)),
+      make_table(
+          "users",
+          make_column("id", &UserInfo::id, unique(), primary_key()),
+          make_column("username", &UserInfo::username),
+          make_column("relationship_status", &UserInfo::relationship_status),
+          make_column("avatar", &UserInfo::avatar))
 
   );
   storage.on_open = on_database_open;
@@ -1257,6 +1264,24 @@ std::string SQLiteQueryExecutor::getPersistStorageItem(std::string key) const {
   std::unique_ptr<PersistItem> entry =
       SQLiteQueryExecutor::getStorage().get_pointer<PersistItem>(key);
   return (entry == nullptr) ? "" : entry->item;
+}
+
+void SQLiteQueryExecutor::replaceUser(const UserInfo &user_info) const {
+  SQLiteQueryExecutor::getStorage().replace(user_info);
+}
+
+void SQLiteQueryExecutor::removeAllUsers() const {
+  SQLiteQueryExecutor::getStorage().remove_all<UserInfo>();
+}
+
+void SQLiteQueryExecutor::removeUsers(
+    const std::vector<std::string> &ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<UserInfo>(
+      where(in(&UserInfo::id, ids)));
+}
+
+std::vector<UserInfo> SQLiteQueryExecutor::getAllUsers() const {
+  return SQLiteQueryExecutor::getStorage().get_all<UserInfo>();
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
