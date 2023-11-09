@@ -661,9 +661,9 @@ async function fetchMessageInfoForEntryAction(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
-      m.user AS creatorID, m.target_message as targetMessageID,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
-      up.extra AS uploadExtra
+      m.user AS creatorID, m.target_message AS targetMessageID,
+      NULL AS subthread_permissions, up.id AS uploadID, up.type AS uploadType,
+      up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
