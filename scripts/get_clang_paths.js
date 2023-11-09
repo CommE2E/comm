@@ -7,34 +7,6 @@ const clangPaths = [
     excludes: ['_generated'],
   },
   {
-    path: 'services/lib/src',
-    extensions: ['cpp', 'h'],
-  },
-  {
-    path: 'services/tunnelbroker/src',
-    extensions: ['cpp', 'h'],
-  },
-  {
-    path: 'services/tunnelbroker/test',
-    extensions: ['cpp', 'h'],
-  },
-  {
-    path: 'services/backup/src',
-    extensions: ['cpp', 'h'],
-  },
-  {
-    path: 'services/backup/test',
-    extensions: ['cpp', 'h'],
-  },
-  {
-    path: 'services/blob/src',
-    extensions: ['cpp', 'h'],
-  },
-  {
-    path: 'services/blob/test',
-    extensions: ['cpp', 'h'],
-  },
-  {
     path: 'native/android/app/src/cpp',
     extensions: ['cpp', 'h'],
   },
