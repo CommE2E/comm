@@ -28,6 +28,7 @@ import { validateOutput } from '../utils/validation-utils.js';
 type ParsedDelivery = {
   +platform: 'ios' | 'macos' | 'android',
   +codeVersion: ?number,
+  +stateVersion: ?number,
   +notificationID: string,
   +deviceTokens: $ReadOnlyArray<string>,
 };
