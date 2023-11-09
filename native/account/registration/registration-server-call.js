@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Platform } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
@@ -25,6 +24,7 @@ import {
 import { NavContext } from '../../navigation/navigation-context.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
+import { AppOutOfDateAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { setNativeCredentials } from '../native-credentials.js';
 import { useSIWEServerCall } from '../siwe-hooks.js';
@@ -103,14 +103,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               'An account with that username already exists',
             );
           } else if (e.message === 'client_version_unsupported') {
-            const app = Platform.select({
-              ios: 'App Store',
-              android: 'Play Store',
-            });
             Alert.alert(
-              'App out of date',
-              'Your app version is pretty old, and the server doesn’t know how ' +
-                `to speak to it anymore. Please use the ${app} app to update!`,
+              AppOutOfDateAlertDetails.title,
+              AppOutOfDateAlertDetails.message,
             );
           } else {
             Alert.alert('Unknown error', 'Uhh... try again?');

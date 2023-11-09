@@ -43,6 +43,7 @@ import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
+import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { useInitialNotificationsEncryptedMessage } from '../utils/crypto-utils.js';
 import type { StateContainer } from '../utils/state-container.js';
@@ -270,14 +271,9 @@ class LogInPanel extends React.PureComponent<Props> {
           { cancelable: false },
         );
       } else if (e.message === 'client_version_unsupported') {
-        const app = Platform.select({
-          ios: 'App Store',
-          android: 'Play Store',
-        });
         Alert.alert(
-          'App out of date',
-          'Your app version is pretty old, and the server doesn’t know how ' +
-            `to speak to it anymore. Please use the ${app} app to update!`,
+          AppOutOfDateAlertDetails.title,
+          AppOutOfDateAlertDetails.message,
           [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
           { cancelable: false },
         );

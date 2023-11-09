@@ -35,6 +35,7 @@ import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
+import VersionSupportedChecker from './components/version-supported.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
 import { SQLiteDataHandler } from './data/sqlite-data-handler.js';
 import ErrorBoundary from './error-boundary.react.js';
@@ -308,6 +309,7 @@ function Root() {
                                               detectUnsupervisedBackgroundRef
                                             }
                                           />
+                                          <VersionSupportedChecker />
                                         </PersistedStateGate>
                                         {navigation}
                                       </RegistrationContextProvider>

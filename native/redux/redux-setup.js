@@ -1,6 +1,6 @@
 // @flow
 
-import { AppState as NativeAppState, Platform, Alert } from 'react-native';
+import { AppState as NativeAppState, Alert } from 'react-native';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
@@ -46,6 +46,7 @@ import type { AppState } from './state-types.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import reactotron from '../reactotron.js';
+import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import { isStaffRelease } from '../utils/staff-utils.js';
 import { setCustomServer, getDevServerHostname } from '../utils/url-utils.js';
 
@@ -266,16 +267,13 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
     return;
   }
   if (payload.error === 'client_version_unsupported') {
-    const app = Platform.select({
-      ios: 'App Store',
-      android: 'Play Store',
-    });
     Alert.alert(
-      'App out of date',
-      'Your app version is pretty old, and the server doesn’t know how to ' +
-        `speak to it anymore. Please use the ${app} app to update!`,
+      AppOutOfDateAlertDetails.title,
+      AppOutOfDateAlertDetails.message,
       [{ text: 'OK' }],
-      { cancelable: true },
+      {
+        cancelable: true,
+      },
     );
   } else {
     Alert.alert(
