@@ -200,7 +200,6 @@ const arbitraryPositiveRole = '1';
 
 type CandidateMembers = {
   +[key: string]: ?$ReadOnlyArray<string>,
-  ...
 };
 type ValidateCandidateMembersParams = {
   +threadType: ThreadType,
@@ -337,19 +336,20 @@ async function validateCandidateMembers(
     return candidates;
   }
 
-  const result = {};
+  const result: { [string]: ?$ReadOnlyArray<string> } = {};
   for (const key in candidates) {
     const candidateGroup = candidates[key];
     if (!candidateGroup) {
-      result[key] = candidates[key];
+      result[key] = candidateGroup;
       continue;
     }
-    result[key] = [];
+    const resultForKey = [];
     for (const candidate of candidateGroup) {
       if (!ignoreMembers.has(candidate)) {
-        result[key].push(candidate);
+        resultForKey.push(candidate);
       }
     }
+    result[key] = resultForKey;
   }
   return result;
 }
