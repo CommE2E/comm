@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
 #include "entities/Draft.h"
+#include "entities/UserInfo.h"
 
 #include <mutex>
 #include <string>
@@ -66,6 +67,10 @@ public:
   void setPersistStorageItem(std::string key, std::string item) const override;
   void removePersistStorageItem(std::string key) const override;
   std::string getPersistStorageItem(std::string key) const override;
+  void replaceUser(const UserInfo &user_info) const override;
+  void removeUsers(const std::vector<std::string> &ids) const override;
+  void removeAllUsers() const override;
+  std::vector<UserInfo> getAllUsers() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
