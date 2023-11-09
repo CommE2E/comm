@@ -18,7 +18,7 @@ pub fn unsupported_version() -> Status {
   Status::unimplemented("Unsupported version")
 }
 
-pub fn is_version_unsupported(status: Status) -> bool {
+pub fn is_version_unsupported(status: &Status) -> bool {
   status.code() == Code::Unimplemented
     && status.message() == "Unsupported version"
 }
