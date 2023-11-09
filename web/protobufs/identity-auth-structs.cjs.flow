@@ -1,0 +1,134 @@
+// @flow
+
+import {
+  Message,
+  BinaryWriter,
+  BinaryReader,
+  Map as ProtoMap,
+} from 'google-protobuf';
+
+import * as identityStructs from './identity-structs.cjs';
+
+declare export class UploadOneTimeKeysRequest extends Message {
+  getContentonetimeprekeysList(): Array<string>;
+  setContentonetimeprekeysList(value: Array<string>): UploadOneTimeKeysRequest;
+  clearContentonetimeprekeysList(): UploadOneTimeKeysRequest;
+  addContentonetimeprekeys(value: string, index?: number): UploadOneTimeKeysRequest;
+
+  getNotifonetimeprekeysList(): Array<string>;
+  setNotifonetimeprekeysList(value: Array<string>): UploadOneTimeKeysRequest;
+  clearNotifonetimeprekeysList(): UploadOneTimeKeysRequest;
+  addNotifonetimeprekeys(value: string, index?: number): UploadOneTimeKeysRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UploadOneTimeKeysRequestObject;
+  static toObject(includeInstance: boolean, msg: UploadOneTimeKeysRequest): UploadOneTimeKeysRequestObject;
+  static serializeBinaryToWriter(message: UploadOneTimeKeysRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UploadOneTimeKeysRequest;
+  static deserializeBinaryFromReader(message: UploadOneTimeKeysRequest, reader: BinaryReader): UploadOneTimeKeysRequest;
+}
+
+export type UploadOneTimeKeysRequestObject = {
+  contentonetimeprekeysList: Array<string>,
+  notifonetimeprekeysList: Array<string>,
+};
+
+declare export class RefreshUserPreKeysRequest extends Message {
+  getNewcontentprekeys(): identityStructs.PreKey | void;
+  setNewcontentprekeys(value?: identityStructs.PreKey): RefreshUserPreKeysRequest;
+  hasNewcontentprekeys(): boolean;
+  clearNewcontentprekeys(): RefreshUserPreKeysRequest;
+
+  getNewnotifprekeys(): identityStructs.PreKey | void;
+  setNewnotifprekeys(value?: identityStructs.PreKey): RefreshUserPreKeysRequest;
+  hasNewnotifprekeys(): boolean;
+  clearNewnotifprekeys(): RefreshUserPreKeysRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RefreshUserPreKeysRequestObject;
+  static toObject(includeInstance: boolean, msg: RefreshUserPreKeysRequest): RefreshUserPreKeysRequestObject;
+  static serializeBinaryToWriter(message: RefreshUserPreKeysRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RefreshUserPreKeysRequest;
+  static deserializeBinaryFromReader(message: RefreshUserPreKeysRequest, reader: BinaryReader): RefreshUserPreKeysRequest;
+}
+
+export type RefreshUserPreKeysRequestObject = {
+  newcontentprekeys?: identityStructs.PreKeyObject,
+  newnotifprekeys?: identityStructs.PreKeyObject,
+}
+
+declare export class OutboundKeyInfo extends Message {
+  getIdentityinfo(): identityStructs.IdentityKeyInfo | void;
+  setIdentityinfo(value?: identityStructs.IdentityKeyInfo): OutboundKeyInfo;
+  hasIdentityinfo(): boolean;
+  clearIdentityinfo(): OutboundKeyInfo;
+
+  getContentprekey(): identityStructs.PreKey | void;
+  setContentprekey(value?: identityStructs.PreKey): OutboundKeyInfo;
+  hasContentprekey(): boolean;
+  clearContentprekey(): OutboundKeyInfo;
+
+  getNotifprekey(): identityStructs.PreKey | void;
+  setNotifprekey(value?: identityStructs.PreKey): OutboundKeyInfo;
+  hasNotifprekey(): boolean;
+  clearNotifprekey(): OutboundKeyInfo;
+
+  getOnetimecontentprekey(): string;
+  setOnetimecontentprekey(value: string): OutboundKeyInfo;
+  hasOnetimecontentprekey(): boolean;
+  clearOnetimecontentprekey(): OutboundKeyInfo;
+
+  getOnetimenotifprekey(): string;
+  setOnetimenotifprekey(value: string): OutboundKeyInfo;
+  hasOnetimenotifprekey(): boolean;
+  clearOnetimenotifprekey(): OutboundKeyInfo;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): OutboundKeyInfoObject;
+  static toObject(includeInstance: boolean, msg: OutboundKeyInfo): OutboundKeyInfoObject;
+  static serializeBinaryToWriter(message: OutboundKeyInfo, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): OutboundKeyInfo;
+  static deserializeBinaryFromReader(message: OutboundKeyInfo, reader: BinaryReader): OutboundKeyInfo;
+}
+
+export type OutboundKeyInfoObject = {
+  identityinfo?: identityStructs.IdentityKeyInfoObject,
+  contentprekey?: identityStructs.PreKeyObject,
+  notifprekey?: identityStructs.PreKeyObject,
+  onetimecontentprekey?: string,
+  onetimenotifprekey?: string,
+};
+
+declare export class KeyserverKeysResponse extends Message {
+  getKeyserverinfo(): OutboundKeyInfo | void;
+  setKeyserverinfo(value?: OutboundKeyInfo): KeyserverKeysResponse;
+  hasKeyserverinfo(): boolean;
+  clearKeyserverinfo(): KeyserverKeysResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): KeyserverKeysResponseObject;
+  static toObject(includeInstance: boolean, msg: KeyserverKeysResponse): KeyserverKeysResponseObject;
+  static serializeBinaryToWriter(message: KeyserverKeysResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): KeyserverKeysResponse;
+  static deserializeBinaryFromReader(message: KeyserverKeysResponse, reader: BinaryReader): KeyserverKeysResponse;
+}
+
+export type KeyserverKeysResponseObject = {
+  keyserverinfo?: OutboundKeyInfoObject,
+};
+
+declare export class OutboundKeysForUserRequest extends Message {
+  getUserid(): string;
+  setUserid(value: string): OutboundKeysForUserRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): OutboundKeysForUserRequestObject;
+  static toObject(includeInstance: boolean, msg: OutboundKeysForUserRequest): OutboundKeysForUserRequestObject;
+  static serializeBinaryToWriter(message: OutboundKeysForUserRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): OutboundKeysForUserRequest;
+  static deserializeBinaryFromReader(message: OutboundKeysForUserRequest, reader: BinaryReader): OutboundKeysForUserRequest;
+}
+
+export type OutboundKeysForUserRequestObject = {
+  userid: string,
+};
