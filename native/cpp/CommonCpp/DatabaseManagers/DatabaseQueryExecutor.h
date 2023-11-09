@@ -67,6 +67,8 @@ public:
   virtual void removeUsers(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllUsers() const = 0;
   virtual std::vector<UserInfo> getAllUsers() const = 0;
+  virtual std::vector<UserInfoWeb> getAllUsersWeb() const = 0;
+  virtual void replaceUserWeb(const UserInfoWeb &user_info) const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;

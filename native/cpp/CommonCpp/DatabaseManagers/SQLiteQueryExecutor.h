@@ -71,6 +71,8 @@ public:
   void removeUsers(const std::vector<std::string> &ids) const override;
   void removeAllUsers() const override;
   std::vector<UserInfo> getAllUsers() const override;
+  std::vector<UserInfoWeb> getAllUsersWeb() const override;
+  void replaceUserWeb(const UserInfoWeb &user_info) const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;

@@ -1283,6 +1283,31 @@ std::vector<UserInfo> SQLiteQueryExecutor::getAllUsers() const {
   return SQLiteQueryExecutor::getStorage().get_all<UserInfo>();
 }
 
+void SQLiteQueryExecutor::replaceUserWeb(const UserInfoWeb &webUserInfo) const {
+  UserInfo userInfo;
+  userInfo.id = webUserInfo.id;
+  userInfo.username = webUserInfo.username;
+  userInfo.relationship_status = webUserInfo.relationship_status;
+  userInfo.avatar = webUserInfo.avatar;
+  SQLiteQueryExecutor::getStorage().replace(userInfo);
+}
+
+std::vector<UserInfoWeb> SQLiteQueryExecutor::getAllUsersWeb() const {
+  auto usersInfos = SQLiteQueryExecutor::getStorage().get_all<UserInfo>();
+  std::vector<UserInfoWeb> userInfosWeb;
+
+  for (const auto &userInfo : usersInfos) {
+    UserInfoWeb userInfoWeb;
+    userInfoWeb.id = userInfo.id;
+    userInfoWeb.username = NullableString(userInfo.username);
+    userInfoWeb.relationship_status =
+        NullableString(userInfo.relationship_status);
+    userInfoWeb.avatar = NullableString(userInfo.avatar);
+    userInfosWeb.push_back(std::move(userInfoWeb));
+  }
+  return userInfosWeb;
+}
+
 void SQLiteQueryExecutor::beginTransaction() const {
   SQLiteQueryExecutor::getStorage().begin_transaction();
 }
