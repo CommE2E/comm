@@ -2,7 +2,7 @@
 
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
-import type { RawThreadInfo } from 'lib/types/thread-types.js';
+import type { RawThreadInfos } from 'lib/types/thread-types.js';
 
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import type { Action } from '../redux/redux-setup.js';
@@ -11,7 +11,7 @@ import { type NavInfo } from '../types/nav-types.js';
 export default function reduceNavInfo(
   oldState: NavInfo,
   action: Action,
-  newThreadInfos: { +[id: string]: RawThreadInfo },
+  newThreadInfos: RawThreadInfos,
 ): NavInfo {
   let state = oldState;
   if (action.type === updateNavInfoActionType) {

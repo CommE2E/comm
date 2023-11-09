@@ -26,7 +26,7 @@ import {
   redisMessageTypes,
   type NewUpdatesRedisMessage,
 } from 'lib/types/redis-types.js';
-import type { RawThreadInfo } from 'lib/types/thread-types.js';
+import type { RawThreadInfos } from 'lib/types/thread-types';
 import {
   type ServerUpdateInfo,
   type UpdateData,
@@ -84,7 +84,7 @@ export type ViewerInfo =
       viewer: Viewer,
       calendarQuery: ?CalendarQuery,
       updatesForCurrentSession?: UpdatesForCurrentSession,
-      threadInfos: { +[id: string]: RawThreadInfo },
+      threadInfos: RawThreadInfos,
     };
 const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
 const sortFunction = (
