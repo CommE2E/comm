@@ -67,7 +67,7 @@ type MembershipRowToDelete = {
   +oldRole: string,
 };
 type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
-type Changeset = {
+export type MembershipChangeset = {
   +membershipRows: MembershipRow[],
   +relationshipChangeset: RelationshipChangeset,
 };
@@ -89,7 +89,7 @@ async function changeRole(
   userIDs: $ReadOnlyArray<string>,
   role: string | -1 | 0 | null,
   options?: ChangeRoleOptions,
-): Promise<Changeset> {
+): Promise<MembershipChangeset> {
   const intent = role === -1 || role === 0 ? 'leave' : 'join';
   const setNewMembersToUnread =
     options?.setNewMembersToUnread && intent === 'join';
@@ -413,7 +413,7 @@ type AncestorChanges = {
 };
 async function updateDescendantPermissions(
   initialChangedAncestor: ChangedAncestor,
-): Promise<Changeset> {
+): Promise<MembershipChangeset> {
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
 
@@ -706,7 +706,7 @@ type RecalculatePermissionsMemberInfo = {
 };
 async function recalculateThreadPermissions(
   threadID: string,
-): Promise<Changeset> {
+): Promise<MembershipChangeset> {
   const threadQuery = SQL`
     SELECT type, depth, parent_thread_id, containing_thread_id
     FROM threads
@@ -1067,7 +1067,7 @@ type ChangesetCommitResult = {
 };
 async function commitMembershipChangeset(
   viewer: Viewer,
-  changeset: Changeset,
+  changeset: MembershipChangeset,
   {
     changedThreadIDs = new Set(),
     calendarQuery,
