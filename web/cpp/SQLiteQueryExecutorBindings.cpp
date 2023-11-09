@@ -16,6 +16,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<PersistItem>("PersistItem")
       .field("key", &PersistItem::key)
       .field("item", &PersistItem::item);
+  value_object<UserInfo>("WebUserInfo")
+      .field("id", &UserInfo::id)
+      .field("userInfo", &UserInfo::user_info);
 
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string>()
@@ -36,7 +39,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "removePersistStorageItem",
           &SQLiteQueryExecutor::removePersistStorageItem)
       .function(
-          "getPersistStorageItem", &SQLiteQueryExecutor::getPersistStorageItem);
+          "getPersistStorageItem", &SQLiteQueryExecutor::getPersistStorageItem)
+      .function("replaceUser", &SQLiteQueryExecutor::replaceUser)
+      .function("removeUsers", &SQLiteQueryExecutor::removeUsers)
+      .function("removeAllUsers", &SQLiteQueryExecutor::removeAllUsers)
+      .function("getAllUsers", &SQLiteQueryExecutor::getAllUsers);
 }
 
 } // namespace comm
