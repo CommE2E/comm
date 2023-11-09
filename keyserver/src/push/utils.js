@@ -76,16 +76,13 @@ async function apnPush({
     }),
   );
 
-  const mergedResults = { sent: [], failed: [] };
+  const errors: Array<ResponseFailure> = [];
   for (const result of results) {
-    mergedResults.sent.push(...result.sent);
-    mergedResults.failed.push(...result.failed);
+    errors.push(...result.failed);
   }
 
-  const errors = [];
-  const invalidTokens = [];
-  for (const error of mergedResults.failed) {
-    errors.push(error);
+  const invalidTokens: Array<string> = [];
+  for (const error of errors) {
     /* eslint-disable eqeqeq */
     if (
       error.status == apnTokenInvalidationErrorCode ||
@@ -105,12 +102,13 @@ async function apnPush({
   }
 }
 
-type FCMPushResult = {
-  +success?: true,
-  +fcmIDs?: $ReadOnlyArray<string>,
-  +errors?: $ReadOnlyArray<FirebaseError>,
-  +invalidTokens?: $ReadOnlyArray<string>,
+type WritableFCMPushResult = {
+  success?: true,
+  fcmIDs?: $ReadOnlyArray<string>,
+  errors?: $ReadOnlyArray<FirebaseError | mixed>,
+  invalidTokens?: $ReadOnlyArray<string>,
 };
+export type FCMPushResult = $ReadOnly<WritableFCMPushResult>;
 async function fcmPush({
   targetedNotifications,
   collapseKey,
@@ -138,22 +136,24 @@ async function fcmPush({
   // multicast messages and one of the device tokens is invalid, the resultant
   // won't explain which of the device tokens is invalid. So we're forced to
   // avoid the multicast functionality and call it once per deviceToken.
-  const promises = [];
-  for (const { notification, deviceToken } of targetedNotifications) {
-    promises.push(
-      fcmSinglePush(fcmProvider, notification, deviceToken, options),
-    );
-  }
-  const pushResults = await Promise.all(promises);
+  const results = await Promise.all(
+    targetedNotifications.map(({ notification, deviceToken }) => {
+      return fcmSinglePush(fcmProvider, notification, deviceToken, options);
+    }),
+  );
 
   const errors = [];
   const ids = [];
   const invalidTokens = [];
-  for (let i = 0; i < pushResults.length; i++) {
-    const pushResult = pushResults[i];
+  for (let i = 0; i < results.length; i++) {
+    const pushResult = results[i];
     for (const error of pushResult.errors) {
-      errors.push(error);
-      if (fcmTokenInvalidationErrors.has(error.errorInfo.code)) {
+      errors.push(error.error);
+      const errorCode =
+        error.type === 'firebase_error'
+          ? error.error.errorInfo.code
+          : undefined;
+      if (errorCode && fcmTokenInvalidationErrors.has(errorCode)) {
         invalidTokens.push(targetedNotifications[i].deviceToken);
       }
     }
@@ -162,7 +162,7 @@ async function fcmPush({
     }
   }
 
-  const result = {};
+  const result: WritableFCMPushResult = {};
   if (ids.length > 0) {
     result.fcmIDs = ids;
   }
@@ -174,15 +174,22 @@ async function fcmPush({
   if (invalidTokens.length > 0) {
     result.invalidTokens = invalidTokens;
   }
-  return { ...result };
+  return result;
 }
 
+type FCMSinglePushError =
+  | { +type: 'firebase_error', +error: FirebaseError }
+  | { +type: 'exception', +error: mixed };
+type FCMSinglePushResult = {
+  +fcmIDs: $ReadOnlyArray<string>,
+  +errors: $ReadOnlyArray<FCMSinglePushError>,
+};
 async function fcmSinglePush(
   provider: FirebaseApp,
   notification: Object,
   deviceToken: string,
   options: Object,
-) {
+): Promise<FCMSinglePushResult> {
   try {
     const deliveryResult = await provider
       .messaging()
@@ -191,14 +198,14 @@ async function fcmSinglePush(
     const ids = [];
     for (const fcmResult of deliveryResult.results) {
       if (fcmResult.error) {
-        errors.push(fcmResult.error);
+        errors.push({ type: 'firebase_error', error: fcmResult.error });
       } else if (fcmResult.messageId) {
         ids.push(fcmResult.messageId);
       }
     }
     return { fcmIDs: ids, errors };
   } catch (e) {
-    return { fcmIDs: [], errors: [e] };
+    return { fcmIDs: [], errors: [{ type: 'exception', error: e }] };
   }
 }
 
@@ -217,7 +224,7 @@ async function getUnreadCounts(
     GROUP BY user
   `;
   const [result] = await dbQuery(query);
-  const usersToUnreadCounts = {};
+  const usersToUnreadCounts: { [string]: number } = {};
   for (const row of result) {
     usersToUnreadCounts[row.user.toString()] = row.unread_count;
   }
@@ -234,10 +241,14 @@ export type WebPushError = {
   +headers: { +[string]: string },
   +body: string,
 };
-type WebPushResult = {
-  +success?: true,
-  +errors?: $ReadOnlyArray<WebPushError>,
-  +invalidTokens?: $ReadOnlyArray<string>,
+type WritableWebPushResult = {
+  success?: true,
+  errors?: $ReadOnlyArray<WebPushError>,
+  invalidTokens?: $ReadOnlyArray<string>,
+};
+type WebPushResult = $ReadOnly<WritableWebPushResult>;
+type WebPushAttempt = {
+  +error?: WebPushError,
 };
 async function webPush({
   notification,
@@ -249,8 +260,8 @@ async function webPush({
   await ensureWebPushInitialized();
   const notificationString = JSON.stringify(notification);
 
-  const pushResults = await Promise.all(
-    deviceTokens.map(async deviceTokenString => {
+  const pushResults: $ReadOnlyArray<WebPushAttempt> = await Promise.all(
+    deviceTokens.map(async (deviceTokenString): Promise<WebPushAttempt> => {
       const deviceToken: PushSubscriptionJSON = JSON.parse(deviceTokenString);
       try {
         await webpush.sendNotification(deviceToken, notificationString);
@@ -265,15 +276,16 @@ async function webPush({
   const invalidTokens = [];
   for (let i = 0; i < pushResults.length; i++) {
     const pushResult = pushResults[i];
-    if (pushResult.error) {
-      errors.push(pushResult.error);
-      if (webInvalidTokenErrorCodes.includes(pushResult.error.statusCode)) {
+    const { error } = pushResult;
+    if (error) {
+      errors.push(error);
+      if (webInvalidTokenErrorCodes.includes(error.statusCode)) {
         invalidTokens.push(deviceTokens[i]);
       }
     }
   }
 
-  const result = {};
+  const result: WritableWebPushResult = {};
   if (errors.length > 0) {
     result.errors = errors;
   } else {
@@ -282,16 +294,17 @@ async function webPush({
   if (invalidTokens.length > 0) {
     result.invalidTokens = invalidTokens;
   }
-  return { ...result };
+  return result;
 }
 
 export type WNSPushError = any | string | Response;
-type WNSPushResult = {
-  +success?: true,
-  +wnsIDs?: $ReadOnlyArray<string>,
-  +errors?: $ReadOnlyArray<WNSPushError>,
-  +invalidTokens?: $ReadOnlyArray<string>,
+type WritableWNSPushResult = {
+  success?: true,
+  wnsIDs?: $ReadOnlyArray<string>,
+  errors?: $ReadOnlyArray<WNSPushError>,
+  invalidTokens?: $ReadOnlyArray<string>,
 };
+type WNSPushResult = $ReadOnly<WritableWNSPushResult>;
 async function wnsPush({
   notification,
   deviceTokens,
@@ -334,7 +347,7 @@ async function wnsPush({
     }
   }
 
-  const result = {};
+  const result: WritableWNSPushResult = {};
   if (notifIDs.length > 0) {
     result.wnsIDs = notifIDs;
   }
@@ -346,7 +359,7 @@ async function wnsPush({
   if (invalidTokens.length > 0) {
     result.invalidTokens = invalidTokens;
   }
-  return { ...result };
+  return result;
 }
 
 async function wnsSinglePush(token: string, notification: string, url: string) {
