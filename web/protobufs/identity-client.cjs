@@ -566,6 +566,67 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.loginWalletUs
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.client.ReservedWalletLoginRequest,
+ *   !proto.identity.client.WalletLoginResponse>}
+ */
+const methodDescriptor_IdentityClientService_LoginReservedWalletUser = new grpc.web.MethodDescriptor(
+  '/identity.client.IdentityClientService/LoginReservedWalletUser',
+  grpc.web.MethodType.UNARY,
+  proto.identity.client.ReservedWalletLoginRequest,
+  proto.identity.client.WalletLoginResponse,
+  /**
+   * @param {!proto.identity.client.ReservedWalletLoginRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.client.WalletLoginResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.client.ReservedWalletLoginRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.client.WalletLoginResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.client.WalletLoginResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.client.IdentityClientServiceClient.prototype.loginReservedWalletUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.client.IdentityClientService/LoginReservedWalletUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LoginReservedWalletUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.client.ReservedWalletLoginRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.client.WalletLoginResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.client.IdentityClientServicePromiseClient.prototype.loginReservedWalletUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.client.IdentityClientService/LoginReservedWalletUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LoginReservedWalletUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.client.LogoutRequest,
  *   !proto.identity.client.Empty>}
  */
@@ -932,67 +993,6 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.uploadOneTime
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.RefreshUserPreKeysRequest,
- *   !proto.identity.client.Empty>}
- */
-const methodDescriptor_IdentityClientService_RefreshUserPreKeys = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/RefreshUserPreKeys',
-  grpc.web.MethodType.UNARY,
-  proto.identity.client.RefreshUserPreKeysRequest,
-  proto.identity.client.Empty,
-  /**
-   * @param {!proto.identity.client.RefreshUserPreKeysRequest} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.identity.client.Empty.deserializeBinary
-);
-
-
-/**
- * @param {!proto.identity.client.RefreshUserPreKeysRequest} request The
- *     request proto
- * @param {?Object<string, string>} metadata User defined
- *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
- *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
- *     The XHR Node Readable Stream
- */
-proto.identity.client.IdentityClientServiceClient.prototype.refreshUserPreKeys =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RefreshUserPreKeys',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_RefreshUserPreKeys,
-      callback);
-};
-
-
-/**
- * @param {!proto.identity.client.RefreshUserPreKeysRequest} request The
- *     request proto
- * @param {?Object<string, string>=} metadata User defined
- *     call metadata
- * @return {!Promise<!proto.identity.client.Empty>}
- *     Promise that resolves to the response
- */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.refreshUserPreKeys =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RefreshUserPreKeys',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_RefreshUserPreKeys);
-};
-
-
-/**
- * @const
- * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.client.VerifyUserAccessTokenRequest,
  *   !proto.identity.client.VerifyUserAccessTokenResponse>}
  */
@@ -1170,6 +1170,67 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.removeReserve
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RemoveReservedUsername);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.client.Empty,
+ *   !proto.identity.client.Empty>}
+ */
+const methodDescriptor_IdentityClientService_Ping = new grpc.web.MethodDescriptor(
+  '/identity.client.IdentityClientService/Ping',
+  grpc.web.MethodType.UNARY,
+  proto.identity.client.Empty,
+  proto.identity.client.Empty,
+  /**
+   * @param {!proto.identity.client.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.client.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.client.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.client.IdentityClientServiceClient.prototype.ping =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.client.IdentityClientService/Ping',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_Ping,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.client.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.client.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.client.IdentityClientServicePromiseClient.prototype.ping =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.client.IdentityClientService/Ping',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_Ping);
 };
 
 
