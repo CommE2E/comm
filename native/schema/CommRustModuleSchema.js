@@ -60,6 +60,7 @@ export interface Spec extends TurboModule {
     identifierValue: string,
     deviceID: string,
   ) => Promise<string>;
+  +versionSupported: () => Promise<boolean>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

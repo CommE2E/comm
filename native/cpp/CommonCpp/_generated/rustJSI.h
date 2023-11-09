@@ -27,6 +27,7 @@ public:
   virtual jsi::Value updatePassword(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) = 0;
   virtual jsi::Value deleteUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value getOutboundKeysForUserDevice(jsi::Runtime &rt, jsi::String identifierType, jsi::String identifierValue, jsi::String deviceID) = 0;
+  virtual jsi::Value versionSupported(jsi::Runtime &rt) = 0;
 
 };
 
@@ -103,6 +104,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getOutboundKeysForUserDevice, jsInvoker_, instance_, std::move(identifierType), std::move(identifierValue), std::move(deviceID));
+    }
+    jsi::Value versionSupported(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::versionSupported) == 1,
+          "Expected versionSupported(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::versionSupported, jsInvoker_, instance_);
     }
 
   private:
