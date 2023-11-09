@@ -1,8 +1,10 @@
-/// This file is meant to contain commonly used RPC calls
+/// This file is meant to contain commonly used RPCs
 use crate::error::Error;
 
 use super::get_unauthenticated_client;
-use crate::identity::protos::unauthenticated::VerifyUserAccessTokenRequest;
+use crate::identity::protos::unauthenticated::{
+  Empty, VerifyUserAccessTokenRequest,
+};
 
 use tonic::Request;
 
@@ -27,4 +29,16 @@ pub async fn verify_user_access_token(
   let request = Request::new(message);
   let response = grpc_client.verify_user_access_token(request).await?;
   Ok(response.into_inner().token_valid)
+}
+
+pub async fn ping(
+  identity_url: &str,
+  code_version: u64,
+  device_type: String,
+) -> Result<(), Error> {
+  let mut grpc_client =
+    get_unauthenticated_client(identity_url, code_version, device_type).await?;
+  let request = Request::new(Empty {});
+  grpc_client.ping(request).await?;
+  Ok(())
 }
