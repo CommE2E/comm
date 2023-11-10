@@ -221,13 +221,13 @@ size_t getMemoryUsageInBytes() {
     return;
   }
 
+  [self callContentHandlerForKey:contentHandlerKey
+                     withContent:publicUserContent];
+
   if (decryptionExecuted) {
     comm::NotificationsCryptoModule::flushState(
         std::move(statefulDecryptResultPtr), callingProcessName);
   }
-
-  [self callContentHandlerForKey:contentHandlerKey
-                     withContent:publicUserContent];
 }
 
 - (void)serviceExtensionTimeWillExpire {
