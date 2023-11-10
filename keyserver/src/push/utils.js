@@ -11,7 +11,6 @@ import webpush from 'web-push';
 
 import blobService from 'lib/facts/blob-service.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
-import type { WNSNotification } from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { toBase64URL } from 'lib/utils/base64.js';
@@ -30,6 +29,7 @@ import type {
   TargetedAPNsNotification,
   TargetedAndroidNotification,
   TargetedWebNotification,
+  TargetedWNSNotification,
 } from './types.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { generateKey, encrypt } from '../utils/aes-crypto-utils.js';
@@ -291,13 +291,9 @@ type WNSPushResult = {
   +errors?: $ReadOnlyArray<WNSPushError>,
   +invalidTokens?: $ReadOnlyArray<string>,
 };
-async function wnsPush({
-  notification,
-  deviceTokens,
-}: {
-  +notification: WNSNotification,
-  +deviceTokens: $ReadOnlyArray<string>,
-}): Promise<WNSPushResult> {
+async function wnsPush(
+  targetedNotifications: $ReadOnlyArray<TargetedWNSNotification>,
+): Promise<WNSPushResult> {
   const token = await getWNSToken();
   if (!token && process.env.NODE_ENV === 'development') {
     console.log(`no keyserver/secrets/wns_config.json so ignoring notifs`);
@@ -305,11 +301,17 @@ async function wnsPush({
   }
   invariant(token, `keyserver/secrets/wns_config.json should exist`);
 
-  const notificationString = JSON.stringify(notification);
+  const pushResults = targetedNotifications.map(async targetedNotification => {
+    const notificationString = JSON.stringify(
+      targetedNotification.notification,
+    );
 
-  const pushResults = deviceTokens.map(async devicePushURL => {
     try {
-      return await wnsSinglePush(token, notificationString, devicePushURL);
+      return await wnsSinglePush(
+        token,
+        notificationString,
+        targetedNotification.deviceToken,
+      );
     } catch (error) {
       return { error };
     }
@@ -318,6 +320,9 @@ async function wnsPush({
   const errors = [];
   const notifIDs = [];
   const invalidTokens = [];
+  const deviceTokens = targetedNotifications.map(
+    ({ deviceToken }) => deviceToken,
+  );
   for (let i = 0; i < pushResults.length; i++) {
     const pushResult = await pushResults[i];
     if (pushResult.error) {
