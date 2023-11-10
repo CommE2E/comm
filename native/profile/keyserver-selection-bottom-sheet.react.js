@@ -6,6 +6,7 @@ import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
+import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
@@ -18,7 +19,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 export type KeyserverSelectionBottomSheetParams = {
-  +keyserverAdminUsername: string,
+  +keyserverAdminUserInfo: GlobalAccountUserInfo,
   +keyserverInfo: KeyserverInfo,
 };
 
@@ -31,7 +32,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
   const {
     navigation,
     route: {
-      params: { keyserverAdminUsername, keyserverInfo },
+      params: { keyserverAdminUserInfo, keyserverInfo },
     },
   } = props;
 
@@ -139,7 +140,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
         <View style={styles.keyserverDetailsContainer}>
           <View style={styles.keyserverHeaderContainer}>
             <Pill
-              label={keyserverAdminUsername}
+              label={keyserverAdminUserInfo.username}
               backgroundColor={colors.codeBackground}
               icon={cloudIcon}
             />
