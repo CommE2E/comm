@@ -4,7 +4,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDispatch } from 'react-redux';
 
+import { removeKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 
@@ -91,9 +93,36 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
     );
   }, []);
 
+  const dispatch = useDispatch();
+
+  const onDeleteKeyserver = React.useCallback(() => {
+    dispatch({
+      type: removeKeyserverActionType,
+      payload: {
+        keyserverAdminUserID: keyserverAdminUserInfo.id,
+      },
+    });
+
+    bottomSheetRef.current?.close();
+  }, [dispatch, keyserverAdminUserInfo.id]);
+
   const onPressRemoveKeyserver = React.useCallback(() => {
-    // TODO
-  }, []);
+    Alert.alert(
+      'Delete keyserver',
+      'Are you sure you want to delete this keyserver from your keyserver list? You will still remain in the associated communities.',
+      [
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: onDeleteKeyserver,
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  }, [onDeleteKeyserver]);
 
   const removeKeyserver = React.useMemo(() => {
     if (keyserverInfo.connection.status !== 'connected') {
