@@ -5,6 +5,7 @@ import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
+import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 
 import CommIcon from '../components/comm-icon.react.js';
 import Pill from '../components/pill.react.js';
@@ -13,12 +14,12 @@ import { KeyserverSelectionBottomSheetRouteName } from '../navigation/route-name
 import { useStyles, useColors } from '../themes/colors.js';
 
 type Props = {
-  +keyserverAdminUsername: string,
+  +keyserverAdminUserInfo: GlobalAccountUserInfo,
   +keyserverInfo: KeyserverInfo,
 };
 
 function KeyserverSelectionListItem(props: Props): React.Node {
-  const { keyserverAdminUsername, keyserverInfo } = props;
+  const { keyserverAdminUserInfo, keyserverInfo } = props;
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
@@ -29,11 +30,11 @@ function KeyserverSelectionListItem(props: Props): React.Node {
     navigate<'KeyserverSelectionBottomSheet'>({
       name: KeyserverSelectionBottomSheetRouteName,
       params: {
-        keyserverAdminUsername,
+        keyserverAdminUserInfo,
         keyserverInfo,
       },
     });
-  }, [keyserverAdminUsername, keyserverInfo, navigate]);
+  }, [keyserverAdminUserInfo, keyserverInfo, navigate]);
 
   const cloudIcon = React.useMemo(
     () => (
@@ -53,7 +54,7 @@ function KeyserverSelectionListItem(props: Props): React.Node {
         onPress={onPress}
       >
         <Pill
-          label={keyserverAdminUsername}
+          label={keyserverAdminUserInfo.username}
           backgroundColor={colors.codeBackground}
           icon={cloudIcon}
         />
@@ -63,7 +64,7 @@ function KeyserverSelectionListItem(props: Props): React.Node {
     [
       cloudIcon,
       colors.codeBackground,
-      keyserverAdminUsername,
+      keyserverAdminUserInfo.username,
       keyserverInfo.connection,
       onPress,
       styles.keyserverListItemContainer,
