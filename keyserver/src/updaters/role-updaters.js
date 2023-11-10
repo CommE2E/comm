@@ -8,8 +8,35 @@ import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
+import { deleteRole } from '../deleters/role-deleters.js';
 import { fetchRoles } from '../fetchers/role-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+
+async function updateUserRolesToVoiced(
+  id: string,
+  threadID: string,
+): Promise<void> {
+  // When a channel type is converted from a regular channel to an announcement
+  // channel, we need to update the roles of all users who have the
+  // 'voiced_in_announcement_channels' permission in their community role
+  // to the new 'Voiced' role.
+  const updateMembershipsQuery = SQL`
+    UPDATE memberships
+    SET role = ${id}
+    WHERE thread = ${threadID}
+      AND user IN (
+        SELECT m.user
+        FROM memberships m
+        JOIN roles r ON m.role = r.id
+        WHERE r.thread IN (
+            SELECT community FROM threads WHERE id = ${threadID}
+          )
+          AND JSON_EXTRACT(r.permissions, 
+            '$.voiced_in_announcement_channels') = true
+      )
+  `;
+  dbQuery(updateMembershipsQuery);
+}
 
 async function updateRoles(
   viewer: Viewer,
@@ -74,6 +101,31 @@ async function updateRoles(
         AND role > 0
     `;
     promises.push(dbQuery(updateMembershipsQuery));
+  }
+
+  if (rolePermissions.Voiced && !currentRolePermissions.Voiced) {
+    const [id] = await createIDs('roles', 1);
+    const newRow = [
+      id,
+      threadID,
+      'Voiced',
+      JSON.stringify(rolePermissions.Voiced),
+      Date.now(),
+    ];
+    const insertQuery = SQL`
+      INSERT INTO roles (id, thread, name, permissions, creation_time)
+      VALUES ${[newRow]}
+    `;
+    promises.push(dbQuery(insertQuery));
+
+    promises.push(updateUserRolesToVoiced(id, threadID));
+  } else if (!rolePermissions.Voiced && currentRolePermissions.Voiced) {
+    promises.push(
+      deleteRole(viewer, {
+        community: threadID,
+        roleID: currentRoleIDs.Voiced,
+      }),
+    );
   }
 
   const updatePermissions = {};
