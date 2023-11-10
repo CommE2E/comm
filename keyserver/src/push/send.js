@@ -1588,7 +1588,7 @@ async function updateBadgeCount(
   });
   const byPlatform = getDevicesByPlatform(devices);
 
-  const deliveryPromises = [];
+  const preparePromises: Array<Promise<$ReadOnlyArray<PreparePushResult>>> = [];
 
   const iosVersionsToTokens = byPlatform.get('ios');
   if (iosVersionsToTokens) {
@@ -1602,8 +1602,8 @@ async function updateBadgeCount(
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
-      const deliveryPromise: Promise<PushResult> = (async () => {
-        let targetedNotifications;
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
+        let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (codeVersion > 222) {
           const notificationsArray = await prepareEncryptedIOSNotifications(
             deviceInfos,
@@ -1611,9 +1611,10 @@ async function updateBadgeCount(
             codeVersion,
           );
           targetedNotifications = notificationsArray.map(
-            ({ notification: notif, deviceToken }) => ({
+            ({ notification: notif, deviceToken, encryptionOrder }) => ({
               notification: notif,
               deviceToken,
+              encryptionOrder,
             }),
           );
         } else {
@@ -1622,16 +1623,20 @@ async function updateBadgeCount(
             deviceToken,
           }));
         }
-        return await sendAPNsNotification('ios', targetedNotifications, {
-          source,
-          dbID,
-          userID,
-          codeVersion,
-          stateVersion,
-        });
+        return targetedNotifications.map(targetedNotification => ({
+          notification: targetedNotification,
+          platform: 'ios',
+          notificationInfo: {
+            source,
+            dbID,
+            userID,
+            codeVersion,
+            stateVersion,
+          },
+        }));
       })();
 
-      deliveryPromises.push(deliveryPromise);
+      preparePromises.push(preparePromise);
     }
   }
 
@@ -1644,17 +1649,18 @@ async function updateBadgeCount(
           ? { badge: unreadCount.toString() }
           : { badge: unreadCount.toString(), badgeOnly: '1' };
       const notification = { data: notificationData };
-      const deliveryPromise: Promise<PushResult> = (async () => {
-        let targetedNotifications;
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
+        let targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification>;
         if (codeVersion > 222) {
           const notificationsArray = await prepareEncryptedAndroidNotifications(
             deviceInfos,
             notification,
           );
           targetedNotifications = notificationsArray.map(
-            ({ notification: notif, deviceToken }) => ({
+            ({ notification: notif, deviceToken, encryptionOrder }) => ({
               notification: notif,
               deviceToken,
+              encryptionOrder,
             }),
           );
         } else {
@@ -1663,15 +1669,19 @@ async function updateBadgeCount(
             notification,
           }));
         }
-        return await sendAndroidNotification(targetedNotifications, {
-          source,
-          dbID,
-          userID,
-          codeVersion,
-          stateVersion,
-        });
+        return targetedNotifications.map(targetedNotification => ({
+          notification: targetedNotification,
+          platform: 'android',
+          notificationInfo: {
+            source,
+            dbID,
+            userID,
+            codeVersion,
+            stateVersion,
+          },
+        }));
       })();
-      deliveryPromises.push(deliveryPromise);
+      preparePromises.push(preparePromise);
     }
   }
 
@@ -1687,23 +1697,31 @@ async function updateBadgeCount(
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
-      const targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
-        deviceToken,
-        notification,
-      }));
-      deliveryPromises.push(
-        sendAPNsNotification('macos', targetedNotifications, {
-          source,
-          dbID,
-          userID,
-          codeVersion,
-          stateVersion,
-        }),
-      );
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
+        return deviceInfos.map(({ deviceToken }) => ({
+          notification: ({
+            deviceToken,
+            notification,
+          }: TargetedAPNsNotification),
+          platform: 'macos',
+          notificationInfo: {
+            source,
+            dbID,
+            userID,
+            codeVersion,
+            stateVersion,
+          },
+        }));
+      })();
+      preparePromises.push(preparePromise);
     }
   }
 
-  const deliveryResults = await Promise.all(deliveryPromises);
+  const prepareResults = await Promise.all(preparePromises);
+  const flattenedPrepareResults = prepareResults.filter(Boolean).flat();
+  const deliveryResults = await deliverPushNotifsInEncryptionOrder(
+    flattenedPrepareResults,
+  );
   await saveNotifResults(deliveryResults, new Map(), false);
 }
 
