@@ -27,6 +27,7 @@ async function encryptIOSNotification(
   +notification: apn.Notification,
   +payloadSizeExceeded: boolean,
   +encryptedPayloadHash?: string,
+  +encryptionOrder?: number,
 }> {
   invariant(
     !notification.collapseId,
@@ -63,6 +64,7 @@ async function encryptIOSNotification(
     const {
       encryptedMessages: { serializedPayload },
       dbPersistConditionViolated,
+      encryptionOrder,
     } = await encryptAndUpdateOlmSession(
       cookieID,
       'notifications',
@@ -86,6 +88,7 @@ async function encryptIOSNotification(
       notification: encryptedNotification,
       payloadSizeExceeded: !!dbPersistConditionViolated,
       encryptedPayloadHash,
+      encryptionOrder,
     };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
@@ -119,6 +122,7 @@ async function encryptAndroidNotificationPayload<T>(
 ): Promise<{
   +resultPayload: T | { +encryptedPayload: string },
   +payloadSizeExceeded: boolean,
+  +encryptionOrder?: number,
 }> {
   try {
     const unencryptedSerializedPayload = JSON.stringify(unencryptedPayload);
@@ -140,6 +144,7 @@ async function encryptAndroidNotificationPayload<T>(
     const {
       encryptedMessages: { serializedPayload },
       dbPersistConditionViolated,
+      encryptionOrder,
     } = await encryptAndUpdateOlmSession(
       cookieID,
       'notifications',
@@ -151,6 +156,7 @@ async function encryptAndroidNotificationPayload<T>(
     return {
       resultPayload: { encryptedPayload: serializedPayload.body },
       payloadSizeExceeded: !!dbPersistConditionViolated,
+      encryptionOrder,
     };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
@@ -174,6 +180,7 @@ async function encryptAndroidNotification(
 ): Promise<{
   +notification: AndroidNotification,
   +payloadSizeExceeded: boolean,
+  +encryptionOrder?: number,
 }> {
   const { id, badgeOnly, ...unencryptedPayload } = notification.data;
   let payloadSizeValidator;
@@ -184,7 +191,7 @@ async function encryptAndroidNotification(
       return notificationSizeValidator({ data: { id, badgeOnly, ...payload } });
     };
   }
-  const { resultPayload, payloadSizeExceeded } =
+  const { resultPayload, payloadSizeExceeded, encryptionOrder } =
     await encryptAndroidNotificationPayload(
       cookieID,
       unencryptedPayload,
@@ -199,6 +206,7 @@ async function encryptAndroidNotification(
       },
     },
     payloadSizeExceeded,
+    encryptionOrder,
   };
 }
 
@@ -221,24 +229,30 @@ async function encryptAndroidNotificationRescind(
 async function encryptWebNotification(
   cookieID: string,
   notification: PlainTextWebNotification,
-): Promise<WebNotification> {
+): Promise<{ +notification: WebNotification, +encryptionOrder?: number }> {
   const { id, ...payloadSansId } = notification;
   const unencryptedSerializedPayload = JSON.stringify(payloadSansId);
 
   try {
     const {
       encryptedMessages: { serializedPayload },
+      encryptionOrder,
     } = await encryptAndUpdateOlmSession(cookieID, 'notifications', {
       serializedPayload: unencryptedSerializedPayload,
     });
 
-    return { id, encryptedPayload: serializedPayload.body };
+    return {
+      notification: { id, encryptedPayload: serializedPayload.body },
+      encryptionOrder,
+    };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
     return {
-      id,
-      encryptionFailed: '1',
-      ...payloadSansId,
+      notification: {
+        id,
+        encryptionFailed: '1',
+        ...payloadSansId,
+      },
     };
   }
 }
@@ -255,6 +269,7 @@ function prepareEncryptedIOSNotifications(
     +notification: apn.Notification,
     +payloadSizeExceeded: boolean,
     +encryptedPayloadHash?: string,
+    +encryptionOrder?: number,
   }>,
 > {
   const notificationPromises = devices.map(
@@ -305,6 +320,7 @@ function prepareEncryptedAndroidNotifications(
     +deviceToken: string,
     +notification: AndroidNotification,
     +payloadSizeExceeded: boolean,
+    +encryptionOrder?: number,
   }>,
 > {
   const notificationPromises = devices.map(
@@ -328,6 +344,7 @@ function prepareEncryptedAndroidNotificationRescinds(
     +cookieID: string,
     +deviceToken: string,
     +notification: AndroidNotificationRescind,
+    +encryptionOrder?: number,
   }>,
 > {
   const notificationPromises = devices.map(
@@ -349,12 +366,13 @@ function prepareEncryptedWebNotifications(
   $ReadOnlyArray<{
     +deviceToken: string,
     +notification: WebNotification,
+    +encryptionOrder?: number,
   }>,
 > {
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID }) => {
       const notif = await encryptWebNotification(cookieID, notification);
-      return { notification: notif, deviceToken };
+      return { ...notif, deviceToken };
     },
   );
   return Promise.all(notificationPromises);
