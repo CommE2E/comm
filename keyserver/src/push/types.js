@@ -2,7 +2,10 @@
 
 import apn from '@parse/node-apn';
 
-import type { WebNotification } from 'lib/types/notif-types.js';
+import type {
+  WebNotification,
+  WNSNotification,
+} from 'lib/types/notif-types.js';
 
 export type TargetedAPNsNotification = {
   +notification: apn.Notification,
@@ -61,6 +64,12 @@ export type TargetedAndroidNotification = {
 
 export type TargetedWebNotification = {
   +notification: WebNotification,
+  +deviceToken: string,
+  +encryptionOrder?: number,
+};
+
+export type TargetedWNSNotification = {
+  +notification: WNSNotification,
   +deviceToken: string,
   +encryptionOrder?: number,
 };
