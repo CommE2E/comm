@@ -17,6 +17,7 @@ import StatusIndicator from '../components/status-indicator.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 
 export type KeyserverSelectionBottomSheetParams = {
   +keyserverAdminUserInfo: GlobalAccountUserInfo,
@@ -80,6 +81,16 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
     [colors.panelForegroundLabel],
   );
 
+  const onPressDisconnectKeyserver = React.useCallback(() => {
+    // TODO: update this function when we have a way to
+    // disconnect from a keyserver
+    Alert.alert(
+      'Disconnecting from a keyserver is still not ready.',
+      'Please come back later.',
+      [{ text: 'OK' }],
+    );
+  }, []);
+
   const onPressRemoveKeyserver = React.useCallback(() => {
     // TODO
   }, []);
@@ -120,7 +131,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
         </Text>
         <Button
           style={styles.removeButtonContainer}
-          onPress={onPressRemoveKeyserver}
+          onPress={onPressDisconnectKeyserver}
         >
           <Text style={styles.removeButtonText}>Disconnect keyserver</Text>
         </Button>
@@ -128,6 +139,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
     );
   }, [
     keyserverInfo.connection.status,
+    onPressDisconnectKeyserver,
     onPressRemoveKeyserver,
     styles.keyserverRemoveText,
     styles.removeButtonContainer,
