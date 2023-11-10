@@ -59,6 +59,7 @@ import type {
   TargetedAPNsNotification,
   TargetedAndroidNotification,
   TargetedWebNotification,
+  TargetedWNSNotification,
 } from './types.js';
 import {
   apnPush,
@@ -435,8 +436,11 @@ async function sendPushNotif(input: {
           unreadCount,
           platformDetails,
         });
-        const deviceTokens = devices.map(({ deviceToken }) => deviceToken);
-        return await sendWNSNotification(notification, deviceTokens, {
+        const targetedNotifications = devices.map(({ deviceToken }) => ({
+          notification,
+          deviceToken,
+        }));
+        return await sendWNSNotification(targetedNotifications, {
           ...notificationInfo,
           codeVersion,
           stateVersion,
@@ -1338,17 +1342,15 @@ type WNSResult = {
   +invalidTokens?: $ReadOnlyArray<string>,
 };
 async function sendWNSNotification(
-  notification: WNSNotification,
-  deviceTokens: $ReadOnlyArray<string>,
+  targetedNotifications: $ReadOnlyArray<TargetedWNSNotification>,
   notificationInfo: NotificationInfo,
 ): Promise<WNSResult> {
   const { source, codeVersion, stateVersion } = notificationInfo;
 
-  const response = await wnsPush({
-    notification,
-    deviceTokens,
-  });
-
+  const response = await wnsPush(targetedNotifications);
+  const deviceTokens = targetedNotifications.map(
+    ({ deviceToken }) => deviceToken,
+  );
   const wnsIDs = response.wnsIDs ?? [];
   const delivery: WNSDelivery = {
     source,
