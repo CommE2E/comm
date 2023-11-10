@@ -18,6 +18,7 @@ import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
+import type { RawEntryInfo } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
 import { serverRequestTypes } from 'lib/types/request-types.js';
@@ -41,6 +42,8 @@ import {
   serverSocketMessageTypes,
   serverServerSocketMessageValidator,
 } from 'lib/types/socket-types.js';
+import type { RawThreadInfos } from 'lib/types/thread-types.js';
+import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
@@ -505,13 +508,20 @@ class Socket {
       isCookieMissingOlmNotificationsSession(viewer);
 
     if (!sessionInitializationResult.sessionContinued) {
-      const promises = Object.fromEntries(
+      const promises: { +[string]: Promise<mixed> } = Object.fromEntries(
         values(serverStateSyncSpecs).map(spec => [
           spec.hashKey,
           spec.fetchFullSocketSyncPayload(viewer, [calendarQuery]),
         ]),
       );
-      const results = await promiseAll(promises);
+      // We have a type error here because Flow doesn't know spec.hashKey
+      const castPromises: {
+        +threadInfos: Promise<RawThreadInfos>,
+        +currentUserInfo: Promise<CurrentUserInfo>,
+        +entryInfos: Promise<$ReadOnlyArray<RawEntryInfo>>,
+        +userInfos: Promise<$ReadOnlyArray<UserInfo>>,
+      } = (promises: any);
+      const results = await promiseAll(castPromises);
       const payload: ServerStateSyncFullSocketPayload = {
         type: stateSyncPayloadTypes.FULL,
         messagesResult,
