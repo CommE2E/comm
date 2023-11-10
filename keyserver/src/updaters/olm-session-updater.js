@@ -15,6 +15,7 @@ const olmSessionUpdateRetryDelay = 50;
 type OlmEncryptionResult = {
   +encryptedMessages: { +[string]: EncryptResult },
   +dbPersistConditionViolated?: boolean,
+  +encryptionOrder?: number,
 };
 
 async function encryptAndUpdateOlmSession(
@@ -86,7 +87,7 @@ async function encryptAndUpdateOlmSession(
     const [{ versionOnUpdateAttempt }] = selectResult;
 
     if (version === versionOnUpdateAttempt) {
-      return { encryptedMessages };
+      return { encryptedMessages, encryptionOrder: version };
     }
 
     await sleep(olmSessionUpdateRetryDelay);
