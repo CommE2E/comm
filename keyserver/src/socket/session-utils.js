@@ -5,7 +5,10 @@ import t from 'tcomb';
 import type { TUnion } from 'tcomb';
 
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
-import type { UpdateActivityResult } from 'lib/types/activity-types.js';
+import type {
+  UpdateActivityResult,
+  ActivityUpdate,
+} from 'lib/types/activity-types.js';
 import type { IdentityKeysBlob } from 'lib/types/crypto-types.js';
 import { isDeviceType } from 'lib/types/device-types.js';
 import type {
@@ -149,7 +152,7 @@ async function processClientResponses(
         platformDetails.stateVersion === undefined));
 
   const promises = [];
-  let activityUpdates = [];
+  let activityUpdates: Array<ActivityUpdate> = [];
   let stateCheckStatus = null;
   const clientSentPlatformDetails = clientResponses.some(
     response => response.type === serverRequestTypes.PLATFORM_DETAILS,
@@ -243,14 +246,14 @@ async function processClientResponses(
     }
   }
 
-  const activityUpdatePromise = (async () => {
+  const activityUpdatePromise: Promise<?UpdateActivityResult> = (async () => {
     if (activityUpdates.length === 0) {
       return undefined;
     }
     return await activityUpdater(viewer, { updates: activityUpdates });
   })();
 
-  const serverRequests = [];
+  const serverRequests: Array<ServerServerRequest> = [];
 
   const checkOneTimeKeysPromise = (async () => {
     if (!viewer.loggedIn) {
@@ -429,7 +432,7 @@ async function checkState(
     }
   }
 
-  const fetchPromises = {};
+  const fetchPromises: { [string]: Promise<mixed> } = {};
   for (const spec of values(serverStateSyncSpecs)) {
     if (shouldFetchAll[spec.hashKey]) {
       fetchPromises[spec.hashKey] = spec.fetch(viewer);
@@ -450,9 +453,9 @@ async function checkState(
       .filter(spec => spec.innerHashSpec?.hashKey)
       .map(spec => [spec.innerHashSpec?.hashKey, spec]),
   );
-  const hashesToCheck = {},
-    failUnmentioned = {},
-    stateChanges = {};
+  const hashesToCheck: { [string]: number } = {},
+    failUnmentioned: { [string]: boolean } = {},
+    stateChanges: { [string]: mixed } = {};
   for (const key of invalidKeys) {
     const spec = specPerHashKey[key];
     const innerHashKey = spec?.innerHashSpec?.hashKey;
@@ -461,7 +464,12 @@ async function checkState(
       // Instead of returning all the infos, we want to narrow down and figure
       // out which infos don't match first
       const infos = fetchedData[key];
-      for (const infoID in infos) {
+      // We have a type error here because in fact the relationship between
+      // Infos and Info is not guaranteed to be like this. In particular,
+      // currentUserStateSyncSpec does not match this pattern. But this code
+      // doesn't fire for it because no innerHashSpec is defined
+      const iterableInfos: { +[string]: mixed } = (infos: any);
+      for (const infoID in iterableInfos) {
         let hashValue;
         if (
           hasMinCodeVersion(viewer.platformDetails, {
@@ -469,9 +477,11 @@ async function checkState(
             web: 32,
           })
         ) {
-          hashValue = spec.getServerInfoHash(infos[infoID]);
+          // We have a type error here because Flow has no way to determine that
+          // spec and infos are matched up
+          hashValue = spec.getServerInfoHash((iterableInfos[infoID]: any));
         } else {
-          hashValue = hash(infos[infoID]);
+          hashValue = hash(iterableInfos[infoID]);
         }
         hashesToCheck[`${innerHashKey}|${infoID}`] = hashValue;
       }
@@ -486,27 +496,54 @@ async function checkState(
         continue;
       }
       const infos = fetchedData[innerSpec.hashKey];
-      const info = infos[id];
-      if (!info || innerHashSpec.additionalDeleteCondition?.(info)) {
+      // We have a type error here because in fact the relationship between
+      // Infos and Info is not guaranteed to be like this. In particular,
+      // currentUserStateSyncSpec does not match this pattern. But this code
+      // doesn't fire for it because no innerHashSpec is defined
+      const iterableInfos: { +[string]: mixed } = (infos: any);
+      const info = iterableInfos[id];
+      // We have a type error here because Flow wants us to type iterableInfos
+      // in this file, but we don't have access to the parameterization of
+      // innerHashSpec here
+      if (!info || innerHashSpec.additionalDeleteCondition?.((info: any))) {
         if (!stateChanges[innerHashSpec.deleteKey]) {
-          stateChanges[innerHashSpec.deleteKey] = [];
+          stateChanges[innerHashSpec.deleteKey] = [id];
+        } else {
+          // We have a type error here because in fact stateChanges values
+          // aren't always arrays. In particular, currentUserStateSyncSpec does
+          // not match this pattern. But this code doesn't fire for it because
+          // no innerHashSpec is defined
+          const curDeleteKeyChanges: Array<mixed> = (stateChanges[
+            innerHashSpec.deleteKey
+          ]: any);
+          curDeleteKeyChanges.push(id);
         }
-        stateChanges[innerHashSpec.deleteKey].push(id);
         continue;
       }
       if (!stateChanges[innerHashSpec.rawInfosKey]) {
-        stateChanges[innerHashSpec.rawInfosKey] = [];
+        stateChanges[innerHashSpec.rawInfosKey] = [info];
+      } else {
+        // We have a type error here because in fact stateChanges values aren't
+        // always arrays. In particular, currentUserStateSyncSpec does not match
+        // this pattern. But this code doesn't fire for it because no
+        // innerHashSpec is defined
+        const curRawInfosKeyChanges: Array<mixed> = (stateChanges[
+          innerHashSpec.rawInfosKey
+        ]: any);
+        curRawInfosKeyChanges.push(info);
       }
-      stateChanges[innerHashSpec.rawInfosKey].push(info);
     }
   }
 
-  const checkStateRequest = {
+  // We have a type error here because the keys that get set on some of these
+  // collections aren't statically typed when they're set. Rather, they are set
+  // as arbitrary strings
+  const checkStateRequest: ServerCheckStateServerRequest = ({
     type: serverRequestTypes.CHECK_STATE,
     hashesToCheck,
     failUnmentioned,
     stateChanges,
-  };
+  }: any);
   if (Object.keys(hashesToCheck).length === 0) {
     return { checkStateRequest, sessionUpdate: { lastValidated: Date.now() } };
   } else {
