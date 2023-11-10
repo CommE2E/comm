@@ -909,6 +909,8 @@ const migrations = {
 
     return state;
   },
+  [58]: state =>
+    updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1024,7 +1026,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 57,
+  version: 58,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
