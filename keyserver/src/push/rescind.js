@@ -253,6 +253,7 @@ async function conditionallyEncryptNotification<T>(
       +notification: T,
       +cookieID: string,
       +deviceToken: string,
+      +encryptionOrder?: number,
     }>,
   >,
 ): Promise<$ReadOnlyArray<{ +deviceToken: string, +notification: T }>> {

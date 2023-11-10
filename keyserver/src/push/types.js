@@ -8,6 +8,7 @@ export type TargetedAPNsNotification = {
   +notification: apn.Notification,
   +deviceToken: string,
   +encryptedPayloadHash?: string,
+  +encryptionOrder?: number,
 };
 
 type AndroidNotificationPayloadBase = {
@@ -55,11 +56,13 @@ export type AndroidNotificationRescind = {
 export type TargetedAndroidNotification = {
   +notification: AndroidNotification | AndroidNotificationRescind,
   +deviceToken: string,
+  +encryptionOrder?: number,
 };
 
 export type TargetedWebNotification = {
   +notification: WebNotification,
   +deviceToken: string,
+  +encryptionOrder?: number,
 };
 
 export type NotificationTargetDevice = {
