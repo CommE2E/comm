@@ -5,6 +5,7 @@ import type { ResponseFailure } from '@parse/node-apn';
 import invariant from 'invariant';
 import _cloneDeep from 'lodash/fp/cloneDeep.js';
 import _flow from 'lodash/fp/flow.js';
+import _groupBy from 'lodash/fp/groupBy.js';
 import _mapValues from 'lodash/fp/mapValues.js';
 import _pickBy from 'lodash/fp/pickBy.js';
 import t from 'tcomb';
@@ -42,6 +43,7 @@ import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type GlobalUserInfo } from 'lib/types/user-types.js';
+import { values } from 'lib/utils/objects.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
@@ -122,7 +124,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     createDBIDs(pushInfo),
   ]);
 
-  const deliveryPromises = [];
+  const preparePromises = [];
   const notifications: Map<string, NotificationRow> = new Map();
   for (const userID in usersToCollapsableNotifInfo) {
     const threadInfos = _flow(
@@ -139,8 +141,8 @@ async function sendPushNotifs(pushInfo: PushInfo) {
       _pickBy(threadInfo => threadInfo),
     )(serverThreadInfos);
     for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
-      deliveryPromises.push(
-        sendPushNotif({
+      preparePromises.push(
+        preparePushNotif({
           notifInfo,
           userID,
           pushUserInfo: pushInfo[userID],
@@ -154,18 +156,13 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     }
   }
 
-  const deliveryResults = await Promise.all(deliveryPromises);
+  const prepareResults = (await Promise.all(preparePromises))
+    .filter(Boolean)
+    .flat();
 
-  const flattenedDeliveryResults = [];
-  for (const innerDeliveryResults of deliveryResults) {
-    if (!innerDeliveryResults) {
-      continue;
-    }
-    for (const deliveryResult of innerDeliveryResults) {
-      flattenedDeliveryResults.push(deliveryResult);
-    }
-  }
-
+  const deliveryResults = await deliverPushNotifsInEncryptionOrder(
+    prepareResults,
+  );
   const cleanUpPromise = (async () => {
     if (dbIDs.length === 0) {
       return;
@@ -176,11 +173,21 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
   await Promise.all([
     cleanUpPromise,
-    saveNotifResults(flattenedDeliveryResults, notifications, true),
+    saveNotifResults(deliveryResults, notifications, true),
   ]);
 }
 
-async function sendPushNotif(input: {
+type PreparePushResult = {
+  +platform: Platform,
+  +notificationInfo: NotificationInfo,
+  +notification:
+    | TargetedAPNsNotification
+    | TargetedAndroidNotification
+    | TargetedWebNotification
+    | TargetedWNSNotification,
+};
+
+async function preparePushNotif(input: {
   notifInfo: CollapsableNotifInfo,
   userID: string,
   pushUserInfo: PushUserInfo,
@@ -189,7 +196,7 @@ async function sendPushNotif(input: {
   userInfos: { +[userID: string]: GlobalUserInfo },
   dbIDs: string[], // mutable
   rowsToSave: Map<string, NotificationRow>, // mutable
-}): Promise<?(PushResult[])> {
+}): Promise<?$ReadOnlyArray<PreparePushResult>> {
   const {
     notifInfo,
     userID,
@@ -277,7 +284,7 @@ async function sendPushNotif(input: {
     collapseKey: notifInfo.collapseKey,
   };
 
-  const deliveryPromises = [];
+  const preparePromises = [];
 
   const iosVersionsToTokens = byPlatform.get('ios');
   if (iosVersionsToTokens) {
@@ -293,7 +300,7 @@ async function sendPushNotif(input: {
         newRawMessageInfos,
         platformDetails,
       );
-      const deliveryPromise: Promise<PushResult> = (async () => {
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
         const targetedNotifications = await prepareAPNsNotification(
           {
             notifTexts,
@@ -306,13 +313,17 @@ async function sendPushNotif(input: {
           },
           devices,
         );
-        return await sendAPNsNotification('ios', targetedNotifications, {
-          ...notificationInfo,
-          codeVersion,
-          stateVersion,
-        });
+        return targetedNotifications.map(notification => ({
+          notification,
+          platform: 'ios',
+          notificationInfo: {
+            ...notificationInfo,
+            codeVersion,
+            stateVersion,
+          },
+        }));
       })();
-      deliveryPromises.push(deliveryPromise);
+      preparePromises.push(preparePromise);
     }
   }
   const androidVersionsToTokens = byPlatform.get('android');
@@ -328,7 +339,7 @@ async function sendPushNotif(input: {
         newRawMessageInfos,
         platformDetails,
       );
-      const deliveryPromise: Promise<PushResult> = (async () => {
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
         const targetedNotifications = await prepareAndroidNotification(
           {
             notifTexts,
@@ -342,13 +353,17 @@ async function sendPushNotif(input: {
           },
           devices,
         );
-        return await sendAndroidNotification(targetedNotifications, {
-          ...notificationInfo,
-          codeVersion,
-          stateVersion,
-        });
+        return targetedNotifications.map(notification => ({
+          notification,
+          platform: 'android',
+          notificationInfo: {
+            ...notificationInfo,
+            codeVersion,
+            stateVersion,
+          },
+        }));
       })();
-      deliveryPromises.push(deliveryPromise);
+      preparePromises.push(preparePromise);
     }
   }
   const webVersionsToTokens = byPlatform.get('web');
@@ -361,7 +376,7 @@ async function sendPushNotif(input: {
         stateVersion,
       };
 
-      const deliveryPromise: Promise<PushResult> = (async () => {
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
         const targetedNotifications = await prepareWebNotification(
           {
             notifTexts,
@@ -372,13 +387,17 @@ async function sendPushNotif(input: {
           devices,
         );
 
-        return await sendWebNotifications(targetedNotifications, {
-          ...notificationInfo,
-          codeVersion,
-          stateVersion,
-        });
+        return targetedNotifications.map(notification => ({
+          notification,
+          platform: 'web',
+          notificationInfo: {
+            ...notificationInfo,
+            codeVersion,
+            stateVersion,
+          },
+        }));
       })();
-      deliveryPromises.push(deliveryPromise);
+      preparePromises.push(preparePromise);
     }
   }
   const macosVersionsToTokens = byPlatform.get('macos');
@@ -394,7 +413,7 @@ async function sendPushNotif(input: {
         newRawMessageInfos,
         platformDetails,
       );
-      const deliveryPromise: Promise<PushResult> = (async () => {
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
         const targetedNotifications = await prepareAPNsNotification(
           {
             notifTexts,
@@ -407,13 +426,17 @@ async function sendPushNotif(input: {
           },
           devices,
         );
-        return await sendAPNsNotification('macos', targetedNotifications, {
-          ...notificationInfo,
-          codeVersion,
-          stateVersion,
-        });
+        return targetedNotifications.map(notification => ({
+          notification,
+          platform: 'macos',
+          notificationInfo: {
+            ...notificationInfo,
+            codeVersion,
+            stateVersion,
+          },
+        }));
       })();
-      deliveryPromises.push(deliveryPromise);
+      preparePromises.push(preparePromise);
     }
   }
   const windowsVersionsToTokens = byPlatform.get('windows');
@@ -426,24 +449,30 @@ async function sendPushNotif(input: {
         stateVersion,
       };
 
-      const deliveryPromise: Promise<PushResult> = (async () => {
+      const preparePromise: Promise<PreparePushResult[]> = (async () => {
         const notification = await prepareWNSNotification({
           notifTexts,
           threadID: threadInfo.id,
           unreadCount,
           platformDetails,
         });
-        const targetedNotifications = devices.map(({ deviceToken }) => ({
-          notification,
-          deviceToken,
+        const targetedNotifications: $ReadOnlyArray<TargetedWNSNotification> =
+          devices.map(({ deviceToken }) => ({
+            deviceToken,
+            notification,
+          }));
+
+        return targetedNotifications.map(targetedNotification => ({
+          notification: targetedNotification,
+          platform: 'windows',
+          notificationInfo: {
+            ...notificationInfo,
+            codeVersion,
+            stateVersion,
+          },
         }));
-        return await sendWNSNotification(targetedNotifications, {
-          ...notificationInfo,
-          codeVersion,
-          stateVersion,
-        });
       })();
-      deliveryPromises.push(deliveryPromise);
+      preparePromises.push(preparePromise);
     }
   }
 
@@ -462,7 +491,67 @@ async function sendPushNotif(input: {
     });
   }
 
-  return await Promise.all(deliveryPromises);
+  return (await Promise.all(preparePromises)).flat();
+}
+
+async function deliverPushNotifsInEncryptionOrder(
+  preparedPushNotifs: $ReadOnlyArray<PreparePushResult>,
+): Promise<$ReadOnlyArray<PushResult>> {
+  const deliveryPromises = [];
+
+  const groupedByDevice = _groupBy(
+    preparedPushNotif => preparedPushNotif.deviceToken,
+    preparedPushNotifs,
+  );
+
+  // For better readability we don't differentiate between
+  // encrypted and unencrypted notifs and order them together
+  const encryptionOrderComparator = (
+    pushNotif1: PreparePushResult,
+    pushNotif2: PreparePushResult,
+  ) => {
+    const order1 = pushNotif1.notification.encryptionOrder ?? 0;
+    const order2 = pushNotif2.notification.encryptionOrder ?? 0;
+    return order1 - order2;
+  };
+
+  for (const preparedPushNotifsForDevice of values(groupedByDevice)) {
+    const orderedPushNotifsForDevice = preparedPushNotifsForDevice.sort(
+      encryptionOrderComparator,
+    );
+
+    const deviceDeliveryPromise = (async () => {
+      const deliveries = [];
+      for (const preparedPushNotif of orderedPushNotifsForDevice) {
+        const { platform, notification, notificationInfo } = preparedPushNotif;
+        if (platform === 'ios' || platform === 'macos') {
+          deliveries.push(
+            await sendAPNsNotification(
+              platform,
+              [notification],
+              notificationInfo,
+            ),
+          );
+        } else if (platform === 'android') {
+          deliveries.push(
+            await sendAndroidNotification([notification], notificationInfo),
+          );
+        } else if (platform === 'web') {
+          deliveries.push(
+            await sendWebNotifications([notification], notificationInfo),
+          );
+        } else if (platform === 'windows') {
+          deliveries.push(
+            await sendWNSNotification([notification], notificationInfo),
+          );
+        }
+      }
+      return deliveries;
+    })();
+    deliveryPromises.push(deviceDeliveryPromise);
+  }
+
+  return (await Promise.all(deliveryPromises)).flat();
 }
 
 async function sendRescindNotifs(rescindInfo: PushInfo) {
@@ -869,10 +958,16 @@ async function prepareAPNsNotification(
 
   if (devicesWithExcessiveSize.length === 0) {
     return notifsWithMessageInfos.map(
-      ({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
+      ({
         notification: notif,
         deviceToken,
         encryptedPayloadHash,
+        encryptionOrder,
+      }) => ({
+        notification: notif,
+        deviceToken,
+        encryptedPayloadHash,
+        encryptionOrder,
       }),
     );
   }
@@ -885,17 +980,31 @@ async function prepareAPNsNotification(
 
   const targetedNotifsWithMessageInfos = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
-    .map(({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
-      notification: notif,
-      deviceToken,
-      encryptedPayloadHash,
-    }));
+    .map(
+      ({
+        notification: notif,
+        deviceToken,
+        encryptedPayloadHash,
+        encryptionOrder,
+      }) => ({
+        notification: notif,
+        deviceToken,
+        encryptedPayloadHash,
+        encryptionOrder,
+      }),
+    );
 
   const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
-    ({ notification: notif, deviceToken, encryptedPayloadHash }) => ({
+    ({
       notification: notif,
       deviceToken,
       encryptedPayloadHash,
+      encryptionOrder,
+    }) => ({
+      notification: notif,
+      deviceToken,
+      encryptedPayloadHash,
+      encryptionOrder,
     }),
   );
 
@@ -1020,9 +1129,10 @@ async function prepareAndroidNotification(
 
   if (devicesWithExcessiveSize.length === 0) {
     return notifsWithMessageInfos.map(
-      ({ notification: notif, deviceToken }) => ({
+      ({ notification: notif, deviceToken, encryptionOrder }) => ({
         notification: notif,
         deviceToken,
+        encryptionOrder,
       }),
     );
   }
@@ -1034,15 +1144,17 @@ async function prepareAndroidNotification(
 
   const targetedNotifsWithMessageInfos = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
-    .map(({ notification: notif, deviceToken }) => ({
+    .map(({ notification: notif, deviceToken, encryptionOrder }) => ({
       notification: notif,
       deviceToken,
+      encryptionOrder,
     }));
 
   const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
-    ({ notification: notif, deviceToken }) => ({
+    ({ notification: notif, deviceToken, encryptionOrder }) => ({
       notification: notif,
       deviceToken,
+      encryptionOrder,
     }),
   );
 
@@ -1342,6 +1454,7 @@ async function sendWNSNotification(
   const { source, codeVersion, stateVersion } = notificationInfo;
 
   const response = await wnsPush(targetedNotifications);
+
   const deviceTokens = targetedNotifications.map(
     ({ deviceToken }) => deviceToken,
   );
