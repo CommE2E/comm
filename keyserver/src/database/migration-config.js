@@ -5,11 +5,13 @@ import fs from 'fs';
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
+import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { permissionsToRemoveInMigration } from 'lib/utils/migration-utils.js';
 
+import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
@@ -661,6 +663,48 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       `);
 
       await dbQuery(updateQuery);
+    },
+  ],
+  [
+    52,
+    async () => {
+      const rolePermissions = getRolePermissionBlobs(
+        threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD,
+      );
+      const voicedPermissions = rolePermissions.Voiced;
+      const voicedRoleName = 'Voiced';
+      const permissionsBlob = JSON.stringify(voicedPermissions);
+
+      if (!voicedPermissions) {
+        return;
+      }
+
+      const [result] = await dbQuery(SQL`
+        SELECT id FROM threads
+        WHERE type = ${threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD}
+          OR type = ${threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD}
+      `);
+
+      const threads = result.map(row => row.id.toString());
+
+      const ids = await createIDs('roles', threads.length);
+
+      while (threads.length > 0) {
+        const batch = threads.splice(0, 10);
+        const newRows = [];
+        for (const threadID of batch) {
+          const id = ids.shift();
+          const time = Date.now();
+
+          newRows.push([id, threadID, voicedRoleName, permissionsBlob, time]);
+        }
+
+        const query = SQL`
+          INSERT INTO roles (id, thread, name, permissions, creation_time)
+          VALUES ${newRows}
+        `;
+        await dbQuery(query);
+      }
     },
   ],
 ]);
