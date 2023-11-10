@@ -125,7 +125,12 @@ async function modifyRole(
   });
   const threadInfo = threadInfos[community];
 
-  if (threadInfo.type === threadTypes.COMMUNITY_ROOT) {
+  const isCommunityRoot = threadInfo.type === threadTypes.COMMUNITY_ROOT;
+  const paramsHaveVociedInAnnouncementChannelsPermission =
+    configuredPermissions.includes(
+      threadPermissions.VOICED_IN_ANNOUNCEMENT_CHANNELS,
+    );
+  if (isCommunityRoot || paramsHaveVociedInAnnouncementChannelsPermission) {
     rolePermissions.push(threadPermissions.VOICED);
   }
 
