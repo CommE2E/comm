@@ -11,7 +11,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 function keyExtractor(item: SelectedKeyserverInfo) {
-  return `${item.keyserverAdminUsername}${item.keyserverInfo.urlPrefix}`;
+  return `${item.keyserverAdminUserInfo.id}${item.keyserverInfo.urlPrefix}`;
 }
 
 function renderKeyserverListItem({ item }) {
