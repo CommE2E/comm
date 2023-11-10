@@ -297,6 +297,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
     if (!this.props.loggedIn && prevProps.loggedIn) {
       this.clearAllNotifs();
+      this.resetBadgeCount();
     }
 
     if (
@@ -314,6 +315,14 @@ class PushHandler extends React.PureComponent<Props, State> {
       CommIOSNotifications.setBadgesCount(curUnreadCount);
     } else if (Platform.OS === 'android') {
       CommAndroidNotifications.setBadge(curUnreadCount);
+    }
+  }
+
+  resetBadgeCount() {
+    if (Platform.OS === 'ios') {
+      CommIOSNotifications.setBadgesCount(0);
+    } else if (Platform.OS === 'android') {
+      CommAndroidNotifications.setBadge(0);
     }
   }
 
