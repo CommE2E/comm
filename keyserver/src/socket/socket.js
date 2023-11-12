@@ -472,7 +472,7 @@ class Socket {
     const { viewer } = this;
     invariant(viewer, 'should be set');
 
-    const responses = [];
+    const responses: Array<ServerServerSocketMessage> = [];
 
     const { sessionState, clientResponses } = message.payload;
     const {
@@ -489,7 +489,7 @@ class Socket {
       oldUpdatesCurrentAsOf,
     );
 
-    const threadCursors = {};
+    const threadCursors: { [string]: null } = {};
     for (const watchedThreadID of watchedIDs) {
       threadCursors[watchedThreadID] = null;
     }

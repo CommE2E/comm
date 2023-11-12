@@ -30,6 +30,7 @@ import {
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
   type SearchMessagesResponse,
+  type MessageTruncationStatuses,
 } from 'lib/types/message-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -72,8 +73,11 @@ async function fetchCollapsableNotifs(
   pushInfo: PushInfo,
 ): Promise<FetchCollapsableNotifsResult> {
   // First, we need to fetch any notifications that should be collapsed
-  const usersToCollapseKeysToInfo = {};
-  const usersToCollapsableNotifInfo = {};
+  const usersToCollapseKeysToInfo: {
+    [string]: { [string]: CollapsableNotifInfo },
+  } = {};
+  const usersToCollapsableNotifInfo: { [string]: Array<CollapsableNotifInfo> } =
+    {};
   for (const userID in pushInfo) {
     usersToCollapseKeysToInfo[userID] = {};
     usersToCollapsableNotifInfo[userID] = [];
@@ -82,7 +86,7 @@ async function fetchCollapsableNotifs(
       const messageData = pushInfo[userID].messageDatas[i];
       const collapseKey = getNotifCollapseKey(rawMessageInfo, messageData);
       if (!collapseKey) {
-        const collapsableNotifInfo = {
+        const collapsableNotifInfo: CollapsableNotifInfo = {
           collapseKey,
           existingMessageInfos: [],
           newMessageInfos: [rawMessageInfo],
@@ -91,11 +95,11 @@ async function fetchCollapsableNotifs(
         continue;
       }
       if (!usersToCollapseKeysToInfo[userID][collapseKey]) {
-        usersToCollapseKeysToInfo[userID][collapseKey] = {
+        usersToCollapseKeysToInfo[userID][collapseKey] = ({
           collapseKey,
           existingMessageInfos: [],
           newMessageInfos: [],
-        };
+        }: CollapsableNotifInfo);
       }
       usersToCollapseKeysToInfo[userID][collapseKey].newMessageInfos.push(
         rawMessageInfo,
@@ -309,7 +313,7 @@ async function fetchMessageInfos(
 ): Promise<FetchMessageInfosResult> {
   const { sqlClause: selectionClause, timeFilterData } =
     parseMessageSelectionCriteria(viewer, criteria);
-  const truncationStatuses = {};
+  const truncationStatuses: MessageTruncationStatuses = {};
 
   const viewerID = viewer.id;
   const query = SQL`
@@ -522,7 +526,7 @@ function messageSelectionCriteriaToInitialTruncationStatuses(
   criteria: MessageSelectionCriteria,
   defaultTruncationStatus: MessageTruncationStatus,
 ) {
-  const truncationStatuses = {};
+  const truncationStatuses: MessageTruncationStatuses = {};
   if (criteria.threadCursors) {
     for (const threadID in criteria.threadCursors) {
       truncationStatuses[threadID] = defaultTruncationStatus;
@@ -605,7 +609,7 @@ function getMessageFetchResultFromRedisMessages(
   viewer: Viewer,
   rawMessageInfos: $ReadOnlyArray<RawMessageInfo>,
 ): FetchMessageInfosResult {
-  const truncationStatuses = {};
+  const truncationStatuses: MessageTruncationStatuses = {};
   for (const rawMessageInfo of rawMessageInfos) {
     truncationStatuses[rawMessageInfo.threadID] =
       messageTruncationStatus.UNCHANGED;

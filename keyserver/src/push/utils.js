@@ -49,7 +49,7 @@ const webInvalidTokenErrorCodes = [404, 410];
 const wnsInvalidTokenErrorCodes = [404, 410];
 const wnsMaxNotificationPayloadByteSize = 5000;
 
-type APNPushResult =
+export type APNPushResult =
   | { +success: true }
   | {
       +errors: $ReadOnlyArray<ResponseFailure>,
