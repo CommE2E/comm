@@ -23,6 +23,9 @@ service IdentityClientService {
   // to a user's keyserver
   rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
     (KeyserverKeysResponse) {}
+
+  // Returns userID for given username or wallet address
+  rpc FindUserID(FindUserIDRequest) returns (FindUserIDResponse) {}
 }
 
 // Helper types
@@ -61,4 +64,18 @@ message KeyserverKeysResponse {
 // The device receiving a request only needs the content key and prekey.
 message OutboundKeysForUserRequest {
   string userID = 1;
+}
+
+// FindUserID
+
+message FindUserIDRequest {
+  oneof identifier {
+    string username = 1;
+    string walletAddress = 2;
+  }
+}
+
+message FindUserIDResponse {
+  // none if user not found
+  optional string userID = 1;
 }
