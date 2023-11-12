@@ -49,7 +49,7 @@ describe('sanitization', () => {
   it('should redact password dict key', () => {
     const validator = tShape({ passwords: t.dict(tPassword, t.Bool) });
     const object = { passwords: { password1: true, password2: false } };
-    const redacted = { passwords: {} };
+    const redacted: { +passwords: { [string]: mixed } } = { passwords: {} };
     redacted.passwords[redactedString] = false;
     expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
   });

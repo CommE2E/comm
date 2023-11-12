@@ -15,7 +15,7 @@ async function commitSessionUpdate(
   viewer: Viewer,
   sessionUpdate: SessionUpdate,
 ): Promise<void> {
-  const sqlUpdate = {};
+  const sqlUpdate: { [string]: string | number } = {};
   if (sessionUpdate.query) {
     sqlUpdate.query = JSON.stringify(sessionUpdate.query);
   }

@@ -25,7 +25,7 @@ function getDiscriminatorFieldForUnionValidator(validator: TType<mixed>) {
 function flattenInnerUnionValidators<T>(
   innerValidators: $ReadOnlyArray<TType<T>>,
 ): TInterface<{ +[string]: mixed }>[] {
-  let result = [];
+  let result: TInterface<{ +[string]: mixed }>[] = [];
   for (const innerValidator of innerValidators) {
     if (innerValidator.meta.kind === 'interface') {
       // In flow, union refinement only works if every variant has a key
