@@ -39,6 +39,7 @@ import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
+  type MembershipChangeset,
   type MembershipRow,
 } from './thread-permission-updaters.js';
 import createMessages from '../creators/message-creator.js';
@@ -341,7 +342,6 @@ async function updateThread(
   const silenceMessages = options?.silenceMessages ?? false;
   const ignorePermissions =
     (options?.ignorePermissions && viewer.isScriptViewer) ?? false;
-  const validationPromises = {};
 
   const changedFields: { [string]: string | number } = {};
   const sqlUpdate: { [string]: ?string | number } = {};
@@ -352,12 +352,12 @@ async function updateThread(
       throw new ServerError('invalid_chat_name');
     }
     changedFields.name = name;
-    sqlUpdate.name = name ?? null;
+    sqlUpdate.name = name;
   }
   const { description } = request.changes;
   if (description !== undefined && description !== null) {
     changedFields.description = description;
-    sqlUpdate.description = description ?? null;
+    sqlUpdate.description;
   }
   if (request.changes.color) {
     const color = request.changes.color.toLowerCase();
@@ -406,11 +406,11 @@ async function updateThread(
     throw new ServerError('invalid_parameters');
   }
 
-  validationPromises.serverThreadInfos = fetchServerThreadInfos({
+  const serverThreadInfosPromise = fetchServerThreadInfos({
     threadID: request.threadID,
   });
 
-  validationPromises.hasNecessaryPermissions = (async () => {
+  const hasNecessaryPermissionsPromise = (async () => {
     if (ignorePermissions) {
       return;
     }
@@ -461,7 +461,10 @@ async function updateThread(
     }
   })();
 
-  const { serverThreadInfos } = await promiseAll(validationPromises);
+  const [serverThreadInfos] = await Promise.all([
+    serverThreadInfosPromise,
+    hasNecessaryPermissionsPromise,
+  ]);
 
   const serverThreadInfo = serverThreadInfos.threadInfos[request.threadID];
   if (!serverThreadInfo) {
@@ -701,30 +704,35 @@ async function updateThread(
     }
   })();
 
-  const intermediatePromises = {};
-  intermediatePromises.updateQuery = updateQueryPromise;
-  intermediatePromises.updateRoles = updateRolesPromise;
-
-  if (newMemberIDs) {
-    intermediatePromises.addMembersChangeset = (async () => {
+  const addMembersChangesetPromise: Promise<?MembershipChangeset> =
+    (async () => {
+      if (!newMemberIDs) {
+        return undefined;
+      }
       await Promise.all([updateQueryPromise, updateRolesPromise]);
       return await changeRole(request.threadID, newMemberIDs, null, {
         setNewMembersToUnread: true,
       });
     })();
-  }
 
-  const threadRootChanged =
-    rolesNeedUpdate || nextParentThreadID !== oldParentThreadID;
-  if (threadRootChanged) {
-    intermediatePromises.recalculatePermissionsChangeset = (async () => {
+  const recalculatePermissionsChangesetPromise: Promise<?MembershipChangeset> =
+    (async () => {
+      const threadRootChanged =
+        rolesNeedUpdate || nextParentThreadID !== oldParentThreadID;
+      if (!threadRootChanged) {
+        return undefined;
+      }
       await Promise.all([updateQueryPromise, updateRolesPromise]);
       return await recalculateThreadPermissions(request.threadID);
     })();
-  }
 
-  const { addMembersChangeset, recalculatePermissionsChangeset } =
-    await promiseAll(intermediatePromises);
+  const [addMembersChangeset, recalculatePermissionsChangeset] =
+    await Promise.all([
+      addMembersChangesetPromise,
+      recalculatePermissionsChangesetPromise,
+      updateQueryPromise,
+      updateRolesPromise,
+    ]);
 
   const membershipRows: Array<MembershipRow> = [];
   const relationshipChangeset = new RelationshipChangeset();
