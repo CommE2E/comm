@@ -228,7 +228,7 @@ async function changeRole(
     const ancestorMembership = ancestorMembershipInfo.get(userID);
     if (ancestorMembership) {
       permissionsFromParent = ancestorMembership.permissionsFromParent;
-      memberOfContainingThread = ancestorMembership.memberOfContainingThread;
+      memberOfContainingThread = !!ancestorMembership.memberOfContainingThread;
     }
     if (!hasContainingThreadID) {
       memberOfContainingThread = true;
