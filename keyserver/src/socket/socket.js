@@ -81,7 +81,7 @@ import {
   isCookieMissingSignedIdentityKeysBlob,
   isCookieMissingOlmNotificationsSession,
 } from '../session/cookies.js';
-import { Viewer } from '../session/viewer.js';
+import { Viewer, type AnonymousViewerData } from '../session/viewer.js';
 import { serverStateSyncSpecs } from '../shared/state-sync/state-sync-specs.js';
 import { commitSessionUpdate } from '../updaters/session-updaters.js';
 import { compressMessage } from '../utils/compress.js';
@@ -313,15 +313,21 @@ class Socket {
       } else if (error.message === 'client_version_unsupported') {
         const { viewer } = this;
         invariant(viewer, 'should be set');
-        const promises = {};
-        promises.deleteCookie = deleteCookie(viewer.cookieID);
-        if (viewer.cookieSource !== cookieSources.BODY) {
-          promises.anonymousViewerData = createNewAnonymousCookie({
-            platformDetails: error.platformDetails,
-            deviceToken: viewer.deviceToken,
-          });
-        }
-        const { anonymousViewerData } = await promiseAll(promises);
+        const deleteCookiePromise = deleteCookie(viewer.cookieID);
+        const anonymousViewerDataPromise: Promise<?AnonymousViewerData> =
+          (async () => {
+            if (viewer.cookieSource === cookieSources.BODY) {
+              return undefined;
+            }
+            return await createNewAnonymousCookie({
+              platformDetails: error.platformDetails,
+              deviceToken: viewer.deviceToken,
+            });
+          })();
+        const [anonymousViewerData] = await Promise.all([
+          anonymousViewerDataPromise,
+          deleteCookiePromise,
+        ]);
         let authErrorMessage: AuthErrorServerSocketMessage = {
           type: serverSocketMessageTypes.AUTH_ERROR,
           responseTo,
@@ -441,7 +447,7 @@ class Socket {
   async handleClientSocketMessage(
     message: ClientSocketMessage,
   ): Promise<ServerServerSocketMessage[]> {
-    const resultPromise = (async () => {
+    const resultPromise: Promise<ServerServerSocketMessage[]> = (async () => {
       if (message.type === clientSocketMessageTypes.INITIAL) {
         this.markActivityOccurred();
         return await this.handleInitialClientSocketMessage(message);
@@ -459,7 +465,7 @@ class Socket {
       }
       return [];
     })();
-    const timeoutPromise = (async () => {
+    const timeoutPromise: Promise<empty> = (async () => {
       await sleep(serverResponseTimeout);
       throw new ServerError('socket_response_timeout');
     })();
@@ -568,18 +574,19 @@ class Socket {
       const { sessionUpdate, deltaEntryInfoResult } =
         sessionInitializationResult;
 
-      const promises = {};
-      promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargetingSession(
-        viewer,
-        oldUpdatesCurrentAsOf,
-      );
-      promises.fetchUpdateResult = fetchUpdateInfos(
+      const deleteExpiredUpdatesPromise =
+        deleteUpdatesBeforeTimeTargetingSession(viewer, oldUpdatesCurrentAsOf);
+      const fetchUpdateResultPromise = fetchUpdateInfos(
         viewer,
         oldUpdatesCurrentAsOf,
         calendarQuery,
       );
-      promises.sessionUpdate = commitSessionUpdate(viewer, sessionUpdate);
-      const { fetchUpdateResult } = await promiseAll(promises);
+      const sessionUpdatePromise = commitSessionUpdate(viewer, sessionUpdate);
+      const [fetchUpdateResult] = await Promise.all([
+        fetchUpdateResultPromise,
+        deleteExpiredUpdatesPromise,
+        sessionUpdatePromise,
+      ]);
 
       const { updateInfos, userInfos } = fetchUpdateResult;
       const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(

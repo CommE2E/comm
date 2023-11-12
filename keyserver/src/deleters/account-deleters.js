@@ -19,7 +19,7 @@ import {
 import { rescindPushNotifs } from '../push/rescind.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import { createNewAnonymousCookie } from '../session/cookies.js';
-import type { Viewer } from '../session/viewer.js';
+import type { Viewer, AnonymousViewerData } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 
 async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
@@ -72,16 +72,23 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
     COMMIT;
   `;
 
-  const promises = {};
-  promises.deletion = dbQuery(deletionQuery, { multipleStatements: true });
-  if (!viewer.isScriptViewer) {
-    promises.anonymousViewerData = createNewAnonymousCookie({
-      platformDetails: viewer.platformDetails,
-      deviceToken: viewer.deviceToken,
-    });
-  }
-  promises.username = fetchUsername(deletedUserID);
-  const { anonymousViewerData, username } = await promiseAll(promises);
+  const deletionPromise = dbQuery(deletionQuery, { multipleStatements: true });
+  const anonymousViewerDataPromise: Promise<?AnonymousViewerData> =
+    (async () => {
+      if (viewer.isScriptViewer) {
+        return undefined;
+      }
+      return await createNewAnonymousCookie({
+        platformDetails: viewer.platformDetails,
+        deviceToken: viewer.deviceToken,
+      });
+    })();
+  const usernamePromise = fetchUsername(deletedUserID);
+  const { anonymousViewerData, username } = await promiseAll({
+    anonymousViewerData: anonymousViewerDataPromise,
+    username: usernamePromise,
+    deletion: deletionPromise,
+  });
   if (username) {
     const issuedAt = new Date().toISOString();
     const reservedUsernameMessage: ReservedUsernameMessage = {
