@@ -267,7 +267,7 @@ async function fetchEntriesForSession(
       !rawEntryInfoWithinCalendarQuery(rawEntryInfo, oldCalendarQuery),
   );
   let filteredRawEntryInfos = entryInfosNotInOldQuery;
-  let deletedEntryIDs = [];
+  let deletedEntryIDs: $ReadOnlyArray<string> = [];
   if (filterDeleted) {
     filteredRawEntryInfos = entryInfosNotInOldQuery.filter(
       rawEntryInfo => !rawEntryInfo.deleted,

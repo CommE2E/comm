@@ -16,7 +16,10 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
+import {
+  inviteLinksStoreValidator,
+  type CommunityLinks,
+} from 'lib/types/link-types.js';
 import {
   defaultNumberPerThread,
   messageStoreValidator,
@@ -27,6 +30,7 @@ import { threadStoreValidator } from 'lib/types/thread-types.js';
 import {
   currentUserInfoValidator,
   userInfosValidator,
+  type GlobalAccountUserInfo,
 } from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -92,11 +96,14 @@ async function getInitialReduxStateResponder(
       // Because of that we keep their userInfos inside the navInfo.
       if (urlInfo.selectedUserList) {
         const fetchedUserInfos = await fetchUserInfos(urlInfo.selectedUserList);
-        const userInfos = {};
+        const userInfos: { [string]: GlobalAccountUserInfo } = {};
         for (const userID in fetchedUserInfos) {
           const userInfo = fetchedUserInfos[userID];
           if (userInfo.username) {
-            userInfos[userID] = userInfo;
+            userInfos[userID] = {
+              ...userInfo,
+              username: userInfo.username,
+            };
           }
         }
         backupInfo = { userInfos, ...backupInfo };
@@ -288,7 +295,7 @@ async function getInitialReduxStateResponder(
 
   const inviteLinksStorePromise = (async () => {
     const primaryInviteLinks = await fetchPrimaryInviteLinks(viewer);
-    const links = {};
+    const links: { [string]: CommunityLinks } = {};
     for (const link of primaryInviteLinks) {
       if (link.primary) {
         links[link.communityID] = {

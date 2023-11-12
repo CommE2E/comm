@@ -84,7 +84,7 @@ export type Device = {
   +stateVersion: ?number,
 };
 
-type PushUserInfo = {
+export type PushUserInfo = {
   +devices: Device[],
   // messageInfos and messageDatas have the same key
   +messageInfos: RawMessageInfo[],
@@ -529,7 +529,7 @@ async function saveNotifResults(
     ]);
   }
 
-  const dbPromises = [];
+  const dbPromises: Array<Promise<mixed>> = [];
   if (allInvalidTokens.length > 0) {
     dbPromises.push(removeInvalidTokens(allInvalidTokens));
   }
@@ -719,11 +719,13 @@ function getDevicesByPlatform(
       codeVersion,
       stateVersion,
     });
-    let innerMostArray = innerMap.get(versionKey);
-    if (!innerMostArray) {
-      innerMostArray = [];
-      innerMap.set(versionKey, innerMostArray);
+    let innerMostArrayTmp: ?Array<NotificationTargetDevice> =
+      innerMap.get(versionKey);
+    if (!innerMostArrayTmp) {
+      innerMostArrayTmp = [];
+      innerMap.set(versionKey, innerMostArrayTmp);
     }
+    const innerMostArray = innerMostArrayTmp;
 
     innerMostArray.push({
       cookieID: device.cookieID,
@@ -1181,7 +1183,7 @@ async function sendAPNsNotification(
     };
   }
 
-  const deviceTokensToPayloadHash = {};
+  const deviceTokensToPayloadHash: { [string]: string } = {};
   for (const targetedNotification of targetedNotifications) {
     if (targetedNotification.encryptedPayloadHash) {
       deviceTokensToPayloadHash[targetedNotification.deviceToken] =
@@ -1383,7 +1385,7 @@ async function removeInvalidTokens(
   }
 
   const time = Date.now();
-  const promises = [];
+  const promises: Array<Promise<mixed>> = [];
   for (const entry of userCookiePairsToInvalidDeviceTokens) {
     const [userCookiePair, deviceTokens] = entry;
     const [userID, cookieID] = userCookiePair.split('|');
