@@ -248,14 +248,13 @@ async function getInitialReduxStateResponder(
       }
     }
 
+    const curActiveChatThreadID = finalNavInfo.activeChatThreadID;
     if (
-      finalNavInfo.activeChatThreadID &&
-      threadIsPending(finalNavInfo.activeChatThreadID) &&
-      finalNavInfo.pendingThread?.id !== finalNavInfo.activeChatThreadID
+      curActiveChatThreadID &&
+      threadIsPending(curActiveChatThreadID) &&
+      finalNavInfo.pendingThread?.id !== curActiveChatThreadID
     ) {
-      const pendingThreadData = parsePendingThreadID(
-        finalNavInfo.activeChatThreadID,
-      );
+      const pendingThreadData = parsePendingThreadID(curActiveChatThreadID);
       if (
         pendingThreadData &&
         pendingThreadData.threadType !== threadTypes.SIDEBAR &&
