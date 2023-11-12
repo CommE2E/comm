@@ -51,6 +51,7 @@ run_test "backup*"
 run_test "tunnelbroker_*" --test-threads=1
 run_test grpc_client_test
 # below tests are flaky and need to be run in order
+run_test identity_integration_tests
 run_test identity_keyserver_tests
 run_test identity_access_tokens_tests
 run_test identity_one_time_key_tests
