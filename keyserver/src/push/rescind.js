@@ -192,18 +192,28 @@ async function rescindPushNotifs(
   }
 
   const numRescinds = Object.keys(deliveryPromises).length;
-  const promises = [promiseAll(deliveryPromises)];
-  if (numRescinds > 0) {
-    promises.push(createIDs('notifications', numRescinds));
-  }
-  if (rescindedIDs.length > 0) {
+  const dbIDsPromise: Promise<?Array<string>> = (async () => {
+    if (numRescinds === 0) {
+      return undefined;
+    }
+    return await createIDs('notifications', numRescinds);
+  })();
+  const rescindPromise: Promise<mixed> = (async () => {
+    if (rescindedIDs.length === 0) {
+      return undefined;
+    }
     const rescindQuery = SQL`
       UPDATE notifications SET rescinded = 1 WHERE id IN (${rescindedIDs})
     `;
-    promises.push(dbQuery(rescindQuery));
-  }
+    return await dbQuery(rescindQuery);
+  })();
 
-  const [deliveryResults, dbIDs] = await Promise.all(promises);
+  const [deliveryResults, dbIDs] = await Promise.all([
+    promiseAll(deliveryPromises),
+    dbIDsPromise,
+    rescindPromise,
+  ]);
+
   const newNotifRows = [];
   if (numRescinds > 0) {
     invariant(dbIDs, 'dbIDs should be set');

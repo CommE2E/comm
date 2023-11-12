@@ -75,26 +75,24 @@ async function fetchMessageReportData(
     viewer,
     request.messageID,
   );
-  const promises = {};
-
-  promises.viewerUsername = fetchUsername(viewer.id);
+  const viewerUsernamePromise = fetchUsername(viewer.id);
 
   const keyserverAdminID = await keyserverAdminIDPromise;
   if (!keyserverAdminID) {
     throw new ServerError('keyserver_admin_not_found');
   }
-  promises.commbotThreadID = getCommbotThreadID(keyserverAdminID);
+  const commbotThreadIDPromise = getCommbotThreadID(keyserverAdminID);
 
   const reportedMessage = await reportedMessagePromise;
 
-  if (reportedMessage) {
-    promises.reportedThread = serverThreadInfoFromMessageInfo(reportedMessage);
-  }
+  const reportedThreadPromise: Promise<?ServerThreadInfo> = reportedMessage
+    ? serverThreadInfoFromMessageInfo(reportedMessage)
+    : Promise.resolve(undefined);
 
   const reportedMessageAuthorID = reportedMessage?.creatorID;
-  if (reportedMessageAuthorID) {
-    promises.reportedMessageAuthor = fetchUsername(reportedMessageAuthorID);
-  }
+  const reportedMessageAuthorPromise: Promise<?string> = reportedMessageAuthorID
+    ? fetchUsername(reportedMessageAuthorID)
+    : Promise.resolve(undefined);
 
   const reportedMessageText =
     reportedMessage?.type === 0 ? reportedMessage.text : null;
@@ -104,7 +102,12 @@ async function fetchMessageReportData(
     commbotThreadID,
     reportedThread,
     reportedMessageAuthor,
-  } = await promiseAll(promises);
+  } = await promiseAll({
+    viewerUsername: viewerUsernamePromise,
+    commbotThreadID: commbotThreadIDPromise,
+    reportedThread: reportedThreadPromise,
+    reportedMessageAuthor: reportedMessageAuthorPromise,
+  });
 
   return {
     reportedMessageText,
