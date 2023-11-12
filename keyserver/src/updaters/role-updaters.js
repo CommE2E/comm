@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
+import type { ThreadRolePermissionsBlob } from 'lib/types/thread-permission-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import createIDs from '../creators/id-creator.js';
@@ -18,8 +19,8 @@ async function updateRoles(
 ): Promise<void> {
   const currentRoles = await fetchRoles(threadID);
 
-  const currentRolePermissions = {};
-  const currentRoleIDs = {};
+  const currentRolePermissions: { [string]: ThreadRolePermissionsBlob } = {};
+  const currentRoleIDs: { [string]: string } = {};
   for (const roleInfo of currentRoles) {
     currentRolePermissions[roleInfo.name] = roleInfo.permissions;
     currentRoleIDs[roleInfo.name] = roleInfo.id;
@@ -76,7 +77,7 @@ async function updateRoles(
     promises.push(dbQuery(updateMembershipsQuery));
   }
 
-  const updatePermissions = {};
+  const updatePermissions: { [string]: ThreadRolePermissionsBlob } = {};
   for (const name in currentRoleIDs) {
     const currentPermissions = currentRolePermissions[name];
     const permissions = rolePermissions[name];
