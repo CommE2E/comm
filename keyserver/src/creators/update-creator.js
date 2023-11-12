@@ -16,11 +16,14 @@ import { updateSpecs } from 'lib/shared/updates/update-specs.js';
 import {
   type CalendarQuery,
   defaultCalendarQuery,
+  type RawEntryInfos,
   type RawEntryInfo,
+  type FetchEntryInfosBase,
 } from 'lib/types/entry-types.js';
 import {
   defaultNumberPerThread,
   type MessageSelectionCriteria,
+  type FetchMessageInfosResult,
   type RawMessageInfo,
 } from 'lib/types/message-types.js';
 import {
@@ -35,7 +38,7 @@ import {
   type RawUpdateInfo,
   type CreateUpdatesResult,
 } from 'lib/types/update-types.js';
-import type { UserInfos } from 'lib/types/user-types.js';
+import type { UserInfos, LoggedInUserInfo } from 'lib/types/user-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
 import createIDs from './id-creator.js';
@@ -47,7 +50,10 @@ import {
   fetchEntryInfosByID,
 } from '../fetchers/entry-fetchers.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
+import {
+  fetchThreadInfos,
+  type FetchThreadInfosResult,
+} from '../fetchers/thread-fetchers.js';
 import {
   fetchKnownUserInfos,
   fetchCurrentUserInfo,
@@ -337,39 +343,50 @@ async function createUpdates(
     deleteSQLConditions.push(mergeAndConditions(sqlConditions));
   }
 
-  const promises = {};
-
-  if (insertRows.length > 0) {
+  const insertPromise = (async () => {
+    if (insertRows.length === 0) {
+      return;
+    }
     const insertQuery = SQL`
       INSERT INTO updates(id, user, type, \`key\`,
         content, time, updater, target)
     `;
     insertQuery.append(SQL`VALUES ${insertRows}`);
-    promises.insert = dbQuery(insertQuery);
-  }
+    await dbQuery(insertQuery);
+  })();
 
-  if (publishInfos.size > 0) {
-    promises.redis = redisPublish(publishInfos.values(), dontBroadcastSession);
-  }
+  const redisPromise =
+    publishInfos.size > 0
+      ? redisPublish(publishInfos.values(), dontBroadcastSession)
+      : Promise.resolve(undefined);
 
-  if (deleteSQLConditions.length > 0) {
-    promises.delete = (async () => {
-      while (deleteSQLConditions.length > 0) {
-        const batch = deleteSQLConditions.splice(0, deleteUpdatesBatchSize);
-        await deleteUpdatesByConditions(batch);
-      }
-    })();
-  }
+  const deletePromise = (async () => {
+    if (deleteSQLConditions.length === 0) {
+      return;
+    }
+    while (deleteSQLConditions.length > 0) {
+      const batch = deleteSQLConditions.splice(0, deleteUpdatesBatchSize);
+      await deleteUpdatesByConditions(batch);
+    }
+  })();
 
-  if (viewerRawUpdateInfos.length > 0) {
+  const updatesPromise: Promise<?FetchUpdatesResult> = (async () => {
+    if (viewerRawUpdateInfos.length === 0) {
+      return undefined;
+    }
     invariant(viewerInfo, 'should be set');
-    promises.updatesResult = fetchUpdateInfosWithRawUpdateInfos(
+    return await fetchUpdateInfosWithRawUpdateInfos(
       viewerRawUpdateInfos,
       viewerInfo,
     );
-  }
+  })();
 
-  const { updatesResult } = await promiseAll(promises);
+  const { updatesResult } = await promiseAll({
+    updatesResult: updatesPromise,
+    insertResult: insertPromise,
+    redisResult: redisPromise,
+    deleteResult: deletePromise,
+  });
   if (!updatesResult) {
     return defaultUpdateCreationResult;
   }
@@ -407,27 +424,31 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     entitiesToFetch.map(({ userID }) => userID).filter(Boolean),
   );
 
-  const promises = {};
-
   const { viewer } = viewerInfo;
-  if (!viewerInfo.threadInfos && threadIDsNeedingFetch.size > 0) {
-    promises.threadResult = fetchThreadInfos(viewer, {
+  const threadPromise: Promise<?FetchThreadInfosResult> = (async () => {
+    if (viewerInfo.threadInfos || threadIDsNeedingFetch.size === 0) {
+      return undefined;
+    }
+    return await fetchThreadInfos(viewer, {
       threadIDs: threadIDsNeedingFetch,
     });
-  }
+  })();
 
-  let calendarQuery: ?CalendarQuery = viewerInfo.calendarQuery
-    ? viewerInfo.calendarQuery
-    : null;
-  if (!calendarQuery && viewer.hasSessionInfo) {
+  let calendarQueryTmp: ?CalendarQuery = viewerInfo.calendarQuery ?? null;
+  if (!calendarQueryTmp && viewer.hasSessionInfo) {
     // This should only ever happen for "legacy" clients who call in without
     // providing this information. These clients wouldn't know how to deal with
     // the corresponding UpdateInfos anyways, so no reason to be worried.
-    calendarQuery = viewer.calendarQuery;
-  } else if (!calendarQuery) {
-    calendarQuery = defaultCalendarQuery(viewer.platform, viewer.timeZone);
+    calendarQueryTmp = viewer.calendarQuery;
+  } else if (!calendarQueryTmp) {
+    calendarQueryTmp = defaultCalendarQuery(viewer.platform, viewer.timeZone);
   }
-  if (threadIDsNeedingDetailedFetch.size > 0) {
+  const calendarQuery = calendarQueryTmp;
+
+  const messageInfosPromise: Promise<?FetchMessageInfosResult> = (async () => {
+    if (threadIDsNeedingDetailedFetch.size === 0) {
+      return undefined;
+    }
     const threadCursors: { [string]: ?string } = {};
     for (const threadID of threadIDsNeedingDetailedFetch) {
       threadCursors[threadID] = null;
@@ -435,11 +456,17 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     const messageSelectionCriteria: MessageSelectionCriteria = {
       threadCursors,
     };
-    promises.messageInfosResult = fetchMessageInfos(
+    return await fetchMessageInfos(
       viewer,
       messageSelectionCriteria,
       defaultNumberPerThread,
     );
+  })();
+
+  const calendarPromise: Promise<?FetchEntryInfosBase> = (async () => {
+    if (threadIDsNeedingDetailedFetch.size === 0) {
+      return undefined;
+    }
     const threadCalendarQuery = {
       ...calendarQuery,
       filters: [
@@ -447,27 +474,31 @@ async function fetchUpdateInfosWithRawUpdateInfos(
         { type: 'threads', threadIDs: [...threadIDsNeedingDetailedFetch] },
       ],
     };
-    promises.calendarResult = fetchEntryInfos(viewer, [threadCalendarQuery]);
-  }
+    return await fetchEntryInfos(viewer, [threadCalendarQuery]);
+  })();
 
-  if (entryIDsNeedingFetch.size > 0) {
-    promises.entryInfosResult = fetchEntryInfosByID(
-      viewer,
-      entryIDsNeedingFetch,
-    );
-  }
+  const entryInfosPromise: Promise<?RawEntryInfos> = (async () => {
+    if (entryIDsNeedingFetch.size === 0) {
+      return undefined;
+    }
+    return await fetchEntryInfosByID(viewer, entryIDsNeedingFetch);
+  })();
 
-  if (currentUserNeedsFetch) {
-    promises.currentUserInfoResult = (async () => {
-      const currentUserInfo = await fetchCurrentUserInfo(viewer);
-      invariant(currentUserInfo.anonymous === undefined, 'should be logged in');
-      return currentUserInfo;
-    })();
-  }
+  const currentUserInfoPromise: Promise<?LoggedInUserInfo> = (async () => {
+    if (!currentUserNeedsFetch) {
+      return undefined;
+    }
+    const currentUserInfo = await fetchCurrentUserInfo(viewer);
+    invariant(currentUserInfo.anonymous === undefined, 'should be logged in');
+    return currentUserInfo;
+  })();
 
-  if (userIDsToFetch.size > 0) {
-    promises.userInfosResult = fetchKnownUserInfos(viewer, [...userIDsToFetch]);
-  }
+  const userInfosPromise: Promise<?UserInfos> = (async () => {
+    if (userIDsToFetch.size === 0) {
+      return undefined;
+    }
+    return await fetchKnownUserInfos(viewer, [...userIDsToFetch]);
+  })();
 
   const {
     threadResult,
@@ -476,7 +507,14 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     entryInfosResult,
     currentUserInfoResult,
     userInfosResult,
-  } = await promiseAll(promises);
+  } = await promiseAll({
+    threadResult: threadPromise,
+    messageInfosResult: messageInfosPromise,
+    calendarResult: calendarPromise,
+    entryInfosResult: entryInfosPromise,
+    currentUserInfoResult: currentUserInfoPromise,
+    userInfosResult: userInfosPromise,
+  });
 
   let threadInfos = {};
   if (viewerInfo.threadInfos) {

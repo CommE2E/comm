@@ -242,7 +242,7 @@ async function fetchServerThreadInfos(
   return { threadInfos };
 }
 
-type FetchThreadInfosResult = {
+export type FetchThreadInfosResult = {
   +threadInfos: RawThreadInfos,
 };
 
