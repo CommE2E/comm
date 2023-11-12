@@ -1,6 +1,6 @@
 use crate::{
   client_service::handle_db_error, constants::request_metadata,
-  database::DatabaseClient, grpc_services::shared::get_value,
+  database::DatabaseClient, grpc_services::shared::get_value, token::AuthType,
 };
 use tonic::{Request, Response, Status};
 
@@ -14,7 +14,8 @@ pub mod auth_proto {
   tonic::include_proto!("identity.authenticated");
 }
 use auth_proto::{
-  identity_client_service_server::IdentityClientService, KeyserverKeysResponse,
+  find_user_id_request, identity_client_service_server::IdentityClientService,
+  FindUserIdRequest, FindUserIdResponse, KeyserverKeysResponse,
   OutboundKeyInfo, OutboundKeysForUserRequest, RefreshUserPreKeysRequest,
   UploadOneTimeKeysRequest,
 };
@@ -168,5 +169,29 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     Ok(tonic::Response::new(Empty {}))
+  }
+
+  async fn find_user_id(
+    &self,
+    request: tonic::Request<FindUserIdRequest>,
+  ) -> Result<tonic::Response<FindUserIdResponse>, tonic::Status> {
+    let message = request.into_inner();
+
+    use find_user_id_request::Identifier;
+    let (user_ident, auth_type) = match message.identifier {
+      None => {
+        return Err(tonic::Status::invalid_argument("no identifier provided"))
+      }
+      Some(Identifier::Username(username)) => (username, AuthType::Password),
+      Some(Identifier::WalletAddress(address)) => (address, AuthType::Wallet),
+    };
+
+    let user_id = self
+      .db_client
+      .get_user_id_from_user_info(user_ident, &auth_type)
+      .await
+      .map_err(handle_db_error)?;
+
+    Ok(Response::new(FindUserIdResponse { user_id }))
   }
 }
