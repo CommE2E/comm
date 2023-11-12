@@ -423,9 +423,15 @@ async function handleFetchViewerResult(
   }
   const deviceToken = result.type === 'invalidated' ? result.deviceToken : null;
 
+  const deleteCookiePromise = (async () => {
+    if (result.type === 'invalidated') {
+      await deleteCookie(result.cookieID);
+    }
+  })();
+
   const [anonymousViewerData] = await Promise.all([
     createNewAnonymousCookie({ platformDetails, deviceToken }),
-    result.type === 'invalidated' ? deleteCookie(result.cookieID) : null,
+    deleteCookiePromise,
   ]);
 
   return createViewerForInvalidFetchViewerResult(result, anonymousViewerData);

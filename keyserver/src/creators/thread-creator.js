@@ -185,18 +185,19 @@ async function createThread(
     return { initialMemberIDs, ghostMemberIDs };
   })();
 
-  const checkPromises = {};
-  checkPromises.confirmParentPermission = confirmParentPermissionPromise;
-  checkPromises.threadAncestry = determineThreadAncestryPromise;
-  checkPromises.validateMembers = validateMembersPromise;
-  if (sourceMessageID) {
-    checkPromises.sourceMessage = fetchMessageInfoByID(viewer, sourceMessageID);
-  }
+  const sourceMessagePromise: Promise<?RawMessageInfo> = sourceMessageID
+    ? fetchMessageInfoByID(viewer, sourceMessageID)
+    : Promise.resolve(undefined);
   const {
     sourceMessage,
     threadAncestry,
     validateMembers: { initialMemberIDs, ghostMemberIDs },
-  } = await promiseAll(checkPromises);
+  } = await promiseAll({
+    sourceMessage: sourceMessagePromise,
+    threadAncestry: determineThreadAncestryPromise,
+    validateMembers: validateMembersPromise,
+    confirmParentPermission: confirmParentPermissionPromise,
+  });
 
   if (sourceMessage && isInvalidSidebarSource(sourceMessage)) {
     throw new ServerError('invalid_parameters');

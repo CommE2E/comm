@@ -426,7 +426,7 @@ class Socket {
   async handleClientSocketMessage(
     message: ClientSocketMessage,
   ): Promise<ServerServerSocketMessage[]> {
-    const resultPromise = (async () => {
+    const resultPromise: Promise<ServerServerSocketMessage[]> = (async () => {
       if (message.type === clientSocketMessageTypes.INITIAL) {
         this.markActivityOccurred();
         return await this.handleInitialClientSocketMessage(message);
@@ -444,7 +444,7 @@ class Socket {
       }
       return [];
     })();
-    const timeoutPromise = (async () => {
+    const timeoutPromise: Promise<empty> = (async () => {
       await sleep(serverResponseTimeout);
       throw new ServerError('socket_response_timeout');
     })();
@@ -553,18 +553,19 @@ class Socket {
       const { sessionUpdate, deltaEntryInfoResult } =
         sessionInitializationResult;
 
-      const promises = {};
-      promises.deleteExpiredUpdates = deleteUpdatesBeforeTimeTargetingSession(
-        viewer,
-        oldUpdatesCurrentAsOf,
-      );
-      promises.fetchUpdateResult = fetchUpdateInfos(
+      const deleteExpiredUpdatesPromise =
+        deleteUpdatesBeforeTimeTargetingSession(viewer, oldUpdatesCurrentAsOf);
+      const fetchUpdateResultPromise = fetchUpdateInfos(
         viewer,
         oldUpdatesCurrentAsOf,
         calendarQuery,
       );
-      promises.sessionUpdate = commitSessionUpdate(viewer, sessionUpdate);
-      const { fetchUpdateResult } = await promiseAll(promises);
+      const sessionUpdatePromise = commitSessionUpdate(viewer, sessionUpdate);
+      const [fetchUpdateResult] = await Promise.all([
+        fetchUpdateResultPromise,
+        deleteExpiredUpdatesPromise,
+        sessionUpdatePromise,
+      ]);
 
       const { updateInfos, userInfos } = fetchUpdateResult;
       const newUpdatesCurrentAsOf = mostRecentUpdateTimestamp(

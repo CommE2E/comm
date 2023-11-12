@@ -8,6 +8,7 @@ import _flow from 'lodash/fp/flow.js';
 import _groupBy from 'lodash/fp/groupBy.js';
 import _mapValues from 'lodash/fp/mapValues.js';
 import _pickBy from 'lodash/fp/pickBy.js';
+import type { QueryResults } from 'mysql';
 import t from 'tcomb';
 import uuidv4 from 'uuid/v4.js';
 
@@ -43,7 +44,6 @@ import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type GlobalUserInfo } from 'lib/types/user-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { values } from 'lib/utils/objects.js';
-import { promiseAll } from 'lib/utils/promises.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
 import {
@@ -693,10 +693,13 @@ async function fetchInfos(pushInfo: PushInfo) {
     }
   }
 
-  const promises = {};
   // These threadInfos won't have currentUser set
-  promises.threadResult = fetchServerThreadInfos({ threadIDs });
-  if (threadWithChangedNamesToMessages.size > 0) {
+  const threadPromise = fetchServerThreadInfos({ threadIDs });
+
+  const oldNamesPromise: Promise<?QueryResults> = (async () => {
+    if (threadWithChangedNamesToMessages.size === 0) {
+      return undefined;
+    }
     const typesThatAffectName = [
       messageTypes.CHANGE_SETTINGS,
       messageTypes.CREATE_THREAD,
@@ -725,10 +728,13 @@ async function fetchInfos(pushInfo: PushInfo) {
       ) x
       LEFT JOIN messages m ON m.id = x.id
     `);
-    promises.oldNames = dbQuery(oldNameQuery);
-  }
+    return await dbQuery(oldNameQuery);
+  })();
 
-  const { threadResult, oldNames } = await promiseAll(promises);
+  const [threadResult, oldNames] = await Promise.all([
+    threadPromise,
+    oldNamesPromise,
+  ]);
   const serverThreadInfos = threadResult.threadInfos;
   if (oldNames) {
     const [result] = oldNames;
