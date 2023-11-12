@@ -23,6 +23,7 @@ import {
 import {
   defaultNumberPerThread,
   messageStoreValidator,
+  type MessageStore,
 } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -153,7 +154,7 @@ async function getInitialReduxStateResponder(
     ]);
     return { threadInfos: hasNotAcknowledgedPolicies ? {} : threadInfos };
   })();
-  const messageStorePromise = (async () => {
+  const messageStorePromise: Promise<MessageStore> = (async () => {
     const [
       { threadInfos },
       { rawMessageInfos, truncationStatuses },
@@ -287,7 +288,7 @@ async function getInitialReduxStateResponder(
     return hasNotAcknowledgedPolicies ? 0 : initialTime;
   })();
 
-  const pushApiPublicKeyPromise = (async () => {
+  const pushApiPublicKeyPromise: Promise<?string> = (async () => {
     const pushConfig = await getWebPushConfig();
     if (!pushConfig) {
       if (process.env.NODE_ENV !== 'development') {
