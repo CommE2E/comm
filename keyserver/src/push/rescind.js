@@ -1,6 +1,8 @@
 // @flow
 
 import apn from '@parse/node-apn';
+import type { ResponseFailure } from '@parse/node-apn';
+import type { FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 
 import type { PlatformDetails } from 'lib/types/device-types.js';
@@ -19,7 +21,12 @@ import type {
   TargetedAndroidNotification,
   TargetedAPNsNotification,
 } from './types.js';
-import { apnPush, fcmPush } from './utils.js';
+import {
+  apnPush,
+  fcmPush,
+  type APNPushResult,
+  type FCMPushResult,
+} from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
@@ -33,7 +40,13 @@ type ParsedDelivery = {
   +deviceTokens: $ReadOnlyArray<string>,
 };
 
-type ParsedDeliveries = { +[id: string]: $ReadOnlyArray<ParsedDelivery> };
+type RescindDelivery = {
+  source: 'rescind',
+  rescindedID: string,
+  errors?:
+    | $ReadOnlyArray<FirebaseError | mixed>
+    | $ReadOnlyArray<ResponseFailure>,
+};
 
 async function rescindPushNotifs(
   notifCondition: SQLStatementType,
@@ -60,7 +73,7 @@ async function rescindPushNotifs(
   const [fetchResult] = await dbQuery(fetchQuery);
 
   const allDeviceTokens = new Set();
-  const parsedDeliveries: ParsedDeliveries = {};
+  const parsedDeliveries: { [string]: $ReadOnlyArray<ParsedDelivery> } = {};
 
   for (const row of fetchResult) {
     const rawDelivery = JSON.parse(row.delivery);
@@ -101,7 +114,9 @@ async function rescindPushNotifs(
   }
   const deviceTokenToCookieID = await getDeviceTokenToCookieID(allDeviceTokens);
 
-  const deliveryPromises = {};
+  const deliveryPromises: {
+    [string]: Promise<APNPushResult> | Promise<FCMPushResult>,
+  } = {};
   const notifInfo = {};
   const rescindedIDs = [];
 
@@ -193,9 +208,10 @@ async function rescindPushNotifs(
   if (numRescinds > 0) {
     invariant(dbIDs, 'dbIDs should be set');
     for (const rescindedID in deliveryResults) {
-      const delivery = {};
-      delivery.source = 'rescind';
-      delivery.rescindedID = rescindedID;
+      const delivery: RescindDelivery = {
+        source: 'rescind',
+        rescindedID,
+      };
       const { errors } = deliveryResults[rescindedID];
       if (errors) {
         delivery.errors = errors;

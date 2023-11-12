@@ -26,6 +26,7 @@ import { updateTypes } from 'lib/types/update-types-enum.js';
 import {
   type ServerUpdateInfo,
   type CreateUpdatesResult,
+  type UpdateData,
 } from 'lib/types/update-types.js';
 import { pushAll } from 'lib/utils/array.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -67,7 +68,7 @@ type MembershipRowToDelete = {
   +threadID: string,
   +oldRole: string,
 };
-type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
+export type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
 export type MembershipChangeset = {
   +membershipRows: MembershipRow[],
   +relationshipChangeset: RelationshipChangeset,
@@ -194,7 +195,7 @@ async function changeRole(
     relationshipChangeset.setAllRelationshipsExist(parentMemberIDs);
   }
 
-  const membershipRows = [];
+  const membershipRows: Array<MembershipRow> = [];
   const toUpdateDescendants = new Map();
   for (const userID of userIDs) {
     const existingMembership = existingMembershipInfo.get(userID);
@@ -416,7 +417,7 @@ type AncestorChanges = {
 async function updateDescendantPermissions(
   initialChangedAncestor: ChangedAncestor,
 ): Promise<MembershipChangeset> {
-  const membershipRows = [];
+  const membershipRows: Array<MembershipRow> = [];
   const relationshipChangeset = new RelationshipChangeset();
 
   const initialDescendants = await fetchDescendantsForUpdate([
@@ -582,7 +583,20 @@ async function fetchDescendantsForUpdate(
 ): Promise<DescendantInfo[]> {
   const threadIDs = ancestors.map(ancestor => ancestor.threadID);
 
-  const rows = [];
+  const rows: Array<{
+    +id: number,
+    +user: number,
+    +type: number,
+    +depth: number,
+    +parent_thread_id: number,
+    +containing_thread_id: number,
+    +role_permissions: string,
+    +permissions: string,
+    +permissions_for_children: string,
+    +role: number,
+    +permissions_from_parent: string | null,
+    +containing_role: ?number,
+  }> = [];
   while (threadIDs.length > 0) {
     const batch = threadIDs.splice(0, fetchDescendantsBatchSize);
     const query = SQL`
@@ -629,8 +643,11 @@ async function fetchDescendantsForUpdate(
       curRolePermissions: JSON.parse(row.role_permissions),
       curPermissions: JSON.parse(row.permissions),
       curPermissionsForChildren: JSON.parse(row.permissions_for_children),
-      curPermissionsFromParent: JSON.parse(row.permissions_from_parent),
-      curMemberOfContainingThread: row.containing_role > 0,
+      curPermissionsFromParent: row.permissions_from_parent
+        ? JSON.parse(row.permissions_from_parent)
+        : null,
+      curMemberOfContainingThread:
+        !!row.containing_role && row.containing_role > 0,
     });
   }
 
@@ -643,9 +660,9 @@ async function fetchDescendantsForUpdate(
         if (threadID !== parentThreadID && threadID !== containingThreadID) {
           continue;
         }
-        let user = users.get(userID);
+        let user: ?DescendantUserInfo = users.get(userID);
         if (!user) {
-          user = {};
+          user = ({}: DescendantUserInfo);
           users.set(userID, user);
         }
         if (threadID === parentThreadID) {
@@ -785,7 +802,7 @@ async function recalculateThreadPermissions(
     relationshipChangeset.setAllRelationshipsExist(parentMemberIDs);
   }
 
-  const membershipRows = [];
+  const membershipRows: Array<MembershipRow> = [];
   const toUpdateDescendants = new Map();
   for (const [userID, membership] of membershipInfo) {
     const { rolePermissions: intendedRolePermissions, permissionsFromParent } =
@@ -1246,7 +1263,7 @@ async function getChangesetCommitResultForExistingThread(
   }
 
   const time = Date.now();
-  const updateDatas = [
+  const updateDatas: Array<UpdateData> = [
     {
       type: updateTypes.JOIN_THREAD,
       userID: viewer.userID,
@@ -1347,7 +1364,7 @@ async function updateRolesAndPermissionsForAllThreads() {
     console.log(`recalculating permissions for threads with depth ${depth}`);
     while (threads.length > 0) {
       const batch = threads.splice(0, batchSize);
-      const membershipRows = [];
+      const membershipRows: Array<MembershipRow> = [];
       const relationshipChangeset = new RelationshipChangeset();
       await Promise.all(
         batch.map(async thread => {
