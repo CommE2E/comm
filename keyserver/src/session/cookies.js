@@ -23,7 +23,6 @@ import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
-import { promiseAll } from 'lib/utils/promises.js';
 
 import {
   isBcryptHash,
@@ -472,26 +471,34 @@ async function fetchViewerForSocket(
     return result.viewer;
   }
 
-  const promises = {};
-  if (result.cookieSource === cookieSources.BODY) {
-    // We initialize a socket's Viewer after the WebSocket handshake, since to
-    // properly initialize the Viewer we need a bunch of data, but that data
-    // can't be sent until after the handshake. Consequently, by the time we
-    // know that a cookie may be invalid, we are no longer communicating via
-    // HTTP, and have no way to set a new cookie for HEADER (web) clients.
-    const platformDetails =
-      result.type === 'invalidated' ? result.platformDetails : null;
-    const deviceToken =
-      result.type === 'invalidated' ? result.deviceToken : null;
-    promises.anonymousViewerData = createNewAnonymousCookie({
-      platformDetails,
-      deviceToken,
-    });
-  }
-  if (result.type === 'invalidated') {
-    promises.deleteCookie = deleteCookie(result.cookieID);
-  }
-  const { anonymousViewerData } = await promiseAll(promises);
+  const anonymousViewerDataPromise: Promise<?AnonymousViewerData> =
+    (async () => {
+      if (result.cookieSource !== cookieSources.BODY) {
+        return undefined;
+      }
+      // We initialize a socket's Viewer after the WebSocket handshake, since to
+      // properly initialize the Viewer we need a bunch of data, but that data
+      // can't be sent until after the handshake. Consequently, by the time we
+      // know that a cookie may be invalid, we are no longer communicating via
+      // HTTP, and have no way to set a new cookie for HEADER (web) clients.
+      const platformDetails =
+        result.type === 'invalidated' ? result.platformDetails : null;
+      const deviceToken =
+        result.type === 'invalidated' ? result.deviceToken : null;
+      return await createNewAnonymousCookie({
+        platformDetails,
+        deviceToken,
+      });
+    })();
+  const deleteCookiePromise = (async () => {
+    if (result.type === 'invalidated') {
+      await deleteCookie(result.cookieID);
+    }
+  })();
+  const [anonymousViewerData] = await Promise.all([
+    anonymousViewerDataPromise,
+    deleteCookiePromise,
+  ]);
 
   if (!anonymousViewerData) {
     return null;
@@ -514,9 +521,15 @@ async function handleFetchViewerResult(
   }
   const deviceToken = result.type === 'invalidated' ? result.deviceToken : null;
 
+  const deleteCookiePromise = (async () => {
+    if (result.type === 'invalidated') {
+      await deleteCookie(result.cookieID);
+    }
+  })();
+
   const [anonymousViewerData] = await Promise.all([
     createNewAnonymousCookie({ platformDetails, deviceToken }),
-    result.type === 'invalidated' ? deleteCookie(result.cookieID) : null,
+    deleteCookiePromise,
   ]);
 
   return createViewerForInvalidFetchViewerResult(result, anonymousViewerData);
