@@ -15,6 +15,7 @@ import { createScriptViewer } from '../session/scripts.js';
 import {
   changeRole,
   commitMembershipChangeset,
+  type MembershipRow,
 } from '../updaters/thread-permission-updaters.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
@@ -37,8 +38,8 @@ async function mergeUsers(
   toUserID: string,
   replaceUserInfo?: ReplaceUserInfo,
 ) {
-  let updateUserRowQuery = null;
-  let updateDatas = [];
+  let updateUserRowQuery: ?SQLStatementType = null;
+  let updateDatas: UpdateData[] = [];
   if (replaceUserInfo) {
     const replaceUserResult = await replaceUser(
       fromUserID,
@@ -122,7 +123,7 @@ async function mergeUsers(
       changeRole(threadID, [toUserID], role),
     ),
   );
-  const membershipRows = [];
+  const membershipRows: Array<MembershipRow> = [];
   const relationshipChangeset = new RelationshipChangeset();
   for (const currentChangeset of changesets) {
     const {
@@ -166,7 +167,7 @@ async function replaceUser(
     throw new Error(`couldn't fetch fromUserID ${fromUserID}`);
   }
 
-  const changedFields = {};
+  const changedFields: { [string]: string } = {};
   if (replaceUserInfo.username) {
     changedFields.username = firstResult.username;
   }
@@ -178,7 +179,7 @@ async function replaceUser(
     UPDATE users SET ${changedFields} WHERE id = ${toUserID}
   `;
 
-  const updateDatas = [];
+  const updateDatas: UpdateData[] = [];
   if (replaceUserInfo.username) {
     updateDatas.push({
       type: updateTypes.UPDATE_CURRENT_USER,

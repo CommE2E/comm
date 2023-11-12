@@ -17,7 +17,7 @@ async function searchForUsers(
 
   const [result] = await dbQuery(sqlQuery);
 
-  const userInfos = [];
+  const userInfos: GlobalAccountUserInfo[] = [];
   for (const row of result) {
     userInfos.push({
       id: row.id.toString(),

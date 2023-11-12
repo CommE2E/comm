@@ -13,7 +13,7 @@ async function fetchRoles(threadID: string): Promise<RoleInfo[]> {
   `;
   const [result] = await dbQuery(query);
 
-  const roles = [];
+  const roles: Array<RoleInfo> = [];
   for (const row of result) {
     roles.push({
       id: row.id.toString(),

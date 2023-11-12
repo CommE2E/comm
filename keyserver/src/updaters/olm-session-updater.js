@@ -47,7 +47,7 @@ async function encryptAndUpdateOlmSession(
     const [{ version, pickled_olm_session: pickledSession }] = olmSessionResult;
     const session = await unpickleOlmSession(pickledSession, picklingKey);
 
-    const encryptedMessages = {};
+    const encryptedMessages: { [string]: EncryptResult } = {};
     for (const messageName in messagesToEncrypt) {
       encryptedMessages[messageName] = session.encrypt(
         messagesToEncrypt[messageName],
