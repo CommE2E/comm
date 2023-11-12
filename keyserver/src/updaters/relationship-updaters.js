@@ -41,7 +41,7 @@ async function updateRelationships(
   const uniqueUserIDs = [...new Set(request.userIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
-  let errors = {};
+  let errors: RelationshipErrors = {};
   const userIDs: string[] = [];
   for (const userID of uniqueUserIDs) {
     if (userID === viewer.userID || !users[userID].username) {
@@ -116,7 +116,9 @@ async function updateRelationships(
       }
     }
 
-    const promises = [updateUndirectedRelationships(undirectedInsertRows)];
+    const promises: Array<Promise<mixed>> = [
+      updateUndirectedRelationships(undirectedInsertRows),
+    ];
     if (directedInsertRows.length) {
       const directedInsertQuery = SQL`
         INSERT INTO relationships_directed (user1, user2, status)
@@ -211,7 +213,7 @@ function updateDatasForUserPairs(
   userPairs: $ReadOnlyArray<[string, string]>,
 ): UpdateData[] {
   const time = Date.now();
-  const updateDatas = [];
+  const updateDatas: Array<UpdateData> = [];
   for (const [user1, user2] of userPairs) {
     updateDatas.push({
       type: updateTypes.UPDATE_USER,
@@ -316,7 +318,7 @@ async function createPersonalThreads(
       `but we tried to do that for ${request.action}`,
   );
 
-  const threadIDPerUser = {};
+  const threadIDPerUser: { [string]: string } = {};
 
   const personalThreadsQuery = SQL`
     SELECT t.id AS threadID, m2.user AS user2

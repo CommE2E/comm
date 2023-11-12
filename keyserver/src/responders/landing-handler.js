@@ -57,11 +57,11 @@ async function getAssetInfo() {
   }
   if (process.env.NODE_ENV === 'development') {
     const fontURLs = await getDevFontURLs();
-    assetInfo = {
+    assetInfo = ({
       jsURL: 'http://localhost:8082/dev.build.js',
       fontURLs,
       cssInclude: '',
-    };
+    }: AssetInfo);
     return assetInfo;
   }
   try {
@@ -70,7 +70,7 @@ async function getAssetInfo() {
       'utf8',
     );
     const manifest = JSON.parse(manifestString);
-    assetInfo = {
+    assetInfo = ({
       jsURL: `compiled/${manifest['browser.js']}`,
       fontURLs: [googleFontsURL, iaDuoFontsURL],
       cssInclude: html`
@@ -80,7 +80,7 @@ async function getAssetInfo() {
           href="compiled/${manifest['browser.css']}"
         />
       `,
-    };
+    }: AssetInfo);
     return assetInfo;
   } catch {
     throw new Error(

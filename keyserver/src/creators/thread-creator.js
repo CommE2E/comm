@@ -13,6 +13,7 @@ import { isInvalidSidebarSource } from 'lib/shared/message-utils.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import type { RawMessageInfo, MessageData } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   threadTypes,
@@ -22,6 +23,7 @@ import {
   type ServerNewThreadRequest,
   type NewThreadResponse,
 } from 'lib/types/thread-types.js';
+import type { ServerUpdateInfo } from 'lib/types/update-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import { pushAll } from 'lib/utils/array.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -289,9 +291,9 @@ async function createThread(
         ],
       };
 
-      let joinUpdateInfos = [];
+      let joinUpdateInfos: $ReadOnlyArray<ServerUpdateInfo> = [];
       let userInfos: UserInfos = {};
-      let newMessageInfos = [];
+      let newMessageInfos: $ReadOnlyArray<RawMessageInfo> = [];
       if (threadType !== threadTypes.PERSONAL) {
         const joinThreadResult = await joinThread(viewer, {
           threadID: existingThreadID,
@@ -396,7 +398,7 @@ async function createThread(
   const initialMemberAndCreatorIDs = initialMemberIDs
     ? [...initialMemberIDs, viewer.userID]
     : [viewer.userID];
-  const messageDatas = [];
+  const messageDatas: Array<MessageData> = [];
   if (threadType !== threadTypes.SIDEBAR) {
     messageDatas.push({
       type: messageTypes.CREATE_THREAD,
