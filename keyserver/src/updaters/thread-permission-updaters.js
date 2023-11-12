@@ -121,6 +121,19 @@ async function changeRole(
     INNER JOIN memberships cm ON cm.thread = t.containing_thread_id
     WHERE t.id = ${threadID} AND cm.user IN (${userIDs})
   `;
+  const containingMembershipPromise: Promise<
+    $ReadOnlyArray<{
+      +user: number,
+      +containing_role: number,
+    }>,
+  > = (async () => {
+    if (intent === 'leave') {
+      // Membership in the container only needs to be checked for members
+      return [];
+    }
+    const [result] = await dbQuery(containingMembershipQuery);
+    return result;
+  })();
   const [
     [membershipResults],
     [parentMembershipResults],
@@ -129,14 +142,7 @@ async function changeRole(
   ] = await Promise.all([
     dbQuery(membershipQuery),
     dbQuery(parentMembershipQuery),
-    (async () => {
-      if (intent === 'leave') {
-        // Membership in the container only needs to be checked for members
-        return [];
-      }
-      const [result] = await dbQuery(containingMembershipQuery);
-      return result;
-    })(),
+    containingMembershipPromise,
     changeRoleThreadQuery(threadID, role),
   ]);
 

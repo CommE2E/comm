@@ -43,6 +43,7 @@ import type {
 import {
   type CalendarQuery,
   rawEntryInfoValidator,
+  type FetchEntryInfosBase,
 } from 'lib/types/entry-types.js';
 import {
   defaultNumberPerThread,
@@ -73,7 +74,6 @@ import {
 } from 'lib/utils/crypto-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
-import { promiseAll } from 'lib/utils/promises.js';
 import {
   getPublicKeyFromSIWEStatement,
   isValidSIWEMessage,
@@ -362,6 +362,13 @@ async function processSuccessfulLogin(
   }
   const messageSelectionCriteria = { threadCursors, joinedThreads: true };
 
+  const entriesPromise: Promise<?FetchEntryInfosBase> = (async () => {
+    if (!calendarQuery) {
+      return undefined;
+    }
+    return await fetchEntryInfos(viewer, [calendarQuery]);
+  })();
+
   const [
     threadsResult,
     messagesResult,
@@ -371,7 +378,7 @@ async function processSuccessfulLogin(
   ] = await Promise.all([
     fetchThreadInfos(viewer),
     fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
-    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
+    entriesPromise,
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
     olmSessionPromise,
@@ -455,11 +462,12 @@ async function logInResponder(
   const calendarQuery = request.calendarQuery
     ? normalizeCalendarQuery(request.calendarQuery)
     : null;
-  const promises = {};
-  if (calendarQuery) {
-    promises.verifyCalendarQueryThreadIDs =
-      verifyCalendarQueryThreadIDs(calendarQuery);
-  }
+  const verifyCalendarQueryThreadIDsPromise = (async () => {
+    if (calendarQuery) {
+      await verifyCalendarQueryThreadIDs(calendarQuery);
+    }
+  })();
+
   const username = request.username ?? request.usernameOrEmail;
   if (!username) {
     if (hasMinCodeVersion(viewer.platformDetails, { native: 150 })) {
@@ -473,10 +481,11 @@ async function logInResponder(
     FROM users
     WHERE LCASE(username) = LCASE(${username})
   `;
-  promises.userQuery = dbQuery(userQuery);
-  const {
-    userQuery: [userResult],
-  } = await promiseAll(promises);
+  const userQueryPromise = dbQuery(userQuery);
+  const [[userResult]] = await Promise.all([
+    userQueryPromise,
+    verifyCalendarQueryThreadIDsPromise,
+  ]);
 
   if (userResult.length === 0) {
     if (hasMinCodeVersion(viewer.platformDetails, { native: 150 })) {
