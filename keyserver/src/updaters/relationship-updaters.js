@@ -13,6 +13,7 @@ import {
   directedStatus,
 } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import type { NewThreadResponse } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type UpdateData } from 'lib/types/update-types.js';
 import { cartesianProduct } from 'lib/utils/array.js';
@@ -335,7 +336,7 @@ async function createPersonalThreads(
     threadIDPerUser[user2] = row.threadID.toString();
   }
 
-  const threadCreationPromises = {};
+  const threadCreationPromises: { [string]: Promise<NewThreadResponse> } = {};
   for (const userID of request.userIDs) {
     if (threadIDPerUser[userID]) {
       continue;
@@ -354,8 +355,7 @@ async function createPersonalThreads(
 
   for (const userID in personalThreadPerUser) {
     const newThread = personalThreadPerUser[userID];
-    threadIDPerUser[userID] =
-      newThread.newThreadID ?? newThread.newThreadInfo.id;
+    threadIDPerUser[userID] = newThread.newThreadID;
   }
 
   return threadIDPerUser;
