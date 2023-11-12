@@ -11,6 +11,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import type { RawMessageInfo, MessageData } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
@@ -38,6 +39,7 @@ import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
+  type MembershipRow,
 } from './thread-permission-updaters.js';
 import createMessages from '../creators/message-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
@@ -163,7 +165,7 @@ async function updateRole(
       : undefined,
   );
 
-  let newMessageInfos = [];
+  let newMessageInfos: Array<RawMessageInfo> = [];
   if (!silenceNewMessages) {
     const messageData = {
       type: messageTypes.CHANGE_ROLE,
@@ -341,8 +343,8 @@ async function updateThread(
     (options?.ignorePermissions && viewer.isScriptViewer) ?? false;
   const validationPromises = {};
 
-  const changedFields = {};
-  const sqlUpdate = {};
+  const changedFields: { [string]: string | number } = {};
+  const sqlUpdate: { [string]: ?string | number } = {};
   const untrimmedName = request.changes.name;
   if (untrimmedName !== undefined && untrimmedName !== null) {
     const name = firstLine(untrimmedName);
@@ -724,7 +726,7 @@ async function updateThread(
   const { addMembersChangeset, recalculatePermissionsChangeset } =
     await promiseAll(intermediatePromises);
 
-  const membershipRows = [];
+  const membershipRows: Array<MembershipRow> = [];
   const relationshipChangeset = new RelationshipChangeset();
   if (recalculatePermissionsChangeset) {
     const {
@@ -765,10 +767,10 @@ async function updateThread(
     updateMembershipsLastMessage: silenceMessages,
   });
 
-  let newMessageInfos = [];
+  let newMessageInfos: Array<RawMessageInfo> = [];
   if (!silenceMessages) {
     const time = Date.now();
-    const messageDatas = [];
+    const messageDatas: Array<MessageData> = [];
     for (const fieldName in changedFields) {
       const newValue = changedFields[fieldName];
       messageDatas.push({
