@@ -511,7 +511,7 @@ async function handleFetchViewerResult(
     return result.viewer;
   }
 
-  let platformDetails = inputPlatformDetails;
+  let platformDetails: ?PlatformDetails = inputPlatformDetails;
   if (!platformDetails && result.type === 'invalidated') {
     platformDetails = result.platformDetails;
   }
@@ -738,7 +738,7 @@ async function updateCookie(viewer: Viewer) {
   const time = Date.now();
   const { cookieID, cookieHash, cookiePassword } = viewer;
 
-  const updateObj = {};
+  const updateObj: { [string]: string | number } = {};
   updateObj.last_used = time;
   if (isBcryptHash(cookieHash)) {
     updateObj.hash = getCookieHash(cookiePassword);

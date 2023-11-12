@@ -43,7 +43,7 @@ async function fetchUserInfos(
   `;
   const [result] = await dbQuery(query);
 
-  const userInfos = {};
+  const userInfos: { [id: string]: GlobalUserInfo } = {};
   for (const row of result) {
     const id = row.id.toString();
     const avatar: ?AvatarDBContent = row.avatar ? JSON.parse(row.avatar) : null;
