@@ -15,6 +15,7 @@ import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type RawThreadInfos,
   type ServerThreadInfo,
+  type RawThreadInfo,
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -272,7 +273,7 @@ function rawThreadInfosFromServerThreadInfos(
     native: 221,
   });
 
-  const threadInfos = {};
+  const threadInfos: { [string]: RawThreadInfo } = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
     const threadInfo = rawThreadInfoFromServerThreadInfo(

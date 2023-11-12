@@ -39,7 +39,7 @@ import {
 } from '../fetchers/message-fetchers.js';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
-import type { Device } from '../push/send';
+import type { Device, PushUserInfo } from '../push/send.js';
 import { sendPushNotifs, sendRescindNotifs } from '../push/send.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
@@ -393,10 +393,12 @@ async function postMessageSend(
     }
   }
 
-  const messageInfosPerUser = {};
+  const messageInfosPerUser: {
+    [userID: string]: $ReadOnlyArray<RawMessageInfo>,
+  } = {};
   const latestMessagesPerUser: LatestMessagesPerUser = new Map();
-  const userPushInfoPromises = {};
-  const userRescindInfoPromises = {};
+  const userPushInfoPromises: { [string]: Promise<?PushUserInfo> } = {};
+  const userRescindInfoPromises: { [string]: Promise<?PushUserInfo> } = {};
 
   for (const pair of perUserInfo) {
     const [userID, preUserPushInfo] = pair;
@@ -431,7 +433,12 @@ async function postMessageSend(
     }
 
     const generateNotifUserInfoPromise = async (pushType: PushType) => {
-      const promises = [];
+      const promises: Array<
+        Promise<?{
+          +messageInfo: RawMessageInfo,
+          +messageData: MessageData,
+        }>,
+      > = [];
 
       for (const threadID of preUserPushInfo.notFocusedThreadIDs) {
         const messageIndices = threadsToMessageIndices.get(threadID);
