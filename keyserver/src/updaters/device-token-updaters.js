@@ -21,7 +21,7 @@ async function deviceTokenUpdater(
     await clearDeviceToken(deviceToken);
   }
 
-  const setColumns = {};
+  const setColumns: { [string]: ?string } = {};
   setColumns.device_token = deviceToken;
   setColumns.platform = deviceType;
   if (update.platformDetails) {
