@@ -16,10 +16,12 @@ import { updateSpecs } from 'lib/shared/updates/update-specs.js';
 import {
   type CalendarQuery,
   defaultCalendarQuery,
+  type RawEntryInfo,
 } from 'lib/types/entry-types.js';
 import {
   defaultNumberPerThread,
   type MessageSelectionCriteria,
+  type RawMessageInfo,
 } from 'lib/types/message-types.js';
 import {
   type UpdateTarget,
@@ -500,7 +502,7 @@ async function updateInfosFromRawUpdateInfos(
 ): Promise<FetchUpdatesResult> {
   const { messageInfosResult, calendarResult, userInfosResult } = rawData;
 
-  const rawEntryInfosByThreadID = {};
+  const rawEntryInfosByThreadID: { [string]: Array<RawEntryInfo> } = {};
   for (const entryInfo of calendarResult?.rawEntryInfos ?? []) {
     if (!rawEntryInfosByThreadID[entryInfo.threadID]) {
       rawEntryInfosByThreadID[entryInfo.threadID] = [];
@@ -508,7 +510,7 @@ async function updateInfosFromRawUpdateInfos(
     rawEntryInfosByThreadID[entryInfo.threadID].push(entryInfo);
   }
 
-  const rawMessageInfosByThreadID = {};
+  const rawMessageInfosByThreadID: { [string]: Array<RawMessageInfo> } = {};
   for (const messageInfo of messageInfosResult?.rawMessageInfos ?? []) {
     if (!rawMessageInfosByThreadID[messageInfo.threadID]) {
       rawMessageInfosByThreadID[messageInfo.threadID] = [];

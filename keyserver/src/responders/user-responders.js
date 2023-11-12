@@ -356,7 +356,7 @@ async function processSuccessfulLogin(
     }
   })();
 
-  const threadCursors = {};
+  const threadCursors: { [string]: null } = {};
   for (const watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
