@@ -29,7 +29,7 @@ async function userSubscriptionUpdater(
     throw new ServerError('not_member');
   }
 
-  const promises = [];
+  const promises: Array<Promise<mixed>> = [];
 
   const newSubscription = {
     ...threadInfo.currentUser.subscription,
