@@ -28,7 +28,6 @@ import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
-import { values } from 'lib/utils/objects.js';
 
 import {
   isBcryptHash,
@@ -579,7 +578,7 @@ function addSessionChangeInfoToResult(
   result: Object,
 ) {
   let threadInfos = {},
-    userInfos = {};
+    userInfos: $ReadOnlyArray<UserInfo> = [];
   if (result.cookieChange) {
     ({ threadInfos, userInfos } = result.cookieChange);
   }
@@ -588,7 +587,7 @@ function addSessionChangeInfoToResult(
     sessionChange = ({
       cookieInvalidated: true,
       threadInfos,
-      userInfos: (values(userInfos).map(a => a): UserInfo[]),
+      userInfos,
       currentUserInfo: {
         anonymous: true,
       },
@@ -597,7 +596,7 @@ function addSessionChangeInfoToResult(
     sessionChange = ({
       cookieInvalidated: false,
       threadInfos,
-      userInfos: (values(userInfos).map(a => a): UserInfo[]),
+      userInfos,
     }: ServerSessionChange);
   }
   if (viewer.cookieSource === cookieSources.BODY) {
