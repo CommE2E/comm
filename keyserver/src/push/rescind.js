@@ -72,7 +72,7 @@ async function rescindPushNotifs(
   fetchQuery.append(SQL` GROUP BY n.id, m.user`);
   const [fetchResult] = await dbQuery(fetchQuery);
 
-  const allDeviceTokens = new Set();
+  const allDeviceTokens = new Set<string>();
   const parsedDeliveries: { [string]: $ReadOnlyArray<ParsedDelivery> } = {};
 
   for (const row of fetchResult) {

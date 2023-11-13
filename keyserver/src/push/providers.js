@@ -27,14 +27,26 @@ function getFCMPushProfileForCodeVersion(codeVersion: ?number): FCMPushProfile {
   return codeVersion && codeVersion >= 87 ? 'comm_fcm_config' : 'fcm_config';
 }
 
-const cachedAPNProviders = new Map();
+type APNConfig = {
+  +token: {
+    +key: string,
+    +keyId: string,
+    +teamId: string,
+  },
+  +production: boolean,
+};
+
+const cachedAPNProviders = new Map<APNPushProfile, ?APNProvider>();
 async function getAPNProvider(profile: APNPushProfile): Promise<?APNProvider> {
   const provider = cachedAPNProviders.get(profile);
   if (provider !== undefined) {
     return provider;
   }
   try {
-    const apnConfig = await getCommConfig({ folder: 'secrets', name: profile });
+    const apnConfig = await getCommConfig<APNConfig>({
+      folder: 'secrets',
+      name: profile,
+    });
     invariant(apnConfig, `APN config missing for ${profile}`);
     if (!cachedAPNProviders.has(profile)) {
       cachedAPNProviders.set(profile, new apn.Provider(apnConfig));
@@ -47,14 +59,30 @@ async function getAPNProvider(profile: APNPushProfile): Promise<?APNProvider> {
   return cachedAPNProviders.get(profile);
 }
 
-const cachedFCMProviders = new Map();
+type FCMConfig = {
+  +type: string,
+  +project_id: string,
+  +private_key_id: string,
+  +private_key: string,
+  +client_email: string,
+  +client_id: string,
+  +auth_uri: string,
+  +token_uri: string,
+  +auth_provider_x509_cert_url: string,
+  +client_x509_cert_url: string,
+};
+
+const cachedFCMProviders = new Map<FCMPushProfile, ?FirebaseApp>();
 async function getFCMProvider(profile: FCMPushProfile): Promise<?FirebaseApp> {
   const provider = cachedFCMProviders.get(profile);
   if (provider !== undefined) {
     return provider;
   }
   try {
-    const fcmConfig = await getCommConfig({ folder: 'secrets', name: profile });
+    const fcmConfig = await getCommConfig<FCMConfig>({
+      folder: 'secrets',
+      name: profile,
+    });
     invariant(fcmConfig, `FCM config missed for ${profile}`);
     if (!cachedFCMProviders.has(profile)) {
       cachedFCMProviders.set(
