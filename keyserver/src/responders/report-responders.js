@@ -4,6 +4,7 @@ import type { $Response, $Request } from 'express';
 import t from 'tcomb';
 import type { TInterface, TStructProps, TUnion } from 'tcomb';
 
+import type { BaseAction } from 'lib/types/redux-types.js';
 import {
   type ReportCreationResponse,
   type ReportCreationRequest,
@@ -11,16 +12,17 @@ import {
   type FetchErrorReportInfosRequest,
   type ThreadInconsistencyReportShape,
   type EntryInconsistencyReportShape,
+  type ActionSummary,
+  type ThreadInconsistencyReportCreationRequest,
+  type EntryInconsistencyReportCreationRequest,
+  type MediaMissionReportCreationRequest,
+  type UserInconsistencyReportCreationRequest,
   reportTypes,
   reportInfoValidator,
 } from 'lib/types/report-types.js';
 import { userInfoValidator } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
-import {
-  tShape,
-  tPlatform,
-  tPlatformDetails,
-} from 'lib/utils/validation-utils.js';
+import { tShape, tPlatformDetails } from 'lib/utils/validation-utils.js';
 
 import { newEntryQueryInputValidator } from './entry-responders.js';
 import createReport from '../creators/report-creator.js';
@@ -30,11 +32,15 @@ import {
 } from '../fetchers/report-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 
-const tActionSummary = tShape({
+const tActionSummary = tShape<ActionSummary>({
   type: t.String,
   time: t.Number,
   summary: t.String,
 });
+const tActionType = t.irreducible<$PropertyType<BaseAction, 'type'>>(
+  'ActionType',
+  x => typeof x === 'string',
+);
 const threadInconsistencyReportValidatorShape: TStructProps<ThreadInconsistencyReportShape> =
   {
     platformDetails: tPlatformDetails,
@@ -42,7 +48,7 @@ const threadInconsistencyReportValidatorShape: TStructProps<ThreadInconsistencyR
     action: t.Object,
     pollResult: t.maybe(t.Object),
     pushResult: t.Object,
-    lastActionTypes: t.maybe(t.list(t.String)),
+    lastActionTypes: t.maybe(t.list(tActionType)),
     lastActions: t.maybe(t.list(tActionSummary)),
     time: t.maybe(t.Number),
   };
@@ -54,7 +60,7 @@ const entryInconsistencyReportValidatorShape: TStructProps<EntryInconsistencyRep
     calendarQuery: newEntryQueryInputValidator,
     pollResult: t.maybe(t.Object),
     pushResult: t.Object,
-    lastActionTypes: t.maybe(t.list(t.String)),
+    lastActionTypes: t.maybe(t.list(tActionType)),
     lastActions: t.maybe(t.list(tActionSummary)),
     time: t.Number,
   };
@@ -67,55 +73,61 @@ const userInconsistencyReportValidatorShape = {
   time: t.Number,
 };
 
-const threadInconsistencyReportCreationRequest = tShape({
-  ...threadInconsistencyReportValidatorShape,
-  type: t.irreducible(
-    'reportTypes.THREAD_INCONSISTENCY',
-    x => x === reportTypes.THREAD_INCONSISTENCY,
-  ),
-});
+const threadInconsistencyReportCreationRequest =
+  tShape<ThreadInconsistencyReportCreationRequest>({
+    ...threadInconsistencyReportValidatorShape,
+    type: t.irreducible<typeof reportTypes.THREAD_INCONSISTENCY>(
+      'reportTypes.THREAD_INCONSISTENCY',
+      x => x === reportTypes.THREAD_INCONSISTENCY,
+    ),
+    id: t.maybe(t.String),
+  });
 
-const entryInconsistencyReportCreationRquest = tShape({
-  ...entryInconsistencyReportValidatorShape,
-  type: t.irreducible(
-    'reportTypes.ENTRY_INCONSISTENCY',
-    x => x === reportTypes.ENTRY_INCONSISTENCY,
-  ),
-});
+const entryInconsistencyReportCreationRquest =
+  tShape<EntryInconsistencyReportCreationRequest>({
+    ...entryInconsistencyReportValidatorShape,
+    type: t.irreducible<typeof reportTypes.ENTRY_INCONSISTENCY>(
+      'reportTypes.ENTRY_INCONSISTENCY',
+      x => x === reportTypes.ENTRY_INCONSISTENCY,
+    ),
+    id: t.maybe(t.String),
+  });
 
-const mediaMissionReportCreationRequest = tShape({
-  type: t.irreducible(
-    'reportTypes.MEDIA_MISSION',
-    x => x === reportTypes.MEDIA_MISSION,
-  ),
-  platformDetails: tPlatformDetails,
-  time: t.Number,
-  mediaMission: t.Object,
-  uploadServerID: t.maybe(t.String),
-  uploadLocalID: t.maybe(t.String),
-  mediaLocalID: t.maybe(t.String),
-  messageServerID: t.maybe(t.String),
-  messageLocalID: t.maybe(t.String),
-});
+const mediaMissionReportCreationRequest =
+  tShape<MediaMissionReportCreationRequest>({
+    type: t.irreducible<typeof reportTypes.MEDIA_MISSION>(
+      'reportTypes.MEDIA_MISSION',
+      x => x === reportTypes.MEDIA_MISSION,
+    ),
+    platformDetails: tPlatformDetails,
+    time: t.Number,
+    mediaMission: t.Object,
+    uploadServerID: t.maybe(t.String),
+    uploadLocalID: t.maybe(t.String),
+    mediaLocalID: t.maybe(t.String),
+    messageServerID: t.maybe(t.String),
+    messageLocalID: t.maybe(t.String),
+    id: t.maybe(t.String),
+  });
 
-const userInconsistencyReportCreationRequest = tShape({
-  ...userInconsistencyReportValidatorShape,
-  type: t.irreducible(
-    'reportTypes.USER_INCONSISTENCY',
-    x => x === reportTypes.USER_INCONSISTENCY,
-  ),
-});
+const userInconsistencyReportCreationRequest =
+  tShape<UserInconsistencyReportCreationRequest>({
+    ...userInconsistencyReportValidatorShape,
+    type: t.irreducible<typeof reportTypes.USER_INCONSISTENCY>(
+      'reportTypes.USER_INCONSISTENCY',
+      x => x === reportTypes.USER_INCONSISTENCY,
+    ),
+    id: t.maybe(t.String),
+  });
 
 export const reportCreationRequestInputValidator: TUnion<ReportCreationRequest> =
   t.union<ReportCreationRequest>([
     tShape({
-      type: t.maybe(
-        t.irreducible('reportTypes.ERROR', x => x === reportTypes.ERROR),
+      type: t.irreducible<typeof reportTypes.ERROR>(
+        'reportTypes.ERROR',
+        x => x === reportTypes.ERROR,
       ),
-      platformDetails: t.maybe(tPlatformDetails),
-      deviceType: t.maybe(tPlatform),
-      codeVersion: t.maybe(t.Number),
-      stateVersion: t.maybe(t.Number),
+      platformDetails: tPlatformDetails,
       errors: t.list(
         tShape({
           errorMessage: t.String,
@@ -125,7 +137,8 @@ export const reportCreationRequestInputValidator: TUnion<ReportCreationRequest> 
       ),
       preloadedState: t.Object,
       currentState: t.Object,
-      actions: t.list(t.union([t.Object, t.String])),
+      actions: t.list(t.Object),
+      id: t.maybe(t.String),
     }),
     threadInconsistencyReportCreationRequest,
     entryInconsistencyReportCreationRquest,
@@ -159,35 +172,11 @@ async function reportCreationResponder(
 
 export const reportMultiCreationRequestInputValidator: TInterface<ReportMultiCreationRequest> =
   tShape<ReportMultiCreationRequest>({
-    reports: t.list(
-      t.union([
-        tShape({
-          type: t.irreducible(
-            'reportTypes.ERROR',
-            x => x === reportTypes.ERROR,
-          ),
-          platformDetails: tPlatformDetails,
-          errors: t.list(
-            tShape({
-              errorMessage: t.String,
-              stack: t.maybe(t.String),
-              componentStack: t.maybe(t.String),
-            }),
-          ),
-          preloadedState: t.Object,
-          currentState: t.Object,
-          actions: t.list(t.union([t.Object, t.String])),
-        }),
-        threadInconsistencyReportCreationRequest,
-        entryInconsistencyReportCreationRquest,
-        mediaMissionReportCreationRequest,
-        userInconsistencyReportCreationRequest,
-      ]),
-    ),
+    reports: t.list(reportCreationRequestInputValidator),
   });
 
 type ReportMultiCreationRequest = {
-  reports: $ReadOnlyArray<ReportCreationRequest>,
+  +reports: $ReadOnlyArray<ReportCreationRequest>,
 };
 async function reportMultiCreationResponder(
   viewer: Viewer,
