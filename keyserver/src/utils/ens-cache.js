@@ -10,6 +10,7 @@ import {
 } from 'lib/utils/ens-helpers.js';
 
 type AlchemyConfig = { +key: string };
+type BaseUserInfo = { +username?: ?string, ... };
 
 let getENSNames: ?GetENSNames;
 async function initENSCache() {
@@ -23,7 +24,8 @@ async function initENSCache() {
   }
   const provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
   const ensCache = new ENSCache(provider);
-  getENSNames = baseGetENSNames.bind(null, ensCache);
+  getENSNames = <T: ?BaseUserInfo>(users: $ReadOnlyArray<T>): Promise<T[]> =>
+    baseGetENSNames(ensCache, users);
 }
 
 export { initENSCache, getENSNames };
