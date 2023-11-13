@@ -21,7 +21,7 @@ import type {
   UpdateData,
 } from 'lib/types/update-types.js';
 import type {
-  PasswordUpdate,
+  ServerPasswordUpdate,
   UserInfo,
   UserInfos,
 } from 'lib/types/user-types.js';
@@ -36,7 +36,7 @@ import type { Viewer } from '../session/viewer.js';
 
 async function accountUpdater(
   viewer: Viewer,
-  update: PasswordUpdate,
+  update: ServerPasswordUpdate,
 ): Promise<void> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
