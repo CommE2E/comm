@@ -21,7 +21,7 @@ const sitesObj = Object.freeze({
 export type Site = $Values<typeof sitesObj>;
 const sites: $ReadOnlyArray<Site> = values(sitesObj);
 
-const cachedURLFacts = new Map();
+const cachedURLFacts = new Map<Site, ?AppURLFacts>();
 async function fetchURLFacts(site: Site): Promise<?AppURLFacts> {
   const existing = cachedURLFacts.get(site);
   if (existing !== undefined) {
@@ -35,7 +35,7 @@ async function fetchURLFacts(site: Site): Promise<?AppURLFacts> {
     const { proxy } = urlFacts;
     urlFacts = {
       ...urlFacts,
-      proxy: validProxies.has(proxy) ? proxy : 'apache',
+      proxy: proxy && validProxies.has(proxy) ? proxy : 'apache',
     };
   }
   cachedURLFacts.set(site, urlFacts);
