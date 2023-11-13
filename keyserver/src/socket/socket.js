@@ -94,7 +94,7 @@ import {
 } from '../utils/validation-utils.js';
 
 const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
-  tShape({
+  tShape<InitialClientSocketMessage>({
     type: t.irreducible(
       'clientSocketMessageTypes.INITIAL',
       x => x === clientSocketMessageTypes.INITIAL,
@@ -114,7 +114,7 @@ const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
       clientResponses: t.list(clientResponseInputValidator),
     }),
   }),
-  tShape({
+  tShape<ResponsesClientSocketMessage>({
     type: t.irreducible(
       'clientSocketMessageTypes.RESPONSES',
       x => x === clientSocketMessageTypes.RESPONSES,
@@ -124,14 +124,14 @@ const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
       clientResponses: t.list(clientResponseInputValidator),
     }),
   }),
-  tShape({
+  tShape<PingClientSocketMessage>({
     type: t.irreducible(
       'clientSocketMessageTypes.PING',
       x => x === clientSocketMessageTypes.PING,
     ),
     id: t.Number,
   }),
-  tShape({
+  tShape<AckUpdatesClientSocketMessage>({
     type: t.irreducible(
       'clientSocketMessageTypes.ACK_UPDATES',
       x => x === clientSocketMessageTypes.ACK_UPDATES,
@@ -141,7 +141,7 @@ const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
       currentAsOf: t.Number,
     }),
   }),
-  tShape({
+  tShape<APIRequestClientSocketMessage>({
     type: t.irreducible(
       'clientSocketMessageTypes.API_REQUEST',
       x => x === clientSocketMessageTypes.API_REQUEST,

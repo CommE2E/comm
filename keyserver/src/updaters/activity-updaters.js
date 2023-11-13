@@ -6,6 +6,7 @@ import _max from 'lodash/fp/max.js';
 
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 import type {
+  ActivityUpdate,
   UpdateActivityResult,
   UpdateActivityRequest,
   SetThreadUnreadStatusRequest,
@@ -58,7 +59,7 @@ async function activityUpdater(
     throw new ServerError('not_logged_in');
   }
 
-  const focusUpdatesByThreadID = new Map();
+  const focusUpdatesByThreadID = new Map<string, Array<ActivityUpdate>>();
   for (const activityUpdate of request.updates) {
     const threadID = activityUpdate.threadID;
     const updatesForThreadID = focusUpdatesByThreadID.get(threadID) ?? [];
@@ -87,7 +88,7 @@ async function activityUpdater(
     return { unfocusedToUnread: [] };
   }
 
-  const memberThreadIDs = new Set();
+  const memberThreadIDs = new Set<string>();
   const verifiedThreadIDs = [];
   for (const threadData of verifiedThreadsData) {
     if (threadData.role > 0) {
@@ -317,7 +318,7 @@ async function checkForNewerMessages(
   `;
   const [result] = await dbQuery(query);
 
-  const threadsWithNewerMessages = new Set();
+  const threadsWithNewerMessages = new Set<string>();
   for (const row of result) {
     const threadID = row.thread.toString();
     const serverLatestMessage = row.latest_message;

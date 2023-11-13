@@ -409,8 +409,10 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     ({ currentUser }) => currentUser,
   );
   const threadIDsNeedingFetch = viewerInfo.threadInfos
-    ? new Set()
-    : new Set(entitiesToFetch.map(({ threadID }) => threadID).filter(Boolean));
+    ? new Set<string>()
+    : new Set<string>(
+        entitiesToFetch.map(({ threadID }) => threadID).filter(Boolean),
+      );
   const entryIDsNeedingFetch = new Set(
     entitiesToFetch.map(({ entryID }) => entryID).filter(Boolean),
   );

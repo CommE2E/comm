@@ -423,7 +423,7 @@ async function checkState(
   const idsToFetch = Object.fromEntries(
     values(serverStateSyncSpecs)
       .filter(spec => spec.innerHashSpec?.hashKey)
-      .map(spec => [spec.innerHashSpec?.hashKey, new Set()]),
+      .map(spec => [spec.innerHashSpec?.hashKey, new Set<string>()]),
   );
   for (const key of invalidKeys) {
     const [innerHashKey, id] = key.split('|');
