@@ -1,5 +1,6 @@
 // @flow
 
+import type { EncryptResult } from '@commapp/olm';
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 import _cloneDeep from 'lodash/fp/cloneDeep.js';
@@ -49,7 +50,11 @@ async function encryptIOSNotification(
 
     let dbPersistCondition;
     if (notificationSizeValidator) {
-      dbPersistCondition = ({ serializedPayload }) => {
+      dbPersistCondition = ({
+        serializedPayload,
+      }: {
+        +[string]: EncryptResult,
+      }) => {
         const notifCopy = _cloneDeep(encryptedNotification);
         notifCopy.payload.encryptedPayload = serializedPayload.body;
         return notificationSizeValidator(notifCopy);
@@ -128,8 +133,11 @@ async function encryptAndroidNotificationPayload<T>(
 
     let dbPersistCondition;
     if (payloadSizeValidator) {
-      dbPersistCondition = ({ serializedPayload }) =>
-        payloadSizeValidator({ encryptedPayload: serializedPayload.body });
+      dbPersistCondition = ({
+        serializedPayload,
+      }: {
+        +[string]: EncryptResult,
+      }) => payloadSizeValidator({ encryptedPayload: serializedPayload.body });
     }
 
     const {

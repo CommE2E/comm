@@ -8,13 +8,13 @@ describe('olm.Account', () => {
   const alphabet =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ';
 
-  const randomString = length =>
+  const randomString = (length: number) =>
     Array.from(
       { length },
       () => alphabet[Math.floor(Math.random() * alphabet.length)],
     ).join('');
 
-  const initAccount = (mark_prekey_published = true) => {
+  const initAccount = (mark_prekey_published: boolean = true) => {
     const account = new olm.Account();
     account.create();
     account.generate_prekey();
@@ -26,12 +26,12 @@ describe('olm.Account', () => {
   };
 
   const createSession = (
-    aliceSession,
-    aliceAccount,
-    bobAccount,
-    regen = false,
-    forget = false,
-    invalid_sign = false,
+    aliceSession: olm.Session,
+    aliceAccount: olm.Account,
+    bobAccount: olm.Account,
+    regen: boolean = false,
+    forget: boolean = false,
+    invalid_sign: boolean = false,
   ) => {
     const bobOneTimeKeys = JSON.parse(bobAccount.one_time_keys()).curve25519;
     bobAccount.mark_keys_as_published();
@@ -86,7 +86,12 @@ describe('olm.Account', () => {
     return aliceSession;
   };
 
-  const testRatchet = (aliceSession, bobSession, bobAccount, num_msg = 1) => {
+  const testRatchet = (
+    aliceSession: olm.Session,
+    bobSession: olm.Session,
+    bobAccount: olm.Account,
+    num_msg: number = 1,
+  ) => {
     let test_text = randomString(40);
     let encrypted = aliceSession.encrypt(test_text);
     expect(encrypted.type).toEqual(0);
