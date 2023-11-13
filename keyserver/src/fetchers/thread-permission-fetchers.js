@@ -142,8 +142,8 @@ async function checkThreadsFrozen(
   viewer: Viewer,
   permissionsToCheck: $ReadOnlyArray<ThreadPermission>,
   threadIDs: $ReadOnlyArray<string>,
-) {
-  const threadIDsWithDisabledPermissions = new Set();
+): Promise<$ReadOnlySet<string>> {
+  const threadIDsWithDisabledPermissions = new Set<string>();
 
   const permissionMightBeDisabled = permissionsToCheck.some(permission =>
     permissionsDisabledByBlock.has(permission),
@@ -198,6 +198,8 @@ async function checkThread(
 // It doesn't matter what value we pass in, as long as it's positive.
 const arbitraryPositiveRole = '1';
 
+type ContainingStatus = 'member' | 'non-member' | 'no-containing-thread';
+
 type CandidateMembers = {
   +[key: string]: ?$ReadOnlyArray<string>,
 };
@@ -216,7 +218,7 @@ async function validateCandidateMembers(
 ): Promise<CandidateMembers> {
   const requireRelationship = options?.requireRelationship ?? true;
 
-  const allCandidatesSet = new Set();
+  const allCandidatesSet = new Set<string>();
   for (const key in candidates) {
     const candidateGroup = candidates[key];
     if (!candidateGroup) {
@@ -248,9 +250,9 @@ async function validateCandidateMembers(
   })();
 
   const memberOfContainingThreadPromise: Promise<
-    Map<string, 'member' | 'non-member' | 'no-containing-thread'>,
+    Map<string, ContainingStatus>,
   > = (async () => {
-    const results = new Map();
+    const results = new Map<string, ContainingStatus>();
     if (allCandidates.length === 0) {
       return results;
     }
@@ -282,7 +284,7 @@ async function validateCandidateMembers(
       memberOfContainingThreadPromise,
     ]);
 
-  const ignoreMembers = new Set();
+  const ignoreMembers = new Set<string>();
   for (const memberID of allCandidates) {
     const member = fetchedMembers[memberID];
     if (!member && requireRelationship) {
