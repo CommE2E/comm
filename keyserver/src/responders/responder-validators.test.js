@@ -170,7 +170,8 @@ describe('user responder validators', () => {
     };
 
     expect(registerResponseValidator.is(response)).toBe(true);
-    response.cookieChange.userInfos = undefined;
+    const cookieChange: any = response.cookieChange;
+    cookieChange.userInfos = undefined;
     expect(registerResponseValidator.is(response)).toBe(false);
   });
 
@@ -367,7 +368,7 @@ describe('user responder validators', () => {
 
 describe('search responder', () => {
   it('should validate search response', () => {
-    const response = {
+    const response: any = {
       userInfos: [
         { id: '83817', username: 'temp_user0' },
         { id: '83853', username: 'temp_user1' },
@@ -417,7 +418,7 @@ describe('relationship responder', () => {
 
 describe('activity responder', () => {
   it('should validate update activity response', () => {
-    const response = { unfocusedToUnread: ['93095'] };
+    const response: any = { unfocusedToUnread: ['93095'] };
     expect(updateActivityResultValidator.is(response)).toBe(true);
     response.unfocusedToUnread.push(123);
     expect(updateActivityResultValidator.is(response)).toBe(false);
