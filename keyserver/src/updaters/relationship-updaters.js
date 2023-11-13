@@ -281,7 +281,7 @@ async function updateChangedUndirectedRelationships(
   selectQuery.append(mergeOrConditions(conditions));
 
   const [result] = await dbQuery(selectQuery);
-  const existingStatuses = new Map();
+  const existingStatuses = new Map<string, number>();
   for (const row of result) {
     existingStatuses.set(`${row.user1}|${row.user2}`, row.status);
   }

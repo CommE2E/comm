@@ -49,8 +49,8 @@ async function mergeUsers(
     ({ sql: updateUserRowQuery, updateDatas } = replaceUserResult);
   }
 
-  const usersGettingUpdate = new Set();
-  const usersNeedingUpdate = new Set();
+  const usersGettingUpdate = new Set<string>();
+  const usersNeedingUpdate = new Set<string>();
   const needUserInfoUpdate = replaceUserInfo && replaceUserInfo.username;
   const setGettingUpdate = (threadInfo: ServerThreadInfo) => {
     if (!needUserInfoUpdate) {
