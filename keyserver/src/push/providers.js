@@ -154,11 +154,12 @@ type WNSAccessToken = { +token: string, +expires: number };
 let wnsAccessToken: ?WNSAccessToken = null;
 async function getWNSToken(): Promise<?string> {
   const expiryWindowInMs = 10_000;
+  const localWNSAccessToken = wnsAccessToken;
   if (
-    wnsAccessToken &&
-    wnsAccessToken.expires >= Date.now() - expiryWindowInMs
+    localWNSAccessToken &&
+    localWNSAccessToken.expires >= Date.now() - expiryWindowInMs
   ) {
-    return wnsAccessToken.token;
+    return localWNSAccessToken.token;
   }
 
   const config = await getCommConfig<WNSConfig>({
