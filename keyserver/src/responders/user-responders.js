@@ -64,7 +64,7 @@ import {
 import { rawThreadInfoValidator } from 'lib/types/thread-types.js';
 import { createUpdatesResultValidator } from 'lib/types/update-types.js';
 import {
-  type PasswordUpdate,
+  type ServerPasswordUpdate,
   loggedOutUserInfoValidator,
   loggedInUserInfoValidator,
   userInfoValidator,
@@ -159,8 +159,8 @@ async function userSubscriptionUpdateResponder(
   };
 }
 
-export const accountUpdateInputValidator: TInterface<PasswordUpdate> =
-  tShape<PasswordUpdate>({
+export const accountUpdateInputValidator: TInterface<ServerPasswordUpdate> =
+  tShape<ServerPasswordUpdate>({
     updatedFields: tShape({
       email: t.maybe(tEmail),
       password: t.maybe(tPassword),
@@ -170,7 +170,7 @@ export const accountUpdateInputValidator: TInterface<PasswordUpdate> =
 
 async function passwordUpdateResponder(
   viewer: Viewer,
-  request: PasswordUpdate,
+  request: ServerPasswordUpdate,
 ): Promise<void> {
   await accountUpdater(viewer, request);
 }
