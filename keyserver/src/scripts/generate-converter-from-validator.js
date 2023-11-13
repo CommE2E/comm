@@ -216,7 +216,7 @@ function generateConverterFromValidator<T, C>(
 const validator = rawThreadInfoValidator;
 const typeName = 'RawThreadInfo';
 const validatorToBeConverted = tID;
-const conversionExpressionString = inputName =>
+const conversionExpressionString = (inputName: string) =>
   `'${ashoatKeyserverID}|' + ${inputName}`;
 main([
   async () => {
