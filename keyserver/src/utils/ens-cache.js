@@ -9,9 +9,11 @@ import {
   type GetENSNames,
 } from 'lib/utils/ens-helpers.js';
 
+type AlchemyConfig = { +key: string };
+
 let getENSNames: ?GetENSNames;
 async function initENSCache() {
-  const alchemySecret = await getCommConfig({
+  const alchemySecret = await getCommConfig<AlchemyConfig>({
     folder: 'secrets',
     name: 'alchemy',
   });
