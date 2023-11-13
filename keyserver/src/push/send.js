@@ -626,12 +626,15 @@ async function fetchInfos(pushInfo: PushInfo) {
     threadPromise,
     oldNamesPromise,
   ]);
-  const serverThreadInfos = threadResult.threadInfos;
+  const serverThreadInfos = { ...threadResult.threadInfos };
   if (oldNames) {
     const [result] = oldNames;
     for (const row of result) {
       const threadID = row.thread.toString();
-      serverThreadInfos[threadID].name = row.name;
+      serverThreadInfos[threadID] = {
+        ...serverThreadInfos[threadID],
+        name: row.name,
+      };
     }
   }
 
