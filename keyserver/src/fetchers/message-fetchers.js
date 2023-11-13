@@ -141,7 +141,7 @@ async function fetchCollapsableNotifs(
   collapseQuery.append(SQL`ORDER BY m.time DESC, m.id DESC`);
   const [collapseResult] = await dbQuery(collapseQuery);
 
-  const rowsByUser = new Map();
+  const rowsByUser = new Map<string, Array<MessageSQLResultRow>>();
   for (const row of collapseResult) {
     const user = row.user.toString();
     const currentRowsForUser = rowsByUser.get(user);
@@ -158,7 +158,13 @@ async function fetchCollapsableNotifs(
     for (const message of messages) {
       const { rawMessageInfo, rows } = message;
       const [row] = rows;
-      const info = usersToCollapseKeysToInfo[row.user][row.collapse_key];
+      const userID = row.user.toString();
+      const collapseKey = row.collapse_key;
+      invariant(
+        collapseKey !== null && collapseKey !== undefined,
+        'We expect all collapseQuery results to match on a collapseKey',
+      );
+      const info = usersToCollapseKeysToInfo[userID][collapseKey];
       info.existingMessageInfos.push(rawMessageInfo);
     }
   }
@@ -178,20 +184,39 @@ async function fetchCollapsableNotifs(
   return usersToCollapsableNotifInfo;
 }
 
+type MessageSQLResultRow = {
+  +id: ?number,
+  +threadID: ?number,
+  +content: ?string,
+  +time: ?number,
+  +type: ?number,
+  +creatorID: ?number,
+  +targetMessageID: ?number,
+  +subthread_permissions: ?string,
+  +user: number,
+  +collapse_key: ?string,
+  +uploadID: ?number,
+  +uploadType: ?number,
+  +uploadSecret: ?string,
+  +uploadExtra: ?string,
+};
 type MessageSQLResult = $ReadOnlyArray<{
-  rawMessageInfo: RawMessageInfo,
-  rows: $ReadOnlyArray<Object>,
+  +rawMessageInfo: RawMessageInfo,
+  +rows: $ReadOnlyArray<MessageSQLResultRow>,
 }>;
 function parseMessageSQLResult(
-  rows: $ReadOnlyArray<Object>,
+  rows: $ReadOnlyArray<MessageSQLResultRow>,
   derivedMessages: $ReadOnlyMap<
     string,
     RawComposableMessageInfo | RawRobotextMessageInfo,
   >,
   viewer?: Viewer,
 ): MessageSQLResult {
-  const rowsByID = new Map();
+  const rowsByID = new Map<string, Array<MessageSQLResultRow>>();
   for (const row of rows) {
+    if (!row.id) {
+      continue;
+    }
     const id = row.id.toString();
     const currentRowsForID = rowsByID.get(id);
     if (currentRowsForID) {
@@ -345,7 +370,7 @@ async function fetchMessageInfos(
 
   const [result] = await dbQuery(query);
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  const messages = await parseMessageSQLResult(result, derivedMessages, viewer);
+  const messages = parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map<string, number>();
@@ -569,7 +594,7 @@ async function fetchMessageInfosSince(
   `);
   const [result] = await dbQuery(query);
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  const messages = await parseMessageSQLResult(result, derivedMessages, viewer);
+  const messages = parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
   let currentThreadID = null;
@@ -765,7 +790,7 @@ async function fetchDerivedMessages(
     fetchMessageRowsByIDs([...requiredIDs]),
     fetchLatestEditMessageContentByIDs([...requiredIDs]),
   ]);
-  const messages = await parseMessageSQLResult(result, new Map(), viewer);
+  const messages = parseMessageSQLResult(result, new Map(), viewer);
 
   for (const message of messages) {
     let { rawMessageInfo } = message;
@@ -915,7 +940,7 @@ async function fetchRelatedMessages(
   if (resultRows.length === 0) {
     return [];
   }
-  const SQLResult = await parseMessageSQLResult(resultRows, messages, viewer);
+  const SQLResult = parseMessageSQLResult(resultRows, messages, viewer);
   return SQLResult.map(item => item.rawMessageInfo);
 }
 
@@ -923,7 +948,7 @@ async function rawMessageInfoForRowsAndRelatedMessages(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
 ): Promise<$ReadOnlyArray<RawMessageInfo>> {
-  const parsedResults = await parseMessageSQLResult(rows, new Map(), viewer);
+  const parsedResults = parseMessageSQLResult(rows, new Map(), viewer);
   const rawMessageInfoMap = new Map<
     string,
     RawComposableMessageInfo | RawRobotextMessageInfo,
