@@ -47,7 +47,10 @@ function shouldRotatePrekey(account: OlmAccount): boolean {
   const currentDate = new Date();
   const lastPrekeyPublishDate = getLastPrekeyPublishTime(account);
 
-  return currentDate - lastPrekeyPublishDate >= maxPublishedPrekeyAge;
+  return (
+    currentDate.getTime() - lastPrekeyPublishDate.getTime() >=
+    maxPublishedPrekeyAge
+  );
 }
 
 function shouldForgetPrekey(account: OlmAccount): boolean {
@@ -60,7 +63,9 @@ function shouldForgetPrekey(account: OlmAccount): boolean {
   const currentDate = new Date();
   const lastPrekeyPublishDate = getLastPrekeyPublishTime(account);
 
-  return currentDate - lastPrekeyPublishDate >= maxOldPrekeyAge;
+  return (
+    currentDate.getTime() - lastPrekeyPublishDate.getTime() >= maxOldPrekeyAge
+  );
 }
 
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
