@@ -348,7 +348,7 @@ async function fetchMessageInfos(
   const messages = await parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
-  const threadToMessageCount = new Map();
+  const threadToMessageCount = new Map<string, number>();
   for (const message of messages) {
     const { rawMessageInfo } = message;
     rawMessageInfos.push(rawMessageInfo);
@@ -844,7 +844,7 @@ async function fetchLatestEditMessageContentByIDs(
   `;
 
   const [result] = await dbQuery(latestEditedMessageQuery);
-  const latestContentByID = new Map();
+  const latestContentByID = new Map<string, EditMessageContent>();
   for (const row of result) {
     if (!row.content) {
       continue;
