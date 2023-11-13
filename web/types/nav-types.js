@@ -18,9 +18,13 @@ const navigationTabValidator = t.enums.of(['calendar', 'chat', 'settings']);
 export type LoginMethod = 'form' | 'qr-code';
 const loginMethodValidator = t.enums.of(['form', 'qr-code']);
 
-export type NavigationSettingsSection = 'account' | 'danger-zone';
+export type NavigationSettingsSection =
+  | 'account'
+  | 'keyservers'
+  | 'danger-zone';
 const navigationSettingsSectionValidator = t.enums.of([
   'account',
+  'keyservers',
   'danger-zone',
 ]);
 
