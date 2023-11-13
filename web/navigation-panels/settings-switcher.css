@@ -1,6 +1,8 @@
 .navigationPanelContainer {
   width: 160px;
-  margin-top: 12px;
+  padding-top: 12px;
+  height: 100%;
+  background-color: var(--panel-background-primary-default);
 }
 
 .navigationPanelTab {
@@ -11,14 +13,14 @@
 }
 
 .navigationPanelTab p {
-  color: var(--color-disabled);
+  color: var(--text-background-tertiary-default);
 }
 
 .navigationPanelTab:hover p,
 div.current_tab p {
-  color: var(--fg);
-  stroke: var(--fg);
-  fill: var(--fg);
+  color: var(--text-background-primary-default);
+  stroke: var(--text-background-primary-default);
+  fill: var(--text-background-primary-default);
 }
 
 .container p {
