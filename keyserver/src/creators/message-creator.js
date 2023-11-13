@@ -556,15 +556,19 @@ async function redisPublish(
   }
 }
 
+type LatestMessagePerThread = {
+  +latestMessage: string,
+  +latestReadMessage?: string,
+};
 function determineLatestMessagesPerThread(
   preUserPushInfo: UserThreadInfo,
   userID: string,
   threadsToMessageIndices: $ReadOnlyMap<string, $ReadOnlyArray<number>>,
   messageInfos: $ReadOnlyArray<RawMessageInfo>,
-) {
+): $ReadOnlyMap<string, LatestMessagePerThread> {
   const { threadIDs, notFocusedThreadIDs, subthreadsCanSetToUnread } =
     preUserPushInfo;
-  const latestMessagesPerThread = new Map();
+  const latestMessagesPerThread = new Map<string, LatestMessagePerThread>();
   for (const threadID of threadIDs) {
     const messageIndices = threadsToMessageIndices.get(threadID);
     invariant(messageIndices, `indices should exist for thread ${threadID}`);
