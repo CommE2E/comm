@@ -18,7 +18,7 @@ class DepthQueue<T> {
     this.mergeFunction = mergeFunction;
   }
 
-  addInfo(info: T) {
+  addInfo(info: T): void {
     const depth = this.getDepth(info);
     if (depth <= this.maxDequeuedDepth) {
       throw new Error(
