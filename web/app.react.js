@@ -291,6 +291,8 @@ class App extends React.PureComponent<Props> {
     if (tab === 'settings') {
       if (settingsSection === 'account') {
         mainContent = <AccountSettings />;
+      } else if (settingsSection === 'keyservers') {
+        mainContent = null;
       } else if (settingsSection === 'danger-zone') {
         mainContent = <DangerZone />;
       }
