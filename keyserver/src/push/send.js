@@ -549,8 +549,8 @@ async function saveNotifResults(
 async function fetchInfos(pushInfo: PushInfo) {
   const usersToCollapsableNotifInfo = await fetchCollapsableNotifs(pushInfo);
 
-  const threadIDs = new Set();
-  const threadWithChangedNamesToMessages = new Map();
+  const threadIDs = new Set<string>();
+  const threadWithChangedNamesToMessages = new Map<string, Array<string>>();
   const addThreadIDsFromMessageInfos = (rawMessageInfo: RawMessageInfo) => {
     const threadID = rawMessageInfo.threadID;
     threadIDs.add(threadID);
@@ -646,7 +646,7 @@ async function fetchNotifUserInfos(
   serverThreadInfos: { +[threadID: string]: ServerThreadInfo },
   usersToCollapsableNotifInfo: { +[userID: string]: CollapsableNotifInfo[] },
 ) {
-  const missingUserIDs = new Set();
+  const missingUserIDs = new Set<string>();
 
   for (const threadID in serverThreadInfos) {
     const serverThreadInfo = serverThreadInfos[threadID];
@@ -705,11 +705,14 @@ function stringToVersionKey(versionKeyString: string): VersionKey {
 function getDevicesByPlatform(
   devices: $ReadOnlyArray<Device>,
 ): Map<Platform, Map<string, Array<NotificationTargetDevice>>> {
-  const byPlatform = new Map();
+  const byPlatform = new Map<
+    Platform,
+    Map<string, Array<NotificationTargetDevice>>,
+  >();
   for (const device of devices) {
     let innerMap = byPlatform.get(device.platform);
     if (!innerMap) {
-      innerMap = new Map();
+      innerMap = new Map<string, Array<NotificationTargetDevice>>();
       byPlatform.set(device.platform, innerMap);
     }
     const codeVersion: number =
@@ -1376,7 +1379,7 @@ async function removeInvalidTokens(
   selectQuery.append(sqlCondition);
   const [result] = await dbQuery(selectQuery);
 
-  const userCookiePairsToInvalidDeviceTokens = new Map();
+  const userCookiePairsToInvalidDeviceTokens = new Map<string, Set<string>>();
   for (const row of result) {
     const userCookiePair = `${row.user}|${row.id}`;
     const existing = userCookiePairsToInvalidDeviceTokens.get(userCookiePair);
