@@ -7,6 +7,7 @@ import {
 import {
   configurableCommunityPermissions,
   userSurfacedPermissions,
+  type UserSurfacedPermission,
 } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { deepDiff, values } from 'lib/utils/objects.js';
@@ -104,8 +105,10 @@ async function validateRolePermissions() {
     // discrepancies that could be linked to a specific user-surfaced
     // permission. This could be useful in manually parsing through the
     // script results to 'write off' discrepancies as user role edits.
-    const userSurfacedExpectedPermissionsToExistingPermissions = new Set();
-    const userSurfacedExistingPermissionsToExpectedPermissions = new Set();
+    const userSurfacedExpectedPermissionsToExistingPermissions =
+      new Set<UserSurfacedPermission>();
+    const userSurfacedExistingPermissionsToExpectedPermissions =
+      new Set<UserSurfacedPermission>();
 
     for (const permission of values(userSurfacedPermissions)) {
       const permissionSet = Array.from(

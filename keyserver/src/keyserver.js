@@ -211,7 +211,7 @@ const shouldDisplayQRCodeInTerminal = false;
     server.get('/invite/:secret', inviteResponder);
 
     if (landingBaseRoutePath) {
-      const landingRouter = express.Router();
+      const landingRouter = express.Router<$Request, $Response>();
       landingRouter.get('/invite/:secret', inviteResponder);
       landingRouter.use(
         '/.well-known',
@@ -237,13 +237,13 @@ const shouldDisplayQRCodeInTerminal = false;
     }
 
     if (webAppBaseRoutePath) {
-      const commAppRouter = express.Router();
+      const commAppRouter = express.Router<$Request, $Response>();
       setupAppRouter(commAppRouter);
       server.use(webAppBaseRoutePath, commAppRouter);
     }
 
     if (keyserverBaseRoutePath) {
-      const squadCalRouter = express.Router();
+      const squadCalRouter = express.Router<$Request, $Response>();
       if (keyserverCorsOptions) {
         squadCalRouter.use(cors(keyserverCorsOptions));
       }
