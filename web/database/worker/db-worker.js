@@ -59,13 +59,6 @@ async function initDatabase(
   );
   dbModule = newModule;
 
-  try {
-    const result = newModule.CommQueryExecutor.testDBOperation();
-    console.log(result);
-  } catch (e) {
-    console.error(e);
-  }
-
   if (encryptionKeyJWK) {
     encryptionKey = await importJWKKey(encryptionKeyJWK);
   } else {

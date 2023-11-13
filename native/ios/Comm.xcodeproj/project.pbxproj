@@ -50,7 +50,6 @@
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
 		8EA59BD62A6E8E0400EB4F53 /* DraftStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */; };
 		8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */; };
-		8ED8B5342A4DD4EB00D3DA26 /* CommQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */; };
 		8EF775682A74032C0046A385 /* CommRustModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF775672A74032C0046A385 /* CommRustModule.cpp */; };
 		8EF7756B2A7433630046A385 /* ThreadStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF775692A7433630046A385 /* ThreadStore.cpp */; };
 		8EF7756E2A7513F40046A385 /* MessageStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF7756D2A7513F40046A385 /* MessageStore.cpp */; };
@@ -212,8 +211,6 @@
 		8EA59BD52A6E8E0400EB4F53 /* DraftStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DraftStore.h; path = PersistentStorageUtilities/DataStores/DraftStore.h; sourceTree = "<group>"; };
 		8EA59BD72A73DAB000EB4F53 /* rustJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "rustJSI-generated.cpp"; sourceTree = "<group>"; };
 		8EA59BD82A73DAB000EB4F53 /* rustJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rustJSI.h; sourceTree = "<group>"; };
-		8ED8B5322A4DCCE300D3DA26 /* CommQueryExecutor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommQueryExecutor.h; sourceTree = "<group>"; };
-		8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommQueryExecutor.cpp; sourceTree = "<group>"; };
 		8EE6E49F2A39CCAB00AE6BCD /* ReportStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReportStoreOperations.h; sourceTree = "<group>"; };
 		8EE6E4A02A39CCAB00AE6BCD /* DraftStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DraftStoreOperations.h; sourceTree = "<group>"; };
 		8EF775662A74032C0046A385 /* CommRustModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommRustModule.h; sourceTree = "<group>"; };
@@ -450,8 +447,6 @@
 		71BE843F2636A944002849D2 /* DatabaseManagers */ = {
 			isa = PBXGroup;
 			children = (
-				8ED8B5332A4DCCE300D3DA26 /* CommQueryExecutor.cpp */,
-				8ED8B5322A4DCCE300D3DA26 /* CommQueryExecutor.h */,
 				8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */,
 				71BE84402636A944002849D2 /* DatabaseQueryExecutor.h */,
 				71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */,
@@ -1069,7 +1064,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				CBCA09062A8E0E7400F75B3E /* StaffUtils.cpp in Sources */,
-				8ED8B5342A4DD4EB00D3DA26 /* CommQueryExecutor.cpp in Sources */,
 				8EF7756B2A7433630046A385 /* ThreadStore.cpp in Sources */,
 				CB2689002A2DF58000EC7300 /* CommConstants.cpp in Sources */,
 				CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */,
