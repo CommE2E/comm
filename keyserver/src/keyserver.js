@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import crypto from 'crypto';
 import express from 'express';
-import type { $Request, $Response } from 'express';
+import type { $Request, $Response, Router } from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
 import qrcode from 'qrcode';
@@ -145,7 +145,7 @@ const shouldDisplayQRCodeInTerminal = false;
     server.use(express.json({ limit: '250mb' }));
     server.use(cookieParser());
 
-    const setupAppRouter = router => {
+    const setupAppRouter = (router: Router<>) => {
       if (areEndpointMetricsEnabled) {
         router.use(logEndpointMetrics);
       }
