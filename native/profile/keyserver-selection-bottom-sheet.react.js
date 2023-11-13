@@ -20,6 +20,8 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
+import { setCustomServer } from '../utils/url-utils.js';
 
 export type KeyserverSelectionBottomSheetParams = {
   +keyserverAdminUserInfo: GlobalAccountUserInfo,
@@ -94,6 +96,8 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
     );
   }, []);
 
+  const staffCanSee = useStaffCanSee();
+
   const dispatch = useDispatch();
 
   const onDeleteKeyserver = React.useCallback(() => {
@@ -104,8 +108,19 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
       },
     });
 
+    if (staffCanSee) {
+      dispatch({
+        type: setCustomServer,
+        payload: keyserverInfo.urlPrefix,
+      });
+    }
     bottomSheetRef.current?.close();
-  }, [dispatch, keyserverAdminUserInfo.id]);
+  }, [
+    dispatch,
+    keyserverAdminUserInfo.id,
+    keyserverInfo.urlPrefix,
+    staffCanSee,
+  ]);
 
   const onPressRemoveKeyserver = React.useCallback(() => {
     Alert.alert(

@@ -14,6 +14,7 @@ import TextInput from '../components/text-input.react.js';
 import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 
 // eslint-disable-next-line no-unused-vars
 function AddKeyserver(props: { ... }): React.Node {
@@ -21,12 +22,17 @@ function AddKeyserver(props: { ... }): React.Node {
 
   const dispatch = useDispatch();
 
+  const staffCanSee = useStaffCanSee();
+
   const currentUserID = useSelector(state => state.currentUserInfo?.id);
+  const customServer = useSelector(state => state.customServer);
 
   const { panelForegroundTertiaryLabel } = useColors();
   const styles = useStyles(unboundStyles);
 
-  const [urlInput, setUrlInput] = React.useState('');
+  const [urlInput, setUrlInput] = React.useState(
+    customServer && staffCanSee ? customServer : '',
+  );
   const [showErrorMessage, setShowErrorMessage] = React.useState(false);
 
   const isKeyserverURLValidCallback = useIsKeyserverURLValid(urlInput);
