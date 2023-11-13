@@ -16,6 +16,7 @@ import HeaderRightTextButton from '../navigation/header-right-text-button.react.
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type Props = {
   +navigation: ProfileNavigationProp<'AddKeyserver'>,
@@ -27,12 +28,17 @@ function AddKeyserver(props: Props): React.Node {
 
   const dispatch = useDispatch();
 
+  const staffCanSee = useStaffCanSee();
+
   const currentUserID = useSelector(state => state.currentUserInfo?.id);
+  const customServer = useSelector(state => state.customServer);
 
   const { panelForegroundTertiaryLabel } = useColors();
   const styles = useStyles(unboundStyles);
 
-  const [urlInput, setUrlInput] = React.useState('');
+  const [urlInput, setUrlInput] = React.useState(
+    customServer && staffCanSee ? customServer : '',
+  );
   const [showErrorMessage, setShowErrorMessage] = React.useState(false);
 
   const isKeyserverURLValidCallback = useIsKeyserverURLValid(urlInput);
