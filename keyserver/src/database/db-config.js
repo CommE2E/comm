@@ -49,7 +49,7 @@ async function getDBConfig(): Promise<DBConfig> {
       dbType: assertValidDBType(process.env.COMM_DATABASE_TYPE),
     };
   } else {
-    const importedDBConfig = await getCommConfig({
+    const importedDBConfig = await getCommConfig<DBConfig>({
       folder: 'secrets',
       name: 'db_config',
     });

@@ -533,7 +533,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         WHERE m1.type = ${SIDEBAR_SOURCE} AND m2.type = ${TOGGLE_PIN}
       `);
 
-      const threadIDs = new Set();
+      const threadIDs = new Set<string>();
       for (const row of result) {
         threadIDs.add(row.thread.toString());
       }

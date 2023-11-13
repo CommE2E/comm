@@ -9,7 +9,7 @@ import { tShape, tEmail } from 'lib/utils/validation-utils.js';
 import { sendEmailSubscriptionRequestToAshoat } from '../emails/subscribe-email-updates.js';
 import { checkInputValidator } from '../utils/validation-utils.js';
 
-const emailSubscriptionInputValidator = tShape({
+const emailSubscriptionInputValidator = tShape<EmailSubscriptionRequest>({
   email: tEmail,
 });
 
