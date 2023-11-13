@@ -3,7 +3,7 @@
 import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { ErrorTypes, SiweMessage } from 'siwe';
-import t, { type TInterface, type TUnion } from 'tcomb';
+import t, { type TInterface, type TUnion, type TEnums } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
 import {
@@ -40,6 +40,7 @@ import type {
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
+import type { DeviceType } from 'lib/types/device-types';
 import {
   type CalendarQuery,
   rawEntryInfoValidator,
@@ -221,10 +222,15 @@ async function accountDeletionResponder(
   return result;
 }
 
-const deviceTokenUpdateRequestInputValidator = tShape({
-  deviceType: t.maybe(t.enums.of(['ios', 'android'])),
-  deviceToken: t.String,
-});
+type OldDeviceTokenUpdateRequest = {
+  +deviceType?: ?DeviceType,
+  +deviceToken: string,
+};
+const deviceTokenUpdateRequestInputValidator =
+  tShape<OldDeviceTokenUpdateRequest>({
+    deviceType: t.maybe(t.enums.of(['ios', 'android'])),
+    deviceToken: t.String,
+  });
 
 export const registerRequestInputValidator: TInterface<RegisterRequest> =
   tShape<RegisterRequest>({
@@ -434,7 +440,7 @@ export const logInResponseValidator: TInterface<LogInResponse> =
       threadInfos: t.dict(tID, rawThreadInfoValidator),
       userInfos: t.list(userInfoValidator),
     }),
-    notAcknowledgedPolicies: t.maybe(t.list(policyTypeValidator)),
+    notAcknowledgedPolicies: t.maybe(t.list<TEnums>(policyTypeValidator)),
   });
 
 async function logInResponder(

@@ -192,7 +192,7 @@ function findInconsistentObjectKeys<O>(
   first: { +[id: string]: O },
   second: { +[id: string]: O },
 ): Set<string> {
-  const nonMatchingIDs = new Set();
+  const nonMatchingIDs = new Set<string>();
   for (const id in first) {
     if (!_isEqual(first[id])(second[id])) {
       nonMatchingIDs.add(id);
