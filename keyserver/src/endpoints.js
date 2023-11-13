@@ -200,7 +200,10 @@ import {
   uploadMediaMetadataInputValidator,
 } from './uploads/uploads.js';
 
-const ignoredArgumentValidator = t.irreducible('Ignored argument', () => true);
+const ignoredArgumentValidator = t.irreducible<mixed>(
+  'Ignored argument',
+  () => true,
+);
 
 const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_account: createJSONResponder(

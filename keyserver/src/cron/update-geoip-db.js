@@ -8,8 +8,9 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 
 import { handleAsyncPromise } from '../responders/handlers.js';
 
+type GeoIPLicenseConfig = { +key: string };
 async function updateGeoipDB(): Promise<void> {
-  const geoipLicense = await getCommConfig({
+  const geoipLicense = await getCommConfig<GeoIPLicenseConfig>({
     folder: 'secrets',
     name: 'geoip_license',
   });
@@ -20,7 +21,7 @@ async function updateGeoipDB(): Promise<void> {
   await spawnUpdater(geoipLicense);
 }
 
-function spawnUpdater(geoipLicense: { key: string }): Promise<void> {
+function spawnUpdater(geoipLicense: GeoIPLicenseConfig): Promise<void> {
   const spawned = childProcess.spawn(process.execPath, [
     '../node_modules/geoip-lite/scripts/updatedb.js',
     `license_key=${geoipLicense.key}`,
