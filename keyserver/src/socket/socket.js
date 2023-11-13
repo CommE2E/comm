@@ -193,7 +193,7 @@ class Socket {
 
   onMessage = async (
     messageString: string | Buffer | ArrayBuffer | Array<Buffer>,
-  ) => {
+  ): Promise<void> => {
     invariant(typeof messageString === 'string', 'message should be string');
     let clientSocketMessage: ?ClientSocketMessage;
     try {
@@ -824,12 +824,12 @@ class Socket {
   // The Socket will timeout by calling this.ws.terminate()
   // serverRequestSocketTimeout milliseconds after the last
   // time resetTimeout is called
-  resetTimeout = _debounce(
+  resetTimeout: { +cancel: () => void } & (() => void) = _debounce(
     () => this.ws.terminate(),
     serverRequestSocketTimeout,
   );
 
-  debouncedAfterActivity = _debounce(
+  debouncedAfterActivity: { +cancel: () => void } & (() => void) = _debounce(
     () => this.setStateCheckConditions({ activityRecentlyOccurred: false }),
     stateCheckInactivityActivationInterval,
   );
@@ -858,7 +858,7 @@ class Socket {
     this.handleStateCheckConditionsUpdate();
   }
 
-  get stateCheckCanStart() {
+  get stateCheckCanStart(): boolean {
     return Object.values(this.stateCheckConditions).every(cond => !cond);
   }
 

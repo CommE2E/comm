@@ -52,6 +52,7 @@ import type {
   NotificationTargetDevice,
   TargetedAPNsNotification,
   TargetedAndroidNotification,
+  AndroidNotification,
 } from './types.js';
 import {
   apnPush,
@@ -840,7 +841,7 @@ async function prepareAPNsNotification(
     messageInfos,
   };
 
-  const notificationSizeValidator = notif =>
+  const notificationSizeValidator = (notif: apn.Notification) =>
     notif.length() <= apnMaxNotificationPayloadByteSize;
 
   if (!shouldBeEncrypted) {
@@ -999,7 +1000,7 @@ async function prepareAndroidNotification(
     }));
   }
 
-  const notificationsSizeValidator = notif => {
+  const notificationsSizeValidator = (notif: AndroidNotification) => {
     const serializedNotif = JSON.stringify(notif);
     return (
       !serializedNotif ||
