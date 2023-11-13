@@ -86,6 +86,11 @@ type ChangeRoleMemberInfo = {
   permissionsFromParent?: ?ThreadPermissionsBlob,
   memberOfContainingThread?: boolean,
 };
+type ExistingMembership = {
+  +oldRole: string,
+  +oldPermissions: ?ThreadPermissionsBlob,
+  +oldPermissionsForChildren: ?ThreadPermissionsBlob,
+};
 async function changeRole(
   threadID: string,
   userIDs: $ReadOnlyArray<string>,
@@ -156,7 +161,7 @@ async function changeRole(
     depth,
   } = roleThreadResult;
 
-  const existingMembershipInfo = new Map();
+  const existingMembershipInfo = new Map<string, ExistingMembership>();
   for (const row of membershipResults) {
     const userID = row.user.toString();
     existingMembershipInfo.set(userID, {
@@ -202,7 +207,7 @@ async function changeRole(
   }
 
   const membershipRows: Array<MembershipRow> = [];
-  const toUpdateDescendants = new Map();
+  const toUpdateDescendants = new Map<string, AncestorChanges>();
   for (const userID of userIDs) {
     const existingMembership = existingMembershipInfo.get(userID);
     const oldRole = existingMembership?.oldRole ?? '-1';
@@ -451,7 +456,7 @@ async function updateDescendantPermissions(
         relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
       }
 
-      const usersForNextLayer = new Map();
+      const usersForNextLayer = new Map<string, AncestorChanges>();
       for (const [userID, user] of users) {
         const {
           curRolePermissions,
@@ -809,7 +814,7 @@ async function recalculateThreadPermissions(
   }
 
   const membershipRows: Array<MembershipRow> = [];
-  const toUpdateDescendants = new Map();
+  const toUpdateDescendants = new Map<string, AncestorChanges>();
   for (const [userID, membership] of membershipInfo) {
     const { rolePermissions: intendedRolePermissions, permissionsFromParent } =
       membership;
@@ -1110,7 +1115,7 @@ async function commitMembershipChangeset(
   }
   const { membershipRows, relationshipChangeset } = changeset;
 
-  const membershipRowMap = new Map();
+  const membershipRowMap = new Map<string, MembershipRow>();
   for (const row of membershipRows) {
     const { userID, threadID } = row;
     changedThreadIDs.add(threadID);
@@ -1144,7 +1149,7 @@ async function commitMembershipChangeset(
     }
   }
 
-  const threadsToSavedUsers = new Map();
+  const threadsToSavedUsers = new Map<string, Array<string>>();
   for (const row of membershipRowMap.values()) {
     const { userID, threadID } = row;
     let savedUsers = threadsToSavedUsers.get(threadID);
