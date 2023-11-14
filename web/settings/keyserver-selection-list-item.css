@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.container:not(:last-child) {
+  border-bottom: 1px solid var(--separator-background-primary-default);
+}
+
+.container:hover {
+  cursor: pointer;
+}
+
+.keyserverContainer {
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+}
+
+.keyserverAdminLabel {
+  color: var(--text-background-primary-default);
+}
