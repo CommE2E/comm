@@ -1,0 +1,17 @@
+.container {
+  padding: 32px;
+}
+
+.inputTitle {
+  color: var(--text-background-primary-default);
+  margin-bottom: 8px;
+}
+
+.buttonContainer {
+  background-color: var(--panel-background-secondary-default);
+  padding: 16px 32px;
+}
+
+.button {
+  width: 100%;
+}
