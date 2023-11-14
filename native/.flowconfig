@@ -13,6 +13,7 @@
 .*/comm/keyserver/.*
 .*/comm/desktop/.*
 .*/comm/landing/.*
+.*/comm/services/electron-update-server/.*
 
 .*/android/app/build/.*
 
