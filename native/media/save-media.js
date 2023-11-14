@@ -64,7 +64,9 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
       },
     ) => {
       const start = Date.now();
-      const steps = [{ step: 'save_media', uri, time: start }];
+      const steps: Array<MediaMissionStep> = [
+        { step: 'save_media', uri, time: start },
+      ];
 
       const { resultPromise, reportPromise } = saveMedia(uri, 'request');
       const result = await resultPromise;
@@ -173,7 +175,7 @@ async function saveMediaAndroid(
   permissions: Permissions,
   sendResult: (result: MediaMissionResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   let hasPermission = false,
     permissionCheckExceptionMessage;
@@ -277,7 +279,7 @@ async function saveMediaIOS(
   inputURI: string,
   sendResult: (result: MediaMissionResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   let uri = inputURI;
   let tempFile;
@@ -348,7 +350,7 @@ async function saveRemoteMediaToDisk(
   inputURI: string,
   directory: string, // should end with a /
 ): Promise<IntermediateSaveResult> {
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   const { result: fetchBlobResult, steps: fetchBlobSteps } = await fetchBlob(
     inputURI,
@@ -397,7 +399,7 @@ async function copyToSortedDirectory(
   directory: string, // should end with a /
   inputMIME: ?string,
 ): Promise<IntermediateSaveResult> {
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   const path = pathFromURI(localURI);
   if (!path) {
