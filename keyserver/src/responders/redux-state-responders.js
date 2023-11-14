@@ -167,7 +167,12 @@ async function getInitialReduxStateResponder(
     const { messageStore: freshStore } = freshMessageStore(
       rawMessageInfos,
       truncationStatuses,
-      mostRecentMessageTimestamp(rawMessageInfos, initialTime),
+      {
+        [ashoatKeyserverID]: mostRecentMessageTimestamp(
+          rawMessageInfos,
+          initialTime,
+        ),
+      },
       threadInfos,
     );
     return freshStore;
