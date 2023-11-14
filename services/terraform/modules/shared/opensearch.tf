@@ -1,24 +1,17 @@
 variable "vpc" {}
 
+variable "cidr_block" {}
+
 variable "domain" {
   default = "identity-search-domain"
 }
-variable subnet_ids {
-  default = []
-}
-
-data "aws_vpc" "identity-search" {
-  count = var.is_dev ? 0 : 1 
-  tags = {
-    Name = var.vpc
-  }
-}
+variable subnet_ids { }
 
 resource "aws_security_group" "identity-search" {
   count = var.is_dev ? 0 : 1 
   name        = "${var.vpc}-opensearch-${var.domain}"
   description = "Managed by Terraform"
-  vpc_id      = var.is_dev ? null : data.aws_vpc.identity-search[count.index].id
+  vpc_id      = var.is_dev ? null : var.vpc
 
   ingress {
     from_port = 443
@@ -26,7 +19,7 @@ resource "aws_security_group" "identity-search" {
     protocol  = "tcp"
 
     cidr_blocks = [
-      data.aws_vpc.identity-search[count.index].cidr_block,
+      var.cidr_block
     ]
   }
 }
@@ -36,8 +29,7 @@ resource "aws_opensearch_domain" "identity-search" {
   engine_version = "OpenSearch_1.0"
 
   cluster_config {
-    instance_type          = "m3.medium.search"
-    zone_awareness_enabled = true
+    instance_type          = "t3.medium.search"
   }
 
   vpc_options {
@@ -48,5 +40,10 @@ resource "aws_opensearch_domain" "identity-search" {
 
   advanced_options = {
     "rest.action.multi.allow_explicit_index" = "true"
+  }
+
+  ebs_options {
+    ebs_enabled = true
+    volume_size = 10
   }
 }
