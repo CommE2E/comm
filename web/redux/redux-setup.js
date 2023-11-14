@@ -8,6 +8,14 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import type {
+  ClientDBUserStoreOperation,
+  UserStoreOperation,
+} from 'lib/ops/user-store-ops.js';
+import {
+  convertUserInfosToReplaceUserOps,
+  userStoreOpsHandlers,
+} from 'lib/ops/user-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -133,6 +141,28 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         ...keyserverInfos[keyserverID],
       };
     }
+
+    (async () => {
+      const userStoreOperations: $ReadOnlyArray<UserStoreOperation> = [
+        { type: 'remove_all_users' },
+        ...convertUserInfosToReplaceUserOps(userInfos),
+      ];
+      const dbOperations: $ReadOnlyArray<ClientDBUserStoreOperation> =
+        userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
+
+      const databaseModule = await getDatabaseModule();
+      const isSupported = await databaseModule.isDatabaseSupported();
+      if (!isSupported) {
+        return;
+      }
+      await databaseModule.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: {
+          userStoreOperations: dbOperations,
+        },
+      });
+    })();
+
     return validateState(oldState, {
       ...state,
       ...rest,
@@ -205,9 +235,17 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     state = baseReducerResult.state;
 
     const {
-      storeOperations: { draftStoreOperations, reportStoreOperations },
+      storeOperations: {
+        draftStoreOperations,
+        reportStoreOperations,
+        userStoreOperations,
+      },
     } = baseReducerResult;
-    if (draftStoreOperations.length > 0 || reportStoreOperations.length > 0) {
+    if (
+      draftStoreOperations.length > 0 ||
+      reportStoreOperations.length > 0 ||
+      userStoreOperations.length > 0
+    ) {
       (async () => {
         const databaseModule = await getDatabaseModule();
         const isSupported = await databaseModule.isDatabaseSupported();
@@ -216,11 +254,14 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         }
         const convertedReportStoreOperations =
           reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
+        const convertedUserStoreOperations =
+          userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
         await databaseModule.schedule({
           type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
           storeOperations: {
             draftStoreOperations,
             reportStoreOperations: convertedReportStoreOperations,
+            userStoreOperations: convertedUserStoreOperations,
           },
         });
       })();
