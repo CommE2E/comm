@@ -3,9 +3,9 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { PossiblyStaleNavigationState } from '@react-navigation/core';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainer } from '@react-navigation/native';
-import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';

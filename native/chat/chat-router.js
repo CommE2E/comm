@@ -8,7 +8,7 @@ import type {
   StackNavigationState,
   RouterConfigOptions,
   GenericNavigationAction,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import { StackRouter, CommonActions } from '@react-navigation/native';
 
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';

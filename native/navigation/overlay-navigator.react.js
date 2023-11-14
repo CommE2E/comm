@@ -9,7 +9,7 @@ import type {
   ParamListBase,
   StackNavigationHelpers,
   ScreenListeners,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import {
   useNavigationBuilder,
   createNavigatorFactory,

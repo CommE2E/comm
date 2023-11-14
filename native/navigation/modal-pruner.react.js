@@ -3,7 +3,7 @@
 import type {
   PossiblyStaleNavigationState,
   PossiblyStaleRoute,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
 

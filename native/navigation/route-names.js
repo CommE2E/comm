@@ -1,6 +1,6 @@
 // @flow
 
-import type { RouteProp } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/core';
 
 import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { InviteLinkModalParams } from './invite-link-modal.react';
