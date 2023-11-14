@@ -9,14 +9,11 @@ import {
   updateRelationshipsActionTypes,
   updateRelationships,
 } from 'lib/actions/relationship-actions.js';
-import {
-  searchUsersActionTypes,
-  searchUsers,
-} from 'lib/actions/user-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors.js';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
+import { useSearchUsers } from 'lib/shared/search-utils.js';
 import {
   userRelationshipStatus,
   relationshipActions,
@@ -93,42 +90,44 @@ type Props = {
   +route: NavigationRoute<'FriendList' | 'BlockList'>,
 };
 function RelationshipList(props: Props): React.Node {
-  const callSearchUsers = useServerCall(searchUsers);
   const userInfos = useSelector(state => state.userStore.userInfos);
-  const searchUsersOnServer = React.useCallback(
-    async (usernamePrefix: string) => {
-      if (usernamePrefix.length === 0) {
-        return [];
-      }
-
-      const userInfosResult = await callSearchUsers(usernamePrefix);
-      return userInfosResult.userInfos;
-    },
-    [callSearchUsers],
-  );
 
   const [searchInputText, setSearchInputText] = React.useState<string>('');
   const [userStoreSearchResults, setUserStoreSearchResults] = React.useState<
     $ReadOnlySet<string>,
   >(new Set());
-  const [serverSearchResults, setServerSearchResults] = React.useState<
-    $ReadOnlyArray<GlobalAccountUserInfo>,
-  >([]);
 
   const { route } = props;
   const routeName = route.name;
-  const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
-  const onChangeSearchText = React.useCallback(
-    async (searchText: string) => {
-      setSearchInputText(searchText);
-
-      const excludeStatuses = {
+  const excludeStatuses = React.useMemo(
+    () =>
+      ({
         [FriendListRouteName]: [
           userRelationshipStatus.BLOCKED_VIEWER,
           userRelationshipStatus.BOTH_BLOCKED,
         ],
         [BlockListRouteName]: [],
-      }[routeName];
+      }[routeName]),
+    [routeName],
+  );
+
+  const serverSearchResults = useSearchUsers(searchInputText);
+  const filteredServerSearchResults = React.useMemo(
+    () =>
+      serverSearchResults.filter(searchUserInfo => {
+        const userInfo = userInfos[searchUserInfo.id];
+        return (
+          !userInfo || !excludeStatuses.includes(userInfo.relationshipStatus)
+        );
+      }),
+    [serverSearchResults, userInfos, excludeStatuses],
+  );
+
+  const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
+  const onChangeSearchText = React.useCallback(
+    async (searchText: string) => {
+      setSearchInputText(searchText);
+
       const results = userStoreSearchIndex
         .getSearchResults(searchText)
         .filter(userID => {
@@ -136,19 +135,8 @@ function RelationshipList(props: Props): React.Node {
           return !excludeStatuses.includes(relationship);
         });
       setUserStoreSearchResults(new Set(results));
-
-      const searchResultsFromServer = await searchUsersOnServer(searchText);
-      const filteredServerSearchResults = searchResultsFromServer.filter(
-        searchUserInfo => {
-          const userInfo = userInfos[searchUserInfo.id];
-          return (
-            !userInfo || !excludeStatuses.includes(userInfo.relationshipStatus)
-          );
-        },
-      );
-      setServerSearchResults(filteredServerSearchResults);
     },
-    [routeName, userStoreSearchIndex, userInfos, searchUsersOnServer],
+    [userStoreSearchIndex, userInfos, excludeStatuses],
   );
 
   const overlayContext = React.useContext(OverlayContext);
@@ -336,7 +324,7 @@ function RelationshipList(props: Props): React.Node {
     }
 
     const mergedUserInfos: { [id: string]: AccountUserInfo } = {};
-    for (const userInfo of serverSearchResults) {
+    for (const userInfo of filteredServerSearchResults) {
       mergedUserInfos[userInfo.id] = userInfo;
     }
     for (const id of userStoreSearchResults) {
@@ -380,7 +368,7 @@ function RelationshipList(props: Props): React.Node {
     routeName,
     viewerID,
     currentTags,
-    serverSearchResults,
+    filteredServerSearchResults,
     userStoreSearchResults,
     userInfos,
   ]);
@@ -489,7 +477,6 @@ const unboundStyles = {
   },
 };
 
-registerFetchKey(searchUsersActionTypes);
 registerFetchKey(updateRelationshipsActionTypes);
 
 const MemoizedRelationshipList: React.ComponentType<Props> =
