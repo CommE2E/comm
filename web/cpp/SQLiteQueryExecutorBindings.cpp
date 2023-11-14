@@ -1,4 +1,6 @@
 #include "SQLiteQueryExecutor.cpp"
+#include "entities/NullableString.h"
+
 #include <emscripten/bind.h>
 #include <vector>
 
@@ -7,6 +9,10 @@ namespace comm {
 using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
+  value_object<NullableString>("NullableString")
+      .field("value", &NullableString::value)
+      .field("isNull", &NullableString::isNull);
+
   value_object<Draft>("Draft")
       .field("key", &Draft::key)
       .field("text", &Draft::text);
