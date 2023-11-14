@@ -281,6 +281,7 @@
 
   /* Modal */
   --modal-background-primary-default: var(--shades-black-85);
+  --modal-background-secondary-default: var(--shades-black-90);
   --modal-header-primary-default: var(--shades-white-100);
   --modal-close-primary-default: var(--shades-black-50);
   --modal-close-primary-hover: var(--shades-white-100);
@@ -329,6 +330,7 @@
 
   /* Modal */
   --modal-background-primary-default: var(--shades-white-100);
+  --modal-background-secondary-default: var(--shades-white-80);
   --modal-header-primary-default: var(--shades-black-95);
   --modal-close-primary-default: var(--shades-black-50);
   --modal-close-primary-hover: var(--shades-black-95);
