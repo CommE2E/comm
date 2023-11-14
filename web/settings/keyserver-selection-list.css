@@ -1,0 +1,12 @@
+.container {
+  flex: 1;
+  background-color: var(--panel-background-primary-default);
+  padding: 40px;
+}
+
+.header {
+  color: var(--text-background-primary-default);
+  font-weight: var(--semi-bold);
+  line-height: var(--line-height-display);
+  margin-bottom: 16px;
+}
