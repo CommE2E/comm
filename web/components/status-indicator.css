@@ -1,0 +1,30 @@
+.indicatorOuter {
+  border-radius: 50%;
+  height: 18px;
+  width: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.indicatorInner {
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+}
+
+.outerActive {
+  background-color: var(--statusIndicator-background-outer-active);
+}
+
+.innerActive {
+  background-color: var(--statusIndicator-background-inner-active);
+}
+
+.outerInactive {
+  background-color: var(--statusIndicator-background-outer-inactive);
+}
+
+.innerInactive {
+  background-color: var(--statusIndicator-background-inner-inactive);
+}
