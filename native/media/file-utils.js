@@ -56,7 +56,7 @@ async function fetchFileInfo(
   result: MediaMissionFailure | FetchFileInfoResult,
 }> {
   const { mediaNativeID } = optionalInputs;
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   let assetInfoPromise, assetURI;
   const inputPath = pathFromURI(inputURI);
