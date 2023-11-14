@@ -179,7 +179,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
     'encryptMedia should only be called on unencrypted photos and videos',
   );
   const { uploadURI } = preprocessedMedia;
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   // Encrypt the media file
   const { steps: encryptionSteps, result: encryptionResult } =

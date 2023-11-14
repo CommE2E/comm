@@ -72,7 +72,7 @@ async function fetchBlob(inputURI: string): Promise<{
   result: MediaMissionFailure | FetchBlobResult,
 }> {
   const uri = getFetchableURI(inputURI);
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   let blob, fetchExceptionMessage;
   const fetchStart = Date.now();
