@@ -83,7 +83,7 @@ resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
   name         = "tunnelbroker-undelivered-messages"
   hash_key     = "deviceID"
   range_key    = "messageID"
-  billing_mode = "PAY_PER_REQUEST"
+  billing_mode = "PAY_PER_REQUEST" 
 
   attribute {
     name = "deviceID"
@@ -99,7 +99,10 @@ resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
 resource "aws_dynamodb_table" "identity-users" {
   name         = "identity-users"
   hash_key     = "userID"
-  billing_mode = "PAY_PER_REQUEST"
+  billing_mode = "PAY_PER_REQUEST" 
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+
 
   attribute {
     name = "userID"
