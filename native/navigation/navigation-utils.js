@@ -5,7 +5,7 @@ import type {
   PossiblyStaleRoute,
   StaleLeafRoute,
   ScreenParams,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import invariant from 'invariant';
 
 import {

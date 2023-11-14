@@ -1,6 +1,6 @@
 // @flow
 
-import type { StackOptions } from '@react-navigation/stack';
+import type { StackOptions } from '@react-navigation/core';
 import { Platform } from 'react-native';
 
 const defaultStackScreenOptions: StackOptions = {

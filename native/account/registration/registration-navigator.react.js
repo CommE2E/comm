@@ -1,10 +1,10 @@
 // @flow
 
-import {
-  createStackNavigator,
-  type StackNavigationProp,
-  type StackNavigationHelpers,
-} from '@react-navigation/stack';
+import type {
+  StackNavigationProp,
+  StackNavigationHelpers,
+} from '@react-navigation/core';
+import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
 import AvatarSelection from './avatar-selection.react.js';

@@ -1,6 +1,7 @@
 // @flow
 
-import { Header, type StackHeaderProps } from '@react-navigation/stack';
+import type { StackHeaderProps } from '@react-navigation/core';
+import { Header } from '@react-navigation/stack';
 import * as React from 'react';
 
 import DisconnectedBar from './disconnected-bar.react.js';

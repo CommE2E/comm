@@ -1,10 +1,10 @@
 // @flow
 
-import {
-  createStackNavigator,
-  type StackNavigationHelpers,
-  type StackNavigationProp,
-} from '@react-navigation/stack';
+import type {
+  StackNavigationHelpers,
+  StackNavigationProp,
+} from '@react-navigation/core';
+import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

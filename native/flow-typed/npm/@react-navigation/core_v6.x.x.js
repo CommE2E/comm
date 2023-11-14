@@ -5,9 +5,6 @@ declare module '@react-navigation/core' {
 
   //---------------------------------------------------------------------------
   // SECTION 1: IDENTICAL TYPE DEFINITIONS
-  // This section is identical across all React Navigation libdefs and contains
-  // shared definitions. We wish we could make it DRY and import from a shared
-  // definition, but that isn't yet possible.
   //---------------------------------------------------------------------------
 
   /**
@@ -27,9 +24,9 @@ declare module '@react-navigation/core' {
     | ''
     | $ReadOnlyArray<StyleObj>
     | { [name: string]: any, ... };
-  declare type ViewStyleProp = StyleObj;
-  declare type TextStyleProp = StyleObj;
-  declare type AnimatedViewStyleProp = StyleObj;
+  declare export type ViewStyleProp = StyleObj;
+  declare export type TextStyleProp = StyleObj;
+  declare export type AnimatedViewStyleProp = StyleObj;
   declare type AnimatedTextStyleProp = StyleObj;
 
   // Vaguely copied from
@@ -180,7 +177,7 @@ declare module '@react-navigation/core' {
       >,
     |}>,
   |}>;
-  declare type PressEvent = ResponderSyntheticEvent<
+  declare export type PressEvent = ResponderSyntheticEvent<
     $ReadOnly<{|
       changedTouches: $ReadOnlyArray<$PropertyType<PressEvent, 'nativeEvent'>>,
       force: number,
@@ -303,7 +300,7 @@ declare module '@react-navigation/core' {
   |}>;
 
   // Copied from react-native/Libraries/Image/ImageSource.js
-  declare type ImageURISource = $ReadOnly<{
+  declare export type ImageURISource = $ReadOnly<{
     uri?: ?string,
     bundle?: ?string,
     method?: ?string,
@@ -404,7 +401,7 @@ declare module '@react-navigation/core' {
     children?: React$Node,
   |}>;
 
-  declare type PanGestureHandlerProps = $GestureHandlerProps<
+  declare export type PanGestureHandlerProps = $GestureHandlerProps<
     {
       activeOffsetY?: number | [number, number],
       activeOffsetX?: number | [number, number],
@@ -1338,7 +1335,7 @@ declare module '@react-navigation/core' {
     +labelVisible: boolean,
   |}>;
 
-  declare type HeaderTitleInputBase = {
+  declare export type HeaderTitleInputBase = {
     +onLayout: LayoutEvent => void,
     +children: string,
     +allowFontScaling: ?boolean,
@@ -1514,7 +1511,7 @@ declare module '@react-navigation/core' {
    * Miscellaneous stack exports
    */
 
-  declare type StackNavigationConfig = {|
+  declare export type StackNavigationConfig = {|
     +detachInactiveScreens?: boolean,
   |};
 
@@ -1658,7 +1655,7 @@ declare module '@react-navigation/core' {
     BottomTabOptions,
   >;
 
-  declare type BottomTabNavigationBuilderResult = {|
+  declare export type BottomTabNavigationBuilderResult = {|
     +state: TabNavigationState,
     +navigation: BottomTabNavigationHelpers<>,
     +descriptors: {| +[key: string]: BottomTabDescriptor |},
@@ -1666,7 +1663,7 @@ declare module '@react-navigation/core' {
 
   declare export type BottomTabBarProps = BottomTabNavigationBuilderResult;
 
-  declare type BottomTabNavigationConfig = {|
+  declare export type BottomTabNavigationConfig = {|
     +tabBar?: BottomTabBarProps => React$Node,
     +safeAreaInsets?: $Partial<EdgeInsets>,
     +detachInactiveScreens?: boolean,
@@ -1969,7 +1966,7 @@ declare module '@react-navigation/core' {
     MaterialBottomTabOptions,
   >;
 
-  declare type MaterialTopTabNavigationBuilderResult = {|
+  declare export type MaterialTopTabNavigationBuilderResult = {|
     +state: TabNavigationState,
     +navigation: MaterialTopTabNavigationHelpers<>,
     +descriptors: {| +[key: string]: MaterialTopTabDescriptor |},
@@ -2110,7 +2107,7 @@ declare module '@react-navigation/core' {
     DrawerOptions,
   >;
 
-  declare type DrawerNavigationBuilderResult = {|
+  declare export type DrawerNavigationBuilderResult = {|
     +state: DrawerNavigationState,
     +navigation: DrawerNavigationHelpers<>,
     +descriptors: {| +[key: string]: DrawerDescriptor |},
@@ -2177,7 +2174,7 @@ declare module '@react-navigation/core' {
     +isReady: () => boolean,
   |};
 
-  declare type BaseNavigationContainerInterfaceRef = {|
+  declare export type BaseNavigationContainerInterfaceRef = {|
     ...BaseNavigationContainerInterface,
     +current: BaseNavigationContainerInterface | null,
   |};
@@ -2257,8 +2254,6 @@ declare module '@react-navigation/core' {
 
   //---------------------------------------------------------------------------
   // SECTION 2: EXPORTED MODULE
-  // This section defines the module exports and contains exported types that
-  // are not present in any other React Navigation libdef.
   //---------------------------------------------------------------------------
 
   /**

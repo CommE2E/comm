@@ -1,6 +1,7 @@
 // @flow
 
-import { type LeafRoute, useRoute } from '@react-navigation/native';
+import type { LeafRoute } from '@react-navigation/core';
+import { useRoute } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';

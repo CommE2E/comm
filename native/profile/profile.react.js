@@ -1,11 +1,11 @@
 // @flow
 
-import {
-  createStackNavigator,
-  type StackNavigationProp,
-  type StackNavigationHelpers,
-  type StackHeaderProps,
-} from '@react-navigation/stack';
+import type {
+  StackNavigationProp,
+  StackNavigationHelpers,
+  StackHeaderProps,
+} from '@react-navigation/core';
+import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 
