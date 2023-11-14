@@ -139,7 +139,7 @@ async function innerProcessMedia(
     }
   };
 
-  const steps = [],
+  const steps: Array<MediaMissionStep> = [],
     completeBeforeFinish = [];
   const finish = async (failure?: MediaMissionFailure) => {
     if (!resultReturned) {

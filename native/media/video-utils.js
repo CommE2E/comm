@@ -58,7 +58,7 @@ async function processVideo(
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessVideoResponse,
 }> {
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
 
   const path = pathFromURI(input.uri);
   invariant(path, `could not extract path from ${input.uri}`);

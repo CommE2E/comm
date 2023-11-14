@@ -59,6 +59,7 @@ import type {
   NativeMediaSelection,
   MediaMissionResult,
   MediaMission,
+  MediaMissionStep,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -728,7 +729,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { ids, selection } = uploadFileInput;
     const { localMediaID } = ids;
     const start = selection.sendTime;
-    const steps = [selection];
+    const steps: Array<MediaMissionStep> = [selection];
     let encryptionSteps = [];
     let serverID;
     let userTime;
