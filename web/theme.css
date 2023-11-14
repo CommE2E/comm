@@ -294,6 +294,12 @@
   --inputField-border-primary-default: var(--shades-black-75);
   --inputField-clearBackground-primary-default: var(--shades-black-60);
   --inputField-clearIcon-primary-default: var(--shades-white-100);
+
+  /* Status Indicator */
+  --statusIndicator-background-outer-active: var(--success-dark-90);
+  --statusIndicator-background-outer-inactive: var(--error-dark-90);
+  --statusIndicator-background-inner-active: var(--success-primary);
+  --statusIndicator-background-inner-inactive: var(--error-primary);
 }
 
 /* Light theme */
@@ -336,4 +342,10 @@
   --inputField-border-primary-default: var(--shades-white-60);
   --inputField-clearBackground-primary-default: var(--shades-black-50);
   --inputField-clearIcon-primary-default: var(--shades-white-100);
+
+  /* Status Indicator */
+  --statusIndicator-background-outer-active: var(--success-dark-50);
+  --statusIndicator-background-outer-inactive: var(--error-dark-50);
+  --statusIndicator-background-inner-active: var(--success-primary);
+  --statusIndicator-background-inner-inactive: var(--error-primary);
 }
