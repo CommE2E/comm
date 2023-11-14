@@ -8,6 +8,7 @@ import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.j
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops';
 import type { OLMOneTimeKeys } from 'lib/types/crypto-types';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
@@ -69,6 +70,9 @@ interface Spec extends TurboModule {
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
+  +processUserStoreOperations: (
+    operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
+  ) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getPrimaryOneTimeKeys: (

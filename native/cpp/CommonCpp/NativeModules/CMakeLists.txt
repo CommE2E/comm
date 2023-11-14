@@ -17,6 +17,7 @@ set(NATIVE_HDRS
   "ThreadStoreOperations.h"
   "ReportStoreOperations.h"
   "DraftStoreOperations.h"
+  "UserStoreOperations.h"
 )
 
 set(NATIVE_SRCS
@@ -77,12 +78,14 @@ set(DATA_STORES_HDRS
   ${_data_stores_path}/ThreadStore.h
   ${_data_stores_path}/MessageStore.h
   ${_data_stores_path}/ReportStore.h
+  ${_data_stores_path}/UserStore.h
 )
 set(DATA_STORES_SRCS
   ${_data_stores_path}/DraftStore.cpp
   ${_data_stores_path}/ThreadStore.cpp
   ${_data_stores_path}/MessageStore.cpp
   ${_data_stores_path}/ReportStore.cpp
+  ${_data_stores_path}/UserStore.cpp
 )
 
 add_library(comm-modules-persistentstorage
