@@ -1,6 +1,7 @@
 // @flow
 
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
+// import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops.js';
 import type {
   ClientDBDraftStoreOperation,
   DraftStoreOperation,
@@ -50,6 +51,30 @@ function processReportStoreOperations(
   }
 }
 
+// function processUserStoreOperations(
+//   sqliteQueryExecutor: SQLiteQueryExecutor,
+//   operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
+// ) {
+//   for (const operation: ClientDBUserStoreOperation of operations) {
+//     if (operation.type === 'remove_all_users') {
+//       sqliteQueryExecutor.removeAllUsers();
+//     } else if (operation.type === 'remove_users') {
+//       const { ids } = operation.payload;
+//       sqliteQueryExecutor.removeUsers(ids);
+//     } else if (operation.type === 'replace_user') {
+//       const { id, username, relationshipStatus, avatar } = operation.payload;
+//       sqliteQueryExecutor.replaceUser({
+//         id,
+//         username,
+//         relationshipStatus,
+//         avatar,
+//       });
+//     } else {
+//       throw new Error('Unsupported user operation');
+//     }
+//   }
+// }
+
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
@@ -62,6 +87,9 @@ function processDBStoreOperations(
   if (reportStoreOperations) {
     processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
   }
+  // if (userStoreOperations) {
+  //   processUserStoreOperations(sqliteQueryExecutor, userStoreOperations);
+  // }
 }
 
 function getClientStore(
@@ -73,6 +101,7 @@ function getClientStore(
     threads: [],
     messageStoreThreads: [],
     reports: sqliteQueryExecutor.getAllReports(),
+    users: [],
   };
 }
 

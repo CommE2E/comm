@@ -113,6 +113,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
           std::vector<MessageStoreThread> messageStoreThreadsVector;
           std::vector<Report> reportStoreVector;
+          std::vector<UserInfo> userStoreVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -122,6 +123,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 DatabaseManager::getQueryExecutor().getAllMessageStoreThreads();
             reportStoreVector =
                 DatabaseManager::getQueryExecutor().getAllReports();
+            userStoreVector = DatabaseManager::getQueryExecutor().getAllUsers();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -137,18 +139,22 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                   std::move(messageStoreThreadsVector));
           auto reportStoreVectorPtr = std::make_shared<std::vector<Report>>(
               std::move(reportStoreVector));
+          auto userStoreVectorPtr = std::make_shared<std::vector<UserInfo>>(
+              std::move(userStoreVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
                                          threadsVectorPtr,
                                          messageStoreThreadsVectorPtr,
                                          reportStoreVectorPtr,
+                                         userStoreVectorPtr,
                                          error,
                                          promise,
                                          draftStore = this->draftStore,
                                          threadStore = this->threadStore,
                                          messageStore = this->messageStore,
-                                         reportStore = this->reportStore]() {
+                                         reportStore = this->reportStore,
+                                         userStore = this->userStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
@@ -164,6 +170,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                     innerRt, messageStoreThreadsVectorPtr);
             jsi::Array jsiReportStore =
                 reportStore.parseDBDataStore(innerRt, reportStoreVectorPtr);
+            jsi::Array jsiUserStore =
+                userStore.parseDBDataStore(innerRt, userStoreVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -172,6 +180,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             jsiClientDBStore.setProperty(
                 innerRt, "messageStoreThreads", jsiMessageStoreThreads);
             jsiClientDBStore.setProperty(innerRt, "reports", jsiReportStore);
+            jsiClientDBStore.setProperty(innerRt, "users", jsiUserStore);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
