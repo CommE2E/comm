@@ -1,6 +1,6 @@
 // @flow
 
-import type { PossiblyStaleNavigationState } from '@react-navigation/native';
+import type { PossiblyStaleNavigationState } from '@react-navigation/core';
 import { useRoute } from '@react-navigation/native';
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';

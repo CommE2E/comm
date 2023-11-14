@@ -1,6 +1,6 @@
 // @flow
 
-import type { RouteProp } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/core';
 import * as Haptics from 'expo-haptics';
 import invariant from 'invariant';
 import * as React from 'react';

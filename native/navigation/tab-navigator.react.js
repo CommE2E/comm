@@ -1,10 +1,6 @@
 // @flow
 
 import { BottomTabView } from '@react-navigation/bottom-tabs';
-import {
-  createNavigatorFactory,
-  useNavigationBuilder,
-} from '@react-navigation/native';
 import type {
   BottomTabNavigationEventMap,
   BottomTabOptions,
@@ -15,6 +11,10 @@ import type {
   BottomTabNavigationProp,
   ExtraBottomTabNavigatorProps,
   BottomTabNavigatorProps,
+} from '@react-navigation/core';
+import {
+  createNavigatorFactory,
+  useNavigationBuilder,
 } from '@react-navigation/native';
 import * as React from 'react';
 

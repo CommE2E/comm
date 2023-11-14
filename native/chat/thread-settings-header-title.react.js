@@ -1,9 +1,7 @@
 // @flow
 
-import {
-  HeaderTitle,
-  type HeaderTitleInputProps,
-} from '@react-navigation/elements';
+import type { HeaderTitleInputProps } from '@react-navigation/core';
+import { HeaderTitle } from '@react-navigation/elements';
 import * as React from 'react';
 
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
