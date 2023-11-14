@@ -30,7 +30,7 @@ async function processImage(input: ProcessImageInfo): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessImageResponse,
 }> {
-  const steps = [];
+  const steps: Array<MediaMissionStep> = [];
   let { uri, dimensions, mime } = input;
 
   const { fileSize, orientation } = input;
