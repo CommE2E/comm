@@ -8,6 +8,7 @@
 #include "PersistentStorageUtilities/DataStores/MessageStore.h"
 #include "PersistentStorageUtilities/DataStores/ReportStore.h"
 #include "PersistentStorageUtilities/DataStores/ThreadStore.h"
+#include "PersistentStorageUtilities/DataStores/UserStore.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 #include <memory>
@@ -29,6 +30,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   ThreadStore threadStore;
   MessageStore messageStore;
   ReportStore reportStore;
+  UserStore userStore;
 
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
@@ -59,6 +61,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void processThreadStoreOperationsSync(
       jsi::Runtime &rt,
       jsi::Array operations) override;
+  virtual jsi::Value
+  processUserStoreOperations(jsi::Runtime &rt, jsi::Array operations) override;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value
