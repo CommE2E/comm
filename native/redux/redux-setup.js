@@ -249,6 +249,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     messageStoreOperations,
     threadStoreOperations: threadStoreOperationsWithUnreadFix,
     reportStoreOperations,
+    userStoreOperations: [],
   });
 
   return state;

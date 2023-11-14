@@ -1,7 +1,7 @@
 // @flow
 
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
-// import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops.js';
+import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops.js';
 import type {
   ClientDBDraftStoreOperation,
   DraftStoreOperation,
@@ -11,6 +11,7 @@ import type {
   ClientDBStoreOperations,
 } from 'lib/types/store-ops-types.js';
 
+import type { ClientDBUserInfoWeb } from '../types/entiities.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
 function processDraftStoreOperations(
@@ -51,35 +52,39 @@ function processReportStoreOperations(
   }
 }
 
-// function processUserStoreOperations(
-//   sqliteQueryExecutor: SQLiteQueryExecutor,
-//   operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
-// ) {
-//   for (const operation: ClientDBUserStoreOperation of operations) {
-//     if (operation.type === 'remove_all_users') {
-//       sqliteQueryExecutor.removeAllUsers();
-//     } else if (operation.type === 'remove_users') {
-//       const { ids } = operation.payload;
-//       sqliteQueryExecutor.removeUsers(ids);
-//     } else if (operation.type === 'replace_user') {
-//       const { id, username, relationshipStatus, avatar } = operation.payload;
-//       sqliteQueryExecutor.replaceUser({
-//         id,
-//         username,
-//         relationshipStatus,
-//         avatar,
-//       });
-//     } else {
-//       throw new Error('Unsupported user operation');
-//     }
-//   }
-// }
+function processUserStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
+) {
+  for (const operation: ClientDBUserStoreOperation of operations) {
+    if (operation.type === 'remove_all_users') {
+      sqliteQueryExecutor.removeAllUsers();
+    } else if (operation.type === 'remove_users') {
+      const { ids } = operation.payload;
+      sqliteQueryExecutor.removeUsers(ids);
+    } else if (operation.type === 'replace_user') {
+      const { id, username, relationshipStatus, avatar } = operation.payload;
+      sqliteQueryExecutor.replaceUserWeb({
+        id,
+        username: { isNull: !username, value: username ?? '' },
+        relationshipStatus: {
+          isNull: !relationshipStatus,
+          value: relationshipStatus ?? '',
+        },
+        avatar: { isNull: !avatar, value: avatar ?? '' },
+      });
+    } else {
+      throw new Error('Unsupported user operation');
+    }
+  }
+}
 
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
 ) {
-  const { draftStoreOperations, reportStoreOperations } = storeOperations;
+  const { draftStoreOperations, reportStoreOperations, userStoreOperations } =
+    storeOperations;
 
   if (draftStoreOperations) {
     processDraftStoreOperations(sqliteQueryExecutor, draftStoreOperations);
@@ -87,9 +92,9 @@ function processDBStoreOperations(
   if (reportStoreOperations) {
     processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
   }
-  // if (userStoreOperations) {
-  //   processUserStoreOperations(sqliteQueryExecutor, userStoreOperations);
-  // }
+  if (userStoreOperations) {
+    processUserStoreOperations(sqliteQueryExecutor, userStoreOperations);
+  }
 }
 
 function getClientStore(
@@ -101,7 +106,22 @@ function getClientStore(
     threads: [],
     messageStoreThreads: [],
     reports: sqliteQueryExecutor.getAllReports(),
-    users: [],
+    users: sqliteQueryExecutor
+      .getAllUsersWeb()
+      .map((user: ClientDBUserInfoWeb) => {
+        const partialUserInfo = {
+          id: user.id,
+          username: user.username.isNull ? null : user.username.value,
+          avatar: user.avatar.isNull ? null : user.avatar.value,
+        };
+        if (user.relationshipStatus.isNull) {
+          return partialUserInfo;
+        }
+        return {
+          ...partialUserInfo,
+          relationshipStatus: user.relationshipStatus.value,
+        };
+      }),
   };
 }
 
