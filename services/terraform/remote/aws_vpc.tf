@@ -42,6 +42,30 @@ resource "aws_subnet" "public_c" {
   map_public_ip_on_launch = true
 }
 
+resource "aws_vpc_endpoint" "dynamodb_endpoint" {
+  vpc_id = aws_vpc.default.id
+  service_name = "com.amazonaws.us-east-2.dynamodb"
+  vpc_endpoint_type = "Gateway"
+
+  policy = <<POLICY
+  {
+  "Statement": [
+      {
+      "Action": "*",
+      "Effect": "Allow",
+      "Resource": "*",
+      "Principal": "*"
+      }
+  ]
+  }
+  POLICY
+}
+
+resource "aws_vpc_endpoint_route_table_association" "dynamodb_endpoint" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.dynamodb_endpoint.id}"
+  route_table_id  = "${aws_vpc.default.main_route_table_id}"
+}
+
 # These are described in AWS console as:
 # > The following subnets have not been explicitly associated
 # > with any route tables and are therefore associated with the main route table:
