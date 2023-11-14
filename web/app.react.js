@@ -66,6 +66,7 @@ import { MessageSearchStateProvider } from './search/message-search-state-provid
 import { createTunnelbrokerInitMessage } from './selectors/tunnelbroker-selectors.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
+import KeyserverSelectionList from './settings/keyserver-selection-list.react.js';
 import CommunityPicker from './sidebar/community-picker.react.js';
 import Splash from './splash/splash.react.js';
 import './typography.css';
@@ -292,7 +293,7 @@ class App extends React.PureComponent<Props> {
       if (settingsSection === 'account') {
         mainContent = <AccountSettings />;
       } else if (settingsSection === 'keyservers') {
-        mainContent = null;
+        mainContent = <KeyserverSelectionList />;
       } else if (settingsSection === 'danger-zone') {
         mainContent = <DangerZone />;
       }
