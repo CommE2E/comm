@@ -1,16 +1,18 @@
 // @flow
 
+import type {
+  StackNavigationState,
+  StackOptions,
+  StackNavigationEventMap,
+  StackNavigatorProps,
+  ExtraStackNavigatorProps,
+  ParamListBase,
+  StackNavigationHelpers,
+  StackNavigationProp,
+} from '@react-navigation/core';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
-  type StackNavigationState,
-  type StackOptions,
-  type StackNavigationEventMap,
-  type StackNavigatorProps,
-  type ExtraStackNavigatorProps,
-  type ParamListBase,
-  type StackNavigationHelpers,
-  type StackNavigationProp,
 } from '@react-navigation/native';
 import { StackView, TransitionPresets } from '@react-navigation/stack';
 import * as React from 'react';

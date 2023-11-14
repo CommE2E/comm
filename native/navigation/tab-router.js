@@ -5,7 +5,7 @@ import type {
   RouterConfigOptions,
   TabRouterOptions,
   TabNavigationState,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import { TabRouter } from '@react-navigation/native';
 
 import {

@@ -1,23 +1,23 @@
 // @flow
 
-import {
-  createMaterialTopTabNavigator,
-  type MaterialTopTabNavigationProp,
-} from '@react-navigation/material-top-tabs';
+import type {
+  MaterialTopTabNavigationProp,
+  StackNavigationState,
+  StackOptions,
+  StackNavigationEventMap,
+  StackNavigatorProps,
+  ExtraStackNavigatorProps,
+  StackHeaderProps,
+  StackNavigationProp,
+  StackNavigationHelpers,
+  ParamListBase,
+} from '@react-navigation/core';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
-  type StackNavigationState,
-  type StackOptions,
-  type StackNavigationEventMap,
-  type StackNavigatorProps,
-  type ExtraStackNavigatorProps,
-  type StackHeaderProps as CoreStackHeaderProps,
-  type StackNavigationProp,
-  type StackNavigationHelpers,
-  type ParamListBase,
 } from '@react-navigation/native';
-import { StackView, type StackHeaderProps } from '@react-navigation/stack';
+import { StackView } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, View, useWindowDimensions } from 'react-native';
@@ -205,7 +205,7 @@ const createChatNavigator = createNavigatorFactory<
   ExtraStackNavigatorProps,
 >(ChatNavigator);
 
-const header = (props: CoreStackHeaderProps) => {
+const header = (props: StackHeaderProps) => {
   // Flow has trouble reconciling identical types between different libdefs,
   // and flow-typed has no way for one libdef to depend on another
   const castProps: StackHeaderProps = (props: any);
