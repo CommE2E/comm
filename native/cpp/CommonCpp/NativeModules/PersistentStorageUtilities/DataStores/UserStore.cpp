@@ -16,7 +16,15 @@ UserStore::UserStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
 jsi::Array UserStore::parseDBDataStore(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<UserInfo>> usersVectorPtr) const {
-  jsi::Array jsiUsers = jsi::Array(rt, 0);
+  size_t numUsers = usersVectorPtr->size();
+  jsi::Array jsiUsers = jsi::Array(rt, numUsers);
+  size_t writeIdx = 0;
+  for (const UserInfo &user : *usersVectorPtr) {
+    jsi::Object jsiUser = jsi::Object(rt);
+    jsiUser.setProperty(rt, "id", user.id);
+    jsiUser.setProperty(rt, "userInfo", user.user_info);
+    jsiUsers.setValueAtIndex(rt, writeIdx++, jsiUser);
+  }
   return jsiUsers;
 }
 
