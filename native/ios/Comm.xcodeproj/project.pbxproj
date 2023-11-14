@@ -1247,7 +1247,13 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
 					/usr/lib/swift,
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
@@ -1383,7 +1389,13 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
 					/usr/lib/swift,
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
+				);
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
 					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
 				);
 				ONLY_ACTIVE_ARCH = YES;
