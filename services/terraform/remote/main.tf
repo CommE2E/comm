@@ -51,6 +51,13 @@ locals {
 module "shared" {
   source             = "../modules/shared"
   bucket_name_suffix = local.s3_bucket_name_suffix
+
+  vpc                = aws_vpc.default.id
+  cidr_block         = aws_vpc.default.cidr_block
+  iam_role_arn       = aws_iam_role.search_index_lambda_role.arn
+  subnet_ids         = [ 
+                        aws_subnet.public_a.id,
+                       ]
 }
 
 check "workspace_check" {
