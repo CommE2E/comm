@@ -27,6 +27,12 @@ import {
 } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
+import {
+  type ClientDBUserStoreOperation,
+  type UserStoreOperation,
+  convertUserInfosToReplaceUserOps,
+  userStoreOpsHandlers,
+} from 'lib/ops/user-store-ops.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
@@ -892,6 +898,24 @@ const migrations = {
       },
     };
   },
+  [58]: async (state: AppState) => {
+    const userStoreOperations: $ReadOnlyArray<UserStoreOperation> = [
+      { type: 'remove_all_users' },
+      ...convertUserInfosToReplaceUserOps(state.userStore.userInfos),
+    ];
+    const dbOperations: $ReadOnlyArray<ClientDBUserStoreOperation> =
+      userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
+
+    try {
+      await commCoreModule.processUserStoreOperations(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return { ...state, cookie: null };
+    }
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1006,7 +1030,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 57,
+  version: 58,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
