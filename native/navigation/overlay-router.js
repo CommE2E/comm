@@ -8,7 +8,7 @@ import type {
   StackNavigationState,
   RouterConfigOptions,
   ScreenParams,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import { StackRouter, CommonActions } from '@react-navigation/native';
 
 import {

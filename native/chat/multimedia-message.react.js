@@ -4,7 +4,7 @@ import type {
   LeafRoute,
   NavigationProp,
   ParamListBase,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { View } from 'react-native';

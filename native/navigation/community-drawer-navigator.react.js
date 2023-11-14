@@ -1,10 +1,10 @@
 // @flow
 
-import {
-  createDrawerNavigator,
-  type DrawerNavigationHelpers,
-  type DrawerNavigationProp,
-} from '@react-navigation/drawer';
+import type {
+  DrawerNavigationHelpers,
+  DrawerNavigationProp,
+} from '@react-navigation/core';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import * as React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 

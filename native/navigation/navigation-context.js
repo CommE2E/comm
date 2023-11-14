@@ -3,7 +3,7 @@
 import type {
   CommonAction,
   PossiblyStaleNavigationState,
-} from '@react-navigation/native';
+} from '@react-navigation/core';
 import * as React from 'react';
 
 import type { OverlayRouterNavigationAction } from './overlay-router.js';
