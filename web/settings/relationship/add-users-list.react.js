@@ -6,10 +6,10 @@ import {
   updateRelationships,
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions.js';
-import { searchUsers } from 'lib/actions/user-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
+import { useSearchUsers } from 'lib/shared/search-utils.js';
 import type {
   UserRelationshipStatus,
   RelationshipAction,
@@ -62,20 +62,7 @@ function AddUsersList(props: Props): React.Node {
     );
   }, [searchText, userStoreSearchIndex]);
 
-  const [serverSearchResults, setServerSearchResults] = React.useState<
-    $ReadOnlyArray<GlobalAccountUserInfo>,
-  >([]);
-  const callSearchUsers = useServerCall(searchUsers);
-  React.useEffect(() => {
-    (async () => {
-      if (searchText.length === 0) {
-        setServerSearchResults([]);
-      } else {
-        const { userInfos } = await callSearchUsers(searchText);
-        setServerSearchResults(userInfos);
-      }
-    })();
-  }, [callSearchUsers, searchText]);
+  const serverSearchResults = useSearchUsers(searchText);
 
   const searchTextPresent = searchText.length > 0;
   const userInfos = useSelector(state => state.userStore.userInfos);
