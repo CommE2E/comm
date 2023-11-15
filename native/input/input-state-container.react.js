@@ -4,7 +4,6 @@ import * as FileSystem from 'expo-file-system';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform } from 'react-native';
-import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import {
@@ -96,6 +95,7 @@ import type {
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   generateReportID,
   useIsReportEnabled,

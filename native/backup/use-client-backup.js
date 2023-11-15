@@ -2,7 +2,6 @@
 
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -16,6 +15,7 @@ import {
   encryptBackup,
 } from './encryption.js';
 import { commCoreModule } from '../native-modules.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { generateKey } from '../utils/aes-crypto-module.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
 

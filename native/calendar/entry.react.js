@@ -14,7 +14,6 @@ import {
   LayoutAnimation,
   Keyboard,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
 import shallowequal from 'shallowequal';
 import tinycolor from 'tinycolor2';
 
@@ -58,6 +57,7 @@ import {
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

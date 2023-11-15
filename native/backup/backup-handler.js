@@ -2,7 +2,6 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
@@ -12,6 +11,7 @@ import { BACKUP_HASH_STORAGE_KEY } from './constants.js';
 import { convertObjToBytes } from './conversion-utils.js';
 import { useClientBackup } from './use-client-backup.js';
 import { commUtilsModule } from '../native-modules.js';
+import { useSelector } from '../redux/redux-utils.js';
 import Alert from '../utils/alert.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
