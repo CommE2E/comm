@@ -9,7 +9,10 @@ import {
   configurableCommunityPermissions,
   threadPermissions,
 } from 'lib/types/thread-permission-types.js';
-import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypeIsCommunityRoot,
+  type ThreadType,
+} from 'lib/types/thread-types-enum.js';
 import type {
   RoleInfo,
   RoleModificationRequest,
@@ -97,6 +100,15 @@ async function modifyRole(
 
   const { community, name, permissions } = request;
 
+  const { threadInfos } = await fetchThreadInfos(viewer, {
+    threadID: community,
+  });
+  const threadInfo = threadInfos[community];
+
+  if (!threadTypeIsCommunityRoot(threadInfo.type)) {
+    throw new ServerError('invalid_parameters');
+  }
+
   for (const permission of permissions) {
     if (!userSurfacedPermissionsSet.has(permission)) {
       throw new ServerError('invalid_parameters');
@@ -109,11 +121,6 @@ async function modifyRole(
   const configuredPermissions = permissions
     .map(permission => [...configurableCommunityPermissions[permission]])
     .flat();
-
-  const { threadInfos } = await fetchThreadInfos(viewer, {
-    threadID: community,
-  });
-  const threadInfo = threadInfos[community];
 
   const universalCommunityPermissions =
     getUniversalCommunityRootPermissionsBlob(threadInfo.type);
