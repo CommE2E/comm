@@ -9,13 +9,19 @@ import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import TextInput from '../components/text-input.react.js';
 import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
+type Props = {
+  +navigation: ProfileNavigationProp<'AddKeyserver'>,
+  +route: NavigationRoute<'AddKeyserver'>,
+};
 // eslint-disable-next-line no-unused-vars
-function AddKeyserver(props: { ... }): React.Node {
+function AddKeyserver(props: Props): React.Node {
   const { goBack, setOptions } = useNavigation();
 
   const dispatch = useDispatch();

@@ -5,6 +5,8 @@ import { Text, FlatList, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import AppListing from './app-listing.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useStyles } from '../themes/colors.js';
 
 const APP_DIRECTORY_DATA = [
@@ -24,8 +26,12 @@ const APP_DIRECTORY_DATA = [
   },
 ];
 
+type Props = {
+  +navigation: TabNavigationProp<'Apps'>,
+  +route: NavigationRoute<'Apps'>,
+};
 // eslint-disable-next-line no-unused-vars
-function AppsDirectory(props: { ... }): React.Node {
+function AppsDirectory(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const enabledApps = useSelector(state => state.enabledApps);
 
