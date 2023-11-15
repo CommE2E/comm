@@ -1,14 +1,15 @@
 // @flow
 
-import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import {
-  universalCommunityPermissions,
+  getRolePermissionBlobs,
+  getUniversalCommunityRootPermissionsBlob,
+} from 'lib/permissions/thread-permissions.js';
+import {
   userSurfacedPermissionsSet,
   configurableCommunityPermissions,
   threadPermissions,
 } from 'lib/types/thread-permission-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   RoleInfo,
   RoleModificationRequest,
@@ -109,29 +110,22 @@ async function modifyRole(
     .map(permission => [...configurableCommunityPermissions[permission]])
     .flat();
 
-  const rolePermissions = [
-    ...universalCommunityPermissions,
-    ...configuredPermissions,
-  ];
-
-  // For communities of the type `COMMUNITY_ANNOUNCEMENT_ROOT`, the ability for
-  // the role to be voiced needs to be configured (i.e. the parameters should
-  // include the user-facing permission VOICED_IN_ANNOUNCEMENT_CHANNELS). This
-  // means we do not give 'voiced' permissions by default to all new roles. As
-  // a result, if the thread type is `COMMUNITY_ROOT`, we want to ensure that
-  // the role has the voiced permission.
   const { threadInfos } = await fetchThreadInfos(viewer, {
     threadID: community,
   });
   const threadInfo = threadInfos[community];
 
-  if (threadInfo.type === threadTypes.COMMUNITY_ROOT) {
-    rolePermissions.push(threadPermissions.VOICED);
-  }
+  const universalCommunityPermissions =
+    getUniversalCommunityRootPermissionsBlob(threadInfo.type);
 
-  const permissionsBlob = JSON.stringify(
-    Object.fromEntries(rolePermissions.map(permission => [permission, true])),
+  const rolePermissions = Object.fromEntries(
+    configuredPermissions.map(permission => [permission, true]),
   );
+
+  const permissionsBlob = JSON.stringify({
+    ...universalCommunityPermissions,
+    ...rolePermissions,
+  });
 
   const row = [id, community, name, permissionsBlob, time];
 
