@@ -26,6 +26,10 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
+  MinimallyEncodedResolvedThreadInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
   ThreadInfo,
   ResolvedThreadInfo,
   LeaveThreadPayload,
@@ -49,7 +53,7 @@ import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 export type DeleteThreadParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type BaseProps = {
@@ -59,7 +63,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +shouldUseDeleteConfirmationAlert: boolean,
   +loadingStatus: LoadingStatus,
   +colors: Colors,

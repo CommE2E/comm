@@ -28,7 +28,10 @@ import {
   threadIsChannel,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  MinimallyEncodedResolvedThreadInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -131,20 +134,20 @@ type ChatSettingsItem =
   | {
       +itemType: 'avatar',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +canChangeSettings: boolean,
     }
   | {
       +itemType: 'name',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +nameEditValue: ?string,
       +canChangeSettings: boolean,
     }
   | {
       +itemType: 'color',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +colorEditValue: string,
       +canChangeSettings: boolean,
       +navigate: ThreadSettingsNavigate,
@@ -153,7 +156,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'description',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +descriptionEditValue: ?string,
       +descriptionTextHeight: ?number,
       +canChangeSettings: boolean,
@@ -167,17 +170,17 @@ type ChatSettingsItem =
   | {
       +itemType: 'visibility',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'pushNotifs',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'homeNotifs',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'seeMore',
@@ -221,14 +224,14 @@ type ChatSettingsItem =
   | {
       +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
     }
   | {
       +itemType: 'editRelationship',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
       +relationshipButton: RelationshipButton,
