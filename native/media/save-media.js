@@ -17,7 +17,7 @@ import type {
 } from 'lib/types/media-types.js';
 import {
   reportTypes,
-  type MediaMissionReportCreationRequest,
+  type ClientMediaMissionReportCreationRequest,
 } from 'lib/types/report-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -104,7 +104,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
 
       const { uploadID, messageServerID, messageLocalID } = ids;
       const uploadIDIsLocal = isLocalUploadID(uploadID);
-      const report: MediaMissionReportCreationRequest = {
+      const report: ClientMediaMissionReportCreationRequest = {
         type: reportTypes.MEDIA_MISSION,
         time: Date.now(),
         platformDetails: getConfig().platformDetails,

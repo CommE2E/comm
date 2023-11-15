@@ -73,7 +73,7 @@ import { getMediaMessageServerDBContentsFromMedia } from 'lib/types/messages/med
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import {
-  type MediaMissionReportCreationRequest,
+  type ClientMediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -1266,7 +1266,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     ids: { localID: string, localMessageID: string, serverID: ?string },
     mediaMission: MediaMission,
   ) {
-    const report: MediaMissionReportCreationRequest = {
+    const report: ClientMediaMissionReportCreationRequest = {
       type: reportTypes.MEDIA_MISSION,
       time: Date.now(),
       platformDetails: getConfig().platformDetails,
