@@ -127,7 +127,10 @@ list(APPEND GENERATED_NATIVE_CODE
   "../../cpp/CommonCpp/_generated/utilsJSI-generated.cpp"
   "../../cpp/CommonCpp/_generated/rustJSI-generated.cpp"
 )
-set(RUST_NATIVE_CODE "../../native_rust_library/RustCallback.cpp")
+list(APPEND RUST_NATIVE_CODE
+  "../../native_rust_library/RustCallback.cpp"
+  "../../native_rust_library/RustSecureStore.cpp"
+)
 file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
 file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
 file(GLOB DB_ENTITIES_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/entities/*.cpp")
