@@ -1,10 +1,12 @@
 // @flow
 
-import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
+import {
+  getRolePermissionBlobs,
+  getUniversalCommunityRootPermissionsBlob,
+} from 'lib/permissions/thread-permissions.js';
 import {
   configurableCommunityPermissions,
   userSurfacedPermissions,
-  universalCommunityPermissions,
 } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { deepDiff, values } from 'lib/utils/objects.js';
@@ -35,6 +37,9 @@ async function validateRolePermissions() {
     const threadType = result.type;
     const threadDefaultRole = result.default_role.toString();
 
+    const universalCommunityPermissions =
+      getUniversalCommunityRootPermissionsBlob(threadType);
+
     // Get the 'expected permissions' set for the role. If the role is
     // default (Members) or Admins, these permission blobs can be retrieved
     // by calling getRolePermissionBlobs with the threadType. Otherwise, the
@@ -48,9 +53,7 @@ async function validateRolePermissions() {
     } else if (roleName === 'Admins') {
       baseExpectedPermissionBlob = expectedPermissionBlobs.Admins;
     } else if (roleName) {
-      baseExpectedPermissionBlob = Object.fromEntries(
-        universalCommunityPermissions.map(permission => [permission, true]),
-      );
+      baseExpectedPermissionBlob = universalCommunityPermissions;
     } else {
       baseExpectedPermissionBlob = {};
     }
