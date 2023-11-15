@@ -89,7 +89,7 @@ const tagDataLabelExtractor = (userInfo: GlobalAccountUserInfo) =>
   userInfo.username;
 
 type Props = {
-  +navigation: ProfileNavigationProp<>,
+  +navigation: ProfileNavigationProp<'FriendList' | 'BlockList'>,
   +route: NavigationRoute<'FriendList' | 'BlockList'>,
 };
 function RelationshipList(props: Props): React.Node {

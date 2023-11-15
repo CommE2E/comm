@@ -8,12 +8,18 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { TunnelbrokerMessage } from 'lib/types/tunnelbroker/messages.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
+type Props = {
+  +navigation: ProfileNavigationProp<'TunnelbrokerMenu'>,
+  +route: NavigationRoute<'TunnelbrokerMenu'>,
+};
 // eslint-disable-next-line no-unused-vars
-function TunnelbrokerMenu(props: { ... }): React.Node {
+function TunnelbrokerMenu(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 

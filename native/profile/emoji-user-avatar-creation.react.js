@@ -6,13 +6,19 @@ import * as React from 'react';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import { useNativeSetUserAvatar } from '../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../avatars/emoji-avatar-creation.react.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 
+type Props = {
+  +navigation: ProfileNavigationProp<'EmojiUserAvatarCreation'>,
+  +route: NavigationRoute<'EmojiUserAvatarCreation'>,
+};
 // eslint-disable-next-line no-unused-vars
-function EmojiUserAvatarCreation(props: { ... }): React.Node {
+function EmojiUserAvatarCreation(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
 

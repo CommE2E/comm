@@ -56,7 +56,7 @@ function NotificationRow(props: ProfileRowProps): React.Node {
 }
 
 type BaseProps = {
-  +navigation: ProfileNavigationProp<>,
+  +navigation: ProfileNavigationProp<'DefaultNotifications'>,
   +route: NavigationRoute<'DefaultNotifications'>,
 };
 

@@ -8,14 +8,20 @@ import { useDispatch } from 'react-redux';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { entries } from 'lib/utils/objects.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
 import Button from '../components/button.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { setLocalSettingsActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
+type Props = {
+  +navigation: ProfileNavigationProp<'BackupMenu'>,
+  +route: NavigationRoute<'BackupMenu'>,
+};
 // eslint-disable-next-line no-unused-vars
-function BackupMenu(props: { ... }): React.Node {
+function BackupMenu(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const dispatch = useDispatch();
   const colors = useColors();
