@@ -10,8 +10,10 @@ import type {
   GlobalThemePreference,
 } from 'lib/types/theme-types.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import { osCanTheme } from '../themes/theme-utils.js';
@@ -41,11 +43,12 @@ if (osCanTheme) {
 }
 
 type Props = {
+  +navigation: ProfileNavigationProp<'AppearancePreferences'>,
+  +route: NavigationRoute<'AppearancePreferences'>,
   +globalThemeInfo: GlobalThemeInfo,
   +updateThemePreference: (themePreference: GlobalThemePreference) => mixed,
   +styles: typeof unboundStyles,
   +colors: Colors,
-  ...
 };
 class AppearancePreferences extends React.PureComponent<Props> {
   render() {
@@ -132,8 +135,14 @@ const unboundStyles = {
   },
 };
 
-const ConnectedAppearancePreferences: React.ComponentType<{ ... }> =
-  React.memo<{ ... }>(function ConnectedAppearancePreferences(props: { ... }) {
+type BaseProps = {
+  +navigation: ProfileNavigationProp<'AppearancePreferences'>,
+  +route: NavigationRoute<'AppearancePreferences'>,
+};
+const ConnectedAppearancePreferences: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedAppearancePreferences(
+    props: BaseProps,
+  ) {
     const globalThemeInfo = useSelector(state => state.globalThemeInfo);
     const updateThemePreference = useUpdateThemePreference();
 
