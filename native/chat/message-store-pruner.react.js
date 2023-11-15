@@ -1,10 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { messageStorePruneActionType } from 'lib/actions/message-actions.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';

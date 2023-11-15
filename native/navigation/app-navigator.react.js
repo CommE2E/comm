@@ -2,7 +2,6 @@
 
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/es/integration/react.js';
 
 import ActionResultModal from './action-result-modal.react.js';
@@ -44,6 +43,7 @@ import VideoPlaybackModal from '../media/video-playback-modal.react.js';
 import UserRelationshipTooltipModal from '../profile/user-relationship-tooltip-modal.react.js';
 import PushHandler from '../push/push-handler.react.js';
 import { getPersistor } from '../redux/persist.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { RootContext } from '../root-context.js';
 import { useLoadCommFonts } from '../themes/fonts.js';
 import { waitForInteractions } from '../utils/timers.js';

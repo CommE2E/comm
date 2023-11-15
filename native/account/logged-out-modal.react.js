@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
 
 import { resetUserStateActionType } from 'lib/actions/user-actions.js';
 import {
@@ -28,6 +27,7 @@ import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';

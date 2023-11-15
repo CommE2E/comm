@@ -3,10 +3,10 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
-import { useDispatch } from 'react-redux';
 
 import { urlPrefixSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

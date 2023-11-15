@@ -11,7 +11,6 @@ import {
   Linking,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import {
@@ -38,6 +37,7 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import { setNativeCredentials } from './native-credentials.js';

@@ -1,13 +1,14 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 
 import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer.js';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { addLifecycleListener } from './lifecycle.js';
 import { appBecameInactive } from '../redux/redux-setup.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const LifecycleHandler: React.ComponentType<{}> = React.memo<{}>(
   function LifecycleHandler() {
