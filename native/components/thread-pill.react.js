@@ -2,13 +2,14 @@
 
 import * as React from 'react';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import Pill from './pill.react.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +roundCorners?: { +left: boolean, +right: boolean },
   +fontSize?: number,
 };

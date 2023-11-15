@@ -6,6 +6,7 @@ import { ChevronRight } from 'react-feather';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -18,7 +19,7 @@ import MessageResultsModal from '../modals/chat/message-results-modal.react.js';
 import MessageSearchModal from '../modals/search/message-search-modal.react.js';
 
 type ThreadTopBarProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const { threadInfo } = props;

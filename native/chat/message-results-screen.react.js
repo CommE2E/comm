@@ -11,6 +11,7 @@ import {
   createMessageInfo,
   isInvalidPinSourceForThread,
 } from 'lib/shared/message-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useHeightMeasurer } from './chat-context.js';
@@ -22,7 +23,7 @@ import { useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 
 export type MessageResultsScreenParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type MessageResultsScreenProps = {

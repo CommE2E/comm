@@ -19,6 +19,7 @@ import {
 } from 'lib/selectors/user-selectors.js';
 import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
@@ -49,7 +50,7 @@ const tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
 export type ComposeSubchannelParams = {
   +threadType: ThreadType,
-  +parentThreadInfo: ThreadInfo,
+  +parentThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type Props = {

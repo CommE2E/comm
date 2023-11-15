@@ -66,7 +66,7 @@ function useThreadIsActive(threadID: string): boolean {
 
 function useOnClickPendingSidebar(
   messageInfo: ComposableMessageInfo | RobotextMessageInfo,
-  threadInfo: ThreadInfo,
+  threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 ): (event: SyntheticEvent<HTMLElement>) => mixed {
   const dispatch = useDispatch();
   const loggedInUserInfo = useLoggedInUserInfo();
