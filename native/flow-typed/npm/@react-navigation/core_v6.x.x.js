@@ -776,7 +776,7 @@ declare module '@react-navigation/core' {
   declare type GlobalEventMap<State: PossiblyStaleNavigationState> = {|
     +state: {| +data: {| +state: State |}, +canPreventDefault: false |},
   |};
-  declare type EventMapCore<State: PossiblyStaleNavigationState> = {|
+  declare export type EventMapCore<State: PossiblyStaleNavigationState> = {|
     ...GlobalEventMap<State>,
     +focus: {| +data: void, +canPreventDefault: false |},
     +blur: {| +data: void, +canPreventDefault: false |},
