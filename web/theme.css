@@ -258,6 +258,7 @@
 :root {
   /* Panel */
   --panel-background-primary-default: var(--shades-black-95);
+  --panel-background-secondary-default: var(--shades-black-90);
 
   /* Text */
   --text-background-primary-default: var(--shades-white-100);
@@ -309,6 +310,7 @@
 [data-theme='light'] {
   /* Panel */
   --panel-background-primary-default: var(--shades-white-100);
+  --panel-background-secondary-default: var(--shades-white-80);
 
   /* Text */
   --text-background-primary-default: var(--shades-black-95);
