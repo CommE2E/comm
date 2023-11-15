@@ -1,5 +1,10 @@
 // @flow
 
+import type {
+  TabNavigationState,
+  BottomTabOptions,
+  BottomTabNavigationEventMap,
+} from '@react-navigation/core';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum.js';
 import * as React from 'react';
@@ -24,6 +29,7 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state.js';
+import type { ScreenParamList } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
@@ -80,16 +86,28 @@ class ChatList extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.getParent();
+    const tabNavigation = this.props.navigation.getParent<
+      ScreenParamList,
+      'Chat',
+      TabNavigationState,
+      BottomTabOptions,
+      BottomTabNavigationEventMap,
+      TabNavigationProp<'Chat'>,
+    >();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
     this.props.inputState?.addScrollToMessageListener(this.scrollToMessage);
   }
 
   componentWillUnmount() {
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      this.props.navigation.getParent();
+    const tabNavigation = this.props.navigation.getParent<
+      ScreenParamList,
+      'Chat',
+      TabNavigationState,
+      BottomTabOptions,
+      BottomTabNavigationEventMap,
+      TabNavigationProp<'Chat'>,
+    >();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
     this.props.inputState?.removeScrollToMessageListener(this.scrollToMessage);

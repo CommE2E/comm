@@ -868,7 +868,20 @@ declare module '@react-navigation/core' {
     +isFocused: () => boolean,
     +canGoBack: () => boolean,
     +getId: () => string | void,
-    +getParent: <Parent: NavigationProp<ParamListBase>>(id?: string) => ?Parent,
+    +getParent: <
+      ParamList: ParamListBase,
+      RouteName: $Keys<ParamList>,
+      State: PossiblyStaleNavigationState,
+      ScreenOptions: {...},
+      EventMap: EventMapBase,
+      Parent: NavigationProp<
+        ParamList,
+        RouteName,
+        State,
+        ScreenOptions,
+        EventMap,
+      >,
+    >(id?: string) => ?Parent,
     +getState: () => NavigationState,
     +addListener: <EventName: $Keys<
       {| ...EventMap, ...EventMapCore<State> |},
