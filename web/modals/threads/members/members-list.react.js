@@ -7,6 +7,7 @@ import * as React from 'react';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type ThreadInfo,
   type RelativeMemberInfo,
@@ -16,7 +17,7 @@ import ThreadMember from './member.react.js';
 import css from './members-modal.css';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 };
 

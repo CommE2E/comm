@@ -11,6 +11,7 @@ import {
   inviteLinkErrorMessages,
 } from 'lib/shared/invite-links.js';
 import type { InviteLink } from 'lib/types/link-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './manage-invite-links-modal.css';
@@ -22,7 +23,7 @@ type Props = {
   +inviteLink: ?InviteLink,
   +enterViewMode: () => mixed,
   +enterDisableMode: () => mixed,
-  +community: ThreadInfo,
+  +community: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 const disableButtonColor = {

@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
@@ -104,7 +105,7 @@ type BaseInnerThreadEntityProps = {
 };
 type InnerThreadEntityProps = {
   ...BaseInnerThreadEntityProps,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +dispatch: Dispatch,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {

@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
@@ -21,7 +22,7 @@ const blockIcon = <FontAwesomeIcon icon={faUserShield} />;
 const unblockIcon = <FontAwesomeIcon icon={faUserShield} />;
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function UserProfileMenu(props: Props): React.Node {
