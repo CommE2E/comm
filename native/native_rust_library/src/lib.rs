@@ -19,6 +19,7 @@ use tracing::instrument;
 
 mod argon2_tools;
 mod cxx_promise_manager;
+mod secure_store;
 
 use argon2_tools::compute_backup_key;
 
@@ -45,6 +46,7 @@ lazy_static! {
   );
 }
 
+use cxx_promise_manager::ffi::*;
 #[cxx::bridge]
 mod ffi {
   extern "Rust" {
@@ -142,6 +144,33 @@ mod ffi {
     #[namespace = "comm"]
     #[cxx_name = "boolCallback"]
     fn bool_callback(error: String, promise_id: u32, ret: bool);
+  }
+
+  // cxx_promise_manager.rs callbacks
+  extern "Rust" {
+    #[cxx_name = "stringPromiseResolve"]
+    fn string_promise_resolve(id: usize, value: &CxxString);
+
+    #[cxx_name = "stringPromiseReject"]
+    fn string_promise_reject(id: usize, err: &CxxString);
+
+    #[cxx_name = "unitPromiseResolve"]
+    fn unit_promise_resolve(id: usize);
+
+    #[cxx_name = "unitPromiseReject"]
+    fn unit_promise_reject(id: usize, err: &CxxString);
+  }
+
+  // secure_store.rs implementations
+  #[namespace = "comm"]
+  unsafe extern "C++" {
+    include!("RustSecureStore.h");
+
+    #[cxx_name = "secureStoreSet"]
+    fn secure_store_set_sync(key: &str, value: String, promise: usize);
+
+    #[cxx_name = "secureStoreGet"]
+    fn secure_store_get_sync(key: &str, promise: usize);
   }
 }
 
