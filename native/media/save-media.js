@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
-import { useDispatch } from 'react-redux';
 
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { readableFilename, pathFromURI } from 'lib/media/file-utils.js';
@@ -22,6 +21,7 @@ import {
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   generateReportID,
   useIsReportEnabled,
