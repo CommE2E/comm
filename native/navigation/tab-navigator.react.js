@@ -11,6 +11,8 @@ import type {
   BottomTabNavigationProp,
   ExtraBottomTabNavigatorProps,
   BottomTabNavigatorProps,
+  TabAction,
+  TabRouterOptions,
 } from '@react-navigation/core';
 import {
   createNavigatorFactory,
@@ -96,7 +98,15 @@ const TabNavigator = React.memo<TabNavigatorProps>(function TabNavigator({
   defaultScreenOptions,
   ...rest
 }: TabNavigatorProps) {
-  const { state, descriptors, navigation } = useNavigationBuilder(TabRouter, {
+  const { state, descriptors, navigation } = useNavigationBuilder<
+    TabNavigationState,
+    TabAction,
+    BottomTabOptions,
+    TabRouterOptions,
+    CustomBottomTabNavigationHelpers<>,
+    BottomTabNavigationEventMap,
+    ExtraBottomTabNavigatorProps,
+  >(TabRouter, {
     id,
     initialRouteName,
     backBehavior,
