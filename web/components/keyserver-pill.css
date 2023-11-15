@@ -1,0 +1,19 @@
+.keyserverContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background-color: var(--panel-background-primary-default);
+  column-gap: 4px;
+}
+
+.keyserverName {
+  color: var(--text-background-primary-default);
+  font-size: var(--s-font-14);
+  font-weight: var(--semi-bold);
+}
+
+.keyserverIcon {
+  color: var(--text-background-primary-default);
+}
