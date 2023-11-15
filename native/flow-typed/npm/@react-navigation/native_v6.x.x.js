@@ -40,6 +40,8 @@ declare module '@react-navigation/native' {
     ScreenParams,
     NavigationContainerType,
     BaseNavigationContainerInterfaceRef,
+    EventMapBase,
+    EventMapCore,
   } from '@react-navigation/core';
 
   /**
@@ -85,9 +87,29 @@ declare module '@react-navigation/native' {
 
   declare export var useNavigationBuilder: UseNavigationBuilder;
 
-  declare export var NavigationHelpersContext: React$Context<
-    ?NavigationHelpers<ParamListBase>,
-  >;
+  declare export var NavigationHelpersContext: {
+    Provider: <
+      ParamList: ParamListBase,
+      State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
+      EventMap: EventMapBase = EventMapCore<State>,
+      T: ?NavigationHelpers<ParamList, State, EventMap> = ?NavigationHelpers<ParamList, State, EventMap>,
+    >(props: {
+      +value: T,
+      +children?: React$Node,
+      ...
+    }) => React$Node,
+    Consumer: <
+      ParamList: ParamListBase,
+      State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
+      EventMap: EventMapBase = EventMapCore<State>,
+      T: ?NavigationHelpers<ParamList, State, EventMap> = ?NavigationHelpers<ParamList, State, EventMap>,
+    >(props: {
+      +children: (value: T) => ?React$Node,
+      ...
+    }) => React$Node,
+    displayName?: string,
+    ...
+  };
 
   /**
    * Navigation prop / route accessors
