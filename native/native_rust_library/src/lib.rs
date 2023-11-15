@@ -220,6 +220,20 @@ mod ffi {
       promise_id: u32,
     );
   }
+
+  // Secure store
+  #[namespace = "comm"]
+  unsafe extern "C++" {
+    include!("RustSecureStore.h");
+
+    #[allow(unused)]
+    #[cxx_name = "secureStoreSet"]
+    fn secure_store_set(key: &str, value: String) -> Result<()>;
+
+    #[allow(unused)]
+    #[cxx_name = "secureStoreGet"]
+    fn secure_store_get(key: &str) -> Result<String>;
+  }
 }
 
 fn handle_string_result_as_callback<E>(
