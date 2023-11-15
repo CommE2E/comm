@@ -81,6 +81,7 @@
 		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
+		DFD5E77C2B05181400C32B6A /* RustSecureStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD5E77B2B05181400C32B6A /* RustSecureStore.cpp */; };
 		F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */; };
 /* End PBXBuildFile section */
 
@@ -269,6 +270,8 @@
 		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
 		CBFE58272885852B003B94C9 /* ThreadOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadOperations.h; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h; sourceTree = "<group>"; };
 		CBFE58282885852B003B94C9 /* ThreadOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadOperations.cpp; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.cpp; sourceTree = "<group>"; };
+		DFD5E77A2B05181400C32B6A /* RustSecureStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RustSecureStore.h; sourceTree = "<group>"; };
+		DFD5E77B2B05181400C32B6A /* RustSecureStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RustSecureStore.cpp; sourceTree = "<group>"; };
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -574,6 +577,8 @@
 		8B99AF6B28D50D4800EB5ADB /* native_rust_library */ = {
 			isa = PBXGroup;
 			children = (
+				DFD5E77B2B05181400C32B6A /* RustSecureStore.cpp */,
+				DFD5E77A2B05181400C32B6A /* RustSecureStore.h */,
 				8B652FA4295EA9F1009F8163 /* RustCallback.h */,
 				8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */,
 				8B99AF6D28D50D4800EB5ADB /* lib.rs.h */,
@@ -1073,6 +1078,7 @@
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
 				8EF7756E2A7513F40046A385 /* MessageStore.cpp in Sources */,
+				DFD5E77C2B05181400C32B6A /* RustSecureStore.cpp in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */,
