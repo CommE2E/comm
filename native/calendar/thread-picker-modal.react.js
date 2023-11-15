@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import { useDispatch } from 'react-redux';
 
 import {
   createLocalEntry,
@@ -11,6 +10,7 @@ import {
 } from 'lib/actions/entry-actions.js';
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import Modal from '../components/modal.react.js';
 import ThreadList from '../components/thread-list.react.js';

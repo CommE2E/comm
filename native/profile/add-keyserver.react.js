@@ -3,11 +3,11 @@
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, Text } from 'react-native';
-import { useDispatch } from 'react-redux';
 
 import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import TextInput from '../components/text-input.react.js';

@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useDispatch } from 'react-redux';
 
 import {
   disableAppActionType,
   enableAppActionType,
 } from 'lib/reducers/enabled-apps-reducer.js';
 import type { SupportedApps } from 'lib/types/enabled-apps.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useColors, useStyles } from '../themes/colors.js';

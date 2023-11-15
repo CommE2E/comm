@@ -2,7 +2,8 @@
 
 import NetInfo from '@react-native-community/netinfo';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
+
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { updateConnectivityActiveType } from './action-types.js';
 import { useSelector } from './redux-utils.js';

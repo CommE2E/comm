@@ -5,7 +5,8 @@ import * as React from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { useSafeArea } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
+
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { KeyboardContext } from '../keyboard/keyboard-state.js';
 import { updateDimensionsActiveType } from '../redux/action-types.js';

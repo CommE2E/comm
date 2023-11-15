@@ -26,12 +26,12 @@ import Reanimated, {
   EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { PhotoCapture } from 'lib/types/media-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import SendMediaButton from './send-media-button.react.js';
 import type { RegistrationNavigationProp } from '../account/registration/registration-navigator.react.js';

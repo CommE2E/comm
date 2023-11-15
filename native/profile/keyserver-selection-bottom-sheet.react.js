@@ -4,11 +4,11 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
 
 import { removeKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
