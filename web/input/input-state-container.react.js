@@ -74,6 +74,7 @@ import {
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -544,7 +545,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
+  startThreadCreation(
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  ): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
       return Promise.resolve(threadInfo.id);
     }
@@ -1280,10 +1283,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       threadID: newThreadID,
       time: Date.now(),
     };
-    const newThreadInfo = {
-      ...threadInfo,
-      id: newThreadID,
-    };
+    const newThreadInfo = threadInfo.minimallyEncoded
+      ? {
+          ...threadInfo,
+          id: newThreadID,
+        }
+      : {
+          ...threadInfo,
+          id: newThreadID,
+        };
     this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
       this.sendTextMessageAction(
@@ -1298,8 +1306,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
       await this.props.textMessageCreationSideEffectsFunc(

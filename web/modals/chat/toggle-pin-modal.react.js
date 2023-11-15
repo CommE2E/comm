@@ -11,6 +11,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
@@ -21,7 +22,7 @@ import Modal from '../modal.react.js';
 
 type TogglePinModalProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function TogglePinModal(props: TogglePinModalProps): React.Node {

@@ -35,7 +35,7 @@ const availableTooltipPositionsForRobotext = [
 
 type Props = {
   +item: RobotextChatMessageInfoItem,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 function RobotextMessage(props: Props): React.Node {
   let inlineEngagement;

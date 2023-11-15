@@ -15,6 +15,7 @@ import {
   viewerIsMember,
   threadIsChannel,
 } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
@@ -35,7 +36,7 @@ import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.re
 import { useSelector } from '../redux/redux-utils.js';
 
 type ThreadMenuProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function ThreadMenu(props: ThreadMenuProps): React.Node {
