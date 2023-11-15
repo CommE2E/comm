@@ -71,6 +71,10 @@ import type {
   SendEditMessageResponse,
   MessageInfo,
 } from 'lib/types/message-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
@@ -154,7 +158,7 @@ const sendButtonAnimationConfig = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,
@@ -176,7 +180,9 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
   +userSearchIndex: SentencePrefixSearchIndex,
-  +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +userMentionsCandidates: $ReadOnlyArray<
+    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  >,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,

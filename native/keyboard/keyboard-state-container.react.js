@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import sleep from 'lib/utils/sleep.js';
 
@@ -23,7 +24,7 @@ type Props = {
 type State = {
   +systemKeyboardShowing: boolean,
   +mediaGalleryOpen: boolean,
-  +mediaGalleryThread: ?ThreadInfo,
+  +mediaGalleryThread: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +renderKeyboardInputHost: boolean,
 };
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
@@ -93,12 +94,13 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     return systemKeyboardShowing || mediaGalleryOpen;
   }
 
-  showMediaGallery: (thread: ThreadInfo) => void = (thread: ThreadInfo) => {
-    this.setState({
-      mediaGalleryOpen: true,
-      mediaGalleryThread: thread,
-    });
-  };
+  showMediaGallery: (thread: ThreadInfo | MinimallyEncodedThreadInfo) => void =
+    (thread: ThreadInfo | MinimallyEncodedThreadInfo) => {
+      this.setState({
+        mediaGalleryOpen: true,
+        mediaGalleryThread: thread,
+      });
+    };
 
   hideMediaGallery: () => void = () => {
     this.setState({
@@ -108,7 +110,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     });
   };
 
-  getMediaGalleryThread: () => ?ThreadInfo = () =>
+  getMediaGalleryThread: () => ?ThreadInfo | ?MinimallyEncodedThreadInfo = () =>
     this.state.mediaGalleryThread;
 
   render(): React.Node {

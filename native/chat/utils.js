@@ -9,6 +9,7 @@ import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js'
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { clusterEndHeight } from './chat-constants.js';
@@ -102,7 +103,7 @@ function useMessageTargetParameters(
   messageListVerticalBounds: VerticalBounds,
   currentInputBarHeight: number,
   targetInputBarHeight: number,
-  sidebarThreadInfo: ?ThreadInfo,
+  sidebarThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
 ): {
   +position: number,
   +color: string,

@@ -13,7 +13,7 @@ import { useStyles } from '../../themes/colors.js';
 import { useNavigateToThread } from '../message-list-types.js';
 
 type ParentButtonProps = {
-  +parentThreadInfo: ThreadInfo,
+  +parentThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 function ParentButton(props: ParentButtonProps): React.Node {
   const styles = useStyles(unboundStyles);
@@ -36,7 +36,7 @@ function ParentButton(props: ParentButtonProps): React.Node {
 
 type ThreadSettingsParentProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-  +parentThreadInfo: ?ThreadInfo,
+  +parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
 };
 function ThreadSettingsParent(props: ThreadSettingsParentProps): React.Node {
   const { threadInfo, parentThreadInfo } = props;
