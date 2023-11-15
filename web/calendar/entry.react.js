@@ -36,6 +36,7 @@ import {
   type CalendarQuery,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
@@ -65,7 +66,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +loggedIn: boolean,
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
