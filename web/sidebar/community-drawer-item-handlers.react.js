@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
@@ -14,7 +15,7 @@ import type { NavigationTab } from '../types/nav-types.js';
 
 export type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemHandler) => void,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function ChatDrawerItemHandler(props: HandlerProps): React.Node {
