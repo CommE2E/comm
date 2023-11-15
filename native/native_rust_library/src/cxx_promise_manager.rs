@@ -1,3 +1,4 @@
+use cxx::CxxString;
 use lazy_static::lazy_static;
 use std::{collections::HashMap, future::Future, sync::Mutex};
 use tokio::sync::oneshot;
@@ -14,7 +15,6 @@ pub struct PromiseStore<T> {
   next_id: usize,
 }
 
-#[allow(unused)]
 impl<T> PromiseStore<T> {
   pub fn new_promise(
     &mut self,
@@ -41,6 +41,43 @@ impl<T> PromiseStore<T> {
       // The receiver has beed dropped
       return;
     };
+  }
+}
+
+pub mod ffi {
+  use super::*;
+
+  pub fn string_promise_resolve(id: usize, value: &CxxString) {
+    let value = value
+      .to_str()
+      .map(str::to_string)
+      .map_err(|err| err.to_string());
+
+    let Ok(mut store) = STRING_PROMISE_STORE.lock() else {
+      return;
+    };
+    store.resolve_promise(id, value);
+  }
+
+  pub fn string_promise_reject(id: usize, err: &CxxString) {
+    let Ok(mut store) = STRING_PROMISE_STORE.lock() else {
+      return;
+    };
+    store.resolve_promise(id, Err(err.to_string_lossy().to_string()));
+  }
+
+  pub fn unit_promise_resolve(id: usize) {
+    let Ok(mut store) = UNIT_PROMISE_STORE.lock() else {
+      return;
+    };
+    store.resolve_promise(id, Ok(()));
+  }
+
+  pub fn unit_promise_reject(id: usize, err: &CxxString) {
+    let Ok(mut store) = STRING_PROMISE_STORE.lock() else {
+      return;
+    };
+    store.resolve_promise(id, Err(err.to_string_lossy().to_string()));
   }
 }
 
