@@ -191,7 +191,7 @@ function ChatThreadList(props: BaseProps): React.Node {
     (threadInfo: ThreadInfo) => {
       onChangeSearchText('');
       if (searchInputRef.current) {
-        this.searchInputRef.current.blur();
+        searchInputRef.current.blur();
       }
       navigation.navigate<'SidebarListModal'>({
         name: SidebarListModalRouteName,
