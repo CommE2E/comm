@@ -13,6 +13,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -31,7 +32,7 @@ import type { ViewStyle } from '../../types/styles.js';
 import Alert from '../../utils/alert.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +buttonStyle: ViewStyle,
 };
 type Props = {

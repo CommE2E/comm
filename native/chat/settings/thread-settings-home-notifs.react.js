@@ -7,6 +7,7 @@ import {
   updateSubscriptionActionTypes,
   useUpdateSubscription,
 } from 'lib/actions/user-actions.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
@@ -19,7 +20,7 @@ import SingleLine from '../../components/single-line.react.js';
 import { useStyles } from '../../themes/colors.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,

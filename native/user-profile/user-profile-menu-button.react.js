@@ -6,6 +6,7 @@ import * as React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
@@ -21,7 +22,7 @@ import { useStyles } from '../themes/colors.js';
 const onMenuButtonLayout = () => {};
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +pendingPersonalThreadUserInfo: ?UserInfo,
 };
 
