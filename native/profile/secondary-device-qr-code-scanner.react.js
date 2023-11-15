@@ -7,13 +7,19 @@ import { View } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
 const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
 
+type Props = {
+  +navigation: ProfileNavigationProp<'SecondaryDeviceQRCodeScanner'>,
+  +route: NavigationRoute<'SecondaryDeviceQRCodeScanner'>,
+};
 // eslint-disable-next-line no-unused-vars
-function SecondaryDeviceQRCodeScanner(props: { ... }): React.Node {
+function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const [hasPermission, setHasPermission] = React.useState(null);
   const [scanned, setScanned] = React.useState(false);
 
