@@ -5,6 +5,7 @@ import { View, Text } from 'react-native';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
 import type { SetState } from 'lib/types/hook-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
@@ -19,7 +20,7 @@ const onErrorCallback = () => {
 };
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +setUserProfileRelationshipButtonHeight: SetState<number>,
 };

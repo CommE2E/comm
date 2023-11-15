@@ -28,6 +28,7 @@ import {
   threadIsChannel,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -213,7 +214,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'mediaGallery',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
       +limit: number,
       +verticalBounds: ?VerticalBounds,
     }
@@ -668,7 +669,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   mediaGalleryListDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.verticalBounds,
-    (threadInfo: ThreadInfo, verticalBounds: ?VerticalBounds) => {
+    (
+      threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+      verticalBounds: ?VerticalBounds,
+    ) => {
       const listData: ChatSettingsItem[] = [];
       const limit = 6;
 

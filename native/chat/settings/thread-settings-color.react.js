@@ -6,6 +6,7 @@ import { Text, ActivityIndicator, View, Platform } from 'react-native';
 import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
@@ -16,7 +17,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +colorEditValue: string,
   +setColorEditValue: (color: string) => void,
   +canChangeSettings: boolean,
