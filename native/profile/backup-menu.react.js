@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { Alert, Switch, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useDispatch } from 'react-redux';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 import { entries } from 'lib/utils/objects.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';

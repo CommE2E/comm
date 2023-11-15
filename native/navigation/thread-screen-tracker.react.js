@@ -1,9 +1,9 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { updateThreadLastNavigatedActionType } from 'lib/types/thread-activity-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { useActiveMessageList } from './nav-selectors.js';
 

@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { registerActionTypes, register } from 'lib/actions/user-actions.js';
@@ -10,6 +9,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 
 import type {

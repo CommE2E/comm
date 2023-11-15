@@ -1,9 +1,9 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { actionLogger } from 'lib/utils/action-logger.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { setReduxStateActionType } from './action-types.js';
 import { useSelector } from './redux-utils.js';

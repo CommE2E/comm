@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, LogBox } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
-import { useDispatch } from 'react-redux';
 
 import type {
   DeviceTokens,
@@ -46,6 +45,7 @@ import {
   recordNotifPermissionAlertActionType,
   shouldSkipPushPermissionAlert,
 } from 'lib/utils/push-alerts.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { Text, FlatList, View } from 'react-native';
-import { useSelector } from 'react-redux';
 
 import AppListing from './app-listing.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 const APP_DIRECTORY_DATA = [
