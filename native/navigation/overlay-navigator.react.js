@@ -9,6 +9,7 @@ import type {
   ParamListBase,
   StackNavigationHelpers,
   ScreenListeners,
+  StackRouterOptions,
 } from '@react-navigation/core';
 import {
   useNavigationBuilder,
@@ -25,7 +26,10 @@ import { values } from 'lib/utils/objects.js';
 
 import { OverlayContext } from './overlay-context.js';
 import OverlayRouter from './overlay-router.js';
-import type { OverlayRouterExtraNavigationHelpers } from './overlay-router.js';
+import type {
+  OverlayRouterExtraNavigationHelpers,
+  OverlayRouterNavigationAction,
+} from './overlay-router.js';
 import { scrollBlockingModals, TabNavigatorRouteName } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
 
@@ -57,15 +61,20 @@ type Props = $Exact<
 >;
 const OverlayNavigator = React.memo<Props>(
   ({ initialRouteName, children, screenOptions, screenListeners }: Props) => {
-    const { state, descriptors, navigation } = useNavigationBuilder(
-      OverlayRouter,
-      {
-        children,
-        screenOptions,
-        screenListeners,
-        initialRouteName,
-      },
-    );
+    const { state, descriptors, navigation } = useNavigationBuilder<
+      StackNavigationState,
+      OverlayRouterNavigationAction,
+      {},
+      StackRouterOptions,
+      OverlayNavigationHelpers<>,
+      {},
+      ExtraNavigatorPropsBase,
+    >(OverlayRouter, {
+      children,
+      screenOptions,
+      screenListeners,
+      initialRouteName,
+    });
     const curIndex = state.index;
 
     const positionRefs = React.useRef({});

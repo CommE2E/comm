@@ -11,6 +11,7 @@ import type {
   StackNavigationProp,
   StackNavigationHelpers,
   ParamListBase,
+  StackRouterOptions,
 } from '@react-navigation/core';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
@@ -29,7 +30,10 @@ import { threadIsPending } from 'lib/shared/thread-utils.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
 import ChatHeader from './chat-header.react.js';
-import ChatRouter, { type ChatRouterNavigationHelpers } from './chat-router.js';
+import ChatRouter, {
+  type ChatRouterNavigationHelpers,
+  type ChatRouterNavigationAction,
+} from './chat-router.js';
 import ComposeSubchannel from './compose-subchannel.react.js';
 import ComposeThreadButton from './compose-thread-button.react.js';
 import FullScreenThreadMediaGallery from './fullscreen-thread-media-gallery.react.js';
@@ -162,7 +166,15 @@ function ChatNavigator({
   id,
   ...rest
 }: ChatNavigatorProps) {
-  const { state, descriptors, navigation } = useNavigationBuilder(ChatRouter, {
+  const { state, descriptors, navigation } = useNavigationBuilder<
+    StackNavigationState,
+    ChatRouterNavigationAction,
+    StackOptions,
+    StackRouterOptions,
+    ChatNavigationHelpers<>,
+    StackNavigationEventMap,
+    ExtraStackNavigatorProps,
+  >(ChatRouter, {
     id,
     initialRouteName,
     children,
