@@ -3,16 +3,13 @@
 import * as React from 'react';
 
 import css from './community-creation-keyserver-label.css';
-import CommIcon from '../../CommIcon.react.js';
+import KeyserverPill from '../../components/keyserver-pill.react.js';
 
 function CommunityCreationKeyserverLabel(): React.Node {
   return (
     <div className={css.ancestryContainer}>
       <p>within</p>
-      <div className={css.keyserverContainer}>
-        <CommIcon icon="cloud-filled" size={18} color="white" />
-        <div className={css.keyserverName}>ashoat</div>
-      </div>
+      <KeyserverPill keyserverAdminUsername="ashoat" />
     </div>
   );
 }
