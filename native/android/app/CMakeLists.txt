@@ -133,6 +133,7 @@ list(APPEND RUST_NATIVE_CODE
   "../../native_rust_library/RustCallback.cpp"
   "../../native_rust_library/RustAESCrypto.cpp"
   "../../native_rust_library/RustCSAMetadataEmitter.cpp"
+  "../../native_rust_library/RustSecureStore.cpp"
 )
 file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
 file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
