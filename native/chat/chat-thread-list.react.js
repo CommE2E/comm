@@ -1,6 +1,14 @@
 // @flow
 
 import IonIcon from '@expo/vector-icons/Ionicons.js';
+import type {
+  TabNavigationState,
+  BottomTabOptions,
+  BottomTabNavigationEventMap,
+  StackNavigationState,
+  StackOptions,
+  StackNavigationEventMap,
+} from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
@@ -40,6 +48,7 @@ import {
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
   type NavigationRoute,
+  type ScreenParamList,
 } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -415,11 +424,24 @@ function ChatThreadList(props: BaseProps): React.Node {
   }, [navigation]);
 
   React.useEffect(() => {
-    const chatNavigation: ?ChatNavigationProp<'ChatThreadList'> =
-      navigation.getParent();
+    const chatNavigation = navigation.getParent<
+      ScreenParamList,
+      'ChatThreadList',
+      StackNavigationState,
+      StackOptions,
+      StackNavigationEventMap,
+      ChatNavigationProp<'ChatThreadList'>,
+    >();
     invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
-    const tabNavigation: ?TabNavigationProp<'Chat'> =
-      chatNavigation.getParent();
+
+    const tabNavigation = chatNavigation.getParent<
+      ScreenParamList,
+      'Chat',
+      TabNavigationState,
+      BottomTabOptions,
+      BottomTabNavigationEventMap,
+      TabNavigationProp<'Chat'>,
+    >();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
 
     tabNavigation.addListener('tabPress', onTabPress);

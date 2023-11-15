@@ -1,5 +1,10 @@
 // @flow
 
+import type {
+  TabNavigationState,
+  BottomTabOptions,
+  BottomTabNavigationEventMap,
+} from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
@@ -88,8 +93,9 @@ import {
   AddUsersModalRouteName,
   ComposeSubchannelModalRouteName,
   FullScreenThreadMediaGalleryRouteName,
+  type ScreenParamList,
+  type NavigationRoute,
 } from '../../navigation/route-names.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
 import type { TabNavigationProp } from '../../navigation/tab-navigator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import type { AppState } from '../../redux/state-types.js';
@@ -1239,7 +1245,14 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
 
     const { navigation } = props;
     React.useEffect(() => {
-      const tabNavigation: ?TabNavigationProp<'Chat'> = navigation.getParent();
+      const tabNavigation = navigation.getParent<
+        ScreenParamList,
+        'Chat',
+        TabNavigationState,
+        BottomTabOptions,
+        BottomTabNavigationEventMap,
+        TabNavigationProp<'Chat'>,
+      >();
       invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
 
       const onTabPress = () => {
