@@ -4,9 +4,9 @@ import * as React from 'react';
 import { Animated, View } from 'react-native';
 // eslint-disable-next-line import/extensions
 import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
-import { useSelector } from 'react-redux';
 
 import Button from './button.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {

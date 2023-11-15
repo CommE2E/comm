@@ -1,10 +1,10 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
 import { setNavStateActionType } from './action-types.js';
 import { NavContext } from './navigation-context.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const NavFromReduxHandler: React.ComponentType<{}> = React.memo<{}>(
   function NavFromReduxHandler() {

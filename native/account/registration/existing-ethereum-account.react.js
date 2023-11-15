@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import { useDispatch } from 'react-redux';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import { useENSName } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';

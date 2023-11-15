@@ -6,9 +6,9 @@ import {
   useSafeAreaFrame,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
 
 import type { Dimensions } from 'lib/types/media-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { updateDimensionsActiveType } from './action-types.js';
 import { useSelector } from './redux-utils.js';

@@ -1,6 +1,6 @@
 // @flow
 
-import { useSelector } from 'react-redux';
+import { useSelector } from '../redux/redux-utils.js';
 
 function usePersistedStateLoaded(): boolean {
   const rehydrateConcluded = useSelector(state => !!state._persist?.rehydrated);

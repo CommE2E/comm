@@ -20,7 +20,6 @@ import Animated, {
   FadeInDown,
   FadeOutDown,
 } from 'react-native-reanimated';
-import { useDispatch } from 'react-redux';
 
 import {
   moveDraftActionType,
@@ -89,6 +88,7 @@ import {
   type DispatchActionPromise,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { ChatContext } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react.js';

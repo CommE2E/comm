@@ -3,9 +3,9 @@
 import * as React from 'react';
 import type { Orientations } from 'react-native-orientation-locker';
 import Orientation from 'react-native-orientation-locker';
-import { useDispatch } from 'react-redux';
 
 import type { Dispatch } from 'lib/types/redux-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { updateDeviceOrientationActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';

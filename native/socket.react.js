@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
 import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
@@ -21,6 +20,7 @@ import {
   useDispatchActionPromise,
   fetchNewCookieFromNativeCredentials,
 } from 'lib/utils/action-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { InputStateContext } from './input/input-state.js';
