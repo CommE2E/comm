@@ -5,10 +5,14 @@ import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
 import type { CommunityDrawerNavigationProp } from './community-drawer-navigator.react.js';
+import type { TabNavigationProp } from './tab-navigator.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
+  +navigation:
+    | TabNavigationProp<'Chat'>
+    | TabNavigationProp<'Profile'>
+    | CommunityDrawerNavigationProp<'TabNavigator'>,
 };
 function CommunityDrawerButton(props: Props): React.Node {
   const styles = useStyles(unboundStyles);

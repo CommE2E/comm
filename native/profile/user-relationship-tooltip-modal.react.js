@@ -16,7 +16,6 @@ import {
 
 import PencilIcon from '../components/pencil-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { useColors } from '../themes/colors.js';
 import {
   createTooltip,
@@ -25,6 +24,7 @@ import {
   type TooltipMenuProps,
   type TooltipRoute,
 } from '../tooltip/tooltip.react.js';
+import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import Alert from '../utils/alert.js';
 
 type Action = 'unfriend' | 'block' | 'unblock';
@@ -128,7 +128,7 @@ function TooltipMenu(
 }
 
 type Props = {
-  +navigation: AppNavigationProp<'UserRelationshipTooltipModal'>,
+  +navigation: UserProfileBottomSheetNavigationProp<'UserRelationshipTooltipModal'>,
   +route: TooltipRoute<'UserRelationshipTooltipModal'>,
   ...
 };
