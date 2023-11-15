@@ -7,6 +7,8 @@ import { selectedKeyserversSelector } from 'lib/selectors/keyserver-selectors.js
 import type { SelectedKeyserverInfo } from 'lib/types/keyserver-types.js';
 
 import KeyserverSelectionListItem from './keyserver-selection-list-item.react.js';
+import type { ProfileNavigationProp } from './profile.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
@@ -18,8 +20,12 @@ function renderKeyserverListItem({ item }) {
   return <KeyserverSelectionListItem {...item} />;
 }
 
+type Props = {
+  +navigation: ProfileNavigationProp<'KeyserverSelectionList'>,
+  +route: NavigationRoute<'KeyserverSelectionList'>,
+};
 // eslint-disable-next-line no-unused-vars
-function KeyserverSelectionList(props: { ... }): React.Node {
+function KeyserverSelectionList(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const selectedKeyserverInfos: $ReadOnlyArray<SelectedKeyserverInfo> =
