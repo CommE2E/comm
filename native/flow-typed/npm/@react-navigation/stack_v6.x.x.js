@@ -25,12 +25,14 @@ declare module '@react-navigation/stack' {
    * StackView
    */
 
-  declare export var StackView: React$ComponentType<{|
+  declare export function StackView<
+    Helpers = StackNavigationHelpers<>,
+  >(props: {|
     ...StackNavigationConfig,
     +state: StackNavigationState,
-    +navigation: StackNavigationHelpers<>,
-    +descriptors: {| +[key: string]: StackDescriptor |},
-  |}>;
+    +navigation: Helpers,
+    +descriptors: {| +[key: string]: StackDescriptor<Helpers> |},
+  |}): React$Node;
 
   /**
    * createStackNavigator
