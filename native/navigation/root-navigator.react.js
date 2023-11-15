@@ -9,6 +9,7 @@ import type {
   ParamListBase,
   StackNavigationHelpers,
   StackNavigationProp,
+  StackRouterOptions,
 } from '@react-navigation/core';
 import {
   createNavigatorFactory,
@@ -25,6 +26,7 @@ import { defaultStackScreenOptions } from './options.js';
 import { RootNavigatorContext } from './root-navigator-context.js';
 import RootRouter, {
   type RootRouterExtraNavigationHelpers,
+  type RootRouterNavigationAction,
 } from './root-router.js';
 import {
   LoggedOutModalRouteName,
@@ -102,7 +104,15 @@ function RootNavigator({
     };
   }, [screenOptions, keyboardHandlingEnabled]);
 
-  const { state, descriptors, navigation } = useNavigationBuilder(RootRouter, {
+  const { state, descriptors, navigation } = useNavigationBuilder<
+    StackNavigationState,
+    RootRouterNavigationAction,
+    StackOptions,
+    StackRouterOptions,
+    RootNavigationHelpers<>,
+    StackNavigationEventMap,
+    ExtraStackNavigatorProps,
+  >(RootRouter, {
     id,
     initialRouteName,
     children,
