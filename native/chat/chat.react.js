@@ -12,6 +12,7 @@ import type {
   StackNavigationHelpers,
   ParamListBase,
   StackRouterOptions,
+  MaterialTopTabNavigationHelpers,
 } from '@react-navigation/core';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
@@ -100,6 +101,9 @@ export type ChatTopTabsNavigationProp<
   RouteName: $Keys<ChatTopTabsParamList> = $Keys<ChatTopTabsParamList>,
 > = MaterialTopTabNavigationProp<ScreenParamList, RouteName>;
 
+export type ChatTopTabsNavigationHelpers =
+  MaterialTopTabNavigationHelpers<ScreenParamList>;
+
 const homeChatThreadListOptions = {
   title: 'Focused',
   // eslint-disable-next-line react/display-name
@@ -115,7 +119,11 @@ const backgroundChatThreadListOptions = {
   ),
 };
 
-const ChatThreadsTopTab = createMaterialTopTabNavigator();
+const ChatThreadsTopTab = createMaterialTopTabNavigator<
+  ScreenParamList,
+  ChatTopTabsParamList,
+  ChatTopTabsNavigationHelpers,
+>();
 function ChatThreadsComponent(): React.Node {
   const colors = useColors();
   const { tabBarBackground, tabBarAccent } = colors;
