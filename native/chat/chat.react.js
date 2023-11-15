@@ -49,7 +49,6 @@ import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js'
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
-import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
 import { defaultStackScreenOptions } from '../navigation/options.js';
 import {
@@ -69,6 +68,7 @@ import {
   MessageSearchRouteName,
   ChangeRolesScreenRouteName,
 } from '../navigation/route-names.js';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import ChangeRolesHeaderLeftButton from '../roles/change-roles-header-left-button.react.js';
 import ChangeRolesScreen from '../roles/change-roles-screen.react.js';
 import MessageSearch from '../search/message-search.react.js';
@@ -316,7 +316,7 @@ const Chat = createChatNavigator<
 >();
 
 type Props = {
-  +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
+  +navigation: TabNavigationProp<'Chat'>,
   ...
 };
 export default function ChatComponent(props: Props): React.Node {

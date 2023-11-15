@@ -30,7 +30,6 @@ import SecondaryDeviceQRCodeScanner from './secondary-device-qr-code-scanner.rea
 import TunnelbrokerMenu from './tunnelbroker-menu.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
-import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
 import {
   ProfileScreenRouteName,
@@ -53,6 +52,7 @@ import {
   type ProfileParamList,
   TunnelbrokerMenuRouteName,
 } from '../navigation/route-names.js';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
@@ -98,7 +98,7 @@ const Profile = createStackNavigator<
   StackNavigationHelpers<ScreenParamList>,
 >();
 type Props = {
-  +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
+  +navigation: TabNavigationProp<'Profile'>,
   ...
 };
 

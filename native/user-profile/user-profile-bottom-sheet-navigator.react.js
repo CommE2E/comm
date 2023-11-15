@@ -30,7 +30,7 @@ const UserProfileBottomSheetOverlayNavigator = createOverlayNavigator<
 >();
 
 type Props = {
-  +navigation: RootNavigationProp<'UserProfileBottomSheet'>,
+  +navigation: RootNavigationProp<'UserProfileBottomSheetNavigator'>,
   ...
 };
 

@@ -5,6 +5,7 @@ import type {
   RouterConfigOptions,
   TabRouterOptions,
   TabNavigationState,
+  TabAction,
 } from '@react-navigation/core';
 import { TabRouter } from '@react-navigation/native';
 
@@ -13,20 +14,18 @@ import {
   getRemoveEditMode,
 } from './nav-selectors.js';
 
-type TabRouterNavigationAction = empty;
-
 export type TabRouterExtraNavigationHelpers = {};
 
 function CustomTabRouter(
   routerOptions: TabRouterOptions,
-): Router<TabNavigationState, TabRouterNavigationAction> {
+): Router<TabNavigationState, TabAction> {
   const { getStateForAction: baseGetStateForAction, ...rest } =
     TabRouter(routerOptions);
   return {
     ...rest,
     getStateForAction: (
       lastState: TabNavigationState,
-      action: TabRouterNavigationAction,
+      action: TabAction,
       options: RouterConfigOptions,
     ) => {
       const chatNavState = getChatNavStateFromTabNavState(lastState);
