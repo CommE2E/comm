@@ -1,14 +1,14 @@
 // @flow
 
-import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import {
-  universalCommunityPermissions,
+  getRolePermissionBlobs,
+  getThreadPermissionBlobFromUserSurfacedPermissions,
+} from 'lib/permissions/thread-permissions.js';
+import {
   userSurfacedPermissionsSet,
-  configurableCommunityPermissions,
   threadPermissions,
 } from 'lib/types/thread-permission-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   RoleInfo,
   RoleModificationRequest,
@@ -105,32 +105,16 @@ async function modifyRole(
   const [id] = await createIDs('roles', 1);
   const time = Date.now();
 
-  const configuredPermissions = permissions
-    .map(permission => [...configurableCommunityPermissions[permission]])
-    .flat();
-
-  const rolePermissions = [
-    ...universalCommunityPermissions,
-    ...configuredPermissions,
-  ];
-
-  // For communities of the type `COMMUNITY_ANNOUNCEMENT_ROOT`, the ability for
-  // the role to be voiced needs to be configured (i.e. the parameters should
-  // include the user-facing permission VOICED_IN_ANNOUNCEMENT_CHANNELS). This
-  // means we do not give 'voiced' permissions by default to all new roles. As
-  // a result, if the thread type is `COMMUNITY_ROOT`, we want to ensure that
-  // the role has the voiced permission.
   const { threadInfos } = await fetchThreadInfos(viewer, {
     threadID: community,
   });
   const threadInfo = threadInfos[community];
 
-  if (threadInfo.type === threadTypes.COMMUNITY_ROOT) {
-    rolePermissions.push(threadPermissions.VOICED);
-  }
-
   const permissionsBlob = JSON.stringify(
-    Object.fromEntries(rolePermissions.map(permission => [permission, true])),
+    getThreadPermissionBlobFromUserSurfacedPermissions(
+      permissions,
+      threadInfo.type,
+    ),
   );
 
   const row = [id, community, name, permissionsBlob, time];
