@@ -4,11 +4,17 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import ToggleReport from './toggle-report.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
+type Props = {
+  +navigation: ProfileNavigationProp<'PrivacyPreferences'>,
+  +route: NavigationRoute<'PrivacyPreferences'>,
+};
 // eslint-disable-next-line no-unused-vars
-function PrivacyPreferences(props: { ... }): React.Node {
+function PrivacyPreferences(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   return (

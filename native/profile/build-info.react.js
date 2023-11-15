@@ -6,13 +6,19 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { useIsCurrentUserStaff } from 'lib/shared/staff-utils.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { persistConfig, codeVersion } from '../redux/persist.js';
 import { StaffContext } from '../staff/staff-context.js';
 import { useStyles } from '../themes/colors.js';
 import { isStaffRelease, useStaffCanSee } from '../utils/staff-utils.js';
 
+type Props = {
+  +navigation: ProfileNavigationProp<'BuildInfo'>,
+  +route: NavigationRoute<'BuildInfo'>,
+};
 // eslint-disable-next-line no-unused-vars
-function BuildInfo(props: { ... }): React.Node {
+function BuildInfo(props: Props): React.Node {
   const isCurrentUserStaff = useIsCurrentUserStaff();
   const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
   const styles = useStyles(unboundStyles);

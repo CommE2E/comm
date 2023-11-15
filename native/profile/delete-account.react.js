@@ -12,8 +12,10 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js'
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Button from '../components/button.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -22,7 +24,11 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
 
-const DeleteAccount: React.ComponentType<{ ... }> = React.memo<{ ... }>(
+type Props = {
+  +navigation: ProfileNavigationProp<'DeleteAccount'>,
+  +route: NavigationRoute<'DeleteAccount'>,
+};
+const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
   function DeleteAccount() {
     const loadingStatus = useSelector(loadingStatusSelector);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
