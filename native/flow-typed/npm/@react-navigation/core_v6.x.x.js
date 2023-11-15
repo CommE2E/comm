@@ -1391,10 +1391,9 @@ declare module '@react-navigation/core' {
    * Stack options
    */
 
-  declare export type StackDescriptor = Descriptor<
-    StackNavigationHelpers<>,
-    StackOptions,
-  >;
+  declare export type StackDescriptor<
+    Helpers = StackNavigationHelpers<>,
+  > = Descriptor<Helpers, StackOptions>;
 
   declare export type StackHeaderProps = {|
     ...HeaderProps<StackNavigationProp<>, StackOptions>,
