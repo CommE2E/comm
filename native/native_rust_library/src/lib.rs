@@ -18,6 +18,7 @@ use tonic::Status;
 use tracing::instrument;
 
 mod argon2_tools;
+mod cxx_promise_manager;
 
 use argon2_tools::compute_backup_key;
 
@@ -46,7 +47,6 @@ lazy_static! {
 
 #[cxx::bridge]
 mod ffi {
-
   extern "Rust" {
     #[cxx_name = "identityRegisterUser"]
     fn register_user(
