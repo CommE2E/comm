@@ -1396,12 +1396,6 @@ declare module '@react-navigation/core' {
     StackOptions,
   >;
 
-  declare type Scene<T> = {|
-    +route: T,
-    +descriptor: StackDescriptor,
-    +progress: SceneProgress,
-  |};
-
   declare export type StackHeaderProps = {|
     ...HeaderProps<StackNavigationProp<>, StackOptions>,
     +progress: SceneProgress,
