@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import TextInput from './text-input.react.js';
@@ -25,7 +26,10 @@ type Props = {
   +active?: boolean,
 };
 
-function ForwardedSearch(props: Props, ref) {
+function ForwardedSearch(
+  props: Props,
+  ref: ReactRefSetter<React.ElementRef<typeof BaseTextInput>>,
+) {
   const { onChangeText, searchText, containerStyle, active, ...rest } = props;
 
   const clearSearch = React.useCallback(() => {
