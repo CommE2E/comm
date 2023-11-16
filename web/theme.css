@@ -267,9 +267,12 @@
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
+  --button-background-secondary-default: var(--shades-black-75);
   --button-background-primary-hover: var(--violet-dark-80);
+  --button-background-secondary-hover: var(--shades-black-60);
   --button-background-primary-disabled: var(--shades-black-75);
   --button-label-primary-default: var(--shades-white-100);
+  --button-label-secondary-default: var(--shades-white-60);
   --button-label-primary-hover: var(--shades-white-90);
   --button-label-primary-disabled: var(--shades-black-50);
 
@@ -315,9 +318,12 @@
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
+  --button-background-secondary-default: var(--shades-black-50);
   --button-background-primary-hover: var(--violet-dark-80);
+  --button-background-secondary-hover: var(--shades-black-60);
   --button-background-primary-disabled: var(--shades-white-60);
   --button-label-primary-default: var(--shades-white-100);
+  --button-label-secondary-default: var(--shades-white-90);
   --button-label-primary-hover: var(--shades-white-90);
   --button-label-primary-disabled: var(--shades-black-50);
 
