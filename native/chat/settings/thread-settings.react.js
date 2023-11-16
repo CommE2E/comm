@@ -246,6 +246,23 @@ type ChatSettingsItem =
       +relationshipButton: RelationshipButton,
     };
 
+const unboundStyles = {
+  container: {
+    backgroundColor: 'panelBackground',
+    flex: 1,
+  },
+  flatList: {
+    paddingVertical: 16,
+  },
+  nonTopButton: {
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+  },
+  lastButton: {
+    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
+  },
+};
+
 type BaseProps = {
   +navigation: ChatNavigationProp<'ThreadSettings'>,
   +route: NavigationRoute<'ThreadSettings'>,
@@ -1112,23 +1129,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     });
   };
 }
-
-const unboundStyles = {
-  container: {
-    backgroundColor: 'panelBackground',
-    flex: 1,
-  },
-  flatList: {
-    paddingVertical: 16,
-  },
-  nonTopButton: {
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-  },
-  lastButton: {
-    paddingBottom: Platform.OS === 'ios' ? 14 : 12,
-  },
-};
 
 const threadMembersChangeIsSaving = (
   state: AppState,

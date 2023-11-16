@@ -47,6 +47,51 @@ import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { VerticalBounds } from '../../types/layout-types.js';
 import { useNavigateToUserProfileBottomSheet } from '../../user-profile/user-profile-utils.js';
 
+const unboundStyles = {
+  container: {
+    backgroundColor: 'panelForeground',
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+  },
+  editButton: {
+    paddingLeft: 10,
+  },
+  topBorder: {
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+  },
+  lastContainer: {
+    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
+  },
+  role: {
+    color: 'panelForegroundTertiaryLabel',
+    flex: 1,
+    fontSize: 14,
+    paddingTop: 4,
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  userInfoContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  username: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontSize: 16,
+    lineHeight: 20,
+    marginLeft: 8,
+  },
+  anonymous: {
+    color: 'panelForegroundTertiaryLabel',
+    fontStyle: 'italic',
+  },
+};
+
 type BaseProps = {
   +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
@@ -208,51 +253,6 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
   };
 }
-
-const unboundStyles = {
-  container: {
-    backgroundColor: 'panelForeground',
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-  },
-  editButton: {
-    paddingLeft: 10,
-  },
-  topBorder: {
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-  },
-  lastContainer: {
-    paddingBottom: Platform.OS === 'ios' ? 12 : 10,
-  },
-  role: {
-    color: 'panelForegroundTertiaryLabel',
-    flex: 1,
-    fontSize: 14,
-    paddingTop: 4,
-  },
-  row: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  userInfoContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  username: {
-    color: 'panelForegroundSecondaryLabel',
-    flex: 1,
-    fontSize: 16,
-    lineHeight: 20,
-    marginLeft: 8,
-  },
-  anonymous: {
-    color: 'panelForegroundTertiaryLabel',
-    fontStyle: 'italic',
-  },
-};
 
 const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsMember(

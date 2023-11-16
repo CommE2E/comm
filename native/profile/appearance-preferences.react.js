@@ -27,6 +27,48 @@ const CheckIcon = () => (
   />
 );
 
+const unboundStyles = {
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  hr: {
+    backgroundColor: 'panelForegroundBorder',
+    height: 1,
+    marginHorizontal: 15,
+  },
+  icon: {
+    lineHeight: Platform.OS === 'ios' ? 18 : 20,
+  },
+  option: {
+    color: 'panelForegroundLabel',
+    fontSize: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 2,
+  },
+};
+
 type OptionText = {
   themePreference: GlobalThemePreference,
   text: string,
@@ -92,48 +134,6 @@ class AppearancePreferences extends React.PureComponent<Props> {
     );
   }
 }
-
-const unboundStyles = {
-  header: {
-    color: 'panelBackgroundLabel',
-    fontSize: 12,
-    fontWeight: '400',
-    paddingBottom: 3,
-    paddingHorizontal: 24,
-  },
-  hr: {
-    backgroundColor: 'panelForegroundBorder',
-    height: 1,
-    marginHorizontal: 15,
-  },
-  icon: {
-    lineHeight: Platform.OS === 'ios' ? 18 : 20,
-  },
-  option: {
-    color: 'panelForegroundLabel',
-    fontSize: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  section: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    marginBottom: 24,
-    paddingVertical: 2,
-  },
-};
 
 type BaseProps = {
   +navigation: ProfileNavigationProp<'AppearancePreferences'>,

@@ -12,6 +12,21 @@ import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';
 
+const unboundStyles = {
+  button: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingLeft: 13,
+  },
+  text: {
+    color: 'modalForegroundLabel',
+    fontSize: 16,
+    paddingLeft: 9,
+    paddingRight: 12,
+    paddingVertical: 6,
+  },
+};
+
 type SharedProps = {
   +onSelect: (threadID: string) => void,
   +style?: ViewStyle,
@@ -51,21 +66,6 @@ class ThreadListThread extends React.PureComponent<Props> {
     this.props.onSelect(this.props.threadInfo.id);
   };
 }
-
-const unboundStyles = {
-  button: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    paddingLeft: 13,
-  },
-  text: {
-    color: 'modalForegroundLabel',
-    fontSize: 16,
-    paddingLeft: 9,
-    paddingRight: 12,
-    paddingVertical: 6,
-  },
-};
 
 const ConnectedThreadListThread: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadListThread(props: BaseProps) {

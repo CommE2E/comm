@@ -60,6 +60,89 @@ function ProfileRow(props: ProfileRowProps): React.Node {
   );
 }
 
+const unboundStyles = {
+  avatarSection: {
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+  },
+  deleteAccountButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  editPasswordButton: {
+    paddingTop: Platform.OS === 'android' ? 3 : 2,
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    paddingRight: 12,
+  },
+  loggedInLabel: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+  },
+  logOutText: {
+    color: 'link',
+    fontSize: 16,
+    paddingLeft: 6,
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  paddedRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 1,
+  },
+  unpaddedSection: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+  },
+  username: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+  },
+  value: {
+    color: 'panelForegroundLabel',
+    fontSize: 16,
+    textAlign: 'right',
+  },
+};
+
 type BaseProps = {
   +navigation: ProfileNavigationProp<'ProfileScreen'>,
   +route: NavigationRoute<'ProfileScreen'>,
@@ -343,89 +426,6 @@ class ProfileScreen extends React.PureComponent<Props> {
     this.navigateIfActive(KeyserverSelectionListRouteName);
   };
 }
-
-const unboundStyles = {
-  avatarSection: {
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-  },
-  deleteAccountButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  editPasswordButton: {
-    paddingTop: Platform.OS === 'android' ? 3 : 2,
-  },
-  header: {
-    color: 'panelBackgroundLabel',
-    fontSize: 12,
-    fontWeight: '400',
-    paddingBottom: 3,
-    paddingHorizontal: 24,
-  },
-  label: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
-    paddingRight: 12,
-  },
-  loggedInLabel: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
-  },
-  logOutText: {
-    color: 'link',
-    fontSize: 16,
-    paddingLeft: 6,
-  },
-  row: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  paddedRow: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  section: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    marginBottom: 24,
-    paddingVertical: 1,
-  },
-  unpaddedSection: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    marginBottom: 24,
-  },
-  username: {
-    color: 'panelForegroundLabel',
-    flex: 1,
-  },
-  value: {
-    color: 'panelForegroundLabel',
-    fontSize: 16,
-    textAlign: 'right',
-  },
-};
 
 const logOutLoadingStatusSelector =
   createLoadingStatusSelector(logOutActionTypes);

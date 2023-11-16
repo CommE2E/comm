@@ -51,6 +51,46 @@ import type { VerticalBounds } from '../types/layout-types.js';
 import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 import Alert from '../utils/alert.js';
 
+const unboundStyles = {
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
+  },
+  borderBottom: {
+    borderBottomWidth: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+  },
+  editButtonWithMargin: {
+    marginLeft: 15,
+  },
+  username: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontSize: 16,
+    lineHeight: 20,
+    marginLeft: 8,
+  },
+  editButton: {
+    paddingLeft: 10,
+  },
+  blueAction: {
+    color: 'link',
+    fontSize: 16,
+    paddingLeft: 6,
+  },
+  redAction: {
+    color: 'redText',
+    fontSize: 16,
+    paddingLeft: 6,
+  },
+};
+
 type BaseProps = {
   +userInfo: AccountUserInfo,
   +lastListItem: boolean,
@@ -274,46 +314,6 @@ class RelationshipListItem extends React.PureComponent<Props> {
     }
   }
 }
-
-const unboundStyles = {
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
-  },
-  borderBottom: {
-    borderBottomWidth: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-  },
-  editButtonWithMargin: {
-    marginLeft: 15,
-  },
-  username: {
-    color: 'panelForegroundSecondaryLabel',
-    flex: 1,
-    fontSize: 16,
-    lineHeight: 20,
-    marginLeft: 8,
-  },
-  editButton: {
-    paddingLeft: 10,
-  },
-  blueAction: {
-    color: 'link',
-    fontSize: 16,
-    paddingLeft: 6,
-  },
-  redAction: {
-    color: 'redText',
-    fontSize: 16,
-    paddingLeft: 6,
-  },
-};
 
 const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedRelationshipListItem(

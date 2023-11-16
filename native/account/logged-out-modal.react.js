@@ -125,6 +125,113 @@ function isPastPrompt(modeValue: Node) {
   );
 }
 
+const unboundStyles = {
+  animationContainer: {
+    flex: 1,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 13,
+  },
+  button: {
+    borderRadius: 4,
+    marginBottom: 4,
+    marginTop: 4,
+    marginLeft: 4,
+    marginRight: 4,
+    paddingBottom: 14,
+    paddingLeft: 18,
+    paddingRight: 18,
+    paddingTop: 14,
+    flex: 1,
+  },
+  buttonContainer: {
+    bottom: 0,
+    left: 0,
+    marginLeft: 26,
+    marginRight: 26,
+    paddingBottom: 20,
+    position: 'absolute',
+    right: 0,
+  },
+  buttonText: {
+    fontFamily: 'OpenSans-Semibold',
+    fontSize: 17,
+    textAlign: 'center',
+  },
+  classicAuthButton: {
+    backgroundColor: 'purpleButton',
+  },
+  classicAuthButtonText: {
+    color: 'whiteText',
+  },
+  registerButtons: {
+    flexDirection: 'row',
+  },
+  signInButtons: {
+    flexDirection: 'row',
+  },
+  container: {
+    backgroundColor: 'transparent',
+    flex: 1,
+  },
+  header: {
+    color: 'white',
+    fontFamily: Platform.OS === 'ios' ? 'IBMPlexSans' : 'IBMPlexSans-Medium',
+    fontSize: 56,
+    fontWeight: '500',
+    lineHeight: 66,
+    textAlign: 'center',
+  },
+  loadingIndicator: {
+    paddingTop: 15,
+  },
+  modalBackground: {
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  siweButton: {
+    backgroundColor: 'siweButton',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  siweButtonText: {
+    color: 'siweButtonText',
+  },
+  siweOr: {
+    flex: 1,
+    flexDirection: 'row',
+    marginBottom: 18,
+    marginTop: 14,
+  },
+  siweOrLeftHR: {
+    borderColor: 'logInSpacer',
+    borderTopWidth: 1,
+    flex: 1,
+    marginRight: 18,
+    marginTop: 10,
+  },
+  siweOrRightHR: {
+    borderColor: 'logInSpacer',
+    borderTopWidth: 1,
+    flex: 1,
+    marginLeft: 18,
+    marginTop: 10,
+  },
+  siweOrText: {
+    color: 'whiteText',
+    fontSize: 17,
+    textAlign: 'center',
+  },
+  siweIcon: {
+    paddingRight: 10,
+  },
+};
+
 type BaseProps = {
   +navigation: RootNavigationProp<'LoggedOutModal'>,
   +route: NavigationRoute<'LoggedOutModal'>,
@@ -689,113 +796,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.props.navigation.navigate(RegistrationRouteName);
   };
 }
-
-const unboundStyles = {
-  animationContainer: {
-    flex: 1,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 13,
-  },
-  button: {
-    borderRadius: 4,
-    marginBottom: 4,
-    marginTop: 4,
-    marginLeft: 4,
-    marginRight: 4,
-    paddingBottom: 14,
-    paddingLeft: 18,
-    paddingRight: 18,
-    paddingTop: 14,
-    flex: 1,
-  },
-  buttonContainer: {
-    bottom: 0,
-    left: 0,
-    marginLeft: 26,
-    marginRight: 26,
-    paddingBottom: 20,
-    position: 'absolute',
-    right: 0,
-  },
-  buttonText: {
-    fontFamily: 'OpenSans-Semibold',
-    fontSize: 17,
-    textAlign: 'center',
-  },
-  classicAuthButton: {
-    backgroundColor: 'purpleButton',
-  },
-  classicAuthButtonText: {
-    color: 'whiteText',
-  },
-  registerButtons: {
-    flexDirection: 'row',
-  },
-  signInButtons: {
-    flexDirection: 'row',
-  },
-  container: {
-    backgroundColor: 'transparent',
-    flex: 1,
-  },
-  header: {
-    color: 'white',
-    fontFamily: Platform.OS === 'ios' ? 'IBMPlexSans' : 'IBMPlexSans-Medium',
-    fontSize: 56,
-    fontWeight: '500',
-    lineHeight: 66,
-    textAlign: 'center',
-  },
-  loadingIndicator: {
-    paddingTop: 15,
-  },
-  modalBackground: {
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
-  siweButton: {
-    backgroundColor: 'siweButton',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  siweButtonText: {
-    color: 'siweButtonText',
-  },
-  siweOr: {
-    flex: 1,
-    flexDirection: 'row',
-    marginBottom: 18,
-    marginTop: 14,
-  },
-  siweOrLeftHR: {
-    borderColor: 'logInSpacer',
-    borderTopWidth: 1,
-    flex: 1,
-    marginRight: 18,
-    marginTop: 10,
-  },
-  siweOrRightHR: {
-    borderColor: 'logInSpacer',
-    borderTopWidth: 1,
-    flex: 1,
-    marginLeft: 18,
-    marginTop: 10,
-  },
-  siweOrText: {
-    color: 'whiteText',
-    fontSize: 17,
-    textAlign: 'center',
-  },
-  siweIcon: {
-    paddingRight: 10,
-  },
-};
 
 const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,

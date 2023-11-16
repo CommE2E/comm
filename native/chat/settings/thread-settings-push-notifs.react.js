@@ -28,6 +28,31 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
 
+const unboundStyles = {
+  currentValue: {
+    alignItems: 'flex-end',
+    margin: 0,
+    paddingLeft: 4,
+    paddingRight: 0,
+    paddingVertical: 0,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    flex: 1,
+  },
+  row: {
+    alignItems: 'center',
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 3,
+  },
+  infoIcon: {
+    paddingRight: 20,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
@@ -146,31 +171,6 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
     ]);
   };
 }
-
-const unboundStyles = {
-  currentValue: {
-    alignItems: 'flex-end',
-    margin: 0,
-    paddingLeft: 4,
-    paddingRight: 0,
-    paddingVertical: 0,
-  },
-  label: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
-    flex: 1,
-  },
-  row: {
-    alignItems: 'center',
-    backgroundColor: 'panelForeground',
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 3,
-  },
-  infoIcon: {
-    paddingRight: 20,
-  },
-};
 
 const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsPushNotifs(

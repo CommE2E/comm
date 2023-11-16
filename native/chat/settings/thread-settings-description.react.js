@@ -45,6 +45,48 @@ import type {
 } from '../../types/react-native.js';
 import Alert from '../../utils/alert.js';
 
+const unboundStyles = {
+  addDescriptionButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  addDescriptionText: {
+    color: 'panelForegroundTertiaryLabel',
+    flex: 1,
+    fontSize: 16,
+  },
+  editIcon: {
+    color: 'panelForegroundTertiaryLabel',
+    paddingLeft: 10,
+    textAlign: 'right',
+  },
+  outlineCategory: {
+    backgroundColor: 'panelForeground',
+    borderColor: 'panelForegroundBorder',
+    borderRadius: 1,
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    marginLeft: -1,
+    marginRight: -1,
+  },
+  row: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 4,
+  },
+  text: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    margin: 0,
+    padding: 0,
+    borderBottomColor: 'transparent',
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +descriptionEditValue: ?string,
@@ -249,48 +291,6 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     );
   };
 }
-
-const unboundStyles = {
-  addDescriptionButton: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  addDescriptionText: {
-    color: 'panelForegroundTertiaryLabel',
-    flex: 1,
-    fontSize: 16,
-  },
-  editIcon: {
-    color: 'panelForegroundTertiaryLabel',
-    paddingLeft: 10,
-    textAlign: 'right',
-  },
-  outlineCategory: {
-    backgroundColor: 'panelForeground',
-    borderColor: 'panelForegroundBorder',
-    borderRadius: 1,
-    borderStyle: 'dashed',
-    borderWidth: 1,
-    marginLeft: -1,
-    marginRight: -1,
-  },
-  row: {
-    backgroundColor: 'panelForeground',
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 4,
-  },
-  text: {
-    color: 'panelForegroundSecondaryLabel',
-    flex: 1,
-    fontFamily: 'Arial',
-    fontSize: 16,
-    margin: 0,
-    padding: 0,
-    borderBottomColor: 'transparent',
-  },
-};
 
 const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsDescription(

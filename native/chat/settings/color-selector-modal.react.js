@@ -32,6 +32,36 @@ export type ColorSelectorModalParams = {
   +setColor: (color: string) => void,
 };
 
+const unboundStyles = {
+  closeButton: {
+    borderRadius: 3,
+    height: 18,
+    position: 'absolute',
+    right: 5,
+    top: 5,
+    width: 18,
+  },
+  closeButtonIcon: {
+    color: 'modalBackgroundSecondaryLabel',
+    left: 3,
+    position: 'absolute',
+  },
+  colorSelector: {
+    bottom: 10,
+    left: 10,
+    position: 'absolute',
+    right: 10,
+    top: 10,
+  },
+  colorSelectorContainer: {
+    backgroundColor: 'modalBackground',
+    borderRadius: 5,
+    flex: 0,
+    marginHorizontal: 15,
+    marginVertical: 20,
+  },
+};
+
 type BaseProps = {
   +navigation: RootNavigationProp<'ColorSelectorModal'>,
   +route: NavigationRoute<'ColorSelectorModal'>,
@@ -136,36 +166,6 @@ function ColorSelectorModal(props: Props): React.Node {
     </Modal>
   );
 }
-
-const unboundStyles = {
-  closeButton: {
-    borderRadius: 3,
-    height: 18,
-    position: 'absolute',
-    right: 5,
-    top: 5,
-    width: 18,
-  },
-  closeButtonIcon: {
-    color: 'modalBackgroundSecondaryLabel',
-    left: 3,
-    position: 'absolute',
-  },
-  colorSelector: {
-    bottom: 10,
-    left: 10,
-    position: 'absolute',
-    right: 10,
-    top: 10,
-  },
-  colorSelectorContainer: {
-    backgroundColor: 'modalBackground',
-    borderRadius: 5,
-    flex: 0,
-    marginHorizontal: 15,
-    marginVertical: 20,
-  },
-};
 
 const ConnectedColorSelectorModal: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedColorSelectorModal(props: BaseProps) {

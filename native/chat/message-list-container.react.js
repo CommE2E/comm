@@ -50,6 +50,32 @@ import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 
+const unboundStyles = {
+  pinnedCountBanner: {
+    backgroundColor: 'panelForeground',
+    height: 30,
+    flexDirection: 'row',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pinnedCountText: {
+    color: 'panelBackgroundLabel',
+    marginRight: 5,
+  },
+  container: {
+    backgroundColor: 'listBackground',
+    flex: 1,
+  },
+  threadContent: {
+    flex: 1,
+  },
+  hiddenThreadContent: {
+    height: 0,
+    opacity: 0,
+  },
+};
+
 type BaseProps = {
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
@@ -213,32 +239,6 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
   };
 }
-
-const unboundStyles = {
-  pinnedCountBanner: {
-    backgroundColor: 'panelForeground',
-    height: 30,
-    flexDirection: 'row',
-    textAlign: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pinnedCountText: {
-    color: 'panelBackgroundLabel',
-    marginRight: 5,
-  },
-  container: {
-    backgroundColor: 'listBackground',
-    flex: 1,
-  },
-  threadContent: {
-    flex: 1,
-  },
-  hiddenThreadContent: {
-    height: 0,
-    opacity: 0,
-  },
-};
 
 const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedMessageListContainer(

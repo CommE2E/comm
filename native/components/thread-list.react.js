@@ -19,6 +19,12 @@ import {
 import type { ViewStyle, TextStyle } from '../types/styles.js';
 import { waitForModalInputFocus } from '../utils/timers.js';
 
+const unboundStyles = {
+  search: {
+    marginBottom: 8,
+  },
+};
+
 type BaseProps = {
   +threadInfos: $ReadOnlyArray<ThreadInfo>,
   +onSelect: (threadID: string) => void,
@@ -136,12 +142,6 @@ class ThreadList extends React.PureComponent<Props, State> {
     }
   };
 }
-
-const unboundStyles = {
-  search: {
-    marginBottom: 8,
-  },
-};
 
 const ConnectedThreadList: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadList(props: BaseProps) {
