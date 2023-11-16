@@ -10,6 +10,7 @@ import {
   useColors,
   useKeyboardAppearance,
 } from '../../themes/colors.js';
+import type { FocusEvent, BlurEvent } from '../../types/react-native.js';
 
 type Props = React.ElementConfig<typeof TextInput>;
 
@@ -28,14 +29,14 @@ function ForwardedRegistrationTextInput(
 
   const [focused, setFocused] = React.useState(false);
   const ourOnFocus = React.useCallback(
-    event => {
+    (event: FocusEvent) => {
       setFocused(true);
       onFocus?.(event);
     },
     [onFocus],
   );
   const ourOnBlur = React.useCallback(
-    event => {
+    (event: BlurEvent) => {
       setFocused(false);
       onBlur?.(event);
     },

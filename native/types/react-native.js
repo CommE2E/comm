@@ -12,6 +12,7 @@ export type {
 export type {
   ContentSizeChangeEvent,
   KeyPressEvent,
+  FocusEvent,
   BlurEvent,
   SelectionChangeEvent,
 } from 'react-native/Libraries/Components/TextInput/TextInput.js';
