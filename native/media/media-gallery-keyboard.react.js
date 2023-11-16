@@ -22,6 +22,7 @@ import {
 } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { MediaLibrarySelection } from 'lib/types/media-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { getCompatibleMediaURI } from './identifier-utils.js';
@@ -45,7 +46,7 @@ const animationSpec = {
 };
 
 type BaseProps = {
-  +threadInfo: ?ThreadInfo,
+  +threadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,

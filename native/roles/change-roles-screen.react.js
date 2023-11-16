@@ -12,6 +12,10 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -24,8 +28,8 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type ChangeRolesScreenParams = {
-  +threadInfo: ThreadInfo,
-  +memberInfo: RelativeMemberInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   +role: ?string,
 };
 

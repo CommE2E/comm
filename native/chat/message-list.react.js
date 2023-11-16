@@ -19,6 +19,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { useWatchThread } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import {
@@ -55,7 +56,7 @@ import type { VerticalBounds } from '../types/layout-types.js';
 import type { ViewableItemsChange } from '../types/react-native.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,

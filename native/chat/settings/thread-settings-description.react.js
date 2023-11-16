@@ -16,6 +16,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadInfo,
@@ -45,7 +46,7 @@ import type {
 import Alert from '../../utils/alert.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +descriptionEditValue: ?string,
   +setDescriptionEditValue: (value: ?string, callback?: () => void) => void,
   +descriptionTextHeight: ?number,
