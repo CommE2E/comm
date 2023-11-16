@@ -8,6 +8,7 @@ import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
+import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import {
   cookieSelector,
   urlPrefixSelector,
@@ -168,12 +169,19 @@ function SQLiteDataHandler(): React.Node {
         mediaCacheContext?.evictCache(),
       ]);
       try {
-        const { threads, messages, drafts, messageStoreThreads, reports } =
-          await commCoreModule.getClientDBStore();
+        const {
+          threads,
+          messages,
+          drafts,
+          messageStoreThreads,
+          reports,
+          users,
+        } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
         const reportsFromDb =
           reportStoreOpsHandlers.translateClientDBData(reports);
+        const usersFromDb = userStoreOpsHandlers.translateClientDBData(users);
 
         dispatch({
           type: setClientDBStoreActionType,
@@ -184,6 +192,7 @@ function SQLiteDataHandler(): React.Node {
             currentUserID: currentLoggedInUserID,
             messageStoreThreads,
             reports: reportsFromDb,
+            users: usersFromDb,
           },
         });
       } catch (setStoreException) {
