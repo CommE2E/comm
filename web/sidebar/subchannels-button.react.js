@@ -4,6 +4,7 @@ import * as React from 'react';
 import { CornerDownRight } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './subchannels-button.css';
@@ -11,7 +12,7 @@ import Button from '../components/button.react.js';
 import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function SubchannelsButton(props: Props): React.Node {
