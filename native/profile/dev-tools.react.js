@@ -32,6 +32,63 @@ const ServerIcon = () => (
   />
 );
 
+const unboundStyles = {
+  container: {
+    flex: 1,
+  },
+  customServerLabel: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  hr: {
+    backgroundColor: 'panelForegroundBorder',
+    height: 1,
+    marginHorizontal: 15,
+  },
+  icon: {
+    lineHeight: Platform.OS === 'ios' ? 18 : 20,
+  },
+  redText: {
+    color: 'redText',
+    flex: 1,
+    fontSize: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+  },
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  serverContainer: {
+    flex: 1,
+  },
+  serverText: {
+    color: 'panelForegroundLabel',
+    fontSize: 16,
+  },
+  slightlyPaddedSection: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 2,
+  },
+};
+
 type BaseProps = {
   +navigation: ProfileNavigationProp<'DevTools'>,
   +route: NavigationRoute<'DevTools'>,
@@ -177,63 +234,6 @@ class DevTools extends React.PureComponent<Props> {
     });
   };
 }
-
-const unboundStyles = {
-  container: {
-    flex: 1,
-  },
-  customServerLabel: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
-  },
-  header: {
-    color: 'panelBackgroundLabel',
-    fontSize: 12,
-    fontWeight: '400',
-    paddingBottom: 3,
-    paddingHorizontal: 24,
-  },
-  hr: {
-    backgroundColor: 'panelForegroundBorder',
-    height: 1,
-    marginHorizontal: 15,
-  },
-  icon: {
-    lineHeight: Platform.OS === 'ios' ? 18 : 20,
-  },
-  redText: {
-    color: 'redText',
-    flex: 1,
-    fontSize: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  serverContainer: {
-    flex: 1,
-  },
-  serverText: {
-    color: 'panelForegroundLabel',
-    fontSize: 16,
-  },
-  slightlyPaddedSection: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    marginBottom: 24,
-    paddingVertical: 2,
-  },
-};
 
 const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedDevTools(props: BaseProps) {

@@ -56,6 +56,61 @@ export type DeleteThreadParams = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
+const unboundStyles = {
+  deleteButton: {
+    backgroundColor: 'vibrantRedButton',
+    borderRadius: 5,
+    flex: 1,
+    marginHorizontal: 24,
+    marginVertical: 12,
+    padding: 12,
+  },
+  deleteText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  input: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    paddingVertical: 0,
+    borderBottomColor: 'transparent',
+  },
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  warningText: {
+    color: 'panelForegroundLabel',
+    fontSize: 16,
+    marginBottom: 24,
+    marginHorizontal: 24,
+    textAlign: 'center',
+  },
+};
+
 type BaseProps = {
   +navigation: ChatNavigationProp<'DeleteThread'>,
   +route: NavigationRoute<'DeleteThread'>,
@@ -191,61 +246,6 @@ class DeleteThread extends React.PureComponent<Props> {
     }
   }
 }
-
-const unboundStyles = {
-  deleteButton: {
-    backgroundColor: 'vibrantRedButton',
-    borderRadius: 5,
-    flex: 1,
-    marginHorizontal: 24,
-    marginVertical: 12,
-    padding: 12,
-  },
-  deleteText: {
-    color: 'white',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  header: {
-    color: 'panelBackgroundLabel',
-    fontSize: 12,
-    fontWeight: '400',
-    paddingBottom: 3,
-    paddingHorizontal: 24,
-  },
-  input: {
-    color: 'panelForegroundLabel',
-    flex: 1,
-    fontFamily: 'Arial',
-    fontSize: 16,
-    paddingVertical: 0,
-    borderBottomColor: 'transparent',
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  section: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  warningText: {
-    color: 'panelForegroundLabel',
-    fontSize: 16,
-    marginBottom: 24,
-    marginHorizontal: 24,
-    textAlign: 'center',
-  },
-};
 
 const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,

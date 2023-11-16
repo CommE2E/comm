@@ -15,6 +15,14 @@ import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { useStyles } from '../themes/colors.js';
 
+const unboundStyles = {
+  // This is a special style needed by 'react-native-keyboard-input':
+  // https://github.com/wix/react-native-keyboard-input/blob/acb3a58e96988026f449b48e8b49f49164684d9f/src/KeyboardAccessoryView.js#L115
+  kbInitialProps: {
+    backgroundColor: 'listBackground',
+  },
+};
+
 type BaseProps = {
   +textInputRef?: ?React.ElementRef<typeof TextInput>,
 };
@@ -91,14 +99,6 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     keyboardState.hideMediaGallery();
   };
 }
-
-const unboundStyles = {
-  // This is a special style needed by 'react-native-keyboard-input':
-  // https://github.com/wix/react-native-keyboard-input/blob/acb3a58e96988026f449b48e8b49f49164684d9f/src/KeyboardAccessoryView.js#L115
-  kbInitialProps: {
-    backgroundColor: 'listBackground',
-  },
-};
 
 const ConnectedKeyboardInputHost: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedKeyboardInputHost(props: BaseProps) {

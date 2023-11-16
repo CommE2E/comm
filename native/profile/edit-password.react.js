@@ -33,6 +33,62 @@ import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
+const unboundStyles = {
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  hr: {
+    backgroundColor: 'panelForegroundBorder',
+    height: 1,
+    marginHorizontal: 15,
+  },
+  input: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    paddingVertical: 0,
+    borderBottomColor: 'transparent',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 9,
+  },
+  saveButton: {
+    backgroundColor: 'vibrantGreenButton',
+    borderRadius: 5,
+    flex: 1,
+    marginHorizontal: 24,
+    marginVertical: 12,
+    padding: 12,
+  },
+  saveText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingVertical: 3,
+  },
+};
+
 type BaseProps = {
   +navigation: ProfileNavigationProp<'EditPassword'>,
   +route: NavigationRoute<'EditPassword'>,
@@ -279,62 +335,6 @@ class EditPassword extends React.PureComponent<Props, State> {
     );
   };
 }
-
-const unboundStyles = {
-  header: {
-    color: 'panelBackgroundLabel',
-    fontSize: 12,
-    fontWeight: '400',
-    paddingBottom: 3,
-    paddingHorizontal: 24,
-  },
-  hr: {
-    backgroundColor: 'panelForegroundBorder',
-    height: 1,
-    marginHorizontal: 15,
-  },
-  input: {
-    color: 'panelForegroundLabel',
-    flex: 1,
-    fontFamily: 'Arial',
-    fontSize: 16,
-    paddingVertical: 0,
-    borderBottomColor: 'transparent',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 9,
-  },
-  saveButton: {
-    backgroundColor: 'vibrantGreenButton',
-    borderRadius: 5,
-    flex: 1,
-    marginHorizontal: 24,
-    marginVertical: 12,
-    padding: 12,
-  },
-  saveText: {
-    color: 'white',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  section: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    marginBottom: 24,
-    paddingVertical: 3,
-  },
-};
 
 const loadingStatusSelector = createLoadingStatusSelector(
   changeUserPasswordActionTypes,

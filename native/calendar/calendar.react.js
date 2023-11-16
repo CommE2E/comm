@@ -121,6 +121,42 @@ type ExtraData = {
   +visibleEntries: { +[key: string]: boolean },
 };
 
+const unboundStyles = {
+  container: {
+    backgroundColor: 'listBackground',
+    flex: 1,
+  },
+  flatList: {
+    backgroundColor: 'listBackground',
+    flex: 1,
+  },
+  keyboardAvoidingViewContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  keyboardAvoidingView: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  sectionHeader: {
+    backgroundColor: 'panelSecondaryForeground',
+    borderBottomWidth: 2,
+    borderColor: 'listBackground',
+    height: 31,
+  },
+  sectionHeaderText: {
+    color: 'listSeparatorLabel',
+    fontWeight: 'bold',
+    padding: 5,
+  },
+  weekendSectionHeader: {},
+};
+
 type BaseProps = {
   +navigation: TabNavigationProp<'Calendar'>,
   +route: NavigationRoute<'Calendar'>,
@@ -1012,42 +1048,6 @@ class Calendar extends React.PureComponent<Props, State> {
     }
   };
 }
-
-const unboundStyles = {
-  container: {
-    backgroundColor: 'listBackground',
-    flex: 1,
-  },
-  flatList: {
-    backgroundColor: 'listBackground',
-    flex: 1,
-  },
-  keyboardAvoidingViewContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  sectionHeader: {
-    backgroundColor: 'panelSecondaryForeground',
-    borderBottomWidth: 2,
-    borderColor: 'listBackground',
-    height: 31,
-  },
-  sectionHeaderText: {
-    color: 'listSeparatorLabel',
-    fontWeight: 'bold',
-    padding: 5,
-  },
-  weekendSectionHeader: {},
-};
 
 const loadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,

@@ -22,6 +22,43 @@ export type ComposeSubchannelModalParams = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
+const unboundStyles = {
+  forwardIcon: {
+    color: 'modalForegroundSecondaryLabel',
+    paddingLeft: 10,
+  },
+  modal: {
+    flex: 0,
+  },
+  option: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+  },
+  optionExplanation: {
+    color: 'modalBackgroundLabel',
+    flex: 1,
+    fontSize: 14,
+    paddingLeft: 20,
+    textAlign: 'center',
+  },
+  optionText: {
+    color: 'modalBackgroundLabel',
+    fontSize: 20,
+    paddingLeft: 5,
+  },
+  visibility: {
+    color: 'modalBackgroundLabel',
+    fontSize: 24,
+    textAlign: 'center',
+  },
+  visibilityIcon: {
+    color: 'modalBackgroundLabel',
+    paddingRight: 3,
+  },
+};
+
 type BaseProps = {
   +navigation: RootNavigationProp<'ComposeSubchannelModal'>,
   +route: NavigationRoute<'ComposeSubchannelModal'>,
@@ -100,43 +137,6 @@ class ComposeSubchannelModal extends React.PureComponent<Props> {
     });
   };
 }
-
-const unboundStyles = {
-  forwardIcon: {
-    color: 'modalForegroundSecondaryLabel',
-    paddingLeft: 10,
-  },
-  modal: {
-    flex: 0,
-  },
-  option: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    paddingVertical: 20,
-  },
-  optionExplanation: {
-    color: 'modalBackgroundLabel',
-    flex: 1,
-    fontSize: 14,
-    paddingLeft: 20,
-    textAlign: 'center',
-  },
-  optionText: {
-    color: 'modalBackgroundLabel',
-    fontSize: 20,
-    paddingLeft: 5,
-  },
-  visibility: {
-    color: 'modalBackgroundLabel',
-    fontSize: 24,
-    textAlign: 'center',
-  },
-  visibilityIcon: {
-    color: 'modalBackgroundLabel',
-    paddingRight: 3,
-  },
-};
 
 const ConnectedComposeSubchannelModal: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedComposeSubchannelModal(
