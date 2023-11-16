@@ -10,6 +10,7 @@ import css from './keyserver-selection-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import KeyserverPill from '../../components/keyserver-pill.react.js';
 import StatusIndicator from '../../components/status-indicator.react.js';
+import Alert from '../alert.react.js';
 import Modal from '../modal.react.js';
 
 type Props = {
@@ -20,7 +21,18 @@ type Props = {
 function KeyserverSelectionModal(props: Props): React.Node {
   const { keyserverAdminUserInfo, keyserverInfo } = props;
 
-  const { popModal } = useModalContext();
+  const { popModal, pushModal } = useModalContext();
+
+  const onClickDisconnectKeyserver = React.useCallback(() => {
+    // TODO: update this function when we have a way to
+    // disconnect from a keyserver
+    pushModal(
+      <Alert title="Feature not ready">
+        Disconnecting from a keyserver is still not ready. Please come back
+        later.
+      </Alert>,
+    );
+  }, [pushModal]);
 
   const { keyerverRemoveInfoText, keyserverRemoveButton } =
     React.useMemo(() => {
@@ -72,6 +84,7 @@ function KeyserverSelectionModal(props: Props): React.Node {
           variant="filled"
           buttonColor={buttonThemes.danger}
           className={css.button}
+          onClick={onClickDisconnectKeyserver}
         >
           Disconnect keyserver
         </Button>
@@ -81,7 +94,7 @@ function KeyserverSelectionModal(props: Props): React.Node {
         keyerverRemoveInfoText: removeInfoText,
         keyserverRemoveButton: removeButton,
       };
-    }, [keyserverInfo.connection.status]);
+    }, [keyserverInfo.connection.status, onClickDisconnectKeyserver]);
 
   return (
     <Modal size="large" onClose={popModal} name="Keyserver details">
