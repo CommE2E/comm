@@ -9,6 +9,8 @@ import {
 } from 'react-native-gesture-handler';
 import Animated, { EasingNode } from 'react-native-reanimated';
 
+import type { ReactRefSetter } from 'lib/types/react-types.js';
+
 import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
 import {
   runTiming,
@@ -58,7 +60,7 @@ type Props = {
 };
 function ForwardedGestureTouchableOpacity(
   props: Props,
-  ref: React.Ref<typeof TapGestureHandler>,
+  ref: ReactRefSetter<TapGestureHandler>,
 ) {
   const { onPress: innerOnPress, onLongPress: innerOnLongPress } = props;
   const onPress = React.useCallback(() => {

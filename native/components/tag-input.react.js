@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 import type { Shape } from 'lib/types/core.js';
+import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import TextInput from './text-input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -463,7 +464,7 @@ function createTagInput<T>(): React.AbstractComponent<
   return React.forwardRef<BaseConfig<T>, BaseTagInput<T>>(
     function ForwardedTagInput(
       props: BaseConfig<T>,
-      ref: React.Ref<typeof BaseTagInput>,
+      ref: ReactRefSetter<BaseTagInput<T>>,
     ) {
       const windowWidth = useSelector(state => state.dimensions.width);
       const colors = useColors();
