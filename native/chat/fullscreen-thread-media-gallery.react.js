@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
@@ -12,7 +13,7 @@ import { useStyles } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
 
 export type FullScreenThreadMediaGalleryParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 const Tabs = {

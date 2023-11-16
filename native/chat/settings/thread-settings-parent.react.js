@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAvatar from '../../avatars/thread-avatar.react.js';
@@ -34,7 +35,7 @@ function ParentButton(props: ParentButtonProps): React.Node {
 }
 
 type ThreadSettingsParentProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +parentThreadInfo: ?ThreadInfo,
 };
 function ThreadSettingsParent(props: ThreadSettingsParentProps): React.Node {

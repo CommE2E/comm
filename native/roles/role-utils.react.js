@@ -6,6 +6,7 @@ import {
   useDeleteCommunityRole,
   deleteCommunityRoleActionTypes,
 } from 'lib/actions/thread-actions.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { constructRoleDeletionMessagePrompt } from 'lib/utils/role-utils.js';
@@ -13,7 +14,7 @@ import { constructRoleDeletionMessagePrompt } from 'lib/utils/role-utils.js';
 import Alert from '../utils/alert.js';
 
 function useDisplayDeleteRoleAlert(
-  threadInfo: ThreadInfo,
+  threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   existingRoleID: string,
   defaultRoleID: string,
   memberCount: number,
