@@ -15,9 +15,8 @@ import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { constructRoleDeletionMessagePrompt } from 'lib/utils/role-utils.js';
 
 import css from './delete-role-modal.css';
-import Button, { buttonThemes } from '../components/button.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
-import Modal from '../modals/modal.react.js';
+import ConfirmationAlert from '../modals/confirmation-alert.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const deleteRoleLoadingStatusSelector = createLoadingStatusSelector(
@@ -81,27 +80,14 @@ function DeleteRoleModal(props: DeleteRoleModalProps): React.Node {
   }, [deleteRoleLoadingStatus]);
 
   return (
-    <Modal name="Delete role" onClose={popModal} size="large">
+    <ConfirmationAlert
+      title="Delete role"
+      confirmationButtonContent={deleteButtonContent}
+      onConfirm={onDeleteRole}
+      isDestructive
+    >
       <div className={css.roleDeletionText}>{message}</div>
-      <div className={css.buttonsContainer}>
-        <Button
-          variant="outline"
-          className={css.cancelButton}
-          buttonColor={buttonThemes.outline}
-          onClick={popModal}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="filled"
-          className={css.deleteRoleButton}
-          buttonColor={buttonThemes.danger}
-          onClick={onDeleteRole}
-        >
-          {deleteButtonContent}
-        </Button>
-      </div>
-    </Modal>
+    </ConfirmationAlert>
   );
 }
 
