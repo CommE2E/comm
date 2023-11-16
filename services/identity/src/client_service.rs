@@ -24,8 +24,8 @@ use crate::client_service::client_proto::{
   RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
   ReservedWalletLoginRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest,
-  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
+  WalletLoginRequest, WalletLoginResponse,
 };
 use crate::config::CONFIG;
 use crate::database::{
@@ -815,44 +815,6 @@ impl IdentityClientService for ClientService {
     Ok(tonic::Response::new(InboundKeysForUserResponse {
       devices: transformed_devices,
     }))
-  }
-
-  async fn upload_one_time_keys(
-    &self,
-    request: tonic::Request<UploadOneTimeKeysRequest>,
-  ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    let message = request.into_inner();
-
-    debug!("Validating token: {:?}", message);
-    let token_valid = self
-      .client
-      .verify_access_token(
-        message.user_id.clone(),
-        message.device_id.clone(),
-        message.access_token,
-      )
-      .await
-      .map_err(handle_db_error)?;
-
-    if !token_valid {
-      return Err(tonic::Status::unauthenticated("Invalid token"));
-    }
-
-    debug!(
-      "Attempting to update one time keys for user: {}",
-      message.user_id
-    );
-    self
-      .client
-      .append_one_time_prekeys(
-        message.device_id,
-        message.content_one_time_pre_keys,
-        message.notif_one_time_pre_keys,
-      )
-      .await
-      .map_err(handle_db_error)?;
-
-    Ok(tonic::Response::new(Empty {}))
   }
 
   async fn verify_user_access_token(

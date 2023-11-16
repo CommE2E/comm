@@ -4,9 +4,10 @@ use commtest::identity::device::{
 use commtest::service_addr;
 use commtest::tunnelbroker::socket::{create_socket, receive_message};
 use futures_util::StreamExt;
-use grpc_clients::identity::protos::authenticated::OutboundKeysForUserRequest;
-use grpc_clients::identity::protos::client::UploadOneTimeKeysRequest;
-use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
+use grpc_clients::identity::get_auth_client;
+use grpc_clients::identity::protos::authenticated::{
+  OutboundKeysForUserRequest, UploadOneTimeKeysRequest,
+};
 use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
@@ -34,27 +35,6 @@ async fn test_refresh_keys_request_upon_depletion() {
   let identity_grpc_endpoint = service_addr::IDENTITY_GRPC.to_string();
   let device_info = create_device(None).await;
 
-  let mut identity_client = get_unauthenticated_client(
-    &identity_grpc_endpoint,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
-  )
-  .await
-  .expect("Couldn't connect to identity service");
-
-  let upload_request = UploadOneTimeKeysRequest {
-    user_id: device_info.user_id.clone(),
-    device_id: device_info.device_id.clone(),
-    access_token: device_info.access_token.clone(),
-    content_one_time_pre_keys: vec!["content1".to_string()],
-    notif_one_time_pre_keys: vec!["notif1".to_string()],
-  };
-
-  identity_client
-    .upload_one_time_keys(upload_request)
-    .await
-    .unwrap();
-
   // Request outbound keys, which should trigger identity service to ask for more keys
   let mut client = get_auth_client(
     &identity_grpc_endpoint,
@@ -66,6 +46,13 @@ async fn test_refresh_keys_request_upon_depletion() {
   )
   .await
   .expect("Couldn't connect to identity service");
+
+  let upload_request = UploadOneTimeKeysRequest {
+    content_one_time_pre_keys: vec!["content1".to_string()],
+    notif_one_time_pre_keys: vec!["notif1".to_string()],
+  };
+
+  client.upload_one_time_keys(upload_request).await.unwrap();
 
   let keyserver_request = OutboundKeysForUserRequest {
     user_id: device_info.user_id.clone(),

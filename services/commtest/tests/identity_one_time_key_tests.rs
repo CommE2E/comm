@@ -3,15 +3,18 @@ use commtest::identity::device::{
 };
 use commtest::service_addr;
 use grpc_clients::identity::{
-  get_unauthenticated_client, protos::client::UploadOneTimeKeysRequest,
+  get_auth_client, protos::authenticated::UploadOneTimeKeysRequest,
 };
 
 #[tokio::test]
-async fn verify_access_token() {
+async fn upload_one_time_keys() {
   let device_info = create_device(None).await;
 
-  let mut identity_client = get_unauthenticated_client(
+  let mut identity_client = get_auth_client(
     &service_addr::IDENTITY_GRPC.to_string(),
+    device_info.user_id,
+    device_info.device_id,
+    device_info.access_token,
     PLACEHOLDER_CODE_VERSION,
     DEVICE_TYPE.to_string(),
   )
@@ -19,9 +22,6 @@ async fn verify_access_token() {
   .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
-    user_id: device_info.user_id,
-    device_id: device_info.device_id,
-    access_token: device_info.access_token,
     content_one_time_pre_keys: vec![
       "content1".to_string(),
       "content2".to_string(),
