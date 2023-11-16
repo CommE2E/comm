@@ -16,6 +16,28 @@ import { ColorSelectorModalRouteName } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 
+const unboundStyles = {
+  colorLine: {
+    lineHeight: Platform.select({ android: 22, default: 25 }),
+  },
+  colorRow: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingBottom: 8,
+    paddingHorizontal: 24,
+    paddingTop: 4,
+  },
+  currentValue: {
+    flex: 1,
+    paddingLeft: 4,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    width: 96,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +colorEditValue: string,
@@ -77,28 +99,6 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
     });
   };
 }
-
-const unboundStyles = {
-  colorLine: {
-    lineHeight: Platform.select({ android: 22, default: 25 }),
-  },
-  colorRow: {
-    backgroundColor: 'panelForeground',
-    flexDirection: 'row',
-    paddingBottom: 8,
-    paddingHorizontal: 24,
-    paddingTop: 4,
-  },
-  currentValue: {
-    flex: 1,
-    paddingLeft: 4,
-  },
-  label: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
-    width: 96,
-  },
-};
 
 const ConnectedThreadSettingsColor: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsColor(

@@ -55,6 +55,33 @@ function NotificationRow(props: ProfileRowProps): React.Node {
   );
 }
 
+const unboundStyles = {
+  scrollView: {
+    backgroundColor: 'panelBackground',
+  },
+  scrollViewContentContainer: {
+    paddingTop: 24,
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    marginBottom: 24,
+    marginVertical: 2,
+  },
+  icon: {
+    lineHeight: Platform.OS === 'ios' ? 18 : 20,
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+};
+
 type BaseProps = {
   +navigation: ProfileNavigationProp<'DefaultNotifications'>,
   +route: NavigationRoute<'DefaultNotifications'>,
@@ -149,33 +176,6 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
     );
   }
 }
-
-const unboundStyles = {
-  scrollView: {
-    backgroundColor: 'panelBackground',
-  },
-  scrollViewContentContainer: {
-    paddingTop: 24,
-  },
-  section: {
-    backgroundColor: 'panelForeground',
-    borderBottomWidth: 1,
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-    marginBottom: 24,
-    marginVertical: 2,
-  },
-  icon: {
-    lineHeight: Platform.OS === 'ios' ? 18 : 20,
-  },
-  header: {
-    color: 'panelBackgroundLabel',
-    fontSize: 12,
-    fontWeight: '400',
-    paddingBottom: 3,
-    paddingHorizontal: 24,
-  },
-};
 
 registerFetchKey(setUserSettingsActionTypes);
 const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> =

@@ -104,6 +104,81 @@ function dummyNodeForEntryHeightMeasurement(
   );
 }
 
+const unboundStyles = {
+  actionLinks: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: -5,
+  },
+  button: {
+    padding: 5,
+  },
+  buttonContents: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  container: {
+    backgroundColor: 'listBackground',
+  },
+  entry: {
+    borderRadius: 8,
+    margin: 5,
+    overflow: 'hidden',
+  },
+  leftLinks: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 5,
+  },
+  leftLinksText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    paddingLeft: 5,
+  },
+  pencilIcon: {
+    lineHeight: 13,
+    paddingTop: 1,
+  },
+  rightLinks: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 5,
+  },
+  rightLinksText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  text: {
+    fontFamily: 'System',
+    fontSize: 16,
+  },
+  textContainer: {
+    position: 'absolute',
+    top: 0,
+    paddingBottom: 6,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    transform: (Platform.select({
+      ios: [{ translateY: -1 / 3 }],
+      default: [],
+    }): $ReadOnlyArray<{ +translateY: number }>),
+  },
+  textInput: {
+    fontFamily: 'System',
+    fontSize: 16,
+    left: ((Platform.OS === 'android' ? 9.8 : 10): number),
+    margin: 0,
+    padding: 0,
+    position: 'absolute',
+    right: 10,
+    top: ((Platform.OS === 'android' ? 4.8 : 0.5): number),
+  },
+};
+
 type SharedProps = {
   +navigation: TabNavigationProp<'Calendar'>,
   +entryInfo: EntryInfoWithHeight,
@@ -692,81 +767,6 @@ class InternalEntry extends React.Component<Props, State> {
     this.props.navigateToThread({ threadInfo: this.props.threadInfo });
   };
 }
-
-const unboundStyles = {
-  actionLinks: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: -5,
-  },
-  button: {
-    padding: 5,
-  },
-  buttonContents: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  container: {
-    backgroundColor: 'listBackground',
-  },
-  entry: {
-    borderRadius: 8,
-    margin: 5,
-    overflow: 'hidden',
-  },
-  leftLinks: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    paddingHorizontal: 5,
-  },
-  leftLinksText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    paddingLeft: 5,
-  },
-  pencilIcon: {
-    lineHeight: 13,
-    paddingTop: 1,
-  },
-  rightLinks: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 5,
-  },
-  rightLinksText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  text: {
-    fontFamily: 'System',
-    fontSize: 16,
-  },
-  textContainer: {
-    position: 'absolute',
-    top: 0,
-    paddingBottom: 6,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    transform: (Platform.select({
-      ios: [{ translateY: -1 / 3 }],
-      default: [],
-    }): $ReadOnlyArray<{ +translateY: number }>),
-  },
-  textInput: {
-    fontFamily: 'System',
-    fontSize: 16,
-    left: ((Platform.OS === 'android' ? 9.8 : 10): number),
-    margin: 0,
-    padding: 0,
-    position: 'absolute',
-    right: 10,
-    top: ((Platform.OS === 'android' ? 4.8 : 0.5): number),
-  },
-};
 
 registerFetchKey(saveEntryActionTypes);
 registerFetchKey(deleteEntryActionTypes);

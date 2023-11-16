@@ -11,6 +11,13 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { ThreadSettingsRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
+const unboundStyles = {
+  button: {
+    color: 'panelForegroundLabel',
+    paddingHorizontal: 10,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
@@ -42,13 +49,6 @@ class ThreadSettingsButton extends React.PureComponent<Props> {
     });
   };
 }
-
-const unboundStyles = {
-  button: {
-    color: 'panelForegroundLabel',
-    paddingHorizontal: 10,
-  },
-};
 
 const ConnectedThreadSettingsButton: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsButton(

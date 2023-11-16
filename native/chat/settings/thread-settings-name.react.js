@@ -36,6 +36,31 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
 
+const unboundStyles = {
+  currentValue: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    margin: 0,
+    paddingLeft: 4,
+    paddingRight: 0,
+    paddingVertical: 0,
+    borderBottomColor: 'transparent',
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    width: 96,
+  },
+  row: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +nameEditValue: ?string,
@@ -190,31 +215,6 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     });
   };
 }
-
-const unboundStyles = {
-  currentValue: {
-    color: 'panelForegroundSecondaryLabel',
-    flex: 1,
-    fontFamily: 'Arial',
-    fontSize: 16,
-    margin: 0,
-    paddingLeft: 4,
-    paddingRight: 0,
-    paddingVertical: 0,
-    borderBottomColor: 'transparent',
-  },
-  label: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
-    width: 96,
-  },
-  row: {
-    backgroundColor: 'panelForeground',
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-  },
-};
 
 const ConnectedThreadSettingsName: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsName(props: BaseProps) {

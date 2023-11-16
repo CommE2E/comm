@@ -13,6 +13,23 @@ import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
 import Alert from '../../utils/alert.js';
 
+const unboundStyles = {
+  button: {
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  container: {
+    backgroundColor: 'panelForeground',
+    paddingHorizontal: 12,
+  },
+  text: {
+    color: 'panelForegroundSecondaryLabel',
+    flex: 1,
+    fontSize: 16,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +buttonStyle: ViewStyle,
@@ -65,23 +82,6 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
     );
   }
 }
-
-const unboundStyles = {
-  button: {
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  container: {
-    backgroundColor: 'panelForeground',
-    paddingHorizontal: 12,
-  },
-  text: {
-    color: 'panelForegroundSecondaryLabel',
-    flex: 1,
-    fontSize: 16,
-  },
-};
 
 const onError = () => {
   Alert.alert('Unknown error', 'Uhh... try again?', undefined, {
