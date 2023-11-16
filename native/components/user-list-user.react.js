@@ -18,6 +18,25 @@ const getUserListItemHeight = (item: UserListItem): number => {
   return Platform.OS === 'ios' ? 31.5 : 33.5;
 };
 
+const unboundStyles = {
+  button: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  notice: {
+    color: 'modalForegroundSecondaryLabel',
+    fontStyle: 'italic',
+  },
+  text: {
+    color: 'modalForegroundLabel',
+    flex: 1,
+    fontSize: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+};
+
 type BaseProps = {
   +userInfo: UserListItem,
   +onSelect: (user: AccountUserInfo) => void,
@@ -68,25 +87,6 @@ class UserListUser extends React.PureComponent<Props> {
     });
   };
 }
-
-const unboundStyles = {
-  button: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  notice: {
-    color: 'modalForegroundSecondaryLabel',
-    fontStyle: 'italic',
-  },
-  text: {
-    color: 'modalForegroundLabel',
-    flex: 1,
-    fontSize: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-};
 
 const ConnectedUserListUser: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedUserListUser(props: BaseProps) {

@@ -55,6 +55,19 @@ import type {
 import type { VerticalBounds } from '../types/layout-types.js';
 import type { ViewableItemsChange } from '../types/react-native.js';
 
+const unboundStyles = {
+  container: {
+    backgroundColor: 'listBackground',
+    flex: 1,
+  },
+  header: {
+    height: 12,
+  },
+  listLoadingIndicator: {
+    flex: 1,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
@@ -310,19 +323,6 @@ class MessageList extends React.PureComponent<Props, State> {
     })();
   };
 }
-
-const unboundStyles = {
-  container: {
-    backgroundColor: 'listBackground',
-    flex: 1,
-  },
-  header: {
-    height: 12,
-  },
-  listLoadingIndicator: {
-    flex: 1,
-  },
-};
 
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);

@@ -157,6 +157,120 @@ const sendButtonAnimationConfig = {
   easing: EasingNode.inOut(EasingNode.ease),
 };
 
+const unboundStyles = {
+  cameraIcon: {
+    paddingBottom: Platform.OS === 'android' ? 11 : 8,
+    paddingRight: 5,
+  },
+  cameraRollIcon: {
+    paddingBottom: Platform.OS === 'android' ? 11 : 8,
+    paddingRight: 5,
+  },
+  container: {
+    backgroundColor: 'listBackground',
+    paddingLeft: Platform.OS === 'android' ? 10 : 5,
+  },
+  expandButton: {
+    bottom: 0,
+    position: 'absolute',
+    right: 0,
+  },
+  expandIcon: {
+    paddingBottom: Platform.OS === 'android' ? 13 : 11,
+    paddingRight: 2,
+  },
+  expandoButtons: {
+    alignSelf: 'flex-end',
+  },
+  explanation: {
+    color: 'listBackgroundSecondaryLabel',
+    paddingBottom: 4,
+    paddingTop: 1,
+    textAlign: 'center',
+  },
+  innerExpandoButtons: {
+    alignItems: 'flex-end',
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+  },
+  joinButton: {
+    borderRadius: 8,
+    flex: 1,
+    justifyContent: 'center',
+    marginHorizontal: 12,
+    marginVertical: 3,
+  },
+  joinButtonContainer: {
+    flexDirection: 'row',
+    height: 48,
+    marginBottom: 8,
+  },
+  editView: {
+    marginLeft: 20,
+    marginRight: 20,
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  editViewContent: {
+    flex: 1,
+    paddingRight: 6,
+  },
+  exitEditButton: {
+    marginTop: 6,
+  },
+  editingLabel: {
+    paddingBottom: 4,
+  },
+  editingMessagePreview: {
+    color: 'listForegroundLabel',
+  },
+  joinButtonContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  joinButtonTextLight: {
+    color: 'white',
+    fontSize: 20,
+    marginHorizontal: 4,
+  },
+  joinButtonTextDark: {
+    color: 'black',
+    fontSize: 20,
+    marginHorizontal: 4,
+  },
+  joinThreadLoadingIndicator: {
+    paddingVertical: 2,
+  },
+  sendButton: {
+    position: 'absolute',
+    bottom: 4,
+    left: 0,
+  },
+  sendIcon: {
+    paddingLeft: 9,
+    paddingRight: 8,
+    paddingVertical: 6,
+  },
+  textInput: {
+    backgroundColor: 'listInputBackground',
+    borderRadius: 8,
+    color: 'listForegroundLabel',
+    fontSize: 16,
+    marginLeft: 4,
+    marginRight: 4,
+    marginTop: 6,
+    marginBottom: 8,
+    maxHeight: 110,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
@@ -1105,120 +1219,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     keyboardState && keyboardState.dismissKeyboard();
   };
 }
-
-const unboundStyles = {
-  cameraIcon: {
-    paddingBottom: Platform.OS === 'android' ? 11 : 8,
-    paddingRight: 5,
-  },
-  cameraRollIcon: {
-    paddingBottom: Platform.OS === 'android' ? 11 : 8,
-    paddingRight: 5,
-  },
-  container: {
-    backgroundColor: 'listBackground',
-    paddingLeft: Platform.OS === 'android' ? 10 : 5,
-  },
-  expandButton: {
-    bottom: 0,
-    position: 'absolute',
-    right: 0,
-  },
-  expandIcon: {
-    paddingBottom: Platform.OS === 'android' ? 13 : 11,
-    paddingRight: 2,
-  },
-  expandoButtons: {
-    alignSelf: 'flex-end',
-  },
-  explanation: {
-    color: 'listBackgroundSecondaryLabel',
-    paddingBottom: 4,
-    paddingTop: 1,
-    textAlign: 'center',
-  },
-  innerExpandoButtons: {
-    alignItems: 'flex-end',
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-  },
-  joinButton: {
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    marginHorizontal: 12,
-    marginVertical: 3,
-  },
-  joinButtonContainer: {
-    flexDirection: 'row',
-    height: 48,
-    marginBottom: 8,
-  },
-  editView: {
-    marginLeft: 20,
-    marginRight: 20,
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  editViewContent: {
-    flex: 1,
-    paddingRight: 6,
-  },
-  exitEditButton: {
-    marginTop: 6,
-  },
-  editingLabel: {
-    paddingBottom: 4,
-  },
-  editingMessagePreview: {
-    color: 'listForegroundLabel',
-  },
-  joinButtonContent: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  joinButtonTextLight: {
-    color: 'white',
-    fontSize: 20,
-    marginHorizontal: 4,
-  },
-  joinButtonTextDark: {
-    color: 'black',
-    fontSize: 20,
-    marginHorizontal: 4,
-  },
-  joinThreadLoadingIndicator: {
-    paddingVertical: 2,
-  },
-  sendButton: {
-    position: 'absolute',
-    bottom: 4,
-    left: 0,
-  },
-  sendIcon: {
-    paddingLeft: 9,
-    paddingRight: 8,
-    paddingVertical: 6,
-  },
-  textInput: {
-    backgroundColor: 'listInputBackground',
-    borderRadius: 8,
-    color: 'listForegroundLabel',
-    fontSize: 16,
-    marginLeft: 4,
-    marginRight: 4,
-    marginTop: 6,
-    marginBottom: 8,
-    maxHeight: 110,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-};
 
 const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
   joinThreadActionTypes,

@@ -42,6 +42,74 @@ import { AnimatedView } from '../types/styles.js';
 const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
+const unboundStyles = {
+  backdrop: {
+    backgroundColor: 'black',
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  icon: {
+    color: 'modalForegroundLabel',
+  },
+  itemContainer: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  itemContainerFixed: {
+    flexDirection: 'column',
+  },
+  items: {
+    backgroundColor: 'tooltipBackground',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  itemsFixed: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  triangleDown: {
+    borderBottomColor: 'transparent',
+    borderBottomWidth: 0,
+    borderLeftColor: 'transparent',
+    borderLeftWidth: 10,
+    borderRightColor: 'transparent',
+    borderRightWidth: 10,
+    borderStyle: 'solid',
+    borderTopColor: 'tooltipBackground',
+    borderTopWidth: 10,
+    height: 10,
+    top: Platform.OS === 'android' ? -1 : 0,
+    width: 10,
+  },
+  triangleUp: {
+    borderBottomColor: 'tooltipBackground',
+    borderBottomWidth: 10,
+    borderLeftColor: 'transparent',
+    borderLeftWidth: 10,
+    borderRightColor: 'transparent',
+    borderRightWidth: 10,
+    borderStyle: 'solid',
+    borderTopColor: 'transparent',
+    borderTopWidth: 0,
+    bottom: Platform.OS === 'android' ? -1 : 0,
+    height: 10,
+    width: 10,
+  },
+};
+
 export type TooltipParams<CustomProps> = {
   ...CustomProps,
   +presentedFrom: string,
@@ -513,74 +581,6 @@ function createTooltip<
   }
   return React.memo<BaseTooltipPropsType>(MemoizedTooltip);
 }
-
-const unboundStyles = {
-  backdrop: {
-    backgroundColor: 'black',
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-  icon: {
-    color: 'modalForegroundLabel',
-  },
-  itemContainer: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    padding: 10,
-  },
-  itemContainerFixed: {
-    flexDirection: 'column',
-  },
-  items: {
-    backgroundColor: 'tooltipBackground',
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  itemsFixed: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  triangleDown: {
-    borderBottomColor: 'transparent',
-    borderBottomWidth: 0,
-    borderLeftColor: 'transparent',
-    borderLeftWidth: 10,
-    borderRightColor: 'transparent',
-    borderRightWidth: 10,
-    borderStyle: 'solid',
-    borderTopColor: 'tooltipBackground',
-    borderTopWidth: 10,
-    height: 10,
-    top: Platform.OS === 'android' ? -1 : 0,
-    width: 10,
-  },
-  triangleUp: {
-    borderBottomColor: 'tooltipBackground',
-    borderBottomWidth: 10,
-    borderLeftColor: 'transparent',
-    borderLeftWidth: 10,
-    borderRightColor: 'transparent',
-    borderRightWidth: 10,
-    borderStyle: 'solid',
-    borderTopColor: 'transparent',
-    borderTopWidth: 0,
-    bottom: Platform.OS === 'android' ? -1 : 0,
-    height: 10,
-    width: 10,
-  },
-};
 
 function tooltipHeight(numEntries: number): number {
   // 10 (triangle) + 37 * numEntries (entries) + numEntries - 1 (padding)

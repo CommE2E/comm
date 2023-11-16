@@ -19,6 +19,28 @@ import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import SingleLine from '../../components/single-line.react.js';
 import { useStyles } from '../../themes/colors.js';
 
+const unboundStyles = {
+  currentValue: {
+    alignItems: 'flex-end',
+    margin: 0,
+    paddingLeft: 4,
+    paddingRight: 0,
+    paddingVertical: 0,
+  },
+  label: {
+    color: 'panelForegroundTertiaryLabel',
+    fontSize: 16,
+    flex: 1,
+  },
+  row: {
+    alignItems: 'center',
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+    paddingVertical: 3,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
@@ -74,28 +96,6 @@ class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
     );
   };
 }
-
-const unboundStyles = {
-  currentValue: {
-    alignItems: 'flex-end',
-    margin: 0,
-    paddingLeft: 4,
-    paddingRight: 0,
-    paddingVertical: 0,
-  },
-  label: {
-    color: 'panelForegroundTertiaryLabel',
-    fontSize: 16,
-    flex: 1,
-  },
-  row: {
-    alignItems: 'center',
-    backgroundColor: 'panelForeground',
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 3,
-  },
-};
 
 const ConnectedThreadSettingsHomeNotifs: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsHomeNotifs(
