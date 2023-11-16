@@ -136,7 +136,8 @@ impl IdentityClientService for ClientService {
       )
       .map_err(protocol_error_to_grpc_status)?;
     let session_id = self
-      .insert_into_cache(WorkflowInProgress::Registration(Box::new(
+      .cache
+      .insert_with_uuid_key(WorkflowInProgress::Registration(Box::new(
         registration_state,
       )))
       .await;
@@ -189,7 +190,8 @@ impl IdentityClientService for ClientService {
       .map_err(protocol_error_to_grpc_status)?;
 
     let session_id = self
-      .insert_into_cache(WorkflowInProgress::Registration(Box::new(
+      .cache
+      .insert_with_uuid_key(WorkflowInProgress::Registration(Box::new(
         registration_state,
       )))
       .await;
@@ -284,7 +286,8 @@ impl IdentityClientService for ClientService {
       user_id: message.user_id,
     };
     let session_id = self
-      .insert_into_cache(WorkflowInProgress::Update(update_state))
+      .cache
+      .insert_with_uuid_key(WorkflowInProgress::Update(update_state))
       .await;
 
     let response = UpdateUserPasswordStartResponse {
@@ -374,7 +377,8 @@ impl IdentityClientService for ClientService {
       construct_user_login_info(&message, user_id, server_login)?;
 
     let session_id = self
-      .insert_into_cache(WorkflowInProgress::Login(Box::new(login_state)))
+      .cache
+      .insert_with_uuid_key(WorkflowInProgress::Login(Box::new(login_state)))
       .await;
 
     let response = Response::new(OpaqueLoginStartResponse {
@@ -931,10 +935,21 @@ impl ClientService {
     }
     Ok(())
   }
+}
 
-  async fn insert_into_cache(&self, workflow: WorkflowInProgress) -> String {
+#[tonic::async_trait]
+pub trait CacheExt<T> {
+  async fn insert_with_uuid_key(&self, value: T) -> String;
+}
+
+#[tonic::async_trait]
+impl<T> CacheExt<T> for Cache<String, T>
+where
+  T: Clone + Send + Sync + 'static,
+{
+  async fn insert_with_uuid_key(&self, value: T) -> String {
     let session_id = generate_uuid();
-    self.cache.insert(session_id.clone(), workflow).await;
+    self.insert(session_id.clone(), value).await;
     session_id
   }
 }
