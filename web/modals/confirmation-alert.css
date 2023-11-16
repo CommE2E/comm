@@ -1,0 +1,11 @@
+.buttonsContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 16px 32px;
+  column-gap: 8px;
+}
+
+.cancelButton {
+  width: 100px;
+}
