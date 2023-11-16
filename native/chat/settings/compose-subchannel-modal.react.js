@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Text } from 'react-native';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -18,7 +19,7 @@ import { type Colors, useStyles, useColors } from '../../themes/colors.js';
 
 export type ComposeSubchannelModalParams = {
   +presentedFrom: string,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type BaseProps = {

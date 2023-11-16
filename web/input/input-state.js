@@ -10,6 +10,10 @@ import {
 } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type {
+  MinimallyEncodedRelativeMemberInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
   ThreadInfo,
   RelativeMemberInfo,
   ChatMentionCandidates,
@@ -47,7 +51,9 @@ export type PendingMultimediaUpload = {
 export type TypeaheadState = {
   +canBeVisible: boolean,
   +keepUpdatingThreadMembers: boolean,
-  +frozenUserMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +frozenUserMentionsCandidates: $ReadOnlyArray<
+    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  >,
   +frozenChatMentionsCandidates: ChatMentionCandidates,
   +moveChoiceUp: ?() => void,
   +moveChoiceDown: ?() => void,
@@ -65,23 +71,26 @@ export type InputState = {
   +textCursorPosition: number,
   +typeaheadState: TypeaheadState,
   +appendFiles: (
-    threadInfo: ThreadInfo,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
     files: $ReadOnlyArray<File>,
   ) => Promise<boolean>,
   +cancelPendingUpload: (localUploadID: string) => void,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => Promise<void>,
-  +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
+  +createMultimediaMessage: (
+    localID: number,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  ) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
   +setTypeaheadState: ($Shape<TypeaheadState>) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMultimediaMessage: (
     localMessageID: string,
-    threadInfo: ThreadInfo,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   ) => void,
   +addReply: (text: string) => void,
   +addReplyListener: ((message: string) => void) => void,

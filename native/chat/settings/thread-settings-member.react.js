@@ -19,6 +19,10 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { getAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type ThreadInfo,
   type RelativeMemberInfo,
@@ -44,8 +48,8 @@ import type { VerticalBounds } from '../../types/layout-types.js';
 import { useNavigateToUserProfileBottomSheet } from '../../user-profile/user-profile-utils.js';
 
 type BaseProps = {
-  +memberInfo: RelativeMemberInfo,
-  +threadInfo: ThreadInfo,
+  +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +canEdit: boolean,
   +navigate: ThreadSettingsNavigate,
   +firstListItem: boolean,

@@ -3,6 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAncestors from './chat-thread-ancestors.react.js';
@@ -10,7 +11,7 @@ import css from './nav-state-info-bar.css';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 
 type NavStateInfoBarProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
   const { threadInfo } = props;
@@ -26,7 +27,7 @@ function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
 }
 
 type PossiblyEmptyNavStateInfoBarProps = {
-  +threadInfoInput: ?ThreadInfo,
+  +threadInfoInput: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
 };
 function PossiblyEmptyNavStateInfoBar(
   props: PossiblyEmptyNavStateInfoBarProps,

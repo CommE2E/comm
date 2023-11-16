@@ -18,7 +18,7 @@ import { useOnClickThread } from '../selectors/thread-selectors.js';
 type Props = {
   +messageInfo: MessageInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-  +sidebarThreadInfo: ?ThreadInfo,
+  +sidebarThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +reactions: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
   +label?: ?string,

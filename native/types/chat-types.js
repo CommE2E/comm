@@ -7,6 +7,7 @@ import type {
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
 import type { TextMessageInfo } from 'lib/types/messages/text.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { EntityText } from 'lib/utils/entity-text.js';
 
@@ -16,12 +17,12 @@ export type ChatRobotextMessageInfoItemWithHeight = {
   +itemType: 'message',
   +messageShapeType: 'robotext',
   +messageInfo: RobotextMessageInfo,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
   +robotext: EntityText,
-  +threadCreatedFromMessage: ?ThreadInfo,
+  +threadCreatedFromMessage: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +contentHeight: number,
   +reactions: ReactionInfo,
 };
@@ -31,12 +32,12 @@ export type ChatTextMessageInfoItemWithHeight = {
   +messageShapeType: 'text',
   +messageInfo: TextMessageInfo,
   +localMessageInfo: ?LocalMessageInfo,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
   +contentHeight: number,
-  +threadCreatedFromMessage: ?ThreadInfo,
+  +threadCreatedFromMessage: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +reactions: ReactionInfo,
   +hasBeenEdited: ?boolean,
   +isPinned: ?boolean,
@@ -56,11 +57,11 @@ export type ChatMultimediaMessageInfoItem = {
   +messageShapeType: 'multimedia',
   +messageInfo: MultimediaMessageInfo,
   +localMessageInfo: ?LocalMessageInfo,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
-  +threadCreatedFromMessage: ?ThreadInfo,
+  +threadCreatedFromMessage: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +pendingUploads: ?MessagePendingUploads,
   +reactions: ReactionInfo,
   +hasBeenEdited: ?boolean,

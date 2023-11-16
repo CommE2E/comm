@@ -29,6 +29,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
 import type {
+  MinimallyEncodedRelativeMemberInfo,
   MinimallyEncodedResolvedThreadInfo,
   MinimallyEncodedThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -104,7 +105,7 @@ import type { ChatNavigationProp } from '../chat.react.js';
 const itemPageLength = 5;
 
 export type ThreadSettingsParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 export type ThreadSettingsNavigate = $PropertyType<
@@ -164,8 +165,10 @@ type ChatSettingsItem =
   | {
       +itemType: 'parent',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
-      +parentThreadInfo: ?ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+      +parentThreadInfo:
+        | ?ResolvedThreadInfo
+        | ?MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'visibility',
@@ -190,7 +193,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'childThread',
       +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +firstListItem: boolean,
       +lastListItem: boolean,
     }
@@ -201,8 +204,8 @@ type ChatSettingsItem =
   | {
       +itemType: 'member',
       +key: string,
-      +memberInfo: RelativeMemberInfo,
-      +threadInfo: ResolvedThreadInfo,
+      +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+      +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +canEdit: boolean,
       +navigate: ThreadSettingsNavigate,
       +firstListItem: boolean,
@@ -246,8 +249,8 @@ type Props = {
   // Redux state
   +userInfos: UserInfos,
   +viewerID: ?string,
-  +threadInfo: ResolvedThreadInfo,
-  +parentThreadInfo: ?ResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+  +parentThreadInfo: ?ResolvedThreadInfo | ?MinimallyEncodedResolvedThreadInfo,
   +childThreadInfos: ?$ReadOnlyArray<ResolvedThreadInfo>,
   +somethingIsSaving: boolean,
   +styles: typeof unboundStyles,
@@ -325,8 +328,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.route.key,
     (
-      threadInfo: ResolvedThreadInfo,
-      parentThreadInfo: ?ResolvedThreadInfo,
+      threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+      parentThreadInfo:
+        | ?ResolvedThreadInfo
+        | ?MinimallyEncodedResolvedThreadInfo,
       nameEditValue: ?string,
       colorEditValue: string,
       descriptionEditValue: ?string,
@@ -478,9 +483,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
     (propsAndState: PropsAndState) => propsAndState.numSubchannelsShowing,
     (
-      threadInfo: ResolvedThreadInfo,
+      threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       navigate: ThreadSettingsNavigate,
-      childThreads: ?$ReadOnlyArray<ResolvedThreadInfo>,
+      childThreads: ?$ReadOnlyArray<
+        ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+      >,
       numSubchannelsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
@@ -544,7 +551,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.numSidebarsShowing,
     (
       navigate: ThreadSettingsNavigate,
-      childThreads: ?$ReadOnlyArray<ResolvedThreadInfo>,
+      childThreads: ?$ReadOnlyArray<
+        ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+      >,
       numSidebarsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
@@ -602,7 +611,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.numMembersShowing,
     (propsAndState: PropsAndState) => propsAndState.verticalBounds,
     (
-      threadInfo: ResolvedThreadInfo,
+      threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       canStartEditing: boolean,
       navigate: ThreadSettingsNavigate,
       routeKey: string,
@@ -713,8 +722,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userInfos,
     (propsAndState: PropsAndState) => propsAndState.viewerID,
     (
-      threadInfo: ResolvedThreadInfo,
-      parentThreadInfo: ?ResolvedThreadInfo,
+      threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+      parentThreadInfo:
+        | ?ResolvedThreadInfo
+        | ?MinimallyEncodedResolvedThreadInfo,
       navigate: ThreadSettingsNavigate,
       styles: typeof unboundStyles,
       userInfos: UserInfos,
@@ -1115,7 +1126,9 @@ const unboundStyles = {
 
 const threadMembersChangeIsSaving = (
   state: AppState,
-  threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
+  threadMembers: $ReadOnlyArray<
+    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  >,
 ) => {
   for (const threadMember of threadMembers) {
     const removeUserLoadingStatus = createLoadingStatusSelector(
@@ -1161,7 +1174,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         setParams({ threadInfo: reduxThreadInfo });
       }
     }, [reduxThreadInfo, setParams]);
-    const threadInfo: ThreadInfo =
+    const threadInfo: ThreadInfo | MinimallyEncodedThreadInfo =
       reduxThreadInfo ?? props.route.params.threadInfo;
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 

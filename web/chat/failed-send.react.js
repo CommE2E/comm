@@ -11,6 +11,7 @@ import {
   type RawComposableMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
@@ -22,7 +23,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,
