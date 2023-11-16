@@ -5,114 +5,39 @@ private let KEY_SIZE = 32 // bytes
 private let IV_LENGTH = 12 // bytes, IV - unique Initialization Vector (nonce)
 private let TAG_LENGTH = 16 // bytes - GCM auth tag
 
-// Expo module called from the RN app JS code
 public class AESCryptoModule: Module {
   public func definition() -> ModuleDefinition {
     Name("AESCrypto")
 
-    Function("generateKey") { (destination: Uint8Array) throws in
-        try! generateKey(destinationPtr: destination.rawBufferPtr(),
-                         byteLength: destination.byteLength)
-    }
-
-    Function("encrypt") { (rawKey: Uint8Array,
-                           plaintext: Uint8Array,
-                           destination: Uint8Array) throws in
-        try! encrypt(rawKey: rawKey.data(),
-                     plaintext: plaintext.data(),
-                     plaintextLength: plaintext.byteLength,
-                     destinationPtr: destination.rawBufferPtr(),
-                     destinationLength: destination.byteLength)
-    }
-    
-    Function("decrypt") { (rawKey: Uint8Array,
-                            sealedData: Uint8Array,
-                            destination: Uint8Array) throws in
-        try! decrypt(rawKey: rawKey.data(),
-                     sealedData: sealedData.data(),
-                     sealedDataLength: sealedData.byteLength,
-                     destinationPtr: destination.rawBufferPtr(),
-                     destinationLength: destination.byteLength)
-    }
+    Function("generateKey", generateKey)
+    Function("encrypt", encrypt)
+    Function("decrypt", decrypt)
   }
-}
-
-// ObjC-compatible module, used from Objective-C code in NSE
-@objc(AESCryptoModuleObjCCompat)
-public class AESCryptoModuleObjCCompat: NSObject {
-  
-  @objc(generateKey:withError:)
-  public func generateKeyCompat(destination: NSMutableData) throws {
-    let destinationPtr = UnsafeMutableRawBufferPointer(start: destination.mutableBytes, 
-                                                       count: KEY_SIZE)
-    try! generateKey(destinationPtr: destinationPtr,
-                     byteLength: destination.length)
-  }
-    
-  @objc(encryptedLength:)
-  public func encryptedLengthCompat(plaintext: Data) -> NSInteger {
-    return plaintext.count + IV_LENGTH + TAG_LENGTH
-  }
-    
-  @objc(encryptWithKey:plaintext:destination:withError:)
-  public func encryptCompat(rawKey: Data,
-                            plaintext: Data,
-                            destination: NSMutableData) throws {
-    let destinationPtr = UnsafeMutableRawBufferPointer(start: destination.mutableBytes, 
-                                                       count: destination.length)
-    try! encrypt(rawKey: rawKey,
-                 plaintext: plaintext,
-                 plaintextLength: plaintext.count,
-                 destinationPtr: destinationPtr,
-                 destinationLength: destination.length)
-  }
-
-  @objc(decryptedLength:)
-  public func decryptedLengthCompat(sealedData: Data) -> NSInteger {
-    return sealedData.count - IV_LENGTH - TAG_LENGTH
-  }
-    
-  @objc(decryptWithKey:sealedData:destination:withError:)
-  public func decryptCompat(rawKey: Data,
-                            sealedData: Data,
-                            destination: NSMutableData) throws {
-    let destinationPtr = UnsafeMutableRawBufferPointer(start: destination.mutableBytes,
-                                                       count: destination.length)
-    try! decrypt(rawKey: rawKey,
-                 sealedData: sealedData,
-                 sealedDataLength: sealedData.count,
-                 destinationPtr: destinationPtr,
-                 destinationLength: destination.length)
-    }
-
 }
 
 // MARK: - Function implementations
 
-private func generateKey(destinationPtr: UnsafeMutableRawBufferPointer,
-                         byteLength: Int) throws {
-  guard byteLength == KEY_SIZE else {
+private func generateKey(destination: Uint8Array) throws {
+  guard destination.byteLength == KEY_SIZE else {
     throw InvalidKeyLengthException()
   }
   let key = SymmetricKey(size: .bits256)
   key.withUnsafeBytes { bytes in
-    let _ = bytes.copyBytes(to: destinationPtr)
+    let _ = bytes.copyBytes(to: destination.rawBufferPtr())
   }
 }
 
-private func encrypt(rawKey: Data,
-                     plaintext: Data,
-                     plaintextLength: Int,
-                     destinationPtr: UnsafeMutableRawBufferPointer,
-                     destinationLength: Int) throws {
-  guard destinationLength == plaintextLength + IV_LENGTH + TAG_LENGTH
+private func encrypt(rawKey: Uint8Array,
+                     plaintext: Uint8Array,
+                     destination: Uint8Array) throws {
+  guard destination.byteLength == plaintext.byteLength + IV_LENGTH + TAG_LENGTH
   else {
     throw InvalidDataLengthException()
   }
   
-  let key = SymmetricKey(data: rawKey)
+  let key = SymmetricKey(data: rawKey.data())
   let iv = AES.GCM.Nonce()
-  let encryptionResult = try AES.GCM.seal(plaintext,
+  let encryptionResult = try AES.GCM.seal(plaintext.data(),
                                           using: key,
                                           nonce: iv)
 
@@ -121,26 +46,24 @@ private func encrypt(rawKey: Data,
     // this happens only if Nonce/IV != 12 bytes long
     throw EncryptionFailedException("Incorrect AES configuration")
   }
-  guard sealedData.count == destinationLength else {
+  guard sealedData.count == destination.byteLength else {
     throw EncryptionFailedException("Encrypted data has unexpected length")
   }
-  sealedData.copyBytes(to: destinationPtr)
+  sealedData.copyBytes(to: destination.rawBufferPtr())
 }
 
-private func decrypt(rawKey: Data,
-                     sealedData: Data,
-                     sealedDataLength: Int,
-                     destinationPtr: UnsafeMutableRawBufferPointer,
-                     destinationLength: Int) throws {
-    guard destinationLength == sealedDataLength - IV_LENGTH - TAG_LENGTH
-    else {
-      throw InvalidDataLengthException()
-    }
-    
-    let key = SymmetricKey(data: rawKey)
-    let sealedBox = try AES.GCM.SealedBox(combined: sealedData)
-    let plaintext = try AES.GCM.open(sealedBox, using: key)
-    plaintext.copyBytes(to: destinationPtr)
+private func decrypt(rawKey: Uint8Array,
+                     sealedData: Uint8Array,
+                     destination: Uint8Array) throws {
+  guard destination.byteLength == sealedData.byteLength - IV_LENGTH - TAG_LENGTH
+  else {
+    throw InvalidDataLengthException()
+  }
+  
+  let key = SymmetricKey(data: rawKey.data())
+  let sealedBox = try AES.GCM.SealedBox(combined: sealedData.data())
+  let plaintext = try AES.GCM.open(sealedBox, using: key)
+  plaintext.copyBytes(to: destination.rawBufferPtr())
 }
 
 // MARK: - Exception definitions
