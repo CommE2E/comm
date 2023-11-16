@@ -45,6 +45,63 @@ const animationSpec = {
   useNativeDriver: true,
 };
 
+const unboundStyles = {
+  container: {
+    backgroundColor: 'listBackground',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+  },
+  galleryHeader: {
+    height: 56,
+    borderTopWidth: 1,
+    borderColor: 'modalForegroundBorder',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  galleryHeaderTitle: {
+    color: 'modalForegroundLabel',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  nativePickerButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  nativePickerButtonLabel: {
+    color: 'modalButtonLabel',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  galleryContainer: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  error: {
+    color: 'listBackgroundLabel',
+    flex: 1,
+    fontSize: 28,
+    textAlign: 'center',
+  },
+  loadingIndicator: {
+    flex: 1,
+  },
+  sendButtonContainer: {
+    bottom: 20,
+    position: 'absolute',
+    right: 30,
+  },
+  separator: {
+    width: 2,
+  },
+};
+
 type BaseProps = {
   +threadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
 };
@@ -595,63 +652,6 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 }
 
 const mediaGalleryKeyboardName = 'MediaGalleryKeyboard';
-
-const unboundStyles = {
-  container: {
-    backgroundColor: 'listBackground',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-  },
-  galleryHeader: {
-    height: 56,
-    borderTopWidth: 1,
-    borderColor: 'modalForegroundBorder',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  galleryHeaderTitle: {
-    color: 'modalForegroundLabel',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  nativePickerButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-  },
-  nativePickerButtonLabel: {
-    color: 'modalButtonLabel',
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  galleryContainer: {
-    flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  error: {
-    color: 'listBackgroundLabel',
-    flex: 1,
-    fontSize: 28,
-    textAlign: 'center',
-  },
-  loadingIndicator: {
-    flex: 1,
-  },
-  sendButtonContainer: {
-    bottom: 20,
-    position: 'absolute',
-    right: 30,
-  },
-  separator: {
-    width: 2,
-  },
-};
 
 function ConnectedMediaGalleryKeyboard(props: BaseProps) {
   const dimensions = useSelector(state => state.dimensions);

@@ -16,6 +16,20 @@ import Button from '../components/button.react.js';
 import { ThreadSettingsRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
+const unboundStyles = {
+  avatarContainer: {
+    marginRight: 8,
+  },
+  button: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+};
+
 type BaseProps = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
@@ -73,20 +87,6 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
     });
   };
 }
-
-const unboundStyles = {
-  avatarContainer: {
-    marginRight: 8,
-  },
-  button: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-};
 
 const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedMessageListHeaderTitle(

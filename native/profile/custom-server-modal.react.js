@@ -23,6 +23,37 @@ export type CustomServerModalParams = {
   +presentedFrom: string,
 };
 
+const unboundStyles = {
+  button: {
+    backgroundColor: 'vibrantGreenButton',
+    borderRadius: 5,
+    marginHorizontal: 2,
+    marginVertical: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  container: {
+    justifyContent: 'flex-end',
+  },
+  modal: {
+    flex: 0,
+    flexDirection: 'row',
+  },
+  textInput: {
+    color: 'modalBackgroundLabel',
+    flex: 1,
+    fontSize: 16,
+    margin: 0,
+    padding: 0,
+    borderBottomColor: 'transparent',
+  },
+};
+
 type BaseProps = {
   +navigation: RootNavigationProp<'CustomServerModal'>,
   +route: NavigationRoute<'CustomServerModal'>,
@@ -86,37 +117,6 @@ class CustomServerModal extends React.PureComponent<Props, State> {
     this.props.navigation.goBackOnce();
   };
 }
-
-const unboundStyles = {
-  button: {
-    backgroundColor: 'vibrantGreenButton',
-    borderRadius: 5,
-    marginHorizontal: 2,
-    marginVertical: 2,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  container: {
-    justifyContent: 'flex-end',
-  },
-  modal: {
-    flex: 0,
-    flexDirection: 'row',
-  },
-  textInput: {
-    color: 'modalBackgroundLabel',
-    flex: 1,
-    fontSize: 16,
-    margin: 0,
-    padding: 0,
-    borderBottomColor: 'transparent',
-  },
-};
 
 const ConnectedCustomServerModal: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedCustomServerModal(props: BaseProps) {

@@ -7,6 +7,17 @@ import Button from './button.react.js';
 import { useStyles } from '../themes/colors.js';
 import type { ViewStyle } from '../types/styles.js';
 
+const unboundStyles = {
+  disabled: {
+    color: 'modalBackgroundSecondaryLabel',
+  },
+  text: {
+    color: 'link',
+    fontSize: 17,
+    paddingHorizontal: 10,
+  },
+};
+
 type BaseProps = {
   +text: string,
   +onPress: () => void,
@@ -37,17 +48,6 @@ class LinkButton extends React.PureComponent<Props> {
     );
   }
 }
-
-const unboundStyles = {
-  disabled: {
-    color: 'modalBackgroundSecondaryLabel',
-  },
-  text: {
-    color: 'link',
-    fontSize: 17,
-    paddingHorizontal: 10,
-  },
-};
 
 const ConnectedLinkButton: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedLinkButton(props: BaseProps) {
