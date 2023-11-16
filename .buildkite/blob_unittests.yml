@@ -5,5 +5,10 @@ steps:
       - 'nix develop --accept-flake-config --command cargo test'
     retry:
       automatic: true
+    plugins:
+      - docker#v5.3.0:
+          image: 'nixos/nix'
+          shell: ['/bin/bash', '-e', '-c']
+          propagate-environment: true
     agents:
-      - 'mac=true'
+      - 'autoscaling=true'
