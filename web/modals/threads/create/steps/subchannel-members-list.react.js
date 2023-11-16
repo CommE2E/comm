@@ -5,8 +5,11 @@ import { useSelector } from 'react-redux';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserListItem } from 'lib/types/user-types.js';
 
 import AddMembersList from '../../../components/add-members-list.react.js';
@@ -39,66 +42,52 @@ function SubchannelMembersList(props: Props): React.Node {
     [parentThreadInfo],
   );
 
-  const parentMemberListWithoutENSNames = React.useMemo(() => {
-    // Branching to appease `flow`.
-    if (parentThreadInfo.minimallyEncoded) {
-      return parentThreadInfo.members
+  const filterOutParentMembersWithENSNames = React.useCallback(
+    (
+      members: $ReadOnlyArray<
+        RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+      >,
+    ) =>
+      members
         .filter(
           user =>
             user.id !== currentUserId &&
             (searchResult.has(user.id) || searchText.length === 0),
         )
-        .map(user => ({ id: user.id, username: stringForUser(user) }));
-    } else {
-      return parentThreadInfo.members
-        .filter(
-          user =>
-            user.id !== currentUserId &&
-            (searchResult.has(user.id) || searchText.length === 0),
-        )
-        .map(user => ({ id: user.id, username: stringForUser(user) }));
-    }
-  }, [
-    currentUserId,
-    parentThreadInfo.members,
-    parentThreadInfo.minimallyEncoded,
-    searchResult,
-    searchText.length,
-  ]);
+        .map(user => ({ id: user.id, username: stringForUser(user) })),
+    [currentUserId, searchResult, searchText.length],
+  );
+
+  const parentMemberListWithoutENSNames = React.useMemo(
+    () => filterOutParentMembersWithENSNames(parentThreadInfo.members),
+    [filterOutParentMembersWithENSNames, parentThreadInfo.members],
+  );
 
   const parentMemberList = useENSNames<UserListItem>(
     parentMemberListWithoutENSNames,
   );
 
-  const otherMemberListWithoutENSNames = React.useMemo(() => {
-    // Branching to appease `flow`.
-    if (communityThreadInfo.minimallyEncoded) {
-      return communityThreadInfo.members
+  const filterOutOtherMembersWithENSNames = React.useCallback(
+    (
+      members: $ReadOnlyArray<
+        RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+      >,
+    ) =>
+      members
         .filter(
           user =>
             !parentMembersSet.has(user.id) &&
             user.id !== currentUserId &&
             (searchResult.has(user.id) || searchText.length === 0),
         )
-        .map(user => ({ id: user.id, username: stringForUser(user) }));
-    } else {
-      return communityThreadInfo.members
-        .filter(
-          user =>
-            !parentMembersSet.has(user.id) &&
-            user.id !== currentUserId &&
-            (searchResult.has(user.id) || searchText.length === 0),
-        )
-        .map(user => ({ id: user.id, username: stringForUser(user) }));
-    }
-  }, [
-    communityThreadInfo.members,
-    communityThreadInfo.minimallyEncoded,
-    currentUserId,
-    parentMembersSet,
-    searchResult,
-    searchText.length,
-  ]);
+        .map(user => ({ id: user.id, username: stringForUser(user) })),
+    [currentUserId, parentMembersSet, searchResult, searchText.length],
+  );
+
+  const otherMemberListWithoutENSNames = React.useMemo(
+    () => filterOutOtherMembersWithENSNames(communityThreadInfo.members),
+    [communityThreadInfo.members, filterOutOtherMembersWithENSNames],
+  );
 
   const otherMemberList = useENSNames<UserListItem>(
     otherMemberListWithoutENSNames,
