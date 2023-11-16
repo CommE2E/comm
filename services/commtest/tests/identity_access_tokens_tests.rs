@@ -3,8 +3,7 @@ use commtest::identity::device::{
 };
 use commtest::service_addr;
 use grpc_clients::identity::{
-  get_unauthenticated_client,
-  protos::client::{UploadOneTimeKeysRequest, VerifyUserAccessTokenRequest},
+  get_unauthenticated_client, protos::client::VerifyUserAccessTokenRequest,
 };
 
 #[tokio::test]
@@ -32,32 +31,4 @@ async fn verify_access_token() {
     .unwrap();
 
   assert!(response.into_inner().token_valid);
-}
-
-#[tokio::test]
-async fn upload_one_time_keys() {
-  let identity_grpc_endpoint = service_addr::IDENTITY_GRPC.to_string();
-  let device_info = create_device(None).await;
-
-  let mut identity_client = get_unauthenticated_client(
-    &identity_grpc_endpoint,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
-  )
-  .await
-  .expect("Couldn't connect to identity service");
-
-  let upload_request = UploadOneTimeKeysRequest {
-    user_id: device_info.user_id,
-    device_id: device_info.device_id,
-    access_token: device_info.access_token,
-    content_one_time_pre_keys: vec!["a".to_string(), "b".to_string()],
-    notif_one_time_pre_keys: vec!["c".to_string(), "d".to_string()],
-  };
-
-  // This send will fail if the one-time keys weren't successfully added
-  identity_client
-    .upload_one_time_keys(upload_request)
-    .await
-    .unwrap();
 }

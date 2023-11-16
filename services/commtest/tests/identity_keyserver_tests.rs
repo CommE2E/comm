@@ -3,9 +3,9 @@ use commtest::identity::device::{
 };
 use commtest::service_addr;
 use grpc_clients::identity::{
-  get_auth_client, get_unauthenticated_client,
-  protos::{
-    authenticated::OutboundKeysForUserRequest, client::UploadOneTimeKeysRequest,
+  get_auth_client,
+  protos::authenticated::{
+    OutboundKeysForUserRequest, UploadOneTimeKeysRequest,
   },
 };
 
@@ -17,8 +17,8 @@ async fn set_prekey() {
   let mut client = get_auth_client(
     &identity_grpc_endpoint,
     device_info.user_id.clone(),
-    device_info.device_id.clone(),
-    device_info.access_token.clone(),
+    device_info.device_id,
+    device_info.access_token,
     PLACEHOLDER_CODE_VERSION,
     DEVICE_TYPE.to_string(),
   )
@@ -26,22 +26,11 @@ async fn set_prekey() {
   .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
-    user_id: device_info.user_id.clone(),
-    device_id: device_info.device_id,
-    access_token: device_info.access_token,
     content_one_time_pre_keys: vec!["content1".to_string()],
     notif_one_time_pre_keys: vec!["notif1".to_string()],
   };
 
-  let mut unauthenticated_client = get_unauthenticated_client(
-    &identity_grpc_endpoint,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
-  )
-  .await
-  .expect("Couldn't connect to identity service");
-
-  unauthenticated_client
+  client
     .upload_one_time_keys(upload_request)
     .await
     .expect("Failed to upload keys");
