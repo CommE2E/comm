@@ -2,11 +2,30 @@
   flex: 1;
   background-color: var(--panel-background-primary-default);
   padding: 40px;
+  max-width: 456px;
+}
+
+.headerContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
 .header {
   color: var(--text-background-primary-default);
   font-weight: var(--semi-bold);
   line-height: var(--line-height-display);
-  margin-bottom: 16px;
+}
+
+.addButton {
+  background-color: var(--button-background-secondary-default);
+  border-radius: 4px;
+  color: var(--button-label-secondary-default);
+}
+
+.addButton:hover {
+  cursor: pointer;
+  background-color: var(--button-background-secondary-hover);
 }
