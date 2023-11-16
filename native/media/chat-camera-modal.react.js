@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { PhotoCapture } from 'lib/types/media-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import CameraModal from './camera-modal.react.js';
@@ -13,7 +14,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 
 export type ChatCameraModalParams = {
   +presentedFrom: string,
-  +thread: ThreadInfo,
+  +thread: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type Props = {

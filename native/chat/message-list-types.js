@@ -19,7 +19,7 @@ import {
 } from '../navigation/route-names.js';
 
 export type MessageListParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +searching?: boolean,
   +removeEditMode?: ?RemoveEditMode,
@@ -54,7 +54,7 @@ function useMessageListContext(
 
 type Props = {
   +children: React.Node,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 function MessageListContextProvider(props: Props): React.Node {
   const context = useMessageListContext(props.threadInfo);

@@ -1,5 +1,6 @@
 // @flow
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
@@ -7,7 +8,7 @@ import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import type { TextStyle } from '../types/styles.js';
 
 export type CommunityDrawerItemDataFlattened = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +hasSubchannelsButton: boolean,
   +labelStyle: TextStyle,
   +hasChildren: boolean,

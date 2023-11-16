@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
@@ -19,7 +20,7 @@ import type { VerticalBounds } from '../types/layout-types.js';
 
 type MessageResultProps = {
   +item: ChatMessageInfoItemWithHeight,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +navigation:
     | AppNavigationProp<'TogglePinModal'>
     | ChatNavigationProp<'MessageResultsScreen'>

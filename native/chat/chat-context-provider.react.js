@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { ChatContext } from './chat-context.js';
@@ -16,7 +17,7 @@ type Props = {
 
 export type MeasurementTask = {
   +messages: $ReadOnlyArray<NativeChatMessageItem>,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +onMessagesMeasured: (
     messagesWithHeight: $ReadOnlyArray<ChatMessageItemWithHeight>,
     measuredHeights: $ReadOnlyMap<string, number>,
@@ -37,7 +38,7 @@ function ChatContextProvider(props: Props): React.Node {
   const measureMessages = React.useCallback(
     (
       messages: ?$ReadOnlyArray<NativeChatMessageItem>,
-      threadInfo: ?ThreadInfo,
+      threadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
       onMessagesMeasured: ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
       measurerID: number,
     ) => {
@@ -93,7 +94,7 @@ function ChatContextProvider(props: Props): React.Node {
     return {
       measure: (
         messages: ?$ReadOnlyArray<NativeChatMessageItem>,
-        threadInfo: ?ThreadInfo,
+        threadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
         onMessagesMeasured: (
           $ReadOnlyArray<ChatMessageItemWithHeight>,
         ) => mixed,

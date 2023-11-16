@@ -20,6 +20,7 @@ import {
   useExistingThreadInfoFinder,
   pendingThreadType,
 } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
@@ -62,8 +63,8 @@ type Props = {
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
   +resolveToUser: (user: AccountUserInfo) => void,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
-  +threadInfo: ThreadInfo,
-  +genesisThreadInfo: ?ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +genesisThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +messageListData: ?$ReadOnlyArray<NativeChatMessageItem>,
   +colors: Colors,
   +styles: typeof unboundStyles,

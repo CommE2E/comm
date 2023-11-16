@@ -10,6 +10,7 @@ import {
   createPendingThread,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
@@ -39,7 +40,7 @@ function useInfosForPendingThread(): InfosForPendingThread {
 
 function useThreadInfoForPossiblyPendingThread(
   activeChatThreadID: ?string,
-): ?ThreadInfo {
+): ?ThreadInfo | ?MinimallyEncodedThreadInfo {
   const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
   const loggedInUserInfo = useLoggedInUserInfo();

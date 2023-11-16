@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import type { NativeMediaSelection } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 export type MultimediaProcessingStep = 'transcoding' | 'uploading';
@@ -31,12 +32,12 @@ export type InputState = {
   +pendingUploads: PendingMultimediaUploads,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => Promise<void>,
   +sendMultimediaMessage: (
     selections: $ReadOnlyArray<NativeMediaSelection>,
-    threadInfo: ThreadInfo,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   ) => Promise<void>,
   +editInputMessage: (params: EditInputBarMessageParameters) => void,
   +addEditInputMessageListener: (
@@ -48,8 +49,8 @@ export type InputState = {
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMessage: (
     localMessageID: string,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => Promise<void>,
   +registerSendCallback: (() => void) => void,
   +unregisterSendCallback: (() => void) => void,
@@ -57,7 +58,9 @@ export type InputState = {
   +reportURIDisplayed: (uri: string, loaded: boolean) => void,
   +setPendingThreadUpdateHandler: (
     threadID: string,
-    pendingThreadUpdateHandler: ?(ThreadInfo) => mixed,
+    pendingThreadUpdateHandler: ?(
+      ThreadInfo | MinimallyEncodedThreadInfo,
+    ) => mixed,
   ) => void,
   +scrollToMessage: (messageKey: string) => void,
   +addScrollToMessageListener: ((messageKey: string) => void) => void,

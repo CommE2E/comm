@@ -7,6 +7,7 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
@@ -24,7 +25,7 @@ import Modal from '../../modal.react.js';
 
 type Props = {
   +onClose: () => void,
-  +parentThreadInfo: ThreadInfo,
+  +parentThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 const getThreadType = (visibility: VisibilityType, announcement: boolean) => {

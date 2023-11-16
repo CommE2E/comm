@@ -129,8 +129,8 @@ function DummyInlineEngagementNode(
 
 type Props = {
   +messageInfo: MessageInfo,
-  +threadInfo: ThreadInfo,
-  +sidebarThreadInfo: ?ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +sidebarThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +reactions: ReactionInfo,
   +disabled?: boolean,
   +positioning?: 'left' | 'right' | 'center',

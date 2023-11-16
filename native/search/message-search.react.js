@@ -12,6 +12,7 @@ import {
   filterChatMessageInfosForSearch,
 } from 'lib/shared/search-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import SearchFooter from './search-footer.react.js';
@@ -27,7 +28,7 @@ import { useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 
 export type MessageSearchParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 export type MessageSearchProps = {
