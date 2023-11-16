@@ -3,13 +3,14 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
 import EditThreadAvatar from '../../avatars/edit-thread-avatar.react.js';
 import { useStyles } from '../../themes/colors.js';
 
 type Props = {
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +canChangeSettings: boolean,
 };
 function ThreadSettingsAvatar(props: Props): React.Node {
