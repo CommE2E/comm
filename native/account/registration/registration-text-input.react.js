@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { TextInput } from 'react-native';
 
+import type { ReactRefSetter } from 'lib/types/react-types.js';
+
 import {
   useStyles,
   useColors,
@@ -11,7 +13,10 @@ import {
 
 type Props = React.ElementConfig<typeof TextInput>;
 
-function ForwardedRegistrationTextInput(props: Props, ref): React.Node {
+function ForwardedRegistrationTextInput(
+  props: Props,
+  ref: ReactRefSetter<React.ElementRef<typeof TextInput>>,
+): React.Node {
   const {
     onFocus,
     onBlur,
