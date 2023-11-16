@@ -7,6 +7,10 @@ import * as SimpleMarkdown from 'simple-markdown';
 import * as SharedMarkdown from 'lib/shared/markdown.js';
 import { chatMentionRegex } from 'lib/shared/mention-utils.js';
 import type {
+  MinimallyEncodedRelativeMemberInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
   RelativeMemberInfo,
   ThreadInfo,
   ChatMentionCandidates,
@@ -165,7 +169,7 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
 });
 
 function useTextMessageRulesFunc(
-  threadInfo: ThreadInfo,
+  threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   chatMentionCandidates: ChatMentionCandidates,
 ): boolean => MarkdownRules {
   const { members } = threadInfo;
@@ -179,7 +183,9 @@ function useTextMessageRulesFunc(
 }
 
 function textMessageRules(
-  members: $ReadOnlyArray<RelativeMemberInfo>,
+  members: $ReadOnlyArray<
+    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  >,
   chatMentionCandidates: ChatMentionCandidates,
   useDarkStyle: boolean,
 ): MarkdownRules {

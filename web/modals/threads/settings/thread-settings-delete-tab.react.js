@@ -10,6 +10,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { containedThreadInfos } from 'lib/selectors/thread-selectors.js';
 import { type SetState } from 'lib/types/hook-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
@@ -21,7 +22,7 @@ import { useSelector } from '../../../redux/redux-utils.js';
 
 type ThreadSettingsDeleteTabProps = {
   +threadSettingsOperationInProgress: boolean,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +setErrorMessage: SetState<?string>,
   +errorMessage?: ?string,
 };

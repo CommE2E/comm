@@ -16,6 +16,7 @@ import type {
   ComposableMessageInfo,
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo, RawThreadInfos } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -25,7 +26,7 @@ import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function useOnClickThread(
-  thread: ?ThreadInfo,
+  thread: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
 ): (event: SyntheticEvent<HTMLElement>) => void {
   const dispatch = useDispatch();
   return React.useCallback(
