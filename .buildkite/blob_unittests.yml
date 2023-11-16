@@ -2,8 +2,12 @@ steps:
   - label: ':nix: Blob Unittests'
     command:
       - 'cd services/blob'
-      - 'nix develop --accept-flake-config --command cargo test'
+      - 'nix develop --extra-experimental-features "flakes nix-command" --accept-flake-config --command cargo test'
     retry:
       automatic: true
+    plugins:
+      - docker#v5.3.0:
+          image: 'nixos/nix'
+          propagate-environment: true
     agents:
-      - 'mac=true'
+      - 'autoscaling=true'
