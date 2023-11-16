@@ -1,9 +1,14 @@
 steps:
   - label: ':nix: Blob Unittests'
     command:
+      - '../scripts/install_protobuf.sh'
       - 'cd services/blob'
-      - 'nix develop --accept-flake-config --command cargo test'
+      - 'cargo test'
     retry:
       automatic: true
+    plugins:
+      - docker#v5.3.0:
+          image: 'rust:1.74'
+          propagate-environment: true
     agents:
-      - 'mac=true'
+      - 'autoscaling=true'
