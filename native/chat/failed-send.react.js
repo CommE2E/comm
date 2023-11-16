@@ -21,6 +21,23 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 const failedSendHeight = 22;
 
+const unboundStyles = {
+  deliveryFailed: {
+    color: 'listSeparatorLabel',
+    paddingHorizontal: 3,
+  },
+  failedSendInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginRight: 20,
+    paddingTop: 5,
+  },
+  retrySend: {
+    paddingHorizontal: 3,
+  },
+};
+
 type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,
 };
@@ -132,23 +149,6 @@ class FailedSend extends React.PureComponent<Props> {
     );
   };
 }
-
-const unboundStyles = {
-  deliveryFailed: {
-    color: 'listSeparatorLabel',
-    paddingHorizontal: 3,
-  },
-  failedSendInfo: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginRight: 20,
-    paddingTop: 5,
-  },
-  retrySend: {
-    paddingHorizontal: 3,
-  },
-};
 
 const ConnectedFailedSend: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedFailedSend(props: BaseProps) {

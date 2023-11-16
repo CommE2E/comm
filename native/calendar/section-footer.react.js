@@ -7,6 +7,36 @@ import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 
+const unboundStyles = {
+  actionLinksText: {
+    color: 'listSeparatorLabel',
+    fontWeight: 'bold',
+  },
+  addButton: {
+    backgroundColor: 'panelSecondaryForeground',
+    borderRadius: 5,
+    margin: 5,
+    paddingBottom: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+  },
+  addButtonContents: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  addIcon: {
+    color: 'listSeparatorLabel',
+    fontSize: 18,
+    paddingRight: 4,
+  },
+  sectionFooter: {
+    alignItems: 'flex-start',
+    backgroundColor: 'listBackground',
+    height: 40,
+  },
+};
+
 type BaseProps = {
   +dateString: string,
   +onAdd: (dateString: string) => void,
@@ -40,36 +70,6 @@ class SectionFooter extends React.PureComponent<Props> {
     this.props.onAdd(this.props.dateString);
   };
 }
-
-const unboundStyles = {
-  actionLinksText: {
-    color: 'listSeparatorLabel',
-    fontWeight: 'bold',
-  },
-  addButton: {
-    backgroundColor: 'panelSecondaryForeground',
-    borderRadius: 5,
-    margin: 5,
-    paddingBottom: 5,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-  },
-  addButtonContents: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  addIcon: {
-    color: 'listSeparatorLabel',
-    fontSize: 18,
-    paddingRight: 4,
-  },
-  sectionFooter: {
-    alignItems: 'flex-start',
-    backgroundColor: 'listBackground',
-    height: 40,
-  },
-};
 
 const ConnectedSectionFooter: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedSectionFooter(props: BaseProps) {

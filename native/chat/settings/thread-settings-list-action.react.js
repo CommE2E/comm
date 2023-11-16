@@ -9,6 +9,56 @@ import Button from '../../components/button.react.js';
 import { useStyles } from '../../themes/colors.js';
 import type { ViewStyle, TextStyle } from '../../types/styles.js';
 
+const unboundStyles = {
+  addSubchannelButton: {
+    paddingTop: Platform.OS === 'ios' ? 4 : 1,
+  },
+  addIcon: {
+    color: 'link',
+  },
+  addItemRow: {
+    backgroundColor: 'panelForeground',
+    paddingHorizontal: 12,
+  },
+  addMemberButton: {
+    paddingTop: Platform.OS === 'ios' ? 4 : 1,
+  },
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    justifyContent: 'center',
+  },
+  icon: {
+    lineHeight: 20,
+  },
+  seeMoreButton: {
+    paddingBottom: Platform.OS === 'ios' ? 4 : 2,
+    paddingTop: Platform.OS === 'ios' ? 2 : 0,
+  },
+  seeMoreContents: {
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+  },
+  seeMoreIcon: {
+    color: 'link',
+    position: 'absolute',
+    right: 10,
+    top: Platform.OS === 'android' ? 12 : 10,
+  },
+  seeMoreRow: {
+    backgroundColor: 'panelForeground',
+    paddingHorizontal: 12,
+  },
+  text: {
+    color: 'link',
+    flex: 1,
+    fontSize: 16,
+    fontStyle: 'italic',
+  },
+};
+
 type ListActionProps = {
   +onPress: () => void,
   +text: string,
@@ -94,56 +144,6 @@ function ThreadSettingsAddSubchannel(props: AddChildChannelProps): React.Node {
     </View>
   );
 }
-
-const unboundStyles = {
-  addSubchannelButton: {
-    paddingTop: Platform.OS === 'ios' ? 4 : 1,
-  },
-  addIcon: {
-    color: 'link',
-  },
-  addItemRow: {
-    backgroundColor: 'panelForeground',
-    paddingHorizontal: 12,
-  },
-  addMemberButton: {
-    paddingTop: Platform.OS === 'ios' ? 4 : 1,
-  },
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    justifyContent: 'center',
-  },
-  icon: {
-    lineHeight: 20,
-  },
-  seeMoreButton: {
-    paddingBottom: Platform.OS === 'ios' ? 4 : 2,
-    paddingTop: Platform.OS === 'ios' ? 2 : 0,
-  },
-  seeMoreContents: {
-    borderColor: 'panelForegroundBorder',
-    borderTopWidth: 1,
-  },
-  seeMoreIcon: {
-    color: 'link',
-    position: 'absolute',
-    right: 10,
-    top: Platform.OS === 'android' ? 12 : 10,
-  },
-  seeMoreRow: {
-    backgroundColor: 'panelForeground',
-    paddingHorizontal: 12,
-  },
-  text: {
-    color: 'link',
-    flex: 1,
-    fontSize: 16,
-    fontStyle: 'italic',
-  },
-};
 
 export {
   ThreadSettingsSeeMore,
