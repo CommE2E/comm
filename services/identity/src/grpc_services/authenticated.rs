@@ -264,4 +264,42 @@ impl IdentityClientService for AuthenticatedService {
     let response = Empty {};
     Ok(Response::new(response))
   }
+
+  async fn log_out_user(
+    &self,
+    request: tonic::Request<Empty>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let (user_id, device_id) = get_user_and_device_id(&request)?;
+
+    self
+      .db_client
+      .remove_device_from_users_table(user_id.clone(), device_id.clone())
+      .await
+      .map_err(handle_db_error)?;
+
+    self
+      .db_client
+      .delete_access_token_data(user_id, device_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
+  }
+
+  async fn delete_user(
+    &self,
+    request: tonic::Request<Empty>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let (user_id, _) = get_user_and_device_id(&request)?;
+
+    self
+      .db_client
+      .delete_user(user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
+  }
 }

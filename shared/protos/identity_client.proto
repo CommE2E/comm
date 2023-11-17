@@ -25,10 +25,6 @@ service IdentityClientService {
   rpc LoginWalletUser(WalletLoginRequest) returns (WalletLoginResponse) {}
   rpc LoginReservedWalletUser(ReservedWalletLoginRequest) returns
     (WalletLoginResponse) {}
-  // Called by user to log out (clears device's keys and access token)
-  rpc LogOutUser(LogoutRequest) returns (Empty) {}
-  // Called by a user to delete their own account
-  rpc DeleteUser(DeleteUserRequest) returns (Empty) {}
 
   // Sign-In with Ethereum actions
 
@@ -226,26 +222,6 @@ message ReservedWalletLoginRequest {
 message WalletLoginResponse {
   string userID = 1;
   string accessToken = 2;
-}
-
-// LogOutUser
-
-message LogoutRequest {
-  string accessToken = 1;
-  string userID = 2;
-  // Public ed25519 key used for signing. We need this to look up a device's
-  // access token
-  string deviceIDKey = 3;
-}
-
-// DeleteUser
-
-message DeleteUserRequest {
-  string accessToken = 1;
-  string userID = 2;
-  // Public ed25519 key used for signing. We need this to look up a device's
-  // access token
-  string deviceIDKey = 3;
 }
 
 // GenerateNonce
