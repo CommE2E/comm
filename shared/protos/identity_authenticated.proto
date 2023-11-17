@@ -25,6 +25,11 @@ service IdentityClientService {
   rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest) returns
     (identity.client.Empty) {}
 
+  // Called by user to log out (clears device's keys and access token)
+  rpc LogOutUser(identity.client.Empty) returns (identity.client.Empty) {}
+  // Called by a user to delete their own account
+  rpc DeleteUser(identity.client.Empty) returns (identity.client.Empty) {}
+
   // Called by clients to get required keys for opening a connection
   // to a user's keyserver
   rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
