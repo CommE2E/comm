@@ -19,6 +19,12 @@ service IdentityClientService {
   rpc RefreshUserPreKeys(RefreshUserPreKeysRequest)
     returns (identity.client.Empty) {}
 
+  // Called by user to update password and receive new access token
+  rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
+    (UpdateUserPasswordStartResponse) {}
+  rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest) returns
+    (identity.client.Empty) {}
+
   // Called by clients to get required keys for opening a connection
   // to a user's keyserver
   rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
@@ -78,4 +84,28 @@ message FindUserIDRequest {
 message FindUserIDResponse {
   // none if user not found
   optional string userID = 1;
+}
+
+// UpdateUserPassword
+
+// Request for updating a user, similar to registration but need a
+// access token to validate user before updating password
+message UpdateUserPasswordStartRequest {
+  // Message sent to initiate PAKE registration (step 1)
+  bytes opaqueRegistrationRequest = 1;
+}
+
+// Do a user registration, but overwrite the existing credentials
+// after validation of user
+message UpdateUserPasswordFinishRequest {
+  // Identifier used to correlate start and finish request
+  string sessionID = 1;
+  // Opaque client registration upload (step 3)
+  bytes opaqueRegistrationUpload = 2;
+}
+
+message UpdateUserPasswordStartResponse {
+  // Identifier used to correlate start request with finish request
+  string sessionID = 1;
+  bytes opaqueRegistrationResponse = 2;
 }

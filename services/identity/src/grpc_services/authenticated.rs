@@ -1,7 +1,15 @@
+use crate::config::CONFIG;
 use crate::{
-  client_service::handle_db_error, constants::request_metadata,
-  database::DatabaseClient, grpc_services::shared::get_value, token::AuthType,
+  client_service::{
+    handle_db_error, CacheExt, UpdateState, WorkflowInProgress,
+  },
+  constants::request_metadata,
+  database::DatabaseClient,
+  grpc_services::shared::get_value,
+  token::AuthType,
 };
+use comm_opaque2::grpc::protocol_error_to_grpc_status;
+use moka::future::Cache;
 use tonic::{Request, Response, Status};
 
 // This must be named client, because generated code from the authenticated
@@ -25,6 +33,7 @@ use tracing::debug;
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
   db_client: DatabaseClient,
+  cache: Cache<String, WorkflowInProgress>,
 }
 
 fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
@@ -193,5 +202,66 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     Ok(Response::new(FindUserIdResponse { user_id }))
+  }
+
+  async fn update_user_password_start(
+    &self,
+    request: tonic::Request<auth_proto::UpdateUserPasswordStartRequest>,
+  ) -> Result<
+    tonic::Response<auth_proto::UpdateUserPasswordStartResponse>,
+    tonic::Status,
+  > {
+    let (user_id, _) = get_user_and_device_id(&request)?;
+    let message = request.into_inner();
+
+    let server_registration = comm_opaque2::server::Registration::new();
+    let server_message = server_registration
+      .start(
+        &CONFIG.server_setup,
+        &message.opaque_registration_request,
+        user_id.as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
+
+    let update_state = UpdateState { user_id };
+    let session_id = self
+      .cache
+      .insert_with_uuid_key(WorkflowInProgress::Update(update_state))
+      .await;
+
+    let response = auth_proto::UpdateUserPasswordStartResponse {
+      session_id,
+      opaque_registration_response: server_message,
+    };
+    Ok(Response::new(response))
+  }
+
+  async fn update_user_password_finish(
+    &self,
+    request: tonic::Request<auth_proto::UpdateUserPasswordFinishRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let message = request.into_inner();
+
+    let Some(WorkflowInProgress::Update(state)) =
+      self.cache.get(&message.session_id)
+    else {
+      return Err(tonic::Status::not_found("session not found"));
+    };
+
+    self.cache.invalidate(&message.session_id).await;
+
+    let server_registration = comm_opaque2::server::Registration::new();
+    let password_file = server_registration
+      .finish(&message.opaque_registration_upload)
+      .map_err(protocol_error_to_grpc_status)?;
+
+    self
+      .db_client
+      .update_user_password(state.user_id, password_file)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
   }
 }

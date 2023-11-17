@@ -22,10 +22,8 @@ use crate::client_service::client_proto::{
   RegistrationFinishRequest, RegistrationFinishResponse,
   RegistrationStartRequest, RegistrationStartResponse,
   RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
-  ReservedWalletLoginRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
-  WalletLoginRequest, WalletLoginResponse,
+  ReservedWalletLoginRequest, VerifyUserAccessTokenRequest,
+  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
 };
 use crate::config::CONFIG;
 use crate::database::{
@@ -246,80 +244,6 @@ impl IdentityClientService for ClientService {
         user_id,
         access_token,
       };
-      Ok(Response::new(response))
-    } else {
-      Err(tonic::Status::not_found("session not found"))
-    }
-  }
-
-  async fn update_user_password_start(
-    &self,
-    request: tonic::Request<UpdateUserPasswordStartRequest>,
-  ) -> Result<tonic::Response<UpdateUserPasswordStartResponse>, tonic::Status>
-  {
-    let message = request.into_inner();
-
-    let token_is_valid = self
-      .client
-      .verify_access_token(
-        message.user_id.clone(),
-        message.device_id_key,
-        message.access_token,
-      )
-      .await
-      .map_err(handle_db_error)?;
-
-    if !token_is_valid {
-      return Err(tonic::Status::permission_denied("bad token"));
-    }
-
-    let server_registration = comm_opaque2::server::Registration::new();
-    let server_message = server_registration
-      .start(
-        &CONFIG.server_setup,
-        &message.opaque_registration_request,
-        message.user_id.as_bytes(),
-      )
-      .map_err(protocol_error_to_grpc_status)?;
-
-    let update_state = UpdateState {
-      user_id: message.user_id,
-    };
-    let session_id = self
-      .cache
-      .insert_with_uuid_key(WorkflowInProgress::Update(update_state))
-      .await;
-
-    let response = UpdateUserPasswordStartResponse {
-      session_id,
-      opaque_registration_response: server_message,
-    };
-    Ok(Response::new(response))
-  }
-
-  async fn update_user_password_finish(
-    &self,
-    request: tonic::Request<UpdateUserPasswordFinishRequest>,
-  ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    let message = request.into_inner();
-
-    if let Some(WorkflowInProgress::Update(state)) =
-      self.cache.get(&message.session_id)
-    {
-      self.cache.invalidate(&message.session_id).await;
-
-      let server_registration = comm_opaque2::server::Registration::new();
-      let password_file = server_registration
-        .finish(&message.opaque_registration_upload)
-        .map_err(protocol_error_to_grpc_status)?;
-
-      self
-        .client
-        .update_user_password(state.user_id, password_file)
-        .await
-        .map_err(handle_db_error)?;
-
-      let response = Empty {};
       Ok(Response::new(response))
     } else {
       Err(tonic::Status::not_found("session not found"))
