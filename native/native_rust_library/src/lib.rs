@@ -1,15 +1,17 @@
 use crate::ffi::{string_callback, void_callback};
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use grpc_clients::identity::get_unauthenticated_client;
+use grpc_clients::identity::protos::authenticated::{
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+};
 use grpc_clients::identity::protos::client::{
   outbound_keys_for_user_request::Identifier, DeleteUserRequest,
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
   OpaqueLoginFinishRequest, OpaqueLoginStartRequest, OutboundKeyInfo,
   OutboundKeysForUserRequest, PreKey, RegistrationFinishRequest,
-  RegistrationStartRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, WalletLoginRequest,
+  RegistrationStartRequest, WalletLoginRequest,
 };
+use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
 use lazy_static::lazy_static;
 use serde::Serialize;
 use std::sync::Arc;
@@ -525,12 +527,12 @@ async fn update_user_password_helper(
     .map_err(handle_error)?;
   let update_password_start_request = UpdateUserPasswordStartRequest {
     opaque_registration_request,
-    access_token: update_password_info.access_token,
-    user_id: update_password_info.user_id,
-    device_id_key: update_password_info.device_id,
   };
-  let mut identity_client = get_unauthenticated_client(
+  let mut identity_client = get_auth_client(
     "http://127.0.0.1:50054",
+    update_password_info.user_id,
+    update_password_info.device_id,
+    update_password_info.access_token,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
