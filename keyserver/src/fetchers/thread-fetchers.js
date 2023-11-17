@@ -271,6 +271,9 @@ function rawThreadInfosFromServerThreadInfos(
   const codeVersionBelow221 = !hasMinCodeVersion(viewer.platformDetails, {
     native: 221,
   });
+  const codeVersionBelow283 = !hasMinCodeVersion(viewer.platformDetails, {
+    native: 283,
+  });
 
   const threadInfos = {};
   for (const threadID in serverResult.threadInfos) {
@@ -282,6 +285,7 @@ function rawThreadInfosFromServerThreadInfos(
         filterThreadEditAvatarPermission: codeVersionBelow213,
         excludePinInfo: codeVersionBelow209,
         filterManageInviteLinksPermission: codeVersionBelow221,
+        filterVoicedInAnnouncementChannelsPermission: codeVersionBelow283,
       },
     );
     if (threadInfo) {
