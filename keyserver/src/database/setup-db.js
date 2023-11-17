@@ -135,7 +135,8 @@ async function createTables() {
         thread bigint(20) NOT NULL,
         name varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
         permissions json NOT NULL,
-        creation_time bigint(20) NOT NULL
+        creation_time bigint(20) NOT NULL,
+        special_role tinyint(2) UNSIGNED DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
       CREATE TABLE sessions (
