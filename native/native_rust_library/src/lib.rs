@@ -5,11 +5,10 @@ use grpc_clients::identity::protos::authenticated::{
   UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
 };
 use grpc_clients::identity::protos::client::{
-  outbound_keys_for_user_request::Identifier, DeleteUserRequest,
-  DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
-  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, OutboundKeyInfo,
-  OutboundKeysForUserRequest, PreKey, RegistrationFinishRequest,
-  RegistrationStartRequest, WalletLoginRequest,
+  outbound_keys_for_user_request::Identifier, DeviceKeyUpload, DeviceType,
+  Empty, IdentityKeyInfo, OpaqueLoginFinishRequest, OpaqueLoginStartRequest,
+  OutboundKeyInfo, OutboundKeysForUserRequest, PreKey,
+  RegistrationFinishRequest, RegistrationStartRequest, WalletLoginRequest,
 };
 use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
 use lazy_static::lazy_static;
@@ -623,18 +622,16 @@ fn delete_user(
 }
 
 async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
-  let delete_user_request = DeleteUserRequest {
-    access_token: auth_info.access_token,
-    user_id: auth_info.user_id,
-    device_id_key: auth_info.device_id,
-  };
-  let mut identity_client = get_unauthenticated_client(
+  let mut identity_client = get_auth_client(
     "http://127.0.0.1:50054",
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
   .await?;
-  identity_client.delete_user(delete_user_request).await?;
+  identity_client.delete_user(Empty {}).await?;
 
   Ok(())
 }
