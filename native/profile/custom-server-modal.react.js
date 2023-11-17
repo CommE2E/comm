@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
+import { setCustomServerURLActionType } from 'lib/actions/keyserver-actions.js';
 import { urlPrefixSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -17,7 +18,6 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import { setCustomServer } from '../utils/url-utils.js';
 
 export type CustomServerModalParams = {
   +presentedFrom: string,
@@ -110,7 +110,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
     }
     if (customServer && customServer !== this.props.customServer) {
       this.props.dispatch({
-        type: setCustomServer,
+        type: setCustomServerURLActionType,
         payload: customServer,
       });
     }

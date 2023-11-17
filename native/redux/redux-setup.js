@@ -6,6 +6,7 @@ import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import { setCustomServerURLActionType } from 'lib/actions/keyserver-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
   logOutActionTypes,
@@ -48,7 +49,7 @@ import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import reactotron from '../reactotron.js';
 import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import { isStaffRelease } from '../utils/staff-utils.js';
-import { setCustomServer, getDevServerHostname } from '../utils/url-utils.js';
+import { getDevServerHostname } from '../utils/url-utils.js';
 
 function reducer(state: AppState = defaultState, action: Action) {
   if (action.type === setReduxStateActionType) {
@@ -145,7 +146,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     return state;
   }
 
-  if (action.type === setCustomServer) {
+  if (action.type === setCustomServerURLActionType) {
     return {
       ...state,
       customServer: action.payload,

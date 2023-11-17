@@ -5,7 +5,10 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { removeKeyserverActionType } from 'lib/actions/keyserver-actions.js';
+import {
+  removeKeyserverActionType,
+  setCustomServerURLActionType,
+} from 'lib/actions/keyserver-actions.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -22,7 +25,6 @@ import { useColors, useStyles } from '../themes/colors.js';
 import type { BottomSheetRef } from '../types/bottom-sheet.js';
 import Alert from '../utils/alert.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
-import { setCustomServer } from '../utils/url-utils.js';
 
 export type KeyserverSelectionBottomSheetParams = {
   +keyserverAdminUserInfo: GlobalAccountUserInfo,
@@ -112,7 +114,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
 
     if (staffCanSee) {
       dispatch({
-        type: setCustomServer,
+        type: setCustomServerURLActionType,
         payload: keyserverInfo.urlPrefix,
       });
     }
