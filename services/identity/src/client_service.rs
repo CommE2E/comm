@@ -14,16 +14,16 @@ use tracing::{debug, error};
 // Workspace crate imports
 use crate::client_service::client_proto::{
   inbound_keys_for_user_request, outbound_keys_for_user_request,
-  AddReservedUsernamesRequest, DeleteUserRequest, Empty, GenerateNonceResponse,
-  InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
-  LogoutRequest, OpaqueLoginFinishRequest, OpaqueLoginFinishResponse,
-  OpaqueLoginStartRequest, OpaqueLoginStartResponse, OutboundKeyInfo,
-  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RegistrationFinishRequest, RegistrationFinishResponse,
-  RegistrationStartRequest, RegistrationStartResponse,
-  RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
-  ReservedWalletLoginRequest, VerifyUserAccessTokenRequest,
-  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+  AddReservedUsernamesRequest, Empty, GenerateNonceResponse, InboundKeyInfo,
+  InboundKeysForUserRequest, InboundKeysForUserResponse,
+  OpaqueLoginFinishRequest, OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
+  OpaqueLoginStartResponse, OutboundKeyInfo, OutboundKeysForUserRequest,
+  OutboundKeysForUserResponse, RegistrationFinishRequest,
+  RegistrationFinishResponse, RegistrationStartRequest,
+  RegistrationStartResponse, RemoveReservedUsernameRequest,
+  ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
+  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
+  WalletLoginRequest, WalletLoginResponse,
 };
 use crate::config::CONFIG;
 use crate::database::{
@@ -555,77 +555,6 @@ impl IdentityClientService for ClientService {
       user_id,
       access_token,
     };
-
-    Ok(Response::new(response))
-  }
-
-  async fn log_out_user(
-    &self,
-    request: tonic::Request<LogoutRequest>,
-  ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    let message = request.into_inner();
-
-    let token_is_valid = self
-      .client
-      .verify_access_token(
-        message.user_id.clone(),
-        message.device_id_key.clone(),
-        message.access_token,
-      )
-      .await
-      .map_err(handle_db_error)?;
-
-    if !token_is_valid {
-      return Err(tonic::Status::permission_denied("bad token"));
-    }
-
-    self
-      .client
-      .remove_device_from_users_table(
-        message.user_id.clone(),
-        message.device_id_key.clone(),
-      )
-      .await
-      .map_err(handle_db_error)?;
-
-    self
-      .client
-      .delete_access_token_data(message.user_id, message.device_id_key)
-      .await
-      .map_err(handle_db_error)?;
-
-    let response = Empty {};
-
-    Ok(Response::new(response))
-  }
-
-  async fn delete_user(
-    &self,
-    request: tonic::Request<DeleteUserRequest>,
-  ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    let message = request.into_inner();
-
-    let token_is_valid = self
-      .client
-      .verify_access_token(
-        message.user_id.clone(),
-        message.device_id_key,
-        message.access_token,
-      )
-      .await
-      .map_err(handle_db_error)?;
-
-    if !token_is_valid {
-      return Err(tonic::Status::permission_denied("bad token"));
-    }
-
-    self
-      .client
-      .delete_user(message.user_id)
-      .await
-      .map_err(handle_db_error)?;
-
-    let response = Empty {};
 
     Ok(Response::new(response))
   }
