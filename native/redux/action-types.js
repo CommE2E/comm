@@ -31,10 +31,6 @@ export type Action =
       +payload: { +state: AppState, +hideFromMonitor: boolean },
     }
   | {
-      +type: 'SET_CUSTOM_SERVER',
-      +payload: string,
-    }
-  | {
       +type: 'UPDATE_DIMENSIONS',
       +payload: Shape<DimensionsInfo>,
     }

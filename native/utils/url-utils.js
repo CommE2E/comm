@@ -64,8 +64,6 @@ const defaultLandingURLPrefix: string = __DEV__
 
 const natNodeServer: string = getDevNodeServerURLFromHostname(natDevHostname);
 
-const setCustomServer = 'SET_CUSTOM_SERVER';
-
 function normalizeURL(url: string): string {
   return urlParseLax(url).href;
 }
@@ -76,7 +74,6 @@ export {
   getDevServerHostname,
   nodeServerOptions,
   natNodeServer,
-  setCustomServer,
   normalizeURL,
   deviceIsEmulator,
 };
