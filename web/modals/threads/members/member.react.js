@@ -11,7 +11,10 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  MinimallyEncodedThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type RelativeMemberInfo,
   type ThreadInfo,
@@ -31,7 +34,7 @@ import { usePushUserProfileModal } from '../../user-profile/user-profile-utils.j
 const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
 type Props = {
-  +memberInfo: RelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +setOpenMenu: SetState<?string>,
 };
