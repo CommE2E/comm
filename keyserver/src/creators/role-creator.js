@@ -4,11 +4,15 @@ import {
   getRolePermissionBlobs,
   getThreadPermissionBlobFromUserSurfacedPermissions,
 } from 'lib/permissions/thread-permissions.js';
+import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import {
   userSurfacedPermissionsSet,
   threadPermissions,
 } from 'lib/types/thread-permission-types.js';
-import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypeIsCommunityRoot,
+  type ThreadType,
+} from 'lib/types/thread-types-enum.js';
 import type {
   RoleInfo,
   RoleModificationRequest,
@@ -25,7 +29,6 @@ import {
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
 } from '../fetchers/thread-fetchers.js';
-import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import { updateRole } from '../updaters/thread-updaters.js';
 
@@ -85,16 +88,25 @@ async function modifyRole(
   viewer: Viewer,
   request: RoleModificationRequest,
 ): Promise<RoleModificationResult> {
-  const hasPermission = await checkThreadPermission(
-    viewer,
-    request.community,
+  const { community, name, permissions } = request;
+
+  const { threadInfos } = await fetchThreadInfos(viewer, {
+    threadID: community,
+  });
+  const threadInfo = threadInfos[community];
+
+  const hasPermission = threadHasPermission(
+    threadInfo,
     threadPermissions.CHANGE_ROLE,
   );
+
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
   }
 
-  const { community, name, permissions } = request;
+  if (!threadTypeIsCommunityRoot(threadInfo.type)) {
+    throw new ServerError('invalid_parameters');
+  }
 
   for (const permission of permissions) {
     if (!userSurfacedPermissionsSet.has(permission)) {
@@ -104,11 +116,6 @@ async function modifyRole(
 
   const [id] = await createIDs('roles', 1);
   const time = Date.now();
-
-  const { threadInfos } = await fetchThreadInfos(viewer, {
-    threadID: community,
-  });
-  const threadInfo = threadInfos[community];
 
   const permissionsBlob = JSON.stringify(
     getThreadPermissionBlobFromUserSurfacedPermissions(
