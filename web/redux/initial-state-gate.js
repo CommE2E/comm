@@ -47,7 +47,10 @@ function InitialReduxStateGate(props: Props): React.Node {
               thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
             };
           }
-          const payload = await callGetInitialReduxState(urlInfo);
+          const payload = await callGetInitialReduxState({
+            urlInfo,
+            excludedData: { threadStore: false },
+          });
           dispatch({ type: setInitialReduxState, payload });
         } catch (err) {
           setInitError(err);

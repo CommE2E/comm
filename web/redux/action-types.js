@@ -4,13 +4,13 @@ import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { extractKeyserverIDFromID } from 'lib/utils/action-utils.js';
 import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
-import type { URLInfo } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type {
   InitialReduxState,
   InitialReduxStateResponse,
   InitialKeyserverInfo,
+  InitialReduxStateRequest,
 } from '../types/redux-types.js';
 
 export const updateNavInfoActionType = 'UPDATE_NAV_INFO';
@@ -23,17 +23,18 @@ const getInitialReduxState =
   (
     callKeyserverEndpoint: CallKeyserverEndpoint,
     allKeyserverIDs: $ReadOnlyArray<string>,
-  ): ((input: URLInfo) => Promise<InitialReduxState>) =>
-  async urlInfo => {
+  ): ((input: InitialReduxStateRequest) => Promise<InitialReduxState>) =>
+  async input => {
     const requests = {};
+    const { urlInfo, excludedData } = input;
     const { thread, inviteSecret, ...rest } = urlInfo;
     const threadKeyserverID = thread ? extractKeyserverIDFromID(thread) : null;
 
     for (const keyserverID of allKeyserverIDs) {
       if (keyserverID === threadKeyserverID) {
-        requests[keyserverID] = urlInfo;
+        requests[keyserverID] = { urlInfo, excludedData };
       } else {
-        requests[keyserverID] = rest;
+        requests[keyserverID] = { urlInfo: rest, excludedData };
       }
     }
 
@@ -141,7 +142,7 @@ const getInitialReduxState =
   };
 
 function useGetInitialReduxState(): (
-  input: URLInfo,
+  input: InitialReduxStateRequest,
 ) => Promise<InitialReduxState> {
   return useKeyserverCall(getInitialReduxState);
 }
