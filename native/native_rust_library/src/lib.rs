@@ -18,6 +18,7 @@ use tonic::Status;
 use tracing::instrument;
 
 mod argon2_tools;
+mod constants;
 mod cxx_promise_manager;
 mod secure_store;
 
@@ -171,6 +172,36 @@ mod ffi {
 
     #[cxx_name = "secureStoreGet"]
     fn secure_store_get_sync(key: &str, promise: usize);
+  }
+
+  // AES cryptography
+  #[namespace = "comm"]
+  unsafe extern "C++" {
+    include!("RustAESCrypto.h");
+
+    #[allow(unused)]
+    #[cxx_name = "aesGenerateKey"]
+    fn generate_key(buffer: &mut [u8]) -> Result<()>;
+
+    /// The first two argument aren't mutated but creation of Java ByteBuffer
+    /// requires the underlying bytes to be mutable.
+    #[allow(unused)]
+    #[cxx_name = "aesEncrypt"]
+    fn encrypt(
+      key: &mut [u8],
+      plaintext: &mut [u8],
+      sealed_data: &mut [u8],
+    ) -> Result<()>;
+
+    /// The first two argument aren't mutated but creation of Java ByteBuffer
+    /// requires the underlying bytes to be mutable.
+    #[allow(unused)]
+    #[cxx_name = "aesDecrypt"]
+    fn decrypt(
+      key: &mut [u8],
+      sealed_data: &mut [u8],
+      plaintext: &mut [u8],
+    ) -> Result<()>;
   }
 }
 

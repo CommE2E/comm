@@ -120,6 +120,7 @@ list(APPEND ANDROID_NATIVE_CODE
   "./src/cpp/jsiInstaller.cpp"
   "./src/cpp/NotificationsCryptoModuleJNIHelper.cpp"
   "./src/cpp/StaffUtilsJNIHelper.cpp"
+  "./src/cpp/AESCrypto.cpp"
 )
 
 list(APPEND GENERATED_NATIVE_CODE
@@ -130,6 +131,7 @@ list(APPEND GENERATED_NATIVE_CODE
 list(APPEND RUST_NATIVE_CODE
   "../../native_rust_library/RustCallback.cpp"
   "../../native_rust_library/RustSecureStore.cpp"
+  "../../native_rust_library/RustAESCrypto.cpp"
 )
 file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
 file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
