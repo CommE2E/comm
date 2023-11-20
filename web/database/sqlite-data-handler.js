@@ -3,9 +3,6 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
-import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
-
 import { getDatabaseModule } from './database-module-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
@@ -59,33 +56,8 @@ function SQLiteDataHandler(): React.Node {
         return;
       }
       await handleSensitiveData();
-      if (!currentLoggedInUserID) {
-        return;
-      }
-      const data = await databaseModule.schedule({
-        type: workerRequestMessageTypes.GET_CLIENT_STORE,
-      });
-
-      if (!data?.store?.drafts && !data?.store?.reports) {
-        return;
-      }
-      const reports = reportStoreOpsHandlers.translateClientDBData(
-        data.store.reports,
-      );
-      dispatch({
-        type: setClientDBStoreActionType,
-        payload: {
-          drafts: data.store.drafts,
-          reports,
-        },
-      });
     })();
-  }, [
-    currentLoggedInUserID,
-    dispatch,
-    handleSensitiveData,
-    rehydrateConcluded,
-  ]);
+  }, [dispatch, handleSensitiveData, rehydrateConcluded]);
 
   return null;
 }
