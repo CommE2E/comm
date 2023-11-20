@@ -37,7 +37,7 @@ public class AESCryptoModule: Module {
   }
 }
 
-// ObjC-compatible module, used from Objective-C code in NSE
+// ObjC-compatible module, used from Objective-C code in NSE and from Rust
 @objc(AESCryptoModuleObjCCompat)
 public class AESCryptoModuleObjCCompat: NSObject {
   
@@ -47,6 +47,15 @@ public class AESCryptoModuleObjCCompat: NSObject {
                                                        count: KEY_SIZE)
     try! generateKey(destinationPtr: destinationPtr,
                      byteLength: destination.length)
+  }
+
+  @objc(generateKey:destinationLength:withError:)
+  public static func generateKeyCompat(destinationPtr: UnsafeMutableRawPointer, 
+                                       destinationLength: Int) throws {
+    let destinationBufferPtr = UnsafeMutableRawBufferPointer(start: destinationPtr,
+                                                             count: destinationLength)
+    try generateKey(destinationPtr: destinationBufferPtr,
+                    byteLength: destinationLength)
   }
     
   @objc(encryptedLength:)
@@ -67,6 +76,21 @@ public class AESCryptoModuleObjCCompat: NSObject {
                  destinationLength: destination.length)
   }
 
+  @objc(encryptWithKey:plaintext:destinationPtr:destinationLength:withError:)
+  public static func encryptCompat(rawKey: Data,
+                                   plaintext: Data,
+                                   destinationPtr: UnsafeMutableRawPointer,
+                                   destinationLength: Int) throws {
+    let destinationBufferPtr = UnsafeMutableRawBufferPointer(start: destinationPtr,
+                                                             count: destinationLength)
+    
+    try encrypt(rawKey: rawKey,
+                plaintext: plaintext,
+                plaintextLength: plaintext.count,
+                destinationPtr: destinationBufferPtr,
+                destinationLength: destinationLength)
+  }
+
   @objc(decryptedLength:)
   public func decryptedLengthCompat(sealedData: Data) -> NSInteger {
     return sealedData.count - IV_LENGTH - TAG_LENGTH
@@ -83,6 +107,20 @@ public class AESCryptoModuleObjCCompat: NSObject {
                  sealedDataLength: sealedData.count,
                  destinationPtr: destinationPtr,
                  destinationLength: destination.length)
+    }
+
+  @objc(decryptWithKey:sealedData:destinationPtr:destinationLength:withError:)
+  public static func decryptCompat(rawKey: Data,
+                                   sealedData: Data,
+                                   destinationPtr: UnsafeMutableRawPointer,
+                                   destinationLength: Int) throws {
+    let destinationBufferPtr = UnsafeMutableRawBufferPointer(start: destinationPtr,
+                                                             count: destinationLength)
+    try decrypt(rawKey: rawKey,
+                sealedData: sealedData,
+                sealedDataLength: sealedData.count,
+                destinationPtr: destinationBufferPtr,
+                destinationLength: destinationLength)
     }
 
 }
