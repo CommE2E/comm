@@ -4,10 +4,10 @@ import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { generateKeyCommon } from 'lib/media/aes-crypto-utils-common.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
 
 import css from './qr-code-login.css';
-import { generateKey } from '../media/aes-crypto-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function QrCodeLogin(): React.Node {
@@ -22,7 +22,7 @@ function QrCodeLogin(): React.Node {
         return;
       }
 
-      const rawAESKey: Uint8Array = await generateKey();
+      const rawAESKey: Uint8Array = await generateKeyCommon(crypto);
       const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
 
       const url = qrCodeLinkURL(aesKeyAsHexString, ed25519Key);

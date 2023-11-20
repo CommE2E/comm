@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import { thumbHashToDataURL } from 'thumbhash';
 
+import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { fileInfoFromData } from 'lib/media/file-utils.js';
 import { fetchableMediaURI } from 'lib/media/media-utils.js';
@@ -13,7 +14,6 @@ import type {
 import { getMessageForException } from 'lib/utils/errors.js';
 import { calculatePaddedLength, pad, unpad } from 'lib/utils/pkcs7-padding.js';
 
-import * as AES from './aes-crypto-utils.js';
 import { base64DecodeBuffer } from '../utils/base64-utils.js';
 
 const PADDING_THRESHOLD = 5000000; // 5MB
@@ -61,8 +61,8 @@ async function encryptFile(input: File): Promise<{
   let key, encryptedData, sha256;
   try {
     const plaintextData = shouldPad ? pad(data) : data;
-    key = await AES.generateKey();
-    encryptedData = await AES.encrypt(key, plaintextData);
+    key = await AES.generateKeyCommon(crypto);
+    encryptedData = await AES.encryptCommon(crypto, key, plaintextData);
 
     const hashBytes = await crypto.subtle.digest('SHA-256', encryptedData);
     sha256 = btoa(String.fromCharCode(...new Uint8Array(hashBytes)));
@@ -182,7 +182,7 @@ async function decryptMedia(
   const decryptStartTime = Date.now();
   try {
     const keyBytes = hexToUintArray(encryptionKey);
-    const plaintext = await AES.decrypt(keyBytes, data);
+    const plaintext = await AES.decryptCommon(crypto, keyBytes, data);
     decryptedData =
       plaintext.byteLength > PADDING_THRESHOLD ? plaintext : unpad(plaintext);
   } catch (e) {
@@ -243,7 +243,8 @@ async function decryptThumbhashToDataURL(
   keyHex: string,
 ): Promise<string> {
   const encryptedData = base64DecodeBuffer(encryptedThumbHash);
-  const thumbhashBytes = await AES.decrypt(
+  const thumbhashBytes = await AES.decryptCommon(
+    crypto,
     hexToUintArray(keyHex),
     encryptedData,
   );

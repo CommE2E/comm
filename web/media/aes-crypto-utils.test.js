@@ -1,6 +1,10 @@
 // @flow
 
-import { generateKey, encrypt, decrypt } from './aes-crypto-utils.js';
+import {
+  generateKeyCommon,
+  encryptCommon,
+  decryptCommon,
+} from 'lib/media/aes-crypto-utils-common.js';
 
 // some mock data
 const testPlaintext = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
@@ -20,69 +24,77 @@ const randomData = new Uint8Array(
 
 describe('generateKey', () => {
   it('generates 32-byte AES key', async () => {
-    const key = await generateKey();
+    const key = await generateKeyCommon(crypto);
     expect(key.length).toBe(32);
   });
 });
 
 describe('encrypt', () => {
   it('generates ciphertext with IV and tag included', async () => {
-    const encrypted = await encrypt(testEncryptionKey, testPlaintext);
+    const encrypted = await encryptCommon(
+      crypto,
+      testEncryptionKey,
+      testPlaintext,
+    );
     // IV and tag are randomly generated, so we can't check the exact value
     // IV + plaintext + tag = 12 + 11 + 16 = 39
     expect(encrypted.length).toBe(testPlaintext.length + 12 + 16);
   });
 
   it('is decryptable by decrypt()', async () => {
-    const key = await generateKey();
-    const encrypted = await encrypt(key, randomData);
-    const decrypted = await decrypt(key, encrypted);
+    const key = await generateKeyCommon(crypto);
+    const encrypted = await encryptCommon(crypto, key, randomData);
+    const decrypted = await decryptCommon(crypto, key, encrypted);
     expect(decrypted).toEqual(randomData);
   });
 });
 
 describe('decrypt', () => {
   it('decrypts ciphertext', async () => {
-    const decrypted = await decrypt(testEncryptionKey, testSealedData);
+    const decrypted = await decryptCommon(
+      crypto,
+      testEncryptionKey,
+      testSealedData,
+    );
     expect(decrypted).toEqual(testPlaintext);
   });
 
   it('fails with wrong key', async () => {
-    const key = await generateKey();
-    const encrypted = await encrypt(key, randomData);
+    const key = await generateKeyCommon(crypto);
+    const encrypted = await encryptCommon(crypto, key, randomData);
 
-    const wrongKey = await generateKey();
-    await expect(decrypt(wrongKey, encrypted)).rejects.toThrow();
+    const wrongKey = await generateKeyCommon(crypto);
+    await expect(decryptCommon(crypto, wrongKey, encrypted)).rejects.toThrow();
   });
 
   it('fails with wrong ciphertext', async () => {
-    const key = await generateKey();
-    const encrypted = await encrypt(key, randomData);
+    const key = await generateKeyCommon(crypto);
+    const encrypted = await encryptCommon(crypto, key, randomData);
 
     // change the first byte of the ciphertext (it's 13th byte in the buffer)
     // first 12 bytes are IV, so changing the first byte of the ciphertext
     encrypted[12] = encrypted[12] ^ 1;
 
-    await expect(decrypt(key, encrypted)).rejects.toThrow();
+    await expect(decryptCommon(crypto, key, encrypted)).rejects.toThrow();
   });
 
   it('fails with wrong IV', async () => {
-    const key = await generateKey();
-    const encrypted = await encrypt(key, randomData);
+    const key = await generateKeyCommon(crypto);
+    const encrypted = await encryptCommon(crypto, key, randomData);
 
     // change the first byte of the IV (it's 1st byte in the buffer)
     encrypted[0] = encrypted[0] ^ 1;
 
-    await expect(decrypt(key, encrypted)).rejects.toThrow();
+    await expect(decryptCommon(crypto, key, encrypted)).rejects.toThrow();
   });
 
   it('fails with wrong tag', async () => {
-    const key = await generateKey();
-    const encrypted = await encrypt(key, randomData);
+    const key = await generateKeyCommon(crypto);
+    const encrypted = await encryptCommon(crypto, key, randomData);
 
     // change the last byte of the tag (tag is the last 16 bytes of the buffer)
     encrypted[encrypted.length - 1] = encrypted[encrypted.length - 1] ^ 1;
 
-    await expect(decrypt(key, encrypted)).rejects.toThrow();
+    await expect(decryptCommon(crypto, key, encrypted)).rejects.toThrow();
   });
 });
