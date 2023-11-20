@@ -31,12 +31,14 @@ import {
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
-import type { URLInfo } from 'lib/utils/url-utils.js';
+import { urlInfoValidator } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 import { navInfoValidator } from 'web/types/nav-types.js';
 import type {
   InitialReduxStateResponse,
   InitialKeyserverInfo,
+  InitialReduxStateRequest,
+  ExcludedData,
 } from 'web/types/redux-types.js';
 import { navInfoFromURL } from 'web/url-utils.js';
 
@@ -53,6 +55,16 @@ import {
 import { getWebPushConfig } from '../push/providers.js';
 import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
+
+const excludedDataValidator: TInterface<ExcludedData> = tShape<ExcludedData>({
+  threadStore: t.maybe(t.Bool),
+});
+
+export const initialReduxStateRequestValidator: TInterface<InitialReduxStateRequest> =
+  tShape<InitialReduxStateRequest>({
+    urlInfo: urlInfoValidator,
+    excludedData: excludedDataValidator,
+  });
 
 const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
   sessionID: t.maybe(t.String),
@@ -75,8 +87,9 @@ export const initialReduxStateValidator: TInterface<InitialReduxStateResponse> =
 
 async function getInitialReduxStateResponder(
   viewer: Viewer,
-  urlInfo: URLInfo,
+  request: InitialReduxStateRequest,
 ): Promise<InitialReduxStateResponse> {
+  const { urlInfo } = request;
   const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
     viewer.id,
     baseLegalPolicies,

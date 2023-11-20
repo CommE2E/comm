@@ -12,7 +12,6 @@ import { inviteLinkValidator } from 'lib/types/link-types.js';
 import { uploadMultimediaResultValidator } from 'lib/types/media-types.js';
 import { getOlmSessionInitializationDataResponseValidator } from 'lib/types/request-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
-import { urlInfoValidator } from 'lib/utils/url-utils.js';
 
 import {
   updateActivityResponder,
@@ -93,6 +92,7 @@ import {
 } from './responders/message-responders.js';
 import {
   getInitialReduxStateResponder,
+  initialReduxStateRequestValidator,
   initialReduxStateValidator,
 } from './responders/redux-state-responders.js';
 import {
@@ -361,7 +361,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   ),
   get_initial_redux_state: createJSONResponder(
     getInitialReduxStateResponder,
-    urlInfoValidator,
+    initialReduxStateRequestValidator,
     initialReduxStateValidator,
     [],
   ),
