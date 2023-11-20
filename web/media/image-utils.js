@@ -3,6 +3,7 @@
 import EXIF from 'exif-js';
 import { rgbaToThumbHash } from 'thumbhash';
 
+import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray } from 'lib/media/data-utils.js';
 import type {
   GetOrientationMediaMissionStep,
@@ -11,7 +12,6 @@ import type {
 } from 'lib/types/media-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
-import * as AES from './aes-crypto-utils.js';
 import { preloadImage } from './media-utils.js';
 import { base64EncodeBuffer } from '../utils/base64-utils.js';
 
@@ -103,7 +103,8 @@ async function generateThumbHash(
 
   if (encryptionKey) {
     try {
-      const encryptedThumbHash = await AES.encrypt(
+      const encryptedThumbHash = await AES.encryptCommon(
+        crypto,
         hexToUintArray(encryptionKey),
         binaryThumbHash,
       );
