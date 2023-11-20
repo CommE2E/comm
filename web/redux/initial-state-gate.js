@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -14,6 +15,7 @@ import {
   useGetInitialReduxState,
 } from './action-types.js';
 import { useSelector } from './redux-utils.js';
+import { getClientStore } from '../database/utils/store.js';
 import Loading from '../loading.react.js';
 
 type Props = {
@@ -47,10 +49,24 @@ function InitialReduxStateGate(props: Props): React.Node {
               thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
             };
           }
+
+          const clientDBStore = await getClientStore();
+
           const payload = await callGetInitialReduxState({
             urlInfo,
             excludedData: { threadStore: false },
           });
+
+          const currentLoggedInUserID = payload.currentUserInfo?.anonymous
+            ? undefined
+            : payload.currentUserInfo?.id;
+
+          if (currentLoggedInUserID) {
+            dispatch({
+              type: setClientDBStoreActionType,
+              payload: clientDBStore,
+            });
+          }
           dispatch({ type: setInitialReduxState, payload });
         } catch (err) {
           setInitError(err);
