@@ -80,6 +80,11 @@ public:
   virtual void setMetadata(std::string entry_name, std::string data) const = 0;
   virtual void clearMetadata(std::string entry_name) const = 0;
   virtual std::string getMetadata(std::string entry_name) const = 0;
+
+#ifdef EMSCRIPTEN
+  virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
+  virtual void replaceThreadWeb(const WebThread &thread) const = 0;
+#endif
 };
 
 } // namespace comm
