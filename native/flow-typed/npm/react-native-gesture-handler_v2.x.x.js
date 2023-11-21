@@ -379,8 +379,8 @@ declare module 'react-native-gesture-handler/GestureHandler' {
     ...$EventHandlers<ExtraEventsProps>,
     id?: string,
     enabled?: boolean,
-    waitFor?: React$Ref<any> | Array<React$Ref<any>>,
-    simultaneousHandlers?: React$Ref<any> | Array<React$Ref<any>>,
+    waitFor?: React$Ref<any> | $ReadOnlyArray<React$Ref<any>>,
+    simultaneousHandlers?: React$Ref<any> | $ReadOnlyArray<React$Ref<any>>,
     shouldCancelWhenOutside?: boolean,
     minPointers?: number,
     hitSlop?: HitSlop,
@@ -403,6 +403,14 @@ declare module 'react-native-gesture-handler/GestureHandler' {
   /////////////////////////////////////////////////////////////////////////////
   // Tap
 
+  declare export type TapGestureEvent = {
+    +x: number,
+    +y: number,
+    +absoluteX: number,
+    +absoluteY: number,
+    ...
+  };
+
   declare export type TapGestureHandlerProps = $GestureHandlerProps<
     {
       maxDurationMs?: number,
@@ -412,13 +420,7 @@ declare module 'react-native-gesture-handler/GestureHandler' {
       minPointers?: number,
       ...
     },
-    {
-      x: number,
-      y: number,
-      absoluteX: number,
-      absoluteY: number,
-      ...
-    }
+    TapGestureEvent,
   >;
 
   declare export class TapGestureHandler extends React$Component<TapGestureHandlerProps> {}
@@ -463,25 +465,39 @@ declare module 'react-native-gesture-handler/GestureHandler' {
   /////////////////////////////////////////////////////////////////////////////
   // LongPress
 
+  declare export type LongPressGestureEvent = {
+    +x: number,
+    +y: number,
+    +absoluteX: number,
+    +absoluteY: number,
+    ...
+  };
+
   declare export type LongPressGestureHandlerProps = $GestureHandlerProps<
     {
       minDurationMs?: number,
       maxDist?: number,
       ...
     },
-    {
-      x: number,
-      y: number,
-      absoluteX: number,
-      absoluteY: number,
-      ...
-    }
+    LongPressGestureEvent,
   >;
 
   declare export class LongPressGestureHandler extends React$Component<LongPressGestureHandlerProps> {}
 
   /////////////////////////////////////////////////////////////////////////////
   // PanGesture
+
+  declare export type PanGestureEvent = {
+    +x: number,
+    +y: number,
+    +absoluteX: number,
+    +absoluteY: number,
+    +translationX: number,
+    +translationY: number,
+    +velocityX: number,
+    +velocityY: number,
+    ...
+  };
 
   declare export type PanGestureHandlerProps = $GestureHandlerProps<
     {
@@ -498,17 +514,7 @@ declare module 'react-native-gesture-handler/GestureHandler' {
       avgTouches?: boolean,
       ...
     },
-    {
-      x: number,
-      y: number,
-      absoluteX: number,
-      absoluteY: number,
-      translationX: number,
-      translationY: number,
-      velocityX: number,
-      velocityY: number,
-      ...
-    }
+    PanGestureEvent,
   >;
 
   declare export class PanGestureHandler extends React$Component<PanGestureHandlerProps> {}
@@ -516,15 +522,17 @@ declare module 'react-native-gesture-handler/GestureHandler' {
   /////////////////////////////////////////////////////////////////////////////
   // Pinch
 
+  declare export type PinchGestureEvent = {
+    +scale: number,
+    +focalX: number,
+    +focalY: number,
+    +velocity: number,
+    ...
+  };
+
   declare export type PinchGestureHandlerProps = $GestureHandlerProps<
     { ... },
-    {
-      scale: number,
-      focalX: number,
-      focalY: number,
-      velocity: number,
-      ...
-    }
+    PinchGestureEvent,
   >;
 
   declare export class PinchGestureHandler extends React$Component<PinchGestureHandlerProps> {}
