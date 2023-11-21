@@ -955,6 +955,8 @@ const migrations = {
 
     return state;
   },
+  [59]: state =>
+    updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
