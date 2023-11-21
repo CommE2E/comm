@@ -7,6 +7,7 @@
 , boost
 , bundler
 , c-ares_cmake-config
+, cargo-lambda
 , cargo-udeps
 , cmake
 , cmake-format
@@ -74,6 +75,7 @@ mkShell {
     # Identity Service
     rustfmt
     rustup
+    cargo-lambda
     cargo-udeps
 
     # Tunnelbroker + CMake

@@ -31,6 +31,8 @@ provider "aws" {
   dynamic "endpoints" {
     for_each = local.aws_settings.override_endpoint[*]
     content {
+      lambda         = endpoints.value
+      ec2            = endpoints.value
       opensearch     = endpoints.value
       dynamodb       = endpoints.value
       s3             = endpoints.value
