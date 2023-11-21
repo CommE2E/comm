@@ -195,13 +195,88 @@ resource "aws_iam_role" "reports_service" {
   ]
 }
 
+
+data "aws_iam_policy_document" "assume_identity_search_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "search_index_lambda" {
+  name               = "search_index_lambda"
+  assume_role_policy = data.aws_iam_policy_document.assume_identity_search_role.json
+
+  managed_policy_arns = [
+    aws_iam_policy.manage_cloudwatch_logs.arn,
+    aws_iam_policy.read_identity_users_stream.arn,
+  ]
+}
+
+data "aws_iam_policy_document" "read_identity_users_stream" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:DescribeStream",
+      "dynamodb:ListStreams",
+    ]
+    resources = [
+      module.shared.dynamodb_tables["identity-users"].arn,
+      module.shared.dynamodb_tables["identity-users"].stream_arn,
+      "${module.shared.dynamodb_tables["identity-users"].arn}/stream/*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "read_identity_users_stream" {
+  name        = "read-identity-users-stream"
+  path        = "/"
+  description = "IAM policy for managing identity-users stream"
+  policy      = data.aws_iam_policy_document.read_identity_users_stream.json
+}
+
+data "aws_iam_policy_document" "manage_cloudwatch_logs" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+}
+
+resource "aws_iam_policy" "manage_cloudwatch_logs" {
+  name        = "manage-cloudwatch-logs"
+  path        = "/"
+  description = "IAM policy for managing cloudwatch logs"
+  policy      = data.aws_iam_policy_document.manage_cloudwatch_logs.json
+}
+
+resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
+  role       = aws_iam_role.search_index_lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
 data "aws_iam_policy_document" "opensearch_domain_access" {
   statement {
     effect = "Allow"
 
     principals {
       type        = "*"
-      identifiers = []
+      identifiers = ["${aws_iam_role.search_index_lambda.arn}"]
     }
 
     actions = [
@@ -220,3 +295,4 @@ resource "aws_opensearch_domain_policy" "opensearch_domain_access" {
   domain_name     = module.shared.opensearch_domain_identity.domain_name
   access_policies = data.aws_iam_policy_document.opensearch_domain_access.json
 }
+
