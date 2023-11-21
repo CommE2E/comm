@@ -1210,8 +1210,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
-    inputThreadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    inputThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
