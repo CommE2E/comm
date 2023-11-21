@@ -1356,7 +1356,21 @@ std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
   return (entry == nullptr) ? "" : entry->data;
 }
 
-#ifndef EMSCRIPTEN
+#ifdef EMSCRIPTEN
+std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
+  auto threads = SQLiteQueryExecutor::getStorage().get_all<Thread>();
+  std::vector<WebThread> webThreads;
+  webThreads.reserve(threads.size());
+  for (const auto &thread : threads) {
+    webThreads.emplace_back(thread);
+  }
+  return webThreads;
+};
+
+void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
+  SQLiteQueryExecutor::getStorage().replace(thread.toThread());
+};
+#else
 void SQLiteQueryExecutor::clearSensitiveData() {
   if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
