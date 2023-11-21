@@ -133,7 +133,7 @@ import {
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
-import type { LayoutEvent } from '../types/react-native.js';
+import type { LayoutEvent, ImagePasteEvent } from '../types/react-native.js';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
@@ -1372,7 +1372,7 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> =
 
     const { threadInfo } = props;
     const imagePastedCallback = React.useCallback(
-      imagePastedEvent => {
+      (imagePastedEvent: ImagePasteEvent) => {
         if (threadInfo.id !== imagePastedEvent.threadID) {
           return;
         }
