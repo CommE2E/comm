@@ -45,7 +45,7 @@ provider "random" {}
 module "shared" {
   source = "../modules/shared"
   is_dev = true
-    
+
   vpc_id = null
   cidr_block = null
   subnet_ids = []
