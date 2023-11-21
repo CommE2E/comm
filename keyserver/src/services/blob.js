@@ -61,15 +61,15 @@ async function upload(blob: Blob, hash: string, holder: string): Promise<void> {
   }
 }
 
-async function download(hash: string): Promise<
+export type BlobDownloadResult =
   | {
       +found: false,
     }
   | {
       +found: true,
       +blob: Blob,
-    },
-> {
+    };
+async function download(hash: string): Promise<BlobDownloadResult> {
   const url = getBlobFetchableURL(hash);
   const response = await fetch(url, {
     method: blobService.httpEndpoints.GET_BLOB.method,
