@@ -52,8 +52,9 @@ module "shared" {
   source             = "../modules/shared"
   bucket_name_suffix = local.s3_bucket_name_suffix
 
-  vpc_id     = aws_vpc.default.id
-  cidr_block = aws_vpc.default.cidr_block
+  vpc_id                           = aws_vpc.default.id
+  search_index_lambda_iam_role_arn = aws_iam_role.search_index_lambda.arn
+  cidr_block                       = aws_vpc.default.cidr_block
   subnet_ids = [
     aws_subnet.public_a.id,
   ]
