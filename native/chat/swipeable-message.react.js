@@ -2,9 +2,13 @@
 
 import type { IconProps } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import {
+  PanGestureHandler,
+  type PanGestureEvent,
+} from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedGestureHandler,
   useSharedValue,
@@ -192,14 +196,25 @@ function SwipeableMessage(props: Props): React.Node {
   }, [triggerReply, triggerSidebar]);
 
   const translateX = useSharedValue(0);
-  const swipeEvent = useAnimatedGestureHandler(
+  const swipeEvent = useAnimatedGestureHandler<PanGestureEvent>(
     {
-      onStart: (event, ctx) => {
+      onStart: (
+        event /*: PanGestureEvent */,
+        ctx /*: { [string]: mixed } */,
+      ) => {
         ctx.translationAtStart = translateX.value;
         cancelAnimation(translateX.value);
       },
-      onActive: (event, ctx) => {
-        const translationX = ctx.translationAtStart + event.translationX;
+      onActive: (
+        event /*: PanGestureEvent */,
+        ctx /*: { [string]: mixed } */,
+      ) => {
+        const { translationAtStart } = ctx;
+        invariant(
+          typeof translationAtStart === 'number',
+          'translationAtStart should be number',
+        );
+        const translationX = translationAtStart + event.translationX;
         const baseActiveTranslation = isViewer
           ? Math.min(translationX, 0)
           : Math.max(translationX, 0);
@@ -222,7 +237,7 @@ function SwipeableMessage(props: Props): React.Node {
         }
         ctx.prevPastSecondaryThreshold = pastSecondaryThreshold;
       },
-      onEnd: event => {
+      onEnd: (event /*: PanGestureEvent */) => {
         const absValue = Math.abs(translateX.value);
         if (absValue >= secondaryThreshold && secondaryActionExists) {
           runOnJS(secondaryAction)();
