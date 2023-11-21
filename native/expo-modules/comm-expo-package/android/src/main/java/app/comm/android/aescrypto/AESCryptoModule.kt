@@ -98,10 +98,8 @@ class AESCryptoModule : Module() {
 
 // region RN-agnostic implementations
 
-// Compatibility module to be called from native Java
+// Compatibility module to be called from native Java and C++
 class AESCryptoModuleCompat {
-  private val secureRandom by lazy { SecureRandom() }
-
   public fun generateKey(): ByteArray {
    return KeyGenerator.getInstance(ALGORITHM_AES).apply {
       init(KEY_SIZE * 8, secureRandom)
@@ -129,6 +127,40 @@ class AESCryptoModuleCompat {
     val sealedDataBuffer = ByteBuffer.wrap(sealedData)
     val plaintext = decryptAES(sealedDataBuffer, secretKey)
     return ByteArray(plaintext.remaining()).also(plaintext::get)
+  }
+
+  companion object {
+    private val secureRandom by lazy { SecureRandom() }
+    @JvmStatic
+    fun generateKey(
+      buffer: ByteBuffer,
+    ) {
+      val key = KeyGenerator.getInstance(ALGORITHM_AES).apply {
+        init(KEY_SIZE * 8, secureRandom)
+      }.generateKey().encoded
+      
+      buffer.put(key)
+    }
+
+    @JvmStatic
+    fun encrypt(
+      rawKey: ByteBuffer,
+      plaintext: ByteBuffer,
+      sealedData: ByteBuffer,
+    ) {
+      val secretKey = rawKey.toAESSecretKey()
+      encryptAES(plaintext, secretKey, sealedData)
+    }
+
+    @JvmStatic
+    fun decrypt(
+      rawKey: ByteBuffer,
+      sealedData: ByteBuffer,
+      plaintext: ByteBuffer,
+    ) {
+      val secretKey = rawKey.toAESSecretKey()
+      decryptAES(sealedData, secretKey, plaintext)
+    }
   }
 }
 
@@ -202,6 +234,13 @@ fun Uint8Array.toAESSecretKey(): SecretKey {
   return ByteArray(KEY_SIZE)
     .also { bytes -> this.read(bytes, 0, KEY_SIZE) }
     .toSecretKey()
+}
+
+fun ByteBuffer.toAESSecretKey(): SecretKey{
+  if(this.remaining() != KEY_SIZE) {
+    throw InvalidKeyLengthException()
+  }
+  return ByteArray(this.remaining()).also(this::get).toSecretKey();
 }
 
 // endregion
