@@ -1,8 +1,11 @@
 // @flow
 
 import apn from '@parse/node-apn';
+import crypto from 'crypto';
 import invariant from 'invariant';
 import _cloneDeep from 'lodash/fp/cloneDeep.js';
+
+import { toBase64URL } from 'lib/utils/base64.js';
 
 import type {
   AndroidNotification,
@@ -11,6 +14,7 @@ import type {
   NotificationTargetDevice,
 } from './types.js';
 import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
+import { encrypt, generateKey } from '../utils/aes-crypto-utils.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
 
 async function encryptIOSNotification(
@@ -312,9 +316,36 @@ function prepareEncryptedAndroidNotificationRescinds(
   return Promise.all(notificationPromises);
 }
 
+async function encryptBlobPayload(payload: string): Promise<{
+  +encryptionKey: string,
+  +encryptedPayload: Blob,
+  +encryptedPayloadHash: string,
+}> {
+  const encryptionKey = await generateKey();
+  const encryptedPayload = await encrypt(
+    encryptionKey,
+    new TextEncoder().encode(payload),
+  );
+  const encryptedPayloadBuffer = Buffer.from(encryptedPayload);
+  const blobHashBase64 = await crypto
+    .createHash('sha256')
+    .update(encryptedPayloadBuffer)
+    .digest('base64');
+  const blobHash = toBase64URL(blobHashBase64);
+
+  const payloadBlob = new Blob([encryptedPayloadBuffer]);
+  const encryptionKeyString = Buffer.from(encryptionKey).toString('base64');
+  return {
+    encryptionKey: encryptionKeyString,
+    encryptedPayload: payloadBlob,
+    encryptedPayloadHash: blobHash,
+  };
+}
+
 export {
   prepareEncryptedIOSNotifications,
   prepareEncryptedIOSNotificationRescind,
   prepareEncryptedAndroidNotifications,
   prepareEncryptedAndroidNotificationRescinds,
+  encryptBlobPayload,
 };

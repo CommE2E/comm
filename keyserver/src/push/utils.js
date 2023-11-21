@@ -5,6 +5,7 @@ import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 import nodeFetch from 'node-fetch';
 import type { Response } from 'node-fetch';
+import uuid from 'uuid';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types.js';
@@ -15,6 +16,7 @@ import type {
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
+import { encryptBlobPayload } from './crypto.js';
 import {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
@@ -385,7 +387,20 @@ async function blobServiceUpload(payload: string): Promise<
     }
   | { +blobUploadError: string },
 > {
-  return upload(payload);
+  const blobHolder = uuid.v4();
+  const { encryptionKey, encryptedPayload, encryptedPayloadHash } =
+    await encryptBlobPayload(payload);
+  try {
+    await upload(encryptedPayload, encryptedPayloadHash, blobHolder);
+    return {
+      blobHash: encryptedPayloadHash,
+      encryptionKey,
+    };
+  } catch (e) {
+    return {
+      blobUploadError: e.message,
+    };
+  }
 }
 
 export {
