@@ -7,8 +7,6 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
-import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
-import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -48,11 +46,10 @@ import { reduceCryptoStore, setCryptoStore } from './crypto-store-reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import { onStateDifference } from './redux-debug-utils.js';
 import { getVisibility } from './visibility.js';
-import { getDatabaseModule } from '../database/database-module-provider.js';
+import { processDBStoreOperations } from '../database/utils/store.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
 import { type NavInfo } from '../types/nav-types.js';
 import type { InitialReduxState } from '../types/redux-types.js';
-import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 export type WindowDimensions = { width: number, height: number };
 
@@ -194,43 +191,10 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     const baseReducerResult = baseReducer(state, action, onStateDifference);
     state = baseReducerResult.state;
 
-    const {
-      storeOperations: {
-        draftStoreOperations,
-        reportStoreOperations,
-        threadStoreOperations,
-      },
-    } = baseReducerResult;
-    if (
-      draftStoreOperations.length > 0 ||
-      reportStoreOperations.length > 0 ||
-      threadStoreOperations.length > 0
-    ) {
-      (async () => {
-        const databaseModule = await getDatabaseModule();
-        const isSupported = await databaseModule.isDatabaseSupported();
-        if (!isSupported) {
-          return;
-        }
-        const convertedReportStoreOperations =
-          reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
-        const convertedThreadStoreOperations = canUseDatabaseOnWeb(
-          state.currentUserInfo?.id,
-        )
-          ? threadStoreOpsHandlers.convertOpsToClientDBOps(
-              threadStoreOperations,
-            )
-          : [];
-        await databaseModule.schedule({
-          type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-          storeOperations: {
-            draftStoreOperations,
-            reportStoreOperations: convertedReportStoreOperations,
-            threadStoreOperations: convertedThreadStoreOperations,
-          },
-        });
-      })();
-    }
+    processDBStoreOperations(
+      baseReducerResult.storeOperations,
+      state.currentUserInfo?.id,
+    );
   }
 
   const communityPickerStore = reduceCommunityPickerStore(
