@@ -142,12 +142,6 @@ class DeleteThread extends React.PureComponent<Props> {
     this.mounted = false;
   }
 
-  guardedSetState(change, callback) {
-    if (this.mounted) {
-      this.setState(change, callback);
-    }
-  }
-
   render() {
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
