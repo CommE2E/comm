@@ -26,6 +26,24 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("id", &UserInfo::id)
       .field("userInfo", &UserInfo::user_info);
 
+  value_object<WebThread>("WebThread")
+      .field("id", &WebThread::id)
+      .field("type", &WebThread::type)
+      .field("name", &WebThread::name)
+      .field("description", &WebThread::description)
+      .field("color", &WebThread::color)
+      .field("creationTime", &WebThread::creation_time)
+      .field("parentThreadID", &WebThread::parent_thread_id)
+      .field("containingThreadID", &WebThread::containing_thread_id)
+      .field("community", &WebThread::community)
+      .field("members", &WebThread::members)
+      .field("roles", &WebThread::roles)
+      .field("currentUser", &WebThread::current_user)
+      .field("sourceMessageID", &WebThread::source_message_id)
+      .field("repliesCount", &WebThread::replies_count)
+      .field("avatar", &WebThread::avatar)
+      .field("pinnedCount", &WebThread::pinned_count);
+
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string>()
       .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
@@ -49,7 +67,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("replaceUser", &SQLiteQueryExecutor::replaceUser)
       .function("removeUsers", &SQLiteQueryExecutor::removeUsers)
       .function("removeAllUsers", &SQLiteQueryExecutor::removeAllUsers)
-      .function("getAllUsers", &SQLiteQueryExecutor::getAllUsers);
+      .function("getAllUsers", &SQLiteQueryExecutor::getAllUsers)
+      .function("replaceThreadWeb", &SQLiteQueryExecutor::replaceThreadWeb)
+      .function("getAllThreadsWeb", &SQLiteQueryExecutor::getAllThreadsWeb)
+      .function("removeAllThreads", &SQLiteQueryExecutor::removeAllThreads)
+      .function("removeThreads", &SQLiteQueryExecutor::removeThreads);
 }
 
 } // namespace comm

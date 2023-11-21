@@ -85,7 +85,10 @@ public:
   void clearMetadata(std::string entry_name) const override;
   std::string getMetadata(std::string entry_name) const override;
 
-#ifndef EMSCRIPTEN
+#ifdef EMSCRIPTEN
+  std::vector<WebThread> getAllThreadsWeb() const override;
+  void replaceThreadWeb(const WebThread &thread) const override;
+#else
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);
 #endif
