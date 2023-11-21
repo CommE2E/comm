@@ -1,5 +1,6 @@
 // @flow
 
+import AnimatedInterpolation from 'react-native/Libraries/Animated/nodes/AnimatedInterpolation.js';
 import type ReactNativeAnimatedValue from 'react-native/Libraries/Animated/nodes/AnimatedValue.js';
 import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper.js';
 
@@ -40,3 +41,5 @@ export type ImagePasteEvent = {
   +width: number,
   +threadID: string,
 };
+
+export type { AnimatedInterpolation };
