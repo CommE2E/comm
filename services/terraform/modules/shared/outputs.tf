@@ -4,6 +4,7 @@ locals {
     aws_dynamodb_table.backup-service-backup,
     aws_dynamodb_table.reports-service-reports,
     aws_dynamodb_table.tunnelbroker-undelivered-messages,
+    aws_dynamodb_table.identity-users,
   ]
 }
 
@@ -18,4 +19,8 @@ output "dynamodb_tables" {
 
 output "opensearch_domain_identity" {
   value = aws_opensearch_domain.identity-search
+}
+
+output "search_index_lambda" {
+  value = aws_lambda_function.search_index_lambda
 }
