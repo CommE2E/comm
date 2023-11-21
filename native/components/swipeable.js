@@ -8,6 +8,7 @@ import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
 import Button from './button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import type { AnimatedInterpolation } from '../types/react-native.js';
 
 type Props = {
   +buttonWidth: number,
@@ -37,7 +38,7 @@ function Swipeable(props: Props): React.Node {
   } = props;
 
   const renderRightActions = React.useCallback(
-    progress => {
+    (progress: AnimatedInterpolation<number>) => {
       const actions = rightActions.map(
         ({ key, content, color, onPress }, i) => {
           const translation = progress.interpolate({
