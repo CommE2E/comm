@@ -8,6 +8,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -210,9 +211,17 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     state = baseReducerResult.state;
 
     const {
-      storeOperations: { draftStoreOperations, reportStoreOperations },
+      storeOperations: {
+        draftStoreOperations,
+        reportStoreOperations,
+        threadStoreOperations,
+      },
     } = baseReducerResult;
-    if (draftStoreOperations.length > 0 || reportStoreOperations.length > 0) {
+    if (
+      draftStoreOperations.length > 0 ||
+      reportStoreOperations.length > 0 ||
+      threadStoreOperations.length > 0
+    ) {
       (async () => {
         const databaseModule = await getDatabaseModule();
         const isSupported = await databaseModule.isDatabaseSupported();
@@ -221,11 +230,14 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         }
         const convertedReportStoreOperations =
           reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
+        const convertedThreadStoreOperations =
+          threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations);
         await databaseModule.schedule({
           type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
           storeOperations: {
             draftStoreOperations,
             reportStoreOperations: convertedReportStoreOperations,
+            threadStoreOperations: convertedThreadStoreOperations,
           },
         });
       })();
