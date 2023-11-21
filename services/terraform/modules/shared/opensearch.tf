@@ -13,9 +13,8 @@ resource "aws_security_group" "identity-search" {
     to_port   = 443
     protocol  = "tcp"
 
-    cidr_blocks = [
-      var.cidr_block
-    ]
+    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = ["${aws_security_group.search_index_lambda.id}"]
   }
 
   tags = {
@@ -37,7 +36,7 @@ resource "aws_opensearch_domain" "identity-search" {
 
     security_group_ids = var.is_dev ? [] : [aws_security_group.identity-search[0].id]
   }
-
+  
   advanced_options = {
     "rest.action.multi.allow_explicit_index" = "true"
   }
