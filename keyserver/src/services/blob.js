@@ -61,7 +61,15 @@ async function upload(blob: Blob, hash: string, holder: string): Promise<void> {
   }
 }
 
-async function download(hash: string): Promise<Blob> {
+async function download(hash: string): Promise<
+  | {
+      +found: false,
+    }
+  | {
+      +found: true,
+      +blob: Blob,
+    },
+> {
   const url = getBlobFetchableURL(hash);
   const response = await fetch(url, {
     method: blobService.httpEndpoints.GET_BLOB.method,
@@ -69,7 +77,12 @@ async function download(hash: string): Promise<Blob> {
       'content-type': 'application/json',
     },
   });
-  return response.blob();
+
+  if (!response.ok) {
+    return { found: false };
+  }
+  const blob = await response.blob();
+  return { found: true, blob };
 }
 
 export { upload, uploadBlob, assignHolder, download };
