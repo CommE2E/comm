@@ -37,5 +37,6 @@ COPY shared ../../shared/
 COPY services/terraform/dev ../terraform/dev
 COPY services/terraform/modules ../terraform/modules
 COPY services/commtest ./
+COPY services/search-index-lambda/bootstrap.zip ../search-index-lambda/bootstrap.zip
 
 CMD ["bash", "./run-tests-ci.sh"]
