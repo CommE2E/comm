@@ -8,6 +8,17 @@ awscli() {
   aws --endpoint-url="$LOCALSTACK_ENDPOINT" "$@"
 }
 
+build_lambdas() {
+  echo "Building lambdas..."
+
+  pushd ../search-index-lambda >/dev/null
+
+  cargo lambda build --arm64 --output-format zip
+  mv ./target/lambda/search-index-lambda/bootstrap.zip .
+
+  popd >/dev/null
+}
+
 # Set up Localstack using Terraform
 reset_localstack() {
   echo "Resetting Localstack..."
@@ -42,6 +53,9 @@ run_test() {
     ((NUM_FAILURES += 1))
   fi
 }
+
+# Build lambdas for terraform
+build_lambdas
 
 # Reset localstack and then run tests
 reset_localstack
