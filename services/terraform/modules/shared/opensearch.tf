@@ -3,8 +3,13 @@ variable "domain" {
 }
 
 resource "aws_security_group" "identity-search" {
+<<<<<<< HEAD
   count = var.is_dev ? 0 : 1 
   name        = "${var.vpc_id}-opensearch-service-${var.domain}"
+=======
+  count       = var.is_dev ? 0 : 1
+  name        = "${var.vpc_id}-opensearch-${var.domain}"
+>>>>>>> 4c897e8d3 ([terraform] [4/n] search_index_lambda terraform configuration options)
   description = "Managed by Terraform"
   vpc_id      = var.is_dev ? null : var.vpc_id
 
@@ -29,7 +34,7 @@ resource "aws_opensearch_domain" "identity-search" {
   engine_version = "OpenSearch_1.0"
 
   cluster_config {
-    instance_type          = "t3.medium.search"
+    instance_type = "t3.medium.search"
   }
 
   vpc_options {
