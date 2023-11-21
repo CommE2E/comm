@@ -447,7 +447,7 @@ declare module 'react-native-reanimated' {
     | GestureStateActive
     | GestureStateEnd;
 
-  declare type $Event<T: { ... }> = {
+  declare export type $Event<T: { ... }> = {
     handlerTag: number,
     numberOfPointers: number,
     state: GestureState,
@@ -456,11 +456,16 @@ declare module 'react-native-reanimated' {
     ...
   };
 
+  declare export type EventResult<T: { ... }, E: $Event<T> = $Event<T>> =
+    $SyntheticEvent<E> => void;
+
   declare type ToValue = (val: mixed) => ValueImpl;
-  declare type Event = <T, E: $Event<T>>(defs: $ReadOnlyArray<{
-    +nativeEvent: $Shape<$ObjMap<E, ToValue>>,
-    ...
-  }>) => $SyntheticEvent<E> => void;
+  declare type Event = <T: { ... }, E: $Event<T> = $Event<T>>(
+    defs: $ReadOnlyArray<{
+      +nativeEvent: $Shape<$ObjMap<E, ToValue>>,
+      ...
+    }>,
+  ) => EventResult<T, E>;
 
   declare type UseValue = (initialVal: number) => ValueImpl;
 
@@ -469,7 +474,7 @@ declare module 'react-native-reanimated' {
     context: {| [name: string]: mixed |},
   ) => mixed;
 
-  declare type UseAnimatedGestureHandler = <T, E: $Event<T>>(
+  declare type UseAnimatedGestureHandler = <T, E: $Event<T> = $Event<T>>(
     callbacks: $Shape<{|
       +onStart: AnimatedGestureHandlerEventCallback<T, E>,
       +onActive: AnimatedGestureHandlerEventCallback<T, E>,
@@ -479,7 +484,7 @@ declare module 'react-native-reanimated' {
       +onFinish: AnimatedGestureHandlerEventCallback<T, E>,
     |}>,
     dependencies?: $ReadOnlyArray<mixed>,
-  ) => E;
+  ) => $SyntheticEvent<E> => mixed;
 
   declare export type SharedValue<T> = {
     value: T,
