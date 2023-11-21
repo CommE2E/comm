@@ -18,10 +18,17 @@ export type ImageStyle = $PropertyType<ImageProps, 'style'>;
 
 export type AnimatedStyleObj = {
   +opacity?: ?number | Animated.Node,
+  +height?: ?number | Animated.Node,
   +width?: ?number | Animated.Node,
+  +marginTop?: ?number | Animated.Node,
   +marginRight?: ?number | Animated.Node,
+  +marginLeft?: ?number | Animated.Node,
+  +backgroundColor?: ?string | Animated.Node,
+  +bottom?: ?number | Animated.Node,
   +transform?: $ReadOnlyArray<{
     +scale?: ?number | Animated.Node,
+    +translateX?: ?number | Animated.Node,
+    +translateY?: ?number | Animated.Node,
     ...
   }>,
   ...
