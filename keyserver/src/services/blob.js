@@ -1,7 +1,10 @@
 // @flow
 
 import blobService from 'lib/facts/blob-service.js';
-import { makeBlobServiceEndpointURL } from 'lib/utils/blob-service.js';
+import {
+  getBlobFetchableURL,
+  makeBlobServiceEndpointURL,
+} from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 async function uploadBlob(blob: Blob, hash: string): Promise<void> {
@@ -58,4 +61,15 @@ async function upload(blob: Blob, hash: string, holder: string): Promise<void> {
   }
 }
 
-export { upload, uploadBlob, assignHolder };
+async function download(hash: string): Promise<Blob> {
+  const url = getBlobFetchableURL(hash);
+  const response = await fetch(url, {
+    method: blobService.httpEndpoints.GET_BLOB.method,
+    headers: {
+      'content-type': 'application/json',
+    },
+  });
+  return response.blob();
+}
+
+export { upload, uploadBlob, assignHolder, download };
