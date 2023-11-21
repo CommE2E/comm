@@ -19,6 +19,7 @@ import {
 import { fetchPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
+import { download, type BlobDownloadResult } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
 
 const secretRegex = /^[a-zA-Z0-9]+$/;
@@ -47,14 +48,23 @@ async function createOrUpdatePublicLink(
   const fetchThreadInfoPromise = fetchServerThreadInfos({
     threadID: request.communityID,
   });
-  const [hasPermission, existingPrimaryLinks, { threadInfos }] =
-    await Promise.all([
-      permissionPromise,
-      existingPrimaryLinksPromise,
-      fetchThreadInfoPromise,
-    ]);
+  const blobDownloadPromise = getInviteLinkBlob(request);
+  const [
+    hasPermission,
+    existingPrimaryLinks,
+    { threadInfos },
+    blobDownloadResult,
+  ] = await Promise.all([
+    permissionPromise,
+    existingPrimaryLinksPromise,
+    fetchThreadInfoPromise,
+    blobDownloadPromise,
+  ]);
   if (!hasPermission) {
     throw new ServerError('invalid_credentials');
+  }
+  if (blobDownloadResult.found) {
+    throw new ServerError('invalid_parameters');
   }
   const threadInfo = threadInfos[request.communityID];
   if (!threadInfo) {
@@ -137,6 +147,13 @@ async function createOrUpdatePublicLink(
     limitOfUses: null,
     numberOfUses: 0,
   };
+}
+
+async function getInviteLinkBlob(
+  request: CreateOrUpdatePublicLinkRequest,
+): Promise<BlobDownloadResult> {
+  const hash = `invite_${request.name}`;
+  return download(hash);
 }
 
 export { createOrUpdatePublicLink };
