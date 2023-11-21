@@ -6,7 +6,10 @@ import * as React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import filesystem from 'react-native-fs';
-import { TapGestureHandler } from 'react-native-gesture-handler';
+import {
+  TapGestureHandler,
+  type TapGestureEvent,
+} from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import Animated from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -232,7 +235,7 @@ function VideoPlaybackModal(props: Props): React.Node {
 
   const singleTapEvent = React.useMemo(
     () =>
-      event([
+      event<TapGestureEvent>([
         {
           nativeEvent: {
             state: singleTapState,

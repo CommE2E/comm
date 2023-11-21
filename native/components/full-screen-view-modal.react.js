@@ -14,12 +14,17 @@ import {
   PanGestureHandler,
   TapGestureHandler,
   State as GestureState,
+  type PinchGestureEvent,
+  type PanGestureEvent,
+  type TapGestureEvent,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
+import type { EventResult } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type Dimensions } from 'lib/types/media-types.js';
+import type { ReactRef } from 'lib/types/react-types.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
@@ -187,23 +192,35 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
   imageWidth: Value;
   imageHeight: Value;
 
-  pinchHandler = React.createRef();
-  panHandler = React.createRef();
-  singleTapHandler = React.createRef();
-  doubleTapHandler = React.createRef();
-  handlerRefs = [
+  pinchHandler: ReactRef<PinchGestureHandler> = React.createRef();
+  panHandler: ReactRef<PanGestureHandler> = React.createRef();
+  singleTapHandler: ReactRef<TapGestureHandler> = React.createRef();
+  doubleTapHandler: ReactRef<TapGestureHandler> = React.createRef();
+  handlerRefs: $ReadOnlyArray<
+    | ReactRef<PinchGestureHandler>
+    | ReactRef<PanGestureHandler>
+    | ReactRef<TapGestureHandler>,
+  > = [
     this.pinchHandler,
     this.panHandler,
     this.singleTapHandler,
     this.doubleTapHandler,
   ];
-  beforeDoubleTapRefs;
-  beforeSingleTapRefs;
+  beforeDoubleTapRefs: $ReadOnlyArray<
+    | ReactRef<PinchGestureHandler>
+    | ReactRef<PanGestureHandler>
+    | ReactRef<TapGestureHandler>,
+  >;
+  beforeSingleTapRefs: $ReadOnlyArray<
+    | ReactRef<PinchGestureHandler>
+    | ReactRef<PanGestureHandler>
+    | ReactRef<TapGestureHandler>,
+  >;
 
-  pinchEvent;
-  panEvent;
-  singleTapEvent;
-  doubleTapEvent;
+  pinchEvent: EventResult<PinchGestureEvent>;
+  panEvent: EventResult<PanGestureEvent>;
+  singleTapEvent: EventResult<TapGestureEvent>;
+  doubleTapEvent: EventResult<TapGestureEvent>;
 
   scale: Node;
   x: Node;
@@ -244,7 +261,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     const panVelocityY = new Value(0);
     const panAbsoluteX = new Value(0);
     const panAbsoluteY = new Value(0);
-    this.panEvent = event([
+    this.panEvent = event<PanGestureEvent>([
       {
         nativeEvent: {
           state: panState,
@@ -283,7 +300,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     const pinchScale = new Value(1);
     const pinchFocalX = new Value(0);
     const pinchFocalY = new Value(0);
-    this.pinchEvent = event([
+    this.pinchEvent = event<PinchGestureEvent>([
       {
         nativeEvent: {
           state: pinchState,
@@ -299,7 +316,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     const singleTapState = new Value(-1);
     const singleTapX = new Value(0);
     const singleTapY = new Value(0);
-    this.singleTapEvent = event([
+    this.singleTapEvent = event<TapGestureEvent>([
       {
         nativeEvent: {
           state: singleTapState,
@@ -313,7 +330,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     const doubleTapState = new Value(-1);
     const doubleTapX = new Value(0);
     const doubleTapY = new Value(0);
-    this.doubleTapEvent = event([
+    this.doubleTapEvent = event<TapGestureEvent>([
       {
         nativeEvent: {
           state: doubleTapState,
