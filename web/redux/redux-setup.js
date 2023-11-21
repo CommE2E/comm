@@ -7,6 +7,10 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
+import {
+  type ThreadStoreOperation,
+  threadStoreOpsHandlers,
+} from 'lib/ops/thread-store-ops.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -31,6 +35,7 @@ import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
+import type { StoreOperations } from 'lib/types/store-ops-types.js';
 import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
@@ -122,6 +127,13 @@ export type Action =
 export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
   let state = oldState;
+  let storeOperations: StoreOperations = {
+    draftStoreOperations: [],
+    threadStoreOperations: [],
+    messageStoreOperations: [],
+    reportStoreOperations: [],
+    userStoreOperations: [],
+  };
 
   if (action.type === setInitialReduxState) {
     const { userInfos, keyserverInfos, ...rest } = action.payload;
@@ -136,26 +148,38 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         updatesCurrentAsOf: newUpdatesCurrentAsOf,
       };
     }
-    return validateState(oldState, {
-      ...state,
-      ...rest,
-      userStore: { userInfos },
-      keyserverStore: {
-        ...state.keyserverStore,
-        keyserverInfos: newKeyserverInfos,
+    return validateState(
+      oldState,
+      {
+        ...state,
+        ...rest,
+        userStore: { userInfos },
+        keyserverStore: {
+          ...state.keyserverStore,
+          keyserverInfos: newKeyserverInfos,
+        },
+        initialStateLoaded: true,
       },
-      initialStateLoaded: true,
-    });
+      storeOperations,
+    );
   } else if (action.type === updateWindowDimensionsActionType) {
-    return validateState(oldState, {
-      ...state,
-      windowDimensions: action.payload,
-    });
+    return validateState(
+      oldState,
+      {
+        ...state,
+        windowDimensions: action.payload,
+      },
+      storeOperations,
+    );
   } else if (action.type === updateWindowActiveActionType) {
-    return validateState(oldState, {
-      ...state,
-      windowActive: action.payload,
-    });
+    return validateState(
+      oldState,
+      {
+        ...state,
+        windowActive: action.payload,
+      },
+      storeOperations,
+    );
   } else if (action.type === setNewSessionActionType) {
     if (
       invalidSessionDowngrade(
@@ -206,8 +230,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
   ) {
     const baseReducerResult = baseReducer(state, action, onStateDifference);
     state = baseReducerResult.state;
-
-    processDBStoreOperations(baseReducerResult.storeOperations);
+    storeOperations = baseReducerResult.storeOperations;
   }
 
   const communityPickerStore = reduceCommunityPickerStore(
@@ -226,10 +249,15 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     communityPickerStore,
   };
 
-  return validateState(oldState, state);
+  return validateState(oldState, state, storeOperations);
 }
 
-function validateState(oldState: AppState, state: AppState): AppState {
+function validateState(
+  oldState: AppState,
+  state: AppState,
+  storeOperations: StoreOperations,
+): AppState {
+  const updateActiveThreadOps: ThreadStoreOperation[] = [];
   if (
     (state.navInfo.activeChatThreadID &&
       !state.navInfo.pendingThread &&
@@ -283,22 +311,19 @@ function validateState(oldState: AppState, state: AppState): AppState {
     state.threadStore.threadInfos[activeThread].currentUser.unread
   ) {
     // Makes sure a currently focused thread is never unread
-    state = {
-      ...state,
-      threadStore: {
-        ...state.threadStore,
-        threadInfos: {
-          ...state.threadStore.threadInfos,
-          [activeThread]: {
-            ...state.threadStore.threadInfos[activeThread],
-            currentUser: {
-              ...state.threadStore.threadInfos[activeThread].currentUser,
-              unread: false,
-            },
+    updateActiveThreadOps.push({
+      type: 'replace',
+      payload: {
+        id: activeThread,
+        threadInfo: {
+          ...state.threadStore.threadInfos[activeThread],
+          currentUser: {
+            ...state.threadStore.threadInfos[activeThread].currentUser,
+            unread: false,
           },
         },
       },
-    };
+    });
   }
 
   const oldActiveThread = activeThreadSelector(oldState);
@@ -319,6 +344,25 @@ function validateState(oldState: AppState, state: AppState): AppState {
       },
     };
   }
+
+  if (updateActiveThreadOps.length > 0) {
+    state = {
+      ...state,
+      threadStore: threadStoreOpsHandlers.processStoreOperations(
+        state.threadStore,
+        updateActiveThreadOps,
+      ),
+    };
+    storeOperations = {
+      ...storeOperations,
+      threadStoreOperations: [
+        ...storeOperations.threadStoreOperations,
+        ...updateActiveThreadOps,
+      ],
+    };
+  }
+
+  processDBStoreOperations(storeOperations);
 
   return state;
 }
