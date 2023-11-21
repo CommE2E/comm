@@ -26,6 +26,9 @@ keyserver/cpu_profiling_logs
 services/tunnelbroker/target
 services/tunnelbroker/src/libcpp/test/build
 
+services/search-index-lambda/Cargo.lock
+services/search-index-lambda/target
+
 .eslintcache
 .vscode
 !.vscode/extensions.json
