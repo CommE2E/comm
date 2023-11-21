@@ -6,6 +6,8 @@ import {
   LongPressGestureHandler,
   TapGestureHandler,
   State as GestureState,
+  type LongPressGestureEvent,
+  type TapGestureEvent,
 } from 'react-native-gesture-handler';
 import Animated, { EasingNode } from 'react-native-reanimated';
 
@@ -81,7 +83,7 @@ function ForwardedGestureTouchableOpacity(
   const tapState = useValue(-1);
   const longPressEvent = React.useMemo(
     () =>
-      event([
+      event<LongPressGestureEvent>([
         {
           nativeEvent: {
             state: longPressState,
@@ -92,7 +94,7 @@ function ForwardedGestureTouchableOpacity(
   );
   const tapEvent = React.useMemo(
     () =>
-      event([
+      event<TapGestureEvent>([
         {
           nativeEvent: {
             state: tapState,
