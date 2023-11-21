@@ -4,6 +4,8 @@ import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
 
+import { type WebClientDBThreadInfo } from './entities.js';
+
 declare export class SQLiteQueryExecutor {
   constructor(sqliteFilePath: string): void;
 
@@ -29,6 +31,11 @@ declare export class SQLiteQueryExecutor {
   removeUsers(ids: $ReadOnlyArray<string>): void;
   removeAllUsers(): void;
   getAllUsers(): ClientDBUserInfo[];
+
+  replaceThreadWeb(thread: WebClientDBThreadInfo): void;
+  removeThreads(ids: $ReadOnlyArray<string>): void;
+  removeAllThreads(): void;
+  getAllThreadsWeb(): WebClientDBThreadInfo[];
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted

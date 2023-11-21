@@ -88,6 +88,9 @@ public:
 #ifndef EMSCRIPTEN
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);
+#else
+  std::vector<WebThread> getAllThreadsWeb() const override;
+  void replaceThreadWeb(const WebThread &thread) const override;
 #endif
 };
 

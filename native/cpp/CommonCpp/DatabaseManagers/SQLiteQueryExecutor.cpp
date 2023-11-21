@@ -1392,6 +1392,22 @@ void SQLiteQueryExecutor::assign_encryption_key() {
       SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
 }
+#else
+std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
+  auto threads = SQLiteQueryExecutor::getStorage().get_all<Thread>();
+  std::vector<WebThread> webThreads;
+  webThreads.reserve(threads.size());
+  for (const auto &thread : threads) {
+    WebThread webThread;
+    webThread.fromThread(thread);
+    webThreads.push_back(std::move(webThread));
+  }
+  return webThreads;
+};
+
+void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
+  SQLiteQueryExecutor::getStorage().replace(thread.toThread());
+};
 #endif
 
 } // namespace comm
