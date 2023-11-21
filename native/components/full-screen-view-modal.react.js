@@ -40,6 +40,7 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors.js';
 import type { NativeMethods } from '../types/react-native.js';
+import type { AnimatedStyleObj } from '../types/styles.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import {
   clamp,
@@ -958,7 +959,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     return { width, height: safeAreaHeight };
   }
 
-  get contentViewContainerStyle() {
+  get contentViewContainerStyle(): AnimatedStyleObj {
     const { height, width } = this.props.contentDimensions;
     const { height: frameHeight, width: frameWidth } = this.frame;
     const top = (frameHeight - height) / 2 + this.props.dimensions.topInset;
