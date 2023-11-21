@@ -2,7 +2,10 @@
 
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
-import type { ClientStore } from 'lib/types/store-ops-types.js';
+import type {
+  ClientStore,
+  StoreOperations,
+} from 'lib/types/store-ops-types.js';
 
 import { workerRequestMessageTypes } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../database-module-provider.js';
@@ -46,4 +49,30 @@ async function getClientStore(): Promise<ClientStore> {
   return result;
 }
 
-export { getClientStore };
+async function processDBStoreOperations(
+  storeOperations: StoreOperations,
+): Promise<void> {
+  const { draftStoreOperations, threadStoreOperations, reportStoreOperations } =
+    storeOperations;
+
+  const convertedThreadStoreOperations =
+    threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations);
+  const convertedReportStoreOperations =
+    reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
+
+  const databaseModule = await getDatabaseModule();
+  const isSupported = await databaseModule.isDatabaseSupported();
+  if (!isSupported) {
+    return;
+  }
+  await databaseModule.schedule({
+    type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+    storeOperations: {
+      draftStoreOperations,
+      reportStoreOperations: convertedReportStoreOperations,
+      threadStoreOperations: convertedThreadStoreOperations,
+    },
+  });
+}
+
+export { getClientStore, processDBStoreOperations };
