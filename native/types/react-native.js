@@ -32,3 +32,11 @@ export type ViewableItemsChange = {
 };
 
 export type EmitterSubscription = { +remove: () => void, ... };
+
+export type ImagePasteEvent = {
+  +fileName: string,
+  +filePath: string,
+  +height: number,
+  +width: number,
+  +threadID: string,
+};
