@@ -2,7 +2,7 @@ FROM rust:1.70-bullseye
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
-  gnupg software-properties-common 
+  gnupg software-properties-common python3-pip
 
 # These steps are required to install terraform
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -26,10 +26,12 @@ RUN unzip -q awscliv2.zip && ./aws/install \
 
 WORKDIR /home/root/app/commtest
 
+# Install cargo lambda
+RUN pip3 install cargo-lambda
+
 # Install more recent version of protobuf, must be ran as root
 COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
 RUN ../../scripts/install_protobuf.sh
-
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 # Copy actual application sources
@@ -37,5 +39,7 @@ COPY shared ../../shared/
 COPY services/terraform/dev ../terraform/dev
 COPY services/terraform/modules ../terraform/modules
 COPY services/commtest ./
+COPY services/search-index-lambda ../search-index-lambda
+
 
 CMD ["bash", "./run-tests-ci.sh"]
