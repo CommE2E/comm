@@ -1,21 +1,15 @@
 // @flow
 
 import type { ResponseFailure } from '@parse/node-apn';
-import crypto from 'crypto';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 import nodeFetch from 'node-fetch';
 import type { Response } from 'node-fetch';
-import uuid from 'uuid';
 import webpush from 'web-push';
 
-import blobService from 'lib/facts/blob-service.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { toBase64URL } from 'lib/utils/base64.js';
-import { makeBlobServiceEndpointURL } from 'lib/utils/blob-service.js';
-import { getMessageForException } from 'lib/utils/errors.js';
 
 import {
   getAPNPushProfileForCodeVersion,
@@ -32,7 +26,7 @@ import type {
   TargetedWNSNotification,
 } from './types.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { generateKey, encrypt } from '../utils/aes-crypto-utils.js';
+import { upload } from '../services/blob.js';
 
 const fcmTokenInvalidationErrors = new Set([
   'messaging/registration-token-not-registered',
@@ -395,79 +389,7 @@ async function blobServiceUpload(payload: string): Promise<
     }
   | { +blobUploadError: string },
 > {
-  const encryptionKey = await generateKey();
-  const encryptedPayloadBuffer = Buffer.from(
-    await encrypt(encryptionKey, new TextEncoder().encode(payload)),
-  );
-
-  const blobHolder = uuid.v4();
-  const blobHashBase64 = await crypto
-    .createHash('sha256')
-    .update(encryptedPayloadBuffer)
-    .digest('base64');
-
-  const blobHash = toBase64URL(blobHashBase64);
-
-  const formData = new FormData();
-  const payloadBlob = new Blob([encryptedPayloadBuffer]);
-
-  formData.append('blob_hash', blobHash);
-  formData.append('blob_data', payloadBlob);
-
-  const assignHolderPromise = fetch(
-    makeBlobServiceEndpointURL(blobService.httpEndpoints.ASSIGN_HOLDER),
-    {
-      method: blobService.httpEndpoints.ASSIGN_HOLDER.method,
-      body: JSON.stringify({
-        holder: blobHolder,
-        blob_hash: blobHash,
-      }),
-      headers: {
-        'content-type': 'application/json',
-      },
-    },
-  );
-
-  const uploadHolderPromise = fetch(
-    makeBlobServiceEndpointURL(blobService.httpEndpoints.UPLOAD_BLOB),
-    {
-      method: blobService.httpEndpoints.UPLOAD_BLOB.method,
-      body: formData,
-    },
-  );
-
-  try {
-    const [assignHolderResponse, uploadBlobResponse] = await Promise.all([
-      assignHolderPromise,
-      uploadHolderPromise,
-    ]);
-
-    if (!assignHolderResponse.ok) {
-      const { status, statusText } = assignHolderResponse;
-      return {
-        blobUploadError: `Holder assignment failed with HTTP ${status}: ${statusText}`,
-      };
-    }
-
-    if (!uploadBlobResponse.ok) {
-      const { status, statusText } = uploadBlobResponse;
-      return {
-        blobUploadError: `Payload upload failed with HTTP ${status}: ${statusText}`,
-      };
-    }
-  } catch (e) {
-    return {
-      blobUploadError: `Payload upload failed with: ${
-        getMessageForException(e) ?? 'unknown error'
-      }`,
-    };
-  }
-
-  const encryptionKeyString = Buffer.from(encryptionKey).toString('base64');
-  return {
-    blobHash,
-    encryptionKey: encryptionKeyString,
-  };
+  return upload(payload);
 }
 
 export {
