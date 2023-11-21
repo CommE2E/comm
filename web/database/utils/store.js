@@ -1,6 +1,7 @@
 // @flow
 
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import type { ClientStore } from 'lib/types/store-ops-types.js';
 
 import { workerRequestMessageTypes } from '../../types/worker-types.js';
@@ -30,6 +31,16 @@ async function getClientStore(): Promise<ClientStore> {
     result = {
       ...result,
       reports: reportStoreOpsHandlers.translateClientDBData(data.store.reports),
+    };
+  }
+  if (data?.store?.threads && data.store.threads.length > 0) {
+    result = {
+      ...result,
+      threadStore: {
+        threadInfos: threadStoreOpsHandlers.translateClientDBData(
+          data.store.threads,
+        ),
+      },
     };
   }
   return result;
