@@ -194,3 +194,78 @@ resource "aws_iam_role" "reports_service" {
     aws_iam_policy.manage_reports_ddb.arn
   ]
 }
+
+
+data "aws_iam_policy_document" "assume_role_lambda" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "search_index_lambda_role" {
+  name               = "search_index_lambda_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_lambda.json
+}
+
+data "aws_iam_policy_document" "manage_dynamodb_stream" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:DescribeStream",
+      "dynamodb:ListStreams"
+    ]
+    resources = [
+      module.shared.dynamodb_tables["identity-users"].arn,
+      module.shared.dynamodb_tables["identity-users"].stream_arn,
+      "${module.shared.dynamodb_tables["identity-users"].arn}/stream/*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "manage_dynamodb_stream" {
+  name        = "manage_dynamodb_stream"
+  path        = "/"
+  description = "IAM policy for managing dynamodb streams"
+  policy      = data.aws_iam_policy_document.manage_dynamodb_stream.json
+}
+
+data "aws_iam_policy_document" "lambda_logging" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
+}
+
+resource "aws_iam_policy" "lambda_logging" {
+  name        = "lambda_logging"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+  policy      = data.aws_iam_policy_document.lambda_logging.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = "${aws_iam_role.search_index_lambda_role.name}"
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_stream_attach" {
+  role       = "${aws_iam_role.search_index_lambda_role.name}"
+  policy_arn = aws_iam_policy.manage_dynamodb_stream.arn
+}
