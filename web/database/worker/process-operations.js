@@ -1,6 +1,7 @@
 // @flow
 
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
+import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type {
   ClientDBDraftStoreOperation,
   DraftStoreOperation,
@@ -10,6 +11,10 @@ import type {
   ClientDBStoreOperations,
 } from 'lib/types/store-ops-types.js';
 
+import {
+  clientDBThreadInfoToWebThread,
+  webThreadToClientDBThreadInfo,
+} from '../types/entities.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
 function processDraftStoreOperations(
@@ -50,17 +55,41 @@ function processReportStoreOperations(
   }
 }
 
+function processThreadStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
+) {
+  for (const operation: ClientDBThreadStoreOperation of operations) {
+    if (operation.type === 'remove_all') {
+      sqliteQueryExecutor.removeAllThreads();
+    } else if (operation.type === 'remove') {
+      const { ids } = operation.payload;
+      sqliteQueryExecutor.removeThreads(ids);
+    } else if (operation.type === 'replace') {
+      sqliteQueryExecutor.replaceThreadWeb(
+        clientDBThreadInfoToWebThread(operation.payload),
+      );
+    } else {
+      throw new Error('Unsupported thread operation');
+    }
+  }
+}
+
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
 ) {
-  const { draftStoreOperations, reportStoreOperations } = storeOperations;
+  const { draftStoreOperations, reportStoreOperations, threadStoreOperations } =
+    storeOperations;
 
   if (draftStoreOperations) {
     processDraftStoreOperations(sqliteQueryExecutor, draftStoreOperations);
   }
   if (reportStoreOperations) {
     processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
+  }
+  if (threadStoreOperations) {
+    processThreadStoreOperations(sqliteQueryExecutor, threadStoreOperations);
   }
 }
 
@@ -70,7 +99,9 @@ function getClientStore(
   return {
     drafts: sqliteQueryExecutor.getAllDrafts(),
     messages: [],
-    threads: [],
+    threads: sqliteQueryExecutor
+      .getAllThreadsWeb()
+      .map(t => webThreadToClientDBThreadInfo(t)),
     messageStoreThreads: [],
     reports: sqliteQueryExecutor.getAllReports(),
     users: [],
