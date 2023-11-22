@@ -12,6 +12,7 @@ import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { invalidSessionDowngrade } from 'lib/shared/session-utils.js';
+import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { Shape } from 'lib/types/core.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
@@ -115,9 +116,13 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     const { userInfos, keyserverInfos, ...rest } = action.payload;
     const newKeyserverInfos = { ...state.keyserverStore.keyserverInfos };
     for (const keyserverID in keyserverInfos) {
+      const newUpdatesCurrentAsOf = canUseDatabaseOnWeb(rest.currentUserInfo.id)
+        ? newKeyserverInfos[keyserverID].updatesCurrentAsOf
+        : keyserverInfos[keyserverID].updatesCurrentAsOf;
       newKeyserverInfos[keyserverID] = {
         ...newKeyserverInfos[keyserverID],
         ...keyserverInfos[keyserverID],
+        updatesCurrentAsOf: newUpdatesCurrentAsOf,
       };
     }
     return validateState(oldState, {
