@@ -370,60 +370,58 @@ class ProfileScreen extends React.PureComponent<Props> {
     await deleteNativeCredentialsFor();
   }
 
-  navigateIfActive(name) {
-    this.props.navigation.navigate({ name });
-  }
-
   onPressEditPassword = () => {
-    this.navigateIfActive(EditPasswordRouteName);
+    this.props.navigation.navigate({ name: EditPasswordRouteName });
   };
 
   onPressDeleteAccount = () => {
-    this.navigateIfActive(DeleteAccountRouteName);
+    this.props.navigation.navigate({ name: DeleteAccountRouteName });
   };
 
   onPressDevices = () => {
-    this.navigateIfActive(LinkedDevicesRouteName);
+    this.props.navigation.navigate({ name: LinkedDevicesRouteName });
   };
 
   onPressBuildInfo = () => {
-    this.navigateIfActive(BuildInfoRouteName);
+    this.props.navigation.navigate({ name: BuildInfoRouteName });
   };
 
   onPressDevTools = () => {
-    this.navigateIfActive(DevToolsRouteName);
+    this.props.navigation.navigate({ name: DevToolsRouteName });
   };
 
   onPressAppearance = () => {
-    this.navigateIfActive(AppearancePreferencesRouteName);
+    this.props.navigation.navigate({ name: AppearancePreferencesRouteName });
   };
 
   onPressPrivacy = () => {
-    this.navigateIfActive(PrivacyPreferencesRouteName);
+    this.props.navigation.navigate({ name: PrivacyPreferencesRouteName });
   };
 
   onPressDefaultNotifications = () => {
-    this.navigateIfActive(DefaultNotificationsPreferencesRouteName);
+    this.props.navigation.navigate({
+      name: DefaultNotificationsPreferencesRouteName,
+    });
   };
 
   onPressFriendList = () => {
-    this.navigateIfActive(FriendListRouteName);
+    this.props.navigation.navigate({ name: FriendListRouteName });
   };
 
   onPressBlockList = () => {
-    this.navigateIfActive(BlockListRouteName);
+    this.props.navigation.navigate({ name: BlockListRouteName });
   };
 
   onPressBackupMenu = () => {
-    this.navigateIfActive(BackupMenuRouteName);
+    this.props.navigation.navigate({ name: BackupMenuRouteName });
   };
 
   onPressTunnelbrokerMenu = () => {
-    this.navigateIfActive(TunnelbrokerMenuRouteName);
+    this.props.navigation.navigate({ name: TunnelbrokerMenuRouteName });
   };
 
   onPressKeyserverSelection = () => {
-    this.navigateIfActive(KeyserverSelectionListRouteName);
+    this.props.navigation.navigate({ name: KeyserverSelectionListRouteName });
   };
 }
 
