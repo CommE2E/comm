@@ -1,5 +1,6 @@
 // @flow
 
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
   RoleDeletionRequest,
@@ -45,9 +46,10 @@ async function deleteRole(
   const { community, roleID } = request;
 
   const defaultRoleQuery = SQL`
-    SELECT default_role
-    FROM threads
-    WHERE id = ${community}
+    SELECT id AS default_role
+    FROM roles
+    WHERE thread = ${community}
+      AND special_role = ${specialRoles.DEFAULT_ROLE}
   `;
 
   const membersWithRoleQuery = SQL`
