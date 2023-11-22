@@ -275,8 +275,7 @@ const keyserverStoreTransform: Transform = createTransform(
   (state: KeyserverStore): PersistedKeyserverStore => {
     const keyserverInfos = {};
     for (const key in state.keyserverInfos) {
-      const { connection, updatesCurrentAsOf, sessionID, ...rest } =
-        state.keyserverInfos[key];
+      const { connection, sessionID, ...rest } = state.keyserverInfos[key];
       keyserverInfos[key] = rest;
     }
     return {
@@ -290,7 +289,6 @@ const keyserverStoreTransform: Transform = createTransform(
       keyserverInfos[key] = {
         ...state.keyserverInfos[key],
         connection: { ...defaultConnectionInfo },
-        updatesCurrentAsOf: 0,
         sessionID: null,
       };
     }
