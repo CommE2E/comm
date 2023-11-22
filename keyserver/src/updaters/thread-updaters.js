@@ -1,5 +1,6 @@
 // @flow
 
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
 import { getPinnedContentFromMessage } from 'lib/shared/message-utils.js';
@@ -205,9 +206,10 @@ async function removeMembers(
   }
 
   const query = SQL`
-    SELECT m.user, m.role, t.default_role
+    SELECT m.user, m.role, r.id AS default_role
     FROM memberships m
-    LEFT JOIN threads t ON t.id = m.thread
+    LEFT JOIN roles r ON r.special_role = ${specialRoles.DEFAULT_ROLE}
+      AND r.thread = ${request.threadID}
     WHERE m.user IN (${memberIDs})
       AND m.thread = ${request.threadID}
   `;
@@ -560,7 +562,8 @@ async function updateThread(
         const rolePermissionsQuery = SQL`
           SELECT r.permissions
           FROM threads t
-          LEFT JOIN roles r ON r.id = t.default_role
+          LEFT JOIN roles r ON r.special_role = ${specialRoles.DEFAULT_ROLE} 
+            AND r.thread = ${request.threadID}
           WHERE t.id = ${request.threadID}
         `;
         const [result] = await dbQuery(rolePermissionsQuery);
