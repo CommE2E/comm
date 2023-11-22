@@ -1,5 +1,6 @@
 // @flow
 
+import { defaultSpecialRoles } from 'lib/permissions/special-roles.js';
 import {
   getRolePermissionBlobs,
   getThreadPermissionBlobFromUserSurfacedPermissions,
@@ -50,11 +51,13 @@ async function createInitialRolesForNewThread(
     const id = ids.shift();
     namesToIDs[name] = id;
     const permissionsBlob = JSON.stringify(rolePermissions[name]);
-    newRows.push([id, threadID, name, permissionsBlob, time]);
+    const specialRole = defaultSpecialRoles[name] || null;
+    newRows.push([id, threadID, name, permissionsBlob, time, specialRole]);
   }
 
   const query = SQL`
-    INSERT INTO roles (id, thread, name, permissions, creation_time)
+    INSERT INTO roles (id, thread, name, 
+      permissions, creation_time, special_role)
     VALUES ${newRows}
   `;
   await dbQuery(query);
