@@ -1,12 +1,14 @@
 // @flow
 
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import type { RoleInfo } from 'lib/types/thread-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 
 async function fetchRoles(threadID: string): Promise<RoleInfo[]> {
   const query = SQL`
-    SELECT r.id, r.name, r.permissions, r.id = t.default_role AS is_default
+    SELECT r.id, r.name, r.permissions, 
+    r.special_role = ${specialRoles.DEFAULT_ROLE} AS is_default
     FROM roles r
     LEFT JOIN threads t ON t.id = r.thread
     WHERE r.thread = ${threadID}
