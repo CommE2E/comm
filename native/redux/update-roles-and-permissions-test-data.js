@@ -8593,9 +8593,1439 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
     },
   };
 
+const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
+  '256|84852': {
+    id: '256|84852',
+    type: 9,
+    name: 'Announcement Community',
+    description: '',
+    color: '648caa',
+    creationTime: 1698337006124,
+    parentThreadID: null,
+    members: [
+      {
+        id: '256',
+        role: '256|84854',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|84852',
+          },
+          visible: {
+            value: true,
+            source: '256|84852',
+          },
+          voiced: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_entries: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_description: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_color: {
+            value: true,
+            source: '256|84852',
+          },
+          delete_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          create_subthreads: {
+            value: true,
+            source: '256|84852',
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|84852',
+          },
+          join_thread: {
+            value: false,
+            source: null,
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|84852',
+          },
+          remove_members: {
+            value: true,
+            source: '256|84852',
+          },
+          change_role: {
+            value: true,
+            source: '256|84852',
+          },
+          leave_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_avatar: {
+            value: true,
+            source: '256|84852',
+          },
+          manage_pins: {
+            value: true,
+            source: '256|84852',
+          },
+          manage_invite_links: {
+            value: true,
+            source: '256|84852',
+          },
+        },
+        isSender: false,
+      },
+      {
+        id: '83813',
+        role: '256|84853',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|84852',
+          },
+          visible: {
+            value: true,
+            source: '256|84852',
+          },
+          voiced: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_entries: {
+            value: false,
+            source: null,
+          },
+          edit_thread: {
+            value: false,
+            source: null,
+          },
+          edit_thread_description: {
+            value: false,
+            source: null,
+          },
+          edit_thread_color: {
+            value: false,
+            source: null,
+          },
+          delete_thread: {
+            value: false,
+            source: null,
+          },
+          create_subthreads: {
+            value: false,
+            source: null,
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|84852',
+          },
+          join_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|84852',
+          },
+          remove_members: {
+            value: false,
+            source: null,
+          },
+          change_role: {
+            value: false,
+            source: null,
+          },
+          leave_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_avatar: {
+            value: false,
+            source: null,
+          },
+          manage_pins: {
+            value: false,
+            source: null,
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+      {
+        id: '83858',
+        role: '256|84853',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|84852',
+          },
+          visible: {
+            value: true,
+            source: '256|84852',
+          },
+          voiced: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_entries: {
+            value: false,
+            source: null,
+          },
+          edit_thread: {
+            value: false,
+            source: null,
+          },
+          edit_thread_description: {
+            value: false,
+            source: null,
+          },
+          edit_thread_color: {
+            value: false,
+            source: null,
+          },
+          delete_thread: {
+            value: false,
+            source: null,
+          },
+          create_subthreads: {
+            value: false,
+            source: null,
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|84852',
+          },
+          join_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|84852',
+          },
+          remove_members: {
+            value: false,
+            source: null,
+          },
+          change_role: {
+            value: false,
+            source: null,
+          },
+          leave_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_avatar: {
+            value: false,
+            source: null,
+          },
+          manage_pins: {
+            value: false,
+            source: null,
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+      {
+        id: '83906',
+        role: '256|84853',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|84852',
+          },
+          visible: {
+            value: true,
+            source: '256|84852',
+          },
+          voiced: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_entries: {
+            value: false,
+            source: null,
+          },
+          edit_thread: {
+            value: false,
+            source: null,
+          },
+          edit_thread_description: {
+            value: false,
+            source: null,
+          },
+          edit_thread_color: {
+            value: false,
+            source: null,
+          },
+          delete_thread: {
+            value: false,
+            source: null,
+          },
+          create_subthreads: {
+            value: false,
+            source: null,
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|84852',
+          },
+          join_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|84852',
+          },
+          remove_members: {
+            value: false,
+            source: null,
+          },
+          change_role: {
+            value: false,
+            source: null,
+          },
+          leave_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_avatar: {
+            value: false,
+            source: null,
+          },
+          manage_pins: {
+            value: false,
+            source: null,
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+      {
+        id: '83953',
+        role: '256|84853',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|84852',
+          },
+          visible: {
+            value: true,
+            source: '256|84852',
+          },
+          voiced: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_entries: {
+            value: false,
+            source: null,
+          },
+          edit_thread: {
+            value: false,
+            source: null,
+          },
+          edit_thread_description: {
+            value: false,
+            source: null,
+          },
+          edit_thread_color: {
+            value: false,
+            source: null,
+          },
+          delete_thread: {
+            value: false,
+            source: null,
+          },
+          create_subthreads: {
+            value: false,
+            source: null,
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|84852',
+          },
+          join_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|84852',
+          },
+          remove_members: {
+            value: false,
+            source: null,
+          },
+          change_role: {
+            value: false,
+            source: null,
+          },
+          leave_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_avatar: {
+            value: false,
+            source: null,
+          },
+          manage_pins: {
+            value: false,
+            source: null,
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+      {
+        id: '84003',
+        role: '256|84853',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|84852',
+          },
+          visible: {
+            value: true,
+            source: '256|84852',
+          },
+          voiced: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_entries: {
+            value: false,
+            source: null,
+          },
+          edit_thread: {
+            value: false,
+            source: null,
+          },
+          edit_thread_description: {
+            value: false,
+            source: null,
+          },
+          edit_thread_color: {
+            value: false,
+            source: null,
+          },
+          delete_thread: {
+            value: false,
+            source: null,
+          },
+          create_subthreads: {
+            value: false,
+            source: null,
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|84852',
+          },
+          join_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|84852',
+          },
+          remove_members: {
+            value: false,
+            source: null,
+          },
+          change_role: {
+            value: false,
+            source: null,
+          },
+          leave_thread: {
+            value: true,
+            source: '256|84852',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_message: {
+            value: true,
+            source: '256|84852',
+          },
+          edit_thread_avatar: {
+            value: false,
+            source: null,
+          },
+          manage_pins: {
+            value: false,
+            source: null,
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+    ],
+    roles: {
+      '256|84853': {
+        id: '256|84853',
+        name: 'Members',
+        permissions: {
+          know_of: true,
+          descendant_open_know_of: true,
+          visible: true,
+          descendant_open_visible: true,
+          join_thread: true,
+          child_open_join_thread: true,
+          descendant_opentoplevel_join_thread: true,
+          create_sidebars: true,
+          leave_thread: true,
+          react_to_message: true,
+          descendant_react_to_message: true,
+          edit_message: true,
+          descendant_edit_message: true,
+          add_members: true,
+          descendant_add_members: true,
+          child_open_add_members: true,
+          voiced: true,
+        },
+        isDefault: true,
+      },
+      '256|84854': {
+        id: '256|84854',
+        name: 'Admins',
+        permissions: {
+          know_of: true,
+          visible: true,
+          voiced: true,
+          react_to_message: true,
+          edit_message: true,
+          edit_entries: true,
+          edit_thread: true,
+          edit_thread_color: true,
+          edit_thread_description: true,
+          edit_thread_avatar: true,
+          create_subthreads: true,
+          create_sidebars: true,
+          add_members: true,
+          delete_thread: true,
+          remove_members: true,
+          change_role: true,
+          manage_pins: true,
+          manage_invite_links: true,
+          descendant_know_of: true,
+          descendant_visible: true,
+          descendant_toplevel_join_thread: true,
+          child_join_thread: true,
+          descendant_voiced: true,
+          descendant_edit_entries: true,
+          descendant_edit_thread: true,
+          descendant_edit_thread_color: true,
+          descendant_edit_thread_description: true,
+          descendant_edit_thread_avatar: true,
+          descendant_toplevel_create_subthreads: true,
+          descendant_toplevel_create_sidebars: true,
+          descendant_add_members: true,
+          descendant_delete_thread: true,
+          descendant_edit_permissions: true,
+          descendant_remove_members: true,
+          descendant_change_role: true,
+          descendant_manage_pins: true,
+          leave_thread: true,
+        },
+        isDefault: false,
+      },
+    },
+    currentUser: {
+      role: '256|84853',
+      permissions: {
+        know_of: {
+          value: true,
+          source: '256|84852',
+        },
+        visible: {
+          value: true,
+          source: '256|84852',
+        },
+        voiced: {
+          value: true,
+          source: '256|84852',
+        },
+        edit_entries: {
+          value: false,
+          source: null,
+        },
+        edit_thread: {
+          value: false,
+          source: null,
+        },
+        edit_thread_description: {
+          value: false,
+          source: null,
+        },
+        edit_thread_color: {
+          value: false,
+          source: null,
+        },
+        delete_thread: {
+          value: false,
+          source: null,
+        },
+        create_subthreads: {
+          value: false,
+          source: null,
+        },
+        create_sidebars: {
+          value: true,
+          source: '256|84852',
+        },
+        join_thread: {
+          value: true,
+          source: '256|84852',
+        },
+        edit_permissions: {
+          value: false,
+          source: null,
+        },
+        add_members: {
+          value: true,
+          source: '256|84852',
+        },
+        remove_members: {
+          value: false,
+          source: null,
+        },
+        change_role: {
+          value: false,
+          source: null,
+        },
+        leave_thread: {
+          value: true,
+          source: '256|84852',
+        },
+        react_to_message: {
+          value: true,
+          source: '256|84852',
+        },
+        edit_message: {
+          value: true,
+          source: '256|84852',
+        },
+        edit_thread_avatar: {
+          value: false,
+          source: null,
+        },
+        manage_pins: {
+          value: false,
+          source: null,
+        },
+        manage_invite_links: {
+          value: false,
+          source: null,
+        },
+      },
+      subscription: {
+        home: true,
+        pushNotifs: true,
+      },
+      unread: false,
+    },
+    repliesCount: 0,
+    containingThreadID: null,
+    community: null,
+    pinnedCount: 0,
+  },
+  '256|85022': {
+    id: '256|85022',
+    type: 8,
+    name: 'Communications',
+    description: '',
+    color: 'aa4b4b',
+    creationTime: 1698341268486,
+    parentThreadID: null,
+    members: [
+      {
+        id: '256',
+        role: '256|85023',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|85022',
+          },
+          visible: {
+            value: true,
+            source: '256|85022',
+          },
+          voiced: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_entries: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread_description: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread_color: {
+            value: true,
+            source: '256|85022',
+          },
+          delete_thread: {
+            value: false,
+            source: null,
+          },
+          create_subthreads: {
+            value: true,
+            source: '256|85022',
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|85022',
+          },
+          join_thread: {
+            value: false,
+            source: null,
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|85022',
+          },
+          remove_members: {
+            value: false,
+            source: null,
+          },
+          change_role: {
+            value: false,
+            source: null,
+          },
+          leave_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_message: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread_avatar: {
+            value: true,
+            source: '256|85022',
+          },
+          manage_pins: {
+            value: false,
+            source: null,
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+      {
+        id: '83953',
+        role: '256|85024',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|85022',
+          },
+          visible: {
+            value: true,
+            source: '256|85022',
+          },
+          voiced: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_entries: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread_description: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread_color: {
+            value: true,
+            source: '256|85022',
+          },
+          delete_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          create_subthreads: {
+            value: true,
+            source: '256|85022',
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|85022',
+          },
+          join_thread: {
+            value: false,
+            source: null,
+          },
+          edit_permissions: {
+            value: false,
+            source: null,
+          },
+          add_members: {
+            value: true,
+            source: '256|85022',
+          },
+          remove_members: {
+            value: true,
+            source: '256|85022',
+          },
+          change_role: {
+            value: true,
+            source: '256|85022',
+          },
+          leave_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_message: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_thread_avatar: {
+            value: true,
+            source: '256|85022',
+          },
+          manage_pins: {
+            value: true,
+            source: '256|85022',
+          },
+          manage_invite_links: {
+            value: true,
+            source: '256|85022',
+          },
+        },
+        isSender: false,
+      },
+    ],
+    roles: {
+      '256|85023': {
+        id: '256|85023',
+        name: 'Members',
+        permissions: {
+          know_of: true,
+          visible: true,
+          descendant_open_know_of: true,
+          descendant_open_visible: true,
+          descendant_opentoplevel_join_thread: true,
+          react_to_message: true,
+          edit_message: true,
+          leave_thread: true,
+          create_sidebars: true,
+          add_members: true,
+          child_open_join_thread: true,
+          child_open_add_members: true,
+          voiced: true,
+          edit_entries: true,
+          edit_thread: true,
+          edit_thread_color: true,
+          edit_thread_description: true,
+          edit_thread_avatar: true,
+          create_subthreads: true,
+        },
+        isDefault: true,
+      },
+      '256|85024': {
+        id: '256|85024',
+        name: 'Admins',
+        permissions: {
+          know_of: true,
+          visible: true,
+          voiced: true,
+          react_to_message: true,
+          edit_message: true,
+          edit_entries: true,
+          edit_thread: true,
+          edit_thread_color: true,
+          edit_thread_description: true,
+          edit_thread_avatar: true,
+          create_subthreads: true,
+          create_sidebars: true,
+          add_members: true,
+          delete_thread: true,
+          remove_members: true,
+          change_role: true,
+          manage_pins: true,
+          manage_invite_links: true,
+          descendant_know_of: true,
+          descendant_visible: true,
+          descendant_toplevel_join_thread: true,
+          child_join_thread: true,
+          descendant_voiced: true,
+          descendant_edit_entries: true,
+          descendant_edit_thread: true,
+          descendant_edit_thread_color: true,
+          descendant_edit_thread_description: true,
+          descendant_edit_thread_avatar: true,
+          descendant_toplevel_create_subthreads: true,
+          descendant_toplevel_create_sidebars: true,
+          descendant_add_members: true,
+          descendant_delete_thread: true,
+          descendant_edit_permissions: true,
+          descendant_remove_members: true,
+          descendant_change_role: true,
+          descendant_manage_pins: true,
+          leave_thread: true,
+        },
+        isDefault: false,
+      },
+      '256|85027': {
+        id: '256|85027',
+        name: 'Moderators',
+        permissions: {
+          know_of: true,
+          descendant_open_know_of: true,
+          descendant_open_voiced: true,
+          visible: true,
+          descendant_open_visible: true,
+          join_thread: true,
+          child_open_join_thread: true,
+          descendant_opentoplevel_join_thread: true,
+          create_sidebars: true,
+          leave_thread: true,
+          voiced: true,
+        },
+        isDefault: false,
+      },
+    },
+    currentUser: {
+      role: '256|85024',
+      permissions: {
+        know_of: {
+          value: true,
+          source: '256|85022',
+        },
+        visible: {
+          value: true,
+          source: '256|85022',
+        },
+        voiced: {
+          value: true,
+          source: '256|85022',
+        },
+        edit_entries: {
+          value: true,
+          source: '256|85022',
+        },
+        edit_thread: {
+          value: true,
+          source: '256|85022',
+        },
+        edit_thread_description: {
+          value: true,
+          source: '256|85022',
+        },
+        edit_thread_color: {
+          value: true,
+          source: '256|85022',
+        },
+        delete_thread: {
+          value: true,
+          source: '256|85022',
+        },
+        create_subthreads: {
+          value: true,
+          source: '256|85022',
+        },
+        create_sidebars: {
+          value: true,
+          source: '256|85022',
+        },
+        join_thread: {
+          value: false,
+          source: null,
+        },
+        edit_permissions: {
+          value: false,
+          source: null,
+        },
+        add_members: {
+          value: true,
+          source: '256|85022',
+        },
+        remove_members: {
+          value: true,
+          source: '256|85022',
+        },
+        change_role: {
+          value: true,
+          source: '256|85022',
+        },
+        leave_thread: {
+          value: true,
+          source: '256|85022',
+        },
+        react_to_message: {
+          value: true,
+          source: '256|85022',
+        },
+        edit_message: {
+          value: true,
+          source: '256|85022',
+        },
+        edit_thread_avatar: {
+          value: true,
+          source: '256|85022',
+        },
+        manage_pins: {
+          value: true,
+          source: '256|85022',
+        },
+        manage_invite_links: {
+          value: true,
+          source: '256|85022',
+        },
+      },
+      subscription: {
+        home: true,
+        pushNotifs: true,
+      },
+      unread: false,
+    },
+    repliesCount: 0,
+    containingThreadID: null,
+    community: null,
+    pinnedCount: 0,
+  },
+  '256|85034': {
+    id: '256|85034',
+    type: 3,
+    name: 'Upcoming Events',
+    description: '',
+    color: 'aa4b4b',
+    creationTime: 1698341321824,
+    parentThreadID: '256|85022',
+    members: [
+      {
+        id: '256',
+        role: '256|85035',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|85034',
+          },
+          visible: {
+            value: true,
+            source: '256|85034',
+          },
+          voiced: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_entries: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread_description: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread_color: {
+            value: true,
+            source: '256|85034',
+          },
+          delete_thread: {
+            value: false,
+            source: null,
+          },
+          create_subthreads: {
+            value: true,
+            source: '256|85034',
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|85034',
+          },
+          join_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_permissions: {
+            value: true,
+            source: '256|85034',
+          },
+          add_members: {
+            value: true,
+            source: '256|85034',
+          },
+          remove_members: {
+            value: true,
+            source: '256|85034',
+          },
+          change_role: {
+            value: false,
+            source: null,
+          },
+          leave_thread: {
+            value: true,
+            source: '256|85034',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_message: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread_avatar: {
+            value: true,
+            source: '256|85034',
+          },
+          manage_pins: {
+            value: false,
+            source: null,
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+      {
+        id: '83953',
+        role: '256|85035',
+        permissions: {
+          know_of: {
+            value: true,
+            source: '256|85034',
+          },
+          visible: {
+            value: true,
+            source: '256|85034',
+          },
+          voiced: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_entries: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread_description: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread_color: {
+            value: true,
+            source: '256|85034',
+          },
+          delete_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          create_subthreads: {
+            value: true,
+            source: '256|85034',
+          },
+          create_sidebars: {
+            value: true,
+            source: '256|85034',
+          },
+          join_thread: {
+            value: true,
+            source: '256|85022',
+          },
+          edit_permissions: {
+            value: true,
+            source: '256|85034',
+          },
+          add_members: {
+            value: true,
+            source: '256|85034',
+          },
+          remove_members: {
+            value: true,
+            source: '256|85034',
+          },
+          change_role: {
+            value: true,
+            source: '256|85022',
+          },
+          leave_thread: {
+            value: true,
+            source: '256|85034',
+          },
+          react_to_message: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_message: {
+            value: true,
+            source: '256|85034',
+          },
+          edit_thread_avatar: {
+            value: true,
+            source: '256|85034',
+          },
+          manage_pins: {
+            value: true,
+            source: '256|85022',
+          },
+          manage_invite_links: {
+            value: false,
+            source: null,
+          },
+        },
+        isSender: false,
+      },
+    ],
+    roles: {
+      '256|85035': {
+        id: '256|85035',
+        name: 'Members',
+        permissions: {
+          remove_members: true,
+          edit_permissions: true,
+          know_of: true,
+          visible: true,
+          react_to_message: true,
+          edit_message: true,
+          create_sidebars: true,
+          leave_thread: true,
+          descendant_open_know_of: true,
+          descendant_open_visible: true,
+          descendant_opentoplevel_join_thread: true,
+          child_open_join_thread: true,
+          voiced: true,
+          edit_entries: true,
+          edit_thread: true,
+          edit_thread_color: true,
+          edit_thread_description: true,
+          edit_thread_avatar: true,
+          create_subthreads: true,
+          add_members: true,
+        },
+        isDefault: true,
+      },
+    },
+    currentUser: {
+      role: '256|85035',
+      permissions: {
+        know_of: {
+          value: true,
+          source: '256|85034',
+        },
+        visible: {
+          value: true,
+          source: '256|85034',
+        },
+        voiced: {
+          value: true,
+          source: '256|85034',
+        },
+        edit_entries: {
+          value: true,
+          source: '256|85034',
+        },
+        edit_thread: {
+          value: true,
+          source: '256|85034',
+        },
+        edit_thread_description: {
+          value: true,
+          source: '256|85034',
+        },
+        edit_thread_color: {
+          value: true,
+          source: '256|85034',
+        },
+        delete_thread: {
+          value: true,
+          source: '256|85022',
+        },
+        create_subthreads: {
+          value: true,
+          source: '256|85034',
+        },
+        create_sidebars: {
+          value: true,
+          source: '256|85034',
+        },
+        join_thread: {
+          value: true,
+          source: '256|85022',
+        },
+        edit_permissions: {
+          value: true,
+          source: '256|85034',
+        },
+        add_members: {
+          value: true,
+          source: '256|85034',
+        },
+        remove_members: {
+          value: true,
+          source: '256|85034',
+        },
+        change_role: {
+          value: true,
+          source: '256|85022',
+        },
+        leave_thread: {
+          value: true,
+          source: '256|85034',
+        },
+        react_to_message: {
+          value: true,
+          source: '256|85034',
+        },
+        edit_message: {
+          value: true,
+          source: '256|85034',
+        },
+        edit_thread_avatar: {
+          value: true,
+          source: '256|85034',
+        },
+        manage_pins: {
+          value: true,
+          source: '256|85022',
+        },
+        manage_invite_links: {
+          value: false,
+          source: null,
+        },
+      },
+      subscription: {
+        home: true,
+        pushNotifs: true,
+      },
+      unread: false,
+    },
+    repliesCount: 0,
+    containingThreadID: '256|85022',
+    community: '256|85022',
+    pinnedCount: 0,
+  },
+};
+
 export {
   threadStoreThreads,
   threadStoreThreadsWithEmptyRolePermissions,
   threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions,
   threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions,
+  threadStoreThreadsWithIncorrectPermissions,
 };
