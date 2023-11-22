@@ -28,6 +28,24 @@ declare module 'electron' {
     'window-all-closed': () => void,
     'activate': (event: Event, hasVisibleWindows: boolean) => void,
     'quit': (event: Event, exitCode: number) => void,
+    'render-process-gone': (
+      event: Event,
+      webContents: WebContents,
+      details: {
+        reason: string,
+        exitCode: number,
+      },
+    ) => void,
+    'child-process-gone': (
+      event: Event,
+      details: {
+        type: string,
+        reason: string,
+        exitCode: number,
+        serviceName?: string,
+        name?: string,
+      },
+    ) => void,
   };
 
   declare export class BrowserWindow {

@@ -316,6 +316,18 @@ const run = () => {
       app.quit();
     }
   });
+
+  app.on('render-process-gone', (event, webContents, details) => {
+    console.error(
+      `EVENT: render-process-gone. Reason: '${details.reason}'. ExitCode: '${details.exitCode}'.`,
+    );
+  });
+
+  app.on('child-process-gone', (event, details) => {
+    console.error(
+      `EVENT: child-process-gone. Process type: '${details.type}'. Reason: '${details.reason}'. ExitCode: '${details.exitCode}'.`,
+    );
+  });
 };
 
 if (app.isPackaged && process.platform === 'win32') {
