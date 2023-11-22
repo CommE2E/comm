@@ -14,6 +14,7 @@ import {
   parsePendingThreadID,
   createPendingThread,
 } from 'lib/shared/thread-utils.js';
+import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
@@ -89,7 +90,9 @@ async function getInitialReduxStateResponder(
   viewer: Viewer,
   request: InitialReduxStateRequest,
 ): Promise<InitialReduxStateResponse> {
-  const { urlInfo } = request;
+  const { urlInfo, excludedData } = request;
+  const useDatabase = viewer.loggedIn && canUseDatabaseOnWeb(viewer.userID);
+
   const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
     viewer.id,
     baseLegalPolicies,
@@ -153,6 +156,9 @@ async function getInitialReduxStateResponder(
   })();
 
   const threadStorePromise = (async () => {
+    if (excludedData.threadStore && useDatabase) {
+      return { threadInfos: {} };
+    }
     const [{ threadInfos }, hasNotAcknowledgedPolicies] = await Promise.all([
       threadInfoPromise,
       hasNotAcknowledgedPoliciesPromise,
