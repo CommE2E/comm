@@ -8,6 +8,7 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
 import { freshMessageStore } from 'lib/reducers/message-reducer.js';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
+import { isStaff } from 'lib/shared/staff-utils.js';
 import {
   threadHasPermission,
   threadIsPending,
@@ -29,6 +30,7 @@ import {
   userInfosValidator,
 } from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { urlInfoValidator } from 'lib/utils/url-utils.js';
@@ -89,7 +91,9 @@ async function getInitialReduxStateResponder(
   viewer: Viewer,
   request: InitialReduxStateRequest,
 ): Promise<InitialReduxStateResponse> {
-  const { urlInfo } = request;
+  const { urlInfo, excludedData } = request;
+  const useDatabase = isDev || isStaff(viewer.userID);
+
   const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
     viewer.id,
     baseLegalPolicies,
@@ -153,6 +157,9 @@ async function getInitialReduxStateResponder(
   })();
 
   const threadStorePromise = (async () => {
+    if (excludedData.threadStore && useDatabase) {
+      return { threadInfos: {} };
+    }
     const [{ threadInfos }, hasNotAcknowledgedPolicies] = await Promise.all([
       threadInfoPromise,
       hasNotAcknowledgedPoliciesPromise,

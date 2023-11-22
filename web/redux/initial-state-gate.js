@@ -6,7 +6,12 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import { isStaff } from 'lib/shared/staff-utils.js';
+import type { RawThreadInfo } from 'lib/types/thread-types.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
+import { entries } from 'lib/utils/objects.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
@@ -15,13 +20,17 @@ import {
   useGetInitialReduxState,
 } from './action-types.js';
 import { useSelector } from './redux-utils.js';
-import { getClientStore } from '../database/utils/store.js';
+import {
+  getClientStore,
+  processDBStoreOperations,
+} from '../database/utils/store.js';
 import Loading from '../loading.react.js';
 
 type Props = {
   +persistor: Persistor,
   +children: React.Node,
 };
+
 function InitialReduxStateGate(props: Props): React.Node {
   const { children, persistor } = props;
   const callGetInitialReduxState = useGetInitialReduxState();
@@ -49,22 +58,56 @@ function InitialReduxStateGate(props: Props): React.Node {
               thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
             };
           }
-
           const clientDBStore = await getClientStore();
 
           const payload = await callGetInitialReduxState({
             urlInfo,
-            excludedData: { threadStore: false },
+            excludedData: { threadStore: !!clientDBStore.threadStore },
           });
 
           const currentLoggedInUserID = payload.currentUserInfo?.anonymous
             ? undefined
             : payload.currentUserInfo?.id;
+          const useDatabase =
+            currentLoggedInUserID && (isDev || isStaff(currentLoggedInUserID));
 
-          if (currentLoggedInUserID) {
+          if (!currentLoggedInUserID || !useDatabase) {
+            dispatch({ type: setInitialReduxState, payload });
+            return;
+          }
+
+          if (clientDBStore.threadStore) {
+            // If there is data in the DB, populate the store
             dispatch({
               type: setClientDBStoreActionType,
               payload: clientDBStore,
+            });
+            const { threadStore, ...rest } = payload;
+            dispatch({ type: setInitialReduxState, payload: rest });
+            return;
+          } else {
+            // When there is no data in the DB, it's necessary to migrate data
+            // from the keyserver payload to the DB
+            const {
+              threadStore: { threadInfos },
+            } = payload;
+
+            const threadStoreOperations: ThreadStoreOperation[] = entries(
+              threadInfos,
+            ).map(([id, threadInfo]: [string, RawThreadInfo]) => ({
+              type: 'replace',
+              payload: {
+                id,
+                threadInfo,
+              },
+            }));
+
+            await processDBStoreOperations({
+              threadStoreOperations,
+              draftStoreOperations: [],
+              messageStoreOperations: [],
+              reportStoreOperations: [],
+              userStoreOperations: [],
             });
           }
           dispatch({ type: setInitialReduxState, payload });
