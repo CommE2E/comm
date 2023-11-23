@@ -45,9 +45,9 @@ type Props<Item, MergedItem> = {
   +initialMeasuredHeights?: ?$ReadOnlyMap<string, number>,
   ...
 };
-type State<Item, MergedItem> = {
+type WritableState<Item, MergedItem> = {
   // These are the dummies currently being rendered
-  +currentlyMeasuring: $ReadOnlyArray<{
+  currentlyMeasuring: $ReadOnlyArray<{
     +measureKey: string,
     +dummy: React.Element<any>,
   }>,
@@ -55,16 +55,17 @@ type State<Item, MergedItem> = {
   // avoid considering any onLayouts that got queued before we issued the
   // remeasure, we increment the "iteration" and only count onLayouts with the
   // right value
-  +iteration: number,
+  iteration: number,
   // We cache the measured heights here, keyed by measure key
-  +measuredHeights: Map<string, number>,
+  measuredHeights: Map<string, number>,
   // We cache the results of calling mergeItemWithHeight on measured items after
   // measuring their height, keyed by ID
-  +measurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
+  measurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
   // We cache the results of calling mergeItemWithHeight on items that aren't
   // measurable (eg. itemToKey reurns falsey), keyed by ID
-  +unmeasurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
+  unmeasurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
 };
+type State<Item, MergedItem> = $ReadOnly<WritableState<Item, MergedItem>>;
 class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   Props<Item, MergedItem>,
   State<Item, MergedItem>,
@@ -434,7 +435,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
       }
     }
 
-    const stateUpdate = {};
+    const stateUpdate: Partial<WritableState<Item, MergedItem>> = {};
     if (incrementIteration) {
       stateUpdate.iteration = this.state.iteration + 1;
     }

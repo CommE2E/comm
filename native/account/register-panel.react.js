@@ -52,11 +52,12 @@ import Alert from '../utils/alert.js';
 import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import { type StateContainer } from '../utils/state-container.js';
 
-export type RegisterState = {
-  +usernameInputText: string,
-  +passwordInputText: string,
-  +confirmPasswordInputText: string,
+type WritableRegisterState = {
+  usernameInputText: string,
+  passwordInputText: string,
+  confirmPasswordInputText: string,
 };
+export type RegisterState = $ReadOnly<WritableRegisterState>;
 type BaseProps = {
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Node,
@@ -240,7 +241,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   };
 
   onChangePasswordInputText = (text: string) => {
-    const stateUpdate = {};
+    const stateUpdate: Partial<WritableRegisterState> = {};
     stateUpdate.passwordInputText = text;
     if (this.passwordBeingAutoFilled) {
       this.passwordBeingAutoFilled = false;

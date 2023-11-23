@@ -71,7 +71,7 @@ function FeatureFlagsProvider(props: Props): React.Node {
           5000,
         );
 
-        const configuration = {};
+        const configuration: { [string]: true } = {};
         for (const feature of config.enabledFeatures) {
           configuration[feature] = true;
         }
