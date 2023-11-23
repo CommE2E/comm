@@ -17,6 +17,7 @@ import {
 } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
+import { decryptDesktopNotification } from './notif-crypto-utils.js';
 import {
   WORKERS_MODULES_DIR_PATH,
   DEFAULT_OLM_FILENAME,
@@ -32,6 +33,7 @@ declare var baseURL: string;
 function useCreateDesktopPushSubscription() {
   const dispatchActionPromise = useDispatchActionPromise();
   const callSetDeviceToken = useSetDeviceTokenFanout();
+  const staffCanSee = useStaffCanSee();
 
   React.useEffect(
     () =>
@@ -43,6 +45,16 @@ function useCreateDesktopPushSubscription() {
       }),
     [callSetDeviceToken, dispatchActionPromise],
   );
+
+  React.useEffect(() => {
+    electron?.onEncryptedNotification?.(async ({ encryptedPayload }) => {
+      const decryptedPayload = await decryptDesktopNotification(
+        encryptedPayload,
+        staffCanSee,
+      );
+      await electron?.showDecryptedNotification(decryptedPayload);
+    });
+  }, [staffCanSee]);
 
   const dispatch = useDispatch();
 

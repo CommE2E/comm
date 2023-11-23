@@ -19,6 +19,7 @@ import { handleSquirrelEvent } from './handle-squirrel-event.js';
 import {
   listenForNotifications,
   registerForNotifications,
+  showNewNotification,
 } from './push-notifications.js';
 
 const isDev = process.env.ENV === 'dev';
@@ -288,13 +289,24 @@ const run = () => {
       }
     };
 
+    const handleEncryptedNotification = (encryptedPayload: string) => {
+      if (mainWindow) {
+        mainWindow.webContents.send('on-encrypted-notification', {
+          encryptedPayload,
+        });
+      }
+    };
+
     if (app.isPackaged) {
       try {
         initAutoUpdate();
       } catch (error) {
         console.error(error);
       }
-      listenForNotifications(handleNotificationClick);
+      listenForNotifications(
+        handleNotificationClick,
+        handleEncryptedNotification,
+      );
     }
 
     ipcMain.on('set-badge', (event, value) => {
@@ -305,6 +317,12 @@ const run = () => {
     ipcMain.on('get-version', event => {
       event.returnValue = app.getVersion().toString();
     });
+    ipcMain.on(
+      'show-decrypted-notification',
+      (event, decryptedNotification) => {
+        showNewNotification(decryptedNotification, handleNotificationClick);
+      },
+    );
 
     show();
 

@@ -120,10 +120,17 @@ function showNewNotification(
   notif.show();
 }
 
-function listenForNotifications(handleClick: (threadID?: string) => void) {
+function listenForNotifications(
+  handleClick: (threadID?: string) => void,
+  handleEncryptedNotification: (encryptedPayload: string) => void,
+) {
   if (process.platform === 'darwin') {
     pushNotifications.on('received-apns-notification', (event, userInfo) => {
-      showNewNotification(userInfo, handleClick);
+      if (userInfo.encryptedPayload) {
+        handleEncryptedNotification(userInfo.encryptedPayload);
+      } else {
+        showNewNotification(userInfo, handleClick);
+      }
     });
   } else if (process.platform === 'win32') {
     windowsPushNotifEventEmitter.on('received-wns-notification', payload => {
@@ -131,4 +138,8 @@ function listenForNotifications(handleClick: (threadID?: string) => void) {
     });
   }
 }
-export { listenForNotifications, registerForNotifications };
+export {
+  listenForNotifications,
+  registerForNotifications,
+  showNewNotification,
+};

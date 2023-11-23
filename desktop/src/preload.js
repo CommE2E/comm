@@ -35,6 +35,16 @@ const bridge: ElectronBridge = {
     return () =>
       ipcRenderer.removeListener('on-notification-clicked', withEvent);
   },
+  onEncryptedNotification: callback => {
+    const withEvent = (event, ...args) => {
+      callback(...args);
+    };
+    ipcRenderer.on('on-encrypted-notification', withEvent);
+    return () =>
+      ipcRenderer.removeListener('on-encrypted-notification', withEvent);
+  },
+  showDecryptedNotification: decryptedPayload =>
+    ipcRenderer.send('show-decrypted-notification', decryptedPayload),
 };
 
 contextBridge.exposeInMainWorld('electronContextBridge', bridge);
