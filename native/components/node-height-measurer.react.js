@@ -495,7 +495,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     const dummies = currentlyMeasuring.map(({ measureKey, dummy }) => {
       const { children } = dummy.props;
       const style = [dummy.props.style, styles.dummy];
-      const onLayout = event =>
+      const onLayout = (event: LayoutEvent) =>
         this.onDummyLayout(measureKey, iteration, event);
       const node = React.cloneElement(dummy, {
         style,

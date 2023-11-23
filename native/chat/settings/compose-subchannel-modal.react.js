@@ -69,7 +69,7 @@ type Props = {
   +styles: typeof unboundStyles,
 };
 class ComposeSubchannelModal extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     return (
       <Modal modalStyle={this.props.styles.modal}>
         <Text style={this.props.styles.visibility}>Chat type</Text>

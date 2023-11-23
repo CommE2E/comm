@@ -12,6 +12,7 @@ import {
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { TextStyle } from '../types/styles.js';
 
 export type RobotextMessageTooltipModalParams = TooltipParams<{
   +item: ChatRobotextMessageInfoItemWithHeight,
@@ -24,7 +25,7 @@ function TooltipMenu(
 
   const onPress = useAnimatedNavigateToSidebar(route.params.item);
   const renderIcon = React.useCallback(
-    style => (
+    (style: TextStyle) => (
       <SWMansionIcon name="message-circle-lines" style={style} size={16} />
     ),
     [],

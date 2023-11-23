@@ -74,7 +74,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     };
   }
 
-  static getOverlayContext(props: Props) {
+  static getOverlayContext(props: Props): OverlayContextType {
     const { overlayContext } = props;
     invariant(
       overlayContext,
@@ -83,7 +83,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     return overlayContext;
   }
 
-  static getModalOverlayPosition(props: Props) {
+  static getModalOverlayPosition(props: Props): ?Animated.Value {
     const overlayContext = MultimediaMessageMultimedia.getOverlayContext(props);
     const { visibleOverlays } = overlayContext;
     for (const overlay of visibleOverlays) {
@@ -98,7 +98,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     return undefined;
   }
 
-  getOpacity() {
+  getOpacity(): number | Animated.Node {
     const overlayPosition = MultimediaMessageMultimedia.getModalOverlayPosition(
       this.props,
     );
@@ -136,7 +136,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const { opacity } = this.state;
     const animatedWrapperStyle: AnimatedStyleObj = { opacity };
     const wrapperStyles = [
@@ -202,7 +202,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     });
   };
 
-  dismissKeyboardIfShowing = () => {
+  dismissKeyboardIfShowing = (): boolean => {
     const { keyboardState } = this.props;
     return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
   };

@@ -61,7 +61,7 @@ function CommunityConfiguration(props: Props): React.Node {
   const [announcementSetting, setAnnouncementSetting] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<?string>();
 
-  const onChangePendingCommunityName = React.useCallback(newValue => {
+  const onChangePendingCommunityName = React.useCallback((newValue: string) => {
     setErrorMessage();
     setPendingCommunityName(newValue);
   }, []);

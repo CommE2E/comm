@@ -86,7 +86,7 @@ class FailedSend extends React.PureComponent<Props> {
     }
   }
 
-  render() {
+  render(): React.Node {
     if (!this.props.rawMessageInfo) {
       return null;
     }

@@ -78,7 +78,7 @@ class TextMessage extends React.PureComponent<Props> {
     };
   }
 
-  render() {
+  render(): React.Node {
     const {
       item,
       navigation,
@@ -136,21 +136,21 @@ class TextMessage extends React.PureComponent<Props> {
     this.message = message;
   };
 
-  canReply() {
+  canReply(): boolean {
     return threadHasPermission(
       this.props.item.threadInfo,
       threadPermissions.VOICED,
     );
   }
 
-  canNavigateToSidebar() {
+  canNavigateToSidebar(): boolean {
     return (
-      this.props.item.threadCreatedFromMessage ||
+      !!this.props.item.threadCreatedFromMessage ||
       this.props.canCreateSidebarFromMessage
     );
   }
 
-  visibleEntryIDs() {
+  visibleEntryIDs(): $ReadOnlyArray<string> {
     const result = ['copy'];
 
     if (this.canReply()) {

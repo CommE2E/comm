@@ -12,7 +12,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
-import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
+import {
+  useMessageReactionsList,
+  type MessageReactionListInfo,
+} from 'lib/shared/reaction-utils.js';
 
 import UserAvatar from '../avatars/user-avatar.react.js';
 import Modal from '../components/modal.react.js';
@@ -70,7 +73,7 @@ function MessageReactionsModal(props: Props): React.Node {
   );
 
   const renderItem = React.useCallback(
-    ({ item }) => (
+    ({ item }: { +item: MessageReactionListInfo, ... }) => (
       <TouchableOpacity
         onPress={() => onPressUser(item.id)}
         key={item.id}

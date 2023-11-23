@@ -106,7 +106,14 @@ function RobotextMessage(props: Props): React.Node {
   }, [item.threadCreatedFromMessage, canCreateSidebarFromMessage]);
 
   const openRobotextTooltipModal = React.useCallback(
-    (x, y, width, height, pageX, pageY) => {
+    (
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      pageX: number,
+      pageY: number,
+    ) => {
       invariant(
         verticalBounds,
         'verticalBounds should be present in openRobotextTooltipModal',

@@ -111,7 +111,7 @@ type Props = {
 class ThreadSettingsDescription extends React.PureComponent<Props> {
   textInput: ?React.ElementRef<typeof BaseTextInput>;
 
-  render() {
+  render(): React.Node {
     if (
       this.props.descriptionEditValue !== null &&
       this.props.descriptionEditValue !== undefined
@@ -197,7 +197,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     return null;
   }
 
-  renderButton() {
+  renderButton(): React.Node {
     if (this.props.loadingStatus === 'loading') {
       return (
         <ActivityIndicator
@@ -264,7 +264,9 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     });
   };
 
-  async editDescription(newDescription: string) {
+  async editDescription(
+    newDescription: string,
+  ): Promise<ChangeThreadSettingsPayload> {
     try {
       return await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,

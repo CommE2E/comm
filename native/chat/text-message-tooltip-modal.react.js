@@ -23,6 +23,7 @@ import {
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { TextStyle } from '../types/styles.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
 import { useNavigateToPinModal } from '../utils/toggle-pin-utils.js';
 
@@ -55,13 +56,13 @@ function TooltipMenu(
     });
   }, [inputState, navigateToThread, threadInfo, text]);
   const renderReplyIcon = React.useCallback(
-    style => <CommIcon name="reply" style={style} size={12} />,
+    (style: TextStyle) => <CommIcon name="reply" style={style} size={12} />,
     [],
   );
 
   const onPressSidebar = useAnimatedNavigateToSidebar(route.params.item);
   const renderSidebarIcon = React.useCallback(
-    style => (
+    (style: TextStyle) => (
       <SWMansionIcon name="message-circle-lines" style={style} size={16} />
     ),
     [],
@@ -96,18 +97,24 @@ function TooltipMenu(
     }
   }, [inputState, messageEditingContext, messageInfo, text]);
   const renderEditIcon = React.useCallback(
-    style => <SWMansionIcon name="edit-1" style={style} size={16} />,
+    (style: TextStyle) => (
+      <SWMansionIcon name="edit-1" style={style} size={16} />
+    ),
     [],
   );
 
   const onPressTogglePin = useNavigateToPinModal(overlayContext, route);
 
   const renderPinIcon = React.useCallback(
-    style => <CommIcon name="pin-outline" style={style} size={16} />,
+    (style: TextStyle) => (
+      <CommIcon name="pin-outline" style={style} size={16} />
+    ),
     [],
   );
   const renderUnpinIcon = React.useCallback(
-    style => <CommIcon name="unpin-outline" style={style} size={16} />,
+    (style: TextStyle) => (
+      <CommIcon name="unpin-outline" style={style} size={16} />
+    ),
     [],
   );
 
@@ -116,13 +123,15 @@ function TooltipMenu(
     setTimeout(confirmCopy);
   }, [text]);
   const renderCopyIcon = React.useCallback(
-    style => <SWMansionIcon name="copy" style={style} size={16} />,
+    (style: TextStyle) => <SWMansionIcon name="copy" style={style} size={16} />,
     [],
   );
 
   const onPressReport = useOnPressReport(route);
   const renderReportIcon = React.useCallback(
-    style => <SWMansionIcon name="warning-circle" style={style} size={16} />,
+    (style: TextStyle) => (
+      <SWMansionIcon name="warning-circle" style={style} size={16} />
+    ),
     [],
   );
 

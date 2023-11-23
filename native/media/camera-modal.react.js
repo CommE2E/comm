@@ -19,17 +19,21 @@ import {
   PinchGestureHandler,
   TapGestureHandler,
   State as GestureState,
+  type PinchGestureEvent,
+  type TapGestureEvent,
 } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
   EasingNode as ReanimatedEasing,
+  type EventResult,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { PhotoCapture } from 'lib/types/media-types.js';
+import type { ReactRef } from 'lib/types/react-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -219,6 +223,8 @@ function runIndicatorAnimation(
   ]);
 }
 
+type RNCameraStatus = 'READY' | 'PENDING_AUTHORIZATION' | 'NOT_AUTHORIZED';
+
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
   NativeMethods,
@@ -260,47 +266,47 @@ type State = {
 class CameraModal extends React.PureComponent<Props, State> {
   camera: ?RNCamera;
 
-  pinchEvent;
-  pinchHandler = React.createRef();
-  tapEvent;
-  tapHandler = React.createRef();
+  pinchEvent: EventResult<PinchGestureEvent>;
+  pinchHandler: ReactRef<PinchGestureHandler> = React.createRef();
+  tapEvent: EventResult<TapGestureEvent>;
+  tapHandler: ReactRef<TapGestureHandler> = React.createRef();
   animationCode: Node;
 
   closeButton: ?React.ElementRef<TouchableOpacityInstance>;
-  closeButtonX = new Value(-1);
-  closeButtonY = new Value(-1);
-  closeButtonWidth = new Value(0);
-  closeButtonHeight = new Value(0);
+  closeButtonX: Value = new Value(-1);
+  closeButtonY: Value = new Value(-1);
+  closeButtonWidth: Value = new Value(0);
+  closeButtonHeight: Value = new Value(0);
 
   photoButton: ?React.ElementRef<TouchableOpacityInstance>;
-  photoButtonX = new Value(-1);
-  photoButtonY = new Value(-1);
-  photoButtonWidth = new Value(0);
-  photoButtonHeight = new Value(0);
+  photoButtonX: Value = new Value(-1);
+  photoButtonY: Value = new Value(-1);
+  photoButtonWidth: Value = new Value(0);
+  photoButtonHeight: Value = new Value(0);
 
   switchCameraButton: ?React.ElementRef<TouchableOpacityInstance>;
-  switchCameraButtonX = new Value(-1);
-  switchCameraButtonY = new Value(-1);
-  switchCameraButtonWidth = new Value(0);
-  switchCameraButtonHeight = new Value(0);
+  switchCameraButtonX: Value = new Value(-1);
+  switchCameraButtonY: Value = new Value(-1);
+  switchCameraButtonWidth: Value = new Value(0);
+  switchCameraButtonHeight: Value = new Value(0);
 
   flashButton: ?React.ElementRef<TouchableOpacityInstance>;
-  flashButtonX = new Value(-1);
-  flashButtonY = new Value(-1);
-  flashButtonWidth = new Value(0);
-  flashButtonHeight = new Value(0);
+  flashButtonX: Value = new Value(-1);
+  flashButtonY: Value = new Value(-1);
+  flashButtonWidth: Value = new Value(0);
+  flashButtonHeight: Value = new Value(0);
 
-  focusIndicatorX = new Value(-1);
-  focusIndicatorY = new Value(-1);
-  focusIndicatorScale = new Value(0);
-  focusIndicatorOpacity = new Value(0);
+  focusIndicatorX: Value = new Value(-1);
+  focusIndicatorY: Value = new Value(-1);
+  focusIndicatorScale: Value = new Value(0);
+  focusIndicatorOpacity: Value = new Value(0);
 
-  cancelIndicatorAnimation = new Value(0);
+  cancelIndicatorAnimation: Value = new Value(0);
 
   cameraIDsFetched = false;
 
-  stagingModeProgress = new Value(0);
-  sendButtonProgress = new Animated.Value(0);
+  stagingModeProgress: Value = new Value(0);
+  sendButtonProgress: Animated.Value = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   overlayStyle: AnimatedViewStyle;
 
@@ -502,7 +508,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
   }
 
-  static isActive(props) {
+  static isActive(props: Props): boolean {
     const { overlayContext } = props;
     if (!overlayContext) {
       return true;
@@ -582,7 +588,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     } catch (e) {}
   }
 
-  get containerStyle() {
+  get containerStyle(): AnimatedViewStyle {
     const { overlayContext } = this.props;
     if (!overlayContext) {
       return styles.container;
@@ -593,7 +599,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     };
   }
 
-  get focusIndicatorStyle() {
+  get focusIndicatorStyle(): AnimatedViewStyle {
     return {
       ...styles.focusIndicator,
       opacity: this.focusIndicatorOpacity,
@@ -605,7 +611,14 @@ class CameraModal extends React.PureComponent<Props, State> {
     };
   }
 
-  renderCamera = ({ camera, status }) => {
+  renderCamera = ({
+    camera,
+    status,
+  }: {
+    +camera: RNCamera & { +_cameraHandle?: mixed, ... },
+    status: RNCameraStatus,
+    ...
+  }): React.Node => {
     if (camera && camera._cameraHandle) {
       this.fetchCameraIDs(camera);
     }
@@ -630,7 +643,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
   };
 
-  renderStagingView() {
+  renderStagingView(): React.Node {
     let image = null;
     const { pendingPhotoCapture } = this.state;
     if (pendingPhotoCapture) {
@@ -663,7 +676,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
   }
 
-  renderCameraContent(status) {
+  renderCameraContent(status: RNCameraStatus): React.Node {
     if (status === 'PENDING_AUTHORIZATION') {
       return <ContentLoading fillType="flex" colors={colors.dark} />;
     } else if (status === 'NOT_AUTHORIZED') {
@@ -746,7 +759,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     );
   }
 
-  render() {
+  render(): React.Node {
     const statusBar = CameraModal.isActive(this.props) ? (
       <ConnectedStatusBar hidden />
     ) : null;
