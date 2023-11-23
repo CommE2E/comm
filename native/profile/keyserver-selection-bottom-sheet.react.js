@@ -48,7 +48,8 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
   invariant(bottomSheetContext, 'bottomSheetContext should be set');
   const { setContentHeight } = bottomSheetContext;
 
-  const removeKeyserverContainerRef = React.useRef();
+  const removeKeyserverContainerRef =
+    React.useRef<?React.ElementRef<typeof View>>();
   const bottomSheetRef = React.useRef();
 
   const colors = useColors();

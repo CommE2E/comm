@@ -3,6 +3,8 @@
 import MaterialIcon from '@expo/vector-icons/MaterialCommunityIcons.js';
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
+// eslint-disable-next-line import/extensions
+import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
 
 import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
@@ -18,7 +20,7 @@ type Props = {
   +children: React.Node,
 };
 function SwipeableThread(props: Props): React.Node {
-  const swipeable = React.useRef();
+  const swipeable = React.useRef<?SwipeableComponent>();
   const navigation = useNavigation();
   React.useEffect(() => {
     return navigation.addListener('blur', () => {

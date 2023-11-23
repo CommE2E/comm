@@ -116,12 +116,12 @@ function ForwardedGestureTouchableOpacity(
 
   const curOpacity = useValue(1);
 
-  const pressClockRef = React.useRef();
+  const pressClockRef = React.useRef<?Clock>();
   if (!pressClockRef.current) {
     pressClockRef.current = new Clock();
   }
   const pressClock = pressClockRef.current;
-  const resetClockRef = React.useRef();
+  const resetClockRef = React.useRef<?Clock>();
   if (!resetClockRef.current) {
     resetClockRef.current = new Clock();
   }
