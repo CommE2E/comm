@@ -17,6 +17,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   BackHandler,
+  TextInput,
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
 
@@ -111,7 +112,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   }, []);
 
   const scrollPos = React.useRef(0);
-  const flatListRef = React.useRef();
+  const flatListRef = React.useRef<?FlatList<Item>>();
 
   const onScroll = React.useCallback(
     (event: ScrollEvent) => {
@@ -174,7 +175,7 @@ function ChatThreadList(props: BaseProps): React.Node {
     clearSearch();
   }, [clearSearch, onChangeSearchText]);
 
-  const searchInputRef = React.useRef();
+  const searchInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
 
   const onPressItem = React.useCallback(
     (threadInfo: ThreadInfo, pendingPersonalThreadUserInfo?: UserInfo) => {

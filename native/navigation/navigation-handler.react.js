@@ -66,7 +66,7 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
 
   const loggedIn = hasCurrentUserInfo && hasUserCookie;
   const navLoggedIn = useIsAppLoggedIn();
-  const prevLoggedInRef = React.useRef();
+  const prevLoggedInRef = React.useRef<?boolean>();
 
   React.useEffect(() => {
     if (loggedIn === prevLoggedInRef.current) {

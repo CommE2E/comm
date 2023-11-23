@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, TextInput } from 'react-native';
 
 import sleep from 'lib/utils/sleep.js';
 
@@ -112,7 +112,8 @@ function PasswordSelection(props: Props): React.Node {
     errorText = <Text style={styles.errorText}>Password cannot be empty</Text>;
   }
 
-  const confirmPasswordInputRef = React.useRef();
+  const confirmPasswordInputRef =
+    React.useRef<?React.ElementRef<typeof TextInput>>();
   const focusConfirmPasswordInput = React.useCallback(() => {
     confirmPasswordInputRef.current?.focus();
   }, []);
@@ -136,7 +137,7 @@ function PasswordSelection(props: Props): React.Node {
     [confirmPasswordEmpty],
   );
 
-  const passwordInputRef = React.useRef();
+  const passwordInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
   const passwordLength = password.length;
   const onChangePasswordInput = React.useCallback(
     (input: string) => {

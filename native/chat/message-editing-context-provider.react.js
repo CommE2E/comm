@@ -20,7 +20,7 @@ type Props = {
 function MessageEditingContextProvider(props: Props): React.Node {
   const [editState, setEditState] = React.useState<EditState>(defaultEditState);
 
-  const pendingCallbacksRef = React.useRef([]);
+  const pendingCallbacksRef = React.useRef<Array<() => void>>([]);
 
   const setEditedMessage = React.useCallback(
     (editedMessage: ?MessageInfo, callback?: () => void) => {

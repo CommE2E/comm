@@ -61,7 +61,8 @@ function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
     modalTitle,
   } = props;
 
-  const searchTextInputRef = React.useRef();
+  const searchTextInputRef =
+    React.useRef<?React.ElementRef<typeof TextInput>>();
   const setSearchTextInputRef = React.useCallback(
     async (textInput: ?React.ElementRef<typeof TextInput>) => {
       searchTextInputRef.current = textInput;
