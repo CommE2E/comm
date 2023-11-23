@@ -42,7 +42,7 @@ function UserProfileMenuButton(props: Props): React.Node {
 
   const overlayContext = React.useContext(OverlayContext);
 
-  const menuButtonRef = React.useRef();
+  const menuButtonRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const visibleTooltipActionEntryIDs = React.useMemo(() => {
     const result = [];

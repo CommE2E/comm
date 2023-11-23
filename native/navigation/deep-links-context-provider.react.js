@@ -44,7 +44,7 @@ type Props = {
 };
 function DeepLinksContextProvider(props: Props): React.Node {
   const { children } = props;
-  const [currentLink, setCurrentLink] = React.useState(null);
+  const [currentLink, setCurrentLink] = React.useState<?string>(null);
 
   React.useEffect(() => {
     // This listener listens for an event where a user clicked a link when the
