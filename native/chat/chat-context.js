@@ -40,7 +40,7 @@ function useHeightMeasurer(): MessagesMeasurer {
   const chatContext = React.useContext(ChatContext);
   invariant(chatContext, 'Chat context should be set');
 
-  const measureRegistrationRef = React.useRef();
+  const measureRegistrationRef = React.useRef<?RegisteredMeasurer>();
   if (!measureRegistrationRef.current) {
     measureRegistrationRef.current = chatContext.registerMeasurer();
   }

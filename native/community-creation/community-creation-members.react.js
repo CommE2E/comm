@@ -25,7 +25,10 @@ import type { CommunityCreationNavigationProp } from './community-creation-navig
 import RegistrationContainer from '../account/registration/registration-container.react.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import LinkButton from '../components/link-button.react.js';
-import { createTagInput } from '../components/tag-input.react.js';
+import {
+  createTagInput,
+  type BaseTagInput,
+} from '../components/tag-input.react.js';
 import UserList from '../components/user-list.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -175,7 +178,7 @@ function CommunityCreationMembers(props: Props): React.Node {
     [otherUserInfos, selectedUserIDs],
   );
 
-  const tagInputRef = React.useRef();
+  const tagInputRef = React.useRef<?BaseTagInput<AccountUserInfo>>();
 
   return (
     <RegistrationContainer>

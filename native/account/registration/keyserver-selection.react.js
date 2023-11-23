@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, TextInput } from 'react-native';
 
 import {
   useGetVersion,
@@ -59,7 +59,8 @@ function KeyserverSelection(props: Props): React.Node {
   const [customKeyserver, setCustomKeyserver] = React.useState(
     initialKeyserverURL === defaultURLPrefix ? '' : initialKeyserverURL,
   );
-  const customKeyserverTextInputRef = React.useRef();
+  const customKeyserverTextInputRef =
+    React.useRef<?React.ElementRef<typeof TextInput>>();
 
   let initialSelection;
   if (initialKeyserverURL === defaultURLPrefix) {

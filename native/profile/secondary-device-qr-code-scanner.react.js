@@ -20,7 +20,7 @@ type Props = {
 };
 // eslint-disable-next-line no-unused-vars
 function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
-  const [hasPermission, setHasPermission] = React.useState(null);
+  const [hasPermission, setHasPermission] = React.useState<?boolean>(null);
   const [scanned, setScanned] = React.useState(false);
 
   const styles = useStyles(unboundStyles);
