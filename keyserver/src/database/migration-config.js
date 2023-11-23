@@ -664,6 +664,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
     },
   ],
   [52, updateRolesAndPermissionsForAllThreads],
+  [
+    53,
+    async () =>
+      dbQuery(SQL`
+        ALTER TABLE invite_links 
+          ADD COLUMN blob_holder char(36) CHARSET latin1
+      `),
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
