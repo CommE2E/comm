@@ -41,6 +41,11 @@ type TouchableOpacityInstance = React.AbstractComponent<
   NativeMethods,
 >;
 
+type VideoRef = {
+  +seek: number => mixed,
+  ...
+};
+
 /* eslint-disable import/no-named-as-default-member */
 const {
   Extrapolate,
@@ -175,7 +180,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   const footerY = useValue(-1);
   const footerWidth = useValue(-1);
   const footerHeight = useValue(-1);
-  const footerRef = React.useRef();
+  const footerRef = React.useRef<?React.ElementRef<typeof View>>();
   const footer = footerRef.current;
   const onFooterLayoutCalledRef = React.useRef(false);
   const onFooterLayout = React.useCallback(() => {
@@ -571,7 +576,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   const [spinnerVisible, setSpinnerVisible] = useState(true);
   const [timeElapsed, setTimeElapsed] = useState('0:00');
   const [totalDuration, setTotalDuration] = useState('0:00');
-  const videoRef = React.useRef();
+  const videoRef = React.useRef<?VideoRef>();
 
   const backgroundedOrInactive = useIsAppBackgroundedOrInactive();
   React.useEffect(() => {

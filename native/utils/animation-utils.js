@@ -184,7 +184,7 @@ function ratchetAlongWithKeyboardHeight(
 }
 
 function useReanimatedValueForBoolean(booleanValue: boolean): Value {
-  const reanimatedValueRef = React.useRef();
+  const reanimatedValueRef = React.useRef<?Value>();
   if (!reanimatedValueRef.current) {
     reanimatedValueRef.current = new Value(booleanValue ? 1 : 0);
   }

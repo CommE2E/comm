@@ -62,7 +62,7 @@ function DimensionsUpdater(): null {
   const frame = useSafeAreaFrame();
   const insets = useSafeAreaInsets();
 
-  const keyboardShowingRef = React.useRef();
+  const keyboardShowingRef = React.useRef<?boolean>();
   const keyboardShow = React.useCallback(() => {
     keyboardShowingRef.current = true;
   }, []);

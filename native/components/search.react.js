@@ -39,7 +39,7 @@ function ForwardedSearch(
   const loggedIn = useSelector(isLoggedIn);
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const prevLoggedInRef = React.useRef();
+  const prevLoggedInRef = React.useRef<?boolean>();
   React.useEffect(() => {
     const prevLoggedIn = prevLoggedInRef.current;
     prevLoggedInRef.current = loggedIn;

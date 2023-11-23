@@ -29,7 +29,10 @@ import type { ChatNavigationProp } from './chat.react.js';
 import { useNavigateToThread } from './message-list-types.js';
 import ParentThreadHeader from './parent-thread-header.react.js';
 import LinkButton from '../components/link-button.react.js';
-import { createTagInput } from '../components/tag-input.react.js';
+import {
+  createTagInput,
+  type BaseTagInput,
+} from '../components/tag-input.react.js';
 import ThreadList from '../components/thread-list.react.js';
 import UserList from '../components/user-list.react.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
@@ -65,7 +68,7 @@ function ComposeSubchannel(props: Props): React.Node {
   const [createButtonEnabled, setCreateButtonEnabled] =
     React.useState<boolean>(true);
 
-  const tagInputRef = React.useRef();
+  const tagInputRef = React.useRef<?BaseTagInput<AccountUserInfo>>();
   const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
     setUsernameInputText('');
     tagInputRef.current?.focus();

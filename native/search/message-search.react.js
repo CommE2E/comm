@@ -26,6 +26,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
+import type { VerticalBounds } from '../types/layout-types.js';
 
 export type MessageSearchParams = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
@@ -47,7 +48,9 @@ function MessageSearch(props: MessageSearchProps): React.Node {
   }, [props.navigation, clearQuery]);
 
   const [lastID, setLastID] = React.useState();
-  const [searchResults, setSearchResults] = React.useState([]);
+  const [searchResults, setSearchResults] = React.useState<
+    $ReadOnlyArray<RawMessageInfo>,
+  >([]);
   const [endReached, setEndReached] = React.useState(false);
 
   const appendSearchResults = React.useCallback(
@@ -112,7 +115,9 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     return result;
   }, [chatMessageInfos, endReached, translatedSearchResults]);
 
-  const [measuredMessages, setMeasuredMessages] = React.useState([]);
+  const [measuredMessages, setMeasuredMessages] = React.useState<
+    $ReadOnlyArray<ChatMessageItemWithHeight>,
+  >([]);
 
   const measureMessages = useHeightMeasurer();
   const measureCallback = React.useCallback(
@@ -126,8 +131,9 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     measureMessages(filteredChatMessageInfos, threadInfo, measureCallback);
   }, [filteredChatMessageInfos, measureCallback, measureMessages, threadInfo]);
 
-  const [messageVerticalBounds, setMessageVerticalBounds] = React.useState();
-  const scrollViewContainerRef = React.useRef();
+  const [messageVerticalBounds, setMessageVerticalBounds] =
+    React.useState<?VerticalBounds>();
+  const scrollViewContainerRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const onLayout = React.useCallback(() => {
     scrollViewContainerRef.current?.measure(
