@@ -79,31 +79,39 @@ function resetState<Route: ResetStateRoute>(
     invariant(!oldRoute.state, 'resetState found non-matching state');
     return { ...oldRoute, ...newPartialRoute };
   }
+  const newPartialState = newPartialRoute.state;
+
   invariant(oldRoute.state, 'resetState found non-matching state');
+  const oldState = oldRoute.state;
 
   const routes = [];
   let newRouteIndex = 0;
   let oldRouteIndex = 0;
-  while (newRouteIndex < newPartialRoute.state.routes.length) {
-    const newSubroute = newPartialRoute.state.routes[newRouteIndex];
-    let oldSubroute = oldRoute.state.routes[oldRouteIndex];
+  while (newRouteIndex < newPartialState.routes.length) {
+    const newSubroute = newPartialState.routes[newRouteIndex];
+    let oldSubroute = oldState.routes[oldRouteIndex];
     invariant(oldSubroute, 'resetState found a missing oldRoute');
     while (oldSubroute.name !== newSubroute.name) {
       oldRouteIndex++;
-      oldSubroute = oldRoute.state.routes[oldRouteIndex];
+      oldSubroute = oldState.routes[oldRouteIndex];
     }
     routes.push(resetState(newSubroute, oldSubroute));
     newRouteIndex++;
     oldRouteIndex++;
   }
 
-  let newState = {
-    ...oldRoute.state,
-    ...newPartialRoute.state,
+  // We extract routes from the state for Flow
+  // It gets overriden in the spread below anyways
+  const { routes: _1, ...oldStateWithoutRoutes } = oldState;
+  const { routes: _2, ...newPartialStateWithoutRoutes } = newPartialState;
+
+  let newState: { +routes: $ReadOnlyArray<ResetStateRoute>, ... } = {
+    ...oldStateWithoutRoutes,
+    ...newPartialStateWithoutRoutes,
     routes,
   };
-  if (_isEqual(newState)(oldRoute.state)) {
-    newState = oldRoute.state;
+  if (_isEqual(newState)(oldState)) {
+    newState = oldState;
   }
 
   return {
