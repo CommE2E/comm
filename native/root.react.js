@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   PossiblyStaleNavigationState,
   UnsafeContainerActionEvent,
+  GenericNavigationAction,
 } from '@react-navigation/core';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainer } from '@react-navigation/native';
@@ -50,7 +51,10 @@ import { DeepLinksContextProvider } from './navigation/deep-links-context-provid
 import { defaultNavigationState } from './navigation/default-state.js';
 import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react.js';
 import { setGlobalNavContext } from './navigation/icky-global.js';
-import { NavContext } from './navigation/navigation-context.js';
+import {
+  NavContext,
+  type NavContextType,
+} from './navigation/navigation-context.js';
 import NavigationHandler from './navigation/navigation-handler.react.js';
 import { validNavState } from './navigation/navigation-utils.js';
 import OrientationHandler from './navigation/orientation-handler.react.js';
@@ -86,15 +90,20 @@ const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 SplashScreen.preventAutoHideAsync().catch(console.log);
 
 function Root() {
-  const navStateRef = React.useRef();
-  const navDispatchRef = React.useRef();
+  const navStateRef = React.useRef<?PossiblyStaleNavigationState>();
+  const navDispatchRef =
+    React.useRef<?(
+      action:
+        | GenericNavigationAction
+        | (PossiblyStaleNavigationState => GenericNavigationAction),
+    ) => void>();
   const navStateInitializedRef = React.useRef(false);
 
   // We call this here to start the loading process
   // We gate the UI on the fonts loading in AppNavigator
   useLoadCommFonts();
 
-  const [navContext, setNavContext] = React.useState(null);
+  const [navContext, setNavContext] = React.useState<?NavContextType>(null);
   const updateNavContext = React.useCallback(() => {
     if (
       !navStateRef.current ||
@@ -165,7 +174,7 @@ function Root() {
   );
 
   const frozen = useSelector(state => state.frozen);
-  const queuedActionsRef = React.useRef([]);
+  const queuedActionsRef = React.useRef<Array<GenericNavigationAction>>([]);
   const onNavigationStateChange = React.useCallback(
     (state: ?PossiblyStaleNavigationState) => {
       invariant(state, 'nav state should be non-null');
@@ -200,7 +209,8 @@ function Root() {
     [updateNavContext, frozen],
   );
 
-  const navContainerRef = React.useRef();
+  const navContainerRef =
+    React.useRef<?React.ElementRef<typeof NavigationContainer>>();
   const containerRef = React.useCallback(
     (navContainer: ?React.ElementRef<typeof NavigationContainer>) => {
       navContainerRef.current = navContainer;

@@ -23,7 +23,10 @@ import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import Button from '../../components/button.react.js';
 import Modal from '../../components/modal.react.js';
-import { createTagInput } from '../../components/tag-input.react.js';
+import {
+  createTagInput,
+  type BaseTagInput,
+} from '../../components/tag-input.react.js';
 import UserList from '../../components/user-list.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
@@ -56,7 +59,7 @@ function AddUsersModal(props: Props): React.Node {
     $ReadOnlyArray<AccountUserInfo>,
   >([]);
 
-  const tagInputRef = React.useRef();
+  const tagInputRef = React.useRef<?BaseTagInput<AccountUserInfo>>();
   const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
     setUsernameInputText('');
     setUserInfoInputArray([]);

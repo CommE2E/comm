@@ -48,7 +48,7 @@ function ThreadSettingsMediaGallery(
   const galleryItemWidth =
     (width - 32 - (numColumns - 1) * galleryItemGap) / numColumns;
   const { threadID, limit, verticalBounds, offset, activeTab } = props;
-  const [mediaInfos, setMediaInfos] = React.useState([]);
+  const [mediaInfos, setMediaInfos] = React.useState<$ReadOnlyArray<Media>>([]);
   const callFetchThreadMedia = useFetchThreadMedia();
 
   React.useEffect(() => {
@@ -153,7 +153,7 @@ type MediaGalleryItemProps = {
 function MediaGalleryItem(props: MediaGalleryItemProps): React.Node {
   const navigation = useNavigation();
   const route = useRoute();
-  const ref = React.useRef(null);
+  const ref = React.useRef<?React.ElementRef<typeof View>>(null);
   const onLayout = React.useCallback(() => {}, []);
   const { threadID, verticalBounds, memoizedStyles, item, index } = props;
 

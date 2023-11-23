@@ -25,7 +25,7 @@ function UserProfileAvatar(props: Props): React.Node {
 
   const overlayContext = React.useContext(OverlayContext);
 
-  const avatarRef = React.useRef();
+  const avatarRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const onPressAvatar = React.useCallback(() => {
     invariant(overlayContext, 'UserProfileAvatar should have OverlayContext');

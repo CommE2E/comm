@@ -11,6 +11,7 @@ import {
   createMessageInfo,
   isInvalidPinSourceForThread,
 } from 'lib/shared/message-utils.js';
+import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
@@ -22,6 +23,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
+import type { VerticalBounds } from '../types/layout-types.js';
 
 export type MessageResultsScreenParams = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
@@ -37,13 +39,18 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
   const { threadInfo } = route.params;
   const styles = useStyles(unboundStyles);
   const { id: threadID } = threadInfo;
-  const [rawMessageResults, setRawMessageResults] = React.useState([]);
+  const [rawMessageResults, setRawMessageResults] = React.useState<
+    $ReadOnlyArray<RawMessageInfo>,
+  >([]);
 
   const measureMessages = useHeightMeasurer();
-  const [measuredMessages, setMeasuredMessages] = React.useState([]);
+  const [measuredMessages, setMeasuredMessages] = React.useState<
+    $ReadOnlyArray<ChatMessageItemWithHeight>,
+  >([]);
 
-  const [messageVerticalBounds, setMessageVerticalBounds] = React.useState();
-  const scrollViewContainerRef = React.useRef();
+  const [messageVerticalBounds, setMessageVerticalBounds] =
+    React.useState<?VerticalBounds>();
+  const scrollViewContainerRef = React.useRef<?React.ElementRef<typeof View>>();
 
   const callFetchPinnedMessages = useFetchPinnedMessages();
   const userInfos = useSelector(state => state.userStore.userInfos);
