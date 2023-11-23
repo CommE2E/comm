@@ -14,13 +14,19 @@ type Props = {
 };
 function EditSettingButton(props: Props): React.Node {
   const colors = useColors();
+
+  const appliedStyles = React.useMemo(() => {
+    const stylesArr: Array<TextStyle> = [styles.editIcon];
+    if (props.style) {
+      stylesArr.push(props.style);
+    }
+    return stylesArr;
+  }, [props.style]);
+
   if (!props.canChangeSettings) {
     return null;
   }
-  const appliedStyles = [styles.editIcon];
-  if (props.style) {
-    appliedStyles.push(props.style);
-  }
+
   const { modalForegroundSecondaryLabel } = colors;
   return (
     <TouchableOpacity onPress={props.onPress}>
