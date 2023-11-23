@@ -40,6 +40,8 @@ import {
   AnimatedView,
   type ViewStyle,
   type AnimatedViewStyle,
+  type WritableAnimatedStyleObj,
+  type ReanimatedTransform,
 } from '../types/styles.js';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -308,13 +310,15 @@ function createTooltip<
       const { x, y, width, height } = initialCoordinates;
       const { margin, tooltipLocation } = this;
 
-      const style = {};
+      const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
       style.alignItems = 'center';
       style.opacity = this.tooltipContainerOpacity;
 
+      const transform: Array<ReanimatedTransform> = [];
+
       if (tooltipLocation !== 'fixed') {
-        style.transform = [{ translateX: this.tooltipHorizontal }];
+        transform.push({ translateX: this.tooltipHorizontal });
       }
 
       const extraLeftSpace = x;
@@ -341,21 +345,23 @@ function createTooltip<
           verticalBounds.y -
           inputBarHeight +
           padding;
-        style.transform = [{ translateY: this.fixedTooltipVertical }];
+        transform.push({ translateY: this.fixedTooltipVertical });
       } else if (tooltipLocation === 'above') {
         style.bottom =
           dimensions.height - Math.max(y, verticalBounds.y) + margin;
-        style.transform.push({ translateY: this.tooltipVerticalAbove });
+        transform.push({ translateY: this.tooltipVerticalAbove });
       } else {
         style.top =
           Math.min(y + height, verticalBounds.y + verticalBounds.height) +
           margin;
-        style.transform.push({ translateY: this.tooltipVerticalBelow });
+        transform.push({ translateY: this.tooltipVerticalBelow });
       }
 
       if (tooltipLocation !== 'fixed') {
-        style.transform.push({ scale: this.tooltipScale });
+        transform.push({ scale: this.tooltipScale });
       }
+
+      style.transform = transform;
 
       return style;
     }
