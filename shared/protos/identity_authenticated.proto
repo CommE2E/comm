@@ -19,6 +19,20 @@ service IdentityClientService {
   rpc RefreshUserPreKeys(RefreshUserPreKeysRequest)
     returns (identity.client.Empty) {}
 
+  // Called by clients to get all device keys associated with a user in order
+  // to open a new channel of communication on any of their devices.
+  // Specially, this will return the following per device:
+  //   - Identity keys (both Content and Notif Keys)
+  //   - PreKey (including preKey signature)
+  //   - One-time PreKey
+  rpc GetOutboundKeysForUser(identity.client.OutboundKeysForUserRequest)
+    returns (identity.client.OutboundKeysForUserResponse) {}
+  // Called by receivers of a communication request. The reponse will only
+  // return identity keys (both content and notif keys) and related prekeys per
+  // device, but will not contain one-time keys.
+  rpc GetInboundKeysForUser(identity.client.InboundKeysForUserRequest)
+    returns (identity.client.InboundKeysForUserResponse) {}
+
   // Called by user to update password and receive new access token
   rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
     (UpdateUserPasswordStartResponse) {}
