@@ -75,15 +75,17 @@ function permissionMissing(permissions: PushPermissions) {
   return !permissions.alert || !permissions.badge || !permissions.sound;
 }
 
+export type CoreIOSNotificationBackgroundData = {
+  +messageInfosArray: $ReadOnlyArray<string>,
+};
+
 function getCommIOSNotificationsEventEmitter(): NativeEventEmitter<
   $ReadOnly<{
     remoteNotificationsRegistered: [{ +deviceToken: ?string }],
     remoteNotificationsRegistrationFailed: [void],
     notificationReceivedForeground: [CoreIOSNotificationData],
     notificationOpened: [CoreIOSNotificationData],
-    notificationReceivedBackground: [
-      { +messageInfosArray: $ReadOnlyArray<string> },
-    ],
+    notificationReceivedBackground: [CoreIOSNotificationBackgroundData],
   }>,
 > {
   return new NativeEventEmitter(CommIOSNotifications);
