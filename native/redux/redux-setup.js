@@ -67,14 +67,16 @@ function reducer(state: AppState = defaultState, action: Action) {
         isStaff(state.currentUserInfo.id)))
   ) {
     // 1. Construct set of keys expected to be REHYDRATED
-    const defaultKeys = Object.keys(defaultState);
+    const defaultKeys: $ReadOnlyArray<string> = Object.keys(defaultState);
     const expectedKeys = defaultKeys.filter(
       each => !persistConfig.blacklist.includes(each),
     );
     const expectedKeysSet = new Set(expectedKeys);
 
     // 2. Construct set of keys actually REHYDRATED
-    const rehydratedKeys = Object.keys(action.payload ?? {});
+    const rehydratedKeys: $ReadOnlyArray<string> = Object.keys(
+      action.payload ?? {},
+    );
     const rehydratedKeysSet = new Set(rehydratedKeys);
 
     // 3. Determine the difference between the two sets

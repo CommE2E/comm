@@ -116,7 +116,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       this.props.descriptionEditValue !== null &&
       this.props.descriptionEditValue !== undefined
     ) {
-      const textInputStyle = {};
+      const textInputStyle: { height?: number } = {};
       if (
         this.props.descriptionTextHeight !== undefined &&
         this.props.descriptionTextHeight !== null

@@ -1,6 +1,10 @@
 // @flow
 
-import type { RawThreadInfos } from 'lib/types/thread-types.js';
+import type {
+  RawThreadInfos,
+  RawThreadInfo,
+  RoleInfo,
+} from 'lib/types/thread-types.js';
 import { permissionsToRemoveInMigration } from 'lib/utils/migration-utils.js';
 
 function persistMigrationToRemoveSelectRolePermissions(
@@ -13,16 +17,16 @@ function persistMigrationToRemoveSelectRolePermissions(
     return {};
   }
 
-  const updatedThreadInfos = {};
+  const updatedThreadInfos: { [string]: RawThreadInfo } = {};
   for (const threadID in rawThreadInfos) {
     const threadInfo = rawThreadInfos[threadID];
     const { roles } = threadInfo;
 
-    const updatedRoles = {};
+    const updatedRoles: { [string]: RoleInfo } = {};
     for (const roleID in roles) {
       const role = roles[roleID];
       const { permissions: rolePermissions } = role;
-      const updatedPermissions = {};
+      const updatedPermissions: { [string]: boolean } = {};
       for (const permission in rolePermissions) {
         if (!permissionsToRemoveInMigration.includes(permission)) {
           updatedPermissions[permission] = rolePermissions[permission];
