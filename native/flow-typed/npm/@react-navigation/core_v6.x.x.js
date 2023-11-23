@@ -2152,6 +2152,11 @@ declare module '@react-navigation/core' {
     +independent?: boolean,
   |};
 
+  declare export type UnsafeContainerActionEvent = {|
+    +action: GenericNavigationAction,
+    +noop: boolean,
+  |};
+
   declare export type ContainerEventMap = {|
     ...GlobalEventMap<PossiblyStaleNavigationState>,
     +options: {|
@@ -2159,10 +2164,7 @@ declare module '@react-navigation/core' {
       +canPreventDefault: false,
     |},
     +__unsafe_action__: {|
-      +data: {|
-        +action: GenericNavigationAction,
-        +noop: boolean,
-      |},
+      +data: UnsafeContainerActionEvent,
       +canPreventDefault: false,
     |},
   |};
