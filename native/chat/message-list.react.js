@@ -77,7 +77,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +startReached: boolean,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
   +dispatchActionPromise: DispatchActionPromise,
   +fetchMessagesBeforeCursor: (

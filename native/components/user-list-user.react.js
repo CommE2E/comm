@@ -46,7 +46,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 class UserListUser extends React.PureComponent<Props> {
   render(): React.Node {
