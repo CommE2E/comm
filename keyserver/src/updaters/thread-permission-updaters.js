@@ -5,6 +5,7 @@ import _isEqual from 'lodash/fp/isEqual.js';
 
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
@@ -379,9 +380,10 @@ async function changeRoleThreadQuery(
   } else {
     const query = SQL`
       SELECT t.type, t.depth, t.parent_thread_id, t.containing_thread_id,
-        t.default_role, r.permissions
+        r.permissions, r.id
       FROM threads t
-      INNER JOIN roles r ON r.thread = t.id AND r.id = t.default_role
+      INNER JOIN roles r ON r.thread = t.id 
+        AND r.special_role = ${specialRoles.DEFAULT_ROLE}
       WHERE t.id = ${threadID}
     `;
     const [result] = await dbQuery(query);
@@ -390,7 +392,7 @@ async function changeRoleThreadQuery(
     }
     const row = result[0];
     return {
-      roleColumnValue: row.default_role.toString(),
+      roleColumnValue: row.id.toString(),
       depth: row.depth,
       threadType: assertThreadType(row.type),
       parentThreadID: row.parent_thread_id
