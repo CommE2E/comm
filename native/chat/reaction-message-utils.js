@@ -115,15 +115,18 @@ type ReactionSelectionPopoverPositionArgs = {
   +margin: ?number,
 };
 
+type WritableContainerStyle = {
+  position: 'absolute',
+  left?: number,
+  right?: number,
+  bottom?: number,
+  top?: number,
+  ...
+};
+type ContainerStyle = $ReadOnly<WritableContainerStyle>;
+
 type ReactionSelectionPopoverPosition = {
-  +containerStyle: {
-    +position: 'absolute',
-    +left?: number,
-    +right?: number,
-    +bottom?: number,
-    +top?: number,
-    ...
-  },
+  +containerStyle: ContainerStyle,
   +popoverLocation: 'above' | 'below',
 };
 function useReactionSelectionPopoverPosition({
@@ -158,9 +161,9 @@ function useReactionSelectionPopoverPosition({
   const containerStyle = React.useMemo(() => {
     const { x, width, height } = initialCoordinates;
 
-    const style = {};
-
-    style.position = 'absolute';
+    const style: WritableContainerStyle = {
+      position: 'absolute',
+    };
 
     const extraLeftSpace = x;
     const extraRightSpace = windowWidth - width - x;

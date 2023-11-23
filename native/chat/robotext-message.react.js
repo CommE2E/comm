@@ -196,7 +196,7 @@ function RobotextMessage(props: Props): React.Node {
 
   const contentAndHeaderOpacity = useContentAndHeaderOpacity(item);
 
-  const viewStyle = {};
+  const viewStyle: { height?: number } = {};
   if (!__DEV__) {
     // We don't force view height in dev mode because we
     // want to measure it in Message to see if it's correct

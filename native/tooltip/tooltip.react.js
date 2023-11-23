@@ -368,13 +368,13 @@ function createTooltip<
         ...navAndRouteForFlow
       } = this.props;
 
-      const tooltipContainerStyle = [styles.itemContainer];
+      const tooltipContainerStyle: Array<ViewStyle> = [styles.itemContainer];
 
       if (this.tooltipLocation === 'fixed') {
         tooltipContainerStyle.push(styles.itemContainerFixed);
       }
 
-      const items = [
+      const items: Array<React.Node> = [
         <MenuComponent
           {...navAndRouteForFlow}
           tooltipItem={this.getTooltipItem()}

@@ -134,7 +134,11 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../themes/colors.js';
 import type { LayoutEvent, ImagePasteEvent } from '../types/react-native.js';
-import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
+import {
+  type AnimatedViewStyle,
+  AnimatedView,
+  type ViewStyle,
+} from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
@@ -818,7 +822,9 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       </TouchableOpacity>
     );
     const threadColor = `#${this.props.threadInfo.color}`;
-    const expandoButtonsViewStyle = [this.props.styles.innerExpandoButtons];
+    const expandoButtonsViewStyle: Array<ViewStyle> = [
+      this.props.styles.innerExpandoButtons,
+    ];
     if (this.isEditMode()) {
       expandoButtonsViewStyle.push({ display: 'none' });
     }

@@ -106,6 +106,7 @@ import {
   InputStateContext,
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
+  type MessagePendingUploads,
 } from './input-state.js';
 import { encryptMedia } from '../media/encryption-utils.js';
 import { disposeTempFile } from '../media/file-utils.js';
@@ -123,7 +124,10 @@ type UploadFileInput = {
   +selection: NativeMediaSelection,
   +ids: MediaIDs,
 };
-type CompletedUploads = { +[localMessageID: string]: ?Set<string> };
+type WritableCompletedUploads = {
+  [localMessageID: string]: ?$ReadOnlySet<string>,
+};
+type CompletedUploads = $ReadOnly<WritableCompletedUploads>;
 
 type BaseProps = {
   +children: React.Node,
@@ -182,7 +186,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   pendingSidebarCreationMessageLocalIDs = new Set<string>();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
-    const completedUploads = {};
+    const completedUploads: WritableCompletedUploads = {};
     for (const localMessageID in state.pendingUploads) {
       const messagePendingUploads = state.pendingUploads[localMessageID];
       const rawMessageInfo = props.messageStoreMessages[localMessageID];
@@ -228,7 +232,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       prevState,
     );
 
-    const newPendingUploads = {};
+    const newPendingUploads: PendingMultimediaUploads = {};
     let pendingUploadsChanged = false;
     const readyMessageIDs = [];
     for (const localMessageID in this.state.pendingUploads) {
@@ -255,7 +259,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         continue;
       }
 
-      const newUploads = {};
+      const newUploads: MessagePendingUploads = {};
       let uploadsChanged = false;
       for (const localUploadID in messagePendingUploads) {
         if (!completedUploadIDs.has(localUploadID)) {
@@ -618,7 +622,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     const uploadFileInputs = [],
-      media = [];
+      media: Array<Media> = [];
     for (const selection of selections) {
       const localMediaID = getNextLocalUploadID();
       let ids;
@@ -656,7 +660,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadFileInputs.push({ selection, ids });
     }
 
-    const pendingUploads = {};
+    const pendingUploads: MessagePendingUploads = {};
     for (const uploadFileInput of uploadFileInputs) {
       const { localMediaID } = uploadFileInput.ids;
       pendingUploads[localMediaID] = {
@@ -730,11 +734,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { localMediaID } = ids;
     const start = selection.sendTime;
     const steps: Array<MediaMissionStep> = [selection];
-    let encryptionSteps = [];
+    let encryptionSteps: $ReadOnlyArray<MediaMissionStep> = [];
     let serverID;
     let userTime;
     let errorMessage;
-    let reportPromise;
+    let reportPromise: ?Promise<$ReadOnlyArray<MediaMissionStep>>;
     const filesToDispose = [];
 
     const onUploadFinished = async (result: MediaMissionResult) => {
@@ -1194,7 +1198,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       'InputStateContainer.uploadBlob sent incorrect input',
     );
 
-    const parameters = {};
+    const parameters: { [key: string]: mixed } = {};
     parameters.cookie = cookie;
     parameters.filename = name;
 

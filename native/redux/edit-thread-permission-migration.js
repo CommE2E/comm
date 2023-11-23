@@ -61,7 +61,7 @@ function addDetailedThreadEditPermissionsToRole(
 function migrateThreadStoreForEditThreadPermissions(threadInfos: {
   +[id: string]: RawThreadInfo,
 }): RawThreadInfos {
-  const newThreadInfos = {};
+  const newThreadInfos: { [string]: RawThreadInfo } = {};
   for (const threadID in threadInfos) {
     const threadInfo: RawThreadInfo = threadInfos[threadID];
     const updatedMembers = threadInfo.members.map(member =>
@@ -74,7 +74,7 @@ function migrateThreadStoreForEditThreadPermissions(threadInfos: {
       threadID,
     );
 
-    const updatedRoles = {};
+    const updatedRoles: { [string]: RoleInfo } = {};
     for (const roleID in threadInfo.roles) {
       updatedRoles[roleID] = addDetailedThreadEditPermissionsToRole(
         threadInfo.roles[roleID],

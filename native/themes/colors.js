@@ -283,7 +283,7 @@ function stylesFromColors<IS: Styles>(
   obj: IS,
   themeColors: Colors,
 ): StyleSheetOf<IS> {
-  const result = {};
+  const result: Styles = {};
   for (const key in obj) {
     const style = obj[key];
     const filledInStyle = { ...style };
