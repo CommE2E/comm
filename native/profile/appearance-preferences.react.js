@@ -96,7 +96,7 @@ class AppearancePreferences extends React.PureComponent<Props> {
   render() {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
-    const options = [];
+    const options: Array<React.Node> = [];
     for (let i = 0; i < optionTexts.length; i++) {
       const { themePreference, text } = optionTexts[i];
       const icon =

@@ -17,6 +17,7 @@ import {
   xxLargeAvatarSize,
 } from './avatar-constants.js';
 import Multimedia from '../media/multimedia.react.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type Props = {
   +avatarInfo: ResolvedClientAvatar,
@@ -42,7 +43,10 @@ function Avatar(props: Props): React.Node {
   }, [size]);
 
   const emojiContainerStyle = React.useMemo(() => {
-    const containerStyles = [styles.emojiContainer, containerSizeStyle];
+    const containerStyles: Array<ViewStyle> = [
+      styles.emojiContainer,
+      containerSizeStyle,
+    ];
     if (avatarInfo.type === 'emoji') {
       const backgroundColor = { backgroundColor: `#${avatarInfo.color}` };
       containerStyles.push(backgroundColor);
