@@ -68,6 +68,7 @@ import {
   iosPushPermissionResponseReceived,
   CommIOSNotifications,
   getCommIOSNotificationsEventEmitter,
+  type CoreIOSNotificationBackgroundData,
 } from './ios.js';
 import {
   type MessageListParams,
@@ -591,7 +592,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   };
 
-  iosBackgroundNotificationReceived = backgroundData => {
+  iosBackgroundNotificationReceived = (
+    backgroundData: CoreIOSNotificationBackgroundData,
+  ) => {
     const convertedMessageInfos = backgroundData.messageInfosArray
       .flatMap(convertNotificationMessageInfoToNewIDSchema)
       .filter(Boolean);
