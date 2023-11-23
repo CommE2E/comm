@@ -10,6 +10,8 @@ import type {
   StackNavigationHelpers,
   ScreenListeners,
   StackRouterOptions,
+  Descriptor,
+  Route,
 } from '@react-navigation/core';
 import {
   useNavigationBuilder,
@@ -24,7 +26,11 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 
 import { values } from 'lib/utils/objects.js';
 
-import { OverlayContext } from './overlay-context.js';
+import {
+  OverlayContext,
+  type VisibleOverlay,
+  type ScrollBlockingModalStatus,
+} from './overlay-context.js';
 import OverlayRouter from './overlay-router.js';
 import type {
   OverlayRouterExtraNavigationHelpers,
@@ -52,6 +58,34 @@ export type OverlayNavigationProp<
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
+type Scene = {
+  +route: Route<>,
+  +descriptor: Descriptor<OverlayNavigationHelpers<>, {}>,
+  +context: {
+    +position: Value,
+    +isDismissing: boolean,
+  },
+  +ordering: {
+    +routeIndex: number,
+  },
+};
+
+type SceneData = $ReadOnly<{
+  ...Scene,
+  +context: $ReadOnly<{
+    ...$PropertyType<Scene, 'context'>,
+    +visibleOverlays: $ReadOnlyArray<VisibleOverlay>,
+    +scrollBlockingModalStatus: ScrollBlockingModalStatus,
+    +setScrollBlockingModalStatus: ScrollBlockingModalStatus => void,
+    +resetScrollBlockingModalStatus: () => void,
+  }>,
+  +ordering: $ReadOnly<{
+    ...$PropertyType<Scene, 'ordering'>,
+    +creationTime: number,
+  }>,
+  +listeners: $ReadOnlyArray<Animated.Node>,
+}>;
+
 type Props = $Exact<
   NavigatorPropsBase<
     {},
@@ -77,7 +111,7 @@ const OverlayNavigator = React.memo<Props>(
     });
     const curIndex = state.index;
 
-    const positionRefs = React.useRef({});
+    const positionRefs = React.useRef<{ [string]: Animated.Value }>({});
     const positions = positionRefs.current;
 
     const firstRenderRef = React.useRef(true);
@@ -117,18 +151,19 @@ const OverlayNavigator = React.memo<Props>(
       [positions, routes, curIndex],
     );
 
-    const prevScenesRef = React.useRef();
+    const prevScenesRef = React.useRef<?$ReadOnlyArray<Scene>>();
     const prevScenes = prevScenesRef.current;
 
-    const visibleOverlayEntryForNewScene = scene => {
+    const visibleOverlayEntryForNewScene = (scene: Scene) => {
       const { route } = scene;
       if (route.name === TabNavigatorRouteName) {
         // We don't consider the TabNavigator at the bottom to be an overlay
         return undefined;
       }
-      const presentedFrom = route.params
-        ? route.params.presentedFrom
-        : undefined;
+      const presentedFrom =
+        typeof route.params?.presentedFrom === 'string'
+          ? route.params.presentedFrom
+          : undefined;
       return {
         routeKey: route.key,
         routeName: route.name,
@@ -137,7 +172,7 @@ const OverlayNavigator = React.memo<Props>(
       };
     };
 
-    const visibleOverlaysRef = React.useRef();
+    const visibleOverlaysRef = React.useRef<?$ReadOnlyArray<VisibleOverlay>>();
     if (!visibleOverlaysRef.current) {
       visibleOverlaysRef.current = scenes
         .map(visibleOverlayEntryForNewScene)
@@ -150,7 +185,9 @@ const OverlayNavigator = React.memo<Props>(
     // each screen. Note that we also include the setter in OverlayContext. We
     // do this so that screens can freeze ScrollViews as quickly as possible to
     // avoid drags after onLongPress is triggered
-    const getScrollBlockingModalStatus = data => {
+    const getScrollBlockingModalStatus = (
+      data: $ReadOnlyArray<Scene | SceneData>,
+    ) => {
       let status = 'closed';
       for (const scene of data) {
         if (!scrollBlockingModals.includes(scene.route.name)) {
@@ -173,7 +210,7 @@ const OverlayNavigator = React.memo<Props>(
       );
     }, []);
 
-    const sceneDataForNewScene = scene => ({
+    const sceneDataForNewScene = (scene: Scene) => ({
       ...scene,
       context: {
         ...scene.context,
@@ -207,7 +244,7 @@ const OverlayNavigator = React.memo<Props>(
 
     // We need state to continue rendering screens while they are dismissing
     const [sceneData, setSceneData] = React.useState(() => {
-      const newSceneData = {};
+      const newSceneData: { [string]: SceneData } = {};
       for (const scene of scenes) {
         const { key } = scene.route;
         newSceneData[key] = sceneDataForNewScene(scene);
@@ -235,7 +272,7 @@ const OverlayNavigator = React.memo<Props>(
     const updatedSceneData = { ...sceneData };
     let sceneDataChanged = false;
     if (prevScenes && scenes !== prevScenes) {
-      const currentKeys = new Set();
+      const currentKeys = new Set<string>();
       for (const scene of scenes) {
         const { key } = scene.route;
         currentKeys.add(key);
@@ -325,14 +362,14 @@ const OverlayNavigator = React.memo<Props>(
                   'visibleOverlaysRef should be set',
                 );
                 const newVisibleOverlays = curVisibleOverlays.filter(
-                  overlay => overlay.routeKey !== key,
+                  (overlay: VisibleOverlay) => overlay.routeKey !== key,
                 );
                 if (newVisibleOverlays.length === curVisibleOverlays.length) {
                   return;
                 }
                 visibleOverlaysRef.current = newVisibleOverlays;
                 setSceneData(curSceneData => {
-                  const newSceneData = {};
+                  const newSceneData: { [string]: SceneData } = {};
                   for (const sceneKey in curSceneData) {
                     if (sceneKey === key) {
                       continue;
