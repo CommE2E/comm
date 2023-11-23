@@ -101,7 +101,7 @@ function ThreadSettingsMediaGallery(
   }, [activeTab, mediaInfos]);
 
   const renderItem = React.useCallback(
-    ({ item, index }) => (
+    ({ item, index }: { +item: Media, +index: number, ... }) => (
       <MediaGalleryItem
         item={item}
         index={index}

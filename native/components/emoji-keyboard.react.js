@@ -31,7 +31,7 @@ const initializationCallback = async () => {
   return JSON.parse(recentlyUsedEmojis ?? '[]');
 };
 
-const onStateChangeCallback = nextRecentlyUsedEmojis =>
+const onStateChangeCallback = (nextRecentlyUsedEmojis: $ReadOnlyArray<mixed>) =>
   AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextRecentlyUsedEmojis));
 
 const useRecentPicksPersistenceArgs = {

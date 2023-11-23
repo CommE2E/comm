@@ -32,6 +32,14 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
 
+type WebViewMessageEvent = {
+  +nativeEvent: {
+    +data: string,
+    ...
+  },
+  ...
+};
+
 type Props = {
   +onClosed: () => mixed,
   +onClosing: () => mixed,
@@ -119,7 +127,7 @@ function SIWEPanel(props: Props): React.Node {
   const closeBottomSheet = bottomSheetRef.current?.close;
   const { closing, onSuccessfulWalletSignature } = props;
   const handleMessage = React.useCallback(
-    async event => {
+    async (event: WebViewMessageEvent) => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
       if (data.type === 'siwe_success') {
         const { address, message, signature } = data;

@@ -48,7 +48,7 @@ type Props = {
   +styles: typeof unboundStyles,
 };
 class SectionFooter extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     return (
       <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
         <View style={this.props.styles.sectionFooter}>

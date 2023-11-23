@@ -45,7 +45,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const { style, spinnerColor, invisibleLoad, uri, placeholder } = this.props;
     const source = { uri };
 

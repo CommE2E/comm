@@ -377,7 +377,7 @@ class Tag extends React.PureComponent<TagProps> {
     }
   }
 
-  render() {
+  render(): React.Node {
     return (
       <TouchableOpacity
         onPress={this.onPress}
