@@ -34,7 +34,7 @@ function ThreadAncestorsLabel(props: Props): React.Node {
   );
 
   const ancestorPath = React.useMemo(() => {
-    const path = [];
+    const path: Array<React.Node> = [];
     for (const thread of resolvedAncestorThreads) {
       path.push(<Text key={thread.id}>{thread.uiName}</Text>);
       path.push(

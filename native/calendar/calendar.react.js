@@ -902,7 +902,7 @@ class Calendar extends React.PureComponent<Props, State> {
       return;
     }
 
-    const visibleEntries = {};
+    const visibleEntries: { [string]: boolean } = {};
     for (const token of info.viewableItems) {
       if (token.item.itemType === 'entryInfo') {
         visibleEntries[entryKey(token.item.entryInfo)] = true;

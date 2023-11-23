@@ -56,7 +56,7 @@ function addManagePinsThreadPermissionToRole(role: RoleInfo): RoleInfo {
 function persistMigrationForManagePinsThreadPermission(
   threadInfos: ThreadStoreThreadInfos,
 ): ThreadStoreThreadInfos {
-  const newThreadInfos = {};
+  const newThreadInfos: { [string]: RawThreadInfo } = {};
   for (const threadID in threadInfos) {
     const threadInfo: RawThreadInfo = threadInfos[threadID];
     const updatedMembers = threadInfo.members.map(member =>
@@ -69,7 +69,7 @@ function persistMigrationForManagePinsThreadPermission(
       threadID,
     );
 
-    const updatedRoles = {};
+    const updatedRoles: { [string]: RoleInfo } = {};
     for (const roleID in threadInfo.roles) {
       updatedRoles[roleID] = addManagePinsThreadPermissionToRole(
         threadInfo.roles[roleID],

@@ -16,6 +16,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useHeightMeasurer } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react';
+import type { NativeChatMessageItem } from './message-data.react.js';
 import MessageResult from './message-result.react.js';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils.js';
@@ -68,41 +69,42 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
     messageListData(threadInfo.id, translatedMessageResults),
   );
 
-  const sortedUniqueChatMessageInfoItems = React.useMemo(() => {
-    if (!chatMessageInfos) {
-      return [];
-    }
+  const sortedUniqueChatMessageInfoItems: $ReadOnlyArray<NativeChatMessageItem> =
+    React.useMemo(() => {
+      if (!chatMessageInfos) {
+        return [];
+      }
 
-    const chatMessageInfoItems = chatMessageInfos.filter(
-      item =>
-        item.itemType === 'message' &&
-        item.isPinned &&
-        !isInvalidPinSourceForThread(item.messageInfo, threadInfo),
-    );
-
-    // By the nature of using messageListData and passing in
-    // the desired translatedMessageResults as additional
-    // messages, we will have duplicate ChatMessageInfoItems.
-    const uniqueChatMessageInfoItemsMap = new Map();
-    chatMessageInfoItems.forEach(
-      item =>
-        item.messageInfo &&
-        item.messageInfo.id &&
-        uniqueChatMessageInfoItemsMap.set(item.messageInfo.id, item),
-    );
-
-    // Push the items in the order they appear in the rawMessageResults
-    // since the messages fetched from the server are already sorted
-    // in the order of pin_time (newest first).
-    const sortedChatMessageInfoItems = [];
-    for (let i = 0; i < rawMessageResults.length; i++) {
-      sortedChatMessageInfoItems.push(
-        uniqueChatMessageInfoItemsMap.get(rawMessageResults[i].id),
+      const chatMessageInfoItems = chatMessageInfos.filter(
+        item =>
+          item.itemType === 'message' &&
+          item.isPinned &&
+          !isInvalidPinSourceForThread(item.messageInfo, threadInfo),
       );
-    }
 
-    return sortedChatMessageInfoItems.filter(Boolean);
-  }, [chatMessageInfos, rawMessageResults, threadInfo]);
+      // By the nature of using messageListData and passing in
+      // the desired translatedMessageResults as additional
+      // messages, we will have duplicate ChatMessageInfoItems.
+      const uniqueChatMessageInfoItemsMap = new Map();
+      chatMessageInfoItems.forEach(
+        item =>
+          item.messageInfo &&
+          item.messageInfo.id &&
+          uniqueChatMessageInfoItemsMap.set(item.messageInfo.id, item),
+      );
+
+      // Push the items in the order they appear in the rawMessageResults
+      // since the messages fetched from the server are already sorted
+      // in the order of pin_time (newest first).
+      const sortedChatMessageInfoItems = [];
+      for (let i = 0; i < rawMessageResults.length; i++) {
+        sortedChatMessageInfoItems.push(
+          uniqueChatMessageInfoItemsMap.get(rawMessageResults[i].id),
+        );
+      }
+
+      return sortedChatMessageInfoItems.filter(Boolean);
+    }, [chatMessageInfos, rawMessageResults, threadInfo]);
 
   const measureCallback = React.useCallback(
     (listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>) => {
