@@ -51,11 +51,15 @@ import type {
   KeyserverStore,
   KeyserverInfo,
 } from 'lib/types/keyserver-types.js';
-import { messageTypes } from 'lib/types/message-types-enum.js';
+import {
+  messageTypes,
+  type MessageType,
+} from 'lib/types/message-types-enum.js';
 import {
   type LocalMessageInfo,
   type MessageStore,
   type MessageStoreThreads,
+  type RawMessageInfo,
 } from 'lib/types/message-types.js';
 import type {
   ReportStore,
@@ -480,17 +484,19 @@ const migrations = {
 
     // 3. Unshim translated `RawMessageInfos` to get the TOGGLE_PIN messages
     const unshimmedRawMessageInfos = rawMessageInfos.map(messageInfo =>
-      unshimFunc(messageInfo, new Set([messageTypes.TOGGLE_PIN])),
+      unshimFunc(messageInfo, new Set<MessageType>([messageTypes.TOGGLE_PIN])),
     );
 
     // 4. Filter out non-TOGGLE_PIN messages
-    const filteredRawMessageInfos = unshimmedRawMessageInfos.filter(
-      messageInfo => messageInfo.type === messageTypes.TOGGLE_PIN,
-    );
+    const filteredRawMessageInfos = unshimmedRawMessageInfos
+      .map(messageInfo =>
+        messageInfo.type === messageTypes.TOGGLE_PIN ? messageInfo : null,
+      )
+      .filter(Boolean);
 
     // 5. We want only the last TOGGLE_PIN message for each message ID,
     // so 'pin', 'unpin', 'pin' don't count as 3 pins, but only 1.
-    const lastMessageIDToRawMessageInfoMap = new Map();
+    const lastMessageIDToRawMessageInfoMap = new Map<string, RawMessageInfo>();
     for (const messageInfo of filteredRawMessageInfos) {
       const { targetMessageID } = messageInfo;
       lastMessageIDToRawMessageInfoMap.set(targetMessageID, messageInfo);
@@ -500,7 +506,7 @@ const migrations = {
     );
 
     // 6. Create a Map of threadIDs to pinnedCount
-    const threadIDsToPinnedCount = new Map();
+    const threadIDsToPinnedCount = new Map<string, number>();
     for (const messageInfo of lastMessageIDToRawMessageInfos) {
       const { threadID, type } = messageInfo;
       if (type === messageTypes.TOGGLE_PIN) {
