@@ -93,7 +93,7 @@ type Props = {
   +genesisThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
   +messageListData: ?$ReadOnlyArray<NativeChatMessageItem>,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +measureMessages: MessagesMeasurer,

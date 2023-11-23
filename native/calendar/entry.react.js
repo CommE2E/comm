@@ -200,7 +200,7 @@ type Props = {
   // Redux state
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   // Nav state
   +threadPickerActive: boolean,
   +navigateToThread: (params: MessageListParams) => void,

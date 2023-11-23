@@ -109,7 +109,7 @@ type Props = {
   +removeUserLoadingStatus: LoadingStatus,
   +changeRoleLoadingStatus: LoadingStatus,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   // withOverlayContext

@@ -153,7 +153,7 @@ type Props = {
   +preRequestUserState: PreRequestUserState,
   +logOutLoading: boolean,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +dispatchActionPromise: DispatchActionPromise,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   +staffCanSee: boolean,
