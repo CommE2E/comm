@@ -9,11 +9,12 @@ import type {
 } from 'lib/types/thread-types.js';
 
 type ThreadStoreThreadInfos = RawThreadInfos;
-type TargetMemberInfo = MemberInfo | ThreadCurrentUserInfo;
 
 const adminRoleName = 'Admins';
 
-function addManagePinsThreadPermissionToUser(
+function addManagePinsThreadPermissionToUser<
+  TargetMemberInfo: MemberInfo | ThreadCurrentUserInfo,
+>(
   threadInfo: RawThreadInfo,
   member: TargetMemberInfo,
   threadID: string,
