@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions.js';
 import {
   rawThreadInfoFromServerThreadInfo,
@@ -100,7 +101,8 @@ async function fetchServerThreadInfos(
   const whereClause = filter ? constructWhereClause(filter) : '';
 
   const rolesQuery = SQL`
-    SELECT t.id, t.default_role, r.id AS role, r.name, r.permissions
+    SELECT t.id, r.id AS role, r.name, r.permissions,
+      r.special_role = ${specialRoles.DEFAULT_ROLE} AS is_default
   `
     .append(primaryFetchClause)
     .append(
@@ -236,7 +238,7 @@ async function fetchServerThreadInfos(
         id: role,
         name: rolesRow.name,
         permissions: JSON.parse(rolesRow.permissions),
-        isDefault: role === rolesRow.default_role.toString(),
+        isDefault: Boolean(rolesRow.is_default),
       };
     }
   }
