@@ -20,6 +20,7 @@ import { handleSquirrelEvent } from './handle-squirrel-event.js';
 import {
   listenForNotifications,
   registerForNotifications,
+  showNewNotification,
 } from './push-notifications.js';
 
 const isDev = process.env.ENV === 'dev';
@@ -291,6 +292,26 @@ const run = () => {
   (async () => {
     await app.whenReady();
 
+    const handleNotificationClick = (threadID?: string) => {
+      if (mainWindow && threadID) {
+        mainWindow.webContents.send('on-notification-clicked', {
+          threadID,
+        });
+      } else if (threadID) {
+        show(`chat/thread/${threadID}/`);
+      } else {
+        show();
+      }
+    };
+
+    const handleEncryptedNotification = (encryptedPayload: string) => {
+      if (mainWindow) {
+        mainWindow.webContents.send('on-encrypted-notification', {
+          encryptedPayload,
+        });
+      }
+    };
+
     if (app.isPackaged) {
       try {
         initAutoUpdate();
@@ -298,15 +319,10 @@ const run = () => {
         console.error(error);
       }
 
-      listenForNotifications(threadID => {
-        if (mainWindow) {
-          mainWindow.webContents.send('on-notification-clicked', {
-            threadID,
-          });
-        } else {
-          show(`chat/thread/${threadID}/`);
-        }
-      });
+      listenForNotifications(
+        handleNotificationClick,
+        handleEncryptedNotification,
+      );
       ipcMain.on('fetch-device-token', sendDeviceTokenToWebApp);
     }
 
@@ -318,6 +334,12 @@ const run = () => {
     ipcMain.on('get-version', event => {
       event.returnValue = app.getVersion().toString();
     });
+    ipcMain.on(
+      'show-decrypted-notification',
+      (event, decryptedNotification) => {
+        showNewNotification(decryptedNotification, handleNotificationClick);
+      },
+    );
 
     show();
 
