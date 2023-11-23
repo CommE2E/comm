@@ -634,6 +634,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
     },
   ],
+  [
+    51,
+    async () =>
+      dbQuery(SQL`
+        ALTER TABLE invite_links 
+          ADD COLUMN blob_holder char(36) CHARSET latin1
+      `),
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
