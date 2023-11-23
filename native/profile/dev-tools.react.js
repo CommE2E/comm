@@ -98,7 +98,7 @@ type Props = {
   +urlPrefix: string,
   +customServer: ?string,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +dispatch: Dispatch,
 };
 class DevTools extends React.PureComponent<Props> {

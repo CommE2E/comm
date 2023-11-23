@@ -174,7 +174,7 @@ type Props = {
   +loadingStatus: LoadingStatus,
   +connectionStatus: ConnectionStatus,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,

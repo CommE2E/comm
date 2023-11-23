@@ -276,7 +276,7 @@ type Props = {
   +parentThreadInfo: ?ResolvedThreadInfo | ?MinimallyEncodedResolvedThreadInfo,
   +childThreadInfos: ?$ReadOnlyArray<ResolvedThreadInfo>,
   +somethingIsSaving: boolean,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
@@ -758,7 +758,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           | ?ResolvedThreadInfo
           | ?MinimallyEncodedResolvedThreadInfo,
         navigate: ThreadSettingsNavigate,
-        styles: typeof unboundStyles,
+        styles: $ReadOnly<typeof unboundStyles>,
         userInfos: UserInfos,
         viewerID: ?string,
       ) => {

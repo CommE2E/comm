@@ -289,7 +289,7 @@ type Props = {
   +nextLocalID: string,
   +userInfos: UserInfos,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
   +openCamera: () => mixed,
   +isActive: boolean,
