@@ -56,6 +56,7 @@ const baseNoDataAfterPolicyAcknowledgmentSelector: (
     ) =>
       connectivity.connected &&
       currentAsOf === 0 &&
+      values(userPolicies).length > 0 &&
       values(userPolicies).every(policy => policy.isAcknowledged),
   );
 
