@@ -53,7 +53,9 @@ function updateRolesAndPermissions(
 ): ThreadStoreThreadInfos {
   const updatedThreadStoreInfos = { ...threadStoreInfos };
 
-  const recursivelyUpdateRoles = (node: $ReadOnly<ThreadTraversalNode>) => {
+  const recursivelyUpdateRoles = (
+    node: $ReadOnly<ThreadTraversalNode>,
+  ): void => {
     const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
     const computedRolePermissionBlobs = getRolePermissionBlobs(threadInfo.type);
 
@@ -69,13 +71,13 @@ function updateRolesAndPermissions(
       roles,
     };
 
-    return node.children?.map(recursivelyUpdateRoles);
+    node.children?.map(recursivelyUpdateRoles);
   };
 
   const recursivelyUpdatePermissions = (
     node: $ReadOnly<ThreadTraversalNode>,
     memberToThreadPermissionsFromParent: ?MemberToThreadPermissionsFromParent,
-  ) => {
+  ): void => {
     const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
 
     const updatedMembers = [];
@@ -112,7 +114,7 @@ function updateRolesAndPermissions(
       members: updatedMembers,
     };
 
-    return node.children?.map(child =>
+    node.children?.map(child =>
       recursivelyUpdatePermissions(child, memberToThreadPermissionsForChildren),
     );
   };
@@ -120,7 +122,7 @@ function updateRolesAndPermissions(
   const recursivelyUpdateCurrentMemberPermissions = (
     node: $ReadOnly<ThreadTraversalNode>,
     permissionsFromParent: ?ThreadPermissionsBlob,
-  ) => {
+  ): void => {
     const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
     const { currentUser, roles } = threadInfo;
     const { role } = currentUser;
@@ -144,7 +146,7 @@ function updateRolesAndPermissions(
       },
     };
 
-    return node.children?.map(child =>
+    node.children?.map(child =>
       recursivelyUpdateCurrentMemberPermissions(
         child,
         makePermissionsForChildrenBlob(computedPermissions),
