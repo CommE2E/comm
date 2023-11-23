@@ -1,5 +1,6 @@
 // @flow
 
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import {
   getRolePermissionBlobs,
   getUniversalCommunityRootPermissionsBlob,
@@ -18,7 +19,8 @@ async function validateRolePermissions() {
   // Get all roles for existing communities since custom roles are at a
   // community-level rather than a thread-level.
   const fetchRolesQuery = SQL`
-		SELECT r.id, r.name, r.permissions, r.thread, t.type, t.default_role
+		SELECT r.id, r.name, r.permissions, r.thread, 
+    r.special_role = ${specialRoles.DEFAULT_ROLE} AS is_default, t.type
 		FROM roles r
 		INNER JOIN threads t
 			ON t.id = r.thread
@@ -33,9 +35,9 @@ async function validateRolePermissions() {
     const roleID = result.id.toString();
     const roleName = result.name;
     const existingRolePermissions = JSON.parse(result.permissions);
+    const roleIsDefaultRole = Boolean(result.is_default);
     const threadID = result.thread.toString();
     const threadType = result.type;
-    const threadDefaultRole = result.default_role.toString();
 
     const universalCommunityPermissions =
       getUniversalCommunityRootPermissionsBlob(threadType);
@@ -48,7 +50,7 @@ async function validateRolePermissions() {
     // The case of a role being edited is handled below.
     const expectedPermissionBlobs = getRolePermissionBlobs(threadType);
     let baseExpectedPermissionBlob;
-    if (roleID === threadDefaultRole) {
+    if (roleIsDefaultRole) {
       baseExpectedPermissionBlob = expectedPermissionBlobs.Members;
     } else if (roleName === 'Admins') {
       baseExpectedPermissionBlob = expectedPermissionBlobs.Admins;
