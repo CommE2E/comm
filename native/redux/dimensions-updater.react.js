@@ -86,7 +86,8 @@ function DimensionsUpdater(): null {
     if (keyboardShowing) {
       return;
     }
-    let updates = dimensionsUpdateFromMetrics({ frame, insets });
+    let updates: Partial<$ReadOnly<{ ...DimensionsInfo }>> =
+      dimensionsUpdateFromMetrics({ frame, insets });
     if (updates.height && updates.width && updates.height !== updates.width) {
       updates = {
         ...updates,

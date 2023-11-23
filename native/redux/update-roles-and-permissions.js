@@ -22,7 +22,7 @@ type ThreadTraversalNode = {
 function constructThreadTraversalNodes(
   threadStoreInfos: ThreadStoreThreadInfos,
 ): $ReadOnlyArray<$ReadOnly<ThreadTraversalNode>> {
-  const parentThreadMap = {};
+  const parentThreadMap: { [string]: Array<string> } = {};
 
   for (const threadInfo of values(threadStoreInfos)) {
     const parentThreadID = threadInfo.parentThreadID ?? 'root';
@@ -79,7 +79,9 @@ function updateRolesAndPermissions(
     const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
 
     const updatedMembers = [];
-    const memberToThreadPermissionsForChildren = {};
+    const memberToThreadPermissionsForChildren: {
+      [string]: ?ThreadPermissionsBlob,
+    } = {};
     for (const member: MemberInfo of threadInfo.members) {
       const { id, role } = member;
 

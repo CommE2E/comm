@@ -26,7 +26,7 @@ function flattenDrawerItemsData(
   expanded: $ReadOnlyArray<string>,
   prevIndentation: ?number,
 ): $ReadOnlyArray<CommunityDrawerItemDataFlattened> {
-  let results = [];
+  let results: Array<CommunityDrawerItemDataFlattened> = [];
 
   for (const item of data) {
     const isOpen = expanded.includes(item.threadInfo.id);

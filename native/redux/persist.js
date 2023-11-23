@@ -66,7 +66,10 @@ import {
   type ConnectionInfo,
 } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
-import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  ClientDBThreadInfo,
+  RawThreadInfo,
+} from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
@@ -252,7 +255,7 @@ const migrations = {
     },
   }),
   [19]: state => {
-    const threadInfos = {};
+    const threadInfos: { [string]: RawThreadInfo } = {};
     for (const threadID in state.threadStore.threadInfos) {
       const threadInfo = state.threadStore.threadInfos[threadID];
       const { visibilityRules, ...rest } = threadInfo;
@@ -352,7 +355,7 @@ const migrations = {
     },
   }),
   [28]: state => {
-    const threadParentToChildren = {};
+    const threadParentToChildren: { [string]: string[] } = {};
     for (const threadID in state.threadStore.threadInfos) {
       const threadInfo = state.threadStore.threadInfos[threadID];
       const parentThreadInfo = threadInfo.parentThreadID
@@ -372,7 +375,7 @@ const migrations = {
       return state;
     }
 
-    const threadInfos = {};
+    const threadInfos: { [string]: RawThreadInfo } = {};
     const stack = [...rootIDs];
     while (stack.length > 0) {
       const threadID = stack.shift();
@@ -884,7 +887,7 @@ const migrations = {
       keyserverStore: { keyserverInfos },
       ...rest
     } = state;
-    const newKeyserverInfos = {};
+    const newKeyserverInfos: { [string]: KeyserverInfo } = {};
     for (const key in keyserverInfos) {
       newKeyserverInfos[key] = {
         ...keyserverInfos[key],
@@ -1029,7 +1032,7 @@ type PersistedKeyserverStore = {
 };
 const keyserverStoreTransform: Transform = createTransform(
   (state: KeyserverStore): PersistedKeyserverStore => {
-    const keyserverInfos = {};
+    const keyserverInfos: { [string]: PersistedKeyserverInfo } = {};
     for (const key in state.keyserverInfos) {
       const { connection, ...rest } = state.keyserverInfos[key];
       keyserverInfos[key] = rest;
@@ -1040,7 +1043,7 @@ const keyserverStoreTransform: Transform = createTransform(
     };
   },
   (state: PersistedKeyserverStore): KeyserverStore => {
-    const keyserverInfos = {};
+    const keyserverInfos: { [string]: KeyserverInfo } = {};
     for (const key in state.keyserverInfos) {
       keyserverInfos[key] = {
         ...state.keyserverInfos[key],
