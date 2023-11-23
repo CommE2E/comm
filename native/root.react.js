@@ -3,7 +3,10 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { PossiblyStaleNavigationState } from '@react-navigation/core';
+import type {
+  PossiblyStaleNavigationState,
+  UnsafeContainerActionEvent,
+} from '@react-navigation/core';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
@@ -215,18 +218,21 @@ function Root() {
     if (!navContainer) {
       return undefined;
     }
-    return navContainer.addListener('__unsafe_action__', event => {
-      const { action, noop } = event.data;
-      const navState = navStateRef.current;
-      if (noop) {
-        actionLogger.addOtherAction('navState', action, navState, navState);
-        return;
-      }
-      queuedActionsRef.current.push({
-        ...action,
-        type: `NAV/${action.type}`,
-      });
-    });
+    return navContainer.addListener(
+      '__unsafe_action__',
+      (event: { +data: UnsafeContainerActionEvent, ... }) => {
+        const { action, noop } = event.data;
+        const navState = navStateRef.current;
+        if (noop) {
+          actionLogger.addOtherAction('navState', action, navState, navState);
+          return;
+        }
+        queuedActionsRef.current.push({
+          ...action,
+          type: `NAV/${action.type}`,
+        });
+      },
+    );
   }, [navContainer]);
 
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
