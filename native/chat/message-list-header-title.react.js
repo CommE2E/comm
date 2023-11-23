@@ -43,7 +43,7 @@ type Props = {
   +title: string,
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const {
       threadInfo,
       navigate,

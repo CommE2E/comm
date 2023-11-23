@@ -86,7 +86,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     });
   };
 
-  visibleEntryIDs() {
+  visibleEntryIDs(): $ReadOnlyArray<string> {
     const result = [];
 
     if (this.props.canTogglePins) {
@@ -182,14 +182,14 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     });
   };
 
-  canNavigateToSidebar() {
+  canNavigateToSidebar(): boolean {
     return (
-      this.props.item.threadCreatedFromMessage ||
+      !!this.props.item.threadCreatedFromMessage ||
       this.props.canCreateSidebarFromMessage
     );
   }
 
-  render() {
+  render(): React.Node {
     const {
       item,
       focused,

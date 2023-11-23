@@ -59,7 +59,7 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
     );
   };
 
-  render() {
+  render(): React.Node {
     const { panelIosHighlightUnderlay, panelForegroundSecondaryLabel } =
       this.props.colors;
     const loadingIndicator =

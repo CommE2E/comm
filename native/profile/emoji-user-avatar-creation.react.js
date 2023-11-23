@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { savedEmojiAvatarSelectorForCurrentUser } from 'lib/selectors/user-selectors.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { useNativeSetUserAvatar } from '../avatars/avatar-hooks.js';
@@ -27,7 +28,7 @@ function EmojiUserAvatarCreation(props: Props): React.Node {
   const nativeSetUserAvatar = useNativeSetUserAvatar();
 
   const setAvatar = React.useCallback(
-    async avatarRequest => {
+    async (avatarRequest: UpdateUserAvatarRequest): Promise<void> => {
       const result = await nativeSetUserAvatar(avatarRequest);
       displayActionResultModal('Avatar updated!');
       return result;

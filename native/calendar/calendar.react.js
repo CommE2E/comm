@@ -215,7 +215,7 @@ class Calendar extends React.PureComponent<Props, State> {
   topLoaderWaitingToLeaveView = true;
   bottomLoaderWaitingToLeaveView = true;
   // We keep refs to the entries so CalendarInputBar can save them
-  entryRefs = new Map();
+  entryRefs: Map<string, ?InternalEntry> = new Map();
 
   constructor(props: Props) {
     super(props);
@@ -389,7 +389,12 @@ class Calendar extends React.PureComponent<Props, State> {
   static datesFromListData(
     lastLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
     newLDWH: $ReadOnlyArray<CalendarItemWithHeight>,
-  ) {
+  ): {
+    +lastStartDate: Date,
+    +newStartDate: Date,
+    +lastEndDate: Date,
+    +newEndDate: Date,
+  } {
     const lastSecondItem = lastLDWH[1];
     const newSecondItem = newLDWH[1];
     invariant(
@@ -472,7 +477,7 @@ class Calendar extends React.PureComponent<Props, State> {
 
   // ESLint doesn't recognize that invariant always throws
   // eslint-disable-next-line consistent-return
-  renderItem = (row: { item: CalendarItemWithHeight, ... }) => {
+  renderItem = (row: { +item: CalendarItemWithHeight, ... }): React.Node => {
     const item = row.item;
     if (item.itemType === 'loader') {
       return <ListLoadingIndicator />;
@@ -500,7 +505,7 @@ class Calendar extends React.PureComponent<Props, State> {
     invariant(false, 'renderItem conditions should be exhaustive');
   };
 
-  renderSectionHeader = (item: SectionHeaderItem) => {
+  renderSectionHeader = (item: SectionHeaderItem): React.Node => {
     let date = prettyDate(item.dateString);
     if (dateString(new Date()) === item.dateString) {
       date += ' (today)';
@@ -519,7 +524,7 @@ class Calendar extends React.PureComponent<Props, State> {
     );
   };
 
-  renderSectionFooter = (item: SectionFooterItem) => {
+  renderSectionFooter = (item: SectionFooterItem): React.Node => {
     return (
       <SectionFooter
         dateString={item.dateString}
@@ -536,9 +541,11 @@ class Calendar extends React.PureComponent<Props, State> {
     });
   };
 
-  // ESLint doesn't recognize that invariant always throws
-  // eslint-disable-next-line consistent-return
-  static keyExtractor = (item: CalendarItemWithHeight | CalendarItem) => {
+  static keyExtractor = (
+    item: CalendarItemWithHeight | CalendarItem,
+    // ESLint doesn't recognize that invariant always throws
+    // eslint-disable-next-line consistent-return
+  ): string => {
     if (item.itemType === 'loader') {
       return item.key;
     } else if (item.itemType === 'header') {
@@ -554,7 +561,7 @@ class Calendar extends React.PureComponent<Props, State> {
   static getItemLayout = (
     data: ?$ReadOnlyArray<CalendarItemWithHeight>,
     index: number,
-  ) => {
+  ): { length: number, offset: number, index: number } => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
@@ -566,7 +573,7 @@ class Calendar extends React.PureComponent<Props, State> {
 
   // ESLint doesn't recognize that invariant always throws
   // eslint-disable-next-line consistent-return
-  static itemHeight = (item: CalendarItemWithHeight) => {
+  static itemHeight = (item: CalendarItemWithHeight): number => {
     if (item.itemType === 'loader') {
       return 56;
     } else if (item.itemType === 'header') {
@@ -580,11 +587,13 @@ class Calendar extends React.PureComponent<Props, State> {
     invariant(false, 'itemHeight conditions should be exhaustive');
   };
 
-  static heightOfItems = (data: $ReadOnlyArray<CalendarItemWithHeight>) => {
+  static heightOfItems = (
+    data: $ReadOnlyArray<CalendarItemWithHeight>,
+  ): number => {
     return _sum(data.map(Calendar.itemHeight));
   };
 
-  render() {
+  render(): React.Node {
     const { listDataWithHeights } = this.state;
     let flatList = null;
     if (listDataWithHeights) {
@@ -648,12 +657,12 @@ class Calendar extends React.PureComponent<Props, State> {
     );
   }
 
-  flatListHeight() {
+  flatListHeight(): number {
     const { safeAreaHeight, tabBarHeight } = this.props.dimensions;
     return safeAreaHeight - tabBarHeight;
   }
 
-  initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>) {
+  initialScrollIndex(data: $ReadOnlyArray<CalendarItemWithHeight>): number {
     const todayIndex = _findIndex(['dateString', dateString(new Date())])(data);
     const heightOfTodayHeader = Calendar.itemHeight(data[todayIndex]);
 
@@ -811,14 +820,14 @@ class Calendar extends React.PureComponent<Props, State> {
     this.flatList.scrollToOffset({ offset, animated: true });
   }
 
-  heightMeasurerKey = (item: CalendarItem) => {
+  heightMeasurerKey = (item: CalendarItem): ?string => {
     if (item.itemType !== 'entryInfo') {
       return null;
     }
     return item.entryInfo.text;
   };
 
-  heightMeasurerDummy = (item: CalendarItem) => {
+  heightMeasurerDummy = (item: CalendarItem): React.MixedElement => {
     invariant(
       item.itemType === 'entryInfo',
       'NodeHeightMeasurer asked for dummy for non-entryInfo item',
@@ -826,7 +835,10 @@ class Calendar extends React.PureComponent<Props, State> {
     return dummyNodeForEntryHeightMeasurement(item.entryInfo.text);
   };
 
-  heightMeasurerMergeItem = (item: CalendarItem, height: ?number) => {
+  heightMeasurerMergeItem = (
+    item: CalendarItem,
+    height: ?number,
+  ): CalendarItemWithHeight => {
     if (item.itemType !== 'entryInfo') {
       return item;
     }
@@ -994,7 +1006,7 @@ class Calendar extends React.PureComponent<Props, State> {
     );
   }
 
-  loadMoreAbove = _throttle(() => {
+  loadMoreAbove: () => void = _throttle(() => {
     if (
       this.topLoadingFromScroll &&
       this.topLoaderWaitingToLeaveView &&
@@ -1004,7 +1016,7 @@ class Calendar extends React.PureComponent<Props, State> {
     }
   }, 1000);
 
-  loadMoreBelow = _throttle(() => {
+  loadMoreBelow: () => void = _throttle(() => {
     if (
       this.bottomLoadingFromScroll &&
       this.bottomLoaderWaitingToLeaveView &&

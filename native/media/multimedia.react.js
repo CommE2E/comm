@@ -42,7 +42,7 @@ type State = {
   +departingSource: ?Source,
 };
 class Multimedia extends React.PureComponent<Props, State> {
-  static defaultProps = {
+  static defaultProps: Partial<Props> = {
     spinnerColor: 'black',
   };
 
@@ -55,7 +55,7 @@ class Multimedia extends React.PureComponent<Props, State> {
     };
   }
 
-  get inputState() {
+  get inputState(): InputState {
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set in Multimedia');
     return inputState;
@@ -101,7 +101,7 @@ class Multimedia extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const images = [];
     const { currentSource, departingSource } = this.state;
     if (departingSource) {
@@ -117,7 +117,7 @@ class Multimedia extends React.PureComponent<Props, State> {
     source: Source,
     invisibleLoad?: boolean = false,
     triggerOnLoad?: boolean = true,
-  ) {
+  ): React.Node {
     const onLoadProp = triggerOnLoad ? this.onLoad : undefined;
     if (source.kind === 'encrypted') {
       return (

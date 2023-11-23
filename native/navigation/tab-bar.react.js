@@ -37,7 +37,7 @@ function TabBar(props: Props) {
   const prevKeyboardState = prevKeyboardStateRef.current;
 
   const setTabBar = React.useCallback(
-    toValue => {
+    (toValue: number) => {
       const keyboardIsShowing = keyboardState && keyboardState.keyboardShowing;
       const keyboardWasShowing =
         prevKeyboardState && prevKeyboardState.keyboardShowing;
@@ -68,7 +68,7 @@ function TabBar(props: Props) {
   const reduxTabBarHeight = useSelector(state => state.dimensions.tabBarHeight);
   const dispatch = useDispatch();
   const setReduxTabBarHeight = React.useCallback(
-    height => {
+    (height: number) => {
       if (height === reduxTabBarHeight) {
         return;
       }

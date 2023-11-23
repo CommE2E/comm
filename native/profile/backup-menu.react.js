@@ -48,7 +48,7 @@ function BackupMenu(props: Props): React.Node {
   }, [restoreBackupProtocol, userStore]);
 
   const onBackupToggled = React.useCallback(
-    value => {
+    (value: boolean) => {
       dispatch({
         type: setLocalSettingsActionType,
         payload: { isBackupEnabled: value },

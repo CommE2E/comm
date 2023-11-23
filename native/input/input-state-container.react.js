@@ -107,6 +107,7 @@ import {
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
   type MessagePendingUploads,
+  type InputState,
 } from './input-state.js';
 import { encryptMedia } from '../media/encryption-utils.js';
 import { disposeTempFile } from '../media/file-utils.js';
@@ -128,6 +129,7 @@ type WritableCompletedUploads = {
   [localMessageID: string]: ?$ReadOnlySet<string>,
 };
 type CompletedUploads = $ReadOnly<WritableCompletedUploads>;
+type ActiveURI = { +count: number, +onClear: $ReadOnlyArray<() => mixed> };
 
 type BaseProps = {
   +children: React.Node,
@@ -165,16 +167,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     pendingUploads: {},
   };
   sendCallbacks: Array<() => void> = [];
-  activeURIs = new Map();
+  activeURIs: Map<string, ActiveURI> = new Map();
   editInputBarCallbacks: Array<
     (params: EditInputBarMessageParameters) => void,
   > = [];
   scrollToMessageCallbacks: Array<(messageID: string) => void> = [];
-  pendingThreadCreations = new Map<string, Promise<string>>();
-  pendingThreadUpdateHandlers = new Map<
+  pendingThreadCreations: Map<string, Promise<string>> = new Map();
+  pendingThreadUpdateHandlers: Map<
     string,
     (ThreadInfo | MinimallyEncodedThreadInfo) => mixed,
-  >();
+  > = new Map();
   // TODO: flip the switch
   // Note that this enables Blob service for encrypted media only
   useBlobServiceUploads = false;
@@ -183,7 +185,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   // sidebar, the sidebar gets created right away, but the message needs to wait
   // for the uploads to complete before sending. We use this Set to track the
   // message localIDs that need sidebarCreation: true.
-  pendingSidebarCreationMessageLocalIDs = new Set<string>();
+  pendingSidebarCreationMessageLocalIDs: Set<string> = new Set();
 
   static getCompletedUploads(props: Props, state: State): CompletedUploads {
     const completedUploads: WritableCompletedUploads = {};
@@ -297,7 +299,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  async dispatchMultimediaMessageAction(messageInfo: RawMultimediaMessageInfo) {
+  async dispatchMultimediaMessageAction(
+    messageInfo: RawMultimediaMessageInfo,
+  ): Promise<void> {
     if (!threadIsPending(messageInfo.threadID)) {
       this.props.dispatchActionPromise(
         sendMultimediaMessageActionTypes,
@@ -394,7 +398,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  inputStateSelector = createSelector(
+  inputStateSelector: State => InputState = createSelector(
     (state: State) => state.pendingUploads,
     (pendingUploads: PendingMultimediaUploads) => ({
       pendingUploads,
@@ -432,7 +436,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  uploadInProgress = () => {
+  uploadInProgress = (): boolean => {
     if (this.props.ongoingMessageCreation) {
       return true;
     }
@@ -1305,7 +1309,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
-  messageHasUploadFailure = (localMessageID: string) => {
+  messageHasUploadFailure = (localMessageID: string): boolean => {
     const pendingUploads = this.state.pendingUploads[localMessageID];
     if (!pendingUploads) {
       return false;
@@ -1352,7 +1356,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     rawMessageInfo: RawMultimediaMessageInfo,
     localMessageID: string,
     threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-  ) => {
+  ): Promise<void> => {
     const pendingUploads = this.state.pendingUploads[localMessageID] ?? {};
 
     const now = Date.now();
@@ -1615,7 +1619,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  waitForCaptureURIUnload(uri: string) {
+  waitForCaptureURIUnload(uri: string): Promise<{
+    +steps: $ReadOnlyArray<MediaMissionStep>,
+    +result: ?string,
+  }> {
     const start = Date.now();
     const path = pathFromURI(uri);
     if (!path) {
@@ -1675,7 +1682,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  render() {
+  render(): React.Node {
     const inputState = this.inputStateSelector(this.state);
     return (
       <InputStateContext.Provider value={inputState}>

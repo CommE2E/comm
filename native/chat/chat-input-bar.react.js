@@ -1,6 +1,7 @@
 // @flow
 
 import Icon from '@expo/vector-icons/Ionicons.js';
+import type { GenericNavigationAction } from '@react-navigation/core';
 import invariant from 'invariant';
 import _throttle from 'lodash/throttle.js';
 import * as React from 'react';
@@ -455,17 +456,17 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.sendButtonContainerStyle = { width: sendButtonContainerWidth };
   }
 
-  static mediaGalleryOpen(props: Props) {
+  static mediaGalleryOpen(props: Props): boolean {
     const { keyboardState } = props;
     return !!(keyboardState && keyboardState.mediaGalleryOpen);
   }
 
-  static systemKeyboardShowing(props: Props) {
+  static systemKeyboardShowing(props: Props): boolean {
     const { keyboardState } = props;
     return !!(keyboardState && keyboardState.systemKeyboardShowing);
   }
 
-  get systemKeyboardShowing() {
+  get systemKeyboardShowing(): boolean {
     return ChatInputBar.systemKeyboardShowing(this.props);
   }
 
@@ -629,7 +630,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     return checkIfDefaultMembersAreVoiced(this.props.threadInfo);
   }
 
-  render() {
+  render(): React.Node {
     const isMember = viewerIsMember(this.props.threadInfo);
     const canJoin = threadHasPermission(
       this.props.threadInfo,
@@ -805,7 +806,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
   }
 
-  renderInput() {
+  renderInput(): React.Node {
     const expandoButton = (
       <TouchableOpacity
         onPress={this.expandButtons}
@@ -929,7 +930,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.setState({ selectionState: data });
   };
 
-  saveDraft = _throttle(text => {
+  saveDraft: (text: string) => void = _throttle(text => {
     this.props.dispatch({
       type: updateDraftActionType,
       payload: {
@@ -1021,14 +1022,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
   };
 
-  isEditMode = () => {
+  isEditMode = (): boolean => {
     const editState = this.props.messageEditingContext?.editState;
     const isThisThread =
       editState?.editedMessage?.threadID === this.props.threadInfo.id;
-    return editState && editState.editedMessage !== null && isThisThread;
+    return editState?.editedMessage !== null && isThisThread;
   };
 
-  isMessageEdited = newText => {
+  isMessageEdited = (newText?: string): boolean => {
     let text = newText ?? this.state.text;
     text = trimMessage(text);
     const originalText = this.props.editedMessageInfo?.text;
@@ -1097,7 +1098,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
   };
 
-  getEditedMessage = () => {
+  getEditedMessage = (): ?MessageInfo => {
     const editState = this.props.messageEditingContext?.editState;
     return editState?.editedMessage;
   };
@@ -1144,7 +1145,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     );
   };
 
-  onNavigationBeforeRemove = e => {
+  onNavigationBeforeRemove = (e: {
+    +data: { +action: GenericNavigationAction },
+    +preventDefault: () => void,
+    ...
+  }) => {
     if (!this.isEditMode()) {
       return;
     }
@@ -1173,7 +1178,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
   };
 
-  async joinAction() {
+  async joinAction(): Promise<ThreadJoinPayload> {
     const query = this.props.calendarQuery();
     return await this.props.joinThread({
       threadID: this.props.threadInfo.id,

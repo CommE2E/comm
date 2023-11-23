@@ -143,7 +143,7 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
     this.selectNotificationSetting(notificationTypes.BADGE_ONLY);
   };
 
-  render() {
+  render(): React.Node {
     const { styles, selectedDefaultNotification } = this.props;
     return (
       <ScrollView

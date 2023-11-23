@@ -13,6 +13,8 @@ import type {
   ParamListBase,
   StackRouterOptions,
   MaterialTopTabNavigationHelpers,
+  HeaderTitleInputProps,
+  StackHeaderLeftButtonProps,
 } from '@react-navigation/core';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
@@ -72,6 +74,7 @@ import {
   type ChatTopTabsParamList,
   MessageSearchRouteName,
   ChangeRolesScreenRouteName,
+  type NavigationRoute,
 } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import ChangeRolesHeaderLeftButton from '../roles/change-roles-header-left-button.react.js';
@@ -107,14 +110,14 @@ export type ChatTopTabsNavigationHelpers =
 const homeChatThreadListOptions = {
   title: 'Focused',
   // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ color }) => (
+  tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="home-1" size={22} style={{ color }} />
   ),
 };
 const backgroundChatThreadListOptions = {
   title: 'Background',
   // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ color }) => (
+  tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="bell-disabled" size={22} style={{ color }} />
   ),
 };
@@ -234,7 +237,13 @@ const header = (props: StackHeaderProps) => {
 
 const headerRightStyle = { flexDirection: 'row' };
 
-const messageListOptions = ({ navigation, route }) => {
+const messageListOptions = ({
+  navigation,
+  route,
+}: {
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+}) => {
   const isSearchEmpty =
     !!route.params.searching && route.params.threadInfo.members.length === 1;
 
@@ -244,7 +253,7 @@ const messageListOptions = ({ navigation, route }) => {
   return {
     // This is a render prop, not a component
     // eslint-disable-next-line react/display-name
-    headerTitle: props => (
+    headerTitle: (props: HeaderTitleInputProps) => (
       <MessageListHeaderTitle
         threadInfo={route.params.threadInfo}
         navigate={navigation.navigate}
@@ -279,9 +288,14 @@ const composeThreadOptions = {
   headerTitle: 'Compose chat',
   headerBackTitleVisible: false,
 };
-const threadSettingsOptions = ({ route }) => ({
+const threadSettingsOptions = ({
+  route,
+}: {
+  +route: NavigationRoute<'ThreadSettings'>,
+  ...
+}) => ({
   // eslint-disable-next-line react/display-name
-  headerTitle: props => (
+  headerTitle: (props: HeaderTitleInputProps) => (
     <ThreadSettingsHeaderTitle
       threadInfo={route.params.threadInfo}
       {...props}
@@ -313,9 +327,14 @@ const messageResultsScreenOptions = {
   headerTitle: 'Pinned Messages',
   headerBackTitleVisible: false,
 };
-const changeRolesScreenOptions = ({ route }) => ({
+const changeRolesScreenOptions = ({
+  route,
+}: {
+  +route: NavigationRoute<'ChangeRolesScreen'>,
+  ...
+}) => ({
   // eslint-disable-next-line react/display-name
-  headerLeft: headerLeftProps => (
+  headerLeft: (headerLeftProps: StackHeaderLeftButtonProps) => (
     <ChangeRolesHeaderLeftButton {...headerLeftProps} route={route} />
   ),
   headerTitle: 'Change Role',
@@ -349,7 +368,7 @@ export default function ChatComponent(props: Props): React.Node {
   }
 
   const headerLeftButton = React.useCallback(
-    headerProps => {
+    (headerProps: StackHeaderLeftButtonProps) => {
       if (headerProps.canGoBack) {
         return <HeaderBackButton {...headerProps} />;
       }
@@ -379,7 +398,12 @@ export default function ChatComponent(props: Props): React.Node {
   );
 
   const chatThreadListOptions = React.useCallback(
-    ({ navigation }) => ({
+    ({
+      navigation,
+    }: {
+      +navigation: ChatNavigationProp<'ChatThreadList'>,
+      ...
+    }) => ({
       headerTitle: 'Inbox',
       headerRight:
         Platform.OS === 'ios'

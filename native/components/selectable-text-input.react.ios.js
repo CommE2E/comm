@@ -15,7 +15,7 @@ import type {
 import type { SelectionChangeEvent } from '../types/react-native.js';
 
 const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
-  props,
+  props: SelectableTextInputProps,
   ref: ReactRefSetter<SelectableTextInputRef>,
 ): React.Node {
   const {

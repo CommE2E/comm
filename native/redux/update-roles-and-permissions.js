@@ -32,7 +32,7 @@ function constructThreadTraversalNodes(
     ];
   }
 
-  const constructNodes = nodeID => ({
+  const constructNodes = (nodeID: string): ThreadTraversalNode => ({
     threadID: nodeID,
     children: parentThreadMap[nodeID]?.map(constructNodes) ?? null,
   });

@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selectors.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import type {
   MinimallyEncodedRawThreadInfo,
   MinimallyEncodedThreadInfo,
@@ -47,7 +48,7 @@ function EmojiThreadAvatarCreation(props: Props): React.Node {
   const nativeSetThreadAvatar = useNativeSetThreadAvatar();
 
   const setAvatar = React.useCallback(
-    async avatarRequest => {
+    async (avatarRequest: UpdateUserAvatarRequest) => {
       const result = await nativeSetThreadAvatar(threadID, avatarRequest);
       displayActionResultModal('Avatar updated!');
       return result;

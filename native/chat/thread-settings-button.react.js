@@ -28,7 +28,7 @@ type Props = {
 };
 
 class ThreadSettingsButton extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     return (
       <Button onPress={this.onPress} androidBorderlessRipple={true}>
         <SWMansionIcon

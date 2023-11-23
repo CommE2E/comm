@@ -107,7 +107,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
   };
   pendingListDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>;
 
-  get frozen() {
+  get frozen(): boolean {
     const { overlayContext } = this.props;
     invariant(
       overlayContext,
@@ -155,7 +155,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const { threadInfo, styles } = this.props;
     const { listDataWithHeights } = this.state;
     const { searching } = this.props.route.params;

@@ -31,6 +31,7 @@ import { useStyles } from '../themes/colors.js';
 import {
   flattenDrawerItemsData,
   filterOutThreadAndDescendantIDs,
+  type CommunityDrawerItemDataFlattened,
 } from '../utils/drawer-utils.react.js';
 
 const maxDepth = 2;
@@ -118,7 +119,12 @@ function CommunityDrawerContent(): React.Node {
   const navigateToThread = useNavigateToThread();
 
   const renderItem = React.useCallback(
-    ({ item }) => {
+    ({
+      item,
+    }: {
+      +item: CommunityDrawerItemDataFlattened,
+      ...
+    }): React.Node => {
       const isCommunity = threadTypeIsCommunityRoot(item.threadInfo.type);
       return (
         <CommunityDrawerItem

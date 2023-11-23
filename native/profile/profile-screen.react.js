@@ -162,7 +162,7 @@ type Props = {
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
-  get loggedOutOrLoggingOut() {
+  get loggedOutOrLoggingOut(): boolean {
     return (
       !this.props.currentUserInfo ||
       this.props.currentUserInfo.anonymous ||
@@ -170,7 +170,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     );
   }
 
-  render() {
+  render(): React.Node {
     let developerTools,
       defaultNotifications,
       keyserverSelection,

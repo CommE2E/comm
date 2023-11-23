@@ -147,7 +147,7 @@ function MessageSearch(props: MessageSearchProps): React.Node {
   }, []);
 
   const renderItem = React.useCallback(
-    ({ item }) => {
+    ({ item }: { +item: ChatMessageItemWithHeight, ... }) => {
       if (item.itemType === 'loader') {
         return <ListLoadingIndicator />;
       }

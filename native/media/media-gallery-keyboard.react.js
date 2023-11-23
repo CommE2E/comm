@@ -128,7 +128,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   fetchingPhotos = false;
   flatList: ?FlatList<MediaLibrarySelection>;
   viewableIndices: number[] = [];
-  queueModeProgress = new Animated.Value(0);
+  queueModeProgress: Animated.Value = new Animated.Value(0);
   sendButtonStyle: ViewStyle;
   mediaSelected = false;
 
@@ -153,7 +153,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     };
   }
 
-  static getDerivedStateFromProps(props: Props) {
+  static getDerivedStateFromProps(props: Props): Partial<State> {
     // We keep this in state since we pass this.state as
     // FlatList's extraData prop
     return { dimensions: props.dimensions };
@@ -161,7 +161,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    return this.fetchPhotos();
+    this.fetchPhotos();
   }
 
   componentWillUnmount() {
@@ -236,7 +236,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
   }
 
-  guardedSetState(change) {
+  guardedSetState(change: Partial<State>) {
     if (this.mounted) {
       this.setState(change);
     }
@@ -427,11 +427,11 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return granted;
   }
 
-  get queueModeActive() {
+  get queueModeActive(): boolean {
     return !!this.state.queuedMediaURIs;
   }
 
-  renderItem = (row: { item: MediaLibrarySelection, ... }) => {
+  renderItem = (row: { +item: MediaLibrarySelection, ... }): React.Node => {
     const { containerHeight, queuedMediaURIs } = this.state;
     invariant(containerHeight, 'should be set');
     const { uri } = row.item;
@@ -452,15 +452,15 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     );
   };
 
-  ItemSeparator = () => {
+  ItemSeparator = (): React.Node => {
     return <View style={this.props.styles.separator} />;
   };
 
-  static keyExtractor = (item: MediaLibrarySelection) => {
+  static keyExtractor = (item: MediaLibrarySelection): string => {
     return item.uri;
   };
 
-  GalleryHeader = () => (
+  GalleryHeader = (): React.Node => (
     <View style={this.props.styles.galleryHeader}>
       <Text style={this.props.styles.galleryHeaderTitle}>Photos</Text>
       <Button
@@ -474,7 +474,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     </View>
   );
 
-  render() {
+  render(): React.Node {
     let content;
     const { selections, error, containerHeight } = this.state;
     const bottomOffsetStyle: ViewStyle = {

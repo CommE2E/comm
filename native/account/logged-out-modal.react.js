@@ -270,7 +270,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   activeAlert = false;
 
   contentHeight: Value;
-  keyboardHeightValue = new Value(0);
+  keyboardHeightValue: Value = new Value(0);
   modeValue: Value;
 
   buttonOpacity: Value;
@@ -448,7 +448,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.props.dispatch({ type: resetUserStateActionType });
   }
 
-  hardwareBack = () => {
+  hardwareBack: () => boolean = () => {
     if (this.nextMode !== 'prompt') {
       this.goBackToPrompt();
       return true;
@@ -456,7 +456,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     return false;
   };
 
-  panelPaddingTop() {
+  panelPaddingTop(): Node {
     const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
     const promptButtonsSize = Platform.OS === 'ios' ? 40 : 61;
     const logInContainerSize = 140;
@@ -525,7 +525,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     ]);
   }
 
-  panelOpacity() {
+  panelOpacity(): Node {
     const targetPanelOpacity = isPastPrompt(this.modeValue);
 
     const panelOpacity = new Value(-1);
@@ -593,7 +593,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     Keyboard.dismiss();
   };
 
-  render() {
+  render(): React.Node {
     const { styles } = this.props;
 
     const siweButton = (
