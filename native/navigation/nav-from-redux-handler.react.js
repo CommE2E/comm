@@ -4,13 +4,16 @@ import * as React from 'react';
 
 import { setNavStateActionType } from './action-types.js';
 import { NavContext } from './navigation-context.js';
+import type { MonitorActionState } from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const NavFromReduxHandler: React.ComponentType<{}> = React.memo<{}>(
   function NavFromReduxHandler() {
     const navContext = React.useContext(NavContext);
 
-    const navStateInRedux = useSelector(state => state.navState);
+    const navStateInRedux = useSelector(
+      (state: MonitorActionState) => state.navState,
+    );
 
     const dispatch = React.useMemo(() => {
       if (!navContext) {

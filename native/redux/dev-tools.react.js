@@ -1,5 +1,6 @@
 // @flow
 
+import type { NavigationState } from '@react-navigation/core';
 import * as React from 'react';
 
 import { actionLogger } from 'lib/utils/action-logger.js';
@@ -7,8 +8,17 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { setReduxStateActionType } from './action-types.js';
 import { useSelector } from './redux-utils.js';
+import type { AppState } from './state-types.js';
 import { setNavStateActionType } from '../navigation/action-types.js';
 import { NavContext } from '../navigation/navigation-context.js';
+
+type MonitorAction =
+  | { +type: 'DISPATCH', +state: string, ... }
+  | { +type: 'IMPORT', ... };
+export type MonitorActionState = $ReadOnly<{
+  ...AppState,
+  +navState: NavigationState,
+}>;
 
 const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
   const devToolsRef = React.useRef();
@@ -79,7 +89,7 @@ const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
   );
 
   const setInternalState = React.useCallback(
-    state => {
+    (state: MonitorActionState) => {
       const { navState, ...reduxState } = state;
       if (navDispatch) {
         navDispatch({
@@ -104,7 +114,7 @@ const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
   );
 
   const handleActionFromMonitor = React.useCallback(
-    monitorAction => {
+    (monitorAction: MonitorAction) => {
       if (!devTools) {
         return;
       }
