@@ -24,7 +24,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 
 class ThreadSettingsButton extends React.PureComponent<Props> {

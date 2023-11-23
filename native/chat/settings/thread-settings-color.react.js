@@ -51,7 +51,7 @@ type Props = {
   // Redux state
   +loadingStatus: LoadingStatus,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 class ThreadSettingsColor extends React.PureComponent<Props> {
   render(): React.Node {

@@ -26,7 +26,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 class LinkButton extends React.PureComponent<Props> {
   render(): React.Node {
