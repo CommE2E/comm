@@ -402,7 +402,7 @@ class PushHandler extends React.PureComponent<Props, State> {
         // We issue a call to sleep to match iOS behavior where prompt
         // doesn't appear immediately but after logged-out modal disappears
         await sleep(10);
-        await this.requestAndroidNotificationsPermission();
+        return await this.requestAndroidNotificationsPermission();
       })();
       hasPermission = permissionResponse;
     }
