@@ -2,9 +2,15 @@
 
 set -e
 
-cd services/terraform
-echo "formatting services/terraform..."
-terraform fmt -check
-echo "validating services/terraform..."
-terraform validate
-echo "done formatting and validating"
+cd services/terraform/
+echo "Formatting terraform..."
+terraform fmt -recursive
+
+for cfg in dev remote; do
+  pushd "$cfg" >/dev/null
+  echo "Validating '$cfg' terraform configuration..."
+  terraform validate
+  popd >/dev/null
+done
+
+echo "Done formatting and validating terraform"
