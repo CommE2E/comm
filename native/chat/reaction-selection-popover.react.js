@@ -18,7 +18,11 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
-import { AnimatedView } from '../types/styles.js';
+import {
+  AnimatedView,
+  type WritableAnimatedStyleObj,
+  type ReanimatedTransform,
+} from '../types/styles.js';
 
 type Props<RouteName: $Keys<TooltipModalParamList>> = {
   +navigation: AppNavigationProp<RouteName>,
@@ -71,13 +75,13 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
 
   const calculatedMargin = getCalculatedMargin(margin);
   const animationStyle = React.useMemo(() => {
-    const style = {};
+    const style: WritableAnimatedStyleObj = {};
     style.opacity = interpolateNode(position, {
       inputRange: [0, 0.1],
       outputRange: [0, 1],
       extrapolate: Extrapolate.CLAMP,
     });
-    style.transform = [
+    const transform: Array<ReanimatedTransform> = [
       {
         scale: interpolateNode(position, {
           inputRange: [0.2, 0.8],
@@ -93,7 +97,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
       },
     ];
     if (popoverLocation === 'above') {
-      style.transform.push({
+      transform.push({
         translateY: interpolateNode(position, {
           inputRange: [0, 1],
           outputRange: [
@@ -104,7 +108,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
         }),
       });
     } else {
-      style.transform.push({
+      transform.push({
         translateY: interpolateNode(position, {
           inputRange: [0, 1],
           outputRange: [
@@ -115,6 +119,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
         }),
       });
     }
+    style.transform = transform;
     return style;
   }, [position, calculatedMargin, popoverLocation, popoverHorizontalOffset]);
 
