@@ -84,7 +84,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   confirmPasswordInput: ?TextInput;
   passwordBeingAutoFilled = false;
 
-  render() {
+  render(): React.Node {
     let confirmPasswordTextInputExtraProps;
     if (
       Platform.OS !== 'ios' ||
@@ -346,7 +346,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     );
   };
 
-  async registerAction(extraInfo: LogInExtraInfo) {
+  async registerAction(extraInfo: LogInExtraInfo): Promise<RegisterResult> {
     try {
       const result = await this.props.register({
         ...extraInfo,

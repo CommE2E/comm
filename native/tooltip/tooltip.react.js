@@ -36,7 +36,11 @@ import {
   type LayoutCoordinates,
 } from '../types/layout-types.js';
 import type { LayoutEvent } from '../types/react-native.js';
-import { AnimatedView } from '../types/styles.js';
+import {
+  AnimatedView,
+  type ViewStyle,
+  type AnimatedViewStyle,
+} from '../types/styles.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;
@@ -258,14 +262,14 @@ function createTooltip<
       return 'below';
     }
 
-    get opacityStyle() {
+    get opacityStyle(): AnimatedViewStyle {
       return {
         ...this.props.styles.backdrop,
         opacity: this.backdropOpacity,
       };
     }
 
-    get contentContainerStyle() {
+    get contentContainerStyle(): ViewStyle {
       const { verticalBounds } = this.props.route.params;
       const fullScreenHeight = this.props.dimensions.height;
       const top = verticalBounds.y;
@@ -278,7 +282,7 @@ function createTooltip<
       };
     }
 
-    get buttonStyle() {
+    get buttonStyle(): ViewStyle {
       const { params } = this.props.route;
       const { initialCoordinates, verticalBounds } = params;
       const { x, y, width, height } = initialCoordinates;
@@ -290,14 +294,14 @@ function createTooltip<
       };
     }
 
-    get margin() {
+    get margin(): number {
       const customMargin = this.props.route.params.margin;
       return customMargin !== null && customMargin !== undefined
         ? customMargin
         : 20;
     }
 
-    get tooltipContainerStyle() {
+    get tooltipContainerStyle(): AnimatedViewStyle {
       const { dimensions, route } = this.props;
       const { initialCoordinates, verticalBounds, chatInputBarHeight } =
         route.params;
@@ -356,7 +360,7 @@ function createTooltip<
       return style;
     }
 
-    render() {
+    render(): React.Node {
       const {
         dimensions,
         overlayContext,
@@ -473,7 +477,7 @@ function createTooltip<
       );
     }
 
-    getTooltipItem() {
+    getTooltipItem(): React.ComponentType<TooltipItemBaseProps> {
       const BoundTooltipItem = this.props.boundTooltipItem;
       return BoundTooltipItem;
     }
@@ -483,7 +487,7 @@ function createTooltip<
       this.props.tooltipContext.showActionSheet();
     };
 
-    renderMoreIcon = () => {
+    renderMoreIcon = (): React.Node => {
       const { styles } = this.props;
       return (
         <SWMansionIcon name="menu-vertical" style={styles.icon} size={16} />
@@ -507,7 +511,12 @@ function createTooltip<
       }
     };
   }
-  function ConnectedTooltip(props) {
+  function ConnectedTooltip(
+    props: $ReadOnly<{
+      ...BaseTooltipPropsType,
+      +hideTooltip: () => mixed,
+    }>,
+  ) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
@@ -528,7 +537,7 @@ function createTooltip<
 
     const styles = useStyles(unboundStyles);
     const boundTooltipItem = React.useCallback(
-      innerProps => {
+      (innerProps: TooltipItemBaseProps) => {
         const containerStyle = isFixed
           ? [styles.itemContainer, styles.itemContainerFixed]
           : styles.itemContainer;

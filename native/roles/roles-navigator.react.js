@@ -3,6 +3,7 @@
 import type {
   StackNavigationProp,
   StackNavigationHelpers,
+  StackHeaderLeftButtonProps,
 } from '@react-navigation/core';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
@@ -34,7 +35,7 @@ const RolesStack = createStackNavigator<
 const communityRolesScreenOptions = {
   headerTitle: 'Create role',
   // eslint-disable-next-line react/display-name
-  headerLeft: headerLeftProps => (
+  headerLeft: (headerLeftProps: StackHeaderLeftButtonProps) => (
     <CommunityRolesHeaderLeftButton {...headerLeftProps} />
   ),
 };

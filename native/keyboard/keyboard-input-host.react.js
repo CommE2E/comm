@@ -46,12 +46,12 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     }
   }
 
-  static mediaGalleryOpen(props: Props) {
+  static mediaGalleryOpen(props: Props): boolean {
     const { keyboardState } = props;
     return !!(keyboardState && keyboardState.mediaGalleryOpen);
   }
 
-  render() {
+  render(): React.Node {
     const kbComponent = KeyboardInputHost.mediaGalleryOpen(this.props)
       ? mediaGalleryKeyboardName
       : null;

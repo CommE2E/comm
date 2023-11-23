@@ -96,7 +96,9 @@ function RelationshipList(props: Props): React.Node {
   const callSearchUsers = useServerCall(searchUsers);
   const userInfos = useSelector(state => state.userStore.userInfos);
   const searchUsersOnServer = React.useCallback(
-    async (usernamePrefix: string) => {
+    async (
+      usernamePrefix: string,
+    ): Promise<$ReadOnlyArray<GlobalAccountUserInfo>> => {
       if (usernamePrefix.length === 0) {
         return [];
       }

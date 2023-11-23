@@ -4,6 +4,7 @@ import type {
   StackNavigationProp,
   StackNavigationHelpers,
   StackHeaderProps,
+  StackHeaderLeftButtonProps,
 } from '@react-navigation/core';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
@@ -107,7 +108,7 @@ function ProfileComponent(props: Props): React.Node {
   const colors = useColors();
 
   const headerLeftButton = React.useCallback(
-    headerProps =>
+    (headerProps: StackHeaderLeftButtonProps) =>
       headerProps.canGoBack ? (
         <HeaderBackButton {...headerProps} />
       ) : (

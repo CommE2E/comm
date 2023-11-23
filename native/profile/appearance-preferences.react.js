@@ -93,7 +93,7 @@ type Props = {
   +colors: Colors,
 };
 class AppearancePreferences extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
     const options: Array<React.Node> = [];

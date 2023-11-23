@@ -17,6 +17,7 @@ import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.r
 import { Timestamp } from './timestamp.react.js';
 import { useAnimatedMessageTooltipButton } from './utils.js';
 import EmojiKeyboard from '../components/emoji-keyboard.react.js';
+import type { EmojiSelection } from '../components/emoji-keyboard.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
@@ -130,7 +131,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
   const { dismissTooltip } = useTooltipActions(navigation, tooltipRouteKey);
 
   const onEmojiSelected = React.useCallback(
-    emoji => {
+    (emoji: EmojiSelection) => {
       sendReaction(emoji.emoji);
       dismissTooltip();
     },

@@ -66,7 +66,7 @@ function processMedia(
   reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
 } {
   let resolveResult;
-  const sendResult = result => {
+  const sendResult = (result: MediaMissionFailure | MediaResult) => {
     if (resolveResult) {
       resolveResult(result);
     }

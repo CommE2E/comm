@@ -66,7 +66,7 @@ class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
     };
   }
 
-  render() {
+  render(): React.Node {
     const componentLabel = 'Background';
     return (
       <View style={this.props.styles.row}>
