@@ -276,21 +276,25 @@ const run = () => {
   (async () => {
     await app.whenReady();
 
+    const handleNotificationClick = (threadID?: string) => {
+      if (mainWindow && threadID) {
+        mainWindow.webContents.send('on-notification-clicked', {
+          threadID,
+        });
+      } else if (threadID) {
+        show(`chat/thread/${threadID}/`);
+      } else {
+        show();
+      }
+    };
+
     if (app.isPackaged) {
       try {
         initAutoUpdate();
       } catch (error) {
         console.error(error);
       }
-      listenForNotifications(threadID => {
-        if (mainWindow) {
-          mainWindow.webContents.send('on-notification-clicked', {
-            threadID,
-          });
-        } else {
-          show(`chat/thread/${threadID}/`);
-        }
-      });
+      listenForNotifications(handleNotificationClick);
     }
 
     ipcMain.on('set-badge', (event, value) => {

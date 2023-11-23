@@ -85,8 +85,24 @@ async function registerForNotifications(): Promise<?string> {
 
 function showNewNotification(
   payload: { +[string]: mixed },
-  handleClick: (threadID: string) => void,
+  handleClick: (threadID?: string) => void,
 ) {
+  const windowsIconPath = resolve(__dirname, '../icons/icon.ico');
+  if (
+    typeof payload.error === 'string' &&
+    typeof payload.displayErrorMessage === 'boolean'
+  ) {
+    const notif = new Notification({
+      title: 'Comm notification',
+      body: payload.displayErrorMessage ? payload.error : undefined,
+      icon: process.platform === 'win32' ? windowsIconPath : undefined,
+    });
+
+    notif.on('click', () => handleClick());
+    notif.show();
+    return;
+  }
+
   if (
     typeof payload.title !== 'string' ||
     typeof payload.body !== 'string' ||
@@ -95,7 +111,6 @@ function showNewNotification(
     return;
   }
   const { title, body, threadID } = payload;
-  const windowsIconPath = resolve(__dirname, '../icons/icon.ico');
   const notif = new Notification({
     title,
     body,
@@ -105,7 +120,7 @@ function showNewNotification(
   notif.show();
 }
 
-function listenForNotifications(handleClick: (threadID: string) => void) {
+function listenForNotifications(handleClick: (threadID?: string) => void) {
   if (process.platform === 'darwin') {
     pushNotifications.on('received-apns-notification', (event, userInfo) => {
       showNewNotification(userInfo, handleClick);
