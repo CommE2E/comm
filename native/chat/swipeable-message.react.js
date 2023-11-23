@@ -360,7 +360,7 @@ function SwipeableMessage(props: Props): React.Node {
         </PanGestureHandler>
       );
     }
-    const snakes = [];
+    const snakes: Array<React.Node> = [];
     if (triggerReply) {
       snakes.push(replySwipeSnake);
     }

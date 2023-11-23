@@ -33,7 +33,11 @@ import CommIcon from '../components/comm-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { useColors } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
-import { type AnimatedStyleObj, AnimatedView } from '../types/styles.js';
+import {
+  type AnimatedStyleObj,
+  type ViewStyle,
+  AnimatedView,
+} from '../types/styles.js';
 import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
 
 type SwipeOptions = 'reply' | 'sidebar' | 'both' | 'none';
@@ -294,7 +298,7 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
     ]);
 
     const viewStyle = React.useMemo(() => {
-      const baseStyle = [styles.alignment];
+      const baseStyle: Array<ViewStyle> = [styles.alignment];
       if (__DEV__) {
         return baseStyle;
       }

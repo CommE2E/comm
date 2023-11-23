@@ -118,7 +118,7 @@ async function fetchBlob(inputURI: string): Promise<{
   invariant(firstComma > 4, 'malformed data-URI');
   const base64String = dataURI.substring(firstComma + 1);
 
-  let mime = blob.type;
+  let mime: ?string = blob.type;
   if (!mime) {
     let mimeCheckExceptionMessage;
     const mimeCheckStart = Date.now();

@@ -249,7 +249,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     } else {
       // We do this in case there was a crash, so we can clear deviceToken from
       // any other cookies it might be set for
-      const deviceTokensMap = {};
+      const deviceTokensMap: { [string]: string } = {};
       for (const keyserverID in this.props.deviceTokens) {
         const deviceToken = this.props.deviceTokens[keyserverID];
         if (deviceToken) {
@@ -456,7 +456,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (deviceType === 'ios') {
       iosPushPermissionResponseReceived();
     }
-    const deviceTokensMap = {};
+    const deviceTokensMap: { [string]: ?string } = {};
     for (const keyserverID in this.props.deviceTokens) {
       const keyserverDeviceToken = this.props.deviceTokens[keyserverID];
       if (deviceToken !== keyserverDeviceToken) {

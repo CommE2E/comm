@@ -101,7 +101,7 @@ function removeScreensFromStack<
   state: State,
   filterFunc: (route: Route) => 'keep' | 'remove' | 'break',
 ): State {
-  const newRoutes = [];
+  const newRoutes: Array<Route> = [];
   let newIndex = state.index;
   let screenRemoved = false;
   let breakActivated = false;

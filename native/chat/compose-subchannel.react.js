@@ -220,7 +220,7 @@ function ComposeSubchannel(props: Props): React.Node {
     ],
   );
 
-  const existingThreads = React.useMemo(() => {
+  const existingThreads: $ReadOnlyArray<ThreadInfo> = React.useMemo(() => {
     if (userInfoInputIDs.length === 0) {
       return [];
     }
