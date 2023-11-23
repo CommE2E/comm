@@ -40,7 +40,7 @@ type Props = {
   ...SharedProps,
   +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 class ThreadListThread extends React.PureComponent<Props> {
   render(): React.Node {

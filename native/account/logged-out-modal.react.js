@@ -249,7 +249,7 @@ type Props = {
   +loggedIn: boolean,
   +dimensions: DerivedDimensionsInfo,
   +splashStyle: ImageStyle,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   // Redux dispatch functions
   +dispatch: Dispatch,
   // Keyserver olm sessions functions

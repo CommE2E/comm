@@ -38,7 +38,7 @@ type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +promoteSidebar: () => mixed,
 };
 class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {

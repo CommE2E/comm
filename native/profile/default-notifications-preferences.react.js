@@ -89,7 +89,7 @@ type BaseProps = {
 
 type Props = {
   ...BaseProps,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +dispatchActionPromise: DispatchActionPromise,
   +changeNotificationSettings: (
     notificationSettingsRequest: UpdateUserSettingsRequest,

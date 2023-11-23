@@ -147,7 +147,7 @@ type TooltipProps<Base> = {
   +dimensions: DimensionsInfo,
   +overlayContext: ?OverlayContextType,
   +chatContext: ?ChatContextType,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +tooltipContext: TooltipContextType,
   +closeTooltip: () => mixed,
   +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,

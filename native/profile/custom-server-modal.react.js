@@ -62,7 +62,7 @@ type Props = {
   ...BaseProps,
   +urlPrefix: string,
   +customServer: ?string,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +dispatch: Dispatch,
 };
 type State = {
