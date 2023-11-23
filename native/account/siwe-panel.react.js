@@ -145,7 +145,7 @@ function SIWEPanel(props: Props): React.Node {
     },
     [onSuccessfulWalletSignature, onClosing, closeBottomSheet],
   );
-  const prevClosingRef = React.useRef();
+  const prevClosingRef = React.useRef<?boolean>();
   React.useEffect(() => {
     if (closing && !prevClosingRef.current) {
       closeBottomSheet?.();

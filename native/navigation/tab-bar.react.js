@@ -8,7 +8,10 @@ import { useSafeArea } from 'react-native-safe-area-context';
 
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { KeyboardContext } from '../keyboard/keyboard-state.js';
+import {
+  KeyboardContext,
+  type KeyboardState,
+} from '../keyboard/keyboard-state.js';
 import { updateDimensionsActiveType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { LayoutEvent } from '../types/react-native.js';
@@ -21,7 +24,7 @@ const tabBarAnimationDuration = 200;
 
 type Props = React.ElementConfig<typeof BottomTabBar>;
 function TabBar(props: Props) {
-  const tabBarVisibleRef = React.useRef();
+  const tabBarVisibleRef = React.useRef<?Value>();
   if (!tabBarVisibleRef.current) {
     tabBarVisibleRef.current = new Value(1);
   }
@@ -30,7 +33,7 @@ function TabBar(props: Props) {
   const keyboardState = React.useContext(KeyboardContext);
   const shouldHideTabBar = keyboardState?.mediaGalleryOpen;
 
-  const prevKeyboardStateRef = React.useRef();
+  const prevKeyboardStateRef = React.useRef<?KeyboardState>();
   React.useEffect(() => {
     prevKeyboardStateRef.current = keyboardState;
   }, [keyboardState]);
@@ -54,7 +57,7 @@ function TabBar(props: Props) {
     [keyboardState, prevKeyboardState, tabBarVisible],
   );
 
-  const prevShouldHideTabBarRef = React.useRef(false);
+  const prevShouldHideTabBarRef = React.useRef<?boolean>(false);
   React.useEffect(() => {
     const prevShouldHideTabBar = prevShouldHideTabBarRef.current;
     if (shouldHideTabBar && !prevShouldHideTabBar) {

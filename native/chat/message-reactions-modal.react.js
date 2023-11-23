@@ -49,7 +49,7 @@ function MessageReactionsModal(props: Props): React.Node {
   const navigateToUserProfileBottomSheet =
     useNavigateToUserProfileBottomSheet();
 
-  const [selectedUserID, setSelectedUserID] = React.useState();
+  const [selectedUserID, setSelectedUserID] = React.useState<?string>();
 
   // This useEffect will call navigateToUserProfileBottomSheet whenever the
   //  MessageReactionsModal is unmounting and there is a selectedUserID.
