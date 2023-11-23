@@ -42,7 +42,7 @@ import {
   MessageResultsScreenRouteName,
   MessageSearchRouteName,
 } from './route-names.js';
-import type { RemoveEditMode } from '../chat/message-list-types';
+import type { RemoveEditMode } from '../chat/message-list-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
 

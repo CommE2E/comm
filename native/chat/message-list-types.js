@@ -1,5 +1,6 @@
 // @flow
 
+import type { TabAction } from '@react-navigation/core';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -26,7 +27,7 @@ export type MessageListParams = {
 };
 
 export type RemoveEditMode = (
-  action: ChatRouterNavigationAction,
+  action: TabAction | ChatRouterNavigationAction,
 ) => 'ignore_action' | 'reduce_action';
 
 export type MessageListContextType = {
