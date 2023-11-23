@@ -44,7 +44,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +rawMessageInfo: ?RawComposableMessageInfo,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +inputState: ?InputState,
   +parentThreadInfo: ?ThreadInfo,
 };

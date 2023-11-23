@@ -70,7 +70,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +windowWidth: number,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,

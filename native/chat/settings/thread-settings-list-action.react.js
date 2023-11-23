@@ -66,7 +66,7 @@ type ListActionProps = {
   +iconSize: number,
   +iconStyle?: TextStyle,
   +buttonStyle?: ViewStyle,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 function ThreadSettingsListAction(props: ListActionProps) {
   return (
